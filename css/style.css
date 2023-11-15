@@ -1,5 +1,5 @@
 body {
-    font-family: 'Poppins';
+    font-family: "Poppins";
     background-color: #e1dfdb;
 }
 
@@ -9,27 +9,57 @@ body {
     justify-content: center;
     height: 100%;
     width: 100%;
-  }
-  
-  .loading__dot {
+}
+
+.loading__dot {
     animation: dot ease-in-out 1s infinite;
     background-color: grey;
     display: inline-block;
     height: 15px;
     margin: 7px;
     width: 15px;
-  }
-  
-  .loading__dot:nth-of-type(2) {
+}
+
+.loading__dot:nth-of-type(2) {
     animation-delay: 0.2s;
-  }
-  
-  .loading__dot:nth-of-type(3) {
+}
+
+.loading__dot:nth-of-type(3) {
     animation-delay: 0.3s;
-  }
-  
-  @keyframes dot {
-    0% { background-color: grey; transform: scale(1); }
-    50% { background-color: #444736; transform: scale(1.3); }
-    100% { background-color: grey; transform: scale(1); }
-  }
+}
+
+.ses:hover {
+    animation: lingua ease-in-out 0.5s;
+}
+
+@keyframes dot {
+    0% {
+        background-color: grey;
+        transform: scale(1);
+    }
+    50% {
+        background-color: #444736;
+        transform: scale(1.3);
+    }
+    100% {
+        background-color: grey;
+        transform: scale(1);
+    }
+}
+
+@keyframes lingua {
+    0% {
+        background-color: grey;
+        transform: scale(1);
+    }
+
+    50% {
+        background-color: grey;
+        transform: scale(1.2);
+    }
+
+    100% {
+        background-color: grey;
+        transform: scale(1);
+    }
+}
