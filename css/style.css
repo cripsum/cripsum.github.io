@@ -63,3 +63,13 @@ body {
         transform: scale(1);
     }
 }
+
+.imagi {
+    max-width: 40%;
+}
+
+@media only screen and (max-width: 768px) {
+    .imagi {
+        max-width: 100%;
+    }
+}
