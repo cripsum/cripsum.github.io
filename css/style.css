@@ -1,6 +1,8 @@
 body {
     font-family: "Poppins";
     background-color: #e1dfdb;
+    margin: 0;
+    padding: 0;
 }
 
 .loading {
@@ -68,8 +70,46 @@ body {
     max-width: 40%;
 }
 
+.titolo {
+    max-width: 50%;
+    padding-left: 2%;
+}
+
+.image-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.image-container img {
+    flex-basis: calc(33.33% - 20px); 
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    width: auto;
+}
+
+@media only screen and (max-width: 1280px) {
+    .imagi {
+        max-width: 75%;
+    }
+    .titolo {
+        padding-left: 0%;
+        max-width: 100%;
+    }
+}
 @media only screen and (max-width: 768px) {
     .imagi {
         max-width: 100%;
+    }
+    .titolo {
+        padding-left: 0%;
+        max-width: 100%;
+    }
+    .image-container {
+        flex-wrap: wrap;
+    }
+    .image-container img {
+        margin-bottom: 10px;
+        flex-basis: calc(100% - 20px);
     }
 }
