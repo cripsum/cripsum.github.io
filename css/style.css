@@ -3,6 +3,7 @@ body {
     background-color: #e1dfdb;
     margin: 0;
     padding: 0;
+    color: #212121;
 }
 
 .loading {
@@ -82,10 +83,38 @@ body {
 }
 
 .image-container img {
-    flex-basis: calc(33.33% - 20px); 
+    flex-basis: calc(33.33% - 20px);
     margin-bottom: 20px;
     box-sizing: border-box;
     width: auto;
+}
+
+hr.rounded {
+    border-top: 4px solid rgb(129, 127, 117);
+    /*border-radius: 5px;*/
+    max-width: 75%;
+    margin: auto;
+    margin-top: 2%;
+    margin-bottom: 2%;
+}
+
+.purchase-button {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    text-decoration: none;
+    background-color: #303033; /* Colore del bottone */
+    color: #e1dfdb; /* Colore del testo del bottone */
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.spinjitzu {
+    max-width: 100%;
+}
+
+.purchase-button:hover {
+    background-color: #212124; /* Cambia colore al passaggio del mouse */
 }
 
 @media only screen and (max-width: 1280px) {
@@ -112,4 +141,25 @@ body {
         margin-bottom: 10px;
         flex-basis: calc(100% - 20px);
     }
+    .spinjitzu {
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+        flex-basis: calc(100% - 20px);
+        max-width: 85%;
+    }
+
+    .spingio {
+        text-align: center;
+        margin-top: 5%;
+        margin-bottom: 5%;
+    }
+}
+
+.sottopag {
+    text-align: center;
+    font-weight: bold;
+}
+
+.social {
+    text-align: center;
 }
