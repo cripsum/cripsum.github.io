@@ -118,7 +118,7 @@ hr.rounded {
 }
 
 .loginpagege {
-    max-width: 40%;
+    max-width: 25%;
     margin: auto;
 }
 @media only screen and (max-width: 1280px) {
@@ -131,6 +131,10 @@ hr.rounded {
     }
     footer {
         margin-top: 10%;
+    }
+    .loginpagege {
+        max-width: 40%;
+        margin: auto;
     }
 }
 @media only screen and (max-width: 768px) {
@@ -162,6 +166,11 @@ hr.rounded {
     }
     footer {
         margin-top: 15%;
+    }
+
+    .loginpagege {
+        max-width: 80%;
+        margin: auto;
     }
 }
 
