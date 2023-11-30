@@ -7,6 +7,7 @@
             integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
             crossorigin="anonymous"
         />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" />
         <link rel="icon" href="../img/Susremaster.png" type="image/png" />
         <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png" />
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
@@ -68,7 +69,7 @@
                     <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">IT</button>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="#">Ita</a></li>
-                        <li><a class="dropdown-item" href="../en/registrati">Eng</a></li>
+                        <li><a class="dropdown-item" href="../en/accedi">Eng</a></li>
                     </ul>
                 </div>
                 <button
@@ -84,20 +85,108 @@
                 </button>
             </div>
         </nav>
-        <h1 class="text-center mt-4">caricamento</h1>
+        <h1 class="text-center mt-4">servizio non ancora disponibile, lavori in corso...</h1>
         <div class="loading">
             <span class="loading__dot"></span>
             <span class="loading__dot"></span>
             <span class="loading__dot"></span>
         </div>
+        <div class="loginpagege text-center mt-5">
+  <!-- Pills content -->
+  <div class="tab-content">
+    <div
+      class="tab-pane fade show active"
+      id="pills-login"
+      role="tabpanel"
+      aria-labelledby="tab-login"
+    >
+      <form>
+        <p class="fs-1 text mb-5" style="font-weight: bold;">Registrati</p>
+            <!-- Name input -->
+            <div data-mdb-input-init class="form-outline mb-4">
+            <label class="form-label" for="registerName">Nome</label>  
+            <input type="text" id="registerName" class="form-control" />
+            
+            </div>
+    
+            <!-- Username input -->
+            <div data-mdb-input-init class="form-outline mb-4">
+            <label class="form-label" for="registerUsername">Username</label>
+            <input type="text" id="registerUsername" class="form-control" />
+            
+            </div>
+    
+            <!-- Email input -->
+            <div data-mdb-input-init class="form-outline mb-4">
+            <label class="form-label" for="registerEmail">Email</label>
+            <input type="email" id="registerEmail" class="form-control" />
+            
+            </div>
+    
+            <!-- Password input -->
+            <div data-mdb-input-init class="form-outline mb-4"> 
+                <label class="form-label" for="registerPassword">Password</label>
+            <input type="password" id="registerPassword" class="form-control" />
+           
+            </div>
+    
+            <!-- Repeat Password input -->
+            <div data-mdb-input-init class="form-outline mb-4">
+            <label class="form-label" for="registerRepeatPassword">Ripeti password</label>
+            <input type="password" id="registerRepeatPassword" class="form-control" />
+            
+            </div>
+
+            <p class="text-center">Oppure:</p>
+
+            <div class="text-center mb-3">
+            <button data-mdb-ripple-init type="button" class="btn btn-floating mx-1">
+              <i class="bi bi-facebook" style="color: #212121"></i>
+            </button>
+    
+            <button data-mdb-ripple-init type="button" class="btn btn-floating mx-1">
+              <i class="bi bi-google" style="color: #212121"></i>
+            </button>
+    
+            <button data-mdb-ripple-init type="button" class="btn btn-floating mx-1">
+              <i class="bi bi-twitter" style="color: #212121"></i>
+            </button>
+    
+            <button data-mdb-ripple-init type="button" class="btn btn-floating mx-1">
+              <i class="bi bi-github" style="color: #212121"></i>
+            </button>
+          </div>
+    
+            <!-- Checkbox -->
+            <div class="form-check d-flex justify-content-center mb-4">
+            <input
+                class="form-check-input me-2"
+                type="checkbox"
+                value=""
+                id="registerCheck"
+                checked
+                aria-describedby="registerCheckHelpText"
+            />
+            <label class="form-check-label text-center">Ho letto e accetto i <a href="#" style="text-decoration: none;">termini e condizioni</a></label>
+        </div>
+  
+        <!-- Submit button -->
+        <button data-mdb-ripple-init type="submit" class="btn btn-primary btn-block mb-3">Registrati</button>
+      </form>
+    </div>
+  </div>
+  <!-- Pills content -->
         <footer>
-            <p class="footerr" style="text-align: center; margin-top: 6%; font-size:x-small">Copyright © 2023 Cripsum™. Tutti i diritti riservati. </p>
+            <p class="footerr" style="text-align: center; margin-top: 6%; font-size: x-small">Copyright © 2023 Cripsum™. Tutti i diritti riservati.</p>
         </footer>
+
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"
         ></script>
         <script src="../js/modeChanger.js"></script>
+
+        <script src="../js/login.js"></script>
     </body>
 </html>
