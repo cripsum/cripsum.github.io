@@ -121,6 +121,21 @@ hr.rounded {
     max-width: 25%;
     margin: auto;
 }
+
+.carosellone {
+    max-width: 45%;
+    margin: auto;
+    margin-top: 5%;
+}
+
+.commento {
+    text-align: center;
+    margin-top: 5%;
+    max-width: 40%;
+    display: block;
+    margin: auto;
+}
+
 @media only screen and (max-width: 1280px) {
     .imagi {
         max-width: 75%;
@@ -175,6 +190,15 @@ hr.rounded {
     .infondo {
         max-width: 80%;
         margin: auto;
+    }
+
+    .carosellone {
+        max-width: 80%;
+    }
+    .commento {
+        margin: auto;
+        max-width: 80%;
+        display: block;
     }
 }
 
