@@ -90,7 +90,7 @@ body {
 }
 
 hr.rounded {
-    border-top: 4px solid rgb(129, 127, 117);
+    border-top: 4px solid rgb(121, 119, 109);
     /*border-radius: 5px;*/
     max-width: 75%;
     margin: auto;
@@ -134,6 +134,11 @@ hr.rounded {
     margin-top: 5%;
 }
 
+.shitposttext {
+    margin: auto;
+    max-width: 60%;
+}
+
 .commento {
     text-align: center;
     margin-top: 5%;
@@ -145,6 +150,18 @@ hr.rounded {
 a {
     color: rgb(4, 1, 187);
     text-decoration: none;
+}
+
+.dametucosita {
+    margin-right: 10%;
+}
+
+.dametucosita2 {
+    margin-left: 0%;
+}
+
+.dametucosita3 {
+    margin-left: 0%;
 }
 
 @media only screen and (max-width: 1280px) {
@@ -210,6 +227,25 @@ a {
         margin: auto;
         max-width: 80%;
         display: block;
+    }
+
+    .shitposttext {
+        max-width: 80%;
+    }
+
+    .immagineshit1 {
+        max-width: 100%;
+        margin-top: 2%;
+        margin-bottom: 2%;
+    }
+    .dametucosita {
+        margin-right: 0;
+    }
+    .dametucosita2 {
+        margin-left: -4%;
+    }
+    .dametucosita3 {
+        margin-left: -8.5%;
     }
 }
 
