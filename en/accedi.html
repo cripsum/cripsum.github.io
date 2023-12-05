@@ -85,12 +85,6 @@
                 </button>
             </div>
         </nav>
-        <h1 class="text-center mt-4">service not avaiable, still working on it</h1>
-        <div class="loading">
-            <span class="loading__dot"></span>
-            <span class="loading__dot"></span>
-            <span class="loading__dot"></span>
-        </div>
         <div class="loginpagege text-center mt-5">
   <!-- Pills content -->
   <div class="tab-content">
@@ -142,7 +136,7 @@
             <!-- Checkbox -->
             <div class="form-check mb-3 mb-md-0">
               <input
-                class="form-check-input"
+                class="form-check-input checco"
                 type="checkbox"
                 value=""
                 id="loginCheck"
@@ -154,16 +148,18 @@
   
           <div class="col-md-6 d-flex justify-content-center">
             <!-- Simple link -->
-            <a href="#!">Forgot password?</a>
+            <a href="#!" style="font-weight: bold;">Forgot password?</a>
           </div>
         </div>
   
         <!-- Submit button -->
-        <button type="submit" class="btn btn-primary btn-block mb-4">Sign in</button>
+        <div class="button-container mb-3" style="text-align: center; margin-top: 3%;">
+          <a href="#" class="purchase-button">Log in</a>
+        </div>
   
         <!-- Register buttons -->
         <div class="text-center">
-          <p>Not a member? <a href="registrati">Register</a></p>
+          <p>Not a member? <a href="registrati" style="font-weight: bold;">Register</a></p>
         </div>
       </form>
     </div>
@@ -173,76 +169,6 @@
       role="tabpanel"
       aria-labelledby="tab-register"
     >
-      <form>
-        <div class="text-center mb-3">
-            <p>Sign in with:</p>
-            <button data-mdb-ripple-init type="button" class="btn btn-floating mx-1">
-              <i class="bi bi-facebook" style="color: #212121"></i>
-            </button>
-    
-            <button data-mdb-ripple-init type="button" class="btn btn-floating mx-1">
-              <i class="bi bi-google" style="color: #212121"></i>
-            </button>
-    
-            <button data-mdb-ripple-init type="button" class="btn btn-floating mx-1">
-              <i class="bi bi-twitter" style="color: #212121"></i>
-            </button>
-    
-            <button data-mdb-ripple-init type="button" class="btn btn-floating mx-1">
-              <i class="bi bi-github" style="color: #212121"></i>
-            </button>
-          </div>
-  
-        <p class="text-center">or:</p>
-  
-        <!-- Name input -->
-        <div data-mdb-input-init class="form-outline mb-4">
-          <input type="text" id="registerName" class="form-control" />
-          <label class="form-label" for="registerName">Name</label>
-        </div>
-  
-        <!-- Username input -->
-        <div data-mdb-input-init class="form-outline mb-4">
-          <input type="text" id="registerUsername" class="form-control" />
-          <label class="form-label" for="registerUsername">Username</label>
-        </div>
-  
-        <!-- Email input -->
-        <div data-mdb-input-init class="form-outline mb-4">
-          <input type="email" id="registerEmail" class="form-control" />
-          <label class="form-label" for="registerEmail">Email</label>
-        </div>
-  
-        <!-- Password input -->
-        <div data-mdb-input-init class="form-outline mb-4">
-          <input type="password" id="registerPassword" class="form-control" />
-          <label class="form-label" for="registerPassword">Password</label>
-        </div>
-  
-        <!-- Repeat Password input -->
-        <div data-mdb-input-init class="form-outline mb-4">
-          <input type="password" id="registerRepeatPassword" class="form-control" />
-          <label class="form-label" for="registerRepeatPassword">Repeat password</label>
-        </div>
-  
-        <!-- Checkbox -->
-        <div class="form-check d-flex justify-content-center mb-4">
-          <input
-            class="form-check-input me-2"
-            type="checkbox"
-            value=""
-            id="registerCheck"
-            checked
-            aria-describedby="registerCheckHelpText"
-          />
-          <label class="form-check-label" for="registerCheck">
-            I have read and agree to the terms
-          </label>
-        </div>
-  
-        <!-- Submit button -->
-        <button data-mdb-ripple-init type="submit" class="btn btn-primary btn-block mb-3">Sign in</button>
-      </form>
     </div>
   </div>
   <!-- Pills content -->

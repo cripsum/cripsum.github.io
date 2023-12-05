@@ -105,8 +105,14 @@ hr.rounded {
     text-decoration: none;
     background-color: #303033; /* Colore del bottone */
     color: #e1dfdb; /* Colore del testo del bottone */
-    border-radius: 5px;
+    border-radius: 8px;
     transition: background-color 0.3s ease;
+}
+
+.checco:checked {
+    /*background: linear-gradient(140deg, #ff6a6a 0%, #e6ff59 40%, #41c4fc 98%);*/
+    background-color: #303033;
+    border-color: #303033;
 }
 
 .spinjitzu {
@@ -134,6 +140,11 @@ hr.rounded {
     max-width: 40%;
     display: block;
     margin: auto;
+}
+
+a {
+    color: rgb(4, 1, 187);
+    text-decoration: none;
 }
 
 @media only screen and (max-width: 1280px) {
