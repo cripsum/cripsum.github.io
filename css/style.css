@@ -153,15 +153,19 @@ a {
 }
 
 .dametucosita {
-    margin-right: 10%;
+    padding-right: 5%;
 }
 
 .dametucosita2 {
-    margin-left: 0%;
+    padding-left: 5%;
 }
 
 .dametucosita3 {
-    margin-left: 0%;
+    padding-left: 5%;
+}
+
+.dametucosita4 {
+    padding-right: 5%;
 }
 
 @media only screen and (max-width: 1280px) {
@@ -238,17 +242,39 @@ a {
         margin-top: 2%;
         margin-bottom: 2%;
     }
-    .dametucosita {
-        margin-right: 0;
+}
+@media only screen and (max-width: 752px) {
+    .dametucosita4 {
+        padding-left: 5%;
     }
-    .dametucosita2 {
-        margin-left: -4%;
+    .dametucosita {
+        padding-left: 5%;
     }
     .dametucosita3 {
-        margin-left: -8.5%;
+        margin-left: -5%;
+    }
+    .dametucosita2 {
+        margin-left: -5%;
+    }
+}
+@media only screen and (max-width: 713px) {
+    .dametucosita4 {
+        padding-right: 0;
+        padding-left: 0;
+    }
+
+    .dametucosita3 {
+        padding-left: 0;
+        margin-left: 0;
     }
 }
 
+@media only screen and (max-width: 684px) {
+    .dametucosita2 {
+        padding-left: 0;
+        margin-left: 0;
+    }
+}
 .sottopag {
     text-align: center;
     font-weight: bold;
