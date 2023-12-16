@@ -242,6 +242,12 @@ a {
         margin-top: 2%;
         margin-bottom: 2%;
     }
+
+    .immaginealberi {
+        max-width: 80%;
+        margin: auto;
+        margin-left: 11%;
+    }
 }
 @media only screen and (max-width: 752px) {
     .dametucosita4 {
