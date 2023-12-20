@@ -67,6 +67,15 @@ body {
     }
 }
 
+.containerCheckout {
+    max-width: 660px;
+    margin: auto;
+}
+
+.lh-condensed {
+    line-height: 1.25;
+}
+
 .imagi {
     max-width: 40%;
 }
@@ -183,10 +192,19 @@ a {
         max-width: 40%;
         margin: auto;
     }
+    .containerCheckout {
+        max-width: 660px;
+        max-width: 60%;
+        margin: auto;
+    }
 }
 @media only screen and (max-width: 768px) {
     .imagi {
         max-width: 100%;
+    }
+    .containerCheckout {
+        max-width: 80%;
+        margin: auto;
     }
     .titolo {
         padding-left: 0%;
