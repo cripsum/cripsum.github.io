@@ -176,6 +176,11 @@ a {
 .dametucosita4 {
     padding-right: 5%;
 }
+
+.lingua {
+    margin-right: 10px;
+}
+
 @media only screen and (max-width: 1199px) {
     .lingua {
         margin-top: -50px;
