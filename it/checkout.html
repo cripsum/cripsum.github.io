@@ -68,14 +68,15 @@
                     </ul>
                 </div>
                 <div class="btn-group dropstart ms-auto me-3">
-                    <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">IT</button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Ita</a></li>
-                        <li><a class="dropdown-item" href="../en/checkout">Eng</a></li>
-                    </ul>
+                    <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">🇮🇹</button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#">🇮🇹 Ita</a></li>
+                  <li><a class="dropdown-item" href="../en/checkout">🇬🇧 Eng</a></li>
+                </ul>
                 </div>
                 <button
-                    class="navbar-toggler"
+                style="margin-right: 10px;"
+                class="navbar-toggler lingua"
                     type="button"
                     data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent"
@@ -94,7 +95,6 @@
                 </div>
                 <div class="order-md-1">
                     <h4 class="mb-3">Indirizzo di pagamento</h4>
-                    <form class="needs-validation" novalidate="">
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="firstName">Nome</label>
@@ -204,8 +204,7 @@
                             </div>
                         </div>
                         <hr class="mb-4" />
-                        <a href="https://www.youtube.com/watch?v=xvFZjo5PgG0"><button class="btn btn-primary btn-lg btn-block" type="submit" style="width: 100%">Invia e paga</button></a>
-                    </form>
+                        <a href="confirm"><button class="btn btn-primary btn-lg btn-block" style="width: 100%">Invia e paga</button></a>
                 </div>
             </div>
         </div>
@@ -222,36 +221,6 @@
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"
         ></script>
-        <script>
-            // Example starter JavaScript for disabling form submissions if there are invalid fields
-            (function () {
-                "use strict";
-
-                window.addEventListener(
-                    "load",
-                    function () {
-                        // Fetch all the forms we want to apply custom Bootstrap validation styles to
-                        var forms = document.getElementsByClassName("needs-validation");
-
-                        // Loop over them and prevent submission
-                        Array.prototype.filter.call(forms, function (form) {
-                            form.addEventListener(
-                                "submit",
-                                function (event) {
-                                    if (form.checkValidity() === false) {
-                                        event.preventDefault();
-                                        event.stopPropagation();
-                                    }
-                                    form.classList.add("was-validated");
-                                },
-                                false
-                            );
-                        });
-                    },
-                    false
-                );
-            })();
-        </script>
         <script src="../js/modeChanger.js"></script>
     </body>
 </html>
