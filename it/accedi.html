@@ -12,6 +12,7 @@
         <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png" />
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="../css/style.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js" integrity="sha256-/H4YS+7aYb9kJ5OKhFYPUjSJdrtV6AeyJOtTkw6X72o=" crossorigin="anonymous"></script>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Cripsum™</title>
@@ -162,7 +163,9 @@
   
         <!-- Submit button -->
         <div class="button-container mb-3" style="text-align: center; margin-top: 3%;">
-          <a href="#" class="purchase-button">Accedi</a>
+          <a href="#" class="purchase-button" onclick="decrypt()">Accedi</a>
+          <p id="decrypt"></p>
+
         </div>
   
         <!-- Register buttons -->
@@ -197,5 +200,29 @@
         <script src="../js/modeChanger.js"></script>
 
         <script src="../js/login.js"></script>
+        <script>
+            function isValidHttpUrl(string) {
+                let url;
+
+                try {
+                    url = new URL(string);
+                } catch (_) {
+                    return false;
+                }
+
+                return url.protocol === "http:" || url.protocol === "https:";
+            }
+
+            function decrypt() {
+                var password = document.getElementById("password").value;
+                var encryptedAES = "U2FsdGVkX18MMbOfpiGk56QnaalMw+amgTDSmwZn9pa7VG9tMBjgn/Stdl3UmaJmj7WdUPH9so6nShqPpsGhxA==";
+                    var decryptedBytes = CryptoJS.AES.decrypt(encryptedAES, password);
+                    if(isValidHttpUrl(decryptedBytes.toString(CryptoJS.enc.Utf8))) {
+                        window.location.href = decryptedBytes.toString(CryptoJS.enc.Utf8);
+                    } else {
+                        document.getElementById("decrypt").innerHTML = "Wrong password";
+                    }
+            }
+        </script>
     </body>
 </html>
