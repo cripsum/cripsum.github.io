@@ -181,6 +181,14 @@ a {
     margin: auto;
 }
 
+.paginainterachisiamo {
+    max-width: 1000px;
+    margin: auto;
+}
+
+.nomichisiamo {
+    font-weight: bold;
+}
 
 @media only screen and (max-width: 1199px) {
     .lingua {
@@ -205,6 +213,10 @@ a {
     .containerCheckout {
         max-width: 660px;
         max-width: 60%;
+        margin: auto;
+    }
+    .immaginechisiamo {
+        max-width: 37%;
         margin: auto;
     }
 }
@@ -276,8 +288,16 @@ a {
         margin: auto;
         margin-left: 11%;
     }
+    .immaginechisiamo {
+        max-width: 37%;
+        margin: auto;
+    }
 
     .paginaintera {
+        max-width: 80%;
+        margin: auto;
+    }
+    .paginainterachisiamo {
         max-width: 80%;
         margin: auto;
     }
