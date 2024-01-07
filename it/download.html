@@ -41,8 +41,8 @@
                             <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Download</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="download">downloads</a></li>
-                                <li><a class="dropdown-item" href="osu">osu!</a></li>
-                                <li><a class="dropdown-item" href="fortnite">Fortnite Hack</a></li>
+                                <li><a class="dropdown-item" href="download/osu">osu!</a></li>
+                                <li><a class="dropdown-item" href="download/fortnite">Fortnite Hack</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">
@@ -91,16 +91,52 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
         </nav>
-        <h1 class="text-center mt-4">caricamento</h1>
-        <div class="loading">
-            <span class="loading__dot"></span>
-            <span class="loading__dot"></span>
-            <span class="loading__dot"></span>
+        <div class="paginaintera">
+            <div class="d-flex justify-content-center image-container" style="max-width: 80%; margin: auto; padding-top: 5%">
+                <div style="margin-top: 10px; margin-bottom: 5%; margin-left: 2%; margin-right: 2%">
+                    <img src="../img/fortnitehack.jpg" class="immaginealberi" alt="" />
+                    <a href="download/fortnite"
+                        ><p class="text text-center" style="font-size: 18px">Fortnite Hacks<br /></p
+                    ></a>
+                    <h6 class="text text-center">ez win</h6>
+                </div>
+                <div style="margin-top: 10px; margin-bottom: 5%; margin-left: 2%; margin-right: 2%">
+                    <img src="../img/osu.jpg" class="immaginealberi" alt="" />
+                    <a href="download/osu"><p class="text text-center" style="font-size: 18px">Osu!</p></a>
+                    <h6 class="text text-center">hossu - il gioco ritmico per coglioni</h3>
+                </div>
+                <div style="margin-top: 10px; margin-bottom: 5%; margin-left: 2%; margin-right: 2%">
+                    <img src="../img/comingsoon.jpg" class="immaginealberi" alt="" />
+                    <a href=""
+                        ><p class="text text-center" style="font-size: 18px">coming soon</p></a
+                    >
+                </div>
+                <div style="margin-top: 10px; margin-bottom: 5%; margin-left: 2%; margin-right: 2%">
+                    <img src="../img/comingsoon.jpg" class="immaginealberi" alt="" />
+                    <a href=""
+                        ><p class="text text-center" style="font-size: 18px">coming soon</p></a
+                    >
+                </div>
+                <div style="margin-top: 10px; margin-bottom: 5%; margin-left: 2%; margin-right: 2%">
+                    <img src="../img/comingsoon.jpg" class="immaginealberi" alt="" />
+                    <a href=""
+                        ><p class="text text-center" style="font-size: 18px">coming soon</p></a
+                    >
+                </div>
+                <div style="margin-top: 10px; margin-bottom: 5%; margin-left: 2%; margin-right: 2%">
+                    <img src="../img/comingsoon.jpg" class="immaginealberi" alt="" />
+                    <a href=""
+                        ><p class="text text-center" style="font-size: 18px">coming soon/p></a
+                    >
+                </div>
+            </div>
         </div>
-        <a style="margin-top: 30px;" href="../audio/fitgirl.mp3" download="FitGirlRepacks_Song.mp3">
-            <button>test download file</button>
+        <a style="margin-top: 30px" href="../audio/fitgirl.mp3" download="FitGirlRepacks_Song_downloadTEST.mp3">
+            <center><button>test download file</button></center>
         </a>
-        <embed src="../audio/fitgirl.mp3" loop="true" autostart="true" width="2" height="0" />
+        <audio autoplay id="myaudio">
+            <source src="../audio/fitgirl.mp3">
+          </audio>
         <footer class="my-5 pt-5 text-muted text-center text-small">
             <p class="mb-1">Copyright © 2021-2024 Cripsum™. Tutti i diritti riservati.</p>
             <ul class="list-inline">
@@ -115,5 +151,9 @@
             crossorigin="anonymous"
         ></script>
         <script src="../js/modeChanger.js"></script>
+        <script>
+            var audio = document.getElementById("myaudio");
+            audio.volume = 0.2;
+        </script>
     </body>
 </html>
