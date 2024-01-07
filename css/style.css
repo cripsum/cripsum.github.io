@@ -168,14 +168,6 @@ a {
     padding-right: 5%;
 }
 
-.dametucosita2 {
-    padding-left: 5%;
-}
-
-.dametucosita3 {
-    padding-left: 5%;
-}
-
 .dametucosita4 {
     padding-right: 5%;
 }
@@ -313,6 +305,11 @@ a {
         margin: auto;
     }
 }
+@media only screen and (max-width: 766px) {
+    .dametucosita3 {
+        margin-left: -5%;
+    }
+}
 @media only screen and (max-width: 752px) {
     .dametucosita4 {
         padding-left: 5%;
@@ -321,10 +318,7 @@ a {
         padding-left: 5%;
     }
     .dametucosita3 {
-        margin-left: -5%;
-    }
-    .dametucosita2 {
-        margin-left: -5%;
+        margin-left: 0;
     }
 }
 @media only screen and (max-width: 713px) {
