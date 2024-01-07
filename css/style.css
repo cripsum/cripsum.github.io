@@ -176,6 +176,11 @@ a {
     margin: auto;
 }
 
+.paginainteradolod {
+    max-width: 1800px;
+    margin: auto;
+}
+
 .paginainterachisiamo {
     max-width: 1000px;
     margin: auto;
@@ -293,6 +298,10 @@ a {
     }
 
     .paginaintera {
+        max-width: 80%;
+        margin: auto;
+    }
+    .paginainteradolod {
         max-width: 80%;
         margin: auto;
     }
