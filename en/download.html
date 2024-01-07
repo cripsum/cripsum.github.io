@@ -97,6 +97,7 @@
             </button>
         </nav>
         <div class="paginainteradolod">
+
             <div class="d-flex justify-content-center image-container" style="max-width: 80%; margin: auto; padding-top: 5%">
                 <div style="margin-top: 10px; margin-bottom: 5%; margin-left: 2%; margin-right: 2%">
                     <img src="../img/fortnitehack.jpg" class="immaginealberi ombra" alt="" />
@@ -136,9 +137,12 @@
                 </div>
             </div>
         </div>
-            <div class="button-container mt-5" style="text-align: center; margin-top: 3%;margin-top: 30px; max-width: 70%; margin: auto;">
-                <a class="purchase-button" href="../audio/fitgirl.mp3" download="FitGirlRepacks_Song_downloadTEST.mp3">Click here to download this music!</a>
-            </div>
+        <div class="button-container mt-5" style="text-align: center; max-width: 70%; margin: auto;">
+            <a class="purchase-button" onclick="playAudio()" >Play music</a>
+            <a class="purchase-button"  onclick="pauseAudio()">Pause music</a>
+            <a class="purchase-button" href="../audio/fitgirl.mp3" download="FitGirlRepacks_Song_downloadTEST.mp3">Click here to download this music!</a>
+        </div>
+
         <audio autoplay id="myaudio">
             <source src="../audio/fitgirl.mp3">
           </audio>
@@ -160,5 +164,16 @@
             var audio = document.getElementById("myaudio");
             audio.volume = 0.2;
         </script>
+                <script>
+                    var x = document.getElementById("myaudio"); 
+                    
+                    function playAudio() { 
+                      x.play(); 
+                    } 
+                    
+                    function pauseAudio() { 
+                      x.pause(); 
+                    } 
+                    </script>
     </body>
 </html>
