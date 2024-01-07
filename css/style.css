@@ -185,6 +185,10 @@ a {
     max-width: 1000px;
     margin: auto;
 }
+.paginainteradownload {
+    max-width: 1000px;
+    margin: auto;
+}
 
 .nomichisiamo {
     font-weight: bold;
@@ -298,6 +302,10 @@ a {
         margin: auto;
     }
     .paginainterachisiamo {
+        max-width: 80%;
+        margin: auto;
+    }
+    .paginainteradownload {
         max-width: 80%;
         margin: auto;
     }
