@@ -38,6 +38,14 @@ body {
     box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
 }
 
+.disclaimer {
+    max-width: 450px;
+}
+
+.divdisclaimer {
+    cursor: pointer;
+}
+
 @keyframes dot {
     0% {
         background-color: grey;
@@ -194,6 +202,64 @@ a {
     font-weight: bold;
 }
 
+.popupsmonco {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-container {
+    position: relative;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    width: 400px;
+    text-align: center;
+}
+
+.popup-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    color: black;
+    font-size: 20px;
+}
+
+.social-links {
+    margin-top: 20px;
+}
+
+.social-links a {
+    display: inline-block;
+    margin-right: 10px;
+    color: white;
+    font-size: 20px;
+    text-decoration: none;
+}
+
+.social-links {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.social-links li {
+    margin-bottom: 10px;
+}
+
+.social-links li a {
+    text-decoration: none;
+    color: #000;
+}
+
 @media only screen and (max-width: 1199px) {
     .lingua {
         margin-top: -50px;
@@ -313,6 +379,9 @@ a {
         max-width: 80%;
         margin: auto;
     }
+    .popup-container {
+        max-width: 80%;
+    }
 }
 @media only screen and (max-width: 766px) {
     .dametucosita3 {
@@ -355,4 +424,10 @@ a {
 
 .social {
     text-align: center;
+}
+
+@media only screen and (max-width: 560px) {
+    .disclaimer {
+        max-width: 80%;
+    }
 }
