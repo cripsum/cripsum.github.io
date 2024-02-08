@@ -39,11 +39,29 @@ body {
 }
 
 .disclaimer {
-    max-width: 450px;
+    max-width: 500px;
+    background-color: #303033;
+    color: #e1dfdb;
+    border-radius: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    transition: background-color 0.3s ease;
+    margin: auto;
+    border-color: #212124;
+    border-width: 1px;
+    border-style: solid;
+    margin-top: 20px;
+}
+
+.disclaimer:hover {
+    background-color: #1b1b1c;
 }
 
 .divdisclaimer {
     cursor: pointer;
+    margin: auto;
+    text-align: center;
+    margin-bottom: 15px;
 }
 
 @keyframes dot {
