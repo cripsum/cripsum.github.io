@@ -98,6 +98,26 @@
             </button>
         </nav>
         <div style="max-width: 1920px; margin: auto">
+            <script>
+                window.addEventListener("DOMContentLoaded", (event) => {
+                    document.getElementById("disclaimerModal").classList.add("show");
+                });
+            </script>
+
+            <div class="modal fade show" id="disclaimerModal" tabindex="-1" aria-labelledby="disclaimerModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <p class="message">Check my our latest edits!</p>
+                        </div>
+                        <div class="modal-body">
+                            <p class="message">Hey, do you want to see my latest edits? click this button to see them all!</p>
+                            <a href="edits" class="btn btn-primary">Go to Edits</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="divdisclaimer">
                 <button class="btn btn-primary disclaimer" type="button" data-bs-toggle="modal" data-bs-target="#disclaimerModal">Disclaimer before proceeding to the website ▼</button>
             </div>
