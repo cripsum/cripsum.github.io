@@ -8,10 +8,11 @@
             integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
             crossorigin="anonymous"
         />
-        <link rel="icon" href="../img/Susremaster.png" type="image/png">
-        <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png">
-        <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
-        <link rel="stylesheet" href="../css/style.css">
+        <link rel="icon" href="../img/Susremaster.png" type="image/png" />
+        <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png" />
+        <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+        <link rel="stylesheet" href="../css/style.css" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Cripsum™</title>
         <style>
@@ -22,10 +23,11 @@
     </head>
 
     <body class="">
-        <nav class="navbar navbar-expand-xl bg-body-tertiary">  <!-- style="position: sticky; top: 0;" -->
-            <div class="container-fluid" >
+        <nav class="navbar navbar-expand-xl bg-body-tertiary">
+            <!-- style="position: sticky; top: 0;" -->
+            <div class="container-fluid">
                 <a class="navbar-brand" href="home">
-                    <img src="../img/amongus.jpg" height="40px" style="border-radius: 4px;" class="d-inline-block align-middle" />
+                    <img src="../img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
                     <span class="align-middle ms-3 fw-bold">Cripsum™</span>
                 </a>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -68,7 +70,7 @@
                             <a class="nav-link" href="registrati">Registrati</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="quandel57" style="color: red; font-weight: bold;">Quandel57</a>
+                            <a class="nav-link" href="quandel57" style="color: red; font-weight: bold">Quandel57</a>
                         </li>
                     </ul>
                 </div>
@@ -76,12 +78,15 @@
             <div class="btn-group dropstart ms-auto me-2 lingua">
                 <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">🇮🇹</button>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#">🇮🇹 Ita</a></li>
-                  <li><a class="dropdown-item" href="../en/home">🇬🇧 Eng</a></li>
-                  <li><a class="dropdown-item" href="../mc/home.html"><img src="../img/mc.jpg" alt=""> Mc</a></li>
+                    <li><a class="dropdown-item" href="#">🇮🇹 Ita</a></li>
+                    <li><a class="dropdown-item" href="../en/home">🇬🇧 Eng</a></li>
+                    <li>
+                        <a class="dropdown-item" href="../mc/home.html"><img src="../img/mc.jpg" alt="" /> Mc</a>
+                    </li>
                 </ul>
             </div>
-            <button style="margin-right: 10px;"
+            <button
+                style="margin-right: 10px"
                 class="navbar-toggler lingua"
                 type="button"
                 data-bs-toggle="collapse"
@@ -93,39 +98,73 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
         </nav>
-        <div style="max-width: 1920px; margin: auto;">
-</body>
 
-    <div class="divdisclaimer">
-        <button class="btn btn-primary disclaimer" type="button" data-bs-toggle="modal" data-bs-target="#disclaimerModal">
-            Disclaimer prima di proseguire nel sito ▼
-        </button>
-    </div>
-
-    <div class="modal fade" id="disclaimerModal" tabindex="-1" aria-labelledby="disclaimerModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="disclaimerModalLabel">Disclaimer</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="fw-bold">Ricordo a tutti che è un sito ironico, creato solo con l'intenzione di scherzare e far ridere le persone, non prendete seriamente ciò che troverete qui.</p>
-                    <ul class="text-start mb-2 mb-lg-0">
-                        <li class="mb-2">In tutte le pagine non si vuole offendere nessuno, per esempio come le pagine "TikTokPedia" o "Chi Siamo".</li>
-                        <li class="mb-2">Le pagine di download non contengono virus o cose strane, sono solo meme.</li>
-                        <li class="mb-2">Il negozio e le pagine dove è possibile fare acquisti sono ovviamente falsi ed anche il PayPal checkout lo è, i dati inseriti li non finiscono da nessuna parte.</li>
-                        <li class="mb-2">La pagina delle donazioni invece è reale, questo significa che puoi inviare soldi, non farlo in quanto il sito non è stato creato a scopo di lucro.</li>
-                    </ul>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+        <div style="max-width: 1920px; margin: auto">
+            <script>
+                function close_div(id) {
+                    if (id === 1) {
+                        jQuery("#adv-banner").hide();
+                    }
+                }
+            </script>
+            <div
+                id="adv-banner"
+                class="ad-banner ombra"
+                style="
+                    background-color: rgb(255, 255, 255);
+                    padding-bottom: 1px;
+                    border-color: black;
+                    border-width: 1px;
+                    border-style: solid;
+                    border-radius: 10px;
+                    max-width: 80%;
+                    margin: auto;
+                    margin-top: 10px;
+                "
+            >
+                <button class="banner-close" style="top: 5px; right: 5px; background-color: transparent; border: none; cursor: pointer">
+                    <span class="close_div" id="close" style="font-size: 20px; color: rgb(42, 42, 42)" onclick="close_div(1)">&times;</span>
+                </button>
+                <div class="banner-content center" style="text-align: center; margin: auto">
+                    <h2 class="banner-text" style="color: rgb(42, 42, 42)">Hey tu!</h2>
+                    <p class="banner-description" style="color: rgb(42, 42, 42)">guarda i miei ultimi edit! - <a href="edits" class="banner-button" style="color: rgb(6, 0, 194)">clicca qui</a></p>
                 </div>
             </div>
-        </div>
-    </div>
-            
-<!--            <div class="divdisclaimer">
+
+            <div class="divdisclaimer">
+                <button class="btn btn-primary disclaimer" type="button" data-bs-toggle="modal" data-bs-target="#disclaimerModal">Disclaimer prima di proseguire nel sito ▼</button>
+            </div>
+
+            <div class="modal fade" id="disclaimerModal" tabindex="-1" aria-labelledby="disclaimerModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="disclaimerModalLabel">Disclaimer</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="fw-bold">
+                                Ricordo a tutti che è un sito ironico, creato solo con l'intenzione di scherzare e far ridere le persone, non prendete seriamente ciò che troverete qui.
+                            </p>
+                            <ul class="text-start mb-2 mb-lg-0">
+                                <li class="mb-2">In tutte le pagine non si vuole offendere nessuno, per esempio come le pagine "TikTokPedia" o "Chi Siamo".</li>
+                                <li class="mb-2">Le pagine di download non contengono virus o cose strane, sono solo meme.</li>
+                                <li class="mb-2">
+                                    Il negozio e le pagine dove è possibile fare acquisti sono ovviamente falsi ed anche il PayPal checkout lo è, i dati inseriti li non finiscono da nessuna parte.
+                                </li>
+                                <li class="mb-2">
+                                    La pagina delle donazioni invece è reale, questo significa che puoi inviare soldi, non farlo in quanto il sito non è stato creato a scopo di lucro.
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--            <div class="divdisclaimer">
         <p class="d-inline-flex gap-1">
             <p class="text-center fs-5 text disclaimer" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
                 Disclaimer prima di proseguire nel sito ▼
@@ -142,74 +181,76 @@
                 </ul>
             </div>
         </div> -->
-            
-        <div style="max-width:70%; margin: auto; padding-top: 15px;" class="d-flex justify-content-around flex-wrap">
-            <img class="img-fluid imagi ombra" src="../img/amongus.jpg" alt="" style="display: inline;">
-            <div class="float-end titolo">
-                <p class="fs-1 text mt-3" style="font-weight: bold;">Benvenuto/a nel sito migliore del congo</p>
-                <p class="fs-5 text mt-3">cripsum re del Congo (pregate sempre e comunque per il Wise Mystical Tree)</p>
-                <p class="fs-5 text mt-3">Hai più di 25 anni e possiedi un pc?</p>
-            </div>
-        </div>
-        <div class="d-flex justify-content-around image-container" style="max-width:80%; margin: auto; padding-top: 5%;">
-            <div>
-                <img src="../img/felicita.jpg" class="immaginealberi ombra" alt="">
-                <p class="fs-5 text text-center">Felicità</p>
-            </div>
-            <div>
-                <img src="../img/tristezza.jpg" class="immaginealberi ombra" alt="">
-                <p class="fs-5 text text-center">Tristezza</p>
-            </div>
-            <div>
-                <img src="../img/stupore.jpg" class="immaginealberi ombra" alt="">
-                <p class="fs-5 text text-center">Stupore</p>
-            </div>
-        </div>
-        <hr class="rounded">
-        <div class="container">
-            <div class="row justify-content-center align-items-center">
-                <div class="col-md-auto mb-3 spinjitzu spingio">
-                    <img src="../img/jay.png" alt="Immagine Sinistra" class="img-fluid">
+
+            <div style="max-width: 70%; margin: auto; padding-top: 15px" class="d-flex justify-content-around flex-wrap">
+                <img class="img-fluid imagi ombra" src="../img/amongus.jpg" alt="" style="display: inline" />
+                <div class="float-end titolo">
+                    <p class="fs-1 text mt-3" style="font-weight: bold">Benvenuto/a nel sito migliore del congo</p>
+                    <p class="fs-5 text mt-3">cripsum re del Congo (pregate sempre e comunque per il Wise Mystical Tree)</p>
+                    <p class="fs-5 text mt-3">Hai più di 25 anni e possiedi un pc?</p>
                 </div>
-                <div class="col-md-6 text-center spinjitzu">
-                    <p class="fs-1 text" style="font-weight: bold;">Ciao! Sono Jay!</p>
-                    <p class="fs-4 text mt-3" >vuoi imparare l'arte dello Spinjitzu?</p>
-                    <div class="button-container">
-                        <a href="https://payhip.com/b/m0kaT" class="purchase-button">Clicca qui per acquistare il mio videocorso online</a>
+            </div>
+            <div class="d-flex justify-content-around image-container" style="max-width: 80%; margin: auto; padding-top: 5%">
+                <div>
+                    <img src="../img/felicita.jpg" class="immaginealberi ombra" alt="" />
+                    <p class="fs-5 text text-center">Felicità</p>
+                </div>
+                <div>
+                    <img src="../img/tristezza.jpg" class="immaginealberi ombra" alt="" />
+                    <p class="fs-5 text text-center">Tristezza</p>
+                </div>
+                <div>
+                    <img src="../img/stupore.jpg" class="immaginealberi ombra" alt="" />
+                    <p class="fs-5 text text-center">Stupore</p>
+                </div>
+            </div>
+            <hr class="rounded" />
+            <div class="container">
+                <div class="row justify-content-center align-items-center">
+                    <div class="col-md-auto mb-3 spinjitzu spingio">
+                        <img src="../img/jay.png" alt="Immagine Sinistra" class="img-fluid" />
+                    </div>
+                    <div class="col-md-6 text-center spinjitzu">
+                        <p class="fs-1 text" style="font-weight: bold">Ciao! Sono Jay!</p>
+                        <p class="fs-4 text mt-3">vuoi imparare l'arte dello Spinjitzu?</p>
+                        <div class="button-container">
+                            <a href="https://payhip.com/b/m0kaT" class="purchase-button">Clicca qui per acquistare il mio videocorso online</a>
+                        </div>
+                    </div>
+                    <div class="col-md-auto spinjitzu spingio">
+                        <img src="../img/maranza.jpg" alt="Immagine Destra" class="img-fluid ombra" />
                     </div>
                 </div>
-                <div class="col-md-auto spinjitzu spingio">
-                    <img src="../img/maranza.jpg" alt="Immagine Destra" class="img-fluid  ombra" >
+            </div>
+            <hr class="rounded" />
+            <div class="infondo">
+                <div class="sotto">
+                    <p class="sottopag">Hey tu, hai un token di accesso?</p>
+                    <p class="sottopag"><a href="accedi">Accedi</a> al sito per sbloccare tutti i contenuti</p>
+                    <div class="social">
+                        <p style="font-size: large; padding-left: 0.1%; margin-top: 3%; margin-bottom: -0.1%">i miei social</p>
+                        <a href="https://www.tiktok.com/@cripsum"><img src="../img/tt.png" alt="" style="margin-right: 0.1%" /></a>
+                        <a href="https://www.instagram.com/cripsum/"><img src="../img/ig.png" alt="" style="margin-right: 0.3%; margin-left: 0.1%" /></a>
+                        <a href="https://discord.gg/Mmb2sNCvy6"><img src="../img/ds.png" alt="" style="margin: 0.3%" /></a>
+                        <a href="https://t.me/cripsum"><img src="../img/tg.png" alt="" style="margin: 0.3%" /></a>
+                    </div>
                 </div>
+                <div class="button-container" style="text-align: center; margin-top: 3%">
+                    <a href="https://www.youtube.com/watch?v=xvFZjo5PgG0" class="purchase-button">Clicca qui per V-bucks gratis!!!!</a>
+                </div>
+                <a href="donazioni" style="text-decoration: none"
+                    ><p style="text-decoration: none; margin-top: 3%; font-size: larger; font-weight: bold; text-align: center">Dona 5€ al Wise Mystical Tree per un mondo migliore :)</p></a
+                >
             </div>
         </div>
-        <hr class="rounded">
-        <div class="infondo">
-            <div class="sotto">
-                <p class="sottopag">Hey tu, hai un token di accesso?</p>
-                <p class="sottopag"><a href="accedi">Accedi</a> al sito per sbloccare tutti i contenuti</p>
-                <div class="social">
-                    <p style="font-size: large; padding-left: 0.1%; margin-top: 3%; margin-bottom: -0.1%;">i miei social</p>
-                    <a href="https://www.tiktok.com/@cripsum"><img src="../img/tt.png" alt="" style="margin-right: 0.1%;"></a>
-                    <a href="https://www.instagram.com/cripsum/"><img src="../img/ig.png" alt="" style="margin-right: 0.3%; margin-left: 0.1%;"></a>
-                    <a href="https://discord.gg/Mmb2sNCvy6"><img src="../img/ds.png" alt="" style="margin: 0.3%;"></a>
-                    <a href="https://t.me/cripsum"><img src="../img/tg.png" alt="" style="margin: 0.3%;"></a>
-                </div>
-            </div>
-            <div class="button-container" style="text-align: center; margin-top: 3%;">
-                <a href="https://www.youtube.com/watch?v=xvFZjo5PgG0" class="purchase-button">Clicca qui per V-bucks gratis!!!!</a>
-            </div>
-            <a href="donazioni" style="text-decoration: none;"><p style="text-decoration: none; margin-top: 3%; font-size: larger; font-weight: bold; text-align: center;">Dona 5€ al Wise Mystical Tree per un mondo migliore :)</p></a>
-        </div>
-    </div>
-    <footer class="my-5 pt-5 text-muted text-center text-small">
-        <p class="mb-1">Copyright © 2021-2024 Cripsum™. Tutti i diritti riservati.</p>
-        <ul class="list-inline">
-            <li class="list-inline-item"><a href="#">Privacy</a></li>
-            <li class="list-inline-item"><a href="#">Terms</a></li>
-            <li class="list-inline-item"><a href="#">Support</a></li>
-        </ul>
-    </footer>
+        <footer class="my-5 pt-5 text-muted text-center text-small">
+            <p class="mb-1">Copyright © 2021-2024 Cripsum™. Tutti i diritti riservati.</p>
+            <ul class="list-inline">
+                <li class="list-inline-item"><a href="#">Privacy</a></li>
+                <li class="list-inline-item"><a href="#">Terms</a></li>
+                <li class="list-inline-item"><a href="#">Support</a></li>
+            </ul>
+        </footer>
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
