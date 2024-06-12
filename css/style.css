@@ -282,6 +282,15 @@ a {
     max-width: 80%;
 }
 
+.fade-in {
+    opacity: 0;
+    transition: opacity 0.5s ease-out;
+}
+
+.fade-in.visible {
+    opacity: 1;
+}
+
 @media only screen and (max-width: 1199px) {
     .lingua {
         margin-top: -50px;
