@@ -105,6 +105,11 @@
                         jQuery("#collegamentoedits").hide();
                     }
                 }
+                function close_disclaimer(id) {
+                    if (id === 1) {
+                        jQuery("#disclaimer").hide();
+                    }
+                }
             </script>
             <div
                 id="collegamentoedits"
@@ -130,7 +135,7 @@
                 </div>
             </div>
 
-            <div class="divdisclaimer">
+            <div id="disclaimer" class="divdisclaimer">
                 <button class="btn btn-primary disclaimer" type="button" data-bs-toggle="modal" data-bs-target="#disclaimerModal">Disclaimer before proceeding to the website ▼</button>
             </div>
 
@@ -156,7 +161,7 @@
                             </ul>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="close_disclaimer(1)">Close</button>
                         </div>
                     </div>
                 </div>
