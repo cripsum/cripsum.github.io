@@ -291,6 +291,17 @@ a {
     opacity: 1;
 }
 
+.fade-in-move-up {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s, transform 0.5s;
+}
+
+.fade-in-move-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 @media only screen and (max-width: 1199px) {
     .lingua {
         margin-top: -50px;
