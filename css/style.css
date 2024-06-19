@@ -281,6 +281,21 @@ a {
 .edits {
     max-width: 80%;
 }
+.tiktokpedia {
+    max-width: 1920px;
+    margin: auto;
+}
+
+.card-img-top {
+    margin-top: 15px;
+    max-width: 90%;
+    margin-left: 5%;
+}
+.container-tiktokpedia {
+    max-width: 80%;
+    margin: auto;
+    padding-top: 5%;
+}
 
 @media only screen and (max-width: 1199px) {
     .lingua {
@@ -386,7 +401,7 @@ a {
     }
 
     .paginaintera {
-        max-width: 80%;
+        max-width: 100%;
         margin: auto;
     }
     .paginainteradolod {
@@ -405,6 +420,13 @@ a {
         max-width: 80%;
     }
     .edits {
+        max-width: 100%;
+    }
+    .tiktokpedia {
+        max-width: 80%;
+        margin: auto;
+    }
+    .container-tiktokpedia {
         max-width: 100%;
     }
 }
