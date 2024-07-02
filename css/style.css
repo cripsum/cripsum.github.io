@@ -297,6 +297,11 @@ a {
     padding-top: 5%;
 }
 
+.privacy {
+    max-width: 80%;
+    margin: auto;
+}
+
 @media only screen and (max-width: 1199px) {
     .lingua {
         margin-top: -50px;
