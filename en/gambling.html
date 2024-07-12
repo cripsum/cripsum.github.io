@@ -96,7 +96,32 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
         </nav>
-        <div style="max-width: 1200px">
+        <div class="account-bar" id="account-bar" style="padding-top: 1%; padding-bottom: 1%; margin: auto">
+            <span class="" style="padding-left: 25px; font-weight: bold">User: </span>
+            <span class="account-name" style="padding-left: 10px; padding-right: 10px">Account Name</span>
+            <div style="padding-left: 25px">
+                <span class="" style="font-weight: bold">Balance: </span>
+                <span class="account-balance" style="padding-left: 10px">$100</span>
+            </div>
+            <input type="number" class="form-control inputricarica" style="margin-left: 25px; max-width: 200px; margin-top: 10px" placeholder="enter your balance" aria-label="Last name" />
+            <button class="button-13" style="width: 150px; margin-left: 25px; margin-top: 5px" onclick="ricaricasaldo();">Charge balance</button>
+
+            <p class="errorericarica" style="color: red; margin-top: 3px; margin-left: 25px"></p>
+        </div>
+
+        <div class="input-container" style="text-align: center; padding-top: 3%; max-width: 500px; margin: auto" id="accesso-gambling">
+            <div class="row" style="margin: auto">
+                <div class="col">
+                    <input type="text" id="name-input" class="form-control" placeholder="enter your name" aria-label="First name" />
+                </div>
+                <div class="col" style="max-width: 200px">
+                    <input type="number" id="money-input" class="form-control" placeholder="enter balance" aria-label="Last name" />
+                </div>
+            </div>
+            <button class="button-13" style="margin-top: 10px" onclick="updateAccount()">Log in</button>
+            <p id="errore" class="errore text-center" style="color: red; margin-top: 3px"></p>
+        </div>
+        <div style="max-width: 1200px; margin: auto">
             <div id="slot-machine" class="d-flex justify-content-center image-container" style="padding-top: 3%; max-width: 80%; margin: auto">
                 <div class="slot" style="margin-left: 2%; margin-right: 2%">
                     <img src="../img/cripsumchisiamo.jpg" alt="Image 1" />
@@ -108,71 +133,122 @@
                     <img src="../img/abdul.jpg" alt="Image 3" />
                 </div>
             </div>
+            <!--
             <div class="loading" style="padding-top: 2%;" id="caricamento">
                 <span class="loading__dot"></span>
                 <span class="loading__dot"></span>
                 <span class="loading__dot"></span>
+            </div> close_div(1)
+            -->
+
+            <div class="button-container" style="text-align: center; margin-top: 3%">
+                <button class="purchase-button" onclick="spin()">Spin</button>
             </div>
-            <p id="risultato"></p>
-            <div style="margin: auto; text-align: center"></div>
-                <button class="purchase-button" onclick="spin(); close_div(1)">Spin</button>
-            </div>
+            <p class="text-center erroresoldi" style="margin-top: 3%; color: red"></p>
+            <p class="text-center" id="risultato" style="margin-top: 3%"></p>
         </div>
 
         <footer class="my-5 pt-5 text-muted text-center text-small">
-            <p class="mb-1">Copyright © 2021-2024 Cripsum™. Tutti i diritti riservati.</p>
+            <p class="mb-1">Copyright © 2021-2024 Cripsum™. all right reserved.</p>
             <ul class="list-inline">
                 <li class="list-inline-item"><a href="privacy">Privacy</a></li>
-                <li class="list-inline-item"><a href="tos">Termini</a></li>
-                <li class="list-inline-item"><a href="supporto">Supporto</a></li>
+                <li class="list-inline-item"><a href="tos">Terms</a></li>
+                <li class="list-inline-item"><a href="supporto">Support</a></li>
             </ul>
         </footer>
         <script>
-            jQuery("#caricamento").hide();
-            document.getElementById("risultato").innerHTML = "";
-                function spin() {
-                    var slots = document.getElementsByClassName("slot");
-                    for(var i = 0; i < 20; i++) {
-                        setTimeout(function() {
-                            for(var j = 0; j < slots.length; j++) {
-                                var images = ["../img/cripsumchisiamo.jpg", "../img/barandeep.jpg", "../img/abdul.jpg"];
-                                var randomImage = images[Math.floor(Math.random() * images.length)];
-                                slots[j].innerHTML = "<img src='" + randomImage + "' alt='Random Image' />";
-                            }
-                        }, i * 100);
-                    }
-                    
-                    for(var j = 0; j < slots.length; j++) {
-                        setTimeout(2000);
-                        var images = ["../img/cripsumchisiamo.jpg", "../img/barandeep.jpg", "../img/abdul.jpg"];
-                        var randomImage = images[Math.floor(Math.random() * images.length)];
-                        slots[j].innerHTML = "";
-                    }
-                    
-                    var randomIndex = Math.floor(Math.random() * slots.length);
-                    var randomSlot = slots[randomIndex];
-                    for(var j = 0; j < slots.length; j++) {
-                        setTimeout(2000);
-                        var images = ["../img/cripsumchisiamo.jpg", "../img/barandeep.jpg", "../img/abdul.jpg"];
-                        var randomImage = images[Math.floor(Math.random() * images.length)];
-                        slots[j].innerHTML = "<img src='" + randomImage + "' alt='Random Image' />";
-                    }
-                    if (slots[0].innerHTML === slots[1].innerHTML === slots[2].innerHTML) {
-                        document.getElementById("risultato").innerHTML = "You won!";
-                    } else {
-                        document.getElementById("risultato").innerHTML = "";
-                    }
+            function ricaricasaldo() {
+                document.getElementsByClassName("errorericarica")[0].textContent = "";
+                var inputMoney = document.getElementsByClassName("inputricarica")[0].value;
+                if (inputMoney !== "" && inputMoney !== "e") {
+                    var currentMoney = document.getElementsByClassName("account-balance")[0].textContent;
+                    currentMoney = parseInt(currentMoney.substring(1)); // remove the $ sign and convert to integer
+                    var newMoney = currentMoney + parseInt(inputMoney);
+                    document.getElementsByClassName("account-balance")[0].textContent = "$" + newMoney;
+                    document.getElementsByClassName("inputricarica")[0].value = "";
+                } else {
+                    document.getElementsByClassName("errorericarica")[0].textContent = "field can't be empty";
+                    return;
+                }
+            }
+
+            document.getElementById("account-bar").style.display = "none";
+
+            function updateAccount() {
+                document.getElementsByClassName("errore")[0].textContent = "";
+                var name = document.getElementById("name-input").value;
+                var money = document.getElementById("money-input").value;
+                if (money !== "" && name !== "") {
+                    document.getElementById("account-bar").style.display = "block";
+                    document.getElementsByClassName("account-balance")[0].textContent = "$" + money;
+                    document.getElementById("money-input").value = "";
+                    document.getElementsByClassName("account-name")[0].textContent = name;
+                    document.getElementById("name-input").value = "";
+                    document.getElementById("accesso-gambling").style.display = "none";
+                } else {
+                    document.getElementsByClassName("errore")[0].textContent = "fields can't be empty";
+                }
+            }
+            function spin() {
+                var money = document.getElementsByClassName("account-balance")[0].textContent;
+                money = parseInt(money.substring(1)); // remove the $ sign and convert to integer
+                if (money >= 10) {
+                    money -= 10; // subtract 10 from the money count
+                    document.getElementsByClassName("account-balance")[0].textContent = "$" + money; // update the money count display
+                } else {
+                    document.getElementsByClassName("erroresoldi")[0].textContent = "Insufficient balance"; // display an error message if there are not enough funds
+                    return;
                 }
 
-            function close_div(id) {
-                    if (id === 1) {
-                        jQuery("#caricamento").show();
-                        setTimeout(function () {
-                            jQuery("#caricamento").hide();
-                        }, 1500);
-                    }
+                document.getElementById("risultato").textContent = "";
+                document.getElementsByClassName("erroresoldi")[0].textContent = "";
+                // Get the slot elements
+                var slots = document.getElementsByClassName("slot");
+
+                // Generate random indexes for the images
+                var randomIndexes = [];
+                for (var i = 0; i < slots.length; i++) {
+                    var randomIndex = Math.floor(Math.random() * 9) + 1;
+                    randomIndexes.push(randomIndex);
                 }
 
+                // Set the initial image sources
+                for (var i = 0; i < slots.length; i++) {
+                    slots[i].getElementsByTagName("img")[0].src = "../img/slott" + randomIndexes[i] + ".jpg";
+                }
+
+                // Spin the images for 5 seconds
+                var startTime = Date.now();
+                var interval = setInterval(function () {
+                    // Generate new random indexes for the images
+                    randomIndexes = [];
+                    for (var i = 0; i < slots.length; i++) {
+                        var randomIndex = Math.floor(Math.random() * 9) + 1;
+                        randomIndexes.push(randomIndex);
+                    }
+
+                    // Set the new image sources
+                    for (var i = 0; i < slots.length; i++) {
+                        slots[i].getElementsByTagName("img")[0].src = "../img/slott" + randomIndexes[i] + ".jpg";
+                    }
+
+                    // Check if all images are the same after 5 seconds
+                    if (Date.now() - startTime >= 5000) {
+                        if (randomIndexes[0] === randomIndexes[1] && randomIndexes[1] === randomIndexes[2]) {
+                            document.getElementById("risultato").textContent = "You won!";
+                            money += 100; // add 100 to the money count
+                            document.getElementsByClassName("account-balance")[0].textContent = "$" + money; // update the money count display
+                        } else {
+                            document.getElementById("risultato").textContent = "you lose, try again!";
+                        }
+                        clearInterval(interval);
+                    }
+                }, 100);
+            }
+
+            // function close_div(id) {
+            //     document.getElementById("caricamento").style.display = "none";
+            // }
         </script>
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
