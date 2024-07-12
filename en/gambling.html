@@ -179,6 +179,7 @@
                 var name = document.getElementById("name-input").value;
                 var money = document.getElementById("money-input").value;
                 if (money !== "" && name !== "") {
+                    document.getElementsByClassName("erroresoldi")[0].textContent = "";
                     document.getElementById("account-bar").style.display = "block";
                     document.getElementsByClassName("account-balance")[0].textContent = "$" + money;
                     document.getElementById("money-input").value = "";
@@ -190,6 +191,10 @@
                 }
             }
             function spin() {
+                if (document.getElementById("account-bar").style.display === "none") {
+                    document.getElementsByClassName("erroresoldi")[0].textContent = "You must be logged in to play";
+                    return;
+                }
                 var money = document.getElementsByClassName("account-balance")[0].textContent;
                 money = parseInt(money.substring(1)); // remove the $ sign and convert to integer
                 if (money >= 10) {
