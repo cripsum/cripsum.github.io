@@ -348,6 +348,12 @@ a {
     animation: textAnimate 5s linear infinite alternate;
 }
 
+.modulounban {
+    width: 640px;
+    height: 1200px;
+    padding-top: 30px;
+}
+
 @keyframes textAnimate {
     from {
         filter: hue-rotate(0deg);
@@ -486,6 +492,10 @@ a {
     }
     .container-tiktokpedia {
         max-width: 100%;
+    }
+    .modulounban {
+        width: 350px;
+        height: 1300px;
     }
 }
 @media only screen and (max-width: 766px) {
