@@ -336,6 +336,29 @@ a {
     outline: 0;
 }
 
+.arcobalenos {
+    white-space: nowrap;
+
+    background: linear-gradient(92deg, #95d7e3, #eb76ff);
+    background: -webkit-linear-gradient(92deg, #95d7e3, #eb76ff);
+    background-size: 600vw 600vw;
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: textAnimate 5s linear infinite alternate;
+}
+
+@keyframes textAnimate {
+    from {
+        filter: hue-rotate(0deg);
+        background-position-x: 0%;
+    }
+    to {
+        filter: hue-rotate(360deg);
+        background-position-x: 600vw;
+    }
+}
+
 @media only screen and (max-width: 1199px) {
     .lingua {
         margin-top: -50px;
