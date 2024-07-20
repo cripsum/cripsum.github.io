@@ -399,6 +399,9 @@ a {
     .imagi {
         max-width: 100%;
     }
+    .dox {
+        max-width: 90%;
+    }
     .containerCheckout {
         max-width: 80%;
         margin: auto;
