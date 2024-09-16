@@ -165,7 +165,7 @@
   
         <!-- Submit button -->
         <div class="button-container mb-3" style="text-align: center; margin-top: 3%;">
-          <a href="#" class="purchase-button" onclick="decrypt()">Accedi</a>
+          <a href="#" class="purchase-button" onclick="accedi()">Accedi</a>
           <p id="decrypt"></p>
 
         </div>
@@ -224,6 +224,12 @@
                     } else {
                         document.getElementById("decrypt").innerHTML = "Wrong password";
                     }
+            }
+
+            function accedi() {
+                if(document.getElementById("loginName").value == "andreapoli" && document.getElementById("password").value == "scemo") {
+                    window.location.href = "andrea-poli";
+                }
             }
         </script>
     </body>
