@@ -131,11 +131,31 @@
                 <button style="top: 5px; right: 5px; background-color: transparent; border: none; cursor: pointer">
                     <span class="close_div" id="close" style="font-size: 20px; color: rgb(42, 42, 42)" onclick="close_div(1)">&times;</span>
                 </button>
-                <div class="center" style="text-align: center; margin: auto">
-                    <h2 style="color: rgb(42, 42, 42)">Hey you!</h2>
-                    <p style="color: rgb(42, 42, 42)">check out my latest edits! - <a href="edits" style="color: rgb(6, 0, 194)">click here</a></p>
-                    <p style="color: rgb(42, 42, 42)">but most importantly spend your savings <a href="gambling" style="color: rgb(6, 0, 194)">here</a></p>
-                </div>
+                <script>
+                    function getRandomBanner() {
+                        const banners = [
+                            `<div class="center" style="text-align: center; margin: auto">
+                                <h2 style="color: rgb(42, 42, 42); padding-left: 10px; padding-right: 10px;">Hey you!</h2>
+                                <p style="color: rgb(42, 42, 42); padding-left: 10px; padding-right: 10px;">check out my latest edits! - <a href="edits" style="color: rgb(6, 0, 194)">click here</a></p>
+                            </div>`,
+                            `<div class="center" style="text-align: center; margin: auto">
+                                <h2 style="color: rgb(42, 42, 42); padding-left: 10px; padding-right: 10px;">Hey bro!</h2>
+                                <p style="color: rgb(42, 42, 42); padding-left: 10px; padding-right: 10px;">gamble all your saving<a href="gambling" style="color: rgb(6, 0, 194)"> here</a> [no scam 100% tested an trusted]</p>
+                            </div>`,
+                            `<div class="center" style="text-align: center; margin: auto">
+                                <h2 style="color: rgb(42, 42, 42); padding-left: 10px; padding-right: 10px;">Hi bro!</h2>
+                                <p style="color: rgb(42, 42, 42); padding-left: 10px; padding-right: 10px;">Join my discord server - <a href="../discord" style="color: rgb(6, 0, 194)">clicca qui</a></p>
+                            </div>`,
+                            `<div class="center" style="text-align: center; margin: auto">
+                                <h2 style="color: rgb(42, 42, 42); padding-left: 10px; padding-right: 10px;">Hey dude!</h2>
+                                <p style="color: rgb(42, 42, 42); padding-left: 10px; padding-right: 10px;">Join my telegram group - <a href="https://t.me/sburragrigliata" style="color: rgb(6, 0, 194)">clicca qui</a></p>
+                            </div>`,
+                        ];
+                        return banners[Math.floor(Math.random() * banners.length)];
+                    }
+
+                    document.write(getRandomBanner());
+                </script>
             </div>
 
             <div id="disclaimer" class="divdisclaimer">
