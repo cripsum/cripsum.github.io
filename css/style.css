@@ -359,6 +359,86 @@ a {
     padding-top: 30px;
 }
 
+/* Limitiamo gli stili alla pagina che ha la classe "bio-page" */
+.bio-page * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.bio-pfp {
+    border-radius: 50%;
+    margin-bottom: 20px;
+}
+
+.bio-page {
+    min-height: 100vh; /* Altezza al 100% della viewport */
+    display: flex; /* Attiva Flexbox */
+    justify-content: center; /* Centra orizzontalmente */
+    align-items: center; /* Centra verticalmente */
+    color: #fff;
+    position: relative;
+}
+
+/* Background video or image */
+.bio-page .background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.bio-page video,
+.bio-image-bg {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width: 104%;
+    height: 104%;
+    object-fit: cover;
+    filter: blur(4px) brightness(0.6);
+}
+
+/* Central bio container */
+.bio-page .bio-container {
+    position: relative;
+    background: linear-gradient(135deg, rgba(125, 246, 255, 0.1), rgba(4, 87, 87, 0.1));
+    backdrop-filter: blur(10px);
+    padding: 40px;
+    border-radius: 20px;
+    width: 80%;
+    max-width: 600px;
+    text-align: center;
+    box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.3);
+    margin: auto; /* Center the container */
+}
+
+.bio-page h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.bio-page p {
+    font-size: 1em;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+/* Social media links */
+.bio-page .social-media a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: white;
+    font-size: 1.2em;
+}
+
+.bio-page .social-media a:hover {
+    text-decoration: underline;
+}
+
 @keyframes textAnimate {
     from {
         filter: hue-rotate(0deg);
@@ -554,86 +634,6 @@ a {
     .disclaimer {
         max-width: 80%;
     }
-}
-
-/* Limitiamo gli stili alla pagina che ha la classe "bio-page" */
-.bio-page * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-.bio-pfp {
-    border-radius: 50%;
-    margin-bottom: 20px;
-}
-
-.bio-page {
-    min-height: 100vh; /* Altezza al 100% della viewport */
-    display: flex; /* Attiva Flexbox */
-    justify-content: center; /* Centra orizzontalmente */
-    align-items: center; /* Centra verticalmente */
-    color: #fff;
-    position: relative;
-}
-
-/* Background video or image */
-.bio-page .background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    z-index: -1;
-}
-
-.bio-page video,
-.bio-image-bg {
-    position: absolute;
-    top: -10px;
-    left: -10px;
-    width: 104%;
-    height: 104%;
-    object-fit: cover;
-    filter: blur(4px) brightness(0.6);
-}
-
-/* Central bio container */
-.bio-page .bio-container {
-    position: relative;
-    background: linear-gradient(135deg, rgba(125, 246, 255, 0.1), rgba(4, 87, 87, 0.1));
-    backdrop-filter: blur(10px);
-    padding: 40px;
-    border-radius: 20px;
-    width: 80%;
-    max-width: 600px;
-    text-align: center;
-    box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.3);
-    margin: auto; /* Center the container */
-}
-
-.bio-page h1 {
-    font-size: 2.5em;
-    margin-bottom: 10px;
-}
-
-.bio-page p {
-    font-size: 1em;
-    line-height: 1.5;
-    margin-bottom: 20px;
-}
-
-/* Social media links */
-.bio-page .social-media a {
-    margin: 0 10px;
-    text-decoration: none;
-    color: white;
-    font-size: 1.2em;
-}
-
-.bio-page .social-media a:hover {
-    text-decoration: underline;
 }
 
 /* Media queries for responsiveness */
