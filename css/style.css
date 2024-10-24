@@ -406,7 +406,6 @@ a {
 /* Central bio container */
 .bio-page .bio-container {
     position: relative;
-    background: linear-gradient(135deg, rgba(125, 246, 255, 0.1), rgba(4, 87, 87, 0.1));
     backdrop-filter: blur(10px);
     padding: 40px;
     border-radius: 20px;
