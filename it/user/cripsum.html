@@ -13,22 +13,120 @@
         <link rel="stylesheet" href="../../css/style.css" />
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+            .navbarutenti {
+                position: fixed;
+                top: 20px; /* Spazio in alto */
+                left: 0;
+                right: 0;
+                margin: 0 30px; /* Spazio ai lati */
+                backdrop-filter: blur(10px); /* Sfondo sfocato */
+                background-color: rgba(3, 3, 3, 0.3); /* Sfondo trasparente */
+                border: 1px solid rgba(255, 255, 255, 0); /* Bordi bianchi */
+                border-radius: 8px; /* Bordo stondato */
+                z-index: 1000; /* Assicura che la navbar sia sopra altri contenuti */
+                box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
+            }
+            .dropdownutenti .dropdown-menu {
+                background-color: rgba(3, 3, 3, 0.3); /* Sfondo trasparente */
+                border: 1px solid rgba(255, 255, 255, 0); /* Bordi bianchi */
+                border-radius: 8px; /* Bordo stondato */
+                box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
+            }
+
+            .dropdownutenti .dropdown-menu .dropdown-item {
+                color: white; /* Colore del testo */
+                font-weight: bold; /* Grassetto */
+                transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease; /* Transizione per l'effetto hover */
+            }
+
+            .dropdownutenti .dropdown-menu .dropdown-item:hover {
+                color: #ffffff; /* Cambia il colore del testo */
+                transform: scale(1.1); /* Aumenta leggermente la dimensione */
+                text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 215, 0, 0.5); /* Ombra dorata */
+                background-color: rgba(0, 0, 0, 0); /* Sfondo nero */
+            }
+
+            .navbarutenti .nav-link {
+                color: white; /* Colore del testo */
+                font-weight: bold; /* Grassetto */
+                transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease; /* Transizione per l'effetto hover */
+            }
+
+            .navbarutenti .nav-link:hover,
+            .navbarutenti .nav-link:focus {
+                color: #ffffff; /* Cambia il colore del testo */
+                transform: scale(1.1); /* Aumenta leggermente la dimensione */
+                text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 215, 0, 0.5); /* Ombra dorata */
+            }
+
+            .navbarutenti .navbar-toggler {
+                border-color: rgba(255, 255, 255, 0); /* Colore del bordo del pulsante */
+            }
+
+            .navbarutenti .navbar-toggler-icon {
+                background-image: url('data:image/svg+xml;charset=utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 30 30"%3E%3Cpath stroke="white" stroke-width="3" d="M4 7h22M4 15h22M4 23h22"/%3E%3C/svg%3E'); /* Colore dell'icona */
+            }
+
+            .navbarutenti .navbar-toggler:focus {
+                outline: none;
+                box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0); /* Contorno dorato */
+            }
+
+            .navbarutenti .navbar-toggler:hover {
+                outline: none;
+                box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5); /* Contorno dorato */
+            }
+
+            @media (max-width: 1199px) {
+                .navbarutenti .nav-link:hover,
+                .navbarutenti .nav-link:focus {
+                    color: #ffffff; /* Cambia il colore del testo */
+                    transform: scale(0.95); /* Aumenta leggermente la dimensione */
+                    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 215, 0, 0.5); /* Ombra dorata */
+                }
+
+                .dropdownutenti .dropdown-menu .dropdown-item:hover {
+                    color: #ffffff; /* Cambia il colore del testo */
+                    transform: scale(0.95); /* Aumenta leggermente la dimensione */
+                    text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 215, 0, 0.5); /* Ombra dorata */
+                    background-color: rgba(0, 0, 0, 0); /* Sfondo nero */
+                }
+            }
+            @media (max-width: 768px) {
+                .navbarutenti {
+                    top: 10px;
+                    margin: 0 20px; /* Spazio ai lati per schermi piccoli */
+                }
+            }
+        </style>
         <title>Cripsum™</title>
     </head>
     <body>
-        <nav class="navbar navbar-expand-xl bg-body-tertiary">
+        <nav class="navbarutenti navbar navbar-expand-xl">
             <div class="container-fluid">
                 <a class="navbar-brand" href="../home">
                     <img src="../../img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
-                    <span class="align-middle ms-3 fw-bold">Cripsum™</span>
+                    <span class="align-middle ms-3 fw-bold" style="color: white">Cripsum™</span>
                 </a>
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation"
+                >
+                    <span class="navbar-toggler-icon"></span>
+                </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a class="nav-link" aria-current="page" href="../home">Home page</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
+                        <li class="nav-item dropdown dropdownutenti">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="../shitpost">Shitpost</a></li>
                                 <li><a class="dropdown-item" href="../tiktokpedia">TikTokPedia</a></li>
@@ -40,8 +138,8 @@
                         <li class="nav-item">
                             <a class="nav-link" href="../download">Downloads</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
+                        <li class="nav-item dropdown dropdownutenti">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="../negozio">Negozio</a></li>
                                 <li><a class="dropdown-item" href="../merch">Merch</a></li>
@@ -64,28 +162,7 @@
                         </li>
                     </ul>
                 </div>
-                <!--
-            <a id="btnSwitch" class="ms-auto me-4">d<img src="" /></a>
-            --></div>
-            <div class="btn-group dropstart ms-auto me-3 lingua">
-                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">🇮🇹</button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">🇮🇹 Ita</a></li>
-                    <li><a class="dropdown-item" href="../../en/download/fortnite">🇬🇧 Eng</a></li>
-                </ul>
             </div>
-            <button
-                style="margin-right: 10px"
-                class="navbar-toggler lingua"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-            >
-                <span class="navbar-toggler-icon"></span>
-            </button>
         </nav>
         <div class="bio-page">
             <div class="background">
