@@ -25,7 +25,7 @@
 
             .testobianco {
                 color: white;
-                /* text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 215, 0, 0.5);*/
+                /* text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);*/
             }
 
             .linkbianco {
@@ -35,13 +35,13 @@
                 position: relative;
                 padding-bottom: 2px; /* Spazio tra testo e linea */
                 border-bottom: 2px solid transparent; /* Linea inizialmente invisibile */
-                transition: color 0.3s ease, transform 0.3s ease, border-bottom-color 0.3s ease;
+                transition: color 0.3s ease, transform 0.3s ease, border-bottom-color 0.3s ease, text-shadow 0.3s ease;
             }
 
             .linkbianco:hover {
                 color: #ffffff; /* Mantiene il colore del testo */
                 transform: scale(1.1); /* Aumenta leggermente la dimensione */
-                text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 215, 0, 0.5); /* Ombra dorata */ /* La linea si espande ai lati */
+                text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */ /* La linea si espande ai lati */
                 border-bottom-color: white; /* Colore bianco della linea */
             }
 
@@ -84,7 +84,7 @@
             .dropdownutenti .dropdown-menu .dropdown-item:hover {
                 color: #ffffff; /* Cambia il colore del testo */
                 transform: scale(1.1); /* Aumenta leggermente la dimensione */
-                text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 215, 0, 0.5); /* Ombra dorata */
+                text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
                 background-color: rgba(0, 0, 0, 0); /* Sfondo nero */
             }
 
@@ -105,23 +105,25 @@
             .navbarutenti .nav-link:focus {
                 color: #ffffff; /* Cambia il colore del testo */
                 transform: scale(1.1); /* Aumenta leggermente la dimensione */
-                text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 215, 0, 0.5); /* Ombra dorata */
+                text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
             }
 
             .link-lingua:hover,
             .link-lingua:focus {
                 color: #ffffff; /* Cambia il colore del testo */
                 transform: scale(1.1); /* Aumenta leggermente la dimensione */
-                text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 215, 0, 0.5); /* Ombra dorata */
+                text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
                 background-color: rgba(0, 0, 0, 0); /* Sfondo nero */
             }
 
             .navbarutenti .navbar-toggler {
                 border-color: rgba(255, 255, 255, 0); /* Colore del bordo del pulsante */
+                transition: box-shadow 0.3s ease;
             }
 
             .lingua-toggler {
                 border-color: rgba(255, 255, 255, 0); /* Colore del bordo del pulsante */
+                transition: box-shadow 0.3s ease;
             }
 
             .navbarutenti .navbar-toggler-icon {
@@ -156,19 +158,19 @@
                 .navbarutenti .nav-link:focus {
                     color: #ffffff; /* Cambia il colore del testo */
                     transform: scale(0.95); /* Aumenta leggermente la dimensione */
-                    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 215, 0, 0.5); /* Ombra dorata */
+                    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
                 }
 
                 .link-lingua:hover {
                     color: #ffffff; /* Cambia il colore del testo */
                     transform: scale(0.95); /* Aumenta leggermente la dimensione */
-                    text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 215, 0, 0.5); /* Ombra dorata */
+                    text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
                 }
 
                 .dropdownutenti .dropdown-menu .dropdown-item:hover {
                     color: #ffffff; /* Cambia il colore del testo */
                     transform: scale(0.95); /* Aumenta leggermente la dimensione */
-                    text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 215, 0, 0.5); /* Ombra dorata */
+                    text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
                     background-color: rgba(0, 0, 0, 0); /* Sfondo nero */
                 }
             }

@@ -38,23 +38,32 @@ body {
     box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
 }
 
-.disclaimer {
+.bottone {
     max-width: 500px;
     background-color: #303033;
-    color: #e1dfdb;
+    color: #ffffff;
     border-radius: 10px;
     padding-top: 5px;
     padding-bottom: 5px;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
     margin: auto;
-    border-color: #212124;
-    border-width: 1px;
-    border-style: solid;
-    margin-top: 20px;
+    outline: none;
+    border: none;
 }
 
-.disclaimer:hover {
-    background-color: #1b1b1c;
+.bottone:hover,
+.bottone:focus {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(64, 64, 64, 0.1));
+    outline: none;
+    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5);
+}
+
+.bgdisclaimer {
+    backdrop-filter: blur(10px); /* Sfondo sfocato */
+    background: linear-gradient(135deg, rgba(201, 201, 201, 0.2), rgba(34, 34, 34, 0.2)); /* Sfondo trasparente */
+    border: 1px solid rgba(255, 255, 255, 0); /* Bordi bianchi */
+    border-radius: 8px; /* Bordo stondato */
+    box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
 }
 
 .divdisclaimer {
@@ -128,12 +137,13 @@ body {
 }
 
 hr.rounded {
-    border-top: 4px solid rgb(121, 119, 109);
+    border-top: 4px solid rgb(255, 255, 255);
     /*border-radius: 5px;*/
     max-width: 75%;
     margin: auto;
     margin-top: 2%;
     margin-bottom: 2%;
+    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5);
 }
 
 .purchase-button {
@@ -632,7 +642,6 @@ a {
 }
 .sottopag {
     text-align: center;
-    font-weight: bold;
 }
 
 .social {
