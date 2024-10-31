@@ -12,31 +12,38 @@
         <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png" />
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="../css/style.css" />
+        <link rel="stylesheet" href="../css/style-dark.css" />
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Cripsum™</title>
-        <style>
-            img {
-                border-radius: 10px;
-            }
-        </style>
     </head>
 
     <body class="">
-        <nav class="navbar navbar-expand-xl bg-body-tertiary">
-            <!-- style="position: sticky; top: 0;" -->
+        <nav class="navbarutenti navbar navbar-expand-xl">
             <div class="container-fluid">
                 <a class="navbar-brand" href="home">
                     <img src="../img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
-                    <span class="align-middle ms-3 fw-bold">Cripsum™</span>
+                    <span class="align-middle ms-3 fw-bold" style="color: white">Cripsum™</span>
                 </a>
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation"
+                    style="z-index: 1000"
+                >
+                    <span class="navbar-toggler-icon"></span>
+                </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">Home page</a>
+                            <a class="nav-link" aria-current="page" href="home">Home page</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
+                        <li class="nav-item dropdown dropdownutenti">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="shitpost">Shitpost</a></li>
                                 <li><a class="dropdown-item" href="tiktokpedia">TikTokPedia</a></li>
@@ -48,8 +55,8 @@
                         <li class="nav-item">
                             <a class="nav-link" href="download">Downloads</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
+                        <li class="nav-item dropdown dropdownutenti">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="negozio">Negozio</a></li>
                                 <li><a class="dropdown-item" href="merch">Merch</a></li>
@@ -73,32 +80,16 @@
                     </ul>
                 </div>
             </div>
-
-            <div class="btn-group dropstart ms-auto me-2 lingua">
-                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">🇮🇹</button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">🇮🇹 Ita</a></li>
-                    <li><a class="dropdown-item" href="../en/home">🇬🇧 Eng</a></li>
-                    <li>
-                        <a class="dropdown-item" href="../mc/home.html"><img src="../img/mc.jpg" alt="" /> Mc</a>
-                    </li>
+            <div class="btn-group dropstart ms-auto me-3 linguanuova">
+                <button type="button" class="btn dropdown-toggle lingua-toggler" data-bs-toggle="dropdown" aria-expanded="false"><a class="link-lingua">🇮🇹</a></button>
+                <ul class="dropdown-menu dropdownlingua">
+                    <li><a class="dropdown-item link-lingua" href="#">🇮🇹 Ita</a></li>
+                    <li><a class="dropdown-item link-lingua" href="../en/home">🇬🇧 Eng</a></li>
                 </ul>
             </div>
-            <button
-                style="margin-right: 10px"
-                class="navbar-toggler lingua"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-            >
-                <span class="navbar-toggler-icon"></span>
-            </button>
         </nav>
 
-        <div style="max-width: 1520px; margin: auto">
+        <div style="max-width: 1520px; margin: auto; padding-top: 7rem" class="testobianco">
             <script>
                 function close_div(id) {
                     if (id === 1) {
@@ -117,9 +108,10 @@
                 id="collegamentoedits"
                 class="collegamentoedit ombra"
                 style="
-                    background-color: rgb(255, 255, 255);
+                    backdrop-filter: blur(10px); /* Sfondo sfocato */
+                    background: linear-gradient(135deg, rgba(42, 42, 42, 0.8), rgb(22, 22, 22)); /* Sfondo trasparente */
+                    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5);
                     padding-bottom: 1px;
-                    border-color: black;
                     border-width: 1px;
                     border-style: solid;
                     border-radius: 10px;
@@ -129,26 +121,28 @@
                 "
             >
                 <button style="top: 5px; right: 5px; background-color: transparent; border: none; cursor: pointer">
-                    <span class="close_div" id="close" style="font-size: 20px; color: rgb(42, 42, 42)" onclick="close_div(1)">&times;</span>
+                    <span class="close_div tastobianco" id="close" style="font-size: 20px; color: rgb(255, 255, 255)" onclick="close_div(1)"
+                        >&times;<a class="linkbianco" style="font-size: small; position: relative; top: -3px; left: 3px">chiudi</a></span
+                    >
                 </button>
                 <script>
                     function getRandomBanner() {
                         const banners = [
-                            `<div class="center" style="text-align: center; margin: auto">
-                                <h2 style="color: rgb(42, 42, 42); padding-left: 10px; padding-right: 10px;">Hey tu!</h2>
-                                <p style="color: rgb(42, 42, 42); padding-left: 10px; padding-right: 10px;">dai un'occhiata ai miei ultimi edit! - <a href="edits" style="color: rgb(6, 0, 194)">clicca qui</a></p>
+                            `<div class="center bannerino" style="text-align: center; margin: auto">
+                                <h2 style="color: rgb(255, 255, 255); padding-left: 10px; padding-right: 10px;">Hey tu!</h2>
+                                <p style="color: rgb(255, 255, 255); padding-left: 10px; padding-right: 10px;">dai un'occhiata ai miei ultimi edit! - <a href="edits" class="linkbianco">clicca qui</a></p>
                             </div>`,
-                            `<div class="center" style="text-align: center; margin: auto">
-                                <h2 style="color: rgb(42, 42, 42); padding-left: 10px; padding-right: 10px;">Hey bro!</h2>
-                                <p style="color: rgb(42, 42, 42); padding-left: 10px; padding-right: 10px;">scommetti tutti i tuoi risparmi<a href="gambling" style="color: rgb(6, 0, 194)"> qui</a> [no scam 100% testato ed affidabile]</p>
+                            `<div class="center bannerino" style="text-align: center; margin: auto">
+                                <h2 style="color: rgb(255, 255, 255); padding-left: 10px; padding-right: 10px;">Hey bro!</h2>
+                                <p style="color: rgb(255, 255, 255); padding-left: 10px; padding-right: 10px;">scommetti tutti i tuoi risparmi <a href="gambling" class="linkbianco">qui</a> [no scam 100% testato ed affidabile]</p>
                             </div>`,
-                            `<div class="center" style="text-align: center; margin: auto">
-                                <h2 style="color: rgb(42, 42, 42); padding-left: 10px; padding-right: 10px;">Ciao bro!</h2>
-                                <p style="color: rgb(42, 42, 42); padding-left: 10px; padding-right: 10px;">Entra nel mio server discord - <a href="../discord" style="color: rgb(6, 0, 194)">clicca qui</a></p>
+                            `<div class="center bannerino" style="text-align: center; margin: auto">
+                                <h2 style="color: rgb(255, 255, 255); padding-left: 10px; padding-right: 10px;">Ciao bro!</h2>
+                                <p style="color: rgb(255, 255, 255); padding-left: 10px; padding-right: 10px;">Entra nel mio server discord - <a href="../discord" class="linkbianco">clicca qui</a></p>
                             </div>`,
-                            `<div class="center" style="text-align: center; margin: auto">
-                                <h2 style="color: rgb(42, 42, 42); padding-left: 10px; padding-right: 10px;">Ciao fratello!</h2>
-                                <p style="color: rgb(42, 42, 42); padding-left: 10px; padding-right: 10px;">Entra nel mio gruppo telegram - <a href="https://t.me/sburragrigliata" style="color: rgb(6, 0, 194)">clicca qui</a></p>
+                            `<div class="center bannerino" style="text-align: center; margin: auto;">
+                                <h2 style="color: rgb(255, 255, 255); padding-left: 10px; padding-right: 10px;">Ciao fratello!</h2>
+                                <p style="color: rgb(255, 255, 255); padding-left: 10px; padding-right: 10px;">Entra nel mio gruppo telegram - <a href="https://t.me/sburragrigliata" class="linkbianco">clicca qui</a></p>
                             </div>`,
                         ];
                         return banners[Math.floor(Math.random() * banners.length)];
@@ -159,17 +153,17 @@
             </div>
 
             <div id="disclaimer" class="divdisclaimer">
-                <button class="btn btn-primary bottone" type="button" data-bs-toggle="modal" data-bs-target="#disclaimerModal" style="margin-top: 30px">
+                <button class="btn btn-secondary bottone" type="button" data-bs-toggle="modal" data-bs-target="#disclaimerModal" style="margin-top: 30px; max-width: 70%">
                     Disclaimer prima di proseguire nel sito ▼
                 </button>
             </div>
 
             <div class="modal fade" id="disclaimerModal" tabindex="-1" aria-labelledby="disclaimerModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
-                    <div class="modal-content">
+                    <div class="modal-content bgdisclaimer">
                         <div class="modal-header">
                             <h5 class="modal-title" id="disclaimerModalLabel">Disclaimer</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="close_disclaimer(1)"></button>
+                            <!--<button type="button" class="btn-close tastobianco" data-bs-dismiss="modal" aria-label="Close" onclick="close_disclaimer(1)" style="color: #ffffff"></button>-->
                         </div>
                         <div class="modal-body">
                             <p class="fw-bold">Questo sito è pensato per intrattenere e far sorridere. <br />Di seguito alcune note importanti per un’esperienza sicura e positiva.</p>
@@ -186,10 +180,13 @@
                                     La pagina delle donazioni è reale e consente invii di denaro; tuttavia, questo sito non è a scopo di lucro, quindi ti invitiamo a non procedere con donazioni.
                                 </li>
                             </ul>
-                            <p class="fw-bold">*Nota: Per trasparenza, il codice del sito è pubblico su GitHub. Puoi verificare tu stesso l'autenticità del disclaimer.</p>
+                            <p class="">
+                                *NOTA: Per trasparenza, il codice del sito è pubblico su <a href="https://github.com/cripsum/cripsum.github.io" class="linkbianco">GitHub</a>. Puoi verificare tu stesso
+                                l'autenticità del disclaimer.
+                            </p>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" c>Chiudi</button>
+                            <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal">Chiudi</button>
                         </div>
                     </div>
                 </div>
@@ -213,7 +210,7 @@
             </div>
         </div> -->
 
-            <div style="max-width: 70%; margin: auto; padding-top: 15px" class="d-flex justify-content-around flex-wrap">
+            <div style="max-width: 70%; margin: auto; padding-top: 15px" class="d-flex justify-content-around flex-wrap testobianco">
                 <img class="img-fluid imagi ombra" src="../img/amongus.jpg" alt="" style="display: inline" />
                 <div class="float-end titolo">
                     <p class="fs-1 text mt-3" style="font-weight: bold">Benvenuto/a nel sito migliore del congo</p>
@@ -244,9 +241,9 @@
                     <div class="col-md-6 text-center spinjitzu">
                         <p class="fs-1 text" style="font-weight: bold">Ciao! Sono Jay!</p>
                         <p class="fs-4 text mt-3">vuoi imparare l'arte dello Spinjitzu?</p>
-                        <div class="button-container">
-                            <a href="https://payhip.com/b/m0kaT" class="purchase-button">Clicca qui per acquistare il mio videocorso online</a>
-                        </div>
+                        <button class="btn btn-secondary bottone" type="button">
+                            <a href="https://payhip.com/b/m0kaT" class="testobianco">Clicca qui per acquistare il mio videocorso online</a>
+                        </button>
                     </div>
                     <div class="col-md-auto spinjitzu spingio">
                         <img src="../img/maranza.jpg" alt="Immagine Destra" class="img-fluid ombra" />
@@ -257,30 +254,31 @@
             <div class="infondo">
                 <div class="sotto">
                     <p class="sottopag">Hey tu, hai un token di accesso?</p>
-                    <p class="sottopag"><a href="accedi">Accedi</a> al sito per sbloccare tutti i contenuti</p>
+                    <p class="sottopag"><a href="accedi" class="linkbianco">Accedi</a> al sito per sbloccare tutti i contenuti</p>
                     <div class="social">
                         <p style="font-size: large; padding-left: 0.1%; margin-top: 3%; margin-bottom: -0.1%">i miei social</p>
-                        <a href="https://www.tiktok.com/@cripsum"><img src="../img/tt.png" alt="" style="margin-right: 0.1%" /></a>
-                        <a href="https://www.instagram.com/cripsum/"><img src="../img/ig.png" alt="" style="margin-right: 0.3%; margin-left: 0.1%" /></a>
-                        <a href="https://discord.gg/Mmb2sNCvy6"><img src="../img/ds.png" alt="" style="margin: 0.3%" /></a>
-                        <a href="https://t.me/cripsum"><img src="../img/tg.png" alt="" style="margin: 0.3%" /></a>
+                        <a href="https://www.tiktok.com/@cripsum"><img src="../img/tt.png" class="imgbianca" alt="" style="margin-right: 0.1%" /></a>
+                        <a href="https://www.instagram.com/cripsum/"><img src="../img/ig.png" class="imgbianca" alt="" style="margin-right: 0.3%; margin-left: 0.1%" /></a>
+                        <a href="https://discord.gg/Mmb2sNCvy6"><img src="../img/ds.png" class="imgbianca" alt="" style="margin: 0.3%" /></a>
+                        <a href="https://t.me/cripsum"><img src="../img/tg.png" class="imgbianca" alt="" style="margin: 0.3%" /></a>
                     </div>
                 </div>
                 <div class="button-container" style="text-align: center; margin-top: 3%">
-                    <a href="https://youtu.be/xvFZjo5PgG0?si=uPsap7ILF_8aYheh" class="purchase-button">Clicca qui per V-bucks gratis!!!!</a>
+                    <button class="btn btn-secondary bottone" type="button">
+                        <a href="https://youtu.be/xvFZjo5PgG0?si=uPsap7ILF_8aYheh" class="testobianco">Clicca qui per V-bucks gratis!!!!</a>
+                    </button>
                 </div>
-                <a href="donazioni" style="text-decoration: none"
-                    ><p style="text-decoration: none; margin-top: 3%; font-size: larger; font-weight: bold; text-align: center">Dona 5€ al Wise Mystical Tree per un mondo migliore :)</p></a
-                >
+                <p style="text-decoration: none; margin-top: 3%; font-size: larger; font-weight: bold; text-align: center">
+                    <a class="linkbianco" href="donazioni" style="text-decoration: none">Dona 5€ al Wise Mystical Tree per un mondo migliore :)</a>
+                </p>
             </div>
-            <p style="text-align: center; margin-top: 3%"><a href="home-test">magia</a></p>
         </div>
         <footer class="my-5 pt-5 text-muted text-center text-small">
-            <p class="mb-1">Copyright © 2021-2024 Cripsum™. Tutti i diritti riservati.</p>
+            <p class="mb-1 testobianco">Copyright © 2021-2024 Cripsum™. Tutti i diritti riservati.</p>
             <ul class="list-inline">
-                <li class="list-inline-item"><a href="privacy">Privacy</a></li>
-                <li class="list-inline-item"><a href="tos">Termini</a></li>
-                <li class="list-inline-item"><a href="supporto">Supporto</a></li>
+                <li class="list-inline-item"><a href="privacy" class="linkbianco">Privacy</a></li>
+                <li class="list-inline-item"><a href="tos" class="linkbianco">Termini</a></li>
+                <li class="list-inline-item"><a href="supporto" class="linkbianco">Supporto</a></li>
             </ul>
         </footer>
         <script
