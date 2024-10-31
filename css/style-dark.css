@@ -1,0 +1,212 @@
+img {
+    border-radius: 10px;
+}
+body {
+    background-color: #121212; /* Dark background color */
+}
+
+.testobianco {
+    color: white;
+    /* text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);*/
+}
+
+.linkbianco {
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    position: relative;
+    padding-bottom: 2px; /* Spazio tra testo e linea */
+    border-bottom: 2px solid transparent; /* Linea inizialmente invisibile */
+    transition: color 0.3s ease, transform 0.3s ease, border-bottom-color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.tastobianco {
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    position: relative;
+    transition: color 0.3s ease, transform 0.3s ease, border-bottom-color 0.3s ease, text-shadow 0.3s ease;
+}
+
+hr.rounded {
+    border-top: 4px solid rgb(255, 255, 255);
+    /*border-radius: 5px;*/
+    max-width: 75%;
+    margin: auto;
+    margin-top: 2%;
+    margin-bottom: 2%;
+    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5);
+}
+
+.purchase-button {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    text-decoration: none;
+    background-color: #303033; /* Colore del bottone */
+    color: #e1dfdb; /* Colore del testo del bottone */
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.imgbianca {
+    filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0.5));
+    transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+.imgbianca:hover {
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+    transform: scale(1.1);
+}
+
+.linkbianco:hover {
+    color: #ffffff; /* Mantiene il colore del testo */
+    transform: scale(1.1); /* Aumenta leggermente la dimensione */
+    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */ /* La linea si espande ai lati */
+    border-bottom-color: white; /* Colore bianco della linea */
+}
+
+.tastobianco:hover {
+    color: #ffffff; /* Mantiene il colore del testo */
+    transform: scale(1.1); /* Aumenta leggermente la dimensione */
+    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
+}
+
+.navbarutenti {
+    position: fixed;
+    top: 20px; /* Spazio in alto */
+    left: 0;
+    right: 0;
+    margin: 0 30px; /* Spazio ai lati */
+    -webkit-backdrop-filter: blur(10px); /* Sfondo sfocato per safari*/
+    backdrop-filter: blur(10px); /* Sfondo sfocato */
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(64, 64, 64, 0.1)); /* Sfondo trasparente */
+    border: 1px solid rgba(255, 255, 255, 0); /* Bordi bianchi */
+    border-radius: 8px; /* Bordo stondato */
+    z-index: 1000; /* Assicura che la navbar sia sopra altri contenuti */
+    box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
+}
+
+.dropdownlingua {
+    -webkit-backdrop-filter: blur(10px); /* Sfondo sfocato per safari*/
+    backdrop-filter: blur(10px); /* Sfondo sfocato */
+    background: linear-gradient(135deg, rgba(43, 43, 43, 0.8), rgb(24, 24, 24)); /* Sfondo trasparente */
+    border: 0px solid rgba(255, 255, 255, 0); /* Bordi bianchi */
+    border-radius: 8px; /* Bordo stondato */
+    box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
+}
+
+.dropdownutenti .dropdown-menu {
+    -webkit-backdrop-filter: blur(10px); /* Sfondo sfocato per safari*/
+    backdrop-filter: blur(10px); /* Sfondo sfocato */
+    background: linear-gradient(135deg, rgba(43, 43, 43, 0.8), rgb(24, 24, 24)); /* Sfondo trasparente */
+    border: 0px solid rgba(255, 255, 255, 0); /* Bordi bianchi */
+    border-radius: 8px; /* Bordo stondato */
+    box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
+}
+
+.dropdownutenti .dropdown-menu .dropdown-item {
+    color: white; /* Colore del testo */
+    font-weight: bold; /* Grassetto */
+    transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease; /* Transizione per l'effetto hover */
+}
+
+.dropdownutenti .dropdown-menu .dropdown-item:hover {
+    color: #ffffff; /* Cambia il colore del testo */
+    transform: scale(1.1); /* Aumenta leggermente la dimensione */
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
+    background-color: rgba(0, 0, 0, 0); /* Sfondo nero */
+}
+
+.navbarutenti .nav-link {
+    color: white; /* Colore del testo */
+    font-weight: bold; /* Grassetto */
+    transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease; /* Transizione per l'effetto hover */
+}
+
+.link-lingua {
+    color: white; /* Colore del testo */
+    font-weight: bold; /* Grassetto */
+    transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease; /* Transizione per l'effetto hover */
+    background-color: rgba(0, 0, 0, 0); /* Sfondo nero */
+}
+
+.navbarutenti .nav-link:hover,
+.navbarutenti .nav-link:focus {
+    color: #ffffff; /* Cambia il colore del testo */
+    transform: scale(1.1); /* Aumenta leggermente la dimensione */
+    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
+}
+
+.link-lingua:hover,
+.link-lingua:focus {
+    color: #ffffff; /* Cambia il colore del testo */
+    transform: scale(1.1); /* Aumenta leggermente la dimensione */
+    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
+    background-color: rgba(0, 0, 0, 0); /* Sfondo nero */
+}
+
+.navbarutenti .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0); /* Colore del bordo del pulsante */
+    transition: box-shadow 0.3s ease;
+}
+
+.lingua-toggler {
+    border-color: rgba(255, 255, 255, 0); /* Colore del bordo del pulsante */
+    transition: box-shadow 0.3s ease; /* Transizione per l'effetto hover */
+}
+
+.navbarutenti .navbar-toggler-icon {
+    background-image: url('data:image/svg+xml;charset=utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 30 30"%3E%3Cpath stroke="white" stroke-width="3" d="M4 7h22M4 15h22M4 23h22"/%3E%3C/svg%3E'); /* Colore dell'icona */
+}
+
+.navbarutenti .navbar-toggler:focus {
+    outline: none;
+    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0); /* Contorno dorato */
+}
+
+.navbarutenti .navbar-toggler:hover {
+    outline: none;
+    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5); /* Contorno dorato */
+}
+
+.lingua-toggler:focus {
+    outline: none;
+    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0); /* Contorno dorato */
+}
+
+.lingua-toggler:hover {
+    outline: none;
+    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5); /* Contorno dorato */
+}
+.dropstart {
+    color: white;
+}
+
+@media (max-width: 1199px) {
+    .navbarutenti .nav-link:hover,
+    .navbarutenti .nav-link:focus {
+        color: #ffffff; /* Cambia il colore del testo */
+        transform: scale(0.95); /* Aumenta leggermente la dimensione */
+        text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
+    }
+
+    .link-lingua:hover {
+        color: #ffffff; /* Cambia il colore del testo */
+        transform: scale(0.95); /* Aumenta leggermente la dimensione */
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
+    }
+
+    .dropdownutenti .dropdown-menu .dropdown-item:hover {
+        color: #ffffff; /* Cambia il colore del testo */
+        transform: scale(0.95); /* Aumenta leggermente la dimensione */
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
+        background-color: rgba(0, 0, 0, 0); /* Sfondo nero */
+    }
+}
+@media (max-width: 768px) {
+    .navbarutenti {
+        top: 10px;
+        margin: 0 20px; /* Spazio ai lati per schermi piccoli */
+    }
+}

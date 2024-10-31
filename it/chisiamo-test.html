@@ -11,6 +11,7 @@
         <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png" />
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="../css/style.css" />
+        <link rel="stylesheet" href="../css/style-dark.css" />
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Cripsum™</title>
@@ -21,19 +22,31 @@
         </style>
     </head>
     <body>
-        <nav class="navbar navbar-expand-xl bg-body-tertiary">
+        <nav class="navbarutenti navbar navbar-expand-xl">
             <div class="container-fluid">
                 <a class="navbar-brand" href="home">
                     <img src="../img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
-                    <span class="align-middle ms-3 fw-bold">Cripsum™</span>
+                    <span class="align-middle ms-3 fw-bold" style="color: white">Cripsum™</span>
                 </a>
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation"
+                    style="z-index: 1000"
+                >
+                    <span class="navbar-toggler-icon"></span>
+                </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a class="nav-link" aria-current="page" href="home">Home page</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
+                        <li class="nav-item dropdown dropdownutenti">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="shitpost">Shitpost</a></li>
                                 <li><a class="dropdown-item" href="tiktokpedia">TikTokPedia</a></li>
@@ -45,8 +58,8 @@
                         <li class="nav-item">
                             <a class="nav-link" href="download">Downloads</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
+                        <li class="nav-item dropdown dropdownutenti">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="negozio">Negozio</a></li>
                                 <li><a class="dropdown-item" href="merch">Merch</a></li>
@@ -56,7 +69,7 @@
                             <a class="nav-link" href="donazioni">Donazioni</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="">Chi siamo</a>
+                            <a class="nav-link" href="chisiamo">Chi siamo</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="edits">Edits</a>
@@ -69,35 +82,21 @@
                         </li>
                     </ul>
                 </div>
-                <!--
-            <a id="btnSwitch" class="ms-auto me-4">d<img src="" /></a>
-            --></div>
-            <div class="btn-group dropstart ms-auto me-3 lingua">
-                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">🇮🇹</button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">🇮🇹 Ita</a></li>
-                    <li><a class="dropdown-item" href="../en/chisiamo">🇬🇧 Eng</a></li>
+            </div>
+            <div class="btn-group dropstart ms-auto me-3 linguanuova">
+                <button type="button" class="btn dropdown-toggle lingua-toggler" data-bs-toggle="dropdown" aria-expanded="false"><a class="link-lingua">🇮🇹</a></button>
+                <ul class="dropdown-menu dropdownlingua">
+                    <li><a class="dropdown-item link-lingua" href="#">🇮🇹 Ita</a></li>
+                    <li><a class="dropdown-item link-lingua" href="../en/chisiamo">🇬🇧 Eng</a></li>
                 </ul>
             </div>
-            <button
-                style="margin-right: 10px"
-                class="navbar-toggler lingua"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-            >
-                <span class="navbar-toggler-icon"></span>
-            </button>
         </nav>
 
-        <div class="paginainterachisiamo">
+        <div class="paginainterachisiamo testobianco" style="padding-top: 7rem">
             <p class="text-center" style="font-size: 30px; font-weight: bolder; margin-top: 20px">il nostro team di sviluppo 🤑</p>
             <p class="text-center" style="font-size: 15px; margin-top: 20px">
-                vuoi far parte del nostro team di sviluppo? manda una e-mail a <a href="mailto:sburra@cripsum.com">sburra@cripsum.com</a> allegando immagine, nome e descrizione, e se vuoi, un username
-                o un link social per i crediti.
+                vuoi far parte del nostro team di sviluppo? manda una e-mail a <a href="mailto:sburra@cripsum.com" class="linkbianco">sburra@cripsum.com</a> allegando immagine, nome e descrizione, e
+                se vuoi, un username o un link social per i crediti.
             </p>
             <section class="container">
                 <div class="row d-flex justify-content-around image-container">
@@ -105,7 +104,7 @@
                         <div class="person" style="margin-top: 10px; margin-bottom: 5%">
                             <img src="../img/cripsumchisiamo.jpg" class="mt-3 immaginechisiamo ombra" alt="Person 1" />
                             <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
-                                <a href="../user/cripsum" style="color: black"><h4 class="nomichisiamo mt-3">cripsum</h4></a>
+                                <h4 class="nomichisiamo mt-3"><a href="../user/cripsum" class="linkbianco">cripsum</a></h4>
                                 <p style="font-size: 15px; margin-top: 3%">l'imperatore del Congo, è un editor fallito.</p>
                             </div>
                         </div>
@@ -114,10 +113,10 @@
                         <div class="person" style="margin-top: 10px; margin-bottom: 5%">
                             <img src="../img/simonetussi.jpg" class="mt-3 immaginechisiamo ombra" alt="Person 2" />
                             <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
-                                <a href="../user/simonetussi" style="color: black"><h4 class="nomichisiamo mt-3">simonetussi.ph</h4></a>
+                                <h4 class="nomichisiamo mt-3"><a href="../user/simonetussi" class="linkbianco">simonetussi.ph</a></h4>
                                 <p style="font-size: 15px; margin-top: 3%">
-                                    seguite tutti simonetussi.ph su <a href="https://instagram.com/simonetussi.ph">instagram</a> e <a href="https://tiktok.com/@simonetussi.ph">tiktok</a> per degli
-                                    scatti fantastici.
+                                    seguite tutti simonetussi.ph su <a href="https://instagram.com/simonetussi.ph" class="linkbianco">instagram</a> e
+                                    <a href="https://tiktok.com/@simonetussi.ph" class="linkbianco">tiktok</a> per degli scatti fantastici.
                                 </p>
                             </div>
                         </div>
@@ -171,7 +170,7 @@
                         <div class="person" style="margin-top: 10px; margin-bottom: 5%">
                             <img src="../img/tacos.jpg" class="mt-3 immaginechisiamo ombra" alt="Person 1" />
                             <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
-                                <a href="../user/tacos" style="color: black"><h4 class="nomichisiamo mt-3">Tacos</h4></a>
+                                <h4 class="nomichisiamo mt-3"><a href="../user/tacos" class="linkbianco">Tacos</a></h4>
                                 <p style="font-size: 15px; margin-top: 3%">anche conosciuto come 1nstxnct, è un pro player italiano di brawl stars</p>
                             </div>
                         </div>
@@ -230,7 +229,7 @@
                                 <h4 class="nomichisiamo mt-3">comi.cs_gio</h4>
                                 <p style="font-size: 15px; margin-top: 3%">
                                     illustratore, fumettista e sono anche una persona. se mi hai trovato da questo sito scrivimi negro in DM su
-                                    <a href="https://instagram.com/comi.cs_gio">instagram</a>
+                                    <a href="https://instagram.com/comi.cs_gio" class="linkbianco">instagram</a>
                                 </p>
                             </div>
                         </div>
@@ -244,7 +243,9 @@
                                 <h4 class="nomichisiamo mt-3">zioperareal</h4>
                                 <p style="font-size: 15px; margin-top: 3%">
                                     - editor (in)decente (cripsum è + bravo, godo), si identifica sessualmente come una pera. <br />
-                                    - è un respiratore e mangiatore professionista <br /><a href="https://youtube.com/@futtziooperaa?si=qPMEzzWqd_8bwhs-">- canale youtube del bro</a>
+                                    - è un respiratore e mangiatore professionista <br /><a href="https://youtube.com/@futtziooperaa?si=qPMEzzWqd_8bwhs-" class="linkbianco"
+                                        >- canale youtube del bro</a
+                                    >
                                 </p>
                             </div>
                         </div>
@@ -254,7 +255,9 @@
                             <img src="../img/boh.png" class="mt-3 immaginechisiamo" alt="Person 2" />
                             <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
                                 <h4 class="nomichisiamo mt-3">?????</h4>
-                                <p style="font-size: 15px; margin-top: 3%">il prossimo potresti essere tu! scrivi a <a href="mailto:sburra@cripsum.com">sburra@cripsum.com</a> per essere aggiunto!</p>
+                                <p style="font-size: 15px; margin-top: 3%">
+                                    il prossimo potresti essere tu! scrivi a <a href="mailto:sburra@cripsum.com" class="linkbianco">sburra@cripsum.com</a> per essere aggiunto!
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -265,7 +268,9 @@
                             <img src="../img/boh.png" class="mt-3 immaginechisiamo" alt="Person 1" />
                             <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
                                 <h4 class="nomichisiamo mt-3">?????</h4>
-                                <p style="font-size: 15px; margin-top: 3%">il prossimo potresti essere tu! scrivi a <a href="mailto:sburra@cripsum.com">sburra@cripsum.com</a> per essere aggiunto!</p>
+                                <p style="font-size: 15px; margin-top: 3%">
+                                    il prossimo potresti essere tu! scrivi a <a href="mailto:sburra@cripsum.com" class="linkbianco">sburra@cripsum.com</a> per essere aggiunto!
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -274,7 +279,9 @@
                             <img src="../img/boh.png" class="mt-3 immaginechisiamo" alt="Person 2" />
                             <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
                                 <h4 class="nomichisiamo mt-3">?????</h4>
-                                <p style="font-size: 15px; margin-top: 3%">il prossimo potresti essere tu! scrivi a <a href="mailto:sburra@cripsum.com">sburra@cripsum.com</a> per essere aggiunto!</p>
+                                <p style="font-size: 15px; margin-top: 3%">
+                                    il prossimo potresti essere tu! scrivi a <a href="mailto:sburra@cripsum.com" class="linkbianco">sburra@cripsum.com</a> per essere aggiunto!
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -283,11 +290,11 @@
         </div>
 
         <footer class="my-5 pt-5 text-muted text-center text-small">
-            <p class="mb-1">Copyright © 2021-2024 Cripsum™. Tutti i diritti riservati.</p>
+            <p class="mb-1 testobianco">Copyright © 2021-2024 Cripsum™. Tutti i diritti riservati.</p>
             <ul class="list-inline">
-                <li class="list-inline-item"><a href="privacy">Privacy</a></li>
-                <li class="list-inline-item"><a href="tos">Termini</a></li>
-                <li class="list-inline-item"><a href="supporto">Supporto</a></li>
+                <li class="list-inline-item"><a href="privacy" class="linkbianco">Privacy</a></li>
+                <li class="list-inline-item"><a href="tos" class="linkbianco">Termini</a></li>
+                <li class="list-inline-item"><a href="supporto" class="linkbianco">Supporto</a></li>
             </ul>
         </footer>
         <script

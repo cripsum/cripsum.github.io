@@ -1,0 +1,216 @@
+.navbarutenti {
+    position: fixed;
+    top: 20px; /* Spazio in alto */
+    left: 0;
+    right: 0;
+    margin: 0 30px; /* Spazio ai lati */
+    -webkit-backdrop-filter: blur(10px); /* Sfondo sfocato per safari*/
+    backdrop-filter: blur(10px); /* Sfondo sfocato */
+    border: 1px solid rgba(255, 255, 255, 0); /* Bordi bianchi */
+    border-radius: 8px; /* Bordo stondato */
+    z-index: 1000; /* Assicura che la navbar sia sopra altri contenuti */
+    box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
+}
+.dropdownutenti .dropdown-menu {
+    -webkit-backdrop-filter: blur(10px); /* Sfondo sfocato per safari*/
+    backdrop-filter: blur(10px); /* Sfondo sfocato */
+    border: 0px solid rgba(255, 255, 255, 0); /* Bordi bianchi */
+    border-radius: 8px; /* Bordo stondato */
+    box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
+}
+
+.dropdownutenti .dropdown-menu .dropdown-item {
+    color: white; /* Colore del testo */
+    font-weight: bold; /* Grassetto */
+    transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease; /* Transizione per l'effetto hover */
+}
+
+.dropdownutenti .dropdown-menu .dropdown-item:hover {
+    color: #ffffff; /* Cambia il colore del testo */
+    transform: scale(1.1); /* Aumenta leggermente la dimensione */
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
+    background-color: rgba(0, 0, 0, 0); /* Sfondo nero */
+}
+
+.navbarutenti .nav-link {
+    color: white; /* Colore del testo */
+    font-weight: bold; /* Grassetto */
+    transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease; /* Transizione per l'effetto hover */
+}
+
+.navbarutenti .nav-link:hover,
+.navbarutenti .nav-link:focus {
+    color: #ffffff; /* Cambia il colore del testo */
+    transform: scale(1.1); /* Aumenta leggermente la dimensione */
+    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
+}
+
+.navbarutenti .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0); /* Colore del bordo del pulsante */
+}
+
+.navbarutenti .navbar-toggler-icon {
+    background-image: url('data:image/svg+xml;charset=utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 30 30"%3E%3Cpath stroke="white" stroke-width="3" d="M4 7h22M4 15h22M4 23h22"/%3E%3C/svg%3E'); /* Colore dell'icona */
+}
+
+.navbarutenti .navbar-toggler:focus {
+    outline: none;
+    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0); /* Contorno dorato */
+}
+
+.navbarutenti .navbar-toggler:hover {
+    outline: none;
+    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5); /* Contorno dorato */
+}
+
+.linkbianco {
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    position: relative;
+    padding-bottom: 2px; /* Spazio tra testo e linea */
+    border-bottom: 2px solid transparent; /* Linea inizialmente invisibile */
+    transition: color 0.3s ease, transform 0.3s ease, border-bottom-color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.linkbianco:hover {
+    color: #ffffff; /* Mantiene il colore del testo */
+    transform: scale(1.1); /* Aumenta leggermente la dimensione */
+    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */ /* La linea si espande ai lati */
+    border-bottom-color: white; /* Colore bianco della linea */
+}
+
+.bio-page * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.bio-pfp {
+    border-radius: 50%;
+    margin-bottom: 20px;
+    max-width: 35%;
+}
+
+.bio-page {
+    min-height: 100vh; /* Altezza al 100% della viewport */
+    display: flex; /* Attiva Flexbox */
+    justify-content: center; /* Centra orizzontalmente */
+    align-items: center; /* Centra verticalmente */
+    color: #fff;
+    position: relative;
+}
+
+/* Background video or image */
+.bio-page .background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.bio-page video,
+.bio-image-bg {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width: 104%;
+    height: 104%;
+    object-fit: cover;
+    filter: blur(4px) brightness(0.6);
+}
+
+/* Central bio container */
+.bio-page .bio-container {
+    position: relative;
+    backdrop-filter: blur(10px);
+    padding: 40px;
+    border-radius: 20px;
+    width: 80%;
+    max-width: 600px;
+    text-align: center;
+    box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.3);
+    margin: auto; /* Center the container */
+}
+
+.bio-page h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.bio-page p {
+    font-size: 1em;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+/* Social media links */
+.bio-page .social-media a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: white;
+    font-size: 1.2em;
+}
+
+@media (max-width: 1199px) {
+    .navbarutenti .nav-link:hover,
+    .navbarutenti .nav-link:focus {
+        color: #ffffff; /* Cambia il colore del testo */
+        transform: scale(0.95); /* Aumenta leggermente la dimensione */
+        text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
+    }
+
+    .dropdownutenti .dropdown-menu .dropdown-item:hover {
+        color: #ffffff; /* Cambia il colore del testo */
+        transform: scale(0.95); /* Aumenta leggermente la dimensione */
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
+        background-color: rgba(0, 0, 0, 0); /* Sfondo nero */
+    }
+}
+@media (max-width: 768px) {
+    .navbarutenti {
+        top: 10px;
+        margin: 0 20px; /* Spazio ai lati per schermi piccoli */
+    }
+}
+
+@media (max-width: 768px) {
+    .bio-page .bio-container {
+        width: 90%;
+        padding: 30px;
+    }
+
+    .bio-page h1 {
+        font-size: 2em;
+    }
+
+    .bio-page p {
+        font-size: 0.9em;
+    }
+
+    .bio-page .social-media a {
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 480px) {
+    .bio-page .bio-container {
+        width: 90%;
+        padding: 20px;
+    }
+
+    .bio-page h1 {
+        font-size: 1.8em;
+    }
+
+    .bio-page p {
+        font-size: 0.8em;
+    }
+
+    .bio-page .social-media a {
+        font-size: 0.9em;
+    }
+}
