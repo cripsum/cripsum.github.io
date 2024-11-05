@@ -183,6 +183,10 @@ hr.rounded {
     color: white;
 }
 
+.bordobianco {
+    box-shadow: 0 0 8px 5px rgba(255, 255, 255, 0.5);
+}
+
 @media (max-width: 1199px) {
     .navbarutenti .nav-link:hover,
     .navbarutenti .nav-link:focus {
