@@ -187,6 +187,129 @@ hr.rounded {
     box-shadow: 0 0 8px 5px rgba(255, 255, 255, 0.5);
 }
 
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea {
+    background-color: #333; /* Colore grigio scuro */
+    color: white !important; /* Colore del testo */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Bordo leggero */
+    border-radius: 8px; /* Bordi stondati */
+    padding: 10px; /* Spaziatura interna */
+    width: 100%; /* Si adatta al contenitore */
+    box-sizing: border-box; /* Include padding nel calcolo della larghezza */
+    transition: background-color 0.3s ease, border-color 0.3s ease; /* Transizione per effetti */
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+textarea:focus {
+    color: white !important;
+    outline: none; /* Rimuove il bordo di default */
+    background-color: #444; /* Cambia lo sfondo su focus */
+    border-color: rgba(255, 255, 255, 0.5); /* Colore del bordo su focus */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Leggera ombra */
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none; /* Rimuove l'aspetto di default */
+    appearance: none; /* Supporto per altri browser */
+    margin: 0; /* Rimuove margine */
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: rgb(255, 255, 255) !important; /* Colore del placeholder bianco semitrasparente */
+    opacity: 1; /* Garantisce la visibilità */
+}
+
+input::-webkit-input-placeholder, /* Chrome/Opera/Safari */
+textarea::-webkit-input-placeholder {
+    color: rgb(255, 255, 255) !important;
+}
+
+input::-moz-placeholder, /* Firefox 19+ */
+textarea::-moz-placeholder {
+    color: rgb(255, 255, 255) !important;
+}
+
+input:-ms-input-placeholder, /* IE 10+ */
+textarea:-ms-input-placeholder {
+    color: rgb(255, 255, 255) !important;
+}
+
+input::-ms-input-placeholder, /* Microsoft Edge */
+textarea::-ms-input-placeholder {
+    color: rgb(255, 255, 255) !important;
+}
+
+.loading_white {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+}
+
+.loading__dot_white {
+    animation: dot ease-in-out 1s infinite;
+    background-color: rgb(255, 255, 255);
+    display: inline-block;
+    height: 15px;
+    margin: 7px;
+    width: 15px;
+}
+
+.loading__dot_white:nth-of-type(2) {
+    animation-delay: 0.2s;
+}
+
+.loading__dot_white:nth-of-type(3) {
+    animation-delay: 0.3s;
+}
+
+select {
+    background-color: #333; /* Colore grigio scuro */
+    color: white; /* Colore del testo */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Bordo leggero */
+    border-radius: 8px; /* Bordi stondati */
+    padding: 10px; /* Spaziatura interna */
+    width: 100%; /* Si adatta al contenitore */
+    box-sizing: border-box; /* Include padding nel calcolo della larghezza */
+    appearance: none; /* Rimuove lo stile di default */
+    -webkit-appearance: none; /* Supporto per Chrome/Safari */
+    -moz-appearance: none; /* Supporto per Firefox */
+    transition: background-color 0.3s ease, border-color 0.3s ease; /* Transizione per effetti */
+}
+
+/* Stile al focus */
+select:focus {
+    outline: none; /* Rimuove il bordo di default */
+    background-color: #444; /* Cambia lo sfondo su focus */
+    border-color: rgba(255, 255, 255, 0.5); /* Colore del bordo su focus */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Leggera ombra */
+}
+
+checkbox,
+radio {
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer; /* Cambia il cursore su hover */
+    padding: 10px; /* Spaziatura */
+    border-radius: 15px; /* Bordi stondati */
+    transition: background-color 0.3s ease; /* Transizione per l'effetto hover */
+}
+
+checkbox:hover,
+radio:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Sfondo grigio chiaro su hover */
+}
+
 @media (max-width: 1199px) {
     .navbarutenti .nav-link:hover,
     .navbarutenti .nav-link:focus {
