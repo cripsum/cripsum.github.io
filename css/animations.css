@@ -1,13 +1,13 @@
 .fadeup {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px);
 
     transition: opacity 1s ease, transform 1s ease;
 }
 
 .fadeuphr {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px);
 
     transition: opacity 1s ease, transform 1s ease;
 }
