@@ -12,6 +12,11 @@
     transition: opacity 1s ease, transform 1s ease;
 }
 
+.fadein {
+    opacity: 0;
+    transition: opacity 1.5s ease;
+}
+
 .visible {
     opacity: 1;
     transform: translateY(0);
@@ -20,4 +25,8 @@
 .visible-hr {
     opacity: 0.7;
     transform: translateY(0);
+}
+
+.visible-fadein {
+    opacity: 1;
 }
