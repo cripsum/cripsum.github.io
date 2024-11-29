@@ -195,7 +195,8 @@ hr.rounded {
 }
 
 .carosellone {
-    max-width: 70%;
+    width: 400px;
+    height: 220px;
     margin: auto;
     margin-top: 5%;
 }
@@ -208,9 +209,9 @@ hr.rounded {
 .commento {
     text-align: center;
     margin-top: 5%;
-    max-width: 40%;
-    display: block;
     margin: auto;
+    max-width: 80%;
+    display: block;
 }
 
 a {
@@ -317,6 +318,12 @@ a {
 .tiktokpedia {
     max-width: 1600px;
     margin: auto;
+}
+
+.card {
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 7px 7px rgba(255, 255, 255, 0.4);
+    background-color: rgba(0, 0, 0, 0);
 }
 
 .card-img-top {
@@ -446,6 +453,14 @@ a {
     .dox {
         max-width: 90%;
     }
+
+    .carosellone {
+        width: 400px;
+        height: 160px;
+        margin: auto;
+        margin-top: 5%;
+    }
+
     .containerCheckout {
         max-width: 80%;
         margin: auto;
@@ -505,10 +520,6 @@ a {
     }
     .immaginechisiamo {
         max-width: 37%;
-        margin: auto;
-    }
-    .carosellone {
-        max-width: 70%;
         margin: auto;
     }
 
