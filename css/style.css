@@ -395,6 +395,12 @@ a {
     padding-top: 30px;
 }
 
+.video-capolavoro {
+    max-width: 500px;
+    max-height: 320px;
+    margin: auto;
+}
+
 /* Limitiamo gli stili alla pagina che ha la classe "bio-page" */
 
 @keyframes textAnimate {
@@ -452,6 +458,12 @@ a {
     }
     .dox {
         max-width: 90%;
+    }
+
+    .video-capolavoro {
+        width: 320px;
+        height: 320px;
+        margin: auto;
     }
 
     .carosellone {
