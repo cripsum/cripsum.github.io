@@ -13,6 +13,8 @@
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="../css/style.css" />
         <link rel="stylesheet" href="../css/style-dark.css" />
+        <link rel="stylesheet" href="../css/animations.css" />
+        <script src="../js/animations.js"></script>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Cripsum™</title>
@@ -93,40 +95,40 @@
             <div class="tab-content">
                 <div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="tab-login">
                     <form>
-                        <p class="fs-1 text mb-5" style="font-weight: bold">Registrati</p>
+                        <p class="fs-1 text mb-5 fadeup" style="font-weight: bold">Registrati</p>
                         <!-- Name input -->
-                        <div data-mdb-input-init class="form-outline mb-4">
+                        <div data-mdb-input-init class="form-outline mb-4 fadeup">
                             <label class="form-label" for="registerName">Nome</label>
                             <input type="text" id="registerName" class="form-control" />
                         </div>
 
                         <!-- Username input -->
-                        <div data-mdb-input-init class="form-outline mb-4">
+                        <div data-mdb-input-init class="form-outline mb-4 fadeup">
                             <label class="form-label" for="registerUsername">Username</label>
                             <input type="text" id="registerUsername" class="form-control" />
                         </div>
 
                         <!-- Email input -->
-                        <div data-mdb-input-init class="form-outline mb-4">
+                        <div data-mdb-input-init class="form-outline mb-4 fadeup">
                             <label class="form-label" for="registerEmail">Email</label>
                             <input type="email" id="registerEmail" class="form-control" />
                         </div>
 
                         <!-- Password input -->
-                        <div data-mdb-input-init class="form-outline mb-4">
+                        <div data-mdb-input-init class="form-outline mb-4 fadeup">
                             <label class="form-label" for="registerPassword">Password</label>
                             <input type="password" id="registerPassword" class="form-control" />
                         </div>
 
                         <!-- Repeat Password input -->
-                        <div data-mdb-input-init class="form-outline mb-4">
+                        <div data-mdb-input-init class="form-outline mb-4 fadeup">
                             <label class="form-label" for="registerRepeatPassword">Ripeti password</label>
                             <input type="password" id="registerRepeatPassword" class="form-control" />
                         </div>
 
-                        <p class="text-center">Oppure:</p>
+                        <p class="text-center fadeup">Oppure:</p>
 
-                        <div class="text-center mb-3">
+                        <div class="text-center mb-3 fadeup">
                             <button data-mdb-ripple-init type="button" class="btn btn-floating mx-1">
                                 <i class="bi bi-facebook" style="color: #ffffff"></i>
                             </button>
@@ -145,7 +147,7 @@
                         </div>
 
                         <!-- Checkbox -->
-                        <div class="form-check d-flex justify-content-center mb-4">
+                        <div class="form-check d-flex justify-content-center mb-4 fadeup">
                             <input class="form-check-input me-2 checco" type="checkbox" value="" id="registerCheck" checked aria-describedby="registerCheckHelpText" />
                             <label class="form-check-label text-center"
                                 >Ho letto e accetto i <a href="https://www.youtube.com/watch?v=xvFZjo5PgG0" style="text-decoration: none; font-weight: bold" class="linkbianco">termini e condizioni</a></label
@@ -153,7 +155,7 @@
                         </div>
 
                         <!-- Submit button -->
-                        <div class="button-container mb-3" style="text-align: center; margin-top: 3%;">
+                        <div class="button-container mb-3 fadeup" style="text-align: center; margin-top: 3%;">
                             <button class="btn btn-secondary bottone" type="button">
                                 <a
                                 href="mailto:sburra@cripsum.com?subject=Richiesta%20token%20d'accesso&body=Ciao!%20Potresti%20mandarmi%20i%20codici%20d'accesso%20disponibili?%20"
@@ -166,7 +168,7 @@
             </div>
         </div>
         <!-- Pills content -->
-        <footer class="my-5 pt-5 text-muted text-center text-small">
+        <footer class="my-5 pt-5 text-muted text-center text-small fadeup">
             <p class="mb-1 testobianco">Copyright © 2021-2024 Cripsum™. Tutti i diritti riservati.</p>
             <ul class="list-inline">
                 <li class="list-inline-item"><a href="privacy" class="linkbianco">Privacy</a></li>

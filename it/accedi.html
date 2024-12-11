@@ -13,6 +13,8 @@
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="../css/style.css" />
         <link rel="stylesheet" href="../css/style-dark.css" />
+        <link rel="stylesheet" href="../css/animations.css" />
+        <script src="../js/animations.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js" integrity="sha256-/H4YS+7aYb9kJ5OKhFYPUjSJdrtV6AeyJOtTkw6X72o=" crossorigin="anonymous"></script>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -99,24 +101,24 @@
       aria-labelledby="tab-login"
     >
       <form>
-        <p class="fs-1 text mb-5" style="font-weight: bold;">Accedi</p>
+        <p class="fs-1 text mb-5 fadeup" style="font-weight: bold;">Accedi</p>
   
         <!-- Email input -->
-        <div data-mdb-input-init class="form-outline mb-4">
+        <div data-mdb-input-init class="form-outline mb-4 fadeup">
             <label class="form-label" for="loginName">Email o username</label>
             <input type="email" id="loginName" class="form-control" />
         </div>
   
         <!-- Password input -->
-        <div data-mdb-input-init class="form-outline mb-4">
+        <div data-mdb-input-init class="form-outline mb-4 fadeup">
             <label class="form-label" for="password">Password</label>
           <input type="password" id="password" class="form-control" />
           
         </div>
 
-        <p class="text-center">Oppure:</p>
+        <p class="text-center fadeup ">Oppure:</p>
 
-        <div class="text-center mb-3">
+        <div class="text-center mb-3 fadeup">
             <button data-mdb-ripple-init type="button" class="btn btn-floating mx-1">
               <i class="bi bi-facebook" style="color: #ffffff"></i>
             </button>
@@ -135,7 +137,7 @@
           </div>
   
         <!-- 2 column grid layout -->
-        <div class="row mb-4">
+        <div class="row mb-4 fadeup">
           <div class="col-md-6 d-flex justify-content-center">
             <!-- Checkbox -->
             <div class="form-check mb-3 mb-md-0">
@@ -150,7 +152,7 @@
             </div>
           </div>
   
-          <div class="col-md-6 d-flex justify-content-center">
+          <div class="col-md-6 d-flex justify-content-center ">
             <!-- Simple link -->
             <a href="https://www.youtube.com/watch?v=xvFZjo5PgG0" style="font-weight: bold;" class="linkbianco">Password dimenticata?</a>
           </div>
@@ -158,7 +160,7 @@
   
         <!-- Submit button -->
          
-        <div class="button-container mb-3" style="text-align: center; margin-top: 3%;">
+        <div class="button-container mb-3 fadeup" style="text-align: center; margin-top: 3%;">
           <button class="btn btn-secondary bottone" type="button">
             <a href="#" class="testobianco" onclick="accedi()">Accedi</a>
         </button>
@@ -169,7 +171,7 @@
         </div>
   
         <!-- Register buttons -->
-        <div class="text-center">
+        <div class="text-center fadeup">
           <p>Non hai un account? <a href="registrati" style="font-weight: bold;" class="linkbianco">Registrati</a></p>
         </div>
       </form>
@@ -184,7 +186,7 @@
   </div>
 </div>
   <!-- Pills content -->
-  <footer class="my-5 pt-5 text-muted text-center text-small">
+  <footer class="my-5 pt-5 text-muted text-center text-small fadeup">
     <p class="mb-1 testobianco">Copyright © 2021-2024 Cripsum™. Tutti i diritti riservati.</p>
     <ul class="list-inline">
       <li class="list-inline-item"><a href="privacy" class="linkbianco">Privacy</a></li>
