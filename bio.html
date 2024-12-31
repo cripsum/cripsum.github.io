@@ -1,28 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <meta charset="UTF-8" />
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
             rel="stylesheet"
             integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
             crossorigin="anonymous"
         />
-        <link rel="icon" href="../img/Susremaster.png" type="image/png" />
-        <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png" />
+        <link rel="icon" href="img/Susremaster.png" type="image/png" />
+        <link rel="shortcut icon" href="img/Susremaster.png" type="image/png" />
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
-        <link rel="stylesheet" href="../css/style.css" />
-        <link rel="stylesheet" href="../css/style-dark.css" />
-        <link rel="stylesheet" href="../css/animations.css" />
-        <script src="../js/animations.js"></script>
-        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="css/style.css" />
+        <link rel="stylesheet" href="css/style-dark.css" />
+        <link rel="stylesheet" href="css/animations.css" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script src="js/animations.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Cripsum™</title>
     </head>
-    <body>
-        <nav class="navbarutenti navbar navbar-expand-xl">
+
+    <body class="">
+        <nav class="navbarutenti navbar navbar-expand-xl fadein">
             <div class="container-fluid">
-                <a class="navbar-brand" href="home">
-                    <img src="../img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
+                <a class="navbar-brand" href="it/home">
+                    <img src="img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
                     <span class="align-middle ms-3 fw-bold" style="color: white">Cripsum™</span>
                 </a>
                 <button
@@ -40,42 +42,42 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" aria-current="page" href="home">Home page</a>
+                            <a class="nav-link" aria-current="page" href="it/home">Home page</a>
                         </li>
                         <li class="nav-item dropdown dropdownutenti">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="shitpost">Shitpost</a></li>
-                                <li><a class="dropdown-item" href="tiktokpedia">TikTokPedia</a></li>
-                                <li><a class="dropdown-item" href="rimasti">Top rimasti</a></li>
-                                <li><a class="dropdown-item" href="quandel57" style="color: red; font-weight: bold">Quandel57</a></li>
-                                <li><a class="dropdown-item arcobalenos" href="gambling" style="font-weight: bold">Gambling!!</a></li>
+                                <li><a class="dropdown-item" href="it/shitpost">Shitpost</a></li>
+                                <li><a class="dropdown-item" href="it/tiktokpedia">TikTokPedia</a></li>
+                                <li><a class="dropdown-item" href="it/rimasti">Top rimasti</a></li>
+                                <li><a class="dropdown-item" href="it/quandel57" style="color: red; font-weight: bold">Quandel57</a></li>
+                                <li><a class="dropdown-item arcobalenos" href="it/gambling" style="font-weight: bold">Gambling!!</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="download">Downloads</a>
+                            <a class="nav-link" href="it/download">Downloads</a>
                         </li>
                         <li class="nav-item dropdown dropdownutenti">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="negozio">Negozio</a></li>
-                                <li><a class="dropdown-item" href="merch">Merch</a></li>
+                                <li><a class="dropdown-item" href="it/negozio">Negozio</a></li>
+                                <li><a class="dropdown-item" href="it/merch">Merch</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="donazioni">Donazioni</a>
+                            <a class="nav-link" href="it/donazioni">Donazioni</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="chisiamo">Chi siamo</a>
+                            <a class="nav-link" href="it/chisiamo">Chi siamo</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="edits">Edits</a>
+                            <a class="nav-link" href="it/edits">Edits</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="accedi">Accedi</a>
+                            <a class="nav-link" href="it/accedi">Accedi</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="registrati">Registrati</a>
+                            <a class="nav-link" href="it/registrati">Registrati</a>
                         </li>
                     </ul>
                 </div>
@@ -84,29 +86,28 @@
                 <button type="button" class="btn dropdown-toggle lingua-toggler" data-bs-toggle="dropdown" aria-expanded="false"><a class="link-lingua">🇮🇹</a></button>
                 <ul class="dropdown-menu dropdownlingua">
                     <li><a class="dropdown-item link-lingua" href="#">🇮🇹 Ita</a></li>
-                    <li><a class="dropdown-item link-lingua" href="../en/donazioni">🇬🇧 Eng</a></li>
+                    <li><a class="dropdown-item link-lingua" href="en/bio">🇬🇧 Eng</a></li>
                 </ul>
             </div>
         </nav>
-        <div class="paginainteradolod testobianco fadeup" style="margin: auto; padding-top: 7rem">
-            <h6 class="text text-center mt-3">
-                questo sito, il quale comprende 20/25 pagine, mi è costato circa 3/4 mila euro, ti va di donare una piccola somma di denaro per finanziare lo sviluppo di questo progetto? :)
-            </h6>
+
+        <div style="max-width: 1520px; margin: auto; padding-top: 7rem" class="testobianco">
+            <p class="text-center">pagina bio seria, godo</p>
+            <p class="text-center">la pagina è ancora in fase di creazione, ma per il momento puoi:</p>
+            <div style="text-align: center">
+                <ul style="display: inline-block; text-align: left">
+                    <li><a href="it/home" class="linkbianco">Andare alla home del sito</a></li>
+                    <li><a href="it/edits" class="linkbianco">Guardare i miei edit</a></li>
+                    <li><a href="user/cripsum" class="linkbianco">Guardare la mia pagina bio meme</a></li>
+                </ul>
+            </div>
         </div>
-        <div class="text-center mt-3 fadeup">
-            <a href="https://www.buymeacoffee.com/cripsum"
-                ><img
-                    class="ombra"
-                    style="border-radius: 10px"
-                    src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee :P&emoji=☕&slug=cripsum&button_colour=FFDD00&font_colour=000000&font_family=Poppins&outline_colour=000000&coffee_colour=ffffff"
-            /></a>
-        </div>
-        <footer class="my-5 pt-5 text-muted text-center text-small fadeup" style="position: absolute; bottom: 0; right: 0; left: 0">
+        <footer class="my-5 pt-5 text-muted text-center text-small fadeup">
             <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. Tutti i diritti riservati.</p>
             <ul class="list-inline">
-                <li class="list-inline-item"><a href="privacy" class="link-lingua">Privacy</a></li>
-                <li class="list-inline-item"><a href="tos" class="link-lingua">Termini</a></li>
-                <li class="list-inline-item"><a href="supporto" class="link-lingua">Supporto</a></li>
+                <li class="list-inline-item"><a href="it/privacy" class="linkbianco">Privacy</a></li>
+                <li class="list-inline-item"><a href="it/tos" class="linkbianco">Termini</a></li>
+                <li class="list-inline-item"><a href="it/supporto" class="linkbianco">Supporto</a></li>
             </ul>
         </footer>
         <script
@@ -114,6 +115,6 @@
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"
         ></script>
-        <script src="../js/modeChanger.js"></script>
+        <script src="js/modeChanger.js"></script>
     </body>
 </html>
