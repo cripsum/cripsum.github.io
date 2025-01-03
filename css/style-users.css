@@ -155,6 +155,21 @@
     font-size: 1.2em;
 }
 
+.bio-page .bio-seria-container {
+    position: relative;
+    backdrop-filter: blur(10px);
+    padding: 40px;
+    border-radius: 20px;
+    border-color: #ffffff;
+    border-width: 15px;
+    width: 80%;
+    max-width: 600px;
+    text-align: center;
+    box-shadow: 0 0 7px 7px rgba(255, 255, 255, 0.3);
+    margin: auto; /* Center the container */
+    border: 3px solid white;
+}
+
 @media (max-width: 1199px) {
     .navbarutenti .nav-link:hover,
     .navbarutenti .nav-link:focus {
