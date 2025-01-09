@@ -12,17 +12,37 @@
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="css/style.css" />
         <link rel="stylesheet" href="css/style-dark.css" />
-        <link rel="stylesheet" href="../css/style.css" />
-        <link rel="stylesheet" href="../css/style-dark.css" />
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script>
+            // Funzione per correggere i percorsi relativi
+            function adjustPaths() {
+              const basePath = Array(window.location.pathname.split('/').length - 2).fill('..').join('/');
+              const cssLink = document.createElement('link');
+              const cssLink2 = document.createElement('link');
+              cssLink.rel = 'stylesheet';
+              cssLink.href = `${basePath}/css/style.css`; // Aggiorna con il percorso reale del tuo CSS
+              cssLink2.rel = 'stylesheet';
+              cssLink2.href = `${basePath}/css/style-dark.css`; // Aggiorna con il percorso reale del tuo CSS
+              document.head.appendChild(cssLink);
+              document.head.appendChild(cssLink2);
+        
+              // Correggi anche altri asset come immagini se necessario
+              const images = document.querySelectorAll('img[data-src]');
+              images.forEach(img => {
+                img.src = `${basePath}/${img.getAttribute('data-src')}`;
+              });
+            }
+        
+            document.addEventListener('DOMContentLoaded', adjustPaths);
+          </script>
         <title>Cripsum™</title>
     </head>
     <body>
         <nav class="navbarutenti navbar navbar-expand-xl">
             <div class="container-fluid">
                 <a class="navbar-brand" href="it/home">
-                    <img src="img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
+                    <img data-src="img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
                     <span class="align-middle ms-3 fw-bold" style="color: white">Cripsum™</span>
                 </a>
         </nav>
