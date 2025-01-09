@@ -30,13 +30,13 @@
               images.forEach(img => {
                 img.src = `${basePath}/${img.getAttribute('data-src')}`;
               });
+
+              document.querySelectorAll('link[data-href]').forEach(link => {
+                    link.href = `${basePath}${link.getAttribute('data-href')}`;
+                });
             }
 
-            // Correggi il percorso dei link
-            const links = document.querySelectorAll('a[data-href]');
-            links.forEach(link => {
-                link.href = `${basePath}/${link.getAttribute('data-href')}`;
-            });
+            
         
             document.addEventListener('DOMContentLoaded', adjustPaths);
           </script>
@@ -45,7 +45,7 @@
     <body>
         <nav class="navbarutenti navbar navbar-expand-xl">
             <div class="container-fluid">
-                <a class="navbar-brand" data-href="en/home">
+                <a class="navbar-brand" href="https://cripsum.com/en/home">
                     <img data-src="img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
                     <span class="align-middle ms-3 fw-bold" style="color: white">Cripsum™</span>
                 </a>
@@ -57,7 +57,7 @@
                 <p class="text-center mt-3" style="font-size: small"> Seriously bro, where were you trying to go?</p>
                 <img data-src="img/emojithinkingmeme.png" alt="" style="max-width: 100%; margin: auto; display: block;">
                 <br><br>
-                <p class="text-center mt-3"><a data-href="en/home" class="linkbianco">Go back to the homepage</a></p>
+                <p class="text-center mt-3"><a href="https://cripsum.com/en/home" class="linkbianco">Go back to the homepage</a></p>
             </div>
         </div>
         <script
