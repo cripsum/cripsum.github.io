@@ -246,7 +246,12 @@
                 </div>
             </div>
             <hr class="rounded fadeuphr" />
-            <div class="container fadeup">
+
+            <div id="randomAd">
+                <script>
+                    function getRandomAd() {
+                        const ads = [
+                            `<div class="container fadeup">
                 <div class="row justify-content-center align-items-center">
                     <div class="col-md-auto mb-3 spinjitzu spingio">
                         <img src="../img/jay.png" alt="Immagine Sinistra" class="img-fluid" />
@@ -262,8 +267,29 @@
                         <img src="../img/maranza.jpg" alt="Immagine Destra" class="img-fluid ombra" />
                     </div>
                 </div>
+            </div>`,
+                            `<div class="container fadeup">
+                <div class="row justify-content-center align-items-center">
+                    <div class="col-md-auto mb-3 spinjitzu spingio">
+                        <img src="../img/chinese-essay-344821_1280.jpg" alt="Immagine Sinistra" class="img-fluid" style="max-width: 200px" />
+                    </div>
+                    <div class="col-md-6 text-center spinjitzu">
+                        <p class="fs-1 text" style="font-weight: bold">Hey! Mi chiamo 優希!</p>
+                        <p class="fs-4 text mt-3">vuoi imparare l'arte dello Yoshukai?</p>
+                        <button class="btn btn-secondary bottone" type="button">
+                            <a href="https://payhip.com/b/m0kaT" class="testobianco">Clicca qui per scaricare la mia guida gratuita</a>
+                        </button>
+                    </div>
+                </div>
+            </div>`,
+                        ];
+                        return ads[Math.floor(Math.random() * ads.length)];
+                    }
+
+                    document.write(getRandomAd());
+                </script>
             </div>
-            <hr class="rounded fadeuphr" />
+            <hr class="rounded fadeuphr mt-3 mb-3" />
             <div class="infondo fadeup">
                 <div class="sotto" style="padding-bottom: 1%">
                     <p class="sottopag">Hey tu, hai un token di accesso?</p>
