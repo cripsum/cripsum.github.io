@@ -17,6 +17,12 @@
     transition: opacity 1.5s ease;
 }
 
+.fadenavmenu {
+    opacity: 0;
+
+    transition: opacity 1s ease;
+}
+
 .visible {
     opacity: 1;
     transform: translateY(0);
@@ -29,4 +35,149 @@
 
 .visible-fadein {
     opacity: 1;
+}
+
+.visible-fadenavmenu {
+    opacity: 1;
+}
+
+.animate {
+    animation-duration: 0.3s;
+    -webkit-animation-duration: 0.3s;
+    animation-fill-mode: both;
+    -webkit-animation-fill-mode: both;
+}
+
+@keyframes slideIn {
+    0% {
+        transform: translateY(-1rem);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0rem);
+        opacity: 1;
+    }
+
+    0% {
+        transform: translateY(-1rem);
+        opacity: 0;
+    }
+}
+
+@-webkit-keyframes slideIn {
+    0% {
+        -webkit-transform: transform;
+        -webkit-opacity: 0;
+    }
+
+    100% {
+        -webkit-transform: translateY(0);
+        -webkit-opacity: 1;
+    }
+
+    0% {
+        -webkit-transform: translateY(-1rem);
+        -webkit-opacity: 0;
+    }
+}
+
+.slideIn {
+    -webkit-animation-name: slideIn;
+    animation-name: slideIn;
+}
+
+.animateLingua {
+    animation-duration: 0.3s;
+    -webkit-animation-duration: 0.3s;
+    animation-fill-mode: both;
+    -webkit-animation-fill-mode: both;
+}
+
+@keyframes slideInLingua {
+    0% {
+        transform: translateX(1rem);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateX(0rem);
+        opacity: 1;
+    }
+
+    0% {
+        transform: translateX(1rem);
+        opacity: 0;
+    }
+}
+
+@-webkit-keyframes slideInLingua {
+    0% {
+        -webkit-transform: transform;
+        -webkit-opacity: 0;
+    }
+
+    100% {
+        -webkit-transform: translateX(0);
+        -webkit-opacity: 1;
+    }
+
+    0% {
+        -webkit-transform: translateX(1rem);
+        -webkit-opacity: 0;
+    }
+}
+
+.slideInLingua {
+    -webkit-animation-name: slideInLingua;
+    animation-name: slideInLingua;
+}
+
+@media only screen and (max-width: 768px) {
+    .animateLingua {
+        animation-duration: 0.3s;
+        -webkit-animation-duration: 0.3s;
+        animation-fill-mode: both;
+        -webkit-animation-fill-mode: both;
+    }
+
+    @keyframes slideInLingua {
+        0% {
+            transform: translateY(-1rem);
+            opacity: 0;
+        }
+
+        100% {
+            transform: translateY(0rem);
+            opacity: 1;
+        }
+
+        0% {
+            transform: translateY(-1rem);
+            opacity: 0;
+        }
+    }
+
+    @-webkit-keyframes slideInLingua {
+        0% {
+            -webkit-transform: transform;
+            -webkit-opacity: 0;
+        }
+
+        100% {
+            -webkit-transform: translateY(0);
+            -webkit-opacity: 1;
+        }
+
+        0% {
+            -webkit-transform: translateY(-1rem);
+            -webkit-opacity: 0;
+        }
+    }
+
+    .slideInLingua {
+        -webkit-animation-name: slideInLingua;
+        animation-name: slideInLingua;
+        right: -2rem;
+    }
 }
