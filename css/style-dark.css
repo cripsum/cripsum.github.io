@@ -179,6 +179,9 @@ hr.rounded {
     outline: none;
     box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5); /* Contorno dorato */
 }
+.dropdown {
+    color: white;
+}
 .dropstart {
     color: white;
 }
