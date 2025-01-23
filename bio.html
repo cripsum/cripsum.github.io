@@ -12,35 +12,6 @@
 
             gtag("config", "G-T0CTM2SBJJ");
         </script>
-        <script>
-            import { connect } from "lanyard";
-
-            // Inserisci qui il tuo Discord User ID
-            const DISCORD_USER_ID = "963536045180350474";
-
-            // Funzione per ottenere lo stato Discord
-            async function fetchDiscordStatus() {
-                try {
-                    // Chiamata API REST di Lanyard
-                    const response = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_USER_ID}`);
-                    const data = await response.json();
-
-                    // Aggiorna il DOM con i dati ricevuti
-                    document.getElementById("discord-status").innerText = `Stato: ${data.data.discord_status}`;
-                    document.getElementById("activity").innerText = `Attività: ${data.data.activities[0]?.name || "Nessuna attività in corso"}`;
-                } catch (error) {
-                    console.error("Errore nel recuperare i dati da Lanyard:", error);
-                    document.getElementById("discord-status").innerText = "Errore nel recuperare lo stato.";
-                    document.getElementById("activity").innerText = "Errore nel recuperare l'attività.";
-                }
-            }
-
-            // Chiamata iniziale per ottenere i dati
-            fetchDiscordStatus();
-
-            // Aggiorna i dati ogni 10 secondi
-            setInterval(fetchDiscordStatus, 5000);
-        </script>
         <meta charset="UTF-8" />
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
@@ -154,10 +125,7 @@
                         <li><p>Developer</p></li>
                     </ul>
                 </div>
-                <div id="lanyard">
-                    <p id="discord-status">Stato: Offline</p>
-                    <p id="activity">Attività: Nessuna</p>
-                </div>
+                <a href="https://discord.com/users/963536045180350474" style="text-align: center"><img src="https://lanyard.cnrad.dev/api/963536045180350474?borderRadius=15px&bg=043636" /></a>
                 <div class="social-media">
                     <a href="https://tiktok.cripsum.com" target="_blank" class="linkbianco">TikTok</a>
                     <a href="https://t.me/sburragrigliata" target="_blank" class="linkbianco">Telegram</a>
