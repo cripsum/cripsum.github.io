@@ -12,6 +12,33 @@
 
             gtag("config", "G-T0CTM2SBJJ");
         </script>
+        <script>
+            import { connect } from "lanyard";
+
+            const userId = "963536045180350474"; // Sostituisci con il tuo ID utente Discord.
+
+            connect(userId, (data) => {
+                console.log("Dati Lanyard ricevuti:", data);
+
+                // Aggiorna il tuo sito con le informazioni ricevute
+                document.getElementById("discord-status").innerText = data.discord_status; // Mostra lo stato (online, idle, dnd)
+                document.getElementById("activity").innerText = data.activities?.[0]?.name || "Nessuna attività in corso";
+            });
+
+            async function fetchDiscordData() {
+                const response = await fetch("https://api.lanyard.rest/v1/users/TUO_DISCORD_USER_ID");
+                const data = await response.json();
+
+                // Aggiorna gli elementi HTML con i dati ricevuti
+                document.getElementById("discord-status").innerText = data.data.discord_status;
+                document.getElementById("activity").innerText = data.data.activities?.[0]?.name || "Nessuna attività in corso";
+            }
+
+            // Chiamare la funzione per aggiornare i dati
+            fetchDiscordData();
+
+            setInterval(fetchDiscordData, 10000); // Aggiorna ogni 10 secondi
+        </script>
         <meta charset="UTF-8" />
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
@@ -125,7 +152,10 @@
                         <li><p>Developer</p></li>
                     </ul>
                 </div>
-
+                <div id="lanyard">
+                    <p id="discord-status">Stato: Offline</p>
+                    <p id="activity">Attività: Nessuna</p>
+                </div>
                 <div class="social-media">
                     <a href="https://tiktok.cripsum.com" target="_blank" class="linkbianco">TikTok</a>
                     <a href="https://t.me/sburragrigliata" target="_blank" class="linkbianco">Telegram</a>
