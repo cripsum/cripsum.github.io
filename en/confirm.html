@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag("js", new Date());
+
+            gtag("config", "G-T0CTM2SBJJ");
+        </script>
         <meta charset="UTF-8" />
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
@@ -12,8 +23,11 @@
         <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png" />
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="../css/style.css" />
+        <link rel="stylesheet" href="../css/style-dark.css" />
+        <link rel="stylesheet" href="../css/animations.css" />
+        <script src="../js/animations.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Cripsum™</title>
+        <title>Cripsum™ - confirm</title>
         <script>
             setTimeout(function () {
                 window.location.href = "home";
@@ -21,12 +35,12 @@
         </script>
     </head>
     <body>
-        <h1 class="text-center mt-4">Thanks for the purchase</h1>
-        <p class="text-center fs-4">you're being redirect to the home</p>
-        <div class="loading">
-            <span class="loading__dot"></span>
-            <span class="loading__dot"></span>
-            <span class="loading__dot"></span>
+        <h1 class="text-center mt-4 testobianco fadeup">Thanks for the purchase</h1>
+        <p class="text-center fs-4 testobianco fadeup">you're being redirect to the home page</p>
+        <div class="loading_white fadeup">
+            <span class="loading__dot_white"></span>
+            <span class="loading__dot_white"></span>
+            <span class="loading__dot_white"></span>
         </div>
     </body>
 </html>

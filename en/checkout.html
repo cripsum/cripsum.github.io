@@ -1,47 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <link rel="icon" href="../img/Susremaster.png" type="image/png" />
-        <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png" />
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-T0CTM2SBJJ');
+        </script>
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
             rel="stylesheet"
             integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
             crossorigin="anonymous"
         />
+        <link rel="icon" href="../img/Susremaster.png" type="image/png" />
+        <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png" />
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="../css/style.css" />
+        <link rel="stylesheet" href="../css/style-dark.css" />
+        <link rel="stylesheet" href="../css/animations.css" />
+        <script src="../js/animations.js"></script>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Cripsum™</title>
+        <title>Cripsum™ - checkout</title>
     </head>
     <body>
-        <nav class="navbar navbar-expand-xl bg-body-tertiary">
+        <nav class="navbarutenti navbar navbar-expand-xl">
             <div class="container-fluid">
                 <a class="navbar-brand" href="home">
                     <img src="../img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
-                    <span class="align-middle ms-3 fw-bold">Cripsum™</span>
+                    <span class="align-middle ms-3 fw-bold" style="color: white">Cripsum™</span>
                 </a>
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation"
+                    style="z-index: 1000"
+                >
+                    <span class="navbar-toggler-icon"></span>
+                </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a class="nav-link" aria-current="page" href="home">Home page</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
+                        <li class="nav-item dropdown dropdownutenti">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="shitpost">Shitpost</a></li>
                                 <li><a class="dropdown-item" href="tiktokpedia">TikTokPedia</a></li>
                                 <li><a class="dropdown-item" href="rimasti">Top dumbass</a></li>
                                 <li><a class="dropdown-item" href="quandel57" style="color: red; font-weight: bold">Quandel57</a></li>
-                                <li class="nav-item"><a class="dropdown-item arcobalenos" href="gambling" style="font-weight: bold">Gambling!!</a></li>
+                                <li><a class="dropdown-item arcobalenos" href="gambling" style="font-weight: bold">Gambling!!</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="download">Downloads</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
+                        <li class="nav-item dropdown dropdownutenti">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="negozio">Shop</a></li>
                                 <li><a class="dropdown-item" href="merch">Merch</a></li>
@@ -64,152 +88,133 @@
                         </li>
                     </ul>
                 </div>
-                
-            </div><div class="btn-group dropstart ms-auto me-1 lingua">
-                    <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">🇬🇧</button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="../it/checkout">🇮🇹 Ita</a></li>
-                    <li><a class="dropdown-item" href="#">🇬🇧 Eng</a></li>
+            </div>
+            <div class="btn-group dropstart ms-auto me-3 linguanuova">
+                <button type="button" class="btn dropdown-toggle lingua-toggler" data-bs-toggle="dropdown" aria-expanded="false"><a class="link-lingua">🇬🇧</a></button>
+                <ul class="dropdown-menu dropdownlingua">
+                    <li><a class="dropdown-item link-lingua" href="../it/checkout">🇮🇹 Ita</a></li>
+                    <li><a class="dropdown-item link-lingua" href="#">🇬🇧 Eng</a></li>
                 </ul>
-                </div>
-                <button style="margin-right: 10px;"
-                    class="navbar-toggler lingua"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#navbarSupportedContent"
-                    aria-controls="navbarSupportedContent"
-                    aria-expanded="false"
-                    aria-label="Toggle navigation"
-                >
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+            </div>
         </nav>
-        <div style="max-width: 1920px; margin: auto">
+        <div style="max-width: 1920px; margin: auto; padding-top: 7rem" class="testobianco">
             <div class="containerCheckout">
                 <div class="py-5 text-center">
-                    <h2 class="fs-1" style="font-weight: bold">Checkout</h2>
+                    <h2 class="fs-1 fadeup" style="font-weight: bold">Checkout</h2>
                 </div>
                 <div class="order-md-1">
-                    <h4 class="mb-3">Billing address</h4>
+                    <h4 class="mb-3 fadeup">Billing address</h4>
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-6 mb-3 fadeup">
                                 <label for="firstName">First name</label>
                                 <input type="text" class="form-control" id="firstName" placeholder="" value="" required="" />
-                                <div class="invalid-feedback">Valid first name is required.</div>
+                                <div class="invalid-feedback">è richiesto un nome valido.</div>
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-6 mb-3 fadeup">
                                 <label for="lastName">Last name</label>
                                 <input type="text" class="form-control" id="lastName" placeholder="" value="" required="" />
-                                <div class="invalid-feedback">Valid last name is required.</div>
+                                <div class="invalid-feedback">è richiesto un cognome valido.</div>
                             </div>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-3 fadeup">
                             <label for="username">Username</label>
                             <div class="input-group mb-3">
-                                <span class="input-group-text" id="basic-addon1">@</span>
                                 <input type="text" class="form-control" id="username" placeholder="Username" aria-label="Username" required="" aria-describedby="basic-addon1">
                               </div>
-                                <div class="invalid-feedback" style="width: 100%">Your username is required.</div>
+                                <div class="invalid-feedback" style="width: 100%">è richiesto l'username.</div>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="email">Email <span class="text-muted">(Optional)</span></label>
+                        <div class="mb-3 fadeup">
+                            <label for="email">Email <span class="">(optional)</span></label>
                             <input type="email" class="form-control" id="email" placeholder="you@example.com" />
-                            <div class="invalid-feedback">Please enter a valid email address for shipping updates.</div>
+                            <div class="invalid-feedback">Inserisci una email per ricevere tutti gli aggiornamenti sulla spedizione.</div>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-3 fadeup">
                             <label for="address">Address</label>
                             <input type="text" class="form-control" id="address" placeholder="1234 Main St" required="" />
-                            <div class="invalid-feedback">Please enter your shipping address.</div>
+                            <div class="invalid-feedback">Inserisci il tuo indirizzo di spedizione.</div>
                         </div>
-                        <div class="mb-3">
-                            <label for="address2">Address 2 <span class="text-muted">(Optional)</span></label>
+                        <div class="mb-3 fadeup">
+                            <label for="address2">Address 2 <span class="">(Opzionale)</span></label>
                             <input type="text" class="form-control" id="address2" placeholder="Apartment or suite" />
                         </div>
                         <div class="row">
-                            <div class="col-md-5 mb-3">
+                            <div class="col-md-5 mb-3 fadeup">
                                 <label for="country">Country</label>
-                                <select class="form-select d-block w-100" id="country" required="">
-                                    <option value="">Choose...</option>
-                                    <option>Fortnite</option>
-                                </select>
-                                <div class="invalid-feedback">Please select a valid country.</div>
+                                <input type="text" class="form-control" id="address2" placeholder="" />
+                                <div class="invalid-feedback">Insersci uno stato valido.</div>
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-4 mb-3 fadeup">
                                 <label for="state">State</label>
-                                <select class="form-select d-block w-100" id="state" required="">
-                                    <option value="">Choose...</option>
-                                    <option>Tilted Towers</option>
-                                </select>
-                                <div class="invalid-feedback">Please provide a valid state.</div>
+                                <input type="text" class="form-control" id="zip" placeholder="" required="" />
+                                <div class="invalid-feedback">Inserisci una regione valida.</div>
                             </div>
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-3 mb-3 fadeup">
                                 <label for="zip">Zip</label>
                                 <input type="text" class="form-control" id="zip" placeholder="" required="" />
-                                <div class="invalid-feedback">Zip code required.</div>
+                                <div class="invalid-feedback">è rischiesto il codice postale.</div>
                             </div>
                         </div>
-                        <hr class="mb-4" />
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="form-check-input" id="same-address" />
+                        <hr class="mb-4 fadeuphr" />
+                        <div class="custom-control custom-checkbox fadeup">
+                            <input type="checkbox" class="" id="same-address" />
                             <label class="form-check-label" for="same-address">Shipping address is the same as my billing address</label>
                         </div>
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="form-check-input" id="save-info" />
+                        <div class="custom-control custom-checkbox fadeup">
+                            <input type="checkbox" class="" id="save-info" />
                             <label class="form-check-label" for="save-info">Save this information for next time</label>
                         </div>
-                        <hr class="mb-4" />
-                        <h4 class="mb-3">Payment</h4>
-                        <div class="d-block my-3">
+                        <hr class="mb-4 fadeuphr" />
+                        <h4 class="mb-3 fadeup">Payment</h4>
+                        <div class="d-block my-3 fadeup">
                             <div class="custom-control custom-radio">
-                                <input id="credit" name="paymentMethod" type="radio" class="form-check-input" checked="" required="" />
+                                <input id="credit" name="paymentMethod" type="radio" class="" checked="" required="" />
                                 <label class="form-check-label" for="credit">Credit card</label>
                             </div>
                             <div class="custom-control custom-radio">
-                                <input id="debit" name="paymentMethod" type="radio" class="form-check-input" required="" />
+                                <input id="debit" name="paymentMethod" type="radio" class="" required="" />
                                 <label class="form-check-label" for="debit">Debit card</label>
                             </div>
                             <div class="custom-control custom-radio">
-                                <input id="paypal" name="paymentMethod" type="radio" class="form-check-input" required="" />
+                                <input id="paypal" name="paymentMethod" type="radio" class="" required="" />
                                 <label class="form-check-label" for="paypal">PayPal</label>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-6 mb-3 fadeup">
                                 <label for="cc-name">Name on card</label>
                                 <input type="text" class="form-control" id="cc-name" placeholder="" required="" />
-                                <small class="text-muted">Full name as displayed on card</small>
-                                <div class="invalid-feedback">Name on card is required</div>
+                                <div class="invalid-feedback">è richiesto il nome sulla carta</div>
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-6 mb-3 fadeup">
                                 <label for="cc-number">Credit card number</label>
                                 <input type="text" class="form-control" id="cc-number" placeholder="" required="" />
-                                <div class="invalid-feedback">Credit card number is required</div>
+                                <div class="invalid-feedback">è richiesto il numero della carta</div>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-3 mb-3 fadeup">
                                 <label for="cc-expiration">Expiration</label>
                                 <input type="text" class="form-control" id="cc-expiration" placeholder="" required="" />
-                                <div class="invalid-feedback">Expiration date required</div>
+                                <div class="invalid-feedback">è richiesta la data di scadenza</div>
                             </div>
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-3 mb-3 fadeup">
                                 <label for="cc-cvv">CVV</label>
                                 <input type="text" class="form-control" id="cc-cvv" placeholder="" required="" />
-                                <div class="invalid-feedback">Security code required</div>
+                                <div class="invalid-feedback">codice di sicurezza richiesto</div>
                             </div>
                         </div>
-                        <hr class="mb-4" />
-                        <a href="confirm"><button class="btn btn-primary btn-lg btn-block" type="submit" style="width: 100%">Continue to checkout</button></a>
+                        <hr class="mb-4 fadeuphr" />
+                        <a href="confirm"><button class="btn btn-secondary bottone2 btn-lg btn-block fadeup" style="width: 100%; margin: auto;">Continue to checkout</button></a>
                 </div>
             </div>
         </div>
-        <footer class="my-5 pt-5 text-muted text-center text-small">
-            <p class="mb-1">Copyright © 2021-2024 Cripsum™. all right reserved.</p>
+        <footer class="my-5 pt-5 text-muted text-center text-small fadeup">
+            <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. All right reserved.</p>
             <ul class="list-inline">
-                <li class="list-inline-item"><a href="privacy">Privacy</a></li>
-                <li class="list-inline-item"><a href="tos">Terms</a></li>
-                <li class="list-inline-item"><a href="supporto">Support</a></li>
+                <li class="list-inline-item"><a href="privacy" class="linkbianco">Privacy</a></li>
+                <li class="list-inline-item"><a href="tos" class="linkbianco">Terms</a></li>
+                <li class="list-inline-item"><a href="supporto" class="linkbianco">Support</a></li>
             </ul>
         </footer>
         <script

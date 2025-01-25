@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag("js", new Date());
+
+            gtag("config", "G-T0CTM2SBJJ");
+        </script>
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
             rel="stylesheet"
@@ -11,42 +22,58 @@
         <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png" />
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="../css/style.css" />
+        <link rel="stylesheet" href="../css/style-dark.css" />
+        <link rel="stylesheet" href="../css/animations.css" />
+        <script src="../js/animations.js"></script>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Cripsum™</title>
+        <title>Cripsum™ - rimasti</title>
         <style>
             img {
                 border-radius: 10px;
             }
         </style>
     </head>
+
     <body>
-        <nav class="navbar navbar-expand-xl bg-body-tertiary">
+        <nav class="navbarutenti navbar navbar-expand-xl">
             <div class="container-fluid">
                 <a class="navbar-brand" href="home">
                     <img src="../img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
-                    <span class="align-middle ms-3 fw-bold">Cripsum™</span>
+                    <span class="align-middle ms-3 fw-bold" style="color: white">Cripsum™</span>
                 </a>
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation"
+                    style="z-index: 1000"
+                >
+                    <span class="navbar-toggler-icon"></span>
+                </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a class="nav-link" aria-current="page" href="home">Home page</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
+                        <li class="nav-item dropdown dropdownutenti">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="shitpost">Shitpost</a></li>
                                 <li><a class="dropdown-item" href="tiktokpedia">TikTokPedia</a></li>
                                 <li><a class="dropdown-item" href="rimasti">Top dumbass</a></li>
                                 <li><a class="dropdown-item" href="quandel57" style="color: red; font-weight: bold">Quandel57</a></li>
-                                <li class="nav-item"><a class="dropdown-item arcobalenos" href="gambling" style="font-weight: bold">Gambling!!</a></li>
+                                <li><a class="dropdown-item arcobalenos" href="gambling" style="font-weight: bold">Gambling!!</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="download">Downloads</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
+                        <li class="nav-item dropdown dropdownutenti">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="negozio">Shop</a></li>
                                 <li><a class="dropdown-item" href="merch">Merch</a></li>
@@ -69,85 +96,68 @@
                         </li>
                     </ul>
                 </div>
-                <!--
-            <a id="btnSwitch" class="ms-auto me-4">d<img src="" /></a>
-            --></div>
-            <div class="btn-group dropstart ms-auto me-2 lingua">
-                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">🇬🇧</button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="../it/rimasti">🇮🇹 Ita</a></li>
-                    <li><a class="dropdown-item" href="#">🇬🇧 Eng</a></li>
+            </div>
+            <div class="btn-group dropstart ms-auto me-3 linguanuova">
+                <button type="button" class="btn dropdown-toggle lingua-toggler" data-bs-toggle="dropdown" aria-expanded="false"><a class="link-lingua">🇬🇧</a></button>
+                <ul class="dropdown-menu dropdownlingua">
+                    <li><a class="dropdown-item link-lingua" href="../it/rimasti">🇮🇹 Ita</a></li>
+                    <li><a class="dropdown-item link-lingua" href="#">🇬🇧 Eng</a></li>
                 </ul>
             </div>
-            <button
-                style="margin-right: 10px"
-                class="navbar-toggler lingua"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-            >
-                <span class="navbar-toggler-icon"></span>
-            </button>
         </nav>
-        <div style="max-width: 500px; margin: auto">
-            <h1 class="text-center" style="padding-top: 3%; font-weight: bolder; color: red">top 10 stupid monkeys</h1>
+        <div style="max-width: 550px; margin: auto; padding-top: 7rem" class="testobianco">
+            <h1 class="text-center fadein" style="padding-top: 3%; font-weight: bolder; color: red">Top 10 dumbass</h1>
             <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 3%">
                 <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description" style="margin-bottom: 2%; margin-left: 0">
+                    <div class="image-description fadeup" style="margin-bottom: 2%; margin-left: 0">
                         <h3 class="text-center">Top 1.</h3>
                         <h5 class="text-center">WryCharles</h5>
-                        <h6 class="text-center">insisted a week to help him download spiderman 2 for pc despite the fact that it does not exist (he was doxed and his pc was blown up by a trojan)</h6>
+                        <h6 class="text-center">
+                            He insisted for a week on helping him download Spider-Man 2 for PC, even though it doesn't exist (he got doxxed, and his PC blew up because of a trojan).
+                        </h6>
                     </div>
-                    <img src="../img/wrycharles1.png" alt="WryCharles" class="img-fluid" style="display: block; margin-left: auto; margin-right: auto" />
+                    <img src="../img/wrycharles1.png" alt="WryCharles" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
                 </div>
             </div>
-            <hr class="rounded" />
+            <hr class="rounded fadeuphr" />
             <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
                 <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description" style="margin-bottom: 2%">
+                    <div class="image-description fadeup" style="margin-bottom: 2%">
                         <h3 class="text-center">Top 2.</h3>
                         <h5 class="text-center">Shin</h5>
-                        <h6 class="text-center">insults brawl stars by saying it's mid, and then watches anime all day every day</h6>
+                        <h6 class="text-center">He trashes Brawl Stars by calling it mid, then spends the whole day watching anime.</h6>
                     </div>
-                    <img src="../img/rimastotop2.png" alt="lulasorca" class="img-fluid" style="display: block; margin-left: auto; margin-right: auto" />
+                    <img src="../img/rimastotop2.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
                 </div>
             </div>
-            <hr class="rounded" />
+            <hr class="rounded fadeuphr" />
             <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 3%">
                 <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description" style="margin-bottom: 2%; margin-left: 0">
+                    <div class="image-description fadeup" style="margin-bottom: 2%; margin-left: 0">
                         <h3 class="text-center">Top 3.</h3>
                         <h5 class="text-center">Lulasorca</h5>
                         <h6 class="text-center">i'm too lazy to translate this :)</h6>
                     </div>
-                    <img src="../img/lulasorca.jpeg" alt="lulasorca" class="img-fluid" />
+                    <img src="../img/lulasorca.jpeg" alt="lulasorca" class="img-fluid fadeup" />
                 </div>
             </div>
 
             <!-- 
-            <div style="margin: auto; max-width: 80%; text-align: center">
-                <a style="text-align: center">by</a>
-                <a style="font-weight: bolder">cripsum</a>
-            </div>
-            -->
-            <hr class="rounded" />
+            <hr class="rounded fadeuphr" />
             <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
                 <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description" style="margin-bottom: 2%">
+                    <div class="image-description fadeup" style="margin-bottom: 2%">
                         <h3 class="text-center">Top 4.</h3>
                         <h5 class="text-center">Yumi</h5>
-                        <h6 class="text-center">blud is jealous of 1nstxnct's rank 35 and then does rank 30s in trio showdown</h6>
+                        <h6 class="text-center">blud rosica per i rank 35 di 1nstxnct e poi fa i rank 30 in trio showdown</h6>
                     </div>
-                    <div style="text-align: center">
+                    <div style="text-align: center" class="fadeup">
                         <audio controls>
                             <source src="../audio/rosica.mp3" type="audio/mpeg" />
                             Your browser does not support the audio element.
                         </audio>
                     </div>
-                    <div id="carouselExampleIndicators" class="carousel slide mt-3" data-bs-ride="carousel">
+                    <div id="carouselExampleIndicators" class="carousel slide mt-3 fadeup" data-bs-ride="carousel">
                         <div class="carousel-indicators">
                             <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
                             <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
@@ -166,69 +176,80 @@
                         </div>
                         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
                             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">previous</span>
+                            <span class="visually-hidden">indietro</span>
                         </button>
                         <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
                             <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">next</span>
+                            <span class="visually-hidden">avanti</span>
                         </button>
                     </div>
                 </div>
             </div>
-            <hr class="rounded" />
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
+            -->
+            <hr class="rounded fadeuphr" style="margin-top: 2%" />
+            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 3%">
                 <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description" style="margin-bottom: 2%">
-                        <h3 class="text-center">Top 5.</h3>
-                        <h5 class="text-center">godo</h5>
+                    <div class="image-description fadeup" style="margin-bottom: 2%">
+                        <h3 class="text-center">Top 4.</h3>
+                        <h5 class="text-center">still to be decided</h5>
                     </div>
-                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid" style="display: block; margin-left: auto; margin-right: auto" />
+                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
                 </div>
             </div>
-            <hr class="rounded" />
+            <hr class="rounded fadeuphr" style="margin-top: 2%" />
+            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 3%">
+                <div style="margin: auto; padding-top: 1%">
+                    <div class="image-description fadeup" style="margin-bottom: 2%">
+                        <h3 class="text-center">Top 5.</h3>
+                        <h5 class="text-center">still to be decided</h5>
+                    </div>
+                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
+                </div>
+            </div>
+            <hr class="rounded fadeuphr" />
             <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
                 <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description" style="margin-bottom: 2%">
+                    <div class="image-description fadeup" style="margin-bottom: 2%">
                         <h3 class="text-center">Top 6.</h3>
                         <h5 class="text-center">still to be decided</h5>
                     </div>
-                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid" style="display: block; margin-left: auto; margin-right: auto" />
+                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
                 </div>
             </div>
-            <hr class="rounded" />
+            <hr class="rounded fadeuphr" />
             <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
                 <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description" style="margin-bottom: 2%">
+                    <div class="image-description fadeup" style="margin-bottom: 2%">
                         <h3 class="text-center">Top 7.</h3>
                         <h5 class="text-center">still to be decided</h5>
                     </div>
-                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid" style="display: block; margin-left: auto; margin-right: auto" />
+                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
                 </div>
             </div>
-            <hr class="rounded" />
+            <hr class="rounded fadeuphr" />
             <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
                 <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description" style="margin-bottom: 2%">
+                    <div class="image-description fadeup" style="margin-bottom: 2%">
                         <h3 class="text-center">Top 8.</h3>
                         <h5 class="text-center">still to be decided</h5>
                     </div>
-                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid" style="display: block; margin-left: auto; margin-right: auto" />
+                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
                 </div>
             </div>
-            <hr class="rounded" />
+            <hr class="rounded fadeuphr" />
             <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
                 <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description" style="margin-bottom: 2%">
+                    <div class="image-description fadeup" style="margin-bottom: 2%">
                         <h3 class="text-center">Top 9.</h3>
                         <h5 class="text-center">still to be decided</h5>
                     </div>
-                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid" style="display: block; margin-left: auto; margin-right: auto" />
+                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
                 </div>
             </div>
-            <hr class="rounded" />
+            <hr class="rounded fadeuphr" />
             <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
                 <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description" style="margin-bottom: 2%">
+                    <div class="image-description fadeup" style="margin-bottom: 2%">
                         <h3 class="text-center">Top 10.</h3>
                         <h5 class="text-center">still to be decided</h5>
                     </div>
@@ -236,12 +257,12 @@
                 </div>
             </div>
         </div>
-        <footer class="my-5 pt-5 text-muted text-center text-small">
-            <p class="mb-1">Copyright © 2021-2024 Cripsum™. all right reserved.</p>
+        <footer class="my-5 pt-5 text-muted text-center text-small fadeup">
+            <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. All right reserved.</p>
             <ul class="list-inline">
-                <li class="list-inline-item"><a href="privacy">Privacy</a></li>
-                <li class="list-inline-item"><a href="tos">Terms</a></li>
-                <li class="list-inline-item"><a href="supporto">Support</a></li>
+                <li class="list-inline-item"><a href="privacy" class="linkbianco">Privacy</a></li>
+                <li class="list-inline-item"><a href="tos" class="linkbianco">Terms</a></li>
+                <li class="list-inline-item"><a href="supporto" class="linkbianco">Support</a></li>
             </ul>
         </footer>
         <script

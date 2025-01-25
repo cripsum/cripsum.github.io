@@ -1,54 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <link rel="icon" href="../img/Susremaster.png" type="image/png" />
-        <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png" />
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag("js", new Date());
+
+            gtag("config", "G-T0CTM2SBJJ");
+        </script>
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
             rel="stylesheet"
             integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
             crossorigin="anonymous"
         />
+        <link rel="icon" href="../img/Susremaster.png" type="image/png" />
+        <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png" />
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="../css/style.css" />
+        <link rel="stylesheet" href="../css/style-dark.css" />
+        <link rel="stylesheet" href="../css/animations.css" />
+        <script src="../js/animations.js"></script>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Cripsum™</title>
+        <title>Cripsum™ - shop</title>
         <style>
             img {
                 border-radius: 10px;
             }
         </style>
     </head>
+
     <body>
-        <nav class="navbar navbar-expand-xl bg-body-tertiary">
+        <nav class="navbarutenti navbar navbar-expand-xl">
             <div class="container-fluid">
                 <a class="navbar-brand" href="home">
                     <img src="../img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
-                    <span class="align-middle ms-3 fw-bold">Cripsum™</span>
+                    <span class="align-middle ms-3 fw-bold" style="color: white">Cripsum™</span>
                 </a>
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation"
+                    style="z-index: 1000"
+                >
+                    <span class="navbar-toggler-icon"></span>
+                </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a class="nav-link" aria-current="page" href="home">Home page</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
+                        <li class="nav-item dropdown dropdownutenti">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="shitpost">Shitpost</a></li>
                                 <li><a class="dropdown-item" href="tiktokpedia">TikTokPedia</a></li>
                                 <li><a class="dropdown-item" href="rimasti">Top dumbass</a></li>
                                 <li><a class="dropdown-item" href="quandel57" style="color: red; font-weight: bold">Quandel57</a></li>
-                                <li class="nav-item"><a class="dropdown-item arcobalenos" href="gambling" style="font-weight: bold">Gambling!!</a></li>
+                                <li><a class="dropdown-item arcobalenos" href="gambling" style="font-weight: bold">Gambling!!</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="download">Downloads</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
+                        <li class="nav-item dropdown dropdownutenti">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item active" href="">Shop</a></li>
+                                <li><a class="dropdown-item" href="negozio">Shop</a></li>
                                 <li><a class="dropdown-item" href="merch">Merch</a></li>
                             </ul>
                         </li>
@@ -69,96 +96,80 @@
                         </li>
                     </ul>
                 </div>
-                <!--
-            <a id="btnSwitch" class="ms-auto me-4">d<img src="" /></a>
-            --></div>
-            <div class="btn-group dropstart ms-auto me-1 lingua">
-                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">🇬🇧</button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="../it/negozio">🇮🇹 Ita</a></li>
-                    <li><a class="dropdown-item" href="#">🇬🇧 Eng</a></li>
+            </div>
+            <div class="btn-group dropstart ms-auto me-3 linguanuova">
+                <button type="button" class="btn dropdown-toggle lingua-toggler" data-bs-toggle="dropdown" aria-expanded="false"><a class="link-lingua">🇬🇧</a></button>
+                <ul class="dropdown-menu dropdownlingua">
+                    <li><a class="dropdown-item link-lingua" href="../it/negozio">🇮🇹 Ita</a></li>
+                    <li><a class="dropdown-item link-lingua" href="#">🇬🇧 Eng</a></li>
                 </ul>
             </div>
-            <button
-                style="margin-right: 10px"
-                class="navbar-toggler lingua"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-            >
-                <span class="navbar-toggler-icon"></span>
-            </button>
         </nav>
-
-        <div style="max-width: 1920px; margin: auto">
+        <div style="max-width: 1920px; margin: auto; padding-top: 7rem" class="testobianco">
             <div class="d-flex justify-content-center image-container" style="max-width: 80%; margin: auto; padding-top: 5%">
-                <div style="margin-left: 2%; margin-right: 2%">
+                <div style="margin-left: 2%; margin-right: 2%" class="fadeup">
                     <img src="../img/4090.jpg" class="immaginealberi ombra" alt="" />
-                    <a href="checkout"><p class="fs-5 text text-center">RTX 4090 - 2499,99€</p></a>
+                    <p class="fs-5 text text-center"><a href="checkout" class="linkbianco">RTX 4090 - 2499,99€</a></p>
                     <p class="text text-center">too powerful even for gaming</p>
                 </div>
-                <div style="margin-left: 2%; margin-right: 2%">
+                <div style="margin-left: 2%; margin-right: 2%" class="fadeup">
                     <img src="../img/iphone20.jpg" class="immaginealberi ombra" alt="" />
-                    <a href="checkout"><p class="fs-5 text text-center">Iphone 20 - 2179,99€</p></a>
+                    <p class="fs-5 text text-center"><a href="checkout" class="linkbianco">Iphone 20 - 2179,99€</a></p>
                     <p class="text text-center">the future, nice phone, but the os is shit</p>
                 </div>
-                <div style="margin-left: 2%; margin-right: 2%">
+                <div style="margin-left: 2%; margin-right: 2%" class="fadeup">
                     <img src="../img/indica.jpg" class="immaginealberi ombra" alt="" />
-                    <a href="checkout"><p class="fs-5 text text-center">your mom - 2,49€</p></a>
-                    <p class="text text-center">if purchased before 2024 40% discount</p>
+                    <p class="fs-5 text text-center"><a href="checkout" class="linkbianco">your mom - 2,49€</a></p>
+                    <p class="text text-center">if purchased before 2025 40% discount</p>
                 </div>
-                <div style="margin-left: 2%; margin-right: 2%">
+                <div style="margin-left: 2%; margin-right: 2%" class="fadeup">
                     <img src="../img/s30.jpg" class="immaginealberi ombra" alt="" />
-                    <a href="checkout"><p class="fs-5 text text-center">Samsung galaxy s30 - 1599,99€</p></a>
+                    <p class="fs-5 text text-center"><a href="checkout" class="linkbianco">Samsung galaxy s30 - 1599,99€</a></p>
                     <p class="text text-center">
                         16 gb ram - 1tb storage - battery: 7000mAh<br />
                         display 4k 144hz - zoom x100 <br />
                         main sensor with 12482345 MP
                     </p>
                 </div>
-                <div style="margin-left: 2%; margin-right: 2%">
+                <div style="margin-left: 2%; margin-right: 2%" class="fadeup">
                     <img src="../img/ps6.jpg" class="immaginealberi ombra" alt="" />
-                    <a href="checkout"><p class="fs-5 text text-center">Ps6 - 849,49€</p></a>
+                    <p class="fs-5 text text-center"><a href="checkout" class="linkbianco">Ps6 - 849,49€</a></p>
                     <p class="text text-center">
                         with the ps6 you can play gta5 <br />
                         remastered in 8k 120fps
                     </p>
                 </div>
-                <div style="margin-left: 2%; margin-right: 2%">
+                <div style="margin-left: 2%; margin-right: 2%" class="fadeup">
                     <img src="../img/monitor540.jpg" class="immaginealberi ombra" alt="" />
-                    <a href="checkout"><p class="fs-5 text text-center">Monitor 540hz - 949,69€</p></a>
+                    <p class="fs-5 text text-center"><a href="checkout" class="linkbianco">Monitor 540hz - 949,69€</a></p>
                     <p class="text text-center">extremely smooth (also completely useless)</p>
                 </div>
-                <div style="margin-left: 2%; margin-right: 2%">
+                <div style="margin-left: 2%; margin-right: 2%" class="fadeup">
                     <img src="../img/renegade.jpg" class="immaginealberi ombra" alt="" />
-                    <a href="checkout"><p class="fs-5 text text-center">renegade raider - 429,99€</p></a>
+                    <p class="fs-5 text text-center"><a href="checkout" class="linkbianco">renegade raider - 429,99€</a></p>
                     <p class="text text-center">
                         the most OG skin of all, but also <br />
                         the most expensive
                     </p>
                 </div>
-                <div style="margin-left: 2%; margin-right: 2%">
+                <div style="margin-left: 2%; margin-right: 2%" class="fadeup">
                     <img src="../img/tavoletta.jpg" class="immaginealberi ombra" alt="" />
-                    <a href="checkout"><p class="fs-5 text text-center">graphic tablet - 119,89€</p></a>
+                    <p class="fs-5 text text-center"><a href="checkout" class="linkbianco">graphic tablet - 119,89€</a></p>
                     <p class="text text-center">osu accessories</p>
                 </div>
-                <div style="margin-left: 2%; margin-right: 2%">
+                <div style="margin-left: 2%; margin-right: 2%" class="fadeup">
                     <img src="../img/tastiera2tasti.jpg" class="immaginealberi ombra" alt="" />
-                    <a href="checkout"><p class="fs-5 text text-center">two-key keyboard - 44,99€</p></a>
+                    <p class="fs-5 text text-center"><a href="checkout" class="linkbianco">two-key keyboard - 44,99€</a></p>
                     <p class="text text-center">osu accessories</p>
                 </div>
             </div>
         </div>
-
-        <footer class="my-5 pt-5 text-muted text-center text-small">
-            <p class="mb-1">Copyright © 2021-2024 Cripsum™. all right reserved.</p>
+        <footer class="my-5 pt-5 text-muted text-center text-small fadeup">
+            <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. All right reserved.</p>
             <ul class="list-inline">
-                <li class="list-inline-item"><a href="privacy">Privacy</a></li>
-                <li class="list-inline-item"><a href="tos">Terms</a></li>
-                <li class="list-inline-item"><a href="supporto">Support</a></li>
+                <li class="list-inline-item"><a href="privacy" class="linkbianco">Privacy</a></li>
+                <li class="list-inline-item"><a href="tos" class="linkbianco">Terms</a></li>
+                <li class="list-inline-item"><a href="supporto" class="linkbianco">Support</a></li>
             </ul>
         </footer>
         <script

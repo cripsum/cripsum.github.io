@@ -1,52 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <link rel="icon" href="../img/Susremaster.png" type="image/png" />
-        <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png" />
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag("js", new Date());
+
+            gtag("config", "G-T0CTM2SBJJ");
+        </script>
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
             rel="stylesheet"
             integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
             crossorigin="anonymous"
         />
+        <link rel="icon" href="../img/Susremaster.png" type="image/png" />
+        <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png" />
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="../css/style.css" />
+        <link rel="stylesheet" href="../css/style-dark.css" />
+        <link rel="stylesheet" href="../css/animations.css" />
+        <script src="../js/animations.js"></script>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Cripsum™</title>
+        <title>Cripsum™ - shitpost</title>
         <style>
             img {
                 border-radius: 10px;
             }
         </style>
     </head>
+
     <body>
-        <nav class="navbar navbar-expand-xl bg-body-tertiary">
+        <nav class="navbarutenti navbar navbar-expand-xl">
             <div class="container-fluid">
                 <a class="navbar-brand" href="home">
                     <img src="../img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
-                    <span class="align-middle ms-3 fw-bold">Cripsum™</span>
+                    <span class="align-middle ms-3 fw-bold" style="color: white">Cripsum™</span>
                 </a>
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation"
+                    style="z-index: 1000"
+                >
+                    <span class="navbar-toggler-icon"></span>
+                </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a class="nav-link" aria-current="page" href="home">Home page</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
+                        <li class="nav-item dropdown dropdownutenti">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item active" href="">Shitpost</a></li>
+                                <li><a class="dropdown-item" href="shitpost">Shitpost</a></li>
                                 <li><a class="dropdown-item" href="tiktokpedia">TikTokPedia</a></li>
                                 <li><a class="dropdown-item" href="rimasti">Top dumbass</a></li>
                                 <li><a class="dropdown-item" href="quandel57" style="color: red; font-weight: bold">Quandel57</a></li>
-                                <li class="nav-item"><a class="dropdown-item arcobalenos" href="gambling" style="font-weight: bold">Gambling!!</a></li>
+                                <li><a class="dropdown-item arcobalenos" href="gambling" style="font-weight: bold">Gambling!!</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="download">Downloads</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
+                        <li class="nav-item dropdown dropdownutenti">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="negozio">Shop</a></li>
                                 <li><a class="dropdown-item" href="merch">Merch</a></li>
@@ -69,82 +96,68 @@
                         </li>
                     </ul>
                 </div>
-                <!--
-            <a id="btnSwitch" class="ms-auto me-4">d<img src="" /></a>
-            -->
-                
-            </div><div class="btn-group dropstart ms-auto me-1 lingua">
-                    <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">🇬🇧</button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="../it/shitpost">🇮🇹 Ita</a></li>
-                        <li><a class="dropdown-item" href="#">🇬🇧 Eng</a></li>
-                    </ul>
-                </div>
-                <button style="margin-right: 10px;"
-                class="navbar-toggler lingua"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-            >
-                <span class="navbar-toggler-icon"></span>
-            </button>
-        </nav>
-        <div style="max-width: 1920px; margin: auto">
-            <div class="shitposttext">
-                <p class="fs-4 text mt-3" style="font-weight: bold; text-align: center">
-                    Hey, do you have any memes or shitpost content that would be perfect for this page? Send everything via email to <a href="mailto:sburra@cripsum.com"> sburra@cripsum.com</a>, also
-                    include your username, and you'll be credited for your contribution."
-                </p>
-                <p class="fs-5 text mt-3" style="font-weight: bold; text-align: center">Thanks in advance.</p>
             </div>
-            <hr class="rounded" />
+            <div class="btn-group dropstart ms-auto me-3 linguanuova">
+                <button type="button" class="btn dropdown-toggle lingua-toggler" data-bs-toggle="dropdown" aria-expanded="false"><a class="link-lingua">🇬🇧</a></button>
+                <ul class="dropdown-menu dropdownlingua">
+                    <li><a class="dropdown-item link-lingua" href="../it/shitpost">🇮🇹 Ita</a></li>
+                    <li><a class="dropdown-item link-lingua" href="#">🇬🇧 Eng</a></li>
+                </ul>
+            </div>
+        </nav>
+        <div style="max-width: 1920px; margin: auto; padding-top: 7rem" class="testobianco">
+            <div class="shitposttext">
+                <p class="fs-4 text mt-3 fadeup" style="text-align: center">
+                    Hey, do you have any memes or shitpost content that would be perfect for this page? Send everything via email to
+                    <a href="mailto:sburra@cripsum.com" class="linkbianco">shitpost@cripsum.com</a>, also include your username, and you'll be credited for your contribution.
+                </p>
+                <p class="fs-5 text mt-3 fadeup" style="font-weight: bold; text-align: center">Thanks in advance.</p>
+            </div>
+            <hr class="rounded fadeuphr" />
             <div class="d-flex justify-content-around image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
-                <div>
+                <div class="fadeup">
                     <br />
                     <p class="fs-2" style="font-weight: bolder; text-align: center">This is magic</p>
                     <p class="fs-5" style="font-weight: bold; text-align: center">The magic of Christmas</p>
                     <p class="fs-6" style="font-weight: bold; text-align: center">the real one</p>
                 </div>
-                <div class="immagineshit1">
+                <div class="immagineshit1 fadeup">
                     <img class="immagineshit1 ombra" src="../img/beans.jpg" alt="" />
                 </div>
-                <div>
-                    <img src="../img/saltellante.gif" class="ombra" alt="" />
+                <div class="fadeup">
+                    <img src="../img/saltellante.gif" class="ombra" alt="" style="margin: auto; max-width: 100%" />
                 </div>
             </div>
-            <div style="margin: auto; max-width: 80%; text-align: center">
+            <div style="margin: auto; max-width: 80%; text-align: center" class="fadeup">
                 <a style="text-align: center">by</a>
                 <a style="font-weight: bolder">cripsum</a>
             </div>
-            <hr class="rounded" />
+            <hr class="rounded fadeuphr" />
             <div class="d-flex justify-content-center image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
                 <div class="dametucosita4">
-                    <p class="fs-5" style="font-weight: bold; text-align: center">my balls when:</p>
-                    <p class="fs-6 mt-2" style="font-weight: bold; text-align: center">But especially my little ass when:</p>
-                    <img style="display: block" src="../img/tengodiarrea.jpg" class="ombra" alt="" />
-                    <p class="fs-6" style="font-weight: bold; text-align: center">"i have diarrhea" ^</p>
-                    <img src="../img/cesso.gif" class="ombra" alt="" />
+                    <p class="fs-5 fadeup" style="font-weight: bold; text-align: center">my balls when:</p>
+                    <p class="fs-6 mt-2 fadeup" style="font-weight: bold; text-align: center">But especially my little ass when:</p>
+                    <img style="display: block" src="../img/tengodiarrea.jpg" class="ombra fadeup" alt="" />
+                    <p class="fs-6 fadeup" style="font-weight: bold; text-align: center">"i have diarrhea" ^</p>
+                    <img src="../img/cesso.gif" class="ombra fadeup" alt="" />
                 </div>
                 <div class="mt-4">
-                    <img class="dametucosita3 ombra" src="../img/dametucositaen.gif" alt="" />
+                    <img class="dametucosita3 ombra fadeup" src="../img/dametucositaen.gif" alt="" />
                 </div>
             </div>
-            <div style="margin: auto; max-width: 80%; text-align: center">
+            <div style="margin: auto; max-width: 80%; text-align: center" class="fadeup">
                 <a style="text-align: center">by</a>
                 <a style="font-weight: bolder">sk8ing ray</a>
             </div>
             </div>
-        <hr class="rounded" />
+            <hr class="rounded fadeuphr" />
         </div>
-        <footer class="my-5 pt-5 text-muted text-center text-small">
-            <p class="mb-1">Copyright © 2021-2024 Cripsum™. all right reserved.</p>
+        <footer class="my-5 pt-5 text-muted text-center text-small fadeup">
+            <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. All right reserved.</p>
             <ul class="list-inline">
-                <li class="list-inline-item"><a href="privacy">Privacy</a></li>
-                <li class="list-inline-item"><a href="tos">Terms</a></li>
-                <li class="list-inline-item"><a href="supporto">Support</a></li>
+                <li class="list-inline-item"><a href="privacy" class="linkbianco">Privacy</a></li>
+                <li class="list-inline-item"><a href="tos" class="linkbianco">Terms</a></li>
+                <li class="list-inline-item"><a href="supporto" class="linkbianco">Support</a></li>
             </ul>
         </footer>
         <script

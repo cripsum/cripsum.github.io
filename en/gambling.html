@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag("js", new Date());
+
+            gtag("config", "G-T0CTM2SBJJ");
+        </script>
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
             rel="stylesheet"
@@ -11,43 +22,58 @@
         <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png" />
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="../css/style.css" />
+        <link rel="stylesheet" href="../css/style-dark.css" />
+
         <meta charset="UTF-8" />
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Cripsum™</title>
+        <title>Cripsum™ - gambling</title>
         <style>
             img {
                 border-radius: 10px;
             }
         </style>
     </head>
+
     <body>
-        <nav class="navbar navbar-expand-xl bg-body-tertiary">
+        <nav class="navbarutenti navbar navbar-expand-xl">
             <div class="container-fluid">
                 <a class="navbar-brand" href="home">
                     <img src="../img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
-                    <span class="align-middle ms-3 fw-bold">Cripsum™</span>
+                    <span class="align-middle ms-3 fw-bold" style="color: white">Cripsum™</span>
                 </a>
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation"
+                    style="z-index: 1000"
+                >
+                    <span class="navbar-toggler-icon"></span>
+                </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a class="nav-link" aria-current="page" href="home">Home page</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
+                        <li class="nav-item dropdown dropdownutenti">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="shitpost">Shitpost</a></li>
                                 <li><a class="dropdown-item" href="tiktokpedia">TikTokPedia</a></li>
                                 <li><a class="dropdown-item" href="rimasti">Top dumbass</a></li>
                                 <li><a class="dropdown-item" href="quandel57" style="color: red; font-weight: bold">Quandel57</a></li>
-                                <li class="nav-item"><a class="dropdown-item arcobalenos" href="" style="font-weight: bold">Gambling!!</a></li>
+                                <li><a class="dropdown-item arcobalenos" href="gambling" style="font-weight: bold">Gambling!!</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="download">Downloads</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
+                        <li class="nav-item dropdown dropdownutenti">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="negozio">Shop</a></li>
                                 <li><a class="dropdown-item" href="merch">Merch</a></li>
@@ -70,67 +96,54 @@
                         </li>
                     </ul>
                 </div>
-                <!--
-            <a id="btnSwitch" class="ms-auto me-4">d<img src="" /></a>
-            --></div>
-            <div class="btn-group dropstart ms-auto me-2 lingua">
-                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">🇬🇧</button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="../it/gambling">🇮🇹 Ita</a></li>
-                    <li><a class="dropdown-item" href="#">🇬🇧 Eng</a></li>
+            </div>
+            <div class="btn-group dropstart ms-auto me-3 linguanuova">
+                <button type="button" class="btn dropdown-toggle lingua-toggler" data-bs-toggle="dropdown" aria-expanded="false"><a class="link-lingua">🇬🇧</a></button>
+                <ul class="dropdown-menu dropdownlingua">
+                    <li><a class="dropdown-item link-lingua" href="../it/gambling">🇮🇹 Ita</a></li>
+                    <li><a class="dropdown-item link-lingua" href="#">🇬🇧 Eng</a></li>
                 </ul>
             </div>
-            <button
-                style="margin-right: 10px"
-                class="navbar-toggler lingua"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-            >
-                <span class="navbar-toggler-icon"></span>
-            </button>
         </nav>
-        <div class="account-bar" id="account-bar" style="padding-top: 1%; padding-bottom: 1%; margin: auto">
-            <span class="" style="padding-left: 25px; font-weight: bold">User: </span>
-            <span class="account-name" style="padding-left: 10px; padding-right: 10px">Account Name</span>
-            <div style="padding-left: 25px">
-                <span class="" style="font-weight: bold">Balance: </span>
-                <span class="account-balance" style="padding-left: 10px">$100</span>
-            </div>
-            <input type="number" class="form-control inputricarica" style="margin-left: 25px; max-width: 200px; margin-top: 10px" placeholder="enter your balance" aria-label="Last name" />
-            <button class="button-13" style="width: 150px; margin-left: 25px; margin-top: 5px" onclick="ricaricasaldo();">Charge balance</button>
+        <div style="padding-top: 7rem" class="testobianco">
+            <div class="account-bar" id="account-bar" style="padding-top: 1%; padding-bottom: 1%; margin: auto">
+                <span class="" style="padding-left: 25px; font-weight: bold">User: </span>
+                <span class="account-name" style="padding-left: 10px; padding-right: 10px">Account Name</span>
+                <div style="padding-left: 25px">
+                    <span class="" style="font-weight: bold">Balance: </span>
+                    <span class="account-balance" style="padding-left: 10px">$100</span>
+                </div>
+                <input type="number" class="form-control inputricarica" style="margin-left: 25px; max-width: 200px; margin-top: 10px" placeholder="enter balance" aria-label="Last name" />
+                <button class="btn btn-secondary bottone" style="width: 150px; margin-left: 25px; margin-top: 5px" onclick="ricaricasaldo();">Add balance</button>
 
-            <p class="errorericarica" style="color: red; margin-top: 3px; margin-left: 25px"></p>
-        </div>
+                <p class="errorericarica" style="color: red; margin-top: 3px; margin-left: 25px"></p>
+            </div>
 
-        <div class="input-container" style="text-align: center; padding-top: 3%; max-width: 500px; margin: auto" id="accesso-gambling">
-            <div class="row" style="margin: auto">
-                <div class="col">
-                    <input type="text" id="name-input" class="form-control" placeholder="enter your name" aria-label="First name" />
+            <div class="input-container" style="text-align: center; padding-top: 3%; max-width: 500px; margin: auto" id="accesso-gambling">
+                <div class="row" style="margin: auto">
+                    <div class="col">
+                        <input type="text" id="name-input" class="form-control" placeholder="enter your name" aria-label="First name" />
+                    </div>
+                    <div class="col" style="max-width: 200px">
+                        <input type="number" id="money-input" class="form-control" placeholder="enter balance" aria-label="Last name" />
+                    </div>
                 </div>
-                <div class="col" style="max-width: 200px">
-                    <input type="number" id="money-input" class="form-control" placeholder="enter balance" aria-label="Last name" />
-                </div>
+                <button class="btn btn-secondary bottone" style="margin-top: 10px" onclick="updateAccount()">Log in</button>
+                <p id="errore" class="errore text-center" style="color: red; margin-top: 3px"></p>
             </div>
-            <button class="button-13" style="margin-top: 10px" onclick="updateAccount()">Log in</button>
-            <p id="errore" class="errore text-center" style="color: red; margin-top: 3px"></p>
-        </div>
-        <div style="max-width: 1200px; margin: auto">
-            <div id="slot-machine" class="d-flex justify-content-center image-container" style="padding-top: 3%; max-width: 80%; margin: auto">
-                <div class="slot" style="margin-left: 2%; margin-right: 2%">
-                    <img src="../img/cripsumchisiamo.jpg" alt="Image 1" />
+            <div style="max-width: 1200px; margin: auto">
+                <div id="slot-machine" class="d-flex justify-content-center image-container" style="padding-top: 3%; max-width: 80%; margin: auto">
+                    <div class="slot" style="margin-left: 2%; margin-right: 2%; margin-top: 20px">
+                        <img src="../img/cripsumchisiamo.jpg" class="bordobianco" alt="Image 1" />
+                    </div>
+                    <div class="slot" style="margin-left: 2%; margin-right: 2%; margin-top: 20px">
+                        <img src="../img/barandeep.jpg" class="bordobianco" alt="Image 2" />
+                    </div>
+                    <div class="slot" style="margin-left: 2%; margin-right: 2%; margin-top: 20px">
+                        <img src="../img/abdul.jpg" class="bordobianco" alt="Image 3" />
+                    </div>
                 </div>
-                <div class="slot" style="margin-left: 2%; margin-right: 2%">
-                    <img src="../img/barandeep.jpg" alt="Image 2" />
-                </div>
-                <div class="slot" style="margin-left: 2%; margin-right: 2%">
-                    <img src="../img/abdul.jpg" alt="Image 3" />
-                </div>
-            </div>
-            <!--
+                <!--
             <div class="loading" style="padding-top: 2%;" id="caricamento">
                 <span class="loading__dot"></span>
                 <span class="loading__dot"></span>
@@ -138,19 +151,19 @@
             </div> close_div(1)
             -->
 
-            <div class="button-container" style="text-align: center; margin-top: 3%">
-                <button class="purchase-button" onclick="spin()">Spin</button>
+                <div class="button-container" style="text-align: center; margin-top: 3%">
+                    <button class="btn btn-secondary bottone" onclick="spin()">Spin</button>
+                </div>
+                <p class="text-center erroresoldi" style="margin-top: 3%; color: red"></p>
+                <p class="text-center" id="risultato" style="margin-top: 3%"></p>
             </div>
-            <p class="text-center erroresoldi" style="margin-top: 3%; color: red"></p>
-            <p class="text-center" id="risultato" style="margin-top: 3%"></p>
         </div>
-
-        <footer class="my-5 pt-5 text-muted text-center text-small">
-            <p class="mb-1">Copyright © 2021-2024 Cripsum™. all right reserved.</p>
+        <footer class="my-5 pt-5 text-muted text-center text-small fadeup">
+            <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. All right reserved.</p>
             <ul class="list-inline">
-                <li class="list-inline-item"><a href="privacy">Privacy</a></li>
-                <li class="list-inline-item"><a href="tos">Terms</a></li>
-                <li class="list-inline-item"><a href="supporto">Support</a></li>
+                <li class="list-inline-item"><a href="privacy" class="linkbianco">Privacy</a></li>
+                <li class="list-inline-item"><a href="tos" class="linkbianco">Terms</a></li>
+                <li class="list-inline-item"><a href="supporto" class="linkbianco">Support</a></li>
             </ul>
         </footer>
         <script>
@@ -164,7 +177,7 @@
                     document.getElementsByClassName("account-balance")[0].textContent = "$" + newMoney;
                     document.getElementsByClassName("inputricarica")[0].value = "";
                 } else {
-                    document.getElementsByClassName("errorericarica")[0].textContent = "field can't be empty";
+                    document.getElementsByClassName("errorericarica")[0].textContent = "fields can't be empty";
                     return;
                 }
             }
@@ -194,6 +207,7 @@
                 }
                 var money = document.getElementsByClassName("account-balance")[0].textContent;
                 money = parseInt(money.substring(1)); // remove the $ sign and convert to integer
+
                 if (money >= 10) {
                     money -= 10; // subtract 10 from the money count
                     document.getElementsByClassName("account-balance")[0].textContent = "$" + money; // update the money count display

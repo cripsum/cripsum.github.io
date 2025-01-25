@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag("js", new Date());
+
+            gtag("config", "G-T0CTM2SBJJ");
+        </script>
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
             rel="stylesheet"
@@ -11,42 +22,52 @@
         <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png" />
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="../css/style.css" />
+        <link rel="stylesheet" href="../css/style-dark.css" />
+        <link rel="stylesheet" href="../css/animations.css" />
+        <script src="../js/animations.js"></script>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Cripsum™</title>
-        <style>
-            img {
-                border-radius: 10px;
-            }
-        </style>
+        <title>Cripsum™ - support</title>
     </head>
     <body>
-        <nav class="navbar navbar-expand-xl bg-body-tertiary">
+        <nav class="navbarutenti navbar navbar-expand-xl">
             <div class="container-fluid">
                 <a class="navbar-brand" href="home">
                     <img src="../img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
-                    <span class="align-middle ms-3 fw-bold">Cripsum™</span>
+                    <span class="align-middle ms-3 fw-bold" style="color: white">Cripsum™</span>
                 </a>
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation"
+                    style="z-index: 1000"
+                >
+                    <span class="navbar-toggler-icon"></span>
+                </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a class="nav-link" aria-current="page" href="home">Home page</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
+                        <li class="nav-item dropdown dropdownutenti">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="shitpost">Shitpost</a></li>
                                 <li><a class="dropdown-item" href="tiktokpedia">TikTokPedia</a></li>
                                 <li><a class="dropdown-item" href="rimasti">Top dumbass</a></li>
                                 <li><a class="dropdown-item" href="quandel57" style="color: red; font-weight: bold">Quandel57</a></li>
-                                <li class="nav-item"><a class="dropdown-item arcobalenos" href="gambling" style="font-weight: bold">Gambling!!</a></li>
+                                <li><a class="dropdown-item arcobalenos" href="gambling" style="font-weight: bold">Gambling!!</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="download">Downloads</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
+                        <li class="nav-item dropdown dropdownutenti">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="negozio">Shop</a></li>
                                 <li><a class="dropdown-item" href="merch">Merch</a></li>
@@ -69,56 +90,44 @@
                         </li>
                     </ul>
                 </div>
-                <!--
-            <a id="btnSwitch" class="ms-auto me-4">d<img src="" /></a>
-            --></div>
-            <div class="btn-group dropstart ms-auto me-2 lingua">
-                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">🇬🇧</button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="../it/supporto">🇮🇹 Ita</a></li>
-                    <li><a class="dropdown-item" href="#">🇬🇧 Eng</a></li>
+            </div>
+            <div class="btn-group dropstart ms-auto me-3 linguanuova">
+                <button type="button" class="btn dropdown-toggle lingua-toggler" data-bs-toggle="dropdown" aria-expanded="false"><a class="link-lingua">🇬🇧</a></button>
+                <ul class="dropdown-menu dropdownlingua">
+                    <li><a class="dropdown-item link-lingua" href="../it/supporto">🇮🇹 Ita</a></li>
+                    <li><a class="dropdown-item link-lingua" href="#">🇬🇧 Eng</a></li>
                 </ul>
             </div>
-            <button
-                style="margin-right: 10px"
-                class="navbar-toggler lingua"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-            >
-                <span class="navbar-toggler-icon"></span>
-            </button>
         </nav>
-        <div style="max-width: 1200px; margin: auto">
+        <div style="max-width: 1200px; margin: auto; padding-top: 7rem" class="testobianco">
             <div class="privacy">
-                <h1 class="text-center" style="padding-top: 3%; font-weight: bolder">Support</h1>
-                <h3 class="text-center" style="padding-top: 10px">Customer Support</h3>
-                <p>ur customer support team is available to assist you with any questions or issues you may have regarding our services.</p>
-                <h4 class="text-center" style="padding-top: 10px">Contact Us</h4>
-                <p>You can contact our support team via:</p>
-                <ul>
+                <h1 class="text-center fadeup" style="padding-top: 3%; font-weight: bolder">Support</h1>
+                <h3 class="text-center fadeup" style="padding-top: 10px">Customer Support</h3>
+                <p class="fadeup">ur customer support team is available to assist you with any questions or issues you may have regarding our services.</p>
+                <h4 class="text-center fadeup" style="padding-top: 10px">Contact Us</h4>
+                <p class="fadeup">You can contact our support team via:</p>
+                <ul class="fadeup">
                     <li><p>Email: sburra@cripsum.com</p></li>
                     <li><p>Telegram: @cripsum</p></li>
                     <li><p>Discord: @cripsum</p></li>
                     <li><p>Instagram: @cripsum</p></li>
                 </ul>
-                <h4 class="text-center" style="padding-top: 10px">Opening Hours</h4>
-                <p>Our support team is available Monday to Friday, from 9:00 AM to 6:00 PM (UTC +1).</p>
-                <h4 class="text-center" style="padding-top: 10px">Frequently Asked Questions</h4>
-                <p>Visit our FAQ section on our website to find answers to common questions.</p>
-                <h4 class="text-center" style="padding-top: 10px">Reporting Issues</h4>
-                <p>If you encounter a technical issue or need immediate assistance, please contact us via email or phone. Our team will do their best to resolve your issue as quickly as possible.</p>
+                <h4 class="text-center fadeup" style="padding-top: 10px">Opening Hours</h4>
+                <p class="fadeup">Our support team is available Monday to Friday, from 9:00 AM to 6:00 PM (UTC +1).</p>
+                <h4 class="text-center fadeup" style="padding-top: 10px">Frequently Asked Questions</h4>
+                <p class="fadeup">Visit our FAQ section on our website to find answers to common questions.</p>
+                <h4 class="text-center fadeup" style="padding-top: 10px">Reporting Issues</h4>
+                <p class="fadeup">
+                    If you encounter a technical issue or need immediate assistance, please contact us via email or phone. Our team will do their best to resolve your issue as quickly as possible.
+                </p>
             </div>
         </div>
-        <footer class="my-5 pt-5 text-muted text-center text-small">
-            <p class="mb-1">Copyright © 2021-2024 Cripsum™. Tutti i diritti riservati.</p>
+        <footer class="my-5 pt-5 text-muted text-center text-small fadeup">
+            <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. All right reserved.</p>
             <ul class="list-inline">
-                <li class="list-inline-item"><a href="privacy">Privacy</a></li>
-                <li class="list-inline-item"><a href="tos">Terms</a></li>
-                <li class="list-inline-item"><a href="#">Support</a></li>
+                <li class="list-inline-item"><a href="privacy" class="linkbianco">Privacy</a></li>
+                <li class="list-inline-item"><a href="tos" class="linkbianco">Terms</a></li>
+                <li class="list-inline-item"><a href="supporto" class="linkbianco">Support</a></li>
             </ul>
         </footer>
         <script

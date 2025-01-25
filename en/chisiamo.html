@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag("js", new Date());
+
+            gtag("config", "G-T0CTM2SBJJ");
+        </script>
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
             rel="stylesheet"
@@ -11,9 +22,12 @@
         <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png" />
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="../css/style.css" />
+        <link rel="stylesheet" href="../css/style-dark.css" />
+        <link rel="stylesheet" href="../css/animations.css" />
+        <script src="../js/animations.js"></script>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Cripsum™</title>
+        <title>Cripsum™ - About us</title>
         <style>
             img {
                 border-radius: 100px;
@@ -21,32 +35,44 @@
         </style>
     </head>
     <body>
-        <nav class="navbar navbar-expand-xl bg-body-tertiary">
+        <nav class="navbarutenti navbar navbar-expand-xl">
             <div class="container-fluid">
                 <a class="navbar-brand" href="home">
                     <img src="../img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
-                    <span class="align-middle ms-3 fw-bold">Cripsum™</span>
+                    <span class="align-middle ms-3 fw-bold" style="color: white">Cripsum™</span>
                 </a>
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation"
+                    style="z-index: 1000"
+                >
+                    <span class="navbar-toggler-icon"></span>
+                </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a class="nav-link" aria-current="page" href="home">Home page</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
+                        <li class="nav-item dropdown dropdownutenti">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="shitpost">Shitpost</a></li>
                                 <li><a class="dropdown-item" href="tiktokpedia">TikTokPedia</a></li>
                                 <li><a class="dropdown-item" href="rimasti">Top dumbass</a></li>
                                 <li><a class="dropdown-item" href="quandel57" style="color: red; font-weight: bold">Quandel57</a></li>
-                                <li class="nav-item"><a class="dropdown-item arcobalenos" href="gambling" style="font-weight: bold">Gambling!!</a></li>
+                                <li><a class="dropdown-item arcobalenos" href="gambling" style="font-weight: bold">Gambling!!</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="download">Downloads</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
+                        <li class="nav-item dropdown dropdownutenti">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="negozio">Shop</a></li>
                                 <li><a class="dropdown-item" href="merch">Merch</a></li>
@@ -56,7 +82,7 @@
                             <a class="nav-link" href="donazioni">Donations</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="">About us</a>
+                            <a class="nav-link" href="chisiamo">About us</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="edits">Edits</a>
@@ -69,61 +95,48 @@
                         </li>
                     </ul>
                 </div>
-                <!--
-            <a id="btnSwitch" class="ms-auto me-4">d<img src="" /></a>
-            --></div>
-            <div class="btn-group dropstart ms-auto me-1 lingua">
-                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">🇬🇧</button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="../it/chisiamo">🇮🇹 Ita</a></li>
-                    <li><a class="dropdown-item" href="#">🇬🇧 Eng</a></li>
+            </div>
+            <div class="btn-group dropstart ms-auto me-3 linguanuova">
+                <button type="button" class="btn dropdown-toggle lingua-toggler" data-bs-toggle="dropdown" aria-expanded="false"><a class="link-lingua">🇬🇧</a></button>
+                <ul class="dropdown-menu dropdownlingua">
+                    <li><a class="dropdown-item link-lingua" href="../it/chisiamo">🇮🇹 Ita</a></li>
+                    <li><a class="dropdown-item link-lingua" href="#">🇬🇧 Eng</a></li>
                 </ul>
             </div>
-            <button
-                style="margin-right: 10px"
-                class="navbar-toggler lingua"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-            >
-                <span class="navbar-toggler-icon"></span>
-            </button>
         </nav>
-        <div class="paginainterachisiamo">
-            <p class="text-center" style="font-size: 30px; font-weight: bolder; margin-top: 20px">our development team 🤑</p>
-            <p class="text-center" style="font-size: 15px; margin-top: 20px">
-                want to be part of our development team? send an e-mail to <a href="mailto:sburra@cripsum.com">sburra@cripsum.com</a> attaching picture, name and description, and if you want, an
-                username or a link to your social for credits.
+
+        <div class="paginainterachisiamo testobianco" style="padding-top: 7rem">
+            <p class="text-center fadeup" style="font-size: 30px; font-weight: bolder; margin-top: 20px">our development team 🤑</p>
+            <p class="text-center fadeup" style="font-size: 15px; margin-top: 20px">
+                Want to be part of our development team? send an e-mail to <a href="mailto:sburra@cripsum.com" class="linkbianco">sburra@cripsum.com</a> attaching picture, name and description, and if
+                you want, an username or a link to your social for credits.
             </p>
             <section class="container">
                 <div class="row d-flex justify-content-around image-container">
-                    <div class="col-md-6">
+                    <div class="col-md-6 fadeup">
                         <div class="person" style="margin-top: 10px; margin-bottom: 5%">
                             <img src="../img/cripsumchisiamo.jpg" class="mt-3 immaginechisiamo ombra" alt="Person 1" />
                             <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
-                                <h4 class="nomichisiamo mt-3">cripsum</h4>
-                                <p style="font-size: 15px; margin-top: 3%">the emperor of Congo, he's the most ass editor.</p>
+                                <h4 class="nomichisiamo mt-3"><a href="../user/cripsum" class="linkbianco">cripsum</a></h4>
+                                <p style="font-size: 15px; margin-top: 3%">The king of Congo, just a bad editor with skill issues.</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 fadeup">
                         <div class="person" style="margin-top: 10px; margin-bottom: 5%">
                             <img src="../img/simonetussi.jpg" class="mt-3 immaginechisiamo ombra" alt="Person 2" />
                             <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
-                                <h4 class="nomichisiamo mt-3">simonetussi.ph</h4>
+                                <h4 class="nomichisiamo mt-3"><a href="../user/simonetussi" class="linkbianco">simonetussi.ph</a></h4>
                                 <p style="font-size: 15px; margin-top: 3%">
-                                    follow simonetussi.ph on <a href="https://instagram.com/simonetussi.ph">instagram</a> and <a href="https://tiktok.com/@simonetussi.ph">tiktok</a> for some amazing
-                                    shots.
+                                    follow simonetussi.ph on <a href="https://instagram.com/simonetussi.ph" class="linkbianco">instagram</a> and
+                                    <a href="https://tiktok.com/@simonetussi.ph" class="linkbianco">tiktok</a> for some amazing shots.
                                 </p>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="row d-flex justify-content-around image-container">
-                    <div class="col-md-6">
+                    <div class="col-md-6 fadeup">
                         <div class="person" style="margin-top: 10px; margin-bottom: 5%">
                             <img src="../img/sahe.jpg" class="mt-3 immaginechisiamo ombra" alt="Person 1" />
                             <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
@@ -132,7 +145,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 fadeup">
                         <div class="person" style="margin-top: 10px; margin-bottom: 5%">
                             <img src="../img/ray.jpg" class="mt-3 immaginechisiamo ombra" alt="Person 2" />
                             <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
@@ -146,42 +159,42 @@
                     </div>
                 </div>
                 <div class="row d-flex justify-content-around image-container">
-                    <div class="col-md-6">
+                    <div class="col-md-6 fadeup">
                         <div class="person" style="margin-top: 10px; margin-bottom: 5%">
                             <img src="../img/barandeep.jpg" class="mt-3 immaginechisiamo ombra" alt="Person 1" />
                             <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
                                 <h4 class="nomichisiamo mt-3">Barandeep</h4>
-                                <p style="font-size: 15px; margin-top: 3%">xenon the Indian giant, he's the project manager.</p>
+                                <p style="font-size: 15px; margin-top: 3%">Xenon the Indian giant, he's the project manager.</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 fadeup">
                         <div class="person" style="margin-top: 10px; margin-bottom: 5%">
                             <img src="../img/samarpreet.jpg" class="mt-3 immaginechisiamo ombra" alt="Person 2" />
                             <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
                                 <h4 class="nomichisiamo mt-3">Scammarpreet</h4>
-                                <p style="font-size: 15px; margin-top: 3%">money grabber - scammer - guru - doxer<br /><br />professional gambler</p>
+                                <p style="font-size: 15px; margin-top: 3%">money grabber - scammer - guru - doxer <br /><br />professional gambler.</p>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="row d-flex justify-content-around image-container">
-                    <div class="col-md-6">
+                    <div class="col-md-6 fadeup">
                         <div class="person" style="margin-top: 10px; margin-bottom: 5%">
-                            <img src="../img/tabaccolea.jpg" class="mt-3 immaginechisiamo ombra" alt="Person 1" />
+                            <img src="../img/tacos.jpg" class="mt-3 immaginechisiamo ombra" alt="Person 1" />
                             <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
-                                <h4 class="nomichisiamo mt-3">Tabaccolea</h4>
-                                <p style="font-size: 15px; margin-top: 3%">dropped out of school in the eighth grade to go wash cars and steal copper. (stupid Andrei)</p>
+                                <h4 class="nomichisiamo mt-3"><a href="../user/tacos" class="linkbianco">Tacos</a></h4>
+                                <p style="font-size: 15px; margin-top: 3%">also known as 1nstxnct, he's an italian brawl stars pro player.</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 fadeup">
                         <div class="person" style="margin-top: 10px; margin-bottom: 5%">
                             <img src="../img/cossu.jpg" class="mt-3 immaginechisiamo ombra" alt="Person 2" />
                             <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
                                 <h4 class="nomichisiamo mt-3">Cossu</h4>
                                 <p style="font-size: 15px; margin-top: 3%">
-                                    Spermatozoic otter (he loves otters)
+                                    Spermatozoic otter (he really loves otters)
                                     <br /><br />
                                     He loves banana omelets.
                                 </p>
@@ -190,7 +203,31 @@
                     </div>
                 </div>
                 <div class="row d-flex justify-content-around image-container">
-                    <div class="col-md-6">
+                    <div class="col-md-6 fadeup">
+                        <div class="person" style="margin-top: 10px; margin-bottom: 5%">
+                            <img src="../img/photo_2023-11-14_17-21-10.jpg" class="mt-3 immaginechisiamo ombra" alt="Person 1" />
+                            <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
+                                <h4 class="nomichisiamo mt-3"><a href="../user/zakator" class="linkbianco">Zakator</a></h4>
+                                <p style="font-size: 15px; margin-top: 3%">Big fan of anime music and phonk, he's a script kiddy</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 fadeup">
+                        <div class="person" style="margin-top: 10px; margin-bottom: 5%">
+                            <img src="../img/salsina.jpg" class="mt-3 immaginechisiamo ombra" alt="Person 2" />
+                            <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
+                                <h4 class="nomichisiamo mt-3"><a href="../user/salsina" class="linkbianco">Xalx Andrea</a></h4>
+                                <p style="font-size: 15px; margin-top: 3%">
+                                    The most toxic player in all of Yo-kai Watch!
+                                    <br /><br />
+                                    idk he's anorexic.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row d-flex justify-content-around image-container">
+                    <div class="col-md-6 fadeup">
                         <div class="person" style="margin-top: 10px; margin-bottom: 5%">
                             <img src="../img/mabbon.jpg" class="mt-3 immaginechisiamo ombra" alt="Person 1" />
                             <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
@@ -199,7 +236,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 fadeup">
                         <div class="person" style="margin-top: 10px; margin-bottom: 5%">
                             <img src="../img/lollolapulce.jpg" class="mt-3 immaginechisiamo ombra" alt="Person 2" />
                             <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
@@ -210,81 +247,38 @@
                     </div>
                 </div>
                 <div class="row d-flex justify-content-around image-container">
-                    <div class="col-md-6">
-                        <div class="person" style="margin-top: 10px; margin-bottom: 5%">
-                            <img src="../img/abdul.jpg" class="mt-3 immaginechisiamo ombra" alt="Person 1" />
-                            <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
-                                <h4 class="nomichisiamo mt-3">Abdul</h4>
-                                <p style="font-size: 15px; margin-top: 3%">
-                                    A full-time worker on tobacco plantations, unfortunately, however, he is not paid and is gently incentivized to work with an effective tool called a "whip."
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="person" style="margin-top: 10px; margin-bottom: 5%">
-                            <img src="../img/negri (1).jpg" class="mt-3 immaginechisiamo ombra" alt="Person 2" />
-                            <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
-                                <h4 class="nomichisiamo mt-3">comi.cs_gio</h4>
-                                <p style="font-size: 15px; margin-top: 3%">
-                                    illustrator, cartoonist and I'm also a person. if you found me from this site text me negro in DM on
-                                    <a href="https://instagram.com/comi.cs_gio">instagram</a>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row d-flex justify-content-around image-container">
-                    <div class="col-md-6">
-                        <div class="person" style="margin-top: 10px; margin-bottom: 5%">
-                            <img src="../img/ziopera.png" class="mt-3 immaginechisiamo ombra" alt="Person 1" />
-                            <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
-                                <h4 class="nomichisiamo mt-3">zioperareal</h4>
-                                <p style="font-size: 15px; margin-top: 3%">
-                                    - (in)decent editor (cripsum is better xd), sexually identifies himself as a pear. <br />
-                                    - He is a professional breather and eater <br /><a href="https://youtube.com/@futtziooperaa?si=qPMEzzWqd_8bwhs-">- bro's yt channel</a>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="person" style="margin-top: 10px; margin-bottom: 5%">
-                            <img src="../img/boh.png" class="mt-3 immaginechisiamo" alt="Person 2" />
-                            <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
-                                <h4 class="nomichisiamo mt-3">?????</h4>
-                                <p style="font-size: 15px; margin-top: 3%">the next one could be you! write to <a href="mailto:sburra@cripsum.com">sburra@cripsum.com</a> to be added!</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row d-flex justify-content-around image-container">
-                    <div class="col-md-6">
+                    <div class="col-md-6 fadeup">
                         <div class="person" style="margin-top: 10px; margin-bottom: 5%">
                             <img src="../img/boh.png" class="mt-3 immaginechisiamo" alt="Person 1" />
                             <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
                                 <h4 class="nomichisiamo mt-3">?????</h4>
-                                <p style="font-size: 15px; margin-top: 3%">the next one could be you! write to <a href="mailto:sburra@cripsum.com">sburra@cripsum.com</a> to be added!</p>
+                                <p style="font-size: 15px; margin-top: 3%">
+                                    il prossimo potresti essere tu! scrivi a <a href="mailto:sburra@cripsum.com" class="linkbianco">sburra@cripsum.com</a> per essere aggiunto!
+                                </p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 fadeup">
                         <div class="person" style="margin-top: 10px; margin-bottom: 5%">
                             <img src="../img/boh.png" class="mt-3 immaginechisiamo" alt="Person 2" />
                             <div style="float: right; max-width: 60%; margin-top: 3%; padding-left: 3%">
                                 <h4 class="nomichisiamo mt-3">?????</h4>
-                                <p style="font-size: 15px; margin-top: 3%">the next one could be you! write to <a href="mailto:sburra@cripsum.com">sburra@cripsum.com</a> to be added!</p>
+                                <p style="font-size: 15px; margin-top: 3%">
+                                    il prossimo potresti essere tu! scrivi a <a href="mailto:sburra@cripsum.com" class="linkbianco">sburra@cripsum.com</a> per essere aggiunto!
+                                </p>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
         </div>
-        <footer class="my-5 pt-5 text-muted text-center text-small">
-            <p class="mb-1">Copyright © 2021-2024 Cripsum™. all right reserved.</p>
+
+        <footer class="my-5 pt-5 text-muted text-center text-small fadeup">
+            <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. All right reserved.</p>
             <ul class="list-inline">
-                <li class="list-inline-item"><a href="privacy">Privacy</a></li>
-                <li class="list-inline-item"><a href="tos">Terms</a></li>
-                <li class="list-inline-item"><a href="supporto">Support</a></li>
+                <li class="list-inline-item"><a href="privacy" class="linkbianco">Privacy</a></li>
+                <li class="list-inline-item"><a href="tos" class="linkbianco">Terms</a></li>
+                <li class="list-inline-item"><a href="supporto" class="linkbianco">Support</a></li>
             </ul>
         </footer>
         <script
