@@ -414,6 +414,13 @@ a {
     margin: 5px 0;
 }
 
+.godo {
+    display: flex;
+}
+.godo2 {
+    display: flex;
+}
+
 @keyframes textAnimate {
     from {
         filter: hue-rotate(0deg);
@@ -461,6 +468,9 @@ a {
     .immaginechisiamo {
         max-width: 37%;
         margin: auto;
+    }
+    .godo2 {
+        display: none;
     }
 }
 @media only screen and (max-width: 768px) {
@@ -578,6 +588,9 @@ a {
     .modulounban {
         width: 350px;
         height: 1300px;
+    }
+    .godo {
+        display: none;
     }
 }
 @media only screen and (max-width: 766px) {
