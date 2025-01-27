@@ -154,6 +154,19 @@ hr.rounded {
 .lingua-toggler {
     border-color: rgba(255, 255, 255, 0); /* Colore del bordo del pulsante */
     transition: box-shadow 0.3s ease; /* Transizione per l'effetto hover */
+    color: white;
+}
+
+@media only screen and (max-width: 1199px) {
+    .lingua-toggler {
+        padding-left: 6px;
+        padding-right: 6px;
+    }
+
+    .navbar-toggler {
+        padding-left: 6px;
+        padding-right: 6px;
+    }
 }
 
 .navbarutenti .navbar-toggler-icon {
