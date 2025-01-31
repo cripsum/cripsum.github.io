@@ -1,52 +1,52 @@
 .navbarutenti {
     position: fixed;
-    top: 20px; /* Spazio in alto */
+    top: 20px;
     left: 0;
     right: 0;
-    margin: 0 30px; /* Spazio ai lati */
-    -webkit-backdrop-filter: blur(10px); /* Sfondo sfocato per safari*/
-    backdrop-filter: blur(10px); /* Sfondo sfocato */
-    border: 1px solid rgba(255, 255, 255, 0); /* Bordi bianchi */
-    border-radius: 8px; /* Bordo stondato */
-    z-index: 1000; /* Assicura che la navbar sia sopra altri contenuti */
+    margin: 0 30px;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0);
+    border-radius: 8px;
+    z-index: 1000;
     box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
 }
 .dropdownutenti .dropdown-menu {
-    -webkit-backdrop-filter: blur(10px); /* Sfondo sfocato per safari*/
-    backdrop-filter: blur(10px); /* Sfondo sfocato */
-    border: 0px solid rgba(255, 255, 255, 0); /* Bordi bianchi */
-    border-radius: 8px; /* Bordo stondato */
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 0px solid rgba(255, 255, 255, 0);
+    border-radius: 8px;
     box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
 }
 
 .dropdownutenti .dropdown-menu .dropdown-item {
-    color: white; /* Colore del testo */
-    font-weight: bold; /* Grassetto */
-    transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease; /* Transizione per l'effetto hover */
+    color: white;
+    font-weight: bold;
+    transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease;
 }
 
 .dropdownutenti .dropdown-menu .dropdown-item:hover {
-    color: #ffffff; /* Cambia il colore del testo */
-    transform: scale(1.1); /* Aumenta leggermente la dimensione */
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
-    background-color: rgba(0, 0, 0, 0); /* Sfondo nero */
+    color: #ffffff;
+    transform: scale(1.1);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
+    background-color: rgba(0, 0, 0, 0);
 }
 
 .navbarutenti .nav-link {
-    color: white; /* Colore del testo */
-    font-weight: bold; /* Grassetto */
-    transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease; /* Transizione per l'effetto hover */
+    color: white;
+    font-weight: bold;
+    transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease;
 }
 
 .navbarutenti .nav-link:hover,
 .navbarutenti .nav-link:focus {
-    color: #ffffff; /* Cambia il colore del testo */
-    transform: scale(1.1); /* Aumenta leggermente la dimensione */
-    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
+    color: #ffffff;
+    transform: scale(1.1);
+    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
 }
 
 .navbarutenti .navbar-toggler {
-    border-color: rgba(255, 255, 255, 0); /* Colore del bordo del pulsante */
+    border-color: rgba(255, 255, 255, 0);
 }
 
 .navbarutenti .navbar-toggler-icon {
@@ -55,12 +55,12 @@
 
 .navbarutenti .navbar-toggler:focus {
     outline: none;
-    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0); /* Contorno dorato */
+    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0);
 }
 
 .navbarutenti .navbar-toggler:hover {
     outline: none;
-    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5); /* Contorno dorato */
+    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5);
 }
 
 .linkbianco {
@@ -68,16 +68,16 @@
     font-weight: bold;
     text-decoration: none;
     position: relative;
-    padding-bottom: 2px; /* Spazio tra testo e linea */
-    border-bottom: 2px solid transparent; /* Linea inizialmente invisibile */
+    padding-bottom: 2px;
+    border-bottom: 2px solid transparent;
     transition: color 0.3s ease, transform 0.3s ease, border-bottom-color 0.3s ease, text-shadow 0.3s ease;
 }
 
 .linkbianco:hover {
-    color: #ffffff; /* Mantiene il colore del testo */
-    transform: scale(1.1); /* Aumenta leggermente la dimensione */
-    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */ /* La linea si espande ai lati */
-    border-bottom-color: white; /* Colore bianco della linea */
+    color: #ffffff;
+    transform: scale(1.1);
+    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
+    border-bottom-color: white;
 }
 
 .bio-page * {
@@ -93,15 +93,14 @@
 }
 
 .bio-page {
-    min-height: 100vh; /* Altezza al 100% della viewport */
-    display: flex; /* Attiva Flexbox */
-    justify-content: center; /* Centra orizzontalmente */
-    align-items: center; /* Centra verticalmente */
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     color: #fff;
     position: relative;
 }
 
-/* Background video or image */
 .bio-page .background {
     position: absolute;
     top: 0;
@@ -123,7 +122,6 @@
     filter: blur(4px) brightness(0.6);
 }
 
-/* Central bio container */
 .bio-page .bio-container {
     position: relative;
     backdrop-filter: blur(10px);
@@ -133,7 +131,7 @@
     max-width: 600px;
     text-align: center;
     box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.3);
-    margin: auto; /* Center the container */
+    margin: auto;
 }
 
 .bio-page h1 {
@@ -147,7 +145,6 @@
     margin-bottom: 20px;
 }
 
-/* Social media links */
 .bio-page .social-media a {
     margin: 0 10px;
     text-decoration: none;
@@ -166,29 +163,29 @@
     max-width: 600px;
     text-align: center;
     box-shadow: 0 0 7px 7px rgba(255, 255, 255, 0.3);
-    margin: auto; /* Center the container */
+    margin: auto;
     border: 3px solid white;
 }
 
 @media (max-width: 1199px) {
     .navbarutenti .nav-link:hover,
     .navbarutenti .nav-link:focus {
-        color: #ffffff; /* Cambia il colore del testo */
-        transform: scale(0.95); /* Aumenta leggermente la dimensione */
-        text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
+        color: #ffffff;
+        transform: scale(0.95);
+        text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
     }
 
     .dropdownutenti .dropdown-menu .dropdown-item:hover {
-        color: #ffffff; /* Cambia il colore del testo */
-        transform: scale(0.95); /* Aumenta leggermente la dimensione */
-        text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
-        background-color: rgba(0, 0, 0, 0); /* Sfondo nero */
+        color: #ffffff;
+        transform: scale(0.95);
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
+        background-color: rgba(0, 0, 0, 0);
     }
 }
 @media (max-width: 768px) {
     .navbarutenti {
         top: 10px;
-        margin: 0 20px; /* Spazio ai lati per schermi piccoli */
+        margin: 0 20px;
     }
 }
 

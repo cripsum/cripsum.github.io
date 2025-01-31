@@ -78,10 +78,10 @@ body {
 }
 
 .bgdisclaimer {
-    backdrop-filter: blur(10px); /* Sfondo sfocato */
-    background: linear-gradient(135deg, rgba(201, 201, 201, 0.2), rgba(34, 34, 34, 0.2)); /* Sfondo trasparente */
-    border: 1px solid rgba(255, 255, 255, 0); /* Bordi bianchi */
-    border-radius: 8px; /* Bordo stondato */
+    backdrop-filter: blur(10px);
+    background: linear-gradient(135deg, rgba(201, 201, 201, 0.2), rgba(34, 34, 34, 0.2));
+    border: 1px solid rgba(255, 255, 255, 0);
+    border-radius: 8px;
     box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
 }
 
@@ -169,8 +169,8 @@ hr.rounded {
     padding: 10px 20px;
     font-size: 16px;
     text-decoration: none;
-    background-color: #303033; /* Colore del bottone */
-    color: #e1dfdb; /* Colore del testo del bottone */
+    background-color: #303033;
+    color: #e1dfdb;
     border-radius: 8px;
     transition: background-color 0.3s ease;
 }
@@ -186,7 +186,7 @@ hr.rounded {
 }
 
 .purchase-button:hover {
-    background-color: #212124; /* Cambia colore al passaggio del mouse */
+    background-color: #212124;
 }
 
 .loginpagege {
@@ -640,5 +640,3 @@ a {
         max-width: 80%;
     }
 }
-
-/* Media queries for responsiveness */

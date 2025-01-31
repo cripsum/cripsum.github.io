@@ -2,7 +2,7 @@ img {
     border-radius: 10px;
 }
 body {
-    background-color: #121212; /* Dark background color */
+    background-color: #121212;
 }
 
 .testobianco {
@@ -15,8 +15,8 @@ body {
     font-weight: bold;
     text-decoration: none;
     position: relative;
-    padding-bottom: 2px; /* Spazio tra testo e linea */
-    border-bottom: 2px solid transparent; /* Linea inizialmente invisibile */
+    padding-bottom: 2px;
+    border-bottom: 2px solid transparent;
     transition: color 0.3s ease, transform 0.3s ease, border-bottom-color 0.3s ease, text-shadow 0.3s ease;
 }
 
@@ -43,8 +43,8 @@ hr.rounded {
     padding: 10px 20px;
     font-size: 16px;
     text-decoration: none;
-    background-color: #303033; /* Colore del bottone */
-    color: #e1dfdb; /* Colore del testo del bottone */
+    background-color: #303033;
+    color: #e1dfdb;
     border-radius: 8px;
     transition: background-color 0.3s ease;
 }
@@ -60,100 +60,100 @@ hr.rounded {
 }
 
 .linkbianco:hover {
-    color: #ffffff; /* Mantiene il colore del testo */
-    transform: scale(1.1); /* Aumenta leggermente la dimensione */
-    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */ /* La linea si espande ai lati */
-    border-bottom-color: white; /* Colore bianco della linea */
+    color: #ffffff;
+    transform: scale(1.1);
+    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
+    border-bottom-color: white;
 }
 
 .tastobianco:hover {
-    color: #ffffff; /* Mantiene il colore del testo */
-    transform: scale(1.1); /* Aumenta leggermente la dimensione */
-    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
+    color: #ffffff;
+    transform: scale(1.1);
+    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
 }
 
 .navbarutenti {
     position: fixed;
-    top: 20px; /* Spazio in alto */
+    top: 20px;
     left: 0;
     right: 0;
-    margin: 0 30px; /* Spazio ai lati */
-    -webkit-backdrop-filter: blur(10px); /* Sfondo sfocato per safari*/
-    backdrop-filter: blur(10px); /* Sfondo sfocato */
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(64, 64, 64, 0.1)); /* Sfondo trasparente */
-    border: 1px solid rgba(255, 255, 255, 0); /* Bordi bianchi */
-    border-radius: 8px; /* Bordo stondato */
-    z-index: 1000; /* Assicura che la navbar sia sopra altri contenuti */
+    margin: 0 30px;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(64, 64, 64, 0.1));
+    border: 1px solid rgba(255, 255, 255, 0);
+    border-radius: 8px;
+    z-index: 1000;
     box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
 }
 
 .dropdownlingua {
-    -webkit-backdrop-filter: blur(10px); /* Sfondo sfocato per safari*/
-    backdrop-filter: blur(10px); /* Sfondo sfocato */
-    background: linear-gradient(135deg, rgba(43, 43, 43, 0.8), rgb(24, 24, 24)); /* Sfondo trasparente */
-    border: 0px solid rgba(255, 255, 255, 0); /* Bordi bianchi */
-    border-radius: 8px; /* Bordo stondato */
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    background: linear-gradient(135deg, rgba(43, 43, 43, 0.8), rgb(24, 24, 24));
+    border: 0px solid rgba(255, 255, 255, 0);
+    border-radius: 8px;
     box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
 }
 
 .dropdownutenti .dropdown-menu {
-    -webkit-backdrop-filter: blur(10px); /* Sfondo sfocato per safari*/
-    backdrop-filter: blur(10px); /* Sfondo sfocato */
-    background: linear-gradient(135deg, rgba(43, 43, 43, 0.8), rgb(24, 24, 24)); /* Sfondo trasparente */
-    border: 0px solid rgba(255, 255, 255, 0); /* Bordi bianchi */
-    border-radius: 8px; /* Bordo stondato */
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    background: linear-gradient(135deg, rgba(43, 43, 43, 0.8), rgb(24, 24, 24));
+    border: 0px solid rgba(255, 255, 255, 0);
+    border-radius: 8px;
     box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
 }
 
 .dropdownutenti .dropdown-menu .dropdown-item {
-    color: white; /* Colore del testo */
-    font-weight: bold; /* Grassetto */
-    transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease; /* Transizione per l'effetto hover */
+    color: white;
+    font-weight: bold;
+    transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease;
 }
 
 .dropdownutenti .dropdown-menu .dropdown-item:hover {
-    color: #ffffff; /* Cambia il colore del testo */
-    transform: scale(1.1); /* Aumenta leggermente la dimensione */
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
-    background-color: rgba(0, 0, 0, 0); /* Sfondo nero */
+    color: #ffffff;
+    transform: scale(1.1);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
+    background-color: rgba(0, 0, 0, 0);
 }
 
 .navbarutenti .nav-link {
-    color: white; /* Colore del testo */
-    font-weight: bold; /* Grassetto */
-    transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease; /* Transizione per l'effetto hover */
+    color: white;
+    font-weight: bold;
+    transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease;
 }
 
 .link-lingua {
-    color: white; /* Colore del testo */
-    font-weight: bold; /* Grassetto */
-    transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease; /* Transizione per l'effetto hover */
-    background-color: rgba(0, 0, 0, 0); /* Sfondo nero */
+    color: white;
+    font-weight: bold;
+    transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease;
+    background-color: rgba(0, 0, 0, 0);
 }
 
 .navbarutenti .nav-link:hover,
 .navbarutenti .nav-link:focus {
-    color: #ffffff; /* Cambia il colore del testo */
-    transform: scale(1.1); /* Aumenta leggermente la dimensione */
-    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
+    color: #ffffff;
+    transform: scale(1.1);
+    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
 }
 
 .link-lingua:hover,
 .link-lingua:focus {
-    color: #ffffff; /* Cambia il colore del testo */
-    transform: scale(1.1); /* Aumenta leggermente la dimensione */
-    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
-    background-color: rgba(0, 0, 0, 0); /* Sfondo nero */
+    color: #ffffff;
+    transform: scale(1.1);
+    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
+    background-color: rgba(0, 0, 0, 0);
 }
 
 .navbarutenti .navbar-toggler {
-    border-color: rgba(255, 255, 255, 0); /* Colore del bordo del pulsante */
+    border-color: rgba(255, 255, 255, 0);
     transition: box-shadow 0.3s ease;
 }
 
 .lingua-toggler {
-    border-color: rgba(255, 255, 255, 0); /* Colore del bordo del pulsante */
-    transition: box-shadow 0.3s ease; /* Transizione per l'effetto hover */
+    border-color: rgba(255, 255, 255, 0);
+    transition: box-shadow 0.3s ease;
     color: white;
 }
 
@@ -175,22 +175,22 @@ hr.rounded {
 
 .navbarutenti .navbar-toggler:focus {
     outline: none;
-    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0); /* Contorno dorato */
+    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0);
 }
 
 .navbarutenti .navbar-toggler:hover {
     outline: none;
-    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5); /* Contorno dorato */
+    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5);
 }
 
 .lingua-toggler:focus {
     outline: none;
-    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0); /* Contorno dorato */
+    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0);
 }
 
 .lingua-toggler:hover {
     outline: none;
-    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5); /* Contorno dorato */
+    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5);
 }
 .dropdown {
     color: white;
@@ -208,14 +208,14 @@ input[type="email"],
 input[type="password"],
 input[type="number"],
 textarea {
-    background-color: #333; /* Colore grigio scuro */
-    color: white !important; /* Colore del testo */
-    border: 1px solid rgba(255, 255, 255, 0.3); /* Bordo leggero */
-    border-radius: 8px; /* Bordi stondati */
-    padding: 10px; /* Spaziatura interna */
-    width: 100%; /* Si adatta al contenitore */
-    box-sizing: border-box; /* Include padding nel calcolo della larghezza */
-    transition: background-color 0.3s ease, border-color 0.3s ease; /* Transizione per effetti */
+    background-color: #333;
+    color: white !important;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 input[type="text"]:focus,
@@ -224,23 +224,23 @@ input[type="password"]:focus,
 input[type="number"]:focus,
 textarea:focus {
     color: white !important;
-    outline: none; /* Rimuove il bordo di default */
-    background-color: #444; /* Cambia lo sfondo su focus */
-    border-color: rgba(255, 255, 255, 0.5); /* Colore del bordo su focus */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Leggera ombra */
+    outline: none;
+    background-color: #444;
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none; /* Rimuove l'aspetto di default */
-    appearance: none; /* Supporto per altri browser */
-    margin: 0; /* Rimuove margine */
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
 }
 
 input::placeholder,
 textarea::placeholder {
-    color: rgb(255, 255, 255) !important; /* Colore del placeholder bianco semitrasparente */
-    opacity: 1; /* Garantisce la visibilità */
+    color: rgb(255, 255, 255) !important;
+    opacity: 1;
 }
 
 input::-webkit-input-placeholder, /* Chrome/Opera/Safari */
@@ -289,25 +289,24 @@ textarea::-ms-input-placeholder {
 }
 
 select {
-    background-color: #333; /* Colore grigio scuro */
-    color: white; /* Colore del testo */
-    border: 1px solid rgba(255, 255, 255, 0.3); /* Bordo leggero */
-    border-radius: 8px; /* Bordi stondati */
-    padding: 10px; /* Spaziatura interna */
-    width: 100%; /* Si adatta al contenitore */
-    box-sizing: border-box; /* Include padding nel calcolo della larghezza */
-    appearance: none; /* Rimuove lo stile di default */
-    -webkit-appearance: none; /* Supporto per Chrome/Safari */
-    -moz-appearance: none; /* Supporto per Firefox */
-    transition: background-color 0.3s ease, border-color 0.3s ease; /* Transizione per effetti */
+    background-color: #333;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Stile al focus */
 select:focus {
-    outline: none; /* Rimuove il bordo di default */
-    background-color: #444; /* Cambia lo sfondo su focus */
-    border-color: rgba(255, 255, 255, 0.5); /* Colore del bordo su focus */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Leggera ombra */
+    outline: none;
+    background-color: #444;
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 checkbox,
@@ -315,41 +314,41 @@ radio {
     position: relative;
     display: flex;
     align-items: center;
-    cursor: pointer; /* Cambia il cursore su hover */
-    padding: 10px; /* Spaziatura */
-    border-radius: 15px; /* Bordi stondati */
-    transition: background-color 0.3s ease; /* Transizione per l'effetto hover */
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 15px;
+    transition: background-color 0.3s ease;
 }
 
 checkbox:hover,
 radio:hover {
-    background-color: rgba(255, 255, 255, 0.1); /* Sfondo grigio chiaro su hover */
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 @media (max-width: 1199px) {
     .navbarutenti .nav-link:hover,
     .navbarutenti .nav-link:focus {
-        color: #ffffff; /* Cambia il colore del testo */
-        transform: scale(0.95); /* Aumenta leggermente la dimensione */
-        text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
+        color: #ffffff;
+        transform: scale(0.95);
+        text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
     }
 
     .link-lingua:hover {
-        color: #ffffff; /* Cambia il colore del testo */
-        transform: scale(0.95); /* Aumenta leggermente la dimensione */
-        text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
+        color: #ffffff;
+        transform: scale(0.95);
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
     }
 
     .dropdownutenti .dropdown-menu .dropdown-item:hover {
-        color: #ffffff; /* Cambia il colore del testo */
-        transform: scale(0.95); /* Aumenta leggermente la dimensione */
-        text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
-        background-color: rgba(0, 0, 0, 0); /* Sfondo nero */
+        color: #ffffff;
+        transform: scale(0.95);
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
+        background-color: rgba(0, 0, 0, 0);
     }
 }
 @media (max-width: 768px) {
     .navbarutenti {
         top: 10px;
-        margin: 0 20px; /* Spazio ai lati per schermi piccoli */
+        margin: 0 20px;
     }
 }
