@@ -189,6 +189,7 @@
                     const popup = document.getElementById("collegamentoedits");
                     document.getElementById("banner-content").innerHTML = getRandomBanner();
                     overlay.style.display = "flex";
+                    document.body.style.overflow = "hidden";
                     setTimeout(() => {
                         overlay.style.opacity = "1";
                         popup.style.opacity = "1";
@@ -202,6 +203,7 @@
                     popup.style.opacity = "0";
                     popup.style.transform = "translateY(-20px)";
                     overlay.style.opacity = "0";
+                    document.body.style.overflow = "auto";
                     setTimeout(() => {
                         overlay.style.display = "none";
                     }, 500);
