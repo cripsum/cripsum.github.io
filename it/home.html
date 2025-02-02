@@ -118,48 +118,65 @@
             </script>
 
             <div
-                id="collegamentoedits"
-                class="collegamentoedit ombra fadeup"
-                style="
-                    backdrop-filter: blur(10px); /* Sfondo sfocato */
-                    background: linear-gradient(135deg, rgba(42, 42, 42, 0.8), rgb(22, 22, 22)); /* Sfondo trasparente */
-                    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5);
-                    padding-bottom: 1px;
-                    border-width: 1px;
-                    border-style: solid;
-                    border-radius: 10px;
-                    max-width: 80%;
-                    margin: auto;
-                    margin-top: 10px;
-                "
+                id="popup-overlay"
+                style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: none; align-items: center; justify-content: center; z-index: 9999"
             >
-                <button style="top: 5px; right: 5px; background-color: transparent; border: none; cursor: pointer">
-                    <span class="close_div tastobianco" id="close" style="font-size: 20px; color: rgb(255, 255, 255)" onclick="close_div(1)"
-                        >&times;<a class="linkbianco" style="font-size: small; position: relative; top: -3px; left: 3px">chiudi</a></span
-                    >
-                </button>
-                <script>
-                    function getRandomBanner() {
-                        const banners = [
-                            `<div class="center bannerino" style="text-align: center; margin: auto">
-                                <h2 style="color: rgb(255, 255, 255); padding-left: 10px; padding-right: 10px;">Hey tu!</h2>
-                                <p style="color: rgb(255, 255, 255); padding-left: 10px; padding-right: 10px;">dai un'occhiata ai miei ultimi edit! - <a href="edits" class="linkbianco">clicca qui</a></p>
-                            </div>`,
-                            `<div class="center bannerino" style="text-align: center; margin: auto">
-                                <h2 style="color: rgb(255, 255, 255); padding-left: 10px; padding-right: 10px;">Ciao bro!</h2>
-                                <p style="color: rgb(255, 255, 255); padding-left: 10px; padding-right: 10px;">Entra nel mio server discord - <a href="../discord" class="linkbianco">clicca qui</a></p>
-                            </div>`,
-                            `<div class="center bannerino" style="text-align: center; margin: auto;">
-                                <h2 style="color: rgb(255, 255, 255); padding-left: 10px; padding-right: 10px;">Ciao fratello!</h2>
-                                <p style="color: rgb(255, 255, 255); padding-left: 10px; padding-right: 10px;">Entra nel mio gruppo telegram - <a href="https://t.me/sburragrigliata" class="linkbianco">clicca qui</a></p>
-                            </div>`,
-                        ];
-                        return banners[Math.floor(Math.random() * banners.length)];
-                    }
-
-                    document.write(getRandomBanner());
-                </script>
+                <div
+                    id="collegamentoedits"
+                    class="collegamentoedit ombra fadeup"
+                    style="
+                        backdrop-filter: blur(15px);
+                        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(64, 64, 64, 0.1));
+                        box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5);
+                        padding: 20px;
+                        border: 1px solid rgba(255, 255, 255, 0.5);
+                        border-radius: 10px;
+                        max-width: 80%;
+                        text-align: center;
+                        position: relative;
+                    "
+                >
+                    <button style="position: absolute; top: 5px; right: 5px; background-color: transparent; border: none; cursor: pointer" onclick="closePopup()">
+                        <span class="close_div tastobianco" style="font-size: 20px; color: rgb(255, 255, 255)"
+                            >&times;<span class="linkbianco" style="font-size: small; position: relative; top: -3px; left: 3px">chiudi</span></span
+                        >
+                    </button>
+                    <div id="banner-content"></div>
+                </div>
             </div>
+
+            <script>
+                function getRandomBanner() {
+                    const banners = [
+                        `<div class="bannerino">
+            <h2 style="color: rgb(255, 255, 255);">Hey tu!</h2>
+            <p style="color: rgb(255, 255, 255);">Dai un'occhiata ai miei ultimi edit! - <a href="edits" class="linkbianco">clicca qui</a></p>
+        </div>`,
+                        `<div class="bannerino">
+            <h2 style="color: rgb(255, 255, 255);">Ciao bro!</h2>
+            <p style="color: rgb(255, 255, 255);">Entra nel mio server Discord - <a href="../discord" class="linkbianco">clicca qui</a></p>
+        </div>`,
+                        `<div class="bannerino">
+            <h2 style="color: rgb(255, 255, 255);">Ciao fratello!</h2>
+            <p style="color: rgb(255, 255, 255);">Unisciti al mio gruppo Telegram - <a href="https://t.me/sburragrigliata" class="linkbianco">clicca qui</a></p>
+        </div>`,
+                    ];
+                    return banners[Math.floor(Math.random() * banners.length)];
+                }
+
+                function showPopup() {
+                    document.getElementById("banner-content").innerHTML = getRandomBanner();
+                    document.getElementById("popup-overlay").style.display = "flex";
+                }
+
+                function closePopup() {
+                    document.getElementById("popup-overlay").style.display = "none";
+                }
+
+                window.onload = function () {
+                    setTimeout(showPopup, 1000);
+                };
+            </script>
 
             <div id="disclaimer" class="divdisclaimer fadeup">
                 <button class="btn btn-secondary bottone" type="button" data-bs-toggle="modal" data-bs-target="#disclaimerModal" style="margin-top: 30px; max-width: 70%">
