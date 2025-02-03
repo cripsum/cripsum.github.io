@@ -110,17 +110,15 @@
                 }
 
                 #messaggio {
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
                     opacity: 0;
-                    transform: translate(0, -10%) scale(1);
-                    transition: transform 0.8s ease-out, opacity 0.8s ease-out;
-                    z-index: 3;
+                    transform: scale(1);
+                    transition: opacity 0.8s ease-out;
+                    z-index: 4;
+                    margin-top: -120px;
                 }
 
                 #messaggio.salto {
-                    transform: translate(0, -200px) scale(1);
+                    transform: scale(1);
                     opacity: 1;
                 }
             }
