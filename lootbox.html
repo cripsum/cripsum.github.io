@@ -106,10 +106,13 @@
                     z-index: 3;
                 }
                 #contenuto.salto {
-                    transform: translate(-50%, -350px) scale(1);
+                    transform: translate(-50%, -200px) scale(1);
                 }
 
                 #messaggio {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
                     opacity: 0;
                     transform: translate(-50%, 0) scale(1);
                     transition: transform 0.8s ease-out, opacity 0.8s ease-out;
@@ -117,7 +120,7 @@
                 }
 
                 #messaggio.salto {
-                    transform: scale(1) translate(-50%, -100px);
+                    transform: translate(-50%, -200px) scale(1);
                     opacity: 1;
                 }
             }
