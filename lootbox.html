@@ -307,7 +307,7 @@
            bloccare lo scorrimento della pagina quando il pop up è aperto (aggiungere classe overflow-hidden al body)  
         -->
 
-        <div style="max-width: 1520px; margin: auto; padding-top: 5rem" class="testobianco">
+        <div style="max-width: 1520px; margin: auto; padding-top: 5rem" class="testobianco" id="paginaintera">
             <div class="container">
                 <!-- Faretti -->
                 <div class="faretto sinistra"></div>
@@ -370,6 +370,29 @@
             crossorigin="anonymous"
         ></script>
         <script>
+            var rarita = "";
+            if (nomePersonaggio.innerText === "SCHIAVO NERO") {
+                rarita = "comune";
+            } else if (nomePersonaggio.innerText === "VECCHIO SAGGIO CINESE") {
+                rarita = "mitico";
+            } else if (nomePersonaggio.innerText === "SIMONE TUSSI") {
+                rarita = "leggendario";
+            }
+
+            if (rarita === "comune") {
+                messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
+            } else if (rarita === "mitico") {
+                messaggioRarita.innerText = "PAZZESCO FRA, hai pullato un personaggio mitico";
+            } else if (rarita === "leggendario") {
+                messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
+            } else if (rarita === "epico") {
+                messaggioRarita.innerText = "hai pullato un personaggio epico, tanta roba, ma poteva andare meglio";
+            } else if (rarita === "raro") {
+                messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
+            } else if (rarita === "non-comune") {
+                messaggioRarita.innerText = "hai pullato un personaggio non comune! poteva andare meglio";
+            }
+
             function apriCassa() {
                 const cassa = document.getElementById("cassa");
                 const nomePersonaggio = document.getElementById("nomePersonaggio");
@@ -379,6 +402,7 @@
                 const messaggio = document.getElementById("messaggio");
                 const contenuto = document.getElementById("contenuto");
                 const particelleContainer = document.getElementById("particelle");
+                const paginaintera = document.getElementById("paginaintera");
 
                 // Bagliore leggero
                 bagliore.style.opacity = 0.6;
@@ -391,15 +415,6 @@
                 // Genera particelle
                 generaParticelle();
 
-                //
-                if (nomePersonaggio.innerText === "SCHIAVO NERO") {
-                    messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune";
-                } else if (nomePersonaggio.innerText === "VECCHIO SAGGIO CINESE") {
-                    messaggioRarita.innerText = "PAZZESCO FRA, hai pullato un personaggio mitico";
-                } else if (nomePersonaggio.innerText === "SIMONE TUSSI") {
-                    messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
-                }
-
                 // Cambia immagine e abbassa la cassa
                 setTimeout(() => {
                     cassa.src = "img/cassa_aperta.png";
@@ -408,6 +423,19 @@
 
                 // La foto e il testo saltano fuori dalla cassa
                 setTimeout(() => {
+                    if (rarita === "comune") {
+                        bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
+                    } else if (rarita === "mitico") {
+                        bagliore.style.background = "radial-gradient(circle, rgba(245, 15, 15, 1) 0%, rgba(0, 255, 0, 0) 70%)";
+                    } else if (rarita === "leggendario") {
+                        bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+                    } else if (rarita === "epico") {
+                        bagliore.style.background = "radial-gradient(circle, rgba(195, 0, 235, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+                    } else if (rarita === "raro") {
+                        bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+                    } else if (rarita === "non-comune") {
+                        bagliore.style.background = "radial-gradient(circle, rgba(0, 207, 0, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+                    }
                     contenuto.classList.add("salto");
                     messaggio.classList.add("salto");
                     cassa.classList.add("dissolvi");
