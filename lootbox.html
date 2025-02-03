@@ -96,6 +96,32 @@
                 transform: translate(-50%, -150px) scale(1);
             }
 
+            @media only screen and (max-width: 1280px) {
+                #contenuto {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -40%) scale(0);
+                    transition: transform 0.8s ease-out;
+                    z-index: 3;
+                }
+                #contenuto.salto {
+                    transform: translate(-50%, -350px) scale(1);
+                }
+
+                #messaggio {
+                    opacity: 0;
+                    transform: translate(-50%, 0) scale(1);
+                    transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+                    z-index: 3;
+                }
+
+                #messaggio.salto {
+                    transform: scale(1) translate(-50%, -100px);
+                    opacity: 1;
+                }
+            }
+
             #messaggio {
                 opacity: 0;
                 transform: scale(1);
