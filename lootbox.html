@@ -326,15 +326,15 @@
                         function getRandomPull() {
                             const ads = [
                                 `<div id="contenuto" class="nascosto">
-                                    <h1 style="margin-bottom: 10px">SCHIAVO NERO</h1>
+                                    <h1 style="margin-bottom: 10px" id="nomePersonaggio">SCHIAVO NERO</h1>
                                     <img src="img/abdul.jpg" alt="Premio" class="premio" />
                                 </div>`,
                                 `<div id="contenuto" class="nascosto">
-                                    <h1 style="margin-bottom: 10px">VECCHIO SAGGIO CINESE</h1>
+                                    <h1 style="margin-bottom: 10px" id="nomePersonaggio">VECCHIO SAGGIO CINESE</h1>
                                     <img src="img/chinese-essay-2.jpg" alt="Premio" class="premio" />
                                 </div>`,
                                 `<div id="contenuto" class="nascosto">
-                                    <h1 style="margin-bottom: 10px">SIMONE TUSSI</h1>
+                                    <h1 style="margin-bottom: 10px" id="nomePersonaggio">SIMONE TUSSI</h1>
                                     <img src="img/slott8.jpg" alt="Premio" class="premio" />
                                 </div>`,
                             ];
@@ -346,7 +346,7 @@
                 </div>
 
                 <div id="messaggio" class="nascosto">
-                    <h1 style="margin-top: 100px">pazzesco fra, hai pullato un mitico</h1>
+                    <h1 style="margin-top: 100px" id="messaggioRarita"></h1>
                 </div>
 
                 <div id="particelle"></div>
@@ -372,13 +372,13 @@
         <script>
             function apriCassa() {
                 const cassa = document.getElementById("cassa");
+                const nomePersonaggio = document.getElementById("nomePersonaggio");
+                const messaggioRarita = document.getElementById("messaggioRarita");
                 const audio = document.getElementById("suonoCassa");
                 const bagliore = document.getElementById("bagliore");
                 const messaggio = document.getElementById("messaggio");
                 const contenuto = document.getElementById("contenuto");
                 const particelleContainer = document.getElementById("particelle");
-
-                // Cambia immagine e abbassa la cassa
 
                 // Bagliore leggero
                 bagliore.style.opacity = 0.6;
@@ -391,11 +391,22 @@
                 // Genera particelle
                 generaParticelle();
 
+                //
+                if (nomePersonaggio.innerText === "SCHIAVO NERO") {
+                    messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune";
+                } else if (nomePersonaggio.innerText === "VECCHIO SAGGIO CINESE") {
+                    messaggioRarita.innerText = "PAZZESCO FRA, hai pullato un personaggio mitico";
+                } else if (nomePersonaggio.innerText === "SIMONE TUSSI") {
+                    messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
+                }
+
+                // Cambia immagine e abbassa la cassa
                 setTimeout(() => {
                     cassa.src = "img/cassa_aperta.png";
                     cassa.classList.add("aperta");
                 }, 2000);
-                // La foto salta fuori dalla cassa
+
+                // La foto e il testo saltano fuori dalla cassa
                 setTimeout(() => {
                     contenuto.classList.add("salto");
                     messaggio.classList.add("salto");
