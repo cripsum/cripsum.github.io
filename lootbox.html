@@ -31,16 +31,16 @@
 
             /* Cassa */
             #cassa {
+                top: 60%;
                 width: 200px;
                 cursor: pointer;
-                transition: transform 0.8s ease, opacity 0.5s ease;
+                transition: transform 1.8s ease, opacity 0.5s ease;
                 z-index: 2;
                 position: relative;
-                opacity: 1;
             }
 
             #cassa.aperta {
-                transform: scale(1.1) rotate(10deg);
+                transform: translateY(50px) scale(1);
             }
 
             /* Faretti */
@@ -48,7 +48,7 @@
                 position: absolute;
                 width: 150px;
                 height: 300px;
-                background: radial-gradient(ellipse at center, rgba(255, 255, 200, 0.6) 0%, rgba(255, 255, 200, 0) 70%);
+                background: radial-gradient(ellipse at center, rgba(255, 255, 200, 0.4) 0%, rgba(255, 255, 200, 0) 70%);
                 top: -50px;
                 z-index: 1;
                 opacity: 0;
@@ -64,48 +64,96 @@
             .faretto.destra {
                 right: 20%;
                 transform: rotate(30deg);
-                animation-delay: 1.5s;
+                animation-delay: 1s;
             }
 
             /* Bagliore */
             .bagliore {
                 position: absolute;
-                width: 300px;
-                height: 300px;
-                background: radial-gradient(circle, rgba(255, 255, 0, 0.8) 0%, rgba(255, 255, 0, 0) 70%);
+                width: 250px;
+                height: 250px;
+                background: radial-gradient(circle, rgba(255, 255, 0, 0.3) 0%, rgba(255, 255, 0, 0) 70%);
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%) scale(0);
                 transition: transform 1s ease-out, opacity 1s ease-out;
                 z-index: 0;
                 pointer-events: none;
+                opacity: 0.8;
+            }
+
+            /* Contenuto (testo + immagine) */
+            #contenuto {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -20%) scale(0);
+                transition: transform 0.8s ease-out;
+                z-index: 3;
+            }
+
+            #contenuto.salto {
+                transform: translate(-50%, -150px) scale(1);
+            }
+
+            #messaggio {
                 opacity: 0;
+                transform: scale(1);
+                transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+                z-index: 3;
+            }
+
+            #messaggio.salto {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            /* Testo sopra la foto */
+            .testo {
+                color: black;
+                font-size: 48px;
+                margin: 0;
+                margin-bottom: 10px;
+                position: relative;
+                z-index: 2;
+            }
+
+            /* Immagine premio */
+            .premio {
+                width: 150px;
+                margin-top: -10px;
+                position: relative;
+                z-index: 1;
             }
 
             /* Particelle */
             #particelle {
-                position: absolute;
+                position: fixed; /* Cambiato da absolute a fixed per seguire la finestra */
                 width: 100%;
                 height: 100%;
-                overflow: hidden;
+                top: 0;
+                left: 0;
                 pointer-events: none;
-                opacity: 0;
+                z-index: 5; /* Assicurati che sia sopra la cassa */
             }
 
-            /* Risultato */
-            #risultato {
-                margin-top: 20px;
-                opacity: 0;
-                transition: opacity 1.5s ease-in;
-                z-index: 3;
+            .particella {
+                position: absolute;
+                width: 4px;
+                height: 4px;
+                background: radial-gradient(circle, gold, transparent);
+                border-radius: 50%;
+                opacity: 0.9;
+                animation: esplosione 1.5s ease-out forwards;
+                transform: translate(0, 0);
+                filter: drop-shadow(0 0 5px gold);
             }
 
-            #risultato img {
-                width: 150px;
-            }
-
-            .nascosto {
-                display: none;
+            @keyframes esplosione {
+                to {
+                    transform: translate(var(--x), var(--y)) scale(0.8);
+                    opacity: 0;
+                }
             }
 
             /* Animazioni */
@@ -127,15 +175,14 @@
                 }
             }
 
-            /* Animazione particelle */
-            @keyframes particelle {
-                from {
-                    transform: translateY(0);
-                    opacity: 1;
-                }
+            #cassa.dissolvi {
+                animation: dissolviCassa 1s forwards;
+            }
+
+            @keyframes dissolviCassa {
                 to {
-                    transform: translateY(-200px);
                     opacity: 0;
+                    transform: scale(0.8);
                 }
             }
         </style>
@@ -240,22 +287,26 @@
                 <div class="faretto destra"></div>
 
                 <!-- Cassa -->
-                <img src="img/cassa.png" alt="Cassa" id="cassa" onclick="apriCassa()" />
+                <img src="img/cassa.png" alt="Cassa" id="cassa" class="fadein" onclick="apriCassa()" />
 
                 <!-- Bagliore -->
                 <div class="bagliore" id="bagliore"></div>
 
-                <!-- Particelle -->
-                <div id="particelle"></div>
-
                 <!-- Risultato Finale -->
-                <div id="risultato" class="nascosto">
-                    <h1>N DI NEGRO</h1>
-                    <img src="img/abdul.jpg" alt="Premio" />
+                <div id="contenuto" class="nascosto">
+                    <h1 style="margin-bottom: 10px">SCHIAVO NERO</h1>
+                    <img src="img/abdul.jpg" alt="Premio" class="premio" />
                 </div>
+                <div id="messaggio" class="nascosto">
+                    <h1 style="margin-top: 100px">pazzesco fra, hai pullato un mitico</h1>
+                </div>
+
+                <div id="particelle"></div>
             </div>
 
-            <audio id="suonoCassa" src="audio/ndinero"></audio>
+            <audio id="suonoCassa">
+                <source src="audio/ndinero.mp3" type="audio/mpeg" />
+            </audio>
         </div>
         <!--<footer class="my-5 pt-5 text-muted text-center text-small fadeup">
             <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. Tutti i diritti riservati.</p>
@@ -274,30 +325,34 @@
             function apriCassa() {
                 const cassa = document.getElementById("cassa");
                 const audio = document.getElementById("suonoCassa");
-                const risultato = document.getElementById("risultato");
                 const bagliore = document.getElementById("bagliore");
+                const messaggio = document.getElementById("messaggio");
+                const contenuto = document.getElementById("contenuto");
                 const particelleContainer = document.getElementById("particelle");
 
-                // Anima la cassa
-                cassa.src = "img/cassa_aperta.png";
-                cassa.classList.add("aperta");
+                // Cambia immagine e abbassa la cassa
 
-                // Bagliore che esplode con dissolvenza
-                bagliore.style.opacity = 1;
-                bagliore.style.transform = "translate(-50%, -50%) scale(2)";
+                // Bagliore leggero
+                bagliore.style.opacity = 0.6;
+                bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
 
-                // Mostra particelle
-                particelleContainer.style.opacity = 1;
-                generaParticelle();
-
-                // Suono
+                // Audio sincronizzato
+                audio.currentTime = 0;
                 audio.play();
 
-                // Dopo 5 secondi mostra il risultato
+                // Genera particelle
+                generaParticelle();
+
                 setTimeout(() => {
-                    risultato.classList.remove("nascosto");
-                    risultato.style.opacity = 1;
-                }, 6000);
+                    cassa.src = "img/cassa_aperta.png";
+                    cassa.classList.add("aperta");
+                }, 2000);
+                // La foto salta fuori dalla cassa
+                setTimeout(() => {
+                    contenuto.classList.add("salto");
+                    messaggio.classList.add("salto");
+                    cassa.classList.add("dissolvi");
+                }, 5000);
 
                 // Disabilita ulteriori click
                 cassa.onclick = null;
@@ -305,23 +360,33 @@
 
             function generaParticelle() {
                 const container = document.getElementById("particelle");
-                for (let i = 0; i < 30; i++) {
-                    let particella = document.createElement("div");
-                    particella.style.position = "absolute";
-                    particella.style.width = "5px";
-                    particella.style.height = "5px";
-                    particella.style.background = "gold";
-                    particella.style.borderRadius = "50%";
-                    particella.style.left = `${50 + Math.random() * 100 - 50}%`;
-                    particella.style.top = "50%";
-                    particella.style.opacity = 1;
-                    particella.style.animation = `particelle ${1 + Math.random()}s linear infinite`;
+                const cassa = document.getElementById("cassa");
+                const rect = cassa.getBoundingClientRect(); // Ottieni la posizione della cassa
+
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                for (let i = 0; i < 100; i++) {
+                    const particella = document.createElement("div");
+                    particella.classList.add("particella");
+
+                    // Posiziona le particelle al centro della cassa
+                    particella.style.left = `${centerX}px`;
+                    particella.style.top = `${centerY}px`;
+
+                    // Movimento radiale casuale (360°)
+                    const angle = Math.random() * 2 * Math.PI;
+                    const distance = Math.random() * 200 + 50;
+                    const x = Math.cos(angle) * distance;
+                    const y = Math.sin(angle) * distance;
+
+                    particella.style.setProperty("--x", `${x}px`);
+                    particella.style.setProperty("--y", `${y}px`);
 
                     container.appendChild(particella);
 
-                    setTimeout(() => {
-                        particella.remove();
-                    }, 2000);
+                    // Rimuovi la particella dopo l'animazione
+                    setTimeout(() => particella.remove(), 2000);
                 }
             }
         </script>
