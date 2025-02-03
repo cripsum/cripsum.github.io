@@ -320,10 +320,31 @@
                 <div class="bagliore" id="bagliore"></div>
 
                 <!-- Risultato Finale -->
-                <div id="contenuto" class="nascosto">
-                    <h1 style="margin-bottom: 10px">SCHIAVO NERO</h1>
-                    <img src="img/abdul.jpg" alt="Premio" class="premio" />
+
+                <div id="randomAd">
+                    <script>
+                        function getRandomPull() {
+                            const ads = [
+                                `<div id="contenuto" class="nascosto">
+                                    <h1 style="margin-bottom: 10px">SCHIAVO NERO</h1>
+                                    <img src="img/abdul.jpg" alt="Premio" class="premio" />
+                                </div>`,
+                                `<div id="contenuto" class="nascosto">
+                                    <h1 style="margin-bottom: 10px">VECCHIO SAGGIO CINESE</h1>
+                                    <img src="img/chinese-essay-2.jpg" alt="Premio" class="premio" />
+                                </div>`,
+                                `<div id="contenuto" class="nascosto">
+                                    <h1 style="margin-bottom: 10px">SIMONE TUSSI</h1>
+                                    <img src="img/slott8.jpg" alt="Premio" class="premio" />
+                                </div>`,
+                            ];
+                            return ads[Math.floor(Math.random() * ads.length)];
+                        }
+
+                        document.write(getRandomPull());
+                    </script>
                 </div>
+
                 <div id="messaggio" class="nascosto">
                     <h1 style="margin-top: 100px">pazzesco fra, hai pullato un mitico</h1>
                 </div>
