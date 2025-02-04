@@ -142,7 +142,7 @@
             /* Testo sopra la foto */
             .testo {
                 color: black;
-                font-size: 48px;
+                font-size: 30px;
                 margin: 0;
                 margin-bottom: 10px;
                 position: relative;
@@ -328,7 +328,7 @@
                 <div id="contenuto"></div>
 
                 <div id="messaggio" class="nascosto">
-                    <h1 style="margin-top: 100px" id="messaggioRarita"></h1>
+                    <h1 style="margin-top: 100px; font-size: 25px" id="messaggioRarita"></h1>
                 </div>
 
                 <div id="particelle"></div>
@@ -353,15 +353,15 @@
             const rarities = [
                 { name: "SCHIAVO NERO", rarity: "comune", img: "img/abdul.jpg", audio: "audio/ndinero.mp3" },
                 { name: "OLD CHINESE SAGE", rarity: "mitico", img: "img/chinese-essay-2.jpg", audio: "audio/Jin-Sheng-Yuan.mp3" },
-                { name: "SIMONE TUSSI", rarity: "leggendario", img: "img/slott8.jpg", audio: "audio/ndinero.mp3" },
+                { name: "SIMONE TUSSI", rarity: "leggendario", img: "img/slott8.jpg", audio: "audio/imaphotographer.mp3" },
                 { name: "SIMONE TUSSI", rarity: "raro", img: "img/slott8.jpg", audio: "audio/fitgirl.mp3" },
                 { name: "SIMONE TUSSI", rarity: "epico", img: "img/slott8.jpg", audio: "audio/Elevator Music.mp3" },
             ];
 
             const rarityProbabilities = {
-                comune: 60,
-                raro: 20,
-                epico: 10,
+                comune: 50,
+                raro: 25,
+                epico: 15,
                 leggendario: 7,
                 mitico: 3,
             };
@@ -386,7 +386,7 @@
 
             const pull = getRandomPull();
             document.getElementById("contenuto").innerHTML = `
-                <h1 style="margin-bottom: 10px" id="nomePersonaggio">${pull.name}</h1>
+                <h1 style="margin-bottom: 10px; font-size: 25px;" id="nomePersonaggio">${pull.name}</h1>
                 <img src="${pull.img}" alt="Premio" class="premio" />
                 `;
 
@@ -397,14 +397,19 @@
 
             if (rarita === "comune") {
                 messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
+                bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
             } else if (rarita === "mitico") {
                 messaggioRarita.innerText = "PAZZESCO FRA, hai pullato un personaggio mitico";
+                bagliore.style.background = "radial-gradient(circle, rgba(245, 15, 15, 1) 0%, rgba(0, 255, 0, 0) 70%)";
             } else if (rarita === "leggendario") {
                 messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
+                bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
             } else if (rarita === "epico") {
                 messaggioRarita.innerText = "hai pullato un personaggio epico, tanta roba, ma poteva andare meglio";
+                bagliore.style.background = "radial-gradient(circle, rgba(195, 0, 235, 1) 0%, rgba(0, 0, 255, 0) 70%)";
             } else if (rarita === "raro") {
                 messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
+                bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
             }
 
             document.getElementById("suonoCassa").innerHTML = `
@@ -422,51 +427,32 @@
                 const particelleContainer = document.getElementById("particelle");
                 const paginaintera = document.getElementById("paginaintera");
 
-                // Bagliore leggero
                 bagliore.style.opacity = 0.6;
                 bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
 
-                // Audio sincronizzato
                 audio.currentTime = 0;
                 audio.play();
 
-                // Genera particelle
                 generaParticelle();
 
-                // Cambia immagine e abbassa la cassa
                 setTimeout(() => {
                     cassa.src = "img/cassa_aperta.png";
                     cassa.classList.add("aperta");
                 }, 2000);
 
-                // La foto e il testo saltano fuori dalla cassa
                 setTimeout(() => {
-                    if (rarita === "comune") {
-                        bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
-                    } else if (rarita === "mitico") {
-                        bagliore.style.background = "radial-gradient(circle, rgba(245, 15, 15, 1) 0%, rgba(0, 255, 0, 0) 70%)";
-                    } else if (rarita === "leggendario") {
-                        bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-                    } else if (rarita === "epico") {
-                        bagliore.style.background = "radial-gradient(circle, rgba(195, 0, 235, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-                    } else if (rarita === "raro") {
-                        bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-                    } else if (rarita === "non-comune") {
-                        bagliore.style.background = "radial-gradient(circle, rgba(0, 207, 0, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-                    }
                     contenuto.classList.add("salto");
                     messaggio.classList.add("salto");
                     cassa.classList.add("dissolvi");
                 }, 5000);
 
-                // Disabilita ulteriori click
                 cassa.onclick = null;
             }
 
             function generaParticelle() {
                 const container = document.getElementById("particelle");
                 const cassa = document.getElementById("cassa");
-                const rect = cassa.getBoundingClientRect(); // Ottieni la posizione della cassa
+                const rect = cassa.getBoundingClientRect(); // posizione della cassa
 
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
