@@ -90,10 +90,12 @@
                 transform: translate(-50%, -20%) scale(0);
                 transition: transform 0.8s ease-out;
                 z-index: 3;
+                max-width: 90%;
             }
 
             #contenuto.salto {
                 transform: translate(-50%, -150px) scale(1);
+                max-width: 90%;
             }
 
             @media only screen and (max-width: 1280px) {
@@ -104,9 +106,11 @@
                     transform: translate(-50%, -30%) scale(0);
                     transition: transform 0.8s ease-out;
                     z-index: 3;
+                    max-width: 90%;
                 }
                 #contenuto.salto {
                     transform: translate(-50%, -200px) scale(1);
+                    max-width: 90%;
                 }
 
                 #messaggio {
@@ -321,29 +325,7 @@
 
                 <!-- Risultato Finale -->
 
-                <div id="randomAd">
-                    <script>
-                        function getRandomPull() {
-                            const ads = [
-                                `<div id="contenuto" class="nascosto">
-                                    <h1 style="margin-bottom: 10px" id="nomePersonaggio">SCHIAVO NERO</h1>
-                                    <img src="img/abdul.jpg" alt="Premio" class="premio" />
-                                </div>`,
-                                `<div id="contenuto" class="nascosto">
-                                    <h1 style="margin-bottom: 10px" id="nomePersonaggio">VECCHIO SAGGIO CINESE</h1>
-                                    <img src="img/chinese-essay-2.jpg" alt="Premio" class="premio" />
-                                </div>`,
-                                `<div id="contenuto" class="nascosto">
-                                    <h1 style="margin-bottom: 10px" id="nomePersonaggio">SIMONE TUSSI</h1>
-                                    <img src="img/slott8.jpg" alt="Premio" class="premio" />
-                                </div>`,
-                            ];
-                            return ads[Math.floor(Math.random() * ads.length)];
-                        }
-
-                        document.write(getRandomPull());
-                    </script>
-                </div>
+                <div id="contenuto"></div>
 
                 <div id="messaggio" class="nascosto">
                     <h1 style="margin-top: 100px" id="messaggioRarita"></h1>
@@ -352,9 +334,7 @@
                 <div id="particelle"></div>
             </div>
 
-            <audio id="suonoCassa">
-                <source src="audio/ndinero.mp3" type="audio/mpeg" />
-            </audio>
+            <audio id="suonoCassa"></audio>
         </div>
         <!--<footer class="my-5 pt-5 text-muted text-center text-small fadeup">
             <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. Tutti i diritti riservati.</p>
@@ -370,14 +350,50 @@
             crossorigin="anonymous"
         ></script>
         <script>
-            var rarita = "";
-            if (nomePersonaggio.innerText === "SCHIAVO NERO") {
-                rarita = "comune";
-            } else if (nomePersonaggio.innerText === "VECCHIO SAGGIO CINESE") {
-                rarita = "mitico";
-            } else if (nomePersonaggio.innerText === "SIMONE TUSSI") {
-                rarita = "leggendario";
+            const rarities = [
+                { name: "SCHIAVO NERO", rarity: "comune", img: "img/abdul.jpg", audio: "audio/ndinero.mp3" },
+                { name: "OLD CHINESE SAGE", rarity: "mitico", img: "img/chinese-essay-2.jpg", audio: "audio/Jin-Sheng-Yuan.mp3" },
+                { name: "SIMONE TUSSI", rarity: "leggendario", img: "img/slott8.jpg", audio: "audio/ndinero.mp3" },
+                { name: "SIMONE TUSSI", rarity: "raro", img: "img/slott8.jpg", audio: "audio/fitgirl.mp3" },
+                { name: "SIMONE TUSSI", rarity: "epico", img: "img/slott8.jpg", audio: "audio/Elevator Music.mp3" },
+            ];
+
+            const rarityProbabilities = {
+                comune: 60,
+                raro: 20,
+                epico: 10,
+                leggendario: 7,
+                mitico: 3,
+            };
+
+            function getRandomRarity() {
+                const totalWeight = Object.values(rarityProbabilities).reduce((sum, weight) => sum + weight, 0);
+                let randomNum = Math.random() * totalWeight;
+
+                for (let [rarity, weight] of Object.entries(rarityProbabilities)) {
+                    if (randomNum < weight) {
+                        return rarity;
+                    }
+                    randomNum -= weight;
+                }
             }
+
+            function getRandomPull() {
+                const selectedRarity = getRandomRarity();
+                const filteredRarities = rarities.filter((item) => item.rarity === selectedRarity);
+                return filteredRarities[Math.floor(Math.random() * filteredRarities.length)];
+            }
+
+            const pull = getRandomPull();
+            document.getElementById("contenuto").innerHTML = `
+                <h1 style="margin-bottom: 10px" id="nomePersonaggio">${pull.name}</h1>
+                <img src="${pull.img}" alt="Premio" class="premio" />
+                `;
+
+            const nomePersonaggio = document.getElementById("nomePersonaggio");
+            const messaggioRarita = document.getElementById("messaggioRarita");
+
+            var rarita = pull.rarity;
 
             if (rarita === "comune") {
                 messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
@@ -389,9 +405,11 @@
                 messaggioRarita.innerText = "hai pullato un personaggio epico, tanta roba, ma poteva andare meglio";
             } else if (rarita === "raro") {
                 messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
-            } else if (rarita === "non-comune") {
-                messaggioRarita.innerText = "hai pullato un personaggio non comune! poteva andare meglio";
             }
+
+            document.getElementById("suonoCassa").innerHTML = `
+                <source src="${pull.audio}" type="audio/mpeg" id="suono" />
+                `;
 
             function apriCassa() {
                 const cassa = document.getElementById("cassa");
