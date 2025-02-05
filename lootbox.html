@@ -478,21 +478,21 @@
 
                 generaParticelle();
 
-                setTimeout(() => {
-                    cassa.src = "img/cassa_aperta.png";
-                    cassa.classList.add("aperta");
-                }, 2000);
+                //setTimeout(() => {}, 2000);
+
+                cassa.src = "img/cassa_aperta.png";
+                cassa.classList.add("aperta");
 
                 setTimeout(() => {
                     contenuto.classList.add("salto");
                     messaggio.classList.add("salto");
                     cassa.classList.add("dissolvi");
-                }, 5000);
+                }, 3000);
 
                 setTimeout(() => {
                     divApriAncora.classList.remove("nascosto");
                     divApriAncora.classList.add("salto");
-                }, 7500);
+                }, 5500);
 
                 cassa.onclick = null;
 
