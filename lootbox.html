@@ -205,6 +205,13 @@
                 filter: drop-shadow(0 0 5px gold);
             }
 
+            .non-selezionabile {
+                user-select: none; /* Impedisce la selezione del testo */
+                -webkit-user-select: none; /* Per compatibilità con Safari */
+                -moz-user-select: none; /* Per compatibilità con Firefox */
+                -ms-user-select: none; /* Per compatibilità con Internet Explorer */
+            }
+
             @keyframes esplosione {
                 to {
                     transform: translate(var(--x), var(--y)) scale(0.8);
@@ -358,7 +365,7 @@
                 </div>
 
                 <div id="divApriAncora" class="nascosto">
-                    <a onclick="refresh()" id="apriAncora" class="linkbianco">Apri ancora</a>
+                    <a onclick="refresh()" id="apriAncora" class="linkbianco non-selezionabile">Apri ancora</a>
                 </div>
 
                 <div id="particelle"></div>
