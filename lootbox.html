@@ -457,6 +457,12 @@
                 <source src="${pull.audio}" type="audio/mpeg" id="suono" />
                 `;
 
+            document.addEventListener("keydown", function (event) {
+                if (event.code === "Space") {
+                    apriCassa();
+                }
+            });
+
             function apriCassa() {
                 const cassa = document.getElementById("cassa");
                 const nomePersonaggio = document.getElementById("nomePersonaggio");
