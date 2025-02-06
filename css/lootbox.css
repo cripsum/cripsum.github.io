@@ -15,7 +15,8 @@ body {
 
 /* Cassa */
 #cassa {
-    top: 60%;
+    margin-top: 5%;
+    top: 50%;
     width: 200px;
     cursor: pointer;
     transition: transform 1.8s ease, opacity 0.5s ease;
@@ -24,7 +25,7 @@ body {
 }
 
 #cassa.aperta {
-    transform: translateY(50px) scale(1);
+    transform: translateY(80px) scale(1);
 }
 
 /* Faretti */
@@ -71,7 +72,7 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -20%) scale(0);
+    transform: translate(-50%, -50%) scale(0);
     transition: transform 0.8s ease-out;
     z-index: 3;
     max-width: 90%;
@@ -87,7 +88,7 @@ body {
         position: absolute;
         top: 50%;
         left: 50%;
-        transform: translate(-50%, -30%) scale(0);
+        transform: translate(-50%, -50%) scale(0);
         transition: transform 0.8s ease-out;
         z-index: 3;
         max-width: 90%;
@@ -121,6 +122,15 @@ body {
     #divApriAncora.salto {
         transform: scale(1);
         opacity: 1;
+    }
+
+    #cassa {
+        top: 70%;
+        margin-top: 0;
+    }
+
+    #cassa.aperta {
+        transform: translateY(50px) scale(1);
     }
 }
 
