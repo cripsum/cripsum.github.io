@@ -12,243 +12,6 @@
 
             gtag("config", "G-T0CTM2SBJJ");
         </script>
-        <style>
-            body {
-                background-color: #111;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                margin: 0;
-                overflow: hidden;
-                font-family: Arial, sans-serif;
-            }
-
-            .container {
-                position: relative;
-                text-align: center;
-            }
-
-            /* Cassa */
-            #cassa {
-                top: 60%;
-                width: 200px;
-                cursor: pointer;
-                transition: transform 1.8s ease, opacity 0.5s ease;
-                z-index: 2;
-                position: relative;
-            }
-
-            #cassa.aperta {
-                transform: translateY(50px) scale(1);
-            }
-
-            /* Faretti */
-            .faretto {
-                position: absolute;
-                width: 150px;
-                height: 300px;
-                background: radial-gradient(ellipse at center, rgba(255, 255, 200, 0.4) 0%, rgba(255, 255, 200, 0) 70%);
-                top: -50px;
-                z-index: 1;
-                opacity: 0;
-                animation: muoviFaretti 3s infinite alternate ease-in-out, fadeIn 1.5s forwards;
-                pointer-events: none;
-            }
-
-            .faretto.sinistra {
-                left: 20%;
-                transform: rotate(-30deg);
-            }
-
-            .faretto.destra {
-                right: 20%;
-                transform: rotate(30deg);
-                animation-delay: 1s;
-            }
-
-            /* Bagliore */
-            .bagliore {
-                position: absolute;
-                width: 250px;
-                height: 250px;
-                background: radial-gradient(circle, rgba(255, 255, 0, 0.3) 0%, rgba(255, 255, 0, 0) 70%);
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%) scale(0);
-                transition: transform 1s ease-out, opacity 1s ease-out;
-                z-index: 0;
-                pointer-events: none;
-                opacity: 0.8;
-            }
-
-            /* Contenuto (testo + immagine) */
-            #contenuto {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -20%) scale(0);
-                transition: transform 0.8s ease-out;
-                z-index: 3;
-                max-width: 90%;
-            }
-
-            #contenuto.salto {
-                transform: translate(-50%, -150px) scale(1);
-                max-width: 90%;
-            }
-
-            @media only screen and (max-width: 1280px) {
-                #contenuto {
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -30%) scale(0);
-                    transition: transform 0.8s ease-out;
-                    z-index: 3;
-                    max-width: 90%;
-                }
-                #contenuto.salto {
-                    transform: translate(-50%, -200px) scale(1);
-                    max-width: 90%;
-                }
-
-                #messaggio {
-                    opacity: 0;
-                    transform: scale(1);
-                    transition: opacity 0.8s ease-out;
-                    z-index: 4;
-                    margin-top: -120px;
-                }
-
-                #messaggio.salto {
-                    transform: scale(1);
-                    opacity: 1;
-                }
-
-                #divApriAncora {
-                    opacity: 0;
-                    transform: scale(1);
-                    transition: opacity 0.8s ease-out;
-                    z-index: 5;
-                    margin-bottom: -50px;
-                }
-
-                #divApriAncora.salto {
-                    transform: scale(1);
-                    opacity: 1;
-                }
-            }
-
-            #messaggio {
-                opacity: 0;
-                transform: scale(1);
-                transition: transform 0.8s ease-out, opacity 0.8s ease-out;
-                z-index: 3;
-            }
-
-            #messaggio.salto {
-                transform: scale(1);
-                opacity: 1;
-            }
-
-            #divApriAncora {
-                opacity: 0;
-                transform: scale(1);
-                transition: transform 0.8s ease-out, opacity 0.8s ease-out;
-                z-index: 4;
-            }
-
-            #divApriAncora.salto {
-                transform: scale(1);
-                opacity: 1;
-            }
-
-            /* Testo sopra la foto */
-            .testo {
-                color: black;
-                font-size: 30px;
-                margin: 0;
-                margin-bottom: 10px;
-                position: relative;
-                z-index: 2;
-            }
-
-            /* Immagine premio */
-            .premio {
-                width: 150px;
-                margin-top: -10px;
-                position: relative;
-                z-index: 1;
-            }
-
-            /* Particelle */
-            #particelle {
-                position: fixed; /* Cambiato da absolute a fixed per seguire la finestra */
-                width: 100%;
-                height: 100%;
-                top: 0;
-                left: 0;
-                pointer-events: none;
-                z-index: 5; /* Assicurati che sia sopra la cassa */
-            }
-
-            .particella {
-                position: absolute;
-                width: 4px;
-                height: 4px;
-                background: radial-gradient(circle, gold, transparent);
-                border-radius: 50%;
-                opacity: 0.9;
-                animation: esplosione 1.5s ease-out forwards;
-                transform: translate(0, 0);
-                filter: drop-shadow(0 0 5px gold);
-            }
-
-            .non-selezionabile {
-                user-select: none; /* Impedisce la selezione del testo */
-                -webkit-user-select: none; /* Per compatibilità con Safari */
-                -moz-user-select: none; /* Per compatibilità con Firefox */
-                -ms-user-select: none; /* Per compatibilità con Internet Explorer */
-            }
-
-            @keyframes esplosione {
-                to {
-                    transform: translate(var(--x), var(--y)) scale(0.8);
-                    opacity: 0;
-                }
-            }
-
-            /* Animazioni */
-            @keyframes muoviFaretti {
-                from {
-                    transform: translateX(-50px) rotate(-30deg);
-                }
-                to {
-                    transform: translateX(50px) rotate(-15deg);
-                }
-            }
-
-            @keyframes fadeIn {
-                from {
-                    opacity: 0;
-                }
-                to {
-                    opacity: 1;
-                }
-            }
-
-            #cassa.dissolvi {
-                animation: dissolviCassa 1s forwards;
-            }
-
-            @keyframes dissolviCassa {
-                to {
-                    opacity: 0;
-                    transform: scale(0.8);
-                }
-            }
-        </style>
         <meta charset="UTF-8" />
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
@@ -262,10 +25,11 @@
         <link rel="stylesheet" href="css/style.css" />
         <link rel="stylesheet" href="css/style-dark.css" />
         <link rel="stylesheet" href="css/animations.css" />
+        <link rel="stylesheet" href="css/lootbox.css" />
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="js/animations.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Cripsum™</title>
+        <title>Cripsum™ - lootbox</title>
     </head>
 
     <body class="">
@@ -386,28 +150,8 @@
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"
         ></script>
+        <script src="js/characters.js"></script>
         <script>
-            const rarities = [
-                { name: "ABDUL LO SCHIAVO", rarity: "comune", img: "img/abdul.jpg", audio: "audio/ndinero.mp3" },
-                { name: "XALX ANDREA", rarity: "comune", img: "img/cavallo.jpg", audio: "audio/2KE, 808iuli - X-SLIDE.mp3" },
-                { name: "OLD CHINESE SAGE", rarity: "mitico", img: "img/chinese-essay-2.jpg", audio: "audio/Jin-Sheng-Yuan.mp3" },
-                { name: "CRIPSUM", rarity: "mitico", img: "img/cripsumchisiamo.jpg", audio: "audio/phonksburro13.mp3" },
-                { name: "SIMONE TUSSI", rarity: "leggendario", img: "img/slott8.jpg", audio: "audio/apocalypse.mp3" },
-                { name: "SAMARPREET", rarity: "leggendario", img: "img/samarpreet.jpg", audio: "audio/ilikeyouso.mp3" },
-                { name: "BARANDEEP", rarity: "raro", img: "img/barandeep.jpg", audio: "audio/punjabimc.mp3" },
-                { name: "MARANZA", rarity: "raro", img: "img/maranza.jpg", audio: "audio/ninjagosigla.mp3" },
-                { name: "RAY (trader)", rarity: "epico", img: "img/ray.jpg", audio: "audio/maozedong.mp3" },
-                { name: "PICCOLO TOP 1", rarity: "epico", img: "img/photo_2023-11-14_17-21-10.jpg", audio: "audio/mikumiku.mp3" },
-                { name: "MYCHY", rarity: "legendario", img: "img/mychy.jpg", audio: "audio/mychy.mp3" },
-                { name: "FNL PAPERA", rarity: "raro", img: "img/papera.jpg", audio: "audio/phonksburro2.mp3" },
-                { name: "WRYCHARLES", rarity: "epico", img: "img/wrycharles1.png", audio: "audio/wry.mp3" },
-                { name: "GOKU PELAO", rarity: "comune", img: "img/gokupelao.jpg", audio: "audio/powler.mp3" },
-                { name: "NINO BALLETTO TATTICO", rarity: "comune", img: "img/slott9.jpg", audio: "audio/ninoballetto.mp3" },
-                { name: "LOLLO LAPULCE", rarity: "comune", img: "img/slott6.jpg", audio: "audio/clown.mp3" },
-                { name: "TEST", rarity: "epico", img: "img/boh.jpg", audio: "audio/musicaanime.mp3" },
-                { name: "DANEBI", rarity: "mitico", img: "img/sahe.jpg", audio: "audio/nerd.mp3" },
-            ];
-
             const rarityProbabilities = {
                 comune: 50,
                 raro: 25,
@@ -425,6 +169,27 @@
                         return rarity;
                     }
                     randomNum -= weight;
+                }
+            }
+
+            function getCookie(name) {
+                const cookies = document.cookie.split("; ");
+                for (let cookie of cookies) {
+                    let [key, value] = cookie.split("=");
+                    if (key === name) return JSON.parse(value);
+                }
+                return null;
+            }
+
+            function setCookie(name, value) {
+                document.cookie = `${name}=${JSON.stringify(value)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+            }
+
+            function addToInventory(character) {
+                let inventory = getCookie("inventory") || [];
+                if (!inventory.some((p) => p.name === character.name)) {
+                    inventory.push(character);
+                    setCookie("inventory", inventory);
                 }
             }
 
