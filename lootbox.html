@@ -114,7 +114,7 @@
                 <div class="faretto destra"></div>
 
                 <!-- Cassa -->
-                <img src="img/cassa.png" alt="Cassa" id="cassa" class="fadein" onclick="apriCassa()" />
+                <img src="img/cassa.png" alt="Cassa" id="cassa" class="fadein" ondblclick="apriVeloce()" onclick="apriCassa()" />
 
                 <!-- Bagliore -->
                 <div class="bagliore" id="bagliore"></div>
@@ -209,8 +209,18 @@
 
             addToInventory(pull);
 
+            const cassa = document.getElementById("cassa");
             const nomePersonaggio = document.getElementById("nomePersonaggio");
             const messaggioRarita = document.getElementById("messaggioRarita");
+            const audio = document.getElementById("suonoCassa");
+            const bagliore = document.getElementById("bagliore");
+            const messaggio = document.getElementById("messaggio");
+            const contenuto = document.getElementById("contenuto");
+            const particelleContainer = document.getElementById("particelle");
+            const paginaintera = document.getElementById("paginaintera");
+            const apriAncora = document.getElementById("apriAncora");
+            const apriInventario = document.getElementById("apriInventario");
+            const divApriAncora = document.getElementById("divApriAncora");
 
             var rarita = pull.rarity;
 
@@ -242,19 +252,6 @@
             });
 
             function apriCassa() {
-                const cassa = document.getElementById("cassa");
-                const nomePersonaggio = document.getElementById("nomePersonaggio");
-                const messaggioRarita = document.getElementById("messaggioRarita");
-                const audio = document.getElementById("suonoCassa");
-                const bagliore = document.getElementById("bagliore");
-                const messaggio = document.getElementById("messaggio");
-                const contenuto = document.getElementById("contenuto");
-                const particelleContainer = document.getElementById("particelle");
-                const paginaintera = document.getElementById("paginaintera");
-                const apriAncora = document.getElementById("apriAncora");
-                const apriInventario = document.getElementById("apriInventario");
-                const divApriAncora = document.getElementById("divApriAncora");
-
                 bagliore.style.opacity = 0.6;
                 bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
 
@@ -278,6 +275,33 @@
                     divApriAncora.classList.remove("nascosto");
                     divApriAncora.classList.add("salto");
                 }, 5500);
+
+                cassa.onclick = null;
+
+                audio.onended = () => {
+                    setTimeout(refresh, 500);
+                };
+            }
+
+            function apriVeloce() {
+                bagliore.style.opacity = 0.6;
+                bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
+
+                audio.currentTime = 0;
+                audio.play();
+
+                generaParticelle();
+
+                //setTimeout(() => {}, 2000);
+                cassa.src = "img/cassa_aperta.png";
+                cassa.classList.add("aperta");
+
+                contenuto.classList.add("salto");
+                messaggio.classList.add("salto");
+                cassa.classList.add("dissolvi");
+
+                divApriAncora.classList.remove("nascosto");
+                divApriAncora.classList.add("salto");
 
                 cassa.onclick = null;
 
