@@ -9,7 +9,7 @@ const rarities = [
     { name: "MARANZA", rarity: "raro", img: "img/maranza.jpg", audio: "audio/ninjagosigla.mp3" },
     { name: "RAY (trader)", rarity: "epico", img: "img/ray.jpg", audio: "audio/maozedong.mp3" },
     { name: "PICCOLO TOP 1", rarity: "epico", img: "img/photo_2023-11-14_17-21-10.jpg", audio: "audio/mikumiku.mp3" },
-    { name: "MYCHY", rarity: "legendario", img: "img/mychy.jpg", audio: "audio/mychy.mp3" },
+    { name: "MYCHY", rarity: "leggendario", img: "img/mychy.jpg", audio: "audio/mychy.mp3" },
     { name: "FNL PAPERA", rarity: "raro", img: "img/papera.jpg", audio: "audio/phonksburro2.mp3" },
     { name: "WRYCHARLES", rarity: "epico", img: "img/wrycharles1.png", audio: "audio/wry.mp3" },
     { name: "GOKU PELAO", rarity: "comune", img: "img/gokupelao.jpg", audio: "audio/powler.mp3" },
