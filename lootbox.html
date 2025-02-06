@@ -129,8 +129,9 @@
                 </div>
 
                 <div id="divApriAncora" class="nascosto">
-                    <a onclick="refresh()" id="apriAncora" class="linkbianco non-selezionabile">Apri ancora</a>
-                    <a href="inventario" id="apriAncora" class="linkbianco non-selezionabile mt-1">Apri l'inventario</a>
+                    <br />
+                    <a onclick="refresh()" id="apriAncora" class="linkbianco non-selezionabile" style="margin-bottom: 10px">Apri un'altra cassa</a><br />
+                    <a href="inventario" id="apriInventario" class="linkbianco non-selezionabile">Apri l'inventario</a>
                 </div>
 
                 <div id="particelle"></div>
@@ -251,6 +252,7 @@
                 const particelleContainer = document.getElementById("particelle");
                 const paginaintera = document.getElementById("paginaintera");
                 const apriAncora = document.getElementById("apriAncora");
+                const apriInventario = document.getElementById("apriInventario");
                 const divApriAncora = document.getElementById("divApriAncora");
 
                 bagliore.style.opacity = 0.6;
