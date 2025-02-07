@@ -15,7 +15,7 @@ const rarities = [
     { name: "GOKU PELAO", rarity: "comune", img: "img/gokupelao.jpg", audio: "audio/powler.mp3" },
     { name: "NINO", rarity: "comune", img: "img/slott9.jpg", audio: "audio/ninoballetto.mp3" },
     { name: "LOLLO LAPULCE", rarity: "comune", img: "img/slott6.jpg", audio: "audio/clown.mp3" },
-    //{ name: "宝鐘マリン", rarity: "epico", img: "img/anime.jpg", audio: "audio/musicaanime.mp3" },
+    { name: "宝鐘マリン", rarity: "epico", img: "img/anime.jpg", audio: "audio/musicaanime.mp3" },
     { name: "DANEBI", rarity: "mitico", img: "img/sahe.jpg", audio: "audio/nerd.mp3" },
     { name: "DON POLLO", rarity: "comune", img: "img/donpollo.jpg", audio: "audio/donpollo.mp3" },
     { name: "JOHN PORK", rarity: "raro", img: "img/johnpork.jpg", audio: "audio/johnpork.mp3" },
