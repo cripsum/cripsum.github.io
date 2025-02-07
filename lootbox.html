@@ -159,7 +159,8 @@
                 raro: 25,
                 epico: 15,
                 leggendario: 7,
-                mitico: 3,
+                mitico: 2.9,
+                speciale: 0.1,
             };
 
             function getRandomRarity() {
@@ -239,6 +240,12 @@
             } else if (rarita === "raro") {
                 messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
                 bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+            } else if (rarita === "speciale") {
+                messaggioRarita.innerText = "COM'É POSSIBILE? HAI PULLATO UN PERSONAGGIO SPECIALE!";
+                bagliore.style.whiteSpace = "nowrap";
+                bagliore.style.background = "linear-gradient(90deg, " + "#ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
+                bagliore.style.backgroundSize = "300% 300%";
+                bagliore.style.animation = "backgroundAnimate 6s linear infinite";
             }
 
             document.getElementById("suonoCassa").innerHTML = `

@@ -57,3 +57,29 @@ h1 {
 .rarity-leggendario {
     background-color: #ffe417;
 }
+
+.rarity-speciale {
+    white-space: nowrap;
+    background: linear-gradient(
+        90deg,
+        #ff0000,
+        /* Rosso */ #ff7300,
+        /* Arancione */ #fffb00,
+        /* Giallo */ #48ff00,
+        /* Verde */ #00f7ff,
+        /* Azzurro */ #2b65ff,
+        /* Blu */ #8000ff,
+        /* Viola */ #ff0000 /* Rosso (ripetuto per continuità) */
+    );
+    background-size: 300% 300%;
+    animation: backgroundAnimate 6s linear infinite;
+}
+
+@keyframes backgroundAnimate {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 300% 0%;
+    }
+}
