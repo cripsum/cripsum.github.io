@@ -117,8 +117,9 @@
                 <img src="img/cassa.png" alt="Cassa" id="cassa" class="fadein" ondblclick="apriVeloce()" onclick="apriCassa()" />
 
                 <!-- Bagliore -->
-                <div class="bagliore" id="bagliore"></div>
-
+                <div id="baglioreWrapper">
+                    <div class="bagliore" id="bagliore"></div>
+                </div>
                 <!-- Risultato Finale -->
 
                 <div id="contenuto"></div>
@@ -158,9 +159,9 @@
                 comune: 50,
                 raro: 25,
                 epico: 15,
-                leggendario: 7,
-                mitico: 2.9,
-                speciale: 0.1,
+                leggendario: 6.5,
+                mitico: 2.5,
+                speciale: 1,
             };
 
             function getRandomRarity() {
@@ -222,6 +223,7 @@
             const apriAncora = document.getElementById("apriAncora");
             const apriInventario = document.getElementById("apriInventario");
             const divApriAncora = document.getElementById("divApriAncora");
+            const wrapper = document.getElementById("bagliore-wrapper");
 
             var rarita = pull.rarity;
 
@@ -242,10 +244,15 @@
                 bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
             } else if (rarita === "speciale") {
                 messaggioRarita.innerText = "COM'É POSSIBILE? HAI PULLATO UN PERSONAGGIO SPECIALE!";
-                bagliore.style.whiteSpace = "nowrap";
-                bagliore.style.background = "linear-gradient(90deg, " + "#ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
-                bagliore.style.backgroundSize = "300% 300%";
-                bagliore.style.animation = "backgroundAnimate 6s linear infinite";
+
+                bagliore.style.position = "fixed";
+                bagliore.style.width = "100vw";
+                bagliore.style.height = "100vh";
+                bagliore.style.zIndex = "-1";
+
+                bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
+                bagliore.style.backgroundSize = "300% 100%";
+                bagliore.style.animation = "rainbowBackground 6s linear infinite";
             }
 
             document.getElementById("suonoCassa").innerHTML = `
