@@ -109,9 +109,9 @@
 
         <div style="max-width: 1520px; margin: auto; padding-top: 5rem" class="testobianco" id="paginaintera">
             <div class="container">
-                <!-- Faretti -->
+                <!-- Faretti 
                 <div class="faretto sinistra"></div>
-                <div class="faretto destra"></div>
+                <div class="faretto destra"></div>-->
 
                 <!-- Cassa -->
                 <img src="img/cassa.png" alt="Cassa" id="cassa" class="fadein" ondblclick="apriVeloce()" onclick="apriCassa()" />
@@ -269,7 +269,20 @@
 
             document.addEventListener("keydown", function (event) {
                 if (event.code === "Space") {
-                    apriVeloce();
+                    if (!cassa.classList.contains("aperta")) {
+                        if (!contenuto.classList.contains("salto")) {
+                            bagliore.style.opacity = 0.6;
+                            bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
+
+                            audio.currentTime = 0;
+                            audio.play();
+
+                            generaParticelle();
+                            apriVeloce();
+                        }
+                    } else {
+                        apriVeloce();
+                    }
                 }
             });
 
