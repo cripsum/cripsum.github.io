@@ -215,9 +215,15 @@
             document.getElementById("contenuto").innerHTML = `
                 <p style="top 10px; font-size: 20px; max-width: 600px;" id="nomePersonaggio">${pull.name}</p>
                 <img src="${pull.img}" alt="Premio" class="premio" />
-                `;
+            `;
 
             addToInventory(pull);
+
+            function getCharacterCount(characterName) {
+                const inventory = getCookie("inventory") || [];
+                const character = inventory.find((p) => p.name === characterName);
+                return character ? character.count : 0;
+            }
 
             const cassa = document.getElementById("cassa");
             const nomePersonaggio = document.getElementById("nomePersonaggio");
