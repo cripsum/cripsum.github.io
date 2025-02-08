@@ -256,3 +256,27 @@ body {
         background-position: 300% 100%;
     }
 }
+
+.new-label {
+    position: absolute;
+    top: 30px;
+    right: -20px;
+    background-color: red;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transform: rotate(-15deg);
+    animation: newPulse 1s infinite alternate ease-in-out;
+    z-index: 6;
+}
+
+@keyframes newPulse {
+    0% {
+        transform: scale(0.8) rotate(15deg);
+    }
+    100% {
+        transform: scale(1) rotate(15deg);
+    }
+}

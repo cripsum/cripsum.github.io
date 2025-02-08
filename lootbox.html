@@ -286,6 +286,21 @@
                 }
             });
 
+            let personaggiTrovati = getCookie("personaggiTrovati"); // Legge il cookie
+            let trovatiArray = personaggiTrovati ? personaggiTrovati.split(",") : [];
+
+            let nuovo = !trovatiArray.includes(pull.name);
+            if (nuovo) {
+                let newLabel = document.createElement("span");
+                newLabel.classList.add("new-label");
+                newLabel.innerText = "NEW!";
+                contenuto.appendChild(newLabel);
+
+                // Salva il personaggio nei cookie
+                trovatiArray.push(pull.name);
+                setCookie("personaggiTrovati", trovatiArray.join(","));
+            }
+
             function apriCassa() {
                 bagliore.style.opacity = 0.6;
                 bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
