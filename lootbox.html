@@ -219,12 +219,6 @@
 
             addToInventory(pull);
 
-            function getCharacterCount(characterName) {
-                const inventory = getCookie("inventory") || [];
-                const character = inventory.find((p) => p.name === characterName);
-                return character ? character.count : 0;
-            }
-
             const cassa = document.getElementById("cassa");
             const nomePersonaggio = document.getElementById("nomePersonaggio");
             const messaggioRarita = document.getElementById("messaggioRarita");

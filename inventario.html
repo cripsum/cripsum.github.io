@@ -162,6 +162,7 @@
             const totalCharacters = rarities.length;
             const foundCharacters = inventory.length;
 
+            // Mostra il numero di personaggi trovati
             counterDiv.innerText = `Personaggi trovati: ${foundCharacters} / ${totalCharacters}`;
 
             const rarityOrder = ["comune", "raro", "epico", "leggendario", "mitico", "speciale"];
@@ -175,15 +176,15 @@
                 const filteredCharacters = rarities.filter((p) => p.rarity === rarity);
 
                 filteredCharacters.forEach((personaggio) => {
-                    const found = inventory.some((p) => p.name === personaggio.name);
+                    // Trova il personaggio nell'inventario e ottieni il suo contatore
+                    const character = inventory.find((p) => p.name === personaggio.name);
+                    const count = character ? character.count : 0; // Ottieni il contatore del personaggio
 
-                    // Trova il numero di volte che il personaggio è stato trovato
-                    const count = inventory.filter((p) => p.name === personaggio.name).length;
-
+                    // Se il personaggio è stato trovato, mostralo con il contatore
                     section.innerHTML += `
                 <div class="personaggio">
-                    <img src="${found ? personaggio.img : "img/boh.png"}" class="${found ? "" : "hidden"}" alt="Personaggio">
-                    <span>${found ? personaggio.name : "???"} ${found ? `(x${count})` : ""}</span>
+                    <img src="${character ? personaggio.img : "img/boh.png"}" class="${character ? "" : "hidden"}" alt="Personaggio">
+                    <span>${character ? `${personaggio.name} (x${count})` : "???"}</span>
                 </div>
             `;
                 });
