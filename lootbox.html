@@ -191,10 +191,18 @@
 
             function addToInventory(character) {
                 let inventory = getCookie("inventory") || [];
-                if (!inventory.some((p) => p.name === character.name)) {
-                    inventory.push(character);
-                    setCookie("inventory", inventory);
+
+                let characterFound = inventory.find((p) => p.name === character.name);
+
+                if (!characterFound) {
+                    // Se il personaggio non è nell'inventario, aggiungilo con un contatore di 1
+                    inventory.push({ ...character, count: 1 });
+                } else {
+                    // Altrimenti incrementa il contatore del personaggio
+                    characterFound.count++;
                 }
+
+                setCookie("inventory", inventory); // Salva l'inventario aggiornato nei cookie
             }
 
             function getRandomPull() {
@@ -205,7 +213,7 @@
 
             const pull = getRandomPull();
             document.getElementById("contenuto").innerHTML = `
-                <h1 style="margin-bottom: 10px; font-size: 25px;" id="nomePersonaggio">${pull.name}</h1>
+                <p style="top 10px; font-size: 20px; max-width: 600px;" id="nomePersonaggio">${pull.name}</p>
                 <img src="${pull.img}" alt="Premio" class="premio" />
                 `;
 
@@ -261,7 +269,7 @@
 
             document.addEventListener("keydown", function (event) {
                 if (event.code === "Space") {
-                    apriCassa();
+                    apriVeloce();
                 }
             });
 

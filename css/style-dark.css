@@ -103,6 +103,7 @@ hr.rounded {
     border: 0px solid rgba(255, 255, 255, 0);
     border-radius: 8px;
     box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
+    z-index: 9999;
 }
 
 .dropdownutenti .dropdown-menu .dropdown-item {
@@ -325,7 +326,7 @@ radio:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-@media (max-width: 1199px) {
+@media only screen and (max-width: 1199px) {
     .navbarutenti .nav-link:hover,
     .navbarutenti .nav-link:focus {
         color: #ffffff;
@@ -345,8 +346,17 @@ radio:hover {
         text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
         background-color: rgba(0, 0, 0, 0);
     }
+
+    .dropdownutenti .dropdown-menu {
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(64, 64, 64, 0.2));
+        border: 0px solid rgba(255, 255, 255, 0.737);
+        border-radius: 8px;
+        box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5);
+    }
 }
-@media (max-width: 768px) {
+@media only screen and (max-width: 768px) {
     .navbarutenti {
         top: 10px;
         margin: 0 20px;

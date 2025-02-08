@@ -91,11 +91,11 @@ body {
         transform: translate(-50%, -50%) scale(0);
         transition: transform 0.8s ease-out;
         z-index: 3;
-        max-width: 90%;
+        max-width: 100%;
     }
     #contenuto.salto {
         transform: translate(-50%, -200px) scale(1);
-        max-width: 90%;
+        max-width: 100%;
     }
 
     #messaggio {
@@ -160,12 +160,17 @@ body {
 
 /* Testo sopra la foto */
 .testo {
-    color: black;
-    font-size: 30px;
-    margin: 0;
-    margin-bottom: 10px;
-    position: relative;
-    z-index: 2;
+    position: absolute;
+    width: 90%; /* Adatta la larghezza per schermi piccoli */
+    max-width: 600px; /* Impedisce che sia troppo largo su schermi grandi */
+    font-size: clamp(10px, 5vw, 48px); /* Testo responsivo */
+    text-align: center;
+    top: 70%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
 }
 
 /* Immagine premio */

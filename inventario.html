@@ -177,12 +177,15 @@
                 filteredCharacters.forEach((personaggio) => {
                     const found = inventory.some((p) => p.name === personaggio.name);
 
+                    // Trova il numero di volte che il personaggio è stato trovato
+                    const count = inventory.filter((p) => p.name === personaggio.name).length;
+
                     section.innerHTML += `
-                        <div class="personaggio">
-                            <img src="${found ? personaggio.img : "img/boh.png"}" class="${found ? "" : "hidden"}" alt="Personaggio">
-                            <span>${found ? personaggio.name : "???"}</span>
-                        </div>
-                    `;
+                <div class="personaggio">
+                    <img src="${found ? personaggio.img : "img/boh.png"}" class="${found ? "" : "hidden"}" alt="Personaggio">
+                    <span>${found ? personaggio.name : "???"} ${found ? `(${count})` : ""}</span>
+                </div>
+            `;
                 });
 
                 inventarioDiv.appendChild(section);
