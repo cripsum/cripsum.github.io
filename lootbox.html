@@ -286,8 +286,9 @@
                 }
             });
 
-            let personaggiTrovati = getCookie("personaggiTrovati"); // Legge il cookie
-            let trovatiArray = personaggiTrovati ? personaggiTrovati.split(",") : [];
+            let inventario = getCookie("inventory"); // Legge il cookie
+            //if (!Array.isArray(inventario)) inventario = [];
+            let trovatiArray = inventario ? inventario.split(",") : [];
 
             let nuovo = !trovatiArray.includes(pull.name);
             if (nuovo) {
@@ -298,7 +299,7 @@
 
                 // Salva il personaggio nei cookie
                 trovatiArray.push(pull.name);
-                setCookie("personaggiTrovati", trovatiArray.join(","));
+                setCookie("inventario", trovatiArray.join(","));
             }
 
             function apriCassa() {
