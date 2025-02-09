@@ -293,37 +293,29 @@
                 }
             });
 
-            function aggiornaProbabilità() {
-                if (soloSpecialiCheckbox.checked) {
-                    rarityProbabilities.comune = 0;
-                    rarityProbabilities.raro = 0;
-                    rarityProbabilities.epico = 0;
-                    rarityProbabilities.leggendario = 0;
-                    rarityProbabilities.mitico = 0;
-                    rarityProbabilities.speciale = 100;
-                } else {
-                    rarityProbabilities.comune = 45;
-                    rarityProbabilities.raro = 25;
-                    rarityProbabilities.epico = 15;
-                    rarityProbabilities.leggendario = 10;
-                    rarityProbabilities.mitico = 4;
-                    rarityProbabilities.speciale = 1;
-                }
+            if (soloSpecialiCheckbox.checked) {
+                rarityProbabilities.comune = 0;
+                rarityProbabilities.raro = 0;
+                rarityProbabilities.epico = 0;
+                rarityProbabilities.leggendario = 0;
+                rarityProbabilities.mitico = 0;
+                rarityProbabilities.speciale = 100;
+            } else {
+                rarityProbabilities.comune = 45;
+                rarityProbabilities.raro = 25;
+                rarityProbabilities.epico = 15;
+                rarityProbabilities.leggendario = 10;
+                rarityProbabilities.mitico = 4;
+                rarityProbabilities.speciale = 1;
             }
 
-            function aggiornaListaPersonaggi() {
-                // Ripristina l'array all'originale
-                window.rarities = [...window.originalRarities];
+            // Ripristina l'array all'originale
+            window.rarities = [...window.originalRarities];
 
-                // Se "Rimuovi Anime" è selezionato, rimuovi gli anime
-                if (rimuoviAnimeCheckbox.checked) {
-                    window.rarities = window.rarities.filter((p) => p.name !== "宝鐘マリン");
-                }
+            // Se "Rimuovi Anime" è selezionato, rimuovi gli anime
+            if (rimuoviAnimeCheckbox.checked) {
+                window.rarities = window.rarities.filter((p) => p.name !== "宝鐘マリン");
             }
-
-            // Aggiungi l'evento alla checkbox
-            soloSpecialiCheckbox.addEventListener("change", aggiornaProbabilità);
-            rimuoviAnimeCheckbox.addEventListener("change", aggiornaListaPersonaggi);
 
             const pull = getRandomPull();
             document.getElementById("contenuto").innerHTML = `
