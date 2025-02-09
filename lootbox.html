@@ -214,7 +214,10 @@
             const divApriAncora = document.getElementById("divApriAncora");
             const wrapper = document.getElementById("bagliore-wrapper");
 
-            const rarityProbabilities = {
+            const soloSpecialiCheckbox = document.getElementById("SoloSeciali");
+            const rimuoviAnimeCheckbox = document.getElementById("RimuoviAnime");
+
+            let rarityProbabilities = {
                 comune: 45,
                 raro: 25,
                 epico: 15,
@@ -289,9 +292,6 @@
                     });
                 }
             });
-
-            const soloSpecialiCheckbox = document.getElementById("SoloSeciali");
-            const rimuoviAnimeCheckbox = document.getElementById("RimuoviAnime");
 
             if (soloSpecialiCheckbox.checked) {
                 rarityProbabilities.comune = 0;
