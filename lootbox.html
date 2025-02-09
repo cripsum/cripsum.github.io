@@ -225,7 +225,15 @@
                 mitico: 4,
                 speciale: 1,
             };
-            console.log("rarità iniziali" + rarityProbabilities);
+            console.log(
+                "rarità iniziali" +
+                    rarityProbabilities.comune +
+                    rarityProbabilities.raro +
+                    rarityProbabilities.epico +
+                    rarityProbabilities.leggendario +
+                    rarityProbabilities.mitico +
+                    rarityProbabilities.speciale
+            );
 
             //TODO aggiungere pagina con la lore dei vari personaggi
 
@@ -302,7 +310,15 @@
                     rimuoviAnimeCheckbox.addEventListener("change", aggiornaListaPersonaggi());
 
                     rarityProbabilities = aggiornaProbabilita();
-                    console.log("rarità aggiornate" + rarityProbabilities);
+                    console.log(
+                        "rarità aggiornate" +
+                            rarityProbabilities.comune +
+                            rarityProbabilities.raro +
+                            rarityProbabilities.epico +
+                            rarityProbabilities.leggendario +
+                            rarityProbabilities.mitico +
+                            rarityProbabilities.speciale
+                    );
                     aggiornaListaPersonaggi();
                 });
             }
