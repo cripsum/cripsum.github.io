@@ -6,7 +6,7 @@ const rarities = [
     { name: "SIMONE TUSSI", rarity: "leggendario", img: "img/slott8.jpg", audio: "audio/apocalypse.mp3" },
     { name: "SAMARPREET", rarity: "leggendario", img: "img/samarpreet.jpg", audio: "audio/ilikeyouso.mp3" },
     { name: "BARANDEEP", rarity: "raro", img: "img/barandeep.jpg", audio: "audio/punjabimc.mp3" },
-    { name: "MARANZA", rarity: "raro", img: "img/maranza.jpg", audio: "audio/ninjagosigla.mp3" },
+    { name: "JAY", rarity: "raro", img: "img/jayquadrato.png", audio: "audio/ninjagosigla.mp3" },
     { name: "RAY (trader)", rarity: "epico", img: "img/ray.jpg", audio: "audio/maozedong.mp3" },
     { name: "PICCOLO TOP 1", rarity: "epico", img: "img/photo_2023-11-14_17-21-10.jpg", audio: "audio/mikumiku.mp3" },
     { name: "MYCHY", rarity: "leggendario", img: "img/mychy.jpg", audio: "audio/mychy.mp3" },

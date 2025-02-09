@@ -136,6 +136,47 @@
                     <div class="button-container mt-4" style="text-align: center; max-width: 95%; margin: auto">
                         <a class="btn btn-secondary bottone mt-2" onclick="refresh()" style="cursor: pointer">Apri cassa</a>
                         <a class="btn btn-secondary bottone mt-2" href="inventario" style="cursor: pointer">Apri l'inventario</a>
+                        <div id="disclaimer" class="divdisclaimer fadeup">
+                            <button class="btn btn-secondary bottone" type="button" data-bs-toggle="modal" data-bs-target="#disclaimerModal" style="margin-top: 5px; max-width: 70%">
+                                Impostazioni
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="disclaimerModal" tabindex="-1" aria-labelledby="disclaimerModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content bgdisclaimer">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="disclaimerModalLabel">Impostazioni</h5>
+                                <!--<button type="button" class="btn-close tastobianco" data-bs-dismiss="modal" aria-label="Close" onclick="close_disclaimer(1)" style="color: #ffffff"></button>-->
+                            </div>
+                            <div class="modal-body">
+                                <div class="col-md-6 d-flex justify-content-center">
+                                    <!-- Checkbox -->
+                                    <div class="form-check mb-3 mb-md-0">
+                                        <input class="form-check-input checco" type="checkbox" value="" id="RimuoviAnime" />
+                                        <label class="form-check-label" for="loginCheck">Rimuovi Anime</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 d-flex justify-content-center">
+                                    <div class="form-check mb-3 mb-md-0">
+                                        <input class="form-check-input checco" type="checkbox" value="" id="SoloSeciali" />
+                                        <label class="form-check-label" for="loginCheck">Solo Speciali</label>
+                                    </div>
+                                </div>
+                                <p class="">*NOTA: la funzione è ancora in fase di creazione, pertanto non funzionerà</p>
+                                <div data-mdb-input-init class="form-outline mb-4">
+                                    <label class="form-label" for="registerName">Codice Segreto</label>
+                                    <input type="text" id="registerName" class="form-control" />
+                                    <p id="info-codice" style="margin-top: 5px">godo</p>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="salvaPreferenze()">Salva Preferenze</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -228,6 +269,48 @@
                 const selectedRarity = getRandomRarity();
                 const filteredRarities = rarities.filter((item) => item.rarity === selectedRarity);
                 return filteredRarities[Math.floor(Math.random() * filteredRarities.length)];
+            }
+
+            function salvaPreferenze() {
+                const preferences = {};
+                const checkboxes = document.querySelectorAll(".checco");
+                checkboxes.forEach((checkbox) => {
+                    preferences[checkbox.id] = checkbox.checked;
+                });
+                document.cookie = `preferences=${JSON.stringify(preferences)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+            }
+
+            document.addEventListener("DOMContentLoaded", () => {
+                const preferences = getCookie("preferences");
+                if (preferences) {
+                    const checkboxes = document.querySelectorAll(".checco");
+                    checkboxes.forEach((checkbox) => {
+                        checkbox.checked = preferences[checkbox.id];
+                    });
+                }
+            });
+
+            const soloSpecialiCheckbox = document.getElementById("SoloSeciali");
+            const rimuoviAnimeCheckbox = document.getElementById("RimuoviAnime");
+
+            if (soloSpecialiCheckbox.checked) {
+                rarityProbabilities.comune = 0;
+                rarityProbabilities.raro = 0;
+                rarityProbabilities.epico = 0;
+                rarityProbabilities.leggendario = 0;
+                rarityProbabilities.mitico = 0;
+                rarityProbabilities.speciale = 100;
+            } else {
+                rarityProbabilities.comune = 45;
+                rarityProbabilities.raro = 25;
+                rarityProbabilities.epico = 15;
+                rarityProbabilities.leggendario = 10;
+                rarityProbabilities.mitico = 4;
+                rarityProbabilities.speciale = 1;
+            }
+
+            if (rimuoviAnimeCheckbox.checked) {
+                rarities = rarities.filter((item) => item.name !== "宝鐘マリン");
             }
 
             const pull = getRandomPull();
@@ -324,9 +407,9 @@
 
                 cassa.onclick = null;
 
-                audio.onended = () => {
-                    setTimeout(refresh, 500);
-                };
+                //audio.onended = () => {
+                //    setTimeout(refresh, 500);
+                //};
             }
 
             function testoNuovo() {
@@ -346,9 +429,9 @@
 
                 cassa.onclick = null;
 
-                audio.onended = () => {
-                    setTimeout(refresh, 500);
-                };
+                //audio.onended = () => {
+                //    setTimeout(refresh, 500);
+                //};
             }
 
             function generaParticelle() {
