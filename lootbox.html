@@ -297,19 +297,23 @@
 
             function aggiornaProbabilita() {
                 if (soloSpecialiCheckbox.checked) {
-                    rarityProbabilities.comune = 0;
-                    rarityProbabilities.raro = 0;
-                    rarityProbabilities.epico = 0;
-                    rarityProbabilities.leggendario = 0;
-                    rarityProbabilities.mitico = 0;
-                    rarityProbabilities.speciale = 100;
+                    rarityProbabilities = {
+                        comune: 0,
+                        raro: 0,
+                        epico: 0,
+                        leggendario: 0,
+                        mitico: 0,
+                        speciale: 100,
+                    };
                 } else {
-                    rarityProbabilities.comune = 45;
-                    rarityProbabilities.raro = 25;
-                    rarityProbabilities.epico = 15;
-                    rarityProbabilities.leggendario = 10;
-                    rarityProbabilities.mitico = 4;
-                    rarityProbabilities.speciale = 1;
+                    rarityProbabilities = {
+                        comune: 45,
+                        raro: 25,
+                        epico: 15,
+                        leggendario: 10,
+                        mitico: 4,
+                        speciale: 1,
+                    };
                 }
             }
 
