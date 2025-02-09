@@ -283,48 +283,49 @@
                     preferences[checkbox.id] = checkbox.checked;
                 });
                 document.cookie = `preferences=${JSON.stringify(preferences)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+
+                document.addEventListener("DOMContentLoaded", () => {
+                    const preferences = getCookie("preferences");
+                    soloSpecialiCheckbox = document.getElementById("SoloSpeciali");
+                    rimuoviAnimeCheckbox = document.getElementById("RimuoviAnime");
+
+                    if (preferences) {
+                        const checkboxes = document.querySelectorAll(".checco");
+                        checkboxes.forEach((checkbox) => {
+                            checkbox.checked = preferences[checkbox.id];
+                        });
+                    }
+
+                    // Imposta l'evento per il checkbox "SoloSpeciali"
+                    soloSpecialiCheckbox.addEventListener("change", aggiornaProbabilita());
+                    rimuoviAnimeCheckbox.addEventListener("change", aggiornaListaPersonaggi());
+
+                    rarityProbabilities = aggiornaProbabilita();
+                    aggiornaListaPersonaggi();
+                });
             }
-
-            document.addEventListener("DOMContentLoaded", () => {
-                const preferences = getCookie("preferences");
-                soloSpecialiCheckbox = document.getElementById("SoloSpeciali");
-                rimuoviAnimeCheckbox = document.getElementById("RimuoviAnime");
-
-                if (preferences) {
-                    const checkboxes = document.querySelectorAll(".checco");
-                    checkboxes.forEach((checkbox) => {
-                        checkbox.checked = preferences[checkbox.id];
-                    });
-                }
-
-                // Imposta l'evento per il checkbox "SoloSpeciali"
-                soloSpecialiCheckbox.addEventListener("change", aggiornaProbabilita());
-                rimuoviAnimeCheckbox.addEventListener("change", aggiornaListaPersonaggi());
-
-                aggiornaProbabilita();
-                aggiornaListaPersonaggi();
-            });
 
             function aggiornaProbabilita() {
                 if (soloSpecialiCheckbox.checked) {
-                    rarityProbabilities = {
+                    return (rarityProbabilities = {
                         comune: 0,
                         raro: 0,
                         epico: 0,
                         leggendario: 0,
                         mitico: 0,
                         speciale: 100,
-                    };
+                    });
                 } else {
-                    rarityProbabilities = {
+                    return (rarityProbabilities = {
                         comune: 45,
                         raro: 25,
                         epico: 15,
                         leggendario: 10,
                         mitico: 4,
                         speciale: 1,
-                    };
+                    });
                 }
+                console.log(rarityProbabilities);
             }
 
             window.rarities = [...window.originalRarities];
