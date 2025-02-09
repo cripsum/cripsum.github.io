@@ -214,8 +214,8 @@
             const divApriAncora = document.getElementById("divApriAncora");
             const wrapper = document.getElementById("bagliore-wrapper");
 
-            const soloSpecialiCheckbox = document.getElementById("SoloSpeciali");
-            const rimuoviAnimeCheckbox = document.getElementById("RimuoviAnime");
+            let soloSpecialiCheckbox = document.getElementById("SoloSpeciali");
+            let rimuoviAnimeCheckbox = document.getElementById("RimuoviAnime");
 
             let rarityProbabilities = {
                 comune: 45,
@@ -287,8 +287,8 @@
 
             document.addEventListener("DOMContentLoaded", () => {
                 const preferences = getCookie("preferences");
-                const soloSpecialiCheckbox = document.getElementById("soloSpeciali");
-                const rimuoviAnimeCheckbox = document.getElementById("RimuoviAnime");
+                soloSpecialiCheckbox = document.getElementById("SoloSpeciali");
+                rimuoviAnimeCheckbox = document.getElementById("RimuoviAnime");
 
                 if (preferences) {
                     const checkboxes = document.querySelectorAll(".checco");
@@ -298,16 +298,14 @@
                 }
 
                 // Imposta l'evento per il checkbox "SoloSpeciali"
-                soloSpecialiCheckbox.addEventListener("change", aggiornaProbabilita);
-                rimuoviAnimeCheckbox.addEventListener("change", aggiornaListaPersonaggi);
+                soloSpecialiCheckbox.addEventListener("change", aggiornaProbabilita());
+                rimuoviAnimeCheckbox.addEventListener("change", aggiornaListaPersonaggi());
 
                 aggiornaProbabilita();
                 aggiornaListaPersonaggi();
             });
 
             function aggiornaProbabilita() {
-                const soloSpecialiCheckbox = document.getElementById("soloSpeciali");
-
                 if (soloSpecialiCheckbox.checked) {
                     rarityProbabilities = {
                         comune: 0,
@@ -332,7 +330,6 @@
             window.rarities = [...window.originalRarities];
 
             function aggiornaListaPersonaggi() {
-                const rimuoviAnimeCheckbox = document.getElementById("RimuoviAnime");
                 if (rimuoviAnimeCheckbox.checked) {
                     window.rarities = window.rarities.filter((p) => p.name !== "宝鐘マリン");
                 }
