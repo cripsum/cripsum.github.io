@@ -162,7 +162,7 @@
 
                                 <div class="col-md-6 d-flex justify-content-center">
                                     <div class="form-check mb-3 mb-md-0">
-                                        <input class="form-check-input checco" type="checkbox" value="" id="SoloSeciali" />
+                                        <input class="form-check-input checco" type="checkbox" value="" id="SoloSpeciali" />
                                         <label class="form-check-label" for="loginCheck">Solo Speciali</label>
                                     </div>
                                 </div>
@@ -214,7 +214,7 @@
             const divApriAncora = document.getElementById("divApriAncora");
             const wrapper = document.getElementById("bagliore-wrapper");
 
-            const soloSpecialiCheckbox = document.getElementById("SoloSeciali");
+            const soloSpecialiCheckbox = document.getElementById("SoloSpeciali");
             const rimuoviAnimeCheckbox = document.getElementById("RimuoviAnime");
 
             let rarityProbabilities = {
@@ -293,31 +293,43 @@
                 }
             });
 
-            if (soloSpecialiCheckbox.checked) {
-                rarityProbabilities.comune = 0;
-                rarityProbabilities.raro = 0;
-                rarityProbabilities.epico = 0;
-                rarityProbabilities.leggendario = 0;
-                rarityProbabilities.mitico = 0;
-                rarityProbabilities.speciale = 100;
-            } else {
-                rarityProbabilities.comune = 45;
-                rarityProbabilities.raro = 25;
-                rarityProbabilities.epico = 15;
-                rarityProbabilities.leggendario = 10;
-                rarityProbabilities.mitico = 4;
-                rarityProbabilities.speciale = 1;
+            function aggiornaProbabilità() {
+                if (soloSpecialiCheckbox.checked) {
+                    rarityProbabilities.comune = 0;
+                    rarityProbabilities.raro = 0;
+                    rarityProbabilities.epico = 0;
+                    rarityProbabilities.leggendario = 0;
+                    rarityProbabilities.mitico = 0;
+                    rarityProbabilities.speciale = 100;
+                } else {
+                    rarityProbabilities.comune = 45;
+                    rarityProbabilities.raro = 25;
+                    rarityProbabilities.epico = 15;
+                    rarityProbabilities.leggendario = 10;
+                    rarityProbabilities.mitico = 4;
+                    rarityProbabilities.speciale = 1;
+                }
             }
 
-            if (rimuoviAnimeCheckbox.checked) {
-                rarities = rarities.filter((item) => item.name !== "宝鐘マリン");
+            function aggiornaListaPersonaggi() {
+                // Ripristina l'array all'originale
+                window.rarities = [...window.originalRarities];
+
+                // Se "Rimuovi Anime" è selezionato, rimuovi gli anime
+                if (rimuoviAnimeCheckbox.checked) {
+                    window.rarities = window.rarities.filter((p) => p.name !== "宝鐘マリン");
+                }
             }
+
+            // Aggiungi l'evento alla checkbox
+            soloSpecialiCheckbox.addEventListener("change", aggiornaProbabilità);
+            rimuoviAnimeCheckbox.addEventListener("change", aggiornaListaPersonaggi);
 
             const pull = getRandomPull();
             document.getElementById("contenuto").innerHTML = `
-                <p style="top 10px; font-size: 20px; max-width: 600px;" id="nomePersonaggio">${pull.name}</p>
-                <img src="${pull.img}" alt="Premio" class="premio" />
-            `;
+                    <p style="top 10px; font-size: 20px; max-width: 600px;" id="nomePersonaggio">${pull.name}</p>
+                    <img src="${pull.img}" alt="Premio" class="premio" />
+                `;
 
             addToInventory(pull);
 
@@ -352,8 +364,8 @@
             }
 
             document.getElementById("suonoCassa").innerHTML = `
-                <source src="${pull.audio}" type="audio/mpeg" id="suono" />
-                `;
+                    <source src="${pull.audio}" type="audio/mpeg" id="suono" />
+                    `;
 
             document.addEventListener("keydown", function (event) {
                 if (event.code === "Space") {

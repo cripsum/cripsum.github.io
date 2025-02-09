@@ -1,4 +1,4 @@
-const rarities = [
+window.rarities = [
     { name: "ABDUL LO SCHIAVO", rarity: "comune", img: "img/abdul.jpg", audio: "audio/ndinero.mp3" },
     { name: "XALX ANDREA", rarity: "comune", img: "img/cavallo.jpg", audio: "audio/2KE, 808iuli - X-SLIDE.mp3" },
     { name: "OLD CHINESE SAGE", rarity: "mitico", img: "img/chinese-essay-2.jpg", audio: "audio/Jin-Sheng-Yuan.mp3" },
@@ -39,3 +39,5 @@ const rarities = [
     { name: "FakeStars90", rarity: "raro", img: "img/djstucassum.jpg", audio: "audio/machiecherompeilcazzo.mp3" },
 ];
 // { name: "", rarity: "", img: "img/.jpg", audio: "audio/.mp3" },
+
+window.originalRarities = [...window.rarities];
