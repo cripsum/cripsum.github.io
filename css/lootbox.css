@@ -196,12 +196,12 @@ body {
     position: absolute;
     width: 4px;
     height: 4px;
-    background: radial-gradient(circle, gold, transparent);
+    background: radial-gradient(circle, rgb(255, 255, 255), transparent);
     border-radius: 50%;
     opacity: 0.9;
     animation: esplosione 1.5s ease-out forwards;
     transform: translate(0, 0);
-    filter: drop-shadow(0 0 5px gold);
+    filter: drop-shadow(0 0 5px rgb(255, 255, 255));
 }
 
 .non-selezionabile {
