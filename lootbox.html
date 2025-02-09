@@ -159,6 +159,20 @@
         ></script>
         <script src="js/characters.js"></script>
         <script>
+            const cassa = document.getElementById("cassa");
+            const nomePersonaggio = document.getElementById("nomePersonaggio");
+            const messaggioRarita = document.getElementById("messaggioRarita");
+            const audio = document.getElementById("suonoCassa");
+            const bagliore = document.getElementById("bagliore");
+            const messaggio = document.getElementById("messaggio");
+            const contenuto = document.getElementById("contenuto");
+            const particelleContainer = document.getElementById("particelle");
+            const paginaintera = document.getElementById("paginaintera");
+            const apriAncora = document.getElementById("apriAncora");
+            const apriInventario = document.getElementById("apriInventario");
+            const divApriAncora = document.getElementById("divApriAncora");
+            const wrapper = document.getElementById("bagliore-wrapper");
+
             const rarityProbabilities = {
                 comune: 45,
                 raro: 25,
@@ -223,20 +237,6 @@
             `;
 
             addToInventory(pull);
-
-            const cassa = document.getElementById("cassa");
-            const nomePersonaggio = document.getElementById("nomePersonaggio");
-            const messaggioRarita = document.getElementById("messaggioRarita");
-            const audio = document.getElementById("suonoCassa");
-            const bagliore = document.getElementById("bagliore");
-            const messaggio = document.getElementById("messaggio");
-            const contenuto = document.getElementById("contenuto");
-            const particelleContainer = document.getElementById("particelle");
-            const paginaintera = document.getElementById("paginaintera");
-            const apriAncora = document.getElementById("apriAncora");
-            const apriInventario = document.getElementById("apriInventario");
-            const divApriAncora = document.getElementById("divApriAncora");
-            const wrapper = document.getElementById("bagliore-wrapper");
 
             var rarita = pull.rarity;
 
