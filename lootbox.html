@@ -226,6 +226,8 @@
                 speciale: 1,
             };
 
+            //TODO aggiungere pagina con la lore dei vari personaggi
+
             function getRandomRarity() {
                 const totalWeight = Object.values(rarityProbabilities).reduce((sum, weight) => sum + weight, 0);
                 let randomNum = Math.random() * totalWeight;

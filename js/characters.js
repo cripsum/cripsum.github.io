@@ -36,7 +36,10 @@ window.rarities = [
     { name: "DETECTIVE CICCIO", rarity: "leggendario", img: "img/detectiveciccio.jpg", audio: "audio/detective-ciccio.mp3" },
     { name: "CICCIOGAMER89", rarity: "comune", img: "img/cicciogamer.jpg", audio: "audio/ciccio-merde.mp3" },
     { name: "GASTA", rarity: "mitico", img: "img/gasta.png", audio: "audio/gasta.mp3" },
-    { name: "FakeStars90", rarity: "raro", img: "img/djstucassum.jpg", audio: "audio/machiecherompeilcazzo.mp3" },
+    { name: "FAKESTARS90", rarity: "raro", img: "img/djstucassum.jpg", audio: "audio/machiecherompeilcazzo.mp3" },
+    { name: "RISORSE UMANE", rarity: "leggendario", img: "img/risorse-umane.png", audio: "audio/Elevator Music.mp3" },
+    { name: "GINNASTICA", rarity: "speciale", img: "img/ginnastica.png", audio: "audio/audioduro1.mp3" },
+    { name: "CHANEL", rarity: "comune", img: "img/chanel.jpg", audio: "audio/Elevator Music.mp3" },
 ];
 // { name: "", rarity: "", img: "img/.jpg", audio: "audio/.mp3" },
 
