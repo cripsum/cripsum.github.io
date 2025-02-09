@@ -287,17 +287,26 @@
 
             document.addEventListener("DOMContentLoaded", () => {
                 const preferences = getCookie("preferences");
+                const soloSpecialiCheckbox = document.getElementById("soloSpeciali");
+                const rimuoviAnimeCheckbox = document.getElementById("RimuoviAnime");
+
                 if (preferences) {
                     const checkboxes = document.querySelectorAll(".checco");
                     checkboxes.forEach((checkbox) => {
                         checkbox.checked = preferences[checkbox.id];
                     });
                 }
+
+                // Imposta l'evento per il checkbox "SoloSpeciali"
+                soloSpecialiCheckbox.addEventListener("change", aggiornaProbabilita);
+
                 aggiornaProbabilita();
                 aggiornaListaPersonaggi();
             });
 
             function aggiornaProbabilita() {
+                const soloSpecialiCheckbox = document.getElementById("soloSpeciali");
+
                 if (soloSpecialiCheckbox.checked) {
                     rarityProbabilities = {
                         comune: 0,
@@ -322,6 +331,7 @@
             window.rarities = [...window.originalRarities];
 
             function aggiornaListaPersonaggi() {
+                const rimuoviAnimeCheckbox = document.getElementById("RimuoviAnime");
                 if (rimuoviAnimeCheckbox.checked) {
                     window.rarities = window.rarities.filter((p) => p.name !== "宝鐘マリン");
                 }
