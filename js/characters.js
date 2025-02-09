@@ -36,5 +36,6 @@ const rarities = [
     { name: "DETECTIVE CICCIO", rarity: "leggendario", img: "img/detectiveciccio.jpg", audio: "audio/detective-ciccio.mp3" },
     { name: "CICCIOGAMER89", rarity: "comune", img: "img/cicciogamer.jpg", audio: "audio/ciccio-merde.mp3" },
     { name: "GASTA", rarity: "mitico", img: "img/gasta.png", audio: "audio/gasta.mp3" },
+    { name: "FakeStars90", rarity: "raro", img: "img/djstucassum.jpg", audio: "audio/machiecherompeilcazzo.mp3" },
 ];
 // { name: "", rarity: "", img: "img/.jpg", audio: "audio/.mp3" },
