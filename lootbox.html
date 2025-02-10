@@ -355,7 +355,7 @@
             }
 
             function addToInventory(character) {
-                let inventory = getCookie("inventory") || [];
+                let inventory = JSON.parse(localStorage.getItem("inventory")) || [];
 
                 let characterFound = inventory.find((p) => p.name === character.name);
 
@@ -366,7 +366,7 @@
                     characterFound.count++;
                 }
 
-                setCookie("inventory", inventory);
+                localStorage.setItem("inventory", JSON.stringify(inventory));
             }
 
             function getRandomPull() {
