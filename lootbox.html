@@ -281,6 +281,8 @@
                     preferences[checkbox.id] = checkbox.checked;
                 });
                 document.cookie = `preferences=${JSON.stringify(preferences)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+
+                aggiornaRarita();
             }
 
             document.addEventListener("DOMContentLoaded", () => {
@@ -293,6 +295,26 @@
                     });
                 }
             });
+
+            function aggiornaRarita() {
+                const preferences = getCookie("preferences");
+
+                if (preferences) {
+                    if (preferences.SoloSpeciali) {
+                        rarityProbabilities.raro = 0;
+                        rarityProbabilities.epico = 0;
+                        rarityProbabilities.leggendario = 0;
+                        rarityProbabilities.mitico = 0;
+                        rarityProbabilities.speciale = 100;
+                    } else {
+                        rarityProbabilities.raro = 25;
+                        rarityProbabilities.epico = 15;
+                        rarityProbabilities.leggendario = 10;
+                        rarityProbabilities.mitico = 4;
+                        rarityProbabilities.speciale = 1;
+                    }
+                }
+            }
 
             const pull = getRandomPull();
             document.getElementById("contenuto").innerHTML = `
