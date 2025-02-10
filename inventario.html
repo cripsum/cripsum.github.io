@@ -172,7 +172,7 @@
 
                 const foundInRarity = inventory.filter((p) => p.rarity === rarity).length;
                 const totalInRarity = rarities.filter((p) => p.rarity === rarity).length;
-                section.innerHTML = `<div class="rarity-title">${rarity.toUpperCase()} (${foundInRarity} / ${totalInRarity})</div>`;
+                section.innerHTML = `<div class="rarity-title">${rarity.toUpperCase()}: ${foundInRarity} / ${totalInRarity}</div>`;
 
                 const filteredCharacters = rarities.filter((p) => p.rarity === rarity);
 
