@@ -40,6 +40,7 @@ window.rarities = [
     { name: "RISORSE UMANE", rarity: "leggendario", img: "img/risorse-umane.png", audio: "audio/Elevator Music.mp3" },
     { name: "GINNASTICA", rarity: "speciale", img: "img/ginnastica.png", audio: "audio/audioduro1.mp3" },
     { name: "CHANEL", rarity: "comune", img: "img/chanel.jpg", audio: "audio/Elevator Music.mp3" },
+    { name: "DANIEL", rarity: "epico", img: "img/daniel.jpg", audio: "audio/rapfrociogay.mp3" }
 ];
 // { name: "", rarity: "", img: "img/.jpg", audio: "audio/.mp3" },
 
