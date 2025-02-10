@@ -476,7 +476,7 @@
 
             function riscattaCodice() {
                 if (codiceSegreto.value === "godo") {
-                    if (getCookie("inventory").find((p) => p.name === "CRIPSUM")) {
+                    if (getInventory().find((p) => p.name === "CRIPSUM")) {
                         alert("il Codice è già riscattato o cripsum è già nel tuo inventario!");
                         return;
                     }
