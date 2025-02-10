@@ -269,6 +269,7 @@
                                     <p id="info-codice" style="margin-top: 5px">godo</p>
                                     <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="riscattaCodice()">Riscatta codice</button>
                                 </div>
+                                <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="resettaInventario()">resetta inventario</button>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="salvaPreferenze()">Salva Preferenze</button>
@@ -367,6 +368,15 @@
                 }
 
                 localStorage.setItem("inventory", JSON.stringify(inventory));
+            }
+
+            function getInventory() {
+                return JSON.parse(localStorage.getItem("inventory")) || [];
+            }
+
+            function resettaInventario() {
+                localStorage.clear();
+                alert("Inventario resettato con successo!");
             }
 
             function getRandomPull() {
