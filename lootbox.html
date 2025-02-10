@@ -301,12 +301,14 @@
 
                 if (preferences) {
                     if (preferences.SoloSpeciali) {
+                        rarityProbabilities.comune = 0;
                         rarityProbabilities.raro = 0;
                         rarityProbabilities.epico = 0;
                         rarityProbabilities.leggendario = 0;
                         rarityProbabilities.mitico = 0;
                         rarityProbabilities.speciale = 100;
                     } else {
+                        rarityProbabilities.comune = 45;
                         rarityProbabilities.raro = 25;
                         rarityProbabilities.epico = 15;
                         rarityProbabilities.leggendario = 10;
