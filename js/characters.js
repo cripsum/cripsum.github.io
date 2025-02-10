@@ -1,6 +1,6 @@
 window.rarities = [
     { name: "ABDUL LO SCHIAVO", rarity: "comune", img: "img/abdul.jpg", audio: "audio/ndinero.mp3", category: "meme" },
-    { name: "XALX ANDREA", rarity: "comune", img: "img/cavallo.jpg", audio: "audio/2KE, 808iuli - X-SLIDE.mp3", category: "discordArc" },
+    { name: "XALX ANDREA", rarity: "epico", img: "img/cavallo.jpg", audio: "audio/2KE, 808iuli - X-SLIDE.mp3", category: "discordArc" },
     { name: "OLD CHINESE SAGE", rarity: "mitico", img: "img/chinese-essay-2.jpg", audio: "audio/Jin-Sheng-Yuan.mp3", category: "meme" },
     { name: "CRIPSUM", rarity: "speciale", img: "img/cripsumchisiamo.jpg", audio: "audio/phonksburro13.mp3", category: "king" },
     { name: "SIMONE TUSSI", rarity: "leggendario", img: "img/slott8.jpg", audio: "audio/apocalypse.mp3", category: "5CINF" },
