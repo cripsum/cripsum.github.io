@@ -264,7 +264,7 @@
                                 </div>
 
                                 <div data-mdb-input-init class="form-outline mb-4">
-                                    <label class="form-label" for="registerName">Codice Segreto *non implementato*</label>
+                                    <label class="form-label" for="registerName">Codice Segreto</label>
                                     <input type="text" id="codiceSegreto" class="form-control" />
                                     <p id="info-codice" style="margin-top: 5px">godo</p>
                                     <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="riscattaCodice()">Riscatta codice</button>
@@ -466,12 +466,20 @@
 
             function riscattaCodice() {
                 if (codiceSegreto.value === "godo") {
-                    let pullRiscattata = rarities.find((p) => p.name === "cripsum");
+                    if (getCookie("inventory").find((p) => p.name === "CRIPSUM")) {
+                        alert("il Codice è già riscattato o cripsum è già nel tuo inventario!");
+                        return;
+                    }
+                    let pullRiscattata = getCharacter("CRIPSUM");
                     addToInventory(pullRiscattata);
                     alert("Codice riscattato con successo! cripsum è stato aggiunto al tuo inventario!");
                 } else {
                     alert("Codice non valido, skill issue!");
                 }
+            }
+
+            function getCharacter(name) {
+                return rarities.find((p) => p.name === name);
             }
 
             var rarita = pull.rarity;
