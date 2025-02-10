@@ -256,6 +256,12 @@
                                         <label class="form-check-label" for="loginCheck">Solo Speciali</label>
                                     </div>
                                 </div>
+                                <div class="col-md-6 d-flex justify-content-center" style="text-align: center">
+                                    <div class="form-check mb-3 mb-md-0" style="text-align: center">
+                                        <input class="form-check-input checco" type="checkbox" value="" id="SoloPoppy" />
+                                        <label class="form-check-label" for="loginCheck">Meow</label>
+                                    </div>
+                                </div>
 
                                 <div data-mdb-input-init class="form-outline mb-4">
                                     <label class="form-label" for="registerName">Codice Segreto *non funzionante*</label>
@@ -306,6 +312,7 @@
 
             const soloSpecialiCheckbox = document.getElementById("SoloSpeciali");
             const rimuoviAnimeCheckbox = document.getElementById("RimuoviAnime");
+            const soloPoppyCheckbox = document.getElementById("SoloPoppy");
 
             var rarityProbabilities = aggiornaRarita();
             //|| {
@@ -423,7 +430,31 @@
                 });
             }
 
-            const pull = getRandomPull();
+            function filtroPull() {
+                const preferences = getCookie("preferences");
+
+                if (preferences) {
+                    if (preferences.RimuoviAnime === true) {
+                        while (true) {
+                            const pull = getRandomPull();
+                            if (pull.category !== "Anime") {
+                                return pull;
+                            }
+                        }
+                    }
+                    if (preferences.SoloPoppy === true) {
+                        while (true) {
+                            const pull = getRandomPull();
+                            if (pull.category === "poppy") {
+                                return pull;
+                            }
+                        }
+                    }
+                }
+                return getRandomPull();
+            }
+
+            const pull = filtroPull();
             document.getElementById("contenuto").innerHTML = `
                     <p style="top 10px; font-size: 20px; max-width: 600px;" id="nomePersonaggio">${pull.name}</p>
                     <img src="${pull.img}" alt="Premio" class="premio" />
