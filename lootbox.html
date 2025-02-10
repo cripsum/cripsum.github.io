@@ -466,8 +466,8 @@
 
             function riscattaCodice() {
                 if (codiceSegreto.value === "godo") {
-                    const pull = rarities.find((p) => p.name === "cripsum");
-                    addToInventory(pull);
+                    let pullRiscattata = rarities.find((p) => p.name === "cripsum");
+                    addToInventory(pullRiscattata);
                     alert("Codice riscattato con successo! cripsum è stato aggiunto al tuo inventario!");
                 } else {
                     alert("Codice non valido, skill issue!");
