@@ -265,8 +265,9 @@
 
                                 <div data-mdb-input-init class="form-outline mb-4">
                                     <label class="form-label" for="registerName">Codice Segreto *non implementato*</label>
-                                    <input type="text" id="registerName" class="form-control" />
+                                    <input type="text" id="codiceSegreto" class="form-control" />
                                     <p id="info-codice" style="margin-top: 5px">godo</p>
+                                    <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="riscattaCodice()">Riscatta codice</button>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -313,6 +314,8 @@
             const soloSpecialiCheckbox = document.getElementById("SoloSpeciali");
             const rimuoviAnimeCheckbox = document.getElementById("RimuoviAnime");
             const soloPoppyCheckbox = document.getElementById("SoloPoppy");
+
+            const codiceSegreto = document.getElementById("codiceSegreto");
 
             var rarityProbabilities = aggiornaRarita();
             //|| {
@@ -459,8 +462,17 @@
                     <p style="top 10px; font-size: 20px; max-width: 600px;" id="nomePersonaggio">${pull.name}</p>
                     <img src="${pull.img}" alt="Premio" class="premio" />
                 `;
-
             addToInventory(pull);
+
+            function riscattaCodice() {
+                if (codiceSegreto === "godo") {
+                    const pull = rarities.find((p) => p.name === "cripsum");
+                    addToInventory(pull);
+                    alert("Codice riscattato con successo! cripsum è stato aggiunto al tuo inventario!");
+                } else {
+                    alert("Codice non valido, skill issue!");
+                }
+            }
 
             var rarita = pull.rarity;
 
