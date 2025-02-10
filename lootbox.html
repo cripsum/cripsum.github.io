@@ -217,7 +217,7 @@
             const soloSpecialiCheckbox = document.getElementById("SoloSpeciali");
             const rimuoviAnimeCheckbox = document.getElementById("RimuoviAnime");
 
-            var rarityProbabilities = {
+            window.rarityProbabilities = {
                 comune: 45,
                 raro: 25,
                 epico: 15,
@@ -282,7 +282,7 @@
                 });
                 document.cookie = `preferences=${JSON.stringify(preferences)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
 
-                rarityProbabilities = aggiornaRarita();
+                window.rarityProbabilities = aggiornaRarita();
             }
 
             document.addEventListener("DOMContentLoaded", () => {
@@ -294,7 +294,7 @@
                         checkbox.checked = preferences[checkbox.id];
                     });
                 }
-                rarityProbabilities = aggiornaRarita();
+                window.rarityProbabilities = aggiornaRarita();
             });
 
             function aggiornaRarita() {
@@ -302,7 +302,7 @@
 
                 if (preferences) {
                     if (preferences.SoloSpeciali === true) {
-                        return (rarityProbabilities = {
+                        return (window.rarityProbabilities = {
                             comune: 0,
                             raro: 0,
                             epico: 0,
