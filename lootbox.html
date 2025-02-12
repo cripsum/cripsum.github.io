@@ -450,24 +450,26 @@
             function filtroPull() {
                 const preferences = getCookie("preferences");
 
-                const allPulls = getAllPossiblePulls();
-
-                let validPulls = allPulls.filter(pull => {
-                   if(prferences){
-                        if(preferences.RimuoviAnime && pull.category === "anime") return false;
-                        if(preferences.SoloPoppy && pull.category !== "poppy") return false;
-                   }
-                    return true;
-                                                
-                });
-
-                if(validPulls.lenght === 0) return null;
-
-                return validPulls[Math.floor(Math.random() * validPulls.lenght)];
-                
-            }
-
-            
+                if (preferences) {
+                    if (preferences.SoloPoppy === true) {
+                        while (true) {
+                            const pull = getRandomPull();
+                            if (pull.category === "poppy") {
+                                return pull;
+                            }
+                        }
+                    }
+                    if (preferences.RimuoviAnime === true) {
+                        while (true) {
+                            const pull = getRandomPull();
+                            if (pull.category !== "anime") {
+                                return pull;
+                            }
+                        }
+                    }
+                }
+                return getRandomPull();
+            }  
 
             const pull = filtroPull();
             document.getElementById("contenuto").innerHTML = `
