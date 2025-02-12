@@ -443,29 +443,31 @@
                 });
             }
 
+            function getAllPossiblePulls(){
+                return rarities;
+            }
+
             function filtroPull() {
                 const preferences = getCookie("preferences");
 
-                if (preferences) {
-                    if (preferences.RimuoviAnime === true) {
-                        while (true) {
-                            const pull = getRandomPull();
-                            if (pull.category !== "anime") {
-                                return pull;
-                            }
-                        }
-                    }
-                    if (preferences.SoloPoppy === true) {
-                        while (true) {
-                            const pull = getRandomPull();
-                            if (pull.category === "poppy") {
-                                return pull;
-                            }
-                        }
-                    }
-                }
-                return getRandomPull();
+                const allPulls = getAllPossiblePulls();
+
+                let validPulls = allPulls.filter(pull => {
+                   if(prferences){
+                        if(preferences.RimuoviAnime && pull.category === "anime") return false;
+                        if(preferences.SoloPoppy && pull.category !== "poppy") return false;
+                   }
+                    return true;
+                                                
+                });
+
+                if(validPulls.lenght === 0) return null;
+
+                return validPulls[Math.floor(Math.random() * validPulls.lenght)];
+                
             }
+
+            
 
             const pull = filtroPull();
             document.getElementById("contenuto").innerHTML = `
