@@ -650,7 +650,7 @@
             }
 
             function unlockAchievement(id) {
-                let achievements = getCookie("achievements");
+                let achievements = getCookie("achievements") || [];
                 if (!achievements.includes(id)) {
                     achievements.push(id);
                     setCookie("achievements", achievements);
