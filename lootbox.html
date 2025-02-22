@@ -443,7 +443,7 @@
                 });
             }
 
-            function getAllPossiblePulls(){
+            function getAllPossiblePulls() {
                 return rarities;
             }
 
@@ -469,7 +469,7 @@
                     }
                 }
                 return getRandomPull();
-            }  
+            }
 
             const pull = filtroPull();
             document.getElementById("contenuto").innerHTML = `
@@ -643,6 +643,18 @@
 
             function refresh() {
                 location.reload();
+            }
+
+            if (getInventory().length === 42) {
+                unlockAchievement(3);
+            }
+
+            function unlockAchievement(id) {
+                let achievements = getCookie("achievements");
+                if (!achievements.includes(id)) {
+                    achievements.push(id);
+                    setCookie("achievements", achievements);
+                }
             }
         </script>
         <script src="js/modeChanger.js"></script>

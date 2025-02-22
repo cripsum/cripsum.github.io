@@ -1,0 +1,34 @@
+[
+    {
+        "id": 1,
+        "title": "Primi Passi",
+        "description": "Dai un'occhiata a tutte le pagine principali del sito.",
+        "points": 10,
+        "hidden": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 2,
+        "title": "La Grande Vincita",
+        "description": "Vinci nella pagina di gambling.",
+        "points": 20,
+        "hidden": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 3,
+        "title": "Collezionatore Seriale",
+        "description": "Trova tutti i personaggi nelle lootbox.",
+        "points": 50,
+        "hidden": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 4,
+        "title": "GOAT",
+        "description": "Supporta cripsum con una donazione.",
+        "points": 75,
+        "hidden": true,
+        "image": "../img/segone4.png"
+    }
+]
