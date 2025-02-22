@@ -32,6 +32,33 @@
             img {
                 border-radius: 10px;
             }
+
+            .popup {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 15px;
+                display: flex;
+                align-items: center;
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+                opacity: 0;
+                transform: translateX(100%);
+                transition: opacity 0.5s, transform 0.5s;
+            }
+
+            .popup img {
+                width: 50px;
+                height: 50px;
+                margin-right: 10px;
+            }
+
+            .popup.show {
+                opacity: 1;
+                transform: translateX(0);
+            }
         </style>
     </head>
 
@@ -106,6 +133,13 @@
             </div>
         </nav>
         <div style="padding-top: 7rem" class="testobianco">
+            <div id="achievement-popup" class="popup">
+                <img id="popup-image" src="" alt="Achievement" />
+                <div>
+                    <h3 id="popup-title"></h3>
+                    <p id="popup-description"></p>
+                </div>
+            </div>
             <div class="account-bar" id="account-bar" style="padding-top: 1%; padding-bottom: 1%; margin: auto">
                 <span class="" style="padding-left: 25px; font-weight: bold">Utente: </span>
                 <span class="account-name" style="padding-left: 10px; padding-right: 10px">Account Name</span>
@@ -209,7 +243,7 @@
                 money = parseInt(money.substring(1)); // remove the $ sign and convert to integer
 
                 if (money >= 10) {
-                    money -= 10; 
+                    money -= 10;
                     document.getElementsByClassName("account-balance")[0].textContent = "$" + money; // update the money count display
                 } else {
                     document.getElementsByClassName("erroresoldi")[0].textContent = "Saldo insufficiente"; // display an error message if there are not enough funds
@@ -254,6 +288,7 @@
                             document.getElementById("risultato").textContent = "Hai Vinto!";
                             money += 100; // add 100 to the money count
                             document.getElementsByClassName("account-balance")[0].textContent = "$" + money; // update the money count display
+                            unlockAchievement(2);
                         } else {
                             document.getElementById("risultato").textContent = "Hai perso scemo, ritenta!";
                         }
@@ -265,6 +300,47 @@
             // function close_div(id) {
             //     document.getElementById("caricamento").style.display = "none";
             // }
+
+            function getCookie(name) {
+                const cookies = document.cookie.split("; ");
+                for (let cookie of cookies) {
+                    let [key, value] = cookie.split("=");
+                    if (key === name) return JSON.parse(value);
+                }
+                return null;
+            }
+
+            function setCookie(name, value) {
+                document.cookie = `${name}=${JSON.stringify(value)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+            }
+
+            function unlockAchievement(id) {
+                let achievements = getCookie("achievements") || [];
+                if (!achievements.includes(id)) {
+                    achievements.push(id);
+                    showAchievementPopup(id);
+                    setCookie("achievements", achievements);
+                }
+            }
+
+            async function showAchievementPopup(id) {
+                const response = await fetch("../data/achievements.json");
+                const achievements = await response.json();
+                const achievement = achievements.find((a) => a.id === id);
+
+                if (achievement) {
+                    document.getElementById("popup-title").textContent = achievement.title;
+                    document.getElementById("popup-description").textContent = achievement.description;
+                    document.getElementById("popup-image").src = achievement.image;
+
+                    const popup = document.getElementById("achievement-popup");
+                    popup.classList.add("show");
+
+                    setTimeout(() => {
+                        popup.classList.remove("show");
+                    }, 3000); // Il popup scompare dopo 3 secondi
+                }
+            }
         </script>
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"

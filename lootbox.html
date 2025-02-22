@@ -232,6 +232,13 @@
                             </button>
                         </div>
                     </div>
+                    <div id="achievement-popup" class="popup">
+                        <img id="popup-image" src="" alt="Achievement" />
+                        <div>
+                            <h3 id="popup-title"></h3>
+                            <p id="popup-description"></p>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="modal fade" id="disclaimerModal" tabindex="-1" aria-labelledby="disclaimerModalLabel" aria-hidden="true">
@@ -653,7 +660,27 @@
                 let achievements = getCookie("achievements") || [];
                 if (!achievements.includes(id)) {
                     achievements.push(id);
+                    showAchievementPopup(id);
                     setCookie("achievements", achievements);
+                }
+            }
+
+            async function showAchievementPopup(id) {
+                const response = await fetch("data/achievements.json");
+                const achievements = await response.json();
+                const achievement = achievements.find((a) => a.id === id);
+
+                if (achievement) {
+                    document.getElementById("popup-title").textContent = achievement.title;
+                    document.getElementById("popup-description").textContent = achievement.description;
+                    document.getElementById("popup-image").src = achievement.image;
+
+                    const popup = document.getElementById("achievement-popup");
+                    popup.classList.add("show");
+
+                    setTimeout(() => {
+                        popup.classList.remove("show");
+                    }, 3000); // Il popup scompare dopo 3 secondi
                 }
             }
         </script>
