@@ -43,7 +43,7 @@
                 margin: 10px;
                 padding: 10px;
                 border: 1px solid #ccc;
-                background: white;
+                background: rgba(65, 65, 65, 0.153);
                 border-radius: 10px;
             }
             .achievement img {
@@ -51,7 +51,7 @@
                 height: 50px;
                 margin-right: 10px;
             }
-            .hidden {
+            .locked {
                 filter: grayscale(100%) blur(3px);
                 opacity: 0.5;
             }
@@ -160,7 +160,7 @@
                         div.className = "achievement";
 
                         div.innerHTML = `
-                    <img src="${ach.image}" class="${isUnlocked ? "" : "hidden"}">
+                    <img src="${ach.image}" class="${isUnlocked ? "" : "locked"}">
                     <div>
                         <h3>${isUnlocked ? ach.title : "???"}</h3>
                         <p>${isUnlocked ? ach.description : "???"}</p>
