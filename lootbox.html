@@ -26,6 +26,7 @@
         <link rel="stylesheet" href="css/style-dark.css" />
         <link rel="stylesheet" href="css/animations.css" />
         <link rel="stylesheet" href="css/lootbox.css" />
+        <link rel="stylesheet" href="css/achievement-style.css" />
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="js/animations.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -657,35 +658,8 @@
             if (getInventory().length === 42) {
                 unlockAchievement(3);
             }
-
-            function unlockAchievement(id) {
-                let achievements = getCookie("achievements") || [];
-                if (!achievements.includes(id)) {
-                    achievements.push(id);
-                    showAchievementPopup(id);
-                    setCookie("achievements", achievements);
-                }
-            }
-
-            async function showAchievementPopup(id) {
-                const response = await fetch("data/achievements.json");
-                const achievements = await response.json();
-                const achievement = achievements.find((a) => a.id === id);
-
-                if (achievement) {
-                    document.getElementById("popup-title").textContent = achievement.title;
-                    document.getElementById("popup-description").textContent = achievement.description;
-                    document.getElementById("popup-image").src = achievement.image;
-
-                    const popup = document.getElementById("achievement-popup");
-                    popup.classList.add("show");
-
-                    setTimeout(() => {
-                        popup.classList.remove("show");
-                    }, 3000); // Il popup scompare dopo 3 secondi
-                }
-            }
         </script>
+        <script src="js/unlockAchievement.js"></script>
         <script src="js/modeChanger.js"></script>
     </body>
 </html>
