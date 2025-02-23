@@ -138,7 +138,7 @@
                 }
 
                 async function displayAchievements() {
-                    const response = await fetch("data/achievements-en.json");
+                    const response = await fetch("../data/achievements-en.json");
                     const achievements = await response.json();
                     const unlockedAchievements = getCookie("achievements");
                     const container = document.getElementById("achievements-list");
