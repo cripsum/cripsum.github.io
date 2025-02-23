@@ -21,7 +21,7 @@ function unlockAchievement(id) {
 }
 
 async function showAchievementPopup(id) {
-    const response = await fetch("../data/achievements.json");
+    const response = await fetch("../data/achievements-en.json");
     const achievements = await response.json();
     const achievement = achievements.find((a) => a.id === id);
 

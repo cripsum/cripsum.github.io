@@ -23,7 +23,8 @@
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="../css/style.css" />
         <link rel="stylesheet" href="../css/style-dark.css" />
-
+        <link rel="stylesheet" href="../css/animations.css" />
+        <link rel="stylesheet" href="../css/achievement-style.css" />
         <meta charset="UTF-8" />
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -160,6 +161,13 @@
                 <p class="text-center" id="risultato" style="margin-top: 3%"></p>
             </div>
         </div>
+        <div id="achievement-popup" class="popup">
+            <img id="popup-image" src="" alt="Achievement" />
+            <div>
+                <h3 id="popup-title"></h3>
+                <p id="popup-description"></p>
+            </div>
+        </div>
         <footer class="my-5 pt-5 text-muted text-center text-small fadeup">
             <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. All right reserved.</p>
             <ul class="list-inline">
@@ -255,6 +263,7 @@
                         if (randomIndexes[0] === randomIndexes[1] && randomIndexes[1] === randomIndexes[2]) {
                             document.getElementById("risultato").textContent = "You won!";
                             money += 100; // add 100 to the money count
+                            unlockAchievement(2);
                             document.getElementsByClassName("account-balance")[0].textContent = "$" + money; // update the money count display
                         } else {
                             document.getElementById("risultato").textContent = "you lose, try again!";
@@ -273,6 +282,7 @@
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"
         ></script>
+        <script src="../js/unlockAchievement-en.js"></script>
         <script src="../js/modeChanger.js"></script>
     </body>
 </html>

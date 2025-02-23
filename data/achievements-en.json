@@ -1,0 +1,34 @@
+[
+    {
+        "id": 1,
+        "title": "First Steps",
+        "description": "Enter the site for the first time. Welcome!",
+        "points": 10,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 2,
+        "title": "The Great Win",
+        "description": "Win on the gambling page.",
+        "points": 20,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 3,
+        "title": "Serial Collector",
+        "description": "Find all the characters in the lootbox.",
+        "points": 50,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 4,
+        "title": "GOAT",
+        "description": "Support cripsum with a donation.",
+        "points": 75,
+        "locked": true,
+        "image": "../img/segone4.png"
+    }
+]

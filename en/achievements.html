@@ -23,20 +23,39 @@
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="../css/style.css" />
         <link rel="stylesheet" href="../css/style-dark.css" />
-        <link rel="stylesheet" href="../css/achievement-style.css" />
         <link rel="stylesheet" href="../css/animations.css" />
         <script src="../js/animations.js"></script>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Cripsum™ - Achievements</title>
         <style>
             img {
+                border-radius: 100px;
+            }
+
+            .achievement {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 10px;
+                padding: 10px;
+                border: 1px solid #ccc;
+                background: rgba(65, 65, 65, 0.153);
                 border-radius: 10px;
             }
+            .achievement img {
+                width: 50px;
+                height: 50px;
+                margin-right: 10px;
+            }
+            .locked {
+                filter: grayscale(100%) blur(3px);
+                opacity: 0.5;
+            }
         </style>
-        <title>Cripsum™ - donazioni</title>
     </head>
     <body>
-        <nav class="navbarutenti navbar navbar-expand-xl">
+        <nav class="navbarutenti navbar navbar-expand-xl fadein">
             <div class="container-fluid">
                 <a class="navbar-brand" href="home">
                     <img src="../img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
@@ -64,7 +83,7 @@
                             <ul class="dropdown-menu animate slideIn">
                                 <li><a class="dropdown-item" href="shitpost">Shitpost</a></li>
                                 <li><a class="dropdown-item" href="tiktokpedia">TikTokPedia</a></li>
-                                <li><a class="dropdown-item" href="rimasti">Top rimasti</a></li>
+                                <li><a class="dropdown-item" href="rimasti">Top dumbass</a></li>
                                 <li><a class="dropdown-item" href="quandel57" style="color: red; font-weight: bold">Quandel57</a></li>
                                 <li><a class="dropdown-item arcobalenos" href="gambling" style="font-weight: bold">Gambling!!</a></li>
                                 <li><a class="dropdown-item testo-arcobaleno" href="../lootbox" style="font-weight: bold">Lootbox</a></li>
@@ -77,63 +96,80 @@
                         <li class="nav-item dropdown dropdownutenti">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
                             <ul class="dropdown-menu animate slideIn">
-                                <li><a class="dropdown-item" href="negozio">Negozio</a></li>
+                                <li><a class="dropdown-item" href="negozio">Shop</a></li>
                                 <li><a class="dropdown-item" href="merch">Merch</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="donazioni">Donazioni</a>
+                            <a class="nav-link" href="donazioni">Donations</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="chisiamo">Chi siamo</a>
+                            <a class="nav-link" href="chisiamo">About us</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="edits">Edits</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="accedi">Accedi</a>
+                            <a class="nav-link" href="accedi">Log in</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="registrati">Registrati</a>
+                            <a class="nav-link" href="registrati">Sign up</a>
                         </li>
                     </ul>
                 </div>
             </div>
             <div class="btn-group dropdown ms-auto me-3 linguanuova">
-                <button type="button" class="btn dropdown-toggle lingua-toggler" data-bs-toggle="dropdown" aria-expanded="false"><a class="link-lingua">🇮🇹</a></button>
+                <button type="button" class="btn dropdown-toggle lingua-toggler" data-bs-toggle="dropdown" aria-expanded="false"><a class="link-lingua">🇬🇧</a></button>
                 <ul class="dropdown-menu dropdownlingua dropdown-menu-end animate slideIn">
-                    <li><a class="dropdown-item link-lingua" href="#">🇮🇹 Ita</a></li>
-                    <li><a class="dropdown-item link-lingua" href="../en/donazioni">🇬🇧 Eng</a></li>
+                    <li><a class="dropdown-item link-lingua" href="../it/achievements">🇮🇹 Ita</a></li>
+                    <li><a class="dropdown-item link-lingua" href="#">🇬🇧 Eng</a></li>
                 </ul>
             </div>
         </nav>
-        <div class="paginainteradolod testobianco fadeup" style="margin: auto; padding-top: 7rem">
-            <h6 class="text text-center mt-3">
-                questo sito, il quale comprende 20/25 pagine, mi è costato circa 3/4 mila euro, ti va di donare una piccola somma di denaro per finanziare lo sviluppo di questo progetto? :)
-            </h6>
+
+        <div class="paginainterachisiamo testobianco" style="padding-top: 7rem; text-align: center">
+            <h1 class="fadeup">Unlocked Achievements</h1>
+            <div id="achievements-list" class="fadeup"></div>
+
+            <script>
+                function getCookie(name) {
+                    let match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+                    return match ? JSON.parse(decodeURIComponent(match[2])) : [];
+                }
+
+                async function displayAchievements() {
+                    const response = await fetch("data/achievements-en.json");
+                    const achievements = await response.json();
+                    const unlockedAchievements = getCookie("achievements");
+                    const container = document.getElementById("achievements-list");
+
+                    achievements.forEach((ach) => {
+                        const isUnlocked = unlockedAchievements.includes(ach.id);
+                        const div = document.createElement("div");
+                        div.className = "achievement";
+
+                        div.innerHTML = `
+                    <img src="${ach.image}" class="${isUnlocked ? "" : "locked"}">
+                    <div>
+                        <h3>${isUnlocked ? ach.title : "???"}</h3>
+                        <p>${isUnlocked ? ach.description : "???"}</p>
+                        <span>${ach.points} punti</span>
+                    </div>
+                `;
+                        container.appendChild(div);
+                    });
+                }
+
+                displayAchievements();
+            </script>
         </div>
-        <div class="text-center mt-3 fadeup">
-            <a href="https://www.buymeacoffee.com/cripsum" target="_blank"
-                ><img
-                    class="ombra"
-                    style="border-radius: 10px"
-                    src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee :P&emoji=☕&slug=cripsum&button_colour=FFDD00&font_colour=000000&font_family=Poppins&outline_colour=000000&coffee_colour=ffffff"
-                    onclick="unlockAchievement(4)"
-            /></a>
-        </div>
-        <div id="achievement-popup" class="popup">
-            <img id="popup-image" src="" alt="Achievement" />
-            <div>
-                <h3 id="popup-title"></h3>
-                <p id="popup-description"></p>
-            </div>
-        </div>
-        <footer class="my-5 pt-5 text-muted text-center text-small fadeup" style="position: absolute; bottom: 0; right: 0; left: 0">
-            <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. Tutti i diritti riservati.</p>
+
+        <footer class="my-5 pt-5 text-muted text-center text-small fadeup">
+            <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. All right reserved.</p>
             <ul class="list-inline">
-                <li class="list-inline-item"><a href="privacy" class="link-lingua">Privacy</a></li>
-                <li class="list-inline-item"><a href="tos" class="link-lingua">Termini</a></li>
-                <li class="list-inline-item"><a href="supporto" class="link-lingua">Supporto</a></li>
+                <li class="list-inline-item"><a href="privacy" class="linkbianco">Privacy</a></li>
+                <li class="list-inline-item"><a href="tos" class="linkbianco">Terms</a></li>
+                <li class="list-inline-item"><a href="supporto" class="linkbianco">Support</a></li>
             </ul>
         </footer>
         <script
@@ -141,7 +177,6 @@
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"
         ></script>
-        <script src="../js/unlockAchievement-it.js"></script>
         <script src="../js/modeChanger.js"></script>
     </body>
 </html>
