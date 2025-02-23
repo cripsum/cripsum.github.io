@@ -28,6 +28,34 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="../js/animations.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+            .popup {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 15px;
+                display: flex;
+                align-items: center;
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+                opacity: 0;
+                transform: translateX(100%);
+                transition: opacity 0.5s, transform 0.5s;
+            }
+
+            .popup img {
+                width: 50px;
+                height: 50px;
+                margin-right: 10px;
+            }
+
+            .popup.show {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        </style>
         <title>Cripsum™</title>
     </head>
 
@@ -108,6 +136,10 @@
         -->
 
         <div style="max-width: 1520px; margin: auto; padding-top: 5rem" class="testobianco">
+            <script src="../js/unlockAchievement.js"></script>
+            <script>
+                unlockAchievement(1);
+            </script>
             <script>
                 function close_div(id) {
                     if (id === 1) {
@@ -411,6 +443,13 @@
                 </p>-->
             </div>
         </div>
+        <div id="achievement-popup" class="popup">
+            <img id="popup-image" src="" alt="Achievement" />
+            <div>
+                <h3 id="popup-title"></h3>
+                <p id="popup-description"></p>
+            </div>
+        </div>
         <footer class="my-5 pt-5 text-muted text-center text-small fadeup">
             <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. Tutti i diritti riservati.</p>
             <ul class="list-inline">
@@ -424,6 +463,7 @@
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"
         ></script>
+
         <script src="../js/modeChanger.js"></script>
     </body>
 </html>

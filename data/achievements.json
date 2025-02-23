@@ -2,7 +2,7 @@
     {
         "id": 1,
         "title": "Primi Passi",
-        "description": "Dai un'occhiata a tutte le pagine principali del sito.",
+        "description": "Entra per la prima volta nel sito. Benvenuto!",
         "points": 10,
         "locked": true,
         "image": "../img/segone4.png"
