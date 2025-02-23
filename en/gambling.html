@@ -25,6 +25,8 @@
         <link rel="stylesheet" href="../css/style-dark.css" />
         <link rel="stylesheet" href="../css/animations.css" />
         <link rel="stylesheet" href="../css/achievement-style.css" />
+        <script src="../js/animations.js"></script>
+
         <meta charset="UTF-8" />
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -109,7 +111,7 @@
             </div>
         </nav>
         <div style="padding-top: 7rem" class="testobianco">
-            <div class="account-bar" id="account-bar" style="padding-top: 1%; padding-bottom: 1%; margin: auto">
+            <div class="account-bar fadeup" id="account-bar" style="padding-top: 1%; padding-bottom: 1%; margin: auto">
                 <span class="" style="padding-left: 25px; font-weight: bold">User: </span>
                 <span class="account-name" style="padding-left: 10px; padding-right: 10px">Account Name</span>
                 <div style="padding-left: 25px">
@@ -124,25 +126,25 @@
 
             <div class="input-container" style="text-align: center; padding-top: 3%; max-width: 500px; margin: auto" id="accesso-gambling">
                 <div class="row" style="margin: auto">
-                    <div class="col">
+                    <div class="col fadeup">
                         <input type="text" id="name-input" class="form-control" placeholder="enter your name" aria-label="First name" />
                     </div>
-                    <div class="col" style="max-width: 200px">
+                    <div class="col fadeup" style="max-width: 200px">
                         <input type="number" id="money-input" class="form-control" placeholder="enter balance" aria-label="Last name" />
                     </div>
                 </div>
-                <button class="btn btn-secondary bottone" style="margin-top: 10px" onclick="updateAccount()">Log in</button>
+                <button class="btn btn-secondary bottone fadeup" style="margin-top: 10px" onclick="updateAccount()">Log in</button>
                 <p id="errore" class="errore text-center" style="color: red; margin-top: 3px"></p>
             </div>
             <div style="max-width: 1200px; margin: auto">
                 <div id="slot-machine" class="d-flex justify-content-center image-container" style="padding-top: 3%; max-width: 80%; margin: auto">
-                    <div class="slot" style="margin-left: 2%; margin-right: 2%; margin-top: 20px">
+                    <div class="slot fadeup" style="margin-left: 2%; margin-right: 2%; margin-top: 20px">
                         <img src="../img/cripsumchisiamo.jpg" class="bordobianco" alt="Image 1" />
                     </div>
-                    <div class="slot" style="margin-left: 2%; margin-right: 2%; margin-top: 20px">
+                    <div class="slot fadeup" style="margin-left: 2%; margin-right: 2%; margin-top: 20px">
                         <img src="../img/barandeep.jpg" class="bordobianco" alt="Image 2" />
                     </div>
-                    <div class="slot" style="margin-left: 2%; margin-right: 2%; margin-top: 20px">
+                    <div class="slot fadeup" style="margin-left: 2%; margin-right: 2%; margin-top: 20px">
                         <img src="../img/abdul.jpg" class="bordobianco" alt="Image 3" />
                     </div>
                 </div>
@@ -154,7 +156,7 @@
             </div> close_div(1)
             -->
 
-                <div class="button-container" style="text-align: center; margin-top: 3%">
+                <div class="button-container fadeup" style="text-align: center; margin-top: 3%">
                     <button class="btn btn-secondary bottone" onclick="spin()">Spin</button>
                 </div>
                 <p class="text-center erroresoldi" style="margin-top: 3%; color: red"></p>
@@ -168,7 +170,7 @@
                 <p id="popup-description"></p>
             </div>
         </div>
-        <footer class="my-5 pt-5 text-muted text-center text-small fadeup">
+        <footer class="my-5 pt-5 text-muted text-center text-small fadeup fadeup">
             <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. All right reserved.</p>
             <ul class="list-inline">
                 <li class="list-inline-item"><a href="privacy" class="linkbianco">Privacy</a></li>
