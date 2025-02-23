@@ -1,14 +1,17 @@
 .popup {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: rgba(0, 0, 0, 0.8);
+    top: 110px;
+    right: 30px;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(64, 64, 64, 0.1));
+    border: 0px solid rgba(255, 255, 255, 0);
+    box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
     color: white;
     padding: 15px;
     display: flex;
     align-items: center;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     opacity: 0;
     transform: translateX(100%);
     transition: opacity 0.5s, transform 0.5s;
@@ -23,4 +26,11 @@
 .popup.show {
     opacity: 1;
     transform: translateX(0);
+}
+
+@media only screen and (max-width: 768px) {
+    .popup {
+        top: 100px;
+        right: 20px;
+    }
 }
