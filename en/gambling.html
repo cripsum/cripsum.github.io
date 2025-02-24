@@ -178,6 +178,7 @@
                 <li class="list-inline-item"><a href="supporto" class="linkbianco">Support</a></li>
             </ul>
         </footer>
+        <script src="../js/unlockAchievement-en.js"></script>
         <script>
             function ricaricasaldo() {
                 document.getElementsByClassName("errorericarica")[0].textContent = "";
@@ -187,6 +188,7 @@
                     currentMoney = parseInt(currentMoney.substring(1)); // remove the $ sign and convert to integer
                     var newMoney = currentMoney + parseInt(inputMoney);
                     document.getElementsByClassName("account-balance")[0].textContent = "$" + newMoney;
+                    monitorSaldo(); // Avvia il monitoraggio se non è già in corso
                     document.getElementsByClassName("inputricarica")[0].value = "";
                 } else {
                     document.getElementsByClassName("errorericarica")[0].textContent = "fields can't be empty";
@@ -208,22 +210,7 @@
                     document.getElementsByClassName("account-name")[0].textContent = name;
                     document.getElementById("name-input").value = "";
                     document.getElementById("accesso-gambling").style.display = "none";
-
-                    var startTime = Date.now();
-                    var timer = setInterval(function () {
-                        var currentTime = Date.now();
-                        var elapsedTime = currentTime - startTime;
-                        var currentMoney = parseInt(document.getElementsByClassName("account-balance")[0].textContent.substring(1));
-
-                        if (elapsedTime >= 60000) {
-                            clearInterval(timer);
-                        }
-
-                        if (currentMoney < 10) {
-                            unlockAchievement(11);
-                            clearInterval(timer);
-                        }
-                    }, 1000);
+                    monitorSaldo(); // Avvia il monitoraggio se non è già in corso
                 } else {
                     document.getElementsByClassName("errore")[0].textContent = "fields can't be empty";
                 }
@@ -237,8 +224,9 @@
                 money = parseInt(money.substring(1)); // remove the $ sign and convert to integer
 
                 if (money >= 10) {
-                    money -= 10; // subtract 10 from the money count
-                    document.getElementsByClassName("account-balance")[0].textContent = "$" + money; // update the money count display
+                    money -= 10;
+                    document.getElementsByClassName("account-balance")[0].textContent = "$" + money;
+                    monitorSaldo(); // Avvia il monitoraggio se non è già in corso
                 } else {
                     document.getElementsByClassName("erroresoldi")[0].textContent = "Insufficient balance"; // display an error message if there are not enough funds
                     return;
@@ -291,6 +279,27 @@
                 }, 100);
             }
 
+            function monitorSaldo() {
+                if (saldoMonitorInterval) return; // Evita di creare più intervalli
+
+                let startTime = Date.now();
+                saldoMonitorInterval = setInterval(function () {
+                    let money = parseInt(document.getElementsByClassName("account-balance")[0].textContent.substring(1));
+
+                    if (money < 10) {
+                        unlockAchievement(11);
+                        clearInterval(saldoMonitorInterval);
+                        saldoMonitorInterval = null; // Resetta la variabile
+                    }
+
+                    if (Date.now() - startTime >= 60000) {
+                        // Dopo 1 minuto, ferma il controllo
+                        clearInterval(saldoMonitorInterval);
+                        saldoMonitorInterval = null; // Resetta la variabile
+                    }
+                }, 1000); // Controlla ogni secondo
+            }
+
             // function close_div(id) {
             //     document.getElementById("caricamento").style.display = "none";
             // }
@@ -300,7 +309,6 @@
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"
         ></script>
-        <script src="../js/unlockAchievement-en.js"></script>
         <script src="../js/modeChanger.js"></script>
     </body>
 </html>
