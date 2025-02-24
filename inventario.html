@@ -119,6 +119,7 @@
         <div class="paginainterachisiamo testobianco" style="padding-top: 7rem; text-align: center">
             <div class="container">
                 <h1 class="fadeup">Il tuo Inventario</h1>
+                <p class="fadeup" id="casseAperte"></p>
                 <div id="counter" class="fadeup"></div>
                 <div id="inventario" class="fadeup"></div>
                 <a href="lootbox" class="linkbianco fadeup">Torna alla lootbox</a>
@@ -158,9 +159,12 @@
             const inventory = JSON.parse(localStorage.getItem("inventory")) || [];
             const inventarioDiv = document.getElementById("inventario");
             const counterDiv = document.getElementById("counter");
+            const casseAperte = getCookie("casseAperte") || 0;
 
             const totalCharacters = rarities.length;
             const foundCharacters = inventory.length;
+
+            document.getElementById("casseAperte").innerText = `Casse aperte: ${casseAperte}`;
 
             counterDiv.innerText = `Personaggi trovati: ${foundCharacters} / ${totalCharacters}`;
 
@@ -181,11 +185,11 @@
                     const count = character ? character.count : 0;
 
                     section.innerHTML += `
-            <div class="personaggio">
-                <img src="${character ? personaggio.img : "img/boh.png"}" class="${character ? "" : "hidden"}" alt="Personaggio">
-                <span>${character ? `${personaggio.name} (x${count})` : "???"}</span>
-            </div>
-        `;
+                <div class="personaggio">
+                    <img src="${character ? personaggio.img : "img/boh.png"}" class="${character ? "" : "hidden"}" alt="Personaggio">
+                    <span>${character ? `${personaggio.name} (x${count})` : "???"}</span>
+                </div>
+            `;
                 });
 
                 inventarioDiv.appendChild(section);
