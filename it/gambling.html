@@ -178,6 +178,7 @@
             </ul>
         </footer>
         <script>
+
             function ricaricasaldo() {
                 document.getElementsByClassName("errorericarica")[0].textContent = "";
                 var inputMoney = document.getElementsByClassName("inputricarica")[0].value;
@@ -207,6 +208,13 @@
                     document.getElementsByClassName("account-name")[0].textContent = name;
                     document.getElementById("name-input").value = "";
                     document.getElementById("accesso-gambling").style.display = "none";
+                    
+                    setTimeout(function () {
+                        var currentMoney = parseInt(document.getElementsByClassName("account-balance")[0].textContent.substring(1));
+                        if (currentMoney < 10) {
+                            unlockAchievement(11);
+                        }
+                    }, 60000);
                 } else {
                     document.getElementsByClassName("errore")[0].textContent = "i campi non possono essere vuoti";
                 }
