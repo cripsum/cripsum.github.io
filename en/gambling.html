@@ -180,6 +180,8 @@
         </footer>
         <script src="../js/unlockAchievement-en.js"></script>
         <script>
+            let saldoMonitorInterval = null;
+
             function ricaricasaldo() {
                 document.getElementsByClassName("errorericarica")[0].textContent = "";
                 var inputMoney = document.getElementsByClassName("inputricarica")[0].value;
