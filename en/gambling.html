@@ -209,12 +209,21 @@
                     document.getElementById("name-input").value = "";
                     document.getElementById("accesso-gambling").style.display = "none";
 
-                    setTimeout(function () {
+                    var startTime = Date.now();
+                    var timer = setInterval(function () {
+                        var currentTime = Date.now();
+                        var elapsedTime = currentTime - startTime;
                         var currentMoney = parseInt(document.getElementsByClassName("account-balance")[0].textContent.substring(1));
+
+                        if (elapsedTime >= 60000) {
+                            clearInterval(timer);
+                        }
+
                         if (currentMoney < 10) {
                             unlockAchievement(11);
+                            clearInterval(timer);
                         }
-                    }, 60000);
+                    }, 1000);
                 } else {
                     document.getElementsByClassName("errore")[0].textContent = "fields can't be empty";
                 }
