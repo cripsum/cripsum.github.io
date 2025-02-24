@@ -265,6 +265,12 @@
                                         <label class="form-check-label" for="loginCheck">Meow</label>
                                     </div>
                                 </div>
+                                <div class="col-md-6 d-flex" style="text-align: center">
+                                    <div class="form-check mb-3 mb-md-0" style="text-align: center">
+                                        <input class="form-check-input checco" type="checkbox" value="" id="SoloSpeciali" />
+                                        <label class="form-check-label" for="loginCheck">Solo Comuni</label>
+                                    </div>
+                                </div>
 
                                 <div data-mdb-input-init class="form-outline mb-4">
                                     <label class="form-label" for="registerName">Codice Segreto</label>
@@ -332,6 +338,7 @@
             var rarityProbabilities = aggiornaRarita();
 
             var casseAperte;
+            var comuniDiFila;
             //|| {
             //    comune: 45,
             //    raro: 25,
@@ -433,6 +440,15 @@
                             leggendario: 0,
                             mitico: 0,
                             speciale: 100,
+                        });
+                    } else if (preferences.SoloComuni === true) {
+                        return (rarityProbabilities = {
+                            comune: 100,
+                            raro: 0,
+                            epico: 0,
+                            leggendario: 0,
+                            mitico: 0,
+                            speciale: 0,
                         });
                     } else {
                         return (rarityProbabilities = {
@@ -573,8 +589,18 @@
                 casseAperte = getCookie("casseAperte") || 0;
                 casseAperte++;
                 setCookie("casseAperte", casseAperte);
+
+                comuniDiFila = getComuniDiFila();
+
+                if (comuniDiFila === 10) {
+                    unlockAchievement(9);
+                }
+
                 if (casseAperte === 100) {
                     unlockAchievement(8);
+                }
+                if (casseAperte === 500) {
+                    unlockAchievement(16);
                 }
                 if (getInventory().length === 1) {
                     unlockAchievement(5);
@@ -672,6 +698,18 @@
 
             function refresh() {
                 location.reload();
+            }
+
+            function getComuniDiFila() {
+                tempComuniDiFila = getCookie("comuniDiFila") || 0;
+                if (rarita === "comune") {
+                    tempComuniDiFila++;
+                    setCookie("comuniDiFila", tempComuniDiFila);
+                    return tempComuniDiFila;
+                } else {
+                    setCookie("comuniDiFila", 0);
+                    return tempComuniDiFila;
+                }
             }
         </script>
         <script src="js/modeChanger.js"></script>

@@ -66,7 +66,7 @@
     {
         "id": 9,
         "title": "Rovinato dal gambling",
-        "description": "Trova solo personaggi comuni in 10 casse di fila.",
+        "description": "Trova un personaggio comune in 10 casse di fila.",
         "points": 20,
         "locked": true,
         "image": "../img/segone4.png"
