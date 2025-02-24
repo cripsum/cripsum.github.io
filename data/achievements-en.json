@@ -41,7 +41,7 @@
     },
     {
         "id": 6,
-        "title": "The Worst Editor",
+        "title": "Edits enjoyer",
         "description": "Visit the edits page.",
         "points": 20,
         "locked": true,
@@ -49,7 +49,7 @@
     },
     {
         "id": 7,
-        "title": "Super Fan",
+        "title": "I'm a photographer and i took this photo",
         "description": "Purchase Simone Tussi's merch.",
         "points": 20,
         "locked": true,
@@ -123,6 +123,14 @@
         "id": 16,
         "title": "Gacha Addict",
         "description": "Open 500 lootboxes. Do you need help?",
+        "points": 50,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 17,
+        "title": "Edit Fanatic",
+        "description": "Watch all the edits on the dedicated page.",
         "points": 50,
         "locked": true,
         "image": "../img/segone4.png"

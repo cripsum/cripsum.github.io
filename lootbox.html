@@ -207,7 +207,7 @@
                 <div class="faretto destra"></div>-->
 
                 <!-- Cassa -->
-                <img src="img/cassa.png" alt="Cassa" id="cassa" class="fadein" ondblclick="apriVeloce()" onclick="apriCassa()" />
+                <img src="img/cassa.png" alt="Cassa" id="cassa" class="fadein" ondblclick="apriVeloce()" onclick="apriNormale()" />
 
                 <!-- Bagliore -->
                 <div id="baglioreWrapper">
@@ -330,6 +330,8 @@
             const codiceSegreto = document.getElementById("codiceSegreto");
 
             var rarityProbabilities = aggiornaRarita();
+
+            var casseAperte;
             //|| {
             //    comune: 45,
             //    raro: 25,
@@ -552,6 +554,7 @@
                             audio.play();
 
                             generaParticelle();
+                            apriCassa();
                             apriVeloce();
                         }
                     } else {
@@ -567,21 +570,30 @@
             });
 
             function apriCassa() {
+                casseAperte = getCookie("casseAperte") || 0;
+                casseAperte++;
+                setCookie("casseAperte", casseAperte);
+                if (casseAperte === 100) {
+                    unlockAchievement(8);
+                }
                 if (getInventory().length === 1) {
                     unlockAchievement(5);
                 }
                 if (getInventory().length === 42) {
                     unlockAchievement(3);
                 }
+            }
+
+            function apriNormale() {
+                apriCassa();
+
+                generaParticelle();
+
                 bagliore.style.opacity = 0.6;
                 bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
 
                 audio.currentTime = 0;
                 audio.play();
-
-                generaParticelle();
-
-                //setTimeout(() => {}, 2000);
 
                 cassa.src = "img/cassa_aperta.png";
                 cassa.classList.add("aperta");

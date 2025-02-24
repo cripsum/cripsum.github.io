@@ -41,7 +41,7 @@
     },
     {
         "id": 6,
-        "title": "L'editor scaduto",
+        "title": "Edit enjoyer",
         "description": "Visita la pagina degli edit.",
         "points": 20,
         "locked": true,
@@ -49,7 +49,7 @@
     },
     {
         "id": 7,
-        "title": "Super Fan",
+        "title": "I'm a photographer and i took this photo",
         "description": "Acquista il merch di Simone Tussi.",
         "points": 20,
         "locked": true,
@@ -123,6 +123,14 @@
         "id": 16,
         "title": "Dipendente dal Gacha",
         "description": "Apri 500 casse. Hai bisogno di aiuto?",
+        "points": 50,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 17,
+        "title": "Fanatico degli edit",
+        "description": "Guarda tutti gli edit nella pagina apposita.",
         "points": 50,
         "locked": true,
         "image": "../img/segone4.png"
