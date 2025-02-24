@@ -41,7 +41,7 @@
     },
     {
         "id": 6,
-        "title": "'L'editor scaduto'",
+        "title": "L'editor scaduto",
         "description": "Visita la pagina degli edit.",
         "points": 20,
         "locked": true,
