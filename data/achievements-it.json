@@ -1,7 +1,7 @@
 [
     {
         "id": 1,
-        "title": "Primi Passi",
+        "title": "Primi passi",
         "description": "Entra per la prima volta nel sito. Benvenuto!",
         "points": 10,
         "locked": true,
@@ -9,7 +9,7 @@
     },
     {
         "id": 2,
-        "title": "La Grande Vincita",
+        "title": "La grande vincita",
         "description": "Vinci nella pagina di gambling.",
         "points": 20,
         "locked": true,
@@ -17,7 +17,7 @@
     },
     {
         "id": 3,
-        "title": "Collezionista Seriale",
+        "title": "Collezionista seriale",
         "description": "Trova tutti i personaggi nelle lootbox.",
         "points": 50,
         "locked": true,
@@ -30,5 +30,102 @@
         "points": 75,
         "locked": true,
         "image": "../img/segone4.png"
+    },
+    {
+        "id": 5,
+        "title": "Unboxing time!",
+        "description": "Apri la tua prima cassa.",
+        "points": 10,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 6,
+        "title": "'L'editor scaduto'",
+        "description": "Visita la pagina degli edit.",
+        "points": 20,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 7,
+        "title": "Super Fan",
+        "description": "Acquista il merch di Simone Tussi.",
+        "points": 20,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 8,
+        "title": "Una vera dedizione",
+        "description": "Hai aperto 100 casse. Tutto bene amico?",
+        "points": 30,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 9,
+        "title": "Rovinato dal gambling",
+        "description": "Trova solo personaggi comuni in 10 casse di fila.",
+        "points": 20,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 10,
+        "title": "Clickbaitato",
+        "description": "Non pensavi avresti veramente guadagnato v-bucks infiniti, vero?",
+        "points": 20,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 11,
+        "title": "Speedrunner della povertà",
+        "description": "Sei andato in bancarotta nel gambling in meno di 1 minuto.",
+        "points": 15,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 12,
+        "title": "Tocca l'erba, ti prego",
+        "description": "Hai aperto il sito alle 3 di notte. Che stai facendo della tua vita?",
+        "points": 10,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 13,
+        "title": "Dedizione Estrema",
+        "description": "Accedi al sito per 30 giorni consecutivi.",
+        "points": 20,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 14,
+        "title": "Tempo da buttare",
+        "description": "Hai passato più di 2 ore consecutive sul sito. tutto bene?",
+        "points": 20,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 15,
+        "title": "Cripsum.exe ha smesso di funzionare",
+        "description": "Hai trovato un bug all'interno del sito. bravo, ora però fixalo, io non ne ho voglia.",
+        "points": 25,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 16,
+        "title": "Dipendente dal Gacha",
+        "description": "Apri 500 casse. Hai bisogno di aiuto?",
+        "points": 50,
+        "locked": true,
+        "image": "../img/segone4.png"
     }
+
 ]

@@ -30,5 +30,101 @@
         "points": 75,
         "locked": true,
         "image": "../img/segone4.png"
+    },
+    {
+        "id": 5,
+        "title": "Unboxing time!",
+        "description": "Open your first lootbox.",
+        "points": 10,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 6,
+        "title": "'The Expired Editor'",
+        "description": "Visit the edits page.",
+        "points": 20,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 7,
+        "title": "Super Fan",
+        "description": "Purchase Simone Tussi's merch.",
+        "points": 20,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 8,
+        "title": "True Dedication",
+        "description": "Open 100 lootboxes. You good, buddy?",
+        "points": 30,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 9,
+        "title": "Ruined by Gambling",
+        "description": "Get only common characters in 10 lootboxes in a row.",
+        "points": 20,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 10,
+        "title": "Clickbaited",
+        "description": "You didn't actually think you'd get infinite V-Bucks, did you?",
+        "points": 20,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 11,
+        "title": "Speedrunner of Poverty",
+        "description": "Go bankrupt in gambling in less than 1 minute.",
+        "points": 15,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 12,
+        "title": "Touch Grass, Please",
+        "description": "You opened the site at 3 AM. What are you doing with your life?",
+        "points": 10,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 13,
+        "title": "Extreme Dedication",
+        "description": "Log into the site for 30 consecutive days.",
+        "points": 20,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 14,
+        "title": "Time to Waste",
+        "description": "You've spent more than 2 consecutive hours on the site. You okay?",
+        "points": 20,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 15,
+        "title": "Cripsum.exe has stopped working",
+        "description": "You found a bug on the site. Nice job, now fix it, because I won't.",
+        "points": 25,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 16,
+        "title": "Gacha Addict",
+        "description": "Open 500 lootboxes. Do you need help?",
+        "points": 50,
+        "locked": true,
+        "image": "../img/segone4.png"
     }
 ]

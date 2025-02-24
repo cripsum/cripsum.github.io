@@ -567,6 +567,9 @@
             });
 
             function apriCassa() {
+                if (getInventory().length === 1) {
+                    unlockAchievement(5);
+                }
                 bagliore.style.opacity = 0.6;
                 bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
 
