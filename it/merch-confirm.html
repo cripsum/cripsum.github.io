@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag("js", new Date());
+
+            gtag("config", "G-T0CTM2SBJJ");
+        </script>
+        <meta charset="UTF-8" />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+            crossorigin="anonymous"
+        />
+        <link rel="icon" href="../img/Susremaster.png" type="image/png" />
+        <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png" />
+        <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+        <link rel="stylesheet" href="../css/style.css" />
+        <link rel="stylesheet" href="../css/style-dark.css" />
+        <link rel="stylesheet" href="../css/animations.css" />
+        <link rel="stylesheet" href="../css/achievement-style.css" />
+        <script src="../js/animations.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Cripsum™ - confirm</title>
+        <script>
+            unlockAchievement(7);
+
+            setTimeout(function () {
+                window.location.href = "home";
+            }, 4000);
+        </script>
+    </head>
+    <body>
+        <h1 class="text-center mt-4 testobianco fadeup">Grazie mille per l'acquisto</h1>
+        <p class="text-center fs-4 testobianco fadeup">reindirizzamento alla home in corso</p>
+        <div class="loading_white fadeup">
+            <span class="loading__dot_white"></span>
+            <span class="loading__dot_white"></span>
+            <span class="loading__dot_white"></span>
+        </div>
+        <div id="achievement-popup" class="popup">
+            <img id="popup-image" src="" alt="Achievement" />
+            <div>
+                <h3 id="popup-title"></h3>
+                <p id="popup-description"></p>
+            </div>
+        </div>
+        <script src="../js/unlockAchievement-it.js"></script>
+    </body>
+</html>
