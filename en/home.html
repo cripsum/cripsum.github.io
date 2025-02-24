@@ -109,6 +109,11 @@
             <script src="../js/unlockAchievement-en.js"></script>
             <script>
                 unlockAchievement(1);
+
+                const now = new Date();
+                if (now.getHours() === 3) {
+                    unlockAchievement(12);
+                }
             </script>
             <script>
                 function close_div(id) {
