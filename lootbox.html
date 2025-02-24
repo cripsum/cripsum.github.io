@@ -570,6 +570,9 @@
                 if (getInventory().length === 1) {
                     unlockAchievement(5);
                 }
+                if (getInventory().length === 42) {
+                    unlockAchievement(3);
+                }
                 bagliore.style.opacity = 0.6;
                 bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
 
@@ -657,10 +660,6 @@
 
             function refresh() {
                 location.reload();
-            }
-
-            if (getInventory().length === 42) {
-                unlockAchievement(3);
             }
         </script>
         <script src="js/modeChanger.js"></script>
