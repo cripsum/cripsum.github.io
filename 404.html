@@ -19,6 +19,10 @@
               const cssLink = document.createElement('link');
               const cssLink2 = document.createElement('link');
               const cssLink3 = document.createElement('link');
+
+              const iconLink = document.createElement('link');
+              const iconShortcutLink = document.createElement('link');
+
               const scriptLink = document.createElement('script');
               cssLink.rel = 'stylesheet';
               cssLink.href = `${basePath}/css/style.css`;
@@ -26,11 +30,19 @@
               cssLink2.href = `${basePath}/css/style-dark.css`; 
               cssLink3.rel = 'stylesheet';
               cssLink3.href = `${basePath}/css/achievement-style.css`; 
+              iconLink.rel = 'icon';
+              iconLink.href = `${basePath}/img/Susremaster.png`;
+              iconLink.type = 'image/png';
+              iconShortcutLink.rel = 'shortcut icon';
+              iconShortcutLink.href = `${basePath}/img/Susremaster.png`;
+              iconShortcutLink.type = 'image/png';
               scriptLink.src = `${basePath}/js/unlockAchievement-en.js`; 
               document.head.appendChild(cssLink);
               document.head.appendChild(cssLink2);
               document.head.appendChild(cssLink3);
               document.head.appendChild(scriptLink);
+                document.head.appendChild(iconLink);
+                document.head.appendChild(iconShortcutLink);
         
               // Correggi anche altri asset come immagini se necessario
               const images = document.querySelectorAll('img[data-src]');
@@ -48,7 +60,7 @@
             document.addEventListener('DOMContentLoaded', adjustPaths);
 
             setTimeout(() => {
-                unclockAchievement(15);
+                unlockAchievement(15);
             }, 500);
           </script>
         <title>Cripsum™</title>
