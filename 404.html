@@ -18,12 +18,19 @@
               const basePath = Array(window.location.pathname.split('/').length - 2).fill('..').join('/');
               const cssLink = document.createElement('link');
               const cssLink2 = document.createElement('link');
+              const cssLink3 = document.createElement('link');
+              const scriptLink = document.createElement('script');
               cssLink.rel = 'stylesheet';
-              cssLink.href = `${basePath}/css/style.css`; // Aggiorna con il percorso reale del tuo CSS
+              cssLink.href = `${basePath}/css/style.css`;
               cssLink2.rel = 'stylesheet';
-              cssLink2.href = `${basePath}/css/style-dark.css`; // Aggiorna con il percorso reale del tuo CSS
+              cssLink2.href = `${basePath}/css/style-dark.css`; 
+              cssLink3.rel = 'stylesheet';
+              cssLink3.href = `${basePath}/css/achievement-style.css`; 
+              scriptLink.src = `${basePath}/js/unlockAchievement-en.js`; 
               document.head.appendChild(cssLink);
               document.head.appendChild(cssLink2);
+              document.head.appendChild(cssLink3);
+              document.head.appendChild(scriptLink);
         
               // Correggi anche altri asset come immagini se necessario
               const images = document.querySelectorAll('img[data-src]');
@@ -39,6 +46,8 @@
             
         
             document.addEventListener('DOMContentLoaded', adjustPaths);
+
+            unclockAchievement(15);
           </script>
         <title>Cripsum™</title>
     </head>
@@ -58,6 +67,13 @@
                 <img data-src="img/emojithinkingmeme.png" alt="" style="max-width: 100%; margin: auto; display: block;">
                 <br><br>
                 <p class="text-center mt-3"><a href="https://cripsum.com/en/home" class="linkbianco">Go back to the homepage</a></p>
+            </div>
+        </div>
+        <div id="achievement-popup" class="popup">
+            <img id="popup-image" src="" alt="Achievement" />
+            <div>
+                <h3 id="popup-title"></h3>
+                <p id="popup-description"></p>
             </div>
         </div>
         <script

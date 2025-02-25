@@ -114,7 +114,7 @@
     {
         "id": 15,
         "title": "Cripsum.exe ha smesso di funzionare",
-        "description": "Hai trovato un bug all'interno del sito. bravo, ora però fixalo, io non ne ho voglia.",
+        "description": "Hai rotto il sito in qualche modo. Congratulazioni.",
         "points": 25,
         "locked": true,
         "image": "../img/segone4.png"
@@ -135,5 +135,5 @@
         "locked": true,
         "image": "../img/segone4.png"
     }
-
+    
 ]
