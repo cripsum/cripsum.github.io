@@ -114,7 +114,7 @@
     {
         "id": 15,
         "title": "Cripsum.exe has stopped working",
-        "description": "You found a bug on the site. Nice job, now fix it, because I won't.",
+        "description": "You just broke the site. Congratulations.",
         "points": 25,
         "locked": true,
         "image": "../img/segone4.png"
