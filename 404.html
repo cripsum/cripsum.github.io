@@ -14,7 +14,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <script>
             // Funzione per correggere i percorsi relativi
-            function adjustPaths() {
+            async function adjustPaths() {
               const basePath = Array(window.location.pathname.split('/').length - 2).fill('..').join('/');
               const cssLink = document.createElement('link');
               const cssLink2 = document.createElement('link');
