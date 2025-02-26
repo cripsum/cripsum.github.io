@@ -428,7 +428,7 @@
             unlockAchievement(6);
 
             const iframes = document.querySelectorAll(".video-frame");
-            const watchedVideos = getCookie(watchedVideos) || [];
+            let watchedVideos = getCookie(watchedVideos) || 0;
             const totalVideos = iframes.length;
 
             iframes.forEach((iframe) => {
