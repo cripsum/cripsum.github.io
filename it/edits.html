@@ -433,7 +433,7 @@
 
             iframes.forEach((iframe) => {
                 iframe.addEventListener("click", () => {
-                    const videoId = iframe.dataset.id;
+                    let videoId = iframe.dataset.id;
 
                     if (!watchedVideos.has(videoId)) {
                         watchedVideos.add(videoId);
