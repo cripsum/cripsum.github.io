@@ -428,7 +428,7 @@
             unlockAchievement(6);
 
             const iframes = document.querySelectorAll(".video-frame");
-            const watchedVideos = new Set(getWatchedVideos() || []);
+            const watchedVideos = getCookie(watchedVideos) || [];
             const totalVideos = iframes.length;
 
             iframes.forEach((iframe) => {
@@ -436,25 +436,27 @@
                     const videoId = iframe.dataset.id;
 
                     if (!watchedVideos.has(videoId)) {
-                        setTimeout(() => {
-                            watchedVideos.add(videoId);
-                            saveWatchedVideos(Array.from(watchedVideos));
+                        watchedVideos.add(videoId);
+                        setCookie("watchedVideos", watchedVideos);
 
-                            if (watchedVideos.size === totalVideos) {
-                                unlockAchievement(17);
-                            }
-                        }, 5000);
+                        if (watchedVideos.size === totalVideos) {
+                            unlockAchievement(17);
+                        }
                     }
                 });
             });
 
-            function getWatchedVideos() {
-                const cookieValue = document.cookie.split("; ").find((row) => row.startsWith("watchedVideos="));
-                return cookieValue ? JSON.parse(decodeURIComponent(cookieValue.split("=")[1])) : [];
+            function getCookie(name) {
+                const cookies = document.cookie.split("; ");
+                for (let cookie of cookies) {
+                    let [key, value] = cookie.split("=");
+                    if (key === name) return JSON.parse(value);
+                }
+                return null;
             }
 
-            function saveWatchedVideos(videos) {
-                document.cookie = `watchedVideos=${encodeURIComponent(JSON.stringify(videos))}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+            function setCookie(name, value) {
+                document.cookie = `${name}=${JSON.stringify(value)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
             }
         </script>
         <script
