@@ -427,37 +427,35 @@
         <script>
             unlockAchievement(6);
 
-            document.addEventListener("DOMContentLoaded", function () {
-                const iframes = document.querySelectorAll(".video-frame");
-                const watchedVideos = new Set(getWatchedVideos());
-                const totalVideos = iframes.length;
+            const iframes = document.querySelectorAll(".video-frame");
+            const watchedVideos = new Set(getWatchedVideos() || []);
+            const totalVideos = iframes.length;
 
-                iframes.forEach((iframe) => {
-                    iframe.addEventListener("click", () => {
-                        const videoId = iframe.dataset.id;
+            iframes.forEach((iframe) => {
+                iframe.addEventListener("click", () => {
+                    const videoId = iframe.dataset.id;
 
-                        if (!watchedVideos.has(videoId)) {
-                            setTimeout(() => {
-                                watchedVideos.add(videoId);
-                                saveWatchedVideos(Array.from(watchedVideos));
+                    if (!watchedVideos.has(videoId)) {
+                        setTimeout(() => {
+                            watchedVideos.add(videoId);
+                            saveWatchedVideos(Array.from(watchedVideos));
 
-                                if (watchedVideos.size === totalVideos) {
-                                    unlockAchievement(17);
-                                }
-                            }, 5000);
-                        }
-                    });
+                            if (watchedVideos.size === totalVideos) {
+                                unlockAchievement(17);
+                            }
+                        }, 5000);
+                    }
                 });
-
-                function getWatchedVideos() {
-                    const cookieValue = document.cookie.split("; ").find((row) => row.startsWith("watchedVideos="));
-                    return cookieValue ? JSON.parse(decodeURIComponent(cookieValue.split("=")[1])) : [];
-                }
-
-                function saveWatchedVideos(videos) {
-                    document.cookie = `watchedVideos=${encodeURIComponent(JSON.stringify(videos))}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
-                }
             });
+
+            function getWatchedVideos() {
+                const cookieValue = document.cookie.split("; ").find((row) => row.startsWith("watchedVideos="));
+                return cookieValue ? JSON.parse(decodeURIComponent(cookieValue.split("=")[1])) : [];
+            }
+
+            function saveWatchedVideos(videos) {
+                document.cookie = `watchedVideos=${encodeURIComponent(JSON.stringify(videos))}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+            }
         </script>
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"

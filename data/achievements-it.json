@@ -98,7 +98,7 @@
     {
         "id": 13,
         "title": "Dedizione Estrema",
-        "description": "Accedi al sito per 30 giorni consecutivi.",
+        "description": "Accedi al sito per 30 giorni.",
         "points": 20,
         "locked": true,
         "image": "../img/segone4.png"
@@ -106,7 +106,7 @@
     {
         "id": 14,
         "title": "Tempo da buttare",
-        "description": "Hai passato più di 2 ore consecutive sul sito. tutto bene?",
+        "description": "Hai passato più di 2 ore sul sito. tutto bene?",
         "points": 20,
         "locked": true,
         "image": "../img/segone4.png"
