@@ -429,7 +429,7 @@
 
             document.addEventListener("DOMContentLoaded", () => {
                 const iframes = document.querySelectorAll(".video-frame");
-                let watchedVideos = new Set(getCookie("watchedVideos") || []);
+                let watchedVideos = getCookie("watchedVideos") || [];
                 const totalVideos = iframes.length;
 
                 iframes.forEach((iframe) => {
@@ -438,7 +438,7 @@
 
                         if (!watchedVideos.has(videoId)) {
                             watchedVideos.add(videoId);
-                            setCookie("watchedVideos", Array.from(watchedVideos));
+                            setCookie("watchedVideos", watchedVideos);
 
                             if (watchedVideos.size === totalVideos) {
                                 unlockAchievement(17);
