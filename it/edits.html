@@ -454,7 +454,6 @@
             }
 
             function watchVideo(id) {
-                id = String(id);
                 if (!watchedVideos.includes(id)) {
                     watchedVideos.push(id);
                     setCookie("watchedVideos", watchedVideos);
