@@ -429,12 +429,12 @@
 
             document.addEventListener("DOMContentLoaded", () => {
                 const iframes = document.querySelectorAll(".video-frame");
-                let watchedVideos = getCookie("watchedVideos") || [];
+                const watchedVideos = getCookie("watchedVideos") || [];
                 const totalVideos = iframes.length;
 
                 iframes.forEach((iframe) => {
                     iframe.addEventListener("click", () => {
-                        let videoId = iframe.id;
+                        const videoId = iframe.id;
 
                         if (!watchedVideos.has(videoId)) {
                             watchedVideos.add(videoId);
