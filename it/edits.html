@@ -475,12 +475,7 @@
         <script>
             unlockAchievement(6);
 
-            let watchedVideos = getVideo("watchedVideos") || [];
             let totalVideos = document.querySelectorAll(".video-frame").length;
-
-            if (watchedVideos.length === totalVideos) {
-                unlockAchievement(17);
-            }
 
             //ocument.querySelectorAll(".video-frame").forEach((iframe) => {
             //    iframe.addEventListener("click", () => {
@@ -495,6 +490,7 @@
 
             function watchVideo(id) {
                 id = String(id);
+                let watchedVideos = getVideo("watchedVideos") || [];
                 if (!watchedVideos.includes(id)) {
                     watchedVideos.push(id);
                     setVideo("watchedVideos", watchedVideos);
