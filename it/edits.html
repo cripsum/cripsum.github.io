@@ -470,7 +470,7 @@
 
             document.querySelectorAll(".video-frame").forEach((iframe) => {
                 iframe.addEventListener("click", () => {
-                    let id = String(iframe.id);
+                    let id = iframe.id;
 
                     // Aspetta 100ms per non interferire con il video
                     setTimeout(() => {
@@ -480,7 +480,6 @@
             });
 
             function watchVideo(id) {
-                id = String(id);
                 if (!watchedVideos.includes(id)) {
                     watchedVideos.push(id);
                     setCookie("watchedVideos", watchedVideos);
