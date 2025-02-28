@@ -488,12 +488,6 @@
             //    });
             //});
 
-            document.addEventListener("DOMContentLoaded", function () {
-                document.getElementById("play-button").addEventListener("click", function () {
-                    watchVideo(this.id);
-                });
-            });
-
             function watchVideo(id) {
                 let watchedVideos = getVideo("watchedVideos") || [];
                 if (!watchedVideos.includes(id)) {
