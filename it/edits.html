@@ -494,7 +494,13 @@
                 const cookies = document.cookie.split("; ");
                 for (let cookie of cookies) {
                     let [key, value] = cookie.split("=");
-                    if (key === name) return JSON.parse(value);
+                    if (key === name) {
+                        try {
+                            return JSON.parse(value);
+                        } catch (e) {
+                            return [];
+                        }
+                    }
                 }
                 return [];
             }
