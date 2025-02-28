@@ -489,7 +489,6 @@
             //});
 
             function watchVideo(id) {
-                id = String(id);
                 let watchedVideos = getVideo("watchedVideos") || [];
                 if (!watchedVideos.includes(id)) {
                     watchedVideos.push(id);
@@ -505,19 +504,13 @@
                 const cookies = document.cookie.split("; ");
                 for (let cookie of cookies) {
                     let [key, value] = cookie.split("=");
-                    if (key === name) {
-                        try {
-                            return JSON.parse(decodeURIComponent(value));
-                        } catch (e) {
-                            return [];
-                        }
-                    }
+                    if (key === name) return JSON.parse(value);
                 }
-                return [];
+                return null;
             }
 
             function setVideo(name, value) {
-                document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+                document.cookie = `${name}=${JSON.stringify(value)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
             }
         </script>
         <script
