@@ -402,6 +402,7 @@
                         style="border-radius: 7px; margin: auto; display: block; margin-top: 3%; margin-left: 10px; margin-right: 10px; margin-bottom: 10px"
                         id="3"
                         onclick="watchVideo(3)"
+                        tabindex="0"
                     ></iframe>
                     <p class="text text-center" style="margin-bottom: 0"><img src="../img/user-svgrepo-com.svg" class="logodesc" style="width: 20px" /> Mates - Crossbar challenge</p>
                     <p class="text text-center"><img src="../img/music-svgrepo-com.svg" class="logodesc" style="width: 20px; border-radius: 0" /> G-Eazy - Lady Killers II</p>
@@ -417,6 +418,7 @@
                         style="border-radius: 7px; margin: auto; display: block; margin-top: 3%; margin-left: 10px; margin-right: 10px; margin-bottom: 10px"
                         id="2"
                         onclick="watchVideo(2)"
+                        tabindex="0"
                     ></iframe>
                     <p class="text text-center" style="margin-bottom: 0"><img src="../img/user-svgrepo-com.svg" class="logodesc" style="width: 20px" /> Homelander - The Boys</p>
                     <p class="text text-center"><img src="../img/music-svgrepo-com.svg" class="logodesc" style="width: 20px; border-radius: 0" /> MGMT - Little Dark Age</p>
@@ -432,6 +434,7 @@
                         style="border-radius: 7px; margin: auto; display: block; margin-top: 3%; margin-left: 10px; margin-right: 10px; margin-bottom: 10px"
                         id="1"
                         onclick="watchVideo(1)"
+                        tabindex="0"
                     ></iframe>
                     <p class="text text-center" style="margin-bottom: 0"><img src="../img/user-svgrepo-com.svg" class="logodesc" style="width: 20px" /> Heisenberg - Breaking Bad</p>
                     <p class="text text-center"><img src="../img/music-svgrepo-com.svg" class="logodesc" style="width: 20px; border-radius: 0" /> Travis Scott - MY EYES</p>
@@ -477,7 +480,7 @@
             let totalVideos = document.querySelectorAll(".video-frame").length;
 
             document.querySelectorAll(".video-frame").forEach((iframe) => {
-                iframe.addEventListener("pointerdown", () => {
+                iframe.addEventListener("focus", () => {
                     let id = iframe.id;
 
                     // Aspetta 100ms per non interferire con il video
