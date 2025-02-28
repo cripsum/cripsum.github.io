@@ -477,7 +477,7 @@
             let totalVideos = document.querySelectorAll(".video-frame").length;
 
             document.querySelectorAll(".video-frame").forEach((iframe) => {
-                iframe.addEventListener("click", () => {
+                iframe.addEventListener("pointerdown", () => {
                     let id = iframe.id;
 
                     // Aspetta 100ms per non interferire con il video
