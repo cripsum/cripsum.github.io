@@ -25,6 +25,21 @@
                     margin-top: 0.45rem;
                 }
             }
+
+            .video-container {
+                position: relative;
+                display: inline-block;
+            }
+
+            .video-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(255, 255, 255, 0); /* Completamente trasparente */
+                cursor: pointer;
+            }
         </style>
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
@@ -391,7 +406,7 @@
                     <p class="text text-center" style="margin-bottom: 0"><img src="../img/user-svgrepo-com.svg" class="logodesc" style="width: 20px" /> Mates - Crossbar challenge</p>
                     <p class="text text-center"><img src="../img/music-svgrepo-com.svg" class="logodesc" style="width: 20px; border-radius: 0" /> G-Eazy - Lady Killers II</p>
                 </div>
-                <div style="margin-bottom: 30px" class="fadeup">
+                <div style="margin-bottom: 30px" class="fadeup video-container">
                     <iframe
                         allow="fullscreen;autoplay"
                         allowfullscreen
@@ -401,12 +416,12 @@
                         class="bordobianco video-frame"
                         style="border-radius: 7px; margin: auto; display: block; margin-top: 3%; margin-left: 10px; margin-right: 10px; margin-bottom: 10px"
                         id="2"
-                        onclick="watchVideo(2)"
                     ></iframe>
+                    <div class="video-overlay" onclick="watchVideo(2)"></div>
                     <p class="text text-center" style="margin-bottom: 0"><img src="../img/user-svgrepo-com.svg" class="logodesc" style="width: 20px" /> Homelander - The Boys</p>
                     <p class="text text-center"><img src="../img/music-svgrepo-com.svg" class="logodesc" style="width: 20px; border-radius: 0" /> MGMT - Little Dark Age</p>
                 </div>
-                <div style="margin-bottom: 30px" class="fadeup">
+                <div style="margin-bottom: 30px" class="fadeup video-container">
                     <iframe
                         allow="fullscreen;autoplay"
                         allowfullscreen
@@ -416,8 +431,8 @@
                         class="bordobianco video-frame"
                         style="border-radius: 7px; margin: auto; display: block; margin-top: 3%; margin-left: 10px; margin-right: 10px; margin-bottom: 10px"
                         id="1"
-                        onclick="watchVideo(1)"
                     ></iframe>
+                    <div class="video-overlay" onclick="watchVideo(1)"></div>
                     <p class="text text-center" style="margin-bottom: 0"><img src="../img/user-svgrepo-com.svg" class="logodesc" style="width: 20px" /> Heisenberg - Breaking Bad</p>
                     <p class="text text-center"><img src="../img/music-svgrepo-com.svg" class="logodesc" style="width: 20px; border-radius: 0" /> Travis Scott - MY EYES</p>
                 </div>
@@ -445,20 +460,20 @@
         </footer>
         <script>
             unlockAchievement(6);
-            let iframes = document.querySelectorAll(".video-frame");
-            let watchedVideos = getCookie("watchedVideos") || [];
-            let totalVideos = iframes.length;
 
-            if (watchedVideos.size === totalVideos) {
+            let watchedVideos = getCookie("watchedVideos") || [];
+            let totalVideos = document.querySelectorAll(".video-container").length;
+
+            if (watchedVideos.length === totalVideos) {
                 unlockAchievement(17);
             }
 
             function watchVideo(id) {
+                id = String(id);
                 if (!watchedVideos.includes(id)) {
                     watchedVideos.push(id);
                     setCookie("watchedVideos", watchedVideos);
-
-                    if (watchedVideos.lenght === totalVideos) {
+                    if (watchedVideos.length === totalVideos) {
                         unlockAchievement(17);
                     }
                 }
@@ -468,13 +483,19 @@
                 const cookies = document.cookie.split("; ");
                 for (let cookie of cookies) {
                     let [key, value] = cookie.split("=");
-                    if (key === name) return JSON.parse(value);
+                    if (key === name) {
+                        try {
+                            return JSON.parse(decodeURIComponent(value));
+                        } catch (e) {
+                            return [];
+                        }
+                    }
                 }
-                return null;
+                return [];
             }
 
             function setCookie(name, value) {
-                document.cookie = `${name}=${JSON.stringify(value)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+                document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
             }
         </script>
         <script
