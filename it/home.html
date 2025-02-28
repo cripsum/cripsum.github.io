@@ -118,6 +118,24 @@
                 if (now.getHours() === 3) {
                     unlockAchievement(12);
                 }
+
+                const lastVisit = getCookie("lastVisit");
+                const visitDuration = getCookie("visitDuration") || 0;
+                const now2 = new Date().getTime();
+
+                if (lastVisit) {
+                    const timeSinceLastVisit = now2 - lastVisit;
+                    const updatedVisitDuration = parseInt(visitDuration) + timeSinceLastVisit;
+
+                    if (updatedVisitDuration >= 2 * 60 * 60 * 1000) {
+                        // 2 hours in milliseconds
+                        unlockAchievement(14);
+                    }
+
+                    setCookie("visitDuration", updatedVisitDuration);
+                }
+
+                setCookie("lastVisit", now2);
             </script>
             <script>
                 function close_div(id) {
