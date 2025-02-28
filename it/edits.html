@@ -464,7 +464,34 @@
         <script>
             unlockAchievement(6);
 
-            function getVideoGuardati(name) {
+            let watchedVideos = getVideo("watchedVideos") || [];
+            let totalVideos = document.querySelectorAll(".video-frame").length;
+
+            if (watchedVideos.length === totalVideos) {
+                unlockAchievement(17);
+            }
+
+            // Aggiunge un evento "pointerdown" sugli iframe per registrare il click
+            document.querySelectorAll(".video-frame").forEach((iframe) => {
+                iframe.addEventListener("pointerdown", () => {
+                    let id = String(iframe.id); // Converte l'ID in stringa
+                    watchVideo(id);
+                });
+            });
+
+            function watchVideo(id) {
+                id = String(id);
+                if (!watchedVideos.includes(id)) {
+                    watchedVideos.push(id);
+                    setVideo("watchedVideos", watchedVideos);
+
+                    if (watchedVideos.length === totalVideos) {
+                        unlockAchievement(17);
+                    }
+                }
+            }
+
+            function getVideo(name) {
                 const cookies = document.cookie.split("; ");
                 for (let cookie of cookies) {
                     let [key, value] = cookie.split("=");
@@ -479,33 +506,8 @@
                 return [];
             }
 
-            function setVideoGuardati(name, value) {
+            function setVideo(name, value) {
                 document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
-            }
-
-            let totalVideos = document.querySelectorAll(".video-frame").length;
-
-            document.querySelectorAll(".video-frame").forEach((iframe) => {
-                iframe.addEventListener("click", () => {
-                    let id = iframe.id;
-
-                    // Aspetta 100ms per non interferire con il video
-                    setTimeout(() => {
-                        watchVideo(id);
-                    }, 100);
-                });
-            });
-
-            function watchVideo(id) {
-                let watchedVideos = getVideoGuardati("watchedVideos") || [];
-                if (!watchedVideos.includes(id)) {
-                    watchedVideos.push(id);
-                    setVideoGuardati("watchedVideos", watchedVideos);
-
-                    if (watchedVideos.length === totalVideos) {
-                        unlockAchievement(17);
-                    }
-                }
             }
         </script>
         <script
