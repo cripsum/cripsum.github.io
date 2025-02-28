@@ -496,7 +496,7 @@
                     let [key, value] = cookie.split("=");
                     if (key === name) return JSON.parse(value);
                 }
-                return null;
+                return [];
             }
 
             function setCookie(name, value) {
