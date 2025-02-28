@@ -464,23 +464,29 @@
         <script>
             unlockAchievement(6);
 
-            function getCookie(name) {
+            function getVideoGuardati(name) {
                 const cookies = document.cookie.split("; ");
                 for (let cookie of cookies) {
                     let [key, value] = cookie.split("=");
-                    if (key === name) return JSON.parse(value);
+                    if (key === name) {
+                        try {
+                            return JSON.parse(decodeURIComponent(value));
+                        } catch (e) {
+                            return [];
+                        }
+                    }
                 }
-                return null;
+                return [];
             }
 
-            function setCookie(name, value) {
-                document.cookie = `${name}=${JSON.stringify(value)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+            function setVideoGuardati(name, value) {
+                document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
             }
 
             let totalVideos = document.querySelectorAll(".video-frame").length;
 
             document.querySelectorAll(".video-frame").forEach((iframe) => {
-                iframe.addEventListener("focus", () => {
+                iframe.addEventListener("click", () => {
                     let id = iframe.id;
 
                     // Aspetta 100ms per non interferire con il video
@@ -491,10 +497,10 @@
             });
 
             function watchVideo(id) {
-                let watchedVideos = getCookie("watchedVideos") || [];
+                let watchedVideos = getVideoGuardati("watchedVideos") || [];
                 if (!watchedVideos.includes(id)) {
                     watchedVideos.push(id);
-                    setCookie("watchedVideos", watchedVideos);
+                    setVideoGuardati("watchedVideos", watchedVideos);
 
                     if (watchedVideos.length === totalVideos) {
                         unlockAchievement(17);
