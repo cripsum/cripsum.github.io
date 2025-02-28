@@ -475,7 +475,7 @@
         <script>
             unlockAchievement(6);
 
-            let watchedVideos = getCookie("watchedVideos") || [];
+            let watchedVideos = getVideo("watchedVideos") || [];
             let totalVideos = document.querySelectorAll(".video-frame").length;
 
             if (watchedVideos.length === totalVideos) {
@@ -497,7 +497,7 @@
                 id = String(id);
                 if (!watchedVideos.includes(id)) {
                     watchedVideos.push(id);
-                    setCookie("watchedVideos", watchedVideos);
+                    setVideo("watchedVideos", watchedVideos);
 
                     if (watchedVideos.length === totalVideos) {
                         unlockAchievement(17);
@@ -505,7 +505,7 @@
                 }
             }
 
-            function getCookie(name) {
+            function getVideo(name) {
                 const cookies = document.cookie.split("; ");
                 for (let cookie of cookies) {
                     let [key, value] = cookie.split("=");
@@ -520,7 +520,7 @@
                 return [];
             }
 
-            function setCookie(name, value) {
+            function setVideo(name, value) {
                 document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
             }
         </script>
