@@ -416,7 +416,7 @@
                         class="bordobianco video-frame"
                         style="border-radius: 7px; margin: auto; display: block; margin-top: 3%; margin-left: 10px; margin-right: 10px; margin-bottom: 10px"
                         id="2"
-                        onclick="watchVideo('2')"
+                        onclick="watchVideo(2)"
                     ></iframe>
                     <p class="text text-center" style="margin-bottom: 0"><img src="../img/user-svgrepo-com.svg" class="logodesc" style="width: 20px" /> Homelander - The Boys</p>
                     <p class="text text-center"><img src="../img/music-svgrepo-com.svg" class="logodesc" style="width: 20px; border-radius: 0" /> MGMT - Little Dark Age</p>
@@ -431,7 +431,7 @@
                         class="bordobianco video-frame"
                         style="border-radius: 7px; margin: auto; display: block; margin-top: 3%; margin-left: 10px; margin-right: 10px; margin-bottom: 10px"
                         id="1"
-                        onclick="watchVideo('1')"
+                        onclick="watchVideo(1)"
                     ></iframe>
                     <p class="text text-center" style="margin-bottom: 0"><img src="../img/user-svgrepo-com.svg" class="logodesc" style="width: 20px" /> Heisenberg - Breaking Bad</p>
                     <p class="text text-center"><img src="../img/music-svgrepo-com.svg" class="logodesc" style="width: 20px; border-radius: 0" /> Travis Scott - MY EYES</p>
@@ -461,7 +461,19 @@
         <script>
             unlockAchievement(6);
 
-            let watchedVideos = getCookie("watchedVideos") || [];
+            function getCookie(name) {
+                const cookies = document.cookie.split("; ");
+                for (let cookie of cookies) {
+                    let [key, value] = cookie.split("=");
+                    if (key === name) return JSON.parse(value);
+                }
+                return null;
+            }
+
+            function setCookie(name, value) {
+                document.cookie = `${name}=${JSON.stringify(value)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+            }
+
             let totalVideos = document.querySelectorAll(".video-frame").length;
 
             if (watchedVideos.length === totalVideos) {
@@ -480,6 +492,7 @@
             });
 
             function watchVideo(id) {
+                let watchedVideos = getCookie("watchedVideos") || [];
                 if (!watchedVideos.includes(id)) {
                     watchedVideos.push(id);
                     setCookie("watchedVideos", watchedVideos);
@@ -488,25 +501,6 @@
                         unlockAchievement(17);
                     }
                 }
-            }
-
-            function getCookie(name) {
-                const cookies = document.cookie.split("; ");
-                for (let cookie of cookies) {
-                    let [key, value] = cookie.split("=");
-                    if (key === name) {
-                        try {
-                            return JSON.parse(value);
-                        } catch (e) {
-                            return [];
-                        }
-                    }
-                }
-                return [];
-            }
-
-            function setCookie(name, value) {
-                document.cookie = `${name}=${JSON.stringify(value)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
             }
         </script>
         <script
