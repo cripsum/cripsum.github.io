@@ -476,10 +476,6 @@
 
             let totalVideos = document.querySelectorAll(".video-frame").length;
 
-            if (watchedVideos.length === totalVideos) {
-                unlockAchievement(17);
-            }
-
             document.querySelectorAll(".video-frame").forEach((iframe) => {
                 iframe.addEventListener("click", () => {
                     let id = iframe.id;
