@@ -115,23 +115,20 @@
                     unlockAchievement(12);
                 }
 
-                const lastVisit = getCookie("lastVisit");
-                const visitDuration = getCookie("visitDuration") || 0;
-                const now2 = new Date().getTime();
-
-                if (lastVisit) {
-                    const timeSinceLastVisit = now2 - lastVisit;
-                    const updatedVisitDuration = parseInt(visitDuration) + timeSinceLastVisit;
-
-                    if (updatedVisitDuration >= 2 * 60 * 60 * 1000) {
-                        // 2 hours in milliseconds
+                function checkTimeSpent() {
+                    let timeSpent = parseInt(getCookie("timeSpent")) || 0;
+                    // Increment time spent by 1 second
+                    timeSpent += 1;
+                    // Update the cookie with the new time spent
+                    setCookie("timeSpent", timeSpent);
+                    // Check if 2 hours (7200 seconds) have been reached
+                    if (timeSpent >= 7200) {
                         unlockAchievement(14);
                     }
-
-                    setCookie("visitDuration", updatedVisitDuration);
                 }
 
-                setCookie("lastVisit", now2);
+                // Check time spent every second
+                setInterval(checkTimeSpent, 1000);
             </script>
             <script>
                 function close_div(id) {
