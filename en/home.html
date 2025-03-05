@@ -42,7 +42,7 @@
             <div class="container-fluid">
                 <a class="navbar-brand" href="home">
                     <img src="../img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
-                    <span class="align-middle ms-3 fw-bold">Cripsum™</span>
+                    <span class="align-middle ms-3 fw-bold testobianco">Cripsum™</span>
                 </a>
                 <button
                     class="navbar-toggler"
@@ -175,26 +175,9 @@
                     transition: opacity 0.5s ease;
                 "
             >
-                <div
-                    id="collegamentoedits"
-                    class="collegamentoedit ombra fadeup"
-                    style="
-                        backdrop-filter: blur(15px);
-                        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(64, 64, 64, 0.1));
-                        box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5);
-                        padding: 20px;
-                        border: 1px solid rgba(255, 255, 255, 0.5);
-                        border-radius: 10px;
-                        max-width: 80%;
-                        text-align: center;
-                        position: relative;
-                        opacity: 0;
-                        transform: translateY(-20px);
-                        transition: opacity 0.5s ease, transform 0.5s ease;
-                    "
-                >
+                <div id="collegamentoedits" class="collegamentoedit ombra fadeup">
                     <button style="position: absolute; top: 0px; right: 5px; background-color: transparent; border: none; cursor: pointer" onclick="closePopup()">
-                        <span class="close_div tastobianco" style="font-size: 20px; color: rgb(255, 255, 255)"
+                        <span class="close_div tastobianco" style="font-size: 20px"
                             >&times;<span class="linkbianco" style="font-size: small; position: relative; top: -3px; left: 3px">close</span></span
                         >
                     </button>
@@ -206,20 +189,20 @@
                 function getRandomBanner() {
                     const banners = [
                         `<div class="bannerino">
-                        <h2 style="color: rgb(255, 255, 255); padding-top: 11px">Hey you!</h2>
-                        <p style="color: rgb(255, 255, 255);">Check out my latest edits! - <a href="edits" class="linkbianco">click here</a></p>
+                        <h2 class="testobianco" style="padding-top: 11px">Hey you!</h2>
+                        <p class="testobianco">Check out my latest edits! - <a href="edits" class="linkbianco">click here</a></p>
                     </div>`,
                         `<div class="bannerino">
-                        <h2 style="color: rgb(255, 255, 255); padding-top: 11px">Hi bro!</h2>
-                        <p style="color: rgb(255, 255, 255);">Join my discord server - <a href="../discord" class="linkbianco">click here</a></p>
+                        <h2 class="testobianco" style="padding-top: 11px">Hi bro!</h2>
+                        <p class="testobianco">Join my discord server - <a href="../discord" class="linkbianco">click here</a></p>
                     </div>`,
                         `<div class="bannerino">
-                        <h2 style="color: rgb(255, 255, 255); padding-top: 11px">Hey dude!</h2>
-                        <p style="color: rgb(255, 255, 255);">join my telegram group - <a href="https://t.me/sburragrigliata" class="linkbianco">click here</a></p>
+                        <h2 class="testobianco" style="padding-top: 11px">Hey dude!</h2>
+                        <p class="testobianco">join my telegram group - <a href="https://t.me/sburragrigliata" class="linkbianco">click here</a></p>
                     </div>`,
                         `<div class="bannerino">
-                        <h2 style="color: rgb(255, 255, 255); padding-top: 11px">Hi man!</h2>
-                        <p style="color: rgb(255, 255, 255);"><a href="https://www.tiktok.com/@cripsum" class="linkbianco">Follow me on tiktok!</a></p>
+                        <h2 class="testobianco" style="padding-top: 11px">Hi man!</h2>
+                        <p class="testobianco"><a href="https://www.tiktok.com/@cripsum" class="linkbianco">Follow me on tiktok!</a></p>
                     </div>`,
                     ];
                     return banners[Math.floor(Math.random() * banners.length)];

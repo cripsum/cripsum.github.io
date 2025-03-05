@@ -180,26 +180,9 @@
                     transition: opacity 0.5s ease;
                 "
             >
-                <div
-                    id="collegamentoedits"
-                    class="collegamentoedit ombra fadeup"
-                    style="
-                        backdrop-filter: blur(15px);
-                        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(64, 64, 64, 0.1));
-                        box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5);
-                        padding: 20px;
-                        border: 1px solid rgba(255, 255, 255, 0.5);
-                        border-radius: 10px;
-                        max-width: 80%;
-                        text-align: center;
-                        position: relative;
-                        opacity: 0;
-                        transform: translateY(-20px);
-                        transition: opacity 0.5s ease, transform 0.5s ease;
-                    "
-                >
+                <div id="collegamentoedits" class="collegamentoedit ombra fadeup">
                     <button style="position: absolute; top: 0px; right: 5px; background-color: transparent; border: none; cursor: pointer" onclick="closePopup()">
-                        <span class="close_div tastobianco" style="font-size: 20px; color: rgb(255, 255, 255)"
+                        <span class="close_div tastobianco" style="font-size: 20px;"
                             >&times;<span class="linkbianco" style="font-size: small; position: relative; top: -3px; left: 3px">chiudi</span></span
                         >
                     </button>
@@ -211,20 +194,20 @@
                 function getRandomBanner() {
                     const banners = [
                         `<div class="bannerino">
-            <h2 style="color: rgb(255, 255, 255); padding-top: 11px">Hey tu!</h2>
-            <p style="color: rgb(255, 255, 255);">Dai un'occhiata ai miei ultimi edit! - <a href="edits" class="linkbianco">clicca qui</a></p>
+            <h2 style="padding-top: 11px">Hey tu!</h2>
+            <p class="testobianco">Dai un'occhiata ai miei ultimi edit! - <a href="edits" class="linkbianco">clicca qui</a></p>
         </div>`,
                         `<div class="bannerino">
-            <h2 style="color: rgb(255, 255, 255); padding-top: 11px">Ciao bro!</h2>
-            <p style="color: rgb(255, 255, 255);">Entra nel mio server discord - <a href="../discord" class="linkbianco">clicca qui</a></p>
+            <h2 class="testobianco" style="padding-top: 11px">Ciao bro!</h2>
+            <p class="testobianco">Entra nel mio server discord - <a href="../discord" class="linkbianco">clicca qui</a></p>
         </div>`,
                         `<div class="bannerino">
-            <h2 style="color: rgb(255, 255, 255); padding-top: 11px">Hey bro!</h2>
-            <p style="color: rgb(255, 255, 255);">Entra nel mio gruppo telegram - <a href="https://t.me/sburragrigliata" class="linkbianco">clicca qui</a></p>
+            <h2 class="testobianco" style="padding-top: 11px">Hey bro!</h2>
+            <p class="testobianco">Entra nel mio gruppo telegram - <a href="https://t.me/sburragrigliata" class="linkbianco">clicca qui</a></p>
         </div>`,
                         `<div class="bannerino">
-            <h2 style="color: rgb(255, 255, 255); padding-top: 11px">Buonasera!</h2>
-            <p style="color: rgb(255, 255, 255);"><a href="https://www.tiktok.com/@cripsum" class="linkbianco">Seguimi su tiktok!</a></p>
+            <h2 class="testobianco" style="padding-top: 11px">Buonasera!</h2>
+            <p class="testobianco"><a href="https://www.tiktok.com/@cripsum" class="linkbianco">Seguimi su tiktok!</a></p>
         </div>`,
                     ];
                     return banners[Math.floor(Math.random() * banners.length)];
