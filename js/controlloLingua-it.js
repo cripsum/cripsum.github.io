@@ -3,20 +3,24 @@ if (selectedLanguage === "🇬🇧 Eng") {
     const pathParts = window.location.pathname.split("/");
     const pageName = pathParts.pop();
     const newPath = pathParts.includes("en") ? pathParts.slice(0, -1).join("/") : pathParts.join("/");
+    document.querySelector(".selezione-lingua select").value = "🇮🇹 Ita";
     window.location.href = newPath + "/en/" + pageName;
 } else if (selectedLanguage === "🇮🇹 Ita") {
 }
 
 
 function salvaImpostazioni() {
-    const selectedLanguage = document.querySelector(".selezione select").value;
+
+    const selectedLanguage = document.querySelector(".selezione-lingua select").value;
     setCookie("language", selectedLanguage);
 
     if (selectedLanguage === "🇬🇧 Eng") {
         const pathParts = window.location.pathname.split("/");
         const pageName = pathParts.pop();
         const newPath = pathParts.includes("en") ? pathParts.slice(0, -1).join("/") : pathParts.join("/");
+        document.querySelector(".selezione-lingua select").value = "🇮🇹 Ita";
         window.location.href = newPath + "/en/" + pageName;
     } else if (selectedLanguage === "🇮🇹 Ita") {
+
     }
 }
