@@ -8,43 +8,47 @@ function getCookie(name) {
 }
 
 const selectedTheme = getCookie("theme") || 1;
-if (selectedTheme === 1) {
 
-    const link = document.querySelector('link[href="../js/style-dark.css"]');
-    if (!link) {
-        link.parentNode.addChild(link);
-    }
-    
-} else if (selectedTheme === 2) {
-
-    const link = document.querySelector('link[href="../js/style-dark.css"]');
-    if (link) {
-        link.parentNode.removeChild(link);
-    }
-
-} else if (selectedTheme === 3) {
-
-}
-
-
-function controllaTema() {
-    const selectedTheme = document.querySelector(".selezione-tema select").id;
-    setCookie("theme", selectedTheme);
+    const darkThemeHref = "../css/style-dark.css"; 
+    let link = document.querySelector(`link[href="${darkThemeHref}"]`);
 
     if (selectedTheme === 1) {  
-        const link = document.querySelector('link[href="../js/style-dark.css"]');
-        if (!link) {
-            link.parentNode.addChild(link);
+        if (!link) { // Se il foglio di stile non esiste, lo aggiunge
+            link = document.createElement("link");
+            link.rel = "stylesheet";
+            link.href = darkThemeHref;
+            document.head.appendChild(link);
         }
 
-    } else if (selectedTheme === 2) {
-
-        const link = document.querySelector('link[href="../js/style-dark.css"]');
-        if (link) {
+    } else if (selectedTheme === 2) {  
+        if (link) { // Se il foglio di stile esiste, lo rimuove
             link.parentNode.removeChild(link);
         }
+    } else if (selectedTheme === 3) {
 
+    }
 
+function controllaTema() {
+    const selectElement = document.querySelector(".selezione-tema select");
+    const selectedTheme = parseInt(selectElement.value); // Prende il valore corretto
+
+    setCookie("theme", selectedTheme); 
+
+    const darkThemeHref = "../css/style-dark.css"; 
+    let link = document.querySelector(`link[href="${darkThemeHref}"]`);
+
+    if (selectedTheme === 1) {  
+        if (!link) { // Se il foglio di stile non esiste, lo aggiunge
+            link = document.createElement("link");
+            link.rel = "stylesheet";
+            link.href = darkThemeHref;
+            document.head.appendChild(link);
+        }
+
+    } else if (selectedTheme === 2) {  
+        if (link) { // Se il foglio di stile esiste, lo rimuove
+            link.parentNode.removeChild(link);
+        }
     } else if (selectedTheme === 3) {
 
     }
