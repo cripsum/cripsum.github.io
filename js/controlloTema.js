@@ -10,7 +10,9 @@ function getCookie(name) {
 const selectedTheme = getCookie("theme") || 1;
 
     const darkThemeHref = "../css/style-dark.css"; 
+    const lightThemeHref = "../css/style-light.css";
     let link = document.querySelector(`link[href="${darkThemeHref}"]`);
+    let linklight = document.querySelector(`link[href="${lightThemeHref}"]`);
 
     if (selectedTheme === 1) {  
         if (!link) { // Se il foglio di stile non esiste, lo aggiunge
@@ -18,11 +20,17 @@ const selectedTheme = getCookie("theme") || 1;
             link.rel = "stylesheet";
             link.href = darkThemeHref;
             document.head.appendChild(link);
+            document.head.removeChild(linklight);
+
         }
 
     } else if (selectedTheme === 2) {  
         if (link) { // Se il foglio di stile esiste, lo rimuove
             document.head.removeChild(link);
+            linklight = document.createElement("link");
+            linklight.rel = "stylesheet";
+            linklight.href = lightThemeHref;
+            document.head.appendChild(linklight);
         }
     } else if (selectedTheme === 3) {
 
@@ -35,7 +43,9 @@ function controllaTema() {
     setCookie("theme", selectedTheme); 
 
     const darkThemeHref = "../css/style-dark.css"; 
+    const lightThemeHref = "../css/style-light.css";
     let link = document.querySelector(`link[href="${darkThemeHref}"]`);
+    let linklight = document.querySelector(`link[href="${lightThemeHref}"]`);
 
     if (selectedTheme === 1) {  
         if (!link) { // Se il foglio di stile non esiste, lo aggiunge
@@ -43,11 +53,16 @@ function controllaTema() {
             link.rel = "stylesheet";
             link.href = darkThemeHref;
             document.head.appendChild(link);
+            document.head.removeChild(linklight);
         }
 
     } else if (selectedTheme === 2) {  
         if (link) { // Se il foglio di stile esiste, lo rimuove
             document.head.removeChild(link);
+            linklight = document.createElement("link");
+            linklight.rel = "stylesheet";
+            linklight.href = lightThemeHref;
+            document.head.appendChild(linklight);
         }
     } else if (selectedTheme === 3) {
 

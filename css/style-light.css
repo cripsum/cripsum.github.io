@@ -2,16 +2,17 @@ img {
     border-radius: 10px;
 }
 body {
-    background-color: #121212;
+    color: rgb(32, 32, 32);
+    background-color: #e1dfdb;
 }
 
 .testobianco {
-    color: white;
+    color: rgb(32, 32, 32);
     /* text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);*/
 }
 
 .linkbianco {
-    color: white;
+    color: rgb(32, 32, 32);
     font-weight: bold;
     text-decoration: none;
     position: relative;
@@ -21,7 +22,7 @@ body {
 }
 
 .tastobianco {
-    color: white;
+    color: rgb(32, 32, 32);
     font-weight: bold;
     text-decoration: none;
     position: relative;
@@ -29,7 +30,7 @@ body {
 }
 
 hr.rounded {
-    border-top: 4px solid rgb(255, 255, 255);
+    border-top: 4px solid rgb(32, 32, 32);
     /*border-radius: 5px;*/
     max-width: 75%;
     margin: auto;
@@ -44,32 +45,33 @@ hr.rounded {
     font-size: 16px;
     text-decoration: none;
     background-color: #303033;
-    color: #e1dfdb;
+    color: rgb(32, 32, 32);
     border-radius: 8px;
     transition: background-color 0.3s ease;
 }
 
 .imgbianca {
-    filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0.5));
+    filter: drop-shadow(0 0 0px rgba(0, 0, 0, 0.5));
     transition: filter 0.3s ease, transform 0.3s ease;
+    fill: black;
 }
 
 .imgbianca:hover {
-    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
     transform: scale(1.1);
 }
 
 .linkbianco:hover {
-    color: #ffffff;
+    color: rgb(32, 32, 32);
     transform: scale(1.1);
-    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
-    border-bottom-color: white;
+    text-shadow: 0 0 18px rgba(0, 0, 0, 0.7), 0 0 15px rgba(0, 0, 0, 0.5);
+    border-bottom-color: rgb(0, 0, 0);
 }
 
 .tastobianco:hover {
-    color: #ffffff;
+    color: rgb(32, 32, 32);
     transform: scale(1.1);
-    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
+    text-shadow: 0 0 18px rgba(70, 70, 70, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
 }
 
 .navbarutenti {
@@ -90,7 +92,7 @@ hr.rounded {
 .dropdownlingua {
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-    background: linear-gradient(135deg, rgba(43, 43, 43, 0.8), rgb(24, 24, 24));
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgb(252, 252, 252));
     border: 0px solid rgba(255, 255, 255, 0);
     border-radius: 8px;
     box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
@@ -99,7 +101,7 @@ hr.rounded {
 .dropdownutenti .dropdown-menu {
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-    background: linear-gradient(135deg, rgba(43, 43, 43, 0.8), rgb(24, 24, 24));
+    background: linear-gradient(135deg, #e1dfdb, rgb(255, 254, 254));
     border: 0px solid rgba(255, 255, 255, 0);
     border-radius: 8px;
     box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
@@ -107,26 +109,26 @@ hr.rounded {
 }
 
 .dropdownutenti .dropdown-menu .dropdown-item {
-    color: white;
+    color: rgb(32, 32, 32);
     font-weight: bold;
     transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease;
 }
 
 .dropdownutenti .dropdown-menu .dropdown-item:hover {
-    color: #ffffff;
+    color: rgb(32, 32, 32);
     transform: scale(1.1);
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
-    background-color: rgba(0, 0, 0, 0);
+    text-shadow: 0 0 8px rgba(0, 0, 0, 0.7), 0 0 15px rgba(0, 0, 0, 0.5);
+    background-color: rgb(0, 0, 0);
 }
 
 .navbarutenti .nav-link {
-    color: white;
+    color: rgb(32, 32, 32);
     font-weight: bold;
     transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease;
 }
 
 .link-lingua {
-    color: white;
+    color: rgb(32, 32, 32);
     font-weight: bold;
     transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease;
     background-color: rgba(0, 0, 0, 0);
@@ -134,17 +136,17 @@ hr.rounded {
 
 .navbarutenti .nav-link:hover,
 .navbarutenti .nav-link:focus {
-    color: #ffffff;
+    color: rgb(32, 32, 32);
     transform: scale(1.1);
-    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
+    text-shadow: 0 0 18px rgba(0, 0, 0, 0.7), 0 0 15px rgba(0, 0, 0, 0.5);
 }
 
 .link-lingua:hover,
 .link-lingua:focus {
-    color: #ffffff;
+    color: rgb(32, 32, 32);
     transform: scale(1.1);
-    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
-    background-color: rgba(0, 0, 0, 0);
+    text-shadow: 0 0 18px rgba(0, 0, 0, 0.7), 0 0 15px rgba(0, 0, 0, 0.5);
+    background-color: rgba(255, 255, 255, 0);
 }
 
 .navbarutenti .navbar-toggler {
@@ -158,9 +160,13 @@ hr.rounded {
     color: white;
 }
 
+.tastoimpostazioni {
+    color: rgb(32, 32, 32);
+}
+
 .bottone {
     max-width: 500px;
-    background-color: #303033;
+    background-color: #30303300;
     color: #ffffff;
     border-radius: 10px;
     padding-top: 5px;
@@ -168,7 +174,8 @@ hr.rounded {
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
     margin: auto;
     outline: none;
-    border: none;
+    border-color: rgb(32, 32, 32);
+    border-width: 2px;
 }
 
 .bottone:hover,
@@ -179,7 +186,7 @@ hr.rounded {
 }
 
 .bottone2 {
-    background-color: #303033;
+    background-color: #cccccc00;
     color: #ffffff;
     border-radius: 10px;
     padding-top: 5px;
@@ -187,7 +194,8 @@ hr.rounded {
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
     margin: auto;
     outline: none;
-    border: none;
+    border-color: rgb(32, 32, 32);
+    border-width: 2px;
 }
 
 .bottone2:hover,
@@ -368,21 +376,21 @@ radio:hover {
 @media only screen and (max-width: 1199px) {
     .navbarutenti .nav-link:hover,
     .navbarutenti .nav-link:focus {
-        color: #ffffff;
+        color: #111111;
         transform: scale(0.95);
-        text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
+        text-shadow: 0 0 18px rgba(0, 0, 0, 0.7), 0 0 15px rgba(0, 0, 0, 0.5);
     }
 
     .link-lingua:hover {
-        color: #ffffff;
+        color: #0e0e0e;
         transform: scale(0.95);
-        text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
+        text-shadow: 0 0 8px rgba(0, 0, 0, 0.7), 0 0 15px rgba(0, 0, 0, 0.5);
     }
 
     .dropdownutenti .dropdown-menu .dropdown-item:hover {
-        color: #ffffff;
+        color: #242424;
         transform: scale(0.95);
-        text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
+        text-shadow: 0 0 8px rgba(0, 0, 0, 0.7), 0 0 15px rgba(0, 0, 0, 0.5);
         background-color: rgba(0, 0, 0, 0);
     }
 
@@ -390,9 +398,9 @@ radio:hover {
         -webkit-backdrop-filter: blur(10px);
         backdrop-filter: blur(10px);
         background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(64, 64, 64, 0.2));
-        border: 0px solid rgba(255, 255, 255, 0.737);
+        border: 0px solid rgba(0, 0, 0, 0.737);
         border-radius: 8px;
-        box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5);
+        box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
     }
 }
 @media only screen and (max-width: 768px) {

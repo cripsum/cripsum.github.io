@@ -48,45 +48,6 @@ body {
     box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
 }
 
-.bottone {
-    max-width: 500px;
-    background-color: #303033;
-    color: #ffffff;
-    border-radius: 10px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    margin: auto;
-    outline: none;
-    border: none;
-}
-
-.bottone:hover,
-.bottone:focus {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(64, 64, 64, 0.1));
-    outline: none;
-    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5);
-}
-
-.bottone2 {
-    background-color: #303033;
-    color: #ffffff;
-    border-radius: 10px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    margin: auto;
-    outline: none;
-    border: none;
-}
-
-.bottone2:hover,
-.bottone2:focus {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(64, 64, 64, 0.1));
-    outline: none;
-    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5);
-}
-
 .bgdisclaimer {
     backdrop-filter: blur(10px);
     background: linear-gradient(135deg, rgba(201, 201, 201, 0.2), rgba(34, 34, 34, 0.2));
