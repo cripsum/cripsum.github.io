@@ -1,4 +1,4 @@
-const selectedLanguage = getCookie("language") || "🇮🇹 Ita";
+const selectedLanguage = getCookie("language") || "🇬🇧 Eng";
 if (selectedLanguage === "🇬🇧 Eng") {
     
 } else if (selectedLanguage === "🇮🇹 Ita") {
