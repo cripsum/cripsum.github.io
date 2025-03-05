@@ -28,8 +28,10 @@
         <link rel="stylesheet" href="../css/achievement-style.css" />
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="../js/animations.js"></script>
+
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Cripsum™</title>
+        <script src="../js/nomePagina.js"></script>
     </head>
 
     <body class="">
@@ -96,13 +98,18 @@
                     </ul>
                 </div>
             </div>
-            <div class="btn-group dropdown ms-auto me-3 linguanuova">
+            <div class="btn-group ms-auto me-3 linguanuova">
+                <button type="button" class="btn impostazioni-toggler" data-bs-toggle="modal" data-bs-target="#impostazioniModal" aria-expanded="false">
+                    <img src="../img/settings-icon.svg" alt="" style="width: 25px" class="link-lingua" />
+                </button>
+            </div>
+            <!--<div class="btn-group dropdown ms-auto me-3 linguanuova">
                 <button type="button" class="btn dropdown-toggle lingua-toggler" data-bs-toggle="dropdown" aria-expanded="false"><a class="link-lingua">🇮🇹</a></button>
                 <ul class="dropdown-menu dropdownlingua dropdown-menu-end animate slideIn">
                     <li><a class="dropdown-item link-lingua" href="#">🇮🇹 Ita</a></li>
                     <li><a class="dropdown-item link-lingua" href="../en/home">🇬🇧 Eng</a></li>
                 </ul>
-            </div>
+            </div> -->
         </nav>
         <!-- TO DO
            bloccare lo scorrimento della pagina quando il menu della navbar è aperto (aggiungere classe overflow-hidden al body) 
@@ -243,6 +250,12 @@
                 window.onload = function () {
                     setTimeout(showPopup, 700);
                 };
+
+                function cancellaCookies() {
+                    document.cookie.split(";").forEach(function (cookie) {
+                        document.cookie = cookie.split("=")[0] + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+                    });
+                }
             </script>
 
             <div id="disclaimer" class="divdisclaimer fadeup">
@@ -280,6 +293,40 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal">Chiudi</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="impostazioniModal" tabindex="-1" aria-labelledby="impostazioniModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content bgimpostazioni">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="impostazioniModalLabel">Impostazioni</h5>
+                            <!--<button type="button" class="btn-close tastobianco" data-bs-dismiss="modal" aria-label="Close" onclick="close_disclaimer(1)" style="color: #ffffff"></button>-->
+                        </div>
+                        <div class="modal-body">
+                            <div class="btn-group dropend ms-auto me-3 linguanuova">
+                                <button type="button" class="btn dropdown-toggle lingua-toggler" data-bs-toggle="dropdown" aria-expanded="false"><a class="link-lingua">Lingua: 🇮🇹</a></button>
+                                <ul class="dropdown-menu dropdownlingua animate slideLeft">
+                                    <li><a class="dropdown-item link-lingua" href="#">🇮🇹 Ita</a></li>
+                                    <li><a class="dropdown-item link-lingua" href="../en/home">🇬🇧 Eng</a></li>
+                                </ul>
+                            </div>
+
+                            <div data-mdb-input-init class="form-outline mb-4" style="text-align: center">
+                                <label class="form-label" for="registerName">Selezione Tema</label>
+                                <select class="animate slideIn">
+                                    <option selected value="1">Dark theme</option>
+                                    <option value="2">Light theme</option>
+                                    <option value="3">OG theme</option>
+                                </select>
+                                <br />
+                                <button type="button" class="btn btn-secondary bottone mt-4" data-bs-dismiss="modal" onclick="cancellaCookies()">Cancella cookies</button>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="salvaPreferenze()">Salva Preferenze</button>
                         </div>
                     </div>
                 </div>

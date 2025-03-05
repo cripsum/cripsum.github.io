@@ -82,9 +82,48 @@
     }
 }
 
+@keyframes slideLeft {
+    0% {
+        transform: translateX(5.5rem);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateX(6.5rem);
+        opacity: 1;
+    }
+
+    0% {
+        transform: translateX(5.5rem);
+        opacity: 0;
+    }
+}
+
+@-webkit-keyframes slideLeft {
+    0% {
+        -webkit-transform: transform;
+        -webkit-opacity: 0;
+    }
+
+    100% {
+        -webkit-transform: translateX(6.5);
+        -webkit-opacity: 1;
+    }
+
+    0% {
+        -webkit-transform: translateX(5.5rem);
+        -webkit-opacity: 0;
+    }
+}
+
 .slideIn {
     -webkit-animation-name: slideIn;
     animation-name: slideIn;
+}
+
+.slideLeft {
+    -webkit-animation-name: slideLeft;
+    animation-name: slideLeft;
 }
 
 .animateLingua {
