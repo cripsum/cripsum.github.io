@@ -11,7 +11,7 @@ const selectedLanguage = getCookie("language") || "🇮🇹 Ita";
 if (selectedLanguage === "🇬🇧 Eng") {
     const pageName = window.location.pathname.split("/").pop();
 
-    window.location.href = "../../en/" + pageName;
+    window.location.href = "cripsum.com/en/" + pageName;
 } else if (selectedLanguage === "🇮🇹 Ita") {
 }
 
