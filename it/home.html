@@ -255,6 +255,7 @@
                     document.cookie.split(";").forEach(function (cookie) {
                         document.cookie = cookie.split("=")[0] + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
                     });
+                    alert("All cookies have been deleted.");
                 }
             </script>
 
@@ -305,10 +306,10 @@
                             <h5 class="modal-title" id="impostazioniModalLabel">Impostazioni</h5>
                             <!--<button type="button" class="btn-close tastobianco" data-bs-dismiss="modal" aria-label="Close" onclick="close_disclaimer(1)" style="color: #ffffff"></button>-->
                         </div>
-                        <div class="modal-body">
-                            <div class="btn-group dropend ms-auto me-4 linguanuova">
-                                <label class="form-label" for="registerName" style="margin-top: 10px; padding-right: 10px">Selezione Lingua</label>
-                                <select class="animate slideIn" style="max-width: 40%">
+                        <div class="modal-body text-center">
+                            <div data-mdb-input-init class="form-outline">
+                                <label class="form-label" for="registerName">Selezione Lingua</label>
+                                <select class="animate slideIn" style="max-width: 25%; margin-left: 10px">
                                     <option selected value="1">🇮🇹 Ita</option>
                                     <option value="2">🇬🇧 Eng</option>
                                 </select>
@@ -318,7 +319,7 @@
 
                             <div data-mdb-input-init class="form-outline" style="margin-top: 30px">
                                 <label class="form-label" for="registerName">Selezione Tema</label>
-                                <select class="animate slideIn" style="max-width: 25%">
+                                <select class="animate slideIn" style="max-width: 25%; margin-left: 15px">
                                     <option selected value="1">Dark theme</option>
                                     <option value="2">Light theme</option>
                                     <option value="3">OG theme</option>
