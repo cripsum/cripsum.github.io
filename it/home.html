@@ -306,17 +306,19 @@
                             <!--<button type="button" class="btn-close tastobianco" data-bs-dismiss="modal" aria-label="Close" onclick="close_disclaimer(1)" style="color: #ffffff"></button>-->
                         </div>
                         <div class="modal-body">
-                            <div class="btn-group dropend ms-auto me-3 linguanuova">
-                                <button type="button" class="btn dropdown-toggle lingua-toggler" data-bs-toggle="dropdown" aria-expanded="false"><a class="link-lingua">Lingua: 🇮🇹</a></button>
-                                <ul class="dropdown-menu dropdownlingua animate slideLeft">
-                                    <li><a class="dropdown-item link-lingua" href="#">🇮🇹 Ita</a></li>
-                                    <li><a class="dropdown-item link-lingua" href="../en/home">🇬🇧 Eng</a></li>
-                                </ul>
+                            <div class="btn-group dropend ms-auto me-4 linguanuova">
+                                <label class="form-label" for="registerName" style="margin-top: 10px; padding-right: 10px">Selezione Lingua</label>
+                                <select class="animate slideIn" style="max-width: 40%">
+                                    <option selected value="1">🇮🇹 Ita</option>
+                                    <option value="2">🇬🇧 Eng</option>
+                                </select>
                             </div>
 
-                            <div data-mdb-input-init class="form-outline mb-4" style="text-align: center">
+                            <!--TODO: cambiare emoji lingua con degli svg fatti bene (porco dio)-->
+
+                            <div data-mdb-input-init class="form-outline" style="margin-top: 30px">
                                 <label class="form-label" for="registerName">Selezione Tema</label>
-                                <select class="animate slideIn">
+                                <select class="animate slideIn" style="max-width: 25%">
                                     <option selected value="1">Dark theme</option>
                                     <option value="2">Light theme</option>
                                     <option value="3">OG theme</option>
