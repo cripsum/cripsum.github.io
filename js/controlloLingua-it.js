@@ -10,7 +10,8 @@ function getCookie(name) {
 const selectedLanguage = getCookie("language") || "🇮🇹 Ita";
 if (selectedLanguage === "🇬🇧 Eng") {
     const pageName = window.location.pathname.split("/").pop();
-    window.location.href = "../en/" + pageName;
+
+    window.location.href = "../../en/" + pageName;
 } else if (selectedLanguage === "🇮🇹 Ita") {
 }
 
