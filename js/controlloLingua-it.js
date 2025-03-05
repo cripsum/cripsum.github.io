@@ -16,7 +16,7 @@ if (selectedLanguage === "🇬🇧 Eng") {
 }
 
 
-function salvaImpostazioni() {
+function controllaLingua() {
     const selectedLanguage = document.querySelector(".selezione select").value;
     setCookie("language", selectedLanguage);
 

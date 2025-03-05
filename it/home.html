@@ -30,6 +30,7 @@
         <script src="../js/animations.js"></script>
 
         <script src="../js/controlloLingua-it.js"></script>
+        <script src="../js/controlloTema.js"></script>
         <script src="../js/unlockAchievement-it.js"></script>
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -142,6 +143,11 @@
 
                 // Check time spent every second
                 setInterval(checkTimeSpent, 1000);
+
+                function salvaImpostazioni() {
+                    controllaLingua();
+                    controllaTema();
+                }
             </script>
             <script>
                 function close_div(id) {
