@@ -22,7 +22,7 @@ const selectedTheme = getCookie("theme") || 1;
 
     } else if (selectedTheme === 2) {  
         if (link) { // Se il foglio di stile esiste, lo rimuove
-            link.parentNode.removeChild(link);
+            document.head.removeChild(link);
         }
     } else if (selectedTheme === 3) {
 
@@ -47,7 +47,7 @@ function controllaTema() {
 
     } else if (selectedTheme === 2) {  
         if (link) { // Se il foglio di stile esiste, lo rimuove
-            link.parentNode.removeChild(link);
+            document.head.removeChild(link);
         }
     } else if (selectedTheme === 3) {
 
