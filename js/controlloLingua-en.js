@@ -12,7 +12,7 @@ if (selectedLanguage === "🇬🇧 Eng") {
     
 } else if (selectedLanguage === "🇮🇹 Ita") {
      const pageName = window.location.pathname.split("/").pop();
-    window.location.href = "cripsum.com/it/" + pageName;
+    window.location.href = "https://cripsum.com/it/" + pageName;
 } 
 
 
