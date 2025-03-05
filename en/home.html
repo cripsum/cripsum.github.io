@@ -28,8 +28,10 @@
         <link rel="stylesheet" href="../css/achievement-style.css" />
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="../js/animations.js"></script>
+        <script src="../js/controlloLingua-en.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Cripsum™</title>
+        <script src="../js/nomePagina.js"></script>
     </head>
 
     <body class="">
@@ -96,12 +98,17 @@
                     </ul>
                 </div>
             </div>
-            <div class="btn-group dropdown ms-auto me-3 linguanuova">
+            <!--<div class="btn-group dropdown ms-auto me-3 linguanuova">
                 <button type="button" class="btn dropdown-toggle lingua-toggler" data-bs-toggle="dropdown" aria-expanded="false"><a class="link-lingua">🇬🇧</a></button>
                 <ul class="dropdown-menu dropdownlingua dropdown-menu-end animate slideIn">
                     <li><a class="dropdown-item link-lingua" href="../it/home">🇮🇹 Ita</a></li>
                     <li><a class="dropdown-item link-lingua" href="#">🇬🇧 Eng</a></li>
                 </ul>
+            </div>-->
+            <div class="btn-group ms-auto me-3 linguanuova">
+                <button type="button" class="btn impostazioni-toggler" data-bs-toggle="modal" data-bs-target="#impostazioniModal" aria-expanded="false">
+                    <img src="../img/settings-icon.svg" alt="" style="width: 25px" class="link-lingua" />
+                </button>
             </div>
         </nav>
 
@@ -277,6 +284,41 @@
                 </div>
             </div>
 
+            <div class="modal fade" id="impostazioniModal" tabindex="-1" aria-labelledby="impostazioniModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content bgimpostazioni">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="impostazioniModalLabel">Settings</h5>
+                            <!--<button type="button" class="btn-close tastobianco" data-bs-dismiss="modal" aria-label="Close" onclick="close_disclaimer(1)" style="color: #ffffff"></button>-->
+                        </div>
+                        <div class="modal-body text-center">
+                            <div data-mdb-input-init class="form-outline selezione selezione-lingua">
+                                <label class="form-label" for="registerName">Select Language</label>
+                                <select class="animate slideIn" style="max-width: 25%; margin-left: 10px">
+                                    <option id="1">🇮🇹 Ita</option>
+                                    <option selected id="2">🇬🇧 Eng</option>
+                                </select>
+                            </div>
+
+                            <!--TODO: cambiare emoji lingua con degli svg fatti bene (porco dio)-->
+
+                            <div data-mdb-input-init class="form-outline selezione selezione-tema" style="margin-top: 30px">
+                                <label class="form-label" for="registerName">Select Theme</label>
+                                <select class="animate slideIn" style="max-width: 25%; margin-left: 15px">
+                                    <option selected id="1">Dark theme</option>
+                                    <option id="2">Light theme</option>
+                                    <option id="3">OG theme</option>
+                                </select>
+                                <br />
+                                <button type="button" class="btn btn-secondary bottone mt-4" data-bs-dismiss="modal" onclick="cancellaCookies()">Delete all cookies</button>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="salvaImpostazioni()">Save preferences</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <!--            <div class="divdisclaimer">
         <p class="d-inline-flex gap-1">
             <p class="text-center fs-5 text disclaimer" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
