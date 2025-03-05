@@ -30,7 +30,7 @@ const selectedTheme = getCookie("theme") || 1;
 
 function controllaTema() {
     const selectElement = document.querySelector(".selezione-tema select");
-    const selectedTheme = parseInt(selectElement.value); // Prende il valore corretto
+    const selectedTheme = parseInt(selectElement.id); // Prende il valore corretto
 
     setCookie("theme", selectedTheme); 
 
