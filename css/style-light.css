@@ -51,13 +51,12 @@ hr.rounded {
 }
 
 .imgbianca {
-    filter: drop-shadow(0 0 0px rgba(0, 0, 0, 0.5));
-    transition: filter 0.3s ease, transform 0.3s ease;
+    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+    transition: transform 0.3s ease;
     fill: black;
 }
 
 .imgbianca:hover {
-    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
     transform: scale(1.1);
 }
 
