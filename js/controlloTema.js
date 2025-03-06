@@ -44,7 +44,7 @@ const selectedTheme = getCookie("theme") || 1;
 
         linkog = document.createElement("link");
         linkog.rel = "stylesheet";
-        linkog.href = lightThemeHref;
+        linkog.href = ogThemeHref;
         document.head.appendChild(linkog);
         }
     }
@@ -88,7 +88,7 @@ function controllaTema() {
 
         linkog = document.createElement("link");
         linkog.rel = "stylesheet";
-        linkog.href = lightThemeHref;
+        linkog.href = ogThemeHref;
         document.head.appendChild(linkog);
         }
     }
