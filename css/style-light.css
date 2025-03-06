@@ -358,7 +358,7 @@ select {
 
 select:focus {
     outline: none;
-    background-color: #c5c5c5;
+    background-color: #ffffff;
     border-color: rgba(255, 255, 255, 0.5);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }

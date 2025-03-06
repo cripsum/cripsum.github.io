@@ -25,10 +25,6 @@ body {
     padding-top: 1rem;
 }
 
-.navbarutenti {
-    color: #212121;
-}
-
 .loading {
     align-items: center;
     display: flex;
@@ -407,7 +403,7 @@ select {
 
 select:focus {
     outline: none;
-    background-color: #444;
+    background-color: #ffffff;
     border-color: rgba(255, 255, 255, 0.5);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
@@ -485,18 +481,25 @@ select:focus {
 }
 
 @media only screen and (max-width: 1199px) {
-    .lingua {
-        margin-top: -50px;
+    .lingua-toggler {
+        padding-left: 6px;
+        padding-right: 6px;
+    }
+
+    .navbar-toggler {
+        padding-left: 6px;
+        padding-right: 6px;
     }
 
     .linguanuova {
         right: 40px;
         top: 0;
-        position: fixed;
+        position: absolute;
         z-index: 1000;
         margin-top: 14px;
     }
 }
+
 @media only screen and (max-width: 1280px) {
     .imagi {
         max-width: 75%;
