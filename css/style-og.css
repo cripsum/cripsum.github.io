@@ -9,7 +9,7 @@
 }
 
 body {
-    font-family: "Comic Sans MS", "Comic Sans", cursive;
+    font-family: "Comic Sans MS", "Comic Sans";
     background-image: url("../img/sfondo-og.jpg");
     background-size: cover;
     background-position: center;
@@ -471,41 +471,6 @@ select:focus {
 }
 .godo2 {
     display: flex;
-}
-
-select {
-    /* Reset */
-    appearance: none;
-    border: 0;
-    outline: 0;
-    font: inherit;
-    /* Personalize */
-    width: 20rem;
-    padding: 1rem 4rem 1rem 1rem;
-    background: var(--arrow-icon) no-repeat right 0.8em center / 1.4em, linear-gradient(to left, var(--arrow-bg) 3em, var(--select-bg) 3em);
-    color: white;
-    border-radius: 0.25em;
-    box-shadow: 0 0 1em 0 rgba(0, 0, 0, 0.2);
-    cursor: pointer;
-    /* Remove IE arrow */
-    &::-ms-expand {
-        display: none;
-    }
-    /* Remove focus outline */
-    &:focus {
-        outline: none;
-    }
-    /* <option> colors */
-    option {
-        color: inherit;
-        background-color: var(--option-bg);
-    }
-    option:hover {
-        background-color: rgb(85, 85, 85);
-    }
-    option:focus {
-        background-color: rgb(85, 85, 85);
-    }
 }
 
 @keyframes textAnimate {
