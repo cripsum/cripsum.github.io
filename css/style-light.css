@@ -6,6 +6,12 @@ body {
     background-color: #e1dfdb;
 }
 
+.paginaprincipale {
+    max-width: 1520px;
+    margin: auto;
+    padding-top: 5rem;
+}
+
 .testobianco {
     color: rgb(32, 32, 32);
     /* text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);*/

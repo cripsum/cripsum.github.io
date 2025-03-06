@@ -19,6 +19,12 @@ body {
     color: #212121;
 }
 
+.paginaprincipale {
+    max-width: 1520px;
+    margin: auto;
+    padding-top: 1rem;
+}
+
 .loading {
     align-items: center;
     display: flex;
