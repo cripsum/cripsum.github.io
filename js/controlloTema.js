@@ -22,14 +22,24 @@ const selectedTheme = getCookie("theme") || 1;
             link.rel = "stylesheet";
             link.href = darkThemeHref;
             document.head.appendChild(link);
-
+        }
+        if (linklight) {
             document.head.removeChild(linklight);
+        }
+        if (linkog) {
             document.head.removeChild(linkog);
         }
 
     } else if (selectedTheme === 2) {  
-        if (link || linkog) { // Se il foglio di stile esiste, lo rimuove
+        if (link) { // Se il foglio di stile esiste, lo rimuove
             document.head.removeChild(link);
+
+            linklight = document.createElement("link");
+            linklight.rel = "stylesheet";
+            linklight.href = lightThemeHref;
+            document.head.appendChild(linklight);
+        }
+        else if (linkog) {
             document.head.removeChild(linkog);
 
             linklight = document.createElement("link");
@@ -37,15 +47,23 @@ const selectedTheme = getCookie("theme") || 1;
             linklight.href = lightThemeHref;
             document.head.appendChild(linklight);
         }
+
     } else if (selectedTheme === 3) {
-        if (link || linklight) {
+        if (link) {
         document.head.removeChild(link);
-        document.head.removeChild(linklight);
 
         linkog = document.createElement("link");
         linkog.rel = "stylesheet";
         linkog.href = ogThemeHref;
         document.head.appendChild(linkog);
+        }
+        else if (linklight) {
+            document.head.removeChild(linklight);
+
+            linkog = document.createElement("link");
+            linkog.rel = "stylesheet";
+            linkog.href = ogThemeHref;
+            document.head.appendChild(linkog);
         }
     }
 
@@ -68,28 +86,48 @@ function controllaTema() {
             link.rel = "stylesheet";
             link.href = darkThemeHref;
             document.head.appendChild(link);
+        }
+        if (linklight) {
             document.head.removeChild(linklight);
+        }
+        if (linkog) {
             document.head.removeChild(linkog);
         }
 
     } else if (selectedTheme === 2) {  
-        if (link || linkog) { // Se il foglio di stile esiste, lo rimuove
+        if (link) { // Se il foglio di stile esiste, lo rimuove
             document.head.removeChild(link);
-            document.head.removeChild(linkog);
+
             linklight = document.createElement("link");
             linklight.rel = "stylesheet";
             linklight.href = lightThemeHref;
             document.head.appendChild(linklight);
         }
+        else if (linkog) {
+            document.head.removeChild(linkog);
+
+            linklight = document.createElement("link");
+            linklight.rel = "stylesheet";
+            linklight.href = lightThemeHref;
+            document.head.appendChild(linklight);
+        }
+
     } else if (selectedTheme === 3) {
-        if (link || linklight) {
+        if (link) {
         document.head.removeChild(link);
-        document.head.removeChild(linklight);
 
         linkog = document.createElement("link");
         linkog.rel = "stylesheet";
         linkog.href = ogThemeHref;
         document.head.appendChild(linkog);
+        }
+        else if (linklight) {
+            document.head.removeChild(linklight);
+
+            linkog = document.createElement("link");
+            linkog.rel = "stylesheet";
+            linkog.href = ogThemeHref;
+            document.head.appendChild(linkog);
         }
     }
 }
