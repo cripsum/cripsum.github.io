@@ -14,7 +14,7 @@ const selectedTheme = getCookie("theme") || 1;
     const ogThemeHref = "../css/style-og.css";
     let link = document.querySelector(`link[href="${darkThemeHref}"]`);
     let linklight = document.querySelector(`link[href="${lightThemeHref}"]`);
-    let linkog = document.querySelector(`link[href="${lightThemeHref}"]`);
+    let linkog = document.querySelector(`link[href="${ogThemeHref}"]`);
 
     if (selectedTheme === 1) {  
         if (!link) { // Se il foglio di stile non esiste, lo aggiunge
@@ -60,7 +60,7 @@ function controllaTema() {
     const ogThemeHref = "../css/style-og.css";
     let link = document.querySelector(`link[href="${darkThemeHref}"]`);
     let linklight = document.querySelector(`link[href="${lightThemeHref}"]`);
-    let linkog = document.querySelector(`link[href="${lightThemeHref}"]`);
+    let linkog = document.querySelector(`link[href="${ogThemeHref}"]`);
 
     if (selectedTheme === 1) {  
         if (!link) { // Se il foglio di stile non esiste, lo aggiunge
