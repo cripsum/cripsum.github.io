@@ -28,7 +28,7 @@ const selectedTheme = getCookie("theme") || 1;
         }
 
     } else if (selectedTheme === 2) {  
-        if (link) { // Se il foglio di stile esiste, lo rimuove
+        if (link || linkog) { // Se il foglio di stile esiste, lo rimuove
             document.head.removeChild(link);
             document.head.removeChild(linkog);
 
@@ -38,6 +38,7 @@ const selectedTheme = getCookie("theme") || 1;
             document.head.appendChild(linklight);
         }
     } else if (selectedTheme === 3) {
+        if (link || linklight) {
         document.head.removeChild(link);
         document.head.removeChild(linklight);
 
@@ -45,6 +46,7 @@ const selectedTheme = getCookie("theme") || 1;
         linkog.rel = "stylesheet";
         linkog.href = lightThemeHref;
         document.head.appendChild(linkog);
+        }
     }
 
 function controllaTema() {
@@ -71,7 +73,7 @@ function controllaTema() {
         }
 
     } else if (selectedTheme === 2) {  
-        if (link) { // Se il foglio di stile esiste, lo rimuove
+        if (link || linkog) { // Se il foglio di stile esiste, lo rimuove
             document.head.removeChild(link);
             document.head.removeChild(linkog);
             linklight = document.createElement("link");
@@ -80,6 +82,7 @@ function controllaTema() {
             document.head.appendChild(linklight);
         }
     } else if (selectedTheme === 3) {
+        if (link || linklight) {
         document.head.removeChild(link);
         document.head.removeChild(linklight);
 
@@ -87,5 +90,6 @@ function controllaTema() {
         linkog.rel = "stylesheet";
         linkog.href = lightThemeHref;
         document.head.appendChild(linkog);
+        }
     }
 }
