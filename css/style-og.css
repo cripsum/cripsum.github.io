@@ -387,6 +387,42 @@ a {
     animation: testo-arcobaleno 6s linear infinite;
 }
 
+select {
+    background-color: #cacaca;
+    color: rgb(0, 0, 0);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+select:focus {
+    outline: none;
+    background-color: #444;
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.collegamentoedit {
+    backdrop-filter: blur(15px);
+    background: linear-gradient(135deg, rgb(255, 255, 255), rgba(255, 255, 255, 0.87));
+    box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    max-width: 80%;
+    text-align: center;
+    position: relative;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
 @keyframes testo-arcobaleno {
     0% {
         background-position: 0% 50%;

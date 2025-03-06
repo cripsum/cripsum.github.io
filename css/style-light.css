@@ -342,8 +342,8 @@ textarea::-ms-input-placeholder {
 }
 
 select {
-    background-color: #333;
-    color: white;
+    background-color: #e2e2e2;
+    color: rgb(0, 0, 0);
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 8px;
     padding: 10px;
@@ -357,7 +357,7 @@ select {
 
 select:focus {
     outline: none;
-    background-color: #444;
+    background-color: #c5c5c5;
     border-color: rgba(255, 255, 255, 0.5);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
