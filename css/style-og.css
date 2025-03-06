@@ -25,6 +25,10 @@ body {
     padding-top: 1rem;
 }
 
+.navbarutenti {
+    color: #212121;
+}
+
 .loading {
     align-items: center;
     display: flex;
@@ -406,6 +410,11 @@ select:focus {
     background-color: #444;
     border-color: rgba(255, 255, 255, 0.5);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.bottone a {
+    color: #fff;
+    text-decoration: none;
 }
 
 .collegamentoedit {
