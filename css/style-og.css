@@ -4,12 +4,18 @@
     src: url(https://raw.githack.com/googlefonts/noto-emoji/main/fonts/NotoColorEmoji.ttf);
 }
 
+@font-face {
+    font-family: "ComicSansCustom";
+    src: url("../random stuff/Comic Sans MS.ttf") format("truetype");
+    font-display: swap;
+}
+
 .selezione {
     font-family: "NotoColorEmojiLimited", -apple-system, BlinkMacSystemFont, "poppins", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
 body {
-    font-family: "Comic Sans MS", "Comic Sans", sans-serif;
+    font-family: "ComicSansCustom", sans-serif;
     background-image: url("../img/sfondo-og.jpg");
     background-size: cover;
     background-position: center;
