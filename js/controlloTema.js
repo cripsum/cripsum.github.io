@@ -11,8 +11,10 @@ const selectedTheme = getCookie("theme") || 1;
 
     const darkThemeHref = "../css/style-dark.css"; 
     const lightThemeHref = "../css/style-light.css";
+    const ogThemeHref = "../css/style-og.css";
     let link = document.querySelector(`link[href="${darkThemeHref}"]`);
     let linklight = document.querySelector(`link[href="${lightThemeHref}"]`);
+    let linkog = document.querySelector(`link[href="${lightThemeHref}"]`);
 
     if (selectedTheme === 1) {  
         if (!link) { // Se il foglio di stile non esiste, lo aggiunge
@@ -20,20 +22,29 @@ const selectedTheme = getCookie("theme") || 1;
             link.rel = "stylesheet";
             link.href = darkThemeHref;
             document.head.appendChild(link);
-            document.head.removeChild(linklight);
 
+            document.head.removeChild(linklight);
+            document.head.removeChild(linkog);
         }
 
     } else if (selectedTheme === 2) {  
         if (link) { // Se il foglio di stile esiste, lo rimuove
             document.head.removeChild(link);
+            document.head.removeChild(linkog);
+
             linklight = document.createElement("link");
             linklight.rel = "stylesheet";
             linklight.href = lightThemeHref;
             document.head.appendChild(linklight);
         }
     } else if (selectedTheme === 3) {
+        document.head.removeChild(link);
+        document.head.removeChild(linklight);
 
+        linkog = document.createElement("link");
+        linkog.rel = "stylesheet";
+        linkog.href = lightThemeHref;
+        document.head.appendChild(linkog);
     }
 
 function controllaTema() {
@@ -44,8 +55,10 @@ function controllaTema() {
 
     const darkThemeHref = "../css/style-dark.css"; 
     const lightThemeHref = "../css/style-light.css";
+    const ogThemeHref = "../css/style-og.css";
     let link = document.querySelector(`link[href="${darkThemeHref}"]`);
     let linklight = document.querySelector(`link[href="${lightThemeHref}"]`);
+    let linkog = document.querySelector(`link[href="${lightThemeHref}"]`);
 
     if (selectedTheme === 1) {  
         if (!link) { // Se il foglio di stile non esiste, lo aggiunge
@@ -54,17 +67,25 @@ function controllaTema() {
             link.href = darkThemeHref;
             document.head.appendChild(link);
             document.head.removeChild(linklight);
+            document.head.removeChild(linkog);
         }
 
     } else if (selectedTheme === 2) {  
         if (link) { // Se il foglio di stile esiste, lo rimuove
             document.head.removeChild(link);
+            document.head.removeChild(linkog);
             linklight = document.createElement("link");
             linklight.rel = "stylesheet";
             linklight.href = lightThemeHref;
             document.head.appendChild(linklight);
         }
     } else if (selectedTheme === 3) {
+        document.head.removeChild(link);
+        document.head.removeChild(linklight);
 
+        linkog = document.createElement("link");
+        linkog.rel = "stylesheet";
+        linkog.href = lightThemeHref;
+        document.head.appendChild(linkog);
     }
 }
