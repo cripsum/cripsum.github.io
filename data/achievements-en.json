@@ -134,5 +134,13 @@
         "points": 50,
         "locked": true,
         "image": "../img/segone4.png"
+    },
+    {
+        "id": 18,
+        "title": "Go touch some grass",
+        "description": "Unlock all the achievements",
+        "points": 500,
+        "locked": true,
+        "image": "../img/segone4.png"
     }
 ]
