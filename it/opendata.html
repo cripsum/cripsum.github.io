@@ -40,10 +40,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   
-  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <style>
@@ -380,16 +378,14 @@
   </div>
 
 <script>
-  // Initialize the map
-  var map = L.map('map').setView([45.1334796, 10.0248716], 15); // Centered at San Francisco
 
-  // Add OpenStreetMap base layer
+  var map = L.map('map').setView([45.1334796, 10.0248716], 15); 
+
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 
-  // Example GeoJSON data (you can also load it from a file)
   var geojsonData = {
   "type": "FeatureCollection",
   "features": [
@@ -25656,7 +25652,6 @@
   ]
 };
 
-  // Add GeoJSON to the map
   L.geoJSON(geojsonData).addTo(map);
 </script>
           
