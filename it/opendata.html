@@ -68,7 +68,7 @@
     }
     .column {
       flex: 1;
-        display:block;
+        display:flex;
     }
       .column-intera{
       display:none;
@@ -88,7 +88,8 @@
       display: none;
     }
     .column-intera{
-      display:block;
+        flex: 1;
+      display:flex;
       }
       }
   </style>
@@ -394,7 +395,8 @@
           <li class="fadeup">Via Voghera Luigi</li>
           <li class="fadeup">Via Virgilio</li>
         </ul>
-          <div class="column-intera">
+    </div>
+        <div class="column-intera">
         <ul>
           <li class="fadeup">Via Anguissola Sofonisba</li>
           <li class="fadeup">Via Antico Rodano</li>
@@ -471,7 +473,6 @@
           <li class="fadeup">Via Virgilio</li>
         </ul>
       </div>
-    </div>
 <hr class="rounded fadeuphr mt-5 mb-5" />
                 <h2 class="fadeup mt-3 mb-3">Mappa delle vie in ZTL</h2>
                 <div id="map" class="fadeup"></div>
