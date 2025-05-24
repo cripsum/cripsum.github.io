@@ -8,22 +8,22 @@ const pageMap = {
     state: "Esplora la homepage",
     imageText: "Benvenuto nel sito"
   },
-  "/home": {
+  "/it/home": {
     title: "Home", 
     state: "Esplora la homepage",
     imageText: "Benvenuto nel sito"
   },
-  "/negozio": {
+  "/it/negozio": {
     title: "Negozio",
     state: "Acquistando minchiate",
     imageText: "Negozio online"
   },
-  "/chisiamo": {
+  "/it/chisiamo": {
     title: "Chi siamo",
     state: "Scoprendo il nostro team",
     imageText: "La nostra storia"
   },
-  "/edits": {
+  "/it/edits": {
     title: "Edits", 
     state: "Guardando gli edit",
     imageText: "Edits e creazioni"
