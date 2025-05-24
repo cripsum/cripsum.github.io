@@ -24,6 +24,9 @@
               const iconShortcutLink = document.createElement('link');
 
               const scriptLink = document.createElement('script');
+              const scriptLink2 = document.createElement('script');
+              scriptLink2.src = `${basePath}/js/richpresence.js`;
+                document.head.appendChild(scriptLink2);
               cssLink.rel = 'stylesheet';
               cssLink.href = `${basePath}/css/style.css`;
               cssLink2.rel = 'stylesheet';
