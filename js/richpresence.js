@@ -106,7 +106,7 @@ const pageMap = {
   },
   "/it/download": {
     title: "Download",
-    state: "Scaricando il client di Cripsum™",
+    state: "Scaricando minchiate su Cripsum™",
     imageText: "Download del client"
   },
   "/it/download/fortnite": {
@@ -262,7 +262,7 @@ const pageMap = {
   },
   "/en/download": {
     title: "Download",
-    state: "Scaricando il client di Cripsum™",
+    state: "Scaricando minchiate su Cripsum™",
     imageText: "Download del client"
   },
   "/en/download/fortnite": {
