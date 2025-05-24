@@ -35,7 +35,7 @@ function updatePresence() {
   const pathOnly = window.location.pathname;
   const page = pageMap[pathOnly] || {
     title: "Navigando",
-    state: "Navigando",
+    state: "",
     imageText: "Sul sito",
     url: fullPath
   };
