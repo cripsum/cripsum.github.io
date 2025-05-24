@@ -14,17 +14,17 @@ const pageMap = {
   },
   "/negozio": {
     title: "Negozio",
-    state: "Stai guardando i prodotti",
+    state: "acquistando minchiate",
     imageText: "Negozio online"
   },
   "/chisiamo": {
     title: "Chi siamo",
-    state: "Informazioni sul progetto",
+    state: "il nostro team di sviluppo",
     imageText: "La nostra storia"
   },
   "/edits": {
     title: "Edits",
-    state: "Sta guardando gli edits",
+    state: "Sta guardando gli edit",
     imageText: "Edits e creazioni"
   }
 };
