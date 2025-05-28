@@ -284,7 +284,7 @@ const pageMap = {
 
 // Mappa degli edit con i loro dettagli
 const editMap = {
-  22: { character: "The Shorekeeper - Wuthering Waves", music: "Irokz - Toxic Potion (slowed)" },
+  22: { character: "Shorekeeper - Wuthering Waves", music: "Irokz - Toxic Potion (slowed)" },
   21: { character: "Karane Inda", music: "Katy Perry - Harleys in Hawaii" },
   20: { character: "Dante - Devil May Cry", music: "ATLXS - PASSO BEM SOLTO (super slowed)" },
   19: { character: "Sung Jin-Woo - Solo Levelling", music: "Peak - Re-Up" },
