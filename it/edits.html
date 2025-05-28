@@ -528,18 +528,12 @@
 
             let totalVideos = document.querySelectorAll(".video-frame").length;
 
-            //ocument.querySelectorAll(".video-frame").forEach((iframe) => {
-            //    iframe.addEventListener("click", () => {
-            //        let id = String(iframe.id);
-
-            // Aspetta 100ms per non interferire con il video
-            //        setTimeout(() => {
-            //            watchVideo(id);
-            //        }, 100);
-            //    });
-            //});
-
             function watchVideo(id) {
+                // Imposta l'edit corrente nella rich presence
+                if (window.setCurrentEdit) {
+                    window.setCurrentEdit(id);
+                }
+
                 let watchedVideos = getVideo("watchedVideos") || [];
                 if (!watchedVideos.includes(id)) {
                     watchedVideos.push(id);
@@ -563,6 +557,51 @@
             function setVideo(name, value) {
                 document.cookie = `${name}=${JSON.stringify(value)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
             }
+
+            // Aggiungi event listener per rilevare quando l'utente esce da un video
+            document.addEventListener("click", function (e) {
+                // Se il click non è su un iframe o sul suo contenitore, rimuovi l'edit corrente
+                if (!e.target.closest(".video-frame") && !e.target.closest('[onclick^="watchVideo"]')) {
+                    if (window.clearCurrentEdit) {
+                        window.clearCurrentEdit();
+                    }
+                }
+            });
+
+            // Opzionale: rimuovi l'edit corrente quando l'utente scrolla via dal video
+            let currentVideoInView = null;
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        const iframe = entry.target;
+                        const videoId = parseInt(iframe.id);
+
+                        if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+                            // Video è visibile
+                            if (currentVideoInView !== videoId) {
+                                currentVideoInView = videoId;
+                                if (window.setCurrentEdit) {
+                                    window.setCurrentEdit(videoId);
+                                }
+                            }
+                        } else if (currentVideoInView === videoId) {
+                            // Video non è più visibile
+                            currentVideoInView = null;
+                            if (window.clearCurrentEdit) {
+                                window.clearCurrentEdit();
+                            }
+                        }
+                    });
+                },
+                {
+                    threshold: [0, 0.5, 1],
+                }
+            );
+
+            // Osserva tutti i video frames
+            document.querySelectorAll(".video-frame").forEach((iframe) => {
+                observer.observe(iframe);
+            });
         </script>
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"

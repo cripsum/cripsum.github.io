@@ -1,7 +1,7 @@
 let ws = null;
 let reconnectInterval = null;
+let currentEdit = null; // Variabile per tracciare l'edit corrente
 
-// Mappa delle pagine con dettagli
 const pageMap = {
   "/": {
     title: "Home",
@@ -188,7 +188,7 @@ const pageMap = {
   "/en/edits": {
     title: "Edits", 
     state: "Guardando gli edit",
-    imageText: "Edits e creazioni"
+    imageText: "Edits e creazioni",
   },
   "/en/accedi": {
     title: "Accedi", 
@@ -282,7 +282,32 @@ const pageMap = {
   },
 };
 
-// Funzione per connettersi al WebSocket
+// Mappa degli edit con i loro dettagli
+const editMap = {
+  22: { character: "The Shorekeeper - Wuthering Waves", music: "Irokz - Toxic Potion (slowed)" },
+  21: { character: "Karane Inda", music: "Katy Perry - Harleys in Hawaii" },
+  20: { character: "Dante - Devil May Cry", music: "ATLXS - PASSO BEM SOLTO (super slowed)" },
+  19: { character: "Sung Jin-Woo - Solo Levelling", music: "Peak - Re-Up" },
+  18: { character: "Nagi - Blue Lock", music: "One of the girls X good for you" },
+  17: { character: "Cool Mita / Cappie - MiSide", music: "Bruno Mars - Treasure" },
+  16: { character: "Crazy Mita - MiSide", music: "Imogen Heap - Headlock" },
+  15: { character: "Yuki Suou - Roshidere", music: "Rarin - Mamacita" },
+  14: { character: "Alya Kujou - Roshidere", music: "Clean Bandit - Solo" },
+  13: { character: "Alya Kujou - Roshidere", music: "Subway Surfers phonk trend" },
+  12: { character: "Luca Arlia (meme)", music: "Luca Carboni - Luca lo stesso" },
+  11: { character: "Yuki Suou - Roshidere", music: "PnB Rock - Unforgettable (Freestyle)" },
+  10: { character: "Alya Kujou - Roshidere", music: "Rarin & Frozy - Kompa" },
+  9: { character: "Cristiano Ronaldo", music: "G-Eazy - Tumblr Girls" },
+  8: { character: "Mandy - Brawl Stars", music: "NCTS - NEXT!" },
+  7: { character: "Choso - Jujutsu Kaisen", music: "The Weeknd - Is There Someone Else?" },
+  6: { character: "Nym", music: "Chris Brown - Under the influence" },
+  5: { character: "Mortis - Brawl Stars", music: "DJ FNK - Slide da Treme Melódica v2" },
+  4: { character: "Nino balletto tattico", music: "Zara Larsson - Lush Life" },
+  3: { character: "Mates - Crossbar challenge", music: "G-Eazy - Lady Killers II" },
+  2: { character: "Homelander - The Boys", music: "MGMT - Little Dark Age" },
+  1: { character: "Heisenberg - Breaking Bad", music: "Travis Scott - MY EYES" }
+};
+
 function connectWebSocket() {
   try {
     ws = new WebSocket("ws://localhost:5678");
@@ -311,7 +336,6 @@ function connectWebSocket() {
   }
 }
 
-// Funzione per tentare la riconnessione
 function attemptReconnect() {
   if (!reconnectInterval) {
     reconnectInterval = setInterval(() => {
@@ -321,7 +345,20 @@ function attemptReconnect() {
   }
 }
 
-// Funzione per aggiornare presence
+// Funzione per aggiornare l'edit corrente
+function setCurrentEdit(editId) {
+  currentEdit = editId;
+  console.log("Edit corrente impostato:", editId);
+  updatePresence();
+}
+
+// Funzione per rimuovere l'edit corrente (quando si esce dal video)
+function clearCurrentEdit() {
+  currentEdit = null;
+  console.log("Edit corrente rimosso");
+  updatePresence();
+}
+
 function updatePresence() {
   if (!ws || ws.readyState !== WebSocket.OPEN) {
     console.log("WebSocket non connesso, impossibile aggiornare presence");
@@ -333,12 +370,23 @@ function updatePresence() {
   
   console.log("Aggiornamento presence per:", pathOnly);
   
-  const page = pageMap[pathOnly] || {
+  let page = pageMap[pathOnly] || {
     title: "Navigando",
     state: "Esplorando il sito",
     imageText: "Sul sito web",
     url: fullPath
   };
+
+  // Se siamo nella pagina edits e c'è un edit corrente, modifica la presenza
+  if ((pathOnly === "/it/edits" || pathOnly === "/en/edits") && currentEdit && editMap[currentEdit]) {
+    const edit = editMap[currentEdit];
+    page = {
+      title: "Edits",
+      state: `Guardando edit di ${edit.character}`,
+      imageText: `🎵 ${edit.music}`,
+      url: fullPath
+    };
+  }
 
   try {
     const payload = {
@@ -356,15 +404,12 @@ function updatePresence() {
   }
 }
 
-// Inizializza la connessione
 connectWebSocket();
 
-// Event listeners per i cambi di pagina
 window.addEventListener("popstate", updatePresence);
 window.addEventListener("hashchange", updatePresence);
 document.addEventListener("DOMContentLoaded", updatePresence);
 
-// Per SPA che usano history.pushState/replaceState
 const originalPushState = history.pushState;
 const originalReplaceState = history.replaceState;
 
@@ -378,9 +423,12 @@ history.replaceState = function() {
   setTimeout(updatePresence, 100);
 };
 
-// Aggiorna periodicamente (fallback)
 setInterval(() => {
   if (ws && ws.readyState === WebSocket.OPEN) {
     updatePresence();
   }
 }, 30000);
+
+// Espone le funzioni globalmente per l'uso negli altri script
+window.setCurrentEdit = setCurrentEdit;
+window.clearCurrentEdit = clearCurrentEdit;
