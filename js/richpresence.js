@@ -382,7 +382,7 @@ function updatePresence() {
     const edit = editMap[currentEdit];
     page = {
       title: "Edits",
-      state: `Guardando edit di ${edit.character}`,
+      state: `Guardando ${edit.character}`,
       imageText: `🎵 ${edit.music}`,
       url: fullPath
     };
