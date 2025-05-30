@@ -388,6 +388,21 @@ function updatePresence() {
     };
   }
 
+  if (pathOnly === "/lootbox") {
+    const inventory = getInventory();
+    const totalCharacters = inventory.reduce((sum, item) => sum + item.count, 0);
+    const lastCharacter = inventory[inventory.length - 1];
+
+    if (lastCharacter) {
+      page = {
+        title: "Lootbox",
+        state: `Ha appena pullato ${lastCharacter.name}`,
+        imageText: `Personaggi trovati: ${inventory.length} / ${totalCharacters}`,
+        url: fullPath
+      };
+    }
+  }
+
   try {
     const payload = {
       title: page.title,
