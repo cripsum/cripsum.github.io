@@ -405,7 +405,7 @@ function updatePresence() {
     const inventory = getInventory();
     const totalCharacters = window.rarities.length;
 
-    if (lastCharacter) {
+    if (lastCharacterFound) {
       page = {
         title: "Lootbox",
         state: `Ha appena pullato ${lastCharacterFound}`,
