@@ -1,6 +1,7 @@
 let ws = null;
 let reconnectInterval = null;
 let currentEdit = null; // Variabile per tracciare l'edit corrente
+let lastCharacterFound = null; // Variabile per tracciare l'ultimo personaggio trovato
 
 const pageMap = {
   "/": {
@@ -359,6 +360,18 @@ function clearCurrentEdit() {
   updatePresence();
 }
 
+function setLastCharacterFound(characterName) {
+  lastCharacterFound = characterName;
+  console.log("ultimo personaggio trovato: ", characterName);
+  updatePresence();
+}
+
+function clearLastCharacterFound() {
+  lastCharacterFound = null;
+  console.log("Ultimo personaggio trovato rimosso");
+  updatePresence();
+}
+
 function updatePresence() {
   if (!ws || ws.readyState !== WebSocket.OPEN) {
     console.log("WebSocket non connesso, impossibile aggiornare presence");
@@ -391,12 +404,11 @@ function updatePresence() {
   if (pathOnly === "/lootbox") {
     const inventory = getInventory();
     const totalCharacters = window.rarities.length;
-    const lastCharacter = getPresenceName();
 
     if (lastCharacter) {
       page = {
         title: "Lootbox",
-        state: `Ha appena pullato ${lastCharacter.name}`,
+        state: `Ha appena pullato ${lastCharacterFound}`,
         imageText: `Personaggi trovati: ${inventory.length} / ${totalCharacters}`,
         url: fullPath
       };
@@ -447,3 +459,6 @@ setInterval(() => {
 // Espone le funzioni globalmente per l'uso negli altri script
 window.setCurrentEdit = setCurrentEdit;
 window.clearCurrentEdit = clearCurrentEdit;
+
+window.setLastCharacterFound = setLastCharacterFound;
+window.clearLastCharacterFound = clearLastCharacterFound;

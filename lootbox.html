@@ -502,16 +502,13 @@
             }
 
             const pull = filtroPull();
-            
-            function getPresenceName() {
-                return pull.name;
-            }
 
             document.getElementById("contenuto").innerHTML = `
                     <p style="top 10px; font-size: 20px; max-width: 600px;" id="nomePersonaggio">${pull.name}</p>
                     <img src="${pull.img}" alt="Premio" class="premio" />
                 `;
             addToInventory(pull);
+            setLastCharacterFound(pull.name);
 
             function riscattaCodice() {
                 if (codiceSegreto.value === "godo") {
