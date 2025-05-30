@@ -377,7 +377,7 @@ function updatePresence() {
     url: fullPath
   };
 
-  // Se siamo nella pagina edits e c'è un edit corrente, modifica la presenza
+
   if ((pathOnly === "/it/edits" || pathOnly === "/en/edits") && currentEdit && editMap[currentEdit]) {
     const edit = editMap[currentEdit];
     page = {
@@ -390,8 +390,8 @@ function updatePresence() {
 
   if (pathOnly === "/lootbox") {
     const inventory = getInventory();
-    const totalCharacters = inventory.reduce((sum, item) => sum + item.count, 0);
-    const lastCharacter = inventory[inventory.length - 1];
+    const totalCharacters = window.rarities.length;
+    const lastCharacter = getPresenceName();
 
     if (lastCharacter) {
       page = {
