@@ -16,6 +16,11 @@ if (now.getHours() === 3) {
     unlockAchievement(12);
 }
 
+let unlockedachievements = getCookie("achievements");
+if(unlockedachievements.lenght === 17){
+    unlockAchievement(18);
+}
+
 function checkTimeSpent() {
     let timeSpent = parseInt(getCookie("timeSpent")) || 0;
     // Increment time spent by 1 second
@@ -30,8 +35,3 @@ function checkTimeSpent() {
 
 // Check time spent every second
 setInterval(checkTimeSpent, 1000);
-
-let unlockedachievements = getCookie("achievements");
-if(unlockedachievements.lenght === 17){
-    unlockAchievement(18);
-}
