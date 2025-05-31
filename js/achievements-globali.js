@@ -17,7 +17,7 @@ if (now.getHours() === 3) {
 }
 
 let unlockedachievements = getCookie("achievements");
-if(unlockedachievements.lenght === 17){
+if(unlockedachievements.length === 17){
     unlockAchievement(18);
 }
 
