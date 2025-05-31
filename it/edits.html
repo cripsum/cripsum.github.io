@@ -563,6 +563,7 @@
                     const videoId = parseInt(this.id);
                     if (window.setCurrentEdit) {
                         window.setCurrentEdit(videoId);
+                        watchVideo(videoId);
                     }
                 });
             });
