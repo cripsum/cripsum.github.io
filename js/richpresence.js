@@ -1,7 +1,7 @@
 let ws = null;
 let reconnectInterval = null;
-let currentEdit = null; // Variabile per tracciare l'edit corrente
-let lastCharacterFound = null; // Variabile per tracciare l'ultimo personaggio trovato
+let currentEdit = null;
+let lastCharacterFound = null; 
 
 const pageMap = {
   "/": {
@@ -283,7 +283,6 @@ const pageMap = {
   },
 };
 
-// Mappa degli edit con i loro dettagli
 const editMap = {
   22: { character: "Shorekeeper - Wuthering Waves", music: "Irokz - Toxic Potion (slowed)" },
   21: { character: "Karane Inda", music: "Katy Perry - Harleys in Hawaii" },
@@ -346,14 +345,12 @@ function attemptReconnect() {
   }
 }
 
-// Funzione per aggiornare l'edit corrente
 function setCurrentEdit(editId) {
   currentEdit = editId;
   console.log("Edit corrente impostato:", editId);
   updatePresence();
 }
 
-// Funzione per rimuovere l'edit corrente (quando si esce dal video)
 function clearCurrentEdit() {
   currentEdit = null;
   console.log("Edit corrente rimosso");
@@ -456,7 +453,6 @@ setInterval(() => {
   }
 }, 30000);
 
-// Espone le funzioni globalmente per l'uso negli altri script
 window.setCurrentEdit = setCurrentEdit;
 window.clearCurrentEdit = clearCurrentEdit;
 
