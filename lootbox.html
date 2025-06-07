@@ -98,12 +98,10 @@
                     </ul>
                 </div>
             </div>
-            <div class="btn-group dropdown ms-auto me-3 linguanuova">
-                <button type="button" class="btn dropdown-toggle lingua-toggler" data-bs-toggle="dropdown" aria-expanded="false"><a class="link-lingua">🇮🇹</a></button>
-                <ul class="dropdown-menu dropdownlingua dropdown-menu-end animate slideIn">
-                    <li><a class="dropdown-item link-lingua" href="#">🇮🇹 Ita</a></li>
-                    <li><a class="dropdown-item link-lingua" href="#">🇬🇧 Eng</a></li>
-                </ul>
+            <div class="btn-group ms-auto me-3 linguanuova">
+                <button type="button" class="btn impostazioni-toggler" data-bs-toggle="modal" data-bs-target="#impostazioniModal" aria-expanded="false">
+                    <img src="../img/settings-icon.svg" alt="" style="width: 25px" class="imgbianca" />
+                </button>
             </div>
         </nav>
         <!-- TO DO
@@ -230,17 +228,12 @@
                     <div class="button-container mt-4" style="text-align: center; max-width: 95%; margin: auto">
                         <a class="btn btn-secondary bottone mt-2" onclick="refresh()" style="cursor: pointer">Apri cassa</a>
                         <a class="btn btn-secondary bottone mt-2" href="inventario" style="cursor: pointer">Apri l'inventario</a>
-                        <div id="disclaimer" class="divdisclaimer fadeup">
-                            <button class="btn btn-secondary bottone" type="button" data-bs-toggle="modal" data-bs-target="#disclaimerModal" style="margin-top: 5px; max-width: 70%">
-                                Impostazioni
-                            </button>
-                        </div>
                     </div>
                 </div>
 
-                <div class="modal fade" id="disclaimerModal" tabindex="-1" aria-labelledby="disclaimerModalLabel" aria-hidden="true">
+                <div class="modal fade" id="impostazioniModal" tabindex="-1" aria-labelledby="impostazioniModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
-                        <div class="modal-content bgdisclaimer">
+                        <div class="modal-content bgimpostazioni">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="disclaimerModalLabel">Impostazioni</h5>
                                 <!--<button type="button" class="btn-close tastobianco" data-bs-dismiss="modal" aria-label="Close" onclick="close_disclaimer(1)" style="color: #ffffff"></button>-->
