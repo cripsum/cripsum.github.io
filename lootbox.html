@@ -269,7 +269,6 @@
                                 <div data-mdb-input-init class="form-outline mb-4">
                                     <label class="form-label" for="registerName">Codice Segreto</label>
                                     <input type="text" id="codiceSegreto" class="form-control" />
-                                    <p id="info-codice" style="margin-top: 5px">godo</p>
                                     <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="riscattaCodice()">Riscatta codice</button>
                                 </div>
                                 <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="resettaInventario()">resetta inventario</button>
@@ -389,6 +388,14 @@
             }
 
             function resettaInventario() {
+                if (!confirm("Sei sicuro di voler resettare l'inventario? Tutti i personaggi saranno persi!")) {
+                    return;
+                }
+                localStorage.setItem("inventory", JSON.stringify([]));
+                setCookie("casseAperte", 0);
+                setCookie("comuniDiFila", 0);
+                setCookie("preferences", {});
+                setLastCharacterFound("");
                 localStorage.clear();
                 alert("Inventario resettato con successo!");
             }
