@@ -284,6 +284,7 @@ const pageMap = {
 };
 
 const editMap = {
+  23: { character: "Evelyn - Zenless Zone Zero", music: "Charli XCX - Track 10" },
   22: { character: "Shorekeeper - Wuthering Waves", music: "Irokz - Toxic Potion (slowed)" },
   21: { character: "Karane Inda", music: "Katy Perry - Harleys in Hawaii" },
   20: { character: "Dante - Devil May Cry", music: "ATLXS - PASSO BEM SOLTO (super slowed)" },
