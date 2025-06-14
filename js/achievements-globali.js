@@ -35,3 +35,17 @@ function checkTimeSpent() {
 
 // Check time spent every second
 setInterval(checkTimeSpent, 1000);
+
+function checkDaysVisited() {
+    let daysVisited = getCookie("daysVisited") || [];
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    if (!daysVisited.includes(today)) {
+        daysVisited.push(today);
+        setCookie("daysVisited", daysVisited);
+    }
+    if (daysVisited.length >= 30) {
+        unlockAchievement(19);
+    }
+}
+
+checkDaysVisited();
