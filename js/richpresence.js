@@ -152,7 +152,8 @@ const pageMap = {
   "/user/zakator": {
     title: "Profilo di Zakator",
     state: "Visualizzando il profilo di Zakator",
-    imageText: "Profilo di Zakator"
+    imageText: "Profilo di Zakator",
+    largeImageKey: "https://media1.tenor.com/m/KxEHUVCM5lMAAAAC/dragon-ball-super-super-hero-orange-piccolo.gif"
   },
   "/user/salsina": {
     title: "Profilo di Xalx Andrea",
@@ -385,6 +386,7 @@ function updatePresence() {
     title: "Navigando",
     state: "Esplorando il sito",
     imageText: "Sul sito web",
+    largeImageKey: "https://media1.tenor.com/m/98wDXMV0R_gAAAAC/wuwa-wuthering-waves.gif",
     url: fullPath
   };
 
@@ -395,6 +397,7 @@ function updatePresence() {
       title: "Edits",
       state: `Guardando ${edit.character}`,
       imageText: `🎵 ${edit.music}`,
+      largeImageKey: "https://media1.tenor.com/m/98wDXMV0R_gAAAAC/wuwa-wuthering-waves.gif",
       url: fullPath
     };
   }
@@ -408,6 +411,7 @@ function updatePresence() {
         title: "Lootbox",
         state: `Ha appena pullato ${lastCharacterFound}`,
         imageText: `Personaggi trovati: ${inventory.length} / ${totalCharacters}`,
+        largeImageKey: "https://media1.tenor.com/m/98wDXMV0R_gAAAAC/wuwa-wuthering-waves.gif",
         url: fullPath
       };
     }
@@ -418,6 +422,7 @@ function updatePresence() {
       title: page.title,
       state: page.state,
       imageText: page.imageText,
+      largeImageKey: page.largeImageKey || "https://media1.tenor.com/m/98wDXMV0R_gAAAAC/wuwa-wuthering-waves.gif",
       url: fullPath,
       timestamp: Date.now()
     };
