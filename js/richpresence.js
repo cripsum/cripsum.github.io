@@ -294,11 +294,11 @@ const editMap = {
   17: { character: "Cool Mita / Cappie - MiSide", music: "Bruno Mars - Treasure" },
   16: { character: "Crazy Mita - MiSide", music: "Imogen Heap - Headlock" },
   15: { character: "Yuki Suou - Roshidere", music: "Rarin - Mamacita" },
-  14: { character: "Alya Kujou - Roshidere", music: "Clean Bandit - Solo" },
-  13: { character: "Alya Kujou - Roshidere", music: "Subway Surfers phonk trend" },
+  14: { character: "Alya Kujou - Roshidere", music: "Clean Bandit - Solo", image: "https://media1.tenor.com/m/QrAHu5l54JwAAAAC/alisa-kujou-roshidere.gif" },
+  13: { character: "Alya Kujou - Roshidere", music: "Subway Surfers phonk trend", image: "https://media1.tenor.com/m/QrAHu5l54JwAAAAC/alisa-kujou-roshidere.gif" },
   12: { character: "Luca Arlia (meme)", music: "Luca Carboni - Luca lo stesso" },
   11: { character: "Yuki Suou - Roshidere", music: "PnB Rock - Unforgettable (Freestyle)" },
-  10: { character: "Alya Kujou - Roshidere", music: "Rarin & Frozy - Kompa" },
+  10: { character: "Alya Kujou - Roshidere", music: "Rarin & Frozy - Kompa", image: "https://media1.tenor.com/m/QrAHu5l54JwAAAAC/alisa-kujou-roshidere.gif" },
   9: { character: "Cristiano Ronaldo", music: "G-Eazy - Tumblr Girls" },
   8: { character: "Mandy - Brawl Stars", music: "NCTS - NEXT!" },
   7: { character: "Choso - Jujutsu Kaisen", music: "The Weeknd - Is There Someone Else?" },
@@ -307,7 +307,7 @@ const editMap = {
   4: { character: "Nino balletto tattico", music: "Zara Larsson - Lush Life" },
   3: { character: "Mates - Crossbar challenge", music: "G-Eazy - Lady Killers II" },
   2: { character: "Homelander - The Boys", music: "MGMT - Little Dark Age" },
-  1: { character: "Heisenberg - Breaking Bad", music: "Travis Scott - MY EYES" }
+  1: { character: "Heisenberg - Breaking Bad", music: "Travis Scott - MY EYES", image: "https://media1.tenor.com/m/hFGpisu2EDEAAAAC/say-my-name-heisenberg-breaking-bad.gif" }
 };
 
 function connectWebSocket() {
@@ -397,6 +397,7 @@ function updatePresence() {
       title: "Edits",
       state: `Guardando ${edit.character}`,
       imageText: `🎵 ${edit.music}`,
+      largeImageKey: edit.image,
       url: fullPath
     };
   }
