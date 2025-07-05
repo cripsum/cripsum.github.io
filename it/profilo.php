@@ -40,7 +40,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'update_profile') {
 }
 
     $stmt = $mysqli->prepare("
-SELECT username, profile_pic, data_creazione, soldi, ruolo, COUNT(achievement_id) as num_achievement, COUNT(personaggio_id) as num_personaggi FROM utenti, utenti_achievement, utenti_personaggi, achievement, personaggi WHERE utenti.id = $user_id AND utenti_achievement.utente_id = utenti.id AND utenti_personaggi.utente_id = utenti.id AND utenti_achievement.achievement_id = achievement.id AND utenti_personaggi.personaggio_id = personaggi.id GROUP BY utenti.id
+SELECT username, profile_pic, data_creazione, soldi, ruolo, COUNT(achievement_id) as num_achievement, COUNT(personaggio_id) as num_personaggi FROM utenti, utenti_achievement, utenti_personaggi, achievement, personaggi WHERE utenti.id = ? AND utenti_achievement.utente_id = utenti.id AND utenti_personaggi.utente_id = utenti.id AND utenti_achievement.achievement_id = achievement.id AND utenti_personaggi.personaggio_id = personaggi.id GROUP BY utenti.id
     ");
     $stmt->bind_param("i", $_SESSION['user_id']);
     $stmt->execute();
