@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once '../config/database.php';
-require_once '../includes/functions.php';
+require_once 'config/database.php';
+require_once 'includes/functions.php';
 
 $isLoggedIn = isset($_SESSION['user_id']);
 $user_id = $_SESSION['user_id'] ?? null;
@@ -68,8 +68,6 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
 }
 ?>
 
-
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -90,35 +88,35 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
             integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
             crossorigin="anonymous"
         />
-        <link rel="icon" href="../img/Susremaster.png" type="image/png" />
-        <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png" />
+        <link rel="icon" href="img/Susremaster.png" type="image/png" />
+        <link rel="shortcut icon" href="img/Susremaster.png" type="image/png" />
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
-        <link rel="stylesheet" href="../css/style.css" />
-        <link rel="stylesheet" href="../css/style-dark.css" />
-        <link rel="stylesheet" href="../css/animations.css" />
-        <link rel="stylesheet" href="../css/achievement-style.css" />
+        <link rel="stylesheet" href="css/style.css" />
+        <link rel="stylesheet" href="css/style-dark.css" />
+        <link rel="stylesheet" href="css/animations.css" />
+        <link rel="stylesheet" href="css/achievement-style.css" />
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-        <script src="../js/animations.js"></script>
+        <script src="js/animations.js"></script>
 
-        <script src="../js/controlloLingua-it.js"></script>
-        <script src="../js/controlloTema.js"></script>
-        <script src="../js/unlockAchievement-it.js"></script>
-        <script src="../js/achievements-globali.js"></script>
-        <script src="../js/richpresence.js"></script>
+        <script src="js/controlloLingua-it.js"></script>
+        <script src="js/controlloTema.js"></script>
+        <script src="js/unlockAchievement-it.js"></script>
+        <script src="js/achievements-globali.js"></script>
+        <script src="js/richpresence.js"></script>
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cripsum™ - Profilo</title>
 </head>
 <body >
 
-    <?php include '../includes/navbar.php'; ?>
+    <?php include 'includes/navbar.php'; ?>
 
     <div class="container my-5 paginainterachisiamo testobianco" style="padding-top: 7rem">
         <h1 class="mb-4 fadeup">Profilo di <?php echo htmlspecialchars($user['username']); ?></h1>
 
         <div class="row mb-4">
             <div class="col-md-4 text-center fadeup">
-                <img src="../includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>" alt="Foto Profilo" class="img-fluid rounded-circle mb-3" style="max-width: 150px;">
+                <img src="includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>" alt="Foto Profilo" class="img-fluid rounded-circle mb-3" style="max-width: 150px;">
 
                 <h3><?php echo htmlspecialchars($user['username']); ?></h3>
                 <p>Membro dal: <?php echo date('d/m/Y', strtotime($user['data_creazione'])); ?></p>
@@ -195,6 +193,6 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
             crossorigin="anonymous"
         ></script>
 
-        <script src="../js/modeChanger.js"></script>
+        <script src="js/modeChanger.js"></script>
 </body>
 </html>
