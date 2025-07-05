@@ -15,3 +15,6 @@ AddDefaultCharset UTF-8
   Order allow,deny
   Deny from all
 </FilesMatch>
+
+RewriteEngine On
+RewriteRule ^user/([a-zA-Z0-9_]+)$ user.php?username=$1 [L,QSA]
