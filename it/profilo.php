@@ -15,6 +15,7 @@ $user_id = $_SESSION['user_id'];
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'update_profile') {
     $username = $mysqli->real_escape_string($_POST['username']);
     $update_pfp = "";
+    $pfp_path = null;
 
     if (isset($_FILES['pfp']) && $_FILES['pfp']['error'] === 0) {
         $upload_dir = '../uploads/profiles/';
@@ -29,6 +30,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'update_profil
 
     $query = "UPDATE utenti SET username = '{$username}' {$update_pfp} WHERE id = {$user_id}";
     $mysqli->query($query);
+
+    // 🔁 aggiorna sessione
+    $_SESSION['username'] = $username;
+    if (!empty($update_pfp)) {
+        $_SESSION['profile_pic'] = $pfp_path;
+    }
 }
 
 // Recupera dati utente + statistiche
