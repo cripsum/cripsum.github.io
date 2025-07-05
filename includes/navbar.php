@@ -108,8 +108,12 @@ if ($isLoggedIn) {
         </div>
     </div>
     <div class="btn-group ms-auto me-3 linguanuova">
-        <button type="button" class="btn impostazioni-toggler" data-bs-toggle="modal" data-bs-target="#impostazioniModal" aria-expanded="false">
-            <img src="../img/settings-icon.svg" alt="" style="width: 25px" class="imgbianca" />
-        </button>
+        <li class="nav-item">
+            <a class="nav-link" href="">
+                <button type="button" class="btn impostazioni-toggler" data-bs-toggle="modal" data-bs-target="#impostazioniModal" aria-expanded="false">
+                    <img src="../img/settings-icon.svg" alt="" style="width: 25px" class="imgbianca" />
+                </button>
+            </a>
+        </li>
     </div>
 </nav>
