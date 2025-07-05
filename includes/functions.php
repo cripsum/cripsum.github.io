@@ -30,7 +30,7 @@ function requireLogin() {
 
 function logoutUser() {
     session_destroy();
-    header('Location: home');
+    header('Location: https://cripsum.com');
     exit();
 }
 
