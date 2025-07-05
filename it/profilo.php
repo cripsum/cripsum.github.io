@@ -3,7 +3,6 @@ session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
-// Check login
 if (!isset($_SESSION['user_id'])) {
     header('Location: accedi.php');
     exit();
@@ -11,38 +10,38 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Aggiorna profilo se inviato
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'update_profile') {
+// Modifica profilo
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'update_profile') {
     $username = $mysqli->real_escape_string($_POST['username']);
-    $update_pfp = "";
-    $pfp_path = null;
+    $pfp_blob = null;
+    $pfp_mime = null;
 
     if (isset($_FILES['pfp']) && $_FILES['pfp']['error'] === 0) {
-        $upload_dir = '../uploads/profiles/';
-        $file_extension = pathinfo($_FILES['pfp']['name'], PATHINFO_EXTENSION);
-        $pfp_filename = "{$user_id}_" . time() . ".{$file_extension}";
-        $pfp_path = $upload_dir . $pfp_filename;
-
-        if (move_uploaded_file($_FILES['pfp']['tmp_name'], $pfp_path)) {
-            $update_pfp = ", profile_pic = '{$pfp_path}'";
-        }
+        $pfp_blob = file_get_contents($_FILES['pfp']['tmp_name']);
+        $pfp_mime = mime_content_type($_FILES['pfp']['tmp_name']);
     }
 
-    $query = "UPDATE utenti SET username = '{$username}' {$update_pfp} WHERE id = {$user_id}";
-    $mysqli->query($query);
+    if ($pfp_blob !== null && $pfp_mime !== null) {
+        $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, profile_pic = ?, profile_pic_type = ? WHERE id = ?");
+        $null = NULL;
+        $stmt->bind_param("sbsi", $username, $null, $pfp_mime, $user_id);
+        $stmt->send_long_data(1, $pfp_blob);
+    } else {
+        $stmt = $mysqli->prepare("UPDATE utenti SET username = ? WHERE id = ?");
+        $stmt->bind_param("si", $username, $user_id);
+    }
 
-    // 🔁 aggiorna sessione
+    $stmt->execute();
+    $stmt->close();
+
+    // Aggiorna sessione username
     $_SESSION['username'] = $username;
-    if (!empty($update_pfp)) {
-        $_SESSION['profile_pic'] = $pfp_path;
-    }
 }
 
-// Recupera dati utente + statistiche
+// Recupera dati
 $stmt = $mysqli->prepare("
     SELECT 
         u.username,
-        u.profile_pic,
         u.data_creazione,
         u.soldi,
         u.ruolo,
@@ -60,6 +59,7 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="it">
@@ -110,7 +110,8 @@ $stmt->close();
 
         <div class="row mb-4">
             <div class="col-md-4 text-center fadeup">
-                <img src="<?php echo $user['profile_pic'] ?: '../images/default-avatar.png'; ?>" alt="Foto Profilo" class="img-fluid rounded-circle mb-3" style="max-width: 150px;">
+                <img src="../includes/get_pfp.php?id=<?php echo $user_id; ?>" alt="Foto Profilo" class="img-fluid rounded-circle mb-3" style="max-width: 150px;">
+
                 <h3><?php echo htmlspecialchars($user['username']); ?></h3>
                 <p>Membro dal: <?php echo date('d/m/Y', strtotime($user['data_creazione'])); ?></p>
             </div>
