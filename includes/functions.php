@@ -11,7 +11,7 @@ function loginUser($mysqli, $email, $password) {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['email'] = $user['email'];
-        $_SESSION['profile_pic'] = $user['profile_pic'] ?? '../img/abdul.png';
+        $_SESSION['profile_pic'] = $user['profile_pic'] ?? '../img/abdul.jpg';
         return true;
     }
     return false;

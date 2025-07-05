@@ -1,12 +1,11 @@
 <?php
 
-
 session_start();
 $isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
 
 if ($isLoggedIn) {
     $username = $_SESSION['username'] ?? 'Utente';
-    $profilePic = $_SESSION['profile_pic'] ?? '../img/abdul.png';
+    $profilePic = $_SESSION['profile_pic'] ?? '../img/abdul.jpg';
     $userId = $_SESSION['user_id'];
 }
 ?>
