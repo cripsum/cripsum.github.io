@@ -260,7 +260,7 @@ if ($isLoggedIn) {
         <?php endif; ?>
 
         <div class="mt-4 fadeup">
-            <a href="../it/home.php" class="linkbianco">← Torna alla home</a>
+            <a href="../it/home" class="linkbianco">← Torna alla home</a>
         </div>
     </div>
 

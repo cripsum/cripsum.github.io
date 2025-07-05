@@ -152,7 +152,7 @@ $stmt->close();
         </form>
 
         <div class="mt-4 fadeup">
-            <a href="home.php" class="linkbianco">← Torna alla home</a>
+            <a href="home" class="linkbianco">← Torna alla home</a>
         </div>
     </div>
 
