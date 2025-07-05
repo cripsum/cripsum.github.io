@@ -1,4 +1,8 @@
 <?php
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/error.log'); // salva gli errori in un file chiamato "error.log" nella stessa cartella
+error_reporting(E_ALL); // mostra tutti gli errori
+
 
 // Aggiungi all'inizio del file functions.php
 require_once '../config/email_config.php';
