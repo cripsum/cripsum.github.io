@@ -304,7 +304,7 @@ function loginUser($mysqli, $email, $password) {
         $_SESSION['username'] = $user['username'];
         $_SESSION['email'] = $user['email'];
         $_SESSION['profile_pic'] = $user['profile_pic'] ?? '../img/abdul.jpg';
-        $_SESSION['ruolo'] = $user['ruolo'] ?? 'utente';
+        $_SESSION['ruolo'] = $user['ruolo'];
         return true;
     }
     return false;
