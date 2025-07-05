@@ -7,6 +7,7 @@ if ($isLoggedIn) {
     $username = $_SESSION['username'] ?? 'Utente';
     $profilePic = $_SESSION['profile_pic'] ?? '../img/abdul.jpg';
     $userId = $_SESSION['user_id'];
+    $ruolo = $_SESSION['ruolo']; // Aggiungi ruolo utente
 }
 ?>
 
@@ -91,6 +92,11 @@ if ($isLoggedIn) {
                             <li><a class="dropdown-item" href="ordini">
                                 <i class="fas fa-shopping-bag me-2"></i>I miei ordini
                             </a></li>
+                            <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
+                            <li><a class="dropdown-item" href="admin">
+                                <i class="fas fa-shield-alt me-2"></i>Pannello Admin
+                            </a></li>
+                            <?php endif; ?>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-danger" href="https://cripsum.com/logout">
                                 <i class="fas fa-sign-out-alt me-2"></i>Logout

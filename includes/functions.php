@@ -1,7 +1,7 @@
 <?php
 
 function loginUser($mysqli, $email, $password) {
-    $stmt = $mysqli->prepare("SELECT id, username, email, password, profile_pic FROM utenti WHERE email = ?");
+    $stmt = $mysqli->prepare("SELECT id, username, email, password, profile_pic, ruolo FROM utenti WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -12,6 +12,7 @@ function loginUser($mysqli, $email, $password) {
         $_SESSION['username'] = $user['username'];
         $_SESSION['email'] = $user['email'];
         $_SESSION['profile_pic'] = $user['profile_pic'] ?? '../img/abdul.jpg';
+        $_SESSION['ruolo'] = $user['ruolo'] ?? 'utente'; // Aggiungi ruolo utente
         return true;
     }
     return false;
@@ -50,8 +51,8 @@ function registerUser($mysqli, $username, $email, $password) {
 
     // Inserisci nuovo utente
     $insertStmt = $mysqli->prepare("
-        INSERT INTO utenti (username, email, password, data_creazione) 
-        VALUES (?, ?, ?, NOW())
+        INSERT INTO utenti (username, email, password, data_creazione, ruolo) 
+        VALUES (?, ?, ?, NOW(), 'utente')
     ");
     $insertStmt->bind_param("sss", $username, $email, $passwordHash);
 
