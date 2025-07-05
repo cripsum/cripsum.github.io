@@ -1,8 +1,5 @@
 <?php
-$host = 'localhost';
-$username = 'root';
-$password = '';
-$database = 'u888878221_cripsum';
+require_once __DIR__ . '../secure/config.php';
 
 $mysqli = new mysqli($host, $username, $password, $database);
 
