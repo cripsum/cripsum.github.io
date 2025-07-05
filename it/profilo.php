@@ -1,10 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/error.log');
-error_reporting(E_ALL);
-
 session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';
@@ -98,17 +92,7 @@ $stmt->close();
         <script src="../js/richpresence.js"></script>
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Il Mio Profilo - Cripsum</title>
-</head>
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <title>Il Mio Profilo - Cripsum</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Cripsum™ - Profilo</title>
 </head>
 <body>
 
