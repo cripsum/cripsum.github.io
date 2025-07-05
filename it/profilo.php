@@ -18,30 +18,36 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 // Handle profile update
-if ($_POST['action'] === 'update_profile') {
-    $username = mysqli_real_escape_string($conn, $_POST['username']);
+if (isset($_POST['action']) && $_POST['action'] === 'update_profile') {
+    $username = mysqli_real_escape_string($mysqli, $_POST['username']);
     
     // Handle profile picture upload
     $pfp_path = null;
+    $update_pfp = "";
     if (isset($_FILES['pfp']) && $_FILES['pfp']['error'] === 0) {
         $upload_dir = '../uploads/profiles/';
         $file_extension = pathinfo($_FILES['pfp']['name'], PATHINFO_EXTENSION);
-        $pfp_filename = $user_id . '_' . time() . '.' . $file_extension;
-        $pfp_path = $upload_dir . $pfp_filename;
+        $pfp_filename = "{$user_id}_{" . time() . "}.{$file_extension}";
+        $pfp_path = "{$upload_dir}{$pfp_filename}";
         
         if (move_uploaded_file($_FILES['pfp']['tmp_name'], $pfp_path)) {
             $update_pfp = ", profile_pic = '$pfp_path'";
         }
     }
     
-    $query = "UPDATE users SET username = '$username' $update_pfp WHERE id = $user_id";
-    mysqli_query($conn, $query);
+    $query = "UPDATE utenti SET username = '$username' $update_pfp WHERE id = $user_id";
+    mysqli_query($mysqli, $query);
 }
 
-// Get user data and stats
-$user_query = "SELECT username, profile_pic, data_creazione, soldi, ruolo, COUNT(achievement_id) as num_achievement, COUNT(personaggio_id) as num_personaggi FROM utenti, utenti_achievement, utenti_personaggi WHERE utenti.id = $user_id AND utenti_achievement.utente_id = utenti.id AND utenti_personaggi.utente_id = utenti.id AND utenti_achievement.achievement_id = achievement.id AND utenti_personaggi.personaggio_id = personaggi.id GROUP BY utenti.id";
-$user_result = mysqli_query($conn, $user_query);
-$user = mysqli_fetch_assoc($user_result);
+    $stmt = $mysqli->prepare("
+SELECT username, profile_pic, data_creazione, soldi, ruolo, COUNT(achievement_id) as num_achievement, COUNT(personaggio_id) as num_personaggi FROM utenti, utenti_achievement, utenti_personaggi, achievement, personaggi WHERE utenti.id = $user_id AND utenti_achievement.utente_id = utenti.id AND utenti_personaggi.utente_id = utenti.id AND utenti_achievement.achievement_id = achievement.id AND utenti_personaggi.personaggio_id = personaggi.id GROUP BY utenti.id
+    ");
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+    $stmt->close();
+
 ?>
 
 <!DOCTYPE html>
