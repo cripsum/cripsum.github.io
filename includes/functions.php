@@ -1,7 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 
 function loginUser($mysqli, $email, $password) {
     $stmt = $mysqli->prepare("SELECT id, username, email, password, profile_pic FROM utenti WHERE email = ?");
