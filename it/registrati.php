@@ -35,21 +35,19 @@ if ($_POST) {
     } elseif (strlen($username) < 3) {
         $error = 'Lo username deve essere di almeno 3 caratteri';
     } else {
-    // Prova a registrare l'utente
-    $result = registerUser($mysqli, $username, $email, $password);
-    if ($result === true) {
-        $_SESSION['registration_success'] = 'Registrazione completata! Ora puoi accedere.';
-        header('Location: accedi');
-        exit();
-    } else {
-        $error = $result; // Messaggio di errore dalla funzione
+        // Prova a registrare l'utente
+        $result = registerUser($mysqli, $username, $email, $password);
+        if ($result === true) {
+            $success = 'Registrazione completata! Controlla la tua email per verificare il tuo account prima di poter accedere.';
+        } else {
+            $error = $result; // Messaggio di errore dalla funzione
+        }
     }
-}
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
     <head>
         <!-- Google tag (gtag.js) -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
@@ -93,16 +91,23 @@ if ($_POST) {
                     <div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="tab-login">
                         <?php if ($error): ?>
                         <div class="alert alert-danger fadeup" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
                             <?php echo htmlspecialchars($error); ?>
                         </div>
                         <?php endif; ?>
 
                         <?php if ($success): ?>
                         <div class="alert alert-success fadeup" role="alert">
+                            <i class="bi bi-check-circle-fill me-2"></i>
                             <?php echo htmlspecialchars($success); ?>
+                        </div>
+                        <div class="alert alert-info fadeup" role="alert">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            Non hai ricevuto l'email? Controlla la cartella spam o <a href="verifica-email" class="alert-link">clicca qui per reinviare</a>.
                         </div>
                         <?php endif; ?>
 
+                        <?php if (!$success): ?>
                         <form method="POST" action="">
                             <p class="fs-1 text mb-5 fadeup" style="font-weight: bold">Registrati</p>
 
@@ -117,6 +122,7 @@ if ($_POST) {
                             <div data-mdb-input-init class="form-outline mb-4 fadeup">
                                 <label class="form-label" for="email">Email *</label>
                                 <input type="email" id="email" name="email" class="form-control" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" required />
+                                <small class="form-text text-muted">Riceverai un'email di verifica</small>
                             </div>
 
                             <!-- Password input -->
@@ -174,6 +180,11 @@ if ($_POST) {
                                 <p>Hai già un account? <a href="accedi" style="font-weight: bold" class="linkbianco">Accedi</a></p>
                             </div>
                         </form>
+                        <?php else: ?>
+                        <div class="text-center fadeup mt-4">
+                            <p>Hai già un account? <a href="accedi" style="font-weight: bold" class="linkbianco">Accedi</a></p>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
