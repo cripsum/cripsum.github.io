@@ -75,7 +75,7 @@ if ($isLoggedIn) {
                         <a class="nav-link" href="registrati">Registrati</a>
                     </li>
                 <?php else: ?>
-                    <li class="nav-item dropdown">
+                    <li class="nav-item dropdown dropdownutenti">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="<?php echo htmlspecialchars($profilePic); ?>" alt="Profilo" 
                                  class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;">
