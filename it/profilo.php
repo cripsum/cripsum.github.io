@@ -99,16 +99,16 @@ $stmt->close();
     <?php include '../includes/navbar.php'; ?>
 
     <div class="container my-5 paginainterachisiamo testobianco" style="padding-top: 7rem">
-        <h1 class="mb-4">Il Mio Profilo</h1>
+        <h1 class="mb-4 fadeup">Il Mio Profilo</h1>
 
         <div class="row mb-4">
-            <div class="col-md-4 text-center">
+            <div class="col-md-4 text-center fadeup">
                 <img src="<?php echo $user['profile_pic'] ?: '../images/default-avatar.png'; ?>" alt="Foto Profilo" class="img-fluid rounded-circle mb-3" style="max-width: 150px;">
                 <h3><?php echo htmlspecialchars($user['username']); ?></h3>
                 <p>Membro dal: <?php echo date('d/m/Y', strtotime($user['data_creazione'])); ?></p>
             </div>
 
-            <div class="col-md-8">
+            <div class="col-md-8 fadeup">
                 <h4>Statistiche</h4>
                 <ul class="list-group">
                     <li class="list-group-item d-flex justify-content-between">
@@ -131,8 +131,8 @@ $stmt->close();
             </div>
         </div>
 
-        <h4 class="mb-3">Modifica Profilo</h4>
-        <form method="POST" enctype="multipart/form-data">
+        <h4 class="mb-3 fadeup">Modifica Profilo</h4>
+        <form method="POST" enctype="multipart/form-data" class="fadeup">
             <input type="hidden" name="action" value="update_profile">
 
             <div class="mb-3">
@@ -147,7 +147,7 @@ $stmt->close();
             <button class="btn btn-secondary bottone" type="submit">Salva modifiche</button>
         </form>
 
-        <div class="mt-4">
+        <div class="mt-4 fadeup">
             <a href="home.php" class="linkbianco">← Torna alla home</a>
         </div>
     </div>
