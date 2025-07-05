@@ -4,7 +4,7 @@ $isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
 
 if ($isLoggedIn) {
     $username = $_SESSION['username'] ?? 'Utente';
-    $profilePic = $_SESSION['profile_pic'] ?? '../img/default-avatar.png';
+    $profilePic = $_SESSION['profile_pic'] ?? '../img/abdul.png';
     $userId = $_SESSION['user_id'];
 }
 ?>

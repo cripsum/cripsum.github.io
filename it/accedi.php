@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once '/../config/database.php';
-require_once '/../includes/functions.php';
+require_once '../config/database.php';
+require_once '../includes/functions.php';
 
 if (isLoggedIn()) {
     header('Location: home');
@@ -61,7 +61,7 @@ if ($_POST) {
         <title>Cripsum™ - accedi</title>
     </head>
     <body>
-      <?php include '/../includes/navbar.php'; ?>
+      <?php include '../includes/navbar.php'; ?>
       <div style="max-width: 1920px; margin: auto; padding-top: 7rem" class="testobianco">
       <div class="loginpagege text-center mt-5">
   <!-- Pills content -->
@@ -138,7 +138,7 @@ if ($_POST) {
          
         <div class="button-container mb-3 fadeup" style="text-align: center; margin-top: 3%;">
           <button class="btn btn-secondary bottone" type="submit">
-            <a href="#" class="testobianco">Accedi</a>
+            <span class="testobianco">Accedi</span>
         </button>
         <p id="decrypt"></p>
           
