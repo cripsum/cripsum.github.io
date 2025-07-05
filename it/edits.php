@@ -70,6 +70,7 @@ require_once '../includes/functions.php';
     </head>
     <body>
         <?php include '../includes/navbar.php'; ?>
+        <?php include '../includes/impostazioni.php'; ?>
         <div style="margin: auto; padding-top: 120px; max-width: 1920px" class="testobianco">
             <!--<div style="max-width: 80%; margin: auto">
                 <p class="text-center mt-3 testobianco">la pagina è in manutenzione, tornerà presto, per il momento puoi guardare i miei edit su tiktok</p>
