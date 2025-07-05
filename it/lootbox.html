@@ -507,7 +507,7 @@
 
             document.getElementById("contenuto").innerHTML = `
                     <p style="top 10px; font-size: 20px; max-width: 600px;" id="nomePersonaggio">${pull.name}</p>
-                    <img src="${pull.img}" alt="Premio" class="premio" />
+                    <img src="../${pull.img}" alt="Premio" class="premio" />
                 `;
             addToInventory(pull);
             setLastCharacterFound(pull.name);
@@ -561,7 +561,7 @@
             }
 
             document.getElementById("suonoCassa").innerHTML = `
-                    <source src="${pull.audio}" type="audio/mpeg" id="suono" />
+                    <source src="../${pull.audio}" type="audio/mpeg" id="suono" />
                     `;
 
             document.addEventListener("keydown", function (event) {
