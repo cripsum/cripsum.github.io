@@ -76,11 +76,21 @@ if ($isLoggedIn) {
                         <a class="nav-link" href="registrati">Registrati</a>
                     </li>
                 <?php else: ?>
-                    <li class="nav-item dropdown dropdownutenti">
+                <?php endif; ?>
+            </ul>
+        </div>
+    </div>
+    <div class="btn-group ms-auto me-3 linguanuova">
+        <button type="button" class="btn impostazioni-toggler" data-bs-toggle="modal" data-bs-target="#impostazioniModal" aria-expanded="false">
+            <img src="../img/settings-icon.svg" alt="" style="width: 25px" class="imgbianca" />
+        </button>
+    </div>
+    <?php if ($isLoggedIn): ?>
+        <li class="nav-item dropdown dropdownutenti">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="<?php echo htmlspecialchars($profilePic); ?>" alt="Profilo" 
                                  class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;">
-                            <span><?php echo htmlspecialchars($username); ?></span>
+                            <span class="nomeAccount"><?php echo htmlspecialchars($username); ?></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end animate slideIn">
                             <li><a class="dropdown-item" href="profilo">
@@ -103,13 +113,6 @@ if ($isLoggedIn) {
                             </a></li>
                         </ul>
                     </li>
-                <?php endif; ?>
-            </ul>
-        </div>
-    </div>
-    <div class="btn-group ms-auto me-3 linguanuova">
-        <button type="button" class="btn impostazioni-toggler" data-bs-toggle="modal" data-bs-target="#impostazioniModal" aria-expanded="false">
-            <img src="../img/settings-icon.svg" alt="" style="width: 25px" class="imgbianca" />
-        </button>
-    </div>
+    <?php else: ?>
+    <?php endif; ?>
 </nav>

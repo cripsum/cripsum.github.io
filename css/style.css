@@ -418,6 +418,9 @@ a {
 .godo2 {
     display: flex;
 }
+.nomeAccount {
+    display: flex;
+}
 
 select {
     /* Reset */
@@ -623,6 +626,10 @@ select {
         height: 1300px;
     }
     .godo {
+        display: none;
+    }
+
+    .nomeAccount {
         display: none;
     }
 }
