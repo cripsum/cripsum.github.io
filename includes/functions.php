@@ -1,14 +1,7 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/error.log');
-error_reporting(E_ALL);
-
-
 
 // Aggiungi all'inizio del file functions.php
-require_once '../config/email_config.php';
+require_once __DIR__ . '/../config/email_config.php';
 
 /**
  * Invia email di verifica con funzione mail() nativa
@@ -325,11 +318,9 @@ function requireLogin() {
 }
 
 function logoutUser() {
-    error_log("Funzione logoutUser avviata");
     session_destroy();
-    //header('Location: https://cripsum.com');
-    //exit();
-    echo "Logout ok";
+    header('Location: https://cripsum.com');
+    exit();
 }
 
 function registerUser($mysqli, $username, $email, $password) {
