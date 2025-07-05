@@ -8,7 +8,7 @@ require_once __DIR__ . '/../config/email_config.php';
  */
 function sendVerificationEmail($email, $username, $token) {
     $subject = 'Verifica la tua email - ' . SITE_NAME;
-    $verificationLink = SITE_URL . 'it/verifica-email?token=' . $token;
+    $verificationLink = SITE_URL . '/it/verifica-email?token=' . $token;
     
     // Contenuto HTML
     $htmlBody = getVerificationEmailTemplate($username, $verificationLink);
@@ -268,7 +268,7 @@ function getWelcomeEmailTemplate($username) {
             <p>Il tuo account è stato verificato con successo. Ora puoi accedere e iniziare a utilizzare tutti i nostri servizi.</p>
             
             <div style='text-align: center;'>
-                <a href='" . SITE_URL . "it/accedi' class='button'>Accedi ora</a>
+                <a href='" . SITE_URL . "/it/accedi' class='button'>Accedi ora</a>
             </div>
             
             <p>Se hai domande o hai bisogno di assistenza, non esitare a contattarci.</p>
