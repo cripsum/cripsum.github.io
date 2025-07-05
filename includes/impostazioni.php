@@ -2,12 +2,12 @@
                 <div class="modal-dialog">
                     <div class="modal-content bgimpostazioni">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="impostazioniModalLabel">Impostazioni</h5>
+                            <h5 class="modal-title testobianco" id="impostazioniModalLabel">Impostazioni</h5>
                             <!--<button type="button" class="btn-close tastobianco" data-bs-dismiss="modal" aria-label="Close" onclick="close_disclaimer(1)" style="color: #ffffff"></button>-->
                         </div>
                         <div class="modal-body text-center">
                             <div data-mdb-input-init class="form-outline selezione selezione-lingua">
-                                <label class="form-label" for="registerName">Selezione Lingua</label>
+                                <label class="form-label testobianco" for="registerName">Selezione Lingua</label>
                                 <select class="animate slideIn" style="max-width: 30%; margin-left: 10px">
                                     <option selected id="1">🇮🇹 Ita</option>
                                     <option id="2">🇬🇧 Eng</option>
@@ -17,7 +17,7 @@
                             <!--TODO: cambiare emoji lingua con degli svg fatti bene (porco dio)-->
 
                             <div data-mdb-input-init class="form-outline selezione selezione-tema" style="margin-top: 30px">
-                                <label class="form-label" for="registerName">Selezione Tema</label>
+                                <label class="form-label testobianco" for="registerName">Selezione Tema</label>
                                 <select class="animate slideIn listatemi" style="max-width: 30%; margin-left: 15px">
                                     <option selected value="1">Scuro</option>
                                     <option value="2">Chiaro</option>
