@@ -1,3 +1,33 @@
+<?php
+session_start();
+require_once '../config/database.php';
+require_once '../includes/functions.php';
+
+if (isLoggedIn()) {
+    header('Location: home');
+    exit();
+}
+
+$error = '';
+
+if ($_POST) {
+    $email = $_POST['email'] ?? '';
+    $password = $_POST['password'] ?? '';
+    
+    if (empty($email) || empty($password)) {
+        $error = 'Compila tutti i campi';
+    } else {
+        if (loginUser($pdo, $email, $password)) {
+            header('Location: home');
+            exit();
+        } else {
+            $error = 'Email o password errati';
+        }
+    }
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -31,79 +61,9 @@
         <title>Cripsum™ - accedi</title>
     </head>
     <body>
-      <nav class="navbarutenti navbar navbar-expand-xl">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="home">
-                <img src="../img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
-                <span class="align-middle ms-3 fw-bold" style="color: white">Cripsum™</span>
-            </a>
-            <button
-                class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-                style="z-index: 1000"
-            >
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="home">Home page</a>
-                    </li>
-                    <li class="nav-item dropdown dropdownutenti">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
-                        <ul class="dropdown-menu animate slideIn">
-                            <li><a class="dropdown-item" href="shitpost">Shitpost</a></li>
-                            <li><a class="dropdown-item" href="tiktokpedia">TikTokPedia</a></li>
-                            <li><a class="dropdown-item" href="rimasti">Top rimasti</a></li>
-                            <li><a class="dropdown-item" href="quandel57" style="color: red; font-weight: bold">Quandel57</a></li>
-                            <li><a class="dropdown-item arcobalenos" href="gambling" style="font-weight: bold">Gambling!!</a></li>
-                                <li><a class="dropdown-item testo-arcobaleno" href="../lootbox" style="font-weight: bold">Lootbox</a></li>
-                                <li><a class="dropdown-item" href="achievements">Achievements</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="download">Downloads</a>
-                    </li>
-                    <li class="nav-item dropdown dropdownutenti">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
-                        <ul class="dropdown-menu animate slideIn">
-                            <li><a class="dropdown-item" href="negozio">Negozio</a></li>
-                            <li><a class="dropdown-item" href="merch">Merch</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="donazioni">Donazioni</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="chisiamo">Chi siamo</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="edits">Edits</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="accedi">Accedi</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="registrati">Registrati</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="btn-group dropdown ms-auto me-3 linguanuova">
-            <button type="button" class="btn dropdown-toggle lingua-toggler" data-bs-toggle="dropdown" aria-expanded="false"><a class="link-lingua">🇮🇹</a></button>
-            <ul class="dropdown-menu animate slideIn dropdownlingua dropdown-menu-end animate slideIn dropdown-menu-end">
-                <li><a class="dropdown-item link-lingua" href="#">🇮🇹 Ita</a></li>
-                <li><a class="dropdown-item link-lingua" href="../en/accedi">🇬🇧 Eng</a></li>
-            </ul>
-        </div>
-    </nav>
-        <div style="max-width: 1920px; margin: auto; padding-top: 7rem" class="testobianco">
-        <div class="loginpagege text-center mt-5">
+      <?php include '../includes/navbar.php'; ?>
+      <div style="max-width: 1920px; margin: auto; padding-top: 7rem" class="testobianco">
+      <div class="loginpagege text-center mt-5">
   <!-- Pills content -->
   <div class="tab-content">
     <div
@@ -112,19 +72,23 @@
       role="tabpanel"
       aria-labelledby="tab-login"
     >
-      <form>
+      <form method="post">
         <p class="fs-1 text mb-5 fadeup" style="font-weight: bold;">Accedi</p>
+
+        <?php if ($error): ?>
+          <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
+        <?php endif; ?>
   
         <!-- Email input -->
         <div data-mdb-input-init class="form-outline mb-4 fadeup">
             <label class="form-label" for="loginName">Email o username</label>
-            <input type="email" id="loginName" class="form-control" />
+                                <input type="email" class="form-control" id="email" name="email" required>
         </div>
   
         <!-- Password input -->
         <div data-mdb-input-init class="form-outline mb-4 fadeup">
             <label class="form-label" for="password">Password</label>
-          <input type="password" id="password" class="form-control" />
+<input type="password" class="form-control" id="password" name="password" required>
           
         </div>
 
@@ -173,8 +137,8 @@
         <!-- Submit button -->
          
         <div class="button-container mb-3 fadeup" style="text-align: center; margin-top: 3%;">
-          <button class="btn btn-secondary bottone" type="button">
-            <a href="#" class="testobianco" onclick="accedi()">Accedi</a>
+          <button class="btn btn-secondary bottone" type="submit">
+            <a href="#" class="testobianco">Accedi</a>
         </button>
         <p id="decrypt"></p>
           
@@ -236,12 +200,6 @@
                     } else {
                         document.getElementById("decrypt").innerHTML = "Wrong password";
                     }
-            }
-
-            function accedi() {
-                if(document.getElementById("loginName").value == "capolavoro" && document.getElementById("password").value == "capolavoro") {
-                    window.location.href = "https://cripsum.com/capolavoro";
-                }
             }
         </script>
     </body>
