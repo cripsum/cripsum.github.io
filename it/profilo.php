@@ -10,7 +10,6 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Modifica profilo
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'update_profile') {
     $username = $mysqli->real_escape_string($_POST['username']);
     $pfp_blob = null;
@@ -34,11 +33,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'updat
     $stmt->execute();
     $stmt->close();
 
-    // Aggiorna sessione username
     $_SESSION['username'] = $username;
 }
 
-// Recupera dati
 $stmt = $mysqli->prepare("
     SELECT 
         u.username,
@@ -64,7 +61,6 @@ $stmt->close();
 <!DOCTYPE html>
 <html lang="it">
 <head>
-        <!-- Google tag (gtag.js) -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
         <script>
             window.dataLayer = window.dataLayer || [];

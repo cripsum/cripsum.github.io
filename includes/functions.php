@@ -1,22 +1,15 @@
 <?php
 
-// Aggiungi all'inizio del file functions.php
 require_once __DIR__ . '/../config/email_config.php';
 
-/**
- * Invia email di verifica con funzione mail() nativa
- */
 function sendVerificationEmail($email, $username, $token) {
     $subject = 'Verifica la tua email - ' . SITE_NAME;
     $verificationLink = SITE_URL . '/it/verifica-email?token=' . $token;
     
-    // Contenuto HTML
     $htmlBody = getVerificationEmailTemplate($username, $verificationLink);
     
-    // Contenuto testo semplice
     $textBody = "Ciao $username,\n\nGrazie per esserti registrato su " . SITE_NAME . ".\n\nPer completare la registrazione, visita questo link: $verificationLink\n\nSe non ti sei registrato, ignora questa email.\n\nCordiali saluti,\nIl team di " . SITE_NAME;
     
-    // Headers
     $headers = array();
     $headers[] = 'MIME-Version: 1.0';
     $headers[] = 'Content-type: text/html; charset=UTF-8';
@@ -25,7 +18,6 @@ function sendVerificationEmail($email, $username, $token) {
     $headers[] = 'Return-Path: ' . FROM_EMAIL;
     $headers[] = 'X-Mailer: PHP/' . phpversion();
     
-    // Invia email
     if (mail($email, $subject, $htmlBody, implode("\r\n", $headers))) {
         return true;
     } else {
@@ -34,9 +26,6 @@ function sendVerificationEmail($email, $username, $token) {
     }
 }
 
-/**
- * Template HTML per email di verifica
- */
 function getVerificationEmailTemplate($username, $verificationLink) {
     return "
     <!DOCTYPE html>
@@ -135,11 +124,7 @@ function getVerificationEmailTemplate($username, $verificationLink) {
     ";
 }
 
-/**
- * Verifica email tramite token (con scadenza)
- */
 function verifyEmail($mysqli, $token) {
-    // Verifica token valido e non scaduto (24 ore)
     $stmt = $mysqli->prepare("
         SELECT id, username, email 
         FROM utenti 
@@ -153,7 +138,6 @@ function verifyEmail($mysqli, $token) {
     $user = $result->fetch_assoc();
     
     if ($user) {
-        // Aggiorna utente come verificato
         $updateStmt = $mysqli->prepare("UPDATE utenti SET email_verificata = 1, email_token = NULL WHERE id = ?");
         $updateStmt->bind_param("i", $user['id']);
         
@@ -169,15 +153,11 @@ function verifyEmail($mysqli, $token) {
     return false;
 }
 
-/**
- * Invia email di benvenuto dopo la verifica
- */
 function sendWelcomeEmail($email, $username) {
     $subject = 'Benvenuto su ' . SITE_NAME . '!';
     $htmlBody = getWelcomeEmailTemplate($username);
     $textBody = "Benvenuto su " . SITE_NAME . ", $username!\n\nIl tuo account è stato verificato con successo.\n\nPuoi ora accedere e iniziare a utilizzare tutti i nostri servizi.\n\nGrazie per esserti unito a noi!\n\nCordiali saluti,\nIl team di " . SITE_NAME;
     
-    // Headers
     $headers = array();
     $headers[] = 'MIME-Version: 1.0';
     $headers[] = 'Content-type: text/html; charset=UTF-8';
@@ -186,7 +166,6 @@ function sendWelcomeEmail($email, $username) {
     $headers[] = 'Return-Path: ' . FROM_EMAIL;
     $headers[] = 'X-Mailer: PHP/' . phpversion();
     
-    // Invia email
     if (mail($email, $subject, $htmlBody, implode("\r\n", $headers))) {
         return true;
     } else {
@@ -195,9 +174,6 @@ function sendWelcomeEmail($email, $username) {
     }
 }
 
-/**
- * Template HTML per email di benvenuto
- */
 function getWelcomeEmailTemplate($username) {
     return "
     <!DOCTYPE html>
@@ -291,7 +267,6 @@ function loginUser($mysqli, $email, $password) {
     $user = $result->fetch_assoc();
 
     if ($user && password_verify($password, $user['password'])) {
-        // Controlla se l'email è verificata
         if ($user['email_verificata'] == 0) {
             return 'Devi verificare la tua email prima di accedere. Controlla la tua casella di posta.';
         }
@@ -324,7 +299,6 @@ function logoutUser() {
 }
 
 function registerUser($mysqli, $username, $email, $password) {
-    // Controlla se username o email esistono già
     $checkStmt = $mysqli->prepare("SELECT id FROM utenti WHERE username = ? OR email = ?");
     $checkStmt->bind_param("ss", $username, $email);
     $checkStmt->execute();
@@ -334,13 +308,10 @@ function registerUser($mysqli, $username, $email, $password) {
     }
     $checkStmt->close();
 
-    // Hash della password
     $passwordHash = password_hash($password, PASSWORD_DEFAULT);
     
-    // Genera token di verifica
     $emailToken = bin2hex(random_bytes(32));
 
-    // Inserisci nuovo utente con email non verificata
     $insertStmt = $mysqli->prepare("
         INSERT INTO utenti (username, email, password, data_creazione, ruolo, email_verificata, email_token) 
         VALUES (?, ?, ?, NOW(), 'utente', 0, ?)
@@ -350,7 +321,6 @@ function registerUser($mysqli, $username, $email, $password) {
     if ($insertStmt->execute()) {
         $insertStmt->close();
         
-        // Invia email di verifica
         if (sendVerificationEmail($email, $username, $emailToken)) {
             return true;
         } else {
@@ -362,9 +332,6 @@ function registerUser($mysqli, $username, $email, $password) {
     }
 }
 
-/**
- * Reinvia email di verifica
- */
 function resendVerificationEmail($mysqli, $email) {
     $stmt = $mysqli->prepare("SELECT id, username, email_token FROM utenti WHERE email = ? AND email_verificata = 0");
     $stmt->bind_param("s", $email);
@@ -373,15 +340,13 @@ function resendVerificationEmail($mysqli, $email) {
     $user = $result->fetch_assoc();
     
     if ($user) {
-        // Genera nuovo token se necessario
         $newToken = bin2hex(random_bytes(32));
         
         $updateStmt = $mysqli->prepare("UPDATE utenti SET email_token = ? WHERE id = ?");
         $updateStmt->bind_param("si", $newToken, $user['id']);
         $updateStmt->execute();
         $updateStmt->close();
-        
-        // Invia nuova email
+
         if (sendVerificationEmail($email, $user['username'], $newToken)) {
             $stmt->close();
             return true;
@@ -392,9 +357,7 @@ function resendVerificationEmail($mysqli, $email) {
     return false;
 }
 
-/**
- * Ottiene i dati dell'utente corrente
- */
+
 function getCurrentUser($mysqli) {
     if (!isLoggedIn()) {
         return null;
@@ -413,7 +376,6 @@ function getCurrentUser($mysqli) {
     return $user ?: null;
 }
 
-// Funzione per ottenere il profilo dell'utente
 function getUserProfile($mysqli, $userId) {
     $stmt = $mysqli->prepare("
         SELECT id, username, email, profile_pic, data_creazione, ruolo, soldi, isBannato
@@ -428,7 +390,6 @@ function getUserProfile($mysqli, $userId) {
     return $user ?: null;
 }
 
-// Funzione per aggiornare il profilo dell'utente
 function updateUserProfile($mysqli, $userId, $username, $email, $profilePic) {
     $stmt = $mysqli->prepare("
         UPDATE utenti 
@@ -445,7 +406,6 @@ function updateUserProfile($mysqli, $userId, $username, $email, $profilePic) {
     }
 }
 
-// Funzione per eliminare l'account dell'utente
 function deleteUserAccount($mysqli, $userId) {
     $stmt = $mysqli->prepare("DELETE FROM utenti WHERE id = ?");
     $stmt->bind_param("i", $userId);
@@ -459,9 +419,6 @@ function deleteUserAccount($mysqli, $userId) {
     }
 }
 
-/**
- * Pulisce i token scaduti dal database (da eseguire periodicamente)
- */
 function cleanExpiredTokens($mysqli) {
     $stmt = $mysqli->prepare("UPDATE utenti SET email_token = NULL WHERE email_token IS NOT NULL AND data_creazione < DATE_SUB(NOW(), INTERVAL 24 HOUR)");
     $stmt->execute();

@@ -7,7 +7,6 @@ require_once '../includes/functions.php';
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <!-- Google tag (gtag.js) -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
         <script>
             window.dataLayer = window.dataLayer || [];

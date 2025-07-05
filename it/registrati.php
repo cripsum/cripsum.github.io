@@ -4,7 +4,6 @@ session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
-// Se già loggato, reindirizza alla home
 if (isLoggedIn()) {
     header('Location: home');
     exit();
@@ -21,7 +20,6 @@ if ($_POST) {
     $repeatPassword = $_POST['repeatPassword'] ?? '';
     $acceptTerms = isset($_POST['acceptTerms']);
     
-    // Validazione
     if (empty($username) || empty($email) || empty($password) || empty($repeatPassword)) {
         $error = 'Compila tutti i campi obbligatori';
     } elseif (!$acceptTerms) {
@@ -35,12 +33,11 @@ if ($_POST) {
     } elseif (strlen($username) < 3) {
         $error = 'Lo username deve essere di almeno 3 caratteri';
     } else {
-        // Prova a registrare l'utente
         $result = registerUser($mysqli, $username, $email, $password);
         if ($result === true) {
             $success = 'Registrazione completata! Controlla la tua email per verificare il tuo account prima di poter accedere.';
         } else {
-            $error = $result; // Messaggio di errore dalla funzione
+            $error = $result; 
         }
     }
 }
@@ -49,7 +46,6 @@ if ($_POST) {
 <!DOCTYPE html>
 <html lang="it">
     <head>
-        <!-- Google tag (gtag.js) -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
         <script>
             window.dataLayer = window.dataLayer || [];
@@ -111,28 +107,24 @@ if ($_POST) {
                         <form method="POST" action="">
                             <p class="fs-1 text mb-5 fadeup" style="font-weight: bold">Registrati</p>
 
-                            <!-- Username input -->
                             <div data-mdb-input-init class="form-outline mb-4 fadeup">
                                 <label class="form-label" for="username">Username *</label>
                                 <input type="text" id="username" name="username" class="form-control" value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>" required />
-                                <small class="form-text text-muted">Minimo 3 caratteri</small>
+                                <small class="form-text text-muted testobianco">Minimo 3 caratteri</small>
                             </div>
 
-                            <!-- Email input -->
                             <div data-mdb-input-init class="form-outline mb-4 fadeup">
                                 <label class="form-label" for="email">Email *</label>
                                 <input type="email" id="email" name="email" class="form-control" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" required />
-                                <small class="form-text text-muted">Riceverai un'email di verifica</small>
+                                <small class="form-text text-muted testobianco">Riceverai un'email di verifica</small>
                             </div>
 
-                            <!-- Password input -->
                             <div data-mdb-input-init class="form-outline mb-4 fadeup">
                                 <label class="form-label" for="password">Password *</label>
                                 <input type="password" id="password" name="password" class="form-control" required />
-                                <small class="form-text text-muted">Minimo 6 caratteri</small>
+                                <small class="form-text text-muted testobianco">Minimo 6 caratteri</small>
                             </div>
 
-                            <!-- Repeat Password input -->
                             <div data-mdb-input-init class="form-outline mb-4 fadeup">
                                 <label class="form-label" for="repeatPassword">Ripeti password *</label>
                                 <input type="password" id="repeatPassword" name="repeatPassword" class="form-control" required />

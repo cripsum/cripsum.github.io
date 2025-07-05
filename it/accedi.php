@@ -3,7 +3,6 @@ session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
-// Se già loggato, reindirizza alla home
 if (isLoggedIn()) {
     header('Location: home');
     exit();
@@ -16,13 +15,11 @@ if ($_POST) {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     
-    // Validazione
     if (empty($email) || empty($password)) {
         $error = 'Compila tutti i campi';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Email non valida';
     } else {
-        // Prova a fare login
         $result = loginUser($mysqli, $email, $password);
         if ($result === true) {
             header('Location: home');
@@ -37,7 +34,6 @@ if ($_POST) {
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
     <script>
         window.dataLayer = window.dataLayer || [];

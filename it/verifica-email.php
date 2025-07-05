@@ -16,7 +16,6 @@ if (isset($_GET['token'])) {
             $message = "Email verificata con successo! Ora puoi accedere al tuo account.";
             $messageType = 'success';
             
-            // Invia email di benvenuto
             sendWelcomeEmail($user['email'], $user['username']);
         } else {
             $message = "Token di verifica non valido o già utilizzato.";
@@ -31,7 +30,6 @@ if (isset($_GET['token'])) {
     $messageType = 'error';
 }
 
-// Gestione reinvio email
 if ($_POST && isset($_POST['resend_email'])) {
     $email = trim($_POST['email'] ?? '');
     
@@ -53,7 +51,6 @@ if ($_POST && isset($_POST['resend_email'])) {
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
     <script>
         window.dataLayer = window.dataLayer || [];

@@ -41,7 +41,7 @@ if ($isLoggedIn) {
                         <li><a class="dropdown-item" href="rimasti">Top rimasti</a></li>
                         <li><a class="dropdown-item" href="quandel57" style="color: red; font-weight: bold">Quandel57</a></li>
                         <li><a class="dropdown-item arcobalenos" href="gambling" style="font-weight: bold">Gambling!!</a></li>
-                        <li><a class="dropdown-item testo-arcobaleno" href="../lootbox" style="font-weight: bold">Lootbox</a></li>
+                        <li><a class="dropdown-item testo-arcobaleno" href="lootbox" style="font-weight: bold">Lootbox</a></li>
                         <li><a class="dropdown-item" href="achievements">Achievements</a></li>
                     </ul>
                 </li>
