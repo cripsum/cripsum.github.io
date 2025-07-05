@@ -357,6 +357,31 @@ require_once '../includes/functions.php';
                         <a href="https://youtu.be/xvFZjo5PgG0?si=uPsap7ILF_8aYheh" class="testobianco">Clicca qui per V-bucks gratis!!!!</a>
                     </button>
                 </div>
+                <div class="search-container" style="text-align: center; margin-top: 2rem;">
+                    <div class="input-group" style="max-width: 400px; margin: 0 auto;">
+                        <input type="text" id="userSearch" class="form-control" placeholder="Cerca profilo utente..." style="background-color: var(--bg-color); border: 1px solid #ccc;">
+                        <button class="btn btn-primary" type="button" onclick="searchUser()">
+                            <span class="testobianco">Vai al profilo</span>
+                        </button>
+                    </div>
+                </div>
+
+                <script>
+                function searchUser() {
+                    const username = document.getElementById('userSearch').value.trim();
+                    if (username) {
+                        window.location.href = `../user/${encodeURIComponent(username)}`;
+                    } else {
+                        alert('Inserisci un nome utente per continuare');
+                    }
+                }
+
+                document.getElementById('userSearch').addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchUser();
+                    }
+                });
+                </script>
                 <!--<p style="text-decoration: none; margin-top: 3%; font-size: larger; font-weight: bold; text-align: center">
                     <a class="linkbianco" href="donazioni" style="text-decoration: none">Dona 5€ al Wise Mystical Tree per un mondo migliore :)</a>
                 </p>-->
