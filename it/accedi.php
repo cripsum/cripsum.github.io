@@ -17,12 +17,12 @@ if ($_POST) {
     if (empty($email) || empty($password)) {
         $error = 'Compila tutti i campi';
     } else {
-        if (loginUser($pdo, $email, $password)) {
-            header('Location: home');
-            exit();
-        } else {
-            $error = 'Email o password errati';
-        }
+      if (loginUser($mysqli, $email, $password)) {
+          header('Location: home');
+          exit();
+      } else {
+          $error = 'Email o password errati';
+      }
     }
 }
 ?>
