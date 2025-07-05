@@ -330,7 +330,7 @@ input[type="file"]::file-selector-button {
 }
 
 input[type="file"]::file-selector-button:hover {
-    background-color: #666;
+    background-color: #252525;
 }
 
 .loading_white {
