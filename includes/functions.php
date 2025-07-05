@@ -1,7 +1,10 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
 ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/error.log'); // salva gli errori in un file chiamato "error.log" nella stessa cartella
-error_reporting(E_ALL); // mostra tutti gli errori
+ini_set('error_log', __DIR__ . '/error.log');
+error_reporting(E_ALL);
+
 
 
 // Aggiungi all'inizio del file functions.php
@@ -322,9 +325,11 @@ function requireLogin() {
 }
 
 function logoutUser() {
+    error_log("Funzione logoutUser avviata");
     session_destroy();
-    header('Location: https://cripsum.com');
-    exit();
+    //header('Location: https://cripsum.com');
+    //exit();
+    echo "Logout ok";
 }
 
 function registerUser($mysqli, $username, $email, $password) {
