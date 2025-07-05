@@ -13,7 +13,7 @@ $error = '';
 $success = '';
 
 if ($_POST) {
-    $nome = trim($_POST['nome'] ?? '');
+
     $username = trim($_POST['username'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
@@ -21,7 +21,7 @@ if ($_POST) {
     $acceptTerms = isset($_POST['acceptTerms']);
     
     // Validazione
-    if (empty($nome) || empty($username) || empty($email) || empty($password) || empty($repeatPassword)) {
+    if (empty($username) || empty($email) || empty($password) || empty($repeatPassword)) {
         $error = 'Compila tutti i campi obbligatori';
     } elseif (!$acceptTerms) {
         $error = 'Devi accettare i termini e condizioni';
@@ -34,16 +34,16 @@ if ($_POST) {
     } elseif (strlen($username) < 3) {
         $error = 'Lo username deve essere di almeno 3 caratteri';
     } else {
-        // Prova a registrare l'utente
-        $result = registerUser($pdo, $nome, $username, $email, $password);
-        if ($result === true) {
-            $_SESSION['registration_success'] = 'Registrazione completata! Ora puoi accedere.';
-            header('Location: accedi');
-            exit();
-        } else {
-            $error = $result; // Il messaggio di errore dalla funzione
-        }
+    // Prova a registrare l'utente
+    $result = registerUser($mysqli, $username, $email, $password);
+    if ($result === true) {
+        $_SESSION['registration_success'] = 'Registrazione completata! Ora puoi accedere.';
+        header('Location: accedi');
+        exit();
+    } else {
+        $error = $result; // Messaggio di errore dalla funzione
     }
+}
 }
 ?>
 
@@ -103,12 +103,6 @@ if ($_POST) {
 
                         <form method="POST" action="">
                             <p class="fs-1 text mb-5 fadeup" style="font-weight: bold">Registrati</p>
-
-                            <!-- Name input -->
-                            <div data-mdb-input-init class="form-outline mb-4 fadeup">
-                                <label class="form-label" for="nome">Nome *</label>
-                                <input type="text" id="nome" name="nome" class="form-control" value="<?php echo htmlspecialchars($_POST['nome'] ?? ''); ?>" required />
-                            </div>
 
                             <!-- Username input -->
                             <div data-mdb-input-init class="form-outline mb-4 fadeup">

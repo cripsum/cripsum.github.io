@@ -33,7 +33,7 @@ function logoutUser() {
     exit();
 }
 
-function registerUser($mysqli, $nome, $username, $email, $password) {
+function registerUser($mysqli, $username, $email, $password) {
     // Controlla se username o email esistono già
     $checkStmt = $mysqli->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
     $checkStmt->bind_param("ss", $username, $email);
@@ -49,10 +49,10 @@ function registerUser($mysqli, $nome, $username, $email, $password) {
 
     // Inserisci nuovo utente
     $insertStmt = $mysqli->prepare("
-        INSERT INTO users (nome, username, email, password, created_at, is_active) 
-        VALUES (?, ?, ?, ?, NOW(), 1)
+        INSERT INTO users (username, email, password, created_at, is_active) 
+        VALUES (?, ?, ?, NOW(), 1)
     ");
-    $insertStmt->bind_param("ssss", $nome, $username, $email, $passwordHash);
+    $insertStmt->bind_param("sss", $username, $email, $passwordHash);
 
     if ($insertStmt->execute()) {
         $insertStmt->close();
@@ -71,7 +71,7 @@ function checkRememberToken($mysqli) {
         $token = $_COOKIE['remember_token'];
 
         $stmt = $mysqli->prepare("
-            SELECT u.id, u.nome, u.username, u.email, u.profile_pic 
+            SELECT u.id, u.username, u.email, u.profile_pic 
             FROM users u 
             JOIN remember_tokens rt ON u.id = rt.user_id 
             WHERE rt.token = ? AND rt.expires_at > NOW() AND u.is_active = 1
@@ -83,7 +83,6 @@ function checkRememberToken($mysqli) {
 
         if ($user) {
             $_SESSION['user_id'] = $user['id'];
-            $_SESSION['nome'] = $user['nome'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['email'] = $user['email'];
             $_SESSION['profile_pic'] = $user['profile_pic'] ?? '../img/default-avatar.png';
@@ -114,7 +113,7 @@ function getCurrentUser($mysqli) {
     }
 
     $stmt = $mysqli->prepare("
-        SELECT id, nome, username, email, profile_pic, created_at, last_login 
+        SELECT id, username, email, profile_pic, created_at, last_login 
         FROM users 
         WHERE id = ? AND is_active = 1
     ");
@@ -129,7 +128,7 @@ function getCurrentUser($mysqli) {
 // Funzione per ottenere il profilo dell'utente
 function getUserProfile($mysqli, $userId) {
     $stmt = $mysqli->prepare("
-        SELECT id, nome, username, email, profile_pic, created_at, last_login 
+        SELECT id, username, email, profile_pic, created_at, last_login 
         FROM users 
         WHERE id = ? AND is_active = 1
     ");
@@ -142,13 +141,13 @@ function getUserProfile($mysqli, $userId) {
 }
 
 // Funzione per aggiornare il profilo dell'utente
-function updateUserProfile($mysqli, $userId, $nome, $username, $email, $profilePic) {
+function updateUserProfile($mysqli, $userId, $username, $email, $profilePic) {
     $stmt = $mysqli->prepare("
         UPDATE users 
-        SET nome = ?, username = ?, email = ?, profile_pic = ? 
+        SET username = ?, email = ?, profile_pic = ? 
         WHERE id = ? AND is_active = 1
     ");
-    $stmt->bind_param("ssssi", $nome, $username, $email, $profilePic, $userId);
+    $stmt->bind_param("sssi", $username, $email, $profilePic, $userId);
     if ($stmt->execute()) {
         $stmt->close();
         return true;
