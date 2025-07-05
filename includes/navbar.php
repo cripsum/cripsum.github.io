@@ -93,7 +93,7 @@ if ($isLoggedIn) {
                                 <i class="fas fa-shopping-bag me-2"></i>I miei ordini
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="logout">
+                            <li><a class="dropdown-item text-danger" href="../logout">
                                 <i class="fas fa-sign-out-alt me-2"></i>Logout
                             </a></li>
                         </ul>
