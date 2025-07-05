@@ -130,6 +130,7 @@ hr.rounded {
     color: white;
     font-weight: bold;
     transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease;
+    max-width: 200px;
 }
 
 .link-lingua {
