@@ -358,6 +358,7 @@ require_once '../includes/functions.php';
                     </button>
                 </div>
                 <div class="search-container" style="text-align: center; margin-top: 2rem;">
+                    <p>test temporaneo</p>
                     <div class="input-group" style="max-width: 400px; margin: 0 auto;">
                         <input type="text" id="userSearch" class="form-control" placeholder="Cerca profilo utente..." style="background-color: var(--bg-color); border: 1px solid #ccc;">
                         <button class="btn btn-primary" type="button" onclick="searchUser()">
