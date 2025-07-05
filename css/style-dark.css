@@ -251,10 +251,18 @@ hr.rounded {
     box-shadow: 0 0 8px 5px rgba(255, 255, 255, 0.5);
 }
 
+.list-group {
+    background-color: #333;
+    color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5);
+}
+
 input[type="text"],
 input[type="email"],
 input[type="password"],
 input[type="number"],
+input[type="file"],
 textarea {
     background-color: #333;
     color: white !important;
@@ -270,6 +278,7 @@ input[type="text"]:focus,
 input[type="email"]:focus,
 input[type="password"]:focus,
 input[type="number"]:focus,
+input[type="file"]:focus,
 textarea:focus {
     color: white !important;
     outline: none;

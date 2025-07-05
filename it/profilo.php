@@ -94,11 +94,11 @@ $stmt->close();
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cripsum™ - Profilo</title>
 </head>
-<body>
+<body >
 
     <?php include '../includes/navbar.php'; ?>
 
-    <div class="container my-5">
+    <div class="container my-5 paginainterachisiamo testobianco" style="padding-top: 7rem">
         <h1 class="mb-4">Il Mio Profilo</h1>
 
         <div class="row mb-4">
@@ -144,8 +144,7 @@ $stmt->close();
                 <label for="pfp" class="form-label">Immagine profilo</label>
                 <input type="file" class="form-control" id="pfp" name="pfp" accept="image/*">
             </div>
-
-            <button type="submit" class="btn btn-primary">Salva modifiche</button>
+            <button class="btn btn-secondary bottone" type="submit">Salva modifiche</button>
         </form>
 
         <div class="mt-4">
@@ -154,7 +153,6 @@ $stmt->close();
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
 
             <div id="achievement-popup" class="popup">
             <img id="popup-image" src="" alt="Achievement" />
