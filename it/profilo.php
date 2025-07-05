@@ -156,8 +156,6 @@ $stmt->close();
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
             <div id="achievement-popup" class="popup">
             <img id="popup-image" src="" alt="Achievement" />
             <div>
