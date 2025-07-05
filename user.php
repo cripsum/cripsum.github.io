@@ -241,7 +241,7 @@ if ($isLoggedIn) {
 
 
 
-        <?php if ($user_id == $_SESSION['user_id']): ?>
+        <?php if ($user_cercato_id == $_SESSION['user_id']): ?>
         <h4 class="mb-3 fadeup">Modifica Profilo</h4>
         <form method="POST" enctype="multipart/form-data" class="fadeup">
             <input type="hidden" name="action" value="update_profile">
