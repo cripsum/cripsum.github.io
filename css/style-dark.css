@@ -251,7 +251,7 @@ hr.rounded {
     box-shadow: 0 0 8px 5px rgba(255, 255, 255, 0.5);
 }
 
-.list-group {
+.list-group-item {
     background-color: #333;
     color: white;
     border-radius: 10px;
