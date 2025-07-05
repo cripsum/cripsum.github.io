@@ -254,8 +254,7 @@ hr.rounded {
 .list-group-item {
     background-color: #333;
     color: white;
-    border-radius: 10px;
-    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.3);
 }
 
 input[type="text"],
@@ -318,6 +317,20 @@ textarea:-ms-input-placeholder {
 input::-ms-input-placeholder, /* Microsoft Edge */
 textarea::-ms-input-placeholder {
     color: rgb(255, 255, 255) !important;
+}
+
+input[type="file"]::file-selector-button {
+    background-color: #444;
+    color: #fff;
+    border: none;
+    padding: 0.4rem 1rem;
+    margin-right: 1rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+}
+
+input[type="file"]::file-selector-button:hover {
+    background-color: #666;
 }
 
 .loading_white {
