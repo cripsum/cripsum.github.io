@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '../secure/config.php';
+require_once __DIR__ . '/../secure/config.php';
 
 $mysqli = new mysqli($host, $username, $password, $database);
 
