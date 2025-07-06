@@ -52,11 +52,7 @@ try {
         if ($message['reply_to']) {
             $replyMessage = getMessageById($mysqli, $message['reply_to']);
             if ($replyMessage) {
-            $replyText = htmlspecialchars($replyMessage['message']);
-            if (strlen($replyText) > 100) {
-                $replyText = substr($replyText, 0, 100) . '...';
-            }
-            echo '<div class="reply-to">Risposta a: ' . $replyText . '</div>';
+                echo '<div class="reply-to">Risposta a: ' . htmlspecialchars($replyMessage['message']) . '</div>';
             }
         }
         
