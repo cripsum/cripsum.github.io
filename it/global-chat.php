@@ -64,7 +64,7 @@ $profilePic = "/includes/get_pfp.php?id=$userId";
 <body>
     <?php include '../includes/navbar.php'; ?>
 
-    <div class="container mt-4 paginainterachisiamo testobianco" style="padding-top: 7rem">
+    <div class="container mt-4" style="padding-top: 7rem">
         <div class="chat-container">
             <div class="messages" id="messages">
                 <div class="text-center text-muted">
