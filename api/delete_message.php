@@ -1,8 +1,8 @@
 <?php
-ini_set('display_errors', 0);
-ini_set('display_startup_errors', 0);
-ini_set('log_errors', 0);
-error_reporting(0);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+ini_set('log_errors', 1);
+error_reporting(E_ALL);
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/chat_config.php';
@@ -44,7 +44,7 @@ $userRole = $_SESSION['ruolo'] ?? 'utente';
 
 try {
     // Verifica se l'utente può eliminare il messaggio
-    $stmt = $mysqli->prepare("SELECT user_id FROM chat_messages WHERE id = ?");
+    $stmt = $mysqli->prepare("SELECT user_id FROM messages WHERE id = ?");
     $stmt->bind_param("i", $messageId);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -64,7 +64,7 @@ try {
     }
     
     // Elimina il messaggio
-    $deleteStmt = $mysqli->prepare("DELETE FROM chat_messages WHERE id = ?");
+    $deleteStmt = $mysqli->prepare("DELETE FROM messages WHERE id = ?");
     $deleteStmt->bind_param("i", $messageId);
     
     if ($deleteStmt->execute()) {
