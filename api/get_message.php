@@ -42,7 +42,7 @@ try {
         echo '<img src="' . $profilePic . '" alt="Profile" class="profile-pic">';
         echo '<div class="message-content">';
         echo '<div class="message-header">';
-        echo '<a href="../user?id=' . $message['user_id'] . '" class="message-username-link"><span class="message-username">' . htmlspecialchars($message['username']) . '</span></a>';
+        echo '<a href="../user?id=' . $message['user_id'] . '" class="message-username-link"><span class="message-username">' . htmlspecialchars($message['username']) . ' - ' . htmlspecialchars($message['ruolo']) . '</span></a>';
         $date = new DateTime($message['created_at'], new DateTimeZone('UTC'));
         $date->setTimezone(new DateTimeZone('Europe/Rome'));
         echo '<span class="message-time">' . $date->format('H:i') . '</span>';
@@ -50,7 +50,7 @@ try {
 
         
         if ($message['reply_to']) {
-            echo '<div class="reply-to">Risposta a: ' . htmlspecialchars(string: $message['reply_to']) . '</div>';
+            echo '<div class="reply-to">Risposta a: ' . htmlspecialchars($message['reply_username']) . ': ' . htmlspecialchars(string: $message['reply_message']) . '</div>';
         }
         
         echo '<p class="message-text">' . htmlspecialchars($message['message']) . '</p>';
