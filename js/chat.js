@@ -1,55 +1,65 @@
-console.log("JS caricato");
+console.log("JS caricato - chat.js loaded successfully");
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log("DOM loaded, initializing chat");
     
-    // Get DOM elements with null checks
+    // Test that elements exist
     const messageInput = document.getElementById('message');
     const sendButton = document.getElementById('send-button');
     const messagesContainer = document.getElementById('messages');
-    const notificationSound = document.getElementById('notification-sound');
     
-    // Check if required elements exist
+    console.log('Elements found:', {
+        messageInput: !!messageInput,
+        sendButton: !!sendButton, 
+        messagesContainer: !!messagesContainer
+    });
+    
     if (!messageInput || !sendButton || !messagesContainer) {
-        console.error('Required chat elements not found:', {
-            messageInput: !!messageInput,
-            sendButton: !!sendButton,
-            messagesContainer: !!messagesContainer
-        });
+        console.error('Required elements not found!');
         return;
     }
     
-    console.log("All elements found, setting up chat");
+    console.log("Setting up event listeners");
     
     let lastMessageId = 0;
     let lastSendTime = 0;
     let replyingTo = null;
 
-    // Carica messaggi iniziali
+    // Load initial messages
     loadMessages();
 
-    // Auto-refresh messaggi ogni 2 secondi
+    // Auto-refresh every 2 seconds
     setInterval(loadNewMessages, window.AUTO_REFRESH_INTERVAL || 2000);
 
-    // Event listener per il pulsante invio
-    sendButton.addEventListener('click', sendMessage);
+    // Send button click
+    sendButton.addEventListener('click', function() {
+        console.log("Send button clicked");
+        sendMessage();
+    });
 
-    // Event listener per invio con Enter
+    // Enter key press
     messageInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
+            console.log("Enter key pressed");
             sendMessage();
         }
     });
 
     function loadMessages() {
+        console.log("Loading messages...");
         fetch('../api/get_message.php')
-            .then(response => response.text())
+            .then(response => {
+                console.log("Messages response:", response.status);
+                return response.text();
+            })
             .then(html => {
+                console.log("Messages HTML received, length:", html.length);
                 messagesContainer.innerHTML = html;
                 scrollToBottom();
                 updateLastMessageId();
             })
             .catch(error => {
-                console.error('Errore nel caricamento dei messaggi:', error);
+                console.error('Error loading messages:', error);
                 messagesContainer.innerHTML = '<div class="text-center text-danger"><p>Errore nel caricamento dei messaggi</p></div>';
             });
     }
@@ -64,15 +74,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     messagesContainer.insertAdjacentHTML('beforeend', html);
                     scrollToBottom();
                     updateLastMessageId();
-                    playNotificationSound();
                 }
             })
             .catch(error => {
-                console.error('Errore nel caricamento dei nuovi messaggi:', error);
+                console.error('Error loading new messages:', error);
             });
     }
 
     function sendMessage() {
+        console.log("Sending message...");
         const message = messageInput.value.trim();
 
         if (!message) {
@@ -100,6 +110,8 @@ document.addEventListener('DOMContentLoaded', function() {
             payload.reply_to = replyingTo;
         }
 
+        console.log("Sending payload:", payload);
+
         fetch('../api/send_message.php', {
             method: 'POST',
             headers: {
@@ -107,19 +119,23 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify(payload)
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log("Send response:", response.status);
+            return response.json();
+        })
         .then(data => {
+            console.log("Send result:", data);
             if (data.success) {
                 messageInput.value = '';
                 lastSendTime = currentTime;
                 clearReply();
-                loadNewMessages(); // Ricarica per mostrare il nuovo messaggio
+                setTimeout(loadMessages, 500); // Reload after short delay
             } else {
                 alert(data.error || 'Errore nell\'invio del messaggio');
             }
         })
         .catch(error => {
-            console.error('Errore nell\'invio del messaggio:', error);
+            console.error('Error sending message:', error);
             alert('Errore nell\'invio del messaggio');
         });
     }
@@ -131,20 +147,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const messageId = parseInt(lastMessage.getAttribute('data-message-id'));
             if (messageId > lastMessageId) {
                 lastMessageId = messageId;
+                console.log("Updated lastMessageId to:", lastMessageId);
             }
         }
     }
 
     function scrollToBottom() {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
-
-    function playNotificationSound() {
-        if (notificationSound) {
-            notificationSound.play().catch(e => {
-                // Ignora errori di autoplay
-            });
-        }
     }
 
     function clearReply() {
@@ -158,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Funzioni globali per i pulsanti nei messaggi
+    // Global functions for message buttons
     window.deleteMessage = function(messageId) {
         if (!confirm('Sei sicuro di voler eliminare questo messaggio?')) {
             return;
@@ -174,30 +183,27 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                loadMessages(); // Ricarica tutti i messaggi
+                loadMessages();
             } else {
                 alert(data.error || 'Errore nell\'eliminazione del messaggio');
             }
         })
         .catch(error => {
-            console.error('Errore nell\'eliminazione del messaggio:', error);
+            console.error('Error deleting message:', error);
             alert('Errore nell\'eliminazione del messaggio');
         });
     };
 
     window.startReply = function(messageId, username, messageText) {
         replyingTo = messageId;
-        
-        // Rimuovi indicatore di risposta precedente
         clearReply();
         
-        // Crea indicatore di risposta
         const replyIndicator = document.createElement('div');
         replyIndicator.id = 'reply-indicator';
         replyIndicator.className = 'reply-indicator';
         replyIndicator.innerHTML = `
             <span>Rispondendo a @${username}: ${messageText.substring(0, 50)}${messageText.length > 50 ? '...' : ''}</span>
-            <button type="button" onclick="clearReply()" class="btn-close"></button>
+            <button type="button" onclick="clearReply()" class="btn-close">×</button>
         `;
         
         if (messageInput && messageInput.parentElement) {
