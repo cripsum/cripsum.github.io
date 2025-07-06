@@ -42,7 +42,7 @@ try {
         echo '<img src="' . $profilePic . '" alt="Profile" class="profile-pic">';
         echo '<div class="message-content">';
         echo '<div class="message-header">';
-        echo '<span class="message-username">' . htmlspecialchars($message['username']) . '</span>';
+        echo '<a href="../user?id=' . $message['user_id'] . '" class="message-username-link"><span class="message-username">' . htmlspecialchars($message['username']) . '</span></a>';
         $date = new DateTime($message['created_at'], new DateTimeZone('UTC'));
         $date->setTimezone(new DateTimeZone('Europe/Rome'));
         echo '<span class="message-time">' . $date->format('H:i') . '</span>';

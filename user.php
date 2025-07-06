@@ -8,23 +8,41 @@ $isLoggedIn = isset($_SESSION['user_id']);
 $user_id = $_SESSION['user_id'] ?? null;
 $username_session = $_SESSION['username'] ?? null;
 
-// Username preso dalla URL riscritta
-$username_url = $_GET['username'] ?? null;
-if (!$username_url) {
+// Identifica se è username o ID dalla URL
+$identifier = $_GET['username'] ?? $_GET['id'] ?? null;
+if (!$identifier) {
     http_response_code(400);
-    exit("Username non specificato.");
+    exit("Identificativo utente non specificato.");
 }
 
-// Recupera utente dal database
-$stmt = $mysqli->prepare("SELECT u.id, u.username, u.data_creazione, u.soldi, u.ruolo,
-    COUNT(DISTINCT ua.achievement_id) AS num_achievement,
-    COUNT(DISTINCT up.personaggio_id) AS num_personaggi
-    FROM utenti u
-    LEFT JOIN utenti_achievement ua ON ua.utente_id = u.id
-    LEFT JOIN utenti_personaggi up ON up.utente_id = u.id
-    WHERE u.username = ?
-    GROUP BY u.id");
-$stmt->bind_param("s", $username_url);
+// Determina se l'identificativo è numerico (ID) o alfanumerico (username)
+$is_id = is_numeric($identifier);
+
+// Prepara la query in base al tipo di identificativo
+if ($is_id) {
+    $query = "SELECT u.id, u.username, u.data_creazione, u.soldi, u.ruolo,
+        COUNT(DISTINCT ua.achievement_id) AS num_achievement,
+        COUNT(DISTINCT up.personaggio_id) AS num_personaggi
+        FROM utenti u
+        LEFT JOIN utenti_achievement ua ON ua.utente_id = u.id
+        LEFT JOIN utenti_personaggi up ON up.utente_id = u.id
+        WHERE u.id = ?
+        GROUP BY u.id";
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param("i", $identifier);
+} else {
+    $query = "SELECT u.id, u.username, u.data_creazione, u.soldi, u.ruolo,
+        COUNT(DISTINCT ua.achievement_id) AS num_achievement,
+        COUNT(DISTINCT up.personaggio_id) AS num_personaggi
+        FROM utenti u
+        LEFT JOIN utenti_achievement ua ON ua.utente_id = u.id
+        LEFT JOIN utenti_personaggi up ON up.utente_id = u.id
+        WHERE u.username = ?
+        GROUP BY u.id";
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param("s", $identifier);
+}
+
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -64,6 +82,7 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
     $stmt->close();
 
     $_SESSION['username'] = $username;
+    // Reindirizza sempre all'username dopo la modifica
     header("Location: /user/" . urlencode($username));
     exit;
 }
@@ -83,6 +102,7 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
             gtag("config", "G-T0CTM2SBJJ");
         </script>
         <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
             rel="stylesheet"
@@ -105,10 +125,9 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
         <script src="../js/achievements-globali.js"></script>
         <script src="../js/richpresence.js"></script>
 
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cripsum™ - Profilo</title>
+    <title>Cripsum™ - Profilo di <?php echo htmlspecialchars($user['username']); ?></title>
 </head>
-<body >
+<body>
 
     <?php
 session_start();
@@ -204,9 +223,16 @@ if ($isLoggedIn) {
     </div>
 </nav>
 
-
     <div class="container my-5 paginainterachisiamo testobianco" style="padding-top: 7rem">
         <h1 class="mb-4 fadeup">Profilo di <?php echo htmlspecialchars($user['username']); ?></h1>
+        
+        <!-- Mostra l'URL canonico per SEO -->
+        <div class="mb-2 fadeup">
+            <small class="text-muted">
+                URL: <?php echo htmlspecialchars($_SERVER['HTTP_HOST']); ?>/user/<?php echo htmlspecialchars($user['username']); ?>
+                | ID: <?php echo $user['id']; ?>
+            </small>
+        </div>
 
         <div class="row mb-4">
             <div class="col-md-4 text-center fadeup">
@@ -214,6 +240,16 @@ if ($isLoggedIn) {
 
                 <h3><?php echo htmlspecialchars($user['username']); ?></h3>
                 <p>Membro dal: <?php echo date('d/m/Y', strtotime($user['data_creazione'])); ?></p>
+                
+                <!-- Pulsanti per condividere profilo -->
+                <div class="mt-3">
+                    <button class="btn btn-sm btn-outline-primary" onclick="copyProfileLink('username')">
+                        Copia link profilo
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="copyProfileLink('id')">
+                        Copia link ID
+                    </button>
+                </div>
             </div>
 
             <div class="col-md-8 fadeup">
@@ -239,8 +275,6 @@ if ($isLoggedIn) {
             </div>
         </div>
 
-
-
         <?php if ($user_cercato_id == $_SESSION['user_id']): ?>
         <h4 class="mb-3 fadeup">Modifica Profilo</h4>
         <form method="POST" enctype="multipart/form-data" class="fadeup">
@@ -263,6 +297,40 @@ if ($isLoggedIn) {
             <a href="../it/home" class="linkbianco">← Torna alla home</a>
         </div>
     </div>
+
+    <script>
+        function copyProfileLink(type) {
+            const username = <?php echo json_encode($user['username']); ?>;
+            const userId = <?php echo $user['id']; ?>;
+            const baseUrl = window.location.origin;
+            
+            let url;
+            if (type === 'username') {
+                url = `${baseUrl}/user/${encodeURIComponent(username)}`;
+            } else {
+                url = `${baseUrl}/user?id=${userId}`;
+            }
+            
+            navigator.clipboard.writeText(url).then(function() {
+                alert('Link copiato negli appunti!');
+            }, function(err) {
+                console.error('Errore nel copiare il link: ', err);
+                // Fallback per browser più vecchi
+                const textArea = document.createElement("textarea");
+                textArea.value = url;
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    alert('Link copiato negli appunti!');
+                } catch (err) {
+                    alert('Impossibile copiare il link automaticamente. URL: ' + url);
+                }
+                document.body.removeChild(textArea);
+            });
+        }
+    </script>
 
             <div id="achievement-popup" class="popup">
             <img id="popup-image" src="" alt="Achievement" />
