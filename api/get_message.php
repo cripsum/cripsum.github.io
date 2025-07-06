@@ -1,9 +1,9 @@
 <?php
 
-ini_set('display_errors', 0);
-ini_set('display_startup_errors', 0);
-ini_set('log_errors', 0);
-error_reporting(0);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+ini_set('log_errors', 1);
+error_reporting(1);
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/chat_config.php';
@@ -52,7 +52,11 @@ try {
         if ($message['reply_to']) {
             $replyMessage = getMessageById($mysqli, $message['reply_to']);
             if ($replyMessage) {
-                echo '<div class="reply-to">Risposta a: ' . htmlspecialchars($replyMessage['message']) . '</div>';
+            $replyText = htmlspecialchars($replyMessage['message']);
+            if (strlen($replyText) > 100) {
+                $replyText = substr($replyText, 0, 100) . '...';
+            }
+            echo '<div class="reply-to">Risposta a: ' . $replyText . '</div>';
             }
         }
         
