@@ -292,6 +292,34 @@ function requireLogin() {
     }
 }
 
+function validateMessage($message) {
+    return strlen($message) <= 30;
+}
+
+function getUserRole() {
+    return $_SESSION['ruolo'] ?? 'utente';
+}
+
+function canDeleteMessage($messageUserId) {
+    $userRole = getUserRole();
+    return $userRole === 'admin' || $_SESSION['user_id'] == $messageUserId;
+}
+
+function setMessageTimeout() {
+    if (!isset($_SESSION['last_message_time'])) {
+        $_SESSION['last_message_time'] = time();
+        return true;
+    }
+
+    $currentTime = time();
+    if (($currentTime - $_SESSION['last_message_time']) >= 5) {
+        $_SESSION['last_message_time'] = $currentTime;
+        return true;
+    }
+
+    return false;
+}
+
 function logoutUser() {
     session_destroy();
     header('Location: https://cripsum.com');
