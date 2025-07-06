@@ -11,7 +11,7 @@
 
 /* Messages Container */
 .messages {
-    height: 500px;
+    height: 750px;
     overflow-y: auto;
     padding: 20px;
     background: var(--bs-body-bg);
