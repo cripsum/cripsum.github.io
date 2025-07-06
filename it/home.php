@@ -376,6 +376,11 @@ require_once '../includes/functions.php';
                         </button>
                     </div>
                 </div>
+                <div class="button-container" style="text-align: center; margin-top: 1rem">
+                    <button class="btn btn-secondary bottone" type="button">
+                        <a href="global-chat" class="testobianco">Vai alla chat globale</a>
+                    </button>
+                </div>
 
                 <script>
                 function searchUser() {
