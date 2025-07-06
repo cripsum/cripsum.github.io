@@ -10,6 +10,7 @@ require_once __DIR__ . '/../config/chat_config.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/chat_functions.php';
 
+
 if (!isLoggedIn()) {
     header('Location: accedi');
     exit();
@@ -89,6 +90,15 @@ $profilePic = "/includes/get_pfp.php?id=$userId";
         window.maxMessageLength = <?php echo MAX_MESSAGE_LENGTH; ?>;
         window.messageTimeout = <?php echo MESSAGE_TIMEOUT * 1000; ?>; // Convert to milliseconds
         window.AUTO_REFRESH_INTERVAL = <?php echo AUTO_REFRESH_INTERVAL; ?>;
+
+                document.addEventListener('DOMContentLoaded', function() {
+            // Add a small delay to ensure all scripts are loaded
+            setTimeout(function() {
+                if (typeof initializeChat === 'function') {
+                    initializeChat();
+                }
+            }, 100);
+        });
     </script>
     <script src="../js/chat.js" defer></script>
     <script src="../js/chat-utils.js" defer></script>

@@ -1,10 +1,24 @@
 console.log("JS caricato");
 document.addEventListener('DOMContentLoaded', function() {
-     console.log("Clic su Invia");
+    console.log("DOM loaded, initializing chat");
+    
+    // Get DOM elements with null checks
     const messageInput = document.getElementById('message');
     const sendButton = document.getElementById('send-button');
     const messagesContainer = document.getElementById('messages');
     const notificationSound = document.getElementById('notification-sound');
+    
+    // Check if required elements exist
+    if (!messageInput || !sendButton || !messagesContainer) {
+        console.error('Required chat elements not found:', {
+            messageInput: !!messageInput,
+            sendButton: !!sendButton,
+            messagesContainer: !!messagesContainer
+        });
+        return;
+    }
+    
+    console.log("All elements found, setting up chat");
     
     let lastMessageId = 0;
     let lastSendTime = 0;
@@ -139,7 +153,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (replyIndicator) {
             replyIndicator.remove();
         }
-        messageInput.placeholder = `Scrivi un messaggio... (max ${window.maxMessageLength} caratteri)`;
+        if (messageInput) {
+            messageInput.placeholder = `Scrivi un messaggio... (max ${window.maxMessageLength} caratteri)`;
+        }
     }
 
     // Funzioni globali per i pulsanti nei messaggi
@@ -184,9 +200,11 @@ document.addEventListener('DOMContentLoaded', function() {
             <button type="button" onclick="clearReply()" class="btn-close"></button>
         `;
         
-        messageInput.parentElement.insertBefore(replyIndicator, messageInput);
-        messageInput.placeholder = `Rispondi a @${username}...`;
-        messageInput.focus();
+        if (messageInput && messageInput.parentElement) {
+            messageInput.parentElement.insertBefore(replyIndicator, messageInput);
+            messageInput.placeholder = `Rispondi a @${username}...`;
+            messageInput.focus();
+        }
     };
 
     window.clearReply = clearReply;
