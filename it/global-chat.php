@@ -91,6 +91,7 @@ $profilePic = "/includes/get_pfp.php?id=$userId";
         window.AUTO_REFRESH_INTERVAL = <?php echo AUTO_REFRESH_INTERVAL; ?>;
     </script>
     <script src="../js/chat.js"></script>
+    <script src="../js/chat-utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

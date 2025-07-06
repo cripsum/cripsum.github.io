@@ -1,4 +1,6 @@
+console.log("JS caricato");
 document.addEventListener('DOMContentLoaded', function() {
+     console.log("Clic su Invia");
     const messageInput = document.getElementById('message');
     const sendButton = document.getElementById('send-button');
     const messagesContainer = document.getElementById('messages');
