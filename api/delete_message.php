@@ -5,48 +5,36 @@ require_once __DIR__ . '/../config/chat_config.php';
 
 session_start();
 
+header('Content-Type: application/json');
+
 if (!isLoggedIn()) {
-    http_response_code(403);
-    exit('Access denied. You must be logged in to delete messages.');
+    http_response_code(401);
+    echo json_encode(['error' => 'Non sei autenticato']);
+    exit();
 }
 
-if (!isset($_POST['message_id']) || !is_numeric($_POST['message_id'])) {
-    http_response_code(400);
-    exit('Invalid message ID.');
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['error' => 'Metodo non consentito']);
+    exit();
 }
 
-$message_id = intval($_POST['message_id']);
-$user_id = $_SESSION['user_id'];
-$isAdmin = $_SESSION['ruolo'] === 'admin';
+$input = json_decode(file_get_contents('php://input'), true);
+$messageId = $input['id'] ?? 0;
 
-$stmt = $mysqli->prepare("SELECT user_id FROM messages WHERE id = ?");
-$stmt->bind_param("i", $message_id);
-$stmt->execute();
-$stmt->store_result();
-
-if ($stmt->num_rows === 0) {
-    http_response_code(404);
-    exit('Message not found.');
+if (!$messageId) {
+    echo json_encode(['error' => 'ID messaggio non valido']);
+    exit();
 }
 
-$stmt->bind_result($owner_id);
-$stmt->fetch();
-$stmt->close();
+$userId = $_SESSION['user_id'];
+$userRole = $_SESSION['ruolo'] ?? 'utente';
 
-if ($owner_id !== $user_id && !$isAdmin) {
-    http_response_code(403);
-    exit('You do not have permission to delete this message.');
-}
+$result = deleteMessage($mysqli, $messageId, $userId, $userRole);
 
-$deleteStmt = $mysqli->prepare("DELETE FROM messages WHERE id = ?");
-$deleteStmt->bind_param("i", $message_id);
-
-if ($deleteStmt->execute()) {
-    echo json_encode(['success' => true, 'message' => 'Message deleted successfully.']);
+if ($result) {
+    echo json_encode(['success' => true, 'message' => 'Messaggio eliminato']);
 } else {
-    http_response_code(500);
-    exit('Error deleting message.');
+    echo json_encode(['error' => 'Impossibile eliminare il messaggio']);
 }
-
-$deleteStmt->close();
 ?>

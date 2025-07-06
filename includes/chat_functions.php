@@ -62,7 +62,8 @@ function getMessages($mysqli, $lastMessageId = 0) {
         ORDER BY m.created_at ASC 
         LIMIT ?
     ");
-    $stmt->bind_param("ii", $lastMessageId, MESSAGES_PER_PAGE);
+    $limit = defined('MESSAGES_PER_PAGE') ? MESSAGES_PER_PAGE : 50;
+    $stmt->bind_param("ii", $lastMessageId, $limit);
     $stmt->execute();
     $result = $stmt->get_result();
     $messages = [];
@@ -93,7 +94,8 @@ function getAllMessages($mysqli) {
         ORDER BY m.created_at DESC 
         LIMIT ?
     ");
-    $stmt->bind_param("i", MESSAGES_PER_PAGE);
+    $limit = defined('MESSAGES_PER_PAGE') ? MESSAGES_PER_PAGE : 50;
+    $stmt->bind_param("i", $limit);
     $stmt->execute();
     $result = $stmt->get_result();
     $messages = [];

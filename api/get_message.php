@@ -10,42 +10,49 @@ require_once __DIR__ . '/../config/chat_config.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/chat_functions.php';
 
-session_start();
-
 if (!isLoggedIn()) {
-    http_response_code(403);
-    exit(json_encode(['error' => 'Access denied. User not logged in.']));
+    http_response_code(401);
+    echo json_encode(['error' => 'Non sei autenticato']);
+    exit();
 }
 
-$mysqli = new mysqli($db_host, $db_user, $db_pass, $db_name);
+$lastMessageId = isset($_GET['last_id']) ? intval($_GET['last_id']) : 0;
+$currentUserId = $_SESSION['user_id'];
+$userRole = $_SESSION['ruolo'] ?? 'utente';
 
-if ($mysqli->connect_error) {
-    http_response_code(500);
-    exit(json_encode(['error' => 'Database connection failed.']));
+if ($lastMessageId === 0) {
+    $messages = getAllMessages($mysqli);
+} else {
+    $messages = getMessages($mysqli, $lastMessageId);
 }
 
-$query = "SELECT m.id, m.user_id, m.message, m.timestamp, r.reply_to, u.username 
-          FROM messages m 
-          LEFT JOIN replies r ON m.id = r.message_id 
-          JOIN utenti u ON m.user_id = u.id 
-          ORDER BY m.timestamp DESC";
-
-$result = $mysqli->query($query);
-
-$messages = [];
-while ($row = $result->fetch_assoc()) {
-    $messages[] = [
-        'id' => $row['id'],
-        'user_id' => $row['user_id'],
-        'message' => $row['message'],
-        'timestamp' => $row['timestamp'],
-        'reply_to' => $row['reply_to'],
-        'username' => $row['username']
-    ];
+foreach ($messages as $message) {
+    $profilePicUrl = "/includes/get_pfp.php?id=" . $message['user_id'];
+    $time = date('H:i', strtotime($message['created_at']));
+    $canDelete = ($userRole === 'admin' || $message['user_id'] == $currentUserId);
+    
+    echo '<div class="message" data-message-id="' . $message['id'] . '">';
+    echo '<div class="message-header">';
+    echo '<img src="' . $profilePicUrl . '" alt="' . htmlspecialchars($message['username']) . '" class="profile-pic">';
+    echo '<span class="username' . ($message['ruolo'] === 'admin' ? ' admin' : '') . '">' . htmlspecialchars($message['username']) . '</span>';
+    echo '<span class="timestamp">' . $time . '</span>';
+    echo '<div class="message-actions">';
+    echo '<button class="reply-btn" onclick="startReply(' . $message['id'] . ', \'' . htmlspecialchars($message['username']) . '\', \'' . htmlspecialchars($message['message']) . '\')" title="Rispondi">↩️</button>';
+    if ($canDelete) {
+        echo '<button class="delete-btn" onclick="deleteMessage(' . $message['id'] . ')" title="Elimina">🗑️</button>';
+    }
+    echo '</div>';
+    echo '</div>';
+    
+    if ($message['reply_to'] && $message['reply_message']) {
+        echo '<div class="reply-preview">';
+        echo '<span class="reply-author">@' . htmlspecialchars($message['reply_username']) . '</span>';
+        echo '<span class="reply-text">' . htmlspecialchars($message['reply_message']) . '</span>';
+        echo '</div>';
+    }
+    
+    echo '<div class="message-content">' . htmlspecialchars($message['message']) . '</div>';
+    echo '</div>';
 }
 
-$mysqli->close();
-
-header('Content-Type: application/json');
-echo json_encode($messages);
 ?>

@@ -11,39 +11,35 @@ require_once __DIR__ . '/../includes/chat_functions.php';
 
 session_start();
 
+header('Content-Type: application/json');
+
 if (!isLoggedIn()) {
-    http_response_code(403);
-    exit('Access denied. You must be logged in to send messages.');
+    http_response_code(401);
+    echo json_encode(['error' => 'Non sei autenticato']);
+    exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $message = trim($_POST['message']);
-    $userId = $_SESSION['user_id'];
-
-    if (strlen($message) > MAX_MESSAGE_LENGTH) {
-        http_response_code(400);
-        exit('Message exceeds maximum length of ' . MAX_MESSAGE_LENGTH . ' characters.');
-    }
-
-    if (time() - ($_SESSION['last_message_time'] ?? 0) < MESSAGE_TIMEOUT) {
-        http_response_code(429);
-        exit('You must wait before sending another message.');
-    }
-
-    $stmt = $mysqli->prepare("INSERT INTO messages (user_id, message, created_at) VALUES (?, ?, NOW())");
-    $stmt->bind_param("is", $userId, $message);
-
-    if ($stmt->execute()) {
-        $_SESSION['last_message_time'] = time();
-        echo json_encode(['status' => 'success', 'message' => 'Message sent successfully.']);
-    } else {
-        http_response_code(500);
-        exit('Error sending message. Please try again later.');
-    }
-
-    $stmt->close();
-} else {
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
-    exit('Method not allowed. Please use POST to send messages.');
+    echo json_encode(['error' => 'Metodo non consentito']);
+    exit();
+}
+
+$input = json_decode(file_get_contents('php://input'), true);
+$message = $input['message'] ?? '';
+$replyTo = $input['reply_to'] ?? null;
+
+if (empty(trim($message))) {
+    echo json_encode(['error' => 'Il messaggio non può essere vuoto']);
+    exit();
+}
+
+$userId = $_SESSION['user_id'];
+$result = sendMessage($mysqli, $userId, $message, $replyTo);
+
+if ($result === true) {
+    echo json_encode(['success' => true, 'message' => 'Messaggio inviato con successo']);
+} else {
+    echo json_encode(['error' => $result]);
 }
 ?>
