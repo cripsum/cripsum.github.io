@@ -58,7 +58,6 @@ $profilePic = "/includes/get_pfp.php?id=$userId";
         <script src="../js/controlloTema.js"></script>
         <script src="../js/unlockAchievement-it.js"></script>
         <script src="../js/achievements-globali.js"></script>
-        <script src="../js/richpresence.js"></script>
     <title>Global Chat - Cripsum</title>
 </head>
 <body>
