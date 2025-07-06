@@ -50,7 +50,10 @@ try {
 
         
         if ($message['reply_to']) {
-            echo '<div class="reply-to">Risposta a: ' . htmlspecialchars($message['reply_text']) . '</div>';
+            $replyMessage = getMessageById($mysqli, $message['reply_to']);
+            if ($replyMessage) {
+                echo '<div class="reply-to">Risposta a: ' . htmlspecialchars($replyMessage['message']) . '</div>';
+            }
         }
         
         echo '<p class="message-text">' . htmlspecialchars($message['message']) . '</p>';

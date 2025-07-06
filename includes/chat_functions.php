@@ -50,6 +50,14 @@ function sendMessage($mysqli, $userId, $message, $replyTo = null) {
     }
 }
 
+function getMessageById($mysqli, $messageId) {
+    $stmt = $mysqli->prepare("SELECT id, user_id, username, message, created_at, reply_to FROM messages WHERE id = ?");
+    $stmt->bind_param("i", $messageId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_assoc();
+}
+
 function checkMessageTimeout($mysqli, $userId) {
     $stmt = $mysqli->prepare("SELECT created_at FROM messages WHERE user_id = ? ORDER BY created_at DESC LIMIT 1");
     $stmt->bind_param("i", $userId);
