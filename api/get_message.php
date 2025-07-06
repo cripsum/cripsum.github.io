@@ -10,6 +10,8 @@ require_once __DIR__ . '/../config/chat_config.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/chat_functions.php';
 
+session_start();
+
 if (!isLoggedIn()) {
     http_response_code(401);
     echo json_encode(['error' => 'Non sei autenticato']);
