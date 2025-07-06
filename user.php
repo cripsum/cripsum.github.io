@@ -225,14 +225,6 @@ if ($isLoggedIn) {
 
     <div class="container my-5 paginainterachisiamo testobianco" style="padding-top: 7rem">
         <h1 class="mb-4 fadeup">Profilo di <?php echo htmlspecialchars($user['username']); ?></h1>
-        
-        <!-- Mostra l'URL canonico per SEO -->
-        <div class="mb-2 fadeup">
-            <small class="text-muted">
-                URL: <?php echo htmlspecialchars($_SERVER['HTTP_HOST']); ?>/user/<?php echo htmlspecialchars($user['username']); ?>
-                | ID: <?php echo $user['id']; ?>
-            </small>
-        </div>
 
         <div class="row mb-4">
             <div class="col-md-4 text-center fadeup">
