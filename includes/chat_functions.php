@@ -3,27 +3,50 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/chat_config.php';
 
 function sendMessage($mysqli, $userId, $message, $replyTo = null) {
-    // Verifica lunghezza messaggio
-    if (strlen($message) > MAX_MESSAGE_LENGTH) {
-        return 'Il messaggio supera la lunghezza massima di ' . MAX_MESSAGE_LENGTH . ' caratteri.';
+    // Validazione base
+    $message = trim($message);
+    if (empty($message)) {
+        return 'Il messaggio non può essere vuoto';
     }
     
-    if (empty(trim($message))) {
-        return 'Il messaggio non può essere vuoto.';
+    if (strlen($message) > (MAX_MESSAGE_LENGTH ?? 300)) {
+        return 'Il messaggio è troppo lungo';
     }
-
-    // Verifica timeout
-    if (!checkMessageTimeout($mysqli, $userId)) {
-        return 'Devi aspettare ' . MESSAGE_TIMEOUT . ' secondi prima di inviare un altro messaggio.';
-    }
-
-    $stmt = $mysqli->prepare("INSERT INTO messages (user_id, message, reply_to, created_at) VALUES (?, ?, ?, NOW())");
-    $stmt->bind_param("isi", $userId, trim($message), $replyTo);
     
-    if ($stmt->execute()) {
-        return true;
-    } else {
-        return 'Errore durante l\'invio del messaggio.';
+    // Se c'è una reply, verifica che il messaggio esista
+    if ($replyTo !== null) {
+        $replyTo = intval($replyTo);
+        $checkStmt = $mysqli->prepare("SELECT id FROM messages WHERE id = ?");
+        $checkStmt->bind_param("i", $replyTo);
+        $checkStmt->execute();
+        $checkResult = $checkStmt->get_result();
+        
+        if ($checkResult->num_rows === 0) {
+            $checkStmt->close();
+            return 'Messaggio di riferimento non trovato';
+        }
+        $checkStmt->close();
+    }
+    
+    try {
+        if ($replyTo !== null) {
+            // Inserisci messaggio con reply
+            $stmt = $mysqli->prepare("INSERT INTO messages (user_id, message, reply_to, created_at) VALUES (?, ?, ?, NOW())");
+            $stmt->bind_param("isi", $userId, $message, $replyTo);
+        } else {
+            // Inserisci messaggio normale
+            $stmt = $mysqli->prepare("INSERT INTO messages (user_id, message, created_at) VALUES (?, ?, NOW())");
+            $stmt->bind_param("is", $userId, $message);
+        }
+        
+        $success = $stmt->execute();
+        $stmt->close();
+        
+        return $success ? true : 'Errore durante l\'inserimento del messaggio';
+        
+    } catch (Exception $e) {
+        error_log("Errore invio messaggio: " . $e->getMessage());
+        return 'Errore durante l\'invio del messaggio';
     }
 }
 

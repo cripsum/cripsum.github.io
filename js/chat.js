@@ -90,14 +90,14 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        if (message.length > window.maxMessageLength) {
-            alert(`Il messaggio non può superare ${window.maxMessageLength} caratteri`);
+        if (message.length > (window.maxMessageLength || 500)) {
+            alert(`Il messaggio non può superare ${window.maxMessageLength || 500} caratteri`);
             return;
         }
 
         const currentTime = Date.now();
-        if (currentTime - lastSendTime < window.messageTimeout) {
-            const remainingTime = Math.ceil((window.messageTimeout - (currentTime - lastSendTime)) / 1000);
+        if (currentTime - lastSendTime < (window.messageTimeout || 1000)) {
+            const remainingTime = Math.ceil(((window.messageTimeout || 1000) - (currentTime - lastSendTime)) / 1000);
             alert(`Aspetta ${remainingTime} secondi prima di inviare un altro messaggio`);
             return;
         }
@@ -108,6 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (replyingTo) {
             payload.reply_to = replyingTo;
+            console.log("Replying to message ID:", replyingTo);
         }
 
         console.log("Sending payload:", payload);
@@ -167,13 +168,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function clearReply() {
+        console.log("Clearing reply...");
         replyingTo = null;
         const replyIndicator = document.getElementById('reply-indicator');
         if (replyIndicator) {
             replyIndicator.remove();
+            console.log("Reply indicator removed");
         }
         if (messageInput) {
-            messageInput.placeholder = `Scrivi un messaggio... (max ${window.maxMessageLength} caratteri)`;
+            messageInput.placeholder = `Scrivi un messaggio... (max ${window.maxMessageLength || 500} caratteri)`;
         }
     }
 
@@ -217,23 +220,50 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     window.startReply = function(messageId, username, messageText) {
-        replyingTo = messageId;
+        console.log("Starting reply to:", messageId, username, messageText);
+        
+        // Assicurati che gli argomenti siano validi
+        if (!messageId || !username || !messageText) {
+            console.error("Invalid reply parameters:", { messageId, username, messageText });
+            return;
+        }
+        
+        replyingTo = parseInt(messageId);
         clearReply();
+        
+        // Escape HTML per sicurezza
+        const safeUsername = escapeHtml(username);
+        const safeMessageText = escapeHtml(messageText);
         
         const replyIndicator = document.createElement('div');
         replyIndicator.id = 'reply-indicator';
         replyIndicator.className = 'reply-indicator';
         replyIndicator.innerHTML = `
-            <span>Rispondendo a @${username}: ${messageText.substring(0, 50)}${messageText.length > 50 ? '...' : ''}</span>
+            <span>Rispondendo a @${safeUsername}: ${safeMessageText.substring(0, 50)}${safeMessageText.length > 50 ? '...' : ''}</span>
             <button type="button" onclick="window.clearReply()" class="btn-close">×</button>
         `;
         
         if (messageInput && messageInput.parentElement) {
             messageInput.parentElement.insertBefore(replyIndicator, messageInput);
-            messageInput.placeholder = `Rispondi a @${username}...`;
+            messageInput.placeholder = `Rispondi a @${safeUsername}...`;
             messageInput.focus();
+            console.log("Reply indicator added successfully");
+        } else {
+            console.error("Could not add reply indicator - messageInput or parent not found");
         }
     };
+
+    // Helper function to escape HTML
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+    }
 
     // Make functions available globally
     window.loadMessages = loadMessages;
