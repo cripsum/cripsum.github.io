@@ -1,66 +1,152 @@
-// filepath: global-chat-app/global-chat-app/js/chat.js
 document.addEventListener('DOMContentLoaded', function() {
-    const messageInput = document.getElementById('messageInput');
-    const sendButton = document.getElementById('sendButton');
-    const chatDisplay = document.getElementById('chatDisplay');
-    const timeoutDuration = 5000; // 5 seconds
+    const messageInput = document.getElementById('message');
+    const sendButton = document.getElementById('send-button');
+    const messagesContainer = document.getElementById('messages');
+    const notificationSound = document.getElementById('notification-sound');
+    
+    let lastMessageId = 0;
     let lastSendTime = 0;
+    let replyingTo = null;
 
-    sendButton.addEventListener('click', function() {
+    // Carica messaggi iniziali
+    loadMessages();
+
+    // Auto-refresh messaggi ogni 2 secondi
+    setInterval(loadNewMessages, window.AUTO_REFRESH_INTERVAL || 2000);
+
+    // Event listener per il pulsante invio
+    sendButton.addEventListener('click', sendMessage);
+
+    // Event listener per invio con Enter
+    messageInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+
+    function loadMessages() {
+        fetch('../api/get_message.php')
+            .then(response => response.text())
+            .then(html => {
+                messagesContainer.innerHTML = html;
+                scrollToBottom();
+                updateLastMessageId();
+            })
+            .catch(error => {
+                console.error('Errore nel caricamento dei messaggi:', error);
+                messagesContainer.innerHTML = '<div class="text-center text-danger"><p>Errore nel caricamento dei messaggi</p></div>';
+            });
+    }
+
+    function loadNewMessages() {
+        if (lastMessageId === 0) return;
+
+        fetch(`../api/get_message.php?last_id=${lastMessageId}`)
+            .then(response => response.text())
+            .then(html => {
+                if (html.trim()) {
+                    messagesContainer.insertAdjacentHTML('beforeend', html);
+                    scrollToBottom();
+                    updateLastMessageId();
+                    playNotificationSound();
+                }
+            })
+            .catch(error => {
+                console.error('Errore nel caricamento dei nuovi messaggi:', error);
+            });
+    }
+
+    function sendMessage() {
         const message = messageInput.value.trim();
 
-        if (message.length === 0 || message.length > 30) {
-            alert('Message must be between 1 and 30 characters.');
+        if (!message) {
+            alert('Il messaggio non può essere vuoto');
+            return;
+        }
+
+        if (message.length > window.maxMessageLength) {
+            alert(`Il messaggio non può superare ${window.maxMessageLength} caratteri`);
             return;
         }
 
         const currentTime = Date.now();
-        if (currentTime - lastSendTime < timeoutDuration) {
-            alert('Please wait before sending another message.');
+        if (currentTime - lastSendTime < window.messageTimeout) {
+            const remainingTime = Math.ceil((window.messageTimeout - (currentTime - lastSendTime)) / 1000);
+            alert(`Aspetta ${remainingTime} secondi prima di inviare un altro messaggio`);
             return;
         }
 
-        sendMessage(message);
-        lastSendTime = currentTime;
-        messageInput.value = '';
-    });
+        const payload = {
+            message: message
+        };
 
-    function sendMessage(message) {
-        fetch('api/send_message.php', {
+        if (replyingTo) {
+            payload.reply_to = replyingTo;
+        }
+
+        fetch('../api/send_message.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ message: message })
+            body: JSON.stringify(payload)
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                displayMessage(data.message);
+                messageInput.value = '';
+                lastSendTime = currentTime;
+                clearReply();
+                loadNewMessages(); // Ricarica per mostrare il nuovo messaggio
             } else {
-                alert(data.error);
+                alert(data.error || 'Errore nell\'invio del messaggio');
             }
         })
-        .catch(error => console.error('Error:', error));
-    }
-
-    function displayMessage(message) {
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('message');
-        messageElement.innerText = message.content;
-
-        const deleteButton = document.createElement('button');
-        deleteButton.innerText = 'Delete';
-        deleteButton.addEventListener('click', function() {
-            deleteMessage(message.id);
+        .catch(error => {
+            console.error('Errore nell\'invio del messaggio:', error);
+            alert('Errore nell\'invio del messaggio');
         });
-
-        messageElement.appendChild(deleteButton);
-        chatDisplay.appendChild(messageElement);
     }
 
-    function deleteMessage(messageId) {
-        fetch('api/delete_message.php', {
+    function updateLastMessageId() {
+        const messages = messagesContainer.querySelectorAll('.message[data-message-id]');
+        if (messages.length > 0) {
+            const lastMessage = messages[messages.length - 1];
+            const messageId = parseInt(lastMessage.getAttribute('data-message-id'));
+            if (messageId > lastMessageId) {
+                lastMessageId = messageId;
+            }
+        }
+    }
+
+    function scrollToBottom() {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function playNotificationSound() {
+        if (notificationSound) {
+            notificationSound.play().catch(e => {
+                // Ignora errori di autoplay
+            });
+        }
+    }
+
+    function clearReply() {
+        replyingTo = null;
+        const replyIndicator = document.getElementById('reply-indicator');
+        if (replyIndicator) {
+            replyIndicator.remove();
+        }
+        messageInput.placeholder = `Scrivi un messaggio... (max ${window.maxMessageLength} caratteri)`;
+    }
+
+    // Funzioni globali per i pulsanti nei messaggi
+    window.deleteMessage = function(messageId) {
+        if (!confirm('Sei sicuro di voler eliminare questo messaggio?')) {
+            return;
+        }
+
+        fetch('../api/delete_message.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -70,28 +156,36 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                const messageElement = document.getElementById(`message-${messageId}`);
-                if (messageElement) {
-                    messageElement.remove();
-                }
+                loadMessages(); // Ricarica tutti i messaggi
             } else {
-                alert(data.error);
+                alert(data.error || 'Errore nell\'eliminazione del messaggio');
             }
         })
-        .catch(error => console.error('Error:', error));
-    }
+        .catch(error => {
+            console.error('Errore nell\'eliminazione del messaggio:', error);
+            alert('Errore nell\'eliminazione del messaggio');
+        });
+    };
 
-    // Load messages on page load
-    loadMessages();
+    window.startReply = function(messageId, username, messageText) {
+        replyingTo = messageId;
+        
+        // Rimuovi indicatore di risposta precedente
+        clearReply();
+        
+        // Crea indicatore di risposta
+        const replyIndicator = document.createElement('div');
+        replyIndicator.id = 'reply-indicator';
+        replyIndicator.className = 'reply-indicator';
+        replyIndicator.innerHTML = `
+            <span>Rispondendo a @${username}: ${messageText.substring(0, 50)}${messageText.length > 50 ? '...' : ''}</span>
+            <button type="button" onclick="clearReply()" class="btn-close"></button>
+        `;
+        
+        messageInput.parentElement.insertBefore(replyIndicator, messageInput);
+        messageInput.placeholder = `Rispondi a @${username}...`;
+        messageInput.focus();
+    };
 
-    function loadMessages() {
-        fetch('api/get_messages.php')
-            .then(response => response.json())
-            .then(data => {
-                data.messages.forEach(message => {
-                    displayMessage(message);
-                });
-            })
-            .catch(error => console.error('Error:', error));
-    }
+    window.clearReply = clearReply;
 });

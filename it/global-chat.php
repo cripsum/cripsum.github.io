@@ -25,11 +25,40 @@ $profilePic = "/includes/get_pfp.php?id=$userId";
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag("js", new Date());
+
+            gtag("config", "G-T0CTM2SBJJ");
+        </script>
+        <meta charset="UTF-8" />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+            crossorigin="anonymous"
+        />
+        <link rel="icon" href="../img/Susremaster.png" type="image/png" />
+        <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png" />
+        <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+        <link rel="stylesheet" href="../css/style.css" />
+        <link rel="stylesheet" href="../css/style-dark.css" />
+        <link rel="stylesheet" href="../css/animations.css" />
+        <link rel="stylesheet" href="../css/achievement-style.css" />
+         <link rel="stylesheet" href="../css/chat.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script src="../js/animations.js"></script>
+
+        <script src="../js/controlloLingua-it.js"></script>
+        <script src="../js/controlloTema.js"></script>
+        <script src="../js/unlockAchievement-it.js"></script>
+        <script src="../js/achievements-globali.js"></script>
+        <script src="../js/richpresence.js"></script>
     <title>Global Chat - Cripsum</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../css/chat.css">
 </head>
 <body>
     <?php include '../includes/navbar.php'; ?>
@@ -59,6 +88,7 @@ $profilePic = "/includes/get_pfp.php?id=$userId";
         window.userRole = '<?php echo $userRole; ?>';
         window.maxMessageLength = <?php echo MAX_MESSAGE_LENGTH; ?>;
         window.messageTimeout = <?php echo MESSAGE_TIMEOUT * 1000; ?>; // Convert to milliseconds
+        window.AUTO_REFRESH_INTERVAL = <?php echo AUTO_REFRESH_INTERVAL; ?>;
     </script>
     <script src="../js/chat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
