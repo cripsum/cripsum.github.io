@@ -117,10 +117,6 @@ function deleteMessage($mysqli, $messageId, $userId, $userRole) {
     return $stmt->execute();
 }
 
-function canDeleteMessage($messageUserId, $currentUserId, $userRole) {
-    return $userRole === 'admin' || $messageUserId == $currentUserId;
-}
-
 function replyToMessage($mysqli, $userId, $messageId, $replyMessage) {
     return sendMessage($mysqli, $userId, $replyMessage, $messageId);
 }
