@@ -1,6 +1,7 @@
 /* Chat Container */
 .chat-container {
     max-width: 800px;
+    max-height: 1000px;
     margin: 0 auto;
     background: var(--bs-body-bg);
     border-radius: 12px;
