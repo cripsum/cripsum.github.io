@@ -3,22 +3,66 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/chat_config.php';
 
 function sendMessage($mysqli, $userId, $message, $replyTo = null) {
+    // Verifica lunghezza messaggio
     if (strlen($message) > MAX_MESSAGE_LENGTH) {
-        return 'Message exceeds maximum length.';
+        return 'Il messaggio supera la lunghezza massima di ' . MAX_MESSAGE_LENGTH . ' caratteri.';
+    }
+    
+    if (empty(trim($message))) {
+        return 'Il messaggio non può essere vuoto.';
+    }
+
+    // Verifica timeout
+    if (!checkMessageTimeout($mysqli, $userId)) {
+        return 'Devi aspettare ' . MESSAGE_TIMEOUT . ' secondi prima di inviare un altro messaggio.';
     }
 
     $stmt = $mysqli->prepare("INSERT INTO messages (user_id, message, reply_to, created_at) VALUES (?, ?, ?, NOW())");
-    $stmt->bind_param("isi", $userId, $message, $replyTo);
+    $stmt->bind_param("isi", $userId, trim($message), $replyTo);
     
     if ($stmt->execute()) {
         return true;
     } else {
-        return 'Error sending message.';
+        return 'Errore durante l\'invio del messaggio.';
     }
 }
 
-function getMessages($mysqli) {
-    $stmt = $mysqli->prepare("SELECT m.id, m.message, m.created_at, u.username, u.profile_pic FROM messages m JOIN utenti u ON m.user_id = u.id ORDER BY m.created_at DESC");
+function checkMessageTimeout($mysqli, $userId) {
+    $stmt = $mysqli->prepare("SELECT created_at FROM messages WHERE user_id = ? ORDER BY created_at DESC LIMIT 1");
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($row = $result->fetch_assoc()) {
+        $lastMessageTime = strtotime($row['created_at']);
+        $currentTime = time();
+        return ($currentTime - $lastMessageTime) >= MESSAGE_TIMEOUT;
+    }
+    
+    return true; // Primo messaggio
+}
+
+function getMessages($mysqli, $lastMessageId = 0) {
+    $stmt = $mysqli->prepare("
+        SELECT 
+            m.id, 
+            m.message, 
+            m.created_at, 
+            m.reply_to,
+            u.id as user_id,
+            u.username, 
+            u.ruolo,
+            rm.message as reply_message,
+            ru.username as reply_username
+        FROM messages m 
+        JOIN utenti u ON m.user_id = u.id 
+        LEFT JOIN messages rm ON m.reply_to = rm.id
+        LEFT JOIN utenti ru ON rm.user_id = ru.id
+        WHERE m.id > ?
+        ORDER BY m.created_at ASC 
+        LIMIT ?
+    ");
+    $stmt->bind_param("ii", $lastMessageId, MESSAGES_PER_PAGE);
     $stmt->execute();
     $result = $stmt->get_result();
     $messages = [];
@@ -30,8 +74,39 @@ function getMessages($mysqli) {
     return $messages;
 }
 
-function deleteMessage($mysqli, $messageId, $userId, $isAdmin) {
-    if ($isAdmin) {
+function getAllMessages($mysqli) {
+    $stmt = $mysqli->prepare("
+        SELECT 
+            m.id, 
+            m.message, 
+            m.created_at, 
+            m.reply_to,
+            u.id as user_id,
+            u.username, 
+            u.ruolo,
+            rm.message as reply_message,
+            ru.username as reply_username
+        FROM messages m 
+        JOIN utenti u ON m.user_id = u.id 
+        LEFT JOIN messages rm ON m.reply_to = rm.id
+        LEFT JOIN utenti ru ON rm.user_id = ru.id
+        ORDER BY m.created_at DESC 
+        LIMIT ?
+    ");
+    $stmt->bind_param("i", MESSAGES_PER_PAGE);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $messages = [];
+
+    while ($row = $result->fetch_assoc()) {
+        $messages[] = $row;
+    }
+
+    return array_reverse($messages); // Mostra dal più vecchio al più nuovo
+}
+
+function deleteMessage($mysqli, $messageId, $userId, $userRole) {
+    if ($userRole === 'admin') {
         $stmt = $mysqli->prepare("DELETE FROM messages WHERE id = ?");
         $stmt->bind_param("i", $messageId);
     } else {
@@ -40,6 +115,10 @@ function deleteMessage($mysqli, $messageId, $userId, $isAdmin) {
     }
 
     return $stmt->execute();
+}
+
+function canDeleteMessage($messageUserId, $currentUserId, $userRole) {
+    return $userRole === 'admin' || $messageUserId == $currentUserId;
 }
 
 function replyToMessage($mysqli, $userId, $messageId, $replyMessage) {
