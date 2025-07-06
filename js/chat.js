@@ -83,6 +83,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function sendMessage() {
         console.log("Sending message...");
+        console.log("Current replyingTo value:", replyingTo); // DEBUG
+        
         const message = messageInput.value.trim();
 
         if (!message) {
@@ -106,12 +108,20 @@ document.addEventListener('DOMContentLoaded', function() {
             message: message
         };
 
-        if (replyingTo) {
+        // DEBUG: Aggiungi più controlli
+        console.log("Checking replyingTo before adding to payload:", replyingTo);
+        console.log("Type of replyingTo:", typeof replyingTo);
+        console.log("Is replyingTo null?", replyingTo === null);
+        console.log("Is replyingTo undefined?", replyingTo === undefined);
+
+        if (replyingTo !== null && replyingTo !== undefined) {
             payload.reply_to = replyingTo;
-            console.log("Replying to message ID:", replyingTo);
+            console.log("Adding reply_to to payload:", replyingTo);
+        } else {
+            console.log("NOT adding reply_to to payload because replyingTo is:", replyingTo);
         }
 
-        console.log("Sending payload:", payload);
+        console.log("Final payload:", JSON.stringify(payload));
 
         fetch('../api/send_message.php', {
             method: 'POST',
@@ -168,8 +178,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function clearReply() {
-        console.log("Clearing reply...");
+        console.log("Clearing reply... current replyingTo:", replyingTo);
         replyingTo = null;
+        console.log("After clearing, replyingTo is:", replyingTo);
+        
         const replyIndicator = document.getElementById('reply-indicator');
         if (replyIndicator) {
             replyIndicator.remove();
@@ -220,7 +232,10 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     window.startReply = function(messageId, username, messageText) {
-        console.log("Starting reply to:", messageId, username, messageText);
+        console.log("=== STARTING REPLY ===");
+        console.log("messageId parameter:", messageId, typeof messageId);
+        console.log("username parameter:", username);
+        console.log("messageText parameter:", messageText);
         
         // Assicurati che gli argomenti siano validi
         if (!messageId || !username || !messageText) {
@@ -228,8 +243,18 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        replyingTo = parseInt(messageId);
+        // Prima pulisci qualsiasi reply precedente
         clearReply();
+        
+        // Poi imposta la nuova reply
+        replyingTo = parseInt(messageId);
+        console.log("Set replyingTo to:", replyingTo, typeof replyingTo);
+        
+        // Verifica che sia stato impostato correttamente
+        if (replyingTo !== parseInt(messageId)) {
+            console.error("Failed to set replyingTo correctly!");
+            return;
+        }
         
         // Escape HTML per sicurezza
         const safeUsername = escapeHtml(username);
@@ -248,9 +273,12 @@ document.addEventListener('DOMContentLoaded', function() {
             messageInput.placeholder = `Rispondi a @${safeUsername}...`;
             messageInput.focus();
             console.log("Reply indicator added successfully");
+            console.log("Final replyingTo value:", replyingTo);
         } else {
             console.error("Could not add reply indicator - messageInput or parent not found");
         }
+        
+        console.log("=== REPLY SETUP COMPLETE ===");
     };
 
     // Helper function to escape HTML
@@ -268,4 +296,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Make functions available globally
     window.loadMessages = loadMessages;
     window.sendMessage = sendMessage;
+    
+    // DEBUG: Esponi replyingTo per debug
+    window.getReplyingTo = function() {
+        console.log("Current replyingTo:", replyingTo);
+        return replyingTo;
+    };
 });

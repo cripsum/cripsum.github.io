@@ -1,5 +1,5 @@
 // filepath: global-chat-app/global-chat-app/js/chat-utils.js
-const MAX_MESSAGE_LENGTH = 30;
+const MAX_MESSAGE_LENGTH = 300;
 const MESSAGE_TIMEOUT = 5000; // 5 seconds
 let lastMessageTime = 0;
 
