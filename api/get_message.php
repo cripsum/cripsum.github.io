@@ -43,8 +43,11 @@ try {
         echo '<div class="message-content">';
         echo '<div class="message-header">';
         echo '<span class="message-username">' . htmlspecialchars($message['username']) . '</span>';
-        echo '<span class="message-time">' . date('H:i', strtotime($message['created_at'])) . '</span>';
+        $date = new DateTime($message['created_at'], new DateTimeZone('UTC'));
+        $date->setTimezone(new DateTimeZone('Europe/Rome'));
+        echo '<span class="message-time">' . $date->format('H:i') . '</span>';
         echo '</div>';
+
         
         if ($message['reply_to']) {
             echo '<div class="reply-to">Risposta a: ' . htmlspecialchars($message['reply_text']) . '</div>';
