@@ -108,15 +108,34 @@ function getAllMessages($mysqli) {
 }
 
 function deleteMessage($mysqli, $messageId, $userId, $userRole) {
-    if ($userRole === 'admin') {
-        $stmt = $mysqli->prepare("DELETE FROM messages WHERE id = ?");
+    try {
+        // Verifica se il messaggio esiste
+        $stmt = $mysqli->prepare("SELECT user_id FROM chat_messages WHERE id = ?");
         $stmt->bind_param("i", $messageId);
-    } else {
-        $stmt = $mysqli->prepare("DELETE FROM messages WHERE id = ? AND user_id = ?");
-        $stmt->bind_param("ii", $messageId, $userId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows === 0) {
+            return false; // Messaggio non trovato
+        }
+        
+        $message = $result->fetch_assoc();
+        $messageUserId = $message['user_id'];
+        
+        // Verifica permessi
+        if ($messageUserId != $userId && $userRole !== 'admin') {
+            return false; // Non autorizzato
+        }
+        
+        // Elimina il messaggio
+        $deleteStmt = $mysqli->prepare("DELETE FROM chat_messages WHERE id = ?");
+        $deleteStmt->bind_param("i", $messageId);
+        
+        return $deleteStmt->execute();
+        
+    } catch (Exception $e) {
+        return false;
     }
-
-    return $stmt->execute();
 }
 
 function replyToMessage($mysqli, $userId, $messageId, $replyMessage) {
