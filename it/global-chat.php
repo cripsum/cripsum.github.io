@@ -70,7 +70,7 @@ $profilePic = "/includes/get_pfp.php?id=$userId";
                     <p>Caricamento messaggi...</p>
                 </div>
             </div>
-            <div class="message-input">
+            <div class="input">
                 <input type="text" 
                        id="message" 
                        maxlength="<?php echo MAX_MESSAGE_LENGTH; ?>" 

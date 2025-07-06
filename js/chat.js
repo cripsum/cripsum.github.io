@@ -1,12 +1,18 @@
 console.log("JS caricato - chat.js loaded successfully");
 
+// Declare global variables outside DOMContentLoaded
+let messageInput, messagesContainer;
+let lastMessageId = 0;
+let lastSendTime = 0;
+let replyingTo = null;
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log("DOM loaded, initializing chat");
     
     // Test that elements exist
-    const messageInput = document.getElementById('message');
+    messageInput = document.getElementById('message');
     const sendButton = document.getElementById('send-button');
-    const messagesContainer = document.getElementById('messages');
+    messagesContainer = document.getElementById('messages');
     
     console.log('Elements found:', {
         messageInput: !!messageInput,
@@ -20,10 +26,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     console.log("Setting up event listeners");
-    
-    let lastMessageId = 0;
-    let lastSendTime = 0;
-    let replyingTo = null;
 
     // Load initial messages
     loadMessages();
@@ -121,9 +123,20 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => {
             console.log("Send response:", response.status);
-            return response.json();
+            return response.text(); // Get as text first
         })
-        .then(data => {
+        .then(responseText => {
+            console.log("Send response text:", responseText);
+            
+            // Try to parse as JSON
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (e) {
+                console.error("Response is not valid JSON:", responseText);
+                throw new Error("Server returned invalid response: " + responseText.substring(0, 100));
+            }
+            
             console.log("Send result:", data);
             if (data.success) {
                 messageInput.value = '';
@@ -136,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             console.error('Error sending message:', error);
-            alert('Errore nell\'invio del messaggio');
+            alert('Errore nell\'invio del messaggio: ' + error.message);
         });
     }
 
@@ -156,62 +169,72 @@ document.addEventListener('DOMContentLoaded', function() {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    function clearReply() {
-        replyingTo = null;
-        const replyIndicator = document.getElementById('reply-indicator');
-        if (replyIndicator) {
-            replyIndicator.remove();
-        }
-        if (messageInput) {
-            messageInput.placeholder = `Scrivi un messaggio... (max ${window.maxMessageLength} caratteri)`;
-        }
+    // Make functions available globally by assigning to window
+    window.loadMessages = loadMessages;
+    window.sendMessage = sendMessage;
+});
+
+// Global functions (outside DOMContentLoaded)
+window.clearReply = function() {
+    replyingTo = null;
+    const replyIndicator = document.getElementById('reply-indicator');
+    if (replyIndicator) {
+        replyIndicator.remove();
+    }
+    if (messageInput) {
+        messageInput.placeholder = `Scrivi un messaggio... (max ${window.maxMessageLength} caratteri)`;
+    }
+};
+
+window.deleteMessage = function(messageId) {
+    if (!confirm('Sei sicuro di voler eliminare questo messaggio?')) {
+        return;
     }
 
-    // Global functions for message buttons
-    window.deleteMessage = function(messageId) {
-        if (!confirm('Sei sicuro di voler eliminare questo messaggio?')) {
-            return;
+    fetch('../api/delete_message.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id: messageId })
+    })
+    .then(response => response.text())
+    .then(responseText => {
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (e) {
+            console.error("Delete response is not valid JSON:", responseText);
+            throw new Error("Server returned invalid response");
         }
-
-        fetch('../api/delete_message.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ id: messageId })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                loadMessages();
-            } else {
-                alert(data.error || 'Errore nell\'eliminazione del messaggio');
-            }
-        })
-        .catch(error => {
-            console.error('Error deleting message:', error);
-            alert('Errore nell\'eliminazione del messaggio');
-        });
-    };
-
-    window.startReply = function(messageId, username, messageText) {
-        replyingTo = messageId;
-        clearReply();
         
-        const replyIndicator = document.createElement('div');
-        replyIndicator.id = 'reply-indicator';
-        replyIndicator.className = 'reply-indicator';
-        replyIndicator.innerHTML = `
-            <span>Rispondendo a @${username}: ${messageText.substring(0, 50)}${messageText.length > 50 ? '...' : ''}</span>
-            <button type="button" onclick="clearReply()" class="btn-close">×</button>
-        `;
-        
-        if (messageInput && messageInput.parentElement) {
-            messageInput.parentElement.insertBefore(replyIndicator, messageInput);
-            messageInput.placeholder = `Rispondi a @${username}...`;
-            messageInput.focus();
+        if (data.success) {
+            window.loadMessages();
+        } else {
+            alert(data.error || 'Errore nell\'eliminazione del messaggio');
         }
-    };
+    })
+    .catch(error => {
+        console.error('Error deleting message:', error);
+        alert('Errore nell\'eliminazione del messaggio');
+    });
+};
 
-    window.clearReply = clearReply;
-});
+window.startReply = function(messageId, username, messageText) {
+    replyingTo = messageId;
+    window.clearReply();
+    
+    const replyIndicator = document.createElement('div');
+    replyIndicator.id = 'reply-indicator';
+    replyIndicator.className = 'reply-indicator';
+    replyIndicator.innerHTML = `
+        <span>Rispondendo a @${username}: ${messageText.substring(0, 50)}${messageText.length > 50 ? '...' : ''}</span>
+        <button type="button" onclick="window.clearReply()" class="btn-close">×</button>
+    `;
+    
+    if (messageInput && messageInput.parentElement) {
+        messageInput.parentElement.insertBefore(replyIndicator, messageInput);
+        messageInput.placeholder = `Rispondi a @${username}...`;
+        messageInput.focus();
+    }
+};
