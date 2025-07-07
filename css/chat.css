@@ -40,13 +40,15 @@
     background-color: #3f3f3f;
 }
 
-Individual Message */ .message {
+/* Individual Message */
+.message {
     display: flex;
     align-items: flex-start;
     margin-bottom: 15px;
     padding: 10px;
     color: white;
     /* background-color: #333;
+    
     box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.3);
     border-radius: 8px;*/
 
