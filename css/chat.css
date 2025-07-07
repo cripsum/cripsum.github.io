@@ -338,6 +338,7 @@
     .reply-indicator {
         padding: 6px 10px;
         font-size: 0.8rem;
+        max-width: calc(100% - 20px);
     }
 }
 
@@ -433,6 +434,7 @@
         padding: 5px 8px;
         font-size: 0.75rem;
         margin-bottom: 8px;
+        max-width: calc(100% - 50px);
     }
 
     .reply-to {

@@ -51,7 +51,7 @@ $profilePic = "/includes/get_pfp.php?id=$userId";
         <link rel="stylesheet" href="../css/style-dark.css" />
         <link rel="stylesheet" href="../css/animations.css" />
         <link rel="stylesheet" href="../css/achievement-style.css" />
-        <link rel="stylesheet" href="../css/chat.css?v=420">
+        <link rel="stylesheet" href="../css/chat.css?v=421">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="../js/animations.js"></script>
 
@@ -100,8 +100,8 @@ $profilePic = "/includes/get_pfp.php?id=$userId";
             }, 100);
         });
     </script>
-    <script src="../js/chat.js"></script>
-    <script src="../js/chat-utils.js"></script>
+    <script src="../js/chat.js?v=421"></script>
+    <script src="../js/chat-utils.js?v=421"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log("Reply indicator removed");
         }
         if (messageInput) {
-            messageInput.placeholder = `Scrivi un messaggio... (max ${window.maxMessageLength || 500} caratteri)`;
+            messageInput.placeholder = `Scrivi un messaggio...`;
         }
     }
 
@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function() {
         replyIndicator.id = 'reply-indicator';
         replyIndicator.className = 'reply-indicator';
         replyIndicator.innerHTML = `
-            <span>Rispondendo a @${safeUsername}</span>
+            <span >Rispondendo a @${safeUsername}</span>
             <button type="button" onclick="window.clearReply() style="color: black;" class="btn-close">×</button>
         `;
         
