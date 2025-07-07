@@ -64,7 +64,8 @@
     border-radius: 50% !important;
     margin-right: 12px;
     object-fit: cover;
-    border: 2px solid var(--bs-border-color);
+    border: 2px solid;
+    border-color: #333;
     flex-shrink: 0;
     display: block;
 }
