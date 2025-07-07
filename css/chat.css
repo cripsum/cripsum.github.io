@@ -204,7 +204,7 @@
 }
 
 .input input:focus {
-    border: 0px solid;
+    border: 0px solid #333;
     background-color: #333;
     box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.3);
 }
