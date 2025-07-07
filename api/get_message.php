@@ -59,10 +59,9 @@ try {
         if ($canDelete) {
             echo '<div class="message-actions">';
             echo '<button class="btn btn-sm btn-outline-danger" onclick="deleteMessage(' . $message['id'] . ')">Elimina</button>';
-            echo '<button class="btn btn-sm btn-outline-primary" onclick="window.startReply(' . $message['id'] . ', \'' . htmlspecialchars($message['username']) . '\', \'' . htmlspecialchars($message['message']) . '\')">Rispondi</button>';
-            echo '</div>';
         }
-        
+        echo '<button class="btn btn-sm btn-outline-primary" onclick="window.startReply(' . $message['id'] . ', \'' . htmlspecialchars($message['username']) . '\', \'' . htmlspecialchars($message['message']) . '\')">Rispondi</button>';
+        echo '</div>';
         echo '</div>';
     }
 } catch (Exception $e) {
