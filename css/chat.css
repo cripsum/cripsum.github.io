@@ -58,12 +58,11 @@
     border: 1px solid rgba(255, 255, 255, 0);
     border-radius: 8px;
     box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    transition: background-color 0.2s ease;
 }
 
 .message:hover {
     background-color: #333;
-    box-shadow: 0 0 6px 3px rgba(255, 255, 255, 0.3);
 }
 
 /* Profile Picture */
@@ -190,19 +189,28 @@
 
 .input input {
     flex: 1;
-    border: 1px solid;
-    border-color: #333;
     border-radius: 20px;
     padding: 10px 15px;
     font-size: 0.9rem;
     outline: none;
-    transition: box-shadow 0.2s ease, border 0.2s ease;
-    box-shadow: 0 0 0px 0px rgba(255, 255, 255, 0.3);
+
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(64, 64, 64, 0.1));
+    border: 1px solid #333;
+    box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
+
+    transition: box-shadow 0.2s ease, border 0.2s ease, background-color 0.2s ease;
 }
 
 .input input:focus {
     border: 0px solid;
+    background-color: #333;
     box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.3);
+}
+
+.input input:active {
+    border: 1px solid #333;
 }
 
 .input button {
