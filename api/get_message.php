@@ -36,7 +36,7 @@ try {
 
     foreach ($messages as $message) {
         $profilePic = "/includes/get_pfp.php?id=" . $message['user_id'];
-        $canDelete = ($message['user_id'] == $currentUserId) || ($userRole === 'admin');
+        $canDelete = ($message['user_id'] == $currentUserId) || ($userRole === 'admin' || $userRole === 'owner');
         
         echo '<div class="message" data-message-id="' . $message['id'] . '">';
         echo '<img src="' . $profilePic . '" alt="Profile" class="profile-pic">';

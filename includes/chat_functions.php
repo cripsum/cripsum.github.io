@@ -155,7 +155,7 @@ function deleteMessage($mysqli, $messageId, $userId, $userRole) {
         $messageUserId = $message['user_id'];
         
         // Verifica permessi
-        if ($messageUserId != $userId && $userRole !== 'admin') {
+        if ($messageUserId != $userId && $userRole !== 'admin' && $userRole !== 'owner') {
             return false; // Non autorizzato
         }
         

@@ -54,7 +54,7 @@ try {
     $messageUserId = $message['user_id'];
     
     // Verifica permessi: l'utente può eliminare solo i propri messaggi o essere admin
-    if ($messageUserId != $userId && $userRole !== 'admin') {
+    if ($messageUserId != $userId && $userRole !== 'admin' && $userRole !== 'owner') {
         echo json_encode(['error' => 'Non hai i permessi per eliminare questo messaggio']);
         exit();
     }

@@ -302,7 +302,7 @@ function getUserRole() {
 
 function canDeleteMessage($messageUserId) {
     $userRole = getUserRole();
-    return $userRole === 'admin' || $_SESSION['user_id'] == $messageUserId;
+    return $userRole === 'admin' || $userRole === 'owner' || $_SESSION['user_id'] == $messageUserId;
 }
 
 function setMessageTimeout() {
