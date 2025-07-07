@@ -407,11 +407,20 @@
         min-width: 60px;
     }
 
-    /* Actions sempre visibili su mobile */
     .message-actions {
-        opacity: 1;
+        display: flex;
         position: relative;
         margin-left: 5px;
+        gap: 5px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .message:focus .message-actions {
+        opacity: 1;
+    }
+    .message:hover .message-actions {
+        opacity: 1;
     }
 
     .message-actions .btn {
