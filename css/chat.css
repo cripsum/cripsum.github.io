@@ -61,7 +61,7 @@
 }
 
 .message:hover {
-    background-color: #3b3b3b;
+    background-color: #333;
 }
 
 /* Profile Picture */
@@ -188,18 +188,19 @@
 
 .input input {
     flex: 1;
-    border: 0px solid var(--bs-border-color);
+    border: 1px solid;
+    border-color: #333;
     border-radius: 20px;
     padding: 10px 15px;
     font-size: 0.9rem;
     outline: none;
-    transition: border-color 0.2s ease;
-    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.3);
+    transition: box-shadow 0.2s ease, border 0.2s ease;
+    box-shadow: 0 0 0px 0px rgba(255, 255, 255, 0.3);
 }
 
 .input input:focus {
-    border-color: var(--bs-primary);
-    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+    border: 0px solid;
+    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.3);
 }
 
 .input button {
