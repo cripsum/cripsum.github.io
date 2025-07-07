@@ -75,7 +75,7 @@ $profilePic = "/includes/get_pfp.php?id=$userId";
                 <input type="text" 
                        id="message" 
                        maxlength="<?php echo MAX_MESSAGE_LENGTH; ?>" 
-                       placeholder="Scrivi un messaggio... (max <?php echo MAX_MESSAGE_LENGTH; ?> caratteri)">
+                       placeholder="Scrivi un messaggio...">
                 <button id="send-button">Invia</button>
             </div>
         </div>
