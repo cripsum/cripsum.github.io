@@ -51,7 +51,7 @@ $profilePic = "/includes/get_pfp.php?id=$userId";
         <link rel="stylesheet" href="../css/style-dark.css" />
         <link rel="stylesheet" href="../css/animations.css" />
         <link rel="stylesheet" href="../css/achievement-style.css" />
-        <link rel="stylesheet" href="../css/chat.css?v=70">
+        <link rel="stylesheet" href="../css/chat.css?v=104">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="../js/animations.js"></script>
 
