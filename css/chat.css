@@ -420,9 +420,6 @@
     .message:focus .message-actions {
         opacity: 1;
     }
-    .message:hover .message-actions {
-        opacity: 1;
-    }
 
     .message-actions .btn {
         padding: 1px 3px;
