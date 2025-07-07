@@ -101,7 +101,7 @@ $profilePic = "/includes/get_pfp.php?id=$userId";
         });
     </script>
     <script src="../js/chat.js?v=421"></script>
-    <script src="../js/chat-utils.js?v=421"></script>
+    <script src="../js/chat-utils.js?v=422"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

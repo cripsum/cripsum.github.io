@@ -265,7 +265,7 @@ document.addEventListener('DOMContentLoaded', function() {
         replyIndicator.className = 'reply-indicator';
         replyIndicator.innerHTML = `
             <span >Rispondendo a @${safeUsername}</span>
-            <button type="button" onclick="window.clearReply() style="color: black;" class="btn-close">×</button>
+            <button type="button" onclick="window.clearReply()" style="color: black;" class="btn-close">×</button>
         `;
         
         if (messageInput && messageInput.parentElement) {
