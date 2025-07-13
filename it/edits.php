@@ -96,8 +96,8 @@ require_once '../includes/functions.php';
                             id="23"
                         ></iframe>
                     </div>
-                    <p class="text text-center" style="margin-bottom: 0"><img src="../img/user-svgrepo-com.svg" class="logodesc" style="width: 20px" /> Evelyn - Zenless Zone Zero</p>
-                    <p class="text text-center"><img src="../img/music-svgrepo-com.svg" class="logodesc" style="width: 20px; border-radius: 0" /> Charli XCX - Track 10</p>
+                    <p class="text text-center" style="margin-bottom: 0"><img src="../img/user-svgrepo-com.svg" class="logodesc" style="width: 20px" /> Waguri Kaoruko</p>
+                    <p class="text text-center"><img src="../img/music-svgrepo-com.svg" class="logodesc" style="width: 20px; border-radius: 0" /> Tate McRae - it's ok i'm ok</p>
                 </div>
                 <div style="margin-bottom: 30px" class="fadeup">
                     <div onclick="watchVideo(23)">
