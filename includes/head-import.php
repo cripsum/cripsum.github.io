@@ -21,6 +21,7 @@
         <link rel="stylesheet" href="/css/style-dark.css" />
         <link rel="stylesheet" href="/css/animations.css" />
         <link rel="stylesheet" href="/css/achievement-style.css" />
+        
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="/js/animations.js"></script>
         <script src="/js/controlloLingua-it.js"></script>
@@ -28,5 +29,7 @@
         <script src="/js/unlockAchievement-it.js"></script>
         <script src="/js/achievements-globali.js"></script>
         <script src="/js/richpresence.js"></script>
+        <script src="/js/impostazioni.js"></script>
+
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />

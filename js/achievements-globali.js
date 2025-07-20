@@ -1,3 +1,5 @@
+unlockAchievement(1);
+
 function getCookie(name) {
     const cookies = document.cookie.split("; ");
     for (let cookie of cookies) {

@@ -20,12 +20,6 @@ require_once '../includes/functions.php';
 
         <div class="testobianco paginaprincipale">
             <script>
-                unlockAchievement(1);
-
-                function salvaImpostazioni() {
-                    controllaLingua();
-                    controllaTema();
-                }
             </script>
             <script>
                 function close_div(id) {
@@ -129,24 +123,6 @@ require_once '../includes/functions.php';
                 window.onload = function () {
                     setTimeout(showPopup, 700);
                 };
-
-                function cancellaCookies() {
-                    document.cookie.split(";").forEach(function (cookie) {
-                        document.cookie = cookie.split("=")[0] + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-                    });
-                    alert("I cookies sono stati cancellati.");
-                    location.reload();
-                }
-
-                function cancellaDati() {
-                    localStorage.clear();
-                    sessionStorage.clear();
-                    document.cookie.split(";").forEach(function (cookie) {
-                        document.cookie = cookie.split("=")[0] + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-                    });
-                    alert("Tutti i dati sono stati cancellati.");
-                    location.reload();
-                }
             </script>
 
             <div id="disclaimer" class="divdisclaimer fadeup">
@@ -188,24 +164,6 @@ require_once '../includes/functions.php';
                     </div>
                 </div>
             </div>
-
-            <!--            <div class="divdisclaimer">
-        <p class="d-inline-flex gap-1">
-            <p class="text-center fs-5 text disclaimer" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                Disclaimer prima di proseguire nel sito ▼
-            </p>
-        </p>
-    </div>
-        <div class="collapse" id="collapseExample" style="max-width:80%; margin: auto;">
-            <div class="card card-body text-center"><p class="fw-bold">ricordo a tutti che è un sito ironico, creato solo con l'intenzione di scherzare e far ridere le persone, non prendete seriamente ciò che troverete qui.</p><br>
-                <ul class="text-start mb-2 mb-lg-0">
-                    <li class="mb-2">In tutte le pagine non si vuole offendere nessuno, per esempio come le pagine "TikTokPedia" o "Chi Siamo".</li>
-                    <li class="mb-2">le pagine di download non contengono virus o cose strane, sono solo meme.</li>
-                    <li class="mb-2">il negozio e le pagine dove è possibile fare acquisti sono ovviamente falsi ed anche il PayPal checkout lo è, i dati inseriti li non finiscono da nessuna parte.</li>
-                    <li class="mb-2">la pagina delle donazioni invece è reale, questo significa che puoi inviare soldi, non farlo in quanto il sito non è stato creato a scopo di lucro.</li>
-                </ul>
-            </div>
-        </div> -->
 
             <div style="max-width: 70%; margin: auto; padding-top: 15px" class="d-flex justify-content-around flex-wrap testobianco fadeup">
                 <img class="img-fluid imagi ombra" src="../img/amongus.jpg" alt="" style="display: inline" />
@@ -252,15 +210,6 @@ require_once '../includes/functions.php';
                     </div>
                 </div>
             </div>`,
-                        ];
-                        return ads[Math.floor(Math.random() * ads.length)];
-                    }
-
-                    document.write(getRandomAd());
-                </script>
-            </div>
-
-            <!--
             `<div class="container fadeup">
                 <div class="row justify-content-center align-items-center">
                     <div class="col-md-auto mb-3 spinjitzu spingio">
@@ -275,7 +224,13 @@ require_once '../includes/functions.php';
                     </div>
                 </div>
             </div>`,
-            -->
+                        ];
+                        return ads[Math.floor(Math.random() * ads.length)];
+                    }
+
+                    document.write(getRandomAd());
+                </script>
+            </div>
             <hr class="rounded fadeuphr mt-3 mb-3" />
             <p class="text-center fadeup">- pubblicità -</p>
             <div class="d-flex justify-content-center image-container" style="max-width: 80%; margin: auto">

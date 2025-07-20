@@ -1,6 +1,4 @@
 <?php
-ini_set('session.gc_maxlifetime', 604800);
-session_set_cookie_params(604800);
 session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';
@@ -9,6 +7,9 @@ require_once '../includes/functions.php';
 <html lang="en">
     <head>
         <?php include '../includes/head-import.php'; ?>
+        <link rel="stylesheet" href="../css/inventario.css" />
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Cripsum™ - inventario</title>
         <style>
             img {
