@@ -4,6 +4,8 @@ ini_set('display_startup_errors', 0);
 ini_set('log_errors', 0);
 error_reporting(0);
 
+ini_set('session.gc_maxlifetime', 604800);
+session_set_cookie_params(604800);
 session_start();
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/chat_config.php';
