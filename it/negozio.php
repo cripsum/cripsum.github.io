@@ -4,6 +4,7 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 ?>
 <!DOCTYPE html>
+
 <html lang="en">
     <head>
         <!-- Google tag (gtag.js) -->
@@ -31,6 +32,7 @@ require_once '../includes/functions.php';
         <link rel="stylesheet" href="../css/animations.css" />
         <script src="../js/animations.js"></script>
         <script src="../js/richpresence.js"></script>
+        <script src="../js/controlloLingua-it.js"></script>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Cripsum™ - negozio</title>
