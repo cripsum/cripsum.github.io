@@ -1,20 +1,20 @@
 <?php
 session_start();
-require_once '/config/database.php';
-require_once '/includes/functions.php';
+require_once '../config/database.php';
+require_once '../includes/functions.php';
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <?php include '/includes/head-import.php'; ?>
+        <?php include '../includes/head-import.php'; ?>
         <title>Cripsum™</title>
         <script src="/js/nomePagina.js"></script>
     </head>
 
     <body class="">
-        <?php include '/includes/navbar.php'; ?>
-        <?php include '/includes/impostazioni.php'; ?>
+        <?php include '../includes/navbar.php'; ?>
+        <?php include '../includes/impostazioni.php'; ?>
 
         <div class="testobianco paginaprincipale">
             <script>
