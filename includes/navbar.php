@@ -1,7 +1,13 @@
 <?php
 session_start();
 $isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
-$lang = explode('/', trim($uri, '/'))[0]; // "it" o "en"
+$uri = $_SERVER['REQUEST_URI'];
+$lang = explode('/', trim($uri, '/'))[0];
+
+// fallback se lingua non valida
+if (!in_array($lang, ['it', 'en'])) {
+    $lang = 'it'; // oppure fai redirect se vuoi
+}
 
 if ($isLoggedIn) {
     $username = $_SESSION['username'] ?? 'Utente';
