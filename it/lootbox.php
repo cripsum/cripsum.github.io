@@ -1,3 +1,8 @@
+<?php
+session_start();
+require_once '../config/database.php';
+require_once '../includes/functions.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -35,75 +40,9 @@
     </head>
 
     <body class="">
-        <nav class="navbarutenti navbar navbar-expand-xl">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="home">
-                    <img src="../img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
-                    <span class="align-middle ms-3 fw-bold" style="color: white">Cripsum™</span>
-                </a>
-                <button
-                    class="navbar-toggler"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#navbarSupportedContent"
-                    aria-controls="navbarSupportedContent"
-                    aria-expanded="false"
-                    aria-label="Toggle navigation"
-                    style="z-index: 1000"
-                >
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link" aria-current="page" href="home">Home page</a>
-                        </li>
-                        <li class="nav-item dropdown dropdownutenti">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Memes</a>
-                            <ul class="dropdown-menu animate slideIn">
-                                <li><a class="dropdown-item" href="shitpost">Shitpost</a></li>
-                                <li><a class="dropdown-item" href="tiktokpedia">TikTokPedia</a></li>
-                                <li><a class="dropdown-item" href="rimasti">Top rimasti</a></li>
-                                <li><a class="dropdown-item" href="quandel57" style="color: red; font-weight: bold">Quandel57</a></li>
-                                <li><a class="dropdown-item arcobalenos" href="gambling" style="font-weight: bold">Gambling!!</a></li>
-                                <li><a class="dropdown-item testo-arcobaleno" href="lootbox" style="font-weight: bold">Lootbox</a></li>
-                                <li><a class="dropdown-item" href="achievements">Achievements</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="download">Downloads</a>
-                        </li>
-                        <li class="nav-item dropdown dropdownutenti">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
-                            <ul class="dropdown-menu animate slideIn">
-                                <li><a class="dropdown-item" href="negozio">Negozio</a></li>
-                                <li><a class="dropdown-item" href="merch">Merch</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="donazioni">Donazioni</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="chisiamo">Chi siamo</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="edits">Edits</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="accedi">Accedi</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="registrati">Registrati</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="btn-group ms-auto me-3 linguanuova">
-                <button type="button" class="btn impostazioni-toggler" data-bs-toggle="modal" data-bs-target="#impostazioniModal" aria-expanded="false">
-                    <img src="../img/settings-icon.svg" alt="" style="width: 25px" class="imgbianca" />
-                </button>
-            </div>
-        </nav>
+        <?php include '../includes/navbar.php'; ?>
+        <?php include '../includes/impostazioni.php'; ?>
+        
         <!-- TO DO
            bloccare lo scorrimento della pagina quando il menu della navbar è aperto (aggiungere classe overflow-hidden al body) 
            bloccare lo scorrimento della pagina quando il pop up è aperto (aggiungere classe overflow-hidden al body)  
