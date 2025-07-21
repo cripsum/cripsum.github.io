@@ -3,8 +3,8 @@
 ini_set('session.gc_maxlifetime', 604800);
 session_set_cookie_params(604800);
 session_start();
-require_once '../config/database.php';
-require_once '../includes/functions.php';
+require_once '../../config/database.php';
+require_once '../../includes/functions.php';
 
 if (!isLoggedIn()) {
     header('Location: accedi');
@@ -21,7 +21,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <?php include '../includes/head-import.php'; ?>
+        <?php include '../../includes/head-import.php'; ?>
         <title>Cripsum™ - GoonLand</title>
         <script src="/js/nomePagina.js"></script>
         <style>
@@ -159,8 +159,8 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
     </head>
 
     <body class="">
-        <?php include '../includes/navbar.php'; ?>
-        <?php include '../includes/impostazioni.php'; ?>
+        <?php include '../../includes/navbar.php'; ?>
+        <?php include '../../includes/impostazioni.php'; ?>
 
         <div class="testobianco fadeup" style="padding-top: 7rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
 
@@ -189,9 +189,9 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
             <p class="crediti mb-2">Si ringrazia <a href="/user/zakator" class="arcobaleno testo-arcobaleno" style="font-weight:bolder;">Zakator</a> per il contributo creativo e tecnico nella realizzazione di GoonLand e delle relative funzionalità di gioco</p>
             <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. Tutti i diritti riservati.</p>
             <ul class="list-inline">
-                <li class="list-inline-item"><a href="privacy" class="linkbianco">Privacy</a></li>
-                <li class="list-inline-item"><a href="tos" class="linkbianco">Termini</a></li>
-                <li class="list-inline-item"><a href="supporto" class="linkbianco">Supporto</a></li>
+                <li class="list-inline-item"><a href="../privacy" class="linkbianco">Privacy</a></li>
+                <li class="list-inline-item"><a href="../tos" class="linkbianco">Termini</a></li>
+                <li class="list-inline-item"><a href="../supporto" class="linkbianco">Supporto</a></li>
             </ul>
         </footer>
         <script
@@ -199,7 +199,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"
         ></script>
-        <script src="../js/modeChanger.js"></script>
+        <script src="/js/modeChanger.js"></script>
             
     <script>
         let isLoading = false;
