@@ -23,7 +23,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
   <head>
     <?php include '../../includes/head-import.php'; ?>
     <script src="/js/nomePagina.js"></script>
-    <link rel="stylesheet" href="style-goonland.css" />
+    <link rel="stylesheet" href="/css/style-goonland.css" />
     <title>Goonland</title>
   </head>
   <body>
