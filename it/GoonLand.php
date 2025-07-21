@@ -47,8 +47,8 @@
         }
         
         .generated-image {
-            width: 100%;
-            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
             object-fit: cover;
             transition: opacity 0.5s ease-in-out;
         }
