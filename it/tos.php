@@ -35,6 +35,15 @@ require_once '../includes/functions.php';
                 <p class="fadeup">
                     Se crei un account su Cripsum™, sei responsabile del mantenimento della riservatezza delle tue informazioni di accesso e di tutte le attività che avvengono sotto il tuo account.
                 </p>
+                <h4 class="text-center fadeup" style="padding-top: 10px">Età e responsabilità</h4>
+                <p class="fadeup">
+                    Dichiarando di avere 18 anni o più, confermi di essere maggiorenne secondo le leggi del tuo paese di residenza e di essere legalmente responsabile delle tue azioni. 
+                    Se sei minorenne, devi ottenere il consenso di un genitore o tutore legale prima di utilizzare i nostri servizi.
+                </p>
+                <p class="fadeup">
+                    L'utente è completamente responsabile per l'uso dei servizi di Cripsum™ e per tutte le conseguenze che ne derivano. 
+                    Dichiarando la propria maggiore età, l'utente solleva Cripsum™ da qualsiasi responsabilità relativa all'accesso o all'uso dei servizi da parte di minori.
+                </p>
                 <h4 class="text-center fadeup" style="padding-top: 10px">Proprietà intellettuale</h4>
                 <p class="fadeup">
                     Tutti i contenuti presenti su Cripsum™, inclusi testi, immagini, loghi e software, sono di proprietà di Cripsum™ o dei suoi licenziatari e sono protetti dalle leggi sul diritto
