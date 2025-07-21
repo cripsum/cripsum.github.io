@@ -171,7 +171,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
         Genera Nuova Foto
     </button>
     
-    <div class="countdown" id="countdown"></div>
+    <!--<div class="countdown" id="countdown"></div>-->
         </div>
 
         <div id="achievement-popup" class="popup">
