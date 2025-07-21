@@ -48,6 +48,7 @@ if ($_POST && isset($_POST['resend_email'])) {
         $messageType = 'error';
     }
 }
+
 ?>
 
 <!DOCTYPE html>

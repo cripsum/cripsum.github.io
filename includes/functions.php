@@ -124,6 +124,128 @@ function getVerificationEmailTemplate($username, $verificationLink) {
     ";
 }
 
+function sendVerificationEmailChanged($email, $username, $token) {
+    $subject = 'Verifica la tua email - ' . SITE_NAME;
+    $verificationLink = SITE_URL . '/it/verifica-email?token=' . $token;
+    
+    $htmlBody = getVerificationEmailChangedTemplate($username, $verificationLink);
+    
+    $textBody = "Ciao $username,\n\nGrazie per esserti registrato su " . SITE_NAME . ".\n\nPer completare la registrazione, visita questo link: $verificationLink\n\nSe non ti sei registrato, ignora questa email.\n\nCordiali saluti,\nIl team di " . SITE_NAME;
+    
+    $headers = array();
+    $headers[] = 'MIME-Version: 1.0';
+    $headers[] = 'Content-type: text/html; charset=UTF-8';
+    $headers[] = 'From: ' . FROM_NAME . ' <' . FROM_EMAIL . '>';
+    $headers[] = 'Reply-To: ' . FROM_EMAIL;
+    $headers[] = 'Return-Path: ' . FROM_EMAIL;
+    $headers[] = 'X-Mailer: PHP/' . phpversion();
+    
+    if (mail($email, $subject, $htmlBody, implode("\r\n", $headers))) {
+        return true;
+    } else {
+        error_log("Errore invio email di verifica a: $email");
+        return false;
+    }
+}
+
+function getVerificationEmailChangedTemplate($username, $verificationLink) {
+    return "
+    <!DOCTYPE html>
+    <html lang='it'>
+    <head>
+        <meta charset='UTF-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <title>Verifica Email - " . SITE_NAME . "</title>
+        <style>
+            body {
+                font-family: 'Poppins', Arial, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f4f4f4;
+            }
+            .container {
+                background-color: #ffffff;
+                border-radius: 10px;
+                padding: 30px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+            .logo {
+                font-size: 24px;
+                font-weight: bold;
+                color: #007bff;
+            }
+            .button {
+                display: inline-block;
+                padding: 15px 30px;
+                background-color: #007bff;
+                color: white;
+                text-decoration: none;
+                border-radius: 5px;
+                font-weight: bold;
+                margin: 20px 0;
+            }
+            .button:hover {
+                background-color: #0056b3;
+            }
+            .footer {
+                margin-top: 30px;
+                padding-top: 20px;
+                border-top: 1px solid #eee;
+                font-size: 12px;
+                color: #666;
+                text-align: center;
+            }
+            .warning {
+                background-color: #fff3cd;
+                border: 1px solid #ffeaa7;
+                padding: 15px;
+                border-radius: 5px;
+                margin: 20px 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <div class='logo'>" . SITE_NAME . "</div>
+            </div>
+            
+            <h2>Ciao " . htmlspecialchars($username) . "!</h2>
+            
+            <p>La tua email su " . SITE_NAME . "é stata modificata!</p>
+            
+            <p>Per completare la modifica della email devi verificare il tuo indirizzo email cliccando sul pulsante sottostante:</p>
+            
+            <div style='text-align: center;'>
+                <a href='" . $verificationLink . "' class='button'>Verifica la tua Email</a>
+            </div>
+            
+            <p>Se non riesci a cliccare sul pulsante, copia e incolla questo link nel tuo browser:</p>
+            <p style='word-break: break-all; background-color: #f8f9fa; padding: 10px; border-radius: 5px;'>" . $verificationLink . "</p>
+            
+            <div class='warning'>
+                <strong>Importante:</strong> Questo link scadrà tra 24 ore per motivi di sicurezza.
+            </div>
+            
+            <p>Se non hai cambiato tu la tua email su " . SITE_NAME . ", contattaci subito a cripsum@cripsum.com per assistenza</p>
+            
+            <div class='footer'>
+                <p>Cordiali saluti,<br>Il team di " . SITE_NAME . "</p>
+                <p>Questa è una email automatica, non rispondere a questo messaggio.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    ";
+}
+
 function verifyEmail($mysqli, $token) {
     $stmt = $mysqli->prepare("
         SELECT id, username, email 
@@ -513,7 +635,7 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
     
     if ($stmt->execute()) {
         if ($emailChanged) {
-            sendVerificationEmail($email, $username, $emailToken);
+            sendVerificationEmailChanged($email, $username, $emailToken);
             return "Impostazioni aggiornate. Verifica la nuova email per completare il cambio.";
         } else {
             $_SESSION['username'] = $username;

@@ -20,6 +20,7 @@ $username = $_SESSION['username'] ?? '';
 $profilePic = "/includes/get_pfp.php?id=$userId";
 $ruolo = $_SESSION['ruolo'] ?? 'utente';
 $nsfw = $_SESSION['nsfw'] ?? 0; // Imposta nsfw a 0 se non è definito
+$oldEmail = $_SESSION['email'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
@@ -34,7 +35,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $result = updateUserSettings($mysqli, $userId, $username, $email, $password, $nsfw);
         if ($result === true) {
-            header('Location: home');
+            //if the email was changed, we need to log out the user
+            if($_SESSION['email'] !== $oldEmail) {
+                session_destroy();
+                $success = "Modifica dell'email completata! Controlla la tua email per verificarla prima di poter accedere di nuovo.";
+                exit();
+            }
+
             exit();
         } else {
             $error = is_string($result) ? $result : 'Errore durante l\'aggiornamento delle impostazioni';
@@ -56,6 +63,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php include '../includes/impostazioni.php'; ?>
 
         <div class="testobianco paginaprincipale fadeup" style="max-width: 800px; padding-top: 7rem;">
+                        <?php if ($success): ?>
+                        <div class="alert alert-success fadeup" role="alert">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            <?php echo htmlspecialchars($success); ?>
+                        </div>
+                        <div class="alert alert-info fadeup" role="alert">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            Non hai ricevuto l'email? Controlla la cartella spam o <a href="verifica-email" class="alert-link">clicca qui per reinviare</a>.
+                        </div>
+                        <?php endif; ?>
             <div class="container">
                 <h1 class="mb-4">Impostazioni</h1>
                 <p>Qui puoi modificare le tue impostazioni personali.</p>
