@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="pending_email" name="pending_email" value="<?= htmlspecialchars($_SESSION['email'] ?? '') ?>" required>
+                        <input type="email" class="form-control" id="email" name="email" value="<?= htmlspecialchars($_SESSION['email'] ?? '') ?>" required>
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Nuova password (opzionale)</label>

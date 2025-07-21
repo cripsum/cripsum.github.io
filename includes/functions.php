@@ -487,12 +487,13 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
     
     $emailChanged = ($currentUser['email'] !== $email);
     
+    
     if (!empty($password)) {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         if ($emailChanged) {
             // If email changed, require verification before saving changes
             $emailToken = bin2hex(random_bytes(32));
-            $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, password = ?, nsfw = ?, email_verificata = 0, email_token = ?, pending_email = ? WHERE id = ?");
+            $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, password = ?, nsfw = ?, email_verificata = 0, email_token = ?, email = ? WHERE id = ?");
             $stmt->bind_param("ssissi", $username, $hashedPassword, $nsfw, $emailToken, $email, $userId);
         } else {
             $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, password = ?, nsfw = ? WHERE id = ?");
@@ -502,7 +503,7 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
         if ($emailChanged) {
             // If email changed, require verification before saving changes
             $emailToken = bin2hex(random_bytes(32));
-            $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, nsfw = ?, email_verificata = 0, email_token = ?, pending_email = ? WHERE id = ?");
+            $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, nsfw = ?, email_verificata = 0, email_token = ?, email = ? WHERE id = ?");
             $stmt->bind_param("sissi", $username, $nsfw, $emailToken, $email, $userId);
         } else {
             $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, nsfw = ? WHERE id = ?");
