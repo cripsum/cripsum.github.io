@@ -260,7 +260,7 @@ function getWelcomeEmailTemplate($username) {
 }
 
 function loginUser($mysqli, $email, $password) {
-    $stmt = $mysqli->prepare("SELECT id, username, email, password, profile_pic, ruolo, email_verificata FROM utenti WHERE email = ?");
+    $stmt = $mysqli->prepare("SELECT id, username, email, password, profile_pic, ruolo, email_verificata, isBannato, nsfw FROM utenti WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -270,12 +270,16 @@ function loginUser($mysqli, $email, $password) {
         if ($user['email_verificata'] == 0) {
             return 'Devi verificare la tua email prima di accedere. Controlla la tua casella di posta.';
         }
+        if ($user['isBannato']) {
+            return 'Il tuo account è stato bannato. Contatta cripsum@cripsum.com per ulteriori informazioni.';
+        }
         
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['email'] = $user['email'];
         $_SESSION['profile_pic'] = $user['profile_pic'] ?? '../img/abdul.jpg';
         $_SESSION['ruolo'] = $user['ruolo'];
+        $_SESSION['nsfw'] = $user['nsfw'] ?? 0;
         return true;
     }
     return false;
@@ -392,7 +396,7 @@ function getCurrentUser($mysqli) {
     }
 
     $stmt = $mysqli->prepare("
-        SELECT id, username, email, profile_pic, data_creazione, ruolo, soldi, isBannato
+        SELECT id, username, email, profile_pic, data_creazione, ruolo, soldi, isBannato, nswf
         FROM utenti 
         WHERE id = ?
     ");
@@ -406,7 +410,7 @@ function getCurrentUser($mysqli) {
 
 function getUserProfile($mysqli, $userId) {
     $stmt = $mysqli->prepare("
-        SELECT id, username, email, profile_pic, data_creazione, ruolo, soldi, isBannato
+        SELECT id, username, email, profile_pic, data_creazione, ruolo, soldi, isBannato, nswf
         FROM utenti 
         WHERE id = ?
     ");

@@ -14,6 +14,7 @@ if ($isLoggedIn) {
     $userId = $_SESSION['user_id'];
     $profilePic = "/includes/get_pfp.php?id=$userId";
     $ruolo = $_SESSION['ruolo'] ?? '';
+    $nsfw = $_SESSION['nsfw'] ?? 0; // Imposta nsfw a 0 se non è definito
 }
 ?>
 
@@ -80,6 +81,10 @@ if ($isLoggedIn) {
                             <li><a class="dropdown-item" href="/<?= $lang ?>/profilo"><i class="fas fa-user me-2"></i>Il mio profilo</a></li>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/impostazioni"><i class="fas fa-cog me-2"></i>Impostazioni</a></li>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/ordini"><i class="fas fa-shopping-bag me-2"></i>I miei ordini</a></li>
+                            <li><a class="dropdown-item" href="/<?= $lang ?>/global-chat"><i class="fas fa-envelope me-2"></i>Chat Globale</a></li>
+                            <?php if ($nsfw === 1): ?>
+                                <li><a class="dropdown-item" href="/<?= $lang ?>/nsfw"><i class="fas fa-eye-slash me-2"></i>GoonLand</a></li>
+                            <?php endif; ?>
                             <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
                                 <li><a class="dropdown-item" href="/<?= $lang ?>/admin"><i class="fas fa-shield-alt me-2"></i>Pannello Admin</a></li>
                             <?php endif; ?>
