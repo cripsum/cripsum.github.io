@@ -251,8 +251,7 @@ function verifyEmail($mysqli, $token) {
         SELECT id, username, email 
         FROM utenti 
         WHERE email_token = ? 
-        AND email_verificata = 0 
-        AND data_creazione > DATE_SUB(NOW(), INTERVAL 24 HOUR)
+        AND email_verificata = 0
     ");
     $stmt->bind_param("s", $token);
     $stmt->execute();
