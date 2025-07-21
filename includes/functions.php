@@ -457,4 +457,78 @@ function cleanExpiredTokens($mysqli) {
     $stmt->close();
 }
 
+function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsfw) {
+    // Check if username already exists for another user
+    $stmt = $mysqli->prepare("SELECT id FROM users WHERE username = ? AND id != ?");
+    $stmt->bind_param("si", $username, $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        return "Il nome utente è già in uso";
+    }
+
+    // Check if email already exists for another user
+    $stmt = $mysqli->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
+    $stmt->bind_param("si", $email, $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        return "L'email è già in uso";
+    }
+
+    // Update user settings
+    // Check if email was changed
+    $currentEmailStmt = $mysqli->prepare("SELECT email FROM utenti WHERE id = ?");
+    $currentEmailStmt->bind_param("i", $userId);
+    $currentEmailStmt->execute();
+    $currentEmailResult = $currentEmailStmt->get_result();
+    $currentUser = $currentEmailResult->fetch_assoc();
+    $currentEmailStmt->close();
+    
+    $emailChanged = ($currentUser['email'] !== $email);
+    
+    if (!empty($password)) {
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        if ($emailChanged) {
+            // If email changed, require verification before saving changes
+            $emailToken = bin2hex(random_bytes(32));
+            $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, password = ?, nsfw = ?, email_verificata = 0, email_token = ?, pending_email = ? WHERE id = ?");
+            $stmt->bind_param("ssissi", $username, $hashedPassword, $nsfw, $emailToken, $email, $userId);
+        } else {
+            $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, password = ?, nsfw = ? WHERE id = ?");
+            $stmt->bind_param("ssii", $username, $hashedPassword, $nsfw, $userId);
+        }
+    } else {
+        if ($emailChanged) {
+            // If email changed, require verification before saving changes
+            $emailToken = bin2hex(random_bytes(32));
+            $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, nsfw = ?, email_verificata = 0, email_token = ?, pending_email = ? WHERE id = ?");
+            $stmt->bind_param("sissi", $username, $nsfw, $emailToken, $email, $userId);
+        } else {
+            $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, nsfw = ? WHERE id = ?");
+            $stmt->bind_param("sii", $username, $nsfw, $userId);
+        }
+    }
+    
+    if ($stmt->execute()) {
+        if ($emailChanged) {
+            sendVerificationEmail($email, $username, $emailToken);
+            return "Impostazioni aggiornate. Verifica la nuova email per completare il cambio.";
+        } else {
+            $_SESSION['username'] = $username;
+            $_SESSION['nsfw'] = $nsfw;
+            return true;
+        }
+    }
+
+    if ($stmt->execute()) {
+        $_SESSION['username'] = $username;
+        $_SESSION['email'] = $email;
+        $_SESSION['nsfw'] = $nsfw;
+        return true;
+    } else {
+        return "Errore durante l'aggiornamento";
+    }
+}
+
 ?>
