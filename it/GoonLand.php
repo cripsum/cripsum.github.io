@@ -165,7 +165,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
         <div class="testobianco fadeup" style="padding-top: 7rem;">
     <h1 class="title">GOONLAND</h1>
     
-    <div class="image-container" id="imageContainer">
+    <div class="image-container text-center" id="imageContainer" style="text-align: center;">
         <div class="placeholder-text">Clicca per generare la prima foto</div>
         <div class="loading-spinner" id="loadingSpinner"></div>
     </div>
