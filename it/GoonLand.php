@@ -47,14 +47,20 @@
         }
         
         .generated-image {
-            max-width: 100%;
-            max-height: 100%;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
             transition: opacity 0.5s ease-in-out;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
         
         .loading-spinner {
             position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             width: 50px;
             height: 50px;
             border: 4px solid #f3f3f3;
