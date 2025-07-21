@@ -20,20 +20,19 @@ $username = $_SESSION['username'] ?? '';
 $profilePic = "/includes/get_pfp.php?id=$userId";
 $ruolo = $_SESSION['ruolo'] ?? 'utente';
 $nsfw = $_SESSION['nsfw'] ?? 0; // Imposta nsfw a 0 se non è definito
-$email = $_SESSION['email'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
-    $new_email = trim($_POST['email'] ?? '');
+    $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $nsfw = isset($_POST['nsfw']) ? 1 : 0;
 
-    if (empty($username) || empty($new_email)) {
+    if (empty($username) || empty($email)) {
         $error = 'Compila tutti i campi';
-    } elseif (!filter_var($new_email, FILTER_VALIDATE_EMAIL)) {
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Email non valida';
     } else {
-        $result = updateUserSettings($mysqli, $userId, $username, $new_email, $password, $nsfw);
+        $result = updateUserSettings($mysqli, $userId, $username, $email, $password, $nsfw);
         if ($result === true) {
             header('Location: home');
             exit();

@@ -486,7 +486,6 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
     $currentEmailStmt->close();
     
     $emailChanged = ($currentUser['email'] !== $email);
-    $new_email = $emailChanged ? $email : $currentUser['email'];
     
     
     if (!empty($password)) {
@@ -495,7 +494,7 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
             // If email changed, require verification before saving changes
             $emailToken = bin2hex(random_bytes(32));
             $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, password = ?, nsfw = ?, email_verificata = 0, email_token = ?, email = ? WHERE id = ?");
-            $stmt->bind_param("ssissi", $username, $hashedPassword, $nsfw, $emailToken, $new_email, $userId);
+            $stmt->bind_param("ssissi", $username, $hashedPassword, $nsfw, $emailToken, $email, $userId);
         } else {
             $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, password = ?, nsfw = ? WHERE id = ?");
             $stmt->bind_param("ssii", $username, $hashedPassword, $nsfw, $userId);
@@ -505,7 +504,7 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
             // If email changed, require verification before saving changes
             $emailToken = bin2hex(random_bytes(32));
             $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, nsfw = ?, email_verificata = 0, email_token = ?, email = ? WHERE id = ?");
-            $stmt->bind_param("sissi", $username, $nsfw, $emailToken, $new_email, $userId);
+            $stmt->bind_param("sissi", $username, $nsfw, $emailToken, $email, $userId);
         } else {
             $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, nsfw = ? WHERE id = ?");
             $stmt->bind_param("sii", $username, $nsfw, $userId);
@@ -514,7 +513,7 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
     
     if ($stmt->execute()) {
         if ($emailChanged) {
-            sendVerificationEmail($new_email, $username, $emailToken);
+            sendVerificationEmail($email, $username, $emailToken);
             return "Impostazioni aggiornate. Verifica la nuova email per completare il cambio.";
         } else {
             $_SESSION['username'] = $username;
@@ -525,7 +524,7 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
 
     if ($stmt->execute()) {
         $_SESSION['username'] = $username;
-        $_SESSION['email'] = $new_email;
+        $_SESSION['email'] = $email;
         $_SESSION['nsfw'] = $nsfw;
         return true;
     } else {
