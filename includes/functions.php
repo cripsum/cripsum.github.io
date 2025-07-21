@@ -459,7 +459,7 @@ function cleanExpiredTokens($mysqli) {
 
 function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsfw) {
     // Check if username already exists for another user
-    $stmt = $mysqli->prepare("SELECT id FROM users WHERE username = ? AND id != ?");
+    $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE username = ? AND id != ?");
     $stmt->bind_param("si", $username, $userId);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -468,7 +468,7 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
     }
 
     // Check if email already exists for another user
-    $stmt = $mysqli->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
+    $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE email = ? AND id != ?");
     $stmt->bind_param("si", $email, $userId);
     $stmt->execute();
     $result = $stmt->get_result();
