@@ -21,6 +21,8 @@ $profilePic = "/includes/get_pfp.php?id=$userId";
 $ruolo = $_SESSION['ruolo'] ?? 'utente';
 $nsfw = $_SESSION['nsfw'] ?? 0; // Imposta nsfw a 0 se non è definito
 $oldEmail = $_SESSION['email'] ?? '';
+$success = '';
+$error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
@@ -39,10 +41,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if($_SESSION['email'] !== $oldEmail) {
                 session_destroy();
                 $success = "Modifica dell'email completata! Controlla la tua email per verificarla prima di poter accedere di nuovo.";
-                exit();
+            
             }
-
-            exit();
+            else {
+                header('Location: home');
+            }
         } else {
             $error = is_string($result) ? $result : 'Errore durante l\'aggiornamento delle impostazioni';
         }
@@ -63,6 +66,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php include '../includes/impostazioni.php'; ?>
 
         <div class="testobianco paginaprincipale fadeup" style="max-width: 800px; padding-top: 7rem;">
+            <?php if ($error): ?>
+                        <div class="alert alert-danger fadeup" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <?php echo htmlspecialchars($error); ?>
+                        </div>
+                        <?php endif; ?>
                         <?php if ($success): ?>
                         <div class="alert alert-success fadeup" role="alert">
                             <i class="bi bi-check-circle-fill me-2"></i>
