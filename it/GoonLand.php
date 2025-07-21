@@ -210,14 +210,12 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
             btn.textContent = 'Caricamento...';
             spinner.style.display = 'block';
             
-            // Rimuovi immagine precedente se presente
             const existingImg = container.querySelector('.generated-image');
             if (existingImg) {
                 existingImg.style.opacity = '0';
                 setTimeout(() => existingImg.remove(), 300);
             }
             
-            // Nascondi testo placeholder
             const placeholder = container.querySelector('.placeholder-text');
             if (placeholder) {
                 placeholder.style.display = 'none';
@@ -227,10 +225,8 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
                 const response = await fetch('https://api.waifu.pics/nsfw/waifu');
                 const data = await response.json();
                 
-                // Precarica l'immagine
                 const img = new Image();
                 img.onload = function() {
-                    // Crea elemento img per la pagina
                     const displayImg = document.createElement('img');
                     displayImg.src = data.url;
                     displayImg.className = 'generated-image';
@@ -238,13 +234,11 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
                     
                     container.appendChild(displayImg);
                     
-                    // Fade in dell'immagine
                     setTimeout(() => {
                         displayImg.style.opacity = '1';
                         spinner.style.display = 'none';
                         isLoading = false;
                         
-                        // Avvia cooldown di 3 secondi
                         startCooldown();
                     }, 100);
                 };
@@ -262,7 +256,6 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
                 btn.disabled = false;
                 btn.textContent = 'Genera Nuova Foto';
                 
-                // Mostra messaggio di errore
                 const errorMsg = document.createElement('div');
                 errorMsg.textContent = 'Errore nel caricamento. Riprova.';
                 errorMsg.style.color = '#d63384';
@@ -299,7 +292,6 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
             updateCountdown();
         }
         
-        // Genera la prima immagine automaticamente dopo 1 secondo
         setTimeout(() => {
             generateImage();
         }, 1000);
