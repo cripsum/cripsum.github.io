@@ -1,8 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-ini_set('log_errors', 1);
-error_reporting(1);
 
 ini_set('session.gc_maxlifetime', 604800);
 session_set_cookie_params(604800);
