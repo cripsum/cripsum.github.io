@@ -40,7 +40,7 @@
             overflow: hidden;
             box-shadow: 0 15px 35px rgba(214, 51, 132, 0.3);
             background: white;
-            margin-bottom: 30px;
+            margin: 0 auto 30px auto;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -70,6 +70,8 @@
         }
         
         .generate-btn {
+            display: block;
+            margin: 0 auto;
             padding: 15px 30px;
             font-size: 1.2rem;
             background: linear-gradient(45deg, #d63384, #f06292);
@@ -96,10 +98,11 @@
         }
         
         .countdown {
-            margin-top: 10px;
+            margin: 10px auto 0 auto;
             color: #d63384;
             font-weight: bold;
             min-height: 20px;
+            text-align: center;
         }
         
         .placeholder-text {
@@ -171,7 +174,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
         Genera Nuova Foto
     </button>
     
-    <!--<div class="countdown" id="countdown"></div>-->
+    <div class="countdown" id="countdown"></div>
         </div>
 
         <div id="achievement-popup" class="popup">
