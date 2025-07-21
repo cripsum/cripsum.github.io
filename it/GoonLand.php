@@ -1,10 +1,30 @@
+<?php
+
+ini_set('session.gc_maxlifetime', 604800);
+session_set_cookie_params(604800);
+session_start();
+require_once '../config/database.php';
+require_once '../includes/functions.php';
+
+if (!isLoggedIn()) {
+    header('Location: accedi');
+    exit();
+}
+
+if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
+    header('Location: home');
+    exit();
+}
+
+?>
+
 <!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Goonland - Generatore</title>
-    <style>
+<html lang="en">
+    <head>
+        <?php include '../includes/head-import.php'; ?>
+        <title>Cripsum™ - GoonLand</title>
+        <script src="/js/nomePagina.js"></script>
+        <style>
         * {
             margin: 0;
             padding: 0;
@@ -129,41 +149,14 @@
             }
         }
     </style>
-</head>
-
-<?php
-
-ini_set('session.gc_maxlifetime', 604800);
-session_set_cookie_params(604800);
-session_start();
-require_once '../config/database.php';
-require_once '../includes/functions.php';
-
-if (!isLoggedIn()) {
-    header('Location: accedi');
-    exit();
-}
-
-if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
-    header('Location: home');
-    exit();
-}
-
-?>
-
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <?php include '../includes/head-import.php'; ?>
-        <title>Cripsum™</title>
-        <script src="/js/nomePagina.js"></script>
     </head>
 
     <body class="">
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
 
-        <div class="testobianco fadeup" style="padding-top: 7rem;">
+        <div class="testobianco fadeup" style="padding-top: 7rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+
     <h1 class="title">GOONLAND</h1>
     
     <div class="image-container text-center" id="imageContainer" style="text-align: center;">
