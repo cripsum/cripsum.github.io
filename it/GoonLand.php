@@ -51,6 +51,7 @@
             max-height: 400px;
             object-fit: cover;
             transition: opacity 0.5s ease-in-out;
+            display: block;
         }
         
         .loading-spinner {
