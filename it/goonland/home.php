@@ -34,7 +34,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
       </div>
 <div class="p1">
   <h3>Cos'è Goonland?</h3>
-  <img class="img" src="raspberry-chan16gb.png" alt="" />
+  <img class="img" src="/img/raspberry-chan16gb.png" alt="" />
   <p>
     Goonland è un progetto ideato da Zakator e Cripsum: uno spazio digitale unico nel suo genere, nato dalla volontà di creare un ambiente che fosse al tempo stesso provocatorio, giocoso e visivamente coinvolgente. Non si tratta solo di un sito, ma di un piccolo universo costruito per intrattenere, far riflettere e talvolta confondere in modo creativo e fuori dagli schemi.
   </p>
@@ -45,7 +45,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
 
 <div class="p2">
   <h3>Cos'è il gooning?</h3>
-    <img class="img2" src="raspberry-chan8gb.png" alt="" />
+    <img class="img2" src="/img/raspberry-chan8gb.png" alt="" />
   <p>
     Il termine "gooning" affonda le sue radici negli angoli più oscuri e assurdi di Internet, dove è nato per descrivere uno stato mentale ipnotico, quasi trance, indotto dalla ripetizione ossessiva di stimoli sensoriali, come immagini, suoni o contenuti digitali. È una condizione in cui l'attenzione viene completamente risucchiata, portando a un'esperienza psicologica intensa e stranamente appagante.
   </p>
