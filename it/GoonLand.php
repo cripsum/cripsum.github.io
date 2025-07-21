@@ -34,7 +34,6 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
         body {
             background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
             min-height: 100vh;
-            font-family: 'Arial', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -125,6 +124,14 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
             min-height: 20px;
             text-align: center;
         }
+
+        .crediti{
+            margin: 10px auto 0 auto;
+            color: #d63384;
+            font-weight: bold;
+            min-height: 20px;
+            text-align: center;
+        }
         
         .placeholder-text {
             color: #999;
@@ -179,6 +186,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
             </div>
         </div>
         <footer class="my-5 pt-5 text-muted text-center text-small fadeup">
+            <p class="crediti mb-2">Si ringrazia <a href="/user/Zakator" class="linkbianco" style="color: #d63384;">Zakator</a> per il contributo creativo nella realizzazione di GoonLand e delle relative funzionalità di gioco</p>
             <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. Tutti i diritti riservati.</p>
             <ul class="list-inline">
                 <li class="list-inline-item"><a href="privacy" class="linkbianco">Privacy</a></li>
