@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
 
-        <div class="testobianco paginaprincipale">
+        <div class="testobianco paginaprincipale fadeup" style="max-width: 800px; padding-top: 7rem;">
             <div class="container">
                 <h1 class="mb-4">Impostazioni</h1>
                 <p>Qui puoi modificare le tue impostazioni personali.</p>
@@ -74,12 +74,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="password" class="form-control" id="password" name="password" placeholder="Lascia vuoto per mantenere la password attuale">
                     </div>
                     <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="nsfw" name="nsfw" value="1" <?= $nsfw ? 'checked' : '' ?>>
+                        <input type="checkbox" class="form-check-input checco" id="nsfw" name="nsfw" value="1" <?= $nsfw ? 'checked' : '' ?>>
                         <label class="form-check-label" for="nsfw">
                             Abilita contenuti NSFW
                         </label>
                     </div>
-                    <button type="submit" class="btn btn-primary">Salva modifiche</button>
+                    <button class="btn btn-secondary bottone" type="submit">Salva modifiche</button>
                 </form>
             </div>
         </div>
