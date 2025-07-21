@@ -635,21 +635,17 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
     
     if ($stmt->execute()) {
         if ($emailChanged) {
-            sendVerificationEmailChanged($email, $username, $emailToken);
-            return "Impostazioni aggiornate. Verifica la nuova email per completare il cambio.";
+            $_SESSION['username'] = $username;
+            $_SESSION['email'] = $email;
+            $_SESSION['nsfw'] = $nsfw;
+        return true;
         } else {
             $_SESSION['username'] = $username;
             $_SESSION['nsfw'] = $nsfw;
             return true;
         }
     }
-
-    if ($stmt->execute()) {
-        $_SESSION['username'] = $username;
-        $_SESSION['email'] = $email;
-        $_SESSION['nsfw'] = $nsfw;
-        return true;
-    } else {
+    else {
         return "Errore durante l'aggiornamento";
     }
 }
