@@ -159,7 +159,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
 
-        <div class="testobianco paginaprincipale fadeup" style="max-width: 800px; padding-top: 7rem;">
+        <div class="testobianco fadeup" style="padding-top: 7rem;">
     <h1 class="title">GOONLAND</h1>
     
     <div class="image-container" id="imageContainer">
