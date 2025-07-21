@@ -47,20 +47,14 @@
         }
         
         .generated-image {
-            width: 100%;
-            height: 100%;
+            max-width: 400px;
+            max-height: 400px;
             object-fit: cover;
             transition: opacity 0.5s ease-in-out;
-            position: absolute;
-            top: 0;
-            left: 0;
         }
         
         .loading-spinner {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             width: 50px;
             height: 50px;
             border: 4px solid #f3f3f3;
@@ -217,7 +211,6 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
             const container = document.getElementById('imageContainer');
             const countdown = document.getElementById('countdown');
             
-            // Avvia il loading
             isLoading = true;
             btn.disabled = true;
             btn.textContent = 'Caricamento...';
