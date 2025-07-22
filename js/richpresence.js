@@ -159,11 +159,13 @@ const pageMap = {
     title: "Goonland",
     state: "Esplorando Goonland",
     imageText: "Benvenuto a Goonland",
+    largeImageKey: "https://media1.tenor.com/m/QJ7OYh157fcAAAAC/sonic.gif"
   },
   "/it/goonland/goon-generator": {
     title: "Goon Generator",
     state: "Sta Goonando",
     imageText: "Benvenuto a Goonland",
+    largeImageKey: "https://media1.tenor.com/m/QJ7OYh157fcAAAAC/sonic.gif"
   },
 
   //pagine utenti
@@ -452,6 +454,8 @@ function updatePresence() {
       };
     }
   }
+
+  
 
   try {
     const payload = {
