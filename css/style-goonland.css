@@ -38,7 +38,7 @@ h3 {
     text-align: center;
 }
 
-hr.goonhr {
+.goonhr {
     border-top: 4px solid rgb(214, 51, 132);
     /*border-radius: 5px;*/
     max-width: 75%;
