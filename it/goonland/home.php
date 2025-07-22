@@ -27,7 +27,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
     <title>GoonLand™ - Home</title>
   </head>
   <body>
-        <?php include '../../includes/navbar.php'; ?>
+        <?php include '../../includes/navbar-goonland.php'; ?>
         <?php include '../../includes/impostazioni.php'; ?>
         <div class="" style="padding-top: 7rem;">
             <div class="title fadeup">

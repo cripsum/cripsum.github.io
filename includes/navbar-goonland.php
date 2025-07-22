@@ -39,30 +39,12 @@ if ($isLoggedIn) {
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/home">Home page</a></li>
-                <li class="nav-item dropdown dropdownutenti">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Memes</a>
-                    <ul class="dropdown-menu animate slideIn">
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/shitpost">Shitpost</a></li>
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/tiktokpedia">TikTokPedia</a></li>
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/rimasti">Top rimasti</a></li>
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/quandel57" style="color: red; font-weight: bold">Quandel57</a></li>
-                        <li><a class="dropdown-item arcobalenos" href="/<?= $lang ?>/gambling" style="font-weight: bold">Gambling!!</a></li>
-                        <li><a class="dropdown-item testo-arcobaleno" href="/<?= $lang ?>/lootbox" style="font-weight: bold">Lootbox</a></li>
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/achievements">Achievements</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/download">Downloads</a></li>
-                <li class="nav-item dropdown dropdownutenti">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Shop</a>
-                    <ul class="dropdown-menu animate slideIn">
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/negozio">Negozio</a></li>
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/merch">Merch</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/donazioni">Donazioni</a></li>
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/chisiamo">Chi siamo</a></li>
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/edits">Edits</a></li>
+                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/home"><i class="fas fa-arrow-left"></i>Torna a Cripsum™</a></li>
+                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/home">Home Page</a></li>
+                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/goon-generator">Goon Generato</a></li>
+                <li class="nav-item"><a class="nav-link" href="">Coming Soon...</a></li>
+                <!--<li class="nav-item"><a class="nav-link" href="">Coming Soon...</a></li>
+                <li class="nav-item"><a class="nav-link" href="">Coming Soon...</a></li>-->
             </ul>
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">

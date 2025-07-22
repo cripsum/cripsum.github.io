@@ -159,7 +159,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
     </head>
 
     <body class="">
-        <?php include '../../includes/navbar.php'; ?>
+        <?php include '../../includes/navbar-goonland.php'; ?>
         <?php include '../../includes/impostazioni.php'; ?>
 
         <div class="testobianco fadeup" style="padding-top: 7rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
