@@ -155,7 +155,7 @@ const pageMap = {
     state: "Cercando di trovare qualcosa che non esiste",
     imageText: "Pagina non trovata"
   },
-    "/it/goonland/home": {
+  "/it/goonland/home": {
     title: "Goonland",
     state: "Esplorando Goonland",
     imageText: "Benvenuto a Goonland",
@@ -454,8 +454,6 @@ function updatePresence() {
       };
     }
   }
-
-  
 
   try {
     const payload = {
