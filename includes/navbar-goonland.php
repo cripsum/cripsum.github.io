@@ -39,7 +39,7 @@ if ($isLoggedIn) {
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/home"><i class="fas fa-arrow-left"></i>Torna a Cripsum™</a></li>
+                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/home"><i class="fas fa-arrow-left"></i> Torna a Cripsum™</a></li>
                 <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/home">Home Page</a></li>
                 <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/goon-generator">Goon Generator</a></li>
                 <li class="nav-item"><a class="nav-link" href="">Coming Soon...</a></li>
