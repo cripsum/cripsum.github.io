@@ -14,6 +14,23 @@ if (isLoggedIn()) {
 $error = '';
 $success = '';
 
+function isValidUsername($username) {
+
+    if (!preg_match('/^[a-zA-Z0-9_-]+$/', $username)) {
+        return false;
+    }
+
+    if (preg_match('/[_-]$/', $username)) {
+        return false;
+    }
+    
+    if (preg_match('/^[_-]/', $username)) {
+        return false;
+    }
+    
+    return true;
+}
+
 if ($_POST) {
 
     $username = trim($_POST['username'] ?? '');
@@ -28,12 +45,14 @@ if ($_POST) {
         $error = 'Devi accettare i termini e condizioni';
     } elseif ($password !== $repeatPassword) {
         $error = 'Le password non corrispondono';
+    } elseif (!isValidUsername($username)) {
+        $error = "L'username può contenere solo lettere, numeri, trattini e underscore, e non può iniziare o finire con un trattino o underscore";
     } elseif (strlen($password) < 6) {
         $error = 'La password deve essere di almeno 6 caratteri';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Email non valida';
     } elseif (strlen($username) < 3) {
-        $error = 'Lo username deve essere di almeno 3 caratteri';
+        $error = "L'username deve essere di almeno 3 caratteri";
     } else {
         $result = registerUser($mysqli, $username, $email, $password);
         if ($result === true) {
