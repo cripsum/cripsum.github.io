@@ -22,7 +22,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
 <html lang="en">
     <head>
         <?php include '../../includes/head-import.php'; ?>
-        <title>Cripsum™ - GoonLand</title>
+        <title>GoonLand™ - Goon Generator</title>
         <script src="/js/nomePagina.js"></script>
         <style>
         * {

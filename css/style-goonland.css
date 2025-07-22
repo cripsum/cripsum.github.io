@@ -37,6 +37,17 @@ body {
 h3 {
     text-align: center;
 }
+
+hr.rounded {
+    border-top: 4px solid rgb(214, 51, 132);
+    /*border-radius: 5px;*/
+    max-width: 75%;
+    margin: auto;
+    margin-top: 2%;
+    margin-bottom: 2%;
+    box-shadow: 0 0 8px 4px rgba(214, 51, 132, 0.5);
+}
+
 @media (max-width: 678px) {
     .title {
         font-size: 1.5rem;

@@ -24,15 +24,15 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
     <?php include '../../includes/head-import.php'; ?>
     <script src="/js/nomePagina.js"></script>
     <link rel="stylesheet" href="/css/style-goonland.css" />
-    <title>Goonland</title>
+    <title>GoonLand™ - Home</title>
   </head>
   <body>
         <?php include '../../includes/navbar.php'; ?>
         <?php include '../../includes/impostazioni.php'; ?>
-        <div class="title" style="padding-top: 7rem;">
+        <div class="title fadeup" style="padding-top: 7rem;">
         <h1 style="font-weight:bolder;">Welcome to Goonland!</h1>
         </div>
-        <div class="p1">
+        <div class="p1 fadeup">
         <h3 style="font-weight:bold;">Cos'è Goonland?</h3>
         <img class="img" src="/img/raspberry-chan16gb.png" alt="" />
         <p>
@@ -42,8 +42,8 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
             All'interno di Goonland troverai una raccolta di giochi interattivi, esperienze sperimentali e contenuti a tema, tutti sviluppati per incarnare l'estetica visionaria e spesso surreale del progetto. Ogni elemento del sito è pensato per immergere l'utente in un viaggio digitale dove nulla è davvero come sembra, e dove l'ironia si mescola con una sottile critica alla cultura dell'intrattenimento online.
         </p>
         </div>
-
-        <div class="p2">
+        <hr class="rounded fadeuphr" />
+        <div class="p2 fadeup">
         <h3 style="font-weight:bold;">Cos'è il gooning?</h3>
             <img class="img2" src="/img/raspberry-chan8gb.png" alt="" />
         <p>
@@ -53,8 +53,8 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
             In chiave ironica e satirica, Goonland prende il concetto di gooning e lo trasforma in una metafora dell’era digitale: un invito a lasciarsi assorbire — consapevolmente — dall’assurdo, dall’eccesso, dalla bellezza distorta di un flusso continuo di contenuti. È un modo per rappresentare il caos creativo del web e la nostra relazione con la tecnologia, l’intrattenimento e la perdita del tempo.
         </p>
         </div>
-
-        <div class="p3">
+        <hr class="rounded fadeuphr" />
+        <div class="p3 fadeup">
         <h3 style="font-weight:bold;">Vi auguriamo tanto gooning!</h3>
         <p>
             Che tu sia un veterano della rete, cresciuto a pane e culture digitali underground, oppure un esploratore curioso alla ricerca di nuovi territori dell’assurdo, Goonland ti dà il benvenuto. Qui puoi perderti, ritrovarti o semplicemente lasciarti trasportare da un’esperienza fuori dal comune. Mettiti comodo, dimentica le regole per un po’ e preparati a entrare in un mondo che non chiede di essere compreso, ma semplicemente vissuto. Buon gooning!
