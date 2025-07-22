@@ -67,7 +67,7 @@ require_once '../includes/functions.php';
                             width="320"
                             class="bordobianco video-frame"
                             style="border-radius: 7px; margin: auto; display: block; margin-top: 3%; margin-left: 10px; margin-right: 10px; margin-bottom: 10px"
-                            id="23"
+                            id="25"
                         ></iframe>
                     </div>
                     <p class="text text-center" style="margin-bottom: 0"><img src="../img/user-svgrepo-com.svg" class="logodesc" style="width: 20px" /> Perfect Cell - DragonBall</p>
@@ -83,7 +83,7 @@ require_once '../includes/functions.php';
                             width="320"
                             class="bordobianco video-frame"
                             style="border-radius: 7px; margin: auto; display: block; margin-top: 3%; margin-left: 10px; margin-right: 10px; margin-bottom: 10px"
-                            id="23"
+                            id="24"
                         ></iframe>
                     </div>
                     <p class="text text-center" style="margin-bottom: 0"><img src="../img/user-svgrepo-com.svg" class="logodesc" style="width: 20px" /> Waguri Kaoruko</p>
