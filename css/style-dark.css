@@ -17,8 +17,23 @@ body {
     /* text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);*/
 }
 
+.testonero {
+    color: black;
+    /* text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);*/
+}
+
 .linkbianco {
     color: white;
+    font-weight: bold;
+    text-decoration: none;
+    position: relative;
+    padding-bottom: 2px;
+    border-bottom: 2px solid transparent;
+    transition: color 0.3s ease, transform 0.3s ease, border-bottom-color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.linknero {
+    color: rgb(0, 0, 0);
     font-weight: bold;
     text-decoration: none;
     position: relative;

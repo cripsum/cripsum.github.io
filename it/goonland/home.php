@@ -67,12 +67,12 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
             </div>
         </div>
         <footer class="my-5 pt-5 text-muted text-center text-small fadeup">
-            <p class="crediti mb-2">Si ringrazia <a href="/user/zakator" class="arcobaleno testo-arcobaleno" style="font-weight:bolder;">Zakator</a> per il contributo creativo e tecnico nella realizzazione di GoonLand e delle relative funzionalità di gioco</p>
+            <p class="crediti mb-2" style="color: #d63384;">Si ringrazia <a href="/user/zakator" class="arcobaleno testo-arcobaleno" style="font-weight:bolder;">Zakator</a> per il contributo creativo e tecnico nella realizzazione di GoonLand e delle relative funzionalità di gioco</p>
             <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. Tutti i diritti riservati.</p>
             <ul class="list-inline">
-                <li class="list-inline-item"><a href="../privacy" class="linkbianco">Privacy</a></li>
-                <li class="list-inline-item"><a href="../tos" class="linkbianco">Termini</a></li>
-                <li class="list-inline-item"><a href="../supporto" class="linkbianco">Supporto</a></li>
+                <li class="list-inline-item"><a href="../privacy" class="linknero">Privacy</a></li>
+                <li class="list-inline-item"><a href="../tos" class="linknero">Termini</a></li>
+                <li class="list-inline-item"><a href="../supporto" class="linknero">Supporto</a></li>
             </ul>
         </footer>
         <script
