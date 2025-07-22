@@ -163,9 +163,8 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
         <?php include '../../includes/impostazioni.php'; ?>
 
         <div class="testobianco fadeup" style="padding-top: 7rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                        <div class="alert alert-danger fadeup" role="alert">
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                            ci scusiamo per il disagio, ma l'API di generazione delle immagini è attualmente in manutenzione. Stiamo lavorando per ripristinare il servizio il prima possibile. Grazie per la vostra pazienza!
+                        <div class="alert alert-danger fadeup" role="alert" style="max-width: 800px">
+                        ci scusiamo per il disagio, ma l'API di generazione delle immagini è attualmente in manutenzione. Stiamo lavorando per ripristinare il servizio il prima possibile. Grazie per la vostra pazienza
                         </div>
 
     <h1 class="title">GOONLAND</h1>
