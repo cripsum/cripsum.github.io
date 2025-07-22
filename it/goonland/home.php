@@ -42,7 +42,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
             All'interno di Goonland troverai una raccolta di giochi interattivi, esperienze sperimentali e contenuti a tema, tutti sviluppati per incarnare l'estetica visionaria e spesso surreale del progetto. Ogni elemento del sito è pensato per immergere l'utente in un viaggio digitale dove nulla è davvero come sembra, e dove l'ironia si mescola con una sottile critica alla cultura dell'intrattenimento online.
         </p>
         </div>
-        <hr class="rounded fadeuphr" />
+        <hr class="goonhr fadeuphr" />
         <div class="p2 fadeup">
         <h3 style="font-weight:bold;">Cos'è il gooning?</h3>
             <img class="img2" src="/img/raspberry-chan8gb.png" alt="" />
@@ -53,7 +53,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
             In chiave ironica e satirica, Goonland prende il concetto di gooning e lo trasforma in una metafora dell’era digitale: un invito a lasciarsi assorbire — consapevolmente — dall’assurdo, dall’eccesso, dalla bellezza distorta di un flusso continuo di contenuti. È un modo per rappresentare il caos creativo del web e la nostra relazione con la tecnologia, l’intrattenimento e la perdita del tempo.
         </p>
         </div>
-        <hr class="rounded fadeuphr" />
+        <hr class="goonhr fadeuphr" />
         <div class="p3 fadeup">
         <h3 style="font-weight:bold;">Vi auguriamo tanto gooning!</h3>
         <p>
