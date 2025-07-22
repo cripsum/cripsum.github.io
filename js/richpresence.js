@@ -125,14 +125,27 @@ const pageMap = {
     state: "Scaricando il corso di Yoshukai",
     imageText: "Download del corso di Yoshukai"
   },
-
-  //pagine generiche
-  "/lootbox": {
+  "/it/profilo": {
+    title: "Profilo",
+    state: "Visualizzando il proprio profilo",
+    imageText: "Profilo utente",
+  },
+  "/it/global-chat": {
+    title: "Chat Globale",
+    state: "Chattando con gli altri utenti",
+    imageText: "Chat globale",
+  },
+  "/it/impostazioni": {
+    title: "impostazioni",
+    state: "Modificando le impostazioni",
+    imageText: "Impostazioni del sito"
+  },
+  "/it/lootbox": {
     title: "Lootbox",
     state: "Aprendo una lootbox",
     imageText: "Lootbox di Cripsum™"
   },
-  "/inventario": {
+  "/it/inventario": {
     title: "Inventario",
     state: "Guardando l'inventario",
     imageText: "Inventario"
@@ -141,6 +154,16 @@ const pageMap = {
     title: "404 Not Found",
     state: "Cercando di trovare qualcosa che non esiste",
     imageText: "Pagina non trovata"
+  },
+    "/it/goonland/home": {
+    title: "Goonland",
+    state: "Esplorando Goonland",
+    imageText: "Benvenuto a Goonland",
+  },
+  "/it/goonland/goon-generator": {
+    title: "Goon Generator",
+    state: "Sta Goonando",
+    imageText: "Benvenuto a Goonland",
   },
 
   //pagine utenti
@@ -285,6 +308,8 @@ const pageMap = {
 };
 
 const editMap = {
+  25: { character: "Perfect Cell - Dragon Ball", music: "Jmilton, CHASHKAKEFIRA - Reinado", image: "https://media1.tenor.com/m/mMm1Kd38phYAAAAC/big-brain-cell.gif" },
+  24: { character: "Waguri Kaoruko", music: "Tate McRae - it's ok i'm ok", image: "https://media1.tenor.com/m/7ddM67UZbgYAAAAC/kaoruko-waguri-waguri-kaoruko.gif" },
   23: { character: "Evelyn - Zenless Zone Zero", music: "Charli XCX - Track 10", image: "https://media1.tenor.com/m/OKrN0ca7FrYAAAAC/evelyn-zzz-singing.gif" },
   22: { character: "Shorekeeper - Wuthering Waves", music: "Irokz - Toxic Potion (slowed)", image: "https://media1.tenor.com/m/V505Lf9lIaAAAAAC/shorekeeper-smile.gif" },
   21: { character: "Karane Inda", music: "Katy Perry - Harleys in Hawaii", image: "https://media1.tenor.com/m/eLDDY0lV10wAAAAC/the-100-girlfriends-who-really-karane-inda.gif" },
@@ -402,7 +427,7 @@ function updatePresence() {
     };
   }
 
-  if (pathOnly === "/lootbox") {
+  if (pathOnly === "/it/lootbox") {
     const inventory = getInventory();
     const totalCharacters = window.rarities.length;
 
@@ -411,6 +436,18 @@ function updatePresence() {
         title: "Lootbox",
         state: `Ha appena pullato ${lastCharacterFound}`,
         imageText: `Personaggi trovati: ${inventory.length} / ${totalCharacters}`,
+        url: fullPath
+      };
+    }
+  }
+
+  if (pathOnly.startsWith("/user/")) {
+    const username = pathOnly.split("/user/")[1];
+    if (username) {
+      page = {
+        title: `Profilo di ${username}`,
+        state: `Visualizzando il profilo di ${username}`,
+        imageText: `Profilo di ${username}`,
         url: fullPath
       };
     }
