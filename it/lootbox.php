@@ -6,6 +6,11 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 
 
+if (!isLoggedIn()) {
+    header('Location: accedi');
+    exit();
+}
+require_once '../api/api_personaggi.php';
 
 ?>
 <!DOCTYPE html>

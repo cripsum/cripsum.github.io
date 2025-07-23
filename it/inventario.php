@@ -2,7 +2,14 @@
 session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+
+if (!isLoggedIn()) {
+    header('Location: accedi');
+    exit();
+}
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -89,7 +96,7 @@ require_once '../includes/functions.php';
                     const character = inventory.find((p) => p.name === personaggio.name);
                     const count = character ? character.count : 0;
 
-                    section.innerHTML += `
+                section.innerHTML += `
                 <div class="personaggio">
                     <img src="../${character ? personaggio.img : "../img/boh.png"}" class="${character ? "" : "hidden"}" alt="Personaggio">
                     <span>${character ? `${personaggio.name} (x${count})` : "???"}</span>
