@@ -4,6 +4,8 @@ session_set_cookie_params(604800);
 session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+require_once '../api/api_personaggi.php';
+require_once '../api/api_caratteri.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -283,41 +285,106 @@ require_once '../includes/functions.php';
             }
 
             function addToInventory(character) {
-                let inventory = JSON.parse(localStorage.getItem("inventory")) || [];
-
-                let characterFound = inventory.find((p) => p.name === character.name);
-
-                if (!characterFound) {
-                    inventory.push({ ...character, count: 1 });
-                    testoNuovo();
-                } else {
-                    characterFound.count++;
-                }
-
-                localStorage.setItem("inventory", JSON.stringify(inventory));
+                fetch('api_personaggi.php?action=add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: character.name
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.new_character) {
+                            testoNuovo(); // Mostra "NEW!" solo per personaggi nuovi
+                        }
+                        console.log(`Personaggio aggiunto. Quantità: ${data.quantity}`);
+                    } else {
+                        console.error('Errore nell\'aggiungere il personaggio:', data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Errore nella richiesta:', error);
+                });
             }
 
             function getInventory() {
-                return JSON.parse(localStorage.getItem("inventory")) || [];
+                return fetch('api_personaggi.php?action=get_inventory')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (Array.isArray(data)) {
+                            return data;
+                        } else {
+                            console.error('Errore nel recuperare l\'inventario:', data.error);
+                            return [];
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Errore nella richiesta:', error);
+                        return [];
+                    });
             }
 
             function resettaInventario() {
                 if (!confirm("Sei sicuro di voler resettare l'inventario? Tutti i personaggi saranno persi!")) {
                     return;
                 }
-                localStorage.setItem("inventory", JSON.stringify([]));
-                setCookie("casseAperte", 0);
-                setCookie("comuniDiFila", 0);
-                setCookie("preferences", {});
-                setLastCharacterFound("");
-                localStorage.clear();
-                alert("Inventario resettato con successo!");
-                location.reload();
+                
+                fetch('api_personaggi.php?action=reset_inventory', {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        setCookie("casseAperte", 0);
+                        setCookie("comuniDiFila", 0);
+                        setCookie("preferences", {});
+                        setLastCharacterFound("");
+                        alert("Inventario resettato con successo!");
+                        location.reload();
+                    } else {
+                        alert('Errore nel resettare l\'inventario: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Errore nella richiesta:', error);
+                    alert('Errore nella richiesta');
+                });
+            }
+
+            let rarities = []; // Array che conterrà i personaggi caricati dal database
+
+            // Carica i personaggi dal database all'avvio della pagina
+            async function loadCharacters() {
+                try {
+                    const response = await fetch('api_caratteri.php?action=get_all');
+                    const data = await response.json();
+                    
+                    if (Array.isArray(data)) {
+                        rarities = data;
+                    } else {
+                        console.error('Errore nel caricare i personaggi:', data.error);
+                        // Fallback a un array vuoto o a dati predefiniti
+                        rarities = [];
+                    }
+                } catch (error) {
+                    console.error('Errore nella richiesta:', error);
+                    rarities = [];
+                }
             }
 
             function getRandomPull() {
                 const selectedRarity = getRandomRarity();
                 const filteredRarities = rarities.filter((item) => item.rarity === selectedRarity);
+                
+                if (filteredRarities.length === 0) {
+                    console.error(`Nessun personaggio trovato per la rarità: ${selectedRarity}`);
+                    // Ritorna un personaggio casuale come fallback
+                    return rarities[Math.floor(Math.random() * rarities.length)];
+                }
+                
                 return filteredRarities[Math.floor(Math.random() * filteredRarities.length)];
             }
 
@@ -332,7 +399,9 @@ require_once '../includes/functions.php';
                 rarityProbabilities = aggiornaRarita();
             }
 
-            document.addEventListener("DOMContentLoaded", () => {
+            document.addEventListener("DOMContentLoaded", async () => {
+
+                await loadCharacters();
                 const preferences = getCookie("preferences");
 
                 if (preferences) {
@@ -342,6 +411,16 @@ require_once '../includes/functions.php';
                     });
                 }
                 rarityProbabilities = aggiornaRarita();
+
+                const pull = filtroPull();
+
+                document.getElementById("contenuto").innerHTML = `
+                        <p style="top 10px; font-size: 20px; max-width: 600px;" id="nomePersonaggio">${pull.name}</p>
+                        <img src="../${pull.img}" alt="Premio" class="premio" />
+                    `;
+                addToInventory(pull);
+                setLastCharacterFound(pull.name);
+                setupRarityEffects(pull);
             });
 
             function aggiornaRarita() {
@@ -416,66 +495,76 @@ require_once '../includes/functions.php';
                 return getRandomPull();
             }
 
-            const pull = filtroPull();
-
-            document.getElementById("contenuto").innerHTML = `
-                    <p style="top 10px; font-size: 20px; max-width: 600px;" id="nomePersonaggio">${pull.name}</p>
-                    <img src="../${pull.img}" alt="Premio" class="premio" />
-                `;
-            addToInventory(pull);
-            setLastCharacterFound(pull.name);
-
             function riscattaCodice() {
                 if (codiceSegreto.value === "godo") {
-                    if (getInventory().find((p) => p.name === "CRIPSUM")) {
-                        alert("il Codice è già riscattato o cripsum è già nel tuo inventario!");
-                        return;
-                    }
-                    let pullRiscattata = getCharacter("CRIPSUM");
-                    addToInventory(pullRiscattata);
-                    alert("Codice riscattato con successo! cripsum è stato aggiunto al tuo inventario!");
+                    // Prima controlla se l'utente ha già CRIPSUM
+                    getInventory().then(inventory => {
+                        const hasCripsum = inventory.find(p => p.name === "CRIPSUM");
+                        if (hasCripsum) {
+                            alert("Il Codice è già riscattato o cripsum è già nel tuo inventario!");
+                            return;
+                        }
+                        
+                        // Ottieni i dati del personaggio CRIPSUM e aggiungilo
+                        getCharacter("CRIPSUM").then(pullRiscattata => {
+                            addToInventory(pullRiscattata);
+                            alert("Codice riscattato con successo! Cripsum è stato aggiunto al tuo inventario!");
+                        }).catch(error => {
+                            alert("Errore nel riscattare il codice: " + error.message);
+                        });
+                    });
                 } else {
                     alert("Codice non valido, skill issue!");
                 }
             }
 
             function getCharacter(name) {
-                return rarities.find((p) => p.name === name);
+                return fetch(`api_personaggi.php?action=get_character_by_name&name=${encodeURIComponent(name)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.name) {
+                            return data;
+                        } else {
+                            throw new Error(data.error || 'Personaggio non trovato');
+                        }
+                    });
             }
 
-            var rarita = pull.rarity;
+            function setupRarityEffects(pull) {
+                var rarita = pull.rarity;
 
-            if (rarita === "comune") {
-                messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
-                bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
-            } else if (rarita === "mitico") {
-                messaggioRarita.innerText = "PAZZESCO FRA, hai pullato un personaggio mitico";
-                bagliore.style.background = "radial-gradient(circle, rgba(245, 15, 15, 1) 0%, rgba(0, 255, 0, 0) 70%)";
-            } else if (rarita === "leggendario") {
-                messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
-                bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-            } else if (rarita === "epico") {
-                messaggioRarita.innerText = "hai pullato un personaggio epico, tanta roba, ma poteva andare meglio";
-                bagliore.style.background = "radial-gradient(circle, rgba(195, 0, 235, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-            } else if (rarita === "raro") {
-                messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
-                bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-            } else if (rarita === "speciale") {
-                messaggioRarita.innerText = "COM'É POSSIBILE? HAI PULLATO UN PERSONAGGIO SPECIALE!";
+                if (rarita === "comune") {
+                    messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
+                    bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
+                } else if (rarita === "mitico") {
+                    messaggioRarita.innerText = "PAZZESCO FRA, hai pullato un personaggio mitico";
+                    bagliore.style.background = "radial-gradient(circle, rgba(245, 15, 15, 1) 0%, rgba(0, 255, 0, 0) 70%)";
+                } else if (rarita === "leggendario") {
+                    messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
+                    bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+                } else if (rarita === "epico") {
+                    messaggioRarita.innerText = "hai pullato un personaggio epico, tanta roba, ma poteva andare meglio";
+                    bagliore.style.background = "radial-gradient(circle, rgba(195, 0, 235, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+                } else if (rarita === "raro") {
+                    messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
+                    bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+                } else if (rarita === "speciale") {
+                    messaggioRarita.innerText = "COM'É POSSIBILE? HAI PULLATO UN PERSONAGGIO SPECIALE!";
 
-                bagliore.style.position = "fixed";
-                bagliore.style.width = "100vw";
-                bagliore.style.height = "100vh";
-                bagliore.style.zIndex = "-1";
+                    bagliore.style.position = "fixed";
+                    bagliore.style.width = "100vw";
+                    bagliore.style.height = "100vh";
+                    bagliore.style.zIndex = "-1";
 
-                bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
-                bagliore.style.backgroundSize = "300% 100%";
-                bagliore.style.animation = "rainbowBackground 6s linear infinite";
-            }
+                    bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
+                    bagliore.style.backgroundSize = "300% 100%";
+                    bagliore.style.animation = "rainbowBackground 6s linear infinite";
+                }
 
-            document.getElementById("suonoCassa").innerHTML = `
+                document.getElementById("suonoCassa").innerHTML = `
                     <source src="../${pull.audio}" type="audio/mpeg" id="suono" />
-                    `;
+                `;
+            }
 
             document.addEventListener("keydown", function (event) {
                 if (event.code === "Space") {
@@ -503,30 +592,35 @@ require_once '../includes/functions.php';
                 }
             });
 
-            function apriCassa() {
-                casseAperte = getCookie("casseAperte") || 0;
-                casseAperte++;
-                setCookie("casseAperte", casseAperte);
+        function apriCassa() {
+            casseAperte = getCookie("casseAperte") || 0;
+            casseAperte++;
+            setCookie("casseAperte", casseAperte);
 
-                comuniDiFila = getComuniDiFila();
+            comuniDiFila = getComuniDiFila();
 
-                if (comuniDiFila === 10) {
-                    unlockAchievement(9);
-                }
+            if (comuniDiFila === 10) {
+                unlockAchievement(9);
+            }
 
-                if (casseAperte === 100) {
-                    unlockAchievement(8);
-                }
-                if (casseAperte === 500) {
-                    unlockAchievement(16);
-                }
-                if (getInventory().length === 1) {
+            if (casseAperte === 100) {
+                unlockAchievement(8);
+            }
+            if (casseAperte === 500) {
+                unlockAchievement(16);
+            }
+            
+            // Per gli achievement basati sulla lunghezza dell'inventario, 
+            // devi fare una chiamata asincrona
+            getInventory().then(inventory => {
+                if (inventory.length === 1) {
                     unlockAchievement(5);
                 }
-                if (getInventory().length === 42) {
+                if (inventory.length === 42) {
                     unlockAchievement(3);
                 }
-            }
+            });
+        }
 
             function apriNormale() {
                 apriCassa();
