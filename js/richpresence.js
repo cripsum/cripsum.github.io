@@ -491,7 +491,7 @@ history.replaceState = function() {
   setTimeout(updatePresence, 100);
 };
 
-if(window.location.pathname === "/it/edits" || window.location.pathname === "/en/edits") {
+/**if(window.location.pathname === "/it/edits" || window.location.pathname === "/en/edits") {
     setInterval(() => {
     if (ws && ws.readyState === WebSocket.OPEN) {
       updatePresence();
@@ -502,8 +502,11 @@ else{
   if (ws && ws.readyState === WebSocket.OPEN) {
     updatePresence();
   }
-}
+}*/
 
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    updatePresence();
+  }
 
 
 window.setCurrentEdit = setCurrentEdit;
