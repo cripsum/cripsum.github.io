@@ -4,6 +4,9 @@ session_set_cookie_params(604800);
 session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -114,18 +117,12 @@ require_once '../includes/functions.php';
                 };
             </script>
             <div class="container">
-                <!-- Faretti 
-                <div class="faretto sinistra"></div>
-                <div class="faretto destra"></div>-->
 
-                <!-- Cassa -->
                 <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein" ondblclick="apriVeloce()" onclick="apriNormale()" />
 
-                <!-- Bagliore -->
                 <div id="baglioreWrapper">
                     <div class="bagliore" id="bagliore"></div>
                 </div>
-                <!-- Risultato Finale -->
 
                 <div id="contenuto"></div>
 
@@ -135,9 +132,6 @@ require_once '../includes/functions.php';
                 </div>
 
                 <div id="divApriAncora" class="nascosto">
-                    <!--<br />
-                    <a onclick="refresh()" id="apriAncora" class="linkbianco non-selezionabile" style="margin-bottom: 10px">Apri un'altra cassa</a><br />
-                    <a href="inventario" id="apriInventario" class="linkbianco non-selezionabile">Apri l'inventario</a>-->
                     <div class="button-container mt-4" style="text-align: center; max-width: 95%; margin: auto">
                         <a class="btn btn-secondary bottone mt-2" onclick="refresh()" style="cursor: pointer">Apri cassa</a>
                         <a class="btn btn-secondary bottone mt-2" href="inventario" style="cursor: pointer">Apri l'inventario</a>

@@ -2,8 +2,6 @@
 session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';
-require_once '../api/api_personaggi.php';
-require_once '../api/api_caratteri.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
