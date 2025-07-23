@@ -52,6 +52,7 @@ require_once '../api/api_caratteri.php';
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"
         ></script>
+        <script src="../js/characters.js"></script>
         <script>
             function getCookie(name) {
                 const cookies = document.cookie.split("; ");
@@ -62,88 +63,44 @@ require_once '../api/api_caratteri.php';
                 return null;
             }
 
-            // Funzione per caricare l'inventario dal database
-            async function loadInventoryFromDB() {
-                try {
-                    const response = await fetch('../api/api_personaggi.php?action=get_inventory');
-                    const data = await response.json();
-                    
-                    if (Array.isArray(data)) {
-                        return data;
-                    } else {
-                        console.error('Errore nel caricare l\'inventario:', data.error);
-                        return [];
-                    }
-                } catch (error) {
-                    console.error('Errore nella richiesta:', error);
-                    return [];
-                }
-            }
+            const inventory = JSON.parse(localStorage.getItem("inventory")) || [];
+            const inventarioDiv = document.getElementById("inventario");
+            const counterDiv = document.getElementById("counter");
+            const casseAperte = getCookie("casseAperte") || 0;
 
-            // Funzione per caricare tutti i personaggi disponibili dal database
-            async function loadAllCharactersFromDB() {
-                try {
-                    const response = await fetch('../api/api_caratteri.php?action=get_all');
-                    const data = await response.json();
-                    
-                    if (Array.isArray(data)) {
-                        return data;
-                    } else {
-                        console.error('Errore nel caricare i personaggi:', data.error);
-                        return [];
-                    }
-                } catch (error) {
-                    console.error('Errore nella richiesta:', error);
-                    return [];
-                }
-            }
+            const totalCharacters = rarities.length;
+            const foundCharacters = inventory.length;
 
-            // Funzione principale per inizializzare la pagina
-            async function initInventoryPage() {
-                const inventarioDiv = document.getElementById("inventario");
-                const counterDiv = document.getElementById("counter");
-                const casseAperte = getCookie("casseAperte") || 0;
+            document.getElementById("casseAperte").innerText = `Casse aperte: ${casseAperte}`;
 
-                // Carica i dati dal database
-                const inventory = await loadInventoryFromDB();
-                const allCharacters = await loadAllCharactersFromDB();
+            counterDiv.innerText = `Personaggi trovati: ${foundCharacters} / ${totalCharacters}`;
 
-                const totalCharacters = allCharacters.length;
-                const foundCharacters = inventory.length;
+            const rarityOrder = ["comune", "raro", "epico", "leggendario", "mitico", "speciale"];
 
-                document.getElementById("casseAperte").innerText = `Casse aperte: ${casseAperte}`;
-                counterDiv.innerText = `Personaggi trovati: ${foundCharacters} / ${totalCharacters}`;
+            rarityOrder.forEach((rarity) => {
+                const section = document.createElement("div");
+                section.classList.add("rarity-section", `rarity-${rarity}`);
 
-                const rarityOrder = ["comune", "raro", "epico", "leggendario", "mitico", "speciale"];
+                const foundInRarity = inventory.filter((p) => p.rarity === rarity).length;
+                const totalInRarity = rarities.filter((p) => p.rarity === rarity).length;
+                section.innerHTML = `<div class="rarity-title">${rarity.toUpperCase()}: ${foundInRarity} / ${totalInRarity}</div>`;
 
-                rarityOrder.forEach((rarity) => {
-                    const section = document.createElement("div");
-                    section.classList.add("rarity-section", `rarity-${rarity}`);
+                const filteredCharacters = rarities.filter((p) => p.rarity === rarity);
 
-                    const foundInRarity = inventory.filter((p) => p.rarity === rarity).length;
-                    const totalInRarity = allCharacters.filter((p) => p.rarity === rarity).length;
-                    section.innerHTML = `<div class="rarity-title">${rarity.toUpperCase()}: ${foundInRarity} / ${totalInRarity}</div>`;
+                filteredCharacters.forEach((personaggio) => {
+                    const character = inventory.find((p) => p.name === personaggio.name);
+                    const count = character ? character.count : 0;
 
-                    const filteredCharacters = allCharacters.filter((p) => p.rarity === rarity);
-
-                    filteredCharacters.forEach((personaggio) => {
-                        const character = inventory.find((p) => p.name === personaggio.name);
-                        const count = character ? character.count : 0;
-
-                        section.innerHTML += `
-                    <div class="personaggio">
-                        <img src="../${character ? personaggio.img : "../img/boh.png"}" class="${character ? "" : "hidden"}" alt="Personaggio">
-                        <span>${character ? `${personaggio.name} (x${count})` : "???"}</span>
-                    </div>
-                `;
-                    });
-
-                    inventarioDiv.appendChild(section);
+                    section.innerHTML += `
+                <div class="personaggio">
+                    <img src="../${character ? personaggio.img : "../img/boh.png"}" class="${character ? "" : "hidden"}" alt="Personaggio">
+                    <span>${character ? `${personaggio.name} (x${count})` : "???"}</span>
+                </div>
+            `;
                 });
-            }
 
-            // Inizializza la pagina quando il DOM è caricato
-            document.addEventListener('DOMContentLoaded', initInventoryPage);
+                inventarioDiv.appendChild(section);
+            });
         </script>
         <script src="../js/modeChanger.js"></script>
     </body>
