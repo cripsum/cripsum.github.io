@@ -300,6 +300,19 @@ require_once '../api/api_personaggi.php';
                 return JSON.parse(localStorage.getItem("inventory")) || [];
             }
 
+            /**function getInventory() {
+                fetch('../api/api_get_inventario.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        localStorage.setItem("inventory", JSON.stringify(data));
+                        return data;
+                    })
+                    .catch(error => {
+                        console.error('Errore nel recupero dell\'inventario:', error);
+                        return [];
+                    });
+            }*/
+
             function resettaInventario() {
                 if (!confirm("Sei sicuro di voler resettare l'inventario? Tutti i personaggi saranno persi!")) {
                     return;
