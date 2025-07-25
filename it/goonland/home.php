@@ -25,6 +25,18 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
     <script src="/js/nomePagina.js"></script>
     <link rel="stylesheet" href="/css/style-goonland.css" />
     <title>GoonLand™ - Home</title>
+    <style>
+        .dropdownutenti .dropdown-menu {
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            background: linear-gradient(135deg, rgba(255, 98, 190, 0.8), rgb(255, 139, 245));
+            border: 0px solid rgba(255, 255, 255, 0);
+            border-radius: 8px;
+            box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+        }
+
+    </style>
   </head>
   <body>
         <?php include '../../includes/navbar-goonland.php'; ?>

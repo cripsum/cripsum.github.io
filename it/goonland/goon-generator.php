@@ -43,6 +43,17 @@ if ($result) {
             padding: 0;
             box-sizing: border-box;
         }
+
+        .dropdownutenti .dropdown-menu {
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            background: linear-gradient(135deg, rgba(255, 98, 190, 0.8), rgb(255, 139, 245));
+            border: 0px solid rgba(255, 255, 255, 0);
+            border-radius: 8px;
+            box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+        }
+
         
         body {
             background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
