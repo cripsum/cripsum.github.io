@@ -300,17 +300,12 @@ require_once '../api/api_personaggi.php';
                 return JSON.parse(localStorage.getItem("inventory")) || [];
             }*/
 
-            function getInventory() {
-                fetch('https://cripsum.com/api/api_get_inventario.php')
-                    .then(response => response.json())
-                    .then(data => {
-                        localStorage.setItem("inventory", JSON.stringify(data));
-                        return data;
-                    })
-                    .catch(error => {
-                        console.error('Errore nel recupero dell\'inventario:', error);
-                        return [];
-                    });
+            async function getInventory() {
+                const response = await fetch('https://cripsum.com/api/api_get_inventario');
+                const data = await response.json();
+
+                localStorage.setItem("inventory", JSON.stringify(data));
+                return data;
             }
 
             function resettaInventario() {
