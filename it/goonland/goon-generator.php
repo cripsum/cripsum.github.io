@@ -16,6 +16,19 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
     exit();
 }
 
+$topGooners = [];
+$query = "SELECT username, clickgoon FROM utenti WHERE clickgoon > 0 ORDER BY clickgoon DESC LIMIT 10";
+$result = $mysqli->query($query);
+
+if ($result) {
+    while ($row = $result->fetch_assoc()) {
+        $topGooners[] = $row;
+    }
+    $result->free();
+} else {
+    error_log("Error fetching gooners leaderboard: " . $mysqli->error);
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -166,6 +179,137 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
         .classifica tr:nth-child(even) {
             background: #f2f2f2;
         }
+
+        .leaderboard {
+    margin-top: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(214, 51, 132, 0.2);
+    max-width: 600px;
+    width: 100%;
+}
+
+.leaderboard-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #d63384;
+    text-align: center;
+    margin-bottom: 25px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.leaderboard-table thead {
+    background: linear-gradient(45deg, #d63384, #f06292);
+    color: white;
+}
+
+.leaderboard-table th {
+    padding: 15px 20px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+}
+
+.leaderboard-table td {
+    padding: 12px 20px;
+    text-align: center;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 1rem;
+}
+
+.leaderboard-table tbody tr:hover {
+    background: linear-gradient(90deg, rgba(214, 51, 132, 0.05), rgba(240, 98, 146, 0.05));
+    transform: scale(1.01);
+    transition: all 0.2s ease;
+}
+
+.position {
+    font-weight: bold;
+    color: #d63384;
+    font-size: 1.1rem;
+}
+
+.position.gold {
+    color: #ffd700;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.position.silver {
+    color: #c0c0c0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.position.bronze {
+    color: #cd7f32;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.username {
+    font-weight: 600;
+    color: #333;
+}
+
+.username a {
+    color: #d63384;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.username a:hover {
+    color: #f06292;
+    text-decoration: underline;
+}
+
+.clicks {
+    font-weight: bold;
+    color: #d63384;
+    font-size: 1.1rem;
+}
+
+.no-data {
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    padding: 30px;
+}
+
+@media (max-width: 768px) {
+    .leaderboard {
+        margin: 30px 10px;
+        padding: 20px;
+    }
+    
+    .leaderboard-title {
+        font-size: 1.7rem;
+    }
+    
+    .leaderboard-table th,
+    .leaderboard-table td {
+        padding: 10px 8px;
+        font-size: 0.9rem;
+    }
+    
+    .leaderboard-table th:first-child,
+    .leaderboard-table td:first-child {
+        width: 15%;
+    }
+    
+    .leaderboard-table th:last-child,
+    .leaderboard-table td:last-child {
+        width: 25%;
+    }
+}
         
         @media (max-width: 480px) {
             .title {
@@ -221,39 +365,68 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
     </button>
     
     <div class="countdown" id="countdown"></div>
-        </div>
 
-        <div class="classifica" id="classifica" style="display: none; margin-top: 30px; text-align: center;">
-            <h2 class="testobianco">Classifica GoonLand</h2>
-            <table class="table table-striped table-bordered" style="max-width: 600px; margin: 0 auto;">
-                <thead>
-                    <tr>
-                        <th scope="col">Posizione</th>
-                        <th scope="col">Utente</th>
-                        <th scope="col">Goon count</th>
-                    </tr>
-                </thead>
-                <tbody id="classificaBody">
-                    <?php
-                    $stmt = $mysqli->prepare("SELECT username, clickgoon FROM utenti ORDER BY cickgoon DESC LIMIT 10");
-                    $stmt->execute();
-                    $result = $stmt->get_result();
-                    $position = 1;
-
-                    while ($row = $result->fetch_assoc()) {
-                        echo "<tr>
-                                <td>{$position}</td>
-                                <td>{$row['username']}</td>
-                                <td>{$row['clickgoon']}</td>
-                              </tr>";
-                        $position++;
+    <div class="leaderboard fadeup">
+    <h2 class="leaderboard-title">🏆 TOP 10 GOONERS 🏆</h2>
+    
+    <?php if (!empty($topGooners)): ?>
+        <table class="leaderboard-table">
+            <thead>
+                <tr>
+                    <th>Posizione</th>
+                    <th>Gooner</th>
+                    <th>Click</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($topGooners as $index => $gooner): 
+                    $position = $index + 1;
+                    $positionClass = '';
+                    $emoji = '';
+                    
+                    switch ($position) {
+                        case 1:
+                            $positionClass = 'gold';
+                            $emoji = '🥇';
+                            break;
+                        case 2:
+                            $positionClass = 'silver';
+                            $emoji = '🥈';
+                            break;
+                        case 3:
+                            $positionClass = 'bronze';
+                            $emoji = '🥉';
+                            break;
+                        default:
+                            $emoji = '#' . $position;
                     }
-
-                    $stmt->close();
-                    ?>
-                </tbody>
-            </table>
+                ?>
+                    <tr>
+                        <td>
+                            <span class="position <?php echo $positionClass; ?>">
+                                <?php echo $emoji; ?>
+                            </span>
+                        </td>
+                        <td class="username">
+                            <a href="/user/<?php echo htmlspecialchars($gooner['username']); ?>">
+                                <?php echo htmlspecialchars($gooner['username']); ?>
+                            </a>
+                        </td>
+                        <td class="clicks">
+                            <?php echo number_format($gooner['clickgoon']); ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php else: ?>
+        <div class="no-data">
+            Nessun dato disponibile per la classifica
         </div>
+    <?php endif; ?>
+</div>
+
+    </div>
 
         <div id="achievement-popup" class="popup">
             <img id="popup-image" src="" alt="Achievement" />
