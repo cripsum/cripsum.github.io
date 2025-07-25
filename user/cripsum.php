@@ -32,39 +32,7 @@ if ($result->num_rows === 0) {
 
 $user = $result->fetch_assoc();
 $stmt->close();
-
 $user_cercato_id = $user['id'];
-$is_own_profile = $isLoggedIn && $user_cercato_id == $user_id;
-
-// Modifica profilo se è il proprio e c'è invio form
-if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'update_profile') {
-    $username = $mysqli->real_escape_string($_POST['username']);
-    $pfp_blob = null;
-    $pfp_mime = null;
-
-    if (isset($_FILES['pfp']) && $_FILES['pfp']['error'] === 0) {
-        $pfp_blob = file_get_contents($_FILES['pfp']['tmp_name']);
-        $pfp_mime = mime_content_type($_FILES['pfp']['tmp_name']);
-    }
-
-    if ($pfp_blob && $pfp_mime) {
-        $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, profile_pic = ?, profile_pic_type = ? WHERE id = ?");
-        $null = NULL;
-        $stmt->bind_param("sbsi", $username, $null, $pfp_mime, $user_id);
-        $stmt->send_long_data(1, $pfp_blob);
-    } else {
-        $stmt = $mysqli->prepare("UPDATE utenti SET username = ? WHERE id = ?");
-        $stmt->bind_param("si", $username, $user_id);
-    }
-
-    $stmt->execute();
-    $stmt->close();
-
-    $_SESSION['username'] = $username;
-    // Reindirizza sempre all'username dopo la modifica
-    header("Location: /user/" . urlencode($username));
-    exit;
-}
 ?>
 
 <!DOCTYPE html>
@@ -97,7 +65,9 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
             </div>
 
             <div class="bio-container fadeup" style="background: linear-gradient(135deg, rgba(125, 246, 255, 0.1), rgba(4, 87, 87, 0.1))">
-                <img src="../includes/get_pfp.php?id=<?php echo $user_id; ?>" alt="" class="immaginechisiamo ombra bio-pfp" style="filter: none" />
+                <div style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin: 0 auto;" class="mb-3">
+                    <img src="../includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>" alt="Foto Profilo" class="img-fluid rounded-circle mb-3">
+                </div>
                 <h1 class="arcobalenos mt-2" style="font-weight: bolder; text-shadow: 0 0 25px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5)"><?php echo htmlspecialchars($user['username']); ?></h1>
                 <p class="mb-2" style="color: rgb(171, 171, 171)">AKA - sofficino alla pesca</p>
                 <p>Editor scaduto, ha speso tutti i suoi risparmi in brawl pass e ora non può permettersi la patente</p>
@@ -143,7 +113,6 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
                 </div>
             </div>
         </div>
-</div>
 
 
         <script
