@@ -47,7 +47,7 @@ if ($result) {
         .dropdownutenti .dropdown-menu {
             -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
-            background: linear-gradient(135deg, rgba(255, 98, 190, 0.8), rgb(255, 139, 245));
+            background: linear-gradient(135deg, rgba(255, 126, 201, 0.8), rgb(255, 152, 255));
             border: 0px solid rgba(255, 255, 255, 0);
             border-radius: 8px;
             box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
