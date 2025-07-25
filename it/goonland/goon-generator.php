@@ -169,7 +169,13 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
 
     <h1 class="title">GOONLAND</h1>
 
-        <div style="margin: 20px 0;">
+    
+    <div class="image-container text-center" id="imageContainer" style="text-align: center;">
+        <div class="placeholder-text">Clicca il tasto qui sotto per generare la prima foto</div>
+        <div class="loading-spinner" id="loadingSpinner"></div>
+    </div>
+
+    <div style="margin: 20px 0;">
         <label for="contentType" style="color: #d63384; font-weight: bold; display: block; margin-bottom: 10px; text-align: center;">
             Seleziona tipo di contenuto:
         </label>
@@ -179,11 +185,6 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
             <option value="trap">Trap</option>
             <option value="blowjob">Blowjob</option>
         </select>
-    </div>
-    
-    <div class="image-container text-center" id="imageContainer" style="text-align: center;">
-        <div class="placeholder-text">Clicca il tasto qui sotto per generare la prima foto</div>
-        <div class="loading-spinner" id="loadingSpinner"></div>
     </div>
     
     <button class="generate-btn" id="generateBtn" onclick="generateImage()">
