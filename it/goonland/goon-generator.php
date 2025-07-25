@@ -163,9 +163,9 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
         <?php include '../../includes/impostazioni.php'; ?>
 
         <div class="testobianco fadeup" style="padding-top: 7rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                        <div class="alert alert-danger fadeup" role="alert" style="max-width: 800px">
+                        <!--<div class="alert alert-danger fadeup" role="alert" style="max-width: 800px">
                         ci scusiamo per il disagio, ma l'API di generazione delle immagini è attualmente in manutenzione. Stiamo lavorando per ripristinare il servizio il prima possibile. Grazie per la vostra pazienza
-                        </div>
+                        </div>-->
 
     <h1 class="title">GOONLAND</h1>
     
@@ -177,6 +177,17 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
     <button class="generate-btn" id="generateBtn" onclick="generateImage()">
         Genera Nuova Foto
     </button>
+    <div style="margin: 20px 0;"></div>
+        <label for="contentType" style="color: #d63384; font-weight: bold; display: block; margin-bottom: 10px; text-align: center;">
+            Seleziona tipo di contenuto:
+        </label>
+        <select id="contentType" style="padding: 10px; border-radius: 10px; border: 2px solid #d63384; background: white; color: #d63384; font-weight: bold; display: block; margin: 0 auto; min-width: 200px; text-align: center;">
+            <option value="waifu">Waifu</option>
+            <option value="neko">Neko</option>
+            <option value="trap">Trap</option>
+            <option value="blowjob">Blowjob</option>
+        </select>
+    </div>
     
     <div class="countdown" id="countdown"></div>
         </div>
@@ -215,6 +226,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
             const spinner = document.getElementById('loadingSpinner');
             const container = document.getElementById('imageContainer');
             const countdown = document.getElementById('countdown');
+            const contentType = document.getElementById('contentType').value;
             
             isLoading = true;
             btn.disabled = true;
@@ -233,7 +245,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
             }
             
             try {
-                const response = await fetch('https://api.waifu.pics/nsfw/waifu');
+                const response = await fetch('https://api.waifu.pics/nsfw/' + contentType);
                 const data = await response.json();
                 
                 const img = new Image();
