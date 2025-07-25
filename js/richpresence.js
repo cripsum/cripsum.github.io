@@ -430,18 +430,25 @@ async function updatePresence() {
   }
 
   if (pathOnly === "/it/lootbox") {
-    const inventory = await getInventory();
-    const totalCharacters = await getCharacterNumber();
+  try {
+    // Check if functions are available before calling them
+    if (typeof getInventory === 'function' && typeof getCharacterNumber === 'function') {
+      const inventory = await getInventory();
+      const totalCharacters = await getCharacterNumber();
 
-    if (lastCharacterFound) {
-      page = {
-        title: "Lootbox",
-        state: `Ha appena pullato ${lastCharacterFound}`,
-        imageText: `Personaggi trovati: ${inventory.length} / ${totalCharacters}`,
-        url: fullPath
-      };
+      if (lastCharacterFound) {
+        page = {
+          title: "Lootbox",
+          state: `Ha appena pullato ${lastCharacterFound}`,
+          imageText: `Personaggi trovati: ${inventory.length} / ${totalCharacters}`,
+          url: fullPath
+        };
+      }
     }
+  } catch (error) {
+    console.error("Error getting inventory data:", error);
   }
+}
 
   if (pathOnly.startsWith("/user/")) {
     const username = pathOnly.split("/user/")[1];
