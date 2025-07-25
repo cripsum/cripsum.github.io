@@ -336,7 +336,7 @@ require_once '../api/api_personaggi.php';
                     return;
                 }
 
-                const response = await fetch('https://cripsum.com/api/delete_inventory.php', {
+                const response = await fetch('https://cripsum.com/api/delete_inventory', {
                     method: 'DELETE',
                 });
 
@@ -455,7 +455,7 @@ require_once '../api/api_personaggi.php';
                     if (preferences.SoloPoppy === true) {
                         while (true) {
                             const pull = getRandomPull();
-                            if (pull.category === "poppy") {
+                            if (pull.categoria === "poppy") {
                                 return pull;
                             }
                         }
@@ -463,7 +463,7 @@ require_once '../api/api_personaggi.php';
                     if (preferences.RimuoviAnime === true) {
                         while (true) {
                             const pull = getRandomPull();
-                            if (pull.category !== "anime") {
+                            if (pull.categoria !== "anime") {
                                 return pull;
                             }
                         }
@@ -475,15 +475,15 @@ require_once '../api/api_personaggi.php';
             const pull = filtroPull();
 
             document.getElementById("contenuto").innerHTML = `
-                    <p style="top 10px; font-size: 20px; max-width: 600px;" id="nomePersonaggio">${pull.name}</p>
-                    <img src="../${pull.img}" alt="Premio" class="premio" />
+                    <p style="top 10px; font-size: 20px; max-width: 600px;" id="nomePersonaggio">${pull.nome}</p>
+                    <img src="/img/${pull.img_url}" alt="Premio" class="premio" />
                 `;
             addToInventory(pull);
-            setLastCharacterFound(pull.name);
+            setLastCharacterFound(pull.nome);
 
             function riscattaCodice() {
                 if (codiceSegreto.value === "godo") {
-                    if (getInventory().find((p) => p.name === "CRIPSUM")) {
+                    if (getInventory().find((p) => p.nome === "CRIPSUM")) {
                         alert("il Codice è già riscattato o cripsum è già nel tuo inventario!");
                         return;
                     }
@@ -499,7 +499,7 @@ require_once '../api/api_personaggi.php';
                 return rarities.find((p) => p.name === name);
             }
 
-            var rarita = pull.rarity;
+            var rarita = pull.rarità;
 
             if (rarita === "comune") {
                 messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
@@ -530,7 +530,7 @@ require_once '../api/api_personaggi.php';
             }
 
             document.getElementById("suonoCassa").innerHTML = `
-                    <source src="../${pull.audio}" type="audio/mpeg" id="suono" />
+                    <source src="/audio/${pull.audio_url}" type="audio/mpeg" id="suono" />
                     `;
 
             document.addEventListener("keydown", function (event) {
