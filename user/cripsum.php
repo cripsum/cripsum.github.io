@@ -1,8 +1,8 @@
 <?php
 
 session_start();
-require_once 'config/database.php';
-require_once 'includes/functions.php';
+require_once '../config/database.php';
+require_once '../includes/functions.php';
 
 $isLoggedIn = isset($_SESSION['user_id']);
 $user_id = $_SESSION['user_id'] ?? null;
