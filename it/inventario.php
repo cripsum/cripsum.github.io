@@ -87,14 +87,14 @@ if (!isLoggedIn()) {
                     const section = document.createElement("div");
                     section.classList.add("rarity-section", `rarity-${rarity}`);
 
-                    const foundInRarity = inventory.filter((p) => p.rarity === rarity).length;
+                    const foundInRarity = inventory.filter((p) => p.rarità === rarity).length;
                     const totalInRarity = rarities.filter((p) => p.rarity === rarity).length;
                     section.innerHTML = `<div class="rarity-title">${rarity.toUpperCase()}: ${foundInRarity} / ${totalInRarity}</div>`;
 
                     const filteredCharacters = rarities.filter((p) => p.rarity === rarity);
 
                     filteredCharacters.forEach((personaggio) => {
-                        const character = inventory.find((p) => p.name === personaggio.name);
+                        const character = inventory.find((p) => p.nome === personaggio.name);
                         const count = character ? character.count : 0;
 
                     section.innerHTML += `
