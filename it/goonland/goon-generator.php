@@ -138,6 +138,34 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
             font-size: 1.2rem;
             text-align: center;
         }
+
+        .classifica {
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .classifica table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .classifica th, .classifica td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .classifica th {
+            background: #f8f9fa;
+            color: #d63384;
+        }
+
+        .classifica tr:nth-child(even) {
+            background: #f2f2f2;
+        }
         
         @media (max-width: 480px) {
             .title {
@@ -154,6 +182,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
                 padding: 12px 25px;
                 font-size: 1rem;
             }
+
         }
     </style>
     </head>
@@ -192,6 +221,38 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
     </button>
     
     <div class="countdown" id="countdown"></div>
+        </div>
+
+        <div class="classifica" id="classifica" style="display: none; margin-top: 30px; text-align: center;">
+            <h2 class="testobianco">Classifica GoonLand</h2>
+            <table class="table table-striped table-bordered" style="max-width: 600px; margin: 0 auto;">
+                <thead>
+                    <tr>
+                        <th scope="col">Posizione</th>
+                        <th scope="col">Utente</th>
+                        <th scope="col">Goon Points</th>
+                    </tr>
+                </thead>
+                <tbody id="classificaBody">
+                    <?php
+                    $stmt = $mysqli->prepare("SELECT username, clickgoon FROM utenti ORDER BY goon_points DESC LIMIT 10");
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $position = 1;
+
+                    while ($row = $result->fetch_assoc()) {
+                        echo "<tr>
+                                <td>{$position}</td>
+                                <td>{$row['username']}</td>
+                                <td>{$row['clickgoon']}</td>
+                              </tr>";
+                        $position++;
+                    }
+
+                    $stmt->close();
+                    ?>
+                </tbody>
+            </table>
         </div>
 
         <div id="achievement-popup" class="popup">
