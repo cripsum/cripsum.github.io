@@ -296,11 +296,11 @@ require_once '../api/api_personaggi.php';
                 localStorage.setItem("inventory", JSON.stringify(inventory));
             }
 
-            function getInventory() {
-                return JSON.parse(localStorage.getItem("inventory")) || [];
-            }
-
             /**function getInventory() {
+                return JSON.parse(localStorage.getItem("inventory")) || [];
+            }*/
+
+            function getInventory() {
                 fetch('../api/api_get_inventario.php')
                     .then(response => response.json())
                     .then(data => {
@@ -311,7 +311,7 @@ require_once '../api/api_personaggi.php';
                         console.error('Errore nel recupero dell\'inventario:', error);
                         return [];
                     });
-            }*/
+            }
 
             function resettaInventario() {
                 if (!confirm("Sei sicuro di voler resettare l'inventario? Tutti i personaggi saranno persi!")) {

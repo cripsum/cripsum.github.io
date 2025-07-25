@@ -68,12 +68,12 @@ if (!isLoggedIn()) {
                 return null;
             }
 
-            const inventory = JSON.parse(localStorage.getItem("inventory")) || [];
+            const inventory = getInventory() || [];
             const inventarioDiv = document.getElementById("inventario");
             const counterDiv = document.getElementById("counter");
             const casseAperte = getCookie("casseAperte") || 0;
 
-            const totalCharacters = rarities.length;
+            const totalCharacters = getCharactersNum(); // Assuming this function returns the total number of characters available
             const foundCharacters = inventory.length;
 
             document.getElementById("casseAperte").innerText = `Casse aperte: ${casseAperte}`;
@@ -106,6 +106,31 @@ if (!isLoggedIn()) {
 
                 inventarioDiv.appendChild(section);
             });
+
+            function getInventory() {
+                fetch('../api/api_get_inventario.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        localStorage.setItem("inventory", JSON.stringify(data));
+                        return data;
+                    })
+                    .catch(error => {
+                        console.error('Errore nel recupero dell\'inventario:', error);
+                        return [];
+                    });
+            }
+
+            function getCharactersNum(){
+                fetch('../api/api_get_characters_num.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        return data.total; // Assuming the API returns an object with a 'total' property
+                    })
+                    .catch(error => {
+                        console.error('Errore nel recupero del numero di personaggi:', error);
+                        return 0;
+                    });
+            }
         </script>
         <script src="../js/modeChanger.js"></script>
     </body>
