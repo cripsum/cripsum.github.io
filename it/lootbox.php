@@ -355,7 +355,11 @@ require_once '../api/api_personaggi.php';
                 }
             }
 
-
+            async function getAllCharacters() {
+                const response = await fetch('https://cripsum.com/api/get_all_characters');
+                const data = await response.json();
+                return data;
+            }
 
             /*function resettaInventario() {
                 if (!confirm("Sei sicuro di voler resettare l'inventario? Tutti i personaggi saranno persi!")) {
@@ -373,7 +377,8 @@ require_once '../api/api_personaggi.php';
 
             function getRandomPull() {
                 const selectedRarity = getRandomRarity();
-                const filteredRarities = rarities.filter((item) => item.rarity === selectedRarity);
+                //const filteredRarities = rarities.filter((item) => item.rarity === selectedRarity);
+                const filteredRarities = getAllCharacters().filter((item) => item.rarità === selectedRarity);
                 return filteredRarities[Math.floor(Math.random() * filteredRarities.length)];
             }
 
