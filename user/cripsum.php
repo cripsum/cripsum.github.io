@@ -118,19 +118,15 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
             </div>
 
             <div class="bio-container fadeup" style="background: linear-gradient(135deg, rgba(125, 246, 255, 0.1), rgba(4, 87, 87, 0.1))">
-                <img src="../img/pfp choso2 cc.png" alt="" class="immaginechisiamo ombra bio-pfp" style="filter: none" />
+                <img src="../includes/get_pfp.php?id=<?php echo $user_id; ?>" alt="" class="immaginechisiamo ombra bio-pfp" style="filter: none" />
                 <h1 class="arcobalenos mt-2" style="font-weight: bolder; text-shadow: 0 0 25px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5)"><?php echo htmlspecialchars($user['username']); ?></h1>
                 <p class="mb-2" style="color: rgb(171, 171, 171)">AKA - sofficino alla pesca</p>
                 <p>Editor scaduto, ha speso tutti i suoi risparmi in brawl pass e ora non può permettersi la patente</p>
-                    <div class="row mb-4">
-                        <div class="col-md-4 text-center fadeup">
-                            <div style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin: 0 auto;" class="mb-3">
-                                <img src="../includes/get_pfp.php?id=<?php echo $user_id; ?>" alt="Foto Profilo" style="width: 100%; height: 100%; object-fit: cover;">
-                            </div>
-                            <h3><?php echo htmlspecialchars($user['username']); ?></h3>
+                        <div class="col-md-4 text-center fadeup">    
                             <p>Membro dal: <?php echo date('d/m/Y', strtotime($user['data_creazione'])); ?></p>
+                            
                         </div>
-
+                    <div class="row mb-4">
                         <div class="col-md-8 fadeup">
                             <h4>Statistiche</h4>
                             <ul class="list-group">
@@ -153,6 +149,14 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
                             </ul>
                         </div>
                     </div>
+                            <div class="mt-3">
+                                <button class="btn btn-sm btn-outline-primary" onclick="copyProfileLink('username')">
+                                    Copia link profilo
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="copyProfileLink('id')">
+                                    Copia link ID
+                                </button>
+                            </div>
                 <div class="social-media">
                     <a href="https://tiktok.cripsum.com" target="_blank" class="linkbianco">TikTok</a>
                     <a href="https://t.me/sburragrigliata" target="_blank" class="linkbianco">Telegram</a>

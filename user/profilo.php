@@ -117,7 +117,7 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
 <?php include '../includes/navbar.php'; ?>
 
 <div class="container my-5 paginainterachisiamo testobianco" style="padding-top: 7rem">
-    <h1 class="mb-4 fadeup">Profilo di <?php echo htmlspecialchars($user['username']); ?></h1>
+    <h1 class="mb-4 fadeup">Cripsum™ - Profilo di <?php echo htmlspecialchars($user['username']); ?></h1>
 
     <div class="row mb-4">
         <div class="col-md-4 text-center fadeup">
