@@ -1,32 +1,48 @@
 <?php
 
 session_start();
-require_once '../config/database.php';
-require_once '../includes/functions.php';
+require_once 'config/database.php';
+require_once 'includes/functions.php';
 
-$username_url = $_GET['username'] ?? null;
-if (!$username_url) {
+$isLoggedIn = isset($_SESSION['user_id']);
+$user_id = $_SESSION['user_id'] ?? null;
+$username_session = $_SESSION['username'] ?? null;
+
+// Identifica se è username o ID dalla URL
+$identifier = $_GET['username'] ?? $_GET['id'] ?? null;
+if (!$identifier) {
     http_response_code(400);
-    exit('Username mancante.');
+    exit("Identificativo utente non specificato.");
 }
 
-// Dati utente cercato
-$stmt = $mysqli->prepare("
-    SELECT 
-        u.id,
-        u.username,
-        u.data_creazione,
-        u.soldi,
-        u.ruolo,
+// Determina se l'identificativo è numerico (ID) o alfanumerico (username)
+$is_id = is_numeric($identifier);
+
+// Prepara la query in base al tipo di identificativo
+if ($is_id) {
+    $query = "SELECT u.id, u.username, u.data_creazione, u.soldi, u.ruolo,
         COUNT(DISTINCT ua.achievement_id) AS num_achievement,
         COUNT(DISTINCT up.personaggio_id) AS num_personaggi
-    FROM utenti u
-    LEFT JOIN utenti_achievement ua ON ua.utente_id = u.id
-    LEFT JOIN utenti_personaggi up ON up.utente_id = u.id
-    WHERE u.username = ?
-    GROUP BY u.id
-");
-$stmt->bind_param("s", $username_url);
+        FROM utenti u
+        LEFT JOIN utenti_achievement ua ON ua.utente_id = u.id
+        LEFT JOIN utenti_personaggi up ON up.utente_id = u.id
+        WHERE u.id = ?
+        GROUP BY u.id";
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param("i", $identifier);
+} else {
+    $query = "SELECT u.id, u.username, u.data_creazione, u.soldi, u.ruolo,
+        COUNT(DISTINCT ua.achievement_id) AS num_achievement,
+        COUNT(DISTINCT up.personaggio_id) AS num_personaggi
+        FROM utenti u
+        LEFT JOIN utenti_achievement ua ON ua.utente_id = u.id
+        LEFT JOIN utenti_personaggi up ON up.utente_id = u.id
+        WHERE u.username = ?
+        GROUP BY u.id";
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param("s", $identifier);
+}
+
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -36,40 +52,39 @@ if ($result->num_rows === 0) {
 }
 
 $user = $result->fetch_assoc();
-$user_cercato_id = $user['id'];
-$is_own_profile = isset($_SESSION['user_id']) && $_SESSION['user_id'] == $user_cercato_id;
 $stmt->close();
 
-// Gestione modifica profilo
+$user_cercato_id = $user['id'];
+$is_own_profile = $isLoggedIn && $user_cercato_id == $user_id;
+
+// Modifica profilo se è il proprio e c'è invio form
 if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'update_profile') {
-    $nuovo_username = $mysqli->real_escape_string($_POST['username']);
+    $username = $mysqli->real_escape_string($_POST['username']);
     $pfp_blob = null;
-    $pfp_type = null;
+    $pfp_mime = null;
 
     if (isset($_FILES['pfp']) && $_FILES['pfp']['error'] === 0) {
         $pfp_blob = file_get_contents($_FILES['pfp']['tmp_name']);
-        $pfp_type = mime_content_type($_FILES['pfp']['tmp_name']);
+        $pfp_mime = mime_content_type($_FILES['pfp']['tmp_name']);
     }
 
-    if ($pfp_blob && $pfp_type) {
+    if ($pfp_blob && $pfp_mime) {
         $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, profile_pic = ?, profile_pic_type = ? WHERE id = ?");
-        $null = null;
-        $stmt->bind_param("sbsi", $nuovo_username, $null, $pfp_type, $user_cercato_id);
+        $null = NULL;
+        $stmt->bind_param("sbsi", $username, $null, $pfp_mime, $user_id);
         $stmt->send_long_data(1, $pfp_blob);
     } else {
         $stmt = $mysqli->prepare("UPDATE utenti SET username = ? WHERE id = ?");
-        $stmt->bind_param("si", $nuovo_username, $user_cercato_id);
+        $stmt->bind_param("si", $username, $user_id);
     }
 
     $stmt->execute();
     $stmt->close();
 
-    // Aggiorna sessione
-    $_SESSION['username'] = $nuovo_username;
-
-    // Redirect per aggiornare URL se username cambia
-    header("Location: /user/" . urlencode($nuovo_username));
-    exit();
+    $_SESSION['username'] = $username;
+    // Reindirizza sempre all'username dopo la modifica
+    header("Location: /user/" . urlencode($username));
+    exit;
 }
 ?>
 
