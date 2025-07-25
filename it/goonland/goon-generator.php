@@ -264,7 +264,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
                         spinner.style.display = 'none';
                         isLoading = false;
 
-                        fetch('/api/incrementa_counter_goon.php');
+                        fetch('https://cripsum.com/api/incrementa_counter_goon');
                         
                         startCooldown();
                     }, 100);
