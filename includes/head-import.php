@@ -29,7 +29,13 @@
         <script src="/js/controlloTema.js"></script>
         <script src="/js/unlockAchievement-it.js"></script>
         <script src="/js/achievements-globali.js"></script>
-        <script src="/js/richpresence.js"></script>
+        <script>
+            window.addEventListener('load', function() {
+                var script = document.createElement('script');
+                script.src = '/js/richpresence.js';
+                document.head.appendChild(script);
+            });
+        </script>
         <script src="/js/impostazioni.js"></script>
 
         <meta charset="UTF-8" />
