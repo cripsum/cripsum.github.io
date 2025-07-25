@@ -688,7 +688,7 @@ require_once '../api/api_personaggi.php';
 
             function getComuniDiFila() {
                 tempComuniDiFila = getCookie("comuniDiFila") || 0;
-                if (rarity === "comune") {
+                if (rarita === "comune") {
                     tempComuniDiFila++;
                     setCookie("comuniDiFila", tempComuniDiFila);
                     return tempComuniDiFila;
