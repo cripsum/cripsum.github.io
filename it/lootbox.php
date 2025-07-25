@@ -301,7 +301,7 @@ require_once '../api/api_personaggi.php';
             }*/
 
             function getInventory() {
-                fetch('../api/api_get_inventario.php')
+                fetch('https://cripsum.com/api/api_get_inventario.php')
                     .then(response => response.json())
                     .then(data => {
                         localStorage.setItem("inventory", JSON.stringify(data));

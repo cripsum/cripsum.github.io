@@ -108,7 +108,7 @@ if (!isLoggedIn()) {
             });
 
             function getInventory() {
-                fetch('../api/api_get_inventario.php')
+                fetch('https://cripsum.com/api/api_get_inventario.php')
                     .then(response => response.json())
                     .then(data => {
                         localStorage.setItem("inventory", JSON.stringify(data));
@@ -121,7 +121,7 @@ if (!isLoggedIn()) {
             }
 
             function getCharactersNum(){
-                fetch('../api/api_get_characters_num.php')
+                fetch('https://cripsum.com/api/api_get_characters_num.php')
                     .then(response => response.json())
                     .then(data => {
                         return data.total; // Assuming the API returns an object with a 'total' property
