@@ -5,7 +5,7 @@ require_once __DIR__ . '/../includes/functions.php';
 $user_id = $_SESSION['user_id'] ?? 0;
 
     $stmt = $mysqli->prepare("SELECT id, nome, rarità, categoria, img_url, audio_url, data, quantità FROM personaggi, utenti_personaggi WHERE personaggi.id = utenti_personaggi.personaggio_id AND utenti_personaggi.utente_id = ?"); 
-    $stmt->bind_param("i", $userId);
+    $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
     
@@ -15,9 +15,8 @@ $user_id = $_SESSION['user_id'] ?? 0;
     }
     
     $stmt->close();
-    return $characters;
-
-
-
+    
+    header('Content-Type: application/json');
+    echo json_encode($characters);
 
 ?>
