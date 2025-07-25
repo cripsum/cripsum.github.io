@@ -505,7 +505,7 @@ else{
 }*/
 
   if (ws && ws.readyState === WebSocket.OPEN) {
-    await updatePresence();
+    updatePresence();
   }
 
 
