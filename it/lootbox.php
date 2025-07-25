@@ -281,7 +281,7 @@ require_once '../api/api_personaggi.php';
                 document.cookie = `${name}=${JSON.stringify(value)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
             }
 
-            function addToInventory(character) {
+            /**function addToInventory(character) {
                 let inventory = JSON.parse(localStorage.getItem("inventory")) || [];
 
                 let characterFound = inventory.find((p) => p.name === character.name);
@@ -296,9 +296,32 @@ require_once '../api/api_personaggi.php';
                 localStorage.setItem("inventory", JSON.stringify(inventory));
             }
 
-            /**function getInventory() {
+
+
+            function getInventory() {
                 return JSON.parse(localStorage.getItem("inventory")) || [];
             }*/
+
+            async function addToInventory(character) {
+                const response = await fetch(`https://cripsum.com/api/add_character_to_inventory?character_id=${character.id}`);
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    let inventory = JSON.parse(localStorage.getItem("inventory")) || [];
+                    let characterFound = inventory.find((p) => p.nome === character.nome);
+
+                    if (!characterFound) {
+                        inventory.push({ ...character, count: 1 });
+                        testoNuovo();
+                    } else {
+                        characterFound.count++;
+                    }
+
+                    localStorage.setItem("inventory", JSON.stringify(inventory));
+                } else {
+                    alert(data.message);
+                }
+            }
 
             async function getInventory() {
                 const response = await fetch('https://cripsum.com/api/api_get_inventario');
@@ -308,7 +331,33 @@ require_once '../api/api_personaggi.php';
                 return data;
             }
 
-            function resettaInventario() {
+            async function resettaInventario() {
+                if (!confirm("Sei sicuro di voler resettare l'inventario? Tutti i personaggi saranno persi!")) {
+                    return;
+                }
+
+                const response = await fetch('https://cripsum.com/api/delete_inventory.php', {
+                    method: 'DELETE',
+                });
+
+                const data = await response.json();
+                if (data.status === 'success') {
+                    localStorage.setItem("inventory", JSON.stringify([]));
+                    setCookie("casseAperte", 0);
+                    setCookie("comuniDiFila", 0);
+                    setCookie("preferences", {});
+                    setLastCharacterFound("");
+                    localStorage.clear();
+                    alert("Inventario resettato con successo!");
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            }
+
+
+
+            /*function resettaInventario() {
                 if (!confirm("Sei sicuro di voler resettare l'inventario? Tutti i personaggi saranno persi!")) {
                     return;
                 }
@@ -320,7 +369,7 @@ require_once '../api/api_personaggi.php';
                 localStorage.clear();
                 alert("Inventario resettato con successo!");
                 location.reload();
-            }
+            }*/
 
             function getRandomPull() {
                 const selectedRarity = getRandomRarity();
