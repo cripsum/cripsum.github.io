@@ -100,7 +100,7 @@ if (!isLoggedIn()) {
                     section.innerHTML += `
                     <div class="personaggio">
                         <img src="../${character ? personaggio.img : "../img/boh.png"}" class="${character ? "" : "hidden"}" alt="Personaggio">
-                        <span>${character ? `${personaggio.name} (x${count})` : "???"}</span>
+                        <span>${character ? `${personaggio.name} (x${character.quantità})` : "???"}</span>
                     </div>
                 `;
                     });
