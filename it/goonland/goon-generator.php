@@ -230,12 +230,12 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
                     <tr>
                         <th scope="col">Posizione</th>
                         <th scope="col">Utente</th>
-                        <th scope="col">Goon Points</th>
+                        <th scope="col">Goon count</th>
                     </tr>
                 </thead>
                 <tbody id="classificaBody">
                     <?php
-                    $stmt = $mysqli->prepare("SELECT username, clickgoon FROM utenti ORDER BY goon_points DESC LIMIT 10");
+                    $stmt = $mysqli->prepare("SELECT username, clickgoon FROM utenti ORDER BY cickgoon DESC LIMIT 10");
                     $stmt->execute();
                     $result = $stmt->get_result();
                     $position = 1;
