@@ -9,28 +9,8 @@ $user_id = $_SESSION['user_id'] ?? null;
 $username_session = $_SESSION['username'] ?? null;
 
 // Identifica se è username o ID dalla URL
-$identifier = $_GET['username'] ?? $_GET['id'] ?? null;
-if (!$identifier) {
-    http_response_code(400);
-    exit("Identificativo utente non specificato.");
-}
+$identifier = "cripsum";
 
-// Determina se l'identificativo è numerico (ID) o alfanumerico (username)
-$is_id = is_numeric($identifier);
-
-// Prepara la query in base al tipo di identificativo
-if ($is_id) {
-    $query = "SELECT u.id, u.username, u.data_creazione, u.soldi, u.ruolo,
-        COUNT(DISTINCT ua.achievement_id) AS num_achievement,
-        COUNT(DISTINCT up.personaggio_id) AS num_personaggi
-        FROM utenti u
-        LEFT JOIN utenti_achievement ua ON ua.utente_id = u.id
-        LEFT JOIN utenti_personaggi up ON up.utente_id = u.id
-        WHERE u.id = ?
-        GROUP BY u.id";
-    $stmt = $mysqli->prepare($query);
-    $stmt->bind_param("i", $identifier);
-} else {
     $query = "SELECT u.id, u.username, u.data_creazione, u.soldi, u.ruolo,
         COUNT(DISTINCT ua.achievement_id) AS num_achievement,
         COUNT(DISTINCT up.personaggio_id) AS num_personaggi
@@ -41,7 +21,6 @@ if ($is_id) {
         GROUP BY u.id";
     $stmt = $mysqli->prepare($query);
     $stmt->bind_param("s", $identifier);
-}
 
 $stmt->execute();
 $result = $stmt->get_result();
