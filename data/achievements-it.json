@@ -3,7 +3,7 @@
         "id": 1,
         "title": "Primi passi",
         "description": "Entra per la prima volta nel sito. Benvenuto!",
-        "points": 10,
+        "points": 50,
         "locked": true,
         "image": "../img/segone4.png"
     },
@@ -11,7 +11,7 @@
         "id": 2,
         "title": "La grande vincita",
         "description": "Vinci nella pagina di gambling.",
-        "points": 20,
+        "points": 200,
         "locked": true,
         "image": "../img/segone4.png"
     },
@@ -19,7 +19,7 @@
         "id": 3,
         "title": "Collezionista seriale",
         "description": "Trova tutti i personaggi nelle lootbox.",
-        "points": 50,
+        "points": 500,
         "locked": true,
         "image": "../img/segone4.png"
     },
@@ -27,7 +27,7 @@
         "id": 4,
         "title": "GOAT",
         "description": "Supporta cripsum con una donazione.",
-        "points": 75,
+        "points": 350,
         "locked": true,
         "image": "../img/cuore.png"
     },
@@ -35,7 +35,7 @@
         "id": 5,
         "title": "Unboxing time!",
         "description": "Apri la tua prima cassa.",
-        "points": 10,
+        "points": 100,
         "locked": true,
         "image": "../img/segone4.png"
     },
@@ -43,7 +43,7 @@
         "id": 6,
         "title": "Edits enjoyer",
         "description": "Visita la pagina degli edit.",
-        "points": 20,
+        "points": 200,
         "locked": true,
         "image": "../img/pfp choso2 cc.png"
     },
@@ -51,7 +51,7 @@
         "id": 7,
         "title": "I'm a photographer and i took this photo",
         "description": "Acquista il merch di Simone Tussi.",
-        "points": 20,
+        "points": 200,
         "locked": true,
         "image": "../img/segone4.png"
     },
@@ -59,7 +59,7 @@
         "id": 8,
         "title": "Una vera dedizione",
         "description": "Hai aperto 100 casse. Tutto bene amico?",
-        "points": 30,
+        "points": 300,
         "locked": true,
         "image": "../img/segone4.png"
     },
@@ -67,7 +67,7 @@
         "id": 9,
         "title": "Rovinato dal gambling",
         "description": "Trova un personaggio comune in 10 casse di fila.",
-        "points": 20,
+        "points": 200,
         "locked": true,
         "image": "../img/segone4.png"
     },
@@ -75,7 +75,7 @@
         "id": 10,
         "title": "Clickbaitato",
         "description": "Non pensavi avresti veramente guadagnato v-bucks infiniti, vero?",
-        "points": 20,
+        "points": 200,
         "locked": true,
         "image": "../img/segone4.png"
     },
@@ -83,7 +83,7 @@
         "id": 11,
         "title": "Speedrunner della povertà",
         "description": "Sei andato in bancarotta nel gambling in meno di 1 minuto.",
-        "points": 15,
+        "points": 100,
         "locked": true,
         "image": "../img/segone4.png"
     },
@@ -91,7 +91,7 @@
         "id": 12,
         "title": "Tocca l'erba, ti prego",
         "description": "Hai aperto il sito alle 3 di notte. Che stai facendo della tua vita?",
-        "points": 10,
+        "points": 150,
         "locked": true,
         "image": "../img/segone4.png"
     },
@@ -99,7 +99,7 @@
         "id": 13,
         "title": "Dedizione Estrema",
         "description": "Accedi al sito per 30 giorni.",
-        "points": 20,
+        "points": 300,
         "locked": true,
         "image": "../img/segone4.png"
     },
@@ -107,15 +107,15 @@
         "id": 14,
         "title": "Tempo da buttare",
         "description": "Hai passato più di 2 ore sul sito. tutto bene?",
-        "points": 20,
+        "points": 200,
         "locked": true,
         "image": "../img/segone4.png"
     },
     {
         "id": 15,
-        "title": "Cripsum.exe ha smesso di funzionare",
-        "description": "Hai rotto il sito in qualche modo. Congratulazioni.",
-        "points": 25,
+        "title": "Benvenuto a Goonland",
+        "description": "Accedi a GoonLand per la prima volta, Buon Gooning!",
+        "points": 100,
         "locked": true,
         "image": "../img/segone4.png"
     },
@@ -123,7 +123,7 @@
         "id": 16,
         "title": "Dipendente dal Gacha",
         "description": "Apri 500 casse. Hai bisogno di aiuto?",
-        "points": 50,
+        "points": 250,
         "locked": true,
         "image": "../img/segone4.png"
     },
@@ -131,7 +131,7 @@
         "id": 17,
         "title": "Fanatico degli edit",
         "description": "Guarda tutti gli edit nella pagina apposita.",
-        "points": 50,
+        "points": 500,
         "locked": true,
         "image": "../img/segone4.png"
     },
@@ -139,7 +139,31 @@
         "id": 18,
         "title": "Esci di casa",
         "description": "Sblocca tutti gli achievement!",
-        "points": 500,
+        "points": 1500,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 19,
+        "title": "Gooner Master",
+        "description": "Hai goonato 100 volte. Continua così campione!",
+        "points": 400,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 20,
+        "title": "Nuovo kook",
+        "description": "modifica il tuo profilo con una pfp personalizzata.",
+        "points": 600,
+        "locked": true,
+        "image": "../img/segone4.png"
+    },
+    {
+        "id": 21,
+        "title": "Gooning streak",
+        "description": "Accedi al Goon Generator per 10 giorni consecutivi.",
+        "points": 300,
         "locked": true,
         "image": "../img/segone4.png"
     }

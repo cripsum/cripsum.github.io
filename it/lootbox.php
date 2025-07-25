@@ -123,7 +123,7 @@ require_once '../api/api_personaggi.php';
             </script>
             <div class="container">
 
-                <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein" ondblclick="pullaPersonaggio(); apriVeloce()" onclick="pullaPersonaggio(); apriNormale()" />
+                <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein" ondblclick="apriVeloce()" onclick="pullaPersonaggio(); apriNormale()" />
 
                 <div id="baglioreWrapper">
                     <div class="bagliore" id="bagliore"></div>
@@ -502,7 +502,6 @@ require_once '../api/api_personaggi.php';
                     const rarita = pull.rarità;
                     setComuniDiFila(rarita);
 
-                    // Gestione messaggi e effetti per rarità
                     if (rarita === "comune") {
                         messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
                         bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
@@ -531,7 +530,6 @@ require_once '../api/api_personaggi.php';
                         bagliore.style.animation = "rainbowBackground 6s linear infinite";
                     }
 
-                    // Aggiorna l'audio
                     document.getElementById("suonoCassa").innerHTML = `
                         <source src="/audio/${pull.audio_url}" type="audio/mpeg" id="suono" />
                     `;
@@ -543,14 +541,12 @@ require_once '../api/api_personaggi.php';
             }
 
             document.addEventListener("DOMContentLoaded", function() {
-            // Event listener per la barra spaziatrice
             document.addEventListener("keydown", function (event) {
                 if (event.code === "Space") {
-                    event.preventDefault(); // Previene lo scroll della pagina
-                    
+                    event.preventDefault(); 
+
                     if (!cassa.classList.contains("aperta")) {
                         if (!contenuto.classList.contains("salto")) {
-                            // Prima esegui il pull, poi gli effetti
                             pullaPersonaggio().then(() => {
                                 bagliore.style.opacity = 0.6;
                                 bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
@@ -569,7 +565,6 @@ require_once '../api/api_personaggi.php';
                 }
             });
 
-            // Event listener per R ed Enter
             document.addEventListener("keydown", function (event) {
                 if (event.code === "KeyR" || event.code === "Enter") {
                     event.preventDefault();
@@ -680,7 +675,7 @@ require_once '../api/api_personaggi.php';
             function generaParticelle() {
                 const container = document.getElementById("particelle");
                 const cassa = document.getElementById("cassa");
-                const rect = cassa.getBoundingClientRect(); // posizione della cassa
+                const rect = cassa.getBoundingClientRect();
 
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
@@ -689,11 +684,9 @@ require_once '../api/api_personaggi.php';
                     const particella = document.createElement("div");
                     particella.classList.add("particella");
 
-                    // Posiziona le particelle al centro della cassa
                     particella.style.left = `${centerX}px`;
                     particella.style.top = `${centerY}px`;
 
-                    // Movimento radiale casuale (360°)
                     const angle = Math.random() * 2 * Math.PI;
                     const distance = Math.random() * 200 + 50;
                     const x = Math.cos(angle) * distance;
@@ -704,7 +697,6 @@ require_once '../api/api_personaggi.php';
 
                     container.appendChild(particella);
 
-                    // Rimuovi la particella dopo l'animazione
                     setTimeout(() => particella.remove(), 2000);
                 }
             }
