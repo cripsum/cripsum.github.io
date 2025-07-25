@@ -48,6 +48,10 @@ $user_cercato_id = $user['id'];
             .dropdownutenti .dropdown-menu {
                 background: linear-gradient(135deg, rgba(0, 46, 56, 0.5), rgb(0, 37, 39)); /* Sfondo trasparente */
             }
+
+            .list-group-item {
+                background: linear-gradient(135deg, rgba(125, 246, 255, 0.1), rgba(4, 87, 87, 0.1)); /* Sfondo trasparente */
+            }
         </style>
     </head>
     <body>
@@ -74,23 +78,23 @@ $user_cercato_id = $user['id'];
                 <p>Editor scaduto, ha speso tutti i suoi risparmi in brawl pass e ora non può permettersi la patente</p>    
                             <p>Membro dal: <?php echo date('d/m/Y', strtotime($user['data_creazione'])); ?></p>
 
-                            <h4>Statistiche</h4>
+                            <h4 style="margin-bottom: 10px;">Statistiche</h4>
                             <ul class="list-group">
                                 <li class="list-group-item d-flex justify-content-between">
-                                    <span>Obiettivi sbloccati</span>
-                                    <strong><?php echo $user['num_achievement']; ?></strong>
+                                    <span style="margin-left: 3%;">Obiettivi sbloccati</span>
+                                    <strong style="margin-right: 3%;"><?php echo $user['num_achievement']; ?></strong>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between">
-                                    <span>Personaggi trovati</span>
-                                    <strong><?php echo $user['num_personaggi']; ?></strong>
+                                    <span style="margin-left: 3%;">Personaggi trovati</span>
+                                    <strong style="margin-right: 3%;"><?php echo $user['num_personaggi']; ?></strong>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between">
-                                    <span>Soldi</span>
-                                    <strong><?php echo $user['soldi']; ?></strong>
+                                    <span style="margin-left: 3%;">Soldi</span>
+                                    <strong style="margin-right: 3%;"><?php echo $user['soldi']; ?></strong>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between">
-                                    <span>Ruolo</span>
-                                    <strong><?php echo htmlspecialchars($user['ruolo']); ?></strong>
+                                    <span style="margin-left: 3%;">Ruolo</span>
+                                    <strong style="margin-right: 3%;"><?php echo htmlspecialchars($user['ruolo']); ?></strong>
                                 </li>
                             </ul>
                             <div class="mt-3">
@@ -101,7 +105,7 @@ $user_cercato_id = $user['id'];
                                     Copia link ID
                                 </button>
                             </div>
-                <div class="social-media">
+                <div class="social-media" style="margin-top: 20px;">
                     <a href="https://tiktok.cripsum.com" target="_blank" class="linkbianco">TikTok</a>
                     <a href="https://t.me/sburragrigliata" target="_blank" class="linkbianco">Telegram</a>
                     <a href="https://discord.cripsum.com" target="_blank" class="linkbianco">Discord</a>
