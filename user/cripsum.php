@@ -71,13 +71,9 @@ $user_cercato_id = $user['id'];
                 </div>
                 <h1 class="arcobalenos mt-2" style="font-weight: bolder; text-shadow: 0 0 25px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5)"><?php echo htmlspecialchars($user['username']); ?></h1>
                 <p class="mb-2" style="color: rgb(171, 171, 171)">AKA - sofficino alla pesca</p>
-                <p>Editor scaduto, ha speso tutti i suoi risparmi in brawl pass e ora non può permettersi la patente</p>
-                        <div class="col-md-4 text-center fadeup">    
+                <p>Editor scaduto, ha speso tutti i suoi risparmi in brawl pass e ora non può permettersi la patente</p>    
                             <p>Membro dal: <?php echo date('d/m/Y', strtotime($user['data_creazione'])); ?></p>
-                            
-                        </div>
-                    <div class="row mb-4">
-                        <div class="col-md-8 fadeup">
+
                             <h4>Statistiche</h4>
                             <ul class="list-group">
                                 <li class="list-group-item d-flex justify-content-between">
@@ -97,8 +93,6 @@ $user_cercato_id = $user['id'];
                                     <strong><?php echo htmlspecialchars($user['ruolo']); ?></strong>
                                 </li>
                             </ul>
-                        </div>
-                    </div>
                             <div class="mt-3">
                                 <button class="btn btn-sm btn-outline-primary" onclick="copyProfileLink('username')">
                                     Copia link profilo
