@@ -68,44 +68,48 @@ if (!isLoggedIn()) {
                 return null;
             }
 
-            const inventory = getInventory() || [];
-            const inventarioDiv = document.getElementById("inventario");
-            const counterDiv = document.getElementById("counter");
-            const casseAperte = getCookie("casseAperte") || 0;
+            async function initializeInventory() {
+                const inventory = await getInventory() || [];
+                const inventarioDiv = document.getElementById("inventario");
+                const counterDiv = document.getElementById("counter");
+                const casseAperte = getCookie("casseAperte") || 0;
 
-            const totalCharacters = getCharactersNum(); // Assuming this function returns the total number of characters available
-            const foundCharacters = inventory.length;
+                const totalCharacters = await getCharactersNum(); // Assuming this function returns the total number of characters available
+                const foundCharacters = inventory.length;
 
-            document.getElementById("casseAperte").innerText = `Casse aperte: ${casseAperte}`;
+                document.getElementById("casseAperte").innerText = `Casse aperte: ${casseAperte}`;
 
-            counterDiv.innerText = `Personaggi trovati: ${foundCharacters} / ${totalCharacters}`;
+                counterDiv.innerText = `Personaggi trovati: ${foundCharacters} / ${totalCharacters}`;
 
-            const rarityOrder = ["comune", "raro", "epico", "leggendario", "mitico", "speciale"];
+                const rarityOrder = ["comune", "raro", "epico", "leggendario", "mitico", "speciale"];
 
-            rarityOrder.forEach((rarity) => {
-                const section = document.createElement("div");
-                section.classList.add("rarity-section", `rarity-${rarity}`);
+                rarityOrder.forEach((rarity) => {
+                    const section = document.createElement("div");
+                    section.classList.add("rarity-section", `rarity-${rarity}`);
 
-                const foundInRarity = inventory.filter((p) => p.rarity === rarity).length;
-                const totalInRarity = rarities.filter((p) => p.rarity === rarity).length;
-                section.innerHTML = `<div class="rarity-title">${rarity.toUpperCase()}: ${foundInRarity} / ${totalInRarity}</div>`;
+                    const foundInRarity = inventory.filter((p) => p.rarity === rarity).length;
+                    const totalInRarity = rarities.filter((p) => p.rarity === rarity).length;
+                    section.innerHTML = `<div class="rarity-title">${rarity.toUpperCase()}: ${foundInRarity} / ${totalInRarity}</div>`;
 
-                const filteredCharacters = rarities.filter((p) => p.rarity === rarity);
+                    const filteredCharacters = rarities.filter((p) => p.rarity === rarity);
 
-                filteredCharacters.forEach((personaggio) => {
-                    const character = inventory.find((p) => p.name === personaggio.name);
-                    const count = character ? character.count : 0;
+                    filteredCharacters.forEach((personaggio) => {
+                        const character = inventory.find((p) => p.name === personaggio.name);
+                        const count = character ? character.count : 0;
 
-                section.innerHTML += `
-                <div class="personaggio">
-                    <img src="../${character ? personaggio.img : "../img/boh.png"}" class="${character ? "" : "hidden"}" alt="Personaggio">
-                    <span>${character ? `${personaggio.name} (x${count})` : "???"}</span>
-                </div>
-            `;
+                    section.innerHTML += `
+                    <div class="personaggio">
+                        <img src="../${character ? personaggio.img : "../img/boh.png"}" class="${character ? "" : "hidden"}" alt="Personaggio">
+                        <span>${character ? `${personaggio.name} (x${count})` : "???"}</span>
+                    </div>
+                `;
+                    });
+
+                    inventarioDiv.appendChild(section);
                 });
+            }
 
-                inventarioDiv.appendChild(section);
-            });
+            initializeInventory();
 
             async function getInventory() {
                 const response = await fetch('https://cripsum.com/api/api_get_inventario');
