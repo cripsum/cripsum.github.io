@@ -398,7 +398,7 @@ function clearLastCharacterFound() {
   updatePresence();
 }
 
-function updatePresence() {
+async function updatePresence() {
   if (!ws || ws.readyState !== WebSocket.OPEN) {
     console.log("WebSocket non connesso, impossibile aggiornare presence");
     return;
@@ -430,8 +430,8 @@ function updatePresence() {
   }
 
   if (pathOnly === "/it/lootbox") {
-    const inventory = getInventory();
-    const totalCharacters = window.rarities.length;
+    const inventory = await getInventory();
+    const totalCharacters = await getCharacterNumber();
 
     if (lastCharacterFound) {
       page = {
@@ -505,7 +505,7 @@ else{
 }*/
 
   if (ws && ws.readyState === WebSocket.OPEN) {
-    updatePresence();
+    await updatePresence();
   }
 
 

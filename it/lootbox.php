@@ -361,6 +361,12 @@ require_once '../api/api_personaggi.php';
                 return data;
             }
 
+            async function getCharacterNumber() {
+                const response = await fetch('https://cripsum.com/api/api_get_characters_num');
+                const data = await response.json();
+                return data;
+            }
+
             /*function resettaInventario() {
                 if (!confirm("Sei sicuro di voler resettare l'inventario? Tutti i personaggi saranno persi!")) {
                     return;
@@ -375,10 +381,11 @@ require_once '../api/api_personaggi.php';
                 location.reload();
             }*/
 
-            function getRandomPull() {
+            async function getRandomPull() {
+                const allCharacters = await getAllCharacters();
                 const selectedRarity = getRandomRarity();
                 //const filteredRarities = rarities.filter((item) => item.rarity === selectedRarity);
-                const filteredRarities = getAllCharacters().filter((item) => item.rarità === selectedRarity);
+                const filteredRarities = allCharacters.filter((item) => item.rarità === selectedRarity);
                 return filteredRarities[Math.floor(Math.random() * filteredRarities.length)];
             }
 
@@ -453,13 +460,13 @@ require_once '../api/api_personaggi.php';
                 return rarities;
             }
 
-            function filtroPull() {
+            async function filtroPull() {
                 const preferences = getCookie("preferences");
 
                 if (preferences) {
                     if (preferences.SoloPoppy === true) {
                         while (true) {
-                            const pull = getRandomPull();
+                            const pull = await getRandomPull();
                             if (pull.categoria === "poppy") {
                                 return pull;
                             }
@@ -467,24 +474,84 @@ require_once '../api/api_personaggi.php';
                     }
                     if (preferences.RimuoviAnime === true) {
                         while (true) {
-                            const pull = getRandomPull();
+                            const pull = await getRandomPull();
                             if (pull.categoria !== "anime") {
                                 return pull;
                             }
                         }
                     }
                 }
-                return getRandomPull();
+                return await getRandomPull();
             }
 
-            const pull = filtroPull();
-
-            document.getElementById("contenuto").innerHTML = `
+            filtroPull().then(pull => {
+                document.getElementById("contenuto").innerHTML = `
                     <p style="top 10px; font-size: 20px; max-width: 600px;" id="nomePersonaggio">${pull.nome}</p>
                     <img src="/img/${pull.img_url}" alt="Premio" class="premio" />
                 `;
-            addToInventory(pull);
-            setLastCharacterFound(pull.nome);
+                addToInventory(pull);
+                setLastCharacterFound(pull.nome);
+
+                var rarita = pull.rarità;
+
+                if (rarita === "comune") {
+                    messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
+                    bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
+                } else if (rarita === "mitico") {
+                    messaggioRarita.innerText = "PAZZESCO FRA, hai pullato un personaggio mitico";
+                    bagliore.style.background = "radial-gradient(circle, rgba(245, 15, 15, 1) 0%, rgba(0, 255, 0, 0) 70%)";
+                } else if (rarita === "leggendario") {
+                    messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
+                    bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+                } else if (rarita === "epico") {
+                    messaggioRarita.innerText = "hai pullato un personaggio epico, tanta roba, ma poteva andare meglio";
+                    bagliore.style.background = "radial-gradient(circle, rgba(195, 0, 235, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+                } else if (rarita === "raro") {
+                    messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
+                    bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+                } else if (rarita === "speciale") {
+                    messaggioRarita.innerText = "COM'É POSSIBILE? HAI PULLATO UN PERSONAGGIO SPECIALE!";
+
+                    bagliore.style.position = "fixed";
+                    bagliore.style.width = "100vw";
+                    bagliore.style.height = "100vh";
+                    bagliore.style.zIndex = "-1";
+
+                    bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
+                    bagliore.style.backgroundSize = "300% 100%";
+                    bagliore.style.animation = "rainbowBackground 6s linear infinite";
+                }
+
+                document.getElementById("suonoCassa").innerHTML = `
+                        <source src="/audio/${pull.audio_url}" type="audio/mpeg" id="suono" />
+                        `;
+
+                document.addEventListener("keydown", function (event) {
+                    if (event.code === "Space") {
+                        if (!cassa.classList.contains("aperta")) {
+                            if (!contenuto.classList.contains("salto")) {
+                                bagliore.style.opacity = 0.6;
+                                bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
+
+                                audio.currentTime = 0;
+                                audio.play();
+
+                                generaParticelle();
+                                apriCassa();
+                                apriVeloce();
+                            }
+                        } else {
+                            apriVeloce();
+                        }
+                    }
+                });
+
+                document.addEventListener("keydown", function (event) {
+                    if (event.code === "KeyR" || event.code === "Enter") {
+                        refresh();
+                    }
+                });
+            });
 
             function riscattaCodice() {
                 if (codiceSegreto.value === "godo") {
@@ -503,66 +570,6 @@ require_once '../api/api_personaggi.php';
             function getCharacter(name) {
                 return rarities.find((p) => p.name === name);
             }
-
-            var rarita = pull.rarità;
-
-            if (rarita === "comune") {
-                messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
-                bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
-            } else if (rarita === "mitico") {
-                messaggioRarita.innerText = "PAZZESCO FRA, hai pullato un personaggio mitico";
-                bagliore.style.background = "radial-gradient(circle, rgba(245, 15, 15, 1) 0%, rgba(0, 255, 0, 0) 70%)";
-            } else if (rarita === "leggendario") {
-                messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
-                bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-            } else if (rarita === "epico") {
-                messaggioRarita.innerText = "hai pullato un personaggio epico, tanta roba, ma poteva andare meglio";
-                bagliore.style.background = "radial-gradient(circle, rgba(195, 0, 235, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-            } else if (rarita === "raro") {
-                messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
-                bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-            } else if (rarita === "speciale") {
-                messaggioRarita.innerText = "COM'É POSSIBILE? HAI PULLATO UN PERSONAGGIO SPECIALE!";
-
-                bagliore.style.position = "fixed";
-                bagliore.style.width = "100vw";
-                bagliore.style.height = "100vh";
-                bagliore.style.zIndex = "-1";
-
-                bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
-                bagliore.style.backgroundSize = "300% 100%";
-                bagliore.style.animation = "rainbowBackground 6s linear infinite";
-            }
-
-            document.getElementById("suonoCassa").innerHTML = `
-                    <source src="/audio/${pull.audio_url}" type="audio/mpeg" id="suono" />
-                    `;
-
-            document.addEventListener("keydown", function (event) {
-                if (event.code === "Space") {
-                    if (!cassa.classList.contains("aperta")) {
-                        if (!contenuto.classList.contains("salto")) {
-                            bagliore.style.opacity = 0.6;
-                            bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
-
-                            audio.currentTime = 0;
-                            audio.play();
-
-                            generaParticelle();
-                            apriCassa();
-                            apriVeloce();
-                        }
-                    } else {
-                        apriVeloce();
-                    }
-                }
-            });
-
-            document.addEventListener("keydown", function (event) {
-                if (event.code === "KeyR" || event.code === "Enter") {
-                    refresh();
-                }
-            });
 
             function apriCassa() {
                 casseAperte = getCookie("casseAperte") || 0;
