@@ -490,9 +490,11 @@ require_once '../api/api_personaggi.php';
                     <img src="/img/${pull.img_url}" alt="Premio" class="premio" />
                 `;
                 addToInventory(pull);
-                setLastCharacterFound(pull.nome);
+                    if (typeof setLastCharacterFound === 'function') {
+                        setLastCharacterFound(pull.nome);
+                    }
 
-                var rarita = pull.rarità;
+                rarita = pull.rarità;
 
                 if (rarita === "comune") {
                     messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
