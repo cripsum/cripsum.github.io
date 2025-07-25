@@ -56,7 +56,7 @@ $user_cercato_id = $user['id'];
             .list-group{
                 background: linear-gradient(135deg, rgba(125, 246, 255, 0), rgba(4, 87, 87, 0)); /* Sfondo trasparente */
             }
-            
+
         </style>
     </head>
     <body>
@@ -78,7 +78,7 @@ $user_cercato_id = $user['id'];
                 <div style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin: 0 auto;" class="mb-3">
                     <img src="../includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>" alt="Foto Profilo" class="img-fluid rounded-circle mb-3">
                 </div>
-                <h1 class="arcobalenos mt-2" style="font-weight: bolder; text-shadow: 0 0 25px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5)"><?php echo htmlspecialchars($user['username']); ?></h1>
+                <h1 class="testo-arcobaleno mt-2" style="font-weight: bolder; text-shadow: 0 0 25px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5)"><?php echo htmlspecialchars($user['username']); ?></h1>
                 <p class="mb-2" style="color: rgb(171, 171, 171)">AKA - sofficino alla pesca</p>
                 <p>Editor scaduto, ha speso tutti i suoi risparmi in brawl pass e ora non può permettersi la patente</p>    
                             <p>Membro dal: <?php echo date('d/m/Y', strtotime($user['data_creazione'])); ?></p>
