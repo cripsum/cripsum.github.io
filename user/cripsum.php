@@ -55,7 +55,8 @@ $user_cercato_id = $user['id'];
 
             .list-group{
                 background: linear-gradient(135deg, rgba(125, 246, 255, 0), rgba(4, 87, 87, 0)); /* Sfondo trasparente */
-            }   
+            }
+            
         </style>
     </head>
     <body>
