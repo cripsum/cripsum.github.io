@@ -485,55 +485,73 @@ require_once '../api/api_personaggi.php';
             }
 
             async function pullaPersonaggio(){
-                filtroPull().then(pull => {
-                document.getElementById("contenuto").innerHTML = `
-                    <p style="top 10px; font-size: 20px; max-width: 600px;" id="nomePersonaggio">${pull.nome}</p>
-                    <img src="/img/${pull.img_url}" alt="Premio" class="premio" />
-                `;
-                addToInventory(pull);
+                try {
+                    const pull = await filtroPull();
+                    
+                    document.getElementById("contenuto").innerHTML = `
+                        <p style="top 10px; font-size: 20px; max-width: 600px;" id="nomePersonaggio">${pull.nome}</p>
+                        <img src="/img/${pull.img_url}" alt="Premio" class="premio" />
+                    `;
+                    
+                    await addToInventory(pull);
+                    
                     if (typeof setLastCharacterFound === 'function') {
                         setLastCharacterFound(pull.nome);
                     }
 
-                rarita = pull.rarità;
+                    const rarita = pull.rarità;
+                    setComuniDiFila(rarita);
 
-                if (rarita === "comune") {
-                    messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
-                    bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
-                } else if (rarita === "mitico") {
-                    messaggioRarita.innerText = "PAZZESCO FRA, hai pullato un personaggio mitico";
-                    bagliore.style.background = "radial-gradient(circle, rgba(245, 15, 15, 1) 0%, rgba(0, 255, 0, 0) 70%)";
-                } else if (rarita === "leggendario") {
-                    messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
-                    bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-                } else if (rarita === "epico") {
-                    messaggioRarita.innerText = "hai pullato un personaggio epico, tanta roba, ma poteva andare meglio";
-                    bagliore.style.background = "radial-gradient(circle, rgba(195, 0, 235, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-                } else if (rarita === "raro") {
-                    messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
-                    bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-                } else if (rarita === "speciale") {
-                    messaggioRarita.innerText = "COM'É POSSIBILE? HAI PULLATO UN PERSONAGGIO SPECIALE!";
+                    // Gestione messaggi e effetti per rarità
+                    if (rarita === "comune") {
+                        messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
+                        bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
+                    } else if (rarita === "mitico") {
+                        messaggioRarita.innerText = "PAZZESCO FRA, hai pullato un personaggio mitico";
+                        bagliore.style.background = "radial-gradient(circle, rgba(245, 15, 15, 1) 0%, rgba(0, 255, 0, 0) 70%)";
+                    } else if (rarita === "leggendario") {
+                        messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
+                        bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+                    } else if (rarita === "epico") {
+                        messaggioRarita.innerText = "hai pullato un personaggio epico, tanta roba, ma poteva andare meglio";
+                        bagliore.style.background = "radial-gradient(circle, rgba(195, 0, 235, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+                    } else if (rarita === "raro") {
+                        messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
+                        bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+                    } else if (rarita === "speciale") {
+                        messaggioRarita.innerText = "COM'É POSSIBILE? HAI PULLATO UN PERSONAGGIO SPECIALE!";
 
-                    bagliore.style.position = "fixed";
-                    bagliore.style.width = "100vw";
-                    bagliore.style.height = "100vh";
-                    bagliore.style.zIndex = "-1";
+                        bagliore.style.position = "fixed";
+                        bagliore.style.width = "100vw";
+                        bagliore.style.height = "100vh";
+                        bagliore.style.zIndex = "-1";
 
-                    bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
-                    bagliore.style.backgroundSize = "300% 100%";
-                    bagliore.style.animation = "rainbowBackground 6s linear infinite";
-                }
+                        bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
+                        bagliore.style.backgroundSize = "300% 100%";
+                        bagliore.style.animation = "rainbowBackground 6s linear infinite";
+                    }
 
-                document.getElementById("suonoCassa").innerHTML = `
+                    // Aggiorna l'audio
+                    document.getElementById("suonoCassa").innerHTML = `
                         <source src="/audio/${pull.audio_url}" type="audio/mpeg" id="suono" />
-                        `;
+                    `;
+                    
+                } catch (error) {
+                    console.error('Errore nel pull del personaggio:', error);
+                    messaggioRarita.innerText = "Errore durante l'apertura della cassa. Riprova.";
+                }
+            }
 
-                document.addEventListener("keydown", function (event) {
-                    if (event.code === "Space") {
-                        if (!cassa.classList.contains("aperta")) {
-                            if (!contenuto.classList.contains("salto")) {
-                                pullaPersonaggio();
+            document.addEventListener("DOMContentLoaded", function() {
+            // Event listener per la barra spaziatrice
+            document.addEventListener("keydown", function (event) {
+                if (event.code === "Space") {
+                    event.preventDefault(); // Previene lo scroll della pagina
+                    
+                    if (!cassa.classList.contains("aperta")) {
+                        if (!contenuto.classList.contains("salto")) {
+                            // Prima esegui il pull, poi gli effetti
+                            pullaPersonaggio().then(() => {
                                 bagliore.style.opacity = 0.6;
                                 bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
 
@@ -543,25 +561,28 @@ require_once '../api/api_personaggi.php';
                                 generaParticelle();
                                 apriCassa();
                                 apriVeloce();
-                            }
-                        } else {
-                            apriVeloce();
+                            });
                         }
+                    } else {
+                        apriVeloce();
                     }
-                });
-
-                document.addEventListener("keydown", function (event) {
-                    if (event.code === "KeyR" || event.code === "Enter") {
-                        refresh();
-                    }
-                });
+                }
             });
-            }
+
+            // Event listener per R ed Enter
+            document.addEventListener("keydown", function (event) {
+                if (event.code === "KeyR" || event.code === "Enter") {
+                    event.preventDefault();
+                    refresh();
+                }
+            });
+        });
 
 
-            function riscattaCodice() {
+            async function riscattaCodice() {
                 if (codiceSegreto.value === "godo") {
-                    if (getInventory().find((p) => p.nome === "CRIPSUM")) {
+                    const inventory = await getInventory();
+                    if (inventory.find((p) => p.nome === "CRIPSUM")) {
                         alert("il Codice è già riscattato o cripsum è già nel tuo inventario!");
                         return;
                     }
@@ -577,12 +598,12 @@ require_once '../api/api_personaggi.php';
                 return rarities.find((p) => p.name === name);
             }
 
-            function apriCassa() {
+            async function apriCassa() {
                 casseAperte = getCookie("casseAperte") || 0;
                 casseAperte++;
                 setCookie("casseAperte", casseAperte);
-
-                comuniDiFila = getComuniDiFila();
+                const inventory = await getInventory();
+                comuniDiFila = getCookie("comuniDiFila") || 0;
 
                 if (comuniDiFila === 10) {
                     unlockAchievement(9);
@@ -594,10 +615,10 @@ require_once '../api/api_personaggi.php';
                 if (casseAperte === 500) {
                     unlockAchievement(16);
                 }
-                if (getInventory().length === 1) {
+                if (inventory.length === 1) {
                     unlockAchievement(5);
                 }
-                if (getInventory().length === 42) {
+                if (inventory.length === 42) {
                     unlockAchievement(3);
                 }
             }
@@ -692,7 +713,17 @@ require_once '../api/api_personaggi.php';
                 location.reload();
             }
 
-            function getComuniDiFila() {
+            function setComuniDiFila(rarita) {
+                comuniDiFila = getCookie("comuniDiFila") || 0;
+                if (rarita === "comune") {
+                    comuniDiFila++;
+                    setCookie("comuniDiFila", comuniDiFila);
+                } else {
+                    setCookie("comuniDiFila", 0);
+                }
+            }
+
+            function getComuniDiFila(rarita) {
                 tempComuniDiFila = getCookie("comuniDiFila") || 0;
                 if (rarita === "comune") {
                     tempComuniDiFila++;
@@ -703,6 +734,7 @@ require_once '../api/api_personaggi.php';
                     return tempComuniDiFila;
                 }
             }
+
         </script>
         <script src="../js/modeChanger.js"></script>
     </body>
