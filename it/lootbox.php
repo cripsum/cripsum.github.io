@@ -472,91 +472,93 @@ require_once '../api/api_personaggi.php';
                 return getRandomPull();
             }
 
-            const pull = filtroPull();
+            document.addEventListener("DOMContentLoaded", () => {
+                const pull = filtroPull();
 
-            document.getElementById("contenuto").innerHTML = `
-                    <p style="top 10px; font-size: 20px; max-width: 600px;" id="nomePersonaggio">${pull.nome}</p>
-                    <img src="/img/${pull.img_url}" alt="Premio" class="premio" />
-                `;
-            addToInventory(pull);
-            setLastCharacterFound(pull.nome);
-
-            function riscattaCodice() {
-                if (codiceSegreto.value === "godo") {
-                    if (getInventory().find((p) => p.nome === "CRIPSUM")) {
-                        alert("il Codice è già riscattato o cripsum è già nel tuo inventario!");
-                        return;
-                    }
-                    let pullRiscattata = getCharacter("CRIPSUM");
-                    addToInventory(pullRiscattata);
-                    alert("Codice riscattato con successo! cripsum è stato aggiunto al tuo inventario!");
-                } else {
-                    alert("Codice non valido, skill issue!");
-                }
-            }
-
-            function getCharacter(name) {
-                return rarities.find((p) => p.name === name);
-            }
-
-            var rarita = pull.rarità;
-
-            if (rarita === "comune") {
-                messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
-                bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
-            } else if (rarita === "mitico") {
-                messaggioRarita.innerText = "PAZZESCO FRA, hai pullato un personaggio mitico";
-                bagliore.style.background = "radial-gradient(circle, rgba(245, 15, 15, 1) 0%, rgba(0, 255, 0, 0) 70%)";
-            } else if (rarita === "leggendario") {
-                messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
-                bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-            } else if (rarita === "epico") {
-                messaggioRarita.innerText = "hai pullato un personaggio epico, tanta roba, ma poteva andare meglio";
-                bagliore.style.background = "radial-gradient(circle, rgba(195, 0, 235, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-            } else if (rarita === "raro") {
-                messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
-                bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-            } else if (rarita === "speciale") {
-                messaggioRarita.innerText = "COM'É POSSIBILE? HAI PULLATO UN PERSONAGGIO SPECIALE!";
-
-                bagliore.style.position = "fixed";
-                bagliore.style.width = "100vw";
-                bagliore.style.height = "100vh";
-                bagliore.style.zIndex = "-1";
-
-                bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
-                bagliore.style.backgroundSize = "300% 100%";
-                bagliore.style.animation = "rainbowBackground 6s linear infinite";
-            }
-
-            document.getElementById("suonoCassa").innerHTML = `
-                    <source src="/audio/${pull.audio_url}" type="audio/mpeg" id="suono" />
+                document.getElementById("contenuto").innerHTML = `
+                        <p style="top 10px; font-size: 20px; max-width: 600px;" id="nomePersonaggio">${pull.nome}</p>
+                        <img src="/img/${pull.img_url}" alt="Premio" class="premio" />
                     `;
+                addToInventory(pull);
+                setLastCharacterFound(pull.nome);
 
-            document.addEventListener("keydown", function (event) {
-                if (event.code === "Space") {
-                    if (!cassa.classList.contains("aperta")) {
-                        if (!contenuto.classList.contains("salto")) {
-                            bagliore.style.opacity = 0.6;
-                            bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
+                function riscattaCodice() {
+                    if (codiceSegreto.value === "godo") {
+                        if (getInventory().find((p) => p.nome === "CRIPSUM")) {
+                            alert("il Codice è già riscattato o cripsum è già nel tuo inventario!");
+                            return;
+                        }
+                        let pullRiscattata = getCharacter("CRIPSUM");
+                        addToInventory(pullRiscattata);
+                        alert("Codice riscattato con successo! cripsum è stato aggiunto al tuo inventario!");
+                    } else {
+                        alert("Codice non valido, skill issue!");
+                    }
+                }
 
-                            audio.currentTime = 0;
-                            audio.play();
+                function getCharacter(name) {
+                    return rarities.find((p) => p.name === name);
+                }
 
-                            generaParticelle();
-                            apriCassa();
+                var rarita = pull.rarità;
+
+                if (rarita === "comune") {
+                    messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
+                    bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
+                } else if (rarita === "mitico") {
+                    messaggioRarita.innerText = "PAZZESCO FRA, hai pullato un personaggio mitico";
+                    bagliore.style.background = "radial-gradient(circle, rgba(245, 15, 15, 1) 0%, rgba(0, 255, 0, 0) 70%)";
+                } else if (rarita === "leggendario") {
+                    messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
+                    bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+                } else if (rarita === "epico") {
+                    messaggioRarita.innerText = "hai pullato un personaggio epico, tanta roba, ma poteva andare meglio";
+                    bagliore.style.background = "radial-gradient(circle, rgba(195, 0, 235, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+                } else if (rarita === "raro") {
+                    messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
+                    bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+                } else if (rarita === "speciale") {
+                    messaggioRarita.innerText = "COM'É POSSIBILE? HAI PULLATO UN PERSONAGGIO SPECIALE!";
+
+                    bagliore.style.position = "fixed";
+                    bagliore.style.width = "100vw";
+                    bagliore.style.height = "100vh";
+                    bagliore.style.zIndex = "-1";
+
+                    bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
+                    bagliore.style.backgroundSize = "300% 100%";
+                    bagliore.style.animation = "rainbowBackground 6s linear infinite";
+                }
+
+                document.getElementById("suonoCassa").innerHTML = `
+                        <source src="/audio/${pull.audio_url}" type="audio/mpeg" id="suono" />
+                        `;
+
+                document.addEventListener("keydown", function (event) {
+                    if (event.code === "Space") {
+                        if (!cassa.classList.contains("aperta")) {
+                            if (!contenuto.classList.contains("salto")) {
+                                bagliore.style.opacity = 0.6;
+                                bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
+
+                                audio.currentTime = 0;
+                                audio.play();
+
+                                generaParticelle();
+                                apriCassa();
+                                apriVeloce();
+                            }
+                        } else {
                             apriVeloce();
                         }
-                    } else {
-                        apriVeloce();
                     }
-                }
-            });
+                });
 
-            document.addEventListener("keydown", function (event) {
-                if (event.code === "KeyR" || event.code === "Enter") {
-                    refresh();
-                }
+                document.addEventListener("keydown", function (event) {
+                    if (event.code === "KeyR" || event.code === "Enter") {
+                        refresh();
+                    }
+                });
             });
 
             function apriCassa() {
