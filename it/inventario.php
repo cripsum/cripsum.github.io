@@ -122,7 +122,7 @@ if (!isLoggedIn()) {
             async function getCharactersNum(){
                 const response = await fetch('https://cripsum.com/api/api_get_characters_num');
                 const data = await response.json();
-                return data.total;
+                return data;
             }
         </script>
         <script src="../js/modeChanger.js"></script>
