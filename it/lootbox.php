@@ -123,7 +123,7 @@ require_once '../api/api_personaggi.php';
             </script>
             <div class="container">
 
-                <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein" ondblclick="apriVeloce()" onclick="apriNormale()" />
+                <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein" ondblclick="pullaPersonaggio(); apriVeloce()" onclick="pullaPersonaggio(); apriNormale()" />
 
                 <div id="baglioreWrapper">
                     <div class="bagliore" id="bagliore"></div>
@@ -484,7 +484,8 @@ require_once '../api/api_personaggi.php';
                 return await getRandomPull();
             }
 
-            filtroPull().then(pull => {
+            async function pullaPersonaggio(){
+                filtroPull().then(pull => {
                 document.getElementById("contenuto").innerHTML = `
                     <p style="top 10px; font-size: 20px; max-width: 600px;" id="nomePersonaggio">${pull.nome}</p>
                     <img src="/img/${pull.img_url}" alt="Premio" class="premio" />
@@ -532,6 +533,7 @@ require_once '../api/api_personaggi.php';
                     if (event.code === "Space") {
                         if (!cassa.classList.contains("aperta")) {
                             if (!contenuto.classList.contains("salto")) {
+                                pullaPersonaggio();
                                 bagliore.style.opacity = 0.6;
                                 bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
 
@@ -554,6 +556,8 @@ require_once '../api/api_personaggi.php';
                     }
                 });
             });
+            }
+
 
             function riscattaCodice() {
                 if (codiceSegreto.value === "godo") {
