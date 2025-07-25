@@ -263,6 +263,8 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
                         displayImg.style.opacity = '1';
                         spinner.style.display = 'none';
                         isLoading = false;
+
+                        fetch('/api/incrementa_counter_goon.php');
                         
                         startCooldown();
                     }, 100);
