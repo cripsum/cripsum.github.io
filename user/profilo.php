@@ -121,7 +121,9 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
 
     <div class="row mb-4">
         <div class="col-md-4 text-center fadeup">
-            <img src="../includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>" alt="Foto Profilo" class="img-fluid rounded-circle mb-3" style="max-width: 150px;">
+            <div style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin: 0 auto;" class="mb-3">
+                <img src="../includes/get_pfp.php?id=<?php echo $user_id; ?>" alt="Foto Profilo" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
             <h3><?php echo htmlspecialchars($user['username']); ?></h3>
             <p>Membro dal: <?php echo date('d/m/Y', strtotime($user['data_creazione'])); ?></p>
         </div>
