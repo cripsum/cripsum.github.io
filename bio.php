@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once '../config/database.php';
-require_once '../includes/functions.php';
+require_once 'config/database.php';
+require_once 'includes/functions.php';
 
 $isLoggedIn = isset($_SESSION['user_id']);
 $user_id = $_SESSION['user_id'] ?? null;
@@ -37,8 +37,8 @@ $user_cercato_id = $user['id'];
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <?php include '../includes/head-import.php'; ?>
-        <link rel="stylesheet" href="../css/style-users.css" />
+        <?php include 'includes/head-import.php'; ?>
+        <link rel="stylesheet" href="css/style-users.css" />
         <title>Profilo di <?php echo htmlspecialchars($user['username']); ?></title>
         <style>
             .navbarutenti {
@@ -66,14 +66,14 @@ $user_cercato_id = $user['id'];
         </style>
     </head>
     <body>
-        <?php include '../includes/navbar.php'; ?>
+        <?php include 'includes/navbar.php'; ?>
 
         <div class="bio-page">
             <div class="background">
                 <!-- Use a video or an image as background -->
                 <!-- Video example -->
                 <video autoplay muted loop>
-                    <source src="../vid/overlaymatta.mp4" type="video/mp4" />
+                    <source src="vid/overlaymatta.mp4" type="video/mp4" />
                     Your browser does not support the video tag.
                 </video>
                 <!-- Image example -->
@@ -82,7 +82,7 @@ $user_cercato_id = $user['id'];
 
             <div class="bio-container fadeup" style="background: linear-gradient(135deg, rgba(125, 246, 255, 0.1), rgba(4, 87, 87, 0.1))">
                 <div style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin: 0 auto;" class="mb-3">
-                    <img src="../includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>" alt="Foto Profilo"
+                    <img src="includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>" alt="Foto Profilo"
                         style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
                 </div>
                 <h1 class="testo-arcobaleno mt-2" style="font-weight: bolder; text-shadow: 0 0 25px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5)"><?php echo htmlspecialchars($user['username']); ?></h1>
@@ -110,7 +110,7 @@ $user_cercato_id = $user['id'];
                                 </li>
                             </ul>
                             <div class="discord-box fadeup" id="discordBox" style="margin: auto; text-align: center;">
-                                <?php include '../includes/discord_status.php?discordId=963536045180350474'; ?>
+                                <?php include 'includes/discord_status.php?discordId=963536045180350474'; ?>
                             </div>
                             <div class="mt-3">
                                 <button class="btn btn-sm btn-outline-primary" onclick="copyProfileLink('username')" style="padding-left: 5px; padding-right: 5px;">
@@ -128,7 +128,7 @@ $user_cercato_id = $user['id'];
             </div>
         </div>
         <script>
-            fetch('../includes/discord_status.php?discordId=963536045180350474')
+            fetch('includes/discord_status.php?discordId=963536045180350474')
                 .then(r => r.text())
                 .then(html => {
                     const discordBox = document.querySelector('.discord-box');
@@ -140,7 +140,7 @@ $user_cercato_id = $user['id'];
                 .catch(err => console.error('Errore aggiornamento Discord status:', err));
 
             setInterval(() => {
-                fetch('../includes/discord_status.php?discordId=963536045180350474')
+                fetch('includes/discord_status.php?discordId=963536045180350474')
                     .then(r => r.text())
                     .then(html => {
                         const discordBox = document.querySelector('.discord-box');
@@ -222,6 +222,6 @@ $user_cercato_id = $user['id'];
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"
         ></script>
-        <script src="../js/modeChanger.js"></script>
+        <script src="js/modeChanger.js"></script>
     </body>
 </html>
