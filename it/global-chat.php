@@ -25,18 +25,18 @@ $userId = $_SESSION['user_id'];
 $username = $_SESSION['username'];
 $userRole = $_SESSION['ruolo'] ?? 'utente';
 $profilePic = "/includes/get_pfp.php?id=$userId";
-$lineeGuidaChat = $_SESSION['lineeGuidaChat'];
 
 
 if (!isset($_SESSION['lineeGuidaChat'])) {
     $stmt = $mysqli->prepare("SELECT lineeGuidaChat FROM utenti WHERE id = ?");
     $stmt->bind_param("i", $userId);
     $stmt->execute();
-    $stmt->bind_result($lineeGuidaChat);
+    $stmt->bind_result($lineeGuida);
     $stmt->fetch();
     $stmt->close();
-    $_SESSION['lineeGuidaChat'] = $lineeGuidaChat;
+    $_SESSION['lineeGuidaChat'] = $lineeGuida;
 }
+$lineeGuidaChat = $_SESSION['lineeGuidaChat'];
 
 ?>
 
