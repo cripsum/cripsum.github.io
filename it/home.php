@@ -124,8 +124,9 @@ require_once '../includes/functions.php';
                     setTimeout(showPopup, 700);
                 };
             </script>
+
             <?php if (isset($_SESSION['error_message'])): ?>
-                <div class="alert alert-danger fadeup" role="alert">
+                <div class="alert alert-danger fadeup" role="alert" style="max-width: 80%; margin: auto; margin-top: 5rem">
                     <i class="bi bi-exclamation-triangle-fill me-2"></i>
                     <?php echo htmlspecialchars($_SESSION['error_message']); ?>
                 </div>
