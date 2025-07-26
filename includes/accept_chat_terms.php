@@ -15,6 +15,8 @@ $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $stmt->close();
 
+$_SESSION['lineeGuidaChat'] = 1;
+
 header('Location: ../it/global-chat');
 exit();
 ?>
