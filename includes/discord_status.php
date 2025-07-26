@@ -83,15 +83,14 @@ $data = getDiscordPresence($discord_id);
 
     <style>
         .discord-card {
-            background: linear-gradient(135deg, rgba(125, 246, 255, 0.05), rgba(4, 87, 87, 0.05));
+            background: linear-gradient(135deg, rgba(125, 246, 255, 0), rgba(4, 87, 87, 0));
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 16px;
             padding: 20px;
             max-width: 400px;
-            margin-top: 1.5rem;
-            box-shadow: 
-                0 0 20px rgba(255, 255, 255, 0.1),
-                0 4px 15px rgba(0, 0, 0, 0.1);
+            margin: 1.5rem auto 0 auto;
+            color: white;
+            box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.3);
             backdrop-filter: blur(10px);
             transition: all 0.3s ease;
         }
@@ -171,12 +170,14 @@ $data = getDiscordPresence($discord_id);
         .activity-section {
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             padding-top: 16px;
+            margin-top: 8px;
         }
 
         .activity-item {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             gap: 12px;
+            padding: 8px 0;
             animation: fadeInActivity 0.4s ease;
         }
 
@@ -203,6 +204,9 @@ $data = getDiscordPresence($discord_id);
         .activity-content {
             flex-grow: 1;
             min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .activity-name {

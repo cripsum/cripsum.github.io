@@ -57,9 +57,18 @@ $user_cercato_id = $user['id'];
                 background: linear-gradient(135deg, rgba(125, 246, 255, 0), rgba(4, 87, 87, 0)); /* Sfondo trasparente */
             }
             .bio-container .discord-box {
-                margin-top: 2rem;
+                margin: 2rem auto 0 auto;
                 width: 100%;
                 max-width: 400px;
+                display: block;
+            }
+
+            /* Assicurarsi che il container sia centrato */
+            .bio-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
             }
         </style>
     </head>
