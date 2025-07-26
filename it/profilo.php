@@ -77,7 +77,7 @@ $stmt->close();
             <div class="col-md-4 text-center fadeup">
                     <div style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin: 0 auto;" class="mb-3">
                         <img src="../includes/get_pfp.php?id=<?php echo $user_id; ?>" alt="Foto Profilo"
-                            style="width: 100%; height: 100%; object-fit: cover;">
+                            style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
                     </div>
 
                 <h3><?php echo htmlspecialchars($user['username']); ?></h3>
