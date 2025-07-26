@@ -8,17 +8,6 @@ $isLoggedIn = isset($_SESSION['user_id']);
 $user_id = $_SESSION['user_id'] ?? null;
 $username_session = $_SESSION['username'] ?? null;
 
-$discord_id = '963536045180350474'; // ← Inserisci qui il tuo ID
-function getDiscordPresence($discord_id) {
-    $ch = curl_init("https://api.lanyard.rest/v1/users/$discord_id");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $response = curl_exec($ch);
-    curl_close($ch);
-    return json_decode($response, true);
-}
-
-$data = getDiscordPresence($discord_id);
-
 // Identifica se è username o ID dalla URL
 $identifier = "cripsum";
 
@@ -121,7 +110,7 @@ $user_cercato_id = $user['id'];
                                 </li>
                             </ul>
                             <div class="discord-box fadeup" id="discordBox" style="margin: auto; text-align: center;">
-                                <?php include '../includes/discord_status.php'; ?>
+                                <?php include '../includes/discord_status.php?discordId=963536045180350474'; ?>
                             </div>
                             <div class="mt-3">
                                 <button class="btn btn-sm btn-outline-primary" onclick="copyProfileLink('username')" style="padding-left: 5px; padding-right: 5px;">
@@ -140,13 +129,13 @@ $user_cercato_id = $user['id'];
         </div>
         <script>
             setInterval(() => {
-                fetch('../includes/discord_status.php')
+                fetch('../includes/discord_status.php?discordId=963536045180350474')
                     .then(r => r.text())
                     .then(html => {
                         const discordBox = document.querySelector('.discord-box');
                         if (discordBox) {
                             discordBox.innerHTML = html;
-                            // Reinizializza il carousel dopo l'aggiornamento
+
                             initActivityCarousel();
                         }
                     })
