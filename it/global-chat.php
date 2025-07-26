@@ -54,13 +54,13 @@ if (!isset($_SESSION['lineeGuidaChat'])) {
                 <div class="col-md-8">
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="mb-0 testobianco">Accetta le Linee Guida della Chat</h5>
+                            <h5 class="mb-0 testobianco text-center">Accetta le Linee Guida della Chat</h5>
                         </div>
-                        <div class="card-body testobianco">
+                        <div class="card-body testobianco text-center">
                             <p>Prima di accedere alla chat globale, devi leggere e accettare le nostre linee guida.</p>
                             <div class="d-grid gap-2">
                                 <a href="chat-policy" class="btn btn-secondary bottone" style="margin: auto; max-width: 200px;">Leggi le Linee Guida</a>
-                                <form method="POST" action="/includes/accept_chat_terms.php" style="text-align: center; margin: auto; max-width: 200px;">
+                                <form method="POST" action="/includes/accept_chat_terms.php" style="text-align: center; margin: auto; max-width: 400px;">
                                     <button type="submit" class="btn btn-secondary bottone ">Ho letto e accetto le Linee Guida</button>
                                 </form>
                             </div>
