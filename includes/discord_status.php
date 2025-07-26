@@ -1,4 +1,5 @@
 <?php
+$discord_id = '963536045180350474'; // ← Inserisci qui il tuo ID
 function getDiscordPresence($discord_id) {
     $ch = curl_init("https://api.lanyard.rest/v1/users/$discord_id");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -7,7 +8,7 @@ function getDiscordPresence($discord_id) {
     return json_decode($response, true);
 }
 
-$discord_id = '963536045180350474'; // ← Inserisci qui il tuo ID
+
 $data = getDiscordPresence($discord_id);
 ?>
 
