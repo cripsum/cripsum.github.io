@@ -1,5 +1,4 @@
 <?php
-
 session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';
@@ -128,6 +127,17 @@ $user_cercato_id = $user['id'];
             </div>
         </div>
         <script>
+            fetch('../includes/discord_status.php?discordId=963536045180350474')
+                .then(r => r.text())
+                .then(html => {
+                    const discordBox = document.querySelector('.discord-box');
+                    if (discordBox) {
+                        discordBox.innerHTML = html;
+                        initActivityCarousel();
+                    }
+                })
+                .catch(err => console.error('Errore aggiornamento Discord status:', err));
+
             setInterval(() => {
                 fetch('../includes/discord_status.php?discordId=963536045180350474')
                     .then(r => r.text())

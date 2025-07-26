@@ -140,6 +140,17 @@ $user_cercato_id = $user['id'];
             </div>
         </div>
         <script>
+            fetch('../includes/discord_status.php?discordId=897152491530117162')
+                .then(r => r.text())
+                .then(html => {
+                    const discordBox = document.querySelector('.discord-box');
+                    if (discordBox) {
+                        discordBox.innerHTML = html;
+                        initActivityCarousel();
+                    }
+                })
+                .catch(err => console.error('Errore aggiornamento Discord status:', err));
+
             setInterval(() => {
                 fetch('../includes/discord_status.php?discordId=897152491530117162')
                     .then(r => r.text())
