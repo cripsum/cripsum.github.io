@@ -65,18 +65,6 @@ require_once '../includes/functions.php';
             <script>
                 function getRandomBanner() {
                     const banners = [
-                         `<div class="bannerino">
-            <h2 class="testobianco" style="padding-top: 11px">Attenzione!</h2>
-            <p class="testobianco">🔧 Il sito è attualmente in manutenzione. Alcune funzionalità potrebbero non funzionare correttamente.  
-    Stiamo passando da HTML statico a un sistema dinamico con PHP.  
-    Grazie per la pazienza!</p>
-        </div>`,
-
-                    ];
-                    return banners[Math.floor(Math.random() * banners.length)];
-                }
-
-                /**
                         `<div class="bannerino">
             <h2 style="padding-top: 11px">Hey tu!</h2>
             <p class="testobianco">Dai un'occhiata ai miei ultimi edit! - <a href="edits" class="linkbianco">clicca qui</a></p>
@@ -93,7 +81,10 @@ require_once '../includes/functions.php';
             <h2 class="testobianco" style="padding-top: 11px">Buonasera!</h2>
             <p class="testobianco"><a href="https://www.tiktok.com/@cripsum" class="linkbianco">Seguimi su tiktok!</a></p>
         </div>`,
-                 */
+
+                    ];
+                    return banners[Math.floor(Math.random() * banners.length)];
+                }
 
                 function showPopup() {
                     const overlay = document.getElementById("popup-overlay");
