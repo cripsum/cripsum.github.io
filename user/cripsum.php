@@ -66,33 +66,65 @@ $data = getDiscordPresence($discord_id);
             .list-group{
                 background: linear-gradient(135deg, rgba(125, 246, 255, 0), rgba(4, 87, 87, 0)); /* Sfondo trasparente */
             }
+.discord-box {
+    background-color: #1e1e1e;
+    color: white;
+    border-radius: 12px;
+    padding: 1rem;
+    max-width: 500px;
+    margin-top: 2rem;
+    box-shadow: 0 0 10px rgba(255,255,255,0.05);
+    font-family: inherit;
+}
 
-                .discord-box {
-                    background: #2c2f33;
-                    color: #ffffff;
-                    padding: 1rem;
-                    border-radius: 10px;
-                    max-width: 500px;
-                    font-family: sans-serif;
-                    margin-bottom: 1rem;
-                }
-                .activity-box {
-                    display: flex;
-                    align-items: center;
-                    margin-top: 1rem;
-                    border-top: 1px solid #444;
-                    padding-top: 1rem;
-                }
-                .activity-icon {
-                    width: 64px;
-                    height: 64px;
-                    margin-right: 1rem;
-                    border-radius: 8px;
-                    object-fit: cover;
-                }
-                .activity-info p {
-                    margin: 0;
-                }
+.discord-header {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.status-online { color: #43b581; }
+.status-idle { color: #faa61a; }
+.status-dnd { color: #f04747; }
+.status-offline { color: #747f8d; }
+
+.activity-carousel {
+    position: relative;
+    overflow: hidden;
+}
+
+.activity-slide {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    animation: fadein 0.3s ease;
+}
+
+.activity-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.activity-info {
+    flex-grow: 1;
+}
+
+.activity-name {
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.activity-details, .activity-state {
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+@keyframes fadein {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
         </style>
     </head>
@@ -206,8 +238,19 @@ $data = getDiscordPresence($discord_id);
                         document.querySelector('.discord-box').innerHTML = html;
                     });
             }, 30000);
-            </script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const slides = document.querySelectorAll(".activity-slide");
+                if (slides.length <= 1) return;
 
+                let current = 0;
+
+                setInterval(() => {
+                    slides[current].style.display = "none";
+                    current = (current + 1) % slides.length;
+                    slides[current].style.display = "flex";
+                }, 5000);
+            });
+            </script>
 
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
