@@ -56,65 +56,65 @@ $user_cercato_id = $user['id'];
             .list-group{
                 background: linear-gradient(135deg, rgba(125, 246, 255, 0), rgba(4, 87, 87, 0)); /* Sfondo trasparente */
             }
-.discord-box {
-    background-color: #1e1e1e;
-    color: white;
-    border-radius: 12px;
-    padding: 1rem;
-    max-width: 500px;
-    margin-top: 2rem;
-    box-shadow: 0 0 10px rgba(255,255,255,0.05);
-    font-family: inherit;
-}
+            .discord-box {
+                background-color: #1e1e1e;
+                color: white;
+                border-radius: 12px;
+                padding: 1rem;
+                max-width: 500px;
+                margin-top: 2rem;
+                box-shadow: 0 0 10px rgba(255,255,255,0.05);
+                font-family: inherit;
+            }
 
-.discord-header {
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-}
+            .discord-header {
+                font-size: 1.1rem;
+                margin-bottom: 1rem;
+            }
 
-.status-online { color: #43b581; }
-.status-idle { color: #faa61a; }
-.status-dnd { color: #f04747; }
-.status-offline { color: #747f8d; }
+            .status-online { color: #43b581; }
+            .status-idle { color: #faa61a; }
+            .status-dnd { color: #f04747; }
+            .status-offline { color: #747f8d; }
 
-.activity-carousel {
-    position: relative;
-    overflow: hidden;
-}
+            .activity-carousel {
+                position: relative;
+                overflow: hidden;
+            }
 
-.activity-slide {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    animation: fadein 0.3s ease;
-}
+            .activity-slide {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                animation: fadein 0.3s ease;
+            }
 
-.activity-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 10px;
-    object-fit: cover;
-    flex-shrink: 0;
-}
+            .activity-icon {
+                width: 64px;
+                height: 64px;
+                border-radius: 10px;
+                object-fit: cover;
+                flex-shrink: 0;
+            }
 
-.activity-info {
-    flex-grow: 1;
-}
+            .activity-info {
+                flex-grow: 1;
+            }
 
-.activity-name {
-    font-weight: bold;
-    font-size: 1rem;
-}
+            .activity-name {
+                font-weight: bold;
+                font-size: 1rem;
+            }
 
-.activity-details, .activity-state {
-    font-size: 0.9rem;
-    color: #ccc;
-}
+            .activity-details, .activity-state {
+                font-size: 0.9rem;
+                color: #ccc;
+            }
 
-@keyframes fadein {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+            @keyframes fadein {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
 
         </style>
     </head>
@@ -161,7 +161,7 @@ $user_cercato_id = $user['id'];
                                     <strong style="margin-right: 3%;"><?php echo htmlspecialchars($user['ruolo']); ?></strong>
                                 </li>
                             </ul>
-                            <div class="discord-box">
+                            <div class="discord-box fadeup" id="discordBox">
                                 <?php include '../includes/discord_status.php'; ?>
                             </div>
                             <div class="mt-3">
