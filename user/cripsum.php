@@ -33,6 +33,16 @@ if ($result->num_rows === 0) {
 $user = $result->fetch_assoc();
 $stmt->close();
 $user_cercato_id = $user['id'];
+function getDiscordPresence($discord_id) {
+    $ch = curl_init("https://api.lanyard.rest/v1/users/$discord_id");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    return json_decode($response, true);
+}
+
+$discord_id = '963536045180350474'; // ← Inserisci qui il tuo ID
+$data = getDiscordPresence($discord_id);
 ?>
 
 <!DOCTYPE html>
@@ -56,6 +66,33 @@ $user_cercato_id = $user['id'];
             .list-group{
                 background: linear-gradient(135deg, rgba(125, 246, 255, 0), rgba(4, 87, 87, 0)); /* Sfondo trasparente */
             }
+
+                .discord-box {
+                    background: #2c2f33;
+                    color: #ffffff;
+                    padding: 1rem;
+                    border-radius: 10px;
+                    max-width: 500px;
+                    font-family: sans-serif;
+                    margin-bottom: 1rem;
+                }
+                .activity-box {
+                    display: flex;
+                    align-items: center;
+                    margin-top: 1rem;
+                    border-top: 1px solid #444;
+                    padding-top: 1rem;
+                }
+                .activity-icon {
+                    width: 64px;
+                    height: 64px;
+                    margin-right: 1rem;
+                    border-radius: 8px;
+                    object-fit: cover;
+                }
+                .activity-info p {
+                    margin: 0;
+                }
 
         </style>
     </head>
@@ -102,6 +139,50 @@ $user_cercato_id = $user['id'];
                                     <strong style="margin-right: 3%;"><?php echo htmlspecialchars($user['ruolo']); ?></strong>
                                 </li>
                             </ul>
+                            <div class="discord-box">
+                                <?php if ($data && isset($data['data'])): 
+                                    $user = $data['data']['discord_user'];
+                                    $status = $data['data']['discord_status'];
+                                    $activities = $data['data']['activities'];
+                                ?>
+                                    <p><strong><?php echo htmlspecialchars($user['username']); ?></strong> è <span style="text-transform:uppercase;"><?php echo $status; ?></span></p>
+
+                                    <?php if (count($activities) > 0): ?>
+                                        <?php foreach ($activities as $activity): ?>
+                                            <div class="activity-box">
+                                                <?php
+                                                    $icon = null;
+                                                    if (isset($activity['assets']['large_image'])) {
+                                                        $key = $activity['assets']['large_image'];
+                                                        if (str_starts_with($key, 'mp:external/')) {
+                                                            $icon = str_replace('mp:', 'https://media.discordapp.net/', $key);
+                                                        } else {
+                                                            $icon = "https://cdn.discordapp.com/app-assets/{$activity['application_id']}/$key.png";
+                                                        }
+                                                    }
+                                                ?>
+                                                <?php if ($icon): ?>
+                                                    <img src="<?php echo $icon; ?>" alt="icon" class="activity-icon">
+                                                <?php endif; ?>
+
+                                                <div class="activity-info">
+                                                    <p><strong><?php echo htmlspecialchars($activity['name']); ?></strong></p>
+                                                    <?php if (!empty($activity['details'])): ?>
+                                                        <p><?php echo htmlspecialchars($activity['details']); ?></p>
+                                                    <?php endif; ?>
+                                                    <?php if (!empty($activity['state'])): ?>
+                                                        <p><?php echo htmlspecialchars($activity['state']); ?></p>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <p>Nessuna attività attiva</p>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <p>Impossibile recuperare lo stato Discord.</p>
+                                <?php endif; ?>
+                            </div>
                             <div class="mt-3">
                                 <button class="btn btn-sm btn-outline-primary" onclick="copyProfileLink('username')">
                                     Copia link profilo
@@ -117,6 +198,15 @@ $user_cercato_id = $user['id'];
                 </div>
             </div>
         </div>
+        <script>
+            setInterval(() => {
+                fetch('includes/discord_status.php')
+                    .then(r => r.text())
+                    .then(html => {
+                        document.querySelector('.discord-box').innerHTML = html;
+                    });
+            }, 30000);
+            </script>
 
 
         <script
