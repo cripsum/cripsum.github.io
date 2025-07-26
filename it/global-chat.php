@@ -48,7 +48,7 @@ if (!isset($_SESSION['lineeGuidaChat'])) {
 </head>
 <body>
     <?php include '../includes/navbar.php'; ?>
-    <?php if (isset($lineeGuidaChat) && $lineeGuidaChat == 0): ?>
+    <?php if (!isset($_SESSION['lineeGuidaChat']) || $_SESSION['lineeGuidaChat'] == 0): ?>
         <div class="container mt-4 fadeup testobianco" style="padding-top: 7rem; margin: auto;">
             <div class="row justify-content-center">
                 <div class="col-md-8">
@@ -69,7 +69,8 @@ if (!isset($_SESSION['lineeGuidaChat'])) {
                 </div>
             </div>
         </div>
-    <?php else: ?>
+    <?php endif; ?>
+    <?php if (isset($_SESSION['lineeGuidaChat']) && $_SESSION['lineeGuidaChat'] == 1): ?>
     <div class="container mt-4" style="padding-top: 7rem">
         <div class="chat-container">
             <div class="messages" id="messages">
