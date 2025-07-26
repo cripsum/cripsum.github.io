@@ -143,7 +143,7 @@ if ($isLoggedIn) {
 
 <nav class="navbarutenti navbar navbar-expand-xl fadein">
     <div class="container-fluid">
-        <a class="navbar-brand" href="home">
+        <a class="navbar-brand" href="/it/home">
             <img src="../img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
             <span class="align-middle ms-3 fw-bold testobianco">Cripsum™</span>
         </a>
