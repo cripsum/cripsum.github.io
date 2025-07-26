@@ -53,19 +53,19 @@ if (isset($_SESSION['lineeGuidaChat']) && $_SESSION['lineeGuidaChat'] == 0) {
 <body>
     <?php include '../includes/navbar.php'; ?>
     <?php if (isset($_SESSION['lineeGuidaChat']) && $_SESSION['lineeGuidaChat'] == 0): ?>
-        <div class="container mt-4 fadeup testobianco" style="padding-top: 7rem; max-width: 600px; margin: auto;">
+        <div class="container mt-4 fadeup testobianco" style="padding-top: 7rem; margin: auto;">
             <div class="row justify-content-center">
                 <div class="col-md-8">
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="mb-0">Accetta le Linee Guida della Chat</h5>
+                            <h5 class="mb-0 testobianco">Accetta le Linee Guida della Chat</h5>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body testobianco">
                             <p>Prima di accedere alla chat globale, devi leggere e accettare le nostre linee guida.</p>
                             <div class="d-grid gap-2">
                                 <a href="chat-policy" class="btn btn-secondary bottone" style="margin: auto; max-width: 200px;">Leggi le Linee Guida</a>
-                                <form method="POST" action="/includes/accept_chat_terms.php">
-                                    <button type="submit" class="btn btn-secondary bottone " style="margin: auto; max-width: 200px;">Ho letto e accetto le Linee Guida</button>
+                                <form method="POST" action="/includes/accept_chat_terms.php" style="text-align: center; margin: auto; max-width: 200px;">
+                                    <button type="submit" class="btn btn-secondary bottone " style="">Ho letto e accetto le Linee Guida</button>
                                 </form>
                             </div>
                         </div>
