@@ -8,7 +8,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
 $user_id = $_SESSION['user_id'] ?? null;
 $username_session = $_SESSION['username'] ?? null;
 
-$discord_id = '963536045180350474'; // ← Inserisci qui il tuo ID
+$discord_id = '897152491530117162'; // ← Inserisci qui il tuo ID
 function getDiscordPresence($discord_id) {
     $ch = curl_init("https://api.lanyard.rest/v1/users/$discord_id");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -20,7 +20,7 @@ function getDiscordPresence($discord_id) {
 $data = getDiscordPresence($discord_id);
 
 // Identifica se è username o ID dalla URL
-$identifier = "cripsum";
+$identifier = "zakator";
 
     $query = "SELECT u.id, u.username, u.data_creazione, u.soldi, u.ruolo,
         COUNT(DISTINCT ua.achievement_id) AS num_achievement,
@@ -54,10 +54,22 @@ $user_cercato_id = $user['id'];
         <title>Profilo di <?php echo htmlspecialchars($user['username']); ?></title>
         <style>
             .navbarutenti {
-                background: linear-gradient(135deg, rgba(125, 246, 255, 0.1), rgba(4, 87, 87, 0.1)); /* Sfondo trasparente */
+                background: linear-gradient(135deg, rgba(255, 170, 125, 0.1), rgba(87, 36, 4, 0.1)); /* Sfondo trasparente */
             }
+
             .dropdownutenti .dropdown-menu {
-                background: linear-gradient(135deg, rgba(0, 46, 56, 0.5), rgb(0, 37, 39)); /* Sfondo trasparente */
+                background: linear-gradient(135deg, rgba(255, 170, 125, 0.5), rgb(87, 36, 4)); /* Sfondo trasparente */
+            }
+
+            .dropdownutenti .dropdown-menu .dropdown-item:hover {
+                color: #faae6b; /* Cambia il colore del testo */
+                text-shadow: 0 0 8px rgba(255, 136, 0, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
+            }
+
+            .navbarutenti .nav-link:hover,
+            .navbarutenti .nav-link:focus {
+                color: #faae6b; /* Cambia il colore del testo */
+                text-shadow: 0 0 8px rgba(255, 136, 0, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
             }
 
             .list-group-item {
@@ -97,8 +109,8 @@ $user_cercato_id = $user['id'];
                     <img src="../includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>" alt="Foto Profilo" class="img-fluid rounded-circle mb-3">
                 </div>
                 <h1 class="testo-arcobaleno mt-2" style="font-weight: bolder; text-shadow: 0 0 25px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5)"><?php echo htmlspecialchars($user['username']); ?></h1>
-                <p class="mb-2" style="color: rgb(171, 171, 171)">AKA - sofficino alla pesca</p>
-                <p>Editor scaduto, ha speso tutti i suoi risparmi in brawl pass e ora non può permettersi la patente</p>    
+                <p class="mb-2" style="color: rgb(171, 171, 171)">AKA - piccolo top 1, francesca</p>
+                <p>script kiddy, il suo unico obiettivo è portare nani al rank 30 in deep end ascoltando phonk e canzoncine anime</p>
                             <p>Membro dal: <?php echo date('d/m/Y', strtotime($user['data_creazione'])); ?></p>
 
                             <h4 style="margin-bottom: 10px;">Statistiche</h4>
