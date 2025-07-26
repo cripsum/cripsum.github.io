@@ -1,5 +1,5 @@
 <?php
-$discord_id = $_GET['discordId'] ?? ''; // ← Inserisci qui il tuo ID Discord
+$discord_id = $_GET['discordId']; // ← Inserisci qui il tuo ID Discord
 function getDiscordPresence($discord_id) {
     $ch = curl_init("https://api.lanyard.rest/v1/users/$discord_id");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
