@@ -4,6 +4,9 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 
 if (!isLoggedIn()) {
+    $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
+    $_SESSION['login_message'] = "Per accedere all'inventario devi essere loggato";
+
     header('Location: accedi');
     exit();
 }

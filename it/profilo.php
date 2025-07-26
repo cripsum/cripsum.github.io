@@ -5,8 +5,11 @@ session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header('Location: accedi.php');
+if (!isLoggedIn()) {
+    $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
+    $_SESSION['login_message'] = "Per accedere alla pagina del tuo profilo devi essere loggato";
+
+    header('Location: accedi');
     exit();
 }
 

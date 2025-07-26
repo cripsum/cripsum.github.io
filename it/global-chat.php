@@ -14,6 +14,9 @@ require_once __DIR__ . '/../includes/chat_functions.php';
 
 
 if (!isLoggedIn()) {
+    $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
+    $_SESSION['login_message'] = "Per accedere alla chat globale devi essere loggato";
+
     header('Location: accedi');
     exit();
 }

@@ -7,11 +7,15 @@ require_once '../../config/database.php';
 require_once '../../includes/functions.php';
 
 if (!isLoggedIn()) {
+    $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
+    $_SESSION['login_message'] = "Per accedere a GoonLand devi essere loggato";
+
     header('Location: accedi');
     exit();
 }
 
 if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
+    $_SESSION['error_message'] = "Per accedere a GoonLand devi abilitare i contenuti NSFW nelle impostazioni del tuo profilo";
     header('Location: home');
     exit();
 }

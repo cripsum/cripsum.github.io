@@ -25,8 +25,12 @@ if ($_POST) {
     } else {
         $result = loginUser($mysqli, $email, $password);
         if ($result === true) {
-            header('Location: home');
-            exit();
+            if ($loginRiuscito) {
+                $redirect = $_SESSION['redirect_after_login'] ?? 'home';
+                unset($_SESSION['redirect_after_login']); // pulizia
+                header("Location: $redirect");
+                exit();
+            }
         } else {
             $error = is_string($result) ? $result : 'Email o password non corretti';
         }
@@ -67,6 +71,14 @@ if ($_POST) {
                         <i class="bi bi-check-circle-fill me-2"></i>
                         <?php echo htmlspecialchars($success); ?>
                     </div>
+                    <?php endif; ?>
+
+                    <?php if (isset($_SESSION['redirect_after_login'])): ?>
+                    <div class="alert alert-info fadeup" role="alert">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <?php echo htmlspecialchars($_SESSION['redirect_after_login']); ?>
+                    </div>
+                    <?php unset($_SESSION['redirect_after_login']); ?>
                     <?php endif; ?>
 
                     <form method="POST" action="">

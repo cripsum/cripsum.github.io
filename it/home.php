@@ -124,6 +124,13 @@ require_once '../includes/functions.php';
                     setTimeout(showPopup, 700);
                 };
             </script>
+            <?php if (isset($_SESSION['error_message'])): ?>
+                <div class="alert alert-danger fadeup" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <?php echo htmlspecialchars($_SESSION['error_message']); ?>
+                </div>
+                <?php unset($_SESSION['error_message']); ?>
+            <?php endif; ?>
 
             <div id="disclaimer" class="divdisclaimer fadeup">
                 <button class="btn btn-secondary bottone" type="button" data-bs-toggle="modal" data-bs-target="#disclaimerModal" style="margin-top: 30px; max-width: 70%">
