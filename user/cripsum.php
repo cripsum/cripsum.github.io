@@ -113,10 +113,10 @@ $user_cercato_id = $user['id'];
                                 <?php include '../includes/discord_status.php'; ?>
                             </div>
                             <div class="mt-3">
-                                <button class="btn btn-sm btn-outline-primary" onclick="copyProfileLink('username')">
+                                <button class="btn btn-sm btn-outline-primary" onclick="copyProfileLink('username')" style="padding-left: 5px; padding-right: 5px;">
                                     Copia link profilo
                                 </button>
-                                <button class="btn btn-sm btn-outline-secondary" onclick="copyProfileLink('id')">
+                                <button class="btn btn-sm btn-outline-secondary" onclick="copyProfileLink('id')" style="padding-left: 5px; padding-right: 5px;">
                                     Copia link ID
                                 </button>
                             </div>
