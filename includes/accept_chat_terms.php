@@ -14,4 +14,7 @@ $stmt = $mysqli->prepare("UPDATE utenti SET lineeGuidaChat = 1 WHERE id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $stmt->close();
+
+header('Location: global-chat');
+exit();
 ?>
