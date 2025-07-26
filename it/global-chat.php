@@ -37,10 +37,6 @@ if (!isset($_SESSION['lineeGuidaChat'])) {
     $_SESSION['lineeGuidaChat'] = $lineeGuidaChat;
 }
 
-
-if (isset($_SESSION['lineeGuidaChat']) && $_SESSION['lineeGuidaChat'] == 0) {
-    $_SESSION['error_message'] = "Per accedere alla chat globale devi leggere e accettare le linee guida della chat";
-}
 ?>
 
 <!DOCTYPE html>
