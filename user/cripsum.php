@@ -56,19 +56,11 @@ $user_cercato_id = $user['id'];
             .list-group{
                 background: linear-gradient(135deg, rgba(125, 246, 255, 0), rgba(4, 87, 87, 0)); /* Sfondo trasparente */
             }
-            .bio-container .discord-box {
+            .discord-box {
                 margin: 2rem auto 0 auto;
                 width: 100%;
                 max-width: 400px;
                 display: block;
-            }
-
-            /* Assicurarsi che il container sia centrato */
-            .bio-container {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
             }
         </style>
     </head>
@@ -115,7 +107,7 @@ $user_cercato_id = $user['id'];
                                     <strong style="margin-right: 3%;"><?php echo htmlspecialchars($user['ruolo']); ?></strong>
                                 </li>
                             </ul>
-                            <div class="discord-box fadeup" id="discordBox">
+                            <div class="discord-box fadeup" id="discordBox" style="margin: auto; text-align: center;">
                                 <?php include '../includes/discord_status.php'; ?>
                             </div>
                             <div class="mt-3">
