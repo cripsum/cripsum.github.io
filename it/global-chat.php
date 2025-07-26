@@ -61,7 +61,7 @@ if (!isset($_SESSION['lineeGuidaChat'])) {
                             <div class="d-grid gap-2">
                                 <a href="chat-policy" class="btn btn-secondary bottone" style="margin: auto; max-width: 200px;">Leggi le Linee Guida</a>
                                 <form method="POST" action="/includes/accept_chat_terms.php" style="text-align: center; margin: auto; max-width: 200px;">
-                                    <button type="submit" class="btn btn-secondary bottone " style="">Ho letto e accetto le Linee Guida</button>
+                                    <button type="submit" class="btn btn-secondary bottone ">Ho letto e accetto le Linee Guida</button>
                                 </form>
                             </div>
                         </div>
