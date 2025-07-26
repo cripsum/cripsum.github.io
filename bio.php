@@ -88,6 +88,9 @@ $user_cercato_id = $user['id'];
                 <h1 class="testo-arcobaleno mt-2" style="font-weight: bolder; text-shadow: 0 0 25px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5)"><?php echo htmlspecialchars($user['username']); ?></h1>
                 <p class="mb-2" style="color: rgb(171, 171, 171)">AKA - Leo, Sofficino alla pesca</p>
                 <p>⟡ 🇮🇹 | 19 <br>⟡ video editor <br>⟡ developer </p>
+                            <div class="discord-box fadeup" id="discordBox" style="margin: auto; text-align: center;">
+                                <?php include 'includes/discord_status.php?discordId=963536045180350474'; ?>
+                            </div>
 
                             <!--<p>Membro dal: <?php echo date('d/m/Y', strtotime($user['data_creazione'])); ?></p>
 
@@ -110,9 +113,6 @@ $user_cercato_id = $user['id'];
                                     <strong style="margin-right: 3%;"><?php echo htmlspecialchars($user['ruolo']); ?></strong>
                                 </li>
                             </ul>
-                            <div class="discord-box fadeup" id="discordBox" style="margin: auto; text-align: center;">
-                                <?php include 'includes/discord_status.php?discordId=963536045180350474'; ?>
-                            </div>
                             <div class="mt-3">
                                 <button class="btn btn-sm btn-outline-primary" onclick="copyProfileLink('username')" style="padding-left: 5px; padding-right: 5px;">
                                     Copia link profilo
