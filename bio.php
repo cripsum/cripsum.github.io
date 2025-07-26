@@ -86,9 +86,10 @@ $user_cercato_id = $user['id'];
                         style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
                 </div>
                 <h1 class="testo-arcobaleno mt-2" style="font-weight: bolder; text-shadow: 0 0 25px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5)"><?php echo htmlspecialchars($user['username']); ?></h1>
-                <p class="mb-2" style="color: rgb(171, 171, 171)">AKA - sofficino alla pesca</p>
-                <p>Editor scaduto, ha speso tutti i suoi risparmi in brawl pass e ora non può permettersi la patente</p>    
-                            <p>Membro dal: <?php echo date('d/m/Y', strtotime($user['data_creazione'])); ?></p>
+                <p class="mb-2" style="color: rgb(171, 171, 171)">AKA - Leo, Sofficino alla pesca</p>
+                <p>⟡ 🇮🇹 | 19 <br>⟡ video editor <br>⟡ developer </p>
+
+                            <!--<p>Membro dal: <?php echo date('d/m/Y', strtotime($user['data_creazione'])); ?></p>
 
                             <h4 style="margin-bottom: 10px;">Statistiche</h4>
                             <ul class="list-group">
@@ -119,7 +120,7 @@ $user_cercato_id = $user['id'];
                                 <button class="btn btn-sm btn-outline-secondary" onclick="copyProfileLink('id')" style="padding-left: 5px; padding-right: 5px;">
                                     Copia link ID
                                 </button>
-                            </div>
+                            </div>-->
                 <div class="social-media" style="margin-top: 20px;">
                     <a href="https://tiktok.cripsum.com" target="_blank" class="linkbianco">TikTok</a>
                     <a href="https://t.me/sburragrigliata" target="_blank" class="linkbianco">Telegram</a>
