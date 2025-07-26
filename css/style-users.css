@@ -190,6 +190,9 @@
 }
 
 @media (max-width: 768px) {
+    .bio-container {
+        margin-top: 5rem;
+    }
     .bio-page .bio-container {
         width: 90%;
         padding: 30px;
@@ -212,6 +215,9 @@
     .bio-page .bio-container {
         width: 90%;
         padding: 20px;
+    }
+    .bio-container {
+        margin-top: 7rem;
     }
 
     .bio-page h1 {
