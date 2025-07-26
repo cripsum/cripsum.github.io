@@ -126,7 +126,7 @@ require_once '../includes/functions.php';
             </script>
 
             <?php if (isset($_SESSION['error_message'])): ?>
-                <div class="alert alert-danger fadeup" role="alert" style="max-width: 80%; margin: auto; margin-top: 5rem">
+                <div class="alert alert-danger fadeup" role="alert" style="max-width: 80%; margin: auto; margin-top: 3rem">
                     <i class="bi bi-exclamation-triangle-fill me-2"></i>
                     <?php echo htmlspecialchars($_SESSION['error_message']); ?>
                 </div>
