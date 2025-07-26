@@ -218,6 +218,10 @@
         padding: 20px;
     }
 
+    .bio-container {
+        margin-top: 10rem;
+    }
+
     .bio-page h1 {
         font-size: 1.8em;
     }
