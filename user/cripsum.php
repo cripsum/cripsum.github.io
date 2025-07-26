@@ -109,9 +109,6 @@ $user_cercato_id = $user['id'];
                                     <strong style="margin-right: 3%;"><?php echo htmlspecialchars($user['ruolo']); ?></strong>
                                 </li>
                             </ul>
-                            <div class="discord-box fadeup" id="discordBox" style="margin: auto; text-align: center;">
-                                <?php include '../includes/discord_status.php?discordId=963536045180350474'; ?>
-                            </div>
                             <div class="mt-3">
                                 <button class="btn btn-sm btn-outline-primary" onclick="copyProfileLink('username')" style="padding-left: 5px; padding-right: 5px;">
                                     Copia link profilo
@@ -128,30 +125,6 @@ $user_cercato_id = $user['id'];
             </div>
         </div>
         <script>
-            fetch('../includes/discord_status.php?discordId=963536045180350474')
-                .then(r => r.text())
-                .then(html => {
-                    const discordBox = document.querySelector('.discord-box');
-                    if (discordBox) {
-                        discordBox.innerHTML = html;
-                        initActivityCarousel();
-                    }
-                })
-                .catch(err => console.error('Errore aggiornamento Discord status:', err));
-
-            setInterval(() => {
-                fetch('../includes/discord_status.php?discordId=963536045180350474')
-                    .then(r => r.text())
-                    .then(html => {
-                        const discordBox = document.querySelector('.discord-box');
-                        if (discordBox) {
-                            discordBox.innerHTML = html;
-
-                            initActivityCarousel();
-                        }
-                    })
-                    .catch(err => console.error('Errore aggiornamento Discord status:', err));
-            }, 30000);
 
             // Funzione per inizializzare il carousel delle attività
             function initActivityCarousel() {

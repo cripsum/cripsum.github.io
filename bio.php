@@ -1,5 +1,4 @@
 <?php
-
 session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';
@@ -9,7 +8,7 @@ $user_id = $_SESSION['user_id'] ?? null;
 $username_session = $_SESSION['username'] ?? null;
 
 // Identifica se è username o ID dalla URL
-$identifier = "zakator";
+$identifier = "cripsum";
 
     $query = "SELECT u.id, u.username, u.data_creazione, u.soldi, u.ruolo,
         COUNT(DISTINCT ua.achievement_id) AS num_achievement,
@@ -43,22 +42,10 @@ $user_cercato_id = $user['id'];
         <title>Profilo di <?php echo htmlspecialchars($user['username']); ?></title>
         <style>
             .navbarutenti {
-                background: linear-gradient(135deg, rgba(255, 170, 125, 0.1), rgba(87, 36, 4, 0.1)); /* Sfondo trasparente */
+                background: linear-gradient(135deg, rgba(125, 246, 255, 0.1), rgba(4, 87, 87, 0.1)); /* Sfondo trasparente */
             }
-
             .dropdownutenti .dropdown-menu {
-                background: linear-gradient(135deg, rgba(255, 170, 125, 0.5), rgb(87, 36, 4)); /* Sfondo trasparente */
-            }
-
-            .dropdownutenti .dropdown-menu .dropdown-item:hover {
-                color: #faae6b; /* Cambia il colore del testo */
-                text-shadow: 0 0 8px rgba(255, 136, 0, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
-            }
-
-            .navbarutenti .nav-link:hover,
-            .navbarutenti .nav-link:focus {
-                color: #faae6b; /* Cambia il colore del testo */
-                text-shadow: 0 0 8px rgba(255, 136, 0, 0.7), 0 0 15px rgba(255, 255, 255, 0.5); /* Ombra dorata */
+                background: linear-gradient(135deg, rgba(0, 46, 56, 0.5), rgb(0, 37, 39)); /* Sfondo trasparente */
             }
 
             .list-group-item {
@@ -86,7 +73,7 @@ $user_cercato_id = $user['id'];
                 <!-- Use a video or an image as background -->
                 <!-- Video example -->
                 <video autoplay muted loop>
-                    <source src="../vid/ezgif-4-3bc6565b95.mp4" type="video/mp4" />
+                    <source src="../vid/overlaymatta.mp4" type="video/mp4" />
                     Your browser does not support the video tag.
                 </video>
                 <!-- Image example -->
@@ -99,8 +86,8 @@ $user_cercato_id = $user['id'];
                         style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
                 </div>
                 <h1 class="testo-arcobaleno mt-2" style="font-weight: bolder; text-shadow: 0 0 25px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5)"><?php echo htmlspecialchars($user['username']); ?></h1>
-                <p class="mb-2" style="color: rgb(171, 171, 171)">AKA - piccolo top 1, francesca</p>
-                <p>script kiddy, il suo unico obiettivo è portare nani al rank 30 in deep end ascoltando phonk e canzoncine anime</p>
+                <p class="mb-2" style="color: rgb(171, 171, 171)">AKA - sofficino alla pesca</p>
+                <p>Editor scaduto, ha speso tutti i suoi risparmi in brawl pass e ora non può permettersi la patente</p>    
                             <p>Membro dal: <?php echo date('d/m/Y', strtotime($user['data_creazione'])); ?></p>
 
                             <h4 style="margin-bottom: 10px;">Statistiche</h4>
@@ -122,6 +109,9 @@ $user_cercato_id = $user['id'];
                                     <strong style="margin-right: 3%;"><?php echo htmlspecialchars($user['ruolo']); ?></strong>
                                 </li>
                             </ul>
+                            <div class="discord-box fadeup" id="discordBox" style="margin: auto; text-align: center;">
+                                <?php include '../includes/discord_status.php?discordId=963536045180350474'; ?>
+                            </div>
                             <div class="mt-3">
                                 <button class="btn btn-sm btn-outline-primary" onclick="copyProfileLink('username')" style="padding-left: 5px; padding-right: 5px;">
                                     Copia link profilo
@@ -131,13 +121,37 @@ $user_cercato_id = $user['id'];
                                 </button>
                             </div>
                 <div class="social-media" style="margin-top: 20px;">
-                    <a href="https://www.tiktok.com/@piccolo.top.1" target="_blank" class="linkbianco">TikTok</a>
+                    <a href="https://tiktok.cripsum.com" target="_blank" class="linkbianco">TikTok</a>
                     <a href="https://t.me/sburragrigliata" target="_blank" class="linkbianco">Telegram</a>
-                    <a href="https://discord.gg/epJbHucv5Y" target="_blank" class="linkbianco">Discord</a>
+                    <a href="https://discord.cripsum.com" target="_blank" class="linkbianco">Discord</a>
                 </div>
             </div>
         </div>
         <script>
+            fetch('../includes/discord_status.php?discordId=963536045180350474')
+                .then(r => r.text())
+                .then(html => {
+                    const discordBox = document.querySelector('.discord-box');
+                    if (discordBox) {
+                        discordBox.innerHTML = html;
+                        initActivityCarousel();
+                    }
+                })
+                .catch(err => console.error('Errore aggiornamento Discord status:', err));
+
+            setInterval(() => {
+                fetch('../includes/discord_status.php?discordId=963536045180350474')
+                    .then(r => r.text())
+                    .then(html => {
+                        const discordBox = document.querySelector('.discord-box');
+                        if (discordBox) {
+                            discordBox.innerHTML = html;
+
+                            initActivityCarousel();
+                        }
+                    })
+                    .catch(err => console.error('Errore aggiornamento Discord status:', err));
+            }, 30000);
 
             // Funzione per inizializzare il carousel delle attività
             function initActivityCarousel() {
