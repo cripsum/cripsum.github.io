@@ -15,6 +15,6 @@ $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $stmt->close();
 
-header('Location: global-chat');
+header('Location: ../it/global-chat');
 exit();
 ?>

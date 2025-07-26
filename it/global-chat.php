@@ -25,6 +25,7 @@ $userId = $_SESSION['user_id'];
 $username = $_SESSION['username'];
 $userRole = $_SESSION['ruolo'] ?? 'utente';
 $profilePic = "/includes/get_pfp.php?id=$userId";
+$lineeGuidaChat = $_SESSION['lineeGuidaChat'];
 
 
 if (!isset($_SESSION['lineeGuidaChat'])) {
