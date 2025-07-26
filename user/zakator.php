@@ -134,9 +134,9 @@ $user_cercato_id = $user['id'];
                                 </button>
                             </div>
                 <div class="social-media" style="margin-top: 20px;">
-                    <a href="https://tiktok.cripsum.com" target="_blank" class="linkbianco">TikTok</a>
+                    <a href="https://www.tiktok.com/@piccolo.top.1" target="_blank" class="linkbianco">TikTok</a>
                     <a href="https://t.me/sburragrigliata" target="_blank" class="linkbianco">Telegram</a>
-                    <a href="https://discord.cripsum.com" target="_blank" class="linkbianco">Discord</a>
+                    <a href="https://discord.gg/epJbHucv5Y" target="_blank" class="linkbianco">Discord</a>
                 </div>
             </div>
         </div>
