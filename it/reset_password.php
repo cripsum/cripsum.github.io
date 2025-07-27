@@ -1,12 +1,3 @@
-<?php
-ini_set('session.gc_maxlifetime', 604800);
-session_set_cookie_params(604800);
-session_start();
-require_once '../config/database.php';
-require_once '../includes/functions.php';
-$user_id = $_SESSION['user_id'] ?? null;
-?>
-
 <!DOCTYPE html>
 <html lang="it">
 <head>

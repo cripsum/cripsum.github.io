@@ -1,5 +1,5 @@
 <?php
-require_once 'config/database.php';
+require_once '../config/database.php';
 
 $messaggio = "Se l'email è registrata, riceverai un link per reimpostare la password.";
 
