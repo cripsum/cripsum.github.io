@@ -91,13 +91,14 @@ $achievements_result = $mysqli->query($achievements_query);
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <style>
         .admin-tabs {
             margin-bottom: 20px;
         }
         .tab-content {
             background: #fff;
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
@@ -126,25 +127,152 @@ $achievements_result = $mysqli->query($achievements_query);
         .modal-body .form-group {
             margin-bottom: 15px;
         }
+        
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+            .container-fluid {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .tab-content {
+                padding: 10px;
+            }
+            
+            .search-filters {
+                padding: 10px;
+            }
+            
+            /* Mobile table styles */
+            .table-responsive {
+                font-size: 0.8rem;
+            }
+            
+            .mobile-table {
+                display: none;
+            }
+            
+            .desktop-table {
+                display: table;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 3px;
+            }
+            
+            .action-buttons .btn {
+                font-size: 0.75rem;
+                padding: 0.25rem 0.5rem;
+            }
+            
+            /* Card layout for mobile */
+            .user-card {
+                background: #fff;
+                border: 1px solid #dee2e6;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 15px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            .user-card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 10px;
+            }
+            
+            .user-card-body {
+                margin-bottom: 15px;
+            }
+            
+            .user-card-actions {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            
+            .user-card-actions .btn {
+                font-size: 0.75rem;
+                padding: 0.375rem 0.5rem;
+            }
+            
+            .nav-tabs {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .nav-tabs .nav-link {
+                white-space: nowrap;
+                font-size: 0.9rem;
+                padding: 0.5rem 0.75rem;
+            }
+            
+            .pagination {
+                font-size: 0.8rem;
+            }
+            
+            .pagination .page-link {
+                padding: 0.25rem 0.5rem;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .mobile-table {
+                display: none;
+            }
+            
+            .desktop-table {
+                display: table;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .search-filters .row {
+                gap: 10px;
+            }
+            
+            .search-filters .col-md-2,
+            .search-filters .col-md-3,
+            .search-filters .col-md-4 {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            .user-card-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .tab-content {
+                padding: 8px;
+            }
+        }
     </style>
 </head>
 <body>
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
-    <div class="container-fluid mt-5">
+    <div class="container-fluid mt-3">
         <h1 class="text-center mb-4">Admin Panel</h1>
         
         <!-- Navigation Tabs -->
         <ul class="nav nav-tabs admin-tabs" id="adminTabs" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button">Gestione Utenti</button>
+                <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button">Utenti</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="characters-tab" data-bs-toggle="tab" data-bs-target="#characters" type="button">Gestione Personaggi</button>
+                <button class="nav-link" id="characters-tab" data-bs-toggle="tab" data-bs-target="#characters" type="button">Personaggi</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="achievements-tab" data-bs-toggle="tab" data-bs-target="#achievements" type="button">Gestione Achievement</button>
+                <button class="nav-link" id="achievements-tab" data-bs-toggle="tab" data-bs-target="#achievements" type="button">Achievement</button>
             </li>
         </ul>
 
@@ -154,34 +282,34 @@ $achievements_result = $mysqli->query($achievements_query);
                 <!-- Search and Filters -->
                 <div class="search-filters">
                     <form method="GET" class="row g-3">
-                        <div class="col-md-4">
+                        <div class="col-12 col-md-4">
                             <input type="text" class="form-control" name="search" placeholder="Cerca per username o email" value="<?php echo htmlspecialchars($search); ?>">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-12 col-md-3">
                             <select class="form-select" name="filter_banned">
                                 <option value="">Tutti gli utenti</option>
                                 <option value="active" <?php echo $filter_banned === 'active' ? 'selected' : ''; ?>>Solo attivi</option>
                                 <option value="banned" <?php echo $filter_banned === 'banned' ? 'selected' : ''; ?>>Solo bannati</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary">Filtra</button>
+                        <div class="col-6 col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Filtra</button>
                         </div>
-                        <div class="col-md-3">
-                            <a href="?" class="btn btn-secondary">Reset</a>
+                        <div class="col-6 col-md-3">
+                            <a href="?" class="btn btn-secondary w-100">Reset</a>
                         </div>
                     </form>
                 </div>
 
-                <!-- Users Table -->
-                <div class="table-responsive">
-                    <table class="table table-striped">
+                <!-- Desktop Table -->
+                <div class="table-responsive d-none d-md-block">
+                    <table class="table table-striped desktop-table">
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Username</th>
                                 <th>Email</th>
-                                <th>Data Creazione</th>
+                                <th>Data</th>
                                 <th>Ruolo</th>
                                 <th>Stato</th>
                                 <th>Stats</th>
@@ -189,11 +317,11 @@ $achievements_result = $mysqli->query($achievements_query);
                             </tr>
                         </thead>
                         <tbody>
-                            <?php while ($row = $result->fetch_assoc()): ?>
+                            <?php $result->data_seek(0); while ($row = $result->fetch_assoc()): ?>
                             <tr>
                                 <td><?php echo $row['id']; ?></td>
                                 <td><?php echo htmlspecialchars($row['username']); ?></td>
-                                <td><?php echo htmlspecialchars($row['email']); ?></td>
+                                <td class="d-none d-lg-table-cell"><?php echo htmlspecialchars($row['email']); ?></td>
                                 <td><?php echo date('d/m/Y', strtotime($row['data_creazione'])); ?></td>
                                 <td><span class="badge bg-info"><?php echo $row['ruolo']; ?></span></td>
                                 <td>
@@ -203,32 +331,28 @@ $achievements_result = $mysqli->query($achievements_query);
                                         <span class="badge bg-success">Attivo</span>
                                     <?php endif; ?>
                                 </td>
-                                <td>
+                                <td class="d-none d-lg-table-cell">
                                     <small>
-                                        Personaggi: <?php echo $row['character_count']; ?><br>
-                                        Achievement: <?php echo $row['achievement_count']; ?>
+                                        P: <?php echo $row['character_count']; ?><br>
+                                        A: <?php echo $row['achievement_count']; ?>
                                     </small>
                                 </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <button class="btn btn-info btn-sm" onclick="viewUserDetails(<?php echo $row['id']; ?>)">Dettagli</button>
-                                        <button class="btn btn-warning btn-sm" onclick="editUser(<?php echo $row['id']; ?>)">Modifica</button>
+                                        <button class="btn btn-info btn-sm" onclick="viewUserDetails(<?php echo $row['id']; ?>)">Info</button>
+                                        <button class="btn btn-warning btn-sm" onclick="editUser(<?php echo $row['id']; ?>)">Edit</button>
                                         
                                         <?php if (!$row['isBannato']): ?>
                                             <form method="POST" action="../api/ban_user.php" style="display:inline;">
                                                 <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
-                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Sei sicuro di voler bannare questo utente?')">Banna</button>
+                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bannare utente?')">Ban</button>
                                             </form>
                                         <?php else: ?>
                                             <form method="POST" action="../api/unban_user.php" style="display:inline;">
                                                 <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
-                                                <button type="submit" class="btn btn-success btn-sm">Sbanna</button>
+                                                <button type="submit" class="btn btn-success btn-sm">Unban</button>
                                             </form>
                                         <?php endif; ?>
-                                        
-                                        <button class="btn btn-primary btn-sm" onclick="addCharacterToUser(<?php echo $row['id']; ?>)">+ Personaggio</button>
-                                        <button class="btn btn-secondary btn-sm" onclick="addAchievementToUser(<?php echo $row['id']; ?>)">+ Achievement</button>
-                                        <button class="btn btn-danger btn-sm" onclick="deleteUser(<?php echo $row['id']; ?>)">Elimina</button>
                                     </div>
                                 </td>
                             </tr>
@@ -237,18 +361,66 @@ $achievements_result = $mysqli->query($achievements_query);
                     </table>
                 </div>
 
+                <!-- Mobile Cards -->
+                <div class="d-md-none">
+                    <?php $result->data_seek(0); while ($row = $result->fetch_assoc()): ?>
+                    <div class="user-card">
+                        <div class="user-card-header">
+                            <div>
+                                <strong><?php echo htmlspecialchars($row['username']); ?></strong>
+                                <span class="badge bg-info ms-2"><?php echo $row['ruolo']; ?></span>
+                            </div>
+                            <div>
+                                <?php if ($row['isBannato']): ?>
+                                    <span class="badge bg-danger">Bannato</span>
+                                <?php else: ?>
+                                    <span class="badge bg-success">Attivo</span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        
+                        <div class="user-card-body">
+                            <div><small class="text-muted">ID:</small> <?php echo $row['id']; ?></div>
+                            <div><small class="text-muted">Email:</small> <?php echo htmlspecialchars($row['email']); ?></div>
+                            <div><small class="text-muted">Data:</small> <?php echo date('d/m/Y', strtotime($row['data_creazione'])); ?></div>
+                            <div><small class="text-muted">Personaggi:</small> <?php echo $row['character_count']; ?> | <small class="text-muted">Achievement:</small> <?php echo $row['achievement_count']; ?></div>
+                        </div>
+                        
+                        <div class="user-card-actions">
+                            <button class="btn btn-info btn-sm" onclick="viewUserDetails(<?php echo $row['id']; ?>)">Dettagli</button>
+                            <button class="btn btn-warning btn-sm" onclick="editUser(<?php echo $row['id']; ?>)">Modifica</button>
+                            
+                            <?php if (!$row['isBannato']): ?>
+                                <form method="POST" action="../api/ban_user.php" class="d-inline w-100">
+                                    <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                                    <button type="submit" class="btn btn-danger btn-sm w-100" onclick="return confirm('Bannare utente?')">Banna</button>
+                                </form>
+                            <?php else: ?>
+                                <form method="POST" action="../api/unban_user.php" class="d-inline w-100">
+                                    <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                                    <button type="submit" class="btn btn-success btn-sm w-100">Sbanna</button>
+                                </form>
+                            <?php endif; ?>
+                            
+                            <button class="btn btn-primary btn-sm" onclick="addCharacterToUser(<?php echo $row['id']; ?>)">+ Personaggio</button>
+                            <button class="btn btn-secondary btn-sm" onclick="addAchievementToUser(<?php echo $row['id']; ?>)">+ Achievement</button>
+                        </div>
+                    </div>
+                    <?php endwhile; ?>
+                </div>
+
                 <!-- Pagination -->
                 <?php if ($total_pages > 1): ?>
                 <div class="pagination-wrapper">
                     <nav>
-                        <ul class="pagination">
+                        <ul class="pagination pagination-sm">
                             <?php if ($page > 1): ?>
                                 <li class="page-item">
-                                    <a class="page-link" href="?page=<?php echo $page-1; ?>&search=<?php echo urlencode($search); ?>&filter_banned=<?php echo $filter_banned; ?>">Precedente</a>
+                                    <a class="page-link" href="?page=<?php echo $page-1; ?>&search=<?php echo urlencode($search); ?>&filter_banned=<?php echo $filter_banned; ?>">‹</a>
                                 </li>
                             <?php endif; ?>
                             
-                            <?php for ($i = max(1, $page-2); $i <= min($total_pages, $page+2); $i++): ?>
+                            <?php for ($i = max(1, $page-1); $i <= min($total_pages, $page+1); $i++): ?>
                                 <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
                                     <a class="page-link" href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&filter_banned=<?php echo $filter_banned; ?>"><?php echo $i; ?></a>
                                 </li>
@@ -256,7 +428,7 @@ $achievements_result = $mysqli->query($achievements_query);
                             
                             <?php if ($page < $total_pages): ?>
                                 <li class="page-item">
-                                    <a class="page-link" href="?page=<?php echo $page+1; ?>&search=<?php echo urlencode($search); ?>&filter_banned=<?php echo $filter_banned; ?>">Successivo</a>
+                                    <a class="page-link" href="?page=<?php echo $page+1; ?>&search=<?php echo urlencode($search); ?>&filter_banned=<?php echo $filter_banned; ?>">›</a>
                                 </li>
                             <?php endif; ?>
                         </ul>
@@ -268,7 +440,7 @@ $achievements_result = $mysqli->query($achievements_query);
             <!-- Characters Management Tab -->
             <div class="tab-pane fade" id="characters" role="tabpanel">
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-12 col-lg-6 mb-4">
                         <h3>Aggiungi Nuovo Personaggio</h3>
                         <form id="addCharacterForm">
                             <div class="mb-3">
@@ -294,10 +466,10 @@ $achievements_result = $mysqli->query($achievements_query);
                                     <option value="speciale">Speciale</option>
                                 </select>
                             </div>
-                            <button type="submit" class="btn btn-success">Aggiungi Personaggio</button>
+                            <button type="submit" class="btn btn-success w-100">Aggiungi Personaggio</button>
                         </form>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-12 col-lg-6">
                         <h3>Personaggi Esistenti</h3>
                         <div id="charactersList" class="table-responsive">
                             <!-- Characters list will be loaded here -->
@@ -309,7 +481,7 @@ $achievements_result = $mysqli->query($achievements_query);
             <!-- Achievements Management Tab -->
             <div class="tab-pane fade" id="achievements" role="tabpanel">
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-12 col-lg-6 mb-4">
                         <h3>Aggiungi Nuovo Achievement</h3>
                         <form id="addAchievementForm">
                             <div class="mb-3">
@@ -328,10 +500,10 @@ $achievements_result = $mysqli->query($achievements_query);
                                 <label class="form-label">Punti</label>
                                 <input type="number" class="form-control" name="punti" min="0" value="10">
                             </div>
-                            <button type="submit" class="btn btn-success">Aggiungi Achievement</button>
+                            <button type="submit" class="btn btn-success w-100">Aggiungi Achievement</button>
                         </form>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-12 col-lg-6">
                         <h3>Achievement Esistenti</h3>
                         <div id="achievementsList" class="table-responsive">
                             <!-- Achievements list will be loaded here -->
@@ -342,7 +514,7 @@ $achievements_result = $mysqli->query($achievements_query);
         </div>
     </div>
 
-    <!-- Modals -->
+    <!-- Modals remain the same -->
     <!-- User Details Modal -->
     <div class="modal fade" id="userDetailsModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -475,4 +647,4 @@ $achievements_result = $mysqli->query($achievements_query);
         ></script>
 
 </body>
-</html></div></form></li></div></small></tbody>
+</html>
