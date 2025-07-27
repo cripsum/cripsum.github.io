@@ -64,5 +64,6 @@ if ($token && $nuova_password) {
         <i class="bi bi-info-circle-fill me-2"></i>
         <?php echo htmlspecialchars($messaggio); ?>
     </div>
+    
 </body>
 </html>

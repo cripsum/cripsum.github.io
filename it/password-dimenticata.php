@@ -63,7 +63,7 @@ $user_id = $_SESSION['user_id'] ?? null;
         <h2>Password dimenticata</h2>
         <form method="POST" action="invia_link.php">
             <input type="email" name="email" placeholder="Inserisci la tua email" required>
-            <button type="submit">Invia link</button>
+            <button class="btn btn-secondary bottone" type="submit">Invia link</button>
         </form>
     </div>
 </body>

@@ -64,7 +64,7 @@ $user_id = $_SESSION['user_id'] ?? null;
         <form method="POST" action="salva_nuova_password.php">
             <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
             <input type="password" name="nuova_password" placeholder="Nuova password" required>
-            <button type="submit">Salva</button>
+            <button class="btn btn-secondary bottone" type="submit">Salva</button>
         </form>
     </div>
 </body>
