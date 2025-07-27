@@ -32,7 +32,7 @@ if(!isset($_COOKIE['banned']) || $_COOKIE['banned'] == '0') {
         }
 
         setcookie('banned', '1', time() + (10 * 365 * 24 * 60 * 60), '/');
-        setcookie('user_id', '', time() + (10 * 365 * 24 * 60 * 60), '/');
+        setcookie('user_id', $user_id, time() + (10 * 365 * 24 * 60 * 60), '/');
         session_destroy();
 }
 else{
