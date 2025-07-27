@@ -138,6 +138,10 @@ $achievements_result = $mysqli->query($achievements_query);
         .nav-link:hover {
             color: white;
         }
+
+        textarea{
+            color: black
+        }
         
         /* Mobile responsive styles */
         @media (max-width: 768px) {
