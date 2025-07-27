@@ -42,19 +42,22 @@ session_destroy();
     <style>
         body {
             margin: 0;
-            padding: 0;
+            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            min-height: 80vh;
+            box-sizing: border-box;
         }
         .ban-container {
-            background: white;
             padding: 40px;
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(255, 255, 255, 0.3);
+            background-color: #333;
+            color: white;
+            box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.3);
             text-align: center;
             max-width: 500px;
+            width: 100%;
         }
         .ban-icon {
             font-size: 64px;
@@ -64,17 +67,54 @@ session_destroy();
         h1 {
             color: #dc3545;
             margin-bottom: 20px;
+            font-size: 2rem;
         }
         p {
-            color: #6c757d;
+            color:rgb(255, 255, 255);
             line-height: 1.6;
             margin-bottom: 20px;
         }
         .contact-info {
-            background-color: #f8f9fa;
+            background-color:rgba(248, 249, 250, 0);
             padding: 20px;
             border-radius: 5px;
             margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            .ban-container {
+                padding: 30px 20px;
+            }
+            .ban-icon {
+                font-size: 48px;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            .contact-info {
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            .ban-container {
+                padding: 20px 15px;
+            }
+            .ban-icon {
+                font-size: 40px;
+            }
+            h1 {
+                font-size: 1.3rem;
+            }
+            p {
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
