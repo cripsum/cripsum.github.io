@@ -61,7 +61,7 @@ $total_pages = ceil($total_users / $limit);
 
 // Get users with stats
 $query = "SELECT u.id, u.username, u.email, u.data_creazione, u.ruolo, u.isBannato,
-          COUNT(DISTINCT c.id) as character_count,
+          COUNT(DISTINCT c.personaggio_id) as character_count,
           COUNT(DISTINCT ua.achievement_id) as achievement_count
           FROM utenti u
           LEFT JOIN utenti_personaggi c ON u.id = c.utente_id
