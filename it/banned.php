@@ -6,10 +6,14 @@ session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
-if (!isLoggedIn()) {
+if(isset($_COOKIE['banned']) && $_COOKIE['banned'] == '1') {
+    exit();
+}
+else if (!isLoggedIn()) {
     header('Location: home');
     exit();
 }
+
 
 $user_id = $_SESSION['user_id'];
 
