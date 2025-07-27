@@ -5,7 +5,7 @@ require_once '../includes/functions.php';
 
 if (!isLoggedIn() || !isAdmin()) {
     http_response_code(403);
-    exit('Non autorizzato');
+    exit('Non autorizzato, scemo');
 }
 
 $id_da_bannare = $_POST['id'] ?? 0;

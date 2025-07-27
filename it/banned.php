@@ -30,6 +30,8 @@ if ($row['isBannato'] != 1) {
     header('Location: home');
     exit();
 }
+
+session_destroy();
 ?>
 
 <!DOCTYPE html>
