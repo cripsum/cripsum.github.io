@@ -16,7 +16,7 @@ if ($id_da_sbannare <= 0) {
     exit('ID non valido');
 }
 
-$stmt = $conn->prepare("UPDATE utenti SET isBannato = 0 WHERE id = ?");
+$stmt = $mysqli->prepare("UPDATE utenti SET isBannato = 0 WHERE id = ?");
 $stmt->bind_param("i", $id_da_sbannare);
 $stmt->execute();
 $stmt->close();
