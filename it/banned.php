@@ -54,7 +54,7 @@ session_destroy();
             border-radius: 10px;
             background-color: #333;
             color: white;
-            box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0);
             text-align: center;
             max-width: 500px;
             width: 100%;
@@ -123,12 +123,12 @@ session_destroy();
         <div class="ban-icon">🚫</div>
         <h1>Account Bannato</h1>
         <p>Il tuo account è stato sospeso per violazione dei nostri termini di servizio.</p>
-        <p>Se ritieni che questo sia un errore, puoi contattare il nostro supporto.</p>
         <p>Godo coglione</p>
         <img src="/img/Laughing_emoji_no_background.webp" alt="">
+        <p>Se ritieni che questo sia un errore, puoi contattare il nostro supporto.</p>
         
         <div class="contact-info">
-            <h3>Contatta il Supporto</h3>
+            <h3 class="testobianco" >Contatta il Supporto</h3>
             <p>Email: support@cripsum.com</p>
             <p>Includi il tuo username e una descrizione dettagliata del problema.</p>
         </div>
