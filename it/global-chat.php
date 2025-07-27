@@ -11,6 +11,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/chat_config.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/chat_functions.php';
+checkBan($mysqli);
 
 
 if (!isLoggedIn()) {

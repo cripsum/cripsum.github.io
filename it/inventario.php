@@ -2,6 +2,7 @@
 session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+checkBan($mysqli);
 
 if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];

@@ -410,6 +410,10 @@ function isLoggedIn() {
     return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
 }
 
+function isAdmin() {
+    return isset($_SESSION['ruolo']) && $_SESSION['ruolo'] === 'admin';
+}
+
 function requireLogin() {
     if (!isLoggedIn()) {
         header('Location: accedi');
@@ -443,6 +447,26 @@ function setMessageTimeout() {
     }
 
     return false;
+}
+
+function checkBan($mysqli) {
+    if (!isLoggedIn()) return;
+
+    $user_id = $_SESSION['user_id'];
+    $stmt = $mysqli->prepare("SELECT isBannato FROM utenti WHERE id = ?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        if ($row['isBannato'] == 1) {
+            session_destroy();
+            header('Location: https://cripsum.com/it/banned');
+            exit();
+        }
+    }
 }
 
 function logoutUser() {

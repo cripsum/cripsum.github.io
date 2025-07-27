@@ -3,6 +3,7 @@
 session_start();
 require_once 'config/database.php';
 require_once 'includes/functions.php';
+checkBan($mysqli);
 
 $isLoggedIn = isset($_SESSION['user_id']);
 $user_id = $_SESSION['user_id'] ?? null;
