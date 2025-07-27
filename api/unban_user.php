@@ -16,10 +16,10 @@ if ($id_da_bannare <= 0) {
     exit('ID non valido');
 }
 
-$stmt = $conn->prepare("UPDATE utenti SET isBannato = 1 WHERE id = ?");
+$stmt = $conn->prepare("UPDATE utenti SET isBannato = 0 WHERE id = ?");
 $stmt->bind_param("i", $id_da_bannare);
 $stmt->execute();
 $stmt->close();
 
-echo 'Utente bannato';
+echo 'Utente sbannato';
 ?>
