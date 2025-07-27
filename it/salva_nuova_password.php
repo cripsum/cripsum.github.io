@@ -35,7 +35,8 @@ if ($token && $nuova_password) {
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Esito reset</title>
+    <?php include '../includes/head-import.php'; ?>
+    <title>Cripsum™ - Esito reset</title>
     <style>
         body {
             background: #0e0e0e;
@@ -58,8 +59,10 @@ if ($token && $nuova_password) {
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2><?= htmlspecialchars($messaggio) ?></h2>
+    <?php include '../includes/navbar-morta.php'; ?>
+    <div class="alert alert-info fadeup" role="alert">
+        <i class="bi bi-info-circle-fill me-2"></i>
+        <?php echo htmlspecialchars($messaggio); ?>
     </div>
 </body>
 </html>

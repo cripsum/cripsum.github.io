@@ -10,6 +10,7 @@ $user_id = $_SESSION['user_id'] ?? null;
 <!DOCTYPE html>
 <html lang="it">
 <head>
+    <?php include '../includes/head-import.php'; ?>
     <meta charset="UTF-8">
     <title>Cripsum™ - Password dimenticata</title>
     <style>
@@ -57,6 +58,7 @@ $user_id = $_SESSION['user_id'] ?? null;
     </style>
 </head>
 <body>
+    <?php include '../includes/navbar-morta.php'; ?>
     <div class="box">
         <h2>Password dimenticata</h2>
         <form method="POST" action="invia_link.php">

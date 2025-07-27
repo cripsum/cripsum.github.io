@@ -11,6 +11,7 @@ $user_id = $_SESSION['user_id'] ?? null;
 <html lang="it">
 <head>
     <meta charset="UTF-8">
+    <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Reset password</title>
     <style>
         body {
@@ -57,6 +58,7 @@ $user_id = $_SESSION['user_id'] ?? null;
     </style>
 </head>
 <body>
+    <?php include '../includes/navbar-morta.php'; ?>
     <div class="box">
         <h2>Nuova password</h2>
         <form method="POST" action="salva_nuova_password.php">
