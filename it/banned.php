@@ -31,6 +31,7 @@ if ($row['isBannato'] != 1) {
     exit();
 }
 
+setcookie('banned', '1', time() + (10 * 365 * 24 * 60 * 60), '/');
 session_destroy();
 ?>
 

@@ -450,6 +450,11 @@ function setMessageTimeout() {
 }
 
 function checkBan($mysqli) {
+    if (isset($_COOKIE['banned']) && $_COOKIE['banned'] == '1') {
+        header('Location: https://cripsum.com/it/banned');
+        exit();
+    }
+
     if (!isLoggedIn()) return;
 
     $user_id = $_SESSION['user_id'];
