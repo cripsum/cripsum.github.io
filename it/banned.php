@@ -127,7 +127,7 @@ if(!isset($_COOKIE['banned']) || $_COOKIE['banned'] == '0') {
         <h1>Account Bannato</h1>
         <p>Il tuo account è stato sospeso per violazione dei nostri termini di servizio.</p>
         <p>Godo coglione</p>
-        <img src="/img/toppng.com-laughing-pointing-emoji-1645x1070.png" alt="">
+        <img src="/img/toppng.com-laughing-pointing-emoji-1645x1070.png" alt="" style="max-width: 100%; height: auto; margin: 20px 0;">
         <p>Se ritieni che questo sia un errore, puoi contattare il nostro supporto.</p>
         
         <div class="contact-info">
