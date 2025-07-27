@@ -65,6 +65,7 @@ $user_id = $_SESSION['user_id'] ?? null;
             <input type="email" name="email" placeholder="Inserisci la tua email" required>
             <button class="btn btn-secondary bottone" type="submit">Invia link</button>
         </form>
+        <a class="nav-link" href="accedi"><i class="fas fa-arrow-left"></i> Torna al login</a>
     </div>
 </body>
 </html>

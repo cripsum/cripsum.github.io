@@ -60,9 +60,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <?php include '../includes/navbar-morta.php'; ?>
+    <div class="box">
     <div class="alert alert-info fadeup" role="alert">
         <i class="bi bi-info-circle-fill me-2"></i>
         <?php echo htmlspecialchars($messaggio); ?>
     </div>
+    <a class="nav-link" href="accedi"><i class="fas fa-arrow-left"></i> Torna al login</a>
+    </div>
+
 </body>
 </html>

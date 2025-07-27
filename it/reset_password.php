@@ -66,6 +66,7 @@ $user_id = $_SESSION['user_id'] ?? null;
             <input type="password" name="nuova_password" placeholder="Nuova password" required>
             <button class="btn btn-secondary bottone" type="submit">Salva</button>
         </form>
+        <a class="nav-link" href="accedi"><i class="fas fa-arrow-left"></i> Torna al login</a>
     </div>
 </body>
 </html>
