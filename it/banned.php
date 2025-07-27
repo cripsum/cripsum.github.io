@@ -34,6 +34,24 @@ if(!isset($_COOKIE['banned']) || $_COOKIE['banned'] == '0') {
         setcookie('banned', '1', time() + (10 * 365 * 24 * 60 * 60), '/');
         session_destroy();
 }
+else{
+    $user_id = $_SESSION['user_id'];
+
+    $stmt = $mysqli->prepare("SELECT isBannato FROM utenti WHERE id = ?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
+
+    $row = $result->fetch_assoc();
+
+    if ($row['isBannato'] != 1) {
+        setcookie('banned', '0', time() + (10 * 365 * 24 * 60 * 60), '/');
+        session_destroy();
+        header('Location: home');
+        exit();
+    }
+}
 
 ?>
 
