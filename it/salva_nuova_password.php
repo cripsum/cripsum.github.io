@@ -5,7 +5,6 @@ require_once '../includes/functions.php';
 $token = $_POST['token'] ?? '';
 $nuova_password = $_POST['nuova_password'] ?? '';
 $messaggio = '';
-var_dump($_POST);
 
 if ($token && $nuova_password) {
     $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE reset_token = ? AND token_scadenza > NOW()");

@@ -1,3 +1,7 @@
+<?php
+$token = $_GET['token'] ?? '';
+?>
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
