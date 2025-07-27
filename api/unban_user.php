@@ -3,7 +3,7 @@ session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
-if (!isLoggedIn() || !isAdmin() || !isOwner()) {
+if (!isLoggedIn() || (!isAdmin() && !isOwner())) {
     http_response_code(403);
     exit('Non autorizzato, scemo');
 }
