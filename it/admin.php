@@ -127,6 +127,13 @@ $achievements_result = $mysqli->query($achievements_query);
         .modal-body .form-group {
             margin-bottom: 15px;
         }
+        .nav-link {
+            color: white
+        }
+
+        .nav-link:active{
+            color:rgb(0, 0, 0);
+        }
         
         /* Mobile responsive styles */
         @media (max-width: 768px) {
