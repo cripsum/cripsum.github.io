@@ -22,4 +22,6 @@ $stmt->execute();
 $stmt->close();
 
 echo 'Utente bannato';
+header('Location: https://cripsum.com/it/admin');
+
 ?>
