@@ -128,11 +128,15 @@ $achievements_result = $mysqli->query($achievements_query);
             margin-bottom: 15px;
         }
         .nav-link {
-            color: white
+            color: white;
         }
 
         .nav-link:active{
             color:rgb(0, 0, 0);
+        }
+
+        .nav-link:hover {
+            color: white;
         }
         
         /* Mobile responsive styles */
@@ -268,7 +272,7 @@ $achievements_result = $mysqli->query($achievements_query);
     <?php include '../includes/impostazioni.php'; ?>
 
     <div class="container-fluid mt-3" style="margin-top: 7rem;">
-        <h1 class="text-center mb-4">Admin Panel</h1>
+        <h1 class="text-center mb-4" style="margin-top: 7rem;">Admin Panel</h1>
         
         <!-- Navigation Tabs -->
         <ul class="nav nav-tabs admin-tabs" id="adminTabs" role="tablist">
