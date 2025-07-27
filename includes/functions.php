@@ -414,6 +414,11 @@ function isAdmin() {
     return isset($_SESSION['ruolo']) && $_SESSION['ruolo'] === 'admin';
 }
 
+function isOwner() {
+    return isset($_SESSION['ruolo']) && $_SESSION['ruolo'] === 'owner';
+}
+
+
 function requireLogin() {
     if (!isLoggedIn()) {
         header('Location: accedi');

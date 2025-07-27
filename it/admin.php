@@ -11,7 +11,7 @@ if (!isLoggedIn()) {
     exit();
 }
 
-if (!isAdmin()) {
+if (!isAdmin() && !isOwner()) {
     http_response_code(403);
     exit('Non autorizzato, scemo');
 }
