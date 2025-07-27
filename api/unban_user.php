@@ -8,16 +8,16 @@ if (!isLoggedIn() || (!isAdmin() && !isOwner())) {
     exit('Non autorizzato, scemo');
 }
 
-$id_da_bannare = $_POST['id'] ?? 0;
-$id_da_bannare = intval($id_da_bannare);
+$id_da_sbannare = $_POST['id'] ?? 0;
+$id_da_sbannare = intval($id_da_sbannare);
 
-if ($id_da_bannare <= 0) {
+if ($id_da_sbannare <= 0) {
     http_response_code(400);
     exit('ID non valido');
 }
 
 $stmt = $conn->prepare("UPDATE utenti SET isBannato = 0 WHERE id = ?");
-$stmt->bind_param("i", $id_da_bannare);
+$stmt->bind_param("i", $id_da_sbannare);
 $stmt->execute();
 $stmt->close();
 
