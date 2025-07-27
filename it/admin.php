@@ -260,19 +260,19 @@ $achievements_result = $mysqli->query($achievements_query);
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
-    <div class="container-fluid mt-3">
+    <div class="container-fluid mt-3" style="margin-top: 7rem;">
         <h1 class="text-center mb-4">Admin Panel</h1>
         
         <!-- Navigation Tabs -->
         <ul class="nav nav-tabs admin-tabs" id="adminTabs" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button">Utenti</button>
+                <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button">Gestione Utenti</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="characters-tab" data-bs-toggle="tab" data-bs-target="#characters" type="button">Personaggi</button>
+                <button class="nav-link" id="characters-tab" data-bs-toggle="tab" data-bs-target="#characters" type="button">Aggiungi Personaggi</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="achievements-tab" data-bs-toggle="tab" data-bs-target="#achievements" type="button">Achievement</button>
+                <button class="nav-link" id="achievements-tab" data-bs-toggle="tab" data-bs-target="#achievements" type="button">Aggiungi Achievements</button>
             </li>
         </ul>
 
