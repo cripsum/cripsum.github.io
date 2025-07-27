@@ -6,36 +6,35 @@ session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
-if(isset($_COOKIE['banned']) && $_COOKIE['banned'] == '1') {
+if(!isset($_COOKIE['banned']) || $_COOKIE['banned'] == '0') {
+    if (!isLoggedIn()) {
+        header('Location: home');
+        exit();
+    }
+    $user_id = $_SESSION['user_id'];
+
+        $stmt = $mysqli->prepare("SELECT isBannato FROM utenti WHERE id = ?");
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $stmt->close();
+
+        if ($result->num_rows === 0) {
+            header('Location: home');
+            exit();
+        }
+
+        $row = $result->fetch_assoc();
+
+        if ($row['isBannato'] != 1) {
+            header('Location: home');
+            exit();
+        }
+
+        setcookie('banned', '1', time() + (10 * 365 * 24 * 60 * 60), '/');
+        session_destroy();
 }
-else if (!isLoggedIn()) {
-    header('Location: home');
-    exit();
-}
 
-
-$user_id = $_SESSION['user_id'];
-
-$stmt = $mysqli->prepare("SELECT isBannato FROM utenti WHERE id = ?");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$stmt->close();
-
-if ($result->num_rows === 0) {
-    header('Location: home');
-    exit();
-}
-
-$row = $result->fetch_assoc();
-
-if ($row['isBannato'] != 1) {
-    header('Location: home');
-    exit();
-}
-
-setcookie('banned', '1', time() + (10 * 365 * 24 * 60 * 60), '/');
-session_destroy();
 ?>
 
 <!DOCTYPE html>
