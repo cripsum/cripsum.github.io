@@ -333,26 +333,28 @@ $achievements_result = $mysqli->query($achievements_query);
                                 </td>
                                 <td class="d-none d-lg-table-cell">
                                     <small>
-                                        P: <?php echo $row['character_count']; ?><br>
-                                        A: <?php echo $row['achievement_count']; ?>
+                                        Personaggi: <?php echo $row['character_count']; ?><br>
+                                        Achievements: <?php echo $row['achievement_count']; ?>
                                     </small>
                                 </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <button class="btn btn-info btn-sm" onclick="viewUserDetails(<?php echo $row['id']; ?>)">Info</button>
-                                        <button class="btn btn-warning btn-sm" onclick="editUser(<?php echo $row['id']; ?>)">Edit</button>
+                                        <button class="btn btn-info btn-sm" onclick="viewUserDetails(<?php echo $row['id']; ?>)">Dettagli</button>
+                                        <button class="btn btn-warning btn-sm" onclick="editUser(<?php echo $row['id']; ?>)">modifica</button>
                                         
                                         <?php if (!$row['isBannato']): ?>
                                             <form method="POST" action="../api/ban_user.php" style="display:inline;">
                                                 <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
-                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bannare utente?')">Ban</button>
+                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bannare utente?')">Banna</button>
                                             </form>
                                         <?php else: ?>
                                             <form method="POST" action="../api/unban_user.php" style="display:inline;">
                                                 <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
-                                                <button type="submit" class="btn btn-success btn-sm">Unban</button>
+                                                <button type="submit" class="btn btn-success btn-sm">Sbanna</button>
                                             </form>
                                         <?php endif; ?>
+                                        <button class="btn btn-primary btn-sm" onclick="addCharacterToUser(<?php echo $row['id']; ?>)">+ Personaggio</button>
+                                        <button class="btn btn-secondary btn-sm" onclick="addAchievementToUser(<?php echo $row['id']; ?>)">+ Achievement</button>
                                     </div>
                                 </td>
                             </tr>
