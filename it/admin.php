@@ -145,7 +145,7 @@ $achievements_result = $mysqli->query($achievements_query);
         
         /* Mobile responsive styles */
         @media (max-width: 768px) {
-            .container-fluid {
+            .container-pannello {
                 padding: 10px;
             }
             
@@ -275,7 +275,7 @@ $achievements_result = $mysqli->query($achievements_query);
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
-    <div class="container-fluid mt-3" style="margin-top: 7rem;">
+    <div class="container-fluid container-pannello mt-3" style="margin-top: 7rem;">
         <h1 class="text-center mb-4 testobianco" style="margin-top: 7rem;">Admin Panel</h1>
         
         <!-- Navigation Tabs -->
