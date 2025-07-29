@@ -12,18 +12,17 @@ function setCookie(name, value) {
 }
 
 async function unlockAchievement(id) {
-    let response = await fetch('https://cripsum.com/api/get_unlocked_achievement').catch((e) => [console.error("Error fetching unlocked achievements:", e), []]);
+    let response = await fetch('https://cripsum.com/api/get_unlocked_achievement');
     let achievements = response ? await response.json() : [];
     if (!achievements.includes(id)) {
         await fetch('../api/set_achievement' + '?achievement_id=' + id);
         showAchievementPopup(id);
     }
 }
+
 async function showAchievementPopup(id) {
-    const response = await fetch('../api/get_achievement' + '?achievement_id=' + id).catch((e) => {
-        console.error("Error fetching achievement:", e);
-        return null;
-    });
+    console.log("Chiamato showAchievementPopup con ID:", id); // <--- questo
+    const response = await fetch('../api/get_achievement' + '?achievement_id=' + id);
     const achievement = response ? await response.json() : null;
 
     if (achievement) {
