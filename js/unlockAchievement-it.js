@@ -40,7 +40,7 @@ async function showAchievementPopup(id) {
 
         document.getElementById("popup-title").textContent = achievement.nome;
         document.getElementById("popup-description").textContent = achievement.descrizione;
-        document.getElementById("popup-image").src = "../img/" + achievement.img_url;
+        document.getElementById("popup-image").src = "/img/" + achievement.img_url;
 
         const popup = document.getElementById("achievement-popup");
         popup.classList.add("show");
