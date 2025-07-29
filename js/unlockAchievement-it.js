@@ -31,9 +31,8 @@ async function showAchievementPopup(id) {
 
         const achievement = data[0]; // <-- prendi il primo oggetto dell’array
 
-        if (!achievement || !achievement.img_url) {
+        if (!achievement) {
             console.warn("Achievement non valido:", achievement);
-            return;
         }
 
         console.log("Achievement ottenuto:", achievement);
