@@ -68,8 +68,8 @@ checkBan($mysqli);
                 }
 
                 async function displayAchievements() {
-                    const unlockedachievements = await fetch("../api/get_unlocked_achievement");
-                    const achievements = await fetch("../api/get_all_achievement");
+                    const unlockedachievements = await fetch("https://cripsum.com/api/get_unlocked_achievement");
+                    const achievements = await fetch("https://cripsum.com/api/get_all_achievement");
                     const container = document.getElementById("achievements-list");
 
                     achievements.forEach((ach) => {

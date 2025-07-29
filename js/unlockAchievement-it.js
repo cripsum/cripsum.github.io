@@ -22,7 +22,7 @@ async function unlockAchievement(id) {
 
 async function showAchievementPopup(id) {
     console.log("Chiamato showAchievementPopup con ID:", id); // <--- questo
-    const response = await fetch('../api/get_achievement' + '?achievement_id=' + id);
+    const response = await fetch('https://cripsum.com/api/get_achievement' + '?achievement_id=' + id);
     const achievement = response ? await response.json() : null;
 
     if (achievement) {
