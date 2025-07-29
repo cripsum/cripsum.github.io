@@ -23,11 +23,11 @@ async function get_unlocked_achievement() {
     return unlockAchievement ? unlockAchievement.json() : [];
 }
 
-let unlockedachievements = get_unlocked_achievement();
-
-if(unlockedachievements.length === 20) {
-    unlockAchievement(21);
-}
+get_unlocked_achievement().then(unlockedachievements => {
+    if(unlockedachievements.length === 20) {
+        unlockAchievement(21);
+    }
+});
 
 function checkTimeSpent() {
     let timeSpent = parseInt(getCookie("timeSpent")) || 0;
