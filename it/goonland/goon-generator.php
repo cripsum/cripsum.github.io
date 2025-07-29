@@ -513,13 +513,16 @@ if ($result) {
                     
                     container.appendChild(displayImg);
                     
-                    setTimeout(() => {
+                    setTimeout(async () => {
                         displayImg.style.opacity = '1';
                         spinner.style.display = 'none';
                         isLoading = false;
 
-                        fetch('https://cripsum.com/api/incrementa_counter_goon');
-                        let click = fetch('https://cripsum.com/api/get_clickgoon');
+                        await fetch('https://cripsum.com/api/incrementa_counter_goon');
+                        let clickResponse = await fetch('https://cripsum.com/api/get_clickgoon');
+                        let clickData = await clickResponse.json();
+                        let click = clickData.total || 0;
+
                         if(click == 100){
                             unlockAchievement(19);
                         }
