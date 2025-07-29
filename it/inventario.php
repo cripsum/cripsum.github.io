@@ -77,8 +77,7 @@ if (!isLoggedIn()) {
                 const inventarioDiv = document.getElementById("inventario");
                 const counterDiv = document.getElementById("counter");
                 const casseAperteResponse = await fetch('https://cripsum.com/api/get_casse_aperte');
-                const casseAperteData = await casseAperteResponse.json();
-                const casseAperte = casseAperteData.total;
+                const casseAperte = casseAperteResponse.total;
                 // const casseAperte = getCookie("casseAperte") || 0; // Old way, now using API
 
 
