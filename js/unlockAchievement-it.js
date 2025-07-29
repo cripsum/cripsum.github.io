@@ -25,11 +25,10 @@ async function showAchievementPopup(id) {
     const achievement = await fetch("https://cripsum.com/api/get_achievement?achievement_id=" + id).then(response => response.json());
     console.log("Achievement ottenuto:", achievement); // <--- questo
 
-
     if (achievement) {
         document.getElementById("popup-title").textContent = achievement.nome;
         document.getElementById("popup-description").textContent = achievement.descrizione;
-        document.getElementById("popup-image").src = '../img/'+ achievement.img_url;
+        document.getElementById("popup-image").src = "../img/" + achievement.img_url;
 
         const popup = document.getElementById("achievement-popup");
         popup.classList.add("show");
