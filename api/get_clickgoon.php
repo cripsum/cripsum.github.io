@@ -11,7 +11,7 @@ $user_id = $_SESSION['user_id'] ?? 0;
     $result = $stmt->get_result();
     
     if ($row = $result->fetch_assoc()) {
-        $total = (int)$row['total'];
+        $total = (int)$row['clickgoon'];
     }
     
     $stmt->close();
