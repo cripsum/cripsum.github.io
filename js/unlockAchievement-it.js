@@ -20,7 +20,10 @@ async function unlockAchievement(id) {
     }
 }
 async function showAchievementPopup(id) {
-    const response = await fetch('../api/get_achievement' + '?achievement_id=' + id).catch((e) => [console.error("Error fetching unlocked achievements:", e), []]);
+    const response = await fetch('../api/get_achievement' + '?achievement_id=' + id).catch((e) => {
+        console.error("Error fetching achievement:", e);
+        return null;
+    });
     const achievement = response ? await response.json() : null;
 
     if (achievement) {
