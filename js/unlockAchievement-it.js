@@ -13,19 +13,31 @@ function setCookie(name, value) {
 
 async function unlockAchievement(id) {
     const response = await fetch('https://cripsum.com/api/get_unlocked_achievement');
-    const achievement = await response.json();
-    if (!achievement.includes(id)) {
-        await fetch('https://cripsum.com/api/set_achievement' + '?achievement_id=' + id);
+    const unlocked = await response.json();
+
+    if (!unlocked.some(a => a.id === id)) {
+        await fetch('https://cripsum.com/api/set_achievement?achievement_id=' + id);
         showAchievementPopup(id);
     }
 }
 
-async function showAchievementPopup(id) {
-    console.log("Chiamato showAchievementPopup con ID:", id); // <--- questo
-    const achievement = await fetch("https://cripsum.com/api/get_achievement?achievement_id=" + id).then(response => response.json());
-    console.log("Achievement ottenuto:", achievement); // <--- questo
 
-    if (achievement) {
+async function showAchievementPopup(id) {
+    console.log("Chiamato showAchievementPopup con ID:", id);
+
+    try {
+        const response = await fetch("https://cripsum.com/api/get_achievement?achievement_id=" + id);
+        const data = await response.json();
+
+        const achievement = data[0]; // <-- prendi il primo oggetto dell’array
+
+        if (!achievement || !achievement.img_url) {
+            console.warn("Achievement non valido:", achievement);
+            return;
+        }
+
+        console.log("Achievement ottenuto:", achievement);
+
         document.getElementById("popup-title").textContent = achievement.nome;
         document.getElementById("popup-description").textContent = achievement.descrizione;
         document.getElementById("popup-image").src = "../img/" + achievement.img_url;
@@ -35,6 +47,8 @@ async function showAchievementPopup(id) {
 
         setTimeout(() => {
             popup.classList.remove("show");
-        }, 3000); // Il popup scompare dopo 3 secondi
+        }, 3000);
+    } catch (err) {
+        console.error("Errore nella fetch o nel parsing:", err);
     }
 }
