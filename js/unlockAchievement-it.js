@@ -12,7 +12,7 @@ function setCookie(name, value) {
 }
 
 async function unlockAchievement(id) {
-    let response = await fetch('../api/get_unlocked_achievement');
+    let response = await fetch('https://cripsum.com/api/get_unlocked_achievement').catch((e) => [console.error("Error fetching unlocked achievements:", e), []]);
     let achievements = response ? await response.json() : [];
     if (!achievements.includes(id)) {
         await fetch('../api/set_achievement' + '?achievement_id=' + id);
@@ -20,7 +20,8 @@ async function unlockAchievement(id) {
     }
 }
 async function showAchievementPopup(id) {
-    const achievement = await fetch('../api/get_achievement' + '?achievement_id=' + id);
+    const response = await fetch('../api/get_achievement' + '?achievement_id=' + id).catch((e) => [console.error("Error fetching unlocked achievements:", e), []]);
+    const achievement = response ? await response.json() : null;
 
     if (achievement) {
         document.getElementById("popup-title").textContent = achievement.nome;
