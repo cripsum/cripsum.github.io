@@ -474,9 +474,6 @@ if ($result) {
     <script>
         let isLoading = false;
         let cooldownActive = false;
-        let click = 0;
-        let clickResponse = null;
-        let clickData = null;
         
         async function generateImage() {
             if (isLoading || cooldownActive) return;
@@ -522,9 +519,9 @@ if ($result) {
                         isLoading = false;
 
                         await fetch('https://cripsum.com/api/incrementa_counter_goon');
-                        clickResponse = await fetch('https://cripsum.com/api/get_clickgoon');
-                        clickData = await clickResponse.json();
-                        click = clickData.total || 0;
+                        let clickResponse = await fetch('https://cripsum.com/api/get_clickgoon');
+                        let clickData = await clickResponse.json();
+                        let click = clickData.total;
 
                         if(click == 100){
                             unlockAchievement(19);
