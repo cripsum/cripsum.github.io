@@ -15,15 +15,14 @@ async function unlockAchievement(id) {
     let response = await fetch('https://cripsum.com/api/get_unlocked_achievement');
     let achievements = response ? await response.json() : [];
     if (!achievements.includes(id)) {
-        await fetch('../api/set_achievement' + '?achievement_id=' + id);
+        await fetch('https://cripsum.com/api/set_achievement' + '?achievement_id=' + id);
         showAchievementPopup(id);
     }
 }
 
 async function showAchievementPopup(id) {
     console.log("Chiamato showAchievementPopup con ID:", id); // <--- questo
-    const response = await fetch('https://cripsum.com/api/get_achievement' + '?achievement_id=' + id);
-    const achievement = response ? await response.json() : null;
+    const achievement = await fetch("https://cripsum.com/api/get_achievement?achievement_id=" + id);
 
     if (achievement) {
         document.getElementById("popup-title").textContent = achievement.nome;
