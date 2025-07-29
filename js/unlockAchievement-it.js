@@ -20,8 +20,7 @@ async function unlockAchievement(id) {
     }
 }
 async function showAchievementPopup(id) {
-    const response = await fetch('../api/get_achievement' + '?achievement_id=' + id);
-    const achievement = await response.json();
+    const achievement = await fetch('../api/get_achievement' + '?achievement_id=' + id);
 
     if (achievement) {
         document.getElementById("popup-title").textContent = achievement.nome;
