@@ -519,8 +519,8 @@ if ($result) {
                         isLoading = false;
 
                         await fetch('https://cripsum.com/api/incrementa_counter_goon');
-                        let clickResponse = fetch('https://cripsum.com/api/get_clickgoon');
-                        let clickData = clickResponse.json();
+                        let clickResponse = await fetch('https://cripsum.com/api/get_clickgoon');
+                        let clickData = await clickResponse.json();
                         let click = clickData.total;
 
                         if(click == 100){
