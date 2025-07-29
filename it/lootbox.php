@@ -599,7 +599,8 @@ require_once '../api/api_personaggi.php';
 
             async function apriCassa() {
                 const casseAperteResponse = await fetch('https://cripsum.com/api/get_casse_aperte');
-                const casseAperte = casseAperteResponse.total;
+                const casseAperteData = await casseAperteResponse.json();
+                const casseAperte = await casseAperteData.total;
                 const inventory = await getInventory();
                 comuniDiFila = getCookie("comuniDiFila") || 0;
 
