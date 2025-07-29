@@ -18,17 +18,6 @@ if (now.getHours() === 3) {
     unlockAchievement(12);
 }
 
-async function get_unlocked_achievement() {
-    const unlockAchievement = await fetch('../api/get_unlocked_achievement');
-    return unlockAchievement ? unlockAchievement.json() : [];
-}
-
-get_unlocked_achievement().then(unlockedachievements => {
-    if(unlockedachievements.length === 20) {
-        unlockAchievement(21);
-    }
-});
-
 function checkTimeSpent() {
     let timeSpent = parseInt(getCookie("timeSpent")) || 0;
     // Increment time spent by 1 second
