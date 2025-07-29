@@ -18,9 +18,9 @@ if (now.getHours() === 3) {
     unlockAchievement(12);
 }
 
-let unlockedachievements = getCookie("achievements");
-if(unlockedachievements.length === 17){
-    unlockAchievement(18);
+let unlockedachievements = await fetch('../api/get_all_achievement') || [];
+if(unlockedachievements.length === 20) {
+    unlockAchievement(21);
 }
 
 function checkTimeSpent() {
@@ -46,7 +46,7 @@ function checkDaysVisited() {
         setCookie("daysVisited", daysVisited);
     }
     if (daysVisited.length >= 30) {
-        unlockAchievement(19);
+        unlockAchievement(13);
     }
 }
 

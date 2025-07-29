@@ -11,24 +11,21 @@ function setCookie(name, value) {
     document.cookie = `${name}=${JSON.stringify(value)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
 }
 
-function unlockAchievement(id) {
-    let achievements = getCookie("achievements") || [];
+async function unlockAchievement(id) {
+    let achievements = await fetch('../api/get_all_achievement') || [];
     if (!achievements.includes(id)) {
-        achievements.push(id);
+        await fetch('../api/set_achievement' + '?achievement_id=' + id);
         showAchievementPopup(id);
-        setCookie("achievements", achievements);
     }
 }
 
 async function showAchievementPopup(id) {
-    const response = await fetch("../data/achievements-it.json");
-    const achievements = await response.json();
-    const achievement = achievements.find((a) => a.id === id);
+    const achievement = await fetch('../api/get_achievement' + '?achievement_id=' + id);
 
     if (achievement) {
-        document.getElementById("popup-title").textContent = achievement.title;
-        document.getElementById("popup-description").textContent = achievement.description;
-        document.getElementById("popup-image").src = achievement.image;
+        document.getElementById("popup-title").textContent = achievement.titolo;
+        document.getElementById("popup-description").textContent = achievement.descrizione;
+        document.getElementById("popup-image").src = '../img/'+ achievement.img_url;
 
         const popup = document.getElementById("achievement-popup");
         popup.classList.add("show");

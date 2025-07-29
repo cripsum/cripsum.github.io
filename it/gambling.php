@@ -185,7 +185,7 @@ checkBan($mysqli);
                             document.getElementById("risultato").textContent = "Hai Vinto!";
                             money += 100; // add 100 to the money count
                             document.getElementsByClassName("account-balance")[0].textContent = "$" + money; // update the money count display
-                            unlockAchievement(2);
+                            unlockAchievement(3);
                         } else {
                             document.getElementById("risultato").textContent = "Hai perso scemo, ritenta!";
                         }

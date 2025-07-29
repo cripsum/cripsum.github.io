@@ -46,6 +46,9 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
   <body>
         <?php include '../../includes/navbar-goonland.php'; ?>
         <?php include '../../includes/impostazioni.php'; ?>
+        <script>
+            unlockAchievement(15);
+        </script>
         <div class="" style="padding-top: 7rem;">
             <div class="title fadeup">
             <h1 style="font-weight:bolder;">Welcome to Goonland!</h1>

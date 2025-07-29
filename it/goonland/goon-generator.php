@@ -515,6 +515,10 @@ if ($result) {
                         isLoading = false;
 
                         fetch('https://cripsum.com/api/incrementa_counter_goon');
+                        let click = fetch('https://cripsum.com/api/get_clickgoon');
+                        if(clickgoon == 100){
+                            unlockAchievement(19);
+                        }
                         
                         startCooldown();
                     }, 100);
@@ -568,6 +572,22 @@ if ($result) {
             
             updateCountdown();
         }
+
+
+        function checkDaysVisitedGoon() {
+            let daysVisitedGoon = getCookie("daysVisitedGoon") || [];
+            const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+            if (!daysVisitedGoon.includes(today)) {
+                daysVisitedGoon.push(today);
+                setCookie("daysVisitedGoon", daysVisitedGoon);
+            }
+            if (daysVisitedGoon.length >= 10) {
+                unlockAchievement(20);
+            }
+        }
+
+        checkDaysVisitedGoon();
+
         
         //setTimeout(() => {
         //    generateImage();

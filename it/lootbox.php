@@ -618,7 +618,7 @@ require_once '../api/api_personaggi.php';
                     unlockAchievement(5);
                 }
                 if (inventory.length === 42) {
-                    unlockAchievement(3);
+                    unlockAchievement(18);
                 }
             }
 
