@@ -1,3 +1,5 @@
+unlockAchievement(1);
+
 function getCookie(name) {
     const cookies = document.cookie.split("; ");
     for (let cookie of cookies) {
@@ -23,7 +25,7 @@ function checkTimeSpent() {
     // Update the cookie with the new time spent
     setCookie("timeSpent", timeSpent);
     // Check if 2 hours (7200 seconds) have been reached
-    if (timeSpent >= 7200) {
+    if (timeSpent == 7200) {
         unlockAchievement(14);
     }
 }
@@ -38,7 +40,7 @@ function checkDaysVisited() {
         daysVisited.push(today);
         setCookie("daysVisited", daysVisited);
     }
-    if (daysVisited.length >= 30) {
+    if (daysVisited.length == 30) {
         unlockAchievement(13);
     }
 }
