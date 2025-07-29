@@ -5,6 +5,16 @@ session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
+if (!isLoggedIn()) {
+    $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
+    $_SESSION['login_message'] = "Per accedere algi achievement devi essere loggato";
+
+    header('Location: accedi');
+    exit();
+}
+
+$userId = $_SESSION['user_id'];
+
 checkBan($mysqli);
 ?>
 <!DOCTYPE html>
@@ -54,9 +64,8 @@ checkBan($mysqli);
                 }
 
                 async function displayAchievements() {
-                    const response = await fetch("../data/achievements-it.json");
-                    const achievements = await response.json();
-                    const unlockedAchievements = getCookie("achievements");
+                    const unlockedachievements = await fetch("../api/get_unlocked_achievements.php");
+                    const achievements = await fetch("../api/get_all_achievements.php");
                     const container = document.getElementById("achievements-list");
 
                     achievements.forEach((ach) => {
@@ -64,11 +73,12 @@ checkBan($mysqli);
                         const div = document.createElement("div");
                         div.className = "achievement";
                         div.innerHTML = `
-                    <img src="${ach.image}" class="${isUnlocked ? "" : "locked"}">
+                    <img src="../img/${ach.img_url}" class="${isUnlocked ? "" : "locked"}">
                     <div>
-                        <h3>${isUnlocked ? ach.title : "???"}</h3>
-                        <p>${isUnlocked ? ach.description : "???"}</p>
-                        <span>${ach.points} punti</span>
+                        <h3>${isUnlocked ? ach.nome : "???"}</h3>
+                        <p>${isUnlocked ? ach.descrizione : "???"}</p>
+                        <span>${ach.punti} punti</span>
+                        <p><small>Sbloccato il: ${isUnlocked ? new Date(ach.data).toLocaleDateString('it-IT') : ''}</small></p>
                     </div>
                 `;
                         container.appendChild(div);

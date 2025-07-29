@@ -12,7 +12,7 @@ function setCookie(name, value) {
 }
 
 async function unlockAchievement(id) {
-    let achievements = await fetch('../api/get_all_achievement') || [];
+    let achievements = await fetch('../api/get_unlocked_achievement') || [];
     if (!achievements.includes(id)) {
         await fetch('../api/set_achievement' + '?achievement_id=' + id);
         showAchievementPopup(id);
@@ -23,7 +23,7 @@ async function showAchievementPopup(id) {
     const achievement = await fetch('../api/get_achievement' + '?achievement_id=' + id);
 
     if (achievement) {
-        document.getElementById("popup-title").textContent = achievement.titolo;
+        document.getElementById("popup-title").textContent = achievement.nome;
         document.getElementById("popup-description").textContent = achievement.descrizione;
         document.getElementById("popup-image").src = '../img/'+ achievement.img_url;
 
