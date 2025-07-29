@@ -76,7 +76,9 @@ if (!isLoggedIn()) {
                 const inventory = await getInventory() || [];
                 const inventarioDiv = document.getElementById("inventario");
                 const counterDiv = document.getElementById("counter");
-                const casseAperte = getCookie("casseAperte") || 0;
+                const casseAperte = await fetch('https://cripsum.com/api/get_casse_aperte');
+                // const casseAperte = getCookie("casseAperte") || 0; // Old way, now using API
+
 
                 const totalCharacters = await getCharactersNum(); // Assuming this function returns the total number of characters available
                 const foundCharacters = inventory.length;
