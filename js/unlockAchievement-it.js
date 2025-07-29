@@ -12,7 +12,8 @@ function setCookie(name, value) {
 }
 
 async function unlockAchievement(id) {
-    const achievement = await fetch('https://cripsum.com/api/get_unlocked_achievement');
+    const response = await fetch('https://cripsum.com/api/get_unlocked_achievement');
+    const achievement = await response.json();
     if (!achievement.includes(id)) {
         await fetch('https://cripsum.com/api/set_achievement' + '?achievement_id=' + id);
         showAchievementPopup(id);
