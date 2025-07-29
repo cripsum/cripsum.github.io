@@ -18,6 +18,7 @@ $user_id = $_SESSION['user_id'] ?? 0;
     $stmt->close();
     
     header('Content-Type: application/json');
-    echo json_encode($total);
+    echo json_encode(['total' => $total]);
+    // echo $total; // Uncomment this line if you want to return just the total as a plain number instead of JSON
 
 ?>
