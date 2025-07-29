@@ -10,7 +10,6 @@ $user_id = $_SESSION['user_id'] ?? 0;
     $stmt->execute();
     $result = $stmt->get_result();
     
-    $total = 0;
     if ($row = $result->fetch_assoc()) {
         $total = (int)$row['total'];
     }
