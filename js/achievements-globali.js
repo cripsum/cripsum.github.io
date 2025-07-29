@@ -17,8 +17,13 @@ const now = new Date();
 if (now.getHours() === 3) {
     unlockAchievement(12);
 }
+async function get_unlocked_achievement() {
+    const unlockAchievement = await fetch('../api/get_unlocked_achievement');
+    return unlockAchievement ? await unlockAchievement.json() : [];
+}
 
-let unlockedachievements = await fetch('../api/get_all_achievement') || [];
+let unlockedachievements = get_unlocked_achievement();
+
 if(unlockedachievements.length === 20) {
     unlockAchievement(21);
 }
