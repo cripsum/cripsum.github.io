@@ -68,23 +68,30 @@ checkBan($mysqli);
                 }
 
                 async function displayAchievements() {
-                    const unlockedachievements = await fetch("https://cripsum.com/api/get_unlocked_achievement");
-                    const achievements = await fetch("https://cripsum.com/api/get_all_achievement");
+                    // Fai il parsing dei dati
+                    const unlockedRes = await fetch("https://cripsum.com/api/get_unlocked_achievement");
+                    const allRes = await fetch("https://cripsum.com/api/get_all_achievement");
+
+                    const unlockedAchievements = await unlockedRes.json();
+                    const allAchievements = await allRes.json();
+
                     const container = document.getElementById("achievements-list");
 
-                    achievements.forEach((ach) => {
-                        const isUnlocked = unlockedAchievements.includes(ach.id);
+                    allAchievements.forEach((ach) => {
+                        const unlocked = unlockedAchievements.find(a => a.id === ach.id);
+                        const isUnlocked = !!unlocked;
+
                         const div = document.createElement("div");
                         div.className = "achievement";
                         div.innerHTML = `
-                    <img src="../img/${ach.img_url}" class="${isUnlocked ? "" : "locked"}">
-                    <div>
-                        <h3>${isUnlocked ? ach.nome : "???"}</h3>
-                        <p>${isUnlocked ? ach.descrizione : "???"}</p>
-                        <span>${ach.punti} punti</span>
-                        <p><small>Sbloccato il: ${isUnlocked ? new Date(ach.data).toLocaleDateString('it-IT') : ''}</small></p>
-                    </div>
-                `;
+                            <img src="../img/${isUnlocked ? ach.img_url : 'locked.png'}" class="${isUnlocked ? "" : "locked"}">
+                            <div>
+                                <h3>${isUnlocked ? ach.nome : "???"}</h3>
+                                <p>${isUnlocked ? ach.descrizione : "???"}</p>
+                                <span>${ach.punti} punti</span>
+                                <p><small>Sbloccato il: ${isUnlocked ? new Date(unlocked.data).toLocaleDateString('it-IT') : ''}</small></p>
+                            </div>
+                        `;
                         container.appendChild(div);
                     });
                 }
