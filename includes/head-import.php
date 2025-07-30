@@ -25,10 +25,10 @@
         
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="/js/animations.js"></script>
-        <script src="/js/controlloLingua-it.js"></script>
+        <script src="/js/controlloLingua-it.js?v=2"></script>
         <script src="/js/controlloTema.js"></script>
-        <script src="/js/unlockAchievement-it.js"></script>
-        <script src="/js/achievements-globali.js"></script>
+        <script src="/js/unlockAchievement-it.js?v=2"></script>
+        <script src="/js/achievements-globali.js?v=2"></script>
         <script>
             window.addEventListener('load', function() {
                 var script = document.createElement('script');
@@ -36,7 +36,7 @@
                 document.head.appendChild(script);
             });
         </script>
-        <script src="/js/impostazioni.js"></script>
+        <script src="/js/impostazioni.js?v=2"></script>
 
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
