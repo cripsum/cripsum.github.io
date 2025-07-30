@@ -1,10 +1,24 @@
 function viewUserDetails(userId) {
-    fetch(`https://cripsum.com/api/get_user?id=${userId}`)
+    // Fetch user details
+    const userPromise = fetch(`https://cripsum.com/api/get_user?id=${userId}`)
         .then(res => res.text())
-        .then(html => {
-            const userDetails = JSON.parse(html);
+        .then(html => JSON.parse(html));
+    
+    // Fetch unlocked achievements
+    const achievementsPromise = fetch(`https://cripsum.com/api/get_unlocked_achievement_from_id.php?id=${userId}`)
+        .then(res => res.json());
+    
+    // Fetch unlocked characters
+    const charactersPromise = fetch(`https://cripsum.com/api/get_unlocked_characters_from_id.php?id=${userId}`)
+        .then(res => res.json());
+    
+    Promise.all([userPromise, achievementsPromise, charactersPromise])
+        .then(([userDetails, achievements, characters]) => {
             let formattedContent = `
                 <div class="user-details">
+                    <div class="mb-3">
+                        <strong>ID:</strong> ${userDetails.id || 'N/A'}
+                    </div>
                     <div class="mb-3">
                         <strong>Nome:</strong> ${userDetails.username || 'N/A'}
                     </div>
@@ -15,7 +29,22 @@ function viewUserDetails(userId) {
                         <strong>Ruolo:</strong> ${userDetails.ruolo || 'N/A'}
                     </div>
                     <div class="mb-3">
-                        <strong>ID:</strong> ${userDetails.id || 'N/A'}
+                        <strong>Soldi:</strong> ${userDetails.soldi || 'N/A'}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Data creazione account:</strong> ${userDetails.data_creazione || 'N/A'}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Achievement sbloccati:</strong>
+                        <ul class="list-unstyled ms-3">
+                            ${achievements.map(achievement => `<li>•${achievement.id} - ${achievement.nome || 'Unnamed'}, ${achievement.punti} punti - sbloccato il ${achievement.data}</li>`).join('') || '<li>Nessun achievement sbloccato</li>'}
+                        </ul>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Personaggi sbloccati:</strong>
+                        <ul class="list-unstyled ms-3">
+                            ${characters.map(character => `<li>•${character.id} - ${character.nome || 'Unnamed'} (x${character.quantità}) - trovato il ${character.data}</li>`).join('') || '<li>Nessun personaggio sbloccato</li>'}
+                        </ul>
                     </div>
                 </div>
             `;
