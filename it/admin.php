@@ -514,8 +514,8 @@ $achievements_result = $mysqli->query($achievements_query);
                                                 <?php endif; ?>
                                                 <?php echo htmlspecialchars($character['nome']); ?>
                                             </td>
-                                            <td><?php echo htmlspecialchars($character['descrizione']); ?></td>
-                                            <td><span class="badge bg-info"><?php echo htmlspecialchars($character['rarita']); ?></span></td>
+                                            <td><?php echo htmlspecialchars($character['categoria']); ?></td>
+                                            <td><span class="badge bg-info"><?php echo htmlspecialchars($character['rarità']); ?></span></td>
                                             <td>
                                                 <button class="btn btn-warning btn-sm" onclick="editCharacter(<?php echo $character['id']; ?>)">Modifica</button>
                                                 <button class="btn btn-danger btn-sm" onclick="deleteCharacter(<?php echo $character['id']; ?>)">Elimina</button>
