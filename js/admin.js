@@ -2,7 +2,24 @@ function viewUserDetails(userId) {
     fetch(`https://cripsum.com/api/get_user?id=${userId}`)
         .then(res => res.text())
         .then(html => {
-            document.getElementById('userDetailsContent').innerHTML = html;
+            const userDetails = JSON.parse(html);
+            let formattedContent = `
+                <div class="user-details">
+                    <div class="mb-3">
+                        <strong>Nome:</strong> ${userDetails.username || 'N/A'}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Email:</strong> ${userDetails.email || 'N/A'}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Ruolo:</strong> ${userDetails.ruolo || 'N/A'}
+                    </div>
+                    <div class="mb-3">
+                        <strong>ID:</strong> ${userDetails.id || 'N/A'}
+                    </div>
+                </div>
+            `;
+            document.getElementById('userDetailsContent').innerHTML = formattedContent;
             new bootstrap.Modal(document.getElementById('userDetailsModal')).show();
         });
 }
