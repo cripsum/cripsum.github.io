@@ -18,7 +18,6 @@ if (selectedLanguage === "🇬🇧 Eng") {
 
 function salvaImpostazioni() {
     const selectedLanguage = document.querySelector(".selezione-lingua select").value;
-    setCookie("language", selectedLanguage);
 
     if (selectedLanguage === "🇬🇧 Eng") {
        
