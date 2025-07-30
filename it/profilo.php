@@ -73,6 +73,7 @@ $stmt->close();
 <body >
 
     <?php include '../includes/navbar.php'; ?>
+    <?php include '../includes/impostazioni.php'; ?>
 
     <div class="container my-5 paginainterachisiamo testobianco" style="padding-top: 7rem">
         <h1 class="mb-4 fadeup">Il Mio Profilo</h1>
