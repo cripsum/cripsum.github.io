@@ -1,5 +1,5 @@
 function viewUserDetails(userId) {
-    fetch(`../api/get_user_details.php?id=${userId}`)
+    fetch(`https://cripsum.com/api/get_user?id=${userId}`)
         .then(res => res.text())
         .then(html => {
             document.getElementById('userDetailsContent').innerHTML = html;
@@ -8,7 +8,7 @@ function viewUserDetails(userId) {
 }
 
 function editUser(userId) {
-    fetch(`../api/get_user.php?id=${userId}`)
+    fetch(`https://cripsum.com/api/get_user?id=${userId}`)
         .then(res => res.json())
         .then(data => {
             document.getElementById('editUserId').value = data.id;
@@ -23,7 +23,7 @@ function saveUserChanges() {
     const form = document.getElementById('editUserForm');
     const formData = new FormData(form);
 
-    fetch('../api/update_user.php', {
+    fetch('https://cripsum.com/api/update_user.php', {
         method: 'POST',
         body: formData
     }).then(res => {
@@ -42,7 +42,7 @@ function saveCharacterToUser() {
     const form = document.getElementById('addCharacterToUserForm');
     const formData = new FormData(form);
 
-    fetch('../api/add_character_to_user.php', {
+    fetch('https://cripsum.com/api/add_character_to_user.php', {
         method: 'POST',
         body: formData
     }).then(res => {
@@ -61,7 +61,7 @@ function saveAchievementToUser() {
     const form = document.getElementById('addAchievementToUserForm');
     const formData = new FormData(form);
 
-    fetch('../api/add_achievement_to_user.php', {
+    fetch('https://cripsum.com/api/add_achievement_to_user.php', {
         method: 'POST',
         body: formData
     }).then(res => {
