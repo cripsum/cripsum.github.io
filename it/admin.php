@@ -459,14 +459,14 @@ $achievements_result = $mysqli->query($achievements_query);
                 <div class="row">
                     <div class="col-12 col-lg-6 mb-4">
                         <h3>Aggiungi Nuovo Personaggio</h3>
-                        <form id="addCharacterForm">
+                        <form id="addCharacterForm" method="POST" action="https://cripsum.com/api/add_new_character_to_db.php">
                             <div class="mb-3">
                                 <label class="form-label">Nome</label>
                                 <input type="text" class="form-control" name="nome" required>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Descrizione</label>
-                                <textarea class="form-control" name="descrizione" rows="3"></textarea>
+                                <label class="form-label">Categoria</label>
+                                 <input type="text" class="form-control" name="categoria" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Immagine URL</label>
@@ -537,7 +537,7 @@ $achievements_result = $mysqli->query($achievements_query);
                 <div class="row">
                     <div class="col-12 col-lg-6 mb-4">
                         <h3>Aggiungi Nuovo Achievement</h3>
-                        <form id="addAchievementForm">
+                        <form id="addAchievementForm" method="POST" action="https://cripsum.com/api/add_new_achievement_to_db.php">
                             <div class="mb-3">
                                 <label class="form-label">Nome</label>
                                 <input type="text" class="form-control" name="nome" required>
