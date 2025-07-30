@@ -30,9 +30,9 @@
         <script src="../js/animations.js"></script>
         <script src="../js/richpresence.js"></script>
 
-        <script src="../js/controlloLingua-en.js?v=2"></script>
+        <script src="../js/controlloLingua-en.js"></script>
         <script src="../js/controlloTema.js"></script>
-        <script src="../js/unlockAchievement-en.js"></script>
+        <script src="../js/unlockAchievement-en.js?v=2"></script>
         <script src="../js/achievements-globali.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Cripsum™</title>
@@ -121,6 +121,10 @@
             <script>
                 unlockAchievement(1);
 
+                function salvaImpostazioni() {
+                    controllaLingua();
+                    controllaTema();
+                }
             </script>
             <script>
                 function close_div(id) {
