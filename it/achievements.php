@@ -84,7 +84,7 @@ checkBan($mysqli);
                         const div = document.createElement("div");
                         div.className = "achievement";
                         div.innerHTML = `
-                            <img src="../img/${isUnlocked ? ach.img_url : 'locked.png'}" class="${isUnlocked ? "" : "locked"}">
+                            <img src="../img/${isUnlocked ? ach.img_url : ach.img_url}" class="${isUnlocked ? "" : "locked"}">
                             <div>
                                 <h3>${isUnlocked ? ach.nome : "???"}</h3>
                                 <p>${isUnlocked ? ach.descrizione : "???"}</p>
