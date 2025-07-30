@@ -490,6 +490,43 @@ $achievements_result = $mysqli->query($achievements_query);
                         <h3>Personaggi Esistenti</h3>
                         <div id="charactersList" class="table-responsive">
                             <!-- Characters list will be loaded here -->
+                            <?php
+                            $characters_list_query = "SELECT id, nome, categoria, img_url, rarità FROM personaggi ORDER BY nome";
+                            $characters_list_result = $mysqli->query($characters_list_query);
+                            if ($characters_list_result && $characters_list_result->num_rows > 0): ?>
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nome</th>
+                                            <th>Categoria</th>
+                                            <th>Rarità</th>
+                                            <th>Azioni</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php while ($character = $characters_list_result->fetch_assoc()): ?>
+                                        <tr>
+                                            <td><?php echo $character['id']; ?></td>
+                                            <td>
+                                                <?php if (!empty($character['immagine'])): ?>
+                                                    <img src="/img/<?php echo htmlspecialchars($character['immagine']); ?>" alt="Immagine" style="width: 20px; height: 20px; margin-right: 5px;">
+                                                <?php endif; ?>
+                                                <?php echo htmlspecialchars($character['nome']); ?>
+                                            </td>
+                                            <td><?php echo htmlspecialchars($character['descrizione']); ?></td>
+                                            <td><span class="badge bg-info"><?php echo htmlspecialchars($character['rarita']); ?></span></td>
+                                            <td>
+                                                <button class="btn btn-warning btn-sm" onclick="editCharacter(<?php echo $character['id']; ?>)">Modifica</button>
+                                                <button class="btn btn-danger btn-sm" onclick="deleteCharacter(<?php echo $character['id']; ?>)">Elimina</button>
+                                            </td>
+                                        </tr>
+                                        <?php endwhile; ?>
+                                    </tbody>
+                                </table>
+                            <?php else: ?>
+                                <p class="text-muted">Nessun personaggio trovato.</p>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -524,6 +561,45 @@ $achievements_result = $mysqli->query($achievements_query);
                         <h3>Achievement Esistenti</h3>
                         <div id="achievementsList" class="table-responsive">
                             <!-- Achievements list will be loaded here -->
+                            <?php
+                            // Load achievements from database
+                            $achievements_list_query = "SELECT id, nome, descrizione, img_url, punti FROM achievement ORDER BY nome";
+                            $achievements_list_result = $mysqli->query($achievements_list_query);
+
+                            if ($achievements_list_result && $achievements_list_result->num_rows > 0): ?>
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nome</th>
+                                            <th>Descrizione</th>
+                                            <th>Punti</th>
+                                            <th>Azioni</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php while ($achievement = $achievements_list_result->fetch_assoc()): ?>
+                                        <tr>
+                                            <td><?php echo $achievement['id']; ?></td>
+                                            <td>
+                                                <?php if (!empty($achievement['icona'])): ?>
+                                                    <img src="/img/<?php echo htmlspecialchars($achievement['icona']); ?>" alt="Icona" style="width: 20px; height: 20px; margin-right: 5px;">
+                                                <?php endif; ?>
+                                                <?php echo htmlspecialchars($achievement['nome']); ?>
+                                            </td>
+                                            <td><?php echo htmlspecialchars($achievement['descrizione']); ?></td>
+                                            <td><span class="badge bg-info"><?php echo $achievement['punti']; ?> pts</span></td>
+                                            <td>
+                                                <button class="btn btn-warning btn-sm" onclick="editAchievement(<?php echo $achievement['id']; ?>)">Modifica</button>
+                                                <button class="btn btn-danger btn-sm" onclick="deleteAchievement(<?php echo $achievement['id']; ?>)">Elimina</button>
+                                            </td>
+                                        </tr>
+                                        <?php endwhile; ?>
+                                    </tbody>
+                                </table>
+                            <?php else: ?>
+                                <p class="text-muted">Nessun achievement trovato.</p>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
