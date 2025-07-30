@@ -509,7 +509,7 @@ $achievements_result = $mysqli->query($achievements_query);
                                         <tr>
                                             <td><?php echo $character['id']; ?></td>
                                             <td>
-                                                <?php if (!empty($character['immagine'])): ?>
+                                                <?php if (!empty($character['img_url'])): ?>
                                                     <img src="/img/<?php echo htmlspecialchars($character['img_url']); ?>" alt="Immagine" style="width: 20px; height: 20px; margin-right: 5px;">
                                                 <?php endif; ?>
                                                 <?php echo htmlspecialchars($character['nome']); ?>
@@ -582,7 +582,7 @@ $achievements_result = $mysqli->query($achievements_query);
                                         <tr>
                                             <td><?php echo $achievement['id']; ?></td>
                                             <td>
-                                                <?php if (!empty($achievement['icona'])): ?>
+                                                <?php if (!empty($achievement['img_url'])): ?>
                                                     <img src="/img/<?php echo htmlspecialchars($achievement['img_url']); ?>" alt="Icona" style="width: 20px; height: 20px; margin-right: 5px;">
                                                 <?php endif; ?>
                                                 <?php echo htmlspecialchars($achievement['nome']); ?>
