@@ -491,7 +491,7 @@ $achievements_result = $mysqli->query($achievements_query);
                         <div id="charactersList" class="table-responsive">
                             <!-- Characters list will be loaded here -->
                             <?php
-                            $characters_list_query = "SELECT id, nome, categoria, img_url, rarità FROM personaggi ORDER BY nome";
+                            $characters_list_query = "SELECT id, nome, categoria, img_url, rarità FROM personaggi ORDER BY id";
                             $characters_list_result = $mysqli->query($characters_list_query);
                             if ($characters_list_result && $characters_list_result->num_rows > 0): ?>
                                 <table class="table table-striped">
@@ -563,7 +563,7 @@ $achievements_result = $mysqli->query($achievements_query);
                             <!-- Achievements list will be loaded here -->
                             <?php
                             // Load achievements from database
-                            $achievements_list_query = "SELECT id, nome, descrizione, img_url, punti FROM achievement ORDER BY nome";
+                            $achievements_list_query = "SELECT id, nome, descrizione, img_url, punti FROM achievement ORDER BY id";
                             $achievements_list_result = $mysqli->query($achievements_list_query);
 
                             if ($achievements_list_result && $achievements_list_result->num_rows > 0): ?>
