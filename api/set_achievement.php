@@ -1,4 +1,7 @@
 <?php  
+header("Access-Control-Allow-Origin: https://cripsum.com"); 
+header("Access-Control-Allow-Credentials: true");
+
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 
