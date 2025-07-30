@@ -287,7 +287,7 @@ $achievements_result = $mysqli->query($achievements_query);
                 <button class="nav-link" id="characters-tab" data-bs-toggle="tab" data-bs-target="#characters" type="button">Gestione Personaggi</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="achievements-tab" data-bs-toggle="tab" data-bs-target="#achievements" type="button">Gstione Achievement</button>
+                <button class="nav-link" id="achievements-tab" data-bs-toggle="tab" data-bs-target="#achievements" type="button">Gestione Achievement</button>
             </li>
         </ul>
 
