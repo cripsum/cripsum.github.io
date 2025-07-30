@@ -36,15 +36,49 @@ function viewUserDetails(userId) {
                     </div>
                     <div class="mb-3">
                         <strong>Achievement sbloccati:</strong>
-                        <ul class="list-unstyled ms-3">
-                            ${achievements.map(achievement => `<li>•${achievement.id} - ${achievement.nome || 'Unnamed'}, ${achievement.punti} punti - sbloccato il ${achievement.data}</li>`).join('') || '<li>Nessun achievement sbloccato</li>'}
-                        </ul>
+                        <table class="table table-striped mt-2">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome</th>
+                                    <th>Punti</th>
+                                    <th>Sbloccato il</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${achievements.length > 0 ? achievements.map(achievement => `
+                                    <tr>
+                                        <td>${achievement.id}</td>
+                                        <td>${achievement.nome || 'Unnamed'}</td>
+                                        <td>${achievement.punti}</td>
+                                        <td>${achievement.data}</td>
+                                    </tr>
+                                `).join('') : '<tr><td colspan="4">Nessun achievement sbloccato</td></tr>'}
+                            </tbody>
+                        </table>
                     </div>
                     <div class="mb-3">
                         <strong>Personaggi sbloccati:</strong>
-                        <ul class="list-unstyled ms-3">
-                            ${characters.map(character => `<li>•${character.id} - ${character.nome || 'Unnamed'} (x${character.quantità}) - trovato il ${character.data}</li>`).join('') || '<li>Nessun personaggio sbloccato</li>'}
-                        </ul>
+                        <table class="table table-striped mt-2">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome</th>
+                                    <th>Quantità</th>
+                                    <th>Trovato il</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${characters.length > 0 ? characters.map(character => `
+                                    <tr>
+                                        <td>${character.id}</td>
+                                        <td>${character.nome || 'Unnamed'}</td>
+                                        <td>${character.quantità}</td>
+                                        <td>${character.data}</td>
+                                    </tr>
+                                `).join('') : '<tr><td colspan="4">Nessun personaggio sbloccato</td></tr>'}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             `;
