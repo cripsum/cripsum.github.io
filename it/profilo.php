@@ -122,7 +122,7 @@ $stmt->close();
 
             <div class="mb-3">
                 <label for="pfp" class="form-label">Immagine profilo</label>
-                <input type="file" class="form-control" id="pfp" name="pfp" accept="image/*">
+                <input type="file" class="form-control" id="pfp" name="pfp" accept="image/*" onchange="unlockAchievement(2)">
             </div>
             <button class="btn btn-secondary bottone" type="submit">Salva modifiche</button>
         </form>

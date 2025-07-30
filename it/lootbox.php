@@ -28,7 +28,6 @@ require_once '../api/api_personaggi.php';
     <body class="">
         <?php include '../includes/navbar.php'; ?>
         
-        
         <!-- TO DO
            bloccare lo scorrimento della pagina quando il menu della navbar è aperto (aggiungere classe overflow-hidden al body) 
            bloccare lo scorrimento della pagina quando il pop up è aperto (aggiungere classe overflow-hidden al body)  
