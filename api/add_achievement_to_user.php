@@ -16,7 +16,7 @@ $user_id = intval($_POST['user_id']);
 $achievement_id = intval($_POST['achievement_id']);
 
 // Check if achievement already exists
-$check_stmt = $mysqli->prepare("SELECT id FROM utenti_achievement WHERE utente_id = ? AND achievement_id = ?");
+$check_stmt = $mysqli->prepare("SELECT * FROM utenti_achievement WHERE utente_id = ? AND achievement_id = ?");
 $check_stmt->bind_param("ii", $user_id, $achievement_id);
 $check_stmt->execute();
 $result = $check_stmt->get_result();
