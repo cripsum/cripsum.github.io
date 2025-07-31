@@ -117,7 +117,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <button class="btn btn-secondary bottone" type="submit">Salva modifiche</button>
                 </form>
-                <button class="btn btn-secondary bottone">Scarica RichPresence</button>
+                <button class="btn btn-secondary bottone mt-2" type="button">
+                    <a class="testobianco" href="../random stuff/rich_presence.zip" download="rich_presence.zip">Scarica client rich presence</a>
+                </button>
             </div>
         </div>
 
