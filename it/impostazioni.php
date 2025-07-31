@@ -17,6 +17,7 @@ $username = $_SESSION['username'] ?? '';
 $profilePic = "/includes/get_pfp.php?id=$userId";
 $ruolo = $_SESSION['ruolo'] ?? 'utente';
 $nsfw = $_SESSION['nsfw'] ?? 0; // Imposta nsfw a 0 se non è definito
+$richpresence = $_SESSION['richpresence'] ?? 0; // Imposta richpresence a 0 se non è definito
 $oldEmail = $_SESSION['email'] ?? '';
 $success = '';
 $error = '';
@@ -26,13 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $nsfw = isset($_POST['nsfw']) ? 1 : 0;
+    $richpresence = isset($_POST['richpresence']) ? 1 : 0;
 
     if (empty($username) || empty($email)) {
         $error = 'Compila tutti i campi';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Email non valida';
     } else {
-        $result = updateUserSettings($mysqli, $userId, $username, $email, $password, $nsfw);
+        $result = updateUserSettings($mysqli, $userId, $username, $email, $password, $nsfw, $richpresence);
         if ($result === true) {
             //if the email was changed, we need to log out the user
             if($_SESSION['email'] !== $oldEmail) {
@@ -101,6 +103,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label class="form-check-label" for="nsfw">
                             Abilita contenuti NSFW
                         </label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input checco" id="richpresence" name="richpresence" value="1" <?= $richpresence ? 'checked' : '' ?>>
+                        <label class="form-check-label" for="richpresence">
+                            Abilita Discord Rich Presence
+                        </label>
+                        <button class="btn btn-secondary bottone">Scarica RichPresence</button>
                     </div>
                     <button class="btn btn-secondary bottone" type="submit">Salva modifiche</button>
                 </form>

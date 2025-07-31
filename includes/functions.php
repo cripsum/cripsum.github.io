@@ -381,7 +381,7 @@ function getWelcomeEmailTemplate($username) {
 }
 
 function loginUser($mysqli, $email, $password) {
-    $stmt = $mysqli->prepare("SELECT id, username, email, password, profile_pic, ruolo, email_verificata, isBannato, nsfw FROM utenti WHERE email = ?");
+    $stmt = $mysqli->prepare("SELECT id, username, email, password, profile_pic, ruolo, email_verificata, isBannato, nsfw, richpresence FROM utenti WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -401,6 +401,7 @@ function loginUser($mysqli, $email, $password) {
         $_SESSION['profile_pic'] = $user['profile_pic'] ?? '../img/abdul.jpg';
         $_SESSION['ruolo'] = $user['ruolo'];
         $_SESSION['nsfw'] = $user['nsfw'] ?? 0;
+        $_SESSION['richpresence'] = $user['richpresence'] ?? 0;
         return true;
     }
     return false;
@@ -611,7 +612,7 @@ function cleanExpiredTokens($mysqli) {
     $stmt->close();
 }
 
-function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsfw) {
+function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsfw, $richpresence) {
     // Check if username already exists for another user
     $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE username = ? AND id != ?");
     $stmt->bind_param("si", $username, $userId);
@@ -647,21 +648,21 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
         if ($emailChanged) {
             // If email changed, require verification before saving changes
             $emailToken = bin2hex(random_bytes(32));
-            $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, password = ?, nsfw = ?, email_verificata = 0, email_token = ?, email = ? WHERE id = ?");
-            $stmt->bind_param("ssissi", $username, $hashedPassword, $nsfw, $emailToken, $email, $userId);
+            $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, password = ?, nsfw = ?, richpresence = ?, email_verificata = 0, email_token = ?, email = ? WHERE id = ?");
+            $stmt->bind_param("ssissi", $username, $hashedPassword, $nsfw, $richpresence, $emailToken, $email, $userId);
         } else {
-            $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, password = ?, nsfw = ? WHERE id = ?");
-            $stmt->bind_param("ssii", $username, $hashedPassword, $nsfw, $userId);
+            $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, password = ?, nsfw = ?, richpresence = ? WHERE id = ?");
+            $stmt->bind_param("ssii", $username, $hashedPassword, $nsfw, $richpresence, $userId);
         }
     } else {
         if ($emailChanged) {
             // If email changed, require verification before saving changes
             $emailToken = bin2hex(random_bytes(32));
-            $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, nsfw = ?, email_verificata = 0, email_token = ?, email = ? WHERE id = ?");
-            $stmt->bind_param("sissi", $username, $nsfw, $emailToken, $email, $userId);
+            $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, nsfw = ?, richpresence = ?, email_verificata = 0, email_token = ?, email = ? WHERE id = ?");
+            $stmt->bind_param("sissi", $username, $nsfw, $richpresence, $emailToken, $email, $userId);
         } else {
-            $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, nsfw = ? WHERE id = ?");
-            $stmt->bind_param("sii", $username, $nsfw, $userId);
+            $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, nsfw = ?, richpresence = ? WHERE id = ?");
+            $stmt->bind_param("sii", $username, $nsfw, $richpresence, $userId);
         }
     }
     
@@ -670,10 +671,12 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
             $_SESSION['username'] = $username;
             $_SESSION['email'] = $email;
             $_SESSION['nsfw'] = $nsfw;
+            $_SESSION['richpresence'] = $richpresence;
         return true;
         } else {
             $_SESSION['username'] = $username;
             $_SESSION['nsfw'] = $nsfw;
+            $_SESSION['richpresence'] = $richpresence;
             return true;
         }
     }
