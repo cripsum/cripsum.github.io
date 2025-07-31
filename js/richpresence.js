@@ -155,6 +155,12 @@ const pageMap = {
     state: "Cercando di trovare qualcosa che non esiste",
     imageText: "Pagina non trovata"
   },
+  "/it/admin": {
+    title: "Admin",
+    state: "Visualizzando il pannello admin",
+    imageText: "Pannello di amministrazione"
+  },
+  
   "/it/goonland/home": {
     title: "Goonland",
     state: "Esplorando Goonland",
