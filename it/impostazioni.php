@@ -117,8 +117,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <button class="btn btn-secondary bottone" type="submit">Salva modifiche</button>
                 </form>
-                <button class="btn btn-secondary bottone mt-2" type="button">
+                <!--<button class="btn btn-secondary bottone mt-3" type="button">
                     <a class="testobianco" href="../random stuff/rich_presence.zip" download="rich_presence.zip">Scarica client rich presence</a>
+                </button>-->
+                <button class="btn btn-secondary bottone mt-3" type="button">
+                    <a class="testobianco" href="https://github.com/cripsum/cripsum.com-rich-presence/releases/tag/v1.0.0">Scarica client rich presence</a>
                 </button>
             </div>
         </div>
