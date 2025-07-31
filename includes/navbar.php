@@ -14,6 +14,7 @@ if ($isLoggedIn) {
     $profilePic = "/includes/get_pfp.php?id=$userId";
     $ruolo = $_SESSION['ruolo'] ?? '';
     $nsfw = $_SESSION['nsfw'] ?? 0; 
+    $richpresence = $_SESSION['richpresence'] ?? 0;
 }
 ?>
 
