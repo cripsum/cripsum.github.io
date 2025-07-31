@@ -103,3 +103,12 @@ if ($isLoggedIn) {
         </div>
     </div>
 </nav>
+    <?php if ($richpresence === 1): ?>
+        <script>
+            window.addEventListener('load', function() {
+                var script = document.createElement('script');
+                script.src = '/js/richpresence.js';
+                document.head.appendChild(script);
+            });
+        </script>
+    <?php endif; ?>
