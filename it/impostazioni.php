@@ -109,10 +109,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label class="form-check-label" for="richpresence">
                             Abilita Discord Rich Presence
                         </label>
-                        <button class="btn btn-secondary bottone">Scarica RichPresence</button>
                     </div>
                     <button class="btn btn-secondary bottone" type="submit">Salva modifiche</button>
                 </form>
+                <button class="btn btn-secondary bottone">Scarica RichPresence</button>
             </div>
         </div>
 
