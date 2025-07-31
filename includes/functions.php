@@ -649,20 +649,20 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
             // If email changed, require verification before saving changes
             $emailToken = bin2hex(random_bytes(32));
             $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, password = ?, nsfw = ?, richpresence = ?, email_verificata = 0, email_token = ?, email = ? WHERE id = ?");
-            $stmt->bind_param("ssissi", $username, $hashedPassword, $nsfw, $richpresence, $emailToken, $email, $userId);
+            $stmt->bind_param("ssiissi", $username, $hashedPassword, $nsfw, $richpresence, $emailToken, $email, $userId);
         } else {
             $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, password = ?, nsfw = ?, richpresence = ? WHERE id = ?");
-            $stmt->bind_param("ssii", $username, $hashedPassword, $nsfw, $richpresence, $userId);
+            $stmt->bind_param("ssiii", $username, $hashedPassword, $nsfw, $richpresence, $userId);
         }
     } else {
         if ($emailChanged) {
             // If email changed, require verification before saving changes
             $emailToken = bin2hex(random_bytes(32));
             $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, nsfw = ?, richpresence = ?, email_verificata = 0, email_token = ?, email = ? WHERE id = ?");
-            $stmt->bind_param("sissi", $username, $nsfw, $richpresence, $emailToken, $email, $userId);
+            $stmt->bind_param("siissi", $username, $nsfw, $richpresence, $emailToken, $email, $userId);
         } else {
             $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, nsfw = ?, richpresence = ? WHERE id = ?");
-            $stmt->bind_param("sii", $username, $nsfw, $richpresence, $userId);
+            $stmt->bind_param("siii", $username, $nsfw, $richpresence, $userId);
         }
     }
     
