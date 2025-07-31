@@ -89,7 +89,7 @@ checkBan($mysqli);
                                 <h3>${isUnlocked ? ach.nome : "???"}</h3>
                                 <p>${isUnlocked ? ach.descrizione : ach.descrizione}</p>
                                 <span>${ach.punti} punti</span>
-                                <p><small>${isUnlocked ? "Sbloccato il: " + new Date(unlocked.data).toLocaleDateString('it-IT') : ''}</small></p>
+                                <p><small>${isUnlocked ? "Sbloccato il: " + new Date(unlocked.data).toLocaleDateString('it-IT') + " alle " + new Date(unlocked.data).toLocaleTimeString('it-IT') : ''}</small></p>
                             </div>
                         `;
                         container.appendChild(div);
