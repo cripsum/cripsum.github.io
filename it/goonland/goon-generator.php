@@ -612,18 +612,16 @@ if ($result) {
             if (!img) return;
             
             try {
-                const response = await fetch(img.src);
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
+                // Use server-side proxy to avoid CORS issues
+                const proxyUrl = window.location.pathname + '?download_image=1&url=' + encodeURIComponent(img.src);
                 
                 const link = document.createElement('a');
-                link.href = url;
+                link.href = proxyUrl;
                 link.download = 'goonland_image.png';
+                link.target = '_blank';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                
-                window.URL.revokeObjectURL(url);
             } catch (error) {
                 console.error('Error downloading image:', error);
             }
