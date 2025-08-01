@@ -491,6 +491,10 @@ if ($result) {
             const container = document.getElementById('imageContainer');
             const countdown = document.getElementById('countdown');
             const contentType = document.getElementById('contentType').value;
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            // Reset countdown and download button
+            downloadBtn.style.display = 'flex';
             
             isLoading = true;
             btn.disabled = true;
