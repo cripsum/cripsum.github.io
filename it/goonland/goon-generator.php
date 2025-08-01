@@ -380,9 +380,17 @@ if ($result) {
         </select>
     </div>
     
-    <button class="generate-btn" id="generateBtn" onclick="generateImage()">
-        Genera Nuova Foto
-    </button>
+    <div style="display: flex; gap: 15px; align-items: center; justify-content: center;">
+        <button class="generate-btn" id="generateBtn" onclick="generateImage()">
+            Genera Nuova Foto
+        </button>
+        <button class="generate-btn" id="downloadBtn" onclick="downloadImage()" style="width: 60px; height: 60px; border-radius: 50%; padding: 0; display: none;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 16L7 11L8.4 9.6L11 12.2V4H13V12.2L15.6 9.6L17 11L12 16Z" fill="currentColor"/>
+                <path d="M5 20V18H19V20H5Z" fill="currentColor"/>
+            </svg>
+        </button>
+    </div>
     
     <div class="countdown" id="countdown"></div>
 
@@ -594,6 +602,17 @@ if ($result) {
         }
 
         checkDaysVisitedGoon();
+
+        function downloadImage() {
+            const img = document.querySelector('.generated-image');
+            if (!img) return;
+            const link = document.createElement('a');
+            link.href = img.src;
+            link.download = 'goonland_image.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
 
         
         //setTimeout(() => {
