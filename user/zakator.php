@@ -98,7 +98,7 @@ $user_cercato_id = $user['id'];
                     <img src="../includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>" alt="Foto Profilo"
                         style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
                 </div>
-                <h1 class="testo-arcobaleno mt-2" style="font-weight: bolder; text-shadow: 0 0 25px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5)"><?php echo htmlspecialchars($user['username']); ?></h1>
+                <h1 class="testo-arcobaleno mt-2" style="font-weight: bolder;"><?php echo htmlspecialchars($user['username']); ?></h1>
                 <p class="mb-2" style="color: rgb(171, 171, 171)">AKA - piccolo top 1, francesca</p>
                 <p>script kiddy, il suo unico obiettivo è portare nani al rank 30 in deep end ascoltando phonk e canzoncine anime</p>
                             <p>Membro dal: <?php echo date('d/m/Y', strtotime($user['data_creazione'])); ?></p>
