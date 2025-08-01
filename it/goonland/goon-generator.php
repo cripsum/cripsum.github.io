@@ -617,7 +617,8 @@ if ($result) {
                 
                 const link = document.createElement('a');
                 link.href = proxyUrl;
-                link.download = 'goonland_image.png';
+                const filename = img.src.split('/').pop() || 'goonland_image.jpg';
+                link.download = filename;
                 link.target = '_blank';
                 document.body.appendChild(link);
                 link.click();
