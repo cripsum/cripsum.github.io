@@ -494,7 +494,7 @@ if ($result) {
             const downloadBtn = document.getElementById('downloadBtn');
             
             // Reset countdown and download button
-            downloadBtn.style.display = 'flex';
+            downloadBtn.style.display = 'block';
             
             isLoading = true;
             btn.disabled = true;
