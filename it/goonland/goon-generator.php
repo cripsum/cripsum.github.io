@@ -25,6 +25,31 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
     exit();
 }
 
+if (isset($_GET['download_image']) && $_GET['download_image'] == '1' && isset($_GET['url'])) {
+    $url = $_GET['url'];
+    
+    // Controllo sicurezza base: consenti solo immagini da waifu.pics
+    if (strpos($url, 'https://i.waifu.pics/') !== 0) {
+        http_response_code(403);
+        exit('URL non valido');
+    }
+
+    $imageData = @file_get_contents($url);
+    if ($imageData === false) {
+        http_response_code(404);
+        exit('Immagine non trovata');
+    }
+
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mimeType = $finfo->buffer($imageData);
+
+    header('Content-Type: ' . $mimeType);
+    header('Content-Disposition: attachment; filename="goonland_image.' . explode('/', $mimeType)[1] . '"');
+    echo $imageData;
+    exit;
+}
+
+
 $topGooners = [];
 $query = "SELECT username, clickgoon FROM utenti WHERE clickgoon > 0 ORDER BY clickgoon DESC LIMIT 10";
 $result = $mysqli->query($query);
@@ -610,23 +635,22 @@ if ($result) {
         async function downloadImage() {
             const img = document.querySelector('.generated-image');
             if (!img) return;
-            
+
             try {
-                // Use server-side proxy to avoid CORS issues
                 const proxyUrl = window.location.pathname + '?download_image=1&url=' + encodeURIComponent(img.src);
-                
+
                 const link = document.createElement('a');
                 link.href = proxyUrl;
-                const filename = img.src.split('/').pop() || 'goonland_image.jpg';
-                link.download = filename;
+                link.download = ''; // il download avviene lato server
                 link.target = '_blank';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
             } catch (error) {
-                console.error('Error downloading image:', error);
+                console.error('Errore nel download:', error);
             }
         }
+
 
         
         //setTimeout(() => {
