@@ -14,6 +14,7 @@ if ($isLoggedIn) {
     $profilePic = "/includes/get_pfp.php?id=$userId";
     $ruolo = $_SESSION['ruolo'] ?? '';
     $nsfw = $_SESSION['nsfw'] ?? 0; 
+    $richpresence = $_SESSION['richpresence'] ?? 0;
 }
 ?>
 
@@ -84,3 +85,12 @@ if ($isLoggedIn) {
         </div>
     </div>
 </nav>
+    <?php if ($richpresence === 1): ?>
+        <script>
+            window.addEventListener('load', function() {
+                var script = document.createElement('script');
+                script.src = '/js/richpresence.js';
+                document.head.appendChild(script);
+            });
+        </script>
+    <?php endif; ?>

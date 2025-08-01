@@ -160,7 +160,6 @@ const pageMap = {
     state: "Visualizzando il pannello admin",
     imageText: "Pannello di amministrazione"
   },
-  
   "/it/goonland/home": {
     title: "Goonland",
     state: "Esplorando Goonland",
