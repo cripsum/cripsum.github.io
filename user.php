@@ -100,13 +100,13 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <?php include '../includes/head-import.php'; ?>
+    <?php include '/includes/head-import.php'; ?>
     <title>Cripsum™ - Profilo di <?php echo htmlspecialchars($user['username']); ?></title>
 </head>
 <body>
 
-    <?php include '../includes/navbar.php'; ?>
-    <?php include '../includes/impostazioni.php'; ?>
+    <?php include '/includes/navbar.php'; ?>
+    <?php include '/includes/impostazioni.php'; ?>
 
     <div class="container my-5 paginainterachisiamo testobianco" style="padding-top: 7rem">
         <h1 class="mb-4 fadeup">Profilo di <?php echo htmlspecialchars($user['username']); ?></h1>
