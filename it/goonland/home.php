@@ -11,8 +11,11 @@ require_once '../../config/database.php';
 require_once '../../includes/functions.php';
 checkBan($mysqli);
 
-if (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/facebookexternalhit|Facebot/i', $_SERVER['HTTP_USER_AGENT'])) {
-    // Bot di Facebook -> mostra solo i meta tag, niente redirect
+$ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+
+$bot = preg_match('/(facebookexternalhit|Facebot|Discordbot|Twitterbot|TelegramBot)/i', $ua);
+
+if ($bot) {
     echo '
     <html><head>
       <meta property="og:title" content="Cripsum™ GoonLand - Home">
