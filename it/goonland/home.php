@@ -13,7 +13,7 @@ checkBan($mysqli);
 
 $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
 
-$bot = preg_match('/(facebookexternalhit|Facebot|Discordbot|Twitterbot|TelegramBot)/i', $ua);
+$bot = preg_match('/(facebookexternalhit|Facebot|Discordbot|Twitterbot|TelegramBot|WhatsApp)/i', $ua);
 
 if ($bot) {
     echo '
