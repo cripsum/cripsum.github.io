@@ -11,6 +11,20 @@ require_once '../../config/database.php';
 require_once '../../includes/functions.php';
 checkBan($mysqli);
 
+if (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/facebookexternalhit|Facebot/i', $_SERVER['HTTP_USER_AGENT'])) {
+    // Bot di Facebook -> mostra solo i meta tag, niente redirect
+    echo '
+    <html><head>
+      <meta property="og:title" content="Cripsum™ GoonLand - Home">
+      <meta property="og:description" content="Goonland è un progetto ideato da Zakator e Cripsum: uno spazio digitale unico nel suo genere, nato dalla volontà di creare un ambiente che fosse al tempo stesso provocatorio, giocoso e visivamente coinvolgente.">
+      <meta property="og:image" content="https://cripsum.com/img/raspberry-chan16gb.png">
+      <meta property="og:url" content="https://cripsum.com/it/goonland/home">
+      <meta property="og:type" content="website">
+    </head><body></body></html>';
+    exit;
+}
+
+
 if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
     $_SESSION['login_message'] = "Per accedere a GoonLand devi essere loggato";
@@ -30,7 +44,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta property="og:title" content="Cripsum GoonLand™ - Home">
+    <meta property="og:title" content="Cripsum™ GoonLand - Home">
     <meta property="og:description" content="Goonland è un progetto ideato da Zakator e Cripsum: uno spazio digitale unico nel suo genere, nato dalla volontà di creare un ambiente che fosse al tempo stesso provocatorio, giocoso e visivamente coinvolgente.">
     <meta property="og:image" content="https://cripsum.com/img/raspberry-chan16gb.png">
     <meta property="og:url" content="https://cripsum.com/it/goonland/home">
