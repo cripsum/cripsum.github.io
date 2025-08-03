@@ -31,6 +31,11 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
 <html lang="en">
   <head>
     <?php include '../../includes/head-import.php'; ?>
+        <meta property="og:title" content="Cripsum GoonLand™ - Home">
+        <meta property="og:description" content="Goonland è un progetto ideato da Zakator e Cripsum: uno spazio digitale unico nel suo genere, nato dalla volontà di creare un ambiente che fosse al tempo stesso provocatorio, giocoso e visivamente coinvolgente.">
+        <meta property="og:image" content="https://cripsum.com/img/raspberry-chan16gb.png">
+        <meta property="og:url" content="https://cripsunm.com/it/goonland/home">
+        <meta property="og:type" content="website">
     <script src="/js/nomePagina.js"></script>
     <link rel="stylesheet" href="/css/style-goonland.css" />
     <title>GoonLand™ - Home</title>
