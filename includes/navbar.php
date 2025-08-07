@@ -48,12 +48,15 @@ if ($isLoggedIn) {
                         <li><a class="dropdown-item" href="/<?= $lang ?>/tiktokpedia">TikTokPedia</a></li>
                         <li><a class="dropdown-item" href="/<?= $lang ?>/rimasti">Top rimasti</a></li>
                         <li><a class="dropdown-item" href="/<?= $lang ?>/quandel57" style="color: red; font-weight: bold">Quandel57</a></li>
-                        <li><a class="dropdown-item arcobalenos" href="/<?= $lang ?>/gambling" style="font-weight: bold">Gambling!!</a></li>
-                        <li><a class="dropdown-item testo-arcobaleno" href="/<?= $lang ?>/lootbox" style="font-weight: bold">Lootbox</a></li>
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/achievements">Achievements</a></li>
                     </ul>
                 </li>
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/download">Downloads</a></li>
+                <li class="nav-item dropdown dropdownutenti">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Giochi</a>
+                    <ul class="dropdown-menu animate slideIn">
+                        <li><a class="dropdown-item arcobalenos" href="/<?= $lang ?>/gambling" style="font-weight: bold">Gambling</a></li>
+                        <li><a class="dropdown-item testo-arcobaleno" href="/<?= $lang ?>/lootbox" style="font-weight: bold">Lootbox</a></li>
+                    </ul>
+                </li>
                 <li class="nav-item dropdown dropdownutenti">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Shop</a>
                     <ul class="dropdown-menu animate slideIn">
@@ -61,6 +64,7 @@ if ($isLoggedIn) {
                         <li><a class="dropdown-item" href="/<?= $lang ?>/merch">Merch</a></li>
                     </ul>
                 </li>
+                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/download">Downloads</a></li>
                 <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/donazioni">Donazioni</a></li>
                 <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/chisiamo">Chi siamo</a></li>
                 <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/edits">Edits</a></li>
@@ -80,6 +84,8 @@ if ($isLoggedIn) {
                         <ul class="dropdown-menu dropdown-menu-end animate slideIn">
                             <li><a class="dropdown-item" href="/<?= $lang ?>/profilo"><i class="fas fa-user me-2"></i>Il mio profilo</a></li>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/impostazioni"><i class="fas fa-cog me-2"></i>Impostazioni</a></li>
+                            <li><a class="dropdown-item" href="/<?= $lang ?>/achievements"><i class="fas fa-trophy me-2"></i>Achievements</a></li>
+                            <li><a class="dropdown-item" href="/<?= $lang ?>/inventario"><i class="fas fa-box me-2"></i>Inventario</a></li>
                             <!--<li><a class="dropdown-item" href="/<?= $lang ?>/ordini"><i class="fas fa-shopping-bag me-2"></i>I miei ordini</a></li>-->
                             <li><a class="dropdown-item" href="/<?= $lang ?>/global-chat"><i class="fas fa-envelope me-2"></i>Chat Globale</a></li>
                             <?php if ($nsfw === 1): ?>

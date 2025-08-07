@@ -5,7 +5,7 @@ require_once __DIR__ . '/../config/email_config.php';
 function sendVerificationEmail($email, $username, $token) {
     $subject = 'Verifica la tua email - ' . SITE_NAME;
     $verificationLink = SITE_URL . '/it/verifica-email?token=' . $token;
-    
+
     $htmlBody = getVerificationEmailTemplate($username, $verificationLink);
     
     $textBody = "Ciao $username,\n\nGrazie per esserti registrato su " . SITE_NAME . ".\n\nPer completare la registrazione, visita questo link: $verificationLink\n\nSe non ti sei registrato, ignora questa email.\n\nCordiali saluti,\nIl team di " . SITE_NAME;
