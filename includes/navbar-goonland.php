@@ -67,7 +67,7 @@ if ($isLoggedIn) {
                             <!--<li><a class="dropdown-item" href="/<?= $lang ?>/ordini"><i class="fas fa-shopping-bag me-2"></i>I miei ordini</a></li>-->
                             <li><a class="dropdown-item" href="/<?= $lang ?>/global-chat"><i class="fas fa-envelope me-2"></i>Chat Globale</a></li>
                             <?php if ($nsfw === 1): ?>
-                                <li><a class="dropdown-item" href="/<?= $lang ?>/goonland/home"><i class="fas fa-eye-slash me-2"></i>GoonLand</a></li>
+                                <li><a class="dropdown-item" href="/<?= $lang ?>/goonland/home" style="color: #d63384;"><i class="fas fa-eye-slash me-2"></i>GoonLand</a></li>
                             <?php endif; ?>
                             <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
                                 <li><a class="dropdown-item" href="/<?= $lang ?>/admin"><i class="fas fa-shield-alt me-2"></i>Pannello Admin</a></li>
