@@ -193,6 +193,9 @@ checkBan($mysqli);
 
             <div id="featuredContent">
                 <div id="content-slider" class="content-slider">
+                    <div class="slider-wrapper" id="sliderWrapper">
+                       
+                    </div>
                     <div class="slider-controls">
                         <button class="slider-btn prev" onclick="previousSlide()">
                             <i class="fas fa-chevron-left"></i>
@@ -201,9 +204,6 @@ checkBan($mysqli);
                         <button class="slider-btn next" onclick="nextSlide()">
                             <i class="fas fa-chevron-right"></i>
                         </button>
-                    </div>
-                    <div class="slider-wrapper" id="sliderWrapper">
-                       
                     </div>
                 </div>
 
