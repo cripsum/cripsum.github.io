@@ -15,50 +15,6 @@ checkBan($mysqli);
         <script src="/js/nomePagina.js"></script>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1527058839538660"
      crossorigin="anonymous"></script>
-                         <style>
-                    .account-section {
-                        text-align: center;
-                        padding: 2rem 0;
-                    }
-
-                    .features-list {
-                        max-width: 500px;
-                        margin: 0 auto;
-                    }
-
-                    .feature-item {
-                        display: flex;
-                        align-items: center;
-                        justify-content: flex-start;
-                        margin: 1rem 0;
-                        padding: 0.8rem;
-                        background: rgba(255, 255, 255, 0.1);
-                        border-radius: 8px;
-                        backdrop-filter: blur(10px);
-                    }
-
-                    .feature-icon {
-                        font-size: 1.2rem;
-                        margin-right: 1rem;
-                        min-width: 30px;
-                    }
-
-                    .feature-text {
-                        text-align: left;
-                        flex: 1;
-                    }
-
-                    .btn-link {
-                        text-decoration: none;
-                        padding: 0.3rem 0.6rem;
-                        border-radius: 4px;
-                        transition: background-color 0.3s ease;
-                    }
-
-                    .btn-link:hover {
-                        background-color: rgba(255, 255, 255, 0.1);
-                    }
-                    </style>
     </head>
 
     <body class="">
