@@ -411,7 +411,7 @@ checkBan($mysqli);
                 <style>
                     .content-slider {
                         position: relative;
-                        max-width: 90%;
+                        max-width: 800px;
                         margin: 2rem auto;
                         overflow: hidden;
                         border-radius: 15px;
