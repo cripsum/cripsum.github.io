@@ -196,14 +196,14 @@ checkBan($mysqli);
             <div class="slider-wrapper" id="sliderWrapper">
                 <!-- Slides generate automatically -->
             </div>
-            <div class="slider-controls">
+            <!--<div class="slider-controls">
                 <button class="slider-btn prev" onclick="previousSlide()">
                     <i class="fas fa-chevron-left"></i>
                 </button>
                 <button class="slider-btn next" onclick="nextSlide()">
                     <i class="fas fa-chevron-right"></i>
                 </button>
-            </div>
+            </div>-->
             <div class="slider-dots" id="sliderDots"></div>
         </div>
     </div>
@@ -213,7 +213,7 @@ checkBan($mysqli);
             constructor() {
                 this.slides = [
                     {
-                        media: 'https://via.placeholder.com/100x100/4CAF50/white?text=Jay',
+                        media: '../img/jay.jpg',
                         title: 'Ciao! Sono Jay!',
                         description: 'Vuoi imparare l\'arte dello Spinjitzu?',
                         buttonText: 'Acquista il videocorso',
@@ -221,7 +221,7 @@ checkBan($mysqli);
                         link: 'https://payhip.com/b/m0kaT'
                     },
                     {
-                        media: 'https://via.placeholder.com/100x100/2196F3/white?text=優希',
+                        media: '../img/chinese-essay-2.jpg',
                         title: 'Hey! Mi chiamo 優希!',
                         description: 'Vuoi imparare l\'arte dello Yoshukai?',
                         buttonText: 'Scarica la guida gratuita',
@@ -229,7 +229,7 @@ checkBan($mysqli);
                         link: 'download/yoshukai'
                     },
                     {
-                        media: 'https://via.placeholder.com/100x100/FF9800/white?text=🏆',
+                        media: '../img/segone4.png',
                         title: '🏆 Achievements',
                         description: 'Sblocca tutti gli achievement del sito!',
                         buttonText: 'Visualizza progressi',
@@ -237,7 +237,7 @@ checkBan($mysqli);
                         link: 'achievements'
                     },
                     {
-                        media: 'https://via.placeholder.com/100x100/9C27B0/white?text=📦',
+                        media: '../img/cassa.png',
                         title: '📦 Lootboxes',
                         description: 'Apri lootbox e ottieni ricompense esclusive!',
                         buttonText: 'Apri lootbox',
@@ -245,7 +245,7 @@ checkBan($mysqli);
                         link: 'lootbox'
                     },
                     {
-                        media: 'https://via.placeholder.com/100x100/F44336/white?text=🎬',
+                        media: '../img/pfp choso2 cc.png',
                         title: '🎬 I miei Edit',
                         description: 'Guarda i miei ultimi edit e video!',
                         buttonText: 'Scopri gli edit',
@@ -253,7 +253,7 @@ checkBan($mysqli);
                         link: 'edits'
                     },
                     {
-                        media: 'https://via.placeholder.com/100x100/424242/white?text=🌟',
+                        media: '../img/raspberry-chan8gb.png',
                         title: '🌟 Goonland',
                         description: 'Entra nella dimensione segreta del sito!',
                         buttonText: 'Accedi a Goonland',
@@ -261,7 +261,7 @@ checkBan($mysqli);
                         link: 'goonland/home'
                     },
                     {
-                        media: 'https://via.placeholder.com/100x100/4CAF50/white?text=💬',
+                        media: '../img/abdul.jpg',
                         title: '💬 Chat Globale',
                         description: 'Chatta con tutti gli utenti del sito!',
                         buttonText: 'Entra in chat',
@@ -269,7 +269,7 @@ checkBan($mysqli);
                         link: 'global-chat'
                     },
                     {
-                        media: 'https://via.placeholder.com/100x100/607D8B/white?text=⬇️',
+                        media: '../img/dukedennis.jpg',
                         title: '⬇️ Downloads',
                         description: 'Scarica contenuti esclusivi e meme!',
                         buttonText: 'Vai ai download',
