@@ -303,14 +303,34 @@ checkBan($mysqli);
                             e inizia a esplorare!
                         </p>
                     </div>
-                    <div class="social">
-                        <p style="font-size: large; padding-left: 0.1%; margin-top: 3%">i miei social</p>
-                        <a href="https://www.tiktok.com/@cripsum"><img src="../img/tiktok-white-icon.svg" class="imgbianca" alt="" style="margin-right: 0.1%; width: 28px; border-radius: 0" /></a>
-                        <a href="https://www.instagram.com/cripsum/"
-                            ><img src="../img/instagram-white-icon.svg" class="imgbianca" alt="" style="margin-right: 0.3%; margin-left: 0.1%; width: 28px; border-radius: 0"
-                        /></a>
-                        <a href="https://discord.gg/Mmb2sNCvy6"><img src="../img/discord-white-icon.svg" class="imgbianca" alt="" style="margin: 0.3%; width: 28px; border-radius: 0" /></a>
-                        <a href="https://t.me/cripsum"><img src="../img/telegram-white-icon.svg" class="imgbianca" alt="" style="margin: 0.3%; width: 28px; border-radius: 0" /></a>
+                    <div class="social-section mt-5">
+                        <h4 class="sottopag mb-4 text-center">Seguimi sui social</h4>
+                        <div class="social-icons-modern d-flex justify-content-center align-items-center gap-4 flex-wrap">
+                            <a href="https://www.tiktok.com/@cripsum" class="social-link-modern tiktok" title="TikTok">
+                                <div class="social-icon-wrapper">
+                                    <i class="fab fa-tiktok"></i>
+                                    <span class="social-label">TikTok</span>
+                                </div>
+                            </a>
+                            <a href="https://www.instagram.com/cripsum/" class="social-link-modern instagram" title="Instagram">
+                                <div class="social-icon-wrapper">
+                                    <i class="fab fa-instagram"></i>
+                                    <span class="social-label">Instagram</span>
+                                </div>
+                            </a>
+                            <a href="https://discord.gg/Mmb2sNCvy6" class="social-link-modern discord" title="Discord">
+                                <div class="social-icon-wrapper">
+                                    <i class="fab fa-discord"></i>
+                                    <span class="social-label">Discord</span>
+                                </div>
+                            </a>
+                            <a href="https://t.me/cripsum" class="social-link-modern telegram" title="Telegram">
+                                <div class="social-icon-wrapper">
+                                    <i class="fab fa-telegram-plane"></i>
+                                    <span class="social-label">Telegram</span>
+                                </div>
+                            </a>
+                        </div>
                     </div>
                 </div>
                 <div class="button-container" style="text-align: center; margin-top: 1rem">
