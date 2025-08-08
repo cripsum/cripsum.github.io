@@ -784,7 +784,7 @@ select {
 .content-slider {
     position: relative;
     max-width: 600px;
-    margin: 2rem auto;
+    margin: 4rem auto;
     overflow: hidden;
     border-radius: 15px;
     padding-bottom: 5px;
@@ -1399,7 +1399,7 @@ select {
 
 .emotions-section {
     max-width: 1000px;
-    margin: 4rem auto 0;
+    margin: 2rem auto 0;
     padding: 0 1rem;
 }
 
@@ -1476,6 +1476,8 @@ select {
 
 @media (max-width: 768px) {
     .hero-content {
+        max-width: 80%;
+        margin: 0 auto;
         flex-direction: column;
         text-align: center;
         gap: 2rem;
@@ -1492,12 +1494,16 @@ select {
     }
 
     .emotion-card {
+        max-width: 80%;
+        margin: 0 auto;
         padding: 1.5rem 1rem;
     }
 }
 
 @media (max-width: 480px) {
     .hero-section {
+        max-width: 80%;
+        margin: 0 auto;
         padding: 1rem 0.5rem;
     }
 
