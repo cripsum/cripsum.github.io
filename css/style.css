@@ -772,6 +772,44 @@ select {
     }
 }
 
+.content-slider {
+    position: relative;
+    max-width: 800px;
+    margin: 2rem auto;
+    overflow: hidden;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.slider-wrapper {
+    display: flex;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+.slider-slide {
+    min-width: 100%;
+    opacity: 0;
+    transform: translateX(20px);
+    animation: slideIn 0.6s ease-out forwards;
+}
+
+.slider-slide.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
 .content-showcase {
     max-width: 800px;
     margin: 2rem auto;
@@ -781,6 +819,7 @@ select {
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    position: relative;
 }
 
 .showcase-wrapper {
@@ -788,6 +827,23 @@ select {
     align-items: center;
     gap: 2rem;
     flex-wrap: wrap;
+    position: relative;
+}
+
+.showcase-slide {
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+}
+
+.showcase-slide.active {
+    opacity: 1;
+    visibility: visible;
+    position: relative;
 }
 
 .showcase-media {
@@ -875,10 +931,70 @@ select {
     background: linear-gradient(45deg, #6c757d, #5a6268);
 }
 
+.slider-controls {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.slider-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    pointer-events: auto;
+}
+
+.slider-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.slider-dots {
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.dot.active {
+    background: white;
+    transform: scale(1.3);
+}
+
 @media (max-width: 768px) {
     .content-showcase {
         margin: 1rem;
         padding: 1.5rem;
+        padding-bottom: 3rem;
     }
 
     .showcase-wrapper {
@@ -897,5 +1013,19 @@ select {
 
     .showcase-description {
         font-size: 1rem;
+    }
+
+    .slider-controls {
+        padding: 0 0.5rem;
+    }
+
+    .slider-btn {
+        width: 35px;
+        height: 35px;
+    }
+
+    .dot {
+        width: 6px;
+        height: 6px;
     }
 }
