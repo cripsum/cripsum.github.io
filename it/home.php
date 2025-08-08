@@ -15,6 +15,50 @@ checkBan($mysqli);
         <script src="/js/nomePagina.js"></script>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1527058839538660"
      crossorigin="anonymous"></script>
+                         <style>
+                    .account-section {
+                        text-align: center;
+                        padding: 2rem 0;
+                    }
+
+                    .features-list {
+                        max-width: 500px;
+                        margin: 0 auto;
+                    }
+
+                    .feature-item {
+                        display: flex;
+                        align-items: center;
+                        justify-content: flex-start;
+                        margin: 1rem 0;
+                        padding: 0.8rem;
+                        background: rgba(255, 255, 255, 0.1);
+                        border-radius: 8px;
+                        backdrop-filter: blur(10px);
+                    }
+
+                    .feature-icon {
+                        font-size: 1.2rem;
+                        margin-right: 1rem;
+                        min-width: 30px;
+                    }
+
+                    .feature-text {
+                        text-align: left;
+                        flex: 1;
+                    }
+
+                    .btn-link {
+                        text-decoration: none;
+                        padding: 0.3rem 0.6rem;
+                        border-radius: 4px;
+                        transition: background-color 0.3s ease;
+                    }
+
+                    .btn-link:hover {
+                        background-color: rgba(255, 255, 255, 0.1);
+                    }
+                    </style>
     </head>
 
     <body class="">
@@ -276,16 +320,33 @@ checkBan($mysqli);
             <hr class="rounded fadeuphr mt-3 mb-3" />
             <div class="infondo fadeup">
                 <div class="sotto" style="padding-bottom: 1%">
-                    <p class="sottopag">Hey tu, hai un account Cripsum™?</p>
-                    <p class="sottopag"><a href="accedi" class="linkbianco">Accedi</a> al sito per sbloccare tutti i contenuti come:</p>
-                    <ul class="sottopag" style="text-align: center; list-style: none; padding: 0; margin: 1rem 0;">
-                        <li style="margin: 0.8rem 0; padding: 0.3rem;">✨ Accesso a pagine speciali come una Chat Globale e Goonland</li>
-                        <li style="margin: 0.8rem 0; padding: 0.3rem;">🎮 Giochi come le Lootbox e tanti Achievements da sbloccare!</li>
-                        <li style="margin: 0.8rem 0; padding: 0.3rem;">👤 Possibilità di modificare il tuo profilo e molto altro!</li>
-                    </ul>
-                    <p class="sottopag">
-                        Non hai un account? <a href="registrati" class="linkbianco">Registrati</a> ora e inizia a esplorare il sito!
-                    </p>
+                    <div class="account-section"></div>
+                        <h3 class="sottopag mb-3">Hai un account Cripsum™?</h3>
+                        <p class="sottopag mb-4">
+                            <a href="accedi" class="linkbianco btn-link">Accedi</a> al sito per sbloccare tutti i contenuti:
+                        </p>
+                        
+                        <div class="features-list mb-4">
+                            <div class="feature-item">
+                                <span class="feature-icon">✨</span>
+                                <span class="feature-text">Accesso a pagine speciali come Chat Globale e Goonland</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">🎮</span>
+                                <span class="feature-text">Giochi come Lootbox e tanti Achievements da sbloccare</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">👤</span>
+                                <span class="feature-text">Possibilità di modificare il tuo profilo e molto altro</span>
+                            </div>
+                        </div>
+                        
+                        <p class="sottopag">
+                            Non hai un account? 
+                            <a href="registrati" class="linkbianco btn-link">Registrati ora</a> 
+                            e inizia a esplorare!
+                        </p>
+                    </div>
                     <div class="social">
                         <p style="font-size: large; padding-left: 0.1%; margin-top: 3%">i miei social</p>
                         <a href="https://www.tiktok.com/@cripsum"><img src="../img/tiktok-white-icon.svg" class="imgbianca" alt="" style="margin-right: 0.1%; width: 28px; border-radius: 0" /></a>
