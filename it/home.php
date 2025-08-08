@@ -113,10 +113,6 @@ checkBan($mysqli);
                         overlay.style.display = "none";
                     }, 500);
                 }
-
-                window.onload = function () {
-                    setTimeout(showPopup, 700);
-                };
             </script>
 
             <?php if (isset($_SESSION['error_message'])): ?>
