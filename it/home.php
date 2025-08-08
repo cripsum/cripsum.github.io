@@ -278,10 +278,10 @@ checkBan($mysqli);
                 <div class="sotto" style="padding-bottom: 1%">
                     <p class="sottopag">Hey tu, hai un account Cripsum™?</p>
                     <p class="sottopag"><a href="accedi" class="linkbianco">Accedi</a> al sito per sbloccare tutti i contenuti come:</p>
-                    <ul class="sottopag">
-                        <li class="sottopag">Accesso a pagine speciali come una Chat Globale e Goonland</li>
-                        <li class="sottopag">Giochi come le Lootbox e tanti Achievements da sbloccare</li>
-                        <li class="sottopag">Possibilità di modificare il tuo profilo e molto altro!</li>
+                    <ul class="sottopag" style="text-align: center; list-style: none; padding: 0; margin: 1rem 0;">
+                        <li style="margin: 0.8rem 0; padding: 0.3rem;">✨ Accesso a pagine speciali come una Chat Globale e Goonland</li>
+                        <li style="margin: 0.8rem 0; padding: 0.3rem;">🎮 Giochi come le Lootbox e tanti Achievements da sbloccare!</li>
+                        <li style="margin: 0.8rem 0; padding: 0.3rem;">👤 Possibilità di modificare il tuo profilo e molto altro!</li>
                     </ul>
                     <p class="sottopag">
                         Non hai un account? <a href="registrati" class="linkbianco">Registrati</a> ora e inizia a esplorare il sito!
