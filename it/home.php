@@ -273,9 +273,9 @@ checkBan($mysqli);
                     document.write(getRandomImages());
                 </script>
             </div>
-            <hr class="rounded fadeuphr mt-3 mb-3" />
+            <hr class="rounded fadeuphr mt-3 mb-2" />
             <div class="infondo fadeup">
-                <div class="sotto" style="padding-bottom: 1%">
+                <div class="sotto">
                     <div class="account-section"></div>
                         <h3 class="sottopag mb-3">Hai un account Cripsum™?</h3>
                         <p class="sottopag mb-4">
