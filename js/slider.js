@@ -139,24 +139,20 @@
                 const slides = document.querySelectorAll('.slider-slide');
                 const dots = document.querySelectorAll('.dot');
 
-                // Remove active class from all slides
                 slides.forEach(slide => {
                     slide.classList.remove('active', 'from-right', 'from-left');
                 });
 
-                // Show the new slide
                 if (slides[index]) {
                     slides[index].classList.add(direction === 'right' ? 'from-right' : 'from-left');
                     slides[index].classList.add('active');
                     
-                    // Update the button link for the active slide
                     const button = slides[index].querySelector('.showcase-button');
                     if (button && this.slides[index]) {
                         button.href = this.slides[index].link;
                     }
                 }
 
-                // Update dots
                 dots.forEach(dot => dot.classList.remove('active'));
                 if (dots[index]) {
                     dots[index].classList.add('active');
