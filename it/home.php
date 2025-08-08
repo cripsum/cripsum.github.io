@@ -391,7 +391,7 @@ checkBan($mysqli);
                                                 <hr class="rounded fadeuphr mt-3 mb-2" />
                         <?php endif; ?>
                     
-                    <div class="social-section mt-3">
+                    <div class="social-section mt-5">
                         <h4 class="sottopag mb-4 text-center">Seguimi sui social</h4>
                         <div class="social-icons-modern d-flex justify-content-center align-items-center gap-4 flex-wrap">
                             <a href="https://www.tiktok.com/@cripsum" class="social-link-modern tiktok" title="TikTok">
