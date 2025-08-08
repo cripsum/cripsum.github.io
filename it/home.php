@@ -279,8 +279,8 @@ checkBan($mysqli);
                     <p class="sottopag">Hey tu, hai un account Cripsum™?</p>
                     <p class="sottopag"><a href="accedi" class="linkbianco">Accedi</a> al sito per sbloccare tutti i contenuti come:</p>
                     <ul class="sottopag">
-                        <li class="sottopag">Lootbox e Achievements</li>
                         <li class="sottopag">Accesso a pagine speciali come una Chat Globale e Goonland</li>
+                        <li class="sottopag">Giochi come Lootbox e Gambling e tanti Achievements da sbloccare</li>
                         <li class="sottopag">Possibilità di modificare il tuo profilo e molto altro!</li>
                     </ul>
                     <p class="sottopag">
