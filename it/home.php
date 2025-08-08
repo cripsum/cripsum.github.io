@@ -38,7 +38,7 @@ checkBan($mysqli);
                 }
             </script>
 
-            <div
+            <!--<div
                 id="popup-overlay"
                 style="
                     position: fixed;
@@ -63,7 +63,7 @@ checkBan($mysqli);
                     </button>
                     <div id="banner-content"></div>
                 </div>
-            </div>
+            </div>-->
 
             <script>
                 function getRandomBanner() {
