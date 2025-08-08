@@ -319,7 +319,7 @@ checkBan($mysqli);
                                 <div class="showcase-content">
                                     <h3 class="showcase-title">${slide.title}</h3>
                                     <p class="showcase-description">${slide.description}</p>
-                                    <a href="${slide.link}" class="showcase-button btn btn-${slide.buttonClass}">
+                                    <a href="${slide.link}" class="showcase-button btn btn-${slide.buttonClass}" data-slide="${index}">
                                         <span class="testobianco">${slide.buttonText}</span>
                                     </a>
                                 </div>
@@ -350,21 +350,24 @@ checkBan($mysqli);
                 const slides = document.querySelectorAll('.slider-slide');
                 const dots = document.querySelectorAll('.dot');
 
+                // Remove active class from all slides
                 slides.forEach(slide => {
                     slide.classList.remove('active', 'from-right', 'from-left');
                 });
 
+                // Show the new slide
                 if (slides[index]) {
                     slides[index].classList.add(direction === 'right' ? 'from-right' : 'from-left');
-                    
                     slides[index].classList.add('active');
                     
+                    // Update the button link for the active slide
                     const button = slides[index].querySelector('.showcase-button');
                     if (button && this.slides[index]) {
                         button.href = this.slides[index].link;
                     }
                 }
 
+                // Update dots
                 dots.forEach(dot => dot.classList.remove('active'));
                 if (dots[index]) {
                     dots[index].classList.add('active');
@@ -374,7 +377,9 @@ checkBan($mysqli);
                 
                 setTimeout(() => {
                     this.isTransitioning = false;
-                    slides[index]?.classList.remove('from-right', 'from-left');
+                    if (slides[index]) {
+                        slides[index].classList.remove('from-right', 'from-left');
+                    }
                 }, 650);
             }
 
@@ -431,13 +436,15 @@ checkBan($mysqli);
             contentSlider = new ContentSlider();
             
             const slider = document.getElementById('content-slider');
-            slider.addEventListener('mouseenter', () => {
-                if (contentSlider) contentSlider.pauseAutoSlide();
-            });
-            
-            slider.addEventListener('mouseleave', () => {
-                if (contentSlider) contentSlider.resumeAutoSlide();
-            });
+            if (slider) {
+                slider.addEventListener('mouseenter', () => {
+                    if (contentSlider) contentSlider.pauseAutoSlide();
+                });
+                
+                slider.addEventListener('mouseleave', () => {
+                    if (contentSlider) contentSlider.resumeAutoSlide();
+                });
+            }
         });
     </script>
             <hr class="rounded fadeuphr mt-3 mb-3" />
