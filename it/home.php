@@ -407,6 +407,206 @@ checkBan($mysqli);
                     });
                 });
                 </script>
+
+                <style>
+                    .content-slider {
+                        position: relative;
+                        max-width: 90%;
+                        margin: 2rem auto;
+                        overflow: hidden;
+                        border-radius: 15px;
+                        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                    }
+
+                    .slider-wrapper {
+                        display: flex;
+                        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+                        will-change: transform;
+                    }
+
+                    .slider-slide {
+                        min-width: 100%;
+                        opacity: 0;
+                        transform: translateX(20px);
+                        animation: slideIn 0.6s ease-out forwards;
+                    }
+
+                    .slider-slide.active {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+
+                    @keyframes slideIn {
+                        from {
+                            opacity: 0;
+                            transform: translateX(20px);
+                        }
+                        to {
+                            opacity: 1;
+                            transform: translateX(0);
+                        }
+                    }
+
+                    .content-showcase {
+                        padding: 2rem;
+                        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+                        backdrop-filter: blur(10px);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        margin: 0;
+                    }
+
+                    .showcase-wrapper {
+                        display: flex;
+                        align-items: center;
+                        gap: 2rem;
+                        flex-wrap: wrap;
+                        justify-content: center;
+                    }
+
+                    .showcase-media {
+                        flex: 0 0 auto;
+                    }
+
+                    .showcase-image {
+                        width: 120px;
+                        height: 120px;
+                        object-fit: cover;
+                        border-radius: 15px;
+                        transition: transform 0.3s ease;
+                    }
+
+                    .showcase-image:hover {
+                        transform: scale(1.05);
+                    }
+
+                    .showcase-content {
+                        flex: 1;
+                        text-align: center;
+                        min-width: 250px;
+                    }
+
+                    .showcase-title {
+                        font-size: 1.5rem;
+                        font-weight: bold;
+                        margin-bottom: 0.5rem;
+                        color: #fff;
+                    }
+
+                    .showcase-description {
+                        font-size: 1rem;
+                        margin-bottom: 1rem;
+                        color: rgba(255, 255, 255, 0.9);
+                    }
+
+                    .showcase-button {
+                        display: inline-block;
+                        padding: 0.75rem 1.5rem;
+                        border-radius: 25px;
+                        text-decoration: none;
+                        font-weight: bold;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                    }
+
+                    .showcase-button:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+                    }
+
+                    .showcase-button.primary {
+                        background: linear-gradient(45deg, #007bff, #0056b3);
+                    }
+                    .showcase-button.success {
+                        background: linear-gradient(45deg, #28a745, #1e7e34);
+                    }
+                    .showcase-button.warning {
+                        background: linear-gradient(45deg, #ffc107, #e0a800);
+                    }
+                    .showcase-button.info {
+                        background: linear-gradient(45deg, #17a2b8, #138496);
+                    }
+                    .showcase-button.danger {
+                        background: linear-gradient(45deg, #dc3545, #c82333);
+                    }
+                    .showcase-button.dark {
+                        background: linear-gradient(45deg, #343a40, #23272b);
+                    }
+                    .showcase-button.secondary {
+                        background: linear-gradient(45deg, #6c757d, #5a6268);
+                    }
+
+                    .slider-controls {
+                        position: absolute;
+                        top: 50%;
+                        left: 0;
+                        right: 0;
+                        transform: translateY(-50%);
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 0 1rem;
+                        z-index: 10;
+                        pointer-events: none;
+                    }
+
+                    .slider-btn {
+                        background: rgba(255, 255, 255, 0.2);
+                        border: none;
+                        color: white;
+                        width: 45px;
+                        height: 45px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        backdrop-filter: blur(10px);
+                        pointer-events: auto;
+                    }
+
+                    .slider-btn:hover {
+                        background: rgba(255, 255, 255, 0.3);
+                        transform: scale(1.1);
+                    }
+
+                    .slider-dots {
+                        display: flex;
+                        gap: 0.5rem;
+                        pointer-events: auto;
+                    }
+
+                    .dot {
+                        width: 12px;
+                        height: 12px;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.4);
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                    }
+
+                    .dot.active {
+                        background: white;
+                        transform: scale(1.2);
+                    }
+
+                    @media (max-width: 768px) {
+                        .showcase-wrapper {
+                            flex-direction: column;
+                            text-align: center;
+                        }
+
+                        .slider-controls {
+                            padding: 0 0.5rem;
+                        }
+
+                        .slider-btn {
+                            width: 35px;
+                            height: 35px;
+                        }
+                    }
+
+                </style>
             </div>
             <hr class="rounded fadeuphr mt-3 mb-3" />
             <p class="text-center fadeup">- pubblicità -</p>
