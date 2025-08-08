@@ -2,7 +2,7 @@
             constructor() {
                 this.slides = [
                     {
-                        media: '../img/jay.png',
+                        media: '../img/jay-quadrato.png',
                         title: 'Ciao! Sono Jay!',
                         description: 'Vuoi imparare l\'arte dello Spinjitzu?',
                         buttonText: 'Acquista il videocorso',
@@ -26,7 +26,7 @@
                         link: 'achievements'
                     },
                     {
-                        media: '../img/cassa.png',
+                        media: '../img/waguri.jpeg',
                         title: '📦 Lootboxes',
                         description: 'Apri lootbox e ottieni ricompense esclusive!',
                         buttonText: 'Apri lootbox',
@@ -42,7 +42,7 @@
                         link: 'edits'
                     },
                     {
-                        media: '../img/raspberry-chan8gb.png',
+                        media: '../img/mentone.png',
                         title: '🌟 Goonland',
                         description: 'Entra nella dimensione segreta del sito!',
                         buttonText: 'Accedi a Goonland',
