@@ -245,10 +245,10 @@ checkBan($mysqli);
                 </script>
             </div>
             <hr class="rounded fadeuphr mt-3 mb-2" />
-            <div class="infondo fadeup">
+            <div class="infondo">
                 <div class="sotto">
                         <?php if (!isset($_SESSION['user_id'])): ?>
-                            <div class="account-section">
+                            <div class="account-section fadeup">
                                                 <h3 class="sottopag mb-3">Hai un account Cripsum™?</h3>
                                                 <p class="sottopag mb-4">
                                                     <a href="accedi" class="linkbianco btn-link">Accedi</a> al sito per sbloccare tutti i contenuti:
@@ -278,7 +278,7 @@ checkBan($mysqli);
                                                 <hr class="rounded fadeuphr mt-3 mb-2" />
                         <?php endif; ?>
                     
-                    <div class="social-section mt-5">
+                    <div class="social-section mt-5 fadeup">
                         <h4 class="sottopag mb-4 text-center">Seguimi sui social</h4>
                         <div class="social-icons-modern d-flex justify-content-center align-items-center gap-4 flex-wrap">
                             <a href="https://www.tiktok.com/@cripsum" class="social-link-modern tiktok" title="TikTok">
@@ -308,7 +308,7 @@ checkBan($mysqli);
                         </div>
                     </div>
                 </div>
-                <div class="button-container" style="text-align: center; margin-top: 1rem">
+                <div class="button-container fadeup" style="text-align: center; margin-top: 1rem">
                     <button class="btn btn-secondary bottone" type="button" onclick="unlockAchievement(10)">
                         <a href="https://youtu.be/xvFZjo5PgG0?si=uPsap7ILF_8aYheh" class="testobianco">Clicca qui per V-bucks gratis!!!!</a>
                     </button>
