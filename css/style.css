@@ -784,7 +784,7 @@ select {
 .content-slider {
     position: relative;
     max-width: 600px;
-    margin: 2rem auto;
+    margin: 2.5rem auto;
     overflow: hidden;
     border-radius: 15px;
     padding-bottom: 5px;
@@ -1485,7 +1485,7 @@ select {
     }
 
     .emotions-section {
-        max-width: 90%;
+        max-width: 85%;
         margin: 0 auto;
     }
 
