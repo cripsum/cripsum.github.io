@@ -442,8 +442,7 @@ checkBan($mysqli);
                 if (contentSlider) contentSlider.resumeAutoSlide();
             });
         });
-                </script>
-            </div>
+    </script>
             <hr class="rounded fadeuphr mt-3 mb-3" />
             <p class="text-center fadeup">- pubblicità -</p>
             <div class="d-flex justify-content-center image-container" style="max-width: 80%; margin: auto">

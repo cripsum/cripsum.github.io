@@ -778,7 +778,6 @@ select {
     margin: 2rem auto;
     overflow: hidden;
     border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     padding-bottom: 50px;
 }
 
