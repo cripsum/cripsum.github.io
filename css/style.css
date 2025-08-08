@@ -1157,7 +1157,7 @@ select {
         margin: 0.5rem auto;
         padding-bottom: 45px;
         border-radius: 10px;
-        max-width: 95%;
+        max-width: 80%;
     }
 
     .slider-wrapper {
@@ -1225,7 +1225,7 @@ select {
     .content-slider {
         margin: 0.25rem auto;
         padding-bottom: 40px;
-        max-width: 98%;
+        max-width: 95%;
     }
 
     .slider-wrapper {
