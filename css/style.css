@@ -1476,7 +1476,7 @@ select {
 
 @media (max-width: 768px) {
     .hero-content {
-        max-width: 80%;
+        max-width: 90%;
         margin: 0 auto;
         flex-direction: column;
         text-align: center;
@@ -1494,15 +1494,13 @@ select {
     }
 
     .emotion-card {
-        max-width: 80%;
-        margin: 0 auto;
         padding: 1.5rem 1rem;
     }
 }
 
 @media (max-width: 480px) {
     .hero-section {
-        max-width: 80%;
+        max-width: 90%;
         margin: 0 auto;
         padding: 1rem 0.5rem;
     }
