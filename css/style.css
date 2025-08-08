@@ -1160,14 +1160,14 @@ select {
 /* Standard smartphone responsiveness */
 @media (max-width: 480px) {
     .content-slider {
-        margin: 0.5rem auto;
+        margin: 1rem auto;
         padding-bottom: 5px;
         border-radius: 10px;
         max-width: 75%;
     }
 
     .slider-wrapper {
-        height: 350px;
+        height: 270px;
     }
 
     .content-showcase {
@@ -1235,7 +1235,7 @@ select {
     }
 
     .slider-wrapper {
-        height: 380px;
+        height: 300px;
     }
 
     .content-showcase {
