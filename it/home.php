@@ -203,7 +203,7 @@ checkBan($mysqli);
             <div class="slider-dots" id="sliderDots"></div>
         </div>
     </div>
-        <script src="/js/slider.js?v=2"></script>
+        <script src="/js/slider.js?v=3"></script>
             <!--<hr class="rounded fadeuphr mt-3 mb-3" />
             <p class="text-center fadeup">- pubblicità -</p>
             <div class="d-flex justify-content-center image-container" style="max-width: 80%; margin: auto">
