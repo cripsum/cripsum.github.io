@@ -1466,7 +1466,7 @@ select {
 
 @media (max-width: 768px) {
     .hero-content {
-        max-width: 90%;
+        max-width: 87%;
         margin: 0 auto;
         flex-direction: column;
         text-align: center;
