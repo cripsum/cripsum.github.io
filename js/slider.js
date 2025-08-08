@@ -42,7 +42,7 @@
                         link: 'edits'
                     },
                     {
-                        media: '../img/mentone.png',
+                        media: '../img/mentone.jpg',
                         title: '🌟 Goonland',
                         description: 'Entra nella dimensione segreta del sito!',
                         buttonText: 'Accedi a Goonland',
