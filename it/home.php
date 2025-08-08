@@ -287,7 +287,6 @@ checkBan($mysqli);
             init() {
                 this.createSlides();
                 this.createDots();
-                // Mostra immediatamente la slide iniziale senza animazione
                 setTimeout(() => {
                     const slides = document.querySelectorAll('.slider-slide');
                     const dots = document.querySelectorAll('.dot');
@@ -320,7 +319,7 @@ checkBan($mysqli);
                                 <div class="showcase-content">
                                     <h3 class="showcase-title">${slide.title}</h3>
                                     <p class="showcase-description">${slide.description}</p>
-                                    <a href="${slide.link}" class="showcase-button ${slide.buttonClass}">
+                                    <a href="${slide.link}" class="showcase-button btn btn-${slide.buttonClass}">
                                         <span class="testobianco">${slide.buttonText}</span>
                                     </a>
                                 </div>
@@ -351,21 +350,21 @@ checkBan($mysqli);
                 const slides = document.querySelectorAll('.slider-slide');
                 const dots = document.querySelectorAll('.dot');
 
-                // Rimuovi tutte le classi da tutte le slide
                 slides.forEach(slide => {
                     slide.classList.remove('active', 'from-right', 'from-left');
                 });
 
-                // Attiva la nuova slide
                 if (slides[index]) {
-                    // Imposta direzione di entrata
                     slides[index].classList.add(direction === 'right' ? 'from-right' : 'from-left');
                     
-                    // Attiva immediatamente
                     slides[index].classList.add('active');
+                    
+                    const button = slides[index].querySelector('.showcase-button');
+                    if (button && this.slides[index]) {
+                        button.href = this.slides[index].link;
+                    }
                 }
 
-                // Aggiorna i puntini
                 dots.forEach(dot => dot.classList.remove('active'));
                 if (dots[index]) {
                     dots[index].classList.add('active');
@@ -373,10 +372,8 @@ checkBan($mysqli);
 
                 this.currentIndex = index;
                 
-                // Reset del flag
                 setTimeout(() => {
                     this.isTransitioning = false;
-                    // Pulisci le classi di direzione dopo l'animazione
                     slides[index]?.classList.remove('from-right', 'from-left');
                 }, 650);
             }
