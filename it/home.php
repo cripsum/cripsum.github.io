@@ -163,41 +163,41 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="hero-section fadeup">
-                <div class="hero-content">
-                    <div class="hero-image">
-                        <img class="hero-img" src="../img/amongus.jpg" alt="Cripsum Hero Image" />
-                    </div>
-                    <div class="hero-text">
-                        <h1 class="hero-title">Benvenuto/a nel sito migliore del congo</h1>
-                        <p class="hero-subtitle">cripsum re del Congo (pregate sempre e comunque per il Wise Mystical Tree)</p>
-                        <p class="hero-question">Hai più di 25 anni e possiedi un pc?</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="emotions-section fadeup">
-                <div class="emotions-grid">
-                    <div class="emotion-card">
-                        <div class="emotion-image-wrapper">
-                            <img src="../img/felicita.jpg" class="emotion-img" alt="Felicità" />
+                        <div class="hero-section fadeup">
+                            <div class="hero-content">
+                                <div class="hero-image">
+                                    <img class="hero-img ombra" src="../img/amongus.jpg" alt="Cripsum Hero" />
+                                </div>
+                                <div class="hero-text">
+                                    <h1 class="hero-title">Benvenuto/a nel sito migliore del congo</h1>
+                                    <p class="hero-subtitle">cripsum re del Congo (pregate sempre e comunque per il Wise Mystical Tree)</p>
+                                    <p class="hero-question">Hai più di 25 anni e possiedi un pc?</p>
+                                </div>
+                            </div>
                         </div>
-                        <h3 class="emotion-title">Felicità</h3>
-                    </div>
-                    <div class="emotion-card">
-                        <div class="emotion-image-wrapper">
-                            <img src="../img/tristezza.jpg" class="emotion-img" alt="Tristezza" />
+                        
+                        <div class="emotions-section fadeup">
+                            <div class="emotions-grid">
+                                <div class="emotion-card">
+                                    <div class="emotion-image-wrapper">
+                                        <img src="../img/felicita.jpg" class="emotion-img ombra" alt="Felicità" />
+                                    </div>
+                                    <h3 class="emotion-label">Felicità</h3>
+                                </div>
+                                <div class="emotion-card">
+                                    <div class="emotion-image-wrapper">
+                                        <img src="../img/tristezza.jpg" class="emotion-img ombra" alt="Tristezza" />
+                                    </div>
+                                    <h3 class="emotion-label">Tristezza</h3>
+                                </div>
+                                <div class="emotion-card">
+                                    <div class="emotion-image-wrapper">
+                                        <img src="../img/stupore.jpg" class="emotion-img ombra" alt="Stupore" />
+                                    </div>
+                                    <h3 class="emotion-label">Stupore</h3>
+                                </div>
+                            </div>
                         </div>
-                        <h3 class="emotion-title">Tristezza</h3>
-                    </div>
-                    <div class="emotion-card">
-                        <div class="emotion-image-wrapper">
-                            <img src="../img/stupore.jpg" class="emotion-img" alt="Stupore" />
-                        </div>
-                        <h3 class="emotion-title">Stupore</h3>
-                    </div>
-                </div>
-            </div>
             <hr class="rounded fadeuphr" />
 
     <div id="featuredContent" class="fadeup">
