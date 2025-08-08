@@ -194,119 +194,119 @@ checkBan($mysqli);
             <div id="randomAd">
                 <script>
                     function getRandomAd() {
-                        const ads = [
+                        const promotions = [
                             `<div class="container fadeup">
-                <div class="row justify-content-center align-items-center">
-                    <div class="col-md-auto mb-3 spinjitzu spingio">
-                        <img src="../img/jay.png" alt="Immagine Sinistra" class="img-fluid" />
+                <div class="row justify-content-center align-items-center py-4">
+                    <div class="col-md-3 text-center mb-3">
+                        <img src="../img/jay.png" alt="Jay" class="img-fluid rounded" style="max-width: 120px;" />
                     </div>
-                    <div class="col-md-6 text-center spinjitzu">
-                        <p class="fs-1 text" style="font-weight: bold">Ciao! Sono Jay!</p>
-                        <p class="fs-4 text mt-3">vuoi imparare l'arte dello Spinjitzu?</p>
-                        <button class="btn btn-secondary bottone" type="button">
-                            <a href="https://payhip.com/b/m0kaT" class="testobianco">Clicca qui per acquistare il mio videocorso online</a>
-                        </button>
+                    <div class="col-md-6 text-center">
+                        <h3 class="text mb-3" style="font-weight: 600;">Ciao! Sono Jay!</h3>
+                        <p class="fs-5 text mb-4">Vuoi imparare l'arte dello Spinjitzu?</p>
+                        <a href="https://payhip.com/b/m0kaT" class="btn btn-primary px-4 py-2 text-decoration-none">
+                            <span class="testobianco">Acquista il videocorso</span>
+                        </a>
                     </div>
-                    <div class="col-md-auto spinjitzu spingio">
-                        <img src="../img/maranza.jpg" alt="Immagine Destra" class="img-fluid ombra" />
-                    </div>
-                </div>
-            </div>`,
-            `<div class="container fadeup">
-                <div class="row justify-content-center align-items-center">
-                    <div class="col-md-auto mb-3 spinjitzu spingio">
-                        <img src="../img/chinese-essay-344821_1280.jpg" alt="Immagine Sinistra" class="img-fluid" style="max-width: 200px" />
-                    </div>
-                    <div class="col-md-6 text-center spinjitzu">
-                        <p class="fs-1 text" style="font-weight: bold">Hey! Mi chiamo 優希!</p>
-                        <p class="fs-4 text mt-3">vuoi imparare l'arte dello Yoshukai?</p>
-                        <button class="btn btn-secondary bottone" type="button">
-                            <a href="download/yoshukai" class="testobianco">Clicca qui per scaricare la mia guida gratuita</a>
-                        </button>
+                    <div class="col-md-3 text-center">
+                        <img src="../img/maranza.jpg" alt="Spinjitzu" class="img-fluid rounded ombra" style="max-width: 120px;" />
                     </div>
                 </div>
             </div>`,
             `<div class="container fadeup">
-                <div class="row justify-content-center align-items-center">
-                    <div class="col-md-auto mb-3 spinjitzu spingio">
-                        <img src="../img/segone4.png" alt="Achievements" class="img-fluid" style="max-width: 150px" />
+                <div class="row justify-content-center align-items-center py-4">
+                    <div class="col-md-3 text-center mb-3">
+                        <img src="../img/chinese-essay-344821_1280.jpg" alt="Yoshukai" class="img-fluid rounded" style="max-width: 120px;" />
                     </div>
-                    <div class="col-md-6 text-center spinjitzu">
-                        <p class="fs-1 text" style="font-weight: bold">🏆 Achievements!</p>
-                        <p class="fs-4 text mt-3">Sblocca tutti gli achievement del sito!</p>
-                        <button class="btn btn-secondary bottone" type="button">
-                            <a href="achievements" class="testobianco">Visualizza i tuoi progressi</a>
-                        </button>
-                    </div>
-                </div>
-            </div>`,
-            `<div class="container fadeup">
-                <div class="row justify-content-center align-items-center">
-                    <div class="col-md-auto mb-3 spinjitzu spingio">
-                        <img src="../img/cassa.png" alt="Lootbox" class="img-fluid" style="max-width: 180px" />
-                    </div>
-                    <div class="col-md-6 text-center spinjitzu">
-                        <p class="fs-1 text" style="font-weight: bold">📦 Lootboxes!</p>
-                        <p class="fs-4 text mt-3">Apri lootbox e ottieni ricompense esclusive!</p>
-                        <button class="btn btn-secondary bottone" type="button">
-                            <a href="lootbox" class="testobianco">Apri una lootbox ora</a>
-                        </button>
+                    <div class="col-md-6 text-center">
+                        <h3 class="text mb-3" style="font-weight: 600;">Hey! Mi chiamo 優希!</h3>
+                        <p class="fs-5 text mb-4">Vuoi imparare l'arte dello Yoshukai?</p>
+                        <a href="download/yoshukai" class="btn btn-success px-4 py-2 text-decoration-none">
+                            <span class="testobianco">Scarica la guida gratuita</span>
+                        </a>
                     </div>
                 </div>
             </div>`,
             `<div class="container fadeup">
-                <div class="row justify-content-center align-items-center">
-                    <div class="col-md-auto mb-3 spinjitzu spingio">
-                        <img src="../img/pfp choso2 cc.png" alt="Edits" class="img-fluid ombra" style="max-width: 160px" />
+                <div class="row justify-content-center align-items-center py-4">
+                    <div class="col-md-3 text-center mb-3">
+                        <img src="../img/segone4.png" alt="Achievements" class="img-fluid" style="max-width: 100px;" />
                     </div>
-                    <div class="col-md-6 text-center spinjitzu">
-                        <p class="fs-1 text" style="font-weight: bold">🎬 I miei Edit!</p>
-                        <p class="fs-4 text mt-3">Guarda i miei ultimi edit e video!</p>
-                        <button class="btn btn-secondary bottone" type="button">
-                            <a href="edits" class="testobianco">Scopri tutti gli edit</a>
-                        </button>
-                    </div>
-                </div>
-            </div>`,
-            `<div class="container fadeup">
-                <div class="row justify-content-center align-items-center">
-                    <div class="col-md-auto mb-3 spinjitzu spingio">
-                        <img src="../img/raspberry-chan8gb.png" alt="Goonland" class="img-fluid" style="max-width: 170px" />
-                    </div>
-                    <div class="col-md-6 text-center spinjitzu">
-                        <p class="fs-1 text" style="font-weight: bold">🌟 Goonland!</p>
-                        <p class="fs-4 text mt-3">Entra nella dimensione segreta del sito!</p>
-                        <button class="btn btn-secondary bottone" type="button">
-                            <a href="goonland" class="testobianco">Accedi a Goonland</a>
-                        </button>
+                    <div class="col-md-6 text-center">
+                        <h3 class="text mb-3" style="font-weight: 600;">🏆 Achievements</h3>
+                        <p class="fs-5 text mb-4">Sblocca tutti gli achievement del sito!</p>
+                        <a href="achievements" class="btn btn-warning px-4 py-2 text-decoration-none">
+                            <span class="testobianco">Visualizza progressi</span>
+                        </a>
                     </div>
                 </div>
             </div>`,
             `<div class="container fadeup">
-                <div class="row justify-content-center align-items-center">
-                    <div class="col-md-auto mb-3 spinjitzu spingio">
-                        <img src="../img/abdul.jpg" alt="Chat Globale" class="img-fluid" style="max-width: 150px" />
+                <div class="row justify-content-center align-items-center py-4">
+                    <div class="col-md-3 text-center mb-3">
+                        <img src="../img/cassa.png" alt="Lootbox" class="img-fluid" style="max-width: 120px;" />
                     </div>
-                    <div class="col-md-6 text-center spinjitzu">
-                        <p class="fs-1 text" style="font-weight: bold">💬 Chat Globale!</p>
-                        <p class="fs-4 text mt-3">Chatta con tutti gli utenti del sito!</p>
-                        <button class="btn btn-secondary bottone" type="button">
-                            <a href="chat" class="testobianco">Entra in chat ora</a>
-                        </button>
+                    <div class="col-md-6 text-center">
+                        <h3 class="text mb-3" style="font-weight: 600;">📦 Lootboxes</h3>
+                        <p class="fs-5 text mb-4">Apri lootbox e ottieni ricompense esclusive!</p>
+                        <a href="lootbox" class="btn btn-info px-4 py-2 text-decoration-none">
+                            <span class="testobianco">Apri lootbox</span>
+                        </a>
                     </div>
                 </div>
             </div>`,
             `<div class="container fadeup">
-                <div class="row justify-content-center align-items-center">
-                    <div class="col-md-auto mb-3 spinjitzu spingio">
-                        <img src="../img/dukedennis.jpg" alt="Downloads" class="img-fluid" style="max-width: 140px" />
+                <div class="row justify-content-center align-items-center py-4">
+                    <div class="col-md-3 text-center mb-3">
+                        <img src="../img/pfp choso2 cc.png" alt="Video Edits" class="img-fluid rounded ombra" style="max-width: 110px;" />
                     </div>
-                    <div class="col-md-6 text-center spinjitzu">
-                        <p class="fs-1 text" style="font-weight: bold">⬇️ Downloads!</p>
-                        <p class="fs-4 text mt-3">Scarica contenuti esclusivi e meme!</p>
-                        <button class="btn btn-secondary bottone" type="button">
-                            <a href="download" class="testobianco">Vai ai download</a>
-                        </button>
+                    <div class="col-md-6 text-center">
+                        <h3 class="text mb-3" style="font-weight: 600;">🎬 I miei Edit</h3>
+                        <p class="fs-5 text mb-4">Guarda i miei ultimi edit e video!</p>
+                        <a href="edits" class="btn btn-danger px-4 py-2 text-decoration-none">
+                            <span class="testobianco">Scopri gli edit</span>
+                        </a>
+                    </div>
+                </div>
+            </div>`,
+            `<div class="container fadeup">
+                <div class="row justify-content-center align-items-center py-4">
+                    <div class="col-md-3 text-center mb-3">
+                        <img src="../img/raspberry-chan8gb.png" alt="Goonland" class="img-fluid" style="max-width: 120px;" />
+                    </div>
+                    <div class="col-md-6 text-center">
+                        <h3 class="text mb-3" style="font-weight: 600;">🌟 Goonland</h3>
+                        <p class="fs-5 text mb-4">Entra nella dimensione segreta del sito!</p>
+                        <a href="goonland/home" class="btn btn-dark px-4 py-2 text-decoration-none">
+                            <span class="testobianco">Accedi a Goonland</span>
+                        </a>
+                    </div>
+                </div>
+            </div>`,
+            `<div class="container fadeup">
+                <div class="row justify-content-center align-items-center py-4">
+                    <div class="col-md-3 text-center mb-3">
+                        <img src="../img/abdul.jpg" alt="Chat" class="img-fluid rounded" style="max-width: 110px;" />
+                    </div>
+                    <div class="col-md-6 text-center">
+                        <h3 class="text mb-3" style="font-weight: 600;">💬 Chat Globale</h3>
+                        <p class="fs-5 text mb-4">Chatta con tutti gli utenti del sito!</p>
+                        <a href="global-chat" class="btn btn-success px-4 py-2 text-decoration-none">
+                            <span class="testobianco">Entra in chat</span>
+                        </a>
+                    </div>
+                </div>
+            </div>`,
+            `<div class="container fadeup">
+                <div class="row justify-content-center align-items-center py-4">
+                    <div class="col-md-3 text-center mb-3">
+                        <img src="../img/dukedennis.jpg" alt="Downloads" class="img-fluid rounded" style="max-width: 100px;" />
+                    </div>
+                    <div class="col-md-6 text-center">
+                        <h3 class="text mb-3" style="font-weight: 600;">⬇️ Downloads</h3>
+                        <p class="fs-5 text mb-4">Scarica contenuti esclusivi e meme!</p>
+                        <a href="download" class="btn btn-secondary px-4 py-2 text-decoration-none">
+                            <span class="testobianco">Vai ai download</span>
+                        </a>
                     </div>
                 </div>
             </div>`,
