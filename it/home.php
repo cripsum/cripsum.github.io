@@ -276,8 +276,16 @@ checkBan($mysqli);
             <hr class="rounded fadeuphr mt-3 mb-3" />
             <div class="infondo fadeup">
                 <div class="sotto" style="padding-bottom: 1%">
-                    <p class="sottopag">Hey tu, hai un token di accesso?</p>
-                    <p class="sottopag"><a href="accedi" class="linkbianco">Accedi</a> al sito per sbloccare tutti i contenuti</p>
+                    <p class="sottopag">Hey tu, hai un account Cripsum™?</p>
+                    <p class="sottopag"><a href="accedi" class="linkbianco">Accedi</a> al sito per sbloccare tutti i contenuti come:</p>
+                    <ul class="sottopag">
+                        <li class="sottopag">Lootbox e Achievements</li>
+                        <li class="sottopag">Accesso a pagine speciali come una Chat Globale e Goonland</li>
+                        <li class="sottopag">Possibilità di modificare il tuo profilo e molto altro!</li>
+                    </ul>
+                    <p class="sottopag">
+                        Non hai un account? <a href="registrati" class="linkbianco">Registrati</a> ora e inizia a esplorare il sito!
+                    </p>
                     <div class="social">
                         <p style="font-size: large; padding-left: 0.1%; margin-top: 3%">i miei social</p>
                         <a href="https://www.tiktok.com/@cripsum"><img src="../img/tiktok-white-icon.svg" class="imgbianca" alt="" style="margin-right: 0.1%; width: 28px; border-radius: 0" /></a>
@@ -291,20 +299,6 @@ checkBan($mysqli);
                 <div class="button-container" style="text-align: center; margin-top: 1rem">
                     <button class="btn btn-secondary bottone" type="button" onclick="unlockAchievement(10)">
                         <a href="https://youtu.be/xvFZjo5PgG0?si=uPsap7ILF_8aYheh" class="testobianco">Clicca qui per V-bucks gratis!!!!</a>
-                    </button>
-                </div>
-                <div class="search-container" style="text-align: center; margin-top: 2rem;">
-                    <p>test temporaneo</p>
-                    <div class="input-group" style="max-width: 400px; margin: 0 auto;">
-                        <input type="text" id="userSearch" class="form-control" placeholder="Cerca profilo utente..." style="background-color: var(--bg-color); border: 1px solid #ccc;">
-                        <button class="btn btn-primary" type="button" onclick="searchUser()">
-                            <span class="testobianco">Vai al profilo</span>
-                        </button>
-                    </div>
-                </div>
-                <div class="button-container" style="text-align: center; margin-top: 1rem">
-                    <button class="btn btn-secondary bottone" type="button">
-                        <a href="global-chat" class="testobianco">Vai alla chat globale</a>
                     </button>
                 </div>
 
