@@ -204,7 +204,7 @@ checkBan($mysqli);
         </div>
     </div>
         <script src="/js/slider.js?v=2"></script>
-            <hr class="rounded fadeuphr mt-3 mb-3" />
+            <!--<hr class="rounded fadeuphr mt-3 mb-3" />
             <p class="text-center fadeup">- pubblicità -</p>
             <div class="d-flex justify-content-center image-container" style="max-width: 80%; margin: auto">
                 <script>
@@ -244,7 +244,7 @@ checkBan($mysqli);
                     document.write(getRandomImages());
                 </script>
             </div>
-            <hr class="rounded fadeuphr mt-3 mb-2" />
+            <hr class="rounded fadeuphr mt-3 mb-2" />-->
             <div class="infondo">
                 <div class="sotto">
                         <?php if (!isset($_SESSION['user_id'])): ?>
