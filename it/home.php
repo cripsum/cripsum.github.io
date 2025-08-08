@@ -192,129 +192,220 @@ checkBan($mysqli);
             <hr class="rounded fadeuphr" />
 
             <div id="featuredContent">
+                <div id="content-slider" class="content-slider">
+                    <div class="slider-controls">
+                        <button class="slider-btn prev" onclick="previousSlide()">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="slider-dots" id="sliderDots"></div>
+                        <button class="slider-btn next" onclick="nextSlide()">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <div class="slider-wrapper" id="sliderWrapper">
+                       
+                    </div>
+                </div>
+
                 <script>
-                    function getRandomPromotion() {
-                        const promotions = [
-                            `<div class="content-showcase fadeup">
-                <div class="showcase-wrapper">
-                    <div class="showcase-media">
-                        <img src="../img/jay.png" alt="Jay" class="showcase-image" />
-                    </div>
-                    <div class="showcase-content">
-                        <h3 class="showcase-title">Ciao! Sono Jay!</h3>
-                        <p class="showcase-description">Vuoi imparare l'arte dello Spinjitzu?</p>
-                        <a href="https://payhip.com/b/m0kaT" class="showcase-button primary">
-                            <span class="testobianco">Acquista il videocorso</span>
-                        </a>
-                    </div>
-                    <div class="showcase-media">
-                        <img src="../img/maranza.jpg" alt="Spinjitzu" class="showcase-image ombra" />
-                    </div>
-                </div>
-            </div>`,
-            `<div class="content-showcase fadeup">
-                <div class="showcase-wrapper">
-                    <div class="showcase-media">
-                        <img src="../img/chinese-essay-344821_1280.jpg" alt="Yoshukai" class="showcase-image" />
-                    </div>
-                    <div class="showcase-content">
-                        <h3 class="showcase-title">Hey! Mi chiamo 優希!</h3>
-                        <p class="showcase-description">Vuoi imparare l'arte dello Yoshukai?</p>
-                        <a href="download/yoshukai" class="showcase-button success">
-                            <span class="testobianco">Scarica la guida gratuita</span>
-                        </a>
-                    </div>
-                </div>
-            </div>`,
-            `<div class="content-showcase fadeup">
-                <div class="showcase-wrapper">
-                    <div class="showcase-media">
-                        <img src="../img/segone4.png" alt="Achievements" class="showcase-image" />
-                    </div>
-                    <div class="showcase-content">
-                        <h3 class="showcase-title">🏆 Achievements</h3>
-                        <p class="showcase-description">Sblocca tutti gli achievement del sito!</p>
-                        <a href="achievements" class="showcase-button warning">
-                            <span class="testobianco">Visualizza progressi</span>
-                        </a>
-                    </div>
-                </div>
-            </div>`,
-            `<div class="content-showcase fadeup">
-                <div class="showcase-wrapper">
-                    <div class="showcase-media">
-                        <img src="../img/cassa.png" alt="Lootbox" class="showcase-image" />
-                    </div>
-                    <div class="showcase-content">
-                        <h3 class="showcase-title">📦 Lootboxes</h3>
-                        <p class="showcase-description">Apri lootbox e ottieni ricompense esclusive!</p>
-                        <a href="lootbox" class="showcase-button info">
-                            <span class="testobianco">Apri lootbox</span>
-                        </a>
-                    </div>
-                </div>
-            </div>`,
-            `<div class="content-showcase fadeup">
-                <div class="showcase-wrapper">
-                    <div class="showcase-media">
-                        <img src="../img/pfp choso2 cc.png" alt="Video Edits" class="showcase-image ombra" />
-                    </div>
-                    <div class="showcase-content">
-                        <h3 class="showcase-title">🎬 I miei Edit</h3>
-                        <p class="showcase-description">Guarda i miei ultimi edit e video!</p>
-                        <a href="edits" class="showcase-button danger">
-                            <span class="testobianco">Scopri gli edit</span>
-                        </a>
-                    </div>
-                </div>
-            </div>`,
-            `<div class="content-showcase fadeup">
-                <div class="showcase-wrapper">
-                    <div class="showcase-media">
-                        <img src="../img/raspberry-chan8gb.png" alt="Goonland" class="showcase-image" />
-                    </div>
-                    <div class="showcase-content">
-                        <h3 class="showcase-title">🌟 Goonland</h3>
-                        <p class="showcase-description">Entra nella dimensione segreta del sito!</p>
-                        <a href="goonland/home" class="showcase-button dark">
-                            <span class="testobianco">Accedi a Goonland</span>
-                        </a>
-                    </div>
-                </div>
-            </div>`,
-            `<div class="content-showcase fadeup">
-                <div class="showcase-wrapper">
-                    <div class="showcase-media">
-                        <img src="../img/abdul.jpg" alt="Chat" class="showcase-image" />
-                    </div>
-                    <div class="showcase-content">
-                        <h3 class="showcase-title">💬 Chat Globale</h3>
-                        <p class="showcase-description">Chatta con tutti gli utenti del sito!</p>
-                        <a href="global-chat" class="showcase-button success">
-                            <span class="testobianco">Entra in chat</span>
-                        </a>
-                    </div>
-                </div>
-            </div>`,
-            `<div class="content-showcase fadeup">
-                <div class="showcase-wrapper">
-                    <div class="showcase-media">
-                        <img src="../img/dukedennis.jpg" alt="Downloads" class="showcase-image" />
-                    </div>
-                    <div class="showcase-content">
-                        <h3 class="showcase-title">⬇️ Downloads</h3>
-                        <p class="showcase-description">Scarica contenuti esclusivi e meme!</p>
-                        <a href="download" class="showcase-button secondary">
-                            <span class="testobianco">Vai ai download</span>
-                        </a>
-                    </div>
-                </div>
-            </div>`,
+                class ContentSlider {
+                    constructor() {
+                        this.slides = [
+                            {
+                                media: '../img/jay.png',
+                                title: 'Ciao! Sono Jay!',
+                                description: 'Vuoi imparare l\'arte dello Spinjitzu?',
+                                buttonText: 'Acquista il videocorso',
+                                buttonClass: 'primary',
+                                link: 'https://payhip.com/b/m0kaT',
+                                extraMedia: '../img/maranza.jpg'
+                            },
+                            {
+                                media: '../img/chinese-essay-344821_1280.jpg',
+                                title: 'Hey! Mi chiamo 優希!',
+                                description: 'Vuoi imparare l\'arte dello Yoshukai?',
+                                buttonText: 'Scarica la guida gratuita',
+                                buttonClass: 'success',
+                                link: 'download/yoshukai'
+                            },
+                            {
+                                media: '../img/segone4.png',
+                                title: '🏆 Achievements',
+                                description: 'Sblocca tutti gli achievement del sito!',
+                                buttonText: 'Visualizza progressi',
+                                buttonClass: 'warning',
+                                link: 'achievements'
+                            },
+                            {
+                                media: '../img/cassa.png',
+                                title: '📦 Lootboxes',
+                                description: 'Apri lootbox e ottieni ricompense esclusive!',
+                                buttonText: 'Apri lootbox',
+                                buttonClass: 'info',
+                                link: 'lootbox'
+                            },
+                            {
+                                media: '../img/pfp choso2 cc.png',
+                                title: '🎬 I miei Edit',
+                                description: 'Guarda i miei ultimi edit e video!',
+                                buttonText: 'Scopri gli edit',
+                                buttonClass: 'danger',
+                                link: 'edits'
+                            },
+                            {
+                                media: '../img/raspberry-chan8gb.png',
+                                title: '🌟 Goonland',
+                                description: 'Entra nella dimensione segreta del sito!',
+                                buttonText: 'Accedi a Goonland',
+                                buttonClass: 'dark',
+                                link: 'goonland/home'
+                            },
+                            {
+                                media: '../img/abdul.jpg',
+                                title: '💬 Chat Globale',
+                                description: 'Chatta con tutti gli utenti del sito!',
+                                buttonText: 'Entra in chat',
+                                buttonClass: 'success',
+                                link: 'global-chat'
+                            },
+                            {
+                                media: '../img/dukedennis.jpg',
+                                title: '⬇️ Downloads',
+                                description: 'Scarica contenuti esclusivi e meme!',
+                                buttonText: 'Vai ai download',
+                                buttonClass: 'secondary',
+                                link: 'download'
+                            }
                         ];
-                        return promotions[Math.floor(Math.random() * promotions.length)];
+                        
+                        this.currentIndex = Math.floor(Math.random() * this.slides.length);
+                        this.autoSlideInterval = null;
+                        this.init();
                     }
 
-                    document.write(getRandomPromotion());
+                    init() {
+                        this.createSlides();
+                        this.createDots();
+                        this.showSlide(this.currentIndex);
+                        this.startAutoSlide();
+                    }
+
+                    createSlides() {
+                        const wrapper = document.getElementById('sliderWrapper');
+                        wrapper.innerHTML = '';
+
+                        this.slides.forEach((slide, index) => {
+                            const slideElement = document.createElement('div');
+                            slideElement.className = 'slider-slide';
+                            
+                            slideElement.innerHTML = `
+                                <div class="content-showcase">
+                                    <div class="showcase-wrapper">
+                                        <div class="showcase-media">
+                                            <img src="${slide.media}" alt="${slide.title}" class="showcase-image ${slide.media.includes('maranza') || slide.media.includes('choso') ? 'ombra' : ''}" />
+                                        </div>
+                                        <div class="showcase-content">
+                                            <h3 class="showcase-title">${slide.title}</h3>
+                                            <p class="showcase-description">${slide.description}</p>
+                                            <a href="${slide.link}" class="showcase-button ${slide.buttonClass}">
+                                                <span class="testobianco">${slide.buttonText}</span>
+                                            </a>
+                                        </div>
+                                        ${slide.extraMedia ? `<div class="showcase-media"><img src="${slide.extraMedia}" alt="Extra" class="showcase-image ombra" /></div>` : ''}
+                                    </div>
+                                </div>
+                            `;
+                            
+                            wrapper.appendChild(slideElement);
+                        });
+                    }
+
+                    createDots() {
+                        const dotsContainer = document.getElementById('sliderDots');
+                        dotsContainer.innerHTML = '';
+                        
+                        this.slides.forEach((_, index) => {
+                            const dot = document.createElement('span');
+                            dot.className = 'dot';
+                            dot.onclick = () => this.goToSlide(index);
+                            dotsContainer.appendChild(dot);
+                        });
+                    }
+
+                    showSlide(index) {
+                        const wrapper = document.getElementById('sliderWrapper');
+                        const slides = wrapper.children;
+                        const dots = document.querySelectorAll('.dot');
+
+                        Array.from(slides).forEach(slide => slide.classList.remove('active'));
+                        Array.from(dots).forEach(dot => dot.classList.remove('active'));
+
+                        wrapper.style.transform = `translateX(-${index * 100}%)`;
+                        
+                        if (slides[index]) slides[index].classList.add('active');
+                        if (dots[index]) dots[index].classList.add('active');
+                    }
+
+                    nextSlide() {
+                        this.currentIndex = (this.currentIndex + 1) % this.slides.length;
+                        this.showSlide(this.currentIndex);
+                        this.restartAutoSlide();
+                    }
+
+                    previousSlide() {
+                        this.currentIndex = (this.currentIndex - 1 + this.slides.length) % this.slides.length;
+                        this.showSlide(this.currentIndex);
+                        this.restartAutoSlide();
+                    }
+
+                    goToSlide(index) {
+                        this.currentIndex = index;
+                        this.showSlide(this.currentIndex);
+                        this.restartAutoSlide();
+                    }
+
+                    startAutoSlide() {
+                        this.autoSlideInterval = setInterval(() => {
+                            this.nextSlide();
+                        }, 5000);
+                    }
+
+                    restartAutoSlide() {
+                        clearInterval(this.autoSlideInterval);
+                        this.startAutoSlide();
+                    }
+
+                    pauseAutoSlide() {
+                        clearInterval(this.autoSlideInterval);
+                    }
+
+                    resumeAutoSlide() {
+                        this.startAutoSlide();
+                    }
+                }
+
+                let contentSlider;
+
+                function nextSlide() {
+                    if (contentSlider) contentSlider.nextSlide();
+                }
+
+                function previousSlide() {
+                    if (contentSlider) contentSlider.previousSlide();
+                }
+
+                document.addEventListener('DOMContentLoaded', function() {
+                    contentSlider = new ContentSlider();
+                    
+                    const slider = document.getElementById('content-slider');
+                    slider.addEventListener('mouseenter', () => {
+                        if (contentSlider) contentSlider.pauseAutoSlide();
+                    });
+                    
+                    slider.addEventListener('mouseleave', () => {
+                        if (contentSlider) contentSlider.resumeAutoSlide();
+                    });
+                });
                 </script>
             </div>
             <hr class="rounded fadeuphr mt-3 mb-3" />
