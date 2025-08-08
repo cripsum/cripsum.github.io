@@ -776,16 +776,15 @@ select {
     position: relative;
     max-width: 800px;
     margin: 2rem auto;
+    overflow: hidden;
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    padding-bottom: 40px; /* Spazio per i puntini */
+    padding-bottom: 50px;
 }
 
 .slider-wrapper {
     position: relative;
-    overflow: hidden;
-    border-radius: 15px;
-    min-height: 200px;
+    height: 250px;
 }
 
 .slider-slide {
@@ -794,25 +793,21 @@ select {
     left: 0;
     width: 100%;
     opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.6s ease-in-out, visibility 0.6s ease-in-out;
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .slider-slide.active {
     opacity: 1;
-    visibility: visible;
-    position: relative;
 }
 
 .content-showcase {
     width: 100%;
     padding: 2rem;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-    border-radius: 15px;
+    border-radius: 20px;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    position: relative;
     box-sizing: border-box;
 }
 
@@ -821,24 +816,26 @@ select {
     align-items: center;
     gap: 2rem;
     flex-wrap: wrap;
-    transform: translateX(-20px);
+    transform: translateX(0);
+    opacity: 1;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Animazione quando la slide non è attiva */
+.slider-slide:not(.active) .showcase-wrapper {
+    transform: translateX(-30px);
     opacity: 0;
-    animation: slideInContent 0.8s ease-out 0.2s forwards;
 }
 
-.slider-slide.active .showcase-wrapper {
-    animation: slideInContent 0.8s ease-out forwards;
+/* Animazione direzionale per l'entrata */
+.slider-slide.from-right .showcase-wrapper {
+    transform: translateX(30px);
+    opacity: 0;
 }
 
-@keyframes slideInContent {
-    from {
-        opacity: 0;
-        transform: translateX(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+.slider-slide.from-left .showcase-wrapper {
+    transform: translateX(-30px);
+    opacity: 0;
 }
 
 .showcase-media {
@@ -906,27 +903,21 @@ select {
 .showcase-button.primary {
     background: linear-gradient(45deg, #007bff, #0056b3);
 }
-
 .showcase-button.success {
     background: linear-gradient(45deg, #28a745, #1e7e34);
 }
-
 .showcase-button.warning {
     background: linear-gradient(45deg, #ffc107, #e0a800);
 }
-
 .showcase-button.info {
     background: linear-gradient(45deg, #17a2b8, #117a8b);
 }
-
 .showcase-button.danger {
     background: linear-gradient(45deg, #dc3545, #c82333);
 }
-
 .showcase-button.dark {
     background: linear-gradient(45deg, #343a40, #23272b);
 }
-
 .showcase-button.secondary {
     background: linear-gradient(45deg, #6c757d, #5a6268);
 }
@@ -970,20 +961,20 @@ select {
     transform: scale(1.1);
 }
 
-/* Puntini posizionati correttamente in basso */
 .slider-dots {
     position: absolute;
-    bottom: 10px;
+    bottom: 15px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
     gap: 8px;
     z-index: 10;
+    pointer-events: auto;
 }
 
 .dot {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.4);
     cursor: pointer;
@@ -998,46 +989,37 @@ select {
 @media (max-width: 768px) {
     .content-slider {
         margin: 1rem;
-        padding-bottom: 35px;
+        padding-bottom: 45px;
     }
-
     .content-showcase {
         padding: 1.5rem;
     }
-
     .showcase-wrapper {
         flex-direction: column;
         text-align: center;
     }
-
     .showcase-image {
         width: 80px;
         height: 80px;
     }
-
     .showcase-title {
         font-size: 1.3rem;
     }
-
     .showcase-description {
         font-size: 1rem;
     }
-
     .slider-controls {
         padding: 0 0.5rem;
     }
-
     .slider-btn {
         width: 35px;
         height: 35px;
     }
-
     .dot {
-        width: 8px;
-        height: 8px;
+        width: 6px;
+        height: 6px;
     }
-
     .slider-dots {
-        bottom: 8px;
+        bottom: 12px;
     }
 }
