@@ -828,7 +828,7 @@ select {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 2rem;
+    gap: 1rem;
     flex-wrap: wrap;
     transform: translateX(0);
     opacity: 1;
@@ -1050,7 +1050,7 @@ select {
     }
 
     .showcase-wrapper {
-        gap: 1.5rem;
+        gap: 1rem;
     }
 
     .showcase-image {
@@ -1087,7 +1087,7 @@ select {
     .showcase-wrapper {
         flex-direction: column;
         text-align: center;
-        gap: 1.2rem;
+        gap: 1rem;
         align-items: center;
         justify-content: center;
         width: 100%;
