@@ -1466,7 +1466,7 @@ select {
 
 @media (max-width: 768px) {
     .hero-content {
-        max-width: 87%;
+        max-width: 90%;
         margin: 0 auto;
         flex-direction: column;
         text-align: center;
@@ -1475,7 +1475,7 @@ select {
     }
 
     .emotions-section {
-        max-width: 85%;
+        max-width: 83%;
         margin: 0 auto;
     }
 
