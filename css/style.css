@@ -783,7 +783,7 @@ select {
 /*banner*/
 .content-slider {
     position: relative;
-    max-width: 600px;
+    max-width: 800px;
     margin: 2.5rem auto;
     overflow: hidden;
     border-radius: 15px;
@@ -840,7 +840,6 @@ select {
     margin: 0 auto;
 }
 
-
 .slider-slide:not(.active) .showcase-wrapper {
     transform: translateX(-30px);
     opacity: 0;
@@ -864,8 +863,8 @@ select {
 }
 
 .showcase-image {
-    width: 100px;
-    height: 100px;
+    width: 170px;
+    height: 170px;
     object-fit: cover;
     border-radius: 15px;
     border: 2px solid rgba(255, 255, 255, 0.3);
@@ -1022,7 +1021,7 @@ select {
     transform: translateX(-50%);
     display: flex;
     gap: 8px;
-    z-index: 20; 
+    z-index: 20;
     pointer-events: auto;
 }
 
