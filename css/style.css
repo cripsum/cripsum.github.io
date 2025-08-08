@@ -787,7 +787,7 @@ select {
     margin: 2.5rem auto;
     overflow: hidden;
     border-radius: 15px;
-    padding-bottom: 5px;
+    padding-bottom: 15px;
 }
 
 .slider-wrapper {
@@ -1066,7 +1066,7 @@ select {
 @media (max-width: 768px) {
     .content-slider {
         margin: 1rem auto;
-        padding-bottom: 5px;
+        padding-bottom: 10px;
         max-width: 80%;
         border-radius: 12px;
     }
@@ -1159,7 +1159,7 @@ select {
 @media (max-width: 480px) {
     .content-slider {
         margin: 1rem auto;
-        padding-bottom: 5px;
+        padding-bottom: 10px;
         border-radius: 10px;
         max-width: 75%;
     }
