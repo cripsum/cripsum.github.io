@@ -447,14 +447,6 @@ checkBan($mysqli);
                         }
                     }
 
-                    .content-showcase {
-                        padding: 2rem;
-                        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-                        backdrop-filter: blur(10px);
-                        border: 1px solid rgba(255, 255, 255, 0.2);
-                        margin: 0;
-                    }
-
                     .showcase-wrapper {
                         display: flex;
                         align-items: center;
@@ -483,29 +475,6 @@ checkBan($mysqli);
                         flex: 1;
                         text-align: center;
                         min-width: 250px;
-                    }
-
-                    .showcase-title {
-                        font-size: 1.5rem;
-                        font-weight: bold;
-                        margin-bottom: 0.5rem;
-                        color: #fff;
-                    }
-
-                    .showcase-description {
-                        font-size: 1rem;
-                        margin-bottom: 1rem;
-                        color: rgba(255, 255, 255, 0.9);
-                    }
-
-                    .showcase-button {
-                        display: inline-block;
-                        padding: 0.75rem 1.5rem;
-                        border-radius: 25px;
-                        text-decoration: none;
-                        font-weight: bold;
-                        transition: all 0.3s ease;
-                        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
                     }
 
                     .showcase-button:hover {
