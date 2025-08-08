@@ -213,7 +213,7 @@ checkBan($mysqli);
             constructor() {
                 this.slides = [
                     {
-                        media: '../img/jay.jpg',
+                        media: '../img/jay.png',
                         title: 'Ciao! Sono Jay!',
                         description: 'Vuoi imparare l\'arte dello Spinjitzu?',
                         buttonText: 'Acquista il videocorso',
