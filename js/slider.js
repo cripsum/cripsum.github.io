@@ -219,15 +219,5 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             contentSlider = new ContentSlider();
-            
-            const slider = document.getElementById('content-slider');
-            if (slider) {
-                slider.addEventListener('mouseenter', () => {
-                    if (contentSlider) contentSlider.pauseAutoSlide();
-                });
-                
-                slider.addEventListener('mouseleave', () => {
-                    if (contentSlider) contentSlider.resumeAutoSlide();
-                });
-            }
+
         });
