@@ -17,17 +17,14 @@ if ($isLoggedIn) {
     $ruolo = $_SESSION['ruolo'] ?? '';
 }
 
-// Identifica se è username o ID dalla URL
 $identifier = $_GET['username'] ?? $_GET['id'] ?? null;
 if (!$identifier) {
     http_response_code(400);
     exit("Identificativo utente non specificato.");
 }
 
-// Determina se l'identificativo è numerico (ID) o alfanumerico (username)
 $is_id = is_numeric($identifier);
 
-// Prepara la query in base al tipo di identificativo
 if ($is_id) {
     $query = "SELECT u.id, u.username, u.data_creazione, u.soldi, u.ruolo,
         COUNT(DISTINCT ua.achievement_id) AS num_achievement,
@@ -66,7 +63,6 @@ $stmt->close();
 $user_cercato_id = $user['id'];
 $is_own_profile = $isLoggedIn && $user_cercato_id == $user_id;
 
-// Modifica profilo se è il proprio e c'è invio form
 if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'update_profile') {
     $username = $mysqli->real_escape_string($_POST['username']);
     $pfp_blob = null;
@@ -91,7 +87,6 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
     $stmt->close();
 
     $_SESSION['username'] = $username;
-    // Reindirizza sempre all'username dopo la modifica
     header("Location: /user/" . urlencode($username));
     exit;
 }
@@ -109,6 +104,19 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
     <?php include 'includes/impostazioni.php'; ?>
 
     <div class="container my-5 paginainterachisiamo testobianco" style="padding-top: 7rem">
+
+        <div class="row mb-4 fadeup">
+            <div class="col-12">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-body">
+                        <h5 class="card-title">Cerca un profilo</h5>
+                        <input type="text" class="form-control" id="userSearch" placeholder="Inserisci username o ID utente" required>
+                        <button type="submit" class="btn btn-primary" onclick="searchUser()">Cerca</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <h1 class="mb-4 fadeup">Profilo di <?php echo htmlspecialchars($user['username']); ?></h1>
 
         <div class="row mb-4">
@@ -122,7 +130,6 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
                 <h3><?php echo htmlspecialchars($user['username']); ?></h3>
                 <p>Membro dal: <?php echo date('d/m/Y', strtotime($user['data_creazione'])); ?></p>
                 
-                <!-- Pulsanti per condividere profilo -->
                 <div class="mt-3">
                     <button class="btn btn-sm btn-outline-primary" onclick="copyProfileLink('username')">
                         Copia link profilo
@@ -196,7 +203,6 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
                 alert('Link copiato negli appunti!');
             }, function(err) {
                 console.error('Errore nel copiare il link: ', err);
-                // Fallback per browser più vecchi
                 const textArea = document.createElement("textarea");
                 textArea.value = url;
                 document.body.appendChild(textArea);
@@ -228,6 +234,22 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
                 <li class="list-inline-item"><a href="../it/supporto" class="linkbianco">Supporto</a></li>
             </ul>
         </footer>
+            <script>
+                function searchUser() {
+                    const username = document.getElementById('userSearch').value.trim();
+                    if (username) {
+                        window.location.href = `../user/${encodeURIComponent(username)}`;
+                    } else {
+                        alert('Inserisci un nome utente per continuare');
+                    }
+                }
+
+                document.getElementById('userSearch').addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchUser();
+                    }
+                });
+                </script>
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"

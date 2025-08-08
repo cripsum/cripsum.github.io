@@ -117,6 +117,17 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
 <?php include '../includes/navbar.php'; ?>
 
 <div class="container my-5 paginainterachisiamo testobianco" style="padding-top: 7rem">
+        <div class="row mb-4 fadeup">
+            <div class="col-12">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-body">
+                        <h5 class="card-title">Cerca un profilo</h5>
+                        <input type="text" class="form-control" id="userSearch" placeholder="Inserisci username o ID utente" required>
+                        <button type="submit" class="btn btn-primary" onclick="searchUser()">Cerca</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     <h1 class="mb-4 fadeup">Cripsum™ - Profilo di <?php echo htmlspecialchars($user['username']); ?></h1>
 
     <div class="row mb-4">
@@ -175,6 +186,22 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
         <a href="/home" class="linkbianco">← Torna alla home</a>
     </div>
 </div>
+                <script>
+                function searchUser() {
+                    const username = document.getElementById('userSearch').value.trim();
+                    if (username) {
+                        window.location.href = `../user/${encodeURIComponent(username)}`;
+                    } else {
+                        alert('Inserisci un nome utente per continuare');
+                    }
+                }
+
+                document.getElementById('userSearch').addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchUser();
+                    }
+                });
+                </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../js/modeChanger.js"></script>
