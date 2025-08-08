@@ -284,7 +284,6 @@ checkBan($mysqli);
                 </div>
 
                     <?php if (!isset($_SESSION['user_id'])): ?>
-                        <hr class="rounded fadeuphr mt-3 mb-2" />
                             <div class="account-section fadeup">
                                                 <h3 class="sottopag mb-3">Hai un account Cripsum™?</h3>
                                                 <p class="sottopag mb-4">
