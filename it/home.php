@@ -191,130 +191,130 @@ checkBan($mysqli);
             </div>
             <hr class="rounded fadeuphr" />
 
-            <div id="randomAd">
+            <div id="featuredContent">
                 <script>
-                    function getRandomAd() {
-                        const ads = [
-                            `<div class="container fadeup">
-                <div class="row justify-content-center align-items-center py-4">
-                    <div class="col-md-3 text-center mb-3">
-                        <img src="../img/jay.png" alt="Jay" class="img-fluid rounded" style="max-width: 120px;" />
+                    function getRandomPromotion() {
+                        const promotions = [
+                            `<div class="content-showcase fadeup">
+                <div class="showcase-wrapper">
+                    <div class="showcase-media">
+                        <img src="../img/jay.png" alt="Jay" class="showcase-image" />
                     </div>
-                    <div class="col-md-6 text-center">
-                        <h3 class="text mb-3" style="font-weight: 600;">Ciao! Sono Jay!</h3>
-                        <p class="fs-5 text mb-4">Vuoi imparare l'arte dello Spinjitzu?</p>
-                        <a href="https://payhip.com/b/m0kaT" class="btn btn-primary px-4 py-2 text-decoration-none">
+                    <div class="showcase-content">
+                        <h3 class="showcase-title">Ciao! Sono Jay!</h3>
+                        <p class="showcase-description">Vuoi imparare l'arte dello Spinjitzu?</p>
+                        <a href="https://payhip.com/b/m0kaT" class="showcase-button primary">
                             <span class="testobianco">Acquista il videocorso</span>
                         </a>
                     </div>
-                    <div class="col-md-3 text-center">
-                        <img src="../img/maranza.jpg" alt="Spinjitzu" class="img-fluid rounded ombra" style="max-width: 120px;" />
+                    <div class="showcase-media">
+                        <img src="../img/maranza.jpg" alt="Spinjitzu" class="showcase-image ombra" />
                     </div>
                 </div>
             </div>`,
-            `<div class="container fadeup">
-                <div class="row justify-content-center align-items-center py-4">
-                    <div class="col-md-3 text-center mb-3">
-                        <img src="../img/chinese-essay-344821_1280.jpg" alt="Yoshukai" class="img-fluid rounded" style="max-width: 120px;" />
+            `<div class="content-showcase fadeup">
+                <div class="showcase-wrapper">
+                    <div class="showcase-media">
+                        <img src="../img/chinese-essay-344821_1280.jpg" alt="Yoshukai" class="showcase-image" />
                     </div>
-                    <div class="col-md-6 text-center">
-                        <h3 class="text mb-3" style="font-weight: 600;">Hey! Mi chiamo 優希!</h3>
-                        <p class="fs-5 text mb-4">Vuoi imparare l'arte dello Yoshukai?</p>
-                        <a href="download/yoshukai" class="btn btn-success px-4 py-2 text-decoration-none">
+                    <div class="showcase-content">
+                        <h3 class="showcase-title">Hey! Mi chiamo 優希!</h3>
+                        <p class="showcase-description">Vuoi imparare l'arte dello Yoshukai?</p>
+                        <a href="download/yoshukai" class="showcase-button success">
                             <span class="testobianco">Scarica la guida gratuita</span>
                         </a>
                     </div>
                 </div>
             </div>`,
-            `<div class="container fadeup">
-                <div class="row justify-content-center align-items-center py-4">
-                    <div class="col-md-3 text-center mb-3">
-                        <img src="../img/segone4.png" alt="Achievements" class="img-fluid" style="max-width: 100px;" />
+            `<div class="content-showcase fadeup">
+                <div class="showcase-wrapper">
+                    <div class="showcase-media">
+                        <img src="../img/segone4.png" alt="Achievements" class="showcase-image" />
                     </div>
-                    <div class="col-md-6 text-center">
-                        <h3 class="text mb-3" style="font-weight: 600;">🏆 Achievements</h3>
-                        <p class="fs-5 text mb-4">Sblocca tutti gli achievement del sito!</p>
-                        <a href="achievements" class="btn btn-warning px-4 py-2 text-decoration-none">
+                    <div class="showcase-content">
+                        <h3 class="showcase-title">🏆 Achievements</h3>
+                        <p class="showcase-description">Sblocca tutti gli achievement del sito!</p>
+                        <a href="achievements" class="showcase-button warning">
                             <span class="testobianco">Visualizza progressi</span>
                         </a>
                     </div>
                 </div>
             </div>`,
-            `<div class="container fadeup">
-                <div class="row justify-content-center align-items-center py-4">
-                    <div class="col-md-3 text-center mb-3">
-                        <img src="../img/cassa.png" alt="Lootbox" class="img-fluid" style="max-width: 120px;" />
+            `<div class="content-showcase fadeup">
+                <div class="showcase-wrapper">
+                    <div class="showcase-media">
+                        <img src="../img/cassa.png" alt="Lootbox" class="showcase-image" />
                     </div>
-                    <div class="col-md-6 text-center">
-                        <h3 class="text mb-3" style="font-weight: 600;">📦 Lootboxes</h3>
-                        <p class="fs-5 text mb-4">Apri lootbox e ottieni ricompense esclusive!</p>
-                        <a href="lootbox" class="btn btn-info px-4 py-2 text-decoration-none">
+                    <div class="showcase-content">
+                        <h3 class="showcase-title">📦 Lootboxes</h3>
+                        <p class="showcase-description">Apri lootbox e ottieni ricompense esclusive!</p>
+                        <a href="lootbox" class="showcase-button info">
                             <span class="testobianco">Apri lootbox</span>
                         </a>
                     </div>
                 </div>
             </div>`,
-            `<div class="container fadeup">
-                <div class="row justify-content-center align-items-center py-4">
-                    <div class="col-md-3 text-center mb-3">
-                        <img src="../img/pfp choso2 cc.png" alt="Video Edits" class="img-fluid rounded ombra" style="max-width: 110px;" />
+            `<div class="content-showcase fadeup">
+                <div class="showcase-wrapper">
+                    <div class="showcase-media">
+                        <img src="../img/pfp choso2 cc.png" alt="Video Edits" class="showcase-image ombra" />
                     </div>
-                    <div class="col-md-6 text-center">
-                        <h3 class="text mb-3" style="font-weight: 600;">🎬 I miei Edit</h3>
-                        <p class="fs-5 text mb-4">Guarda i miei ultimi edit e video!</p>
-                        <a href="edits" class="btn btn-danger px-4 py-2 text-decoration-none">
+                    <div class="showcase-content">
+                        <h3 class="showcase-title">🎬 I miei Edit</h3>
+                        <p class="showcase-description">Guarda i miei ultimi edit e video!</p>
+                        <a href="edits" class="showcase-button danger">
                             <span class="testobianco">Scopri gli edit</span>
                         </a>
                     </div>
                 </div>
             </div>`,
-            `<div class="container fadeup">
-                <div class="row justify-content-center align-items-center py-4">
-                    <div class="col-md-3 text-center mb-3">
-                        <img src="../img/raspberry-chan8gb.png" alt="Goonland" class="img-fluid" style="max-width: 120px;" />
+            `<div class="content-showcase fadeup">
+                <div class="showcase-wrapper">
+                    <div class="showcase-media">
+                        <img src="../img/raspberry-chan8gb.png" alt="Goonland" class="showcase-image" />
                     </div>
-                    <div class="col-md-6 text-center">
-                        <h3 class="text mb-3" style="font-weight: 600;">🌟 Goonland</h3>
-                        <p class="fs-5 text mb-4">Entra nella dimensione segreta del sito!</p>
-                        <a href="goonland/home" class="btn btn-dark px-4 py-2 text-decoration-none">
+                    <div class="showcase-content">
+                        <h3 class="showcase-title">🌟 Goonland</h3>
+                        <p class="showcase-description">Entra nella dimensione segreta del sito!</p>
+                        <a href="goonland/home" class="showcase-button dark">
                             <span class="testobianco">Accedi a Goonland</span>
                         </a>
                     </div>
                 </div>
             </div>`,
-            `<div class="container fadeup">
-                <div class="row justify-content-center align-items-center py-4">
-                    <div class="col-md-3 text-center mb-3">
-                        <img src="../img/abdul.jpg" alt="Chat" class="img-fluid rounded" style="max-width: 110px;" />
+            `<div class="content-showcase fadeup">
+                <div class="showcase-wrapper">
+                    <div class="showcase-media">
+                        <img src="../img/abdul.jpg" alt="Chat" class="showcase-image" />
                     </div>
-                    <div class="col-md-6 text-center">
-                        <h3 class="text mb-3" style="font-weight: 600;">💬 Chat Globale</h3>
-                        <p class="fs-5 text mb-4">Chatta con tutti gli utenti del sito!</p>
-                        <a href="global-chat" class="btn btn-success px-4 py-2 text-decoration-none">
+                    <div class="showcase-content">
+                        <h3 class="showcase-title">💬 Chat Globale</h3>
+                        <p class="showcase-description">Chatta con tutti gli utenti del sito!</p>
+                        <a href="global-chat" class="showcase-button success">
                             <span class="testobianco">Entra in chat</span>
                         </a>
                     </div>
                 </div>
             </div>`,
-            `<div class="container fadeup">
-                <div class="row justify-content-center align-items-center py-4">
-                    <div class="col-md-3 text-center mb-3">
-                        <img src="../img/dukedennis.jpg" alt="Downloads" class="img-fluid rounded" style="max-width: 100px;" />
+            `<div class="content-showcase fadeup">
+                <div class="showcase-wrapper">
+                    <div class="showcase-media">
+                        <img src="../img/dukedennis.jpg" alt="Downloads" class="showcase-image" />
                     </div>
-                    <div class="col-md-6 text-center">
-                        <h3 class="text mb-3" style="font-weight: 600;">⬇️ Downloads</h3>
-                        <p class="fs-5 text mb-4">Scarica contenuti esclusivi e meme!</p>
-                        <a href="download" class="btn btn-secondary px-4 py-2 text-decoration-none">
+                    <div class="showcase-content">
+                        <h3 class="showcase-title">⬇️ Downloads</h3>
+                        <p class="showcase-description">Scarica contenuti esclusivi e meme!</p>
+                        <a href="download" class="showcase-button secondary">
                             <span class="testobianco">Vai ai download</span>
                         </a>
                     </div>
                 </div>
             </div>`,
                         ];
-                        return ads[Math.floor(Math.random() * ads.length)];
+                        return promotions[Math.floor(Math.random() * promotions.length)];
                     }
 
-                    document.write(getRandomAd());
+                    document.write(getRandomPromotion());
                 </script>
             </div>
             <hr class="rounded fadeuphr mt-3 mb-3" />

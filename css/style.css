@@ -771,3 +771,131 @@ select {
         font-size: 10px;
     }
 }
+
+.content-showcase {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.showcase-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.showcase-media {
+    flex: 0 0 auto;
+}
+
+.showcase-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 15px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.showcase-image:hover {
+    transform: scale(1.05);
+}
+
+.showcase-content {
+    flex: 1;
+    text-align: center;
+    min-width: 250px;
+}
+
+.showcase-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.showcase-description {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    color: #ffffff;
+    opacity: 0.9;
+}
+
+.showcase-button {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.showcase-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.showcase-button.primary {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+}
+
+.showcase-button.success {
+    background: linear-gradient(45deg, #28a745, #1e7e34);
+}
+
+.showcase-button.warning {
+    background: linear-gradient(45deg, #ffc107, #e0a800);
+}
+
+.showcase-button.info {
+    background: linear-gradient(45deg, #17a2b8, #117a8b);
+}
+
+.showcase-button.danger {
+    background: linear-gradient(45deg, #dc3545, #c82333);
+}
+
+.showcase-button.dark {
+    background: linear-gradient(45deg, #343a40, #23272b);
+}
+
+.showcase-button.secondary {
+    background: linear-gradient(45deg, #6c757d, #5a6268);
+}
+
+@media (max-width: 768px) {
+    .content-showcase {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+
+    .showcase-wrapper {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .showcase-image {
+        width: 80px;
+        height: 80px;
+    }
+
+    .showcase-title {
+        font-size: 1.3rem;
+    }
+
+    .showcase-description {
+        font-size: 1rem;
+    }
+}
