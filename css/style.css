@@ -828,6 +828,7 @@ select {
     opacity: 1;
     transition: all 0.5s cubic-bezier(0.4, 0, 0.5, 1);
     width: 100%;
+    margin: 0 auto;
 }
 
 /* Animazione quando la slide non è attiva */
@@ -849,6 +850,9 @@ select {
 
 .showcase-media {
     flex: 0 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .showcase-image {
@@ -858,6 +862,7 @@ select {
     border-radius: 15px;
     border: 2px solid rgba(255, 255, 255, 0.3);
     transition: transform 0.3s ease;
+    display: block;
 }
 
 .showcase-image:hover {
@@ -872,6 +877,10 @@ select {
     flex: 1;
     text-align: center;
     min-width: 250px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .showcase-title {
@@ -880,6 +889,7 @@ select {
     margin-bottom: 1rem;
     color: #ffffff;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    text-align: center;
 }
 
 .showcase-description {
@@ -887,6 +897,7 @@ select {
     margin-bottom: 1.5rem;
     color: #ffffff;
     opacity: 0.9;
+    text-align: center;
 }
 
 .showcase-button {
@@ -905,6 +916,7 @@ select {
     position: relative;
     overflow: hidden;
     transform: translateY(0);
+    margin: 0 auto;
 }
 
 .showcase-button::before {
@@ -1048,9 +1060,9 @@ select {
 /* Large smartphone responsiveness */
 @media (max-width: 768px) {
     .content-slider {
-        margin: 1rem;
+        margin: 1rem auto;
         padding-bottom: 50px;
-        max-width: 95%;
+        max-width: 90%;
         border-radius: 12px;
     }
 
@@ -1061,12 +1073,25 @@ select {
     .content-showcase {
         padding: 1.5rem;
         border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .showcase-wrapper {
         flex-direction: column;
         text-align: center;
         gap: 1.2rem;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .showcase-media {
+        width: 100%;
+        display: flex;
+        justify-content: center;
     }
 
     .showcase-image {
@@ -1078,23 +1103,31 @@ select {
     .showcase-content {
         min-width: auto;
         width: 100%;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
 
     .showcase-title {
         font-size: 1.3rem;
         margin-bottom: 0.8rem;
+        text-align: center;
     }
 
     .showcase-description {
         font-size: 1rem;
         margin-bottom: 1.2rem;
         line-height: 1.4;
+        text-align: center;
     }
 
     .showcase-button {
         padding: 10px 20px;
         font-size: 0.9rem;
         letter-spacing: 0.3px;
+        align-self: center;
     }
 
     .slider-controls {
@@ -1121,9 +1154,10 @@ select {
 /* Standard smartphone responsiveness */
 @media (max-width: 480px) {
     .content-slider {
-        margin: 0.5rem;
+        margin: 0.5rem auto;
         padding-bottom: 45px;
         border-radius: 10px;
+        max-width: 95%;
     }
 
     .slider-wrapper {
@@ -1189,8 +1223,9 @@ select {
 /* Extra small smartphone responsiveness */
 @media (max-width: 360px) {
     .content-slider {
-        margin: 0.25rem;
+        margin: 0.25rem auto;
         padding-bottom: 40px;
+        max-width: 98%;
     }
 
     .slider-wrapper {
