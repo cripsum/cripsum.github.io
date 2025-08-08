@@ -163,26 +163,39 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div style="max-width: 70%; margin: auto; padding-top: 15px" class="d-flex justify-content-around flex-wrap testobianco fadeup">
-                <img class="img-fluid imagi ombra" src="../img/amongus.jpg" alt="" style="display: inline" />
-                <div class="float-end titolo">
-                    <p class="fs-1 text mt-3" style="font-weight: bold">Benvenuto/a nel sito migliore del congo</p>
-                    <p class="fs-5 text mt-3">cripsum re del Congo (pregate sempre e comunque per il Wise Mystical Tree)</p>
-                    <p class="fs-5 text mt-3">Hai più di 25 anni e possiedi un pc?</p>
+            <div class="hero-section fadeup">
+                <div class="hero-content">
+                    <div class="hero-image">
+                        <img class="hero-img" src="../img/amongus.jpg" alt="Cripsum Hero Image" />
+                    </div>
+                    <div class="hero-text">
+                        <h1 class="hero-title">Benvenuto/a nel sito migliore del congo</h1>
+                        <p class="hero-subtitle">cripsum re del Congo (pregate sempre e comunque per il Wise Mystical Tree)</p>
+                        <p class="hero-question">Hai più di 25 anni e possiedi un pc?</p>
+                    </div>
                 </div>
             </div>
-            <div class="d-flex justify-content-around image-container fadeup" style="max-width: 80%; margin: auto; padding-top: 5%">
-                <div>
-                    <img src="../img/felicita.jpg" class="immaginealberi ombra" alt="" />
-                    <p class="fs-5 text text-center">Felicità</p>
-                </div>
-                <div>
-                    <img src="../img/tristezza.jpg" class="immaginealberi ombra" alt="" />
-                    <p class="fs-5 text text-center">Tristezza</p>
-                </div>
-                <div>
-                    <img src="../img/stupore.jpg" class="immaginealberi ombra" alt="" />
-                    <p class="fs-5 text text-center">Stupore</p>
+            
+            <div class="emotions-section fadeup">
+                <div class="emotions-grid">
+                    <div class="emotion-card">
+                        <div class="emotion-image-wrapper">
+                            <img src="../img/felicita.jpg" class="emotion-img" alt="Felicità" />
+                        </div>
+                        <h3 class="emotion-title">Felicità</h3>
+                    </div>
+                    <div class="emotion-card">
+                        <div class="emotion-image-wrapper">
+                            <img src="../img/tristezza.jpg" class="emotion-img" alt="Tristezza" />
+                        </div>
+                        <h3 class="emotion-title">Tristezza</h3>
+                    </div>
+                    <div class="emotion-card">
+                        <div class="emotion-image-wrapper">
+                            <img src="../img/stupore.jpg" class="emotion-img" alt="Stupore" />
+                        </div>
+                        <h3 class="emotion-title">Stupore</h3>
+                    </div>
                 </div>
             </div>
             <hr class="rounded fadeuphr" />
