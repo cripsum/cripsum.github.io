@@ -271,7 +271,7 @@ checkBan($mysqli);
             `<div class="container fadeup">
                 <div class="row justify-content-center align-items-center">
                     <div class="col-md-auto mb-3 spinjitzu spingio">
-                        <img src="../img/raspberry/chan8gb.png" alt="Goonland" class="img-fluid" style="max-width: 170px" />
+                        <img src="../img/raspberry-chan8gb.png" alt="Goonland" class="img-fluid" style="max-width: 170px" />
                     </div>
                     <div class="col-md-6 text-center spinjitzu">
                         <p class="fs-1 text" style="font-weight: bold">🌟 Goonland!</p>
