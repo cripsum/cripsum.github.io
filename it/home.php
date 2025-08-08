@@ -226,6 +226,90 @@ checkBan($mysqli);
                     </div>
                 </div>
             </div>`,
+            `<div class="container fadeup">
+                <div class="row justify-content-center align-items-center">
+                    <div class="col-md-auto mb-3 spinjitzu spingio">
+                        <img src="../img/segone4.png" alt="Achievements" class="img-fluid" style="max-width: 150px" />
+                    </div>
+                    <div class="col-md-6 text-center spinjitzu">
+                        <p class="fs-1 text" style="font-weight: bold">🏆 Achievements!</p>
+                        <p class="fs-4 text mt-3">Sblocca tutti gli achievement del sito!</p>
+                        <button class="btn btn-secondary bottone" type="button">
+                            <a href="achievements" class="testobianco">Visualizza i tuoi progressi</a>
+                        </button>
+                    </div>
+                </div>
+            </div>`,
+            `<div class="container fadeup">
+                <div class="row justify-content-center align-items-center">
+                    <div class="col-md-auto mb-3 spinjitzu spingio">
+                        <img src="../img/cassa.png" alt="Lootbox" class="img-fluid" style="max-width: 180px" />
+                    </div>
+                    <div class="col-md-6 text-center spinjitzu">
+                        <p class="fs-1 text" style="font-weight: bold">📦 Lootboxes!</p>
+                        <p class="fs-4 text mt-3">Apri lootbox e ottieni ricompense esclusive!</p>
+                        <button class="btn btn-secondary bottone" type="button">
+                            <a href="lootbox" class="testobianco">Apri una lootbox ora</a>
+                        </button>
+                    </div>
+                </div>
+            </div>`,
+            `<div class="container fadeup">
+                <div class="row justify-content-center align-items-center">
+                    <div class="col-md-auto mb-3 spinjitzu spingio">
+                        <img src="../img/pfp choso2 cc.png" alt="Edits" class="img-fluid ombra" style="max-width: 160px" />
+                    </div>
+                    <div class="col-md-6 text-center spinjitzu">
+                        <p class="fs-1 text" style="font-weight: bold">🎬 I miei Edit!</p>
+                        <p class="fs-4 text mt-3">Guarda i miei ultimi edit e video!</p>
+                        <button class="btn btn-secondary bottone" type="button">
+                            <a href="edits" class="testobianco">Scopri tutti gli edit</a>
+                        </button>
+                    </div>
+                </div>
+            </div>`,
+            `<div class="container fadeup">
+                <div class="row justify-content-center align-items-center">
+                    <div class="col-md-auto mb-3 spinjitzu spingio">
+                        <img src="../img/raspberry/chan8gb.png" alt="Goonland" class="img-fluid" style="max-width: 170px" />
+                    </div>
+                    <div class="col-md-6 text-center spinjitzu">
+                        <p class="fs-1 text" style="font-weight: bold">🌟 Goonland!</p>
+                        <p class="fs-4 text mt-3">Entra nella dimensione segreta del sito!</p>
+                        <button class="btn btn-secondary bottone" type="button">
+                            <a href="goonland" class="testobianco">Accedi a Goonland</a>
+                        </button>
+                    </div>
+                </div>
+            </div>`,
+            `<div class="container fadeup">
+                <div class="row justify-content-center align-items-center">
+                    <div class="col-md-auto mb-3 spinjitzu spingio">
+                        <img src="../img/abdul.jpg" alt="Chat Globale" class="img-fluid" style="max-width: 150px" />
+                    </div>
+                    <div class="col-md-6 text-center spinjitzu">
+                        <p class="fs-1 text" style="font-weight: bold">💬 Chat Globale!</p>
+                        <p class="fs-4 text mt-3">Chatta con tutti gli utenti del sito!</p>
+                        <button class="btn btn-secondary bottone" type="button">
+                            <a href="chat" class="testobianco">Entra in chat ora</a>
+                        </button>
+                    </div>
+                </div>
+            </div>`,
+            `<div class="container fadeup">
+                <div class="row justify-content-center align-items-center">
+                    <div class="col-md-auto mb-3 spinjitzu spingio">
+                        <img src="../img/dukedennis.jpg" alt="Downloads" class="img-fluid" style="max-width: 140px" />
+                    </div>
+                    <div class="col-md-6 text-center spinjitzu">
+                        <p class="fs-1 text" style="font-weight: bold">⬇️ Downloads!</p>
+                        <p class="fs-4 text mt-3">Scarica contenuti esclusivi e meme!</p>
+                        <button class="btn btn-secondary bottone" type="button">
+                            <a href="download" class="testobianco">Vai ai download</a>
+                        </button>
+                    </div>
+                </div>
+            </div>`,
                         ];
                         return ads[Math.floor(Math.random() * ads.length)];
                     }
