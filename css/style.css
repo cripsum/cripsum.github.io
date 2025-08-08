@@ -778,7 +778,7 @@ select {
     margin: 2rem auto;
     overflow: hidden;
     border-radius: 15px;
-    padding-bottom: 20px;
+    padding-bottom: 5px;
 }
 
 .slider-wrapper {
@@ -793,17 +793,13 @@ select {
     width: 100%;
     opacity: 0;
     transition: opacity 0.5s cubic-bezier(0.4, 0, 0.5, 1);
-    /* AGGIUNTA CRITICA: disabilita pointer events per le slide non attive */
     pointer-events: none;
-    /* AGGIUNTA: mette le slide non attive dietro */
     z-index: 1;
 }
 
 .slider-slide.active {
     opacity: 1;
-    /* AGGIUNTA CRITICA: riabilita pointer events solo per la slide attiva */
     pointer-events: auto;
-    /* AGGIUNTA: porta la slide attiva in primo piano */
     z-index: 10;
 }
 
