@@ -360,34 +360,38 @@ checkBan($mysqli);
             <hr class="rounded fadeuphr mt-3 mb-2" />
             <div class="infondo fadeup">
                 <div class="sotto">
-                    <div class="account-section"></div>
-                        <h3 class="sottopag mb-3">Hai un account Cripsum™?</h3>
-                        <p class="sottopag mb-4">
-                            <a href="accedi" class="linkbianco btn-link">Accedi</a> al sito per sbloccare tutti i contenuti:
-                        </p>
-                        
-                        <div class="features-list mb-4">
-                            <div class="feature-item">
-                                <span class="feature-icon">✨</span>
-                                <span class="feature-text">Accesso a pagine speciali come Chat Globale e Goonland</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">🎮</span>
-                                <span class="feature-text">Giochi come Lootbox e tanti Achievements da sbloccare</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">👤</span>
-                                <span class="feature-text">Possibilità di modificare il tuo profilo e molto altro</span>
-                            </div>
-                        </div>
-                        
-                        <p class="sottopag">
-                            Non hai un account? 
-                            <a href="registrati" class="linkbianco btn-link">Registrati ora</a> 
-                            e inizia a esplorare!
-                        </p>
-                    </div>
-                    <div class="social-section mt-5">
+                        <?php if (!isset($_SESSION['user_id'])): ?>
+                            <div class="account-section">
+                                                <h3 class="sottopag mb-3">Hai un account Cripsum™?</h3>
+                                                <p class="sottopag mb-4">
+                                                    <a href="accedi" class="linkbianco btn-link">Accedi</a> al sito per sbloccare tutti i contenuti:
+                                                </p>
+                                                
+                                                <div class="features-list mb-4">
+                                                    <div class="feature-item">
+                                                        <span class="feature-icon">✨</span>
+                                                        <span class="feature-text">Accesso a pagine speciali come Chat Globale e Goonland</span>
+                                                    </div>
+                                                    <div class="feature-item">
+                                                        <span class="feature-icon">🎮</span>
+                                                        <span class="feature-text">Giochi come Lootbox e tanti Achievements da sbloccare</span>
+                                                    </div>
+                                                    <div class="feature-item">
+                                                        <span class="feature-icon">👤</span>
+                                                        <span class="feature-text">Possibilità di modificare il tuo profilo e molto altro</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <p class="sottopag">
+                                                    Non hai un account? 
+                                                    <a href="registrati" class="linkbianco btn-link">Registrati ora</a> 
+                                                    e inizia a esplorare!
+                                                </p>
+                                                </div>
+                                                <hr class="rounded fadeuphr mt-3 mb-2" />
+                        <?php endif; ?>
+                    
+                    <div class="social-section mt-3">
                         <h4 class="sottopag mb-4 text-center">Seguimi sui social</h4>
                         <div class="social-icons-modern d-flex justify-content-center align-items-center gap-4 flex-wrap">
                             <a href="https://www.tiktok.com/@cripsum" class="social-link-modern tiktok" title="TikTok">
