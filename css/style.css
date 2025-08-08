@@ -780,7 +780,7 @@ select {
 
 .content-slider {
     position: relative;
-    max-width: 800px;
+    max-width: 600px;
     margin: 2rem auto;
     overflow: hidden;
     border-radius: 15px;
