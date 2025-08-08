@@ -1484,6 +1484,11 @@ select {
         padding: 2rem 1.5rem;
     }
 
+    .emotions-section {
+        max-width: 90%;
+        margin: 0 auto;
+    }
+
     .hero-image {
         flex: none;
     }
