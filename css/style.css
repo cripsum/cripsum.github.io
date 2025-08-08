@@ -1353,10 +1353,10 @@ select {
     transition: transform 0.3s ease, filter 0.3s ease;
 }
 
-.hero-img:hover {
+/*.hero-img:hover {
     transform: scale(1.05);
     filter: brightness(1.1);
-}
+}*/
 
 .hero-text {
     flex: 1;
@@ -1412,7 +1412,7 @@ select {
     overflow: hidden;
 }
 
-.emotion-card::before {
+/*.emotion-card::before {
     content: "";
     position: absolute;
     top: -50%;
@@ -1428,7 +1428,7 @@ select {
 .emotion-card:hover::before {
     opacity: 1;
     transform: rotate(45deg) translate(50%, 50%);
-}
+}*/
 
 .emotion-card:hover {
     transform: translateY(-10px);
