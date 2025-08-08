@@ -964,7 +964,7 @@ select {
     position: absolute;
     bottom: 15px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-20%);
     display: flex;
     gap: 8px;
     z-index: 10;
