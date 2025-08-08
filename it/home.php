@@ -194,7 +194,7 @@ checkBan($mysqli);
             <div id="randomAd">
                 <script>
                     function getRandomAd() {
-                        const promotions = [
+                        const ads = [
                             `<div class="container fadeup">
                 <div class="row justify-content-center align-items-center py-4">
                     <div class="col-md-3 text-center mb-3">
