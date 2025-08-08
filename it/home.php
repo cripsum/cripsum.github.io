@@ -187,7 +187,7 @@ checkBan($mysqli);
             </div>
             <hr class="rounded fadeuphr" />
 
-    <div id="featuredContent">
+    <div id="featuredContent" class="fadeup">
         <div id="content-slider" class="content-slider">
             <div class="slider-wrapper" id="sliderWrapper">
                 <!-- Slides generate automatically -->

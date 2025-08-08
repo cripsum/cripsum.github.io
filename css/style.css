@@ -760,15 +760,21 @@ select {
 
 @media (max-width: 768px) {
     .social-link-modern {
-        padding: 12px 16px;
+        padding: 8px 12px;
+        flex: 1;
+        min-width: 0;
     }
 
     .social-link-modern i {
-        font-size: 20px;
+        font-size: 18px;
     }
 
     .social-label {
-        font-size: 10px;
+        font-size: 9px;
+    }
+
+    .social-icon-wrapper {
+        gap: 4px;
     }
 }
 
@@ -1061,8 +1067,8 @@ select {
 @media (max-width: 768px) {
     .content-slider {
         margin: 1rem auto;
-        padding-bottom: 50px;
-        max-width: 90%;
+        padding-bottom: 5px;
+        max-width: 80%;
         border-radius: 12px;
     }
 
@@ -1155,9 +1161,9 @@ select {
 @media (max-width: 480px) {
     .content-slider {
         margin: 0.5rem auto;
-        padding-bottom: 45px;
+        padding-bottom: 5px;
         border-radius: 10px;
-        max-width: 80%;
+        max-width: 75%;
     }
 
     .slider-wrapper {
@@ -1224,8 +1230,8 @@ select {
 @media (max-width: 360px) {
     .content-slider {
         margin: 0.25rem auto;
-        padding-bottom: 40px;
-        max-width: 95%;
+        padding-bottom: 5px;
+        max-width: 90%;
     }
 
     .slider-wrapper {
