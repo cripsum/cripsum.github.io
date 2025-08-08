@@ -2,10 +2,32 @@ img {
     border-radius: 10px;
 }
 body {
-    font-family: "Poppins";
-    background: linear-gradient(-45deg, #121212, #1a1a1a, #0f0f0f, #252525);
-    background-size: 400% 400%;
-    animation: gradientShift 15s ease infinite;
+    font-family: "Poppins", sans-serif;
+    background-color: #121212;
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 20% 20%, #1e1e1e, transparent 50%), radial-gradient(circle at 80% 30%, #1a1a1a, transparent 50%), radial-gradient(circle at 50% 80%, #191919, transparent 50%);
+    animation: moveBg 12s ease-in-out infinite alternate;
+    z-index: -1;
+}
+
+@keyframes moveBg {
+    0% {
+        background-position: 0% 0%, 100% 0%, 50% 100%;
+    }
+    100% {
+        background-position: 100% 100%, 0% 100%, 50% 0%;
+    }
 }
 
 .paginaprincipale {
