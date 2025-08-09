@@ -24,7 +24,7 @@ checkBan($mysqli);
         <div class="container-fluid py-5" style="margin-top: 5rem;">
             <div class="row justify-content-center">
             <div class="col-lg-8 col-md-10">
-                <div class="card shadow-lg border-0 fadeup" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+                <div class="card shadow-lg border-0 fadeup" style="border-radius: 20px;"><!--background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -->
                 <div class="card-body text-center py-5">
                     <div class="mb-4">
                     <i class="fas fa-heart" style="font-size: 3rem; color: #ff6b6b; animation: heartbeat 2s infinite;"></i>
