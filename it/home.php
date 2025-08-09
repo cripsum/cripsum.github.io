@@ -327,22 +327,6 @@ checkBan($mysqli);
                                                 
                         <?php endif; ?>
 
-                <script>
-                function searchUser() {
-                    const username = document.getElementById('userSearch').value.trim();
-                    if (username) {
-                        window.location.href = `../user/${encodeURIComponent(username)}`;
-                    } else {
-                        alert('Inserisci un nome utente per continuare');
-                    }
-                }
-
-                document.getElementById('userSearch').addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        searchUser();
-                    }
-                });
-                </script>
                 <!--<p style="text-decoration: none; margin-top: 3%; font-size: larger; font-weight: bold; text-align: center">
                     <a class="linkbianco" href="donazioni" style="text-decoration: none">Dona 5€ al Wise Mystical Tree per un mondo migliore :)</a>
                 </p>-->
