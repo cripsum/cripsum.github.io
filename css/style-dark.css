@@ -672,11 +672,13 @@ radio:hover {
     background: linear-gradient(135deg, rgba(255, 0, 150, 0.15), rgba(0, 255, 255, 0.15)) !important;
     border-left: 3px solid rgba(255, 0, 150, 0.7);
     font-weight: bold !important;
+    color: inherit !important;
 }
 
 .dropdown-item.testo-arcobaleno {
-    color: transparent !important;
     -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    -webkit-background-clip: text !important;
 }
 
 .navbar-collapse {
