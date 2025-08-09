@@ -368,6 +368,7 @@ a {
     animation: textAnimate 5s linear infinite alternate;
 }
 
+
 .testo-arcobaleno {
     font-weight: bold;
     background: linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet, red);

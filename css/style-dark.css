@@ -667,24 +667,12 @@ radio:hover {
     background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 193, 7, 0.05)) !important;
     border-left: 3px solid rgba(255, 215, 0, 0.5);
 }
-
-.testo-arcobaleno {
-    font-weight: bold;
-    background: linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet, red);
-    background-size: 300% 300%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: testo-arcobaleno 6s linear infinite;
-}
-
 .dropdown-item.testo-arcobaleno {
-    background: linear-gradient(135deg, rgba(255, 0, 150, 0.15), rgba(0, 255, 255, 0.15)) !important;
+    font-weight: bold;
+    color: white !important;
+    background: linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet, red);
     border-left: 3px solid rgba(255, 0, 150, 0.7);
-    font-weight: bold !important;
-    -webkit-text-fill-color: transparent !important;
-    background-clip: text !important;
-    -webkit-background-clip: text !important;
+    animation: testo-arcobaleno 6s linear infinite;
 }
 
 .navbar-collapse {
