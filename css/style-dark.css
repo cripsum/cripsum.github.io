@@ -668,14 +668,9 @@ radio:hover {
     border-left: 3px solid rgba(255, 215, 0, 0.5);
 }
 
-.dropdown-item.testo-arcobaleno {
+.dropdown-item[class*="testo-arcobaleno"] {
     background-color: rgba(255, 0, 150, 0.1) !important;
     border-left: 3px solid rgba(255, 0, 150, 0.5);
-}
-
-.dropdown-item.testo-arcobaleno:hover {
-    background-color: rgba(255, 0, 150, 0.15) !important;
-    transform: translateX(4px);
 }
 
 .navbar-collapse {
