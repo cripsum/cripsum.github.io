@@ -1442,10 +1442,10 @@ select {
 }
 
 .emotion-img {
-    width: 120px;
-    height: 120px;
+    width: 150px;
+    height: 150px;
     object-fit: cover;
-    border-radius: 50%;
+    border-radius: 20px;
     transition: all 0.3s ease;
     border: 3px solid rgba(255, 255, 255, 0.2);
 }
@@ -1505,7 +1505,7 @@ select {
     }
 
     .emotion-img {
-        width: 100px;
-        height: 100px;
+        width: 150px;
+        height: 150px;
     }
 }
