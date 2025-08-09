@@ -184,11 +184,14 @@ hr.rounded {
 }
 
 .navbarutenti .nav-link:hover,
-.navbarutenti .nav-link:focus {
+.navbarutenti .nav-link:focus,
+.navbarutenti .nav-link:focus-visible {
     color: #ffffff;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08));
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    /*box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);*/
     transform: translateY(-1px);
+    outline: none;
+    box-shadow: none;
 }
 
 .navbarutenti .nav-link:active {
