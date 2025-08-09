@@ -668,7 +668,6 @@ radio:hover {
     border-left: 3px solid rgba(255, 215, 0, 0.5);
 }
 .dropdown-item.testo-arcobaleno {
-    font-weight: bold;
     color: white !important;
     background: linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet, red);
     border-left: 3px solid rgba(255, 0, 150, 0.7);
