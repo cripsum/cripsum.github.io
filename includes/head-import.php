@@ -18,7 +18,7 @@
         <link rel="icon" href="/img/Susremaster.png" type="image/png" />
         <link rel="shortcut icon" href="/img/Susremaster.png" type="image/png" />
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
-        <link rel="stylesheet" href="/css/style.css?v=21" />
+        <link rel="stylesheet" href="/css/style.css?v=22" />
         <link rel="stylesheet" href="/css/style-dark.css" />
         <link rel="stylesheet" href="/css/animations.css" />
         <link rel="stylesheet" href="/css/achievement-style.css" />
