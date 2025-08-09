@@ -21,11 +21,47 @@ checkBan($mysqli);
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
 
-        <div class="paginainteradolod testobianco fadeup" style="margin: auto; padding-top: 7rem">
-            <h6 class="text text-center mt-3">
-                questo sito, il quale comprende 20/25 pagine, mi è costato circa 3/4 mila euro, ti va di donare una piccola somma di denaro per finanziare lo sviluppo di questo progetto? :)
-            </h6>
+        <div class="container-fluid py-5" style="margin-top: 5rem;">
+            <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="card shadow-lg border-0 fadeup" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                    <i class="fas fa-heart" style="font-size: 3rem; color: #ff6b6b; animation: heartbeat 2s infinite;"></i>
+                    </div>
+                    <h2 class="text-white fw-bold mb-4">Supporta il Progetto</h2>
+                    <p class="text-white-50 fs-5 mb-4 lh-lg">
+                    Questo sito, con oltre <span class="fw-bold text-warning">20+ pagine</span>, 
+                    rappresenta <span class="fw-bold text-warning">migliaia di ore</span> di sviluppo e 
+                    un investimento di <span class="fw-bold text-warning">€3000+</span>.
+                    </p>
+                    <p class="text-white fs-6 mb-4">
+                    La tua donazione ci aiuta a mantenere il sito gratuito e a sviluppare nuove funzionalità! ☕✨
+                    </p>
+                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                        <i class="fas fa-code me-2"></i>Open Source
+                    </span>
+                    <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                        <i class="fas fa-globe me-2"></i>Gratuito
+                    </span>
+                    <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                        <i class="fas fa-rocket me-2"></i>In Crescita
+                    </span>
+                    </div>
+                </div>
+                </div>
+            </div>
+            </div>
         </div>
+        
+        <style>
+            @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+            }
+        </style>
         <div class="text-center mt-3 fadeup">
             <a href="https://www.buymeacoffee.com/cripsum" target="_blank"
                 ><img
