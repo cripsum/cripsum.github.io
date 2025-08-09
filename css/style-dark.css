@@ -1,5 +1,3 @@
-/* Complete Modern CSS - Enhanced Navbar + Original Styles */
-
 img {
     border-radius: 10px;
 }
@@ -16,7 +14,6 @@ body {
     padding-top: 5rem;
 }
 
-/* Enhanced text styles */
 .testobianco {
     color: #ffffff;
     font-weight: 600;
@@ -29,7 +26,6 @@ body {
     letter-spacing: -0.02em;
 }
 
-/* Improved link styles */
 .linkbianco {
     color: white;
     font-weight: bold;
@@ -78,7 +74,6 @@ body {
     text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
 }
 
-/* Enhanced HR styling */
 hr.rounded {
     border-top: 4px solid rgb(255, 255, 255);
     max-width: 75%;
@@ -89,7 +84,6 @@ hr.rounded {
     border-radius: 2px;
 }
 
-/* Enhanced purchase button */
 .purchase-button {
     display: inline-block;
     padding: 12px 24px;
@@ -110,7 +104,6 @@ hr.rounded {
     color: #ffffff;
 }
 
-/* Enhanced image effects */
 .imgbianca {
     filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0.5));
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -121,7 +114,6 @@ hr.rounded {
     transform: scale(1.05);
 }
 
-/* ENHANCED NAVBAR STYLES */
 .navbarutenti {
     position: fixed;
     top: 16px;
@@ -143,7 +135,6 @@ hr.rounded {
     box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-/* Brand styling improvements */
 .navbar-brand {
     display: flex;
     align-items: center;
@@ -165,7 +156,6 @@ hr.rounded {
     transform: scale(1.05);
 }
 
-/* Enhanced navigation links */
 .navbarutenti .nav-link {
     color: rgba(255, 255, 255, 0.9);
     font-weight: 500;
@@ -201,7 +191,6 @@ hr.rounded {
     transform: translateY(-1px);
 }
 
-/* Language link styling */
 .link-lingua {
     color: white;
     font-weight: bold;
@@ -219,7 +208,6 @@ hr.rounded {
     transform: translateY(-1px);
 }
 
-/* Enhanced dropdown styling */
 .dropdownlingua {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -251,6 +239,7 @@ hr.rounded {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
+    margin-left: 10px;
 }
 
 .dropdownutenti .dropdown-menu .dropdown-item:hover {
@@ -270,7 +259,6 @@ hr.rounded {
     opacity: 1;
 }
 
-/* Enhanced toggle buttons */
 .navbarutenti .navbar-toggler {
     border: none;
     border-radius: 10px;
@@ -317,7 +305,6 @@ hr.rounded {
     transform: scale(1.05);
 }
 
-/* Dropdown and dropstart styling */
 .dropdown {
     color: white;
 }
@@ -326,13 +313,11 @@ hr.rounded {
     color: white;
 }
 
-/* Enhanced border effects */
 .bordobianco {
     box-shadow: 0 0 12px 6px rgba(255, 255, 255, 0.4);
     border-radius: 8px;
 }
 
-/* Enhanced list group items */
 .list-group-item {
     background: linear-gradient(135deg, rgba(51, 51, 51, 0.9), rgba(40, 40, 40, 0.95));
     color: white;
@@ -346,7 +331,6 @@ hr.rounded {
     transform: translateY(-1px);
 }
 
-/* Enhanced form inputs */
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -413,7 +397,6 @@ textarea::-ms-input-placeholder {
     color: rgba(255, 255, 255, 0.6) !important;
 }
 
-/* Enhanced file input */
 input[type="file"]::file-selector-button {
     background: linear-gradient(135deg, #3a3a3d, #2a2a2d);
     color: #fff;
@@ -430,7 +413,6 @@ input[type="file"]::file-selector-button:hover {
     transform: translateY(-1px);
 }
 
-/* Enhanced select styling */
 select {
     appearance: none;
     -webkit-appearance: none;
@@ -441,7 +423,6 @@ select {
     background-size: 12px;
 }
 
-/* Enhanced loading animation */
 .loading_white {
     align-items: center;
     display: flex;
@@ -489,7 +470,6 @@ select {
     }
 }
 
-/* Enhanced connection edit styling */
 .collegamentoedit {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -511,7 +491,6 @@ select {
     transform: translateY(0);
 }
 
-/* Enhanced checkbox and radio styling */
 checkbox,
 radio {
     position: relative;
@@ -530,7 +509,6 @@ radio:hover {
     transform: translateY(-1px);
 }
 
-/* Enhanced account section */
 .account-section {
     text-align: center;
     padding: 3rem 0;
@@ -581,7 +559,6 @@ radio:hover {
     font-weight: 500;
 }
 
-/* Enhanced button link */
 .btn-link {
     text-decoration: none;
     padding: 8px 16px;
@@ -595,7 +572,6 @@ radio:hover {
     transform: translateY(-1px);
 }
 
-/* Enhanced main buttons */
 .bottone {
     max-width: 500px;
     background: linear-gradient(135deg, #3a3a3d, #2a2a2d);
@@ -642,7 +618,6 @@ radio:hover {
     outline: none;
 }
 
-/* Settings button improvement */
 .impostazioni-toggler {
     background: rgba(255, 255, 255, 0.1) !important;
     border: 1px solid rgba(255, 255, 255, 0.12) !important;
@@ -657,7 +632,6 @@ radio:hover {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
 }
 
-/* Profile picture enhancements */
 .nav-link img.rounded-circle {
     border: 2px solid rgba(255, 255, 255, 0.2);
     transition: all 0.3s ease;
@@ -668,13 +642,11 @@ radio:hover {
     box-shadow: 0 0 16px rgba(255, 255, 255, 0.3);
 }
 
-/* Divider styling */
 .dropdown-divider {
     border-color: rgba(255, 255, 255, 0.15);
     margin: 8px 0;
 }
 
-/* Special text styling */
 .text-danger {
     color: #ff4757 !important;
 }
@@ -683,7 +655,6 @@ radio:hover {
     color: #ff3838 !important;
 }
 
-/* Enhanced hover states for special items */
 .dropdown-item[style*="font-weight: bold"] {
     background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 193, 7, 0.05)) !important;
     border-left: 3px solid rgba(255, 215, 0, 0.5);
@@ -694,7 +665,6 @@ radio:hover {
     border-left: 3px solid rgba(255, 0, 150, 0.5);
 }
 
-/* Smooth animations for better UX */
 .navbar-collapse {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -708,7 +678,6 @@ radio:hover {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
-/* Loading animations */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -724,7 +693,6 @@ radio:hover {
     animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Enhanced focus states for accessibility */
 .nav-link:focus,
 .dropdown-item:focus,
 .navbar-toggler:focus,
@@ -734,7 +702,6 @@ radio:hover {
     outline-offset: 2px;
 }
 
-/* RESPONSIVE IMPROVEMENTS */
 @media only screen and (max-width: 1199px) {
     .lingua-toggler {
         padding-left: 6px;
@@ -875,7 +842,6 @@ radio:hover {
     }
 }
 
-/* Enhanced animations for mobile */
 @media (prefers-reduced-motion: reduce) {
     * {
         transition: none !important;
@@ -883,7 +849,6 @@ radio:hover {
     }
 }
 
-/* Dark theme enhancements */
 @media (prefers-color-scheme: dark) {
     body {
         background-color: #0a0a0a;
@@ -894,7 +859,6 @@ radio:hover {
     }
 }
 
-/* High contrast mode support */
 @media (prefers-contrast: high) {
     .navbarutenti {
         border: 2px solid rgba(255, 255, 255, 0.3);
@@ -912,7 +876,6 @@ radio:hover {
     }
 }
 
-/* Print styles */
 @media print {
     .navbarutenti {
         display: none;
@@ -923,12 +886,10 @@ radio:hover {
     }
 }
 
-/* Smooth scrolling for anchor links */
 html {
     scroll-behavior: smooth;
 }
 
-/* Custom scrollbar styling */
 ::-webkit-scrollbar {
     width: 8px;
 }
