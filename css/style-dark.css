@@ -239,7 +239,7 @@ hr.rounded {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
-    margin-left: -10px !important;
+    margin-left: -5px !important;
 }
 
 .dropdownutenti .dropdown-menu .dropdown-item:hover {
@@ -624,7 +624,6 @@ radio:hover {
     border-radius: 10px !important;
     padding: 8px 12px !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    margin-left: -20px !important;
     margin-bottom: -3px !important;
 }
 
@@ -747,7 +746,11 @@ radio:hover {
     }
 
     .dropdownutenti .dropdown-menu .dropdown-item {
-        margin-left: 20px !important;
+        margin-left: 10px !important;
+    }
+
+    .impostazioni-toggler {
+        margin-left: -10px !important;
     }
 }
 
