@@ -31,9 +31,9 @@ checkBan($mysqli);
                     </div>
                     <h2 class="text-white fw-bold mb-4">Supporta il Progetto</h2>
                     <p class="text-white-50 fs-5 mb-4 lh-lg">
-                    Questo sito, con oltre <span class="fw-bold text-warning">20+ pagine</span>, 
+                    Questo sito, con oltre <span class="fw-bold text-warning">20/25 pagine</span>, 
                     rappresenta <span class="fw-bold text-warning">migliaia di ore</span> di sviluppo e 
-                    un investimento di <span class="fw-bold text-warning">€3000+</span>.
+                    un investimento di <span class="fw-bold text-warning">€3000/4000</span>.
                     </p>
                     <p class="text-white fs-6 mb-4">
                     La tua donazione ci aiuta a mantenere il sito gratuito e a sviluppare nuove funzionalità! ☕✨
