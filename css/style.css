@@ -1403,11 +1403,11 @@ select {
 .emotion-card {
     text-align: center;
     padding: 2rem 1.5rem;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+    /*background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
-    transition: all 0.3s ease;
+    transition: all 0.3s ease;*/
     position: relative;
     overflow: hidden;
 }
@@ -1430,11 +1430,11 @@ select {
     transform: rotate(45deg) translate(50%, 50%);
 }*/
 
-.emotion-card:hover {
+/*.emotion-card:hover {
     transform: translateY(-10px);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     border-color: rgba(255, 255, 255, 0.2);
-}
+}*/
 
 .emotion-image-wrapper {
     position: relative;
@@ -1450,10 +1450,10 @@ select {
     border: 3px solid rgba(255, 255, 255, 0.2);
 }
 
-.emotion-card:hover .emotion-img {
+/*.emotion-card:hover .emotion-img {
     transform: scale(1.1);
     border-color: rgba(255, 255, 255, 0.4);
-}
+}*/
 
 .emotion-label {
     font-size: 1.4rem;
