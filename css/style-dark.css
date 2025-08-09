@@ -239,7 +239,7 @@ hr.rounded {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
-    margin-left: -20px;
+    margin-left: -10px !important;
 }
 
 .dropdownutenti .dropdown-menu .dropdown-item:hover {
@@ -624,7 +624,7 @@ radio:hover {
     border-radius: 10px !important;
     padding: 8px 12px !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    margin-right: -10px !important;
+    margin-left: -20px !important;
     margin-bottom: -3px !important;
 }
 
@@ -744,6 +744,10 @@ radio:hover {
         border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 12px;
         box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .dropdownutenti .dropdown-menu .dropdown-item {
+        margin-left: 20px !important;
     }
 }
 
