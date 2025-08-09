@@ -191,6 +191,12 @@ hr.rounded {
     transform: translateY(-1px);
 }
 
+.navbarutenti .nav-link:active {
+    box-shadow: none;
+    outline: none;
+    border: none;
+}
+
 .link-lingua {
     color: white;
     font-weight: bold;
@@ -620,7 +626,7 @@ radio:hover {
 
 .impostazioni-toggler {
     background: rgba(255, 255, 255, 0.1) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border: 0px solid rgba(255, 255, 255, 0.12) !important;
     border-radius: 10px !important;
     padding: 8px 12px !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
@@ -665,8 +671,15 @@ radio:hover {
 .dropdown-item.testo-arcobaleno {
     background: linear-gradient(135deg, rgba(255, 0, 150, 0.1), rgba(0, 255, 255, 0.1)) !important;
     border-left: 3px solid rgba(255, 0, 150, 0.5);
+    color: #ffffff !important;
+    font-weight: bold !important;
 }
 
+.dropdown-item.testo-arcobaleno:hover {
+    background: linear-gradient(135deg, rgba(255, 0, 150, 0.2), rgba(0, 255, 255, 0.2)) !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
 .navbar-collapse {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
