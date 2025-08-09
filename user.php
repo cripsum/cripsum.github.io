@@ -105,44 +105,6 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
 
     <div class="container my-5 paginainterachisiamo testobianco" style="padding-top: 7rem">
 
-        <div class="row mb-4 fadeup">
-            <div class="col-12">
-                <div class="card shadow-lg border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
-                    <div class="card-body p-4">
-                        <h5 class="card-title mb-3 text-white d-flex align-items-center">
-                            <i class="fas fa-users me-2"></i>
-                            Cerca Utenti
-                        </h5>
-                        <div class="input-group mb-2">
-                            <input 
-                                type="text" 
-                                class="form-control border-0 shadow-sm" 
-                                id="userSearch" 
-                                placeholder="Inserisci username..."
-                                maxlength="50"
-                                style="border-radius: 50px 0 0 50px; padding: 12px 20px; font-size: 16px;"
-                            >
-                            <button 
-                                type="button" 
-                                class="btn btn-light px-4 shadow-sm" 
-                                onclick="searchUser()"
-                                style="border-radius: 0 50px 50px 0; font-weight: 600; transition: all 0.3s ease;"
-                                onmouseover="this.style.transform='translateY(-2px)'"
-                                onmouseout="this.style.transform='translateY(0)'"
-                            >
-                                <i class="fas fa-search me-1"></i>
-                                Cerca
-                            </button>
-                        </div>
-                        <small class="text-white-50 d-flex align-items-center">
-                            <i class="fas fa-info-circle me-1"></i>
-                            Scopri altri profili della community
-                        </small>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <h1 class="mb-4 fadeup">Profilo di <?php echo htmlspecialchars($user['username']); ?></h1>
 
         <div class="row mb-4">
@@ -209,6 +171,43 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
 
         <div class="mt-4 fadeup">
             <a href="../it/home" class="linkbianco">← Torna alla home</a>
+        </div>
+                <div class="row mb-4 fadeup">
+            <div class="col-12">
+                <div class="card shadow-lg border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-3 text-white d-flex align-items-center">
+                            <i class="fas fa-users me-2"></i>
+                            Cerca Utenti
+                        </h5>
+                        <div class="input-group mb-2">
+                            <input 
+                                type="text" 
+                                class="form-control border-0 shadow-sm" 
+                                id="userSearch" 
+                                placeholder="Inserisci username..."
+                                maxlength="50"
+                                style="border-radius: 50px 0 0 50px; padding: 12px 20px; font-size: 16px;"
+                            >
+                            <button 
+                                type="button" 
+                                class="btn btn-light px-4 shadow-sm" 
+                                onclick="searchUser()"
+                                style="border-radius: 0 50px 50px 0; font-weight: 600; transition: all 0.3s ease;"
+                                onmouseover="this.style.transform='translateY(-2px)'"
+                                onmouseout="this.style.transform='translateY(0)'"
+                            >
+                                <i class="fas fa-search me-1"></i>
+                                Cerca
+                            </button>
+                        </div>
+                        <small class="text-white-50 d-flex align-items-center">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Scopri altri profili della community
+                        </small>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
