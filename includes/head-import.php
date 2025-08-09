@@ -19,7 +19,7 @@
         <link rel="shortcut icon" href="/img/Susremaster.png" type="image/png" />
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="/css/style.css?v=23" />
-        <link rel="stylesheet" href="/css/style-dark.css?v=4" />
+        <link rel="stylesheet" href="/css/style-dark.css?v=5" />
         <link rel="stylesheet" href="/css/animations.css" />
         <link rel="stylesheet" href="/css/achievement-style.css" />
         
