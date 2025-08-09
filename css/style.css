@@ -368,7 +368,7 @@ a {
     animation: textAnimate 5s linear infinite alternate;
 }
 
-/*.testo-arcobaleno {
+.testo-arcobaleno {
     font-weight: bold;
     background: linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet, red);
     background-size: 300% 300%;
@@ -376,7 +376,7 @@ a {
     background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: testo-arcobaleno 6s linear infinite;
-}*/
+}
 
 @keyframes testo-arcobaleno {
     0% {
