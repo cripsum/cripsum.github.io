@@ -107,13 +107,34 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
 
         <div class="row mb-4 fadeup">
             <div class="col-12">
-                <div class="card bg-dark border-secondary">
-                    <div class="card-body">
-                        <h5 class="card-title">Cerca un profilo</h5>
-                        <input type="text" class="form-control" id="userSearch" placeholder="Inserisci username o ID utente" required>
-                        <button type="submit" class="btn btn-primary" onclick="searchUser()">Cerca</button>
-                    </div>
+            <div class="card bg-dark border-secondary">
+                <div class="card-body">
+                <h5 class="card-title mb-3">
+                    <i class="fas fa-search me-2"></i>
+                    Cerca un profilo
+                </h5>
+                <div class="input-group">
+                    <input 
+                    type="text" 
+                    class="form-control" 
+                    id="userSearch" 
+                    placeholder="Inserisci username..."
+                    maxlength="50"
+                    >
+                    <button 
+                    type="button" 
+                    class="btn btn-primary" 
+                    onclick="searchUser()"
+                    >
+                    <i class="fas fa-search me-1"></i>
+                    Cerca
+                    </button>
                 </div>
+                <small class="form-text text-muted mt-2">
+                    Trova altri utenti inserendo il loro nome utente
+                </small>
+                </div>
+            </div>
             </div>
         </div>
 
