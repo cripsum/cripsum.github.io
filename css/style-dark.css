@@ -624,6 +624,8 @@ radio:hover {
     border-radius: 10px !important;
     padding: 8px 12px !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    margin-right: -10px !important;
+    margin-bottom: -3px !important;
 }
 
 .impostazioni-toggler:hover {
