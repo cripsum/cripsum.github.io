@@ -172,9 +172,9 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
         <div class="mt-4 fadeup">
             <a href="../it/home" class="linkbianco">← Torna alla home</a>
         </div>
-                <div class="row mb-4 fadeup">
+            <div class="row mb-4 mt-3 fadeup">
             <div class="col-12">
-                <div class="card shadow-lg border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+                <div class="card shadow-lg border-0">
                     <div class="card-body p-4">
                         <h5 class="card-title mb-3 text-white d-flex align-items-center">
                             <i class="fas fa-users me-2"></i>
