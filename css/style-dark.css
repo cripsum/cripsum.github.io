@@ -239,7 +239,7 @@ hr.rounded {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
-    margin-left: -5px !important;
+    margin-left: -10px !important;
 }
 
 .dropdownutenti .dropdown-menu .dropdown-item:hover {
@@ -624,7 +624,8 @@ radio:hover {
     border-radius: 10px !important;
     padding: 8px 12px !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    margin-bottom: -3px !important;
+    margin-top: -3px !important;
+    margin-left: 5px !important;
 }
 
 .impostazioni-toggler:hover {
@@ -670,6 +671,7 @@ radio:hover {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/*
 .navbar-collapse.show {
     background: linear-gradient(135deg, rgba(20, 20, 20, 0.95), rgba(15, 15, 15, 0.98));
     border-radius: 12px;
@@ -677,7 +679,7 @@ radio:hover {
     padding: 16px;
     backdrop-filter: blur(20px);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-}
+}*/
 
 @keyframes fadeIn {
     from {
@@ -746,11 +748,11 @@ radio:hover {
     }
 
     .dropdownutenti .dropdown-menu .dropdown-item {
-        margin-left: 10px !important;
+        margin-left: 5px !important;
     }
 
     .impostazioni-toggler {
-        margin-left: -10px !important;
+        left: -10px !important;
     }
 }
 
