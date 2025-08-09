@@ -197,6 +197,12 @@ hr.rounded {
     border: none;
 }
 
+.navbarutenti .nav-item {
+    box-shadow: none;
+    outline: none;
+    border: none;
+}
+
 .link-lingua {
     color: white;
     font-weight: bold;
