@@ -31,7 +31,7 @@ checkBan($mysqli);
         </div>
     </div>-->
 
-    <div class="downloads-section" style="margin-top: 5rem; padding-bottom: 4rem">
+    <div class="downloads-section" style="margin-top: 5rem; padding-bottom: 7rem">
         <div class="downloads-grid">
             <div class="download-item fadeup" onclick="window.location.href='https://payhip.com/b/m0kaT'">
                 <div class="download-card h-100">
