@@ -258,18 +258,22 @@ checkBan($mysqli);
             .card-img-wrapper {
             position: relative;
             overflow: hidden;
-            height: 180px;
+            height: 250px;
             background: linear-gradient(135deg, 
             rgba(30, 32, 42, 1) 0%, 
             rgba(40, 45, 60, 1) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             }
             
             .card-img-top {
-            width: 100%;
-            height: 100%;
+            width: 200px;
+            height: 200px;
             object-fit: cover;
             transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             filter: brightness(0.8) contrast(1.1) saturate(1.2);
+            border-radius: 20px;
             }
             
             .download-card:hover .card-img-top {
@@ -428,7 +432,12 @@ checkBan($mysqli);
             }
             
             .card-img-wrapper {
-            height: 160px;
+            height: 220px;
+            }
+            
+            .card-img-top {
+            width: 180px;
+            height: 180px;
             }
             
             .card-body {
@@ -453,7 +462,12 @@ checkBan($mysqli);
             }
 
             .card-img-wrapper {
-            height: 180px;
+            height: 200px;
+            }
+
+            .card-img-top {
+            width: 160px;
+            height: 160px;
             }
 
             .card-body {
@@ -480,7 +494,12 @@ checkBan($mysqli);
             }
 
             .card-img-wrapper {
-            height: 160px;
+            height: 180px;
+            }
+
+            .card-img-top {
+            width: 140px;
+            height: 140px;
             }
             
             .card-body {
