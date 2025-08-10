@@ -33,8 +33,8 @@ checkBan($mysqli);
 
     <div class="downloads-section" style="margin-top: 7rem; padding-bottom: 7rem">
         <div class="downloads-grid">
-            <div class="card-item fadeup" onclick="window.location.href='https://payhip.com/b/m0kaT'">
-                <div class="card h-100">
+            <div class="download-item fadeup" onclick="window.location.href='https://payhip.com/b/m0kaT'">
+                <div class="download-card h-100">
                     <div class="card-header">
                         <img src="../img/jayquadrato.png" class="card-img" alt="Tutorial Spinjitzu" />
                         <div class="card-overlay">
@@ -52,8 +52,8 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="card-item fadeup" onclick="window.location.href='download/yoshukai'">
-                <div class="card h-100 download">
+            <div class="download-item fadeup" onclick="window.location.href='download/yoshukai'">
+                <div class="download-card h-100 download">
                     <div class="card-header">
                         <img src="../img/chinese-essay-2.jpg" class="card-img" alt="Corso Yoshukai" />
                         <div class="card-overlay">
@@ -72,8 +72,8 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="card-item fadeup" onclick="window.location.href='download/fortnite'">
-                <div class="card h-100">
+            <div class="download-item fadeup" onclick="window.location.href='download/fortnite'">
+                <div class="download-card h-100">
                     <div class="card-header">
                         <img src="../img/fortnitehack.jpg" class="card-img" alt="Fortnite Hacks" />
                         <div class="card-overlay">
@@ -91,8 +91,8 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="card-item fadeup" onclick="window.location.href='download/osu'">
-                <div class="card h-100">
+            <div class="download-item fadeup" onclick="window.location.href='download/osu'">
+                <div class="download-card h-100">
                     <div class="card-header">
                         <img src="../img/osu.jpg" class="card-img" alt="Osu!" />
                         <div class="card-overlay">
@@ -110,8 +110,8 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="card-item fadeup">
-                <div class="card h-100 coming-soon">
+            <div class="download-item fadeup">
+                <div class="download-card h-100 coming-soon">
                     <div class="card-header">
                         <img src="../img/comingsoon.jpg" class="card-img" alt="Coming Soon" />
                         <div class="card-overlay">
@@ -129,8 +129,8 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="card-item fadeup">
-                <div class="card h-100 coming-soon">
+            <div class="download-item fadeup">
+                <div class="download-card h-100 coming-soon">
                     <div class="card-header">
                         <img src="../img/comingsoon.jpg" class="card-img" alt="Coming Soon" />
                         <div class="card-overlay">
