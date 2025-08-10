@@ -24,7 +24,7 @@ checkBan($mysqli);
     <div class="hero-section py-5" style="margin-top: 5rem;">
         <div class="hero-content fadeup">
             <div class="hero-text">
-                <h1 class="hero-title">Download Center</h1>
+                <h1 class="hero-title">Cripsum™ - Download</h1>
                 <p class="hero-subtitle">Scopri i nostri contenuti esclusivi</p>
                 <p class="hero-question">Cosa vorresti scaricare oggi?</p>
             </div>
@@ -33,7 +33,7 @@ checkBan($mysqli);
 
     <div class="downloads-section" style="padding-bottom: 4rem">
         <div class="downloads-grid">
-            <div class="download-item fadeup">
+            <div class="download-item fadeup" onclick="window.location.href='https://payhip.com/b/m0kaT'"></div>
                 <div class="download-card h-100">
                     <div class="card-header">
                         <img src="../img/jayquadrato.png" class="card-img" alt="Tutorial Spinjitzu" />
@@ -52,7 +52,7 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="download-item fadeup">
+            <div class="download-item fadeup" onclick="window.location.href='download/yoshukai'"></div>
                 <div class="download-card h-100">
                     <div class="card-header">
                         <img src="../img/chinese-essay-2.jpg" class="card-img" alt="Corso Yoshukai" />
@@ -72,7 +72,7 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="download-item fadeup">
+            <div class="download-item fadeup" onclick="window.location.href='download/fortnite'"></div>
                 <div class="download-card h-100">
                     <div class="card-header">
                         <img src="../img/fortnitehack.jpg" class="card-img" alt="Fortnite Hacks" />
@@ -91,7 +91,7 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="download-item fadeup">
+            <div class="download-item fadeup" onclick="window.location.href='download/osu'"></div>
                 <div class="download-card h-100">
                     <div class="card-header">
                         <img src="../img/osu.jpg" class="card-img" alt="Osu!" />
