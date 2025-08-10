@@ -352,6 +352,7 @@ checkBan($mysqli);
                     <li><a href="privacy" class="footer-link">Privacy</a></li>
                     <li><a href="tos" class="footer-link">Termini</a></li>
                     <li><a href="supporto" class="footer-link">Supporto</a></li>
+                    <li><a href="chat-policy" class="footer-link">Regolamento chat globale</a></li>
                     </ul>
                 </div>
             
@@ -366,6 +367,9 @@ checkBan($mysqli);
                         </a>
                         <a href="https://discord.gg/Mmb2sNCvy6" class="footer-social-link" title="Discord">
                             <i class="fab fa-discord"></i>
+                        </a>
+                        <a href="https://t.me/cripsum" class="footer-social-link" title="Telegram">
+                            <i class="fab fa-telegram"></i>
                         </a>
                     </div>
                 </div>
