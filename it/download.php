@@ -21,7 +21,7 @@ checkBan($mysqli);
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
         
-    <div class="hero-section py-5" style="margin-top: 5rem;">
+    <!--<div class="hero-section py-5" style="margin-top: 5rem;">
         <div class="hero-content fadeup">
             <div class="hero-text">
                 <h1 class="hero-title">Cripsum™ - Download</h1>
@@ -29,9 +29,9 @@ checkBan($mysqli);
                 <p class="hero-question">Cosa vorresti scaricare oggi?</p>
             </div>
         </div>
-    </div>
+    </div>-->
 
-    <div class="downloads-section" style="padding-bottom: 4rem">
+    <div class="downloads-section" style="margin-top: 5rem; padding-bottom: 4rem">
         <div class="downloads-grid">
             <div class="download-item fadeup" onclick="window.location.href='https://payhip.com/b/m0kaT'">
                 <div class="download-card h-100">
