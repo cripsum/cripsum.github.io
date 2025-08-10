@@ -1,9 +1,9 @@
 body {
     background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+    min-height: 100vh;
 }
 
 .goonland-container {
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
