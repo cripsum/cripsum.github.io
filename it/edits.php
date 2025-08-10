@@ -57,7 +57,7 @@ checkBan($mysqli);
             <p class="text text-center mt-3 fadein" style="font-weight: bolder">i miei ultimi edit:</p>
 
 
-            <div class="d-flex justify-content-around image-container edits" style="margin: auto; padding-top: 3rem; padding-bottom: 4rem;">
+            <div class="d-flex justify-content-around image-container edits" style="margin: auto; padding-top: 3rem;">
                 <div style="margin-bottom: 30px" class="fadeup">
                     <div onclick="watchVideo(25)">
                         <iframe
@@ -462,7 +462,7 @@ checkBan($mysqli);
                     <p class="text text-center"><img src="../img/music-svgrepo-com.svg" class="logodesc" style="width: 20px; border-radius: 0" /> Travis Scott - MY EYES</p>
                 </div>
             </div>
-            <p class="text-center fadeup" style="margin-top: 20px">
+            <p class="text-center fadeup" style="margin-top: 20px; padding-bottom: 4rem;">
                 <a href="https://tiktok.com/cripsum" class="text linkbianco">clicca qui per guardare tutti i miei edit</a>
             </p>
             <!--
