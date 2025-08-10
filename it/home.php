@@ -342,7 +342,7 @@ checkBan($mysqli);
         <footer class="modern-footer fadeup">
             <div class="footer-content">
                 <div class="footer-section">
-                    <img src="../img/logo.png" alt="Cripsum™ Logo" class="footer-logo" style="height: 40px; margin-bottom: 10px;">
+                    <img src="../img/amongus.jpg" alt="Cripsum™ Logo" class="footer-logo" style="height: 40px; margin-bottom: 10px;">
                     <h5 class="footer-title">Cripsum™</h5>
                     <p class="footer-description">Il sito da king</p>
                 </div>
