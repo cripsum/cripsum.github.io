@@ -23,7 +23,7 @@ checkBan($mysqli);
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
         
-        <div class="shop-section" style="margin-top: 5rem; padding-bottom: 7rem">
+        <div class="shop-section" style="margin-top: 7rem; padding-bottom: 7rem">
             <div class="shop-grid">
                 <div class="shop-item fadeup" onclick="window.location.href='checkout'">
                     <div class="shop-card h-100">
