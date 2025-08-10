@@ -71,22 +71,12 @@ if ($result) {
         <?php include '../../includes/head-import.php'; ?>
         <title>GoonLand™ - Goon Generator</title>
         <script src="/js/nomePagina.js"></script>
-        <link rel="stylesheet" href="/css/style-goonland.css?v=2" />
+        <link rel="stylesheet" href="/css/style-goonland.css?v=3" />
         <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-
-        .dropdownutenti .dropdown-menu {
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-            background: linear-gradient(135deg, rgba(255, 126, 201, 0.8), rgb(255, 152, 255));
-            border: 0px solid rgba(255, 255, 255, 0);
-            border-radius: 8px;
-            box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
-            z-index: 9999;
         }
     </style>
     </head>
@@ -95,7 +85,7 @@ if ($result) {
         <?php include '../../includes/navbar-goonland.php'; ?>
         <?php include '../../includes/impostazioni.php'; ?>
 
-        <div class="testobianco fadeup" style="padding-top: 7rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div class="testobianco fadeup goonland-container" style="padding-top: 7rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                         <!--<div class="alert alert-danger fadeup" role="alert" style="max-width: 800px">
                         ci scusiamo per il disagio, ma l'API di generazione delle immagini è attualmente in manutenzione. Stiamo lavorando per ripristinare il servizio il prima possibile. Grazie per la vostra pazienza
                         </div>-->

@@ -54,24 +54,8 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
     <meta property="og:type" content="website">
     <?php include '../../includes/head-import.php'; ?>
     <script src="/js/nomePagina.js"></script>
-    <link rel="stylesheet" href="/css/style-goonland.css?v=2" />
+    <link rel="stylesheet" href="/css/style-goonland.css?v=3" />
     <title>GoonLand™ - Home</title>
-    <style>
-        .dropdownutenti .dropdown-menu {
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-            background: linear-gradient(135deg, rgba(255, 126, 201, 0.8), rgb(255, 152, 255));
-            border: 0px solid rgba(255, 255, 255, 0);
-            border-radius: 8px;
-            box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
-            z-index: 9999;
-        }
-        .modern-footer {
-            background: linear-gradient(135deg, rgba(255, 126, 201, 0.9), rgba(255, 152, 255, 0.9)) !important;
-            border-top: 2px solid rgba(255, 255, 255, 0.3);
-        }
-
-    </style>
   </head>
   <body>
         <?php include '../../includes/navbar-goonland.php'; ?>
@@ -79,7 +63,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
         <script>
             unlockAchievement(15);
         </script>
-        <div class="" style="padding-top: 7rem;">
+        <div class="goonland-container" style="padding-top: 7rem;">
             <div class="title fadeup">
             <h1 style="font-weight:bolder;">Welcome to Goonland!</h1>
             </div>
