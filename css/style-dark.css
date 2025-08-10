@@ -948,12 +948,10 @@ html {
     background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
     color: #ffffff;
     padding: 3rem 0 1rem 0;
-    margin-top: auto;
+    margin-top: 4rem;
     border-top: 3px solid #444;
     box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
-    position: relative;
-    bottom: 0;
-    width: 100%;
+    bottom: 0 !important;
 }
 
 .footer-content {
