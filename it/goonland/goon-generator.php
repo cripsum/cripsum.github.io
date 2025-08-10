@@ -103,10 +103,10 @@ if ($result) {
             Seleziona tipo di contenuto:
         </label>
         <select id="contentType" style="padding: 10px; border-radius: 10px; border: 2px solid #d63384; background: white; color: #d63384; font-weight: bold; display: block; margin: 0 auto; min-width: 200px; text-align: center;">
-            <option value="waifu">Waifu</option>
-            <option value="neko">Neko</option>
-            <option value="trap">Trap</option>
-            <option value="blowjob">Blowjob</option>
+            <option value="waifu" style=" color: #d63384;">Waifu</option>
+            <option value="neko" style=" color: #d63384;">Neko</option>
+            <option value="trap" style=" color: #d63384;">Trap</option>
+            <option value="blowjob" style=" color: #d63384;">Blowjob</option>
         </select>
     </div>
     
