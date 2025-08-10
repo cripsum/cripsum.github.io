@@ -53,7 +53,7 @@ checkBan($mysqli);
             </div>
 
             <div class="card-item fadeup" onclick="window.location.href='download/yoshukai'">
-                <div class="card h-100">
+                <div class="card h-100 download">
                     <div class="card-header">
                         <img src="../img/chinese-essay-2.jpg" class="card-img" alt="Corso Yoshukai" />
                         <div class="card-overlay">

@@ -1456,17 +1456,33 @@ html {
 
 .shop-section,
 .downloads-section {
-    @extend .card-section;
+    max-width: 1400px;
+    margin: 2rem auto 0;
+    padding: 0 1rem;
 }
 .shop-grid,
 .downloads-grid {
-    @extend .card-grid;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    padding: 2rem 0;
 }
 .shop-item,
 .download-item {
-    @extend .card-item;
+    position: relative;
+    transform: translateY(0);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 .shop-card,
 .download-card {
-    @extend .card;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(15px);
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
 }
