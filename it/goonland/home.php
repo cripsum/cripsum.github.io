@@ -66,6 +66,18 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
             box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
             z-index: 9999;
         }
+        .footer {
+            background: linear-gradient(135deg, rgba(255, 126, 201, 0.9), rgba(255, 152, 255, 0.9)) !important;
+            border-top: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .footer * {
+            color: #ffffff !important;
+        }
+
+        .footer a:hover {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
 
     </style>
   </head>
@@ -116,15 +128,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
                 <p id="popup-description"></p>
             </div>
         </div>
-        <footer class="my-5 pt-5 text-muted text-center text-small fadeup">
-            <p class="crediti mb-2" style="color: #d63384;">Si ringrazia <a href="/user/zakator" class="arcobaleno testo-arcobaleno" style="font-weight:bolder;">Zakator</a> per il contributo creativo e tecnico nella realizzazione di GoonLand e delle relative funzionalità di gioco</p>
-            <p class="mb-1 testonero">Copyright © 2021-2025 Cripsum™. Tutti i diritti riservati.</p>
-            <ul class="list-inline">
-                <li class="list-inline-item"><a href="../privacy" class="linknero">Privacy</a></li>
-                <li class="list-inline-item"><a href="../tos" class="linknero">Termini</a></li>
-                <li class="list-inline-item"><a href="../supporto" class="linknero">Supporto</a></li>
-            </ul>
-        </footer>
+        <?php include '../../includes/footer.php'; ?>
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"

@@ -251,14 +251,7 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
                 <p id="popup-description"></p>
             </div>
         </div>
-        <footer class="my-5 pt-5 text-muted text-center text-small fadeup">
-            <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. Tutti i diritti riservati.</p>
-            <ul class="list-inline">
-                <li class="list-inline-item"><a href="../it/privacy" class="linkbianco">Privacy</a></li>
-                <li class="list-inline-item"><a href="../it/tos" class="linkbianco">Termini</a></li>
-                <li class="list-inline-item"><a href="../it/supporto" class="linkbianco">Supporto</a></li>
-            </ul>
-        </footer>
+        <?php include 'includes/footer.php'; ?>
             <script>
                 function searchUser() {
                     const username = document.getElementById('userSearch').value.trim();

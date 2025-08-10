@@ -42,20 +42,7 @@ if (!isLoggedIn()) {
             </div>
         </div>
 
-        <footer class="my-5 pt-5 text-muted text-center text-small fadeup">
-            <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. Tutti i diritti riservati.</p>
-            <ul class="list-inline">
-                <li class="list-inline-item">
-                    <a href="privacy" class="linkbianco">Privacy</a>
-                </li>
-                <li class="list-inline-item">
-                    <a href="tos" class="linkbianco">Termini</a>
-                </li>
-                <li class="list-inline-item">
-                    <a href="supporto" class="linkbianco">Supporto</a>
-                </li>
-            </ul>
-        </footer>
+        <?php include '../includes/footer.php'; ?>
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
