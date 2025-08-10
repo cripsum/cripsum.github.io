@@ -88,19 +88,10 @@ if ($result) {
             z-index: 9999;
         }
 
-        .footer {
+        .modern-footer {
             background: linear-gradient(135deg, rgba(255, 126, 201, 0.9), rgba(255, 152, 255, 0.9)) !important;
             border-top: 2px solid rgba(255, 255, 255, 0.3);
         }
-
-        .footer * {
-            color: #ffffff !important;
-        }
-
-        .footer a:hover {
-            color: rgba(255, 255, 255, 0.8) !important;
-        }
-
         
         body {
             background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);

@@ -66,17 +66,9 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
             box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
             z-index: 9999;
         }
-        .footer {
+        .modern-footer {
             background: linear-gradient(135deg, rgba(255, 126, 201, 0.9), rgba(255, 152, 255, 0.9)) !important;
             border-top: 2px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .footer * {
-            color: #ffffff !important;
-        }
-
-        .footer a:hover {
-            color: rgba(255, 255, 255, 0.8) !important;
         }
 
     </style>
