@@ -151,69 +151,6 @@ checkBan($mysqli);
     </div>
 
         <style>
-.hero-section {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-        }
-
-        .hero-content {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
-            border-radius: 24px;
-            padding: 3rem 2rem;
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            text-align: center;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero-content::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, 
-                rgba(100, 200, 255, 0.03) 0%, 
-                rgba(255, 100, 200, 0.02) 50%,
-                rgba(100, 255, 150, 0.03) 100%);
-            opacity: 0.5;
-            z-index: 1;
-            border-radius: 24px;
-        }
-
-        .hero-content > * {
-            position: relative;
-            z-index: 2;
-        }
-
-        .hero-title {
-            font-size: clamp(2rem, 4vw, 3.5rem);
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            background: linear-gradient(135deg, #ffffff 0%, #e8e8e8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1.2;
-        }
-
-        .hero-subtitle {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-            color: rgba(255, 255, 255, 0.85);
-            font-weight: 400;
-        }
-
-        .hero-question {
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.7);
-            font-style: italic;
-        }
-
         .downloads-section {
             max-width: 1400px;
             margin: 2rem auto 0;
