@@ -49,7 +49,7 @@ checkBan($mysqli);
                         <i class="fas fa-rocket me-2"></i>In Crescita
                     </span>
                     </div>
-                    <div class="text-center mt-3">
+                    <div class="text-center mt-5">
                         <a href="https://www.buymeacoffee.com/cripsum" target="_blank"
                             ><img
                                 class="ombra"
