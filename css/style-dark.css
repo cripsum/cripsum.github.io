@@ -1136,7 +1136,6 @@ html {
     }
 }
 
-/* Unified Card Layout Styles - Works for both shop and downloads sections */
 .card-section {
     max-width: 1400px;
     margin: 2rem auto 0;
@@ -1261,7 +1260,6 @@ html {
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
 }
 
-/* Default badge style (shop style - orange/red) */
 .overlay-badge {
     font-size: 0.8rem;
     padding: 0.5rem 1rem;
@@ -1275,7 +1273,6 @@ html {
     margin-top: 8px;
 }
 
-/* Downloads badge variant (green) */
 .overlay-badge.download {
     background: linear-gradient(135deg, #28a745, #20c997);
     box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
@@ -1340,7 +1337,6 @@ html {
     margin: 0;
 }
 
-/* Coming soon state for downloads */
 .coming-soon {
     opacity: 0.6;
     cursor: default;
@@ -1355,7 +1351,6 @@ html {
     color: rgba(255, 255, 255, 0.7);
 }
 
-/* Animation */
 .fadeup {
     animation: fadeUp 0.8s ease forwards;
 }
@@ -1371,7 +1366,6 @@ html {
     }
 }
 
-/* Responsive Design */
 @media (min-width: 1200px) {
     .card-grid,
     .shop-grid,
@@ -1472,7 +1466,6 @@ html {
     }
 }
 
-/* Legacy class name support - you can use these for backwards compatibility */
 .shop-section,
 .downloads-section {
     max-width: 1400px;
