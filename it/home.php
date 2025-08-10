@@ -339,13 +339,43 @@ checkBan($mysqli);
                 <p id="popup-description"></p>
             </div>
         </div>
-        <footer class="my-5 pt-5 text-muted text-center text-small fadeup">
-            <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. Tutti i diritti riservati.</p>
-            <ul class="list-inline">
-                <li class="list-inline-item"><a href="privacy" class="linkbianco">Privacy</a></li>
-                <li class="list-inline-item"><a href="tos" class="linkbianco">Termini</a></li>
-                <li class="list-inline-item"><a href="supporto" class="linkbianco">Supporto</a></li>
-            </ul>
+        <footer class="modern-footer fadeup">
+            <div class="footer-content">
+            <div class="footer-section">
+                <h5 class="footer-title">Cripsum™</h5>
+                <p class="footer-description">Il sito migliore del congo</p>
+            </div>
+            
+            <div class="footer-section">
+                <h6 class="footer-subtitle">Link utili</h6>
+                <ul class="footer-links">
+                <li><a href="privacy" class="footer-link">Privacy</a></li>
+                <li><a href="tos" class="footer-link">Termini</a></li>
+                <li><a href="supporto" class="footer-link">Supporto</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h6 class="footer-subtitle">Social</h6>
+                <div class="footer-social">
+                <a href="https://www.tiktok.com/@cripsum" class="footer-social-link" title="TikTok">
+                    <i class="fab fa-tiktok"></i>
+                </a>
+                <a href="https://www.instagram.com/cripsum/" class="footer-social-link" title="Instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="https://discord.gg/Mmb2sNCvy6" class="footer-social-link" title="Discord">
+                    <i class="fab fa-discord"></i>
+                </a>
+                </div>
+            </div>
+            </div>
+            
+            <div class="footer-bottom">
+            <p class="footer-copyright">
+                © 2021-<?php echo date('Y'); ?> Cripsum™. Tutti i diritti riservati.
+            </p>
+            </div>
         </footer>
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"

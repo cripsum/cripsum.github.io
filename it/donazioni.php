@@ -81,9 +81,9 @@ checkBan($mysqli);
         <footer class="my-5 pt-5 text-muted text-center text-small fadeup" style="position: absolute; bottom: 0; right: 0; left: 0">
             <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. Tutti i diritti riservati.</p>
             <ul class="list-inline">
-                <li class="list-inline-item"><a href="privacy" class="link-lingua">Privacy</a></li>
-                <li class="list-inline-item"><a href="tos" class="link-lingua">Termini</a></li>
-                <li class="list-inline-item"><a href="supporto" class="link-lingua">Supporto</a></li>
+                <li class="list-inline-item"><a href="privacy" class="linkbianco">Privacy</a></li>
+                <li class="list-inline-item"><a href="tos" class="linkbianco">Termini</a></li>
+                <li class="list-inline-item"><a href="supporto" class="linkbianco">Supporto</a></li>
             </ul>
         </footer>
         <script
