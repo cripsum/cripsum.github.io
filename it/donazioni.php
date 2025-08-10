@@ -49,6 +49,15 @@ checkBan($mysqli);
                         <i class="fas fa-rocket me-2"></i>In Crescita
                     </span>
                     </div>
+                    <div class="text-center mt-3">
+                        <a href="https://www.buymeacoffee.com/cripsum" target="_blank"
+                            ><img
+                                class="ombra"
+                                style="border-radius: 10px"
+                                src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee :P&emoji=☕&slug=cripsum&button_colour=FFDD00&font_colour=000000&font_family=Poppins&outline_colour=000000&coffee_colour=ffffff"
+                                onclick="unlockAchievement(4)"
+                        /></a>
+                    </div>
                 </div>
                 </div>
             </div>
@@ -62,15 +71,6 @@ checkBan($mysqli);
             100% { transform: scale(1); }
             }
         </style>
-        <div class="text-center mt-3 fadeup">
-            <a href="https://www.buymeacoffee.com/cripsum" target="_blank"
-                ><img
-                    class="ombra"
-                    style="border-radius: 10px"
-                    src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee :P&emoji=☕&slug=cripsum&button_colour=FFDD00&font_colour=000000&font_family=Poppins&outline_colour=000000&coffee_colour=ffffff"
-                    onclick="unlockAchievement(4)"
-            /></a>
-        </div>
         <div id="achievement-popup" class="popup">
             <img id="popup-image" src="" alt="Achievement" />
             <div>
