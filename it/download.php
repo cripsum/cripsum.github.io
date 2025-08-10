@@ -21,10 +21,20 @@ checkBan($mysqli);
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
         
-        <div class="container-fluid py-5"></div>
-            <div class="row justify-content-center g-4" style="max-width: 1200px; margin: 0 auto; padding-top: 5rem;">
-            <div class="col-lg-4 col-md-6 col-sm-12">
-                <div class="card h-100 shadow-lg border-0 download-card fadeup">
+        <div class="hero-section py-5">
+            <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">Download Center</h1>
+                <p class="hero-subtitle">Scopri i nostri contenuti esclusivi</p>
+                <p class="hero-question">Cosa vorresti scaricare oggi?</p>
+            </div>
+            </div>
+        </div>
+
+        <div class="downloads-section">
+            <div class="downloads-grid">
+            <div class="download-item">
+                <div class="download-card h-100 shadow-lg border-0 fadeup">
                 <div class="card-img-wrapper">
                     <img src="../img/jayquadrato.png" class="card-img-top" alt="Tutorial Spinjitzu" />
                     <div class="card-overlay">
@@ -42,8 +52,8 @@ checkBan($mysqli);
                 </div>
             </div>
             
-            <div class="col-lg-4 col-md-6 col-sm-12">
-                <div class="card h-100 shadow-lg border-0 download-card fadeup">
+            <div class="download-item">
+                <div class="download-card h-100 shadow-lg border-0 fadeup">
                 <div class="card-img-wrapper">
                     <img src="../img/chinese-essay-2.jpg" class="card-img-top" alt="Corso Yoshukai" />
                     <div class="card-overlay">
@@ -62,8 +72,8 @@ checkBan($mysqli);
                 </div>
             </div>
             
-            <div class="col-lg-4 col-md-6 col-sm-12">
-                <div class="card h-100 shadow-lg border-0 download-card fadeup">
+            <div class="download-item">
+                <div class="download-card h-100 shadow-lg border-0 fadeup">
                 <div class="card-img-wrapper">
                     <img src="../img/fortnitehack.jpg" class="card-img-top" alt="Fortnite Hacks" />
                     <div class="card-overlay">
@@ -81,8 +91,8 @@ checkBan($mysqli);
                 </div>
             </div>
             
-            <div class="col-lg-4 col-md-6 col-sm-12">
-                <div class="card h-100 shadow-lg border-0 download-card fadeup">
+            <div class="download-item">
+                <div class="download-card h-100 shadow-lg border-0 fadeup">
                 <div class="card-img-wrapper">
                     <img src="../img/osu.jpg" class="card-img-top" alt="Osu!" />
                     <div class="card-overlay">
@@ -100,8 +110,8 @@ checkBan($mysqli);
                 </div>
             </div>
             
-            <div class="col-lg-4 col-md-6 col-sm-12">
-                <div class="card h-100 shadow-lg border-0 download-card coming-soon fadeup">
+            <div class="download-item">
+                <div class="download-card h-100 shadow-lg border-0 coming-soon fadeup">
                 <div class="card-img-wrapper">
                     <img src="../img/comingsoon.jpg" class="card-img-top" alt="Coming Soon" />
                     <div class="card-overlay">
@@ -119,8 +129,8 @@ checkBan($mysqli);
                 </div>
             </div>
             
-            <div class="col-lg-4 col-md-6 col-sm-12">
-                <div class="card h-100 shadow-lg border-0 download-card coming-soon fadeup">
+            <div class="download-item">
+                <div class="download-card h-100 shadow-lg border-0 coming-soon fadeup">
                 <div class="card-img-wrapper">
                     <img src="../img/comingsoon.jpg" class="card-img-top" alt="Coming Soon" />
                     <div class="card-overlay">
@@ -141,16 +151,76 @@ checkBan($mysqli);
         </div>
 
         <style>
+            /* Download page styles */
+            .hero-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            }
+
+            .hero-content {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            }
+
+            .hero-title {
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+            }
+
+            .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            }
+
+            .hero-question {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-style: italic;
+            }
+
+            .downloads-section {
+            max-width: 1200px;
+            margin: 1rem auto 0;
+            padding: 0 1rem;
+            }
+
+            .downloads-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem 0;
+            }
+
+            .download-item {
+            position: relative;
+            }
+
             .download-card {
             transition: all 0.3s ease;
-            background: var(--bs-body-bg);
-            border-radius: 15px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             overflow: hidden;
             }
             
             .download-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2) !important;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+            border-color: rgba(255, 255, 255, 0.2);
             }
             
             .card-img-wrapper {
@@ -164,10 +234,12 @@ checkBan($mysqli);
             height: 100%;
             object-fit: cover;
             transition: transform 0.3s ease;
+            border: 3px solid rgba(255, 255, 255, 0.2);
             }
             
             .download-card:hover .card-img-top {
             transform: scale(1.1);
+            border-color: rgba(255, 255, 255, 0.4);
             }
             
             .card-overlay {
@@ -199,13 +271,20 @@ checkBan($mysqli);
             }
             
             .card-title a {
-            color: var(--bs-body-color);
+            color: white;
             font-weight: 600;
             transition: color 0.3s ease;
             }
             
             .card-title a:hover {
-            color: var(--bs-primary);
+            background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            }
+
+            .card-text {
+            color: rgba(255, 255, 255, 0.8) !important;
             }
             
             .coming-soon {
@@ -221,8 +300,36 @@ checkBan($mysqli);
             }
             
             @media (max-width: 768px) {
+            .hero-content {
+                max-width: 90%;
+                margin: 0 auto;
+                padding: 2rem 1.5rem;
+            }
+
+            .downloads-section {
+                max-width: 90%;
+                margin: 0 auto;
+            }
+
+            .downloads-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
             .card-img-wrapper {
                 height: 180px;
+            }
+            }
+
+            @media (max-width: 480px) {
+            .hero-section {
+                max-width: 90%;
+                margin: 0 auto;
+                padding: 1rem 0.5rem;
+            }
+
+            .hero-content {
+                padding: 1.5rem 1rem;
             }
             }
         </style>
