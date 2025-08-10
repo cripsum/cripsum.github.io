@@ -169,7 +169,7 @@ hr.rounded {
 }
 
 .loginpagege {
-    max-width: 25%;
+    max-width: 100%;
     margin: auto;
 }
 
@@ -1509,4 +1509,3 @@ select {
         height: 200px;
     }
 }
-
