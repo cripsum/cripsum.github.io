@@ -54,7 +54,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
     <meta property="og:type" content="website">
     <?php include '../../includes/head-import.php'; ?>
     <script src="/js/nomePagina.js"></script>
-    <link rel="stylesheet" href="/css/style-goonland.css?v=5" />
+    <link rel="stylesheet" href="/css/style-goonland.css?v=6" />
     <title>GoonLand™ - Home</title>
   </head>
   <body>

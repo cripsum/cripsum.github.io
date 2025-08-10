@@ -71,7 +71,7 @@ if ($result) {
         <?php include '../../includes/head-import.php'; ?>
         <title>GoonLand™ - Goon Generator</title>
         <script src="/js/nomePagina.js"></script>
-        <link rel="stylesheet" href="/css/style-goonland.css?v=5" />
+        <link rel="stylesheet" href="/css/style-goonland.css?v=6" />
         <style>
         * {
             margin: 0;
