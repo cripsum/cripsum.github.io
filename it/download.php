@@ -59,7 +59,7 @@ checkBan($mysqli);
                         <div class="card-overlay">
                             <div class="overlay-content">
                                 <i class="fas fa-download overlay-icon"></i>
-                                <div class="overlay-badge">Gratis!</div>
+                                <div class="overlay-badge download">Gratis!</div>
                             </div>
                         </div>
                     </div>
