@@ -23,7 +23,7 @@ checkBan($mysqli);
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
 
-        <div style="max-width: 1200px; margin: auto; padding-top: 7rem" class="testobianco">
+        <div style="max-width: 1200px; margin: auto; padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
             <div class="privacy">
                 <h1 class="text-center fadeup" style="padding-top: 3%; font-weight: bolder">Supporto</h1>
                 <h3 class="text-center fadeup" style="padding-top: 10px">Assistenza Clienti</h3>

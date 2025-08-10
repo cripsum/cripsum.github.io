@@ -61,7 +61,7 @@ if ($_POST && isset($_POST['resend_email'])) {
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
-    <div style="max-width: 1920px; margin: auto; padding-top: 7rem" class="testobianco">
+    <div style="max-width: 1920px; margin: auto; padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-md-8 col-lg-6">

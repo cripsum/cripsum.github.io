@@ -22,7 +22,7 @@ checkBan($mysqli);
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
 
-        <div style="max-width: 1920px; margin: auto; padding-top: 7rem" class="testobianco">
+        <div style="max-width: 1920px; margin: auto; padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
             <div class="shitposttext">
                 <p class="fs-4 text mt-3 fadeup" style="text-align: center">
                     Hey, hai dei meme o contenuti shitpost che sarebbero perfetti per questa pagina? manda tutto via e-mail a

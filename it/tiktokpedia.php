@@ -29,7 +29,7 @@ checkBan($mysqli);
             <h1 class="text-center">TikTokPedia</h1>
             <p class="text-center">Benvenuto nella TikTokPedia, la tua enciclopedia di TikTok!</p>
         </div>
-        <div class="tiktokpedia testobianco">
+        <div class="tiktokpedia testobianco" style="padding-bottom: 4rem;">
             <div class="d-flex justify-content-around image-container container-tiktokpedia ">
                 <div class="card ombra fadeup" style="width: 18rem; margin-bottom: 30px;">
                     <img src="../img/pfp choso2 cc.png" class="card-img-top" alt="Character Photo" />

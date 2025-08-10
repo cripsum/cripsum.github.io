@@ -22,7 +22,7 @@ checkBan($mysqli);
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
 
-        <div style="padding-top: 7rem" class="testobianco">
+        <div style="padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
             <div id="achievement-popup" class="popup">
                 <img id="popup-image" src="" alt="Achievement" />
                 <div>

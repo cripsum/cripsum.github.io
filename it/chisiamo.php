@@ -21,7 +21,7 @@ checkBan($mysqli);
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
 
-        <div class="paginainterachisiamo testobianco" style="padding-top: 7rem">
+        <div class="paginainterachisiamo testobianco" style="padding-top: 7rem; padding-bottom: 4rem;">
             <p class="text-center fadeup" style="font-size: 30px; font-weight: bolder; margin-top: 20px">il nostro team di sviluppo 🤑</p>
             <p class="text-center fadeup" style="font-size: 15px; margin-top: 20px">
                 vuoi far parte del nostro team di sviluppo? manda una e-mail a <a href="mailto:sburra@cripsum.com" class="linkbianco">sburra@cripsum.com</a> allegando immagine, nome e descrizione, e

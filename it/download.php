@@ -21,7 +21,7 @@ checkBan($mysqli);
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
         
-        <div class="paginainteradolod testobianco" style="margin: auto; padding-top: 7rem">
+        <div class="paginainteradolod testobianco" style="margin: auto; padding-top: 7rem; padding-bottom: 4rem;">
             <div class="d-flex justify-content-center image-container" style="max-width: 80%; margin: auto; padding-top: 5%">
                 <div style="margin-top: 10px; margin-bottom: 5%; margin-left: 2%; margin-right: 2%" class="fadeup">
                     <img src="../img/jayquadrato.png" class="immaginealberi ombra" alt="" />

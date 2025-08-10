@@ -52,7 +52,7 @@ checkBan($mysqli);
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
 
-        <div class="paginainterachisiamo testobianco" style="padding-top: 7rem; text-align: center">
+        <div class="paginainterachisiamo testobianco" style="padding-top: 7rem; text-align: center; padding-bottom: 4rem;">
             <h1 class="fadeup">Achievements Sbloccati</h1>
             <p class="fadeup">N.B. gli achievement sono ancora in fase di creazione, pertanto sono ancora senza un icona, e molti non possono ancora essere sbloccati.</p>
             <div id="achievements-list" class="fadeup"></div>

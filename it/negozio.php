@@ -23,7 +23,7 @@ checkBan($mysqli);
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
         
-        <div style="max-width: 1920px; margin: auto; padding-top: 7rem" class="testobianco">
+        <div style="max-width: 1920px; margin: auto; padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
             <div class="d-flex justify-content-center image-container" style="max-width: 80%; margin: auto; padding-top: 5%">
                 <div style="margin-left: 2%; margin-right: 2%" class="fadeup">
                     <img src="../img/4090.jpg" class="immaginealberi ombra" alt="" />

@@ -29,7 +29,7 @@ checkBan($mysqli);
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
 
-        <div class="paginaintera">
+        <div class="paginaintera" style="padding-bottom: 4rem;">
             <p class="text-center fadein" style="font-size: 50px; font-weight: bolder; margin-top: 20px">NEW MERCH OUT NOW</p>
             <p class="text-center fadein" style="font-size: 50px">🤑🐦📸</p>
             <div class="d-flex justify-content-around image-container" style="max-width: 80%; margin: auto; padding-top: 5%">

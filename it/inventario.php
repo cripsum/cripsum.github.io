@@ -32,7 +32,7 @@ if (!isLoggedIn()) {
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
 
-        <div class="paginainterachisiamo testobianco" style="padding-top: 7rem; text-align: center">
+        <div class="paginainterachisiamo testobianco" style="padding-top: 7rem; text-align: center; padding-bottom: 4rem;">
             <div class="container">
                 <h1 class="fadeup">Il tuo Inventario</h1>
                 <p class="fadeup" id="casseAperte"></p>

@@ -47,7 +47,7 @@ if ($_POST) {
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
-    <div style="max-width: 1920px; margin: auto; padding-top: 7rem" class="testobianco">
+    <div style="max-width: 1920px; margin: auto; padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
         <div class="loginpagege text-center mt-5">
             <div class="tab-content">
                 <div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="tab-login">
@@ -137,9 +137,9 @@ if ($_POST) {
             </div>
         </div>
 
-        <?php include '../includes/footer.php'; ?>
+        
     </div>
-
+    <?php include '../includes/footer.php'; ?>
     <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"

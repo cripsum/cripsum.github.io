@@ -57,7 +57,7 @@ checkBan($mysqli);
             <p class="text text-center mt-3 fadein" style="font-weight: bolder">i miei ultimi edit:</p>
 
 
-            <div class="d-flex justify-content-around image-container edits" style="margin: auto; padding-top: 3rem">
+            <div class="d-flex justify-content-around image-container edits" style="margin: auto; padding-top: 3rem; padding-bottom: 4rem;">
                 <div style="margin-bottom: 30px" class="fadeup">
                     <div onclick="watchVideo(25)">
                         <iframe

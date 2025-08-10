@@ -22,7 +22,7 @@ checkBan($mysqli);
     <body>
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
-        <div style="max-width: 1200px; margin: auto; padding-top: 7rem" class="testobianco">
+        <div style="max-width: 1200px; margin: auto; padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
             <div class="privacy">
                 <h1 class="text-center fadeup" style="padding-top: 3%; font-weight: bolder">Linee guida della chat globale</h1>
                 <p class="text-center fadeup">Accedendo chat, dichiari di aver letto e accettato queste regole. Violazioni possono portare a ban temporanei o permanenti.</p>

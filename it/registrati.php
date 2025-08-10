@@ -75,7 +75,7 @@ if ($_POST) {
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
 
-        <div style="max-width: 1920px; margin: auto; padding-top: 7rem" class="testobianco">
+        <div style="max-width: 1920px; margin: auto; padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
             <div class="loginpagege text-center mt-5">
                 <!-- Pills content -->
                 <div class="tab-content">

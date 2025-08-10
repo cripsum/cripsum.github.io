@@ -103,7 +103,7 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
     <?php include 'includes/navbar.php'; ?>
     <?php include 'includes/impostazioni.php'; ?>
 
-    <div class="container my-5 paginainterachisiamo testobianco" style="padding-top: 5rem">
+    <div class="container my-5 paginainterachisiamo testobianco" style="padding-top: 5rem; padding-bottom: 4rem;">
         <div class="row mb-4 fadeup">
             <div class="col-12">
                 <div class="card shadow-lg border-0">

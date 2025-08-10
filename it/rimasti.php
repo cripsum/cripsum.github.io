@@ -22,7 +22,7 @@ checkBan($mysqli);
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
 
-        <div style="max-width: 550px; margin: auto; padding-top: 7rem" class="testobianco">
+        <div style="max-width: 550px; margin: auto; padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
             <h1 class="text-center fadein" style="padding-top: 3%; font-weight: bolder; color: red">classifica top 10 rimasti</h1>
             <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 3%">
                 <div style="margin: auto; padding-top: 1%">

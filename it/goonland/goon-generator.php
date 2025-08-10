@@ -71,7 +71,7 @@ if ($result) {
         <?php include '../../includes/head-import.php'; ?>
         <title>GoonLand™ - Goon Generator</title>
         <script src="/js/nomePagina.js"></script>
-        <link rel="stylesheet" href="/css/style-goonland.css?v=4" />
+        <link rel="stylesheet" href="/css/style-goonland.css?v=5" />
         <style>
         * {
             margin: 0;
@@ -85,7 +85,7 @@ if ($result) {
         <?php include '../../includes/navbar-goonland.php'; ?>
         <?php include '../../includes/impostazioni.php'; ?>
 
-        <div class="testobianco fadeup goonland-container" style="padding-top: 7rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div class="testobianco fadeup goonland-container" style="padding-top: 7rem; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 4rem;">
                         <!--<div class="alert alert-danger fadeup" role="alert" style="max-width: 800px">
                         ci scusiamo per il disagio, ma l'API di generazione delle immagini è attualmente in manutenzione. Stiamo lavorando per ripristinare il servizio il prima possibile. Grazie per la vostra pazienza
                         </div>-->
