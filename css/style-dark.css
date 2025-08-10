@@ -958,6 +958,7 @@ html {
     box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
     width: 100%;
     box-sizing: border-box;
+    bottom: 0 !important;
 }
 
 .footer-content {
