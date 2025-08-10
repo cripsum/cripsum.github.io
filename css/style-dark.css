@@ -947,44 +947,49 @@ html {
 .modern-footer {
     background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
     color: #ffffff;
-    padding: 3rem 2rem 1rem;
+    padding: 3rem 0 1rem 0;
     margin-top: 4rem;
-    border-top: 3px solid #007bff;
+    border-top: 3px solid #444;
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
 }
 
 .footer-content {
     max-width: 1200px;
     margin: 0 auto;
+    padding: 0 2rem;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: 2fr 1fr 1fr;
     gap: 2rem;
+    align-items: start;
 }
 
 .footer-section {
-    padding: 0 1rem;
+    display: flex;
+    flex-direction: column;
 }
 
 .footer-title {
+    color: #ffffff;
     font-size: 1.8rem;
     font-weight: bold;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.footer-subtitle {
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 600;
     margin-bottom: 1rem;
-    background: linear-gradient(45deg, #007bff, #00d4ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    border-bottom: 2px solid #444;
+    padding-bottom: 0.5rem;
 }
 
 .footer-description {
     color: #cccccc;
-    line-height: 1.6;
-    font-size: 0.95rem;
-}
-
-.footer-subtitle {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    color: #ffffff;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 0;
 }
 
 .footer-links {
@@ -1000,19 +1005,38 @@ html {
 .footer-link {
     color: #cccccc;
     text-decoration: none;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
-    font-size: 0.9rem;
+    padding: 0.25rem 0;
+    display: inline-block;
+    position: relative;
 }
 
 .footer-link:hover {
-    color: #007bff;
-    text-decoration: underline;
-    padding-left: 5px;
+    color: #ffffff;
+    text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.3);
+    transform: translateX(5px);
+}
+
+.footer-link:after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #ffffff, #cccccc);
+    transition: width 0.3s ease;
+}
+
+.footer-link:hover:after {
+    width: 100%;
 }
 
 .footer-social {
     display: flex;
     gap: 1rem;
+    align-items: center;
 }
 
 .footer-social-link {
@@ -1021,50 +1045,82 @@ html {
     justify-content: center;
     width: 40px;
     height: 40px;
-    background: rgba(255, 255, 255, 0.1);
+    background: #333;
     color: #ffffff;
     border-radius: 50%;
     text-decoration: none;
-    transition: all 0.3s ease;
     font-size: 1.2rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .footer-social-link:hover {
-    background: #007bff;
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
     color: #ffffff;
 }
 
+.footer-social-link i {
+    transition: transform 0.3s ease;
+}
+
+.footer-social-link:hover i {
+    transform: rotate(15deg);
+}
+
 .footer-bottom {
+    border-top: 1px solid #444;
     margin-top: 2rem;
     padding-top: 1.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
     text-align: center;
 }
 
 .footer-copyright {
     color: #999999;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     margin: 0;
+    opacity: 0.8;
 }
 
 @media (max-width: 768px) {
-    .modern-footer {
-        padding: 2rem 1rem 1rem;
-    }
-
     .footer-content {
         grid-template-columns: 1fr;
-        gap: 1.5rem;
+        gap: 2rem;
+        text-align: center;
     }
 
-    .footer-section {
-        text-align: center;
-        padding: 0;
+    .modern-footer {
+        padding: 2rem 0 1rem 0;
     }
 
     .footer-social {
         justify-content: center;
+    }
+
+    .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .footer-links li {
+        margin-bottom: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-content {
+        padding: 0 1rem;
+    }
+
+    .footer-title {
+        font-size: 1.5rem;
+    }
+
+    .footer-social-link {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
     }
 }
