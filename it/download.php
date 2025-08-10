@@ -153,25 +153,26 @@ checkBan($mysqli);
         <style>
             /* Download page styles */
             .hero-section {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 2rem 1rem;
             }
 
             .hero-content {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
-            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+            border-radius: 24px;
             padding: 3rem 2rem;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             }
 
             .hero-title {
-            font-size: clamp(1.8rem, 4vw, 3rem);
-            font-weight: 800;
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 700;
             margin-bottom: 1.5rem;
-            background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+            background: linear-gradient(135deg, #ffffff 0%, #e8e8e8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -179,67 +180,90 @@ checkBan($mysqli);
             }
 
             .hero-subtitle {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             margin-bottom: 1rem;
-            color: rgba(255, 255, 255, 0.9);
-            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 400;
             }
 
             .hero-question {
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
             font-style: italic;
             }
 
             .downloads-section {
-            max-width: 1200px;
-            margin: 1rem auto 0;
+            max-width: 1400px;
+            margin: 2rem auto 0;
             padding: 0 1rem;
             }
 
             .downloads-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
             padding: 2rem 0;
             }
 
             .download-item {
             position: relative;
+            transform: translateY(0);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             }
 
             .download-card {
-            transition: all 0.3s ease;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
-            border-radius: 20px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            }
+            
+            .download-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
             }
             
             .download-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
             border-color: rgba(255, 255, 255, 0.2);
+            }
+            
+            .download-card:hover::before {
+            opacity: 1;
             }
             
             .card-img-wrapper {
             position: relative;
             overflow: hidden;
-            height: 200px;
+            height: 160px;
+            background: linear-gradient(45deg, #333, #555);
             }
             
             .card-img-top {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.3s ease;
-            border: 3px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+            filter: brightness(0.9);
             }
             
             .download-card:hover .card-img-top {
-            transform: scale(1.1);
-            border-color: rgba(255, 255, 255, 0.4);
+            transform: scale(1.05);
+            filter: brightness(1.1);
             }
             
             .card-overlay {
@@ -248,88 +272,170 @@ checkBan($mysqli);
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(45deg, rgba(0,0,0,0.7), rgba(0,0,0,0.4));
+            background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(0,0,0,0.3));
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 2;
             }
             
             .download-card:hover .card-overlay {
             opacity: 1;
+            backdrop-filter: blur(2px);
             }
             
             .overlay-content {
             text-align: center;
             color: white;
+            transform: translateY(10px);
+            transition: transform 0.3s ease;
+            }
+            
+            .download-card:hover .overlay-content {
+            transform: translateY(0);
             }
             
             .overlay-content i {
-            font-size: 2rem;
+            font-size: 2.5rem;
             margin-bottom: 0.5rem;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            }
+
+            .card-body {
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            position: relative;
+            z-index: 2;
+            }
+            
+            .card-title {
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
             }
             
             .card-title a {
-            color: white;
+            color: rgba(255, 255, 255, 0.95);
             font-weight: 600;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
+            text-decoration: none;
             }
             
             .card-title a:hover {
-            background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+            background: linear-gradient(135deg, #fff 0%, #e0e0e0 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            text-shadow: 0 2px 8px rgba(255,255,255,0.2);
             }
 
             .card-text {
-            color: rgba(255, 255, 255, 0.8) !important;
+            color: rgba(255, 255, 255, 0.7) !important;
+            font-size: 0.9rem;
+            line-height: 1.4;
             }
             
             .coming-soon {
-            opacity: 0.7;
+            opacity: 0.6;
+            cursor: default;
             }
             
             .coming-soon:hover {
-            opacity: 0.9;
+            opacity: 0.8;
+            transform: translateY(-4px);
             }
             
             .badge {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 12px;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            /* Responsive breakpoints */
+            @media (min-width: 1200px) {
+            .downloads-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 2rem;
+            }
+            }
+
+            @media (min-width: 992px) and (max-width: 1199px) {
+            .downloads-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1.5rem;
+            }
+            }
+
+            @media (min-width: 768px) and (max-width: 991px) {
+            .downloads-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
             }
             
-            @media (max-width: 768px) {
+            .card-img-wrapper {
+                height: 140px;
+            }
+            }
+
+            @media (max-width: 767px) {
             .hero-content {
-                max-width: 90%;
-                margin: 0 auto;
                 padding: 2rem 1.5rem;
+                border-radius: 16px;
             }
 
             .downloads-section {
-                max-width: 90%;
-                margin: 0 auto;
+                padding: 0 0.5rem;
             }
 
             .downloads-grid {
                 grid-template-columns: 1fr;
-                gap: 1.5rem;
+                gap: 1.25rem;
+                padding: 1.5rem 0;
             }
 
             .card-img-wrapper {
-                height: 180px;
+                height: 160px;
+            }
+
+            .card-body {
+                padding: 1.25rem;
             }
             }
 
             @media (max-width: 480px) {
             .hero-section {
-                max-width: 90%;
-                margin: 0 auto;
-                padding: 1rem 0.5rem;
+                padding: 1.5rem 0.5rem;
             }
 
             .hero-content {
                 padding: 1.5rem 1rem;
+            }
+
+            .downloads-grid {
+                gap: 1rem;
+            }
+
+            .card-img-wrapper {
+                height: 140px;
+            }
+            }
+
+            /* Animation for page load */
+            .fadeup {
+            animation: fadeUp 0.6s ease forwards;
+            }
+
+            @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
             }
         </style>
