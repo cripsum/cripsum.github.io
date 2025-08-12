@@ -1996,7 +1996,6 @@ html {
     .join-team-section {
         max-width: 85%;
         margin: auto;
-        text-align: center;
     }
 
     .team-member {
@@ -2048,7 +2047,7 @@ html {
 
     .join-team-section {
         padding: 3rem 1rem;
-        margin: 2rem 0;
+        margin: 2rem auto;
     }
 
     .join-title {
