@@ -276,7 +276,7 @@ checkBan($mysqli);
                 </div>
             </div>
         </section>
-    </div>>
+    </div>
 
     <a href="#" class="scroll-indicator" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
         <i class="fas fa-arrow-up"></i>
