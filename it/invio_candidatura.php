@@ -61,10 +61,32 @@ $email_message .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
 $email_message .= $message . "\r\n\r\n";
 
 if (!empty($pfp_chisiamo)) {
+    // Detect file type from the uploaded file
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mime_type = $finfo->file($_FILES['pfp_chisiamo']['tmp_name']);
+    
+    // Set filename extension based on MIME type
+    $filename = 'profile_picture';
+    switch ($mime_type) {
+        case 'image/jpeg':
+            $filename .= '.jpg';
+            break;
+        case 'image/png':
+            $filename .= '.png';
+            break;
+        case 'image/webp':
+            $filename .= '.webp';
+            break;
+        default:
+            $filename .= '.jpg'; // fallback
+            $mime_type = 'image/jpeg';
+            break;
+    }
+    
     $email_message .= "--{$boundary}\r\n";
-    $email_message .= "Content-Type: image/jpeg; name=\"profile_picture.jpg\"\r\n";
+    $email_message .= "Content-Type: {$mime_type}; name=\"{$filename}\"\r\n";
     $email_message .= "Content-Transfer-Encoding: base64\r\n";
-    $email_message .= "Content-Disposition: attachment; filename=\"profile_picture.jpg\"\r\n\r\n";
+    $email_message .= "Content-Disposition: attachment; filename=\"{$filename}\"\r\n\r\n";
     $email_message .= chunk_split($pfp_chisiamo) . "\r\n";
 }
 
