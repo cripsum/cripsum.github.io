@@ -71,7 +71,7 @@ if ($result) {
         <?php include '../../includes/head-import.php'; ?>
         <title>GoonLand™ - Goon Generator</title>
         <script src="/js/nomePagina.js"></script>
-        <link rel="stylesheet" href="/css/style-goonland.css?v=6" />
+        <link rel="stylesheet" href="/css/style-goonland.css?v=7" />
         <style>
         * {
             margin: 0;
@@ -98,15 +98,15 @@ if ($result) {
         <div class="loading-spinner" id="loadingSpinner"></div>
     </div>
 
-    <div style="margin: 20px 0;">
+    <div style="margin: 20px 0; color: #d63384">
         <label for="contentType" style="color: #d63384; font-weight: bold; display: block; margin-bottom: 10px; text-align: center;">
             Seleziona tipo di contenuto:
         </label>
         <select id="contentType" style="padding: 10px; border-radius: 10px; border: 2px solid #d63384; background: white; color: #d63384; font-weight: bold; display: block; margin: 0 auto; min-width: 200px; text-align: center;">
-            <option value="waifu" style=" color: #d63384;">Waifu</option>
-            <option value="neko" style=" color: #d63384;">Neko</option>
-            <option value="trap" style=" color: #d63384;">Trap</option>
-            <option value="blowjob" style=" color: #d63384;">Blowjob</option>
+            <option value="waifu" style="color: #d63384;">Waifu</option>
+            <option value="neko" style="color: #d63384;">Neko</option>
+            <option value="trap" style="color: #d63384;">Trap</option>
+            <option value="blowjob" style="color: #d63384;">Blowjob</option>
         </select>
     </div>
     

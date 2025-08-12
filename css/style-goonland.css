@@ -66,6 +66,10 @@ h3 {
     box-shadow: 0 0 8px 4px rgba(214, 51, 132, 0.5);
 }
 
+select {
+    color: #d63384;
+}
+
 @media (max-width: 678px) {
     .title {
         font-size: 1.5rem;
