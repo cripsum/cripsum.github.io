@@ -16,7 +16,7 @@ if(!isLoggedIn()) {
 $user_id = $_SESSION['user_id'];
 $username = $_SESSION['username'];
 $userRole = $_SESSION['ruolo'] ?? 'utente';
-$profilePic = "/includes/get_pfp.php?id=$userId";
+$profilePic = "/includes/get_pfp.php?id=$user_id";
 
 $result_candidatura = $_SESSION['result_candidatura'] ?? '';
 
@@ -82,40 +82,19 @@ $result_candidatura = $_SESSION['result_candidatura'] ?? '';
 
     <div class="box" style="padding-top: 7rem;">
         <h2>Candidatura Chi siamo</h2>
-        <form method="POST" action="invio_candidatura" id="candidaturaForm"></form>
+        <form method="POST" action="invio_candidatura" enctype="multipart/form-data" id="candidaturaForm">
             <input type="text" name="username" value="<?php echo htmlspecialchars($username); ?>" placeholder="Username" required>
             <input type="email" name="email" placeholder="Inserisci la tua email" required>
             <textarea name="descrizione" placeholder="Descrizione personaggio" rows="4" style="padding: 12px; width: 100%; margin-bottom: 15px; border: 1px solid #333; border-radius: 6px; background: #111; color: white; resize: vertical;" required></textarea>
             <div style="margin-bottom: 15px;">
                 <label for="pfp_chisiamo" style="display: block; margin-bottom: 5px; text-align: left;">Carica foto profilo:</label>
                 <input type="file" id="pfp_chisiamo" name="pfp_chisiamo" accept="image/*" style="padding: 8px; background: #111; border: 1px solid #333; border-radius: 6px;" required>
-                <div id="imagePreview" style="margin-top: 10px; display: none;">
-                    <img id="previewImg" style="max-width: 150px; max-height: 150px; border-radius: 6px;">
-                </div>
             </div>
             <input type="text" name="social_username" placeholder="Username social (opzionale)">
             <input type="url" name="social_link" placeholder="Link social (opzionale)">
-            <button class="btn btn-secondary bottone" type="submit" id="submitBtn">Invia candidatura</button>
+            <button class="btn btn-secondary bottone" type="submit">Invia candidatura</button>
         </form>
         <a class="nav-link" href="../"><i class="fas fa-arrow-left"></i> Torna alla home</a>
     </div>
-
-    <script>
-        document.getElementById('pfp_chisiamo').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            const submitBtn = document.getElementById('submitBtn');
-            const imagePreview = document.getElementById('imagePreview');
-            const previewImg = document.getElementById('previewImg');
-            
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewImg.src = e.target.result;
-                    imagePreview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    </script>
 </body>
 </html>
