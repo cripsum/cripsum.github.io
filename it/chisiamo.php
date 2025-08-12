@@ -38,17 +38,17 @@ checkBan($mysqli);
             <div class="row g-4">
                 <!-- Team Member 1 -->
                 <div class="col-lg-6 col-md-6 fadeup">
-                <div class="card border-0 shadow-lg h-100" style="border-radius: 20px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease;">
-                    <div class="card-body p-4 d-flex align-items-center">
-                    <img src="../img/cripsumchisiamo.jpg" class="rounded-circle me-4" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid #667eea;" alt="Cripsum" />
-                    <div>
-                        <h5 class="card-title mb-2">
-                        <a href="../user/cripsum" class="text-decoration-none" style="color: #667eea; font-weight: 700;">cripsum</a>
-                        </h5>
-                        <p class="card-text text-muted mb-0">L'imperatore del Congo, è un editor fallito.</p>
+                    <div class="card border-0 shadow-lg h-100" style="border-radius: 20px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                        <div class="card-body p-4 d-flex align-items-center">
+                            <img src="../img/cripsumchisiamo.jpg" class="rounded-circle me-4" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid #667eea;" alt="Cripsum" />
+                            <div>
+                                <h5 class="card-title mb-2">
+                                <a href="../user/cripsum" class="text-decoration-none" style="color: #667eea; font-weight: 700;">cripsum</a>
+                                </h5>
+                                <p class="card-text text-muted mb-0">L'imperatore del Congo, è un editor fallito.</p>
+                            </div>
+                        </div>
                     </div>
-                    </div>
-                </div>
                 </div>
 
                 <!-- Team Member 2 -->
@@ -215,11 +215,10 @@ checkBan($mysqli);
                             <a href="mailto:sburra@cripsum.com" class="btn btn-light btn-lg px-4 py-2" style="border-radius: 50px; font-weight: 600;">
                             Contattaci Ora
                             </a>
-                    </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
         <style>
             .card:hover {
