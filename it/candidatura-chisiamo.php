@@ -95,7 +95,7 @@ $result_candidatura = $_SESSION['result_candidatura'] ?? '';
             </div>
             <input type="text" name="social_username" placeholder="Username social (opzionale)">
             <input type="url" name="social_link" placeholder="Link social (opzionale)">
-            <button class="btn btn-secondary bottone" type="submit" id="submitBtn" disabled>Carica immagine per continuare</button>
+            <button class="btn btn-secondary bottone" type="submit" id="submitBtn">Invia candidatura</button>
         </form>
         <a class="nav-link" href="../"><i class="fas fa-arrow-left"></i> Torna alla home</a>
     </div>
@@ -112,23 +112,8 @@ $result_candidatura = $_SESSION['result_candidatura'] ?? '';
                 reader.onload = function(e) {
                     previewImg.src = e.target.result;
                     imagePreview.style.display = 'block';
-                    
-                    previewImg.onload = function() {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = 'Invia candidatura';
-                    };
-                    
-                    previewImg.onerror = function() {
-                        submitBtn.disabled = true;
-                        submitBtn.textContent = 'Errore nel caricamento immagine';
-                        imagePreview.style.display = 'none';
-                    };
                 };
                 reader.readAsDataURL(file);
-            } else {
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Carica immagine per continuare';
-                imagePreview.style.display = 'none';
             }
         });
     </script>
