@@ -61,11 +61,9 @@ $email_message .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
 $email_message .= $message . "\r\n\r\n";
 
 if (!empty($pfp_chisiamo)) {
-    // Detect file type from the uploaded file
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     $mime_type = $finfo->file($_FILES['pfp_chisiamo']['tmp_name']);
     
-    // Set filename extension based on MIME type
     $filename = 'profile_picture';
     switch ($mime_type) {
         case 'image/jpeg':
@@ -78,7 +76,7 @@ if (!empty($pfp_chisiamo)) {
             $filename .= '.webp';
             break;
         default:
-            $filename .= '.jpg'; // fallback
+            $filename .= '.jpg';
             $mime_type = 'image/jpeg';
             break;
     }
