@@ -51,19 +51,37 @@ $lineeGuidaChat = $_SESSION['lineeGuidaChat'];
 <body>
     <?php include '../includes/navbar.php'; ?>
     <?php if (!isset($_SESSION['lineeGuidaChat']) || $_SESSION['lineeGuidaChat'] == 0): ?>
-        <div class="container mt-4 fadeup testobianco" style="padding-top: 7rem; margin: auto;">
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <div class="card card-gay">
-                        <div class="card-header">
-                            <h5 class="mb-0 testobianco text-center">Accetta le Linee Guida della Chat</h5>
+        <!-- Modal for Chat Guidelines -->
+        <div class="modal fade" id="chatGuidelinesModal" tabindex="-1" aria-labelledby="chatGuidelinesModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header border-bottom-0">
+                        <h5 class="modal-title w-100 text-center" id="chatGuidelinesModalLabel">
+                            <i class="fas fa-comments me-2"></i>Benvenuto nella Chat Globale
+                        </h5>
+                    </div>
+                    <div class="modal-body text-center py-4">
+                        <div class="mb-4">
+                            <i class="fas fa-shield-alt text-primary mb-3" style="font-size: 3rem;"></i>
+                            <p class="lead mb-3">Prima di iniziare a chattare, è necessario accettare le nostre linee guida per mantenere un ambiente sicuro e rispettoso per tutti.</p>
                         </div>
-                        <div class="card-body testobianco text-center">
-                            <p>Prima di accedere alla chat globale, devi leggere e accettare le nostre linee guida.</p>
-                            <div class="d-grid gap-2">
-                                <a href="chat-policy" class="btn btn-secondary bottone" style="margin: auto; max-width: 200px;">Leggi le Linee Guida</a>
-                                <form method="POST" action="/includes/accept_chat_terms.php" style="text-align: center; margin: auto; max-width: 400px;">
-                                    <button type="submit" class="btn btn-secondary bottone ">Ho letto e accetto le Linee Guida</button>
+                        
+                        <div class="d-grid gap-3">
+                            <a href="chat-policy" class="btn btn-outline-primary btn-lg" target="_blank">
+                                <i class="fas fa-book-open me-2"></i>Leggi le Linee Guida
+                            </a>
+                            
+                            <div class="border-top pt-3">
+                                <form method="POST" action="/includes/accept_chat_terms.php">
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="acceptTerms" required>
+                                        <label class="form-check-label" for="acceptTerms">
+                                            Ho letto e accetto le linee guida della chat
+                                        </label>
+                                    </div>
+                                    <button type="submit" class="btn btn-success btn-lg px-5" disabled id="acceptBtn">
+                                        <i class="fas fa-check me-2"></i>Accetta e Continua
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -71,6 +89,22 @@ $lineeGuidaChat = $_SESSION['lineeGuidaChat'];
                 </div>
             </div>
         </div>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show modal on page load
+            const modal = new bootstrap.Modal(document.getElementById('chatGuidelinesModal'));
+            modal.show();
+            
+            // Enable/disable accept button based on checkbox
+            const checkbox = document.getElementById('acceptTerms');
+            const acceptBtn = document.getElementById('acceptBtn');
+            
+            checkbox.addEventListener('change', function() {
+                acceptBtn.disabled = !this.checked;
+            });
+        });
+        </script>
     <?php endif; ?>
     <?php if (isset($_SESSION['lineeGuidaChat']) && $_SESSION['lineeGuidaChat'] == 1): ?>
     <div class="container mt-4" style="padding-top: 7rem">
