@@ -25,7 +25,7 @@ checkBan($mysqli);
         <div style="max-width: 1200px; margin: auto; padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
             <div class="privacy">
                 <h1 class="text-center fadeup" style="padding-top: 3%; font-weight: bolder">Linee guida della chat globale</h1>
-                <p class="text-center fadeup">Accedendo chat, dichiari di aver letto e accettato queste regole. Violazioni possono portare a ban temporanei o permanenti.</p>
+                <p class="text-center fadeup">Accedendo alla chat, dichiari di aver letto e accettato queste regole. Violazioni possono portare a ban temporanei o permanenti.</p>
                 <h4 class="text-center fadeup" style="padding-top: 10px">Rispetta tutti</h4>
                 <p class="text-center fadeup">Niente insulti, minacce o linguaggio offensivo.</p>
                 <h4 class="text-center fadeup" style="padding-top: 10px">Niente spam</h4>
