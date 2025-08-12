@@ -51,52 +51,50 @@ $lineeGuidaChat = $_SESSION['lineeGuidaChat'];
 <body>
     <?php include '../includes/navbar.php'; ?>
     <?php if (!isset($_SESSION['lineeGuidaChat']) || $_SESSION['lineeGuidaChat'] == 0): ?>
-        <!-- Modal for Chat Guidelines -->
         <div class="modal fade" id="chatGuidelinesModal" tabindex="-1" aria-labelledby="chatGuidelinesModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header border-bottom-0">
-                        <h5 class="modal-title w-100 text-center" id="chatGuidelinesModalLabel">
-                            <i class="fas fa-comments me-2"></i>Benvenuto nella Chat Globale
-                        </h5>
-                    </div>
-                    <div class="modal-body text-center py-4">
-                        <div class="mb-4">
-                            <i class="fas fa-shield-alt text-primary mb-3" style="font-size: 3rem;"></i>
-                            <p class="lead mb-3">Prima di iniziare a chattare, è necessario accettare le nostre linee guida per mantenere un ambiente sicuro e rispettoso per tutti.</p>
+            <div class="modal-content bg-dark text-light border-0 shadow-lg">
+                <div class="modal-header border-bottom border-secondary">
+                <h5 class="modal-title w-100 text-center text-warning" id="chatGuidelinesModalLabel">
+                    <i class="fas fa-comments me-2"></i>Benvenuto nella Chat Globale
+                </h5>
+                </div>
+                <div class="modal-body text-center py-4">
+                <div class="mb-4">
+                    <i class="fas fa-shield-alt text-warning mb-3" style="font-size: 3rem;"></i>
+                    <p class="lead mb-3 text-light">Prima di iniziare a chattare, è necessario accettare le nostre linee guida per mantenere un ambiente sicuro e rispettoso per tutti.</p>
+                </div>
+                
+                <div class="d-grid gap-3">
+                    <a href="chat-policy" class="btn btn-outline-warning btn-lg" target="_blank">
+                    <i class="fas fa-book-open me-2"></i>Leggi le Linee Guida
+                    </a>
+                    
+                    <div class="border-top border-secondary pt-3">
+                    <form method="POST" action="/includes/accept_chat_terms.php">
+                        <div class="form-check mb-3">
+                        <input class="form-check-input bg-dark border-warning" type="checkbox" id="acceptTerms" required>
+                        <label class="form-check-label text-light" for="acceptTerms">
+                            Ho letto e accetto le linee guida della chat
+                        </label>
                         </div>
-                        
-                        <div class="d-grid gap-3">
-                            <a href="chat-policy" class="btn btn-outline-primary btn-lg" target="_blank">
-                                <i class="fas fa-book-open me-2"></i>Leggi le Linee Guida
-                            </a>
-                            
-                            <div class="border-top pt-3">
-                                <form method="POST" action="/includes/accept_chat_terms.php">
-                                    <div class="form-check mb-3">
-                                        <input class="form-check-input" type="checkbox" id="acceptTerms" required>
-                                        <label class="form-check-label" for="acceptTerms">
-                                            Ho letto e accetto le linee guida della chat
-                                        </label>
-                                    </div>
-                                    <button type="submit" class="btn btn-success btn-lg px-5" disabled id="acceptBtn">
-                                        <i class="fas fa-check me-2"></i>Accetta e Continua
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
+                        <button type="submit" class="btn btn-warning btn-lg px-5 text-dark fw-bold" disabled id="acceptBtn">
+                        <i class="fas fa-check me-2"></i>Accetta e Continua
+                        </button>
+                    </form>
                     </div>
                 </div>
+                </div>
+            </div>
             </div>
         </div>
 
         <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Show modal on page load
             const modal = new bootstrap.Modal(document.getElementById('chatGuidelinesModal'));
             modal.show();
             
-            // Enable/disable accept button based on checkbox
+           
             const checkbox = document.getElementById('acceptTerms');
             const acceptBtn = document.getElementById('acceptBtn');
             
@@ -128,15 +126,14 @@ $lineeGuidaChat = $_SESSION['lineeGuidaChat'];
     <audio id="notification-sound" src="../audio/notification.mp3" preload="auto"></audio>
 
     <script>
-        // Variabili globali per JavaScript
         window.userId = <?php echo $userId; ?>;
         window.userRole = '<?php echo $userRole; ?>';
         window.maxMessageLength = <?php echo MAX_MESSAGE_LENGTH; ?>;
-        window.messageTimeout = <?php echo MESSAGE_TIMEOUT * 1000; ?>; // Convert to milliseconds
+        window.messageTimeout = <?php echo MESSAGE_TIMEOUT * 1000; ?>; 
         window.AUTO_REFRESH_INTERVAL = <?php echo AUTO_REFRESH_INTERVAL; ?>;
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Add a small delay to ensure all scripts are loaded
+            
             setTimeout(function() {
                 if (typeof initializeChat === 'function') {
                     initializeChat();
