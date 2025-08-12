@@ -81,7 +81,7 @@ $result_candidatura = $_SESSION['result_candidatura'] ?? '';
         </div>
     <?php endif; ?>
 
-    <div class="box">
+    <div class="box" style="padding-top: 7rem;">
         <h2>Candidatura Chi siamo</h2>
         <form method="POST" action="invio_candidatura">
             <input type="text" name="username" value="<?php echo htmlspecialchars($username); ?>" placeholder="Username" required>
