@@ -49,9 +49,9 @@ $message .= "Email: " . $email_chisiamo . "\n";
 $message .= "Descrizione: " . $descrizione_chisiamo . "\n";
 
 if ($pfp_uploaded) {
-    $message .= "Profilo foto: Immagine allegata\n";
+    $message .= "Foto profilo: Immagine allegata\n";
 } else {
-    $message .= "Profilo foto: Nessuna immagine caricata\n";
+    $message .= "Foto profilo: Nessuna immagine caricata\n";
 }
 
 $message .= "Username social: " . $username_social . "\n";
