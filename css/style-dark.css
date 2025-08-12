@@ -1993,6 +1993,11 @@ html {
         margin: 0 auto;
     }
 
+    .join-team-section {
+        max-width: 85%;
+        margin: 0 auto;
+    }
+
     .team-member {
         padding: 1.5rem;
     }
