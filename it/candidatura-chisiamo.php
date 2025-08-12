@@ -87,7 +87,7 @@ $result_candidatura = $_SESSION['result_candidatura'] ?? '';
             <input type="text" name="username" value="<?php echo htmlspecialchars($username); ?>" placeholder="Username" required>
             <input type="email" name="email" placeholder="Inserisci la tua email" required>
             <textarea name="descrizione" placeholder="Descrizione personaggio" rows="4" style="padding: 12px; width: 100%; margin-bottom: 15px; border: 1px solid #333; border-radius: 6px; background: #111; color: white; resize: vertical;" required></textarea>
-            <div style="margin-bottom: 15px;"></div>
+            <div style="margin-bottom: 15px;">
                 <label for="pfp_chisiamo" style="display: block; margin-bottom: 5px; text-align: left;">Carica foto profilo:</label>
                 <input type="file" id="pfp_chisiamo" name="pfp_chisiamo" accept="image/*" style="padding: 8px; background: #111; border: 1px solid #333; border-radius: 6px;" required>
             </div>
