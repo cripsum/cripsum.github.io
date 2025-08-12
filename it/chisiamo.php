@@ -250,9 +250,9 @@ checkBan($mysqli);
                 Hai quello che serve per far parte della squadra più king del web? 
                 Mandaci la tua candidatura e diventa parte della squadra + da king del secolo!
             </p>
-            <a href="mailto:cripsum@cripsum.com" class="join-email">
+            <a href="candidatura-chisiamo" class="join-email">
                 <i class="fas fa-envelope me-2"></i>
-                cripsum@cripsum.com
+                clicca qui per inviare la tua candidatura
             </a>
             
             <div class="mystery-members">
@@ -262,7 +262,7 @@ checkBan($mysqli);
                     </div>
                     <p class="mystery-text">
                         Il prossimo potresti essere <strong>TU!</strong><br>
-                        Scrivi per essere aggiunto alla lista dei king!
+                        Manda la tua candidatura per essere aggiunto alla lista dei king!
                     </p>
                 </div>
                 <div class="mystery-card">
