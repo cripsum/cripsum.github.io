@@ -75,7 +75,7 @@ $result_candidatura = $_SESSION['result_candidatura'] ?? '';
     <?php include '../includes/navbar.php'; ?>
 
     <?php if ($result_candidatura): ?>
-        <div class="alert alert-info" role="alert" style="padding-top: 7rem;">
+        <div class="alert alert-info" role="alert" style="margin-top: 7rem;">
             <?php echo htmlspecialchars($result_candidatura); ?>
         </div>
     <?php endif; ?>
