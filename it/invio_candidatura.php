@@ -14,6 +14,7 @@ if(!isLoggedIn()) {
 }
 
 $user_id = $_SESSION['user_id'];
+$email = $_SESSION['email'] ?? '';
 $username = $_SESSION['username'];
 $userRole = $_SESSION['ruolo'] ?? 'utente';
 $profilePic = "/includes/get_pfp.php?id=$userId";
@@ -21,25 +22,55 @@ $profilePic = "/includes/get_pfp.php?id=$userId";
 $username_chisiamo = $_POST['username'] ?? '';
 $email_chisiamo = $_POST['email'] ?? '';
 $descrizione_chisiamo = $_POST['descrizione'] ?? '';
-$pfp_chisiamo = $_POST['pfp_chisiamo'] ?? '';
+$pfp_chisiamo = '';
+if (isset($_FILES['pfp_chisiamo']) && $_FILES['pfp_chisiamo']['error'] === UPLOAD_ERR_OK) {
+    $pfp_chisiamo = file_get_contents($_FILES['pfp_chisiamo']['tmp_name']);
+    $pfp_chisiamo = base64_encode($pfp_chisiamo);
+}
 $username_social = $_POST['social_username'] ?? '';
 $link_social = $_POST['social_link'] ?? '';
 
 
-$to = 'cripsum@cripsum.com';
+$to = 'dio.covid@gmail.com';
 $subject = 'Nuova Candidatura - ' . $username_chisiamo;
+
+$boundary = md5(time());
+
 $message = "Nuova candidatura ricevuta:\n\n";
 $message .= "Username: " . $username_chisiamo . "\n";
 $message .= "Email: " . $email_chisiamo . "\n";
 $message .= "Descrizione: " . $descrizione_chisiamo . "\n";
-$message .= "Profilo foto: " . $pfp_chisiamo . "\n";
+if (!empty($pfp_chisiamo)) {
+    $message .= "Profilo foto: Immagine allegata\n";
+} else {
+    $message .= "Profilo foto: Nessuna immagine caricata\n";
+}
+
 $message .= "Username social: " . $username_social . "\n";
 $message .= "Link social: " . $link_social . "\n";
-$message .= "\nInviata da utente ID: " . $user_id . " (" . $username . ")";
+$message .= "\nInviata da utente ID: " . $user_id . " (" . $username . " - " . $email  . ")";
 
 $headers = "From: noreply@cripsum.com\r\n";
 $headers .= "Reply-To: " . $email_chisiamo . "\r\n";
-$headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+$headers .= "MIME-Version: 1.0\r\n";
+$headers .= "Content-Type: multipart/mixed; boundary=\"{$boundary}\"\r\n";
+
+$email_message = "--{$boundary}\r\n";
+$email_message .= "Content-Type: text/plain; charset=UTF-8\r\n";
+$email_message .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
+$email_message .= $message . "\r\n\r\n";
+
+if (!empty($pfp_chisiamo)) {
+    $email_message .= "--{$boundary}\r\n";
+    $email_message .= "Content-Type: image/jpeg; name=\"profile_picture.jpg\"\r\n";
+    $email_message .= "Content-Transfer-Encoding: base64\r\n";
+    $email_message .= "Content-Disposition: attachment; filename=\"profile_picture.jpg\"\r\n\r\n";
+    $email_message .= chunk_split($pfp_chisiamo) . "\r\n";
+}
+
+$email_message .= "--{$boundary}--\r\n";
+
+$message = $email_message;
 
 if(mail($to, $subject, $message, $headers)) {
     $_SESSION['result_candidatura'] = "Candidatura inviata con successo!";
