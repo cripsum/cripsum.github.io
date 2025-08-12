@@ -54,7 +54,7 @@ $lineeGuidaChat = $_SESSION['lineeGuidaChat'];
         <div class="container mt-4 fadeup testobianco" style="padding-top: 7rem; margin: auto;">
             <div class="row justify-content-center">
                 <div class="col-md-8">
-                    <div class="card">
+                    <div class="card card-gay">
                         <div class="card-header">
                             <h5 class="mb-0 testobianco text-center">Accetta le Linee Guida della Chat</h5>
                         </div>
