@@ -1996,6 +1996,7 @@ html {
     .join-team-section {
         max-width: 85%;
         margin: auto;
+        text-align: center;
     }
 
     .team-member {
