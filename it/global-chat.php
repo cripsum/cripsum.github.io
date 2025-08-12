@@ -53,38 +53,40 @@ $lineeGuidaChat = $_SESSION['lineeGuidaChat'];
     <?php if (!isset($_SESSION['lineeGuidaChat']) || $_SESSION['lineeGuidaChat'] == 0): ?>
         <div class="modal fade" id="chatGuidelinesModal" tabindex="-1" aria-labelledby="chatGuidelinesModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content bg-dark text-light border-0 shadow-lg">
-                <div class="modal-header border-bottom border-secondary">
-                <h5 class="modal-title w-100 text-center text-warning" id="chatGuidelinesModalLabel">
-                    <i class="fas fa-comments me-2"></i>Benvenuto nella Chat Globale
-                </h5>
+            <div class="modal-content bg-dark text-light border-0 shadow-lg" style="border-radius: 15px;">
+            <div class="modal-header border-bottom border-secondary pb-4">
+            <h5 class="modal-title w-100 text-center text-white fw-bold" id="chatGuidelinesModalLabel" style="font-size: 1.5rem;">
+                <i class="fas fa-comments me-3 text-primary" style="font-size: 1.8rem;"></i>Benvenuto nella Chat Globale
+            </h5>
+            </div>
+            <div class="modal-body text-center py-5">
+            <div class="mb-5">
+                <div class="d-inline-block p-4 rounded-circle bg-primary bg-opacity-10 mb-4">
+                <i class="fas fa-shield-alt text-primary" style="font-size: 3.5rem;"></i>
                 </div>
-                <div class="modal-body text-center py-4">
-                <div class="mb-4">
-                    <i class="fas fa-shield-alt text-warning mb-3" style="font-size: 3rem;"></i>
-                    <p class="lead mb-3 text-light">Prima di iniziare a chattare, è necessario accettare le nostre linee guida per mantenere un ambiente sicuro e rispettoso per tutti.</p>
-                </div>
+                <p class="lead mb-0 text-light opacity-75" style="font-size: 1.1rem; line-height: 1.6;">Prima di iniziare a chattare, è necessario accettare le nostre linee guida per mantenere un ambiente sicuro e rispettoso per tutti.</p>
+            </div>
+            
+            <div class="d-grid gap-4">
+                <a href="chat-policy" class="btn btn-outline-light btn-lg py-3 rounded-pill text-decoration-none" target="_blank" style="border-width: 2px; transition: all 0.3s ease;">
+                <i class="fas fa-book-open me-2"></i>Leggi le Linee Guida
+                </a>
                 
-                <div class="d-grid gap-3">
-                    <a href="chat-policy" class="btn btn-outline-warning btn-lg" target="_blank">
-                    <i class="fas fa-book-open me-2"></i>Leggi le Linee Guida
-                    </a>
-                    
-                    <div class="border-top border-secondary pt-3">
-                    <form method="POST" action="/includes/accept_chat_terms.php">
-                        <div class="form-check mb-3">
-                        <input class="form-check-input bg-dark border-warning" type="checkbox" id="acceptTerms" required>
-                        <label class="form-check-label text-light" for="acceptTerms">
-                            Ho letto e accetto le linee guida della chat
-                        </label>
-                        </div>
-                        <button type="submit" class="btn btn-warning btn-lg px-5 text-dark fw-bold" disabled id="acceptBtn">
-                        <i class="fas fa-check me-2"></i>Accetta e Continua
-                        </button>
-                    </form>
-                    </div>
+                <div class="border-top border-secondary pt-4">
+                <form method="POST" action="/includes/accept_chat_terms.php">
+                <div class="form-check mb-4 d-flex justify-content-center align-items-center">
+                <input class="form-check-input bg-dark border-light me-3" type="checkbox" id="acceptTerms" required style="transform: scale(1.2);">
+                <label class="form-check-label text-light opacity-75" for="acceptTerms" style="font-size: 1rem;">
+                    Ho letto e accetto le linee guida della chat
+                </label>
                 </div>
+                <button type="submit" class="btn btn-light btn-lg px-5 py-3 text-dark fw-bold rounded-pill" disabled id="acceptBtn" style="min-width: 250px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);">
+                <i class="fas fa-check me-2"></i>Accetta e Continua
+                </button>
+                </form>
                 </div>
+            </div>
+            </div>
             </div>
             </div>
         </div>
