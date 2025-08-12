@@ -40,7 +40,7 @@ checkBan($mysqli);
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
 
-           <div class="floating-elements">
+        <div class="floating-elements">
         <div class="floating-element"></div>
         <div class="floating-element"></div>
         <div class="floating-element"></div>
@@ -48,7 +48,7 @@ checkBan($mysqli);
         <div class="floating-element"></div>
     </div>
 
-    <div class="main-container paginainterachisiamo" style="padding-top: 2rem">
+    <div class="main-container" style="padding-top: 2rem">
         <section class="chisiamo-section">
             <h1 class="chisiamo-title">Il Nostro Team di Sviluppo</h1>
             <p class="chisiamo-subtitle">

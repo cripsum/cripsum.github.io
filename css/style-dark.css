@@ -1984,6 +1984,13 @@ html {
 
     .chisiamo-section {
         padding: 6rem 0 3rem;
+        max-width: 85%;
+        margin: 0 auto;
+    }
+
+    .team-section {
+        max-width: 85%;
+        margin: 0 auto;
     }
 
     .team-member {
