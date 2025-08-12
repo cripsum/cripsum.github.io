@@ -28,6 +28,8 @@ checkBan($mysqli);
         body {
             font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
+            background-attachment: fixed;
+            background-repeat: no-repeat;
             min-height: 100vh;
             color: #ffffff;
             overflow-x: hidden;
@@ -43,6 +45,7 @@ checkBan($mysqli);
             text-align: center;
             padding: 8rem 0 4rem;
             position: relative;
+            
         }
 
         .chisiamo-title {
