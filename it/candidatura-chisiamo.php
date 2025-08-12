@@ -32,7 +32,6 @@ $result_candidatura = $_SESSION['result_candidatura'] ?? '';
         body {
             background: #0e0e0e;
             color: white;
-            font-family: 'Segoe UI', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
