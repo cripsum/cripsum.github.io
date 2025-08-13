@@ -29,37 +29,34 @@ if (!isLoggedIn()) {
 
         <div class="inventory-container">
             <div class="inventory-header">
-                <h1 class="inventory-title">Il tuo Inventario</h1>
+            <h1 class="inventory-title">Il tuo Inventario</h1>
+            <a href="lootbox" class="back-button">
+                <span class="back-arrow">←</span>
+                Torna alla lootbox
+            </a>
             </div>
 
             <div class="stats-container">
-                <div class="stat-card">
-                    <div class="stat-number" id="casseAperteNumber">0</div>
-                    <div class="stat-label">Casse Aperte</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="foundCharacters">0</div>
-                    <div class="stat-label">Personaggi Trovati</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="totalCharacters">0</div>
-                    <div class="stat-label">Personaggi Totali</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="completionRate">0%</div>
-                    <div class="stat-label">Completamento</div>
-                </div>
+            <div class="stat-card">
+                <div class="stat-number" id="casseAperteNumber">0</div>
+                <div class="stat-label">Casse Aperte</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="foundCharacters">0</div>
+                <div class="stat-label">Personaggi Trovati</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalCharacters">0</div>
+                <div class="stat-label">Personaggi Totali</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completionRate">0%</div>
+                <div class="stat-label">Completamento</div>
+            </div>
             </div>
 
             <div class="inventory-grid" id="inventario">
                
-            </div>
-
-            <div style="text-align: center;">
-                <a href="lootbox" class="back-button">
-                    <span class="back-arrow">←</span>
-                    Torna alla lootbox
-                </a>
             </div>
         </div>
 
