@@ -620,7 +620,7 @@ checkBan($mysqli);
             <div class="edit-card" data-category="games" onclick="playVideo(this, 17)">
                 <div class="video-container">
                     <iframe 
-                        src="https://streamable.com/e/zlj3qk?" 
+                        src="https://streamable.com/e/79a35r?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
@@ -674,7 +674,7 @@ checkBan($mysqli);
             <div class="edit-card" data-category="anime" onclick="playVideo(this, 15)">
                 <div class="video-container">
                     <iframe 
-                        src="https://streamable.com/e/raooth?" 
+                        src="https://streamable.com/e/nkccr6?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
@@ -701,7 +701,7 @@ checkBan($mysqli);
             <div class="edit-card" data-category="anime" onclick="playVideo(this, 14)">
                 <div class="video-container">
                     <iframe 
-                        src="https://streamable.com/e/hvj1e1?" 
+                        src="https://streamable.com/e/wy68h4?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
@@ -728,7 +728,7 @@ checkBan($mysqli);
             <div class="edit-card" data-category="anime" onclick="playVideo(this, 13)">
                 <div class="video-container">
                     <iframe 
-                        src="https://streamable.com/e/a9tpgu?" 
+                        src="https://streamable.com/e/gyfwui?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
@@ -755,7 +755,7 @@ checkBan($mysqli);
             <div class="edit-card" data-category="influencer" onclick="playVideo(this, 12)">
                 <div class="video-container">
                     <iframe 
-                        src="https://streamable.com/e/myq1g7?" 
+                        src="https://streamable.com/e/pdcav0?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
@@ -782,7 +782,7 @@ checkBan($mysqli);
             <div class="edit-card" data-category="anime" onclick="playVideo(this, 11)">
                 <div class="video-container">
                     <iframe 
-                        src="https://streamable.com/e/nzfwpd?" 
+                        src="https://streamable.com/e/mx6h2n?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
@@ -836,7 +836,7 @@ checkBan($mysqli);
             <div class="edit-card" data-category="sports" onclick="playVideo(this, 9)">
                 <div class="video-container">
                     <iframe 
-                        src="https://streamable.com/e/cyrqyx?" 
+                        src="https://streamable.com/e/bf8j16?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
@@ -892,7 +892,7 @@ checkBan($mysqli);
             <div class="edit-card" data-category="anime" onclick="playVideo(this, 7)">
                 <div class="video-container">
                     <iframe 
-                        src="https://streamable.com/e/sef96p?" 
+                        src="https://streamable.com/e/bllcn8?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
@@ -919,7 +919,7 @@ checkBan($mysqli);
             <div class="edit-card" data-category="influencer" onclick="playVideo(this, 6)">
                 <div class="video-container">
                     <iframe 
-                        src="https://streamable.com/e/78el08?" 
+                        src="https://streamable.com/e/r2bppn?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
@@ -946,7 +946,7 @@ checkBan($mysqli);
             <div class="edit-card" data-category="games" onclick="playVideo(this, 5)">
                 <div class="video-container">
                     <iframe 
-                        src="https://streamable.com/e/w0t9wc?" 
+                        src="https://streamable.com/e/zd75uc?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
@@ -973,7 +973,7 @@ checkBan($mysqli);
             <div class="edit-card" data-category="influencer" onclick="playVideo(this, 4)">
                 <div class="video-container">
                     <iframe 
-                        src="https://streamable.com/e/ltynr9?" 
+                        src="https://streamable.com/e/r9ygoy?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
@@ -1054,7 +1054,7 @@ checkBan($mysqli);
             <div class="edit-card" data-category="movies" onclick="playVideo(this, 1)">
                 <div class="video-container">
                     <iframe 
-                        src="https://streamable.com/e/kxgfka?" 
+                        src="https://streamable.com/e/x40nn6?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
