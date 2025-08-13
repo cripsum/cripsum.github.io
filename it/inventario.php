@@ -52,11 +52,14 @@ if (!isLoggedIn()) {
             </div>
 
             <div class="inventory-grid" id="inventario">
-                
+               
             </div>
 
             <div style="text-align: center;">
-                <a href="lootbox" class="back-button">Torna alla lootbox</a>
+                <a href="lootbox" class="back-button">
+                    <span class="back-arrow">←</span>
+                    Torna alla lootbox
+                </a>
             </div>
         </div>
 
@@ -87,7 +90,7 @@ if (!isLoggedIn()) {
                 const totalCharacters = await getCharactersNum();
                 const foundCharacters = inventory.length;
                 const completionRate = totalCharacters > 0 ? Math.round((foundCharacters / totalCharacters) * 100) : 0;
-                
+
                 animateNumber(document.getElementById("casseAperteNumber"), casseAperte);
                 animateNumber(document.getElementById("foundCharacters"), foundCharacters);
                 animateNumber(document.getElementById("totalCharacters"), totalCharacters);
