@@ -338,6 +338,14 @@ body {
     backdrop-filter: blur(10px);
 }
 
+.character-unlock-date {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    display: block;
+    text-transform: uppercase;
+}
+
 .back-button {
     display: inline-flex;
     align-items: center;
