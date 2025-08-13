@@ -373,7 +373,7 @@ checkBan($mysqli);
     <body>
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
-        <div class="introduzione-edit-section" style="padding-top: 7rem;">
+        <div class="introduzione-edit-section" style="padding-top: 10rem;">
         <div class="container">
             <h1 class="introduzione-edit-title">My Latest Edits</h1>
             <p class="introduzione-edit-subtitle">
