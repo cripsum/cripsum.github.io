@@ -25,6 +25,8 @@ checkBan($mysqli);
             background-repeat: no-repeat;
             color: #ffffff;
             min-height: 100vh;
+            margin: 0;
+            padding: 0;
         }
 
         .hero-section {
@@ -92,13 +94,16 @@ checkBan($mysqli);
             max-width: 1400px;
             margin: 0 auto;
             padding: 0 2rem;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .edits-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 2rem;
             padding: 2rem 0;
+            width: 100%;
         }
 
         .edit-card {
@@ -106,12 +111,15 @@ checkBan($mysqli);
             border-radius: 24px;
             border: 1px solid rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(20px);
+            overflow: hidden;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             cursor: pointer;
             opacity: 0;
             transform: translateY(40px);
             animation: fadeInUp 0.8s ease forwards;
+            width: 100%;
+            min-width: 0; /* Prevents grid overflow */
         }
 
         .edit-card::before {
@@ -141,6 +149,7 @@ checkBan($mysqli);
             position: relative;
             width: 100%;
             height: 400px;
+            overflow: hidden;
             border-radius: 20px 20px 0 0;
             background: linear-gradient(135deg, rgba(30, 32, 42, 0.8) 0%, rgba(40, 45, 60, 0.8) 100%);
         }
@@ -346,6 +355,16 @@ checkBan($mysqli);
             color: white;
             transform: translateY(-2px);
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .edit-card.playing .video-overlay {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .edit-card.playing {
+            border-color: rgba(100, 200, 255, 0.5);
+            box-shadow: 0 0 30px rgba(100, 200, 255, 0.3);
         }
         </style>
         <?php include '../includes/head-import.php'; ?>
@@ -1063,7 +1082,7 @@ checkBan($mysqli);
         </div>
     </div>
 
-    <!-- Achievement Popup -->
+
     <div id="achievement-popup" class="popup" style="display: none;">
         <img id="popup-image" src="" alt="Achievement" />
         <div>
@@ -1071,80 +1090,96 @@ checkBan($mysqli);
             <p id="popup-description"></p>
         </div>
     </div>
+
     <?php include '../includes/footer.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                
-                const filter = btn.dataset.filter;
-                const cards = document.querySelectorAll('.edit-card');
-                
-                cards.forEach(card => {
-                    if (filter === 'all' || card.dataset.category === filter) {
-                        card.style.display = 'block';
-                    } else {
-                        card.style.display = 'none';
-                    }
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        
+                        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        
+                        const filter = btn.dataset.filter;
+                        const cards = document.querySelectorAll('.edit-card');
+                        
+                        cards.forEach(card => {
+                            if (filter === 'all' || card.dataset.category === filter) {
+                                card.style.display = 'block';
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        });
+                    });
                 });
             });
-        });
-        
-        let totalVideos = document.querySelectorAll(".video-iframe").length;
 
-        function watchVideo(id) {
-            if (window.setCurrentEdit) {
-                window.setCurrentEdit(id);
-            }
+            function playVideo(card, id) {
+                document.querySelectorAll('.edit-card').forEach(c => c.classList.remove('playing'));
+                
+                card.classList.add('playing');
+                
+                const iframe = card.querySelector('.video-iframe');
+                
+                const currentSrc = iframe.src;
+                iframe.src = '';
+                setTimeout(() => {
+                    iframe.src = currentSrc + (currentSrc.includes('?') ? '&' : '?') + 'autoplay=1';
+                }, 100);
 
-            let watchedVideos = getVideo("watchedVideos") || [];
-            if (!watchedVideos.includes(id)) {
-                watchedVideos.push(id);
-                setVideo("watchedVideos", watchedVideos);
+                if (window.setCurrentEdit) {
+                    window.setCurrentEdit(id);
+                }
 
-                if (watchedVideos.length === totalVideos) {
-                    unlockAchievement(17);
+                let watchedVideos = getVideo("watchedVideos") || [];
+                if (!watchedVideos.includes(id)) {
+                    watchedVideos.push(id);
+                    setVideo("watchedVideos", watchedVideos);
+
+                    let totalVideos = document.querySelectorAll(".video-iframe").length;
+                    if (watchedVideos.length === totalVideos) {
+                        unlockAchievement(17);
+                    }
                 }
             }
-        }
 
-        function getVideo(name) {
-            const cookies = document.cookie.split("; ");
-            for (let cookie of cookies) {
-                let [key, value] = cookie.split("=");
-                if (key === name) return JSON.parse(value);
-            }
-            return null;
-        }
-
-        function setVideo(name, value) {
-            document.cookie = `${name}=${JSON.stringify(value)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
-        }
-        function unlockAchievement(id) {
-            console.log(`Achievement ${id} unlocked!`);
-        }
-        unlockAchievement(6);
-
-        document.addEventListener("click", function (e) {
-            if (!e.target.closest(".edit-card")) {
-                if (window.clearCurrentEdit) {
-                    window.clearCurrentEdit();
+            function getVideo(name) {
+                const cookies = document.cookie.split("; ");
+                for (let cookie of cookies) {
+                    let [key, value] = cookie.split("=");
+                    if (key === name) return JSON.parse(value);
                 }
+                return null;
             }
-        });
 
-        window.addEventListener('scroll', () => {
-            const scrolled = window.pageYOffset;
-            const hero = document.querySelector('.hero-section');
-            if (hero) {
-                hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+            function setVideo(name, value) {
+                document.cookie = `${name}=${JSON.stringify(value)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
             }
-        });
+
+            function unlockAchievement(id) {
+                console.log(`Achievement ${id} unlocked!`);
+            }
+
+            document.addEventListener("click", function (e) {
+                if (!e.target.closest(".edit-card")) {
+                    document.querySelectorAll('.edit-card').forEach(c => c.classList.remove('playing'));
+                    
+                    if (window.clearCurrentEdit) {
+                        window.clearCurrentEdit();
+                    }
+                }
+            });
+
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                const hero = document.querySelector('.hero-section');
+                if (hero) {
+                    hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+                }
+            });
     </script>
     
         <script
