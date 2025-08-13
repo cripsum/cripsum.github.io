@@ -18,28 +18,347 @@ checkBan($mysqli);
                 margin-top: 1rem;
             }
 
-            @media only screen and (max-width: 756px) {
-                .logodesc {
-                    margin-top: 0.45rem;
-                }
+                  /* Include your existing dark theme CSS here */
+        body {
+            font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            padding: 120px 0 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 30%, rgba(100, 200, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #64c8ff 50%, #ff64c8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s ease-in-out infinite;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .tiktok-link {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #ff0050, #ff4081);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 24px rgba(255, 0, 80, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .tiktok-link:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 36px rgba(255, 0, 80, 0.5);
+            color: white;
+        }
+
+        /* Edits Grid */
+        .edits-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .edits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        .edit-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(40px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .edit-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(100, 200, 255, 0.05) 0%, rgba(255, 100, 200, 0.03) 50%, rgba(100, 255, 150, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            border-radius: 24px;
+        }
+
+        .edit-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(100, 200, 255, 0.15);
+            border-color: rgba(100, 200, 255, 0.3);
+        }
+
+        .edit-card:hover::before {
+            opacity: 1;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+            border-radius: 20px 20px 0 0;
+            background: linear-gradient(135deg, rgba(30, 32, 42, 0.8) 0%, rgba(40, 45, 60, 0.8) 100%);
+        }
+
+        .video-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 20px 20px 0 0;
+            transition: all 0.3s ease;
+        }
+
+        .edit-card:hover .video-iframe {
+            transform: scale(1.02);
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(30, 32, 42, 0.7), rgba(0, 0, 0, 0.5));
+            opacity: 0;
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .edit-card:hover .video-overlay {
+            opacity: 1;
+        }
+
+        .play-button {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #0a0a0a;
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .edit-card:hover .play-button {
+            transform: scale(1);
+        }
+
+        .edit-info {
+            padding: 1.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .character-name {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .character-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.5rem;
+            opacity: 0.8;
+        }
+
+        .music-info {
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.4;
+        }
+
+        .music-icon {
+            width: 18px;
+            height: 18px;
+            margin-right: 0.5rem;
+            opacity: 0.7;
+        }
+
+        .edit-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+            z-index: 3;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shimmer {
+            0%, 100% {
+                filter: hue-rotate(0deg);
+            }
+            50% {
+                filter: hue-rotate(180deg);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .edits-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 1.5rem 0;
+            }
+
+            .edits-container {
+                padding: 0 1rem;
+            }
+
+            .hero-section {
+                padding: 100px 0 40px;
             }
 
             .video-container {
-                position: relative;
-                display: inline-block;
+                height: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .edit-card {
+                border-radius: 20px;
             }
 
-            .video-overlay {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(255, 255, 255, 0);
-                cursor: pointer;
+            .video-container {
+                height: 250px;
+                border-radius: 16px 16px 0 0;
             }
+
+            .edit-info {
+                padding: 1.25rem;
+            }
+        }
+
+        /* Staggered animation delays */
+        .edit-card:nth-child(1) { animation-delay: 0.1s; }
+        .edit-card:nth-child(2) { animation-delay: 0.2s; }
+        .edit-card:nth-child(3) { animation-delay: 0.3s; }
+        .edit-card:nth-child(4) { animation-delay: 0.4s; }
+        .edit-card:nth-child(5) { animation-delay: 0.5s; }
+        .edit-card:nth-child(6) { animation-delay: 0.6s; }
+        .edit-card:nth-child(7) { animation-delay: 0.7s; }
+        .edit-card:nth-child(8) { animation-delay: 0.8s; }
+        .edit-card:nth-child(9) { animation-delay: 0.9s; }
+        .edit-card:nth-child(10) { animation-delay: 1.0s; }
+        .edit-card:nth-child(11) { animation-delay: 1.1s; }
+        .edit-card:nth-child(12) { animation-delay: 1.2s; }
+
+        /* Filter/Sort Section */
+        .filter-section {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 25px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: linear-gradient(135deg, rgba(100, 200, 255, 0.2), rgba(255, 100, 200, 0.15));
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
         </style>
         <?php include '../includes/head-import.php'; ?>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
         <title>Cripsum™ - edits</title>
     </head>
     <body>
@@ -476,112 +795,796 @@ checkBan($mysqli);
             </div>
         </div>
         <?php include '../includes/footer.php'; ?>
-        <script>
-            unlockAchievement(6);
+    <div class="hero-section">
+        <div class="container">
+            <h1 class="hero-title">My Latest Edits</h1>
+            <p class="hero-subtitle">
+                Discover my creative video edits featuring anime characters, games, and more. 
+                Each edit is crafted with passion and attention to detail.
+            </p>
+            <a href="https://tiktok.com/@cripsum" class="tiktok-link" target="_blank">
+                <i class="fab fa-tiktok me-2"></i>
+                Watch All My Edits on TikTok
+            </a>
+        </div>
+    </div>
 
-            let totalVideos = document.querySelectorAll(".video-frame").length;
+    <div class="filter-section">
+        <div class="filter-container">
+            <a href="#" class="filter-btn active" data-filter="all">All Edits</a>
+            <a href="#" class="filter-btn" data-filter="anime">Anime</a>
+            <a href="#" class="filter-btn" data-filter="games">Games</a>
+            <a href="#" class="filter-btn" data-filter="sports">Sports</a>
+            <a href="#" class="filter-btn" data-filter="movies">Movies & TV</a>
+        </div>
+    </div>
 
-            function watchVideo(id) {
-                // Imposta l'edit corrente nella rich presence
-                if (window.setCurrentEdit) {
-                    window.setCurrentEdit(id);
-                }
+    <div class="edits-container">
+        <div class="edits-grid">
+            <div class="edit-card" data-category="anime" onclick="watchVideo(25)">
+                <div class="edit-badge">Latest</div>
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/rh84rz?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="25">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-user character-icon"></i>
+                        Perfect Cell - DragonBall
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        Jmilton, CHASHKAKEFIRA - Reinado
+                    </div>
+                </div>
+            </div>
 
-                let watchedVideos = getVideo("watchedVideos") || [];
-                if (!watchedVideos.includes(id)) {
-                    watchedVideos.push(id);
-                    setVideo("watchedVideos", watchedVideos);
+            <div class="edit-card" data-category="anime" onclick="watchVideo(24)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/41cdia?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="24">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-user character-icon"></i>
+                        Waguri Kaoruko
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        Tate McRae - it's ok i'm ok
+                    </div>
+                </div>
+            </div>
 
-                    if (watchedVideos.length === totalVideos) {
-                        unlockAchievement(17);
-                    }
-                }
-            }
+            <div class="edit-card" data-category="games" onclick="watchVideo(23)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/xzj4ag?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="23">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-gamepad character-icon"></i>
+                        Evelyn - Zenless Zone Zero
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        Charli XCX - Track 10
+                    </div>
+                </div>
+            </div>
 
-            function getVideo(name) {
-                const cookies = document.cookie.split("; ");
-                for (let cookie of cookies) {
-                    let [key, value] = cookie.split("=");
-                    if (key === name) return JSON.parse(value);
-                }
-                return null;
-            }
+            <div class="edit-card" data-category="games" onclick="watchVideo(22)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/tfs4nt?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="22">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-gamepad character-icon"></i>
+                        Shorekeeper - Wuthering Waves
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        Irokz - Toxic Potion (slowed)
+                    </div>
+                </div>
+            </div>
 
-            function setVideo(name, value) {
-                document.cookie = `${name}=${JSON.stringify(value)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
-            }
+            <div class="edit-card" data-category="anime" onclick="watchVideo(21)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/lowaxh?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="21">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-user character-icon"></i>
+                        Karane Inda
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        Katy Perry - Harleys in Hawaii
+                    </div>
+                </div>
+            </div>
 
-            document.querySelectorAll(".video-frame").forEach((el) => {
-                el.addEventListener("click", function () {
-                    const videoId = parseInt(this.id);
-                    if (window.setCurrentEdit) {
-                        window.setCurrentEdit(videoId);
-                        watchVideo(videoId);
+            <div class="edit-card" data-category="games" onclick="watchVideo(20)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/8iv09j?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="20">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-gamepad character-icon"></i>
+                        Dante - Devil May Cry
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        ATLXS - PASSO BEM SOLTO (super slowed)
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-card" data-category="anime" onclick="watchVideo(19)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/gyfwer?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="19">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-user character-icon"></i>
+                        Sung Jin-Woo - Solo Levelling
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        Peak - Re-Up
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-card" data-category="anime" onclick="watchVideo(18)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/1n4azs?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="18">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-user character-icon"></i>
+                        Nagi - Blue Lock
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        One of the girls X good for you
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-card" data-category="games" onclick="watchVideo(17)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/zlj3qk?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="17">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-gamepad character-icon"></i>
+                        Cool Mita / Cappie - MiSide
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        Bruno Mars - Treasure
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-card" data-category="games" onclick="watchVideo(16)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/1j8bd8?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="16">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-gamepad character-icon"></i>
+                        Crazy Mita - MiSide
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        Imogen Heap - Headlock
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-card" data-category="anime" onclick="watchVideo(15)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/raooth?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="15">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-user character-icon"></i>
+                        Yuki Suou - Roshidere
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        Rarin - Mamacita
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-card" data-category="sports" onclick="watchVideo(14)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/hvj1e1?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="14">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-futbol character-icon"></i>
+                        Alya Kujou - Roshidere
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        Clean Bandit - Solo
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-card" data-category="sports" onclick="watchVideo(13)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/a9tpgu?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="13">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-futbol character-icon"></i>
+                        Alya Kujou - Roshidere
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        Subway Surfers phonk trend
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-card" data-category="sports" onclick="watchVideo(12)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/myq1g7?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="12">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-futbol character-icon"></i>
+                        Luca Arlia (meme)
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        Luca Carboni - Luca lo stesso
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-card" data-category="sports" onclick="watchVideo(11)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/nzfwpd?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="11">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-futbol character-icon"></i>
+                        Yuki Suou - Roshidere
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        PnB Rock - Unforgettable (Freestyle)
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-card" data-category="sports" onclick="watchVideo(10)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/ml3dve?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="10">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-futbol character-icon"></i>
+                        Alya Kujou - Roshidere
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        Rarin & Frozy - Kompa
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-card" data-category="sports" onclick="watchVideo(9)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/cyrqyx?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="9">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-futbol character-icon"></i>
+                        Cristiano Ronaldo
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        G-Eazy - Tumblr Girls
+                    </div>
+                </div>
+            </div>
+
+            
+
+            <div class="edit-card" data-category="sports" onclick="watchVideo(8)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/zjyoct?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="8>
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-futbol character-icon"></i>
+                        Mandy - Brawl Stars
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        NCTS - NEXT!
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-card" data-category="sports" onclick="watchVideo(7)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/sef96p?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="7">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-futbol character-icon"></i>
+                        Choso - Jujutsu Kaisen
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        The Weeknd - Is There Someone Else?
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-card" data-category="sports" onclick="watchVideo(6)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/78el08?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="6">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-futbol character-icon"></i>
+                        Nym
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        Chris Brown - Under the influence
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-card" data-category="sports" onclick="watchVideo(5)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/w0t9wc?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="5">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-futbol character-icon"></i>
+                        Mortis - Brawl Stars
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        DJ FNK - Slide da Treme Melódica v2
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-card" data-category="sports" onclick="watchVideo(4)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/ltynr9?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="4">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-futbol character-icon"></i>
+                        Nino balletto tattico
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        Zara Larsson - Lush Life
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-card" data-category="sports" onclick="watchVideo(3)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/vnqxdt?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="3">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-futbol character-icon"></i>
+                        Mates - Crossbar challenge
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        G-Eazy - Lady Killers II
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-card" data-category="sports" onclick="watchVideo(2)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/htbn8k?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="2">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-futbol character-icon"></i>
+                        Homelander - The Boys
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        MGMT - Little Dark Age
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-card" data-category="sports" onclick="watchVideo(1)">
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/kxgfka?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="1">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-futbol character-icon"></i>
+                        Heisenberg - Breaking Bad
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        Travis Scott - MY EYES
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Achievement Popup -->
+    <div id="achievement-popup" class="popup" style="display: none;">
+        <img id="popup-image" src="" alt="Achievement" />
+        <div>
+            <h3 id="popup-title"></h3>
+            <p id="popup-description"></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const filter = btn.dataset.filter;
+                const cards = document.querySelectorAll('.edit-card');
+                
+                cards.forEach(card => {
+                    if (filter === 'all' || card.dataset.category === filter) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
                     }
                 });
             });
+        });
+        
+        let totalVideos = document.querySelectorAll(".video-iframe").length;
 
-            document.addEventListener(
-                "click",
-                function (e) {
-                    if (!e.target.closest(".video-frame")) {
-                        if (window.clearCurrentEdit) {
-                            window.clearCurrentEdit();
-                        }
-                    }
-                },
-                true
-            );
+        function watchVideo(id) {
+            if (window.setCurrentEdit) {
+                window.setCurrentEdit(id);
+            }
 
-            /* solo se scrollo
+            let watchedVideos = getVideo("watchedVideos") || [];
+            if (!watchedVideos.includes(id)) {
+                watchedVideos.push(id);
+                setVideo("watchedVideos", watchedVideos);
 
-            // Aggiungi event listener per rilevare quando l'utente esce da un video
-            document.addEventListener("click", function (e) {
-                // Se il click non è su un iframe o sul suo contenitore, rimuovi l'edit corrente
-                if (!e.target.closest(".video-frame") && !e.target.closest('[onclick^="watchVideo"]')) {
-                    if (window.clearCurrentEdit) {
-                        window.clearCurrentEdit();
-                    }
+                if (watchedVideos.length === totalVideos) {
+                    unlockAchievement(17);
                 }
-            });
+            }
+        }
 
-            // Opzionale: rimuovi l'edit corrente quando l'utente scrolla via dal video
-            let currentVideoInView = null;
-            const observer = new IntersectionObserver(
-                (entries) => {
-                    entries.forEach((entry) => {
-                        const iframe = entry.target;
-                        const videoId = parseInt(iframe.id);
+        function getVideo(name) {
+            const cookies = document.cookie.split("; ");
+            for (let cookie of cookies) {
+                let [key, value] = cookie.split("=");
+                if (key === name) return JSON.parse(value);
+            }
+            return null;
+        }
 
-                        if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
-                            // Video è visibile
-                            if (currentVideoInView !== videoId) {
-                                currentVideoInView = videoId;
-                                if (window.setCurrentEdit) {
-                                    window.setCurrentEdit(videoId);
-                                }
-                            }
-                        } else if (currentVideoInView === videoId) {
-                            // Video non è più visibile
-                            currentVideoInView = null;
-                            if (window.clearCurrentEdit) {
-                                window.clearCurrentEdit();
-                            }
-                        }
-                    });
-                },
-                {
-                    threshold: [0, 0.5, 1],
+        function setVideo(name, value) {
+            document.cookie = `${name}=${JSON.stringify(value)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+        }
+        function unlockAchievement(id) {
+            console.log(`Achievement ${id} unlocked!`);
+        }
+        unlockAchievement(6);
+
+        document.addEventListener("click", function (e) {
+            if (!e.target.closest(".edit-card")) {
+                if (window.clearCurrentEdit) {
+                    window.clearCurrentEdit();
                 }
-            );
+            }
+        });
 
-            // Osserva tutti i video frames
-            document.querySelectorAll(".video-frame").forEach((iframe) => {
-                observer.observe(iframe);
-            });
-
-            */
-        </script>
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const hero = document.querySelector('.hero-section');
+            if (hero) {
+                hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+            }
+        });
+    </script>
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
