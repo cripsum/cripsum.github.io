@@ -245,6 +245,7 @@ require_once '../api/api_personaggi.php';
             const codiceSegreto = document.getElementById("codiceSegreto");
 
             var rarityProbabilities = aggiornaRarita();
+            let isProcessing = false;
 
             var casseAperte;
             var comuniDiFila;
@@ -488,6 +489,13 @@ require_once '../api/api_personaggi.php';
             }
 
             async function pullaPersonaggio(){
+
+                if (isProcessing) {
+                    return;
+                }
+                    
+                isProcessing = true;
+
                 try {
                     const pull = await filtroPull();
                     
@@ -540,6 +548,10 @@ require_once '../api/api_personaggi.php';
                 } catch (error) {
                     console.error('Errore nel pull del personaggio:', error);
                     messaggioRarita.innerText = "Errore durante l'apertura della cassa. Riprova.";
+                } finally {
+                    setTimeout(() => {
+                        isProcessing = false;
+                    }, 1000);
                 }
             }
 
@@ -622,6 +634,7 @@ require_once '../api/api_personaggi.php';
             }
 
             async function apriNormale() {
+                cassa.onclick = null;
                 await apriCassa();
 
                 generaParticelle();
@@ -645,8 +658,6 @@ require_once '../api/api_personaggi.php';
                     divApriAncora.classList.remove("nascosto");
                     divApriAncora.classList.add("salto");
                 }, 4000);
-
-                cassa.onclick = null;
 
                 //audio.onended = () => {
                 //    setTimeout(refresh, 500);
