@@ -29,13 +29,13 @@ checkBan($mysqli);
             padding: 0;
         }
 
-        .hero-section {
+        .introduzione-edit-section {
             padding: 120px 0 60px;
             text-align: center;
             position: relative;
         }
 
-        .hero-section::before {
+        .introduzione-edit-section::before {
             content: "";
             position: absolute;
             top: 0;
@@ -46,7 +46,7 @@ checkBan($mysqli);
             pointer-events: none;
         }
 
-        .hero-title {
+        .introduzione-edit-title {
             font-size: clamp(2.5rem, 8vw, 5rem);
             font-weight: 800;
             margin-bottom: 1.5rem;
@@ -59,7 +59,7 @@ checkBan($mysqli);
             z-index: 2;
         }
 
-        .hero-subtitle {
+        .introduzione-edit-subtitle {
             font-size: 1.3rem;
             color: rgba(255, 255, 255, 0.8);
             margin-bottom: 2rem;
@@ -286,7 +286,7 @@ checkBan($mysqli);
                 padding: 0 1rem;
             }
 
-            .hero-section {
+            .introduzione-edit-section {
                 padding: 100px 0 40px;
             }
 
@@ -373,10 +373,10 @@ checkBan($mysqli);
     <body>
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
-        <div class="hero-section" style="padding-top: 7rem;">
+        <div class="introduzione-edit-section" style="padding-top: 7rem;">
         <div class="container">
-            <h1 class="hero-title">My Latest Edits</h1>
-            <p class="hero-subtitle">
+            <h1 class="introduzione-edit-title">My Latest Edits</h1>
+            <p class="introduzione-edit-subtitle">
                 Discover my creative video edits featuring anime characters, games, and more. 
                 Each edit is crafted with passion and attention to detail.
             </p>
@@ -1174,7 +1174,7 @@ checkBan($mysqli);
 
             window.addEventListener('scroll', () => {
                 const scrolled = window.pageYOffset;
-                const hero = document.querySelector('.hero-section');
+                const hero = document.querySelector('.introduzione-edit-section');
                 if (hero) {
                     hero.style.transform = `translateY(${scrolled * 0.5}px)`;
                 }
