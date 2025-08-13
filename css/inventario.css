@@ -1,88 +1,3 @@
-body {
-    background-color: #1e1e1e;
-    color: white;
-}
-.container {
-    max-width: 600px;
-    margin: auto;
-}
-h1 {
-    margin-bottom: 10px;
-}
-#counter {
-    font-size: 18px;
-    margin-bottom: 20px;
-}
-.rarity-section {
-    background: #2a2a2a;
-    border-radius: 10px;
-    padding: 10px;
-    margin-bottom: 15px;
-}
-.rarity-title {
-    font-size: 22px;
-    font-weight: bold;
-    padding: 5px;
-}
-.personaggio {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10px;
-    gap: 10px;
-}
-.personaggio img {
-    width: 60px;
-    height: 60px;
-    border-radius: 5px;
-}
-.hidden {
-    filter: blur(5px);
-    opacity: 0.5;
-}
-.rarity-comune {
-    background-color: #969696;
-}
-.rarity-raro {
-    background-color: #004af7;
-}
-.rarity-epico {
-    background-color: #c300eb;
-}
-.rarity-mitico {
-    background-color: #f50f0f;
-    color: black;
-}
-.rarity-leggendario {
-    background-color: #ffe417;
-}
-
-.rarity-speciale {
-    white-space: nowrap;
-    background: linear-gradient(
-        90deg,
-        #ff0000,
-        /* Rosso */ #ff7300,
-        /* Arancione */ #fffb00,
-        /* Giallo */ #48ff00,
-        /* Verde */ #00f7ff,
-        /* Azzurro */ #2b65ff,
-        /* Blu */ #8000ff,
-        /* Viola */ #ff0000 /* Rosso (ripetuto per continuità) */
-    );
-    background-size: 300% 300%;
-    animation: backgroundAnimate 6s linear infinite;
-}
-
-@keyframes backgroundAnimate {
-    0% {
-        background-position: 0% 0%;
-    }
-    100% {
-        background-position: 300% 0%;
-    }
-}
-
 :root {
     --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --card-gradient: linear-gradient(145deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
@@ -93,11 +8,10 @@ h1 {
 }
 
 body {
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
-    background-attachment: fixed;
-    background-repeat: no-repeat;
+    background: #1e1e1e;
     min-height: 100vh;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: white;
 }
 
 .inventory-container {
@@ -219,33 +133,56 @@ body {
 }
 
 .rarity-comune .rarity-title {
-    background: linear-gradient(135deg, #6b7280, #9ca3af);
+    background: #969696;
     color: white;
 }
 
 .rarity-raro .rarity-title {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    background: #004af7;
     color: white;
 }
 
 .rarity-epico .rarity-title {
-    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    background: #c300eb;
     color: white;
 }
 
 .rarity-leggendario .rarity-title {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: white;
+    background: #ffe417;
+    color: black;
 }
 
 .rarity-mitico .rarity-title {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: white;
+    background: #f50f0f;
+    color: black;
 }
 
 .rarity-speciale .rarity-title {
-    background: linear-gradient(135deg, #ec4899, #be185d);
+    white-space: nowrap;
+    background: linear-gradient(
+        90deg,
+        #ff0000,
+        /* Rosso */ #ff7300,
+        /* Arancione */ #fffb00,
+        /* Giallo */ #48ff00,
+        /* Verde */ #00f7ff,
+        /* Azzurro */ #2b65ff,
+        /* Blu */ #8000ff,
+        /* Viola */ #ff0000 /* Rosso (ripetuto per continuitÃ ) */
+    );
+    background-size: 300% 300%;
+    animation: backgroundAnimate 6s linear infinite;
     color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+@keyframes backgroundAnimate {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 300% 0%;
+    }
 }
 
 .characters-grid {
