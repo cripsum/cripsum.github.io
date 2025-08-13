@@ -1178,6 +1178,24 @@ checkBan($mysqli);
                     hero.style.transform = `translateY(${scrolled * 0.5}px)`;
                 }
             });
+
+            (function() {
+            const originalError = console.error;
+            console.error = function(...args) {
+                if (args.some(a => typeof a === "string" && a.includes("socket.streamable.com"))) {
+                    return; 
+                }
+                originalError.apply(console, args);
+            };
+
+            const originalLog = console.log;
+            console.log = function(...args) {
+                if (args.some(a => typeof a === "string" && a.includes("Websocket error"))) {
+                    return;
+                }
+                originalLog.apply(console, args);
+            };
+        })();
     </script>
     
         <script
