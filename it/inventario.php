@@ -131,7 +131,8 @@ if (!isLoggedIn()) {
                                  alt="Personaggio">
                             <div class="character-name">${character ? character.nome : "???"}</div>
                             <div class="character-count">${character ? `x${character.quantità}` : "Non trovato"}</div>
-                            <div class="character-unlock-date">${character ? `Trovato il: ${new Date(character.data).toLocaleDateString()} alle ${new Date(character.data).toLocaleTimeString('it-IT')}` : "Non trovato"}</div>
+                            <div class="character-unlock-date">${character ? `Trovato il: ${new Date(character.data).toLocaleDateString()}` : "Non trovato"}</div>
+                            <div class="character-unlock-date">${character ? `Alle ${new Date(character.data).toLocaleTimeString('it-IT')}` : ""}</div>
                         `;
 
                         charactersGrid.appendChild(characterCard);
