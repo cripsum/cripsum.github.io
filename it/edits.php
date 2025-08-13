@@ -368,6 +368,7 @@ checkBan($mysqli);
         }
         </style>
         <?php include '../includes/head-import.php'; ?>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
         <title>Cripsum™ - edits</title>
     </head>
@@ -395,12 +396,13 @@ checkBan($mysqli);
             <a href="#" class="filter-btn" data-filter="games">Games</a>
             <a href="#" class="filter-btn" data-filter="sports">Sports</a>
             <a href="#" class="filter-btn" data-filter="movies">Movies & TV</a>
+            <a href="#" class="filter-btn" data-filter="influencer">Influencer</a>
         </div>
     </div>
 
     <div class="edits-container">
         <div class="edits-grid">
-            <div class="edit-card" data-category="anime" onclick="watchVideo(25)">
+            <div class="edit-card" data-category="anime" onclick="playVideo(this, 25)">
                 <div class="edit-badge">Latest</div>
                 <div class="video-container">
                     <iframe 
@@ -408,7 +410,7 @@ checkBan($mysqli);
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="25">
+                        id="video-25">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -428,14 +430,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="anime" onclick="watchVideo(24)">
+            <div class="edit-card" data-category="anime" onclick="playVideo(this, 24)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/41cdia?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="24">
+                        id="video-24">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -455,14 +457,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="games" onclick="watchVideo(23)">
+            <div class="edit-card" data-category="games" onclick="playVideo(this, 23)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/xzj4ag?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="23">
+                        id="video-23">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -482,14 +484,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="games" onclick="watchVideo(22)">
+            <div class="edit-card" data-category="games" onclick="playVideo(this, 22)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/tfs4nt?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="22">
+                        id="video-22">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -509,14 +511,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="anime" onclick="watchVideo(21)">
+            <div class="edit-card" data-category="anime" onclick="playVideo(this, 21)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/lowaxh?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="21">
+                        id="video-21">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -536,14 +538,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="games" onclick="watchVideo(20)">
+            <div class="edit-card" data-category="games" onclick="playVideo(this, 20)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/8iv09j?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="20">
+                        id="video-20">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -563,14 +565,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="anime" onclick="watchVideo(19)">
+            <div class="edit-card" data-category="anime" onclick="playVideo(this, 19)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/gyfwer?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="19">
+                        id="video-19">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -590,14 +592,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="anime" onclick="watchVideo(18)">
+            <div class="edit-card" data-category="anime" onclick="playVideo(this, 18)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/1n4azs?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="18">
+                        id="video-18">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -617,14 +619,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="games" onclick="watchVideo(17)">
+            <div class="edit-card" data-category="games" onclick="playVideo(this, 17)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/zlj3qk?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="17">
+                        id="video-17">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -644,14 +646,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="games" onclick="watchVideo(16)">
+            <div class="edit-card" data-category="games" onclick="playVideo(this, 16)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/1j8bd8?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="16">
+                        id="video-16">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -671,14 +673,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="anime" onclick="watchVideo(15)">
+            <div class="edit-card" data-category="anime" onclick="playVideo(this, 15)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/raooth?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="15">
+                        id="video-15">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -698,14 +700,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="sports" onclick="watchVideo(14)">
+            <div class="edit-card" data-category="anime" onclick="playVideo(this, 14)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/hvj1e1?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="14">
+                        id="video-14">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -725,14 +727,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="sports" onclick="watchVideo(13)">
+            <div class="edit-card" data-category="anime" onclick="playVideo(this, 13)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/a9tpgu?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="13">
+                        id="video-13">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -752,14 +754,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="sports" onclick="watchVideo(12)">
+            <div class="edit-card" data-category="influencer" onclick="playVideo(this, 12)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/myq1g7?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="12">
+                        id="video-12">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -779,14 +781,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="sports" onclick="watchVideo(11)">
+            <div class="edit-card" data-category="anime" onclick="playVideo(this, 11)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/nzfwpd?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="11">
+                        id="video-11">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -806,14 +808,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="sports" onclick="watchVideo(10)">
+            <div class="edit-card" data-category="anime" onclick="playVideo(this, 10)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/ml3dve?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="10">
+                        id="video-10">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -833,14 +835,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="sports" onclick="watchVideo(9)">
+            <div class="edit-card" data-category="sports" onclick="playVideo(this, 9)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/cyrqyx?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="9">
+                        id="video-9">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -862,14 +864,14 @@ checkBan($mysqli);
 
             
 
-            <div class="edit-card" data-category="sports" onclick="watchVideo(8)">
+            <div class="edit-card" data-category="games" onclick="playVideo(this, 8)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/zjyoct?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="8>
+                        id="video-8">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -889,14 +891,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="sports" onclick="watchVideo(7)">
+            <div class="edit-card" data-category="anime" onclick="playVideo(this, 7)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/sef96p?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="7">
+                        id="video-7">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -916,14 +918,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="sports" onclick="watchVideo(6)">
+            <div class="edit-card" data-category="influencer" onclick="playVideo(this, 6)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/78el08?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="6">
+                        id="video-6">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -943,14 +945,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="sports" onclick="watchVideo(5)">
+            <div class="edit-card" data-category="games" onclick="playVideo(this, 5)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/w0t9wc?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="5">
+                        id="video-5">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -970,14 +972,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="sports" onclick="watchVideo(4)">
+            <div class="edit-card" data-category="influencer" onclick="playVideo(this, 4)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/ltynr9?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="4">
+                        id="video-4">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -997,14 +999,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="sports" onclick="watchVideo(3)">
+            <div class="edit-card" data-category="influencer" onclick="playVideo(this, 3)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/vnqxdt?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="3">
+                        id="video-3">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -1024,14 +1026,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="sports" onclick="watchVideo(2)">
+            <div class="edit-card" data-category="movies" onclick="playVideo(this, 2)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/htbn8k?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="2">
+                        id="video-2">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
@@ -1051,14 +1053,14 @@ checkBan($mysqli);
                 </div>
             </div>
 
-            <div class="edit-card" data-category="sports" onclick="watchVideo(1)">
+            <div class="edit-card" data-category="movies" onclick="playVideo(this, 1)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/kxgfka?" 
                         class="video-iframe"
                         allow="fullscreen;autoplay" 
                         allowfullscreen
-                        id="1">
+                        id="video-1">
                     </iframe>
                     <div class="video-overlay">
                         <div class="play-button">
