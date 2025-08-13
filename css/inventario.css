@@ -13,7 +13,7 @@ body {
     overflow-x: hidden;
 }
 
-body::before {
+/*body::before {
     content: "";
     position: fixed;
     top: 0;
@@ -24,7 +24,7 @@ body::before {
         radial-gradient(circle at 40% 60%, rgba(98, 208, 249, 0.2) 0%, transparent 50%);
     pointer-events: none;
     z-index: -1;
-}
+}*/
 
 .inventory-container {
     padding: 2rem 1rem;
@@ -401,7 +401,7 @@ body::before {
         font-size: 2.5rem;
     }
     .inventory-container {
-        max-width: 80%;
+        max-width: 90%;
         margin: auto;
     }
 
