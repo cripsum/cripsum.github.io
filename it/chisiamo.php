@@ -40,7 +40,7 @@ checkBan($mysqli);
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
 
-        <div class="floating-elements">
+        <div class="floating-elements fadeup">
         <div class="floating-element"></div>
         <div class="floating-element"></div>
         <div class="floating-element"></div>

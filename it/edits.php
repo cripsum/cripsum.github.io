@@ -373,12 +373,12 @@ checkBan($mysqli);
     <body>
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
-        <div class="introduzione-edit-section" style="padding-top: 10rem;">
+        <div class="introduzione-edit-section fadeup" style="padding-top: 10rem;">
         <div class="container">
             <h1 class="introduzione-edit-title">My Latest Edits</h1>
             <p class="introduzione-edit-subtitle">
                 Discover my latest edits. 
-                Each edit is made with passion and attention to details :P.
+                Each edit is made with passion and attention to details :P
             </p>
             <a href="https://tiktok.com/@cripsum" class="tiktok-link" target="_blank">
                 <i class="fab fa-tiktok me-2"></i>
@@ -387,7 +387,7 @@ checkBan($mysqli);
         </div>
     </div>
 
-    <div class="filter-section">
+    <div class="filter-section fadeup">
         <div class="filter-container">
             <a href="#" class="filter-btn active" data-filter="all">All Edits</a>
             <a href="#" class="filter-btn" data-filter="anime">Anime</a>
