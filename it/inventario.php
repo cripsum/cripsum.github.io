@@ -55,7 +55,7 @@ if (!isLoggedIn()) {
                
             </div>
 
-            <div style="text-align: center;">
+            <div style="text-align: center; margin-bottom: 3rem;">
                 <a href="lootbox" class="back-button">
                     <span class="back-arrow">←</span>
                     Torna alla lootbox

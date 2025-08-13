@@ -373,7 +373,7 @@ body {
 }
 
 .back-button:hover {
-    transform: translateY(-20px) scale(1.05);
+    transform: translateY(-3px) scale(1.05);
     box-shadow: 0 20px 60px rgba(102, 126, 234, 0.6);
     color: white;
     text-decoration: none;
