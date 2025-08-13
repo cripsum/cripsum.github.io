@@ -1083,7 +1083,7 @@ checkBan($mysqli);
     </div>
 
 
-    <div id="achievement-popup" class="popup" style="display: none;">
+    <div id="achievement-popup" class="popup">
         <img id="popup-image" src="" alt="Achievement" />
         <div>
             <h3 id="popup-title"></h3>
@@ -1095,6 +1095,8 @@ checkBan($mysqli);
 
     <script>
             document.addEventListener('DOMContentLoaded', function() {
+                unlockAchievement(6);
+
                 document.querySelectorAll('.filter-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         e.preventDefault();
@@ -1158,9 +1160,6 @@ checkBan($mysqli);
                 document.cookie = `${name}=${JSON.stringify(value)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
             }
 
-            function unlockAchievement(id) {
-                console.log(`Achievement ${id} unlocked!`);
-            }
 
             document.addEventListener("click", function (e) {
                 if (!e.target.closest(".edit-card")) {
