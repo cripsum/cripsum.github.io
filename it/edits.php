@@ -378,7 +378,7 @@ checkBan($mysqli);
             <h1 class="introduzione-edit-title">My Latest Edits</h1>
             <p class="introduzione-edit-subtitle">
                 Discover my latest edits. 
-                Each edit is crafted with passion and attention to detail :P.
+                Each edit is made with passion and attention to details :P.
             </p>
             <a href="https://tiktok.com/@cripsum" class="tiktok-link" target="_blank">
                 <i class="fab fa-tiktok me-2"></i>
