@@ -53,17 +53,6 @@ body::before {
     position: relative;
 }
 
-.inventory-title::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    animation: titleShine 3s ease-in-out infinite;
-}
-
 @keyframes gradientShift {
     0%,
     100% {
@@ -102,23 +91,6 @@ body::before {
     transition: var(--transition);
     position: relative;
     overflow: hidden;
-}
-
-.stat-card::before {
-    content: "";
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: conic-gradient(from 0deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    animation: rotate 4s linear infinite;
-    opacity: 0;
-    transition: var(--transition);
-}
-
-.stat-card:hover::before {
-    opacity: 1;
 }
 
 .stat-card:hover {
