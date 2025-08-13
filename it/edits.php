@@ -106,7 +106,6 @@ checkBan($mysqli);
             border-radius: 24px;
             border: 1px solid rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(20px);
-            overflow: hidden;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             cursor: pointer;
@@ -142,7 +141,6 @@ checkBan($mysqli);
             position: relative;
             width: 100%;
             height: 400px;
-            overflow: hidden;
             border-radius: 20px 20px 0 0;
             background: linear-gradient(135deg, rgba(30, 32, 42, 0.8) 0%, rgba(40, 45, 60, 0.8) 100%);
         }
