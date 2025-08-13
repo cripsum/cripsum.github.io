@@ -29,6 +29,8 @@ body {
 .inventory-container {
     padding: 2rem 1rem;
     margin-top: 7rem;
+    max-width: 1200px;
+    margin: auto;
 }
 
 .inventory-header {
