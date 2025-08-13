@@ -18,16 +18,16 @@ checkBan($mysqli);
                 margin-top: 1rem;
             }
 
-                  /* Include your existing dark theme CSS here */
         body {
             font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+            background-attachment: fixed;
+            background-repeat: no-repeat;
             color: #ffffff;
             min-height: 100vh;
             overflow-x: hidden;
         }
 
-        /* Hero Section */
         .hero-section {
             padding: 120px 0 60px;
             text-align: center;
@@ -90,7 +90,6 @@ checkBan($mysqli);
             color: white;
         }
 
-        /* Edits Grid */
         .edits-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -251,7 +250,6 @@ checkBan($mysqli);
             z-index: 3;
         }
 
-        /* Animations */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -272,7 +270,6 @@ checkBan($mysqli);
             }
         }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
             .edits-grid {
                 grid-template-columns: 1fr;
@@ -308,7 +305,6 @@ checkBan($mysqli);
             }
         }
 
-        /* Staggered animation delays */
         .edit-card:nth-child(1) { animation-delay: 0.1s; }
         .edit-card:nth-child(2) { animation-delay: 0.2s; }
         .edit-card:nth-child(3) { animation-delay: 0.3s; }
@@ -322,7 +318,6 @@ checkBan($mysqli);
         .edit-card:nth-child(11) { animation-delay: 1.1s; }
         .edit-card:nth-child(12) { animation-delay: 1.2s; }
 
-        /* Filter/Sort Section */
         .filter-section {
             max-width: 1400px;
             margin: 0 auto;
