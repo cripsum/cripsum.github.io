@@ -621,8 +621,8 @@ require_once '../api/api_personaggi.php';
                 }
             }
 
-            function apriNormale() {
-                apriCassa();
+            async function apriNormale() {
+                await apriCassa();
 
                 generaParticelle();
 
