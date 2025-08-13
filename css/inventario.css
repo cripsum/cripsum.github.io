@@ -187,7 +187,6 @@ body::before {
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 }
 
-/* RARITY BACKGROUNDS */
 .rarity-comune {
     background: linear-gradient(135deg, #969696 0%, #757575 100%);
     box-shadow: 0 10px 40px rgba(150, 150, 150, 0.3);
@@ -214,10 +213,27 @@ body::before {
 }
 
 .rarity-speciale {
+    white-space: nowrap;
     background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000);
     background-size: 400% 400%;
-    animation: rainbowFlow 6s linear infinite;
+    animation: backgroundAnimate 6s linear infinite;
     box-shadow: 0 10px 40px rgba(255, 0, 255, 0.6);
+}
+
+/*.rarity-speciale {
+    white-space: nowrap;
+    background: linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000);
+    background-size: 300% 300%;
+    animation: backgroundAnimate 6s linear infinite;
+}*/
+
+@keyframes backgroundAnimate {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 300% 0%;
+    }
 }
 
 @keyframes rainbowFlow {
