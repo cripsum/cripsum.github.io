@@ -25,14 +25,12 @@ checkBan($mysqli);
             background-repeat: no-repeat;
             color: #ffffff;
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
         .hero-section {
             padding: 120px 0 60px;
             text-align: center;
             position: relative;
-            overflow: hidden;
         }
 
         .hero-section::before {
