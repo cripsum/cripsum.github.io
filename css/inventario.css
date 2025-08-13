@@ -29,7 +29,10 @@ body {
 .inventory-container {
     padding: 2rem 1rem;
     margin-top: 7rem;
-    max-width: 1200px;
+    max-width: 1400px;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .inventory-header {
