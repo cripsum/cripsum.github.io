@@ -717,7 +717,7 @@ checkBan($mysqli);
                 </div>
                 <div class="edit-info">
                     <div class="character-name">
-                        <i class="fas fa-futbol character-icon"></i>
+                        <i class="fas fa-user character-icon"></i>
                         Alya Kujou - Roshidere
                     </div>
                     <div class="music-info">
@@ -744,7 +744,7 @@ checkBan($mysqli);
                 </div>
                 <div class="edit-info">
                     <div class="character-name">
-                        <i class="fas fa-futbol character-icon"></i>
+                        <i class="fas fa-user character-icon"></i>
                         Alya Kujou - Roshidere
                     </div>
                     <div class="music-info">
@@ -771,7 +771,7 @@ checkBan($mysqli);
                 </div>
                 <div class="edit-info">
                     <div class="character-name">
-                        <i class="fas fa-futbol character-icon"></i>
+                        <i class="fas fa-star character-icon"></i>
                         Luca Arlia (meme)
                     </div>
                     <div class="music-info">
@@ -798,7 +798,7 @@ checkBan($mysqli);
                 </div>
                 <div class="edit-info">
                     <div class="character-name">
-                        <i class="fas fa-futbol character-icon"></i>
+                        <i class="fas fa-user character-icon"></i>
                         Yuki Suou - Roshidere
                     </div>
                     <div class="music-info">
@@ -825,7 +825,7 @@ checkBan($mysqli);
                 </div>
                 <div class="edit-info">
                     <div class="character-name">
-                        <i class="fas fa-futbol character-icon"></i>
+                        <i class="fas fa-user character-icon"></i>
                         Alya Kujou - Roshidere
                     </div>
                     <div class="music-info">
@@ -881,7 +881,7 @@ checkBan($mysqli);
                 </div>
                 <div class="edit-info">
                     <div class="character-name">
-                        <i class="fas fa-futbol character-icon"></i>
+                        <i class="fas fa-gamepad character-icon"></i>
                         Mandy - Brawl Stars
                     </div>
                     <div class="music-info">
@@ -908,7 +908,7 @@ checkBan($mysqli);
                 </div>
                 <div class="edit-info">
                     <div class="character-name">
-                        <i class="fas fa-futbol character-icon"></i>
+                        <i class="fas fa-user character-icon"></i>
                         Choso - Jujutsu Kaisen
                     </div>
                     <div class="music-info">
@@ -935,7 +935,7 @@ checkBan($mysqli);
                 </div>
                 <div class="edit-info">
                     <div class="character-name">
-                        <i class="fas fa-futbol character-icon"></i>
+                        <i class="fas fa-star character-icon"></i>
                         Nym
                     </div>
                     <div class="music-info">
@@ -962,7 +962,7 @@ checkBan($mysqli);
                 </div>
                 <div class="edit-info">
                     <div class="character-name">
-                        <i class="fas fa-futbol character-icon"></i>
+                        <i class="fas fa-gamepad character-icon"></i>
                         Mortis - Brawl Stars
                     </div>
                     <div class="music-info">
@@ -989,7 +989,7 @@ checkBan($mysqli);
                 </div>
                 <div class="edit-info">
                     <div class="character-name">
-                        <i class="fas fa-futbol character-icon"></i>
+                        <i class="fas fa-star character-icon"></i>
                         Nino balletto tattico
                     </div>
                     <div class="music-info">
@@ -1016,7 +1016,7 @@ checkBan($mysqli);
                 </div>
                 <div class="edit-info">
                     <div class="character-name">
-                        <i class="fas fa-futbol character-icon"></i>
+                        <i class="fas fa-star character-icon"></i>
                         Mates - Crossbar challenge
                     </div>
                     <div class="music-info">
@@ -1043,7 +1043,7 @@ checkBan($mysqli);
                 </div>
                 <div class="edit-info">
                     <div class="character-name">
-                        <i class="fas fa-futbol character-icon"></i>
+                        <i class="fas fa-film character-icon"></i>
                         Homelander - The Boys
                     </div>
                     <div class="music-info">
@@ -1070,7 +1070,7 @@ checkBan($mysqli);
                 </div>
                 <div class="edit-info">
                     <div class="character-name">
-                        <i class="fas fa-futbol character-icon"></i>
+                        <i class="fas fa-film character-icon"></i>
                         Heisenberg - Breaking Bad
                     </div>
                     <div class="music-info">
