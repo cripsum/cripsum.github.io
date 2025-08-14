@@ -153,14 +153,14 @@ checkBan($mysqli);
                 <div class="team-member">
                     <div class="member-content">
                         <div class="member-image">
-                            <img src="../img/tacos.jpg" alt="Tacos" />
+                            <img src="../img/sparklemylove.jpg" alt="Tacos" />
                         </div>
                         <div class="member-info">
                             <h3 class="member-name">
-                                <a href="../user/tacos">Tacos</a>
+                                <a href="../marine_houshou">Sparkle my love</a>
                             </h3>
                             <p class="member-description">
-                                Anche conosciuto come <strong>1nstxnct</strong>, è un pro player italiano di Brawl Stars con skills leggendarie.
+                                <strong>Cantarella</strong> è solo sua e <strong>Cipher</strong>l'ha già ingravidata, è un grande amante dei gacha e del gooning. Si è aggiudicato il primo posto in <a href="/goonland/goon-generator">Goonland</a>
                             </p>
                         </div>
                     </div>
