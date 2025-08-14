@@ -153,14 +153,14 @@ checkBan($mysqli);
                 <div class="team-member">
                     <div class="member-content">
                         <div class="member-image">
-                            <img src="../img/sparklemylove.jpg" alt="Tacos" />
+                            <img src="../img/houshou_marine.jpeg" alt="Tacos" />
                         </div>
                         <div class="member-info">
                             <h3 class="member-name">
-                                <a href="../marine_houshou">Sparkle my love</a>
+                                <a href="../marine_houshou">Marine Houshou</a>
                             </h3>
                             <p class="member-description">
-                                <strong>Cantarella</strong> è solo sua e <strong>Cipher</strong> l'ha già ingravidata, è un grande amante dei gacha e del gooning. Si è aggiudicato il primo posto in <a href="/goonland/goon-generator">Goonland</a>
+                                <strong>Cantarella</strong> è solo sua e <strong>Cipher</strong> l'ha già ingravidata, è un grande amante dei gacha e del gooning. Si è aggiudicato il primo posto in <a href="goonland/goon-generator">Goonland</a>
                             </p>
                         </div>
                     </div>
