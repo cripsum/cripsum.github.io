@@ -1,11 +1,12 @@
                 function cancellaCookies() {
-                    document.cookie.split(";").forEach(function (cookie) {
-                        document.cookie = cookie.split("=")[0] + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-                    });
-                    alert("I cookies sono stati cancellati.");
-                    location.reload();
+                    if (confirm("Sei sicuro di voler cancellare tutti i cookies? Funzioni come il login, gli achievement e le preferenze potrebbero essere influenzate. Questa azione non può essere annullata.")) {
+                        document.cookie.split(";").forEach(function (cookie) {
+                            document.cookie = cookie.split("=")[0] + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+                        });
+                        alert("I cookies sono stati cancellati.");
+                        location.reload();
+                    }
                 }
-
                 function cancellaDati() {
                     localStorage.clear();
                     sessionStorage.clear();
@@ -18,5 +19,5 @@
 
                 function salvaImpostazioni() {
                     controllaLingua();
-                    controllaTema();
+                    //controllaTema();
                 }

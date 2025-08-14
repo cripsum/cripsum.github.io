@@ -17,16 +17,16 @@
                             <!--TODO: cambiare emoji lingua con degli svg fatti bene (porco dio)-->
 
                             <div data-mdb-input-init class="form-outline selezione selezione-tema" style="margin-top: 30px">
-                                <label class="form-label testobianco" for="registerName">Selezione Tema</label>
+                                <!-- <label class="form-label testobianco" for="registerName">Selezione Tema</label>
                                 <select class="animate slideIn listatemi" style="max-width: 30%; margin-left: 15px">
                                     <option selected value="1">Scuro</option>
                                     <option value="2">Chiaro</option>
                                     <option value="3">OG</option>
-                                </select>
+                                </select> -->
                                 <br />
                                 <button type="button" class="btn btn-secondary bottone mt-4" data-bs-dismiss="modal" onclick="cancellaCookies()">Cancella cookies</button>
-                                <br />
-                                <button type="button" class="btn btn-secondary bottone mt-4" data-bs-dismiss="modal" onclick="cancellaDati()">Cancella dati</button>
+                                <!-- <br />
+                                <button type="button" class="btn btn-secondary bottone mt-4" data-bs-dismiss="modal" onclick="cancellaDati()">Cancella dati</button> -->
                             </div>
                         </div>
                         <div class="modal-footer">
