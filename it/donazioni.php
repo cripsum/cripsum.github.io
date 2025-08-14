@@ -14,6 +14,23 @@ checkBan($mysqli);
             img {
                 border-radius: 10px;
             }
+
+            .donazionis {
+                height: 100%;
+                background: transparent;
+                border-radius: 24px;
+                overflow: hidden;
+                position: relative;
+                cursor: pointer;
+            }
+
+            .donazionis-body {
+                padding: 2rem 1.5rem;
+                background: transparent;
+                position: relative;
+                z-index: 2;
+            }
+
         </style>
         <title>Cripsum™ - donazioni</title>
     </head>
@@ -24,8 +41,8 @@ checkBan($mysqli);
         <div class="container-fluid py-5" style="margin-top: 5rem;">
             <div class="row justify-content-center">
             <div class="col-lg-8 col-md-10">
-                <div class="card shadow-lg border-0 fadeup" style="border-radius: 20px; box-shadow: 0 0 7px 7px rgba(255, 255, 255, 0); background-color: rgba(0, 0, 0, 0);"><!--background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -->
-                <div class="card-body text-center py-5" style="background-color: rgba(0, 0, 0, 0);">
+                <div class="donazionis shadow-lg border-0 fadeup" style="border-radius: 20px; box-shadow: 0 0 7px 7px rgba(255, 255, 255, 0); background-color: rgba(0, 0, 0, 0);"><!--background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -->
+                <div class="donazionis-body text-center py-5" style="background-color: rgba(0, 0, 0, 0);">
                     <div class="mb-4">
                     <i class="fas fa-heart" style="font-size: 3rem; color: #ff6b6b; animation: heartbeat 2s infinite;"></i>
                     </div>
