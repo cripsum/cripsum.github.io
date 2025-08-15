@@ -24,7 +24,7 @@
                         <a href="https://www.instagram.com/cripsum/" class="footer-social-link" title="Instagram">
                             <i class="fab fa-instagram"></i>
                         </a>
-                        <a href="https://discord.gg/Mmb2sNCvy6" class="footer-social-link" title="Discord">
+                        <a href="https://discord.gg/XdheJHVURw" class="footer-social-link" title="Discord">
                             <i class="fab fa-discord"></i>
                         </a>
                         <a href="https://t.me/cripsum" class="footer-social-link" title="Telegram">

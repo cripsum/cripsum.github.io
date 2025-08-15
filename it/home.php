@@ -275,7 +275,7 @@ checkBan($mysqli);
                                     <span class="social-label">Instagram</span>
                                 </div>
                             </a>
-                            <a href="https://discord.gg/Mmb2sNCvy6" class="social-link-modern discord" title="Discord">
+                            <a href="https://discord.gg/XdheJHVURw" class="social-link-modern discord" title="Discord">
                                 <div class="social-icon-wrapper">
                                     <i class="fab fa-discord"></i>
                                     <span class="social-label">Discord</span>
