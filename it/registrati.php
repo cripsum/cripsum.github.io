@@ -16,15 +16,27 @@ $success = '';
 
 function isValidUsername($username) {
 
-    if (!preg_match('/^[a-zA-Z0-9_-]+$/', $username)) {
+    if (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
         return false;
     }
 
-    if (preg_match('/[_-]$/', $username)) {
+    if (preg_match('/[_]$/', $username)) {
         return false;
     }
     
-    if (preg_match('/^[_-]/', $username)) {
+    if (preg_match('/^[_]/', $username)) {
+        return false;
+    }
+
+    if (strlen($username) < 3) {
+        return false;
+    }
+
+    if (strlen($username) > 20) {
+        return false;
+    }
+
+    if (preg_match('/\s/', $username)) {
         return false;
     }
     
