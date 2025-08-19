@@ -677,7 +677,7 @@ require_once '../api/api_personaggi.php';
                 if (inventory.length === 1) {
                     unlockAchievement(5);
                 }
-                if (inventory.length === 45) {
+                if (inventory.length === 46) {
                     unlockAchievement(18);
                 }
             }
