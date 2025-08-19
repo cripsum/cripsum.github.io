@@ -43,7 +43,8 @@ window.rarities = [
     { name: "DANIEL", rarity: "epico", img: "img/daniel.jpg", audio: "audio/rapfrociogay.mp3", category: "5CINF" },
     { name: "COSSU", rarity: "speciale", img: "img/cossupisnelo.gif", audio: "audio/cossusong.mp3", category: "OG" },
     { name: "SALE MEDIO", rarity: "raro", img: "img/sale.jpg", audio: "audio/toki.mp3", category: "discordArc" },
-    { name: "TOKI", rarity: "epico", img: "img/toki.jpg", audio: "audio/salemedioaudio.mp3", category: "discordArc" }
+    { name: "TOKI", rarity: "epico", img: "img/toki.jpg", audio: "audio/salemedioaudio.mp3", category: "discordArc" },
+    { name: "CRIPSUM (DISOCCUPATO)", rarity: "segreto", img: "img/shorekeeper-pfp.gif", audio: "audio/shorekeeper_song.mp3", category: "king" },
 ];
 // { name: "", rarity: "", img: "img/.jpg", audio: "audio/.mp3", category: "" },
 

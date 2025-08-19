@@ -26,7 +26,7 @@ require_once '../api/api_personaggi.php';
     </head>
 
     <body class="">
-        <?php include '../includes/navbar.php'; ?>
+        <?php include '../includes/navbar-lootbox.php'; ?>
         
         <!-- TO DO
            bloccare lo scorrimento della pagina quando il menu della navbar è aperto (aggiungere classe overflow-hidden al body) 
@@ -166,6 +166,12 @@ require_once '../api/api_personaggi.php';
                                     <div class="form-check mb-3 mb-md-0" style="text-align: center">
                                         <input class="form-check-input checco" type="checkbox" value="" id="SoloSpeciali" />
                                         <label class="form-check-label" for="loginCheck">Solo Speciali</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 d-flex" style="text-align: center">
+                                    <div class="form-check mb-3 mb-md-0" style="text-align: center">
+                                        <input class="form-check-input checco" type="checkbox" value="" id="SoloSegreti" />
+                                        <label class="form-check-label" for="loginCheck">Solo Segreti</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6 d-flex" style="text-align: center">
@@ -428,6 +434,17 @@ require_once '../api/api_personaggi.php';
                             leggendario: 0,
                             mitico: 0,
                             speciale: 100,
+                            segreto: 0,
+                        });
+                    } else if (prederences.SoloSegreti === true) {
+                        return (rarityProbabilities = {
+                            comune: 0,
+                            raro: 0,
+                            epico: 0,
+                            leggendario: 0,
+                            mitico: 0,
+                            speciale: 0,
+                            segreto: 100,
                         });
                     } else if (preferences.SoloComuni === true) {
                         return (rarityProbabilities = {
@@ -437,6 +454,7 @@ require_once '../api/api_personaggi.php';
                             leggendario: 0,
                             mitico: 0,
                             speciale: 0,
+                            segreto: 0,
                         });
                     } else {
                         return (rarityProbabilities = {
@@ -445,7 +463,8 @@ require_once '../api/api_personaggi.php';
                             epico: 15,
                             leggendario: 10,
                             mitico: 4,
-                            speciale: 1,
+                            speciale: 0.9,
+                            segreto: 0.1,
                         });
                     }
                 }
@@ -456,7 +475,8 @@ require_once '../api/api_personaggi.php';
                     epico: 15,
                     leggendario: 10,
                     mitico: 4,
-                    speciale: 1,
+                    speciale: 0.9,
+                    segreto: 0.1,
                 });
             }
 
@@ -539,11 +559,42 @@ require_once '../api/api_personaggi.php';
                         bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
                         bagliore.style.backgroundSize = "300% 100%";
                         bagliore.style.animation = "rainbowBackground 6s linear infinite";
-                    }
+                    } else if (rarita === "segreto") {
+
+                        startIntroAnimation();
+                        messaggioRarita.innerText = "COSA?.. HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
+                        bagliore.style.position = "fixed";
+                        bagliore.style.width = "100vw";
+                        bagliore.style.height = "100vh";
+                        bagliore.style.zIndex = "-1";
+                        bagliore.style.background = "radial-gradient(circle, rgba(147, 0, 211, 1) 0%, rgba(75, 0, 130, 0.8) 30%, rgba(138, 43, 226, 0.6) 60%, rgba(148, 0, 211, 0) 100%)";
+                        bagliore.style.animation = "secretGlow 2s ease-in-out infinite, rotate 8s linear infinite";
+                        bagliore.style.boxShadow = "0 0 100px rgba(147, 0, 211, 0.8), 0 0 200px rgba(75, 0, 130, 0.6), inset 0 0 50px rgba(138, 43, 226, 0.4)";
+                        
+                        const secretStyleSheet = document.createElement('style');
+                        secretStyleSheet.textContent = `
+                            @keyframes secretGlow {
+                                0%, 100% { 
+                                    transform: translate(-50%, -50%) scale(1);
+                                    filter: brightness(1) saturate(1);
+                                }
+                                50% { 
+                                    transform: translate(-50%, -50%) scale(1.2);
+                                    filter: brightness(1.3) saturate(1.5);
+                                }
+                            }
+                            @keyframes rotate {
+                                from { transform: translate(-50%, -50%) rotate(0deg); }
+                                to { transform: translate(-50%, -50%) rotate(360deg); }
+                            }
+                        `;
+                        document.head.appendChild(secretStyleSheet);
+
 
                     document.getElementById("suonoCassa").innerHTML = `
                         <source src="/audio/${pull.audio_url}" type="audio/mpeg" id="suono" />
                     `;
+                    }
                     
                 } catch (error) {
                     console.error('Errore nel pull del personaggio:', error);
@@ -739,6 +790,104 @@ require_once '../api/api_personaggi.php';
                     setCookie("comuniDiFila", 0);
                     return tempComuniDiFila;
                 }
+            }
+
+            function startIntroAnimation() {
+
+                const introOverlay = document.createElement('div');
+                introOverlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100vh;
+                    background: #000;
+                    z-index: 10000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    overflow: hidden;
+                `;
+
+                const purpleContainer = document.createElement('div');
+                purpleContainer.style.cssText = `
+                    position: relative;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                `;
+
+                const purpleCircle = document.createElement('div');
+                purpleCircle.style.cssText = `
+                    width: 200px;
+                    height: 200px;
+                    border-radius: 50%;
+                    background: radial-gradient(circle, rgba(147, 0, 211, 1) 0%, rgba(75, 0, 130, 0.8) 50%, transparent 100%);
+                    animation: purplePulse 2s ease-in-out infinite;
+                `;
+
+                for (let i = 0; i < 8; i++) {
+                    const lightning = document.createElement('div');
+                    lightning.style.cssText = `
+                        position: absolute;
+                        width: 3px;
+                        height: 100px;
+                        background: linear-gradient(to bottom, #9932cc, #4b0082, transparent);
+                        transform-origin: bottom;
+                        animation: lightning 0.5s ease-in-out ${i * 0.2}s;
+                        transform: rotate(${i * 45}deg);
+                    `;
+                    purpleContainer.appendChild(lightning);
+                }
+
+                const mysteriousText = document.createElement('div');
+                mysteriousText.style.cssText = `
+                    position: absolute;
+                    color: #9932cc;
+                    font-size: 3rem;
+                    font-weight: bold;
+                    text-shadow: 0 0 20px #9932cc, 0 0 40px #4b0082;
+                    opacity: 0;
+                    animation: textReveal 1s ease-in-out 1.5s forwards;
+                `;
+                mysteriousText.textContent = 'SEGRETO';
+
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes purplePulse {
+                        0%, 100% { transform: scale(1); opacity: 0.8; }
+                        50% { transform: scale(1.5); opacity: 1; }
+                    }
+                    @keyframes lightning {
+                        0% { opacity: 0; transform: scaleY(0); }
+                        50% { opacity: 1; transform: scaleY(1); }
+                        100% { opacity: 0; transform: scaleY(0); }
+                    }
+                    @keyframes textReveal {
+                        0% { opacity: 0; transform: scale(0.5); }
+                        50% { opacity: 1; transform: scale(1.2); }
+                        100% { opacity: 1; transform: scale(1); }
+                    }
+                    @keyframes fadeOut {
+                        to { opacity: 0; }
+                    }
+                `;
+
+                document.head.appendChild(style);
+                purpleContainer.appendChild(purpleCircle);
+                purpleContainer.appendChild(mysteriousText);
+                introOverlay.appendChild(purpleContainer);
+                document.body.appendChild(introOverlay);
+
+                setTimeout(() => {
+                    introOverlay.style.animation = 'fadeOut 1s ease-out forwards';
+                    setTimeout(() => {
+                        document.body.removeChild(introOverlay);
+                        document.head.removeChild(style);
+                    }, 1000);
+                }, 3000);
             }
 
         </script>
