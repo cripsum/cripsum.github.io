@@ -436,7 +436,7 @@ require_once '../api/api_personaggi.php';
                             speciale: 100,
                             segreto: 0,
                         });
-                    } else if (prederences.SoloSegreti === true) {
+                    } else if (preferences.SoloSegreti === true) {
                         return (rarityProbabilities = {
                             comune: 0,
                             raro: 0,
@@ -589,12 +589,10 @@ require_once '../api/api_personaggi.php';
                             }
                         `;
                         document.head.appendChild(secretStyleSheet);
-
-
+                    }
                     document.getElementById("suonoCassa").innerHTML = `
                         <source src="/audio/${pull.audio_url}" type="audio/mpeg" id="suono" />
                     `;
-                    }
                     
                 } catch (error) {
                     console.error('Errore nel pull del personaggio:', error);
