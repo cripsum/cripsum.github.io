@@ -40,7 +40,7 @@ $user_cercato_id = $user['id'];
     <?php include 'includes/head-import.php'; ?>
     <title>Profilo di <?php echo htmlspecialchars($user['username']); ?></title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
 
         * {
             margin: 0;
@@ -50,7 +50,7 @@ $user_cercato_id = $user['id'];
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #0a0a0a;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
             min-height: 100vh;
             overflow-x: hidden;
             color: #ffffff;
@@ -64,33 +64,38 @@ $user_cercato_id = $user['id'];
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1;
-            background: radial-gradient(circle at 20% 50%, rgba(120, 119, 255, 0.15) 0%, transparent 70%),
-                        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 70%),
-                        radial-gradient(circle at 40% 80%, rgba(119, 255, 255, 0.12) 0%, transparent 70%);
+            z-index: -2;
+            background: 
+                radial-gradient(circle at 15% 30%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 85% 20%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 50%);
         }
 
-        .stars {
+        .floating-shapes {
             position: fixed;
-            width: 100%;
-            height: 100%;
             top: 0;
             left: 0;
+            width: 100%;
+            height: 100%;
             z-index: -1;
+            overflow: hidden;
         }
 
-        .star {
+        .shape {
             position: absolute;
-            width: 2px;
-            height: 2px;
-            background: #ffffff;
-            border-radius: 50%;
-            animation: twinkle 4s ease-in-out infinite;
+            opacity: 0.03;
+            animation: float 20s infinite ease-in-out;
         }
 
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.2; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.5); }
+        .shape:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+        .shape:nth-child(2) { top: 60%; left: 80%; animation-delay: -5s; }
+        .shape:nth-child(3) { top: 80%; left: 20%; animation-delay: -10s; }
+        .shape:nth-child(4) { top: 40%; left: 70%; animation-delay: -15s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(120deg); }
+            66% { transform: translateY(20px) rotate(240deg); }
         }
 
         /* Main Container */
@@ -99,21 +104,25 @@ $user_cercato_id = $user['id'];
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 2rem;
         }
 
         /* Profile Card */
         .profile-card {
-            background: rgba(15, 15, 35, 0.85);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-            padding: 48px;
-            max-width: 480px;
+            background: rgba(15, 15, 35, 0.7);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 32px;
+            padding: 3rem;
+            max-width: 520px;
             width: 100%;
-            box-shadow: 0 32px 64px rgba(0, 0, 0, 0.4);
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.25),
+                0 0 0 1px rgba(255, 255, 255, 0.05);
             position: relative;
             overflow: hidden;
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .profile-card::before {
@@ -123,171 +132,116 @@ $user_cercato_id = $user['id'];
             left: 0;
             right: 0;
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(120, 119, 255, 0.6), transparent);
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.8), transparent);
         }
 
-        /* Profile Avatar Section */
-        .avatar-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 32px;
+        /* Profile Header */
+        .profile-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            position: relative;
         }
 
         .avatar-container {
             position: relative;
             width: 120px;
             height: 120px;
-            margin-bottom: 20px;
+            margin: 0 auto 1.5rem;
         }
 
         .avatar {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            border: 3px solid rgba(120, 119, 255, 0.3);
+            border: 3px solid rgba(139, 92, 246, 0.4);
             object-fit: cover;
-            box-shadow: 0 8px 32px rgba(120, 119, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
+            transition: transform 0.3s ease;
         }
 
-        .status-dot {
-            position: absolute;
-            bottom: 8px;
-            right: 8px;
-            width: 24px;
-            height: 24px;
-            background: #3ba55c;
-            border: 4px solid rgba(15, 15, 35, 0.9);
-            border-radius: 50%;
-            box-shadow: 0 0 12px rgba(59, 165, 92, 0.4);
+        .avatar:hover {
+            transform: scale(1.05);
         }
 
         .level-badge {
             position: absolute;
             top: -8px;
             right: -8px;
-            background: linear-gradient(135deg, #7c63ff, #5b47d6);
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
             color: white;
             font-size: 12px;
-            font-weight: 600;
-            padding: 4px 8px;
-            border-radius: 12px;
-            border: 2px solid rgba(15, 15, 35, 0.9);
-            box-shadow: 0 4px 12px rgba(124, 99, 255, 0.3);
+            font-weight: 700;
+            padding: 6px 10px;
+            border-radius: 16px;
+            border: 3px solid rgba(15, 15, 35, 0.9);
+            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4);
         }
 
-        /* Username and Info */
+        .status-dot {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            background: #10b981;
+            border: 4px solid rgba(15, 15, 35, 0.9);
+            border-radius: 50%;
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
         .username {
-            font-size: 32px;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #7c63ff, #ff6b9d, #4ecdc4);
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6, #10b981);
             background-size: 200% 200%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            animation: gradientFlow 6s ease-in-out infinite;
+            animation: gradientShift 4s ease-in-out infinite;
         }
 
-        @keyframes gradientFlow {
+        @keyframes gradientShift {
             0%, 100% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
         }
 
         .user-info {
-            text-align: center;
-            margin-bottom: 24px;
+            color: #a1a1aa;
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
         }
 
-        .user-role {
-            color: #a0a0a0;
-            font-size: 16px;
-            margin-bottom: 12px;
-        }
-
-        .user-details {
-            color: #c8c8c8;
-            font-size: 15px;
-            line-height: 1.6;
-        }
-
-        /* Status Cards */
-        .status-section {
-            margin: 32px 0;
-        }
-
-        .status-card {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .status-card:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(120, 119, 255, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .status-header {
+        .user-tags {
             display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .status-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
             justify-content: center;
-            font-size: 24px;
-            background: linear-gradient(135deg, #7c63ff, #5b47d6);
-            box-shadow: 0 4px 16px rgba(124, 99, 255, 0.2);
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
         }
 
-        .status-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #ffffff;
-        }
-
-        .status-subtitle {
-            font-size: 13px;
-            color: #a0a0a0;
-            margin-top: 2px;
-        }
-
-        .status-description {
-            color: #b8b8b8;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        /* Discord Activity Card */
-        .discord-card {
-            background: linear-gradient(135deg, rgba(88, 101, 242, 0.15), rgba(88, 101, 242, 0.05));
-            border: 1px solid rgba(88, 101, 242, 0.2);
-        }
-
-        .discord-icon {
-            background: linear-gradient(135deg, #5865f2, #4f46e5);
+        .tag {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: #c4b5fd;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
         }
 
         /* Social Links */
-        .social-section {
-            margin-top: 32px;
-        }
-
         .social-links {
             display: flex;
             justify-content: center;
-            gap: 12px;
+            gap: 0.75rem;
+            margin: 1.5rem 0;
             flex-wrap: wrap;
         }
 
@@ -295,14 +249,14 @@ $user_cercato_id = $user['id'];
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 52px;
-            height: 52px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
             color: #ffffff;
             text-decoration: none;
-            font-size: 20px;
+            font-size: 1.25rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
@@ -316,7 +270,7 @@ $user_cercato_id = $user['id'];
             width: 100%;
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.6s ease;
+            transition: left 0.5s ease;
         }
 
         .social-link:hover::before {
@@ -324,73 +278,128 @@ $user_cercato_id = $user['id'];
         }
 
         .social-link:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-4px);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
-            border-color: rgba(120, 119, 255, 0.4);
+            background: rgba(139, 92, 246, 0.2);
+            border-color: rgba(139, 92, 246, 0.4);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
         }
 
-        /* Links Section */
-        .links-section {
-            margin: 24px 0;
+        /* Activity Cards */
+        .activity-section {
+            margin: 2rem 0;
         }
 
+        .activity-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .activity-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.4), transparent);
+        }
+
+        .activity-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(139, 92, 246, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .activity-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .activity-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
+            flex-shrink: 0;
+        }
+
+        .activity-info h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-info p {
+            color: #a1a1aa;
+            font-size: 0.9rem;
+        }
+
+        .activity-details {
+            color: #d1d5db;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* Custom Link */
         .custom-link {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 16px;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
             background: rgba(0, 0, 0, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 12px;
             color: #ffffff;
             text-decoration: none;
-            margin-bottom: 8px;
+            margin-top: 1rem;
             transition: all 0.3s ease;
+            font-size: 0.9rem;
         }
 
         .custom-link:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(120, 119, 255, 0.3);
+            background: rgba(139, 92, 246, 0.15);
+            border-color: rgba(139, 92, 246, 0.3);
             transform: translateX(4px);
             color: #ffffff;
         }
 
-        .link-icon {
-            font-size: 16px;
-            opacity: 0.8;
+        .link-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
-        .link-text {
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        /* Server Info Card */
-        .server-card {
-            background: linear-gradient(135deg, rgba(255, 165, 0, 0.1), rgba(255, 140, 0, 0.05));
-            border: 1px solid rgba(255, 165, 0, 0.2);
-        }
-
-        .server-icon {
-            background: linear-gradient(135deg, #ffa500, #ff8c00);
-        }
-
-        /* Music Player Card */
-        .music-card {
-            background: linear-gradient(135deg, rgba(29, 185, 84, 0.15), rgba(29, 185, 84, 0.05));
-            border: 1px solid rgba(29, 185, 84, 0.2);
-        }
-
-        .music-icon {
-            background: linear-gradient(135deg, #1db954, #1ed760);
+        /* Music Player */
+        .music-player {
+            margin-top: 1rem;
         }
 
         .music-controls {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-top: 12px;
+            gap: 1rem;
+            margin-top: 0.75rem;
+        }
+
+        .progress-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .progress-bar {
@@ -404,41 +413,130 @@ $user_cercato_id = $user['id'];
         .progress-fill {
             width: 35%;
             height: 100%;
-            background: linear-gradient(90deg, #1db954, #1ed760);
+            background: linear-gradient(90deg, #10b981, #059669);
             transition: width 0.3s ease;
+            border-radius: 2px;
         }
 
         .time-display {
-            font-size: 12px;
-            color: #a0a0a0;
+            font-size: 0.8rem;
+            color: #a1a1aa;
             font-weight: 500;
+            min-width: 35px;
+        }
+
+        /* Discord Status Styling - Dynamic Integration */
+        .discord-status {
+            margin-bottom: 1rem;
+        }
+
+        .discord-status .activity-card {
+            background: linear-gradient(135deg, rgba(88, 101, 242, 0.1), rgba(88, 101, 242, 0.05));
+            border-color: rgba(88, 101, 242, 0.2);
+        }
+
+        .discord-status .activity-card .activity-icon {
+            background: linear-gradient(135deg, #5865f2, #4f46e5);
+        }
+
+        /* Dynamic Rich Presence Styling */
+        .rich-presence {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05));
+            border-color: rgba(139, 92, 246, 0.2);
+        }
+
+        .rich-presence .activity-icon {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+
+        .rich-presence img {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Spotify/Music Integration */
+        .spotify-activity {
+            background: linear-gradient(135deg, rgba(29, 185, 84, 0.1), rgba(29, 185, 84, 0.05));
+            border-color: rgba(29, 185, 84, 0.2);
+        }
+
+        .spotify-activity .activity-icon {
+            background: linear-gradient(135deg, #1db954, #1ed760);
+        }
+
+        /* Status indicators for dynamic content */
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .status-online { background: #10b981; }
+        .status-idle { background: #f59e0b; }
+        .status-dnd { background: #ef4444; }
+        .status-offline { background: #6b7280; }
+
+        /* Server specific */
+        .server-card {
+            background: linear-gradient(135deg, rgba(251, 146, 60, 0.1), rgba(251, 146, 60, 0.05));
+            border-color: rgba(251, 146, 60, 0.2);
+        }
+
+        .server-card .activity-icon {
+            background: linear-gradient(135deg, #fb923c, #f97316);
+        }
+
+        /* Music specific */
+        .music-card {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
+            border-color: rgba(34, 197, 94, 0.2);
+        }
+
+        .music-card .activity-icon {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+
             .profile-card {
-                padding: 32px 24px;
-                margin: 16px;
+                padding: 2rem 1.5rem;
             }
 
             .username {
-                font-size: 28px;
+                font-size: 1.75rem;
             }
 
             .social-links {
-                gap: 8px;
+                gap: 0.5rem;
             }
 
             .social-link {
-                width: 48px;
-                height: 48px;
-                font-size: 18px;
+                width: 44px;
+                height: 44px;
+                font-size: 1.1rem;
+            }
+
+            .activity-header {
+                gap: 0.75rem;
+            }
+
+            .activity-icon {
+                width: 44px;
+                height: 44px;
+                font-size: 1.25rem;
             }
         }
 
         @media (max-width: 480px) {
             .profile-card {
-                padding: 24px 16px;
+                padding: 1.5rem 1rem;
+                margin: 1rem;
             }
 
             .avatar-container {
@@ -447,24 +545,41 @@ $user_cercato_id = $user['id'];
             }
 
             .username {
-                font-size: 24px;
+                font-size: 1.5rem;
+            }
+
+            .user-tags {
+                gap: 0.5rem;
+            }
+
+            .tag {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.75rem;
             }
         }
 
-        /* Smooth Entrance Animation */
-        .profile-card {
-            animation: slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
+        /* Animation */
         @keyframes slideUp {
             from {
                 opacity: 0;
-                transform: translateY(40px);
+                transform: translateY(30px) scale(0.95);
             }
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateY(0) scale(1);
             }
+        }
+
+        /* Loading animation for dynamic content */
+        .loading {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 25%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.1) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
     </style>
 </head>
@@ -473,129 +588,102 @@ $user_cercato_id = $user['id'];
 
     <!-- Animated Background -->
     <div class="background-container"></div>
-    <div class="stars" id="stars"></div>
+    <div class="floating-shapes">
+        <div class="shape" style="width: 100px; height: 100px; background: linear-gradient(45deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1)); border-radius: 50%;"></div>
+        <div class="shape" style="width: 150px; height: 150px; background: linear-gradient(45deg, rgba(16, 185, 129, 0.1), rgba(139, 92, 246, 0.1)); border-radius: 30%;"></div>
+        <div class="shape" style="width: 80px; height: 80px; background: linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1)); border-radius: 20%;"></div>
+        <div class="shape" style="width: 120px; height: 120px; background: linear-gradient(45deg, rgba(251, 146, 60, 0.1), rgba(139, 92, 246, 0.1)); border-radius: 40%;"></div>
+    </div>
 
     <div class="main-container">
         <div class="profile-card">
-            <!-- Avatar Section -->
-            <div class="avatar-section">
+            <!-- Profile Header -->
+            <div class="profile-header">
                 <div class="avatar-container">
                     <img src="includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>" alt="Profile Picture" class="avatar">
-                    <div class="status-dot"></div>
                     <div class="level-badge">170</div>
+                    <div class="status-dot"></div>
                 </div>
                 <h1 class="username"><?php echo htmlspecialchars($user['username']); ?></h1>
-                <div class="user-info">
-                    <div class="user-role">🇮🇹 19</div>
-                    <div class="user-details">
-                        ♦ video editor<br>
-                        ♦ developer
-                    </div>
-                </div>
-            </div>
-
-            <!-- Status Section -->
-            <div class="status-section">
-                <!-- Discord Status -->
-                <div class="status-card discord-card">
-                    <div class="status-header">
-                        <div class="status-icon discord-icon">💬</div>
-                        <div>
-                            <div class="status-title">@cripsum</div>
-                            <div class="status-subtitle">playing a ♥</div>
-                        </div>
-                    </div>
-                    <div class="custom-link">
-                        <span class="link-icon">🔗</span>
-                        <span class="link-text">My website</span>
-                    </div>
+                <div class="user-info">🇮🇹 19</div>
+                <div class="user-tags">
+                    <span class="tag">♦ video editor</span>
+                    <span class="tag">♦ developer</span>
                 </div>
 
-                <!-- Current Activity -->
-                <div class="status-card">
-                    <div class="status-header">
-                        <div class="status-icon">🎨</div>
-                        <div>
-                            <div class="status-title">After Effects</div>
-                            <div class="status-subtitle">Untitled Project.aep</div>
-                        </div>
-                    </div>
-                    <div class="status-description">Composizione 1 (0)</div>
-                </div>
-
-                <!-- Server Status -->
-                <div class="status-card server-card">
-                    <div class="status-header">
-                        <div class="status-icon server-icon">🏠</div>
-                        <div>
-                            <div class="status-title">cripsum's tavern</div>
-                            <div class="status-subtitle">🟢 Online • 77 Members</div>
-                        </div>
-                    </div>
-                    <a href="#" class="custom-link">
-                        <span class="link-icon">🚪</span>
-                        <span class="link-text">Join Server</span>
-                    </a>
-                </div>
-
-                <!-- Music Player -->
-                <div class="status-card music-card">
-                    <div class="status-header">
-                        <div class="status-icon music-icon">🎵</div>
-                        <div>
-                            <div class="status-title">godo</div>
-                            <div class="status-subtitle">Now Playing</div>
-                        </div>
-                    </div>
-                    <div class="music-controls">
-                        <span class="time-display">01:18</span>
-                        <div class="progress-bar">
-                            <div class="progress-fill"></div>
-                        </div>
-                        <span class="time-display">04:18</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Discord Integration -->
-            <div class="discord-status" id="discordStatus">
-                <?php include 'includes/discord_status.php?discordId=963536045180350474'; ?>
-            </div>
-
-            <!-- Social Links -->
-            <div class="social-section">
+                <!-- Social Links -->
                 <div class="social-links">
-                    <a href="#" class="social-link" title="Website">🌐</a>
-                    <a href="https://tiktok.cripsum.com" target="_blank" class="social-link" title="TikTok">🎵</a>
+                    <a href="https://cripsum.com" target="_blank" class="social-link" title="Website">🌐</a>
+                    <a href="https://tiktok.cripsum.com" target="_blank" class="social-link" title="TikTok">📱</a>
                     <a href="#" class="social-link" title="YouTube">📺</a>
                     <a href="https://discord.cripsum.com" target="_blank" class="social-link" title="Discord">💬</a>
                     <a href="#" class="social-link" title="Instagram">📷</a>
                     <a href="#" class="social-link" title="Spotify">🎶</a>
                     <a href="#" class="social-link" title="GitHub">⚡</a>
-                    <a href="https://t.me/sburragrigliata" target="_blank" class="social-link" title="Telegram">📱</a>
+                    <a href="https://t.me/sburragrigliata" target="_blank" class="social-link" title="Telegram">📲</a>
+                </div>
+            </div>
+
+            <!-- Activity Section - Dynamic Content -->
+            <div class="activity-section">
+                <!-- Discord Integration (dynamic content) -->
+                <div id="discordStatus" class="discord-status">
+                    <?php include 'includes/discord_status.php?discordId=963536045180350474'; ?>
+                </div>
+
+                <!-- Custom Link Card -->
+                <div class="activity-card">
+                    <div class="activity-header">
+                        <div class="activity-icon">🔗</div>
+                        <div class="activity-info">
+                            <h3>My website</h3>
+                            <p>https://cripsum.com</p>
+                        </div>
+                    </div>
+                    <a href="https://cripsum.com" target="_blank" class="custom-link">
+                        <div class="link-content">
+                            <span>🌐</span>
+                            <span>Visit Website</span>
+                        </div>
+                        <span>→</span>
+                    </a>
+                </div>
+
+                <!-- Server Status -->
+                <div class="activity-card server-card">
+                    <div class="activity-header">
+                        <div class="activity-icon">🏠</div>
+                        <div class="activity-info">
+                            <h3>cripsum's tavern</h3>
+                            <p>🟢 Online • 77 Members</p>
+                        </div>
+                    </div>
+                    <a href="https://discord.cripsum.com" target="_blank" class="custom-link">
+                        <div class="link-content">
+                            <span>🚪</span>
+                            <span>Join Server</span>
+                        </div>
+                        <span>→</span>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Create animated stars
-        function createStars() {
-            const starsContainer = document.getElementById('stars');
-            const numberOfStars = 80;
+        // Initialize dynamic content and Discord integration
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeAnimations();
+            updateDiscordStatus();
+            
+            // Update Discord status every 30 seconds
+            setInterval(updateDiscordStatus, 30000);
+            
+            // Add interactive effects
+            addInteractiveEffects();
+        });
 
-            for (let i = 0; i < numberOfStars; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.animationDelay = Math.random() * 4 + 's';
-                star.style.animationDuration = (Math.random() * 3 + 2) + 's';
-                starsContainer.appendChild(star);
-            }
-        }
-
-        // Discord status update
+        // Discord status update function (your existing integration)
         function updateDiscordStatus() {
             fetch('includes/discord_status.php?discordId=963536045180350474')
                 .then(r => r.text())
@@ -603,44 +691,95 @@ $user_cercato_id = $user['id'];
                     const discordStatus = document.getElementById('discordStatus');
                     if (discordStatus) {
                         discordStatus.innerHTML = html;
+                        
+                        // Apply styling to dynamically loaded content
+                        styleDiscordContent(discordStatus);
                     }
                 })
                 .catch(err => console.error('Error updating Discord status:', err));
         }
 
-        // Animate progress bar
-        function animateProgressBar() {
-            const progressFill = document.querySelector('.progress-fill');
-            if (progressFill) {
-                let width = 35;
-                const interval = setInterval(() => {
-                    width = (width + 0.5) % 100;
-                    progressFill.style.width = width + '%';
-                }, 500);
-            }
+        // Apply modern styling to Discord status content
+        function styleDiscordContent(container) {
+            // Style any Discord activity cards that are dynamically loaded
+            const activityCards = container.querySelectorAll('.activity-card, [class*="discord"], [class*="rich-presence"]');
+            activityCards.forEach(card => {
+                if (!card.classList.contains('styled')) {
+                    card.classList.add('styled');
+                    
+                    // Add hover effects
+                    card.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateY(-4px)';
+                        this.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                    });
+                    
+                    card.addEventListener('mouseleave', function() {
+                        this.style.transform = 'translateY(0)';
+                    });
+                }
+            });
+
+            // Style any status indicators
+            const statusElements = container.querySelectorAll('[class*="status"]');
+            statusElements.forEach(element => {
+                if (element.textContent.includes('Online')) {
+                    element.innerHTML = element.innerHTML.replace('Online', '<span class="status-indicator status-online"></span>Online');
+                } else if (element.textContent.includes('Idle')) {
+                    element.innerHTML = element.innerHTML.replace('Idle', '<span class="status-indicator status-idle"></span>Idle');
+                } else if (element.textContent.includes('Do Not Disturb')) {
+                    element.innerHTML = element.innerHTML.replace('Do Not Disturb', '<span class="status-indicator status-dnd"></span>Do Not Disturb');
+                }
+            });
         }
 
-        // Initialize everything
-        document.addEventListener('DOMContentLoaded', function() {
-            createStars();
-            updateDiscordStatus();
-            animateProgressBar();
-            
-            // Update Discord status every 30 seconds
-            setInterval(updateDiscordStatus, 30000);
-            
+        function addInteractiveEffects() {
             // Add hover effects to cards
-            const cards = document.querySelectorAll('.status-card');
+            const cards = document.querySelectorAll('.activity-card');
             cards.forEach(card => {
                 card.addEventListener('mouseenter', function() {
                     this.style.transform = 'translateY(-4px)';
                 });
                 
                 card.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(-2px)';
+                    this.style.transform = 'translateY(0)';
                 });
             });
-        });
+
+            // Add click effects to social links
+            const socialLinks = document.querySelectorAll('.social-link');
+            socialLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Add ripple effect
+                    const ripple = document.createElement('div');
+                    ripple.style.position = 'absolute';
+                    ripple.style.borderRadius = '50%';
+                    ripple.style.background = 'rgba(255, 255, 255, 0.3)';
+                    ripple.style.transform = 'scale(0)';
+                    ripple.style.animation = 'ripple 0.6s linear';
+                    ripple.style.width = ripple.style.height = '20px';
+                    ripple.style.left = ripple.style.top = '50%';
+                    ripple.style.marginLeft = ripple.style.marginTop = '-10px';
+                    this.style.position = 'relative';
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        }
+
+        // CSS for ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(2);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 
     <script
