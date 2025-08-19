@@ -884,7 +884,7 @@ $user_cercato_id = $user['id'];
             const socialLinks = document.querySelectorAll('.social-link');
             socialLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
-                    // Add ripple effect
+                    
                     const ripple = document.createElement('div');
                     ripple.style.position = 'absolute';
                     ripple.style.borderRadius = '50%';
