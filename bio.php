@@ -904,7 +904,6 @@ $user_cercato_id = $user['id'];
             });
         }
 
-        // CSS for ripple animation
         const style = document.createElement('style');
         style.textContent = `
             @keyframes ripple {
