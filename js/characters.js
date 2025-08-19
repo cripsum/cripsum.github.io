@@ -8,9 +8,9 @@ window.rarities = [
     { name: "BARANDEEP", rarity: "raro", img: "img/barandeep.jpg", audio: "audio/punjabimc.mp3", category: "5CINF" },
     { name: "JAY", rarity: "raro", img: "img/jayquadrato.png", audio: "audio/ninjagosigla.mp3", category: "meme" },
     { name: "RAY (trader)", rarity: "epico", img: "img/ray.jpg", audio: "audio/maozedong.mp3", category: "5CINF" },
-    { name: "PICCOLO TOP 1", rarity: "epico", img: "img/photo_2023-11-14_17-21-10.jpg", audio: "audio/mikumiku.mp3", category: "discordArc" },
-    { name: "MYCHY", rarity: "leggendario", img: "img/mychy.jpg", audio: "audio/mychy.mp3", category: "discordArc" },
-    { name: "FNL PAPERA", rarity: "raro", img: "img/papera.jpg", audio: "audio/phonksburro2.mp3", category: "discordArc" },
+    { name: "PICCOLO TOP 1", rarity: "leggendario", img: "img/photo_2023-11-14_17-21-10.jpg", audio: "audio/mikumiku.mp3", category: "discordArc" },
+    { name: "MYCHY", rarity: "raro", img: "img/mychy.jpg", audio: "audio/mychy.mp3", category: "discordArc" },
+    { name: "FNL PAPERA", rarity: "epico", img: "img/papera.jpg", audio: "audio/phonksburro2.mp3", category: "discordArc" },
     { name: "WRYCHARLES", rarity: "epico", img: "img/wrycharles1.png", audio: "audio/wry.mp3", category: "meme" },
     { name: "GOKU PELAO", rarity: "comune", img: "img/gokupelao.jpg", audio: "audio/powler.mp3", category: "meme" },
     { name: "NINO", rarity: "comune", img: "img/slott9.jpg", audio: "audio/ninoballetto.mp3", category: "meme" },
@@ -36,12 +36,14 @@ window.rarities = [
     { name: "DETECTIVE CICCIO", rarity: "leggendario", img: "img/detectiveciccio.jpg", audio: "audio/detective-ciccio.mp3", category: "meme" },
     { name: "CICCIOGAMER89", rarity: "comune", img: "img/cicciogamer.jpg", audio: "audio/ciccio-merde.mp3", category: "meme" },
     { name: "GASTA", rarity: "mitico", img: "img/gasta.png", audio: "audio/gasta.mp3", category: "5CINF" },
-    { name: "FAKESTARS90", rarity: "raro", img: "img/djstucassum.jpg", audio: "audio/machiecherompeilcazzo.mp3", category: "discordArc" },
+    { name: "FAKESTARS90", rarity: "epico", img: "img/djstucassum.jpg", audio: "audio/machiecherompeilcazzo.mp3", category: "discordArc" },
     { name: "RISORSE UMANE", rarity: "leggendario", img: "img/risorse-umane.png", audio: "audio/Elevator Music.mp3", category: "meme" },
     { name: "GINNASTICA", rarity: "speciale", img: "img/ginnastica.png", audio: "audio/audioduro1.mp3", category: "meme" },
     { name: "CHANEL", rarity: "comune", img: "img/chanel.jpg", audio: "audio/Elevator Music.mp3", category: "discordArc" },
     { name: "DANIEL", rarity: "epico", img: "img/daniel.jpg", audio: "audio/rapfrociogay.mp3", category: "5CINF" },
-    { name: "Cossu", rarity: "speciale", img: "img/cossupisnelo.gif", audio: "audio/cossusong.mp3", category: "OG" }
+    { name: "COSSU", rarity: "speciale", img: "img/cossupisnelo.gif", audio: "audio/cossusong.mp3", category: "OG" },
+    { name: "SALE MEDIO", rarity: "raro", img: "img/sale.jpg", audio: "audio/toki.mp3", category: "discordArc" },
+    { name: "TOKI", rarity: "epico", img: "img/toki.jpg", audio: "audio/salemedioaudio.mp3", category: "discordArc" }
 ];
 // { name: "", rarity: "", img: "img/.jpg", audio: "audio/.mp3", category: "" },
 
