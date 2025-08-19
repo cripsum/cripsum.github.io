@@ -805,6 +805,8 @@ require_once '../api/api_personaggi.php';
                     align-items: center;
                     justify-content: center;
                     overflow: hidden;
+                    opacity: 0;
+                    transition: opacity 0.8s ease-in-out;
                 `;
 
                 const purpleContainer = document.createElement('div');
@@ -815,6 +817,9 @@ require_once '../api/api_personaggi.php';
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    opacity: 0;
+                    transform: scale(0.8);
+                    transition: opacity 1s ease-out 0.3s, transform 1s ease-out 0.3s;
                 `;
 
                 const purpleCircle = document.createElement('div');
@@ -823,9 +828,13 @@ require_once '../api/api_personaggi.php';
                     height: 300px;
                     border-radius: 50%;
                     background: radial-gradient(circle, rgba(147, 0, 211, 1) 0%, rgba(75, 0, 130, 0.9) 30%, rgba(138, 43, 226, 0.7) 60%, transparent 100%);
-                    animation: epicPulse 1.5s ease-in-out infinite, rotate360 4s linear infinite;
+                    animation: epicPulse 2s ease-in-out infinite;
                     box-shadow: 0 0 50px rgba(147, 0, 211, 0.8), 0 0 100px rgba(75, 0, 130, 0.6), inset 0 0 30px rgba(138, 43, 226, 0.4);
                     filter: brightness(1.2) saturate(1.3);
+                    opacity: 0;
+                    transform: scale(0.5);
+                    animation-delay: 0.8s;
+                    transition: opacity 0.8s ease-out 0.8s, transform 0.8s ease-out 0.8s;
                 `;
 
                 for (let ring = 0; ring < 3; ring++) {
@@ -836,10 +845,12 @@ require_once '../api/api_personaggi.php';
                         height: ${250 + ring * 80}px;
                         border-radius: 50%;
                         border: 2px solid rgba(147, 0, 211, ${0.6 - ring * 0.2});
-                        animation: expandingRing 2s ease-out infinite ${ring * 0.3}s;
+                        animation: expandingRing 3s ease-out infinite ${ring * 0.5}s;
                         left: 50%;
                         top: 50%;
                         transform: translate(-50%, -50%);
+                        opacity: 0;
+                        transition: opacity 0.6s ease-out ${1.2 + ring * 0.2}s;
                     `;
                     purpleContainer.appendChild(energyRing);
                 }
@@ -852,13 +863,15 @@ require_once '../api/api_personaggi.php';
                         height: ${120 + Math.random() * 80}px;
                         background: linear-gradient(to bottom, #ff00ff, #9932cc, #4b0082, transparent);
                         transform-origin: bottom center;
-                        animation: enhancedLightning 0.3s ease-in-out ${i * 0.1}s infinite;
+                        animation: enhancedLightning 0.5s ease-in-out ${1.5 + i * 0.15}s infinite;
                         transform: rotate(${i * 30}deg);
                         left: 50%;
                         top: 50%;
                         transform-origin: 50% 100%;
                         box-shadow: 0 0 10px rgba(147, 0, 211, 0.8);
                         filter: brightness(1.5);
+                        opacity: 0;
+                        transition: opacity 0.4s ease-out ${1.5 + i * 0.05}s;
                     `;
                     purpleContainer.appendChild(lightning);
                 }
@@ -871,10 +884,12 @@ require_once '../api/api_personaggi.php';
                         height: ${4 + Math.random() * 6}px;
                         border-radius: 50%;
                         background: radial-gradient(circle, #ff00ff, #9932cc);
-                        animation: floatingParticles 3s ease-in-out infinite ${Math.random() * 2}s;
+                        animation: floatingParticles 4s ease-in-out infinite ${Math.random() * 2 + 1}s;
                         left: ${30 + Math.random() * 40}%;
                         top: ${30 + Math.random() * 40}%;
                         box-shadow: 0 0 8px rgba(147, 0, 211, 0.9);
+                        opacity: 0;
+                        transition: opacity 0.6s ease-out ${1.8 + Math.random() * 0.8}s;
                     `;
                     purpleContainer.appendChild(particle);
                 }
@@ -888,32 +903,32 @@ require_once '../api/api_personaggi.php';
                             filter: brightness(1.2) saturate(1.3) hue-rotate(0deg);
                         }
                         25% { 
-                            transform: scale(1.3) rotate(90deg); 
+                            transform: scale(1.2) rotate(90deg); 
                             opacity: 1; 
-                            filter: brightness(1.5) saturate(1.6) hue-rotate(15deg);
+                            filter: brightness(1.4) saturate(1.5) hue-rotate(10deg);
                         }
                         50% { 
-                            transform: scale(1.1) rotate(180deg); 
-                            opacity: 0.8; 
-                            filter: brightness(1.8) saturate(2) hue-rotate(30deg);
+                            transform: scale(1.05) rotate(180deg); 
+                            opacity: 0.85; 
+                            filter: brightness(1.6) saturate(1.8) hue-rotate(20deg);
                         }
                         75% { 
-                            transform: scale(1.4) rotate(270deg); 
+                            transform: scale(1.25) rotate(270deg); 
                             opacity: 1; 
-                            filter: brightness(1.3) saturate(1.4) hue-rotate(15deg);
+                            filter: brightness(1.3) saturate(1.4) hue-rotate(10deg);
                         }
-                    }
-                    @keyframes rotate360 {
-                        from { transform: rotate(0deg); }
-                        to { transform: rotate(360deg); }
                     }
                     @keyframes expandingRing {
                         0% { 
-                            transform: translate(-50%, -50%) scale(0.8); 
-                            opacity: 1; 
+                            transform: translate(-50%, -50%) scale(0.6); 
+                            opacity: 0.8; 
+                        }
+                        50% { 
+                            transform: translate(-50%, -50%) scale(1.5); 
+                            opacity: 0.4; 
                         }
                         100% { 
-                            transform: translate(-50%, -50%) scale(2.5); 
+                            transform: translate(-50%, -50%) scale(2.2); 
                             opacity: 0; 
                         }
                     }
@@ -923,29 +938,38 @@ require_once '../api/api_personaggi.php';
                             transform: rotate(var(--rotation, 0deg)) scaleY(0) translateX(-50%); 
                             filter: brightness(1);
                         }
-                        50% { 
+                        30% { 
+                            opacity: 0.7; 
+                            transform: rotate(var(--rotation, 0deg)) scaleY(0.8) translateX(-50%); 
+                            filter: brightness(1.5) saturate(1.5);
+                        }
+                        60% { 
                             opacity: 1; 
-                            transform: rotate(var(--rotation, 0deg)) scaleY(1.2) translateX(-50%); 
+                            transform: rotate(var(--rotation, 0deg)) scaleY(1) translateX(-50%); 
                             filter: brightness(2) saturate(2);
                         }
                         100% { 
                             opacity: 0; 
-                            transform: rotate(var(--rotation, 0deg)) scaleY(0.8) translateX(-50%); 
-                            filter: brightness(0.5);
+                            transform: rotate(var(--rotation, 0deg)) scaleY(0.6) translateX(-50%); 
+                            filter: brightness(0.8);
                         }
                     }
                     @keyframes floatingParticles {
                         0%, 100% { 
                             transform: translateY(0px) scale(1); 
-                            opacity: 0.8; 
+                            opacity: 0.6; 
                         }
-                        33% { 
-                            transform: translateY(-20px) scale(1.2); 
+                        25% { 
+                            transform: translateY(-15px) scale(1.1); 
+                            opacity: 0.9; 
+                        }
+                        50% { 
+                            transform: translateY(-25px) scale(1.2); 
                             opacity: 1; 
                         }
-                        66% { 
-                            transform: translateY(10px) scale(0.8); 
-                            opacity: 0.6; 
+                        75% { 
+                            transform: translateY(-10px) scale(0.9); 
+                            opacity: 0.7; 
                         }
                     }
                 `;
@@ -959,28 +983,20 @@ require_once '../api/api_personaggi.php';
                     font-weight: bold;
                     text-shadow: 0 0 20px #9932cc, 0 0 40px #4b0082;
                     opacity: 0;
-                    animation: textReveal 1s ease-in-out 1.5s forwards;
+                    transform: scale(0.3);
+                    transition: opacity 1s ease-out 2s, transform 1s ease-out 2s;
                 `;
                 mysteriousText.textContent = '???';
 
                 const style = document.createElement('style');
                 style.textContent = `
-                    @keyframes purplePulse {
-                        0%, 100% { transform: scale(1); opacity: 0.8; }
-                        50% { transform: scale(1.5); opacity: 1; }
-                    }
-                    @keyframes lightning {
-                        0% { opacity: 0; transform: scaleY(0); }
-                        50% { opacity: 1; transform: scaleY(1); }
-                        100% { opacity: 0; transform: scaleY(0); }
-                    }
                     @keyframes textReveal {
                         0% { opacity: 0; transform: scale(0.5); }
                         50% { opacity: 1; transform: scale(1.2); }
                         100% { opacity: 1; transform: scale(1); }
                     }
                     @keyframes fadeOut {
-                        to { opacity: 0; }
+                        to { opacity: 0; transform: scale(0.9); }
                     }
                 `;
 
@@ -991,12 +1007,51 @@ require_once '../api/api_personaggi.php';
                 document.body.appendChild(introOverlay);
 
                 setTimeout(() => {
-                    introOverlay.style.animation = 'fadeOut 1s ease-out forwards';
+                    introOverlay.style.opacity = '1';
+                    purpleContainer.style.opacity = '1';
+                    purpleContainer.style.transform = 'scale(1)';
+                    
+                    setTimeout(() => {
+                        purpleCircle.style.opacity = '1';
+                        purpleCircle.style.transform = 'scale(1)';
+                    }, 300);
+
+                    const rings = purpleContainer.querySelectorAll('div[style*="border:"]');
+                    rings.forEach((ring, index) => {
+                        setTimeout(() => {
+                            ring.style.opacity = '1';
+                        }, 800 + index * 200);
+                    });
+                    
+                    const lightnings = purpleContainer.querySelectorAll('div[style*="linear-gradient(to bottom"]');
+                    lightnings.forEach((lightning, index) => {
+                        setTimeout(() => {
+                            lightning.style.opacity = '1';
+                        }, 1200 + index * 50);
+                    });
+                    
+                    const particles = purpleContainer.querySelectorAll('div[style*="radial-gradient(circle, #ff00ff"]');
+                    particles.forEach((particle, index) => {
+                        setTimeout(() => {
+                            particle.style.opacity = '1';
+                        }, 1500 + Math.random() * 500);
+                    });
+                    
+                    setTimeout(() => {
+                        mysteriousText.style.opacity = '1';
+                        mysteriousText.style.transform = 'scale(1)';
+                    }, 2000);
+                    
+                }, 100);
+
+                setTimeout(() => {
+                    introOverlay.style.animation = 'fadeOut 1.2s ease-out forwards';
                     setTimeout(() => {
                         document.body.removeChild(introOverlay);
                         document.head.removeChild(style);
-                    }, 1000);
-                }, 3000);
+                        document.head.removeChild(enhancedStyle);
+                    }, 1200);
+                }, 4000);
             }
 
         </script>
