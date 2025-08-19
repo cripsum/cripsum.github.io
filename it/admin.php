@@ -466,7 +466,7 @@ $achievements_result = $mysqli->query($achievements_query);
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Immagine URL</label>
-                                <input type="url" class="form-control" name="immagine">
+                                <input type="text" class="form-control" name="immagine">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Rarità</label>
