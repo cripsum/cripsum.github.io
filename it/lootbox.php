@@ -561,7 +561,7 @@ require_once '../api/api_personaggi.php';
                         bagliore.style.animation = "rainbowBackground 6s linear infinite";
                     } else if (rarita === "segreto") {
 
-                        startIntroAnimation();
+                        startIntroAnimation(pull.nome);
                         messaggioRarita.innerText = "COSA?.. HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
                         bagliore.style.position = "fixed";
                         bagliore.style.width = "100vw";
@@ -790,7 +790,7 @@ require_once '../api/api_personaggi.php';
                 }
             }
 
-            function startIntroAnimation() {
+            function startIntroAnimation(nome_personaggio) {
 
                 const introOverlay = document.createElement('div');
                 introOverlay.style.cssText = `
@@ -819,26 +819,137 @@ require_once '../api/api_personaggi.php';
 
                 const purpleCircle = document.createElement('div');
                 purpleCircle.style.cssText = `
-                    width: 200px;
-                    height: 200px;
+                    width: 300px;
+                    height: 300px;
                     border-radius: 50%;
-                    background: radial-gradient(circle, rgba(147, 0, 211, 1) 0%, rgba(75, 0, 130, 0.8) 50%, transparent 100%);
-                    animation: purplePulse 2s ease-in-out infinite;
+                    background: radial-gradient(circle, rgba(147, 0, 211, 1) 0%, rgba(75, 0, 130, 0.9) 30%, rgba(138, 43, 226, 0.7) 60%, transparent 100%);
+                    animation: epicPulse 1.5s ease-in-out infinite, rotate360 4s linear infinite;
+                    box-shadow: 0 0 50px rgba(147, 0, 211, 0.8), 0 0 100px rgba(75, 0, 130, 0.6), inset 0 0 30px rgba(138, 43, 226, 0.4);
+                    filter: brightness(1.2) saturate(1.3);
                 `;
 
-                for (let i = 0; i < 8; i++) {
+                for (let ring = 0; ring < 3; ring++) {
+                    const energyRing = document.createElement('div');
+                    energyRing.style.cssText = `
+                        position: absolute;
+                        width: ${250 + ring * 80}px;
+                        height: ${250 + ring * 80}px;
+                        border-radius: 50%;
+                        border: 2px solid rgba(147, 0, 211, ${0.6 - ring * 0.2});
+                        animation: expandingRing 2s ease-out infinite ${ring * 0.3}s;
+                        left: 50%;
+                        top: 50%;
+                        transform: translate(-50%, -50%);
+                    `;
+                    purpleContainer.appendChild(energyRing);
+                }
+
+                for (let i = 0; i < 12; i++) {
                     const lightning = document.createElement('div');
                     lightning.style.cssText = `
                         position: absolute;
-                        width: 3px;
-                        height: 100px;
-                        background: linear-gradient(to bottom, #9932cc, #4b0082, transparent);
-                        transform-origin: bottom;
-                        animation: lightning 0.5s ease-in-out ${i * 0.2}s;
-                        transform: rotate(${i * 45}deg);
+                        width: 4px;
+                        height: ${120 + Math.random() * 80}px;
+                        background: linear-gradient(to bottom, #ff00ff, #9932cc, #4b0082, transparent);
+                        transform-origin: bottom center;
+                        animation: enhancedLightning 0.3s ease-in-out ${i * 0.1}s infinite;
+                        transform: rotate(${i * 30}deg);
+                        left: 50%;
+                        top: 50%;
+                        transform-origin: 50% 100%;
+                        box-shadow: 0 0 10px rgba(147, 0, 211, 0.8);
+                        filter: brightness(1.5);
                     `;
                     purpleContainer.appendChild(lightning);
                 }
+
+                for (let p = 0; p < 15; p++) {
+                    const particle = document.createElement('div');
+                    particle.style.cssText = `
+                        position: absolute;
+                        width: ${4 + Math.random() * 6}px;
+                        height: ${4 + Math.random() * 6}px;
+                        border-radius: 50%;
+                        background: radial-gradient(circle, #ff00ff, #9932cc);
+                        animation: floatingParticles 3s ease-in-out infinite ${Math.random() * 2}s;
+                        left: ${30 + Math.random() * 40}%;
+                        top: ${30 + Math.random() * 40}%;
+                        box-shadow: 0 0 8px rgba(147, 0, 211, 0.9);
+                    `;
+                    purpleContainer.appendChild(particle);
+                }
+
+                const enhancedStyle = document.createElement('style');
+                enhancedStyle.textContent = `
+                    @keyframes epicPulse {
+                        0%, 100% { 
+                            transform: scale(1) rotate(0deg); 
+                            opacity: 0.9; 
+                            filter: brightness(1.2) saturate(1.3) hue-rotate(0deg);
+                        }
+                        25% { 
+                            transform: scale(1.3) rotate(90deg); 
+                            opacity: 1; 
+                            filter: brightness(1.5) saturate(1.6) hue-rotate(15deg);
+                        }
+                        50% { 
+                            transform: scale(1.1) rotate(180deg); 
+                            opacity: 0.8; 
+                            filter: brightness(1.8) saturate(2) hue-rotate(30deg);
+                        }
+                        75% { 
+                            transform: scale(1.4) rotate(270deg); 
+                            opacity: 1; 
+                            filter: brightness(1.3) saturate(1.4) hue-rotate(15deg);
+                        }
+                    }
+                    @keyframes rotate360 {
+                        from { transform: rotate(0deg); }
+                        to { transform: rotate(360deg); }
+                    }
+                    @keyframes expandingRing {
+                        0% { 
+                            transform: translate(-50%, -50%) scale(0.8); 
+                            opacity: 1; 
+                        }
+                        100% { 
+                            transform: translate(-50%, -50%) scale(2.5); 
+                            opacity: 0; 
+                        }
+                    }
+                    @keyframes enhancedLightning {
+                        0% { 
+                            opacity: 0; 
+                            transform: rotate(var(--rotation, 0deg)) scaleY(0) translateX(-50%); 
+                            filter: brightness(1);
+                        }
+                        50% { 
+                            opacity: 1; 
+                            transform: rotate(var(--rotation, 0deg)) scaleY(1.2) translateX(-50%); 
+                            filter: brightness(2) saturate(2);
+                        }
+                        100% { 
+                            opacity: 0; 
+                            transform: rotate(var(--rotation, 0deg)) scaleY(0.8) translateX(-50%); 
+                            filter: brightness(0.5);
+                        }
+                    }
+                    @keyframes floatingParticles {
+                        0%, 100% { 
+                            transform: translateY(0px) scale(1); 
+                            opacity: 0.8; 
+                        }
+                        33% { 
+                            transform: translateY(-20px) scale(1.2); 
+                            opacity: 1; 
+                        }
+                        66% { 
+                            transform: translateY(10px) scale(0.8); 
+                            opacity: 0.6; 
+                        }
+                    }
+                `;
+                document.head.appendChild(enhancedStyle);
 
                 const mysteriousText = document.createElement('div');
                 mysteriousText.style.cssText = `
@@ -850,7 +961,7 @@ require_once '../api/api_personaggi.php';
                     opacity: 0;
                     animation: textReveal 1s ease-in-out 1.5s forwards;
                 `;
-                mysteriousText.textContent = 'SEGRETO';
+                mysteriousText.textContent = '???';
 
                 const style = document.createElement('style');
                 style.textContent = `
