@@ -40,7 +40,8 @@ window.rarities = [
     { name: "RISORSE UMANE", rarity: "leggendario", img: "img/risorse-umane.png", audio: "audio/Elevator Music.mp3", category: "meme" },
     { name: "GINNASTICA", rarity: "speciale", img: "img/ginnastica.png", audio: "audio/audioduro1.mp3", category: "meme" },
     { name: "CHANEL", rarity: "comune", img: "img/chanel.jpg", audio: "audio/Elevator Music.mp3", category: "discordArc" },
-    { name: "DANIEL", rarity: "epico", img: "img/daniel.jpg", audio: "audio/rapfrociogay.mp3", category: "5CINF" }
+    { name: "DANIEL", rarity: "epico", img: "img/daniel.jpg", audio: "audio/rapfrociogay.mp3", category: "5CINF" },
+    { name: "Cossu", rarity: "speciale", img: "img/cossupisnelo.gif", audio: "audio/cossusong.mp3", category: "OG" }
 ];
 // { name: "", rarity: "", img: "img/.jpg", audio: "audio/.mp3", category: "" },
 
