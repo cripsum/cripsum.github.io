@@ -425,58 +425,181 @@ $user_cercato_id = $user['id'];
             min-width: 35px;
         }
 
-        /* Discord Status Styling - Dynamic Integration */
+        /* Discord Status Styling - Override discord_status.php styles */
         .discord-status {
             margin-bottom: 1rem;
         }
 
-        .discord-status .activity-card {
-            background: linear-gradient(135deg, rgba(88, 101, 242, 0.1), rgba(88, 101, 242, 0.05));
-            border-color: rgba(88, 101, 242, 0.2);
+        /* Override the discord-card styling from discord_status.php */
+        .discord-status .discord-card {
+            background: rgba(0, 0, 0, 0.3) !important;
+            border: 1px solid rgba(88, 101, 242, 0.2) !important;
+            border-radius: 20px !important;
+            padding: 1.5rem !important;
+            margin: 0 !important;
+            max-width: 100% !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            position: relative !important;
+            overflow: hidden !important;
+            backdrop-filter: blur(10px) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
         }
 
-        .discord-status .activity-card .activity-icon {
-            background: linear-gradient(135deg, #5865f2, #4f46e5);
+        .discord-status .discord-card::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            height: 1px !important;
+            background: linear-gradient(90deg, transparent, rgba(88, 101, 242, 0.6), transparent) !important;
         }
 
-        /* Dynamic Rich Presence Styling */
-        .rich-presence {
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05));
-            border-color: rgba(139, 92, 246, 0.2);
+        .discord-status .discord-card:hover {
+            background: rgba(88, 101, 242, 0.08) !important;
+            border-color: rgba(88, 101, 242, 0.4) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2) !important;
         }
 
-        .rich-presence .activity-icon {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        /* Style the Discord profile section like an activity header */
+        .discord-status .discord-profile {
+            display: flex !important;
+            align-items: center !important;
+            gap: 1rem !important;
+            margin-bottom: 1rem !important;
         }
 
-        .rich-presence img {
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        .discord-status .profile-avatar {
+            position: relative !important;
+            flex-shrink: 0 !important;
         }
 
-        /* Spotify/Music Integration */
-        .spotify-activity {
-            background: linear-gradient(135deg, rgba(29, 185, 84, 0.1), rgba(29, 185, 84, 0.05));
-            border-color: rgba(29, 185, 84, 0.2);
+        .discord-status .avatar-img {
+            width: 48px !important;
+            height: 48px !important;
+            border-radius: 12px !important;
+            border: 2px solid rgba(88, 101, 242, 0.3) !important;
+            object-fit: cover !important;
+            box-shadow: 0 4px 16px rgba(88, 101, 242, 0.2) !important;
         }
 
-        .spotify-activity .activity-icon {
-            background: linear-gradient(135deg, #1db954, #1ed760);
+        .discord-status .status-indicator {
+            position: absolute !important;
+            bottom: -2px !important;
+            right: -2px !important;
+            width: 16px !important;
+            height: 16px !important;
+            border-radius: 50% !important;
+            border: 3px solid rgba(15, 15, 35, 0.9) !important;
         }
 
-        /* Status indicators for dynamic content */
-        .status-indicator {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 6px;
+        .discord-status .status-online { background-color: #10b981 !important; }
+        .discord-status .status-idle { background-color: #f59e0b !important; }
+        .discord-status .status-dnd { background-color: #ef4444 !important; }
+        .discord-status .status-offline { background-color: #6b7280 !important; }
+
+        .discord-status .username-content {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            font-weight: 600 !important;
+            font-size: 1.1rem !important;
+            color: #ffffff !important;
         }
 
-        .status-online { background: #10b981; }
-        .status-idle { background: #f59e0b; }
-        .status-dnd { background: #ef4444; }
-        .status-offline { background: #6b7280; }
+        .discord-status .discord-logo {
+            color: #5865f2 !important;
+            flex-shrink: 0 !important;
+        }
+
+        .discord-status .discord-profile-link {
+            color: #a1a1aa !important;
+            text-decoration: none !important;
+            padding: 4px !important;
+            border-radius: 8px !important;
+            transition: all 0.2s ease !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        .discord-status .discord-profile-link:hover {
+            color: #5865f2 !important;
+            background-color: rgba(88, 101, 242, 0.15) !important;
+            transform: scale(1.1) !important;
+        }
+
+        /* Style the activity section */
+        .discord-status .activity-section {
+            border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+            padding-top: 1rem !important;
+            margin-top: 0.5rem !important;
+        }
+
+        .discord-status .activity-item {
+            display: flex !important;
+            align-items: center !important;
+            gap: 1rem !important;
+            padding: 0 !important;
+        }
+
+        .discord-status .activity-icon {
+            width: 48px !important;
+            height: 48px !important;
+            border-radius: 12px !important;
+            object-fit: cover !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        .discord-status .activity-icon-fallback {
+            background: linear-gradient(135deg, #5865f2, #7c3aed) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: white !important;
+        }
+
+        .discord-status .activity-content {
+            flex-grow: 1 !important;
+            min-width: 0 !important;
+        }
+
+        .discord-status .activity-name {
+            font-weight: 600 !important;
+            font-size: 1.1rem !important;
+            color: #ffffff !important;
+            margin-bottom: 0.25rem !important;
+            line-height: 1.2 !important;
+        }
+
+        .discord-status .activity-details {
+            font-size: 0.9rem !important;
+            color: #a1a1aa !important;
+            margin-bottom: 0.1rem !important;
+            line-height: 1.3 !important;
+        }
+
+        .discord-status .activity-state {
+            font-size: 0.9rem !important;
+            color: #71717a !important;
+            line-height: 1.3 !important;
+        }
+
+        /* Error state styling */
+        .discord-status .discord-error {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 8px !important;
+            color: #ef4444 !important;
+            font-size: 0.9rem !important;
+            padding: 1rem !important;
+            background: rgba(239, 68, 68, 0.1) !important;
+            border-radius: 12px !important;
+            border: 1px solid rgba(239, 68, 68, 0.2) !important;
+        }
 
         /* Server specific */
         .server-card {
@@ -701,34 +824,46 @@ $user_cercato_id = $user['id'];
 
         // Apply modern styling to Discord status content
         function styleDiscordContent(container) {
-            // Style any Discord activity cards that are dynamically loaded
-            const activityCards = container.querySelectorAll('.activity-card, [class*="discord"], [class*="rich-presence"]');
-            activityCards.forEach(card => {
-                if (!card.classList.contains('styled')) {
-                    card.classList.add('styled');
-                    
-                    // Add hover effects
-                    card.addEventListener('mouseenter', function() {
-                        this.style.transform = 'translateY(-4px)';
-                        this.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-                    });
-                    
-                    card.addEventListener('mouseleave', function() {
-                        this.style.transform = 'translateY(0)';
-                    });
-                }
-            });
+            // The content is already styled with CSS !important rules
+            // Just add any additional interactive effects
+            
+            const discordCard = container.querySelector('.discord-card');
+            if (discordCard && !discordCard.classList.contains('styled')) {
+                discordCard.classList.add('styled');
+                
+                // Add entrance animation
+                discordCard.style.opacity = '0';
+                discordCard.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    discordCard.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+                    discordCard.style.opacity = '1';
+                    discordCard.style.transform = 'translateY(0)';
+                }, 100);
+            }
 
-            // Style any status indicators
-            const statusElements = container.querySelectorAll('[class*="status"]');
-            statusElements.forEach(element => {
-                if (element.textContent.includes('Online')) {
-                    element.innerHTML = element.innerHTML.replace('Online', '<span class="status-indicator status-online"></span>Online');
-                } else if (element.textContent.includes('Idle')) {
-                    element.innerHTML = element.innerHTML.replace('Idle', '<span class="status-indicator status-idle"></span>Idle');
-                } else if (element.textContent.includes('Do Not Disturb')) {
-                    element.innerHTML = element.innerHTML.replace('Do Not Disturb', '<span class="status-indicator status-dnd"></span>Do Not Disturb');
-                }
+            // Add interactive effects to profile link
+            const profileLink = container.querySelector('.discord-profile-link');
+            if (profileLink) {
+                profileLink.addEventListener('click', function(e) {
+                    // Add a small scale animation on click
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1.1)';
+                    }, 100);
+                });
+            }
+
+            // Add subtle animation to activity icons
+            const activityIcons = container.querySelectorAll('.activity-icon');
+            activityIcons.forEach(icon => {
+                icon.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.05) rotate(2deg)';
+                    this.style.transition = 'transform 0.2s ease';
+                });
+                
+                icon.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1) rotate(0deg)';
+                });
             });
         }
 
