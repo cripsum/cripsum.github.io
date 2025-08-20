@@ -1038,8 +1038,8 @@ require_once '../api/api_personaggi.php';
                                 }
                             }
                             @keyframes rotate {
-                                from { transform: translate(-50%, -50%); }
-                                to { transform: translate(-50%, -50%); }
+                                from { transform: translate(-50%, -50%) rotate(0deg) scale(2); }
+                                to { transform: translate(-50%, -50%) rotate(360deg) scale(2); }
                             }
                         `;
                         document.head.appendChild(secretStyleSheet);
