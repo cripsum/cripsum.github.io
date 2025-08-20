@@ -951,7 +951,7 @@ require_once '../api/api_personaggi.php';
                     text-shadow: 0 0 20px #9932cc, 0 0 40px #4b0082;
                     opacity: 0;
                     transform: scale(0.3);
-                    transition: opacity 1s ease-out 1s, transform 1s ease-out 3s;
+                    transition: opacity 1s ease-out 1s, transform 1s ease-out 2.5s;
                 `;
                 mysteriousText.textContent = 'オーラシグマゴド';
 
