@@ -26,7 +26,7 @@ require_once '../api/api_personaggi.php';
     </head>
 
     <body class="">
-        <?php include '../includes/navbar-lootbox.php'; ?>
+        <?php include '../includes/navbar.php'; ?>
         
         <!-- TO DO
            bloccare lo scorrimento della pagina quando il menu della navbar è aperto (aggiungere classe overflow-hidden al body) 
@@ -153,9 +153,11 @@ require_once '../api/api_personaggi.php';
                                 <h5 class="modal-title" id="disclaimerModalLabel">Impostazioni</h5>
                                 <!--<button type="button" class="btn-close tastobianco" data-bs-dismiss="modal" aria-label="Close" onclick="close_disclaimer(1)" style="color: #ffffff"></button>-->
                             </div>
+                            <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
+                            <p class="text-center testobianco">cheats</p>
+                            <br>
                             <div class="modal-body">
                                 <div class="col-md-6 d-flex" style="text-align: center">
-                                    <!-- Checkbox -->
                                     <div class="form-check mb-3 mb-md-0" style="text-align: center">
                                         <input class="form-check-input checco" type="checkbox" value="" id="RimuoviAnime" />
                                         <label class="form-check-label" for="loginCheck">Rimuovi Anime</label>
@@ -186,6 +188,20 @@ require_once '../api/api_personaggi.php';
                                         <label class="form-check-label" for="loginCheck">Solo Comuni</label>
                                     </div>
                                 </div>
+                                <?php endif; ?>
+
+                                <div class="col-md-6 d-flex" style="text-align: center; padding-top: 20px;">
+                                    <div style="text-align: left; color: white; font-size: 14px;">
+                                        <h6 style="color: white; margin-bottom: 10px;">Probabilità Rarità:</h6>
+                                        <div>Comune: 45%</div>
+                                        <div>Raro: 25%</div>
+                                        <div>Epico: 15%</div>
+                                        <div>Leggendario: 10%</div>
+                                        <div>Mitico: 4%</div>
+                                        <div>Speciale: 0.9%</div>
+                                        <div>Segreto: 0.1%</div>
+                                    </div>
+                                </div>
 
                                 <div data-mdb-input-init class="form-outline mb-4">
                                     <label class="form-label" for="registerName">Codice Segreto</label>
@@ -193,7 +209,6 @@ require_once '../api/api_personaggi.php';
                                     <br />
                                     <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="riscattaCodice()">Riscatta codice</button>
                                 </div>
-                                <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="resettaInventario()">resetta inventario</button>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="salvaPreferenze()">Salva Preferenze</button>
