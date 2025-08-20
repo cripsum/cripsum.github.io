@@ -834,41 +834,43 @@ require_once '../api/api_personaggi.php';
                     purpleContainer.appendChild(energyRing);
                 }
 
-                for (let i = 0; i < 12; i++) {
+                for (let i = 0; i < 8; i++) {
                     const lightning = document.createElement('div');
                     lightning.style.cssText = `
                         position: absolute;
-                        width: 4px;
-                        height: ${120 + Math.random() * 80}px;
-                        background: linear-gradient(to bottom, #ff00ff, #9932cc, #4b0082, transparent);
-                        transform-origin: bottom center;
-                        animation: enhancedLightning 0.5s ease-in-out ${1.5 + i * 0.15}s infinite;
-                        transform: rotate(${i * 30}deg);
+                        width: 2px;
+                        height: ${100 + Math.random() * 60}px;
+                        background: linear-gradient(to bottom, 
+                            rgba(255, 255, 255, 1) 0%,
+                            rgba(147, 0, 211, 0.9) 20%,
+                            rgba(138, 43, 226, 0.7) 60%,
+                            transparent 100%
+                        );
                         left: 50%;
                         top: 50%;
                         transform-origin: 50% 100%;
-                        box-shadow: 0 0 10px rgba(147, 0, 211, 0.8);
-                        filter: brightness(1.5);
+                        transform: translate(-50%, -50%) rotate(${i * 45}deg);
+                        box-shadow: 0 0 8px rgba(255, 255, 255, 0.8), 0 0 16px rgba(147, 0, 211, 0.6);
+                        border-radius: 1px;
                         opacity: 0;
-                        transition: opacity 0.4s ease-out ${1.5 + i * 0.05}s;
+                        animation: cleanLightning 1.5s ease-in-out ${1.2 + i * 0.1}s infinite;
                     `;
                     purpleContainer.appendChild(lightning);
                 }
 
-                for (let p = 0; p < 15; p++) {
+                for (let p = 0; p < 12; p++) {
                     const particle = document.createElement('div');
                     particle.style.cssText = `
                         position: absolute;
-                        width: ${4 + Math.random() * 6}px;
-                        height: ${4 + Math.random() * 6}px;
+                        width: ${3 + Math.random() * 4}px;
+                        height: ${3 + Math.random() * 4}px;
                         border-radius: 50%;
-                        background: radial-gradient(circle, #ff00ff, #9932cc);
-                        animation: floatingParticles 4s ease-in-out infinite ${Math.random() * 2 + 1}s;
-                        left: ${30 + Math.random() * 40}%;
-                        top: ${30 + Math.random() * 40}%;
-                        box-shadow: 0 0 8px rgba(147, 0, 211, 0.9);
+                        background: radial-gradient(circle, rgba(255, 255, 255, 0.9), rgba(147, 0, 211, 0.8));
+                        left: ${35 + Math.random() * 30}%;
+                        top: ${35 + Math.random() * 30}%;
+                        box-shadow: 0 0 6px rgba(147, 0, 211, 0.8);
                         opacity: 0;
-                        transition: opacity 0.6s ease-out ${1.8 + Math.random() * 0.8}s;
+                        animation: floatingParticles 3s ease-in-out infinite ${Math.random() * 2 + 1.5}s;
                     `;
                     purpleContainer.appendChild(particle);
                 }
@@ -877,60 +879,46 @@ require_once '../api/api_personaggi.php';
                 enhancedStyle.textContent = `
                     @keyframes epicPulse {
                         0%, 100% { 
-                            transform: scale(1) rotate(0deg); 
-                            opacity: 0.9; 
-                            filter: brightness(1.2) saturate(1.3) hue-rotate(0deg);
-                        }
-                        25% { 
-                            transform: scale(1.2) rotate(90deg); 
-                            opacity: 1; 
-                            filter: brightness(1.4) saturate(1.5) hue-rotate(10deg);
+                            transform: scale(1); 
+                            opacity: 0.8; 
+                            filter: brightness(1.2) saturate(1.3);
                         }
                         50% { 
-                            transform: scale(1.05) rotate(180deg); 
-                            opacity: 0.85; 
-                            filter: brightness(1.6) saturate(1.8) hue-rotate(20deg);
-                        }
-                        75% { 
-                            transform: scale(1.25) rotate(270deg); 
+                            transform: scale(1.1); 
                             opacity: 1; 
-                            filter: brightness(1.3) saturate(1.4) hue-rotate(10deg);
+                            filter: brightness(1.5) saturate(1.6);
                         }
                     }
                     @keyframes expandingRing {
                         0% { 
-                            transform: translate(-50%, -50%) scale(0.6); 
-                            opacity: 0.8; 
-                        }
-                        50% { 
-                            transform: translate(-50%, -50%) scale(1.5); 
-                            opacity: 0.4; 
+                            transform: translate(-50%, -50%) scale(0.5); 
+                            opacity: 0.6; 
                         }
                         100% { 
-                            transform: translate(-50%, -50%) scale(2.2); 
+                            transform: translate(-50%, -50%) scale(2); 
                             opacity: 0; 
                         }
                     }
-                    @keyframes enhancedLightning {
+                    @keyframes cleanLightning {
                         0% { 
                             opacity: 0; 
-                            transform: rotate(var(--rotation, 0deg)) scaleY(0) translateX(-50%); 
-                            filter: brightness(1);
+                            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scaleY(0);
                         }
-                        30% { 
-                            opacity: 0.7; 
-                            transform: rotate(var(--rotation, 0deg)) scaleY(0.8) translateX(-50%); 
-                            filter: brightness(1.5) saturate(1.5);
+                        20% { 
+                            opacity: 0.8; 
+                            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scaleY(0.7);
+                        }
+                        40% { 
+                            opacity: 1; 
+                            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scaleY(1);
                         }
                         60% { 
-                            opacity: 1; 
-                            transform: rotate(var(--rotation, 0deg)) scaleY(1) translateX(-50%); 
-                            filter: brightness(2) saturate(2);
+                            opacity: 0.6; 
+                            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scaleY(0.8);
                         }
                         100% { 
                             opacity: 0; 
-                            transform: rotate(var(--rotation, 0deg)) scaleY(0.6) translateX(-50%); 
-                            filter: brightness(0.8);
+                            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scaleY(0.3);
                         }
                     }
                     @keyframes floatingParticles {
@@ -965,7 +953,7 @@ require_once '../api/api_personaggi.php';
                     transform: scale(0.3);
                     transition: opacity 1s ease-out 1s, transform 1s ease-out 2s;
                 `;
-                mysteriousText.textContent = '???';
+                mysteriousText.textContent = 'オーラシグマゴド';
 
                 const style = document.createElement('style');
                 style.textContent = `
@@ -1008,6 +996,11 @@ require_once '../api/api_personaggi.php';
                             lightning.style.opacity = '1';
                         }, 1200 + index * 50);
                     });
+
+                    setTimeout(() => {
+                        mysteriousText.style.opacity = '1';
+                        mysteriousText.style.transform = 'scale(1)';
+                    }, 1000);
                     
                     const particles = purpleContainer.querySelectorAll('div[style*="radial-gradient(circle, #ff00ff"]');
                     particles.forEach((particle, index) => {
@@ -1016,10 +1009,6 @@ require_once '../api/api_personaggi.php';
                         }, 1500 + Math.random() * 500);
                     });
                     
-                    setTimeout(() => {
-                        mysteriousText.style.opacity = '1';
-                        mysteriousText.style.transform = 'scale(2)';
-                    }, 2000);
 
                         bagliore.style.background = "radial-gradient(circle, rgba(147, 0, 211, 1) 0%, rgba(75, 0, 130, 0.8) 30%, rgba(138, 43, 226, 0.6) 60%, rgba(148, 0, 211, 0) 100%)";
                         bagliore.style.animation = "secretGlow 2s ease-in-out infinite, rotate 8s linear infinite";
