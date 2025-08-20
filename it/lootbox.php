@@ -957,13 +957,13 @@ require_once '../api/api_personaggi.php';
                 const mysteriousText = document.createElement('div');
                 mysteriousText.style.cssText = `
                     position: absolute;
-                    color: #9932cc;
+                    color:rgb(255, 255, 255);
                     font-size: 3rem;
                     font-weight: bold;
                     text-shadow: 0 0 20px #9932cc, 0 0 40px #4b0082;
                     opacity: 0;
                     transform: scale(0.3);
-                    transition: opacity 1s ease-out 2s, transform 1s ease-out 2s;
+                    transition: opacity 1s ease-out 1s, transform 1s ease-out 2s;
                 `;
                 mysteriousText.textContent = '???';
 
