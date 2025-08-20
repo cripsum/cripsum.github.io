@@ -153,6 +153,20 @@ require_once '../api/api_personaggi.php';
                                 <h5 class="modal-title" id="disclaimerModalLabel">Impostazioni</h5>
                                 <!--<button type="button" class="btn-close tastobianco" data-bs-dismiss="modal" aria-label="Close" onclick="close_disclaimer(1)" style="color: #ffffff"></button>-->
                             </div>
+                                <div class="col-md-6 d-flex" style="text-align: center; padding-top: 20px; padding-bottom: 20px;">
+                                    <div style="text-align: left; color: white; font-size: 14px;">
+                                        <h6 style="color: white; margin-bottom: 10px;">Probabilità Rarità:</h6>
+                                        <div>Comune: 45%</div>
+                                        <div>Raro: 25%</div>
+                                        <div>Epico: 15%</div>
+                                        <div>Leggendario: 10%</div>
+                                        <div>Mitico: 4%</div>
+                                        <div>Speciale: 0.9%</div>
+                                        <div>???: 0.1%</div>
+                                    </div>
+                                </div>
+
+
                             <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
                             <p class="text-center testobianco">cheats</p>
                             <br>
@@ -189,19 +203,6 @@ require_once '../api/api_personaggi.php';
                                     </div>
                                 </div>
                                 <?php endif; ?>
-
-                                <div class="col-md-6 d-flex" style="text-align: center; padding-top: 20px;">
-                                    <div style="text-align: left; color: white; font-size: 14px;">
-                                        <h6 style="color: white; margin-bottom: 10px;">Probabilità Rarità:</h6>
-                                        <div>Comune: 45%</div>
-                                        <div>Raro: 25%</div>
-                                        <div>Epico: 15%</div>
-                                        <div>Leggendario: 10%</div>
-                                        <div>Mitico: 4%</div>
-                                        <div>Speciale: 0.9%</div>
-                                        <div>???: 0.1%</div>
-                                    </div>
-                                </div>
 
                                 <div data-mdb-input-init class="form-outline mb-4">
                                     <label class="form-label" for="registerName">Codice Segreto</label>
