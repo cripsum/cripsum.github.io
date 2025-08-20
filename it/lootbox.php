@@ -199,7 +199,7 @@ require_once '../api/api_personaggi.php';
                                         <div>Leggendario: 10%</div>
                                         <div>Mitico: 4%</div>
                                         <div>Speciale: 0.9%</div>
-                                        <div>Segreto: 0.1%</div>
+                                        <div>???: 0.1%</div>
                                     </div>
                                 </div>
 
