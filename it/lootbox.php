@@ -1012,7 +1012,11 @@ require_once '../api/api_personaggi.php';
 
                         bagliore.style.background = "radial-gradient(circle, rgba(147, 0, 211, 1) 0%, rgba(75, 0, 130, 0.8) 30%, rgba(138, 43, 226, 0.6) 60%, rgba(148, 0, 211, 0) 100%)";
                         bagliore.style.animation = "secretGlow 2s ease-in-out infinite, rotate 8s linear infinite";
-                        
+                        bagliore.style.boxShadow = "0 0 100px rgba(147, 0, 211, 0.8), 0 0 200px rgba(75, 0, 130, 0.6), inset 0 0 50px rgba(138, 43, 226, 0.4)";
+                        bagliore.style.borderRadius = "50%";
+                        bagliore.style.width = "150vw";
+                        bagliore.style.height = "150vw";
+
                         const secretStyleSheet = document.createElement('style');
                         secretStyleSheet.textContent = `
                             @keyframes secretGlow {
