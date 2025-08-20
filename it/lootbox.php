@@ -812,14 +812,21 @@ require_once '../api/api_personaggi.php';
                 const purpleContainer = document.createElement('div');
                 purpleContainer.style.cssText = `
                     position: relative;
-                    width: 100%;
-                    height: 100%;
+                    width: 100vw;
+                    height: 100vh;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     opacity: 0;
                     transform: scale(0.8);
                     transition: opacity 1s ease-out 0.3s, transform 1s ease-out 0.3s;
+                    background: radial-gradient(circle at center, 
+                        rgba(147, 0, 211, 0.2) 0%, 
+                        rgba(75, 0, 130, 0.1) 20%, 
+                        rgba(138, 43, 226, 0.08) 40%, 
+                        rgba(25, 25, 112, 0.05) 60%, 
+                        transparent 80%);
+                    animation: backgroundPulse 3s ease-in-out infinite;
                 `;
 
                 const purpleCircle = document.createElement('div');
@@ -1006,7 +1013,6 @@ require_once '../api/api_personaggi.php';
                 introOverlay.appendChild(purpleContainer);
                 document.body.appendChild(introOverlay);
 
-                setTimeout(() => {
                     introOverlay.style.opacity = '1';
                     purpleContainer.style.opacity = '1';
                     purpleContainer.style.transform = 'scale(1)';
@@ -1041,8 +1047,6 @@ require_once '../api/api_personaggi.php';
                         mysteriousText.style.opacity = '1';
                         mysteriousText.style.transform = 'scale(1)';
                     }, 2000);
-                    
-                }, 100);
 
                 setTimeout(() => {
                     introOverlay.style.animation = 'fadeOut 1.2s ease-out forwards';
