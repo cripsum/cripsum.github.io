@@ -828,21 +828,65 @@ require_once '../api/api_personaggi.php';
                         transparent 80%);
                     animation: backgroundPulse 3s ease-in-out infinite;
                 `;
-
                 const purpleCircle = document.createElement('div');
                 purpleCircle.style.cssText = `
                     width: 300px;
                     height: 300px;
                     border-radius: 50%;
-                    background: radial-gradient(circle, rgba(147, 0, 211, 1) 0%, rgba(75, 0, 130, 0.9) 30%, rgba(138, 43, 226, 0.7) 60%, transparent 100%);
-                    animation: epicPulse 2s ease-in-out infinite;
-                    box-shadow: 0 0 50px rgba(147, 0, 211, 0.8), 0 0 100px rgba(75, 0, 130, 0.6), inset 0 0 30px rgba(138, 43, 226, 0.4);
-                    filter: brightness(1.2) saturate(1.3);
+                    background: radial-gradient(circle, 
+                        rgba(147, 0, 211, 1) 0%, 
+                        rgba(75, 0, 130, 0.9) 20%, 
+                        rgba(138, 43, 226, 0.8) 40%, 
+                        rgba(72, 61, 139, 0.6) 60%, 
+                        rgba(25, 25, 112, 0.3) 80%, 
+                        transparent 100%);
+                    box-shadow: 
+                        0 0 50px rgba(147, 0, 211, 0.9), 
+                        0 0 100px rgba(75, 0, 130, 0.7), 
+                        0 0 150px rgba(138, 43, 226, 0.5),
+                        inset 0 0 50px rgba(138, 43, 226, 0.4),
+                        inset 0 0 100px rgba(75, 0, 130, 0.2);
+                    filter: brightness(1.3) saturate(1.5) blur(0.5px);
                     opacity: 0;
                     transform: scale(0.5);
+                    animation: epicPulse 2.5s ease-in-out infinite, orbitRotation 8s linear infinite;
                     animation-delay: 0.8s;
                     transition: opacity 0.8s ease-out 0.8s, transform 0.8s ease-out 0.8s;
+                    position: relative;
+                    overflow: visible;
                 `;
+
+                for (let i = 0; i < 3; i++) {
+                    const orbitalRing = document.createElement('div');
+                    orbitalRing.style.cssText = `
+                        position: absolute;
+                        width: ${350 + i * 60}px;
+                        height: ${350 + i * 60}px;
+                        border-radius: 50%;
+                        border: 2px solid rgba(147, 0, 211, ${0.4 - i * 0.1});
+                        left: 50%;
+                        top: 50%;
+                        transform: translate(-50%, -50%);
+                        animation: counterRotation ${4 + i * 2}s linear infinite reverse;
+                        box-shadow: 0 0 20px rgba(147, 0, 211, 0.3);
+                        opacity: 0;
+                        transition: opacity 0.6s ease-out ${1.5 + i * 0.3}s;
+                    `;
+                    purpleCircle.appendChild(orbitalRing);
+                }
+
+                const enhancedAnimationStyle = document.createElement('style');
+                enhancedAnimationStyle.textContent = `
+                    @keyframes orbitRotation {
+                        from { transform: scale(var(--scale, 1)) rotate(0deg); }
+                        to { transform: scale(var(--scale, 1)) rotate(360deg); }
+                    }
+                    @keyframes counterRotation {
+                        from { transform: translate(-50%, -50%) rotate(0deg); }
+                        to { transform: translate(-50%, -50%) rotate(-360deg); }
+                    }
+                `;
+                document.head.appendChild(enhancedAnimationStyle);
 
                 for (let ring = 0; ring < 3; ring++) {
                     const energyRing = document.createElement('div');
