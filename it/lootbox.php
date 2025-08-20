@@ -153,8 +153,8 @@ require_once '../api/api_personaggi.php';
                                 <h5 class="modal-title" id="disclaimerModalLabel">Impostazioni</h5>
                                 <!--<button type="button" class="btn-close tastobianco" data-bs-dismiss="modal" aria-label="Close" onclick="close_disclaimer(1)" style="color: #ffffff"></button>-->
                             </div>
-                                <div class="col-md-6 d-flex" style="text-align: center; padding-top: 20px; padding-bottom: 20px;">
-                                    <div style="text-align: left; color: white; font-size: 14px;">
+                                <div class="col-md-6 d-flex text-center" style="text-align: center; padding-top: 20px; padding-bottom: 20px;">
+                                    <div style="color: white; font-size: 14px;">
                                         <h6 style="color: white; margin-bottom: 10px;">Probabilità Rarità:</h6>
                                         <div>Comune: 45%</div>
                                         <div>Raro: 25%</div>
@@ -169,7 +169,6 @@ require_once '../api/api_personaggi.php';
 
                             <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
                             <p class="text-center testobianco">cheats</p>
-                            <br>
                             <div class="modal-body">
                                 <div class="col-md-6 d-flex" style="text-align: center">
                                     <div class="form-check mb-3 mb-md-0" style="text-align: center">
