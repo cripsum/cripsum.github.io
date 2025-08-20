@@ -25,7 +25,7 @@ function viewUserDetails(userId) {
                     <div class="mb-3">
                         <strong>Email:</strong> ${userDetails.email || 'N/A'}
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-3"><
                         <strong>Ruolo:</strong> ${userDetails.ruolo || 'N/A'}
                     </div>
                     <div class="mb-3">
