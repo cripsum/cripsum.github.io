@@ -958,7 +958,7 @@ require_once '../api/api_personaggi.php';
                 mysteriousText.style.cssText = `
                     position: absolute;
                     color:rgb(255, 255, 255);
-                    font-size: 3rem;
+                    font-size: 10rem;
                     font-weight: bold;
                     text-shadow: 0 0 20px #9932cc, 0 0 40px #4b0082;
                     opacity: 0;
@@ -1018,8 +1018,8 @@ require_once '../api/api_personaggi.php';
                     
                     setTimeout(() => {
                         mysteriousText.style.opacity = '1';
-                        mysteriousText.style.transform = 'scale(1)';
-                    }, 2000);
+                        mysteriousText.style.transform = 'scale(2)';
+                    }, 1000);
 
                         bagliore.style.background = "radial-gradient(circle, rgba(147, 0, 211, 1) 0%, rgba(75, 0, 130, 0.8) 30%, rgba(138, 43, 226, 0.6) 60%, rgba(148, 0, 211, 0) 100%)";
                         bagliore.style.animation = "secretGlow 2s ease-in-out infinite, rotate 8s linear infinite";
@@ -1038,8 +1038,8 @@ require_once '../api/api_personaggi.php';
                                 }
                             }
                             @keyframes rotate {
-                                from { transform: translate(-50%, -50%) rotate(0deg) scale(2); }
-                                to { transform: translate(-50%, -50%) rotate(360deg) scale(2); }
+                                from { transform: translate(-50%, -50%) rotate(0deg) }
+                                to { transform: translate(-50%, -50%) rotate(360deg) }
                             }
                         `;
                         document.head.appendChild(secretStyleSheet);
