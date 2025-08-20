@@ -68,7 +68,7 @@ if (!isLoggedIn()) {
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"
         ></script>
-        <script src="../js/characters.js"></script>
+        <script src="../js/characters.js?v=1"></script>
         <script>
             function getCookie(name) {
                 const cookies = document.cookie.split("; ");
