@@ -1019,7 +1019,7 @@ require_once '../api/api_personaggi.php';
                     setTimeout(() => {
                         mysteriousText.style.opacity = '1';
                         mysteriousText.style.transform = 'scale(2)';
-                    }, 1000);
+                    }, 2000);
 
                         bagliore.style.background = "radial-gradient(circle, rgba(147, 0, 211, 1) 0%, rgba(75, 0, 130, 0.8) 30%, rgba(138, 43, 226, 0.6) 60%, rgba(148, 0, 211, 0) 100%)";
                         bagliore.style.animation = "secretGlow 2s ease-in-out infinite, rotate 8s linear infinite";
