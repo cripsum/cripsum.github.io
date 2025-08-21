@@ -572,7 +572,7 @@ require_once '../api/api_personaggi.php';
                     } else if (rarita === "segreto") {
 
                         startIntroAnimation(pull.nome);
-                        messaggioRarita.innerText = "COSA?.. HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
+                        messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
                         bagliore.style.position = "fixed";
                         bagliore.style.width = "100vw";
                         bagliore.style.height = "100vh";

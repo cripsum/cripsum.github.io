@@ -500,9 +500,7 @@ function registerUser($mysqli, $username, $email, $password) {
     $emailToken = bin2hex(random_bytes(32));
 
     $insertStmt = $mysqli->prepare("
-        INSERT INTO utenti (username, email, password, data_creazione, ruolo, email_verificata, email_token) 
-        VALUES (?, ?, ?, NOW(), 'utente', 0, ?)
-    ");
+        INSERT INTO utenti (username, email, password, data_creazione, ruolo, email_verificata, email_token) VALUES (?, ?, ?, NOW(), 'utente', 0, ?)");
     $insertStmt->bind_param("ssss", $username, $email, $passwordHash, $emailToken);
 
     if ($insertStmt->execute()) {
