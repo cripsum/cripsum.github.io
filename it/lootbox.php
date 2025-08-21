@@ -447,7 +447,6 @@ require_once '../api/api_personaggi.php';
                             raro: 0,
                             epico: 0,
                             leggendario: 0,
-                            mitico: 0,
                             speciale: 100,
                             segreto: 0,
                         });
@@ -457,7 +456,6 @@ require_once '../api/api_personaggi.php';
                             raro: 0,
                             epico: 0,
                             leggendario: 0,
-                            mitico: 0,
                             speciale: 0,
                             segreto: 100,
                         });
@@ -467,17 +465,15 @@ require_once '../api/api_personaggi.php';
                             raro: 0,
                             epico: 0,
                             leggendario: 0,
-                            mitico: 0,
                             speciale: 0,
                             segreto: 0,
                         });
                     } else {
                         return (rarityProbabilities = {
-                            comune: 45,
-                            raro: 25,
-                            epico: 15,
-                            leggendario: 10,
-                            mitico: 4,
+                            comune: 52,
+                            raro: 27,
+                            epico: 12,
+                            leggendario: 8,
                             speciale: 0.9,
                             segreto: 0.1,
                         });
@@ -485,11 +481,10 @@ require_once '../api/api_personaggi.php';
                 }
 
                 return (rarityProbabilities = {
-                    comune: 45,
-                    raro: 25,
-                    epico: 15,
-                    leggendario: 10,
-                    mitico: 4,
+                    comune: 52,
+                    raro: 27,
+                    epico: 12,
+                    leggendario: 8,
                     speciale: 0.9,
                     segreto: 0.1,
                 });
@@ -551,9 +546,9 @@ require_once '../api/api_personaggi.php';
                     if (rarita === "comune") {
                         messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
                         bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
-                    } else if (rarita === "mitico") {
-                        messaggioRarita.innerText = "PAZZESCO FRA, hai pullato un personaggio mitico";
-                        bagliore.style.background = "radial-gradient(circle, rgba(245, 15, 15, 1) 0%, rgba(0, 255, 0, 0) 70%)";
+                    // } else if (rarita === "mitico") {
+                    //     messaggioRarita.innerText = "PAZZESCO FRA, hai pullato un personaggio mitico";
+                    //     bagliore.style.background = "radial-gradient(circle, rgba(245, 15, 15, 1) 0%, rgba(0, 255, 0, 0) 70%)";
                     } else if (rarita === "leggendario") {
                         messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
                         bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
@@ -671,7 +666,7 @@ require_once '../api/api_personaggi.php';
                 if (inventory.length === 1) {
                     unlockAchievement(5);
                 }
-                if (inventory.length === 46) {
+                if (inventory.length === 44) {
                     unlockAchievement(18);
                 }
             }

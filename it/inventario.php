@@ -95,7 +95,7 @@ if (!isLoggedIn()) {
                 animateNumber(document.getElementById("totalCharacters"), totalCharacters);
                 animateNumber(document.getElementById("completionRate"), completionRate, "%");
 
-                const rarityOrder = ["comune", "raro", "epico", "leggendario", "mitico", "speciale", "segreto"];
+                const rarityOrder = ["comune", "raro", "epico", "leggendario", "speciale", "segreto"];
 
                 rarityOrder.forEach((rarity, index) => {
                     const section = document.createElement("div");
