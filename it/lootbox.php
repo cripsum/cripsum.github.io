@@ -21,7 +21,7 @@ require_once '../api/api_personaggi.php';
 <html lang="en">
     <head>
         <?php include '../includes/head-import.php'; ?>
-        <link rel="stylesheet" href="/css/lootbox.css?v=1" />
+        <link rel="stylesheet" href="/css/lootbox.css?v=2" />
         <title>Cripsum™ - lootbox</title>
     </head>
 
@@ -545,7 +545,7 @@ require_once '../api/api_personaggi.php';
                     const pull = await filtroPull();
                     
                     document.getElementById("contenuto").innerHTML = `
-                        <p style="top 10px; font-size: 20px; max-width: 600px;" id="nomePersonaggio">${pull.nome}</p>
+                        <p style="top 10px; font-size: 20px; max-width: 600px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);" id="nomePersonaggio">${pull.nome}</p>
                         <img src="/img/${pull.img_url}" alt="Premio" class="premio" />
                     `;
                     
