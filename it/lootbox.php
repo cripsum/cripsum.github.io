@@ -735,6 +735,15 @@ require_once '../api/api_personaggi.php';
                     let pullRiscattata = getCharacter("TOKI");
                     await riscattaPersonaggio("TOKI");
                     apriNormale();
+                } else if (codiceSegreto.value === "cripsum") {
+                    const inventory = await getInventory();
+                    if (inventory.find((p) => p.nome === "CRIPSUM")) {
+                        alert("il Codice è già riscattato o Cripsum è già nel tuo inventario!");
+                        return;
+                    }
+                    let pullRiscattata = getCharacter("CRIPSUM");
+                    await riscattaPersonaggio("CRIPSUM");
+                    apriNormale();
                 } else {
                     alert("Codice non valido, skill issue!");
                 }
