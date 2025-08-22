@@ -615,7 +615,7 @@ require_once '../api/api_personaggi.php';
         <!-- Animated stars background -->
         <div class="stars" id="stars"></div>
 
-        <div style="max-width: 1520px; margin: auto; padding-top: 5rem" class="testobianco main-container" id="paginaintera">
+        <div style="max-width: 1520px; padding-top: 5rem" class="testobianco main-container" id="paginaintera">
             <!-- Cookie popup from original -->
             <div
                 id="popup-overlay"
