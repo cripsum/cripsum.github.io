@@ -21,7 +21,7 @@ require_once '../api/api_personaggi.php';
 <html lang="en">
     <head>
         <?php include '../includes/head-import.php'; ?>
-        <link rel="stylesheet" href="/css/lootbox.css?v=3" />
+        <link rel="stylesheet" href="/css/lootbox.css?v=4" />
         <title>Cripsum™ - lootbox</title>
     </head>
 
@@ -305,8 +305,6 @@ require_once '../api/api_personaggi.php';
                     starsContainer.appendChild(star);
                 }
             }
-
-            createStars();
 
             function getCookie(name) {
                 const cookies = document.cookie.split("; ");
@@ -1025,6 +1023,7 @@ require_once '../api/api_personaggi.php';
                     setTimeout(() => {
                         mysteriousText.style.opacity = '1';
                         mysteriousText.style.transform = 'scale(1)';
+                        createStars();
                     }, 1000);
                     
                     const particles = purpleContainer.querySelectorAll('div[style*="radial-gradient(circle, #ff00ff"]');
