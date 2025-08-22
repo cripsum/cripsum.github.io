@@ -243,7 +243,7 @@ require_once '../api/api_personaggi.php';
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"
         ></script>
-        <script src="../js/characters.js?v=1"></script>
+        <script src="../js/characters.js?v=2"></script>
         <script src="../js/unlockAchievement-it.js"></script>
         <script>
             const cassa = document.getElementById("cassa");
@@ -621,7 +621,8 @@ require_once '../api/api_personaggi.php';
                     nome: pullRaw.name,
                     rarità: pullRaw.rarity,
                     img_url: pullRaw.img,
-                    audio_url: pullRaw.audio
+                    audio_url: pullRaw.audio,
+                    id: pullRaw.id
                     };
                     
                     document.getElementById("contenuto").innerHTML = `
