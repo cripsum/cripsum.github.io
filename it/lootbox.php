@@ -26,7 +26,7 @@ require_once '../api/api_personaggi.php';
     </head>
 
     <body class="">
-        <?php include '../includes/navbar.php'; ?>
+        <?php include '../includes/navbar-lootbox.php'; ?>
         <div class="stars" id="stars"></div>
         
         <!-- TO DO

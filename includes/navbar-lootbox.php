@@ -18,7 +18,7 @@ if ($isLoggedIn) {
 }
 ?>
 
-<nav class="navbarutenti navbar navbar-expand-xl fadein">
+<nav class="navbarutenti navbar navbar-expand-xl">
     <div class="container-fluid">
         <a class="navbar-brand" href="/<?= $lang ?>/home">
             <img src="/img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
@@ -102,13 +102,11 @@ if ($isLoggedIn) {
             </ul>
         </div>
 
-        <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
         <div class="btn-group ms-auto me-3 linguanuova">
             <button type="button" class="btn impostazioni-toggler" data-bs-toggle="modal" data-bs-target="#impostazioniModal">
                 <img src="/img/settings-icon.svg" alt="Impostazioni" style="width: 25px" class="imgbianca" />
             </button>
         </div>
-        <?php endif; ?>
     </div>
 </nav>
     <?php if ($richpresence === 1): ?>
