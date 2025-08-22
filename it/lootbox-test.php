@@ -33,7 +33,6 @@ require_once '../api/api_personaggi.php';
             }
 
             body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 background: linear-gradient(135deg, #0f0f23 0%, #1a1a3a 50%, #0f0f23 100%);
                 color: white;
                 overflow-x: hidden;
