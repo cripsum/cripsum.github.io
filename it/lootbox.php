@@ -21,7 +21,7 @@ require_once '../api/api_personaggi.php';
 <html lang="en">
     <head>
         <?php include '../includes/head-import.php'; ?>
-        <link rel="stylesheet" href="/css/lootbox.css?v=4" />
+        <link rel="stylesheet" href="/css/lootbox.css?v=5" />
         <title>Cripsum™ - lootbox</title>
     </head>
 
