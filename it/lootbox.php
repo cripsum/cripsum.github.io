@@ -619,9 +619,9 @@ require_once '../api/api_personaggi.php';
 
                     const pull = {
                     nome: pullRaw.name,
+                    rarità: pullRaw.rarity,
                     img_url: pullRaw.img,
-                    audio_url: pullRaw.audio,
-                    rarità: pullRaw.rarity
+                    audio_url: pullRaw.audio
                     };
                     
                     document.getElementById("contenuto").innerHTML = `
