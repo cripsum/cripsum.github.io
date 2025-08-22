@@ -41,6 +41,10 @@ require_once '../api/api_personaggi.php';
                 position: relative;
             }
 
+            body.overflow-hidden {
+                overflow: hidden;
+            }
+
             .stars {
                 position: fixed;
                 top: 0;
@@ -66,9 +70,9 @@ require_once '../api/api_personaggi.php';
             }
 
             .main-container {
-                max-width: 1200px;
+                max-width: 1520px;
                 margin: 0 auto;
-                padding: 2rem;
+                padding: 5rem 2rem 2rem;
                 min-height: 100vh;
                 display: flex;
                 flex-direction: column;
@@ -110,6 +114,12 @@ require_once '../api/api_personaggi.php';
                 position: relative;
             }
 
+            .lootbox img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+
             .lootbox:hover {
                 transform: scale(1.1) rotateY(10deg);
                 filter: drop-shadow(0 25px 50px rgba(0, 255, 255, 0.5));
@@ -119,10 +129,15 @@ require_once '../api/api_personaggi.php';
                 animation: boxShake 0.6s ease-in-out, boxGlow 0.6s ease-in-out;
             }
 
-            .lootbox.opened {
+            .lootbox.aperta {
                 transform: scale(0.8) rotateX(15deg);
                 opacity: 0.7;
                 filter: drop-shadow(0 10px 20px rgba(255, 255, 255, 0.2));
+            }
+
+            .lootbox.dissolvi {
+                opacity: 0.3;
+                transform: scale(0.7);
             }
 
             @keyframes boxShake {
@@ -144,23 +159,27 @@ require_once '../api/api_personaggi.php';
                 100% { filter: drop-shadow(0 20px 40px rgba(0, 255, 255, 0.3)); }
             }
 
-            .glow-effect {
+            #baglioreWrapper {
                 position: absolute;
                 top: 50%;
                 left: 50%;
                 width: 300px;
                 height: 300px;
+                transform: translate(-50%, -50%);
+                z-index: -1;
+            }
+
+            #bagliore {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 100%;
+                height: 100%;
                 border-radius: 50%;
                 opacity: 0;
                 transform: translate(-50%, -50%) scale(0.5);
                 pointer-events: none;
-                z-index: -1;
                 transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            }
-
-            .glow-effect.active {
-                opacity: 0.8;
-                transform: translate(-50%, -50%) scale(2);
             }
 
             .character-reveal {
@@ -172,12 +191,16 @@ require_once '../api/api_personaggi.php';
                 margin: 2rem 0;
             }
 
-            .character-reveal.show {
+            .character-reveal.salto {
                 opacity: 1;
                 transform: translateY(0) scale(1);
             }
 
-            .character-image {
+            #contenuto {
+                text-align: center;
+            }
+
+            #contenuto img {
                 max-width: 300px;
                 max-height: 300px;
                 border-radius: 20px;
@@ -186,40 +209,60 @@ require_once '../api/api_personaggi.php';
                 transition: transform 0.3s ease;
             }
 
-            .character-image:hover {
+            #contenuto img:hover {
                 transform: scale(1.05);
             }
 
-            .character-name {
+            #nomePersonaggio {
                 font-size: 2.5rem;
                 font-weight: bold;
                 margin-bottom: 0.5rem;
                 text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+                color: white;
             }
 
-            .rarity-message {
+            #messaggio {
+                transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                opacity: 0;
+                transform: translateY(50px);
+            }
+
+            #messaggio.salto {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            #messaggioRarita {
                 font-size: 1.2rem;
-                margin-bottom: 2rem;
+                margin: 2rem 0;
                 padding: 1rem 2rem;
                 border-radius: 50px;
                 backdrop-filter: blur(10px);
                 border: 1px solid rgba(255, 255, 255, 0.2);
                 text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+                background: rgba(255, 255, 255, 0.1);
             }
 
-            .buttons-container {
+            #divApriAncora {
+                transition: all 0.6s ease 0.5s;
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            #divApriAncora.salto {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            .nascosto {
+                display: none;
+            }
+
+            .button-container {
                 display: flex;
                 gap: 1rem;
                 flex-wrap: wrap;
                 justify-content: center;
-                opacity: 0;
-                transform: translateY(30px);
-                transition: all 0.6s ease 0.5s;
-            }
-
-            .buttons-container.show {
-                opacity: 1;
-                transform: translateY(0);
             }
 
             .btn {
@@ -253,24 +296,24 @@ require_once '../api/api_personaggi.php';
                 left: 100%;
             }
 
-            .btn-primary {
+            .btn-secondary {
                 background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
                 color: white;
                 box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
             }
 
-            .btn-primary:hover {
+            .btn-secondary:hover {
                 transform: translateY(-3px);
                 box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
             }
 
-            .btn-secondary {
+            .bottone {
                 background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
                 color: white;
                 box-shadow: 0 8px 25px rgba(240, 147, 251, 0.4);
             }
 
-            .btn-secondary:hover {
+            .bottone:hover {
                 transform: translateY(-3px);
                 box-shadow: 0 12px 35px rgba(240, 147, 251, 0.6);
             }
@@ -285,7 +328,7 @@ require_once '../api/api_personaggi.php';
                 z-index: 1000;
             }
 
-            .particle {
+            .particella {
                 position: absolute;
                 width: 4px;
                 height: 4px;
@@ -301,32 +344,11 @@ require_once '../api/api_personaggi.php';
                 }
                 100% {
                     opacity: 0;
-                    transform: scale(0) translate(var(--random-x), var(--random-y));
+                    transform: scale(0) translate(var(--x), var(--y));
                 }
             }
 
-            .settings-icon {
-                position: fixed;
-                top: 2rem;
-                right: 2rem;
-                width: 50px;
-                height: 50px;
-                background: rgba(255, 255, 255, 0.1);
-                border: 2px solid rgba(255, 255, 255, 0.2);
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                backdrop-filter: blur(10px);
-            }
-
-            .settings-icon:hover {
-                transform: rotate(90deg);
-                background: rgba(255, 255, 255, 0.2);
-            }
-
+            /* Settings Modal Styles */
             .modal-overlay {
                 position: fixed;
                 top: 0;
@@ -348,19 +370,22 @@ require_once '../api/api_personaggi.php';
                 opacity: 1;
             }
 
-            .modal {
+            .modal-content {
                 background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
                 border: 1px solid rgba(255, 255, 255, 0.2);
                 border-radius: 20px;
                 padding: 2rem;
-                max-width: 500px;
+                max-width: 600px;
                 width: 90%;
                 backdrop-filter: blur(20px);
                 transform: scale(0.8);
                 transition: transform 0.3s ease;
+                position: relative;
+                max-height: 80vh;
+                overflow-y: auto;
             }
 
-            .modal-overlay.show .modal {
+            .modal-overlay.show .modal-content {
                 transform: scale(1);
             }
 
@@ -386,42 +411,135 @@ require_once '../api/api_personaggi.php';
                 background: rgba(255, 255, 255, 0.2);
             }
 
-            /* Rarity-specific styles */
-            .comum { 
-                background: radial-gradient(circle, rgba(150, 150, 150, 0.8) 0%, transparent 70%);
-            }
-            .raro { 
-                background: radial-gradient(circle, rgba(0, 74, 247, 0.8) 0%, transparent 70%);
-            }
-            .epico { 
-                background: radial-gradient(circle, rgba(195, 0, 235, 0.8) 0%, transparent 70%);
-            }
-            .leggendario { 
-                background: radial-gradient(circle, rgba(255, 228, 23, 0.8) 0%, transparent 70%);
-            }
-            .speciale { 
-                background: linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000);
-                background-size: 300% 100%;
-                animation: rainbowBackground 2s linear infinite;
-            }
-            .segreto {
-                background: radial-gradient(circle, rgba(147, 0, 211, 0.8) 0%, rgba(75, 0, 130, 0.6) 40%, transparent 70%);
-                animation: secretGlow 3s ease-in-out infinite;
+            .modal-header h5 {
+                color: white;
+                margin-bottom: 1rem;
             }
 
+            .modal-body {
+                color: white;
+                margin: 1rem 0;
+            }
+
+            .form-check {
+                margin: 0.5rem 0;
+            }
+
+            .form-check-label {
+                color: white;
+                margin-left: 0.5rem;
+            }
+
+            .form-control {
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 10px;
+                padding: 0.5rem;
+                color: white;
+                width: 100%;
+            }
+
+            .form-control::placeholder {
+                color: rgba(255, 255, 255, 0.7);
+            }
+
+            .form-label {
+                color: white;
+                display: block;
+                margin-bottom: 0.5rem;
+            }
+
+            /* Popup styles */
+            #popup-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.85);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+                opacity: 0;
+                transition: opacity 0.5s ease;
+            }
+
+            #collegamentoedits {
+                backdrop-filter: blur(15px);
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(64, 64, 64, 0.1));
+                box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5);
+                padding: 20px;
+                border: 1px solid rgba(255, 255, 255, 0.5);
+                border-radius: 10px;
+                max-width: 80%;
+                text-align: center;
+                position: relative;
+                opacity: 0;
+                transform: translateY(-20px);
+                transition: opacity 0.5s ease, transform 0.5s ease;
+            }
+
+            .bannerino {
+                color: white;
+            }
+
+            .bannerino h2 {
+                color: white;
+                padding-top: 11px;
+            }
+
+            .bannerino p {
+                color: white;
+            }
+
+            /* Achievement popup */
+            #achievement-popup {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 15px;
+                padding: 1rem;
+                backdrop-filter: blur(20px);
+                max-width: 300px;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+                z-index: 10001;
+            }
+
+            #achievement-popup.show {
+                transform: translateX(0);
+            }
+
+            /* Rainbow background animation for speciale rarity */
             @keyframes rainbowBackground {
                 0% { background-position: 0% 50%; }
                 100% { background-position: 100% 50%; }
             }
 
-            @keyframes secretGlow {
-                0%, 100% { 
-                    transform: translate(-50%, -50%) scale(1.5);
-                    filter: brightness(1);
+            /* Secret glow animation */
+            @keyframes secretGlowRotate {
+                0% { 
+                    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+                    filter: brightness(1) saturate(1);
+                }
+                25% { 
+                    transform: translate(-50%, -50%) scale(1.2) rotate(90deg);
+                    filter: brightness(1.3) saturate(1.5);
                 }
                 50% { 
-                    transform: translate(-50%, -50%) scale(2);
-                    filter: brightness(1.5);
+                    transform: translate(-50%, -50%) scale(1) rotate(180deg);
+                    filter: brightness(1) saturate(1);
+                }
+                75% { 
+                    transform: translate(-50%, -50%) scale(1.2) rotate(270deg);
+                    filter: brightness(1.3) saturate(1.5);
+                }
+                100% { 
+                    transform: translate(-50%, -50%) scale(1) rotate(360deg);
+                    filter: brightness(1) saturate(1);
                 }
             }
 
@@ -435,6 +553,33 @@ require_once '../api/api_personaggi.php';
                 font-size: 0.9rem;
             }
 
+            .testobianco, .tastobianco, .linkbianco {
+                color: white;
+            }
+
+            .linkbianco:hover {
+                color: #4ecdc4;
+            }
+
+            .non-selezionabile {
+                user-select: none;
+            }
+
+            .fadein, .fadeup {
+                animation: fadeInUp 0.8s ease-out;
+            }
+
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
             @media (max-width: 768px) {
                 .title {
                     font-size: 2rem;
@@ -445,7 +590,7 @@ require_once '../api/api_personaggi.php';
                     height: 150px;
                 }
 
-                .character-name {
+                #nomePersonaggio {
                     font-size: 1.8rem;
                 }
 
@@ -453,9 +598,14 @@ require_once '../api/api_personaggi.php';
                     padding: 1rem;
                 }
                 
-                .buttons-container {
+                .button-container {
                     flex-direction: column;
                     align-items: center;
+                }
+
+                .modal-content {
+                    padding: 1rem;
+                    max-width: 95%;
                 }
             }
         </style>
@@ -512,7 +662,7 @@ require_once '../api/api_personaggi.php';
                 </div>
             </div>
 
-            <h1 class="title">✨ Cripsum™ Lootbox ✨</h1>
+            <!-- <h1 class="title">✨ Cripsum™ Lootbox ✨</h1> -->
             
             <div class="container">
                 <div class="lootbox-container">
@@ -537,7 +687,6 @@ require_once '../api/api_personaggi.php';
                     </div>
                 </div>
 
-                <!-- Settings Modal -->
                 <div class="modal fade" id="impostazioniModal" tabindex="-1" aria-labelledby="impostazioniModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content bgimpostazioni">
