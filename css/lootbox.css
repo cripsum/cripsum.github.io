@@ -105,6 +105,7 @@ body.overflow-hidden {
 
 /* Contenuto (testo + immagine) */
 #contenuto {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     position: absolute;
     top: 50%;
     left: 50%;
@@ -117,7 +118,7 @@ body.overflow-hidden {
 #contenuto img {
     max-width: 300px;
     max-height: 300px;
-    border-radius: 20px;
+    border-radius: 15px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     margin-bottom: 1rem;
     transition: transform 0.3s ease;
