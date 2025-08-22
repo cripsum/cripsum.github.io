@@ -723,7 +723,7 @@ require_once '../api/api_personaggi.php';
                         return;
                     }
                     let pullRiscattata = getCharacter("TOKI");
-                    riscattaPersonaggio("TOKI");
+                    await riscattaPersonaggio("TOKI");
                     apriNormale();
                 } else {
                     alert("Codice non valido, skill issue!");
