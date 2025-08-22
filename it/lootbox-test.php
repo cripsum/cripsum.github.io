@@ -706,7 +706,7 @@ require_once '../api/api_personaggi.php';
                                 </div>
 
                             <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
-                            <div id="admin-cheats" style="display: none;">
+                            <div id="admin-cheats">
                                 <h4>🎮 Cheats (Admin Only)</h4>
                                 <div class="modal-body">
                                     <div class="col-md-6 d-flex" style="text-align: center">
