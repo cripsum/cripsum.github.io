@@ -21,12 +21,13 @@ require_once '../api/api_personaggi.php';
 <html lang="en">
     <head>
         <?php include '../includes/head-import.php'; ?>
-        <link rel="stylesheet" href="/css/lootbox.css" />
+        <link rel="stylesheet" href="/css/lootbox.css?v=1" />
         <title>Cripsum™ - lootbox</title>
     </head>
 
     <body class="">
         <?php include '../includes/navbar.php'; ?>
+        <div class="stars" id="stars"></div>
         
         <!-- TO DO
            bloccare lo scorrimento della pagina quando il menu della navbar è aperto (aggiungere classe overflow-hidden al body) 
@@ -150,66 +151,66 @@ require_once '../api/api_personaggi.php';
                     <div class="modal-dialog">
                         <div class="modal-content bgimpostazioni">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="disclaimerModalLabel">Impostazioni</h5>
-                                <!--<button type="button" class="btn-close tastobianco" data-bs-dismiss="modal" aria-label="Close" onclick="close_disclaimer(1)" style="color: #ffffff"></button>-->
+                                <h5 class="modal-title" id="disclaimerModalLabel">⚙️ Impostazioni & Probabilità</h5>
                             </div>
                                 <div class="col-md-6 d-flex text-center" style="text-align: center; padding-top: 20px; padding-bottom: 20px; margin: auto;">
                                     <div style="color: white; font-size: 14px; margin: auto;">
-                                        <h6 style="color: white; margin-bottom: 10px;">Probabilità Rarità:</h6>
-                                        <div>Comune: 45%</div>
-                                        <div>Raro: 25%</div>
-                                        <div>Epico: 15%</div>
-                                        <div>Leggendario: 10%</div>
-                                        <div>Mitico: 4%</div>
+                                        <h6 style="color: white; margin-bottom: 10px;">🎲 Probabilità Rarità:</h6>
+                                        <div>Comune: 47%</div>
+                                        <div>Raro: 27%</div>
+                                        <div>Epico: 12%</div>
+                                        <div>Leggendario: 8%</div>
                                         <div>Speciale: 0.9%</div>
                                         <div>???: 0.1%</div>
                                     </div>
                                 </div>
 
-
                             <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
-                            <p class="text-center testobianco">cheats</p>
-                            <div class="modal-body">
-                                <div class="col-md-6 d-flex" style="text-align: center">
-                                    <div class="form-check mb-3 mb-md-0" style="text-align: center">
-                                        <input class="form-check-input checco" type="checkbox" value="" id="RimuoviAnime" />
-                                        <label class="form-check-label" for="loginCheck">Rimuovi Anime</label>
+                            <div id="admin-cheats">
+                                <h4>🎮 Cheats (Admin Only)</h4>
+                                <div class="modal-body">
+                                    <div class="col-md-6 d-flex" style="text-align: center">
+                                        <div class="form-check mb-3 mb-md-0" style="text-align: center">
+                                            <input class="form-check-input checco" type="checkbox" value="" id="RimuoviAnime" />
+                                            <label class="form-check-label" for="RimuoviAnime">Rimuovi Anime</label>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="col-md-6 d-flex" style="text-align: center">
-                                    <div class="form-check mb-3 mb-md-0" style="text-align: center">
-                                        <input class="form-check-input checco" type="checkbox" value="" id="SoloSpeciali" />
-                                        <label class="form-check-label" for="loginCheck">Solo Speciali</label>
+                                    <div class="col-md-6 d-flex" style="text-align: center">
+                                        <div class="form-check mb-3 mb-md-0" style="text-align: center">
+                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloSpeciali" />
+                                            <label class="form-check-label" for="SoloSpeciali">Solo Speciali</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 d-flex" style="text-align: center">
+                                        <div class="form-check mb-3 mb-md-0" style="text-align: center">
+                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloSegreti" />
+                                            <label class="form-check-label" for="SoloSegreti">Solo Segreti</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 d-flex" style="text-align: center">
+                                        <div class="form-check mb-3 mb-md-0" style="text-align: center">
+                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloPoppy" />
+                                            <label class="form-check-label" for="SoloPoppy">Meow</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 d-flex" style="text-align: center">
+                                        <div class="form-check mb-3 mb-md-0" style="text-align: center">
+                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloComuni" />
+                                            <label class="form-check-label" for="SoloComuni">Solo Comuni</label>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6 d-flex" style="text-align: center">
-                                    <div class="form-check mb-3 mb-md-0" style="text-align: center">
-                                        <input class="form-check-input checco" type="checkbox" value="" id="SoloSegreti" />
-                                        <label class="form-check-label" for="loginCheck">Solo Segreti</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 d-flex" style="text-align: center">
-                                    <div class="form-check mb-3 mb-md-0" style="text-align: center">
-                                        <input class="form-check-input checco" type="checkbox" value="" id="SoloPoppy" />
-                                        <label class="form-check-label" for="loginCheck">Meow</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 d-flex" style="text-align: center">
-                                    <div class="form-check mb-3 mb-md-0" style="text-align: center">
-                                        <input class="form-check-input checco" type="checkbox" value="" id="SoloComuni" />
-                                        <label class="form-check-label" for="loginCheck">Solo Comuni</label>
-                                    </div>
-                                </div>
-                                <?php endif; ?>
+                            </div>
+                            <?php endif; ?>
 
                                 <div data-mdb-input-init class="form-outline mb-4">
-                                    <label class="form-label" for="registerName">Codice Segreto</label>
+                                    <label class="form-label" for="registerName">🔐 Codice Segreto</label>
                                     <input type="text" id="codiceSegreto" class="form-control" />
                                     <br />
                                     <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="riscattaCodice()">Riscatta codice</button>
                                 </div>
-                            </div>
+                            
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="salvaPreferenze()">Salva Preferenze</button>
                             </div>
@@ -292,6 +293,20 @@ require_once '../api/api_personaggi.php';
                     randomNum -= weight;
                 }
             }
+
+            function createStars() {
+                const starsContainer = document.getElementById('stars');
+                for (let i = 0; i < 100; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.style.left = Math.random() * 100 + '%';
+                    star.style.top = Math.random() * 100 + '%';
+                    star.style.animationDelay = Math.random() * 4 + 's';
+                    starsContainer.appendChild(star);
+                }
+            }
+
+            createStars();
 
             function getCookie(name) {
                 const cookies = document.cookie.split("; ");
