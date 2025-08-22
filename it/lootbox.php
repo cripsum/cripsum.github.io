@@ -707,7 +707,7 @@ require_once '../api/api_personaggi.php';
             });
 
             document.addEventListener("keydown", function (event) {
-                if (event.code === "KeyR" || event.code === "Enter") {
+                if (event.code === "Enter") {
                     event.preventDefault();
                     refresh();
                 }
