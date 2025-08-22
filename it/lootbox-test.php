@@ -70,7 +70,6 @@ require_once '../api/api_personaggi.php';
 
             .main-container {
                 max-width: 1520px;
-                margin: 0 auto;
                 padding: 5rem 2rem 2rem;
                 min-height: 100vh;
                 display: flex;
@@ -78,6 +77,7 @@ require_once '../api/api_personaggi.php';
                 align-items: center;
                 justify-content: center;
                 position: relative;
+                
             }
 
             .title {
