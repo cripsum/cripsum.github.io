@@ -615,7 +615,14 @@ require_once '../api/api_personaggi.php';
                 isProcessing = true;
 
                 try {
-                    const pull = getCharacter(nomePersonaggio);
+                    const pullRaw = getCharacter(nomePersonaggio);
+
+                    const pull = {
+                    nome: pullRaw.name,
+                    img_url: pullRaw.img,
+                    audio_url: pullRaw.audio,
+                    rarità: pullRaw.rarity
+                    };
                     
                     document.getElementById("contenuto").innerHTML = `
                         <p style="top 10px; font-size: 20px; max-width: 600px; text-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);" id="nomePersonaggio">${pull.nome}</p>
@@ -623,6 +630,8 @@ require_once '../api/api_personaggi.php';
                     `;
                     
                     await addToInventory(pull);
+                    
+
                     
                     if (typeof setLastCharacterFound === 'function') {
                         setLastCharacterFound(pull.nome);
