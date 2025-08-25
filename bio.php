@@ -40,7 +40,7 @@ $user_cercato_id = $user['id'];
         <?php include 'includes/head-import.php'; ?>
         <link rel="stylesheet" href="css/style-users.css?v=1" />
         <script src="/js/nomePagina.js"></script>
-        <title>Profilo di <?php echo htmlspecialchars($user['username']); ?></title>
+        <title>Profilo di cripsum</title>
         <style>
             * {
                 margin: 0;
