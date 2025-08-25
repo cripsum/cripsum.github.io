@@ -114,8 +114,8 @@ $data = getDiscordPresence($discord_id);
         }
 
         .avatar-img {
-            width: 50px;
-            height: 50px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             border: 2px solid rgba(255, 255, 255, 0.2);
             object-fit: cover;

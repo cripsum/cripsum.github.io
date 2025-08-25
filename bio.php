@@ -384,7 +384,7 @@ $user_cercato_id = $user['id'];
                     <img src="includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>" alt="Foto Profilo">
                 </div>
                 
-                <p class="profile-username text-center" style="text-align: center;">cripsum</p>
+                <h1 class="profile-username text-center" style="text-align: center;">cripsum</h1>
                 <p class="profile-subtitle">AKA - Leo, Sofficino alla pesca</p>
                 
                 <div class="profile-info">
