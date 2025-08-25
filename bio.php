@@ -195,7 +195,6 @@ $user_cercato_id = $user['id'];
             .social-link:hover {
                 transform: translateY(-3px);
                 background: rgba(255, 255, 255, 0.1);
-                border-color: rgba(255, 255, 255, 0.3);
                 box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
             }
 
