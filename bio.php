@@ -200,6 +200,14 @@ $user_cercato_id = $user['id'];
                 overflow: hidden;
             }
 
+            .social-link i {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                width: 100%;
+                height: 100%;
+            }
+
             .social-link::before {
                 content: '';
                 position: absolute;
