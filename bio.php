@@ -268,13 +268,13 @@ $user_cercato_id = $user['id'];
             .navbarutenti {
                 background: rgba(255, 255, 255, 0.1);
                 backdrop-filter: blur(20px);
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                border: 2px solid rgb(15, 91, 255);
             }
 
             .dropdownutenti .dropdown-menu {
                 background: rgba(255, 255, 255, 0.1);
                 backdrop-filter: blur(20px);
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                border: 2px solid rgb(15, 91, 255);
             }
 
             @media (max-width: 768px) {
@@ -391,7 +391,7 @@ $user_cercato_id = $user['id'];
             </div>
         </div>
 
-        
+
 
         <script>
             fetch('includes/discord_status.php?discordId=963536045180350474')
