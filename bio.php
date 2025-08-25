@@ -82,8 +82,8 @@ $user_cercato_id = $user['id'];
 
             .profile-container {
                 background: rgba(0, 0, 0, 0.1);
-                -webkit-backdrop-filter: blur(20px);
-                backdrop-filter: blur(15px);
+                -webkit-backdrop-filter: blur(10px);
+                backdrop-filter: blur(10px);
                 border-radius: 10px;
                 border: 2px solid rgb(15, 91, 255);
                 box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 
