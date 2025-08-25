@@ -73,7 +73,7 @@ $user_cercato_id = $user['id'];
                 z-index: -2;
             }
 
-            .background video {
+            .background video {     
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
