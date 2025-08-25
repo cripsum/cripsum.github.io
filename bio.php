@@ -80,17 +80,6 @@ $user_cercato_id = $user['id'];
                 /* filter: blur(3px) brightness(0.3) contrast(1.2); */
             }
 
-            .background::after {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: radial-gradient(circle at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%);
-                z-index: -1;
-            }
-
             .profile-container {
                 background: rgba(255, 255, 255, 0.1);
                 backdrop-filter: blur(20px);
