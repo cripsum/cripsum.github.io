@@ -1,5 +1,5 @@
 <?php
-$discord_id = $_GET['discordId']; // ← Inserisci qui il tuo ID Discord
+$discord_id = $_GET['discordId'];
 function getDiscordPresence($discord_id) {
     $ch = curl_init("https://api.lanyard.rest/v1/users/$discord_id");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -16,11 +16,9 @@ $data = getDiscordPresence($discord_id);
     $status = $data['data']['discord_status'];
     $activities = $data['data']['activities'];
     
-    // Funzione per ottenere l'avatar Discord
     $avatar_url = "https://cdn.discordapp.com/avatars/{$user['id']}/{$user['avatar']}.png?size=64";
 ?>
     <div class="discord-card">
-        <!-- Header con profilo Discord -->
         <div class="discord-profile">
             <div class="profile-avatar">
                 <img src="<?php echo $avatar_url; ?>" alt="Avatar Discord" class="avatar-img">
@@ -43,7 +41,6 @@ $data = getDiscordPresence($discord_id);
             </div>
         </div>
 
-        <!-- Attività -->
         <?php if (!empty($activities)): ?>
             <div class="activity-section">
                 <?php foreach ($activities as $index => $activity): ?>
@@ -145,7 +142,7 @@ $data = getDiscordPresence($discord_id);
         }
 
         .profile-username {
-            margin-top: 10px;
+            margin-top: 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -274,7 +271,6 @@ $data = getDiscordPresence($discord_id);
             }
         }
 
-        /* Responsive */
         @media (max-width: 480px) {
             .discord-card {
                 padding: 16px;
