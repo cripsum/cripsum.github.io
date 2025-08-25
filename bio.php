@@ -358,7 +358,6 @@ $user_cercato_id = $user['id'];
                 }
             }
 
-            /* Subtle pulse animation for the container */
             .profile-container {
                 animation: subtlePulse 4s ease-in-out infinite;
             }
@@ -421,20 +420,19 @@ $user_cercato_id = $user['id'];
 
                 <div class="social-links">
                     <a href="https://tiktok.cripsum.com" target="_blank" class="social-link" title="TikTok">
-                        TT
+                       <i class="fab fa-tiktok"></i>
                     </a>
                     <a href="https://t.me/sburragrigliata" target="_blank" class="social-link" title="Telegram">
-                        TG
+                       <i class="fab fa-telegram-plane"></i>
                     </a>
                     <a href="https://discord.cripsum.com" target="_blank" class="social-link" title="Discord">
-                        DC
+                        <i class="fab fa-discord"></i>
                     </a>
                 </div>
             </div>
         </div>
 
         <script>
-            // Mantieni tutto il JavaScript esistente per Discord
             fetch('includes/discord_status.php?discordId=963536045180350474')
                 .then(r => r.text())
                 .then(html => {
@@ -459,36 +457,31 @@ $user_cercato_id = $user['id'];
                     .catch(err => console.error('Errore aggiornamento Discord status:', err));
             }, 30000);
 
-            // Funzione per inizializzare il carousel delle attività 
             function initActivityCarousel() {
                 const slides = document.querySelectorAll(".activity-item");
                 if (slides.length <= 1) return;
 
                 let current = 0;
 
-                // Nascondere tutti tranne il primo
                 slides.forEach((slide, index) => {
                     if (index !== 0) {
                         slide.style.display = "none";
                     }
                 });
 
-                // Carousel automatico
                 setInterval(() => {
                     if (slides.length > 1) {
                         slides[current].style.display = "none";
                         current = (current + 1) % slides.length;
                         slides[current].style.display = "flex";
                     }
-                }, 4000); // Cambia ogni 4 secondi
+                }, 4000);
             }
 
-            // Inizializza il carousel al caricamento della pagina
             document.addEventListener("DOMContentLoaded", () => {
                 initActivityCarousel();
             });
 
-            // Funzioni esistenti per copiare i link del profilo
             function copyProfileLink(type) {
                 const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
                 let url;
@@ -500,7 +493,6 @@ $user_cercato_id = $user['id'];
                 }
                 
                 navigator.clipboard.writeText(url).then(() => {
-                    // Feedback visuale opzionale
                     const button = event.target;
                     const originalText = button.textContent;
                     button.textContent = 'Copiato!';
@@ -512,7 +504,6 @@ $user_cercato_id = $user['id'];
                     }, 2000);
                 }).catch(err => {
                     console.error('Errore nella copia:', err);
-                    // Fallback per browser più vecchi
                     const textArea = document.createElement('textarea');
                     textArea.value = url;
                     document.body.appendChild(textArea);
@@ -522,7 +513,6 @@ $user_cercato_id = $user['id'];
                 });
             }
 
-            // Aggiungi effetti di parallax leggeri
             document.addEventListener('mousemove', (e) => {
                 const container = document.querySelector('.profile-container');
                 const rect = container.getBoundingClientRect();
