@@ -39,8 +39,8 @@ $user_cercato_id = $user['id'];
     <head>
         <?php include 'includes/head-import.php'; ?>
         <link rel="stylesheet" href="css/style-users.css?v=1" />
-        <script src="/js/nomePagina.js"></script>
         <title>Profilo di cripsum</title>
+        <script src="js/nomePagina.js"></script>
         <style>
             * {
                 margin: 0;
