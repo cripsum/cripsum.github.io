@@ -24,25 +24,10 @@
     font-weight: bold;
     transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease;
 }
-
-.dropdownutenti .dropdown-menu .dropdown-item:hover {
-    color: #ffffff;
-    transform: scale(1.1);
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
-    background-color: rgba(0, 0, 0, 0);
-}
-
 .navbarutenti .nav-link {
     color: white;
     font-weight: bold;
     transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease;
-}
-
-.navbarutenti .nav-link:hover,
-.navbarutenti .nav-link:focus {
-    color: #ffffff;
-    transform: scale(1.1);
-    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
 }
 
 .navbarutenti .navbar-toggler {
@@ -52,17 +37,6 @@
 .navbarutenti .navbar-toggler-icon {
     background-image: url('data:image/svg+xml;charset=utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 30 30"%3E%3Cpath stroke="white" stroke-width="3" d="M4 7h22M4 15h22M4 23h22"/%3E%3C/svg%3E'); /* Colore dell'icona */
 }
-
-.navbarutenti .navbar-toggler:focus {
-    outline: none;
-    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0);
-}
-
-.navbarutenti .navbar-toggler:hover {
-    outline: none;
-    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5);
-}
-
 .linkbianco {
     color: white;
     font-weight: bold;
@@ -72,14 +46,6 @@
     border-bottom: 2px solid transparent;
     transition: color 0.3s ease, transform 0.3s ease, border-bottom-color 0.3s ease, text-shadow 0.3s ease;
 }
-
-.linkbianco:hover {
-    color: #ffffff;
-    transform: scale(1.1);
-    text-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5);
-    border-bottom-color: white;
-}
-
 .bio-page * {
     box-sizing: border-box;
     margin: 0;

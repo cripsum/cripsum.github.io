@@ -38,7 +38,8 @@ $user_cercato_id = $user['id'];
 <html lang="en">
     <head>
         <?php include 'includes/head-import.php'; ?>
-        <link rel="stylesheet" href="css/style-users.css" />
+        <link rel="stylesheet" href="css/style-users.css?v=1" />
+        <script src="/js/nomePagina.js"></script>
         <title>Profilo di <?php echo htmlspecialchars($user['username']); ?></title>
         <style>
             * {
@@ -403,7 +404,7 @@ $user_cercato_id = $user['id'];
                     <img src="includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>" alt="Foto Profilo">
                 </div>
                 
-                <h1 class="profile-username"><?php echo htmlspecialchars($user['username']); ?></h1>
+                <h1 class="profile-username text-center"><?php echo htmlspecialchars($user['username']); ?></h1>
                 <p class="profile-subtitle">AKA - Leo, Sofficino alla pesca</p>
                 
                 <div class="profile-info">
