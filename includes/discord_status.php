@@ -87,7 +87,7 @@ $data = getDiscordPresence($discord_id);
             background: linear-gradient(135deg, rgba(125, 246, 255, 0), rgba(4, 87, 87, 0));
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 16px;
-            padding: 20px;
+            padding: 15px 20px 20px 20px;
             max-width: 400px;
             margin: 1.5rem auto 0 auto;
             color: white;
@@ -142,7 +142,7 @@ $data = getDiscordPresence($discord_id);
         }
 
         .profile-username {
-            margin-top: 20px;
+            margin-top: 25px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -273,7 +273,7 @@ $data = getDiscordPresence($discord_id);
 
         @media (max-width: 480px) {
             .discord-card {
-                padding: 16px;
+                padding: 10px 16px 16px 16px;
                 max-width: 100%;
             }
             
