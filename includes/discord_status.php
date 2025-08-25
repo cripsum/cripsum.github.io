@@ -123,8 +123,8 @@ $data = getDiscordPresence($discord_id);
 
         .status-indicator {
             position: absolute;
-            bottom: -10px;
-            right: -10px;
+            bottom: -5px;
+            right: -5px;
             width: 20px;
             height: 20px;
             border-radius: 50%;
