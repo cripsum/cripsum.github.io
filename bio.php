@@ -265,7 +265,6 @@ $user_cercato_id = $user['id'];
                     opacity: 0;
                 }
             }
-
             .navbarutenti {
                 background: rgba(255, 255, 255, 0.1);
                 -webkit-backdrop-filter: blur(20px);
@@ -274,12 +273,8 @@ $user_cercato_id = $user['id'];
             }
 
             .dropdownutenti .dropdown-menu {
-                background: rgba(255, 255, 255, 0.1) !important;
-                -webkit-backdrop-filter: blur(20px) !important;
-                backdrop-filter: blur(20px) !important;
-                border: 2px solid rgb(15, 91, 255) !important;
-                position: relative !important;
-                z-index: 1000 !important;
+                background: rgba(15, 91, 255, 0.5);
+                border: 2px solid rgb(15, 91, 255);
             }
 
             @media (max-width: 768px) {
