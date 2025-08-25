@@ -92,7 +92,7 @@ $user_cercato_id = $user['id'];
             }
 
             .profile-container {
-                background: rgba(15, 15, 35, 0.85);
+                background: rgba(255, 255, 255, 0.1);
                 backdrop-filter: blur(20px);
                 border-radius: 20px;
                 border: 1px solid rgba(255, 255, 255, 0.1);
@@ -294,13 +294,13 @@ $user_cercato_id = $user['id'];
             }
 
             .navbarutenti {
-                background: rgba(15, 15, 35, 0.9);
+                background: rgba(255, 255, 255, 0.1);
                 backdrop-filter: blur(20px);
                 border: 1px solid rgba(255, 255, 255, 0.1);
             }
 
             .dropdownutenti .dropdown-menu {
-                background: rgba(15, 15, 35, 0.95);
+                background: rgba(255, 255, 255, 0.1);
                 backdrop-filter: blur(20px);
                 border: 1px solid rgba(255, 255, 255, 0.1);
             }
@@ -370,7 +370,7 @@ $user_cercato_id = $user['id'];
         <div class="bio-page">
             <div class="background">
                 <video autoplay muted loop>
-                    <source src="vid/overlaymatta.mp4" type="video/mp4" />
+                    <source src="vid/Shorekeeper Wallpaper 4K Loop.mp4" type="video/mp4" />
                     Your browser does not support the video tag.
                 </video>
             </div>
