@@ -85,7 +85,7 @@ $data = getDiscordPresence($discord_id);
     <style>
         .discord-card {
             background: linear-gradient(135deg, rgba(125, 246, 255, 0), rgba(4, 87, 87, 0));
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 2px solid rgb(15, 91, 255);
             border-radius: 16px;
             padding: 15px 20px 20px 20px;
             max-width: 400px;

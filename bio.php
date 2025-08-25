@@ -83,7 +83,7 @@ $user_cercato_id = $user['id'];
             .profile-container {
                 background: rgba(0, 0, 0, 0.1);
                 backdrop-filter: blur(20px);
-                border-radius: 20px;
+                border-radius: 10px;
                 border: 2px solid rgb(15, 91, 255);
                 box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 
                            0 0 0 1px rgba(255, 255, 255, 0.05);
@@ -93,22 +93,6 @@ $user_cercato_id = $user['id'];
                 text-align: center;
                 position: relative;
                 overflow: hidden;
-            }
-
-            .profile-container::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 2px;
-                background: linear-gradient(90deg, 
-                    transparent 0%, 
-                    #00d4ff 20%, 
-                    #7c3aed 50%, 
-                    #00d4ff 80%, 
-                    transparent 100%);
-                opacity: 0.8;
             }
 
             .user-username {
@@ -178,7 +162,7 @@ $user_cercato_id = $user['id'];
                 width: 45px;
                 height: 45px;
                 background: rgba(255, 255, 255, 0.05);
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                border: 2px solid rgb(15, 91, 255);
                 border-radius: 12px;
                 color: white;
                 text-decoration: none;
@@ -385,9 +369,9 @@ $user_cercato_id = $user['id'];
                 <p class="profile-subtitle">AKA - Leo, Sofficino alla pesca</p>
                 
                 <div class="profile-info">
-                    <div><span>🌍</span>🇮🇹 Italy | 19</div>
-                    <div><span>🎬</span>Video Editor</div>
-                    <div><span>💻</span>Developer</div>
+                    <div><span>⟡</span>🇮🇹 Italy | 19</div>
+                    <div><span>⟡</span>Video Editor</div>
+                    <div><span>⟡</span>Developer</div>
                 </div>
 
                     <div class="discord-box" id="discordBox">
