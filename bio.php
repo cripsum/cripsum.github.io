@@ -77,7 +77,7 @@ $user_cercato_id = $user['id'];
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
-                filter: blur(3px) brightness(0.3) contrast(1.2);
+                /* filter: blur(3px) brightness(0.3) contrast(1.2); */
             }
 
             .background::after {
