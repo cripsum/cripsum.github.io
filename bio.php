@@ -48,7 +48,6 @@ $user_cercato_id = $user['id'];
             }
 
             body {
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
                 min-height: 100vh;
                 color: white;
@@ -152,6 +151,7 @@ $user_cercato_id = $user['id'];
                 animation: gradientShift 3s ease-in-out infinite;
                 margin-bottom: 8px;
                 text-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+                margin: auto;
             }
 
             @keyframes gradientShift {
@@ -412,11 +412,9 @@ $user_cercato_id = $user['id'];
                     <div><span>💻</span>Developer</div>
                 </div>
 
-                <div class="discord-section">
                     <div class="discord-box" id="discordBox">
                         <?php include 'includes/discord_status.php?discordId=963536045180350474'; ?>
                     </div>
-                </div>
 
                 <div class="social-links">
                     <a href="https://tiktok.cripsum.com" target="_blank" class="social-link" title="TikTok">
