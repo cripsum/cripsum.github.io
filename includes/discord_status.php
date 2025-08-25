@@ -91,7 +91,7 @@ $data = getDiscordPresence($discord_id);
             max-width: 400px;
             margin: 1.5rem auto 0 auto;
             color: white;
-            box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.3);
+            /* box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.3); */
             transition: all 0.3s ease;
         }
 
