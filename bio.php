@@ -41,27 +41,338 @@ $user_cercato_id = $user['id'];
         <link rel="stylesheet" href="css/style-users.css" />
         <title>Profilo di <?php echo htmlspecialchars($user['username']); ?></title>
         <style>
-            .navbarutenti {
-                background: linear-gradient(135deg, rgba(125, 246, 255, 0.1), rgba(4, 87, 87, 0.1)); /* Sfondo trasparente */
-            }
-            .dropdownutenti .dropdown-menu {
-                background: linear-gradient(135deg, rgba(0, 46, 56, 0.5), rgb(0, 37, 39)); /* Sfondo trasparente */
-            }
-
-            .list-group-item {
-                background: linear-gradient(135deg, rgba(125, 246, 255, 0), rgba(4, 87, 87, 0)); /* Sfondo trasparente */
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
             }
 
-            .list-group{
-                background: linear-gradient(135deg, rgba(125, 246, 255, 0), rgba(4, 87, 87, 0)); /* Sfondo trasparente */
-                max-width: 400px;
-                margin: auto;
+            body {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+                min-height: 100vh;
+                color: white;
+                overflow-x: hidden;
             }
-            .discord-box {
-                margin: 2rem auto 0 auto;
+
+            .bio-page {
+                min-height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: relative;
+                padding: 20px;
+            }
+
+            .background {
+                position: fixed;
+                top: 0;
+                left: 0;
                 width: 100%;
-                max-width: 400px;
-                display: block;
+                height: 100%;
+                z-index: -2;
+            }
+
+            .background video {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                filter: blur(3px) brightness(0.3) contrast(1.2);
+            }
+
+            .background::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: radial-gradient(circle at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%);
+                z-index: -1;
+            }
+
+            .profile-container {
+                background: rgba(15, 15, 35, 0.85);
+                backdrop-filter: blur(20px);
+                border-radius: 20px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 
+                           0 0 0 1px rgba(255, 255, 255, 0.05);
+                width: 100%;
+                max-width: 480px;
+                padding: 40px;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .profile-container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(90deg, 
+                    transparent 0%, 
+                    #00d4ff 20%, 
+                    #7c3aed 50%, 
+                    #00d4ff 80%, 
+                    transparent 100%);
+                opacity: 0.8;
+            }
+
+            .profile-avatar {
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                border: 4px solid transparent;
+                background: linear-gradient(45deg, #00d4ff, #7c3aed);
+                padding: 3px;
+                margin: 0 auto 20px;
+                position: relative;
+            }
+
+            .profile-avatar img {
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                object-fit: cover;
+                background: #1a1a2e;
+            }
+
+            .profile-username {
+                font-size: 2rem;
+                font-weight: 700;
+                background: linear-gradient(135deg, #00d4ff, #7c3aed, #00d4ff);
+                background-size: 200% 200%;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                animation: gradientShift 3s ease-in-out infinite;
+                margin-bottom: 8px;
+                text-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+            }
+
+            @keyframes gradientShift {
+                0%, 100% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+            }
+
+            .profile-subtitle {
+                color: #a0a0a0;
+                font-size: 0.9rem;
+                margin-bottom: 20px;
+                font-weight: 400;
+            }
+
+            .profile-info {
+                color: #e0e0e0;
+                font-size: 0.95rem;
+                line-height: 1.6;
+                margin-bottom: 30px;
+                font-weight: 400;
+            }
+
+            .profile-info span {
+                color: #00d4ff;
+                margin-right: 8px;
+            }
+
+            .discord-section {
+                margin: 30px 0;
+                background: rgba(88, 101, 242, 0.1);
+                border: 1px solid rgba(88, 101, 242, 0.3);
+                border-radius: 12px;
+                padding: 20px;
+                transition: all 0.3s ease;
+            }
+
+            .discord-section:hover {
+                background: rgba(88, 101, 242, 0.15);
+                transform: translateY(-2px);
+                box-shadow: 0 10px 30px rgba(88, 101, 242, 0.2);
+            }
+
+            .social-links {
+                display: flex;
+                justify-content: center;
+                gap: 15px;
+                margin-top: 30px;
+            }
+
+            .social-link {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 45px;
+                height: 45px;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 12px;
+                color: white;
+                text-decoration: none;
+                font-size: 1.2rem;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .social-link::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+                transition: left 0.5s ease;
+            }
+
+            .social-link:hover {
+                transform: translateY(-3px);
+                background: rgba(255, 255, 255, 0.1);
+                border-color: rgba(255, 255, 255, 0.3);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            }
+
+            .social-link:hover::before {
+                left: 100%;
+            }
+
+            .social-link:nth-child(1):hover {
+                background: linear-gradient(45deg, #ff0050, #ff4081);
+                border-color: #ff4081;
+            }
+
+            .social-link:nth-child(2):hover {
+                background: linear-gradient(45deg, #0088cc, #00a0e9);
+                border-color: #00a0e9;
+            }
+
+            .social-link:nth-child(3):hover {
+                background: linear-gradient(45deg, #5865f2, #7289da);
+                border-color: #7289da;
+            }
+
+            .floating-elements {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: -1;
+            }
+
+            .floating-particle {
+                position: absolute;
+                width: 4px;
+                height: 4px;
+                background: rgba(0, 212, 255, 0.6);
+                border-radius: 50%;
+                animation: float 6s infinite linear;
+            }
+
+            .floating-particle:nth-child(2) {
+                background: rgba(124, 58, 237, 0.6);
+                animation-delay: -2s;
+                animation-duration: 8s;
+            }
+
+            .floating-particle:nth-child(3) {
+                background: rgba(0, 212, 255, 0.4);
+                animation-delay: -4s;
+                animation-duration: 10s;
+            }
+
+            @keyframes float {
+                0% {
+                    transform: translateY(100vh) rotate(0deg);
+                    opacity: 0;
+                }
+                10% {
+                    opacity: 1;
+                }
+                90% {
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(-100px) rotate(360deg);
+                    opacity: 0;
+                }
+            }
+
+            .navbarutenti {
+                background: rgba(15, 15, 35, 0.9);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .dropdownutenti .dropdown-menu {
+                background: rgba(15, 15, 35, 0.95);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            @media (max-width: 768px) {
+                .profile-container {
+                    margin: 20px;
+                    padding: 30px 25px;
+                    max-width: calc(100vw - 40px);
+                }
+
+                .profile-username {
+                    font-size: 1.8rem;
+                }
+
+                .social-links {
+                    gap: 12px;
+                }
+
+                .social-link {
+                    width: 42px;
+                    height: 42px;
+                    font-size: 1.1rem;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .bio-page {
+                    padding: 15px;
+                }
+
+                .profile-container {
+                    padding: 25px 20px;
+                    margin: 15px;
+                }
+
+                .profile-username {
+                    font-size: 1.6rem;
+                }
+
+                .profile-avatar {
+                    width: 100px;
+                    height: 100px;
+                }
+            }
+
+            /* Subtle pulse animation for the container */
+            .profile-container {
+                animation: subtlePulse 4s ease-in-out infinite;
+            }
+
+            @keyframes subtlePulse {
+                0%, 100% {
+                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 
+                               0 0 0 1px rgba(255, 255, 255, 0.05);
+                }
+                50% {
+                    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), 
+                               0 0 0 1px rgba(255, 255, 255, 0.08),
+                               0 0 50px rgba(0, 212, 255, 0.1);
+                }
             }
         </style>
     </head>
@@ -70,65 +381,60 @@ $user_cercato_id = $user['id'];
 
         <div class="bio-page">
             <div class="background">
-                <!-- Use a video or an image as background -->
-                <!-- Video example -->
                 <video autoplay muted loop>
                     <source src="vid/overlaymatta.mp4" type="video/mp4" />
                     Your browser does not support the video tag.
                 </video>
-                <!-- Image example -->
-                <!-- <img src="your-image.jpg" alt="Background Image"> -->
             </div>
 
-            <div class="bio-container fadeup" style="background: linear-gradient(135deg, rgba(125, 246, 255, 0.1), rgba(4, 87, 87, 0.1))">
-                <div style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin: 0 auto;" class="mb-3">
-                    <img src="includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>" alt="Foto Profilo"
-                        style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+            <div class="floating-elements">
+                <div class="floating-particle" style="left: 10%; animation-delay: 0s;"></div>
+                <div class="floating-particle" style="left: 20%; animation-delay: -1s;"></div>
+                <div class="floating-particle" style="left: 30%; animation-delay: -2s;"></div>
+                <div class="floating-particle" style="left: 40%; animation-delay: -3s;"></div>
+                <div class="floating-particle" style="left: 50%; animation-delay: -4s;"></div>
+                <div class="floating-particle" style="left: 60%; animation-delay: -5s;"></div>
+                <div class="floating-particle" style="left: 70%; animation-delay: -1.5s;"></div>
+                <div class="floating-particle" style="left: 80%; animation-delay: -2.5s;"></div>
+                <div class="floating-particle" style="left: 90%; animation-delay: -3.5s;"></div>
+            </div>
+
+            <div class="profile-container">
+                <div class="profile-avatar">
+                    <img src="includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>" alt="Foto Profilo">
                 </div>
-                <h1 class="testo-arcobaleno mt-2" style="font-weight: bolder; text-shadow: 0 0 25px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.5)"><?php echo htmlspecialchars($user['username']); ?></h1>
-                <p class="mb-2" style="color: rgb(171, 171, 171)">AKA - Leo, Sofficino alla pesca</p>
-                <p>⟡ 🇮🇹 | 19 <br>⟡ video editor <br>⟡ developer </p>
-                            <div class="discord-box fadeup" id="discordBox" style="margin: auto; text-align: center;">
-                                <?php include 'includes/discord_status.php?discordId=963536045180350474'; ?>
-                            </div>
+                
+                <h1 class="profile-username"><?php echo htmlspecialchars($user['username']); ?></h1>
+                <p class="profile-subtitle">AKA - Leo, Sofficino alla pesca</p>
+                
+                <div class="profile-info">
+                    <div><span>🌍</span>🇮🇹 Italy | 19</div>
+                    <div><span>🎬</span>Video Editor</div>
+                    <div><span>💻</span>Developer</div>
+                </div>
 
-                            <!--<p>Membro dal: <?php echo date('d/m/Y', strtotime($user['data_creazione'])); ?></p>
+                <div class="discord-section">
+                    <div class="discord-box" id="discordBox">
+                        <?php include 'includes/discord_status.php?discordId=963536045180350474'; ?>
+                    </div>
+                </div>
 
-                            <h4 style="margin-bottom: 10px;">Statistiche</h4>
-                            <ul class="list-group">
-                                <li class="list-group-item d-flex justify-content-between">
-                                    <span style="margin-left: 3%;">Obiettivi sbloccati</span>
-                                    <strong style="margin-right: 3%;"><?php echo $user['num_achievement']; ?></strong>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between">
-                                    <span style="margin-left: 3%;">Personaggi trovati</span>
-                                    <strong style="margin-right: 3%;"><?php echo $user['num_personaggi']; ?></strong>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between">
-                                    <span style="margin-left: 3%;">Soldi</span>
-                                    <strong style="margin-right: 3%;"><?php echo $user['soldi']; ?></strong>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between">
-                                    <span style="margin-left: 3%;">Ruolo</span>
-                                    <strong style="margin-right: 3%;"><?php echo htmlspecialchars($user['ruolo']); ?></strong>
-                                </li>
-                            </ul>
-                            <div class="mt-3">
-                                <button class="btn btn-sm btn-outline-primary" onclick="copyProfileLink('username')" style="padding-left: 5px; padding-right: 5px;">
-                                    Copia link profilo
-                                </button>
-                                <button class="btn btn-sm btn-outline-secondary" onclick="copyProfileLink('id')" style="padding-left: 5px; padding-right: 5px;">
-                                    Copia link ID
-                                </button>
-                            </div>-->
-                <div class="social-media" style="margin-top: 20px;">
-                    <a href="https://tiktok.cripsum.com" target="_blank" class="linkbianco">TikTok</a>
-                    <a href="https://t.me/sburragrigliata" target="_blank" class="linkbianco">Telegram</a>
-                    <a href="https://discord.cripsum.com" target="_blank" class="linkbianco">Discord</a>
+                <div class="social-links">
+                    <a href="https://tiktok.cripsum.com" target="_blank" class="social-link" title="TikTok">
+                        TT
+                    </a>
+                    <a href="https://t.me/sburragrigliata" target="_blank" class="social-link" title="Telegram">
+                        TG
+                    </a>
+                    <a href="https://discord.cripsum.com" target="_blank" class="social-link" title="Discord">
+                        DC
+                    </a>
                 </div>
             </div>
         </div>
+
         <script>
+            // Mantieni tutto il JavaScript esistente per Discord
             fetch('includes/discord_status.php?discordId=963536045180350474')
                 .then(r => r.text())
                 .then(html => {
@@ -147,14 +453,13 @@ $user_cercato_id = $user['id'];
                         const discordBox = document.querySelector('.discord-box');
                         if (discordBox) {
                             discordBox.innerHTML = html;
-
                             initActivityCarousel();
                         }
                     })
                     .catch(err => console.error('Errore aggiornamento Discord status:', err));
             }, 30000);
 
-            // Funzione per inizializzare il carousel delle attività
+            // Funzione per inizializzare il carousel delle attività 
             function initActivityCarousel() {
                 const slides = document.querySelectorAll(".activity-item");
                 if (slides.length <= 1) return;
@@ -216,7 +521,25 @@ $user_cercato_id = $user['id'];
                     document.body.removeChild(textArea);
                 });
             }
-            </script>
+
+            // Aggiungi effetti di parallax leggeri
+            document.addEventListener('mousemove', (e) => {
+                const container = document.querySelector('.profile-container');
+                const rect = container.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                
+                const rotateX = (y / rect.height) * 5;
+                const rotateY = (x / rect.width) * -5;
+                
+                container.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+
+            document.addEventListener('mouseleave', () => {
+                const container = document.querySelector('.profile-container');
+                container.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+            });
+        </script>
 
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
