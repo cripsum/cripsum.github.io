@@ -253,7 +253,7 @@ $data = getDiscordPresence($discord_id);
 
         .activity-details {
             font-size: 13px;
-            color: #b5bac1;
+            color:rgb(255, 255, 255);
             margin-bottom: 1px;
             line-height: 1.3;
             overflow: hidden;
@@ -263,7 +263,7 @@ $data = getDiscordPresence($discord_id);
 
         .activity-state {
             font-size: 13px;
-            color: #949ba4;
+            color:rgb(255, 255, 255);
             line-height: 1.3;
             overflow: hidden;
             text-overflow: ellipsis;
