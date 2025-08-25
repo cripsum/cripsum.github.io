@@ -81,10 +81,10 @@ $user_cercato_id = $user['id'];
             }
 
             .profile-container {
-                background: rgba(255, 255, 255, 0.1);
+                background: rgba(0, 0, 0, 0.1);
                 backdrop-filter: blur(20px);
                 border-radius: 20px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                border: 2px solid rgb(15, 91, 255);
                 box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 
                            0 0 0 1px rgba(255, 255, 255, 0.05);
                 width: 100%;
