@@ -506,8 +506,8 @@ $user_cercato_id = $user['id'];
                 const x = e.clientX - rect.left - rect.width / 2;
                 const y = e.clientY - rect.top - rect.height / 2;
                 
-                const rotateX = (y / rect.height) * 3;
-                const rotateY = (x / rect.width) * -3;
+                const rotateX = (y / rect.height) * 1;
+                const rotateY = (x / rect.width) * -1;
                 
                 container.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
             });
