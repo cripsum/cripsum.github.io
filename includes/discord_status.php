@@ -48,12 +48,22 @@ $data = getDiscordPresence($discord_id);
                         <div class="activity-icon-container">
                             <?php
                                 $icon = null;
-                                if (isset($activity['assets']['large_image'])) {
-                                    $key = $activity['assets']['large_image'];
-                                    if (str_starts_with($key, 'mp:external/')) {
-                                        $icon = str_replace('mp:', 'https://media.discordapp.net/', $key);
-                                    } else {
-                                        $icon = "https://cdn.discordapp.com/app-assets/{$activity['application_id']}/$key.png";
+                                if (isset($activity['name']) && $activity['name'] === 'Spotify') {
+                                    if (isset($activity['assets']['large_image'])) {
+                                        $key = $activity['assets']['large_image'];
+                                        if (str_starts_with($key, 'spotify:')) {
+                                            $spotify_id = str_replace('spotify:', '', $key);
+                                            $icon = "https://i.scdn.co/image/$spotify_id";
+                                        }
+                                    }
+                                } else {
+                                    if (isset($activity['assets']['large_image'])) {
+                                        $key = $activity['assets']['large_image'];
+                                        if (str_starts_with($key, 'mp:external/')) {
+                                            $icon = str_replace('mp:', 'https://media.discordapp.net/', $key);
+                                        } else {
+                                            $icon = "https://cdn.discordapp.com/app-assets/{$activity['application_id']}/$key.png";
+                                        }
                                     }
                                 }
                             ?>

@@ -391,6 +391,8 @@ $user_cercato_id = $user['id'];
             </div>
         </div>
 
+        
+
         <script>
             fetch('includes/discord_status.php?discordId=963536045180350474')
                 .then(r => r.text())
