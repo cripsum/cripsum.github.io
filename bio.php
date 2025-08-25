@@ -404,7 +404,7 @@ $user_cercato_id = $user['id'];
                     <img src="includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>" alt="Foto Profilo">
                 </div>
                 
-                <h1 class="profile-username text-center"><?php echo htmlspecialchars($user['username']); ?></h1>
+                <h1 class="profile-username text-center">cripsum</h1>
                 <p class="profile-subtitle">AKA - Leo, Sofficino alla pesca</p>
                 
                 <div class="profile-info">
@@ -419,13 +419,13 @@ $user_cercato_id = $user['id'];
 
                 <div class="social-links">
                     <a href="https://tiktok.cripsum.com" target="_blank" class="social-link" title="TikTok">
-                       <i class="fab fa-tiktok"></i>
+                       <i class="fab fa-tiktok" style="display: flex; align-items: center;"></i>
                     </a>
                     <a href="https://t.me/sburragrigliata" target="_blank" class="social-link" title="Telegram">
-                       <i class="fab fa-telegram-plane"></i>
+                       <i class="fab fa-telegram-plane" style="display: flex; align-items: center;"></i>
                     </a>
                     <a href="https://discord.cripsum.com" target="_blank" class="social-link" title="Discord">
-                        <i class="fab fa-discord"></i>
+                        <i class="fab fa-discord" style="display: flex; align-items: center;"></i>
                     </a>
                 </div>
             </div>
