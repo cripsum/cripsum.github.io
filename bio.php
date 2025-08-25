@@ -337,7 +337,7 @@ $user_cercato_id = $user['id'];
         </style>
     </head>
     <body>
-        <?php include 'includes/navbar.php'; ?>
+        <?php include 'includes/navbar-bio.php'; ?>
 
         <div class="bio-page">
             <div class="background">
