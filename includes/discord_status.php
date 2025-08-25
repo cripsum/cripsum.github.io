@@ -145,7 +145,7 @@ $data = getDiscordPresence($discord_id);
         }
 
         .profile-username {
-            padding-top: 5px;
+            margin-top: 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
