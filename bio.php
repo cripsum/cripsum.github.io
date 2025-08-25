@@ -82,6 +82,7 @@ $user_cercato_id = $user['id'];
 
             .profile-container {
                 background: rgba(0, 0, 0, 0.1);
+                -webkit-backdrop-filter: blur(20px);
                 backdrop-filter: blur(20px);
                 border-radius: 10px;
                 border: 2px solid rgb(15, 91, 255);
@@ -267,14 +268,18 @@ $user_cercato_id = $user['id'];
 
             .navbarutenti {
                 background: rgba(255, 255, 255, 0.1);
+                -webkit-backdrop-filter: blur(20px);
                 backdrop-filter: blur(20px);
                 border: 2px solid rgb(15, 91, 255);
             }
 
             .dropdownutenti .dropdown-menu {
-                background: rgba(255, 255, 255, 0.1);
-                backdrop-filter: blur(20px);
-                border: 2px solid rgb(15, 91, 255);
+                background: rgba(255, 255, 255, 0.1) !important;
+                -webkit-backdrop-filter: blur(20px) !important;
+                backdrop-filter: blur(20px) !important;
+                border: 2px solid rgb(15, 91, 255) !important;
+                position: relative !important;
+                z-index: 1000 !important;
             }
 
             @media (max-width: 768px) {
