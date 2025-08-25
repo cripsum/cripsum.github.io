@@ -122,7 +122,7 @@ $user_cercato_id = $user['id'];
                 opacity: 0.8;
             }
 
-            .profile-username {
+            .user-username {
                 font-size: 2rem;
                 font-weight: 700;
                 background: linear-gradient(135deg, #00d4ff, #7c3aed, #00d4ff);
@@ -392,7 +392,7 @@ $user_cercato_id = $user['id'];
                     <img src="includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>" alt="Foto Profilo">
                 </div>
                 
-                <h1 class="profile-username text-center" style="text-align: center;">cripsum</h1>
+                <h1 class="user-username text-center" style="text-align: center;">cripsum</h1>
                 <p class="profile-subtitle">AKA - Leo, Sofficino alla pesca</p>
                 
                 <div class="profile-info">
