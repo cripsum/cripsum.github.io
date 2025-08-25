@@ -114,8 +114,8 @@ $data = getDiscordPresence($discord_id);
         }
 
         .avatar-img {
-            width: 100px;
-            height: 100px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             border: 2px solid rgba(255, 255, 255, 0.2);
             object-fit: cover;
@@ -123,10 +123,10 @@ $data = getDiscordPresence($discord_id);
 
         .status-indicator {
             position: absolute;
-            bottom: -2px;
-            right: -2px;
-            width: 16px;
-            height: 16px;
+            bottom: -5px;
+            right: -5px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             border: 3px solid rgba(0, 0, 0, 0.8);
         }
