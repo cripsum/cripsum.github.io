@@ -277,7 +277,19 @@ $user_cercato_id = $user['id'];
                 border: 2px solid rgb(15, 91, 255);
             }
 
+            @media (max-width: 1024px) {
+                .bio-page {
+                    margin-top: 5rem;
+                }
+                
+            }
+
             @media (max-width: 768px) {
+                .bio-page {
+                    margin-top: 5rem;
+                }
+
+
                 .profile-container {
                     margin: 20px;
                     padding: 30px 25px;
@@ -302,6 +314,7 @@ $user_cercato_id = $user['id'];
             @media (max-width: 480px) {
                 .bio-page {
                     padding: 15px;
+                    margin-top: 5rem;
                 }
 
                 .profile-container {
