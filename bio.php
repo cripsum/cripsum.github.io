@@ -383,7 +383,6 @@ $user_cercato_id = $user['id'];
                 border-radius: 3px;
                 outline: none;
                 -webkit-appearance: none;
-                appearance: none;
                 cursor: pointer;
                 transition: all 0.3s ease;
             }
@@ -472,6 +471,7 @@ $user_cercato_id = $user['id'];
                 background: rgba(0, 212, 255, 0.2);
                 border-radius: 10px;
             }
+
             .volume-slider {
                 width: 80px;
                 height: 4px;
@@ -479,7 +479,6 @@ $user_cercato_id = $user['id'];
                 border-radius: 2px;
                 outline: none;
                 -webkit-appearance: none;
-                appearance: none;
                 cursor: pointer;
                 transition: all 0.3s ease;
             }
@@ -607,37 +606,32 @@ $user_cercato_id = $user['id'];
                 <div class="audio-controls">
                     <div class="song-info">
                         <i class="fas fa-music"></i> To the Shore's end
+                    </div>
+                    
+                    <div class="progress-container">
+                        <span id="currentTime" class="time-display">0:00</span>
+                        <input type="range" id="progressSlider" min="0" max="100" value="0" class="progress-slider" title="Posizione Canzone">
+                        <span id=
                     <div class="progress-container">
                         <span id="currentTime" class="time-display">0:00</span>
                         <input type="range" id="progressSlider" min="0" max="100" value="0" class="progress-slider" title="Posizione Canzone">
                         <span id="totalTime" class="time-display">0:00</span>
                     </div>
 
-                    <div class="bottom-controls">
-                        <div class="player-controls">
-                            <button id="prevBtn" class="audio-btn" title="Precedente">
-                                <i class="fas fa-step-backward"></i>
-                            </button>
-                            <button id="playPauseBtn" class="audio-btn play-pause-btn" title="Play/Pausa">
-                                <i class="fas fa-pause" id="playPauseIcon"></i>
-                            </button>
-                            <button id="nextBtn" class="audio-btn" title="Successivo">
-                                <i class="fas fa-step-forward"></i>
-                            </button>
-                        </div>
-
-                        <div class="volume-container">
-                            <button id="volumeBtn" class="audio-btn" title="Muto/Volume">
-                                <i class="fas fa-volume-up" id="volumeIcon"></i>
-                            </button>
-                            <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.3" class="volume-slider" title="Volume">
-                        </div>
+                    <div class="volume-container">
+                        <button id="volumeBtn" class="audio-btn" title="Muto/Volume">
+                            <i class="fas fa-volume-up" id="volumeIcon"></i>
+                        </button>
+                        <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.3" class="volume-slider" title="Volume">
                     </div>
-
                 </div>
-            </div>
 
+            </div>
         </div>
+
+        <audio id="background-audio" preload="metadata" autoplay loop>
+            <source src="audio/godo.mp3" type="audio/mpeg">
+        </audio>
 
         <script>
                 document.addEventListener('DOMContentLoaded', function() {
@@ -656,7 +650,7 @@ $user_cercato_id = $user['id'];
                     let isPlaying = true;
                     let isMuted = false;
                     let isDragging = false;
-
+                    
                     function formatTime(seconds) {
                         const minutes = Math.floor(seconds / 60);
                         const remainingSeconds = Math.floor(seconds % 60);
