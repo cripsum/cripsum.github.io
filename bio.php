@@ -660,6 +660,7 @@ $user_cercato_id = $user['id'];
                     let isPlaying = true;
                     let isMuted = false;
                     let isDragging = false;
+                    playPauseIcon.className = 'fas fa-pause';
                     
                     function formatTime(seconds) {
                         const minutes = Math.floor(seconds / 60);
