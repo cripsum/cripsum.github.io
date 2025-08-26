@@ -173,6 +173,12 @@ const pageMap = {
     largeImageKey: "https://media1.tenor.com/m/QJ7OYh157fcAAAAC/sonic.gif"
   },
 
+  "/bio": {
+    title: "Bio page di Cripsum",
+    state: "visualizzando la bio page di Cripsum™",
+    imageText: "Profilo di Cripsum™"
+  },
+
   //pagine utenti
   "/user/cripsum": {
     title: "Profilo di Cripsum",
