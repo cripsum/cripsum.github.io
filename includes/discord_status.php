@@ -286,16 +286,6 @@ $data = getDiscordPresence($discord_id);
                 padding: 10px 16px 16px 16px;
                 max-width: 100%;
             }
-            
-            .avatar-img {
-                width: 44px;
-                height: 44px;
-            }
-            
-            .activity-icon {
-                width: 44px;
-                height: 44px;
-            }
         }
     </style>
 
