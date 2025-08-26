@@ -164,6 +164,59 @@ $data = getDiscordPresence($discord_id);
             </div>
         <?php endif; ?>
     </div>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const timestamps = document.querySelectorAll('.activity-timestamp');
+        
+        timestamps.forEach(function(element) {
+            const startTime = element.getAttribute('data-start');
+            const endTime = element.getAttribute('data-end');
+            
+            if (startTime || endTime) {
+                setInterval(function() {
+                    const now = Math.floor(Date.now() / 1000);
+                    
+                    if (startTime) {
+                        const start = Math.floor(startTime / 1000);
+                        const elapsed = now - start;
+                        
+                        const hours = Math.floor(elapsed / 3600);
+                        const minutes = Math.floor((elapsed % 3600) / 60);
+                        const seconds = elapsed % 60;
+                        
+                        if (hours > 0) {
+                            element.textContent = String(hours).padStart(2, '0') + ':' + 
+                                                String(minutes).padStart(2, '0') + ':' + 
+                                                String(seconds).padStart(2, '0') + ' elapsed';
+                        } else {
+                            element.textContent = String(minutes).padStart(2, '0') + ':' + 
+                                                String(seconds).padStart(2, '0') + ' elapsed';
+                        }
+                    } else if (endTime) {
+                        const end = Math.floor(endTime / 1000);
+                        const remaining = end - now;
+                        
+                        if (remaining > 0) {
+                            const hours = Math.floor(remaining / 3600);
+                            const minutes = Math.floor((remaining % 3600) / 60);
+                            const seconds = remaining % 60;
+                            
+                            if (hours > 0) {
+                                element.textContent = String(hours).padStart(2, '0') + ':' + 
+                                                    String(minutes).padStart(2, '0') + ':' + 
+                                                    String(seconds).padStart(2, '0') + ' left';
+                            } else {
+                                element.textContent = String(minutes).padStart(2, '0') + ':' + 
+                                                    String(seconds).padStart(2, '0') + ' left';
+                            }
+                        }
+                    }
+                }, 1000);
+            }
+        });
+    });
+    </script>
 
     <style>
         .discord-card {
@@ -213,11 +266,6 @@ $data = getDiscordPresence($discord_id);
         .status-idle { background-color: #f0b232; }
         .status-dnd { background-color: #f23f43; }
         .status-offline { background-color: #80848e; }
-
-        .profile-info {
-            flex-grow: 1;
-            min-width: 0;
-        }
 
         .profile-username {
             margin-top: 25px;
@@ -362,58 +410,6 @@ $data = getDiscordPresence($discord_id);
             }
         }
     </style>
-    <script>
-                                document.addEventListener('DOMContentLoaded', function() {
-                                    const timestamps = document.querySelectorAll('.activity-timestamp');
-                                    
-                                    timestamps.forEach(function(element) {
-                                        const startTime = element.getAttribute('data-start');
-                                        const endTime = element.getAttribute('data-end');
-                                        
-                                        if (startTime || endTime) {
-                                            setInterval(function() {
-                                                const now = Math.floor(Date.now() / 1000);
-                                                
-                                                if (startTime) {
-                                                    const start = Math.floor(startTime / 1000);
-                                                    const elapsed = now - start;
-                                                    
-                                                    const hours = Math.floor(elapsed / 3600);
-                                                    const minutes = Math.floor((elapsed % 3600) / 60);
-                                                    const seconds = elapsed % 60;
-                                                    
-                                                    if (hours > 0) {
-                                                        element.textContent = String(hours).padStart(2, '0') + ':' + 
-                                                                            String(minutes).padStart(2, '0') + ':' + 
-                                                                            String(seconds).padStart(2, '0') + ' elapsed';
-                                                    } else {
-                                                        element.textContent = String(minutes).padStart(2, '0') + ':' + 
-                                                                            String(seconds).padStart(2, '0') + ' elapsed';
-                                                    }
-                                                } else if (endTime) {
-                                                    const end = Math.floor(endTime / 1000);
-                                                    const remaining = end - now;
-                                                    
-                                                    if (remaining > 0) {
-                                                        const hours = Math.floor(remaining / 3600);
-                                                        const minutes = Math.floor((remaining % 3600) / 60);
-                                                        const seconds = remaining % 60;
-                                                        
-                                                        if (hours > 0) {
-                                                            element.textContent = String(hours).padStart(2, '0') + ':' + 
-                                                                                String(minutes).padStart(2, '0') + ':' + 
-                                                                                String(seconds).padStart(2, '0') + ' left';
-                                                        } else {
-                                                            element.textContent = String(minutes).padStart(2, '0') + ':' + 
-                                                                                String(seconds).padStart(2, '0') + ' left';
-                                                        }
-                                                    }
-                                                }
-                                            }, 1000);
-                                        }
-                                    });
-                                });
-    </script>
 
 <?php else: ?>
     <div class="discord-card">
