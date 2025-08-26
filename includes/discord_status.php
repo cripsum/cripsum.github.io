@@ -187,7 +187,7 @@ $data = getDiscordPresence($discord_id);
             margin-top: 25px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             width: 100%;
             margin-bottom: 2px;
         }
