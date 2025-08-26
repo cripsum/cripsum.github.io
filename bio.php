@@ -326,10 +326,6 @@ $user_cercato_id = $user['id'];
                     font-size: 1.6rem;
                 }
 
-                .profile-avatar {
-                    width: 100px;
-                    height: 100px;
-                }
             }
 
             .profile-container {
