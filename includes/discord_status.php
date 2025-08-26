@@ -164,7 +164,7 @@ $data = getDiscordPresence($discord_id);
             </div>
         <?php endif; ?>
     </div>
-    
+
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const timestamps = document.querySelectorAll('.activity-timestamp');
@@ -174,7 +174,7 @@ $data = getDiscordPresence($discord_id);
             const endTime = element.getAttribute('data-end');
             
             if (startTime || endTime) {
-                setInterval(function() {
+                function updateTimestamp() {
                     const now = Math.floor(Date.now() / 1000);
                     
                     if (startTime) {
@@ -212,7 +212,11 @@ $data = getDiscordPresence($discord_id);
                             }
                         }
                     }
-                }, 1000);
+                }
+                
+                updateTimestamp();
+                
+                setInterval(updateTimestamp, 1000);
             }
         });
     });
