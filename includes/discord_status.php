@@ -38,6 +38,43 @@ $data = getDiscordPresence($discord_id);
                         </svg>
                     </a>
                 </div>
+                <div class="profile-status">
+                    <?php 
+                    $status_text = '';
+                    switch($status) {
+                        case 'online': $status_text = 'Online'; break;
+                        case 'idle': $status_text = 'Away'; break;
+                        case 'dnd': $status_text = 'Do Not Disturb'; break;
+                        case 'offline': $status_text = 'Offline'; break;
+                        default: $status_text = 'Unknown'; break;
+                    }
+                    
+                    if (!empty($activities)) {
+                        $activity = $activities[0];
+                        $activity_verb = '';
+                        
+                        if (isset($activity['type'])) {
+                            switch($activity['type']) {
+                                case 0: $activity_verb = 'Playing'; break;
+                                case 1: $activity_verb = 'Streaming'; break;
+                                case 2: $activity_verb = 'Listening to'; break;
+                                case 3: $activity_verb = 'Watching'; break;
+                                case 4: $activity_verb = 'Custom'; break;
+                                case 5: $activity_verb = 'Competing in'; break;
+                                default: $activity_verb = 'Playing'; break;
+                            }
+                        }
+                        
+                        if ($activity_verb && isset($activity['name'])) {
+                            echo "<span class=\"status-text status-{$status}\">{$activity_verb} {$activity['name']}</span>";
+                        } else {
+                            echo "<span class=\"status-text status-{$status}\">{$status_text}</span>";
+                        }
+                    } else {
+                        echo "<span class=\"status-text status-{$status}\">{$status_text}</span>";
+                    }
+                    ?>
+                </div>
             </div>
         </div>
 
@@ -103,12 +140,6 @@ $data = getDiscordPresence($discord_id);
             color: white;
             /* box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.3); */
             transition: all 0.3s ease;
-        }
-
-        .discord-card:hover {
-            color: white;
-            box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.35);
-            transform: translateY(-2px);
         }
 
         .discord-profile {
