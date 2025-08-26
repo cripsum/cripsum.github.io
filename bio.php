@@ -356,14 +356,10 @@ $user_cercato_id = $user['id'];
             .song-info {
                 text-align: center;
                 margin-bottom: 15px;
-                background: linear-gradient(135deg, #00d4ff, #7c3aed, #00d4ff);
-                background-size: 200% 200%;
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-                animation: gradientShift 3s ease-in-out infinite;
+                color: white;
                 font-weight: 700;
                 font-size: 0.95rem;
+                font-weight: bold;
             }
 
             .player-controls {
@@ -633,7 +629,7 @@ $user_cercato_id = $user['id'];
             </div>
         </div>
 
-        <audio id="background-audio" preload="metadata">
+        <audio id="background-audio" preload="metadata" autoplay loop>
             <source src="audio/godo.mp3" type="audio/mpeg">
         </audio>
 
