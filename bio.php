@@ -657,7 +657,7 @@ $user_cercato_id = $user['id'];
                     const currentTimeDisplay = document.getElementById('currentTime');
                     const totalTimeDisplay = document.getElementById('totalTime');
                     
-                    let isPlaying = false;
+                    let isPlaying = true;
                     let isMuted = false;
                     let isDragging = false;
                     
