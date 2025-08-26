@@ -651,9 +651,9 @@ $user_cercato_id = $user['id'];
                 </div>
 
             </div>
-        <audio id="background-audio" preload="metadata" loop>
-                <source src="audio/godo.mp3" type="audio/mpeg">
-        </audio>
+                <audio id="background-audio" preload="metadata" autoplay loop>
+                        <source src="audio/godo.mp3" type="audio/mpeg">
+                </audio>
         <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     const audio = document.getElementById('background-audio');
