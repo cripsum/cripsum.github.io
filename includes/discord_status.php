@@ -122,6 +122,42 @@ $data = getDiscordPresence($discord_id);
                             <?php if (!empty($activity['state'])): ?>
                                 <div class="activity-state"><?php echo htmlspecialchars($activity['state']); ?></div>
                             <?php endif; ?>
+                            <?php if (isset($activity['timestamps'])): ?>
+                                <div class="activity-timestamp">
+                                    <?php
+                                    $timestamps = $activity['timestamps'];
+                                    if (isset($timestamps['start'])) {
+                                        $start_time = $timestamps['start'] / 1000; 
+                                        $elapsed = time() - $start_time;
+                                        
+                                        $hours = floor($elapsed / 3600);
+                                        $minutes = floor(($elapsed % 3600) / 60);
+                                        $seconds = $elapsed % 60;
+                                        
+                                        if ($hours > 0) {
+                                            echo sprintf("%02d:%02d:%02d elapsed", $hours, $minutes, $seconds);
+                                        } else {
+                                            echo sprintf("%02d:%02d elapsed", $minutes, $seconds);
+                                        }
+                                    } elseif (isset($timestamps['end'])) {
+                                        $end_time = $timestamps['end'] / 1000;
+                                        $remaining = $end_time - time();
+                                        
+                                        if ($remaining > 0) {
+                                            $hours = floor($remaining / 3600);
+                                            $minutes = floor(($remaining % 3600) / 60);
+                                            $seconds = $remaining % 60;
+                                            
+                                            if ($hours > 0) {
+                                                echo sprintf("%02d:%02d:%02d left", $hours, $minutes, $seconds);
+                                            } else {
+                                                echo sprintf("%02d:%02d left", $minutes, $seconds);
+                                            }
+                                        }
+                                    }
+                                    ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -300,6 +336,12 @@ $data = getDiscordPresence($discord_id);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+        }
+
+        .activity-timestamp {
+            font-size: 12px;
+            color: #b5bac1;
+            margin-top: 4px;
         }
 
         @keyframes fadeInActivity {
