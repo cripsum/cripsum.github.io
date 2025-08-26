@@ -892,14 +892,14 @@ $user_cercato_id = $user['id'];
             });
 
             document.addEventListener('DOMContentLoaded', function() {
-                const timestamps = document.querySelectorAll('.activity-timestamp');
-                
-                timestamps.forEach(function(element) {
-                    const startTime = element.getAttribute('data-start');
-                    const endTime = element.getAttribute('data-end');
+                function updateTimestamps() {
+                    const timestamps = document.querySelectorAll('.activity-timestamp');
                     
-                    if (startTime || endTime) {
-                        setInterval(function() {
+                    timestamps.forEach(function(element) {
+                        const startTime = element.getAttribute('data-start');
+                        const endTime = element.getAttribute('data-end');
+                        
+                        if (startTime || endTime) {
                             const now = Math.floor(Date.now() / 1000);
                             
                             if (startTime) {
@@ -937,9 +937,12 @@ $user_cercato_id = $user['id'];
                                     }
                                 }
                             }
-                        }, 1000);
-                    }
-                });
+                        }
+                    });
+                }
+                
+                updateTimestamps();
+                setInterval(updateTimestamps, 1000);
             });
             
         </script>
