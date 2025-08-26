@@ -396,6 +396,7 @@ $user_cercato_id = $user['id'];
                 border-radius: 3px;
                 outline: none;
                 -webkit-appearance: none;
+                appearance: none;
                 cursor: pointer;
                 transition: all 0.3s ease;
             }
@@ -484,7 +485,6 @@ $user_cercato_id = $user['id'];
                 background: rgba(0, 212, 255, 0.2);
                 border-radius: 10px;
             }
-
             .volume-slider {
                 width: 80px;
                 height: 4px;
@@ -492,6 +492,7 @@ $user_cercato_id = $user['id'];
                 border-radius: 2px;
                 outline: none;
                 -webkit-appearance: none;
+                appearance: none;
                 cursor: pointer;
                 transition: all 0.3s ease;
             }
@@ -650,12 +651,9 @@ $user_cercato_id = $user['id'];
                 </div>
 
             </div>
-        </div>
-
-        <audio id="background-audio" preload="metadata" autoplay loop>
+        <audio id="background-audio" preload="metadata" loop>
                 <source src="audio/godo.mp3" type="audio/mpeg">
         </audio>
-
         <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     const audio = document.getElementById('background-audio');
@@ -670,9 +668,36 @@ $user_cercato_id = $user['id'];
                     const currentTimeDisplay = document.getElementById('currentTime');
                     const totalTimeDisplay = document.getElementById('totalTime');
                     
-                    let isPlaying = true;
+                    let isPlaying = false;
                     let isMuted = false;
                     let isDragging = false;
+                    let hasUserInteracted = false;
+                    playPauseIcon.className = 'fas fa-play';
+
+                    function tryAutoplay() {
+                        if (!hasUserInteracted) return;
+                        
+                        audio.play().then(() => {
+                            playPauseIcon.className = 'fas fa-pause';
+                            isPlaying = true;
+                        }).catch(err => {
+                            console.log('Autoplay prevented:', err);
+                            playPauseIcon.className = 'fas fa-play';
+                            isPlaying = false;
+                        });
+                    }
+
+                    function enableAutoplay() {
+                        hasUserInteracted = true;
+                        tryAutoplay();
+                        document.removeEventListener('click', enableAutoplay);
+                        document.removeEventListener('keydown', enableAutoplay);
+                        document.removeEventListener('touchstart', enableAutoplay);
+                    }
+
+                    document.addEventListener('click', enableAutoplay);
+                    document.addEventListener('keydown', enableAutoplay);
+                    document.addEventListener('touchstart', enableAutoplay);
                     playPauseIcon.className = 'fas fa-pause';
                     
                     function formatTime(seconds) {
