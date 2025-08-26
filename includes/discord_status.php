@@ -123,7 +123,7 @@ $data = getDiscordPresence($discord_id);
                                 <div class="activity-state"><?php echo htmlspecialchars($activity['state']); ?></div>
                             <?php endif; ?>
                             <?php if (isset($activity['timestamps'])): ?>
-                                <div class="activity-timestamp">
+                                <div class="activity-timestamp" data-start="<?php echo isset($activity['timestamps']['start']) ? $activity['timestamps']['start'] : ''; ?>" data-end="<?php echo isset($activity['timestamps']['end']) ? $activity['timestamps']['end'] : ''; ?>">
                                     <?php
                                     $timestamps = $activity['timestamps'];
                                     if (isset($timestamps['start'])) {
@@ -157,6 +157,58 @@ $data = getDiscordPresence($discord_id);
                                     }
                                     ?>
                                 </div>
+                                <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const timestamps = document.querySelectorAll('.activity-timestamp');
+                                    
+                                    timestamps.forEach(function(element) {
+                                        const startTime = element.getAttribute('data-start');
+                                        const endTime = element.getAttribute('data-end');
+                                        
+                                        if (startTime || endTime) {
+                                            setInterval(function() {
+                                                const now = Math.floor(Date.now() / 1000);
+                                                
+                                                if (startTime) {
+                                                    const start = Math.floor(startTime / 1000);
+                                                    const elapsed = now - start;
+                                                    
+                                                    const hours = Math.floor(elapsed / 3600);
+                                                    const minutes = Math.floor((elapsed % 3600) / 60);
+                                                    const seconds = elapsed % 60;
+                                                    
+                                                    if (hours > 0) {
+                                                        element.textContent = String(hours).padStart(2, '0') + ':' + 
+                                                                            String(minutes).padStart(2, '0') + ':' + 
+                                                                            String(seconds).padStart(2, '0') + ' elapsed';
+                                                    } else {
+                                                        element.textContent = String(minutes).padStart(2, '0') + ':' + 
+                                                                            String(seconds).padStart(2, '0') + ' elapsed';
+                                                    }
+                                                } else if (endTime) {
+                                                    const end = Math.floor(endTime / 1000);
+                                                    const remaining = end - now;
+                                                    
+                                                    if (remaining > 0) {
+                                                        const hours = Math.floor(remaining / 3600);
+                                                        const minutes = Math.floor((remaining % 3600) / 60);
+                                                        const seconds = remaining % 60;
+                                                        
+                                                        if (hours > 0) {
+                                                            element.textContent = String(hours).padStart(2, '0') + ':' + 
+                                                                                String(minutes).padStart(2, '0') + ':' + 
+                                                                                String(seconds).padStart(2, '0') + ' left';
+                                                        } else {
+                                                            element.textContent = String(minutes).padStart(2, '0') + ':' + 
+                                                                                String(seconds).padStart(2, '0') + ' left';
+                                                        }
+                                                    }
+                                                }
+                                            }, 1000);
+                                        }
+                                    });
+                                });
+                                </script>
                             <?php endif; ?>
                         </div>
                     </div>
