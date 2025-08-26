@@ -388,10 +388,14 @@ $user_cercato_id = $user['id'];
                            <i class="fab fa-discord" style="display: flex; align-items: center; justify-content: center;"></i>
                     </a>
                 </div>
+
+
             </div>
         </div>
 
-        <audio src="audio/godo.mp3" autoplay="true"></audio>
+        <audio controls volume="0.5">
+            <source src="audio/godo.mp3" type="audio/mpeg">
+        </audio>
 
 
 
