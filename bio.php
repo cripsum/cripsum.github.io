@@ -640,6 +640,16 @@ $user_cercato_id = $user['id'];
         </div>
 
         <audio id="background-audio" preload="metadata" autoplay loop>
+            <source src="audio/godo.mp3" type="audio/mpeg">
+        </audio>
+
+        <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const audio = document.getElementById('background-audio');
+                    const playPauseBtn = document.getElementById('playPauseBtn');
+                    const playPauseIcon = document.getElementById('playPauseIcon');
+                    const prevBtn = document.getElementById('prevBtn');
+                    const nextBtn = document.getElementById('nextBtn');
                     const volumeBtn = document.getElementById('volumeBtn');
                     const volumeIcon = document.getElementById('volumeIcon');
                     const volumeSlider = document.getElementById('volumeSlider');
