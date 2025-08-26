@@ -393,7 +393,7 @@ $user_cercato_id = $user['id'];
             </div>
         </div>
 
-        <audio controls volume="0.5" id="background-audio" autoplay loop>
+        <audio controls volume="0.2" id="background-audio" autoplay loop>
             <source src="audio/godo.mp3" type="audio/mpeg">
         </audio>
 
