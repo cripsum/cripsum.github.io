@@ -275,7 +275,7 @@ $data = getDiscordPresence($discord_id);
         .activity-item {
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-self: center;
             gap: 12px;
             padding: 8px 0;
             animation: fadeInActivity 0.4s ease;
