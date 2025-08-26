@@ -335,63 +335,213 @@ $user_cercato_id = $user['id'];
                 }
             }
 
-                            .audio-controls {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 15px;
-                    margin-top: 20px;
+            .audio-controls {
+                margin-top: 25px;
+                padding: 20px;
+                background: rgba(0, 0, 0, 0.1);
+                -webkit-backdrop-filter: blur(10px);
+                backdrop-filter: blur(10px);
+                border-radius: 15px;
+                border: 2px solid rgba(15, 91, 255, 0.3);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                transition: all 0.3s ease;
+            }
+
+            .audio-controls:hover {
+                border-color: rgb(15, 91, 255);
+                box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(15, 91, 255, 0.1);
+            }
+
+            .song-info {
+                text-align: center;
+                margin-bottom: 15px;
+                background: linear-gradient(135deg, #00d4ff, #7c3aed, #00d4ff);
+                background-size: 200% 200%;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                animation: gradientShift 3s ease-in-out infinite;
+                font-weight: 700;
+                font-size: 0.95rem;
+            }
+
+            .player-controls {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 15px;
+                margin-bottom: 15px;
+            }
+
+            .audio-btn {
+                background: rgba(0, 212, 255, 0.1);
+                border: 2px solid rgba(15, 91, 255, 0.5);
+                border-radius: 50%;
+                width: 45px;
+                height: 45px;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.1rem;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .audio-btn:hover {
+                background: rgba(0, 212, 255, 0.3);
+                border-color: rgb(15, 91, 255);
+                transform: scale(1.05);
+                box-shadow: 0 0 20px rgba(15, 91, 255, 0.3);
+            }
+
+            .audio-btn:active {
+                transform: scale(0.95);
+            }
+
+            .play-pause-btn {
+                width: 55px;
+                height: 55px;
+                font-size: 1.3rem;
+                background: rgba(0, 212, 255, 0.2);
+            }
+
+            .progress-container {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+
+            .time-display {
+                color: #a0a0a0;
+                font-size: 0.8rem;
+                font-weight: 500;
+                min-width: 40px;
+                text-align: center;
+            }
+
+            .progress-slider {
+                flex: 1;
+                height: 6px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 3px;
+                outline: none;
+                -webkit-appearance: none;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            .progress-slider:hover {
+                background: rgba(255, 255, 255, 0.15);
+            }
+
+            .progress-slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                width: 18px;
+                height: 18px;
+                background: linear-gradient(135deg, #00d4ff, #7c3aed);
+                border-radius: 50%;
+                cursor: pointer;
+                box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+                transition: all 0.3s ease;
+            }
+
+            .progress-slider::-webkit-slider-thumb:hover {
+                transform: scale(1.1);
+                box-shadow: 0 0 15px rgba(0, 212, 255, 0.7);
+            }
+
+            .progress-slider::-moz-range-thumb {
+                width: 18px;
+                height: 18px;
+                background: linear-gradient(135deg, #00d4ff, #7c3aed);
+                border-radius: 50%;
+                cursor: pointer;
+                border: none;
+                box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+            }
+
+            .volume-container {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .volume-slider {
+                width: 80px;
+                height: 4px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 2px;
+                outline: none;
+                -webkit-appearance: none;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            .volume-slider:hover {
+                background: rgba(255, 255, 255, 0.15);
+            }
+
+            .volume-slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                width: 14px;
+                height: 14px;
+                background: rgb(15, 91, 255);
+                border-radius: 50%;
+                cursor: pointer;
+                box-shadow: 0 0 8px rgba(15, 91, 255, 0.5);
+                transition: all 0.3s ease;
+            }
+
+            .volume-slider::-webkit-slider-thumb:hover {
+                transform: scale(1.1);
+                box-shadow: 0 0 12px rgba(15, 91, 255, 0.7);
+            }
+
+            .volume-slider::-moz-range-thumb {
+                width: 14px;
+                height: 14px;
+                background: rgb(15, 91, 255);
+                border-radius: 50%;
+                cursor: pointer;
+                border: none;
+                box-shadow: 0 0 8px rgba(15, 91, 255, 0.5);
+            }
+
+            @media (max-width: 480px) {
+                .audio-controls {
                     padding: 15px;
-                    background: rgba(255, 255, 255, 0.05);
-                    border-radius: 12px;
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                }
+
+                .player-controls {
+                    gap: 10px;
                 }
 
                 .audio-btn {
-                    background: rgba(0, 212, 255, 0.2);
-                    border: 2px solid rgb(15, 91, 255);
-                    border-radius: 8px;
                     width: 40px;
                     height: 40px;
-                    color: white;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
+                    font-size: 1rem;
                 }
 
-                .audio-btn:hover {
-                    background: rgba(0, 212, 255, 0.4);
-                    transform: scale(1.05);
+                .play-pause-btn {
+                    width: 50px;
+                    height: 50px;
+                    font-size: 1.2rem;
                 }
 
                 .volume-slider {
-                    width: 100px;
-                    height: 4px;
-                    background: rgba(255, 255, 255, 0.2);
-                    border-radius: 2px;
-                    outline: none;
-                    -webkit-appearance: none;
+                    width: 60px;
                 }
 
-                .volume-slider::-webkit-slider-thumb {
-                    -webkit-appearance: none;
-                    width: 16px;
-                    height: 16px;
-                    background: rgb(15, 91, 255);
-                    border-radius: 50%;
-                    cursor: pointer;
+                .time-display {
+                    font-size: 0.75rem;
+                    min-width: 35px;
                 }
-
-                .volume-slider::-moz-range-thumb {
-                    width: 16px;
-                    height: 16px;
-                    background: rgb(15, 91, 255);
-                    border-radius: 50%;
-                    cursor: pointer;
-                    border: none;
-                }
+            }
         </style>
     </head>
     <body>
@@ -449,52 +599,155 @@ $user_cercato_id = $user['id'];
 
                 <div class="audio-controls">
                     <div class="song-info">
-                        <span class="song-name text-center" style="font-weight: bold;"><i class="fas fa-music music-icon"></i> To the Shore's end</span>
+                        <i class="fas fa-music"></i> To the Shore's end
                     </div>
-                    <button id="audioToggle" class="audio-btn" title="Attiva/Disattiva Audio">
-                        <i class="fas fa-volume-up" id="audioIcon"></i>
-                    </button>
-                    <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.05" class="volume-slider" title="Volume">
-                </div>
+                    
+                    <div class="player-controls">
+                        <button id="prevBtn" class="audio-btn" title="Canzone Precedente">
+                            <i class="fas fa-step-backward"></i>
+                        </button>
+                        <button id="playPauseBtn" class="audio-btn play-pause-btn" title="Play/Pausa">
+                            <i class="fas fa-play" id="playPauseIcon"></i>
+                        </button>
+                        <button id="nextBtn" class="audio-btn" title="Canzone Successiva">
+                            <i class="fas fa-step-forward"></i>
+                        </button>
+                    </div>
 
+                    <div class="progress-container">
+                        <span id="currentTime" class="time-display">0:00</span>
+                        <input type="range" id="progressSlider" min="0" max="100" value="0" class="progress-slider" title="Posizione Canzone">
+                        <span id="totalTime" class="time-display">0:00</span>
+                    </div>
+
+                    <div class="volume-container">
+                        <button id="volumeBtn" class="audio-btn" title="Muto/Volume">
+                            <i class="fas fa-volume-up" id="volumeIcon"></i>
+                        </button>
+                        <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.05" class="volume-slider" title="Volume">
+                    </div>
+                </div>
 
             </div>
         </div>
 
-        <audio controls volume="0.1" id="background-audio" autoplay loop>
+        <audio id="background-audio" preload="metadata">
             <source src="audio/godo.mp3" type="audio/mpeg">
         </audio>
-
-
 
         <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     const audio = document.getElementById('background-audio');
-                    const toggleBtn = document.getElementById('audioToggle');
+                    const playPauseBtn = document.getElementById('playPauseBtn');
+                    const playPauseIcon = document.getElementById('playPauseIcon');
+                    const prevBtn = document.getElementById('prevBtn');
+                    const nextBtn = document.getElementById('nextBtn');
+                    const volumeBtn = document.getElementById('volumeBtn');
+                    const volumeIcon = document.getElementById('volumeIcon');
                     const volumeSlider = document.getElementById('volumeSlider');
-                    const audioIcon = document.getElementById('audioIcon');
+                    const progressSlider = document.getElementById('progressSlider');
+                    const currentTimeDisplay = document.getElementById('currentTime');
+                    const totalTimeDisplay = document.getElementById('totalTime');
                     
-                    toggleBtn.addEventListener('click', function() {
-                        if (audio.paused) {
-                            audio.play();
-                            audioIcon.className = 'fas fa-volume-up';
-                        } else {
+                    let isPlaying = false;
+                    let isMuted = false;
+                    let isDragging = false;
+                    
+                    function formatTime(seconds) {
+                        const minutes = Math.floor(seconds / 60);
+                        const remainingSeconds = Math.floor(seconds % 60);
+                        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+                    }
+                    
+                    function updateProgress() {
+                        if (!isDragging && audio.duration) {
+                            const progress = (audio.currentTime / audio.duration) * 100;
+                            progressSlider.value = progress;
+                            currentTimeDisplay.textContent = formatTime(audio.currentTime);
+                        }
+                    }
+                    
+                    audio.addEventListener('loadedmetadata', function() {
+                        totalTimeDisplay.textContent = formatTime(audio.duration);
+                        audio.volume = volumeSlider.value;
+                    });
+                    
+                    audio.addEventListener('timeupdate', updateProgress);
+
+                    playPauseBtn.addEventListener('click', function() {
+                        if (isPlaying) {
                             audio.pause();
-                            audioIcon.className = 'fas fa-volume-mute';
+                            playPauseIcon.className = 'fas fa-play';
+                            isPlaying = false;
+                        } else {
+                            audio.play().then(() => {
+                                playPauseIcon.className = 'fas fa-pause';
+                                isPlaying = true;
+                            }).catch(err => {
+                                console.error('Error playing audio:', err);
+                            });
+                        }
+                    });
+                    
+                    volumeBtn.addEventListener('click', function() {
+                        if (isMuted) {
+                            audio.muted = false;
+                            volumeIcon.className = audio.volume === 0 ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+                            isMuted = false;
+                        } else {
+                            audio.muted = true;
+                            volumeIcon.className = 'fas fa-volume-mute';
+                            isMuted = true;
                         }
                     });
                     
                     volumeSlider.addEventListener('input', function() {
                         audio.volume = this.value;
                         if (this.value == 0) {
-                            audioIcon.className = 'fas fa-volume-mute';
+                            volumeIcon.className = 'fas fa-volume-mute';
+                        } else if (this.value < 0.5) {
+                            volumeIcon.className = 'fas fa-volume-down';
                         } else {
-                            audioIcon.className = 'fas fa-volume-up';
+                            volumeIcon.className = 'fas fa-volume-up';
+                        }
+                        if (isMuted) {
+                            audio.muted = false;
+                            isMuted = false;
+                        }
+                    });
+
+                    progressSlider.addEventListener('mousedown', function() {
+                        isDragging = true;
+                    });
+                    
+                    progressSlider.addEventListener('mouseup', function() {
+                        isDragging = false;
+                        if (audio.duration) {
+                            const newTime = (this.value / 100) * audio.duration;
+                            audio.currentTime = newTime;
                         }
                     });
                     
+                    progressSlider.addEventListener('input', function() {
+                        if (isDragging && audio.duration) {
+                            const newTime = (this.value / 100) * audio.duration;
+                            currentTimeDisplay.textContent = formatTime(newTime);
+                        }
+                    });
+                    
+                    prevBtn.addEventListener('click', function() {
+                        console.log('Previous track');
+                    });
+                    
+                    nextBtn.addEventListener('click', function() {
+                        console.log('Next track');
+                    });
+                    
                     audio.addEventListener('ended', function() {
-                        audioIcon.className = 'fas fa-volume-mute';
+                        playPauseIcon.className = 'fas fa-play';
+                        isPlaying = false;
+                        progressSlider.value = 0;
+                        currentTimeDisplay.textContent = '0:00';
                     });
                 });
 
