@@ -334,6 +334,64 @@ $user_cercato_id = $user['id'];
                                0 0 50px rgba(0, 212, 255, 0.1);
                 }
             }
+
+                            .audio-controls {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 15px;
+                    margin-top: 20px;
+                    padding: 15px;
+                    background: rgba(255, 255, 255, 0.05);
+                    border-radius: 12px;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                }
+
+                .audio-btn {
+                    background: rgba(0, 212, 255, 0.2);
+                    border: 2px solid rgb(15, 91, 255);
+                    border-radius: 8px;
+                    width: 40px;
+                    height: 40px;
+                    color: white;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .audio-btn:hover {
+                    background: rgba(0, 212, 255, 0.4);
+                    transform: scale(1.05);
+                }
+
+                .volume-slider {
+                    width: 100px;
+                    height: 4px;
+                    background: rgba(255, 255, 255, 0.2);
+                    border-radius: 2px;
+                    outline: none;
+                    -webkit-appearance: none;
+                }
+
+                .volume-slider::-webkit-slider-thumb {
+                    -webkit-appearance: none;
+                    width: 16px;
+                    height: 16px;
+                    background: rgb(15, 91, 255);
+                    border-radius: 50%;
+                    cursor: pointer;
+                }
+
+                .volume-slider::-moz-range-thumb {
+                    width: 16px;
+                    height: 16px;
+                    background: rgb(15, 91, 255);
+                    border-radius: 50%;
+                    cursor: pointer;
+                    border: none;
+                }
         </style>
     </head>
     <body>
@@ -389,19 +447,54 @@ $user_cercato_id = $user['id'];
                     </a>
                 </div>
 
-
+                <div class="audio-controls"></div>
+                    <button id="audioToggle" class="audio-btn" title="Attiva/Disattiva Audio">
+                        <i class="fas fa-volume-up" id="audioIcon"></i>
+                    </button>
+                    <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.05" class="volume-slider" title="Volume">
+                </div>
 
 
             </div>
         </div>
 
-        <audio controls volume="0.05" id="background-audio" autoplay loop>
+        <audio controls volume="0.1" id="background-audio" autoplay loop>
             <source src="audio/godo.mp3" type="audio/mpeg">
         </audio>
 
 
 
         <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const audio = document.getElementById('background-audio');
+                    const toggleBtn = document.getElementById('audioToggle');
+                    const volumeSlider = document.getElementById('volumeSlider');
+                    const audioIcon = document.getElementById('audioIcon');
+                    
+                    toggleBtn.addEventListener('click', function() {
+                        if (audio.paused) {
+                            audio.play();
+                            audioIcon.className = 'fas fa-volume-up';
+                        } else {
+                            audio.pause();
+                            audioIcon.className = 'fas fa-volume-mute';
+                        }
+                    });
+                    
+                    volumeSlider.addEventListener('input', function() {
+                        audio.volume = this.value;
+                        if (this.value == 0) {
+                            audioIcon.className = 'fas fa-volume-mute';
+                        } else {
+                            audioIcon.className = 'fas fa-volume-up';
+                        }
+                    });
+                    
+                    audio.addEventListener('ended', function() {
+                        audioIcon.className = 'fas fa-volume-mute';
+                    });
+                });
+
             fetch('includes/discord_status.php?discordId=963536045180350474')
                 .then(r => r.text())
                 .then(html => {
