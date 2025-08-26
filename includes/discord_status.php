@@ -66,12 +66,12 @@ $data = getDiscordPresence($discord_id);
                         }
                         
                         if ($activity_verb && isset($activity['name'])) {
-                            echo "<span class=\"status-text\">{$activity_verb} {$activity['name']}</span>";
+                            echo "<span class=\"activity-state\">{$activity_verb} {$activity['name']}</span>";
                         } else {
-                            echo "<span class=\"status-text \">{$status_text}</span>";
+                            echo "<span class=\"activity-state\">{$status_text}</span>";
                         }
                     } else {
-                        echo "<span class=\"status-text\">{$status_text}</span>";
+                        echo "<span class=\"activity-state\">{$status_text}</span>";
                     }
                     ?>
                 </div>
