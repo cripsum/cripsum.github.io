@@ -38,7 +38,7 @@ $user_cercato_id = $user['id'];
 <html lang="en">
     <head>
         <?php include 'includes/head-import.php'; ?>
-        <link rel="stylesheet" href="css/style-users.css?v=1" />
+        <link rel="stylesheet" href="css/style-users.css?v=2" />
         <title>Profilo di cripsum</title>
         <script src="js/nomePagina.js"></script>
         <style>
@@ -277,16 +277,16 @@ $user_cercato_id = $user['id'];
                 border: 2px solid rgb(15, 91, 255);
             }
 
-            @media (max-width: 1024px) {
+            @media (max-width: 1200px) {
                 .bio-page {
-                    margin-top: 5rem;
+                    margin-top: 7rem;
                 }
                 
             }
 
             @media (max-width: 768px) {
                 .bio-page {
-                    margin-top: 5rem;
+                    margin-top: 7rem;
                 }
 
 
@@ -632,7 +632,7 @@ $user_cercato_id = $user['id'];
                             <button id="volumeBtn" class="audio-btn" title="Muto/Volume">
                                 <i class="fas fa-volume-up" id="volumeIcon"></i>
                             </button>
-                            <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.3" class="volume-slider" title="Volume">
+                            <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.1" class="volume-slider" title="Volume">
                         </div>
 
                         <div class="player-controls">
