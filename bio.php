@@ -349,7 +349,6 @@ $user_cercato_id = $user['id'];
             }
 
             .audio-controls:hover {
-                
                 box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(15, 91, 255, 0.1);
             }
 
@@ -360,49 +359,6 @@ $user_cercato_id = $user['id'];
                 font-weight: 700;
                 font-size: 0.95rem;
                 font-weight: bold;
-            }
-
-            .player-controls {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 15px;
-                margin-bottom: 15px;
-            }
-
-            .audio-btn {
-                background: rgba(0, 212, 255, 0.1);
-                border: 2px solid rgba(15, 91, 255, 0.5);
-                border-radius: 10px;
-                width: 45px;
-                height: 45px;
-                color: white;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.1rem;
-                position: relative;
-                overflow: hidden;
-            }
-
-            .audio-btn:hover {
-                background: rgba(0, 212, 255, 0.3);
-                border-color: rgb(15, 91, 255);
-                transform: scale(1.05);
-                box-shadow: 0 0 20px rgba(15, 91, 255, 0.3);
-            }
-
-            .audio-btn:active {
-                transform: scale(0.95);
-            }
-
-            .play-pause-btn {
-                width: 55px;
-                height: 55px;
-                font-size: 1.3rem;
-                background: rgba(0, 212, 255, 0.2);
             }
 
             .progress-container {
@@ -461,11 +417,59 @@ $user_cercato_id = $user['id'];
                 box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
             }
 
+            .bottom-controls {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 15px;
+            }
+
             .volume-container {
                 display: flex;
                 align-items: center;
-                justify-content: center;
                 gap: 10px;
+            }
+
+            .player-controls {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .audio-btn {
+                background: rgba(0, 212, 255, 0.1);
+                border: 2px solid rgba(15, 91, 255, 0.5);
+                border-radius: 8px;
+                width: 35px;
+                height: 35px;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.9rem;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .audio-btn:hover {
+                background: rgba(0, 212, 255, 0.3);
+                border-color: rgb(15, 91, 255);
+                transform: scale(1.05);
+                box-shadow: 0 0 15px rgba(15, 91, 255, 0.3);
+            }
+
+            .audio-btn:active {
+                transform: scale(0.95);
+            }
+
+            .play-pause-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.1rem;
+                background: rgba(0, 212, 255, 0.2);
+                border-radius: 10px;
             }
 
             .volume-slider {
@@ -514,20 +518,25 @@ $user_cercato_id = $user['id'];
                     padding: 15px;
                 }
 
+                .bottom-controls {
+                    flex-direction: column;
+                    gap: 15px;
+                }
+
                 .player-controls {
                     gap: 10px;
                 }
 
                 .audio-btn {
-                    width: 40px;
-                    height: 40px;
-                    font-size: 1rem;
+                    width: 32px;
+                    height: 32px;
+                    font-size: 0.8rem;
                 }
 
                 .play-pause-btn {
-                    width: 50px;
-                    height: 50px;
-                    font-size: 1.2rem;
+                    width: 38px;
+                    height: 38px;
+                    font-size: 1rem;
                 }
 
                 .volume-slider {
@@ -594,35 +603,36 @@ $user_cercato_id = $user['id'];
                         <?php include 'includes/discord_status.php?discordId=963536045180350474'; ?>
                     </div>
 
-
                 <div class="audio-controls">
                     <div class="song-info">
                         <i class="fas fa-music"></i> To the Shore's end
                     </div>
                     
-                    <div class="player-controls">
-                        <button id="prevBtn" class="audio-btn" title="Canzone Precedente">
-                            <i class="fas fa-step-backward"></i>
-                        </button>
-                        <button id="playPauseBtn" class="audio-btn play-pause-btn" title="Play/Pausa">
-                            <i class="fas fa-play" id="playPauseIcon"></i>
-                        </button>
-                        <button id="nextBtn" class="audio-btn" title="Canzone Successiva">
-                            <i class="fas fa-step-forward"></i>
-                        </button>
-                    </div>
-
                     <div class="progress-container">
                         <span id="currentTime" class="time-display">0:00</span>
                         <input type="range" id="progressSlider" min="0" max="100" value="0" class="progress-slider" title="Posizione Canzone">
                         <span id="totalTime" class="time-display">0:00</span>
                     </div>
 
-                    <div class="volume-container">
-                        <button id="volumeBtn" class="audio-btn" title="Muto/Volume">
-                            <i class="fas fa-volume-up" id="volumeIcon"></i>
-                        </button>
-                        <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.3" class="volume-slider" title="Volume">
+                    <div class="bottom-controls">
+                        <div class="volume-container">
+                            <button id="volumeBtn" class="audio-btn" title="Muto/Volume">
+                                <i class="fas fa-volume-up" id="volumeIcon"></i>
+                            </button>
+                            <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.3" class="volume-slider" title="Volume">
+                        </div>
+
+                        <div class="player-controls">
+                            <button id="prevBtn" class="audio-btn" title="Canzone Precedente">
+                                <i class="fas fa-step-backward"></i>
+                            </button>
+                            <button id="playPauseBtn" class="audio-btn play-pause-btn" title="Play/Pausa">
+                                <i class="fas fa-play" id="playPauseIcon"></i>
+                            </button>
+                            <button id="nextBtn" class="audio-btn" title="Canzone Successiva">
+                                <i class="fas fa-step-forward"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -630,7 +640,7 @@ $user_cercato_id = $user['id'];
         </div>
 
         <audio id="background-audio" preload="metadata" autoplay loop>
-            <source src="audio/godo.mp3" type="audio/mpeg">
+                <source src="audio/godo.mp3" type="audio/mpeg">
         </audio>
 
         <script>
@@ -647,7 +657,7 @@ $user_cercato_id = $user['id'];
                     const currentTimeDisplay = document.getElementById('currentTime');
                     const totalTimeDisplay = document.getElementById('totalTime');
                     
-                    let isPlaying = true;
+                    let isPlaying = false;
                     let isMuted = false;
                     let isDragging = false;
                     
