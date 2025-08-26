@@ -143,6 +143,7 @@ $data = getDiscordPresence($discord_id);
         }
 
         .discord-profile {
+            color: white;
             display: flex;
             align-items: center;
             gap: 12px;
