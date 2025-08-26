@@ -447,7 +447,10 @@ $user_cercato_id = $user['id'];
                     </a>
                 </div>
 
-                <div class="audio-controls"></div>
+                <div class="audio-controls">
+                    <div class="song-info">
+                        <span class="song-name text-center" style="font-weight: bold;"><i class="fas fa-music music-icon"></i> To the Shore's end</span>
+                    </div>
                     <button id="audioToggle" class="audio-btn" title="Attiva/Disattiva Audio">
                         <i class="fas fa-volume-up" id="audioIcon"></i>
                     </button>
