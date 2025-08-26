@@ -562,14 +562,14 @@ $user_cercato_id = $user['id'];
     </head>
     <body>
         <?php include 'includes/navbar-bio.php'; ?>
-
-        <div class="bio-page">
-            <div class="background">
+                    <div class="background">
                 <video autoplay muted loop>
                     <source src="vid/Shorekeeper Wallpaper 4K Loop.mp4" type="video/mp4" />
                     Your browser does not support the video tag.
                 </video>
             </div>
+
+        <div class="bio-page">
 
             <div class="floating-elements">
                 <div class="floating-particle" style="left: 10%; animation-delay: 0s;"></div>
