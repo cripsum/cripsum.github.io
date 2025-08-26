@@ -377,7 +377,7 @@ $user_cercato_id = $user['id'];
             .audio-btn {
                 background: rgba(0, 212, 255, 0.1);
                 border: 2px solid rgba(15, 91, 255, 0.5);
-                border-radius: 15px;
+                border-radius: 10px;
                 width: 45px;
                 height: 45px;
                 color: white;
