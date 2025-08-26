@@ -286,8 +286,8 @@ $data = getDiscordPresence($discord_id);
         }
 
         .activity-icon {
-            width: 64px;
-            height: 64px;
+            width: 100px;
+            height: 100px;
             border-radius: 8px;
             object-fit: cover;
             border: 1px solid rgba(255, 255, 255, 0.1);
