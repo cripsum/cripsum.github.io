@@ -277,7 +277,7 @@ $user_cercato_id = $user['id'];
                 border: 2px solid rgb(15, 91, 255);
             }
 
-            @media (max-width: 1200px) {
+            @media (max-width: 2000px) {
                 .bio-page {
                     margin-top: 7rem;
                 }
