@@ -342,13 +342,14 @@ $user_cercato_id = $user['id'];
                 -webkit-backdrop-filter: blur(10px);
                 backdrop-filter: blur(10px);
                 border-radius: 15px;
-                border: 2px solid rgba(15, 91, 255, 0.3);
+                border: 2px solid ;
                 box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
                 transition: all 0.3s ease;
+                border-color: rgb(15, 91, 255);
             }
 
             .audio-controls:hover {
-                border-color: rgb(15, 91, 255);
+                
                 box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(15, 91, 255, 0.1);
             }
 
@@ -376,7 +377,7 @@ $user_cercato_id = $user['id'];
             .audio-btn {
                 background: rgba(0, 212, 255, 0.1);
                 border: 2px solid rgba(15, 91, 255, 0.5);
-                border-radius: 50%;
+                border-radius: 15px;
                 width: 45px;
                 height: 45px;
                 color: white;
@@ -581,10 +582,6 @@ $user_cercato_id = $user['id'];
                     <div><span>⟡</span>Developer</div>
                 </div>
 
-                    <div class="discord-box" id="discordBox">
-                        <?php include 'includes/discord_status.php?discordId=963536045180350474'; ?>
-                    </div>
-
                 <div class="social-links">
                     <a href="https://tiktok.cripsum.com" target="_blank" class="social-link" title="TikTok">
                        <i class="fab fa-tiktok" style="display: flex; align-items: center; justify-content: center;"></i>
@@ -596,6 +593,11 @@ $user_cercato_id = $user['id'];
                            <i class="fab fa-discord" style="display: flex; align-items: center; justify-content: center;"></i>
                     </a>
                 </div>
+
+                    <div class="discord-box" id="discordBox">
+                        <?php include 'includes/discord_status.php?discordId=963536045180350474'; ?>
+                    </div>
+
 
                 <div class="audio-controls">
                     <div class="song-info">
