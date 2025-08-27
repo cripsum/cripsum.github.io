@@ -292,7 +292,7 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
                 function searchUser() {
                     const username = document.getElementById('userSearch').value.trim();
                     if (username) {
-                        window.location.href = `../user/${encodeURIComponent(username)}`;
+                        window.location.href = `../user/${encodeURIComponent(username.toLowerCase())}`;
                     } else {
                         alert('Inserisci un nome utente per continuare');
                     }
