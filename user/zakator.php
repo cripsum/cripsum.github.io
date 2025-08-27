@@ -80,6 +80,8 @@ $user_cercato_id = $user['id'];
     </head>
     <body>
         <?php include '../includes/navbar.php'; ?>
+
+        <div class="bio-page">
             <div class="background">
                 <!-- Use a video or an image as background -->
                 <!-- Video example -->
@@ -90,8 +92,6 @@ $user_cercato_id = $user['id'];
                 <!-- Image example -->
                 <!-- <img src="your-image.jpg" alt="Background Image"> -->
             </div>
-        <div class="bio-page">
-
 
             <div class="bio-container fadeup" style="background: linear-gradient(135deg, rgba(125, 246, 255, 0.1), rgba(4, 87, 87, 0.1))">
                 <div style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin: 0 auto;" class="mb-3">
