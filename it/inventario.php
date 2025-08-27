@@ -71,8 +71,7 @@ if (!isLoggedIn()) {
             }
 
             .modal-content.rarity-epico {
-                background: linear-gradient(135deg, #c300eb 0%, #9c27b0 100%);
-    box-shadow: 0 10px 40px rgba(195, 0, 235, 0.4);
+                background: linear-gradient(135deg, #4a1a5f, #2d0f49);
                 border: 2px solid #9b59b6;
             }
 
@@ -91,12 +90,9 @@ if (!isLoggedIn()) {
             }
 
             .modal-content.rarity-segreto {
-                    background: radial-gradient(circle, rgba(147, 0, 211, 1) 0%, rgba(75, 0, 130, 0.9) 30%, rgba(138, 43, 226, 0.7) 60%, transparent 100%);
-                    animation: epicPulse 2s ease-in-out infinite;
-                    filter: brightness(1.2) saturate(1.3);
-                    transform: scale(0.5);
-                    animation-delay: 0.8s;
-                    transition: opacity 0.8s ease-out 0.8s, transform 0.8s ease-out 0.8s;
+    background: linear-gradient(90deg, #9400d3, #4b0082, #1d002b);
+    background-size: 300% 300%;
+    animation: backgroundAnimate 6s linear infinite;
     box-shadow: 0 10px 40px rgba(147, 0, 211, 0.6);
     border: 2px solid #8b00ff;
             }
