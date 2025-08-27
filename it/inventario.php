@@ -468,9 +468,8 @@ if (!isLoggedIn()) {
                 });
             }
 
-            function showUnboxAnimation(characterName) {
-                // animazione Apertura da implementare
-                console.log(`Mostra animazione per: ${characterName}`);
+            function showUnboxAnimation(nomePersonaggio) {
+                header(location("animazione_personaggio?nome_personaggio=" + nomePersonaggio));
             }
 
             filteredCharacters.forEach((personaggio) => {
