@@ -90,6 +90,12 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
     header("Location: /user/" . urlencode($username));
     exit;
 }
+
+                        if(isUserOnline($mysqli,$user_cercato_id)){
+                            $is_online = true;
+                        } else {
+                            $is_online = false;
+                        }
 ?>
 
 <!DOCTYPE html>
@@ -150,24 +156,14 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
                 <div style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin: 0 auto; position: relative;" class="mb-3">
                     <img src="../includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>" alt="Foto Profilo"
                         style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
-                    <?php
-                        if(isUserOnline($mysqli,$user_cercato_id)){
-                            $is_online = true;
-                        } else {
-                            $is_online = false;
-                        }
-                    ?>
                     <?php if ($is_online): ?>
                         <div style="position: absolute; bottom: 10px; right: 10px; background-color: #28a745; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold;">
                             Online
                         </div>
-                    <?php else: 
-                        $last_access_data = getUltimoAccesso($mysqli, $user_cercato_id);
-                        if ($last_access_data): ?>
+                    <?php else: $last_access = getUltimoAccesso($mysqli, $user_cercato_id);?>
                             <div style="position: absolute; bottom: 10px; right: 10px; background-color: #6c757d; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px;">
-                                Ultimo accesso: <?php echo date('d/m/Y H:i', strtotime($last_access_data)); ?>
+                                Ultimo accesso: <?php echo $last_access ? date('d/m/Y H:i', strtotime($last_access)) : 'Sconosciuto'; ?>
                             </div>
-                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
 
