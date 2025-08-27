@@ -22,167 +22,197 @@ if (!isLoggedIn()) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Cripsum™ - inventario</title>
         <style>
-.character-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    animation: fadeIn 0.3s ease-in-out;
-}
+            .character-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.4);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                animation: fadeIn 0.3s ease-in-out;
+            }
 
-.modal-content {
-    background: linear-gradient(135deg, #1a1a2e, #16213e);
-    border-radius: 15px;
-    padding: 2rem;
-    max-width: 500px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-    position: relative;
-    border: 2px solid #3d5a80;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    animation: slideIn 0.3s ease-out;
-}
+            .character-modal.closing {
+                animation: fadeOut 0.3s ease-in-out forwards;
+            }
 
-.close-modal {
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    font-size: 30px;
-    color: #fff;
-    cursor: pointer;
-    transition: color 0.3s;
-}
+            .modal-content {
+                background: linear-gradient(135deg, #1a1a2e, #16213e);
+                border-radius: 15px;
+                padding: 2rem;
+                max-width: 500px;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+                position: relative;
+                border: 2px solid #3d5a80;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                animation: slideIn 0.3s ease-out;
+            }
 
-.close-modal:hover {
-    color: #ff6b6b;
-}
+            .modal-content.closing {
+                animation: slideOut 0.3s ease-in forwards;
+            }
 
-.modal-character-info {
-    text-align: center;
-    color: #fff;
-}
+            .close-modal {
+                position: absolute;
+                top: 15px;
+                right: 20px;
+                font-size: 30px;
+                color: #fff;
+                cursor: pointer;
+                transition: color 0.3s;
+            }
 
-.modal-character-image {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #3d5a80;
-    margin-bottom: 1rem;
-    transition: transform 0.3s;
-}
+            .close-modal:hover {
+                color: #ff6b6b;
+            }
 
-.modal-character-image:hover {
-    transform: scale(1.05);
-}
+            .modal-character-info {
+                text-align: center;
+                color: #fff;
+            }
 
-.modal-character-info h2 {
-    margin: 1rem 0;
-    color: #fff;
-    font-size: 1.8rem;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
+            .modal-character-image {
+                width: 150px;
+                height: 150px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 3px solid #3d5a80;
+                margin-bottom: 1rem;
+                transition: transform 0.3s;
+            }
 
-.character-rarity {
-    font-size: 1.1rem;
-    font-weight: bold;
-    margin: 0.5rem 0;
-    padding: 0.3rem 0.8rem;
-    border-radius: 20px;
-    display: inline-block;
-    text-transform: uppercase;
-}
+            .modal-character-image:hover {
+                transform: scale(1.05);
+            }
 
-.character-quantity {
-    font-size: 1.2rem;
-    color: #ffd700;
-    font-weight: bold;
-    margin: 0.5rem 0;
-}
+            .modal-character-info h2 {
+                margin: 1rem 0;
+                color: #fff;
+                font-size: 1.8rem;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            }
 
-.character-description {
-    margin: 1rem 0;
-    line-height: 1.5;
-    font-style: italic;
-    color: #b0b0b0;
-}
+            .character-rarity {
+                font-size: 1.1rem;
+                font-weight: bold;
+                margin: 0.5rem 0;
+                padding: 0.3rem 0.8rem;
+                border-radius: 20px;
+                display: inline-block;
+                text-transform: uppercase;
+            }
 
-.character-traits {
-    margin: 1rem 0;
-    text-align: left;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 1rem;
-    border-radius: 10px;
-    border-left: 4px solid #3d5a80;
-}
+            .character-quantity {
+                font-size: 1.2rem;
+                color: #ffd700;
+                font-weight: bold;
+                margin: 0.5rem 0;
+            }
 
-.character-date {
-    margin: 1rem 0;
-    color: #888;
-    font-size: 0.9rem;
-}
+            .character-description {
+                margin: 1rem 0;
+                line-height: 1.5;
+                font-style: italic;
+                color: #b0b0b0;
+            }
 
-.animation-button {
-    background: linear-gradient(45deg, #667eea, #764ba2);
-    color: white;
-    border: none;
-    padding: 0.8rem 1.5rem;
-    border-radius: 25px;
-    cursor: pointer;
-    font-size: 1rem;
-    margin-top: 1rem;
-    transition: all 0.3s;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-}
+            .character-traits {
+                margin: 1rem 0;
+                text-align: left;
+                background: rgba(255, 255, 255, 0.1);
+                padding: 1rem;
+                border-radius: 10px;
+                border-left: 4px solid #3d5a80;
+            }
 
-.animation-button:hover {
-    background: linear-gradient(45deg, #764ba2, #667eea);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
+            .character-date {
+                margin: 1rem 0;
+                color: #888;
+                font-size: 0.9rem;
+            }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
+            .animation-button {
+                background: linear-gradient(45deg, #667eea, #764ba2);
+                color: white;
+                border: none;
+                padding: 0.8rem 1.5rem;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 1rem;
+                margin-top: 1rem;
+                transition: all 0.3s;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            }
 
-@keyframes slideIn {
-    from {
-        transform: translateY(-50px) scale(0.95);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0) scale(1);
-        opacity: 1;
-    }
-}
+            .animation-button:hover {
+                background: linear-gradient(45deg, #764ba2, #667eea);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            }
 
-@media (max-width: 768px) {
-    .modal-content {
-        padding: 1.5rem;
-        margin: 1rem;
-    }
-    
-    .modal-character-image {
-        width: 120px;
-        height: 120px;
-    }
-    
-    .modal-character-info h2 {
-        font-size: 1.5rem;
-    }
-}
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+
+            @keyframes fadeOut {
+                from {
+                    opacity: 1;
+                }
+                to {
+                    opacity: 0;
+                }
+            }
+
+            @keyframes slideIn {
+                from {
+                    transform: translateY(-50px) scale(0.95);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0) scale(1);
+                    opacity: 1;
+                }
+            }
+
+            @keyframes slideOut {
+                from {
+                    transform: translateY(0) scale(1);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateY(-50px) scale(0.95);
+                    opacity: 0;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .modal-content {
+                    padding: 1.5rem;
+                    margin: 1rem;
+                }
+                
+                .modal-character-image {
+                    width: 120px;
+                    height: 120px;
+                }
+                
+                .modal-character-info h2 {
+                    font-size: 1.5rem;
+                }
+            }
 
         </style>
     </head>
