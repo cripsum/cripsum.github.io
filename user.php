@@ -163,9 +163,9 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
                         </div>
                     <?php else: 
                         $last_access_data = getUltimoAccesso($mysqli, $user_cercato_id);
-                        if ($last_access_data && $last_access_data['ultimo_accesso']): ?>
+                        if ($last_access_data): ?>
                             <div style="position: absolute; bottom: 10px; right: 10px; background-color: #6c757d; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px;">
-                                Ultimo accesso: <?php echo date('d/m/Y H:i', strtotime($last_access_data['ultimo_accesso'])); ?>
+                                Ultimo accesso: <?php echo date('d/m/Y H:i', strtotime($last_access_data)); ?>
                             </div>
                         <?php endif; ?>
                     <?php endif; ?>
