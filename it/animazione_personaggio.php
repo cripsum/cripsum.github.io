@@ -543,10 +543,12 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
             }
 
             document.addEventListener('DOMContentLoaded', async function() {
+                setTimeout(async () => {
                 await riscattaPersonaggio(<?php echo $idPersonaggio ?>);
+                }, 500);
                 setTimeout(() => {
-                testoNuovo();
-                apriNormale();
+                    testoNuovo();
+                    apriNormale();
                 }, 500);
             });
 
