@@ -160,7 +160,7 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
                         <div style="position: absolute; bottom: 10px; right: 10px; background-color: #28a745; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold;">
                             Online
                         </div>
-                    <?php else: $last_access = getUltimoAccesso($mysqli, $user_cercato_id);?>
+                    <?php else:?>
                             <div style="position: absolute; bottom: 10px; right: 10px; background-color: #6c757d; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px;">
                                 Ultimo accesso: <?php echo $last_access ? date('d/m/Y H:i', strtotime($last_access)) : 'Sconosciuto'; ?>
                             </div>
