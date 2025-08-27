@@ -39,7 +39,7 @@ $user_cercato_id = $user['id'];
 <html lang="en">
     <head>
         <?php include '../includes/head-import.php'; ?>
-        <link rel="stylesheet" href="../css/style-users.css" />
+        <link rel="stylesheet" href="../css/style-users.css?v=1" />
         <title>Profilo di <?php echo htmlspecialchars($user['username']); ?></title>
         <style>
             .navbarutenti {
