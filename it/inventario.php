@@ -134,8 +134,48 @@ if (!isLoggedIn()) {
                             <div class="character-unlock-date">${character ? `Alle ${new Date(character.data).toLocaleTimeString('it-IT')}` : ""}</div>
                         `;
 
+                        if (character) {
+                            characterCard.style.cursor = "pointer";
+                            characterCard.addEventListener("click", () => {
+                                showCharacterModal(character);
+                            });
+                        }
+
                         charactersGrid.appendChild(characterCard);
                     });
+
+                    function showCharacterModal(character) {
+                        const modal = document.createElement("div");
+                        modal.classList.add("character-modal");
+                        modal.innerHTML = `
+                            <div class="modal-content">
+                                <span class="close-modal">&times;</span>
+                                <div class="modal-character-info">
+                                    <img src="/img/${character.img_url}" class="modal-character-image" alt="${character.nome}">
+                                    <h2>${character.nome}</h2>
+                                    <p class="character-rarity">Rarità: ${character.rarità}</p>
+                                    <p class="character-quantity">Quantità: x${character.quantità}</p>
+                                    <p class="character-description">${character.descrizione || 'Nessuna descrizione disponibile'}</p>
+                                    <p class="character-traits"><strong>Tratti distintivi:</strong><br>- ${character.caratteristiche ? character.caratteristiche.split(';').join('<br> ') : 'Nessun tratto specificato'}</p>
+                                    <p class="character-date">Trovato il: ${new Date(character.data).toLocaleDateString()} alle ${new Date(character.data).toLocaleTimeString('it-IT')}</p>
+                                    <button class="animation-button" onclick="showUnboxAnimation('${character.nome}')">Visualizza Animazione Apertura</button>
+                                </div>
+                            </div>
+                        `;
+
+                        document.body.appendChild(modal);
+
+                        modal.addEventListener("click", (e) => {
+                            if (e.target === modal || e.target.classList.contains("close-modal")) {
+                                document.body.removeChild(modal);
+                            }
+                        });
+                    }
+
+                    function showUnboxAnimation(characterName) {
+                        // animazione Apertura da implementare
+                        console.log(`Mostra animazione per: ${characterName}`);
+                    }
 
                     section.appendChild(charactersGrid);
                     inventarioDiv.appendChild(section);
