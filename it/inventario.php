@@ -175,11 +175,13 @@ if (!isLoggedIn()) {
             }
 
             .animation-button {
-                background: #28a745;
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
                 color: white;
-                border: none;
+                border: 1px solid rgba(255, 255, 255, 0.2);
                 padding: 12px 24px;
-                border-radius: 8px;
+                border-radius: 15px;
                 cursor: pointer;
                 font-size: 16px;
                 font-weight: 600;
@@ -187,18 +189,37 @@ if (!isLoggedIn()) {
                 transition: all 0.3s ease;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
-                box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .animation-button:before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+                transition: left 0.5s;
             }
 
             .animation-button:hover {
-                background: #218838;
+                background: rgba(255, 255, 255, 0.15);
+                border: 1px solid rgba(255, 255, 255, 0.3);
                 transform: translateY(-2px);
-                box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4);
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            }
+
+            .animation-button:hover:before {
+                left: 100%;
             }
 
             .animation-button:active {
                 transform: translateY(0);
-                box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            }
             }
 
             @keyframes fadeIn {
@@ -328,147 +349,156 @@ if (!isLoggedIn()) {
         ></script>
         <script src="../js/characters.js?v=2"></script>
         <script>
-            function getCookie(name) {
-                const cookies = document.cookie.split("; ");
-                for (let cookie of cookies) {
-                    let [key, value] = cookie.split("=");
-                    if (key === name) return JSON.parse(value);
-                }
-                return null;
-            }
+    function getCookie(name) {
+        const cookies = document.cookie.split("; ");
+        for (let cookie of cookies) {
+            let [key, value] = cookie.split("=");
+            if (key === name) return JSON.parse(value);
+        }
+        return null;
+    }
 
-            async function initializeInventory() {
-                const inventory = await getInventory() || [];
-                const inventarioDiv = document.getElementById("inventario");
-                const casseAperteResponse = await fetch('https://cripsum.com/api/get_casse_aperte');
-                const casseAperteData = await casseAperteResponse.json();
-                const casseAperte = await casseAperteData.total;
+    async function initializeInventory() {
+        const inventory = await getInventory() || [];
+        const inventarioDiv = document.getElementById("inventario");
+        const casseAperteResponse = await fetch('https://cripsum.com/api/get_casse_aperte');
+        const casseAperteData = await casseAperteResponse.json();
+        const casseAperte = await casseAperteData.total;
 
-                const totalCharacters = await getCharactersNum();
-                const foundCharacters = inventory.length;
-                const completionRate = totalCharacters > 0 ? Math.round((foundCharacters / totalCharacters) * 100) : 0;
+        const totalCharacters = await getCharactersNum();
+        const foundCharacters = inventory.length;
+        const completionRate = totalCharacters > 0 ? Math.round((foundCharacters / totalCharacters) * 100) : 0;
 
-                animateNumber(document.getElementById("casseAperteNumber"), casseAperte);
-                animateNumber(document.getElementById("foundCharacters"), foundCharacters);
-                animateNumber(document.getElementById("totalCharacters"), totalCharacters);
-                animateNumber(document.getElementById("completionRate"), completionRate, "%");
+        animateNumber(document.getElementById("casseAperteNumber"), casseAperte);
+        animateNumber(document.getElementById("foundCharacters"), foundCharacters);
+        animateNumber(document.getElementById("totalCharacters"), totalCharacters);
+        animateNumber(document.getElementById("completionRate"), completionRate, "%");
 
-                const rarityOrder = ["comune", "raro", "epico", "leggendario", "speciale", "segreto"];
+        const rarityOrder = ["comune", "raro", "epico", "leggendario", "speciale", "segreto"];
 
-                rarityOrder.forEach((rarity, index) => {
-                    const section = document.createElement("div");
-                    section.classList.add("rarity-section", `rarity-${rarity}`);
-                    section.style.animationDelay = `${0.1 * index}s`;
+        rarityOrder.forEach((rarity, index) => {
+            const section = document.createElement("div");
+            section.classList.add("rarity-section", `rarity-${rarity}`);
+            section.style.animationDelay = `${0.1 * index}s`;
 
-                    const foundInRarity = inventory.filter((p) => p.rarità === rarity).length;
-                    const totalInRarity = rarities.filter((p) => p.rarity === rarity).length;
-                    
-                    const titleDiv = document.createElement("div");
-                    titleDiv.classList.add("rarity-title");
-                    titleDiv.textContent = `${rarity.toUpperCase()}: ${foundInRarity} / ${totalInRarity}`;
-                    section.appendChild(titleDiv);
+            const foundInRarity = inventory.filter((p) => p.rarità === rarity).length;
+            const totalInRarity = rarities.filter((p) => p.rarity === rarity).length;
+            
+            const titleDiv = document.createElement("div");
+            titleDiv.classList.add("rarity-title");
+            titleDiv.textContent = `${rarity.toUpperCase()}: ${foundInRarity} / ${totalInRarity}`;
+            section.appendChild(titleDiv);
 
-                    const charactersGrid = document.createElement("div");
-                    charactersGrid.classList.add("characters-grid");
+            const charactersGrid = document.createElement("div");
+            charactersGrid.classList.add("characters-grid");
 
-                    const filteredCharacters = rarities.filter((p) => p.rarity === rarity);
+            const filteredCharacters = rarities.filter((p) => p.rarity === rarity);
 
-                    function showCharacterModal(character) {
-                        const modal = document.createElement("div");
-                        modal.classList.add("character-modal");
-                        modal.innerHTML = `
-                            <div class="modal-content">
-                                <span class="close-modal">&times;</span>
-                                <div class="modal-character-info">
-                                    <img src="/img/${character.img_url}" class="modal-character-image" alt="${character.nome}">
-                                    <h2>${character.nome}</h2>
-                                    <p class="character-rarity">Rarità: ${character.rarità}</p>
-                                    <p class="character-quantity">Quantità: x${character.quantità}</p>
-                                    <p class="character-description">${character.descrizione || 'Nessuna descrizione disponibile'}</p>
-                                    <p class="character-traits"><strong>Tratti distintivi:</strong><br>- ${character.caratteristiche ? character.caratteristiche.split(';').join('<br> -') : 'Nessun tratto specificato'}</p>
-                                    <p class="character-date">Trovato il: ${new Date(character.data).toLocaleDateString()} alle ${new Date(character.data).toLocaleTimeString('it-IT')}</p>
-                                    <button class="animation-button" onclick="showUnboxAnimation('${character.nome}')">Visualizza Animazione Apertura</button>
-                                </div>
-                            </div>
-                        `;
+            function showCharacterModal(character) {
+                const modal = document.createElement("div");
+                modal.classList.add("character-modal");
+                modal.innerHTML = `
+                    <div class="modal-content rarity-${character.rarità}">
+                        <span class="close-modal">&times;</span>
+                        <div class="modal-character-info">
+                            <img src="/img/${character.img_url}" class="modal-character-image" alt="${character.nome}">
+                            <h2>${character.nome}</h2>
+                            <p class="character-rarity">Rarità: ${character.rarità}</p>
+                            <p class="character-quantity">Quantità: x${character.quantità}</p>
+                            <p class="character-description">${character.descrizione || 'Nessuna descrizione disponibile'}</p>
+                            <p class="character-traits"><strong>Tratti distintivi:</strong><br>- ${character.caratteristiche ? character.caratteristiche.split(';').join('<br> -') : 'Nessun tratto specificato'}</p>
+                            <p class="character-date">Trovato il: ${new Date(character.data).toLocaleDateString()} alle ${new Date(character.data).toLocaleTimeString('it-IT')}</p>
+                            <button class="open-box-btn" onclick="showUnboxAnimation('${character.nome}')">
+                                <span class="btn-text">Visualizza Animazione</span>
+                                <div class="btn-glow"></div>
+                            </button>
+                        </div>
+                    </div>
+                `;
 
-                        document.body.appendChild(modal);
+                document.body.appendChild(modal);
 
-                        modal.addEventListener("click", (e) => {
-                            if (e.target === modal || e.target.classList.contains("close-modal")) {
-                                document.body.removeChild(modal);
-                            }
-                        });
+                modal.addEventListener("click", (e) => {
+                    if (e.target === modal || e.target.classList.contains("close-modal")) {
+                        modal.classList.add("closing");
+                        const modalContent = modal.querySelector(".modal-content");
+                        modalContent.classList.add("closing");
+                        setTimeout(() => {
+                            document.body.removeChild(modal);
+                        }, 300);
                     }
-
-                    function showUnboxAnimation(characterName) {
-                        // animazione Apertura da implementare
-                        console.log(`Mostra animazione per: ${characterName}`);
-                    }
-
-                    filteredCharacters.forEach((personaggio) => {
-                        const character = inventory.find((p) => p.nome === personaggio.name);
-                        const characterCard = document.createElement("div");
-                        characterCard.classList.add("character-card");
-                        
-                        if (!character) {
-                            characterCard.classList.add("hidden-character");
-                        }
-
-                        characterCard.innerHTML = `
-                            <img src="${character ? `/img/${character.img_url}` : "../img/boh.png"}" 
-                                 class="character-image" 
-                                 alt="Personaggio">
-                            <div class="character-name">${character ? character.nome : "???"}</div>
-                            <div class="character-count">${character ? `x${character.quantità}` : "Non trovato"}</div>
-                            <div class="character-unlock-date">${character ? `Trovato il: ${new Date(character.data).toLocaleDateString()}` : "Non trovato"}</div>
-                            <div class="character-unlock-date">${character ? `Alle ${new Date(character.data).toLocaleTimeString('it-IT')}` : ""}</div>
-                        `;
-
-                        if (character) {
-                            characterCard.style.cursor = "pointer";
-                            characterCard.addEventListener("click", () => {
-                                showCharacterModal(character);
-                            });
-                        }
-
-                        charactersGrid.appendChild(characterCard);
-                    });
-
-                    section.appendChild(charactersGrid);
-                    inventarioDiv.appendChild(section);
                 });
             }
 
-            function animateNumber(element, targetNumber, suffix = "") {
-                let currentNumber = 0;
-                const increment = targetNumber / 50;
-                const timer = setInterval(() => {
-                    currentNumber += increment;
-                    if (currentNumber >= targetNumber) {
-                        currentNumber = targetNumber;
-                        clearInterval(timer);
-                    }
-                    element.textContent = Math.floor(currentNumber) + suffix;
-                }, 30);
+            function showUnboxAnimation(characterName) {
+                // animazione Apertura da implementare
+                console.log(`Mostra animazione per: ${characterName}`);
             }
 
-            initializeInventory();
+            filteredCharacters.forEach((personaggio) => {
+                const character = inventory.find((p) => p.nome === personaggio.name);
+                const characterCard = document.createElement("div");
+                characterCard.classList.add("character-card");
+                
+                if (!character) {
+                    characterCard.classList.add("hidden-character");
+                }
 
-            async function getInventory() {
-                const response = await fetch('https://cripsum.com/api/api_get_inventario');
-                const data = await response.json();
+                characterCard.innerHTML = `
+                    <img src="${character ? `/img/${character.img_url}` : "../img/boh.png"}" 
+                         class="character-image" 
+                         alt="Personaggio">
+                    <div class="character-name">${character ? character.nome : "???"}</div>
+                    <div class="character-count">${character ? `x${character.quantità}` : "Non trovato"}</div>
+                    <div class="character-unlock-date">${character ? `Trovato il: ${new Date(character.data).toLocaleDateString()}` : "Non trovato"}</div>
+                    <div class="character-unlock-date">${character ? `Alle ${new Date(character.data).toLocaleTimeString('it-IT')}` : ""}</div>
+                `;
 
-                localStorage.setItem("inventory", JSON.stringify(data));
-                return data;
+                if (character) {
+                    characterCard.style.cursor = "pointer";
+                    characterCard.addEventListener("click", () => {
+                        showCharacterModal(character);
+                    });
+                }
+
+                charactersGrid.appendChild(characterCard);
+            });
+
+            section.appendChild(charactersGrid);
+            inventarioDiv.appendChild(section);
+        });
+    }
+
+    function animateNumber(element, targetNumber, suffix = "") {
+        let currentNumber = 0;
+        const increment = targetNumber / 50;
+        const timer = setInterval(() => {
+            currentNumber += increment;
+            if (currentNumber >= targetNumber) {
+                currentNumber = targetNumber;
+                clearInterval(timer);
             }
+            element.textContent = Math.floor(currentNumber) + suffix;
+        }, 30);
+    }
 
-            async function getCharactersNum(){
-                const response = await fetch('https://cripsum.com/api/api_get_characters_num');
-                const data = await response.json();
-                return data;
-            }
-        </script>
+    initializeInventory();
+
+    async function getInventory() {
+        const response = await fetch('https://cripsum.com/api/api_get_inventario');
+        const data = await response.json();
+
+        localStorage.setItem("inventory", JSON.stringify(data));
+        return data;
+    }
+
+    async function getCharactersNum(){
+        const response = await fetch('https://cripsum.com/api/api_get_characters_num');
+        const data = await response.json();
+        return data;
+    }
+</script>
+
         <script src="../js/modeChanger.js"></script>
     </body>
 </html>
