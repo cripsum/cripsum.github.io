@@ -10,7 +10,7 @@
         </script>
         <script>
             setInterval(() => {
-                fetch('/js/update_activity.php');
+                fetch('/api/update_activity.php');
             }, 25000);
 
         </script>
