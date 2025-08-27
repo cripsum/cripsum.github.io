@@ -530,7 +530,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                         `;
                         document.head.appendChild(secretStyleSheet);
                     
-                }, 500);
+                }, 100);
 
                 setTimeout(() => {
                     introOverlay.style.animation = 'fadeOut 1.2s ease-out forwards';
@@ -544,10 +544,8 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
             document.addEventListener('DOMContentLoaded', async function() {
                 await riscattaPersonaggio(<?php echo $idPersonaggio ?>);
-                setTimeout(() => {
                 testoNuovo();
                 apriNormale();
-                }, 1000);
             });
 
         </script>
