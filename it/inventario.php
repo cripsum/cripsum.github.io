@@ -115,35 +115,6 @@ if (!isLoggedIn()) {
 
                     const filteredCharacters = rarities.filter((p) => p.rarity === rarity);
 
-                    filteredCharacters.forEach((personaggio) => {
-                        const character = inventory.find((p) => p.nome === personaggio.name);
-                        const characterCard = document.createElement("div");
-                        characterCard.classList.add("character-card");
-                        
-                        if (!character) {
-                            characterCard.classList.add("hidden-character");
-                        }
-
-                        characterCard.innerHTML = `
-                            <img src="${character ? `/img/${character.img_url}` : "../img/boh.png"}" 
-                                 class="character-image" 
-                                 alt="Personaggio">
-                            <div class="character-name">${character ? character.nome : "???"}</div>
-                            <div class="character-count">${character ? `x${character.quantità}` : "Non trovato"}</div>
-                            <div class="character-unlock-date">${character ? `Trovato il: ${new Date(character.data).toLocaleDateString()}` : "Non trovato"}</div>
-                            <div class="character-unlock-date">${character ? `Alle ${new Date(character.data).toLocaleTimeString('it-IT')}` : ""}</div>
-                        `;
-
-                        if (character) {
-                            characterCard.style.cursor = "pointer";
-                            characterCard.addEventListener("click", () => {
-                                showCharacterModal(character);
-                            });
-                        }
-
-                        charactersGrid.appendChild(characterCard);
-                    });
-
                     function showCharacterModal(character) {
                         const modal = document.createElement("div");
                         modal.classList.add("character-modal");
@@ -176,6 +147,35 @@ if (!isLoggedIn()) {
                         // animazione Apertura da implementare
                         console.log(`Mostra animazione per: ${characterName}`);
                     }
+
+                    filteredCharacters.forEach((personaggio) => {
+                        const character = inventory.find((p) => p.nome === personaggio.name);
+                        const characterCard = document.createElement("div");
+                        characterCard.classList.add("character-card");
+                        
+                        if (!character) {
+                            characterCard.classList.add("hidden-character");
+                        }
+
+                        characterCard.innerHTML = `
+                            <img src="${character ? `/img/${character.img_url}` : "../img/boh.png"}" 
+                                 class="character-image" 
+                                 alt="Personaggio">
+                            <div class="character-name">${character ? character.nome : "???"}</div>
+                            <div class="character-count">${character ? `x${character.quantità}` : "Non trovato"}</div>
+                            <div class="character-unlock-date">${character ? `Trovato il: ${new Date(character.data).toLocaleDateString()}` : "Non trovato"}</div>
+                            <div class="character-unlock-date">${character ? `Alle ${new Date(character.data).toLocaleTimeString('it-IT')}` : ""}</div>
+                        `;
+
+                        if (character) {
+                            characterCard.style.cursor = "pointer";
+                            characterCard.addEventListener("click", () => {
+                                showCharacterModal(character);
+                            });
+                        }
+
+                        charactersGrid.appendChild(characterCard);
+                    });
 
                     section.appendChild(charactersGrid);
                     inventarioDiv.appendChild(section);
