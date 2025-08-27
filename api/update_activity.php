@@ -15,5 +15,4 @@ $stmt = $mysqli->prepare("UPDATE utenti SET ultimo_accesso = NOW() WHERE id = ?"
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $stmt->close();
-$mysqli->close();
 ?>

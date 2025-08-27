@@ -687,7 +687,6 @@ function isUserOnline($mysqli, $user_id){
     $stmt->bind_result($ultimo_accesso);
     $stmt->fetch();
     $stmt->close();
-    $mysqli->close();
 
     if(!$ultimo_accesso) return false;
     return ($ultimo_accesso > $time_limit);
@@ -702,7 +701,6 @@ function getUltimoAccesso($mysqli, $user_id){
     $stmt->bind_result($ultimo_accesso);
     $stmt->fetch();
     $stmt->close();
-    $mysqli->close();
 
     return $ultimo_accesso;
 }
