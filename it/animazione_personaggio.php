@@ -557,7 +557,7 @@ $nomePersonaggio = $_GET['nome_personaggio'] ?? 0;
             }
 
             document.addEventListener('DOMContentLoaded', async function() {
-                await riscattaPersonaggio(<?php echo json_encode($nomePersonaggio); ?>);
+                await riscattaPersonaggio(<?php echo $nomePersonaggio ?>);
                 setTimeout(() => {
                 testoNuovo();
                 apriNormale();
