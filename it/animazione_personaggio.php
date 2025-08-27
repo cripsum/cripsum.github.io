@@ -130,15 +130,7 @@ $nomePersonaggio = $_GET['nome_personaggio'] ?? 0;
                 isProcessing = true;
 
                 try {
-                    const pullRaw = getCharacter(nomePersonaggio);
-
-                    const pull = {
-                    nome: pullRaw.name,
-                    rarità: pullRaw.rarity,
-                    img_url: pullRaw.img,
-                    audio_url: pullRaw.audio,
-                    id: pullRaw.id
-                    };
+                    const pull = await fetch('https://cripsum.com/api/get_characters_from_name?name=' + encodeURIComponent(nomePersonaggio));
                     
                     document.getElementById("contenuto").innerHTML = `
                         <p style="top 10px; font-size: 20px; max-width: 600px; text-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);" id="nomePersonaggio">${pull.nome}</p>
@@ -190,10 +182,6 @@ $nomePersonaggio = $_GET['nome_personaggio'] ?? 0;
                         isProcessing = false;
                     }, 1000);
                 }
-            }
-
-            function getCharacter(name) {
-                return rarities.find((p) => p.name === name);
             }
 
             async function apriNormale() {
