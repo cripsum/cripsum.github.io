@@ -546,9 +546,9 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
             document.addEventListener('DOMContentLoaded', async function() {
                 setTimeout(async () => {
                     await riscattaPersonaggio(<?php echo $idPersonaggio ?>);
+                    testoNuovo();
                 }, 200);
                     setTimeout(() => {
-                        testoNuovo();
                         apriNormale();
                     }, 500);
             });
