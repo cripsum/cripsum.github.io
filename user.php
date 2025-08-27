@@ -157,7 +157,7 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
                             $is_online = false;
                         }
                     ?>
-                    <div style="position: absolute; bottom: 10px; right: 10px; width: 20px; height: 20px; border-radius: 50%; background-color: <?php echo $is_online ? '#28a745' : '#6c757d'; ?>; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>
+                    <div style="position: absolute; bottom: 10px; right: 10px; width: 20px; height: 20px; border-radius: 50%; background-color: <?php echo $is_online ? '#28a745' : '#6c757d'; ?>; border: 3px solid #0a0a0a; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10;"></div>
                 </div>
 
                 <h3><?php echo htmlspecialchars($user['username']); ?></h3>
