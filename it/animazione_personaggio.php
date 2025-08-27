@@ -130,7 +130,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                 isProcessing = true;
 
                 try {
-                    const pull = await fetch('https://cripsum.com/api/get_characters_from_id?id=' + encodeURIComponent(idPersonaggio));
+                    const pull = await fetch('https://cripsum.com/api/get_character_from_id?id=' + encodeURIComponent(idPersonaggio));
                     
                     document.getElementById("contenuto").innerHTML = `
                         <p style="top 10px; font-size: 20px; max-width: 600px; text-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);" id="nomePersonaggio">${pull.nome}</p>
