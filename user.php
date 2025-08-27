@@ -161,19 +161,19 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
                 <div style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin: 0 auto; position: relative;" class="mb-3">
                     <img src="../includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>" alt="Foto Profilo"
                         style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
-                    <?php if ($is_online): ?>
-                        <div style="position: absolute; bottom: 10px; right: 10px; background-color: #28a745; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold;">
-                            Online
-                        </div>
-                    <?php else:?>
-                            <div style="position: absolute; bottom: 10px; right: 10px; background-color: #6c757d; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px;">
-                                Ultimo accesso: <?php echo $ultimo_accesso ? date('d/m/Y H:i', strtotime($ultimo_accesso)) : 'Sconosciuto'; ?>
-                            </div>
-                    <?php endif; ?>
                 </div>
 
                 <h3><?php echo htmlspecialchars($user['username']); ?></h3>
                 <p>Membro dal: <?php echo date('d/m/Y', strtotime($user['data_creazione'])); ?></p>
+                    <?php if ($is_online): ?>
+                        <div style="background-color: #28a745; color: white; padding: 2px 8px; border-radius: 5px; font-size: 12px; font-weight: bold;">
+                            Online
+                        </div>
+                    <?php else:?>
+                            <div style="background-color: #6c757d; color: white; padding: 2px 8px; border-radius: 5px; font-size: 12px;">
+                                Ultimo accesso: <?php echo $ultimo_accesso ? date('d/m/Y H:i', strtotime($ultimo_accesso)) : 'Sconosciuto'; ?>
+                            </div>
+                    <?php endif; ?>
                 
                 <div class="mt-3">
                     <button class="btn btn-sm btn-outline-primary" onclick="copyProfileLink('username')">
