@@ -95,6 +95,7 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
                             $is_online = true;
                         } else {
                             $is_online = false;
+                            $ultimo_accesso = getUltimoAccesso($mysqli, $user_cercato_id);
                         }
 ?>
 
