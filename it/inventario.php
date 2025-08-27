@@ -60,6 +60,41 @@ if (!isLoggedIn()) {
                 animation: slideOut 0.3s ease-in forwards;
             }
 
+            .modal-content.rarity-comune {
+                background: linear-gradient(135deg, #2c2c2c, #1a1a1a);
+                border: 2px solid #666;
+            }
+
+            .modal-content.rarity-raro {
+                background: linear-gradient(135deg, #1e3a5f, #0f2849);
+                border: 2px solid #4a90e2;
+            }
+
+            .modal-content.rarity-epico {
+                background: linear-gradient(135deg, #4a1a5f, #2d0f49);
+                border: 2px solid #9b59b6;
+            }
+
+            .modal-content.rarity-leggendario {
+                background: linear-gradient(135deg, #8b4513, #654321);
+                border: 2px solid #ffa500;
+            }
+
+            .modal-content.rarity-speciale {
+                background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+                background-size: 400% 400%;
+                animation: rainbowGradient 3s ease infinite, slideIn 0.3s ease-out;
+                border: 2px solid #fff;
+            }
+
+            .modal-content.rarity-segreto {
+                background: linear-gradient(45deg, #000000, #4b0082, #8b00ff, #000000);
+                background-size: 400% 400%;
+                animation: secretGradient 2s ease-in-out infinite alternate, slideIn 0.3s ease-out;
+                border: 2px solid #8b00ff;
+                box-shadow: 0 0 30px rgba(139, 0, 255, 0.5);
+            }
+
             .close-modal {
                 position: absolute;
                 top: 15px;
@@ -140,22 +175,30 @@ if (!isLoggedIn()) {
             }
 
             .animation-button {
-                background: linear-gradient(45deg, #667eea, #764ba2);
+                background: #28a745;
                 color: white;
                 border: none;
-                padding: 0.8rem 1.5rem;
-                border-radius: 25px;
+                padding: 12px 24px;
+                border-radius: 8px;
                 cursor: pointer;
-                font-size: 1rem;
+                font-size: 16px;
+                font-weight: 600;
                 margin-top: 1rem;
-                transition: all 0.3s;
-                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+                transition: all 0.3s ease;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
             }
 
             .animation-button:hover {
-                background: linear-gradient(45deg, #764ba2, #667eea);
+                background: #218838;
                 transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+                box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4);
+            }
+
+            .animation-button:active {
+                transform: translateY(0);
+                box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
             }
 
             @keyframes fadeIn {
@@ -195,6 +238,27 @@ if (!isLoggedIn()) {
                 to {
                     transform: translateY(-50px) scale(0.95);
                     opacity: 0;
+                }
+            }
+
+            @keyframes rainbowGradient {
+                0% {
+                    background-position: 0% 50%;
+                }
+                50% {
+                    background-position: 100% 50%;
+                }
+                100% {
+                    background-position: 0% 50%;
+                }
+            }
+
+            @keyframes secretGradient {
+                0% {
+                    background-position: 0% 50%;
+                }
+                100% {
+                    background-position: 100% 50%;
                 }
             }
 
