@@ -87,8 +87,6 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
             const divApriAncora = document.getElementById("divApriAncora");
             const wrapper = document.getElementById("bagliore-wrapper");
 
-            let isProcessing = false;
-
             function createStars() {
                 const starsContainer = document.getElementById('stars');
                 for (let i = 0; i < 100; i++) {
@@ -121,16 +119,16 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                 return data;
             }
 
+            async function get_character_from_id(id) {
+                const response = await fetch('https://cripsum.com/api/get_character_from_id?id=' + encodeURIComponent(id));
+                const data = await response.json();
+                return data;
+            }
+
             async function riscattaPersonaggio(idPersonaggio){
 
-                if (isProcessing) {
-                    return;
-                }
-                    
-                isProcessing = true;
-
                 try {
-                    const pull = await fetch('https://cripsum.com/api/get_character_from_id?id=' + encodeURIComponent(idPersonaggio));
+                    const pull = await get_character_from_id(idPersonaggio);
                     
                     document.getElementById("contenuto").innerHTML = `
                         <p style="top 10px; font-size: 20px; max-width: 600px; text-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);" id="nomePersonaggio">${pull.nome}</p>
