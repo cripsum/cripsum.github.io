@@ -137,19 +137,19 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                         <img src="/img/${pull.img_url}" alt="Premio" class="premio" />
                     `;
 
-                    if (rarita === "comune") {
+                    if (pull.rarità === "comune") {
                         messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
                         bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
-                    } else if (rarita === "leggendario") {
+                    } else if (pull.rarità === "leggendario") {
                         messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
                         bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-                    } else if (rarita === "epico") {
+                    } else if (pull.rarità === "epico") {
                         messaggioRarita.innerText = "hai pullato un personaggio epico, tanta roba, ma poteva andare meglio";
                         bagliore.style.background = "radial-gradient(circle, rgba(195, 0, 235, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-                    } else if (rarita === "raro") {
+                    } else if (pull.rarità === "raro") {
                         messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
                         bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-                    } else if (rarita === "speciale") {
+                    } else if (pull.rarità === "speciale") {
                         messaggioRarita.innerText = "COM'É POSSIBILE? HAI PULLATO UN PERSONAGGIO SPECIALE!";
 
                         bagliore.style.position = "fixed";
@@ -160,7 +160,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                         bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
                         bagliore.style.backgroundSize = "300% 100%";
                         bagliore.style.animation = "rainbowBackground 6s linear infinite";
-                    } else if (rarita === "segreto") {
+                    } else if (pull.rarità === "segreto") {
 
                         startIntroAnimation(pull.nome);
                         messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
