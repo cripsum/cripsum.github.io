@@ -469,7 +469,7 @@ if (!isLoggedIn()) {
             }
 
             function showUnboxAnimation(idPersonaggio) {
-                header(location("animazione_personaggio?id_personaggio=" + idPersonaggio));
+                window.location.href = "animazione_personaggio?id_personaggio=" + idPersonaggio;
             }
 
             filteredCharacters.forEach((personaggio) => {
