@@ -4,10 +4,10 @@ require_once __DIR__ . '/../includes/functions.php';
 
 session_start();
 $user_id = $_SESSION['user_id'] ?? 0;
-$nomePersonaggio = $_GET['name'] ?? '';
+$idPersonaggio = $_GET['id'] ?? '';
 
-    $stmt = $mysqli->prepare("SELECT * FROM personaggi where nome = ?"); 
-    $stmt->bind_param("s", $nomePersonaggio); 
+    $stmt = $mysqli->prepare("SELECT * FROM personaggi where id = ?"); 
+    $stmt->bind_param("i", $idPersonaggio); 
     $stmt->execute();
     $result = $stmt->get_result();
 

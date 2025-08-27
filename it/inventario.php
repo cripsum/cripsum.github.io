@@ -449,7 +449,7 @@ if (!isLoggedIn()) {
                             <p class="character-description">${character.descrizione || 'Nessuna descrizione disponibile'}</p>
                             <p class="character-traits"><strong>Tratti distintivi:</strong><br>- ${character.caratteristiche ? character.caratteristiche.split(';').join('<br> -') : 'Nessun tratto specificato'}</p>
                             <p class="character-date">Trovato il: ${new Date(character.data).toLocaleDateString()} alle ${new Date(character.data).toLocaleTimeString('it-IT')}</p>
-                            <button class="animation-button" onclick="showUnboxAnimation('${character.nome}')">Visualizza Animazione Apertura</button>
+                            <button class="animation-button" onclick="showUnboxAnimation('${character.id}')">Visualizza Animazione Apertura</button>
                         </div>
                     </div>
                 `;
@@ -468,8 +468,8 @@ if (!isLoggedIn()) {
                 });
             }
 
-            function showUnboxAnimation(nomePersonaggio) {
-                header(location("animazione_personaggio?nome_personaggio=" + nomePersonaggio));
+            function showUnboxAnimation(idPersonaggio) {
+                header(location("animazione_personaggio?id_personaggio=" + idPersonaggio));
             }
 
             filteredCharacters.forEach((personaggio) => {

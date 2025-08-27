@@ -16,7 +16,7 @@ if (!isLoggedIn()) {
 }
 require_once '../api/api_personaggi.php';
 
-$nomePersonaggio = $_GET['nome_personaggio'] ?? 0;
+$idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
 ?>
 <!DOCTYPE html>
@@ -54,7 +54,7 @@ $nomePersonaggio = $_GET['nome_personaggio'] ?? 0;
 
                 <div id="divApriAncora" class="nascosto">
                     <div class="button-container mt-4" style="text-align: center; max-width: 95%; margin: auto">
-                        <a class="btn btn-secondary bottone mt-2" onclick="refresh()" style="cursor: pointer" href="?nome_personaggio=<?php echo urlencode($nomePersonaggio); ?>">Ripeti l'animazione</a>
+                        <a class="btn btn-secondary bottone mt-2" onclick="refresh()" style="cursor: pointer" href="?id_personaggio=<?php echo urlencode($idPersonaggio); ?>">Ripeti l'animazione</a>
                         <a class="btn btn-secondary bottone mt-2" href="inventario" style="cursor: pointer">Torna all'inventario</a>
                     </div>
                 </div>
@@ -121,7 +121,7 @@ $nomePersonaggio = $_GET['nome_personaggio'] ?? 0;
                 return data;
             }
 
-            async function riscattaPersonaggio(nomePersonaggio){
+            async function riscattaPersonaggio(idPersonaggio){
 
                 if (isProcessing) {
                     return;
@@ -130,7 +130,7 @@ $nomePersonaggio = $_GET['nome_personaggio'] ?? 0;
                 isProcessing = true;
 
                 try {
-                    const pull = await fetch('https://cripsum.com/api/get_characters_from_name?name="' + encodeURIComponent(nomePersonaggio)+'"');
+                    const pull = await fetch('https://cripsum.com/api/get_characters_from_id?id=' + encodeURIComponent(idPersonaggio));
                     
                     document.getElementById("contenuto").innerHTML = `
                         <p style="top 10px; font-size: 20px; max-width: 600px; text-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);" id="nomePersonaggio">${pull.nome}</p>
@@ -545,7 +545,7 @@ $nomePersonaggio = $_GET['nome_personaggio'] ?? 0;
             }
 
             document.addEventListener('DOMContentLoaded', async function() {
-                await riscattaPersonaggio(<?php echo $nomePersonaggio ?>);
+                await riscattaPersonaggio(<?php echo $idPersonaggio ?>);
                 setTimeout(() => {
                 testoNuovo();
                 apriNormale();
