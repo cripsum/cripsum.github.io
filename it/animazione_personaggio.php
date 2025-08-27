@@ -160,10 +160,6 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                         bagliore.style.animation = "rainbowBackground 6s linear infinite";
                     } else if (pull.rarità === "segreto") {
 
-                    document.getElementById("suonoCassa").innerHTML = `
-                        <source src="/audio/${pull.audio_url}" type="audio/mpeg" id="suono" />
-                    `;
-
                         startIntroAnimation(pull.nome);
                         messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
                         bagliore.style.position = "fixed";
@@ -172,6 +168,10 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                         bagliore.style.zIndex = "-1";
 
                     }
+
+                    document.getElementById("suonoCassa").innerHTML = `
+                        <source src="/audio/${pull.audio_url}" type="audio/mpeg" id="suono" />
+                    `;
                     
                 } catch (error) {
                     console.error('Errore nel pull del personaggio:', error);
@@ -550,7 +550,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                         testoNuovo();
                         apriNormale();
                     }, 500);
-                }, 1000);
+                }, 500);
             });
             
 
