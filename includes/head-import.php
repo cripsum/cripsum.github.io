@@ -8,6 +8,12 @@
 
             gtag("config", "G-T0CTM2SBJJ");
         </script>
+        <script>
+            setInterval(() => {
+                fetch('/js/update_activity.php');
+            }, 25000);
+
+        </script>
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
             rel="stylesheet"

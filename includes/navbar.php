@@ -15,6 +15,7 @@ if ($isLoggedIn) {
     $ruolo = $_SESSION['ruolo'] ?? '';
     $nsfw = $_SESSION['nsfw'] ?? 0; 
     $richpresence = $_SESSION['richpresence'] ?? 0;
+
 }
 ?>
 

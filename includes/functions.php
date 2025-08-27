@@ -611,7 +611,6 @@ function cleanExpiredTokens($mysqli) {
 }
 
 function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsfw, $richpresence) {
-    // Check if username already exists for another user
     $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE username = ? AND id != ?");
     $stmt->bind_param("si", $username, $userId);
     $stmt->execute();
@@ -620,7 +619,6 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
         return "Il nome utente è già in uso";
     }
 
-    // Check if email already exists for another user
     $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE email = ? AND id != ?");
     $stmt->bind_param("si", $email, $userId);
     $stmt->execute();
@@ -629,8 +627,6 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
         return "L'email è già in uso";
     }
 
-    // Update user settings
-    // Check if email was changed
     $currentEmailStmt = $mysqli->prepare("SELECT email FROM utenti WHERE id = ?");
     $currentEmailStmt->bind_param("i", $userId);
     $currentEmailStmt->execute();
@@ -644,7 +640,6 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
     if (!empty($password)) {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         if ($emailChanged) {
-            // If email changed, require verification before saving changes
             $emailToken = bin2hex(random_bytes(32));
             $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, password = ?, nsfw = ?, richpresence = ?, email_verificata = 0, email_token = ?, email = ? WHERE id = ?");
             $stmt->bind_param("ssiissi", $username, $hashedPassword, $nsfw, $richpresence, $emailToken, $email, $userId);
@@ -654,7 +649,6 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
         }
     } else {
         if ($emailChanged) {
-            // If email changed, require verification before saving changes
             $emailToken = bin2hex(random_bytes(32));
             $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, nsfw = ?, richpresence = ?, email_verificata = 0, email_token = ?, email = ? WHERE id = ?");
             $stmt->bind_param("siissi", $username, $nsfw, $richpresence, $emailToken, $email, $userId);
@@ -681,6 +675,36 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
     else {
         return "Errore durante l'aggiornamento";
     }
+}
+
+function isUserOnline($mysqli, $user_id){
+    $ultimo_accesso = null;
+
+    $time_limit = date('Y-m-d H:i:s', strtotime('-30 seconds'));
+    $stmt = $mysqli->prepare("SELECT ultimo_accesso FROM utenti WHERE id = ?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $stmt->bind_result($ultimo_accesso);
+    $stmt->fetch();
+    $stmt->close();
+    $mysqli->close();
+
+    if(!$ultimo_accesso) return false;
+    return ($ultimo_accesso > $time_limit);
+}
+
+function getUltimoAccesso($mysqli, $user_id){
+    $ultimo_accesso = null;
+
+    $stmt = $mysqli->prepare("SELECT ultimo_accesso FROM utenti WHERE id = ?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $stmt->bind_result($ultimo_accesso);
+    $stmt->fetch();
+    $stmt->close();
+    $mysqli->close();
+
+    return $ultimo_accesso;
 }
 
 ?>

@@ -147,9 +147,17 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
         <div class="row mb-4">
             <div class="col-md-4 text-center fadeup">
                 
-                <div style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin: 0 auto;" class="mb-3">
+                <div style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin: 0 auto; position: relative;" class="mb-3">
                     <img src="../includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>" alt="Foto Profilo"
                         style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+                    <?php
+                        if(isUserOnline($mysqli,$user_cercato_id)){
+                            $is_online = true;
+                        } else {
+                            $is_online = false;
+                        }
+                    ?>
+                    <div style="position: absolute; bottom: 10px; right: 10px; width: 20px; height: 20px; border-radius: 50%; background-color: <?php echo $is_online ? '#28a745' : '#6c757d'; ?>; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>
                 </div>
 
                 <h3><?php echo htmlspecialchars($user['username']); ?></h3>
