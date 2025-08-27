@@ -60,41 +60,6 @@ if (!isLoggedIn()) {
                 animation: slideOut 0.3s ease-in forwards;
             }
 
-            .modal-content.rarity-comune {
-                background: linear-gradient(135deg, #2c2c2c, #1a1a1a);
-                border: 2px solid #666;
-            }
-
-            .modal-content.rarity-raro {
-                background: linear-gradient(135deg, #1e3a5f, #0f2849);
-                border: 2px solid #4a90e2;
-            }
-
-            .modal-content.rarity-epico {
-                background: linear-gradient(135deg, #4a1a5f, #2d0f49);
-                border: 2px solid #9b59b6;
-            }
-
-            .modal-content.rarity-leggendario {
-                background: linear-gradient(135deg, #8b4513, #654321);
-                border: 2px solid #ffa500;
-            }
-
-            .modal-content.rarity-speciale {
-                background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
-                background-size: 400% 400%;
-                animation: rainbowGradient 3s ease infinite, slideIn 0.3s ease-out;
-                border: 2px solid #fff;
-            }
-
-            .modal-content.rarity-segreto {
-                background: linear-gradient(45deg, #000000, #4b0082, #8b00ff, #000000);
-                background-size: 400% 400%;
-                animation: secretGradient 2s ease-in-out infinite alternate, slideIn 0.3s ease-out;
-                border: 2px solid #8b00ff;
-                box-shadow: 0 0 30px rgba(139, 0, 255, 0.5);
-            }
-
             .close-modal {
                 position: absolute;
                 top: 15px;
