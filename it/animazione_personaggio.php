@@ -545,13 +545,14 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
             document.addEventListener('DOMContentLoaded', async function() {
                 setTimeout(async () => {
-                await riscattaPersonaggio(<?php echo $idPersonaggio ?>);
+                    await riscattaPersonaggio(<?php echo $idPersonaggio ?>);
+                    setTimeout(() => {
+                        testoNuovo();
+                        apriNormale();
+                    }, 500);
                 }, 1000);
-                setTimeout(() => {
-                    testoNuovo();
-                    apriNormale();
-                }, 500);
             });
+            
 
         </script>
         <script src="../js/modeChanger.js"></script>
