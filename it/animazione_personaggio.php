@@ -550,7 +550,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                         testoNuovo();
                         apriNormale();
                     }, 500);
-                }, 500);
+                }, 200);
             });
             
 
