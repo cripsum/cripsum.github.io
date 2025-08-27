@@ -110,7 +110,7 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
     <title>Cripsum™ - Profilo di <?php echo htmlspecialchars($user['username']); ?></title>
         <style>
         .card:hover {
-            transform: translateY(0px) scale(0);
+            transform: translateY(0px) scale(1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             border-color: rgba(255, 255, 255, 0.12);
         }
@@ -179,7 +179,15 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
                         </div>
                     <?php else:?>
                             <div style="background-color: #6c757d; color: white; padding: 2px 2px; border-radius: 5px; font-size: 15px;">
-                                Ultimo accesso: <?php echo $ultimo_accesso ? date('d/m/Y H:i', strtotime($ultimo_accesso)) : 'Sconosciuto'; ?>
+                                Ultimo accesso: <?php 
+                                    if ($ultimo_accesso) {
+                                        $date = new DateTime($ultimo_accesso);
+                                        $date->setTimezone(new DateTimeZone('Europe/Rome'));
+                                        echo $date->format('d/m/Y H:i');
+                                    } else {
+                                        echo 'Sconosciuto';
+                                    }
+                                ?>
                             </div>
                     <?php endif; ?>
                 
