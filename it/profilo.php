@@ -191,7 +191,7 @@ $stmt->close();
                 function searchUser() {
                     const username = document.getElementById('userSearch').value.trim();
                     if (username) {
-                        window.location.href = `../user/${encodeURIComponent(username)}`;
+                        window.location.href = `../user/${encodeURIComponent(username.lowerCase())}`;
                     } else {
                         alert('Inserisci un nome utente per continuare');
                     }

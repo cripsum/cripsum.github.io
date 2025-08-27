@@ -66,7 +66,7 @@ if ($_POST) {
     } elseif (strlen($username) < 3) {
         $error = "L'username deve essere di almeno 3 caratteri";
     } else {
-        $result = registerUser($mysqli, $username, $email, $password);
+        $result = registerUser($mysqli, strtolower($username), $email, $password);
         if ($result === true) {
             $success = 'Registrazione completata! Controlla la tua email per verificare il tuo account prima di poter accedere.';
         } else {

@@ -91,7 +91,7 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
     $stmt->close();
 
     $_SESSION['username'] = $username;
-    header("Location: /user/" . urlencode($username));
+    header("Location: /user/" . urlencode(strtolower($username)));
     exit;
 }
 
