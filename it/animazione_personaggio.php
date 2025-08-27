@@ -530,7 +530,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                         `;
                         document.head.appendChild(secretStyleSheet);
                     
-                }, 100);
+                }, 500);
 
                 setTimeout(() => {
                     introOverlay.style.animation = 'fadeOut 1.2s ease-out forwards';
