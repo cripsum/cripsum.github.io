@@ -435,6 +435,10 @@ if (!isLoggedIn()) {
 
             const filteredCharacters = rarities.filter((p) => p.rarity === rarity);
 
+            function showUnboxAnimation(idPersonaggio) {
+                window.location.href = "animazione_personaggio?id_personaggio=" + idPersonaggio;
+            }
+
             function showCharacterModal(character) {
                 const modal = document.createElement("div");
                 modal.classList.add("character-modal");
@@ -466,10 +470,6 @@ if (!isLoggedIn()) {
                         }, 300);
                     }
                 });
-            }
-
-            function showUnboxAnimation(idPersonaggio) {
-                window.location.href = "animazione_personaggio?id_personaggio=" + idPersonaggio;
             }
 
             filteredCharacters.forEach((personaggio) => {
