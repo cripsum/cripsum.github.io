@@ -166,11 +166,11 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
                 <h3><?php echo htmlspecialchars($user['username']); ?></h3>
                 <p>Membro dal: <?php echo date('d/m/Y', strtotime($user['data_creazione'])); ?></p>
                     <?php if ($is_online): ?>
-                        <div style="background-color: #28a745; color: white; padding: 2px 8px; border-radius: 5px; font-size: 12px; font-weight: bold;">
+                        <div style="background-color: #28a745; color: white; padding: 2px 2px; border-radius: 5px; font-size: 15px; font-weight: bold;">
                             Online
                         </div>
                     <?php else:?>
-                            <div style="background-color: #6c757d; color: white; padding: 2px 8px; border-radius: 5px; font-size: 12px;">
+                            <div style="background-color: #6c757d; color: white; padding: 2px 2px; border-radius: 5px; font-size: 15px;">
                                 Ultimo accesso: <?php echo $ultimo_accesso ? date('d/m/Y H:i', strtotime($ultimo_accesso)) : 'Sconosciuto'; ?>
                             </div>
                     <?php endif; ?>
