@@ -90,9 +90,9 @@ if (!isLoggedIn()) {
             }
 
             .modal-content.rarity-segreto {
-    background: linear-gradient(90deg, #9400d3, #4b0082, #1d002b);
+    background: linear-gradient(90deg, #9400d3, #4b0082, #1d002b, #4b0082, #9400d3);
     background-size: 300% 300%;
-    animation: backgroundAnimate 3s linear infinite;
+    animation: backgroundAnimate 5s linear infinite;
     box-shadow: 0 10px 40px rgba(147, 0, 211, 0.6);
     border: 2px solid #8b00ff;
             }
