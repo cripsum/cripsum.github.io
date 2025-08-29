@@ -125,6 +125,12 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                 return data;
             }
 
+            async function get_character_from_nome(nomePersonaggio) {
+                const response = await fetch('https://cripsum.com/api/get_character_from_nome?nomePersonaggio=' + encodeURIComponent(nomePersonaggio));
+                const data = await response.json();
+                return data;
+            }
+
             async function riscattaPersonaggio(idPersonaggio){
 
                 try {

@@ -361,7 +361,7 @@ if (!isLoggedIn()) {
                     <div class="stat-label">Personaggi Trovati</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" id="totalCharacters">0</div>
+                    <div class="stat-number" id="totalCharactersNum">0</div>
                     <div class="stat-label">Personaggi Totali</div>
                 </div>
                 <div class="stat-card">
@@ -401,18 +401,19 @@ if (!isLoggedIn()) {
 
     async function initializeInventory() {
         const inventory = await getInventory() || [];
+        const totalCharacters = await getAllCharacters() || [];
         const inventarioDiv = document.getElementById("inventario");
         const casseAperteResponse = await fetch('https://cripsum.com/api/get_casse_aperte');
         const casseAperteData = await casseAperteResponse.json();
         const casseAperte = await casseAperteData.total;
 
-        const totalCharacters = await getCharactersNum();
+        const totalCharactersNum = await getCharactersNum();
         const foundCharacters = inventory.length;
-        const completionRate = totalCharacters > 0 ? Math.round((foundCharacters / totalCharacters) * 100) : 0;
+        const completionRate = totalCharactersNum > 0 ? Math.round((foundCharacters / totalCharactersNum) * 100) : 0;
 
         animateNumber(document.getElementById("casseAperteNumber"), casseAperte);
         animateNumber(document.getElementById("foundCharacters"), foundCharacters);
-        animateNumber(document.getElementById("totalCharacters"), totalCharacters);
+        animateNumber(document.getElementById("totalCharactersNum"), totalCharactersNum);
         animateNumber(document.getElementById("completionRate"), completionRate, "%");
 
         const rarityOrder = ["comune", "raro", "epico", "leggendario", "speciale", "segreto"];
@@ -423,7 +424,7 @@ if (!isLoggedIn()) {
             section.style.animationDelay = `${0.1 * index}s`;
 
             const foundInRarity = inventory.filter((p) => p.rarità === rarity).length;
-            const totalInRarity = rarities.filter((p) => p.rarity === rarity).length;
+            const totalInRarity = totalCharacters.filter((p) => p.rarità === rarity).length;
             
             const titleDiv = document.createElement("div");
             titleDiv.classList.add("rarity-title");
@@ -433,7 +434,7 @@ if (!isLoggedIn()) {
             const charactersGrid = document.createElement("div");
             charactersGrid.classList.add("characters-grid");
 
-            const filteredCharacters = rarities.filter((p) => p.rarity === rarity);
+            const filteredCharacters = totalCharacters.filter((p) => p.rarità === rarity);
 
             function showUnboxAnimation(idPersonaggio) {
                 window.location.href = "animazione_personaggio?id_personaggio=" + idPersonaggio;
@@ -531,6 +532,12 @@ if (!isLoggedIn()) {
 
     async function getCharactersNum(){
         const response = await fetch('https://cripsum.com/api/api_get_characters_num');
+        const data = await response.json();
+        return data;
+    }
+
+    async function getAllCharacters() {
+        const response = await fetch('https://cripsum.com/api/get_all_characters');
         const data = await response.json();
         return data;
     }
