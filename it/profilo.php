@@ -126,7 +126,7 @@ $stmt->close();
         <div class="row mb-4">
             <div class="col-md-4 text-center fadeup">
                     <div style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin: 0 auto;" class="mb-3">
-                        <img src="../includes/get_pfp.php?id=<?php echo $user_id; ?>" alt="Foto Profilo"
+                        <img src="../includes/get_pfp.php?id=<?php echo $user_id; ?>&t=<?php echo time(); ?>" alt="Foto Profilo"
                             style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
                     </div>
 

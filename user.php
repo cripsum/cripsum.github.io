@@ -167,7 +167,7 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
             <div class="col-md-4 text-center fadeup">
                 
                 <div style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin: 0 auto; position: relative;" class="mb-3">
-                    <img src="../includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>" alt="Foto Profilo"
+                    <img src="../includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>&t=<?php echo time(); ?>" alt="Foto Profilo"
                         style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
                 </div>
 

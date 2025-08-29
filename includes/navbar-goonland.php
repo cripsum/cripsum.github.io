@@ -55,7 +55,7 @@ if ($isLoggedIn) {
                 <?php else: ?>
                     <li class="nav-item dropdown dropdownutenti">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
-                            <img src="<?php echo htmlspecialchars($profilePic); ?>" alt="Profilo" 
+                            <img src="<?php echo htmlspecialchars($profilePic); ?>&t=<?php echo time(); ?>" alt="Profilo" 
                                  class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;">
                             <span><?php echo htmlspecialchars($username); ?></span>
                         </a>
