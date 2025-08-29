@@ -733,7 +733,7 @@ require_once '../api/api_personaggi.php';
                         alert("il Codice è già riscattato o Toki è già nel tuo inventario!");
                         return;
                     }
-                    let pullRiscattata = getCharacter("TOKI");
+                    let pullRiscattata = await getCharacter("TOKI");
                     await riscattaPersonaggio("TOKI");
                     apriNormale();
                 } else if (codiceSegreto.value === "cripsum") {
@@ -742,7 +742,7 @@ require_once '../api/api_personaggi.php';
                         alert("il Codice è già riscattato o Cripsum è già nel tuo inventario!");
                         return;
                     }
-                    let pullRiscattata = getCharacter("CRIPSUM");
+                    let pullRiscattata = await getCharacter("CRIPSUM");
                     await riscattaPersonaggio("CRIPSUM");
                     apriNormale();
                 } else {
