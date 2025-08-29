@@ -243,7 +243,6 @@ require_once '../api/api_personaggi.php';
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"
         ></script>
-        <script src="../js/characters.js?v=4"></script>
         <script src="../js/unlockAchievement-it.js"></script>
         <script>
             const cassa = document.getElementById("cassa");
@@ -503,8 +502,10 @@ require_once '../api/api_personaggi.php';
                 });
             }
 
-            function getAllPossiblePulls() {
-                return rarities;
+            async function getAllPossiblePulls() {
+                const response = await fetch('https://cripsum.com/api/get_all_characters');
+                const data = await response.json();
+                return data;
             }
 
             async function filtroPull() {
@@ -749,8 +750,10 @@ require_once '../api/api_personaggi.php';
                 }
             }
 
-            function getCharacter(name) {
-                return rarities.find((p) => p.name === name);
+            async function getCharacter(nomePersonaggio) {
+                const response = await fetch('https://cripsum.com/api/get_character_from_nome?nomePersonaggio=' + encodeURIComponent(nomePersonaggio));
+                const data = await response.json();
+                return data;
             }
 
             async function apriCassa() {
