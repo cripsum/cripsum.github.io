@@ -616,15 +616,7 @@ require_once '../api/api_personaggi.php';
                 isProcessing = true;
 
                 try {
-                    const pullRaw = getCharacter(nomePersonaggio);
-
-                    const pull = {
-                    nome: pullRaw.name,
-                    rarità: pullRaw.rarity,
-                    img_url: pullRaw.img,
-                    audio_url: pullRaw.audio,
-                    id: pullRaw.id
-                    };
+                    const pull = await getCharacter(nomePersonaggio);
                     
                     document.getElementById("contenuto").innerHTML = `
                         <p style="top 10px; font-size: 20px; max-width: 600px; text-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);" id="nomePersonaggio">${pull.nome}</p>
