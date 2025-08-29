@@ -474,7 +474,7 @@ if (!isLoggedIn()) {
             }
 
             filteredCharacters.forEach((personaggio) => {
-                const character = inventory.find((p) => p.nome === personaggio.name);
+                const character = inventory.find((p) => p.nome === personaggio.nome);
                 const characterCard = document.createElement("div");
                 characterCard.classList.add("character-card");
                 
