@@ -18,7 +18,7 @@ if (!isLoggedIn()) {
 <html lang="en">
     <head>
         <?php include '../includes/head-import.php'; ?>
-        <link rel="stylesheet" href="../css/inventario.css?v=2" />
+        <link rel="stylesheet" href="../css/inventario.css?v=3" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Cripsum™ - inventario</title>
         <style>
@@ -388,7 +388,6 @@ if (!isLoggedIn()) {
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"
         ></script>
-        <script src="../js/characters.js?v=2"></script>
         <script>
     function getCookie(name) {
         const cookies = document.cookie.split("; ");
