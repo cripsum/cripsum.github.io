@@ -1,6 +1,6 @@
 unlockAchievement(1);
 
-const unlockedAchievements = await fetch('https://cripsum.com/api/get_unlocked_achievement_number', {
+const unlockedAchievements = fetch('https://cripsum.com/api/get_unlocked_achievement_number', {
 });
 
 const achievementData = await unlockedAchievements.json();
