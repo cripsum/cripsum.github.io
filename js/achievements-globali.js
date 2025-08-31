@@ -1,10 +1,8 @@
 unlockAchievement(1);
 
-const unlockedAchievements = fetch('https://cripsum.com/api/get_unlocked_achievement_number', {
-});
+const unlockedAchievementsnum = await getUnlockedAchievementsNumber();
 
-const achievementData = await unlockedAchievements.json();
-if (achievementData.count === 20) {
+if (unlockedAchievementsnum === 20) {
     unlockAchievement(21);
 }
 
@@ -50,5 +48,18 @@ function checkDaysVisited() {
     }
     if (daysVisited.length == 30) {
         unlockAchievement(13);
+    }
+}
+
+async function getUnlockedAchievementsNumber()  {
+    try {
+        const response = await fetch('https://cripsum.com/api/get_unlocked_achievement_number', {
+            credentials: "include"
+        });
+        const data = await response.json();
+        return data.count;
+    } catch (err) {
+        console.error("Errore in getUnlockedAchievementsNumber:", err);
+        return 0;
     }
 }
