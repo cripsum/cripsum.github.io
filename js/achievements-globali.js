@@ -1,10 +1,12 @@
 unlockAchievement(1);
 
-const unlockedAchievementsnum = await getUnlockedAchievementsNumber();
+(async () => {
+    const unlockedAchievementsnum = await getUnlockedAchievementsNumber();
 
-if (unlockedAchievementsnum === 20) {
-    unlockAchievement(21);
-}
+    if (unlockedAchievementsnum === 20) {
+        unlockAchievement(21);
+    }
+})();
 
 function getCookie(name) {
     const cookies = document.cookie.split("; ");
