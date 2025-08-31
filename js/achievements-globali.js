@@ -1,5 +1,13 @@
 unlockAchievement(1);
 
+const unlockedAchievements = await fetch('https://cripsum.com/api/get_unlocked_achievement_number', {
+});
+
+const achievementData = await unlockedAchievements.json();
+if (achievementData.count === 20) {
+    unlockAchievement(21);
+}
+
 function getCookie(name) {
     const cookies = document.cookie.split("; ");
     for (let cookie of cookies) {
@@ -44,5 +52,3 @@ function checkDaysVisited() {
         unlockAchievement(13);
     }
 }
-
-checkDaysVisited();
