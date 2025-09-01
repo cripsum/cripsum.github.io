@@ -755,6 +755,8 @@ require_once '../api/api_personaggi.php';
                 const inventory = await getInventory();
                 comuniDiFila = getCookie("comuniDiFila") || 0;
 
+                unlockAchievement(5);
+
                 if (comuniDiFila === 10) {
                     unlockAchievement(9);
                 }
@@ -764,9 +766,6 @@ require_once '../api/api_personaggi.php';
                 }
                 if (casseAperte === 500) {
                     unlockAchievement(16);
-                }
-                if (inventory.length === 1) {
-                    unlockAchievement(5);
                 }
                 if (inventory.length === 44) {
                     unlockAchievement(18);
