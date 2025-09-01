@@ -400,8 +400,35 @@ checkBan($mysqli);
 
     <div class="edits-container">
         <div class="edits-grid">
-            <div class="edit-card" data-category="anime" onclick="playVideo(this, 25)">
+            <div class="edit-card" data-category="games" onclick="playVideo(this, 26)">
                 <div class="edit-badge">Latest</div>
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/ypekqr?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="video-25">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-user character-icon"></i>
+                        Iuno - Wuthering Waves
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        XYLØ - Afterlife (Ark Patrol Remix)
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-card" data-category="anime" onclick="playVideo(this, 25)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/rh84rz?" 
