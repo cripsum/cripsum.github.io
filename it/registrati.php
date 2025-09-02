@@ -81,6 +81,7 @@ if ($_POST) {
     <head>
         <?php include '../includes/head-import.php'; ?>
         <title>Cripsum™ - registrati</title>
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     </head>
 
     <body>
@@ -166,6 +167,7 @@ if ($_POST) {
                                     Ho letto e accetto i <a href="tos" style="text-decoration: none; font-weight: bold" class="linkbianco">termini e condizioni</a>
                                 </label>
                             </div>
+                            <div class="g-recaptcha" data-sitekey="6Lcy-7srAAAAABHpyz_WFjiMIpLlfKi55pgsEHv4"></div>
 
                             <!-- Submit button -->
                             <div class="button-container mb-3 fadeup" style="text-align: center; margin-top: 3%">
