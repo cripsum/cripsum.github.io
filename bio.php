@@ -592,7 +592,7 @@ $user_cercato_id = $user['id'];
                 <p class="profile-subtitle">AKA - Leo, Sofficino alla pesca</p>
                 
                 <div class="profile-info">
-                    <div><span>⟡</span>🇮🇹 Italy | 19</div>
+                    <div><span>⟡</span>🇮🇹 | 20</div>
                     <div><span>⟡</span>Video Editor</div>
                     <div><span>⟡</span>Developer</div>
                 </div>
