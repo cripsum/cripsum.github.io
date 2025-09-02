@@ -44,13 +44,27 @@ function isValidUsername($username) {
 }
 
 if ($_POST) {
-
     $username = trim($_POST['username'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $repeatPassword = $_POST['repeatPassword'] ?? '';
     $acceptTerms = isset($_POST['acceptTerms']);
-    
+    $recaptchaResponse = $_POST['g-recaptcha-response'] ?? '';
+
+    $recaptchaSecret = "6Lcy-7srAAAAAMPFQJ_RnHSeJ0ineOsy89mtYQVc";
+    $verify = curl_init();
+    curl_setopt($verify, CURLOPT_URL, "https://www.google.com/recaptcha/api/siteverify");
+    curl_setopt($verify, CURLOPT_POST, true);
+    curl_setopt($verify, CURLOPT_POSTFIELDS, http_build_query([
+        'secret' => $recaptchaSecret,
+        'response' => $recaptchaResponse,
+        'remoteip' => $_SERVER['REMOTE_ADDR']
+    ]));
+    curl_setopt($verify, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($verify);
+    curl_close($verify);
+    $captchaResult = json_decode($response, true);
+
     if (empty($username) || empty($email) || empty($password) || empty($repeatPassword)) {
         $error = 'Compila tutti i campi obbligatori';
     } elseif (!$acceptTerms) {
@@ -58,19 +72,19 @@ if ($_POST) {
     } elseif ($password !== $repeatPassword) {
         $error = 'Le password non corrispondono';
     } elseif (!isValidUsername($username)) {
-        $error = "L'username può contenere solo lettere, numeri, trattini e underscore, e non può iniziare o finire con un trattino o underscore";
+        $error = "L'username può contenere solo lettere, numeri e underscore, e non può iniziare o finire con underscore";
     } elseif (strlen($password) < 6) {
         $error = 'La password deve essere di almeno 6 caratteri';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Email non valida';
-    } elseif (strlen($username) < 3) {
-        $error = "L'username deve essere di almeno 3 caratteri";
+    } elseif (!$captchaResult['success']) {
+        $error = "Verifica captcha fallita. Riprova.";
     } else {
         $result = registerUser($mysqli, strtolower($username), $email, $password);
         if ($result === true) {
             $success = 'Registrazione completata! Controlla la tua email per verificare il tuo account prima di poter accedere.';
         } else {
-            $error = $result; 
+            $error = $result;
         }
     }
 }
