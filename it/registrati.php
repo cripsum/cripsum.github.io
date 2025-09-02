@@ -181,7 +181,7 @@ if ($_POST) {
                                     Ho letto e accetto i <a href="tos" style="text-decoration: none; font-weight: bold" class="linkbianco">termini e condizioni</a>
                                 </label>
                             </div>
-                            <div class="g-recaptcha text-center" data-sitekey="6Lcy-7srAAAAABHpyz_WFjiMIpLlfKi55pgsEHv4" data-theme="dark"></div>
+                            <div class="g-recaptcha text-center" style="margin: auto;" data-sitekey="6Lcy-7srAAAAABHpyz_WFjiMIpLlfKi55pgsEHv4" data-theme="dark"></div>
 
                             <!-- Submit button -->
                             <div class="button-container mb-3 fadeup" style="text-align: center; margin-top: 3%">
