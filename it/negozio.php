@@ -20,7 +20,7 @@ checkBan($mysqli);
                 -webkit-background-clip: inherit;
                 -webkit-text-fill-color: inherit;
                 background-clip: inherit;
-                background: white;
+                background: transparent;
             }
         </style>
     </head>
