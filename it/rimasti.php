@@ -28,12 +28,12 @@ checkBan($mysqli);
                 <div style="margin: auto; padding-top: 1%">
                     <div class="image-description fadeup" style="margin-bottom: 2%; margin-left: 0">
                         <h3 class="text-center">Top 1.</h3>
-                        <h5 class="text-center">WryCharles</h5>
+                        <h5 class="text-center">Aura</h5>
                         <h6 class="text-center">
-                            ha insistito una settimana per aiutarlo a scaricare spiderman 2 per pc nonostante non esista (è stato doxato e il suo pc è saltato in aria per colpa di un trojan)
+                            rimosso per copyright (godo)
                         </h6>
                     </div>
-                    <img src="../img/wrycharles1.png" alt="WryCharles" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
+                    <img src="../img/toppng.com-laughing-pointing-emoji-1645x1070.png" alt="WryCharles" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
                 </div>
             </div>
             <hr class="rounded fadeuphr" />
