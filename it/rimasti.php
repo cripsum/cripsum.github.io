@@ -547,7 +547,7 @@ checkBan($mysqli);
                         </button>
                         
                         <div id="addPostForm" class="add-post-form" style="display: none;">
-                            <form id="newPostForm" enctype="multipart/form-data">
+                            <form id="newPostForm" enctype="multipart/form-data" >
                                 <div class="form-group">
                                     <input type="text" name="titolo" placeholder="Titolo del post" required>
                                 </div>
@@ -857,6 +857,35 @@ checkBan($mysqli);
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.textContent;
             
+            console.log('Invio nuovo post...');
+            for (let [key, value] of formData.entries()) {
+                if (key === 'foto_rimasto') {
+                    console.log(key + ':', value.name, value.size + ' bytes', value.type);
+                } else {
+                    console.log(key + ':', value);
+                }
+            }
+            
+            const fileInput = this.querySelector('input[type="file"]');
+            if (!fileInput.files[0]) {
+                alert('Per favore seleziona un\'immagine');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            console.log('File selezionato:', file.name, file.size + ' bytes', file.type);
+            
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File troppo grande. Massimo 5MB');
+                return;
+            }
+            
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Tipo di file non consentito. Usa solo JPEG, PNG, GIF o WebP');
+                return;
+            }
+            
             submitBtn.disabled = true;
             submitBtn.textContent = 'Invio in corso...';
             
@@ -866,7 +895,11 @@ checkBan($mysqli);
                     body: formData
                 });
                 
+                console.log('Response status:', response.status);
+                console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+                
                 const result = await response.json();
+                console.log('Response data:', result);
                 
                 if (result.success) {
                     alert('Post inviato con successo! Sarà visibile dopo l\'approvazione dell\'admin.');
@@ -874,10 +907,11 @@ checkBan($mysqli);
                     this.reset();
                 } else {
                     alert('Errore: ' + (result.error || 'Errore sconosciuto'));
+                    console.error('Errore dal server:', result.error);
                 }
             } catch (error) {
                 console.error('Errore nell\'invio del post:', error);
-                alert('Errore nell\'invio del post. Riprova più tardi.');
+                alert('Errore nell\'invio del post. Controlla la console per dettagli.');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;

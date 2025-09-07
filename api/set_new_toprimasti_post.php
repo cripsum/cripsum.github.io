@@ -36,7 +36,7 @@ try {
     }
 
     if (!isset($_FILES['foto_rimasto']) || $_FILES['foto_rimasto']['error'] !== UPLOAD_ERR_OK) {
-        echo json_encode(['success' => false, 'error' => 'Errore nel caricamento della foto']);
+        echo json_encode(['success' => false, 'error' => 'Errore nel caricamento della foto: ' . ($_FILES['foto_rimasto']['error'] ?? 'File non trovato')]);
         exit();
     }
 
@@ -44,7 +44,7 @@ try {
     $foto_rimasto_mime = mime_content_type($_FILES['foto_rimasto']['tmp_name']);
 
     if ($foto_rimasto_blob === false || empty($foto_rimasto_mime)) {
-        echo json_encode(['success' => false, 'error' => 'Errore nel caricamento della foto']);
+        echo json_encode(['success' => false, 'error' => 'Errore nel leggere il contenuto del file']);
         exit();
     }
 
@@ -59,23 +59,34 @@ try {
         exit();
     }
 
+    error_log("Tentativo di inserimento post: Titolo={$titolo}, User={$userId}, FileSize=" . strlen($foto_rimasto_blob) . ", MIME={$foto_rimasto_mime}");
+
     $stmt = $mysqli->prepare("INSERT INTO toprimasti (id_utente, titolo, descrizione, motivazione, foto_rimasto, tipo_foto_rimasto, data_creazione, approvato, reazioni) VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0)");
-    $stmt->bind_param("isssbss", $userId, $titolo, $descrizione, $motivazione, $foto_rimasto_blob, $foto_rimasto_mime, $data_creazione);
+
+    $null = null;
+    $stmt->bind_param("isssbss", $userId, $titolo, $descrizione, $motivazione, $null, $foto_rimasto_mime, $data_creazione);
+    
+    $stmt->send_long_data(4, $foto_rimasto_blob);
 
     if ($stmt->execute()) {
+        $insertId = $mysqli->insert_id;
+        error_log("Post inserito con successo: ID={$insertId}");
+        
         echo json_encode([
             'success' => true, 
-            'message' => 'Post aggiunto con successo, sarà visibile dopo l\'approvazione dell\'admin'
+            'message' => 'Post aggiunto con successo, sarà visibile dopo l\'approvazione dell\'admin',
+            'post_id' => $insertId
         ]);
     } else {
-        echo json_encode(['success' => false, 'error' => 'Errore nell\'inserimento del post']);
+        error_log("Errore nell'esecuzione della query: " . $stmt->error);
+        echo json_encode(['success' => false, 'error' => 'Errore nell\'inserimento del post: ' . $stmt->error]);
     }
 
     $stmt->close();
 
 } catch (Exception $e) {
-    error_log("Error in set_new_toprimasti_post.php: " . $e->getMessage());
+    error_log("Errore in set_new_toprimasti_post.php: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Errore interno del server']);
+    echo json_encode(['success' => false, 'error' => 'Errore interno del server: ' . $e->getMessage()]);
 }
 ?>
