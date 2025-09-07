@@ -16,6 +16,12 @@ checkBan($mysqli);
             img {
                 border-radius: 10px;
             }
+            .overlay-icon{
+                -webkit-background-clip: inherit;
+                -webkit-text-fill-color: inherit;
+                background-clip: inherit;
+                background: white;
+            }
         </style>
     </head>
 
