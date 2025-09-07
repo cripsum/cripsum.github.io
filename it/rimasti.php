@@ -35,6 +35,7 @@ checkBan($mysqli);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             opacity: 0;
             transform: translateY(20px);
+            max-width: 900px;
         }
 
         .post-card:hover {
@@ -167,6 +168,7 @@ checkBan($mysqli);
             border-radius: 12px;
             margin-bottom: 1.5rem;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
         }
 
         .post-motivation strong {
@@ -391,6 +393,7 @@ checkBan($mysqli);
             padding: 1rem;
             border-radius: 12px;
             margin-bottom: 1.5rem;
+            color: white;
         }
 
         .modal-motivation h4 {
@@ -813,7 +816,7 @@ checkBan($mysqli);
                         <p class="modal-author">di ${post.username || 'Utente anonimo'}</p>
                         <p class="modal-description">${post.descrizione}</p>
                         <div class="modal-motivation">
-                            <h4>Perché è rimasto:</h4>
+                            <h4>Perché è un rimasto:</h4>
                             <p>${post.motivazione}</p>
                         </div>
                         <div class="modal-stats">
