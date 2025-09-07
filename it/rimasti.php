@@ -11,10 +11,524 @@ checkBan($mysqli);
     <head>
         <?php include '../includes/head-import.php'; ?>
         <title>Cripsum™ - rimasti</title>
-        <style>
-            img {
-                border-radius: 10px;
+               <style>
+        /* Posts Grid */
+        .posts-section {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        /* Post Cards */
+        .post-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(15px);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .post-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(100, 200, 255, 0.1);
+            border-color: rgba(100, 200, 255, 0.2);
+        }
+
+        /* Special styling for top 3 positions */
+        .post-card.position-1 {
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 193, 7, 0.08) 100%);
+        }
+
+        .post-card.position-2 {
+            border: 2px solid rgba(192, 192, 192, 0.5);
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.15) 0%, rgba(169, 169, 169, 0.08) 100%);
+        }
+
+        .post-card.position-3 {
+            border: 2px solid rgba(205, 127, 50, 0.5);
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.15) 0%, rgba(184, 115, 51, 0.08) 100%);
+        }
+
+        /* Post Rank */
+        .post-rank {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 20, 0.9));
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .rank-number {
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .rank-crown {
+            font-size: 1.2rem;
+        }
+
+        /* Post Image */
+        .post-image-container {
+            position: relative;
+            height: 300px;
+            overflow: hidden;
+            cursor: pointer;
+            background: linear-gradient(135deg, rgba(30, 32, 42, 0.8) 0%, rgba(40, 45, 60, 0.8) 100%);
+        }
+
+        .post-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+            filter: brightness(0.9) contrast(1.1);
+        }
+
+        .post-card:hover .post-image {
+            transform: scale(1.05);
+            filter: brightness(1) contrast(1.2);
+        }
+
+        .post-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(30, 32, 42, 0.7));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(2px);
+        }
+
+        .post-card:hover .post-overlay {
+            opacity: 1;
+        }
+
+        .overlay-content {
+            text-align: center;
+            color: white;
+            font-weight: 500;
+        }
+
+        .overlay-icon {
+            display: block;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Post Content */
+        .post-content {
+            padding: 1.5rem;
+        }
+
+        .post-title {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .post-author {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .post-description {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .post-motivation {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .post-motivation strong {
+            color: rgba(255, 100, 100, 0.9);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Post Actions */
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .vote-section {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .vote-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #ff4757, #ff3838);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+        }
+
+        .vote-btn:hover {
+            background: linear-gradient(135deg, #ff3838, #ff2f2f);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+        }
+
+        .vote-btn.voted {
+            background: linear-gradient(135deg, #2ed573, #1e90ff);
+            box-shadow: 0 4px 15px rgba(46, 213, 115, 0.3);
+        }
+
+        .vote-btn.voted:hover {
+            background: linear-gradient(135deg, #1e90ff, #2ed573);
+        }
+
+        .vote-btn.voting {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .vote-display {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+
+        .vote-icon {
+            font-size: 1.2rem;
+        }
+
+        .vote-count {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .login-prompt {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+        }
+
+        .post-date {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        /* Add Post Section */
+        .add-post-section {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .add-post-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(15px);
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .add-post-title {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .add-post-form {
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(51, 51, 51, 0.9), rgba(40, 40, 40, 0.95));
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 1rem;
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(30, 30, 30, 0.95), rgba(20, 20, 20, 0.98));
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 900px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            backdrop-filter: blur(20px);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            font-size: 2rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10001;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .modal-post {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .modal-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+        }
+
+        .modal-details h2 {
+            color: white;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .modal-author {
+            color: rgba(255, 255, 255, 0.7);
+            font-style: italic;
+            margin-bottom: 1rem;
+        }
+
+        .modal-description {
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-motivation {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-motivation h4 {
+            color: rgba(255, 100, 100, 0.9);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .modal-votes {
+            font-weight: bold;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(15px);
+            padding: 3rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-card h3 {
+            color: white;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .empty-card p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        /* Loading State */
+        .loading-container {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .posts-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 1rem 0;
             }
+
+            .post-card {
+                margin: 0 1rem;
+            }
+
+            .modal-post {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .modal-content {
+                margin: 1rem;
+                max-height: 90vh;
+            }
+
+            .add-post-card {
+                margin: 0 1rem;
+                padding: 1.5rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .post-actions {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .chisiamo-section {
+                padding: 4rem 1rem 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .posts-grid {
+                grid-template-columns: minmax(280px, 1fr);
+                padding: 0.5rem;
+            }
+
+            .post-card {
+                margin: 0;
+            }
+
+            .post-image-container {
+                height: 250px;
+            }
+
+            .post-content {
+                padding: 1rem;
+            }
+
+            .post-title {
+                font-size: 1.1rem;
+            }
+
+            .vote-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
         </style>
     </head>
 
@@ -22,163 +536,394 @@ checkBan($mysqli);
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
 
-        <div style="max-width: 550px; margin: auto; padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
-            <h1 class="text-center fadein" style="padding-top: 3%; font-weight: bolder; color: red">classifica top 10 rimasti</h1>
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 3%">
-                <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description fadeup" style="margin-bottom: 2%; margin-left: 0">
-                        <h3 class="text-center">Top 1.</h3>
-                        <h5 class="text-center">WryCharles</h5>
-                        <h6 class="text-center">
-                            ha insistito una settimana per aiutarlo a scaricare spiderman 2 per pc nonostante non esista (è stato doxato e il suo pc è saltato in aria per colpa di un trojan)
-                        </h6>
-                    </div>
-                    <img src="../img/wrycharles1.png" alt="WryCharles" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
-                </div>
-            </div>
-            <hr class="rounded fadeuphr" />
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
-                <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description fadeup" style="margin-bottom: 2%">
-                        <h3 class="text-center">Top 2.</h3>
-                        <h5 class="text-center">Shin</h5>
-                        <h6 class="text-center">insulta brawl stars dicendo che è mid, e poi guarda anime dalla mattina alla sera</h6>
-                    </div>
-                    <img src="../img/rimastotop2.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
-                </div>
-            </div>
-            <hr class="rounded fadeuphr" />
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 3%">
-                <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description fadeup" style="margin-bottom: 2%; margin-left: 0">
-                        <h3 class="text-center">Top 3.</h3>
-                        <h5 class="text-center">Lulasorca</h5>
-                    </div>
-                    <img src="../img/lulasorca.jpeg" alt="lulasorca" class="img-fluid fadeup" />
-                </div>
-            </div>
+        <div class="paginaprincipale">
+            <div class="main-container">
 
-            <!--
-            <hr class="rounded fadeuphr" />
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
-                <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description fadeup" style="margin-bottom: 2%">
-                        <h3 class="text-center">Top 4.</h3>
-                        <h5 class="text-center">Yumi</h5>
-                        <h6 class="text-center">blud rosica per i rank 35 di 1nstxnct e poi fa i rank 30 in trio showdown</h6>
-                    </div>
-                    <div style="text-align: center" class="fadeup">
-                        <audio controls>
-                            <source src="../audio/rosica.mp3" type="audio/mpeg" />
-                            Your browser does not support the audio element.
-                        </audio>
-                    </div>
-                    <div id="carouselExampleIndicators" class="carousel slide mt-3 fadeup" data-bs-ride="carousel">
-                        <div class="carousel-indicators">
-                            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-                            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
-                            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
-                        </div>
-                        <div class="carousel-inner">
-                            <div class="carousel-item active">
-                                <img src="../img/photo_2024-10-01_21-31-42.jpg" class="d-block w-100" alt="First slide" />
-                            </div>
-                            <div class="carousel-item">
-                                <img src="../img/sticker2.webp" class="d-block w-100" alt="Second slide" />
-                            </div>
-                            <div class="carousel-item">
-                                <img src="../img/sticker.webp" class="d-block w-100" alt="Third slide" />
-                            </div>
-                        </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">indietro</span>
+                <div class="chisiamo-section fadeup">
+                    <h1 class="chisiamo-title">I Top Rimasti</h1>
+                    <p class="chisiamo-subtitle">
+                        Scopri la classifica dei momenti più imbarazzanti della community. 
+                        Vota i tuoi preferiti e contribuisci a determinare chi si aggiudica il titolo di "più rimasto"!
+                    </p>
+                </div>
+
+                <?php if (isset($_SESSION['user_id'])): ?>
+                <div class="add-post-section fadeup" style="margin-bottom: 3rem;">
+                    <div class="add-post-card">
+                        <h3 class="add-post-title">Condividi un momento "rimasto"</h3>
+                        <button class="bottone" onclick="toggleAddPostForm()">
+                            <span id="toggleButtonText">Aggiungi nuovo post</span>
                         </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">avanti</span>
-                        </button>
+                        
+                        <div id="addPostForm" class="add-post-form" style="display: none;">
+                            <form id="newPostForm" enctype="multipart/form-data">
+                                <div class="form-group">
+                                    <input type="text" name="titolo" placeholder="Titolo del post" required>
+                                </div>
+                                <div class="form-group">
+                                    <textarea name="descrizione" placeholder="Descrizione..." rows="3" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <textarea name="motivazione" placeholder="Perché questa persona è rimasta?" rows="2" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <input type="file" name="foto_rimasto" accept="image/*" required>
+                                    <small style="color: rgba(255,255,255,0.7);">Carica una foto che dimostri quanto è rimasta questa persona</small>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="bottone">Invia Post</button>
+                                    <button type="button" class="bottone2" onclick="toggleAddPostForm()">Annulla</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-            -->
-            <hr class="rounded fadeuphr" style="margin-top: 2%" />
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 3%">
-                <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description fadeup" style="margin-bottom: 2%">
-                        <h3 class="text-center">Top 4.</h3>
-                        <h5 class="text-center">ancora da decidere</h5>
+                <?php endif; ?>
+
+                <!-- Loading State -->
+                <div id="loadingState" class="loading-container fadeup">
+                    <div class="loading_white">
+                        <div class="loading__dot_white"></div>
+                        <div class="loading__dot_white"></div>
+                        <div class="loading__dot_white"></div>
                     </div>
-                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
+                    <p class="testobianco" style="text-align: center; margin-top: 1rem;">Caricamento dei post...</p>
                 </div>
-            </div>
-            <hr class="rounded fadeuphr" style="margin-top: 2%" />
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 3%">
-                <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description fadeup" style="margin-bottom: 2%">
-                        <h3 class="text-center">Top 5.</h3>
-                        <h5 class="text-center">ancora da decidere</h5>
+
+                <!-- Posts Container -->
+                <div id="postsContainer" class="posts-section" style="display: none;">
+                    <div id="postsGrid" class="posts-grid">
+                        <!-- Posts will be loaded here -->
                     </div>
-                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
                 </div>
-            </div>
-            <hr class="rounded fadeuphr" />
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
-                <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description fadeup" style="margin-bottom: 2%">
-                        <h3 class="text-center">Top 6.</h3>
-                        <h5 class="text-center">ancora da decidere</h5>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state fadeup" style="display: none;">
+                    <div class="empty-card">
+                        <div class="empty-icon">🤷‍♂️</div>
+                        <h3>Nessun post trovato</h3>
+                        <p>Non ci sono ancora post da mostrare. Sii il primo a condividere un momento "rimasto"!</p>
+                        <?php if (isset($_SESSION['user_id'])): ?>
+                        <button class="bottone" onclick="toggleAddPostForm()">Aggiungi il primo post</button>
+                        <?php endif; ?>
                     </div>
-                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
                 </div>
-            </div>
-            <hr class="rounded fadeuphr" />
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
-                <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description fadeup" style="margin-bottom: 2%">
-                        <h3 class="text-center">Top 7.</h3>
-                        <h5 class="text-center">ancora da decidere</h5>
+
+                <!-- Post Detail Modal -->
+                <div id="postModal" class="modal-overlay" style="display: none;">
+                    <div class="modal-content">
+                        <button class="modal-close" onclick="closePostModal()">&times;</button>
+                        <div id="modalContent">
+                            <!-- Modal content will be loaded here -->
+                        </div>
                     </div>
-                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
-                </div>
-            </div>
-            <hr class="rounded fadeuphr" />
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
-                <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description fadeup" style="margin-bottom: 2%">
-                        <h3 class="text-center">Top 8.</h3>
-                        <h5 class="text-center">ancora da decidere</h5>
-                    </div>
-                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
-                </div>
-            </div>
-            <hr class="rounded fadeuphr" />
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
-                <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description fadeup" style="margin-bottom: 2%">
-                        <h3 class="text-center">Top 9.</h3>
-                        <h5 class="text-center">ancora da decidere</h5>
-                    </div>
-                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
-                </div>
-            </div>
-            <hr class="rounded fadeuphr" />
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
-                <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description fadeup" style="margin-bottom: 2%">
-                        <h3 class="text-center">Top 10.</h3>
-                        <h5 class="text-center">ancora da decidere</h5>
-                    </div>
-                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
                 </div>
             </div>
         </div>
+
         <?php include '../includes/footer.php'; ?>
-        <script
-            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-            crossorigin="anonymous"
-        ></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script src="../js/modeChanger.js"></script>
+
+        <script>
+        let allPosts = [];
+        let userVotes = {};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPosts();
+        });
+
+        async function loadPosts() {
+            try {
+                const response = await fetch('../api/get_toprimasti.php');
+                const data = await response.json();
+                
+                if (Array.isArray(data)) {
+                    allPosts = data.sort((a, b) => parseInt(b.reazioni) - parseInt(a.reazioni));
+                    displayPosts(allPosts);
+                    loadUserVotes();
+                } else {
+                    showEmptyState();
+                }
+            } catch (error) {
+                console.error('Errore nel caricamento dei post:', error);
+                showEmptyState();
+            }
+        }
+
+        async function loadUserVotes() {
+            <?php if (isset($_SESSION['user_id'])): ?>
+            try {
+                const response = await fetch('../api/get_user_votes.php');
+                const votes = await response.json();
+                if (votes.success) {
+                    userVotes = votes.votes;
+                    updateVoteButtons();
+                }
+            } catch (error) {
+                console.error('Errore nel caricamento dei voti:', error);
+            }
+            <?php endif; ?>
+        }
+
+        function displayPosts(posts) {
+            const loadingState = document.getElementById('loadingState');
+            const postsContainer = document.getElementById('postsContainer');
+            const emptyState = document.getElementById('emptyState');
+            const postsGrid = document.getElementById('postsGrid');
+
+            loadingState.style.display = 'none';
+            
+            if (posts.length === 0) {
+                showEmptyState();
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            postsContainer.style.display = 'block';
+
+            postsGrid.innerHTML = posts.map((post, index) => {
+                const position = index + 1;
+                const positionClass = position <= 3 ? `position-${position}` : '';
+                
+                return `
+                    <div class="post-card ${positionClass} fadeup" style="animation-delay: ${index * 0.1}s">
+                        <div class="post-rank">
+                            <span class="rank-number">#${position}</span>
+                            ${position <= 3 ? `<span class="rank-crown">${position === 1 ? '👑' : position === 2 ? '🥈' : '🥉'}</span>` : ''}
+                        </div>
+                        
+                        <div class="post-image-container" onclick="openPostModal(${post.id})">
+                            <img src="data:${post.tipo_foto_rimasto};base64,${post.foto_rimasto}" 
+                                 alt="${post.titolo}" class="post-image">
+                            <div class="post-overlay">
+                                <div class="overlay-content">
+                                    <span class="overlay-icon">👁️</span>
+                                    <span class="overlay-text">Visualizza dettagli</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="post-content">
+                            <h3 class="post-title">${post.titolo}</h3>
+                            <p class="post-author">di ${post.username || 'Utente anonimo'}</p>
+                            <p class="post-description">${post.descrizione}</p>
+                            <div class="post-motivation">
+                                <strong>Perché è rimasto:</strong> ${post.motivazione}
+                            </div>
+                            
+                            <div class="post-actions">
+                                <div class="vote-section">
+                                    <?php if (isset($_SESSION['user_id'])): ?>
+                                    <button class="vote-btn" onclick="toggleVote(${post.id})" data-post-id="${post.id}">
+                                        <span class="vote-icon">🔥</span>
+                                        <span class="vote-count">${post.reazioni}</span>
+                                        <span class="vote-text">Vota</span>
+                                    </button>
+                                    <?php else: ?>
+                                    <div class="vote-display">
+                                        <span class="vote-icon">🔥</span>
+                                        <span class="vote-count">${post.reazioni}</span>
+                                        <span class="vote-text">voti</span>
+                                    </div>
+                                    <small class="login-prompt">
+                                        <a href="../accedi" class="linkbianco">Accedi</a> per votare
+                                    </small>
+                                    <?php endif; ?>
+                                </div>
+                                
+                                <div class="post-date">
+                                    ${formatDate(post.data_creazione)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Add animation delay
+            const cards = document.querySelectorAll('.post-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }
+
+        function showEmptyState() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('postsContainer').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+        }
+
+        async function toggleVote(postId) {
+            <?php if (!isset($_SESSION['user_id'])): ?>
+            window.location.href = '../accedi';
+            return;
+            <?php endif; ?>
+
+            const voteBtn = document.querySelector(`[data-post-id="${postId}"]`);
+            const isVoted = userVotes[postId] || false;
+            
+            try {
+                voteBtn.classList.add('voting');
+                voteBtn.disabled = true;
+
+                const response = await fetch('../api/toggle_vote_toprimasti.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        post_id: postId,
+                        action: isVoted ? 'remove' : 'add'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    userVotes[postId] = !isVoted;
+                    
+                    // Update vote count in the post
+                    const postIndex = allPosts.findIndex(p => p.id == postId);
+                    if (postIndex !== -1) {
+                        allPosts[postIndex].reazioni = result.newVoteCount;
+                    }
+                    
+                    // Re-sort and display posts
+                    allPosts.sort((a, b) => parseInt(b.reazioni) - parseInt(a.reazioni));
+                    displayPosts(allPosts);
+                } else {
+                    console.error('Errore nel voto:', result.message);
+                }
+            } catch (error) {
+                console.error('Errore nella richiesta di voto:', error);
+            } finally {
+                voteBtn.classList.remove('voting');
+                voteBtn.disabled = false;
+            }
+        }
+
+        function updateVoteButtons() {
+            Object.keys(userVotes).forEach(postId => {
+                const voteBtn = document.querySelector(`[data-post-id="${postId}"]`);
+                if (voteBtn && userVotes[postId]) {
+                    voteBtn.classList.add('voted');
+                    voteBtn.querySelector('.vote-text').textContent = 'Votato';
+                }
+            });
+        }
+
+        function openPostModal(postId) {
+            const post = allPosts.find(p => p.id == postId);
+            if (!post) return;
+
+            const modalContent = document.getElementById('modalContent');
+            modalContent.innerHTML = `
+                <div class="modal-post">
+                    <div class="modal-image">
+                        <img src="data:${post.tipo_foto_rimasto};base64,${post.foto_rimasto}" 
+                             alt="${post.titolo}">
+                    </div>
+                    <div class="modal-details">
+                        <h2>${post.titolo}</h2>
+                        <p class="modal-author">di ${post.username || 'Utente anonimo'}</p>
+                        <p class="modal-description">${post.descrizione}</p>
+                        <div class="modal-motivation">
+                            <h4>Perché è rimasto:</h4>
+                            <p>${post.motivazione}</p>
+                        </div>
+                        <div class="modal-stats">
+                            <span class="modal-votes">🔥 ${post.reazioni} voti</span>
+                            <span class="modal-date">${formatDate(post.data_creazione)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('postModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePostModal() {
+            document.getElementById('postModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function toggleAddPostForm() {
+            const form = document.getElementById('addPostForm');
+            const button = document.getElementById('toggleButtonText');
+            
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+                button.textContent = 'Annulla';
+            } else {
+                form.style.display = 'none';
+                button.textContent = 'Aggiungi nuovo post';
+                document.getElementById('newPostForm').reset();
+            }
+        }
+
+        // Handle new post form submission
+        document.getElementById('newPostForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Invio in corso...';
+            
+            try {
+                const response = await fetch('../api/set_new_toprimasti_post.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Post inviato con successo! Sarà visibile dopo l\'approvazione dell\'admin.');
+                    toggleAddPostForm();
+                    this.reset();
+                } else {
+                    alert('Errore: ' + (result.error || 'Errore sconosciuto'));
+                }
+            } catch (error) {
+                console.error('Errore nell\'invio del post:', error);
+                alert('Errore nell\'invio del post. Riprova più tardi.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('it-IT', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('postModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePostModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('postModal').style.display === 'flex') {
+                closePostModal();
+            }
+        });
+        </script>
     </body>
 </html>
