@@ -738,7 +738,7 @@ if (isset($_SESSION['user_id'])) {
                         <div class="empty-card">
                             <div class="empty-icon">✅</div>
                             <h3>Nessun post in attesa</h3>
-                            <p>Tutti i post sono stati gestiti. Ottimo lavoro!</p>
+                            <p>Tutti i post sono stati gestiti.</p>
                         </div>
                     </div>
                 </div>
@@ -1014,7 +1014,7 @@ if (isset($_SESSION['user_id'])) {
         async function changeApproval(postId, approval) {
             if (!isAdmin) return;
             
-            const action = approval === 1 ? 'approva' : 'rimuovi approvazione da';
+            const action = approval === 1 ? 'approvare' : 'rimuovere approvazione da';
             if (!confirm(`Sei sicuro di voler ${action} questo post?`)) {
                 return;
             }
