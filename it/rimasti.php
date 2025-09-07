@@ -134,6 +134,7 @@ checkBan($mysqli);
             display: block;
             font-size: 2rem;
             margin-bottom: 0.5rem;
+            background: transparent;
         }
 
         .post-content {
