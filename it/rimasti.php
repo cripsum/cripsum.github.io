@@ -134,7 +134,7 @@ checkBan($mysqli);
             display: block;
             font-size: 2rem;
             margin-bottom: 0.5rem;
-            background: transparent;
+            background: inherit;
         }
 
         .post-content {
@@ -600,7 +600,7 @@ checkBan($mysqli);
 
                 <div id="postModal" class="modal-overlay" style="display: none;">
                     <div class="modal-content">
-                        <button class="modal-close" onclick="closePostModal()">&times;</button>
+                        <button class="modal-close" onclick="closePostModal()"><strong style="margin-top: -10px;">&times;</strong></button>
                         <div id="modalContent">
                         </div>
                     </div>
