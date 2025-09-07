@@ -916,7 +916,7 @@ if (isset($_SESSION['user_id'])) {
                                         <span class="vote-text">voti</span>
                                     </div>
                                     <small class="login-prompt">
-                                        <a href="../accedi" class="linkbianco">Accedi</a> per votare
+                                        <a href="accedi" class="linkbianco">Accedi</a> per votare
                                     </small>
                                     <?php endif; ?>
                                 </div>
@@ -1097,7 +1097,7 @@ if (isset($_SESSION['user_id'])) {
 
         async function toggleVote(postId) {
             <?php if (!isset($_SESSION['user_id'])): ?>
-            window.location.href = '../accedi';
+            window.location.href = 'accedi';
             return;
             <?php endif; ?>
 
