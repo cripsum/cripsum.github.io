@@ -47,14 +47,14 @@ if ($isLoggedIn) {
                         <li><a class="dropdown-item" href="/<?= $lang ?>/shitpost">Shitpost</a></li>
                         <li><a class="dropdown-item" href="/<?= $lang ?>/tiktokpedia">TikTokPedia</a></li>
                         <li><a class="dropdown-item" href="/<?= $lang ?>/rimasti">Top rimasti</a></li>
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/quandel57" style="font-weight: bold">Quandel57</a></li>
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/quandel57" >Quandel57</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown dropdownutenti">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Giochi</a>
                     <ul class="dropdown-menu animate slideIn">
-                        <li><a class="dropdown-item " href="/<?= $lang ?>/gambling" style="font-weight: bold">Gambling</a></li>
-                        <li><a class="dropdown-item gay" href="/<?= $lang ?>/lootbox" style="font-weight: bold">Lootbox</a></li>
+                        <li><a class="dropdown-item " href="/<?= $lang ?>/gambling" >Gambling</a></li>
+                        <li><a class="dropdown-item " href="/<?= $lang ?>/lootbox" >Lootbox</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown dropdownutenti">

@@ -55,7 +55,7 @@ if ($isLoggedIn) {
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Giochi</a>
                     <ul class="dropdown-menu animate slideIn">
                         <li><a class="dropdown-item " href="/<?= $lang ?>/gambling">Gambling</a></li>
-                        <li><a class="dropdown-item testo-arcobaleno" href="/<?= $lang ?>/lootbox">Lootbox</a></li>
+                        <li><a class="dropdown-item " href="/<?= $lang ?>/lootbox">Lootbox</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown dropdownutenti">
