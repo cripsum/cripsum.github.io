@@ -134,6 +134,9 @@ checkBan($mysqli);
             display: block;
             font-size: 2rem;
             margin-bottom: 0.5rem;
+            -webkit-background-clip: inherit;
+            -webkit-text-fill-color: inherit;
+            background-clip: inherit;
         }
 
         .post-content {
@@ -599,7 +602,7 @@ checkBan($mysqli);
 
                 <div id="postModal" class="modal-overlay" style="display: none;">
                     <div class="modal-content">
-                        <button class="modal-close" onclick="closePostModal()"><strong style="top: 0.4 rem">&times;</strong></button>
+                        <button class="modal-close" onclick="closePostModal()" style="line-height: 1; padding-top: 0;">&times;</button>
                         <div id="modalContent">
                         </div>
                     </div>
@@ -685,7 +688,7 @@ checkBan($mysqli);
                                  alt="${post.titolo}" class="post-image">
                             <div class="post-overlay">
                                 <div class="overlay-content">
-                                    <span class="overlay-icon" style="opacity: 1">👁️</span>
+                                    <span class="overlay-icon">👁️</span>
                                     <span class="overlay-text">Visualizza dettagli</span>
                                 </div>
                             </div>
