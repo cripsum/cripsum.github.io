@@ -134,7 +134,6 @@ checkBan($mysqli);
             display: block;
             font-size: 2rem;
             margin-bottom: 0.5rem;
-            background: inherit;
         }
 
         .post-content {
@@ -686,7 +685,7 @@ checkBan($mysqli);
                                  alt="${post.titolo}" class="post-image">
                             <div class="post-overlay">
                                 <div class="overlay-content">
-                                    <span class="overlay-icon">👁️</span>
+                                    <span class="overlay-icon" style="opacity: 1">👁️</span>
                                     <span class="overlay-text">Visualizza dettagli</span>
                                 </div>
                             </div>
