@@ -696,7 +696,7 @@ checkBan($mysqli);
                             <p class="post-author">di ${post.username || 'Utente anonimo'}</p>
                             <p class="post-description">${post.descrizione}</p>
                             <div class="post-motivation">
-                                <strong>Perché è rimasto:</strong> ${post.motivazione}
+                                <strong>Perchè è un rimasto:</strong> ${post.motivazione}
                             </div>
                             
                             <div class="post-actions">
@@ -816,7 +816,7 @@ checkBan($mysqli);
                         <p class="modal-author">di ${post.username || 'Utente anonimo'}</p>
                         <p class="modal-description">${post.descrizione}</p>
                         <div class="modal-motivation">
-                            <h4>Perché è un rimasto:</h4>
+                            <h4>Perchè è un rimasto:</h4>
                             <p>${post.motivazione}</p>
                         </div>
                         <div class="modal-stats">
