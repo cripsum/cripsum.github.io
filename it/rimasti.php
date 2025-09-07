@@ -11,8 +11,7 @@ checkBan($mysqli);
     <head>
         <?php include '../includes/head-import.php'; ?>
         <title>Cripsum™ - rimasti</title>
-               <style>
-        /* Posts Grid */
+        <style>
         .posts-section {
             max-width: 1400px;
             margin: 0 auto;
@@ -25,7 +24,6 @@ checkBan($mysqli);
             padding: 2rem 0;
         }
 
-        /* Post Cards */
         .post-card {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
             border-radius: 24px;
@@ -45,7 +43,6 @@ checkBan($mysqli);
             border-color: rgba(100, 200, 255, 0.2);
         }
 
-        /* Special styling for top 3 positions */
         .post-card.position-1 {
             border: 2px solid rgba(255, 215, 0, 0.5);
             background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 193, 7, 0.08) 100%);
@@ -61,7 +58,6 @@ checkBan($mysqli);
             background: linear-gradient(135deg, rgba(205, 127, 50, 0.15) 0%, rgba(184, 115, 51, 0.08) 100%);
         }
 
-        /* Post Rank */
         .post-rank {
             position: absolute;
             top: 1rem;
@@ -87,7 +83,6 @@ checkBan($mysqli);
             font-size: 1.2rem;
         }
 
-        /* Post Image */
         .post-image-container {
             position: relative;
             height: 300px;
@@ -140,7 +135,6 @@ checkBan($mysqli);
             margin-bottom: 0.5rem;
         }
 
-        /* Post Content */
         .post-content {
             padding: 1.5rem;
         }
@@ -181,7 +175,6 @@ checkBan($mysqli);
             margin-bottom: 0.5rem;
         }
 
-        /* Post Actions */
         .post-actions {
             display: flex;
             justify-content: space-between;
@@ -259,7 +252,6 @@ checkBan($mysqli);
             font-size: 0.9rem;
         }
 
-        /* Add Post Section */
         .add-post-section {
             max-width: 800px;
             margin: 0 auto;
@@ -315,7 +307,6 @@ checkBan($mysqli);
             margin-top: 2rem;
         }
 
-        /* Modal */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -419,7 +410,6 @@ checkBan($mysqli);
             font-weight: bold;
         }
 
-        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
@@ -452,13 +442,11 @@ checkBan($mysqli);
             line-height: 1.6;
         }
 
-        /* Loading State */
         .loading-container {
             text-align: center;
             padding: 4rem 2rem;
         }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
             .posts-grid {
                 grid-template-columns: 1fr;
@@ -540,9 +528,9 @@ checkBan($mysqli);
             <div class="main-container">
 
                 <div class="chisiamo-section fadeup">
-                    <h1 class="chisiamo-title">I Top Rimasti</h1>
+                    <h1 class="chisiamo-title">Top Rimasti</h1>
                     <p class="chisiamo-subtitle">
-                        Scopri la classifica dei momenti più imbarazzanti della community. 
+                        Scopri la classifica dei soggetti più imbarazzanti mai incontrati dalla community di Cripsum™. 
                         Vota i tuoi preferiti e contribuisci a determinare chi si aggiudica il titolo di "più rimasto"!
                     </p>
                 </div>
@@ -550,7 +538,7 @@ checkBan($mysqli);
                 <?php if (isset($_SESSION['user_id'])): ?>
                 <div class="add-post-section fadeup" style="margin-bottom: 3rem;">
                     <div class="add-post-card">
-                        <h3 class="add-post-title">Condividi un momento "rimasto"</h3>
+                        <h3 class="add-post-title">Hai incontrato un rimasto? condivi qui la tua esperienza :P</h3>
                         <button class="bottone" onclick="toggleAddPostForm()">
                             <span id="toggleButtonText">Aggiungi nuovo post</span>
                         </button>
@@ -568,7 +556,7 @@ checkBan($mysqli);
                                 </div>
                                 <div class="form-group">
                                     <input type="file" name="foto_rimasto" accept="image/*" required>
-                                    <small style="color: rgba(255,255,255,0.7);">Carica una foto che dimostri quanto è rimasta questa persona</small>
+                                    <small style="color: rgba(255,255,255,0.7);">Carica una foto della persona o che dimostri quanto è un rimasto</small>
                                 </div>
                                 <div class="form-actions">
                                     <button type="submit" class="bottone">Invia Post</button>
@@ -580,7 +568,6 @@ checkBan($mysqli);
                 </div>
                 <?php endif; ?>
 
-                <!-- Loading State -->
                 <div id="loadingState" class="loading-container fadeup">
                     <div class="loading_white">
                         <div class="loading__dot_white"></div>
@@ -590,31 +577,27 @@ checkBan($mysqli);
                     <p class="testobianco" style="text-align: center; margin-top: 1rem;">Caricamento dei post...</p>
                 </div>
 
-                <!-- Posts Container -->
                 <div id="postsContainer" class="posts-section" style="display: none;">
                     <div id="postsGrid" class="posts-grid">
-                        <!-- Posts will be loaded here -->
+
                     </div>
                 </div>
 
-                <!-- Empty State -->
                 <div id="emptyState" class="empty-state fadeup" style="display: none;">
                     <div class="empty-card">
                         <div class="empty-icon">🤷‍♂️</div>
                         <h3>Nessun post trovato</h3>
-                        <p>Non ci sono ancora post da mostrare. Sii il primo a condividere un momento "rimasto"!</p>
+                        <p>Non ci sono ancora post da mostrare. Sii il primo a postare un rimasto!</p>
                         <?php if (isset($_SESSION['user_id'])): ?>
                         <button class="bottone" onclick="toggleAddPostForm()">Aggiungi il primo post</button>
                         <?php endif; ?>
                     </div>
                 </div>
 
-                <!-- Post Detail Modal -->
                 <div id="postModal" class="modal-overlay" style="display: none;">
                     <div class="modal-content">
                         <button class="modal-close" onclick="closePostModal()">&times;</button>
                         <div id="modalContent">
-                            <!-- Modal content will be loaded here -->
                         </div>
                     </div>
                 </div>
@@ -742,7 +725,6 @@ checkBan($mysqli);
                 `;
             }).join('');
 
-            // Add animation delay
             const cards = document.querySelectorAll('.post-card');
             cards.forEach((card, index) => {
                 setTimeout(() => {
@@ -787,13 +769,11 @@ checkBan($mysqli);
                 if (result.success) {
                     userVotes[postId] = !isVoted;
                     
-                    // Update vote count in the post
                     const postIndex = allPosts.findIndex(p => p.id == postId);
                     if (postIndex !== -1) {
                         allPosts[postIndex].reazioni = result.newVoteCount;
                     }
-                    
-                    // Re-sort and display posts
+
                     allPosts.sort((a, b) => parseInt(b.reazioni) - parseInt(a.reazioni));
                     displayPosts(allPosts);
                 } else {
@@ -867,7 +847,6 @@ checkBan($mysqli);
             }
         }
 
-        // Handle new post form submission
         document.getElementById('newPostForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -911,14 +890,12 @@ checkBan($mysqli);
             });
         }
 
-        // Close modal when clicking outside
         document.getElementById('postModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closePostModal();
             }
         });
 
-        // Close modal with Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && document.getElementById('postModal').style.display === 'flex') {
                 closePostModal();
