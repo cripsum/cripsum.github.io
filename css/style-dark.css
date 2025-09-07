@@ -680,7 +680,7 @@ radio:hover {
     color: #ff3838 !important;
 }
 
-/* .dropdown-item[style*="font-weight: bold"] {
+.dropdown-item[style*="font-weight: bold"] {
     background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 193, 7, 0.05)) !important;
     border-left: 3px solid rgba(255, 215, 0, 0.5);
 }
@@ -688,7 +688,7 @@ radio:hover {
     background: linear-gradient(135deg, rgba(255, 0, 150, 0.1), rgba(255, 0, 150, 0.05)) !important;
     border-left: 3px solid rgba(255, 0, 150, 0.7);
     font-weight: bold !important;
-} */
+}
 
 .navbar-collapse {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
