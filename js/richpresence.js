@@ -321,6 +321,7 @@ const pageMap = {
 };
 
 const editMap = {
+  27: { character: "Kōtarō Bokuto - Haikyuu", music: "QMIIR - Sempero", image: "https://media1.tenor.com/m/4D0yU-tKtUQAAAAC/bokuto-koutarou.gif" },
   26: { character: "Iuno - Wuthering Waves", music: "XYLØ - Afterlife (Ark Patrol Remix)", image: "https://media1.tenor.com/m/9sD6KL41RgQAAAAC/iuno-iuno-wuwa.gif" },
   25: { character: "Perfect Cell - Dragon Ball", music: "Jmilton, CHASHKAKEFIRA - Reinado", image: "https://media1.tenor.com/m/mMm1Kd38phYAAAAC/big-brain-cell.gif" },
   24: { character: "Waguri Kaoruko", music: "Tate McRae - it's ok i'm ok", image: "https://media1.tenor.com/m/7ddM67UZbgYAAAAC/kaoruko-waguri-waguri-kaoruko.gif" },

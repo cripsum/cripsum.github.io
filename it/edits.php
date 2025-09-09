@@ -400,8 +400,34 @@ checkBan($mysqli);
 
     <div class="edits-container">
         <div class="edits-grid">
-            <div class="edit-card" data-category="games" onclick="playVideo(this, 26)">
+            <div class="edit-card" data-category="games" onclick="playVideo(this, 27)">
                 <div class="edit-badge">Latest</div>
+                <div class="video-container">
+                    <iframe 
+                        src="https://streamable.com/e/io9mwe?" 
+                        class="video-iframe"
+                        allow="fullscreen;autoplay" 
+                        allowfullscreen
+                        id="video-27">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-user character-icon"></i>
+                        Kōtarō Bokuto - Haikyuu
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        QMIIR - Sempero
+                    </div>
+                </div>
+            </div>
+            <div class="edit-card" data-category="games" onclick="playVideo(this, 26)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/ypekqr?" 
