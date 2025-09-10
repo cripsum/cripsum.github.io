@@ -729,20 +729,57 @@ if (isset($_SESSION['user_id'])) {
             }
         });
 
+        // Sostituisci la funzione loadPosts con questa versione con debug
         async function loadPosts() {
             try {
+                console.log("🔄 Inizio caricamento post approvati...");
+                
                 const response = await fetch('../api/get_shitposts.php');
-                const data = await response.json();
+                console.log("📡 Response status:", response.status);
+                console.log("📡 Response headers:", Object.fromEntries(response.headers.entries()));
+                
+                const responseText = await response.text();
+                console.log("📄 Response text (primi 500 caratteri):", responseText.substring(0, 500));
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    console.error("❌ Errore parsing JSON:", e);
+                    console.error("📄 Response completa:", responseText);
+                    throw new Error("Risposta non è JSON valido");
+                }
+                
+                console.log("📊 Data ricevuta:", data);
+                console.log("📊 Tipo di data:", typeof data);
+                console.log("📊 È array?", Array.isArray(data));
+                
+                if (Array.isArray(data)) {
+                    console.log("📊 Numero di post ricevuti:", data.length);
+                    if (data.length > 0) {
+                        console.log("📊 Primo post:", data[0]);
+                        
+                        // Controlla se ci sono post con approved = 1
+                        const approvedPosts = data.filter(post => post.approved == 1);
+                        console.log("✅ Post approvati trovati:", approvedPosts.length);
+                        
+                        if (approvedPosts.length > 0) {
+                            console.log("✅ Primi post approvati:", approvedPosts.slice(0, 3));
+                        }
+                    }
+                }
                 
                 if (Array.isArray(data) && data.length > 0) {
                     // Sort by date (newest first)
                     allPosts = data.sort((a, b) => new Date(b.data_creazione) - new Date(a.data_creazione));
+                    console.log("✅ Post caricati e ordinati:", allPosts.length);
                     displayPosts(allPosts);
                 } else {
+                    console.log("ℹ️ Nessun post trovato, mostrando empty state");
                     showEmptyState();
                 }
             } catch (error) {
-                console.error('Errore nel caricamento dei shitpost:', error);
+                console.error('❌ Errore nel caricamento dei shitpost:', error);
                 showEmptyState();
             }
         }
