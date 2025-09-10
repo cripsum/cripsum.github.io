@@ -173,7 +173,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                         bagliore.style.height = "100vh";
                         bagliore.style.zIndex = "-1";
 
-                    } else if (rarita === "theone") {
+                    } else if (pull.rarita === "theone") {
 
                         startTheOneAnimation(pull.nome);
                         messaggioRarita.innerText = "INCREDBILE! HAI PULLATO IL PERSONAGGIO PIÙ RARO DI TUTTI!!!";
