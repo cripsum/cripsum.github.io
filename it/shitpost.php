@@ -414,7 +414,7 @@ if (isset($_SESSION['user_id'])) {
                 </div>
                 <?php endif; ?>
 
-                <div id="loadingState" class="loading-container fadeup">
+                <div id="loadingState" class="loading-container">
                     <div class="loading_white">
                         <div class="loading__dot_white"></div>
                         <div class="loading__dot_white"></div>
