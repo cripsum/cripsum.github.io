@@ -1218,13 +1218,13 @@ require_once '../api/api_personaggi.php';
                     width: 100vw;
                     height: 100vh;
                     background: #000;
-                    z-index: -1;
+                    z-index: 10000;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     overflow: hidden;
                     opacity: 0;
-                    transition: opacity 0.8s ease-in-out;
+                    transition: opacity 0.8s ease-in-out, z-index 0s ease-in-out 2s;
                 `;
 
                 const videoContainer = document.createElement('div');
@@ -1236,7 +1236,8 @@ require_once '../api/api_personaggi.php';
                     align-items: center;
                     justify-content: center;
                     opacity: 0;
-                    transition: opacity 1s ease-out;
+                    transform: scale(1.1);
+                    transition: opacity 1s ease-out, transform 1s ease-out;
                 `;
 
                 const video = document.createElement('video');
@@ -1244,6 +1245,8 @@ require_once '../api/api_personaggi.php';
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
+                    filter: brightness(1.2) contrast(1.1);
+                    transition: filter 2s ease-in-out;
                 `;
                 video.src = '../vid/shorekeeperpull.mp4';
                 video.autoplay = true;
@@ -1260,12 +1263,24 @@ require_once '../api/api_personaggi.php';
 
                 setTimeout(() => {
                     videoContainer.style.opacity = '1';
+                    videoContainer.style.transform = 'scale(1)';
                     video.play();
                 }, 800);
                 
                 bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
 
-                // Il video rimane come sfondo permanente, non viene rimosso
+                // Dopo 20 secondi, sposta il video in background con animazione smooth
+                setTimeout(() => {
+                    introOverlay.style.transition = 'opacity 2s ease-in-out, z-index 0s ease-in-out 2s';
+                    introOverlay.style.opacity = '0.3';
+                    video.style.filter = 'brightness(0.7) contrast(0.9) blur(1px)';
+                    
+                    setTimeout(() => {
+                        introOverlay.style.zIndex = '-1';
+                        introOverlay.style.transition = 'opacity 0.8s ease-in-out';
+                    }, 2000);
+                }, 20000);
+
                 video.addEventListener('ended', () => {
                     video.loop = true;
                     video.play();
