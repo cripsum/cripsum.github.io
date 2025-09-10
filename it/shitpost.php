@@ -1053,6 +1053,27 @@ if (isset($_SESSION['user_id'])) {
             document.body.style.overflow = 'hidden';
         }
 
+        function openLegacyPostModal(imageId, title, author, description, date) {
+            const modalContent = document.getElementById('modalContent');
+            modalContent.innerHTML = `
+                <div class="modal-post">
+                    <div class="modal-image">
+                        <img src="../img/${imageId}.jpg" alt="${title}">
+                    </div>
+                    <div class="modal-details">
+                        <h2>${title}</h2>
+                        <p class="modal-author">${author}</p>
+                        <p class="modal-description">${description}</p>
+                        <div class="modal-stats">
+                            <span class="modal-date">${date}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('postModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
         function closePostModal() {
             document.getElementById('postModal').style.display = 'none';
             document.body.style.overflow = 'auto';
