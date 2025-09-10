@@ -429,6 +429,8 @@ if (isset($_SESSION['user_id'])) {
                     </div>
                 </div>
 
+
+                <div class="legacy-shitpost" style="max-width: 80%">
                     <div class="posts-grid" style="margin: 1rem 0;">
                         <div class="post-card fadeup">
                             <?php if ($isAdmin): ?>
@@ -450,8 +452,6 @@ if (isset($_SESSION['user_id'])) {
                             </div>
                         </div>
                     </div>
-
-                <div class="legacy-shitpost" style="max-width: 80%">
                     <div class="posts-grid" style="margin: 1rem 0;">
                         <div class="post-card fadeup">
                             <?php if ($isAdmin): ?>
