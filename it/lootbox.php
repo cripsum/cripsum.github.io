@@ -645,6 +645,7 @@ require_once '../api/api_personaggi.php';
                         bagliore.style.animation = "rainbowBackground 6s linear infinite";
                     } else if (rarita === "segreto") {
 
+                        theOnePulled = true;
                         startIntroAnimation(pull.nome);
                         messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
                         bagliore.style.position = "fixed";
@@ -732,8 +733,9 @@ require_once '../api/api_personaggi.php';
                         bagliore.style.backgroundSize = "300% 100%";
                         bagliore.style.animation = "rainbowBackground 6s linear infinite";
                     } else if (rarita === "segreto") {
-
+                        theOnePulled = true;
                         startIntroAnimation(pull.nome);
+                        
                         messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
                         bagliore.style.position = "fixed";
                         bagliore.style.width = "100vw";
