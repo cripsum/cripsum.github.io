@@ -285,6 +285,7 @@ require_once '../api/api_personaggi.php';
             var casseAperte;
             var comuniDiFila;
             var theOnePulled = false;
+            var nuovoPersonaggio = false;
             //|| {
             //    comune: 45,
             //    raro: 25,
@@ -395,8 +396,10 @@ require_once '../api/api_personaggi.php';
                     if (!characterFound) {
                         inventory.push({ ...character, count: 1 });
                         testoNuovo();
+                        nuovoPersonaggio = true;
                     } else {
                         characterFound.count++;
+                        nuovoPersonaggio = false;
                     }
 
                     localStorage.setItem("inventory", JSON.stringify(inventory));
@@ -645,7 +648,6 @@ require_once '../api/api_personaggi.php';
                         bagliore.style.animation = "rainbowBackground 6s linear infinite";
                     } else if (rarita === "segreto") {
 
-                        theOnePulled = true;
                         startIntroAnimation(pull.nome);
                         messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
                         bagliore.style.position = "fixed";
@@ -733,7 +735,6 @@ require_once '../api/api_personaggi.php';
                         bagliore.style.backgroundSize = "300% 100%";
                         bagliore.style.animation = "rainbowBackground 6s linear infinite";
                     } else if (rarita === "segreto") {
-                        theOnePulled = true;
                         startIntroAnimation(pull.nome);
                         
                         messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
@@ -794,7 +795,7 @@ require_once '../api/api_personaggi.php';
 
             document.addEventListener("keydown", function (event) {
                 if (event.code === "Enter") {
-                    if(theOnePulled !== true){
+                    if(theOnePulled !== true || nuovoPersonaggio !== true){
                         event.preventDefault();
                         refresh();
                     }
