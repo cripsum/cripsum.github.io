@@ -609,56 +609,97 @@ if (isset($_SESSION['user_id'])) {
                 </div>
 
                 <!-- Legacy content section -->
-                <div class="legacy-shitpost fadeup" style="color: white;">
+                <div class="legacy-shitpost fadeup">
                     <hr class="rounded fadeuphr" />
-                    <div class="d-flex justify-content-around image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
-                        <div class="fadeup">
-                            <br />
-                            <p class="fs-2" style="font-weight: bolder; text-align: center">questa è la magia</p>
-                            <p class="fs-5" style="font-weight: bold; text-align: center">la magia del natale</p>
-                            <p class="fs-6" style="font-weight: bold; text-align: center">quella vera</p>
-                        </div>
-                        <div class="immagineshit1 fadeup">
-                            <img class="immagineshit1 ombra" src="../img/beans.jpg" alt="" />
-                        </div>
-                        <div class="fadeup">
-                            <img src="../img/saltellante.gif" class="ombra" alt="" style="margin: auto; max-width: 100%" />
+                    
+                    <!-- Card 1 - Magia del Natale -->
+                    <div class="posts-grid" style="margin: 2rem 0;">
+                        <div class="post-card fadeup">
+                            <div class="post-image-container">
+                                <img src="../img/beans.jpg" alt="Magia del Natale" class="post-image">
+                                <div class="post-overlay">
+                                    <div class="overlay-content">
+                                        <span class="overlay-icon">✨</span>
+                                        <span class="overlay-text">La magia del natale</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="post-content">
+                                <h3 class="post-title">Questa è la magia</h3>
+                                <p class="post-author">by cripsum</p>
+                                <p class="post-description">
+                                    La magia del natale, quella vera
+                                </p>
+                                
+                                <div class="post-actions">
+                                    <div class="post-date">
+                                        Shitpost originale
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div style="margin: auto; max-width: 80%; text-align: center" class="fadeup">
-                        <a style="text-align: center">by</a>
-                        <a style="font-weight: bolder">cripsum</a>
+
+                    <!-- Card 2 - Le mie palle quando -->
+                    <div class="posts-grid" style="margin: 2rem 0;">
+                        <div class="post-card fadeup">
+                            <div class="post-image-container">
+                                <img src="../img/tengodiarrea.jpg" alt="Le mie palle quando" class="post-image">
+                                <div class="post-overlay">
+                                    <div class="overlay-content">
+                                        <span class="overlay-icon">💩</span>
+                                        <span class="overlay-text">Dame tu cosita</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="post-content">
+                                <h3 class="post-title">Le mie palle quando</h3>
+                                <p class="post-author">by sk8ing ray</p>
+                                <p class="post-description">
+                                    Ma soprattutto il mio culetto quando...
+                                </p>
+                                
+                                <div class="post-actions">
+                                    <div class="post-date">
+                                        Shitpost originale
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Card 3 - Sossio -->
+                    <div class="posts-grid" style="margin: 2rem 0;">
+                        <div class="post-card fadeup">
+                            <div class="post-image-container">
+                                <img src="../img/sossio.png" alt="Sossio" class="post-image">
+                                <div class="post-overlay">
+                                    <div class="overlay-content">
+                                        <span class="overlay-icon">🎮</span>
+                                        <span class="overlay-text">Sossio developer</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="post-content">
+                                <h3 class="post-title">Sossio, il developer</h3>
+                                <p class="post-author">by lacly</p>
+                                <p class="post-description">
+                                    Lui è sossio, uno sviluppatore di mod per mario kart. È anche un grande giocatore di wuthering waves e si fa tante seghe, qui avete una sua immagine mentre se la chilla con i piedi all'aria
+                                </p>
+                                
+                                <div class="post-actions">
+                                    <div class="post-date">
+                                        Shitpost originale
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <hr class="rounded fadeuphr" />
-                    <div class="d-flex justify-content-center image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
-                        <div class="dametucosita">
-                            <p class="fs-5 fadeup" style="font-weight: bold; text-align: center">le mie palle quando:</p>
-                            <p class="fs-6 mt-2 fadeup" style="font-weight: bold; text-align: center">ma soprattutto il mio culetto quando:</p>
-                            <img style="display: block" class="ombra fadeup" src="../img/tengodiarrea.jpg" alt="" />
-                            <img src="../img/cesso.gif" class="ombra fadeup" alt="" />
-                        </div>
-                        <div class="mt-4 fadeup">
-                            <img class="dametucosita2 ombra" src="../img/dametucositait.gif" alt="" />
-                        </div>
-                    </div>
-                    <div style="margin: auto; max-width: 80%; text-align: center" class="fadeup">
-                        <a style="text-align: center">by</a>
-                        <a style="font-weight: bolder">sk8ing ray</a>
-                    </div>
-                    <hr class="rounded fadeuphr" />
-                    <div class="d-flex justify-content-center image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
-                        <div class="fadeup">
-                            <img src="../img/sossio.png" class="ombra" alt="" style="margin: auto; max-width: 200px" />
-                        </div>
-                        <div class="fadeup">
-                            <br />
-                            <p class="fs-6" style="text-align: center; font-weight: normal; max-width: 700px">Lui è sossio, uno sviluppatore di mod per mario kart. è anche un grande giocatore di wuthering waves e si fa tante seghe, qui avete una sua immagine mentre se la chilla con i piedi all'aria</p>
-                        </div>
-                    </div>
-                    <div style="margin: auto; max-width: 80%; text-align: center" class="fadeup">
-                        <a style="text-align: center">by</a>
-                        <a style="font-weight: bolder">lacly</a>
-                    </div>
                 </div>
 
                 <div id="emptyState" class="empty-state fadeup" style="display: none;">
