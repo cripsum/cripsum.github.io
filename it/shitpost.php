@@ -420,7 +420,7 @@ if (isset($_SESSION['user_id'])) {
                         <div class="loading__dot_white"></div>
                         <div class="loading__dot_white"></div>
                     </div>
-                    <p class="testobianco" style="text-align: center; margin-top: 1rem;">Caricamento dei shitpost...</p>
+                    <p class="testobianco" style="text-align: center; margin-top: 1rem;">Caricamento degli shitpost...</p>
                 </div>
 
                 <div id="postsContainer" class="posts-section" style="display: none;">
