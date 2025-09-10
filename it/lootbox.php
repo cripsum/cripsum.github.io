@@ -14,6 +14,13 @@ if (!isLoggedIn()) {
     header('Location: accedi');
     exit();
 }
+
+if ($_SESSION['ruolo'] === 'utente') {
+    $_SESSION['error_message'] = "la pagina attualmente è in manutenzione, torna più tardi";
+    header('Location: home');
+    exit();
+}
+
 require_once '../api/api_personaggi.php';
 
 ?>
