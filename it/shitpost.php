@@ -805,8 +805,30 @@ if (isset($_SESSION['user_id'])) {
                         </div>
                         ` : ''}
                         
-                        <div class="form-group">
-                                 `;
+                        <div class="post-image-container" onclick="openPostModal(${post.id}, false)">
+                            <img src="data:${post.tipo_foto_shitpost};base64,${post.foto_shitpost}" 
+                                 alt="${post.titolo}" class="post-image">
+                            <div class="post-overlay">
+                                <div class="overlay-content">
+                                    <span class="overlay-icon">👁️</span>
+                                    <span class="overlay-text">Visualizza dettagli</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="post-content">
+                            <h3 class="post-title">${post.titolo}</h3>
+                            <p class="post-author">di ${post.username || 'Utente anonimo'}</p>
+                            <p class="post-description">${post.descrizione}</p>
+                            
+                            <div class="post-actions">
+                                <div class="post-date">
+                                    ${formatDate(post.data_creazione)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
             }).join('');
 
             const cards = document.querySelectorAll('.post-card');
