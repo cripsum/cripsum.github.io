@@ -650,26 +650,26 @@ if (isset($_SESSION['user_id'])) {
                             <p class="fs-5" style="font-weight: bold; text-align: center">la magia del natale</p>
                             <p class="fs-6" style="font-weight: bold; text-align: center">quella vera</p>
                         </div>
-                        <div class="immagineshit1 fadeup"></div>
+                        <div class="immagineshit1 fadeup">
                             <img class="immagineshit1 ombra" src="../img/beans.jpg" alt="" />
                         </div>
-                        <div class="fadeup"></div>
+                        <div class="fadeup">
                             <img src="../img/saltellante.gif" class="ombra" alt="" style="margin: auto; max-width: 100%" />
                         </div>
                     </div>
-                    <div style="margin: auto; max-width: 80%; text-align: center" class="fadeup"></div>
+                    <div style="margin: auto; max-width: 80%; text-align: center" class="fadeup">
                         <a style="text-align: center">by</a>
                         <a style="font-weight: bolder">cripsum</a>
                     </div>
                     <hr class="rounded fadeuphr" />
                     <div class="d-flex justify-content-center image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
-                        <div class="dametucosita"></div>
+                        <div class="dametucosita">
                             <p class="fs-5 fadeup" style="font-weight: bold; text-align: center">le mie palle quando:</p>
                             <p class="fs-6 mt-2 fadeup" style="font-weight: bold; text-align: center">ma soprattutto il mio culetto quando:</p>
                             <img style="display: block" class="ombra fadeup" src="../img/tengodiarrea.jpg" alt="" />
                             <img src="../img/cesso.gif" class="ombra fadeup" alt="" />
                         </div>
-                        <div class="mt-4 fadeup"></div>
+                        <div class="mt-4 fadeup">
                             <img class="dametucosita2 ombra" src="../img/dametucositait.gif" alt="" />
                         </div>
                     </div>
@@ -679,7 +679,7 @@ if (isset($_SESSION['user_id'])) {
                     </div>
                     <hr class="rounded fadeuphr" />
                     <div class="d-flex justify-content-center image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
-                        <div class="fadeup"></div>
+                        <div class="fadeup">
                             <img src="../img/sossio.png" class="ombra" alt="" style="margin: auto; max-width: 200px" />
                         </div>
                         <div class="fadeup">
@@ -705,7 +705,7 @@ if (isset($_SESSION['user_id'])) {
                 </div>
 
                 <div id="postModal" class="modal-overlay" style="display: none;">
-                    <div class="modal-content"></div>
+                    <div class="modal-content">
                         <button class="modal-close" onclick="closePostModal()" style="line-height: 1; padding-top: 0;">&times;</button>
                         <div id="modalContent">
                         </div>
@@ -713,7 +713,7 @@ if (isset($_SESSION['user_id'])) {
                 </div>
 
                 <?php if ($isAdmin): ?>
-                <div id="adminSection" class="admin-section" style="display: none;"></div>
+                <div id="adminSection" class="admin-section" style="display: none;">
                     <h2 class="admin-title">👑 Pannello Admin - Shitpost in Attesa</h2>
                     <p class="admin-subtitle">Gestisci i shitpost in attesa di approvazione</p>
                     
