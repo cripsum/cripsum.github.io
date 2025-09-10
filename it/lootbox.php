@@ -809,13 +809,13 @@ require_once '../api/api_personaggi.php';
                     unlockAchievement(9);
                 }
 
-                if (casseAperte === 100) {
+                if (casseAperte >= 100) {
                     unlockAchievement(8);
                 }
-                if (casseAperte === 500) {
+                if (casseAperte >= 500) {
                     unlockAchievement(16);
                 }
-                if (inventory.length === 45) {
+                if (inventory.length === 46) {
                     unlockAchievement(18);
                 }
             }
