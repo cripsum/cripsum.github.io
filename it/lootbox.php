@@ -1274,7 +1274,7 @@ require_once '../api/api_personaggi.php';
                     video.play();
                 }, 800);
                 
-                bagliore.style.background = "radial-gradient(circle, rgb(0, 174, 255) 0%, rgba(0, 0, 255, 0) 70%)";
+                bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
 
                 setTimeout(() => {
                     introOverlay.style.transition = 'opacity 2s ease-in-out, z-index 0s ease-in-out 2s';
