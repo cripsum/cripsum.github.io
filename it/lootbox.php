@@ -1269,7 +1269,6 @@ require_once '../api/api_personaggi.php';
                 
                 bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
 
-                // Dopo 20 secondi, sposta il video in background con animazione smooth
                 setTimeout(() => {
                     introOverlay.style.transition = 'opacity 2s ease-in-out, z-index 0s ease-in-out 2s';
                     introOverlay.style.opacity = '0.3';
@@ -1279,7 +1278,7 @@ require_once '../api/api_personaggi.php';
                         introOverlay.style.zIndex = '-1';
                         introOverlay.style.transition = 'opacity 0.8s ease-in-out';
                     }, 2000);
-                }, 20000);
+                }, 15000);
 
                 video.addEventListener('ended', () => {
                     video.loop = true;
