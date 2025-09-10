@@ -426,16 +426,21 @@ if (!isLoggedIn()) {
         const rarityOrder = ["comune", "raro", "epico", "leggendario", "speciale", "segreto", "theone"];
 
         rarityOrder.forEach((rarity, index) => {
-            const section = document.createElement("div");
-            section.classList.add("rarity-section", `rarity-${rarity}`);
-            section.style.animationDelay = `${0.1 * index}s`;
-
             const foundInRarity = inventory.filter((p) => p.rarità === rarity).length;
             const totalInRarity = totalCharacters.filter((p) => p.rarità === rarity).length;
             
+            if (rarity === "theone" && foundInRarity === 0) {
+            return;
+            }
+            
+            const section = document.createElement("div");
+            section.classList.add("rarity-section", `rarity-${rarity}`);
+            section.style.animationDelay = `${0.1 * index}s`;
+            
             const titleDiv = document.createElement("div");
             titleDiv.classList.add("rarity-title");
-            titleDiv.textContent = `${rarity.toUpperCase()}: ${foundInRarity} / ${totalInRarity}`;
+            const displayRarity = rarity === "theone" ? "THE ONE" : rarity.toUpperCase();
+            titleDiv.textContent = `${displayRarity}: ${foundInRarity} / ${totalInRarity}`;
             section.appendChild(titleDiv);
 
             const charactersGrid = document.createElement("div");
@@ -444,69 +449,69 @@ if (!isLoggedIn()) {
             const filteredCharacters = totalCharacters.filter((p) => p.rarità === rarity);
 
             function showUnboxAnimation(idPersonaggio) {
-                window.location.href = "animazione_personaggio?id_personaggio=" + idPersonaggio;
+            window.location.href = "animazione_personaggio?id_personaggio=" + idPersonaggio;
             }
 
             function showCharacterModal(character) {
-                const modal = document.createElement("div");
-                modal.classList.add("character-modal");
-                modal.innerHTML = `
-                    <div class="modal-content rarity-${character.rarità}">
-                        <span class="close-modal">&times;</span>
-                        <div class="modal-character-info">
-                            <img src="/img/${character.img_url}" class="modal-character-image" alt="${character.nome}">
-                            <h2>${character.nome}</h2>
-                            <p class="character-rarity">Rarità: ${character.rarità}</p>
-                            <p class="character-quantity">Quantità: x${character.quantità}</p>
-                            <p class="character-description">${character.descrizione || 'Nessuna descrizione disponibile'}</p>
-                            <p class="character-traits"><strong>Tratti distintivi:</strong><br>- ${character.caratteristiche ? character.caratteristiche.split(';').join('<br> -') : 'Nessun tratto specificato'}</p>
-                            <p class="character-date">Trovato il: ${new Date(character.data).toLocaleDateString()} alle ${new Date(character.data).toLocaleTimeString('it-IT')}</p>
-                            <button class="animation-button" onclick="window.location.href='animazione_personaggio?id_personaggio=${character.id}'">Visualizza Animazione Apertura</button>
-                        </div>
-                    </div>
-                `;
+            const modal = document.createElement("div");
+            modal.classList.add("character-modal");
+            modal.innerHTML = `
+                <div class="modal-content rarity-${character.rarità}">
+                <span class="close-modal">&times;</span>
+                <div class="modal-character-info">
+                    <img src="/img/${character.img_url}" class="modal-character-image" alt="${character.nome}">
+                    <h2>${character.nome}</h2>
+                    <p class="character-rarity">Rarità: ${character.rarità === "theone" ? "THE ONE" : character.rarità}</p>
+                    <p class="character-quantity">Quantità: x${character.quantità}</p>
+                    <p class="character-description">${character.descrizione || 'Nessuna descrizione disponibile'}</p>
+                    <p class="character-traits"><strong>Tratti distintivi:</strong><br>- ${character.caratteristiche ? character.caratteristiche.split(';').join('<br> -') : 'Nessun tratto specificato'}</p>
+                    <p class="character-date">Trovato il: ${new Date(character.data).toLocaleDateString()} alle ${new Date(character.data).toLocaleTimeString('it-IT')}</p>
+                    <button class="animation-button" onclick="window.location.href='animazione_personaggio?id_personaggio=${character.id}'">Visualizza Animazione Apertura</button>
+                </div>
+                </div>
+            `;
 
-                document.body.appendChild(modal);
+            document.body.appendChild(modal);
 
-                modal.addEventListener("click", (e) => {
-                    if (e.target === modal || e.target.classList.contains("close-modal")) {
-                        modal.classList.add("closing");
-                        const modalContent = modal.querySelector(".modal-content");
-                        modalContent.classList.add("closing");
-                        setTimeout(() => {
-                            document.body.removeChild(modal);
-                        }, 300);
-                    }
-                });
+            modal.addEventListener("click", (e) => {
+                if (e.target === modal || e.target.classList.contains("close-modal")) {
+                modal.classList.add("closing");
+                const modalContent = modal.querySelector(".modal-content");
+                modalContent.classList.add("closing");
+                setTimeout(() => {
+                    document.body.removeChild(modal);
+                }, 300);
+                }
+            });
             }
 
             filteredCharacters.forEach((personaggio) => {
-                const character = inventory.find((p) => p.nome === personaggio.nome);
-                const characterCard = document.createElement("div");
-                characterCard.classList.add("character-card");
-                
-                if (!character) {
-                    characterCard.classList.add("hidden-character");
-                }
+            const character = inventory.find((p) => p.nome === personaggio.nome);
+            const characterCard = document.createElement("div");
+            characterCard.classList.add("character-card");
+            
+            if (!character) {
+                characterCard.classList.add("hidden-character");
+            }
 
-                characterCard.innerHTML = `
-                    <img src="${character ? `/img/${character.img_url}` : "../img/boh.png"}" 
-                         class="character-image" 
-                         alt="Personaggio">
-                    <div class="character-name">${character ? character.nome : "???"}</div>
-                    <div class="character-count">${character ? `x${character.quantità}` : "Non trovato"}</div>
-                    <div class="character-unlock-date">${character ? `Trovato il: ${new Date(character.data).toLocaleDateString()}` : "Non trovato"}</div>
-                    <div class="character-unlock-date">${character ? `Alle ${new Date(character.data).toLocaleTimeString('it-IT')}` : ""}</div>
-                `;
+            characterCard.innerHTML = `
+                <img src="${character ? `/img/${character.img_url}` : "../img/boh.png"}" 
+                 class="character-image" 
+                 alt="Personaggio">
+                <div class="character-name">${character ? character.nome : "???"}</div>
+                <div class="character-count">${character ? `x${character.quantità}` : "Non trovato"}</div>
+                <div class="character-unlock-date">${character ? `Trovato il: ${new Date(character.data).toLocaleDateString()}` : "Non trovato"}</div>
+                <div class="character-unlock-date">${character ? `Alle ${new Date(character.data).toLocaleTimeString('it-IT')}` : ""}</div>
+            `;
 
-                if (character) {
-                    characterCard.style.cursor = "pointer";
-                    characterCard.addEventListener("click", () => {
-                        showCharacterModal(character);
-                    });
-                }
+            if (character) {
+                characterCard.style.cursor = "pointer";
+                characterCard.addEventListener("click", () => {
+                showCharacterModal(character);
+                });
+            }
 
-                charactersGrid.appendChild(characterCard);
+            charactersGrid.appendChild(characterCard);
             });
 
             section.appendChild(charactersGrid);
