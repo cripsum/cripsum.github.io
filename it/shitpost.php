@@ -36,29 +36,32 @@ if (isset($_SESSION['user_id'])) {
 
         .posts-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
             gap: 2rem;
             padding: 2rem 0;
         }
 
         .post-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(15px);
+            background: linear-gradient(135deg, rgba(30, 30, 30, 0.95), rgba(20, 20, 20, 0.98));
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
             overflow: hidden;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             opacity: 0;
             transform: translateY(20px);
-            max-width: 900px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding: 2rem;
         }
 
         .post-card:hover {
             transform: translateY(-8px) scale(1.02);
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(100, 200, 255, 0.1);
-            border-color: rgba(100, 200, 255, 0.2);
+            border-color: rgba(100, 200, 255, 0.3);
         }
 
         /* Admin section styles */
@@ -87,7 +90,7 @@ if (isset($_SESSION['user_id'])) {
         }
 
         .pending-post {
-            background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 215, 0, 0.08) 100%);
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 215, 0, 0.08));
             border: 2px solid rgba(255, 215, 0, 0.4);
         }
 
@@ -161,94 +164,35 @@ if (isset($_SESSION['user_id'])) {
             color: white;
         }
 
-        .post-image-container {
-            position: relative;
-            height: 300px;
-            overflow: hidden;
-            cursor: pointer;
-            background: linear-gradient(135deg, rgba(30, 32, 42, 0.8) 0%, rgba(40, 45, 60, 0.8) 100%);
-        }
-
-        .post-image {
+        .post-image img {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-            filter: brightness(0.9) contrast(1.1);
+            height: auto;
+            border-radius: 12px;
         }
 
-        .post-card:hover .post-image {
-            transform: scale(1.05);
-            filter: brightness(1) contrast(1.2);
-        }
-
-        .post-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(30, 32, 42, 0.7));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(2px);
-        }
-
-        .post-card:hover .post-overlay {
-            opacity: 1;
-        }
-
-        .overlay-content {
-            text-align: center;
+        .post-details h2 {
             color: white;
-            font-weight: 500;
-        }
-
-        .overlay-icon {
-            display: block;
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .post-content {
-            padding: 1.5rem;
-        }
-
-        .post-title {
-            color: white;
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            line-height: 1.3;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
         }
 
         .post-author {
             color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
             font-style: italic;
+            margin-bottom: 1rem;
         }
 
         .post-description {
             color: rgba(255, 255, 255, 0.85);
-            font-size: 1rem;
-            line-height: 1.5;
+            line-height: 1.6;
             margin-bottom: 1.5rem;
         }
 
-        .post-actions {
+        .post-stats {
             display: flex;
             justify-content: flex-end;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .post-date {
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(255, 255, 255, 0.7);
             font-size: 0.9rem;
         }
 
@@ -307,93 +251,6 @@ if (isset($_SESSION['user_id'])) {
             margin-top: 2rem;
         }
 
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-        }
-
-        .modal-content {
-            background: linear-gradient(135deg, rgba(30, 30, 30, 0.95), rgba(20, 20, 20, 0.98));
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            max-width: 900px;
-            width: 100%;
-            max-height: 80vh;
-            overflow-y: auto;
-            position: relative;
-            backdrop-filter: blur(20px);
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: white;
-            font-size: 2rem;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 10001;
-            transition: all 0.3s ease;
-        }
-
-        .modal-close:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: scale(1.1);
-        }
-
-        .modal-post {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            padding: 2rem;
-        }
-
-        .modal-image img {
-            width: 100%;
-            height: auto;
-            border-radius: 12px;
-        }
-
-        .modal-details h2 {
-            color: white;
-            margin-bottom: 1rem;
-            font-size: 1.8rem;
-        }
-
-        .modal-author {
-            color: rgba(255, 255, 255, 0.7);
-            font-style: italic;
-            margin-bottom: 1rem;
-        }
-
-        .modal-description {
-            color: rgba(255, 255, 255, 0.85);
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-        }
-
-        .modal-stats {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-        }
-
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
@@ -443,29 +300,18 @@ if (isset($_SESSION['user_id'])) {
             text-align: center;
         }
 
-        .image-container {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 2rem;
-            padding: 2rem 0;
-        }
+        @media (max-width: 1200px) {
+            .post-card {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 1.5rem;
+            }
 
-        .immagineshit1 {
-            max-width: 300px;
-        }
-
-        .dametucosita {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-            max-width: 400px;
-        }
-
-        .dametucosita2 {
-            max-width: 300px;
+            .posts-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 1rem 0;
+            }
         }
 
         @media (max-width: 768px) {
@@ -477,17 +323,9 @@ if (isset($_SESSION['user_id'])) {
 
             .post-card {
                 margin: 0 1rem;
-            }
-
-            .modal-post {
                 grid-template-columns: 1fr;
                 gap: 1rem;
                 padding: 1rem;
-            }
-
-            .modal-content {
-                margin: 1rem;
-                max-height: 90vh;
             }
 
             .add-post-card {
@@ -498,12 +336,6 @@ if (isset($_SESSION['user_id'])) {
             .form-actions {
                 flex-direction: column;
                 align-items: center;
-            }
-
-            .post-actions {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
             }
 
             .admin-controls {
@@ -517,10 +349,6 @@ if (isset($_SESSION['user_id'])) {
                 padding: 0.3rem 0.5rem;
                 font-size: 0.7rem;
             }
-
-            .image-container {
-                flex-direction: column;
-            }
         }
 
         @media (max-width: 480px) {
@@ -531,18 +359,11 @@ if (isset($_SESSION['user_id'])) {
 
             .post-card {
                 margin: 0;
-            }
-
-            .post-image-container {
-                height: 250px;
-            }
-
-            .post-content {
                 padding: 1rem;
             }
 
-            .post-title {
-                font-size: 1.1rem;
+            .post-details h2 {
+                font-size: 1.4rem;
             }
         }
         </style>
@@ -615,27 +436,21 @@ if (isset($_SESSION['user_id'])) {
                     <!-- Card 1 - Magia del Natale -->
                     <div class="posts-grid" style="margin: 2rem 0;">
                         <div class="post-card fadeup">
-                            <div class="post-image-container" onclick="openLegacyPostModal('beans.jpg', 'Questa è la magia', 'by cripsum', 'La magia del natale, quella vera', 'Shitpost originale')">
-                                <img src="../img/beans.jpg" alt="Magia del Natale" class="post-image">
-                                <div class="post-overlay">
-                                    <div class="overlay-content">
-                                        <span class="overlay-icon">👁️</span>
-                                        <span class="overlay-text">Visualizza dettagli</span>
-                                    </div>
-                                </div>
+                            <?php if ($isAdmin): ?>
+                            <div class="admin-controls">
+                                <span class="admin-btn" style="background: rgba(100, 100, 100, 0.8); cursor: default;">Legacy</span>
                             </div>
+                            <?php endif; ?>
                             
-                            <div class="post-content">
-                                <h3 class="post-title">Questa è la magia</h3>
+                            <div class="post-image">
+                                <img src="../img/beans.jpg" alt="Magia del Natale">
+                            </div>
+                            <div class="post-details">
+                                <h2>Questa è la magia</h2>
                                 <p class="post-author">by cripsum</p>
-                                <p class="post-description">
-                                    La magia del natale, quella vera
-                                </p>
-                                
-                                <div class="post-actions">
-                                    <div class="post-date">
-                                        Shitpost originale
-                                    </div>
+                                <p class="post-description">La magia del natale, quella vera</p>
+                                <div class="post-stats">
+                                    <span class="post-date">Shitpost originale</span>
                                 </div>
                             </div>
                         </div>
@@ -644,27 +459,21 @@ if (isset($_SESSION['user_id'])) {
                     <!-- Card 2 - Le mie palle quando -->
                     <div class="posts-grid" style="margin: 2rem 0;">
                         <div class="post-card fadeup">
-                            <div class="post-image-container" onclick="openLegacyPostModal('tengodiarrea.jpg', 'Le mie palle quando', 'by sk8ing ray', 'Ma soprattutto il mio culetto quando...', 'Shitpost originale')">
-                                <img src="../img/tengodiarrea.jpg" alt="Le mie palle quando" class="post-image">
-                                <div class="post-overlay">
-                                    <div class="overlay-content">
-                                        <span class="overlay-icon">👁️</span>
-                                        <span class="overlay-text">Visualizza dettagli</span>
-                                    </div>
-                                </div>
+                            <?php if ($isAdmin): ?>
+                            <div class="admin-controls">
+                                <span class="admin-btn" style="background: rgba(100, 100, 100, 0.8); cursor: default;">Legacy</span>
                             </div>
+                            <?php endif; ?>
                             
-                            <div class="post-content">
-                                <h3 class="post-title">Le mie palle quando</h3>
+                            <div class="post-image">
+                                <img src="../img/tengodiarrea.jpg" alt="Le mie palle quando">
+                            </div>
+                            <div class="post-details">
+                                <h2>Le mie palle quando</h2>
                                 <p class="post-author">by sk8ing ray</p>
-                                <p class="post-description">
-                                    Ma soprattutto il mio culetto quando...
-                                </p>
-                                
-                                <div class="post-actions">
-                                    <div class="post-date">
-                                        Shitpost originale
-                                    </div>
+                                <p class="post-description">Ma soprattutto il mio culetto quando...</p>
+                                <div class="post-stats">
+                                    <span class="post-date">Shitpost originale</span>
                                 </div>
                             </div>
                         </div>
@@ -673,26 +482,21 @@ if (isset($_SESSION['user_id'])) {
                     <!-- Card 3 - Sossio -->
                     <div class="posts-grid" style="margin: 2rem 0;">
                         <div class="post-card fadeup">
-                            <div class="post-image-container" onclick="openLegacyPostModal('sossio.png', 'Sossio, il developer', 'by lacly', 'Lui è sossio, uno sviluppatore di mod per mario kart. È anche un grande giocatore di wuthering waves e si fa tante seghe, qui avete una sua immagine mentre se la chilla con i piedi all\'aria', 'Shitpost originale')">                                <img src="../img/sossio.png" alt="Sossio" class="post-image">
-                                <div class="post-overlay">
-                                    <div class="overlay-content">
-                                        <span class="overlay-icon">👁️</span>
-                                        <span class="overlay-text">Visualizza dettagli</span>
-                                    </div>
-                                </div>
+                            <?php if ($isAdmin): ?>
+                            <div class="admin-controls">
+                                <span class="admin-btn" style="background: rgba(100, 100, 100, 0.8); cursor: default;">Legacy</span>
                             </div>
+                            <?php endif; ?>
                             
-                            <div class="post-content">
-                                <h3 class="post-title">Sossio, il developer</h3>
+                            <div class="post-image">
+                                <img src="../img/sossio.png" alt="Sossio">
+                            </div>
+                            <div class="post-details">
+                                <h2>Sossio, il developer</h2>
                                 <p class="post-author">by lacly</p>
-                                <p class="post-description">
-                                    Lui è sossio, uno sviluppatore di mod per mario kart. È anche un grande giocatore di wuthering waves e si fa tante seghe, qui avete una sua immagine mentre se la chilla con i piedi all'aria
-                                </p>
-                                
-                                <div class="post-actions">
-                                    <div class="post-date">
-                                        Shitpost originale
-                                    </div>
+                                <p class="post-description">Lui è sossio, uno sviluppatore di mod per mario kart. È anche un grande giocatore di wuthering waves e si fa tante seghe, qui avete una sua immagine mentre se la chilla con i piedi all'aria</p>
+                                <div class="post-stats">
+                                    <span class="post-date">Shitpost originale</span>
                                 </div>
                             </div>
                         </div>
@@ -709,14 +513,6 @@ if (isset($_SESSION['user_id'])) {
                         <?php if (isset($_SESSION['user_id'])): ?>
                         <button class="bottone" onclick="toggleAddPostForm()">Aggiungi il primo shitpost</button>
                         <?php endif; ?>
-                    </div>
-                </div>
-
-                <div id="postModal" class="modal-overlay" style="display: none;">
-                    <div class="modal-content">
-                        <button class="modal-close" onclick="closePostModal()" style="line-height: 1; padding-top: 0;">&times;</button>
-                        <div id="modalContent">
-                        </div>
                     </div>
                 </div>
 
@@ -845,26 +641,16 @@ if (isset($_SESSION['user_id'])) {
                         </div>
                         ` : ''}
                         
-                        <div class="post-image-container" onclick="openPostModal(${post.id}, false)">
+                        <div class="post-image">
                             <img src="data:${post.tipo_foto_shitpost};base64,${post.foto_shitpost}" 
-                                 alt="${post.titolo}" class="post-image">
-                            <div class="post-overlay">
-                                <div class="overlay-content">
-                                    <span class="overlay-icon">👁️</span>
-                                    <span class="overlay-text">Visualizza dettagli</span>
-                                </div>
-                            </div>
+                                 alt="${post.titolo}">
                         </div>
-                        
-                        <div class="post-content">
-                            <h3 class="post-title">${post.titolo}</h3>
+                        <div class="post-details">
+                            <h2>${post.titolo}</h2>
                             <p class="post-author">di ${post.username || 'Utente anonimo'}</p>
                             <p class="post-description">${post.descrizione}</p>
-                            
-                            <div class="post-actions">
-                                <div class="post-date">
-                                    ${formatDate(post.data_creazione)}
-                                </div>
+                            <div class="post-stats">
+                                <span class="post-date">${formatDate(post.data_creazione)}</span>
                             </div>
                         </div>
                     </div>
@@ -906,26 +692,16 @@ if (isset($_SESSION['user_id'])) {
                             ⏳ In attesa
                         </div>
                         
-                        <div class="post-image-container" onclick="openPostModal(${post.id}, true)">
+                        <div class="post-image">
                             <img src="data:${post.tipo_foto_shitpost};base64,${post.foto_shitpost}" 
-                                 alt="${post.titolo}" class="post-image">
-                            <div class="post-overlay">
-                                <div class="overlay-content">
-                                    <span class="overlay-icon">👁️</span>
-                                    <span class="overlay-text">Visualizza dettagli</span>
-                                </div>
-                            </div>
+                                 alt="${post.titolo}">
                         </div>
-                        
-                        <div class="post-content">
-                            <h3 class="post-title">${post.titolo}</h3>
+                        <div class="post-details">
+                            <h2>${post.titolo}</h2>
                             <p class="post-author">di ${post.username || 'Utente anonimo'}</p>
                             <p class="post-description">${post.descrizione}</p>
-                            
-                            <div class="post-actions">
-                                <div class="post-date">
-                                    ${formatDate(post.data_creazione)}
-                                </div>
+                            <div class="post-stats">
+                                <span class="post-date">${formatDate(post.data_creazione)}</span>
                             </div>
                         </div>
                     </div>
@@ -1025,60 +801,6 @@ if (isset($_SESSION['user_id'])) {
             document.getElementById('emptyState').style.display = 'block';
         }
 
-        function openPostModal(postId, isPending) {
-            const posts = isPending ? pendingPosts : allPosts;
-            const post = posts.find(p => p.id == postId);
-            if (!post) return;
-
-            const modalContent = document.getElementById('modalContent');
-            modalContent.innerHTML = `
-                <div class="modal-post">
-                    <div class="modal-image">
-                        <img src="data:${post.tipo_foto_shitpost};base64,${post.foto_shitpost}" 
-                             alt="${post.titolo}">
-                    </div>
-                    <div class="modal-details">
-                        <h2>${post.titolo}</h2>
-                        <p class="modal-author">di ${post.username || 'Utente anonimo'}</p>
-                        <p class="modal-description">${post.descrizione}</p>
-                        <div class="modal-stats">
-                            <span class="modal-date">${formatDate(post.data_creazione)}</span>
-                        </div>
-                        ${isPending ? '<p style="color: #FFD700; font-weight: bold; margin-top: 1rem;">⏳ Shitpost in attesa di approvazione</p>' : ''}
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('postModal').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
-
-        function openLegacyPostModal(imageId, title, author, description, date) {
-            const modalContent = document.getElementById('modalContent');
-            modalContent.innerHTML = `
-                <div class="modal-post">
-                    <div class="modal-image">
-                        <img src="../img/${imageId}" alt="${title}">
-                    </div>
-                    <div class="modal-details">
-                        <h2>${title}</h2>
-                        <p class="modal-author">${author}</p>
-                        <p class="modal-description">${description}</p>
-                        <div class="modal-stats">
-                            <span class="modal-date">${date}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.getElementById('postModal').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closePostModal() {
-            document.getElementById('postModal').style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-
         function toggleAddPostForm() {
             const form = document.getElementById('addPostForm');
             const button = document.getElementById('toggleButtonText');
@@ -1172,18 +894,6 @@ if (isset($_SESSION['user_id'])) {
                 year: 'numeric'
             });
         }
-
-        document.getElementById('postModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closePostModal();
-            }
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && document.getElementById('postModal').style.display === 'flex') {
-                closePostModal();
-            }
-        });
         </script>
     </body>
 </html>
