@@ -429,11 +429,7 @@ if (isset($_SESSION['user_id'])) {
                     </div>
                 </div>
 
-                <!-- Legacy content section -->
                 <div class="legacy-shitpost fadeup" style="max-width: 80%">
-                    <hr class="rounded fadeuphr" />
-                    
-                    <!-- Card 1 - Magia del Natale -->
                     <div class="posts-grid" style="margin: 2rem 0;">
                         <div class="post-card fadeup">
                             <?php if ($isAdmin): ?>
@@ -456,7 +452,6 @@ if (isset($_SESSION['user_id'])) {
                         </div>
                     </div>
 
-                    <!-- Card 2 - Le mie palle quando -->
                     <div class="posts-grid" style="margin: 2rem 0;">
                         <div class="post-card fadeup">
                             <?php if ($isAdmin): ?>
@@ -479,7 +474,6 @@ if (isset($_SESSION['user_id'])) {
                         </div>
                     </div>
 
-                    <!-- Card 3 - Sossio -->
                     <div class="posts-grid" style="margin: 2rem 0;">
                         <div class="post-card fadeup">
                             <?php if ($isAdmin): ?>
@@ -502,7 +496,6 @@ if (isset($_SESSION['user_id'])) {
                         </div>
                     </div>
                     
-                    <hr class="rounded fadeuphr" />
                 </div>
 
                 <div id="emptyState" class="empty-state fadeup" style="display: none;">
