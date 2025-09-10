@@ -100,10 +100,9 @@ if (!isLoggedIn()) {
             .modal-content.rarity-theone {
                 background: linear-gradient(90deg, #0000ff, #00bfff, #87ceeb, #add8e6, #b0e0e6, #87cefa, #4169e1, #0000ff);
                 background-size: 400% 400%;
-                animation: rainbowFlow 8s linear infinite;
-                box-shadow: 0 10px 50px rgba(255, 255, 255, 0.8);
+                animation: backgroundAnimate 5s linear infinite;
+                box-shadow: 0 10px 50px rgba(0, 11, 112, 0.8);
                 border: 3px solid #fff;
-                animation: epicPulse 3s infinite;
             }
 
             @keyframes epicPulse {
