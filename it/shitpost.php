@@ -444,7 +444,7 @@ if (isset($_SESSION['user_id'])) {
                             </div>
                             <div class="post-details">
                                 <h2>SOSSIOOOHH</h2>
-                                <p class="post-author">by lacly</p>
+                                <p class="post-author">di lacly</p>
                                 <p class="post-description">Lui è sossio, uno sviluppatore di mod per mario kart. È anche un grande giocatore di wuthering waves e si fa tante seghe, qui avete una sua immagine mentre se la chilla con i piedi all'aria</p>
                                 <div class="post-stats">
                                     <span class="post-date">10 settembre 2025</span>
@@ -465,7 +465,7 @@ if (isset($_SESSION['user_id'])) {
                             </div>
                             <div class="post-details">
                                 <h2>Questa è la magia</h2>
-                                <p class="post-author">by cripsum</p>
+                                <p class="post-author">di cripsum</p>
                                 <p class="post-description">La magia del natale, quella vera</p>
                                 <div class="post-stats">
                                     <span class="post-date">Shitpost originale</span>
@@ -487,7 +487,7 @@ if (isset($_SESSION['user_id'])) {
                             </div>
                             <div class="post-details">
                                 <h2>Le mie palle quando</h2>
-                                <p class="post-author">by sk8ing ray</p>
+                                <p class="post-author">di sk8ing ray</p>
                                 <p class="post-description">Ma soprattutto il mio culetto quando...</p>
                                 <div class="post-stats">
                                     <span class="post-date">Shitpost originale</span>
