@@ -1218,7 +1218,7 @@ require_once '../api/api_personaggi.php';
                     width: 100vw;
                     height: 100vh;
                     background: #000;
-                    z-index: 10000;
+                    z-index: -1;
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -1247,7 +1247,7 @@ require_once '../api/api_personaggi.php';
                 `;
                 video.src = '../vid/shorekeeperpull.mp4';
                 video.autoplay = true;
-                video.muted = true;
+                video.muted = false;
                 video.loop = false;
 
                 videoContainer.appendChild(video);
@@ -1262,14 +1262,14 @@ require_once '../api/api_personaggi.php';
                     videoContainer.style.opacity = '1';
                     video.play();
                 }, 800);
+                
                 bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
 
-                setTimeout(() => {
-                    introOverlay.style.opacity = '0';
-                    setTimeout(() => {
-                        document.body.removeChild(introOverlay);
-                    }, 800);
-                }, 20000);
+                // Il video rimane come sfondo permanente, non viene rimosso
+                video.addEventListener('ended', () => {
+                    video.loop = true;
+                    video.play();
+                });
             }
 
         </script>
