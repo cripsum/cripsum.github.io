@@ -385,7 +385,7 @@ if (isset($_SESSION['user_id'])) {
                 </div>
 
                 <?php if (isset($_SESSION['user_id'])): ?>
-                <div class="add-post-section fadeup" style="margin-bottom: 3rem;">
+                <div class="add-post-section fadeup" style="margin-bottom: 1rem;">
                     <div class="add-post-card">
                         <h3 class="add-post-title">Condividi il tuo shitpost con la community!</h3>
                         <button class="bottone" onclick="toggleAddPostForm()">
@@ -430,7 +430,7 @@ if (isset($_SESSION['user_id'])) {
                 </div>
 
                 <div class="legacy-shitpost fadeup" style="max-width: 80%">
-                    <div class="posts-grid" style="margin: 2rem 0;">
+                    <div class="posts-grid" style="margin: 1rem 0;">
                         <div class="post-card fadeup">
                             <?php if ($isAdmin): ?>
                             <div class="admin-controls">
@@ -452,7 +452,7 @@ if (isset($_SESSION['user_id'])) {
                         </div>
                     </div>
 
-                    <div class="posts-grid" style="margin: 2rem 0;">
+                    <div class="posts-grid" style="margin: 1rem 0;">
                         <div class="post-card fadeup">
                             <?php if ($isAdmin): ?>
                             <div class="admin-controls">
@@ -474,7 +474,7 @@ if (isset($_SESSION['user_id'])) {
                         </div>
                     </div>
 
-                    <div class="posts-grid" style="margin: 2rem 0;">
+                    <div class="posts-grid" style="margin: 1rem 0;">
                         <div class="post-card fadeup">
                             <?php if ($isAdmin): ?>
                             <div class="admin-controls">
