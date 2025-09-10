@@ -609,7 +609,7 @@ if (isset($_SESSION['user_id'])) {
                 </div>
 
                 <!-- Legacy content section -->
-                <div class="legacy-shitpost fadeup">
+                <div class="legacy-shitpost fadeup" style="color: white;">
                     <hr class="rounded fadeuphr" />
                     <div class="d-flex justify-content-around image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
                         <div class="fadeup">
