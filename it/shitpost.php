@@ -66,7 +66,7 @@ checkBan($mysqli);
                 <a style="font-weight: bolder">sk8ing ray</a>
             </div>
             <hr class="rounded fadeuphr" />
-            <div class="d-flex justify-content-around image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
+            <div class="d-flex justify-content-center image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
                 <div class="fadeup">
                     <img src="../img/sossio.png" class="ombra" alt="" style="margin: auto; max-width: 200px" />
                 </div>
