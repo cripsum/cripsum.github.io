@@ -653,6 +653,7 @@ require_once '../api/api_personaggi.php';
 
                     } else if (rarita === "theone") {
 
+                        theOnePulled = true;
                         startTheOneAnimation(pull.nome);
                         messaggioRarita.innerText = "INCREDBILE! HAI PULLATO IL PERSONAGGIO PIÙ RARO DI TUTTI!!!";
                         bagliore.style.position = "fixed";
@@ -740,6 +741,7 @@ require_once '../api/api_personaggi.php';
 
                     } else if (rarita === "theone") {
 
+                        theOnePulled = true;
                         startTheOneAnimation(pull.nome);
                         messaggioRarita.innerText = "INCREDBILE! HAI PULLATO IL PERSONAGGIO PIÙ RARO DI TUTTI!!!";
                         bagliore.style.position = "fixed";
@@ -789,8 +791,10 @@ require_once '../api/api_personaggi.php';
 
             document.addEventListener("keydown", function (event) {
                 if (event.code === "Enter") {
-                    event.preventDefault();
-                    refresh();
+                    if(!theOnePulled){
+                        event.preventDefault();
+                        refresh();
+                    }
                 }
             });
         });
