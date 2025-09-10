@@ -385,7 +385,7 @@ if (isset($_SESSION['user_id'])) {
                 </div>
 
                 <?php if (isset($_SESSION['user_id'])): ?>
-                <div class="add-post-section fadeup">
+                <div class="add-post-section fadeup" style="margin-bottom: 2rem;">
                     <div class="add-post-card">
                         <h3 class="add-post-title">Condividi il tuo shitpost con la community!</h3>
                         <button class="bottone" onclick="toggleAddPostForm()">
