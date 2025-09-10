@@ -97,6 +97,15 @@ if (!isLoggedIn()) {
     border: 2px solid #8b00ff;
             }
 
+            .modal-content.rarity-theone {
+                background: linear-gradient(90deg, #0000ff, #00bfff, #87ceeb, #add8e6, #b0e0e6, #87cefa, #4169e1, #0000ff);
+                background-size: 400% 400%;
+                animation: rainbowFlow 8s linear infinite;
+                box-shadow: 0 10px 50px rgba(255, 255, 255, 0.8);
+                border: 3px solid #fff;
+                animation: epicPulse 3s infinite;
+            }
+
             @keyframes epicPulse {
                         0%, 100% { 
                             transform: scale(1); 
@@ -415,7 +424,7 @@ if (!isLoggedIn()) {
         animateNumber(document.getElementById("totalCharactersNum"), totalCharactersNum);
         animateNumber(document.getElementById("completionRate"), completionRate, "%");
 
-        const rarityOrder = ["comune", "raro", "epico", "leggendario", "speciale", "segreto"];
+        const rarityOrder = ["comune", "raro", "epico", "leggendario", "speciale", "segreto", "theone"];
 
         rarityOrder.forEach((rarity, index) => {
             const section = document.createElement("div");
