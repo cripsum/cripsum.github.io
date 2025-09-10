@@ -98,7 +98,7 @@ if (!isLoggedIn()) {
             }
 
             .modal-content.rarity-theone {
-                background: linear-gradient(90deg, #0000ff, #00bfff, #87cefa, #4169e1, #0000ff);
+                background: linear-gradient(90deg, #0000ff, #00bfff,rgb(52, 164, 255), #4169e1, #0000ff);
                 background-size: 300% 300%;
                 animation: backgroundAnimate 5s linear infinite;
                 box-shadow: 0 10px 50px rgba(0, 11, 112, 0.8);
