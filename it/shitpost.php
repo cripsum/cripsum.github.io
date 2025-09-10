@@ -26,7 +26,7 @@ checkBan($mysqli);
             <div class="shitposttext">
                 <p class="fs-4 text mt-3 fadeup" style="text-align: center">
                     Hey, hai dei meme o contenuti shitpost che sarebbero perfetti per questa pagina? manda tutto via e-mail a
-                    <a href="mailto:sburra@cripsum.com" class="linkbianco">shitpost@cripsum.com</a> inserendo anche il tuo username, ti verranno dati i crediti per aver contribuito.
+                    <a href="mailto:sburra@cripsum.com" class="linkbianco">dio.covid@gmail.com</a> inserendo anche il tuo username, ti verranno dati i crediti per aver contribuito.
                 </p>
                 <p class="fs-5 text mt-3 fadeup" style="font-weight: bold; text-align: center">grazie in anticipo.</p>
             </div>
@@ -66,6 +66,19 @@ checkBan($mysqli);
                 <a style="font-weight: bolder">sk8ing ray</a>
             </div>
             <hr class="rounded fadeuphr" />
+            <div class="d-flex justify-content-around image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
+                <div class="fadeup">
+                    <img src="../img/sossio.png" class="ombra" alt="" style="margin: auto; max-width: 200px" />
+                </div>
+                <div class="fadeup">
+                    <br />
+                    <p class="fs-5" style="text-align: center">Lui è sossio, uno sviluppatore di mod per mario kart. è anche un grande giocatore di wuthering waves e si fa tante seghe, qui lo avete una sua immagine mentre se la chilla con i piedi all'aria</p>
+                </div>
+            </div>
+            <div style="margin: auto; max-width: 80%; text-align: center" class="fadeup">
+                <a style="text-align: center">by</a>
+                <a style="font-weight: bolder">lacly</a>
+            </div>
         </div>
         <?php include '../includes/footer.php'; ?>
         <script

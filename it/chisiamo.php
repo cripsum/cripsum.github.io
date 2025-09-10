@@ -241,6 +241,20 @@ checkBan($mysqli);
                         </div>
                     </div>
                 </div>
+
+                <div class="team-member">
+                    <div class="member-content">
+                        <div class="member-image">
+                            <img src="../img/zazzo.png" alt="Zazzo" />
+                        </div>
+                        <div class="member-info">
+                            <h3 class="member-name">Zazzo</h3>
+                            <p class="member-description">
+                                Scarso in culo in tutti i videogiochi, ma tifa la MAGGICA ROMA
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
