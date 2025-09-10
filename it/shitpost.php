@@ -609,7 +609,7 @@ if (isset($_SESSION['user_id'])) {
                 </div>
 
                 <!-- Legacy content section -->
-                <div class="legacy-shitpost fadeup">
+                <div class="legacy-shitpost fadeup" style="max-width: 80%">
                     <hr class="rounded fadeuphr" />
                     
                     <!-- Card 1 - Magia del Natale -->
