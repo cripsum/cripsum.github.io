@@ -608,36 +608,6 @@ if (isset($_SESSION['user_id'])) {
                     </div>
                 </div>
 
-                <?php if ($isAdmin): ?>
-                <div id="adminSection" class="admin-section" style="display: none;">
-                    <h2 class="admin-title">👑 Pannello Admin - Shitpost in Attesa</h2>
-                    <p class="admin-subtitle">Gestisci i shitpost in attesa di approvazione</p>
-                    
-                    <div id="loadingPendingState" class="loading-container">
-                        <div class="loading_white">
-                            <div class="loading__dot_white"></div>
-                            <div class="loading__dot_white"></div>
-                            <div class="loading__dot_white"></div>
-                        </div>
-                        <p class="testobianco" style="text-align: center; margin-top: 1rem;">Caricamento shitpost in attesa...</p>
-                    </div>
-
-                    <div id="pendingPostsContainer" class="posts-section" style="display: none;">
-                        <div id="pendingPostsGrid" class="posts-grid">
-
-                        </div>
-                    </div>
-
-                    <div id="noPendingPosts" class="empty-state" style="display: none;">
-                        <div class="empty-card">
-                            <div class="empty-icon">✅</div>
-                            <h3>Nessun shitpost in attesa</h3>
-                            <p>Tutti i shitpost sono stati gestiti.</p>
-                        </div>
-                    </div>
-                </div>
-                <?php endif; ?>
-
                 <!-- Legacy content section -->
                 <div class="legacy-shitpost fadeup">
                     <hr class="rounded fadeuphr" />
@@ -709,6 +679,36 @@ if (isset($_SESSION['user_id'])) {
                         </div>
                     </div>
                 </div>
+
+                <?php if ($isAdmin): ?>
+                <div id="adminSection" class="admin-section" style="display: none;">
+                    <h2 class="admin-title">👑 Pannello Admin - Shitpost in Attesa</h2>
+                    <p class="admin-subtitle">Gestisci i shitpost in attesa di approvazione</p>
+                    
+                    <div id="loadingPendingState" class="loading-container">
+                        <div class="loading_white">
+                            <div class="loading__dot_white"></div>
+                            <div class="loading__dot_white"></div>
+                            <div class="loading__dot_white"></div>
+                        </div>
+                        <p class="testobianco" style="text-align: center; margin-top: 1rem;">Caricamento shitpost in attesa...</p>
+                    </div>
+
+                    <div id="pendingPostsContainer" class="posts-section" style="display: none;">
+                        <div id="pendingPostsGrid" class="posts-grid">
+
+                        </div>
+                    </div>
+
+                    <div id="noPendingPosts" class="empty-state" style="display: none;">
+                        <div class="empty-card">
+                            <div class="empty-icon">✅</div>
+                            <h3>Nessun shitpost in attesa</h3>
+                            <p>Tutti i shitpost sono stati gestiti.</p>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
 
