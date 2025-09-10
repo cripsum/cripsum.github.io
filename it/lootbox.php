@@ -1245,7 +1245,7 @@ require_once '../api/api_personaggi.php';
                     height: 100%;
                     object-fit: cover;
                 `;
-                video.src = '../video/shorekeeperpull.mp4';
+                video.src = '../vid/shorekeeperpull.mp4';
                 video.autoplay = true;
                 video.muted = true;
                 video.loop = false;
@@ -1262,13 +1262,14 @@ require_once '../api/api_personaggi.php';
                     videoContainer.style.opacity = '1';
                     video.play();
                 }, 800);
+                bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
 
                 setTimeout(() => {
                     introOverlay.style.opacity = '0';
                     setTimeout(() => {
                         document.body.removeChild(introOverlay);
                     }, 800);
-                }, 10000);
+                }, 20000);
             }
 
         </script>
