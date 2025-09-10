@@ -850,7 +850,7 @@ require_once '../api/api_personaggi.php';
                 if (casseAperte >= 500) {
                     unlockAchievement(16);
                 }
-                if (inventory.length === 46) {
+                if (inventory.length === 47) {
                     unlockAchievement(18);
                 }
             }
