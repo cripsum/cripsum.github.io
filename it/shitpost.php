@@ -651,38 +651,6 @@ if (isset($_SESSION['user_id'])) {
                             <p class="fs-6" style="font-weight: bold; text-align: center">quella vera</p>
                         </div>
                         <div class="immagineshit1 fadeup">
-                            <img class="immagineshit1 ombra" src="../img/beans.jpg" alt="" />
-                        </div>
-                        <div class="fadeup">
-                            <img src="../img/saltellante.gif" class="ombra" alt="" style="margin: auto; max-width: 100%" />
-                        </div>
-                    </div>
-                    <div style="margin: auto; max-width: 80%; text-align: center" class="fadeup">
-                        <a style="text-align: center">by</a>
-                        <a style="font-weight: bolder">cripsum</a>
-                    </div>
-                    <hr class="rounded fadeuphr" />
-                    <div class="d-flex justify-content-center image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
-                        <div class="dametucosita">
-                            <p class="fs-5 fadeup" style="font-weight: bold; text-align: center">le mie palle quando:</p>
-                            <p class="fs-6 mt-2 fadeup" style="font-weight: bold; text-align: center">ma soprattutto il mio culetto quando:</p>
-                            <img style="display: block" class="ombra fadeup" src="../img/tengodiarrea.jpg" alt="" />
-                            <img src="../img/cesso.gif" class="ombra fadeup" alt="" />
-                        </div>
-                        <div class="mt-4 fadeup">
-                            <img class="dametucosita2 ombra" src="../img/dametucositait.gif" alt="" />
-                        </div>
-                    </div>
-                    <div style="margin: auto; max-width: 80%; text-align: center" class="fadeup">
-                        <a style="text-align: center">by</a>
-                        <a style="font-weight: bolder">sk8ing ray</a>
-                    </div>
-                    <hr class="rounded fadeuphr" />
-                    <div class="d-flex justify-content-center image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
-                        <div class="fadeup">
-                            <img src="../img/sossio.png" class="ombra" alt="" style="margin: auto; max-width: 200px" />
-                        </div>
-                        <div class="fadeup">
                             <br />
                             <p class="fs-6" style="text-align: center; font-weight: normal; max-width: 700px">Lui è sossio, uno sviluppatore di mod per mario kart. è anche un grande giocatore di wuthering waves e si fa tante seghe, qui avete una sua immagine mentre se la chilla con i piedi all'aria</p>
                         </div>
@@ -857,9 +825,6 @@ if (isset($_SESSION['user_id'])) {
                                 <div class="post-date">
                                     ${formatDate(post.data_creazione)}
                                 </div>
-                                <button class="view-btn" onclick="openPostModal(${post.id}, false)">
-                                    Visualizza
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -921,9 +886,6 @@ if (isset($_SESSION['user_id'])) {
                                 <div class="post-date">
                                     ${formatDate(post.data_creazione)}
                                 </div>
-                                <button class="view-btn" onclick="openPostModal(${post.id}, true)">
-                                    Visualizza
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -1042,7 +1004,7 @@ if (isset($_SESSION['user_id'])) {
                         <div class="modal-stats">
                             <span class="modal-date">${formatDate(post.data_creazione)}</span>
                         </div>
-                        ${isPending ? '<p style="color: #f59e0b; font-weight: bold; margin-top: 1rem;">⏳ Shitpost in attesa di approvazione</p>' : ''}
+                        ${isPending ? '<p style="color: #FFD700; font-weight: bold; margin-top: 1rem;">⏳ Shitpost in attesa di approvazione</p>' : ''}
                     </div>
                 </div>
             `;
