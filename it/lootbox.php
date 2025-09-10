@@ -284,6 +284,7 @@ require_once '../api/api_personaggi.php';
 
             var casseAperte;
             var comuniDiFila;
+            var theOnePulled = false;
             //|| {
             //    comune: 45,
             //    raro: 25,
