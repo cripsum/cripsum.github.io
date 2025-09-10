@@ -200,6 +200,12 @@ require_once '../api/api_personaggi.php';
                                             <label class="form-check-label" for="SoloComuni">Solo Comuni</label>
                                         </div>
                                     </div>
+                                    <div class="col-md-6 d-flex" style="text-align: center">
+                                        <div class="form-check mb-3 mb-md-0" style="text-align: center">
+                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloTheOne" />
+                                            <label class="form-check-label" for="SoloTheOne">Solo The One</label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <?php endif; ?>
@@ -262,6 +268,7 @@ require_once '../api/api_personaggi.php';
             const soloSpecialiCheckbox = document.getElementById("SoloSpeciali");
             const rimuoviAnimeCheckbox = document.getElementById("RimuoviAnime");
             const soloPoppyCheckbox = document.getElementById("SoloPoppy");
+            const soloTheOneCheckbox = document.getElementById("SoloTheOne");
 
             const codiceSegreto = document.getElementById("codiceSegreto");
 
@@ -461,6 +468,7 @@ require_once '../api/api_personaggi.php';
                             leggendario: 0,
                             speciale: 100,
                             segreto: 0,
+                            theone: 0,
                         });
                     } else if (preferences.SoloSegreti === true) {
                         return (rarityProbabilities = {
@@ -470,6 +478,7 @@ require_once '../api/api_personaggi.php';
                             leggendario: 0,
                             speciale: 0,
                             segreto: 100,
+                            theone: 0,
                         });
                     } else if (preferences.SoloComuni === true) {
                         return (rarityProbabilities = {
@@ -479,15 +488,27 @@ require_once '../api/api_personaggi.php';
                             leggendario: 0,
                             speciale: 0,
                             segreto: 0,
+                            theone: 0,
+                        });
+                    } else if (preferences.SoloTheOne === true) {
+                        return (rarityProbabilities = {
+                            comune: 0,
+                            raro: 0,
+                            epico: 0,
+                            leggendario: 0,
+                            speciale: 0,
+                            segreto: 0,
+                            theone: 100,
                         });
                     } else {
                         return (rarityProbabilities = {
                             comune: 52,
                             raro: 27,
                             epico: 12,
-                            leggendario: 8,
+                            leggendario: 7.999,
                             speciale: 0.9,
                             segreto: 0.1,
+                            theone: 0.001,
                         });
                     }
                 }
@@ -496,9 +517,10 @@ require_once '../api/api_personaggi.php';
                     comune: 52,
                     raro: 27,
                     epico: 12,
-                    leggendario: 8,
+                    leggendario: 7.999,
                     speciale: 0.9,
                     segreto: 0.1,
+                    theone: 0.001,
                 });
             }
 
@@ -592,7 +614,17 @@ require_once '../api/api_personaggi.php';
                         bagliore.style.height = "100vh";
                         bagliore.style.zIndex = "-1";
 
+                    } else if (rarita === "theone") {
+
+                        startIntroAnimation(pull.nome);
+                        messaggioRarita.innerText = "INCREDBILE! HAI PULLATO IL PERSONAGGIO PIÙ RARO DI TUTTI!!!";
+                        bagliore.style.position = "fixed";
+                        bagliore.style.width = "100vw";
+                        bagliore.style.height = "100vh";
+                        bagliore.style.zIndex = "-1";
+
                     }
+
                     document.getElementById("suonoCassa").innerHTML = `
                         <source src="/audio/${pull.audio_url}" type="audio/mpeg" id="suono" />
                     `;
@@ -664,6 +696,15 @@ require_once '../api/api_personaggi.php';
 
                         startIntroAnimation(pull.nome);
                         messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
+                        bagliore.style.position = "fixed";
+                        bagliore.style.width = "100vw";
+                        bagliore.style.height = "100vh";
+                        bagliore.style.zIndex = "-1";
+
+                    } else if (rarita === "theone") {
+
+                        startTheOneAnimation(pull.nome);
+                        messaggioRarita.innerText = "INCREDBILE! HAI PULLATO IL PERSONAGGIO PIÙ RARO DI TUTTI!!!";
                         bagliore.style.position = "fixed";
                         bagliore.style.width = "100vw";
                         bagliore.style.height = "100vh";
@@ -1166,6 +1207,68 @@ require_once '../api/api_personaggi.php';
                         document.head.removeChild(enhancedStyle);
                     }, 1200);
                 }, 4000);
+            }
+
+            function startTheOneAnimation(nome_personaggio) {
+                const introOverlay = document.createElement('div');
+                introOverlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100vh;
+                    background: #000;
+                    z-index: 10000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    overflow: hidden;
+                    opacity: 0;
+                    transition: opacity 0.8s ease-in-out;
+                `;
+
+                const videoContainer = document.createElement('div');
+                videoContainer.style.cssText = `
+                    position: relative;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    opacity: 0;
+                    transition: opacity 1s ease-out;
+                `;
+
+                const video = document.createElement('video');
+                video.style.cssText = `
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                `;
+                video.src = '../video/shorekeeperpull.mp4';
+                video.autoplay = true;
+                video.muted = true;
+                video.loop = false;
+
+                videoContainer.appendChild(video);
+                introOverlay.appendChild(videoContainer);
+                document.body.appendChild(introOverlay);
+
+                setTimeout(() => {
+                    introOverlay.style.opacity = '1';
+                }, 100);
+
+                setTimeout(() => {
+                    videoContainer.style.opacity = '1';
+                    video.play();
+                }, 800);
+
+                setTimeout(() => {
+                    introOverlay.style.opacity = '0';
+                    setTimeout(() => {
+                        document.body.removeChild(introOverlay);
+                    }, 800);
+                }, 10000);
             }
 
         </script>
