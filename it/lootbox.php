@@ -307,6 +307,34 @@ require_once '../api/api_personaggi.php';
                 }
             }
 
+            function testRandomicity(iterations = 10000) {
+                console.log("🎲 Test randomicità con", iterations, "pull:");
+                console.log("Probabilità teoriche:", rarityProbabilities);
+                
+                const results = {};
+                const startTime = performance.now();
+                
+                for (let i = 0; i < iterations; i++) {
+                    const rarity = getRandomRarity();
+                    results[rarity] = (results[rarity] || 0) + 1;
+                }
+                
+                const endTime = performance.now();
+                console.log(`⏱️ Test completato in ${(endTime - startTime).toFixed(2)}ms`);
+                
+                console.log("\n📊 RISULTATI:");
+                for (let [rarity, count] of Object.entries(results)) {
+                    const percentage = ((count / iterations) * 100).toFixed(3);
+                    const expected = rarityProbabilities[rarity];
+                    const difference = Math.abs(percentage - expected).toFixed(3);
+                    const status = difference < 1 ? "✅" : difference < 2 ? "⚠️" : "❌";
+                    
+                    console.log(`${status} ${rarity}: ${count} (${percentage}%) - Atteso: ${expected}% - Diff: ${difference}%`);
+                }
+                
+                return results;
+            }
+
             function createStars() {
                 const starsContainer = document.getElementById('stars');
                 for (let i = 0; i < 100; i++) {
