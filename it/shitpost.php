@@ -72,7 +72,7 @@ checkBan($mysqli);
                 </div>
                 <div class="fadeup">
                     <br />
-                    <p class="fs-6" style="text-align: center; font-weight: normal; max-width: 70%">Lui è sossio, uno sviluppatore di mod per mario kart. è anche un grande giocatore di wuthering waves e si fa tante seghe, qui lo avete una sua immagine mentre se la chilla con i piedi all'aria</p>
+                    <p class="fs-5" style="text-align: center; font-weight: normal; max-width: 700px">Lui è sossio, uno sviluppatore di mod per mario kart. è anche un grande giocatore di wuthering waves e si fa tante seghe, qui lo avete una sua immagine mentre se la chilla con i piedi all'aria</p>
                 </div>
             </div>
             <div style="margin: auto; max-width: 80%; text-align: center" class="fadeup">
