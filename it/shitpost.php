@@ -30,155 +30,156 @@ if (isset($_SESSION['user_id'])) {
         }
 
         .posts-section {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 1rem;
         }
 
         .posts-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
             padding: 2rem 0;
         }
 
         .post-card {
-            background: #ffffff;
-            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(15px);
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             opacity: 0;
             transform: translateY(20px);
-            border: 1px solid #e5e7eb;
+            max-width: 900px;
         }
 
         .post-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(100, 200, 255, 0.1);
+            border-color: rgba(100, 200, 255, 0.2);
         }
 
         /* Admin section styles */
         .admin-section {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             margin-top: 3rem;
-            padding: 0 1rem;
             padding-top: 2rem;
-            border-top: 2px solid #fbbf24;
+            border-top: 2px solid rgba(255, 215, 0, 0.3);
         }
 
         .admin-title {
-            color: #f59e0b;
+            color: #FFD700;
             font-size: 1.8rem;
-            font-weight: 700;
+            font-weight: 600;
             margin-bottom: 1rem;
             text-align: center;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
 
         .admin-subtitle {
-            color: #9ca3af;
+            color: rgba(255, 215, 0, 0.8);
             text-align: center;
             margin-bottom: 2rem;
             font-style: italic;
         }
 
         .pending-post {
-            background: #fef3c7;
-            border: 2px solid #fbbf24;
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 215, 0, 0.08) 100%);
+            border: 2px solid rgba(255, 215, 0, 0.4);
         }
 
         .admin-controls {
             position: absolute;
-            top: 0.75rem;
-            right: 0.75rem;
+            top: 1rem;
+            right: 1rem;
             z-index: 10;
             display: flex;
             gap: 0.5rem;
         }
 
         .admin-btn {
-            background: rgba(0, 0, 0, 0.7);
-            border: none;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
+            padding: 0.5rem;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 0.8rem;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
 
         .admin-btn.approve {
-            background: #10b981;
+            background: linear-gradient(135deg, #2ed573, #1e90ff);
         }
 
         .admin-btn.approve:hover {
-            background: #059669;
+            background: linear-gradient(135deg, #1e90ff, #2ed573);
             transform: scale(1.05);
         }
 
         .admin-btn.delete {
-            background: #ef4444;
+            background: linear-gradient(135deg, #ff4757, #ff3838);
         }
 
         .admin-btn.delete:hover {
-            background: #dc2626;
+            background: linear-gradient(135deg, #ff3838, #ff2f2f);
             transform: scale(1.05);
         }
 
         .admin-btn.disapprove {
-            background: #f97316;
+            background: linear-gradient(135deg, #ffa502, #ff6348);
         }
 
         .admin-btn.disapprove:hover {
-            background: #ea580c;
+            background: linear-gradient(135deg, #ff6348, #ffa502);
             transform: scale(1.05);
         }
 
         .approval-status {
             position: absolute;
-            top: 0.75rem;
-            left: 0.75rem;
+            top: 1rem;
+            left: 1rem;
             z-index: 10;
-            background: #10b981;
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            background: rgba(255, 215, 0, 0.9);
+            color: black;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
         }
 
         .approval-status.pending {
-            background: #f59e0b;
+            background: rgba(255, 193, 7, 0.9);
         }
 
         .approval-status.approved {
-            background: #10b981;
+            background: rgba(46, 213, 115, 0.9);
+            color: white;
         }
 
         .post-image-container {
             position: relative;
-            width: 100%;
-            height: 250px;
+            height: 300px;
             overflow: hidden;
             cursor: pointer;
-            background: #f3f4f6;
+            background: linear-gradient(135deg, rgba(30, 32, 42, 0.8) 0%, rgba(40, 45, 60, 0.8) 100%);
         }
 
         .post-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.3s ease;
+            transition: transform 0.5s ease;
+            filter: brightness(0.9) contrast(1.1);
         }
 
         .post-card:hover .post-image {
-            transform: scale(1.02);
+            transform: scale(1.05);
+            filter: brightness(1) contrast(1.2);
         }
 
         .post-overlay {
@@ -187,12 +188,13 @@ if (isset($_SESSION['user_id'])) {
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(30, 32, 42, 0.7));
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(2px);
         }
 
         .post-card:hover .post-overlay {
@@ -207,94 +209,69 @@ if (isset($_SESSION['user_id'])) {
 
         .overlay-icon {
             display: block;
-            font-size: 1.5rem;
+            font-size: 2rem;
             margin-bottom: 0.5rem;
         }
 
         .post-content {
-            padding: 1.25rem;
+            padding: 1.5rem;
         }
 
         .post-title {
-            color: #111827;
-            font-size: 1.25rem;
-            font-weight: 700;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 600;
             margin-bottom: 0.5rem;
             line-height: 1.3;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
         }
 
         .post-author {
-            color: #6b7280;
-            font-size: 0.875rem;
-            margin-bottom: 0.75rem;
-            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            font-style: italic;
         }
 
         .post-description {
-            color: #374151;
-            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1rem;
             line-height: 1.5;
-            margin-bottom: 1rem;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+            margin-bottom: 1.5rem;
         }
 
         .post-actions {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
-            border-top: 1px solid #e5e7eb;
-            padding-top: 0.75rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .post-date {
-            color: #9ca3af;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .view-btn {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.2s ease;
-        }
-
-        .view-btn:hover {
-            background: #2563eb;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
         }
 
         .add-post-section {
             max-width: 800px;
             margin: 0 auto;
-            padding: 0 1rem;
         }
 
         .add-post-card {
-            background: #ffffff;
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(15px);
             padding: 2rem;
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
         }
 
         .add-post-title {
-            color: #111827;
+            color: white;
             font-size: 1.5rem;
             margin-bottom: 1.5rem;
-            font-weight: 700;
+            font-weight: 600;
         }
 
         .add-post-form {
@@ -309,27 +286,18 @@ if (isset($_SESSION['user_id'])) {
         .form-group input,
         .form-group textarea {
             width: 100%;
-            padding: 0.75rem;
-            border-radius: 8px;
-            background: #ffffff;
-            color: #111827;
-            border: 1px solid #d1d5db;
-            font-size: 0.95rem;
-            transition: border-color 0.2s ease;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            padding: 1rem;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(51, 51, 51, 0.9), rgba(40, 40, 40, 0.95));
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 1rem;
         }
 
         .form-group small {
             display: block;
             margin-top: 0.5rem;
             font-size: 0.8rem;
-            color: #6b7280;
         }
 
         .form-actions {
@@ -355,38 +323,36 @@ if (isset($_SESSION['user_id'])) {
         }
 
         .modal-content {
-            background: #ffffff;
-            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(30, 30, 30, 0.95), rgba(20, 20, 20, 0.98));
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             max-width: 900px;
             width: 100%;
             max-height: 80vh;
             overflow-y: auto;
             position: relative;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
         }
 
         .modal-close {
             position: absolute;
             top: 1rem;
             right: 1rem;
-            background: rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.1);
             border: none;
-            color: #6b7280;
-            font-size: 1.5rem;
+            color: white;
+            font-size: 2rem;
             width: 40px;
             height: 40px;
             border-radius: 50%;
             cursor: pointer;
             z-index: 10001;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            transition: all 0.3s ease;
         }
 
         .modal-close:hover {
-            background: rgba(0, 0, 0, 0.2);
-            color: #374151;
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
         }
 
         .modal-post {
@@ -399,25 +365,23 @@ if (isset($_SESSION['user_id'])) {
         .modal-image img {
             width: 100%;
             height: auto;
-            border-radius: 8px;
+            border-radius: 12px;
         }
 
         .modal-details h2 {
-            color: #111827;
+            color: white;
             margin-bottom: 1rem;
             font-size: 1.8rem;
-            font-weight: 700;
         }
 
         .modal-author {
-            color: #6b7280;
+            color: rgba(255, 255, 255, 0.7);
             font-style: italic;
             margin-bottom: 1rem;
-            font-weight: 500;
         }
 
         .modal-description {
-            color: #374151;
+            color: rgba(255, 255, 255, 0.85);
             line-height: 1.6;
             margin-bottom: 1.5rem;
         }
@@ -426,10 +390,8 @@ if (isset($_SESSION['user_id'])) {
             display: flex;
             justify-content: flex-end;
             align-items: center;
-            color: #9ca3af;
+            color: rgba(255, 255, 255, 0.7);
             font-size: 0.9rem;
-            border-top: 1px solid #e5e7eb;
-            padding-top: 1rem;
         }
 
         .empty-state {
@@ -438,13 +400,13 @@ if (isset($_SESSION['user_id'])) {
         }
 
         .empty-card {
-            background: #ffffff;
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(15px);
             padding: 3rem;
             max-width: 500px;
             margin: 0 auto;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .empty-icon {
@@ -453,14 +415,13 @@ if (isset($_SESSION['user_id'])) {
         }
 
         .empty-card h3 {
-            color: #111827;
+            color: white;
             margin-bottom: 1rem;
             font-size: 1.5rem;
-            font-weight: 700;
         }
 
         .empty-card p {
-            color: #6b7280;
+            color: rgba(255, 255, 255, 0.7);
             margin-bottom: 2rem;
             line-height: 1.6;
         }
@@ -510,8 +471,12 @@ if (isset($_SESSION['user_id'])) {
         @media (max-width: 768px) {
             .posts-grid {
                 grid-template-columns: 1fr;
-                gap: 1rem;
+                gap: 1.5rem;
                 padding: 1rem 0;
+            }
+
+            .post-card {
+                margin: 0 1rem;
             }
 
             .modal-post {
@@ -526,7 +491,7 @@ if (isset($_SESSION['user_id'])) {
             }
 
             .add-post-card {
-                margin: 0;
+                margin: 0 1rem;
                 padding: 1.5rem;
             }
 
@@ -548,6 +513,11 @@ if (isset($_SESSION['user_id'])) {
                 gap: 0.3rem;
             }
 
+            .admin-btn {
+                padding: 0.3rem 0.5rem;
+                font-size: 0.7rem;
+            }
+
             .image-container {
                 flex-direction: column;
             }
@@ -556,17 +526,15 @@ if (isset($_SESSION['user_id'])) {
         @media (max-width: 480px) {
             .posts-grid {
                 grid-template-columns: minmax(280px, 1fr);
-                padding: 0.5rem 0;
+                padding: 0.5rem;
             }
 
-            .posts-section,
-            .admin-section,
-            .add-post-section {
-                padding: 0 0.5rem;
+            .post-card {
+                margin: 0;
             }
 
             .post-image-container {
-                height: 200px;
+                height: 250px;
             }
 
             .post-content {
@@ -613,7 +581,7 @@ if (isset($_SESSION['user_id'])) {
                                 </div>
                                 <div class="form-group">
                                     <input type="file" name="foto_shitpost" accept="image/*" required>
-                                    <small>Carica il tuo meme o shitpost (JPEG, PNG, GIF o WebP)</small>
+                                    <small style="color: rgba(255,255,255,0.7);">Carica il tuo meme o shitpost (JPEG, PNG, GIF o WebP)</small>
                                 </div>
                                 <div class="form-actions">
                                     <button type="submit" class="bottone">Invia Shitpost</button>
@@ -651,6 +619,38 @@ if (isset($_SESSION['user_id'])) {
                             <p class="fs-6" style="font-weight: bold; text-align: center">quella vera</p>
                         </div>
                         <div class="immagineshit1 fadeup">
+                            <img class="immagineshit1 ombra" src="../img/beans.jpg" alt="" />
+                        </div>
+                        <div class="fadeup">
+                            <img src="../img/saltellante.gif" class="ombra" alt="" style="margin: auto; max-width: 100%" />
+                        </div>
+                    </div>
+                    <div style="margin: auto; max-width: 80%; text-align: center" class="fadeup">
+                        <a style="text-align: center">by</a>
+                        <a style="font-weight: bolder">cripsum</a>
+                    </div>
+                    <hr class="rounded fadeuphr" />
+                    <div class="d-flex justify-content-center image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
+                        <div class="dametucosita">
+                            <p class="fs-5 fadeup" style="font-weight: bold; text-align: center">le mie palle quando:</p>
+                            <p class="fs-6 mt-2 fadeup" style="font-weight: bold; text-align: center">ma soprattutto il mio culetto quando:</p>
+                            <img style="display: block" class="ombra fadeup" src="../img/tengodiarrea.jpg" alt="" />
+                            <img src="../img/cesso.gif" class="ombra fadeup" alt="" />
+                        </div>
+                        <div class="mt-4 fadeup">
+                            <img class="dametucosita2 ombra" src="../img/dametucositait.gif" alt="" />
+                        </div>
+                    </div>
+                    <div style="margin: auto; max-width: 80%; text-align: center" class="fadeup">
+                        <a style="text-align: center">by</a>
+                        <a style="font-weight: bolder">sk8ing ray</a>
+                    </div>
+                    <hr class="rounded fadeuphr" />
+                    <div class="d-flex justify-content-center image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
+                        <div class="fadeup">
+                            <img src="../img/sossio.png" class="ombra" alt="" style="margin: auto; max-width: 200px" />
+                        </div>
+                        <div class="fadeup">
                             <br />
                             <p class="fs-6" style="text-align: center; font-weight: normal; max-width: 700px">Lui è sossio, uno sviluppatore di mod per mario kart. è anche un grande giocatore di wuthering waves e si fa tante seghe, qui avete una sua immagine mentre se la chilla con i piedi all'aria</p>
                         </div>
