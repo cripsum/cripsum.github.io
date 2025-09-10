@@ -615,12 +615,12 @@ if (isset($_SESSION['user_id'])) {
                     <!-- Card 1 - Magia del Natale -->
                     <div class="posts-grid" style="margin: 2rem 0;">
                         <div class="post-card fadeup">
-                            <div class="post-image-container">
+                            <div class="post-image-container" onclick="openLegacyPostModal('beans', 'Questa è la magia', 'by cripsum', 'La magia del natale, quella vera', 'Shitpost originale')">
                                 <img src="../img/beans.jpg" alt="Magia del Natale" class="post-image">
                                 <div class="post-overlay">
                                     <div class="overlay-content">
-                                        <span class="overlay-icon">✨</span>
-                                        <span class="overlay-text">La magia del natale</span>
+                                        <span class="overlay-icon">👁️</span>
+                                        <span class="overlay-text">Visualizza dettagli</span>
                                     </div>
                                 </div>
                             </div>
@@ -644,12 +644,12 @@ if (isset($_SESSION['user_id'])) {
                     <!-- Card 2 - Le mie palle quando -->
                     <div class="posts-grid" style="margin: 2rem 0;">
                         <div class="post-card fadeup">
-                            <div class="post-image-container">
+                            <div class="post-image-container" onclick="openLegacyPostModal('tengodiarrea', 'Le mie palle quando', 'by sk8ing ray', 'Ma soprattutto il mio culetto quando...', 'Shitpost originale')">
                                 <img src="../img/tengodiarrea.jpg" alt="Le mie palle quando" class="post-image">
                                 <div class="post-overlay">
                                     <div class="overlay-content">
-                                        <span class="overlay-icon">💩</span>
-                                        <span class="overlay-text">Dame tu cosita</span>
+                                        <span class="overlay-icon">👁️</span>
+                                        <span class="overlay-text">Visualizza dettagli</span>
                                     </div>
                                 </div>
                             </div>
@@ -673,12 +673,11 @@ if (isset($_SESSION['user_id'])) {
                     <!-- Card 3 - Sossio -->
                     <div class="posts-grid" style="margin: 2rem 0;">
                         <div class="post-card fadeup">
-                            <div class="post-image-container">
-                                <img src="../img/sossio.png" alt="Sossio" class="post-image">
+                            <div class="post-image-container" onclick="openLegacyPostModal('sossio', 'Sossio, il developer', 'by lacly', 'Lui è sossio, uno sviluppatore di mod per mario kart. È anche un grande giocatore di wuthering waves e si fa tante seghe, qui avete una sua immagine mentre se la chilla con i piedi all\'aria', 'Shitpost originale')">                                <img src="../img/sossio.png" alt="Sossio" class="post-image">
                                 <div class="post-overlay">
                                     <div class="overlay-content">
-                                        <span class="overlay-icon">🎮</span>
-                                        <span class="overlay-text">Sossio developer</span>
+                                        <span class="overlay-icon">👁️</span>
+                                        <span class="overlay-text">Visualizza dettagli</span>
                                     </div>
                                 </div>
                             </div>
