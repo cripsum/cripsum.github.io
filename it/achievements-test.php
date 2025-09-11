@@ -1,4 +1,10 @@
 <?php
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+ini_set('error_log', '../logs/php_errors.log');
+
 ini_set('session.gc_maxlifetime', 604800);
 session_set_cookie_params(604800);
 session_start();
