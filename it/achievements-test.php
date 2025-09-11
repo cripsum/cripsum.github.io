@@ -478,7 +478,6 @@ checkBan($mysqli);
 
         document.addEventListener('DOMContentLoaded', function() {
             loadAchievements();
-            startRealTimeTracking();
             setupFilters();
         });
 
