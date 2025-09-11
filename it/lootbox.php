@@ -549,7 +549,7 @@ require_once '../api/api_personaggi.php';
                             segreto: 0,
                             theone: 100,
                         });
-                    } else if (<?php echo $_SESSION['username']?> === 'nauz') {
+                    } else if ("<?php echo $_SESSION['username']?>" === 'nauz') {
                         return (rarityProbabilities = {
                             comune: 52,
                             raro: 28,
