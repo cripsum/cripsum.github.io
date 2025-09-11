@@ -13,7 +13,7 @@ if (!isLoggedIn()) {
     exit();
 }
 
-// if ($_SESSION['ruolo'] === 'utente') {
+// if (  === 'utente') {
 //     $_SESSION['error_message'] = "la pagina attualmente è in manutenzione, torna più tardi";
 //     header('Location: home');
 //     exit();
@@ -539,6 +539,26 @@ require_once '../api/api_personaggi.php';
                             segreto: 0,
                             theone: 100,
                         });
+                    } else if (preferences.SoloPoppy === true) {
+                        return (rarityProbabilities = {
+                            comune: 0,
+                            raro: 0,
+                            epico: 0,
+                            leggendario: 0,
+                            speciale: 0,
+                            segreto: 0,
+                            theone: 100,
+                        });
+                    } else if (<?php echo $_SESSION['username']?> === 'nauz') {
+                        return (rarityProbabilities = {
+                            comune: 52,
+                            raro: 28,
+                            epico: 12,
+                            leggendario: 6,
+                            speciale: 0.9,
+                            segreto: 0.1,
+                            theone: 1,
+                        });
                     } else {
                         return (rarityProbabilities = {
                             comune: 52,
@@ -567,6 +587,11 @@ require_once '../api/api_personaggi.php';
                 const response = await fetch('https://cripsum.com/api/get_all_characters');
                 const data = await response.json();
                 return data;
+            }
+
+            function getRarità(){
+                rarityProbabilities = aggiornaRarita();
+                return rarityProbabilities;
             }
 
             async function filtroPull() {
