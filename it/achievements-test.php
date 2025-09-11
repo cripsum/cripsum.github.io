@@ -476,13 +476,19 @@ checkBan($mysqli);
 
         async function loadAchievements() {
             try {
-                const [unlockedRes, allRes] = await Promise.all([
+                const [unlockedRes, allRes, serverData] = await Promise.all([
                     fetch("../api/get_unlocked_achievement.php"),
-                    fetch("../api/get_all_achievement.php")
+                    fetch("../api/get_all_achievement.php"),
+                    getServerData()
                 ]);
 
                 unlockedAchievements = await unlockedRes.json();
                 allAchievements = await allRes.json();
+                
+                // Salva i dati del server per l'uso nei calcoli
+                window.serverData = serverData;
+                
+                console.log('📊 Dati server caricati:', serverData);
 
                 displayAchievements();
                 updateCompletionStats();
@@ -563,51 +569,170 @@ checkBan($mysqli);
             }).join('');
         }
 
-        function calculateProgress(achievement) {
-            switch(achievement.id) {
-                case 14: 
-                    const timeSpent = getTimeSpent();
-                    return {
-                        current: timeSpent,
-                        target: 7200,
-                        display: `${formatTime(timeSpent)} / ${formatTime(7200)}`
-                    };
-                    
-                case 13: 
-                    const daysVisited = getCookie("daysVisited") || [];
-                    return {
-                        current: daysVisited.length,
-                        target: 30
-                    };
-                    
-                case 17: 
-                    const watchedVideos = getCookie("watchedVideos") || [];
-                    const totalVideos = 10; 
-                    return {
-                        current: watchedVideos.length,
-                        target: totalVideos
-                    };
+       // Aggiungi questa funzione per ottenere dati dal server
+async function getServerData() {
+    try {
+        const [casseRes, clickRes, inventoryRes] = await Promise.all([
+            fetch('../api/get_casse_aperte.php').catch(() => ({ json: () => ({ total: 0 }) })),
+            fetch('../api/get_clickgoon.php').catch(() => ({ json: () => ({ total: 0 }) })),
+            fetch('../api/api_get_inventario.php').catch(() => ({ json: () => ([]) }))
+        ]);
+        
+        const casseData = await casseRes.json();
+        const clickData = await clickRes.json();
+        const inventoryData = await inventoryRes.json();
+        
+        return {
+            casseAperte: casseData.total || 0,
+            clickGoon: clickData.total || 0,
+            inventory: Array.isArray(inventoryData) ? inventoryData : [],
+            personaggiCount: Array.isArray(inventoryData) ? inventoryData.length : 0
+        };
+    } catch (error) {
+        console.error('Errore nel recupero dati server:', error);
+        return {
+            casseAperte: 0,
+            clickGoon: 0,
+            inventory: [],
+            personaggiCount: 0
+        };
+    }
+}
 
-                case 21:
-                    return {
-                        current: unlockedAchievements.length,
-                        target: 20
-                    };
-                    
-                case 12:
-                    const now = new Date();
-                    return now.getHours() === 3 ? {
-                        current: 1,
-                        target: 1,
-                        display: "Visita ora!"
-                    } : {
-                        current: 0,
-                        target: 1,
-                        display: "Visita alle 3:00"
-                    };
-                    
-                default:
-                    return null;
+// Versione aggiornata di calculateProgress
+function calculateProgress(achievement) {
+    switch(achievement.id) {
+        // Achievement tempo trascorso (2 ore)
+        case 14: 
+            const timeSpent = getTimeSpent();
+            return {
+                current: timeSpent,
+                target: 7200,
+                display: `${formatTime(timeSpent)} / ${formatTime(7200)}`
+            };
+        
+        // Achievement giorni visitati (30 giorni)
+        case 13: 
+            const daysVisited = getCookie("daysVisited") || [];
+            return {
+                current: daysVisited.length,
+                target: 30
+            };
+        
+        // Achievement video guardati (10 video)
+        case 17: 
+            const watchedVideos = getCookie("watchedVideos") || [];
+            const totalVideos = 10; 
+            return {
+                current: watchedVideos.length,
+                target: totalVideos
+            };
+
+        // Achievement per 20 achievement sbloccati
+        case 21:
+            return {
+                current: unlockedAchievements.length,
+                target: 20
+            };
+        
+        // Achievement visita alle 3:00
+        case 12:
+            const now = new Date();
+            return now.getHours() === 3 ? {
+                current: 1,
+                target: 1,
+                display: "Visita ora!"
+            } : {
+                current: 0,
+                target: 1,
+                display: "Visita alle 3:00"
+            };
+
+        // Achievement vincere al gambling - caso one-shot
+        case 3:
+            const isUnlocked3 = unlockedAchievements.some(a => a.id === 3);
+            return {
+                current: isUnlocked3 ? 1 : 0,
+                target: 1,
+                display: isUnlocked3 ? "Completato!" : "Vinci una partita"
+            };
+
+        // Achievement rimanere senza soldi al gambling - caso one-shot
+        case 11:
+            const isUnlocked11 = unlockedAchievements.some(a => a.id === 11);
+            return {
+                current: isUnlocked11 ? 1 : 0,
+                target: 1,
+                display: isUnlocked11 ? "Completato!" : "Rimani senza soldi"
+            };
+
+        // Achievement aprire prima lootbox - caso one-shot
+        case 5:
+            const isUnlocked5 = unlockedAchievements.some(a => a.id === 5);
+            return {
+                current: isUnlocked5 ? 1 : 0,
+                target: 1,
+                display: isUnlocked5 ? "Completato!" : "Apri la tua prima lootbox"
+            };
+
+        // Achievement aprire 100 casse - USA DB
+        case 8:
+            const casseAperte = window.serverData?.casseAperte || 0;
+            return {
+                current: Math.min(casseAperte, 100),
+                target: 100,
+                display: `${casseAperte}/100 casse`
+            };
+
+        // Achievement aprire 500 casse - USA DB
+        case 16:
+            const casseAperte16 = window.serverData?.casseAperte || 0;
+            return {
+                current: Math.min(casseAperte16, 500),
+                target: 500,
+                display: `${casseAperte16}/500 casse`
+            };
+
+        // Achievement 10 comuni di fila
+        case 9:
+            const isUnlocked9 = unlockedAchievements.some(a => a.id === 9);
+            const comuniDiFila = getCookie("comuniDiFila") || 0;
+            return {
+                current: isUnlocked9 ? 10 : Math.min(comuniDiFila, 10),
+                target: 10,
+                display: isUnlocked9 ? "Completato!" : `${comuniDiFila}/10 comuni consecutivi`
+            };
+
+        // Achievement trovare tutti i personaggi - USA DB
+        case 18:
+            const personaggiCount = window.serverData?.personaggiCount || 0;
+            const totalCharacters = 47; // Puoi anche prendere questo dal DB se vuoi
+            return {
+                current: Math.min(personaggiCount, totalCharacters),
+                target: totalCharacters,
+                display: `${personaggiCount}/${totalCharacters} personaggi`
+            };
+
+        // Achievement 100 click nel goon generator - USA DB
+        case 19:
+            const clickGoon = window.serverData?.clickGoon || 0;
+            const isUnlocked19 = unlockedAchievements.some(a => a.id === 19);
+            return {
+                current: isUnlocked19 ? 100 : Math.min(clickGoon, 100),
+                target: 100,
+                display: isUnlocked19 ? "Completato!" : `${clickGoon}/100 click nel Goon Generator`
+            };
+
+        // Achievement 10 giorni nel goonland
+        case 20:
+            const daysVisitedGoon = getCookie("daysVisitedGoon") || [];
+            return {
+                current: Array.isArray(daysVisitedGoon) ? daysVisitedGoon.length : 0,
+                target: 10,
+                display: `${Array.isArray(daysVisitedGoon) ? daysVisitedGoon.length : 0}/10 giorni`
+            };
+        default:
+            return null;
             }
         }
 
@@ -730,6 +855,7 @@ checkBan($mysqli);
             }
         `;
         document.head.appendChild(style);
+
         </script>
     </body>
 </html>
