@@ -539,16 +539,6 @@ require_once '../api/api_personaggi.php';
                             segreto: 0,
                             theone: 100,
                         });
-                    } else if (preferences.SoloPoppy === true) {
-                        return (rarityProbabilities = {
-                            comune: 0,
-                            raro: 0,
-                            epico: 0,
-                            leggendario: 0,
-                            speciale: 0,
-                            segreto: 0,
-                            theone: 100,
-                        });
                     } else if ("<?php echo $_SESSION['username']?>" === 'nauz') {
                         return (rarityProbabilities = {
                             comune: 52,
@@ -563,23 +553,23 @@ require_once '../api/api_personaggi.php';
                         return (rarityProbabilities = {
                             comune: 52,
                             raro: 28,
-                            epico: 13,
-                            leggendario: 5.995,
+                            epico: 12,
+                            leggendario: 6,
                             speciale: 0.9,
                             segreto: 0.1,
-                            theone: 0.005,
+                            theone: 1,
                         });
                     }
                 }
 
                 return (rarityProbabilities = {
                     comune: 52,
-                    raro: 28,
-                    epico: 13,
-                    leggendario: 5.995,
-                    speciale: 0.9,
-                    segreto: 0.1,
-                    theone: 0.005,
+                            raro: 28,
+                            epico: 12,
+                            leggendario: 6,
+                            speciale: 0.9,
+                            segreto: 0.1,
+                            theone: 1,
                 });
             }
 
