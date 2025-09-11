@@ -491,8 +491,6 @@ checkBan($mysqli);
                 unlockedAchievements = await unlockedRes.json();
                 allAchievements = await allRes.json();
 
-                document.getElementById('unlockedCountDisplay').textContent = unlockedAchievements.length;
-
                 displayAchievements();
                 updateCompletionStats();
                 
