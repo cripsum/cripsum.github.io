@@ -53,6 +53,8 @@ function checkDaysVisited() {
     }
 }
 
+checkDaysVisited();
+
 async function getUnlockedAchievementsNumber()  {
     try {
         const response = await fetch('https://cripsum.com/api/get_unlocked_achievement_number', {
