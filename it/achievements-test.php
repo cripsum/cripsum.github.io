@@ -630,17 +630,17 @@ checkBan($mysqli);
                     };
                     
                 case 13: // 30 giorni visitati
-                    const daysVisited = getDaysVisited();
+                    const daysVisited = getCookie("daysVisited") || [];
                     return {
-                        current: daysVisited,
+                        current: daysVisited.length,
                         target: 30
                     };
                     
-                case 17: // Tutti i video guardati (esempio)
-                    const watchedVideos = getWatchedVideos();
-                    const totalVideos = document.querySelectorAll(".video-iframe")?.length || 10; // fallback
+                case 17: // Tutti i video guardati
+                    const watchedVideos = getCookie("watchedVideos") || [];
+                    const totalVideos = 10; // fallback statico
                     return {
-                        current: watchedVideos,
+                        current: watchedVideos.length,
                         target: totalVideos
                     };
 
