@@ -542,12 +542,12 @@ require_once '../api/api_personaggi.php';
                     } else {
                         return (rarityProbabilities = {
                             comune: 52,
-                            raro: 27,
-                            epico: 12,
-                            leggendario: 7.999,
+                            raro: 28,
+                            epico: 13,
+                            leggendario: 5.995,
                             speciale: 0.9,
                             segreto: 0.1,
-                            theone: 0.001,
+                            theone: 0.005,
                         });
                     }
                 }
@@ -556,10 +556,10 @@ require_once '../api/api_personaggi.php';
                     comune: 52,
                     raro: 28,
                     epico: 13,
-                    leggendario: 5.999,
+                    leggendario: 5.995,
                     speciale: 0.9,
                     segreto: 0.1,
-                    theone: 0.001,
+                    theone: 0.005,
                 });
             }
 
