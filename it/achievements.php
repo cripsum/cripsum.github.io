@@ -644,33 +644,33 @@ function calculateProgress(achievement) {
         case 2:
             const isUnlocked2 = unlockedAchievements.some(a => a.id === 2);
             return {
-                current: isUnlocked11 ? 1 : 0,
+                current: isUnlocked2 ? 1 : 0,
                 target: 1,
-                display: isUnlocked11 ? "Completato!" : "Cambia pfp"
+                display: isUnlocked2 ? "Completato!" : "Cambia pfp"
             };
 
         case 4:
             const isUnlocked4 = unlockedAchievements.some(a => a.id === 4);
             return {
-                current: isUnlocked11 ? 1 : 0,
+                current: isUnlocked4 ? 1 : 0,
                 target: 1,
-                display: isUnlocked11 ? "Completato!" : "Fai una donazione"
+                display: isUnlocked4 ? "Completato!" : "Fai una donazione"
             };
         
         case 6:
             const isUnlocked6 = unlockedAchievements.some(a => a.id === 6);
             return {
-                current: isUnlocked11 ? 1 : 0,
+                current: isUnlocked6 ? 1 : 0,
                 target: 1,
-                display: isUnlocked11 ? "Completato!" : "Guarda gli edit"
+                display: isUnlocked6 ? "Completato!" : "Guarda gli edit"
             };
 
         case 7:
             const isUnlocked7 = unlockedAchievements.some(a => a.id === 7);
             return {
-                current: isUnlocked11 ? 1 : 0,
+                current: isUnlocked7 ? 1 : 0,
                 target: 1,
-                display: isUnlocked11 ? "Completato!" : "Compra qualcosa nello shop di tussi" 
+                display: isUnlocked7 ? "Completato!" : "Compra qualcosa nello shop di tussi" 
             };
 
         case 3:
