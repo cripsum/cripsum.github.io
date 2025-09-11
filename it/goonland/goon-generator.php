@@ -4,7 +4,7 @@ ini_set('display_startup_errors', 1);
 ini_set('log_errors', 1);
 error_reporting(1);
 
-require_once '../config/session_init.php';
+require_once '../../config/session_init.php';
 require_once '../../config/database.php';
 require_once '../../includes/functions.php';
 checkBan($mysqli);
