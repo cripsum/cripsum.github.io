@@ -409,21 +409,6 @@ checkBan($mysqli);
                     </p>
                 </div>
 
-                <!-- Statistiche Utente -->
-                <div class="stats-overview fadeup">
-                    <h2 style="color: white; text-align: center; margin-bottom: 1rem;">🏆 Le tue Statistiche</h2>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-value" id="totalTimeDisplay">00:00</div>
-                            <div class="stat-label">Tempo Totale</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="unlockedCountDisplay">0</div>
-                            <div class="stat-label">Achievement Sbloccati</div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Completamento Generale -->
                 <div class="completion-summary fadeup">
                     <div class="completion-circle">
@@ -493,21 +478,9 @@ checkBan($mysqli);
 
         document.addEventListener('DOMContentLoaded', function() {
             loadAchievements();
-            updateStatsFromCookies();
             startRealTimeTracking();
             setupFilters();
         });
-
-        function updateStatsFromCookies() {
-            // Aggiorna le statistiche basandoti sui cookie
-            const timeSpent = getTimeSpent();
-            const daysVisited = getDaysVisited();
-            const videosWatched = getWatchedVideos();
-            
-            document.getElementById('totalTimeDisplay').textContent = formatTime(timeSpent);
-            document.getElementById('daysVisitedDisplay').textContent = daysVisited;
-            document.getElementById('videosWatchedDisplay').textContent = videosWatched;
-        }
 
         async function loadAchievements() {
             try {
@@ -690,22 +663,6 @@ checkBan($mysqli);
                     });
                 });
             });
-        }
-
-        function startRealTimeTracking() {
-            // Aggiorna le statistiche dai cookie ogni secondo
-            setInterval(() => {
-                updateStatsFromCookies();
-                
-                // Ricarica il progresso degli achievement se ci sono cambiamenti
-                const cards = document.querySelectorAll('.achievement-card:not(.unlocked)');
-                if (cards.length > 0) {
-                    displayAchievements();
-                }
-            }, 1000);
-            
-            // Verifica nuovi achievement ogni 10 secondi
-            setInterval(checkForNewAchievements, 10000);
         }
 
         async function checkForNewAchievements() {
