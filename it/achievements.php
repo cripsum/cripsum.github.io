@@ -64,7 +64,6 @@ checkBan($mysqli);
                 }
 
                 async function displayAchievements() {
-                    // Fai il parsing dei dati
                     const unlockedRes = await fetch("https://cripsum.com/api/get_unlocked_achievement");
                     const allRes = await fetch("https://cripsum.com/api/get_all_achievement");
 
