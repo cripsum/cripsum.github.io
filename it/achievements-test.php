@@ -16,7 +16,6 @@ if (!isLoggedIn()) {
 $userId = $_SESSION['user_id'];
 
 checkBan($mysqli);
-
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -410,6 +409,29 @@ checkBan($mysqli);
                     </p>
                 </div>
 
+                <!-- Statistiche Utente -->
+                <div class="stats-overview fadeup">
+                    <h2 style="color: white; text-align: center; margin-bottom: 1rem;">📊 Le tue Statistiche</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalTimeDisplay"><?= gmdate('H:i', $userStats['total_time'] ?? 0) ?></div>
+                            <div class="stat-label">Tempo Totale</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value"><?= $userStats['total_sessions'] ?? 0 ?></div>
+                            <div class="stat-label">Sessioni Totali</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value"><?= $userStats['approved_shitposts'] ?? 0 ?></div>
+                            <div class="stat-label">Shitpost Approvati</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value"><?= $userStats['days_since_registration'] ?></div>
+                            <div class="stat-label">Giorni su Cripsum™</div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Completamento Generale -->
                 <div class="completion-summary fadeup">
                     <div class="completion-circle">
@@ -719,7 +741,10 @@ checkBan($mysqli);
                     }
                     
                     unlockedAchievements = newUnlocked;
-                    document.getElementById('unlockedCountDisplay').textContent = unlockedAchievements.length;
+                    const unlockedCountEl = document.getElementById('unlockedCountDisplay');
+                    if (unlockedCountEl) {
+                        unlockedCountEl.textContent = unlockedAchievements.length;
+                    }
                     displayAchievements();
                     updateCompletionStats();
                 }
