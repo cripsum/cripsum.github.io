@@ -399,9 +399,8 @@ checkBan($mysqli);
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
 
-        <div class="paginainterachisiamo testobianco" style="padding-top: 7rem; padding-bottom: 4rem;">
+        <div class="paginainterachisiamo testobianco" style="padding-top: 4rem; padding-bottom: 4rem;">
             <div class="achievements-section">
-                <!-- Header Section -->
                 <div class="chisiamo-section fadeup">
                     <h1 class="chisiamo-title">🏆 Achievement Sbloccati</h1>
                     <p class="chisiamo-subtitle">
@@ -409,7 +408,6 @@ checkBan($mysqli);
                     </p>
                 </div>
 
-                <!-- Completamento Generale -->
                 <div class="completion-summary fadeup">
                     <div class="completion-circle">
                         <svg class="circle-progress" width="120" height="120">
@@ -422,7 +420,6 @@ checkBan($mysqli);
                     <p style="color: rgba(255, 255, 255, 0.7);" id="completionText">Caricamento...</p>
                 </div>
 
-                <!-- Loading State -->
                 <div id="loadingState" class="loading-container">
                     <div class="loading_white">
                         <div class="loading__dot_white"></div>
@@ -432,9 +429,7 @@ checkBan($mysqli);
                     <p class="testobianco" style="text-align: center; margin-top: 1rem;">Caricamento achievement...</p>
                 </div>
 
-                <!-- Lista Achievement -->
                 <div id="achievementsContainer" class="achievements-grid" style="display: none;">
-                    <!-- Gli achievement verranno caricati qui dinamicamente -->
                 </div>
             </div>
         </div>
@@ -449,7 +444,6 @@ checkBan($mysqli);
         let unlockedAchievements = [];
         let currentFilter = 'all';
 
-        // Funzioni per gestire i cookie (coerenti con il tuo sistema esistente)
         function getCookie(name) {
             const cookies = document.cookie.split("; ");
             for (let cookie of cookies) {
@@ -463,7 +457,6 @@ checkBan($mysqli);
             return getCookie(name);
         }
 
-        // Funzioni per ottenere statistiche dai cookie
         function getTimeSpent() {
             return parseInt(getCookie("timeSpent")) || 0;
         }
@@ -497,7 +490,6 @@ checkBan($mysqli);
                 document.getElementById('loadingState').style.display = 'none';
                 document.getElementById('achievementsContainer').style.display = 'grid';
                 
-                // Animazione fade-in
                 const cards = document.querySelectorAll('.achievement-card');
                 cards.forEach((card, index) => {
                     setTimeout(() => {
@@ -572,9 +564,8 @@ checkBan($mysqli);
         }
 
         function calculateProgress(achievement) {
-            // Calcola il progresso basandosi sui cookie e sull'ID dell'achievement
             switch(achievement.id) {
-                case 14: // 2 ore sul sito (7200 secondi)
+                case 14: 
                     const timeSpent = getTimeSpent();
                     return {
                         current: timeSpent,
@@ -582,28 +573,28 @@ checkBan($mysqli);
                         display: `${formatTime(timeSpent)} / ${formatTime(7200)}`
                     };
                     
-                case 13: // 30 giorni visitati
+                case 13: 
                     const daysVisited = getCookie("daysVisited") || [];
                     return {
                         current: daysVisited.length,
                         target: 30
                     };
                     
-                case 17: // Tutti i video guardati
+                case 17: 
                     const watchedVideos = getCookie("watchedVideos") || [];
-                    const totalVideos = 10; // fallback statico
+                    const totalVideos = 10; 
                     return {
                         current: watchedVideos.length,
                         target: totalVideos
                     };
 
-                case 21: // 20 achievement sbloccati
+                case 21:
                     return {
                         current: unlockedAchievements.length,
                         target: 20
                     };
                     
-                case 12: // Visitare alle 3 del mattino
+                case 12:
                     const now = new Date();
                     return now.getHours() === 3 ? {
                         current: 1,
@@ -625,13 +616,11 @@ checkBan($mysqli);
             const unlockedCount = unlockedAchievements.length;
             const percentage = totalAchievements > 0 ? (unlockedCount / totalAchievements * 100).toFixed(0) : 0;
             
-            // Aggiorna il cerchio di completamento
             const circle = document.getElementById('completionCircle');
             const circumference = 2 * Math.PI * 50;
             const offset = circumference - (percentage / 100) * circumference;
             circle.style.strokeDashoffset = offset;
             
-            // Aggiorna il testo
             document.getElementById('completionPercentage').textContent = percentage + '%';
             document.getElementById('completionText').textContent = 
                 `${unlockedCount} su ${totalAchievements} achievement completati`;
@@ -648,7 +637,6 @@ checkBan($mysqli);
                     currentFilter = btn.getAttribute('data-category');
                     displayAchievements();
                     
-                    // Re-anima le card
                     const cards = document.querySelectorAll('.achievement-card');
                     cards.forEach((card, index) => {
                         card.style.opacity = '0';
@@ -668,7 +656,6 @@ checkBan($mysqli);
                 const newUnlocked = await response.json();
                 
                 if (newUnlocked.length > unlockedAchievements.length) {
-                    // Nuovo achievement sbloccato!
                     const newAchievement = newUnlocked.find(a => 
                         !unlockedAchievements.some(u => u.id === a.id)
                     );
@@ -691,7 +678,6 @@ checkBan($mysqli);
         }
 
         function showAchievementNotification(achievement) {
-            // Crea una notifica per il nuovo achievement sbloccato
             const notification = document.createElement('div');
             notification.style.cssText = `
                 position: fixed;
@@ -731,7 +717,6 @@ checkBan($mysqli);
             return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
         }
 
-        // Aggiungi stili per le animazioni
         const style = document.createElement('style');
         style.textContent = `
             @keyframes slideInRight {
