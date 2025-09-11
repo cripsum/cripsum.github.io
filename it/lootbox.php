@@ -553,23 +553,23 @@ require_once '../api/api_personaggi.php';
                         return (rarityProbabilities = {
                             comune: 52,
                             raro: 28,
-                            epico: 12,
-                            leggendario: 6,
+                            epico: 13,
+                            leggendario: 5.995,
                             speciale: 0.9,
                             segreto: 0.1,
-                            theone: 1,
+                            theone: 0.005,
                         });
                     }
                 }
 
                 return (rarityProbabilities = {
                     comune: 52,
-                            raro: 28,
-                            epico: 12,
-                            leggendario: 6,
-                            speciale: 0.9,
-                            segreto: 0.1,
-                            theone: 1,
+                    raro: 28,
+                    epico: 13,
+                    leggendario: 5.995,
+                    speciale: 0.9,
+                    segreto: 0.1,
+                    theone: 0.005,
                 });
             }
 
