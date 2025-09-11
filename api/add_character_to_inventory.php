@@ -4,6 +4,7 @@ require_once __DIR__ . '/../includes/functions.php';
 
 session_start();
 $user_id = $_SESSION['user_id'] ?? 0;
+date_default_timezone_set('Europe/Rome');
 
 
 $stmt = $mysqli->prepare("INSERT INTO utenti_personaggi (utente_id, personaggio_id, data, quantità) VALUES (?, ?, NOW(), 1) ON DUPLICATE KEY UPDATE quantità = quantità + 1");

@@ -6,6 +6,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 
 session_start();
+date_default_timezone_set('Europe/Rome');
 $user_id = $_SESSION['user_id'] ?? 0;
 $achievement_id = $_GET['achievement_id'] ?? 0;
 

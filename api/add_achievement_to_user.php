@@ -14,6 +14,7 @@ if (!isset($_POST['user_id'], $_POST['achievement_id'])) {
 
 $user_id = intval($_POST['user_id']);
 $achievement_id = intval($_POST['achievement_id']);
+date_default_timezone_set('Europe/Rome');
 
 // Check if achievement already exists
 $check_stmt = $mysqli->prepare("SELECT * FROM utenti_achievement WHERE utente_id = ? AND achievement_id = ?");

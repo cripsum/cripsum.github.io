@@ -14,6 +14,7 @@ if (!isset($_POST['user_id'], $_POST['character_id'])) {
 
 $user_id = intval($_POST['user_id']);
 $character_id = intval($_POST['character_id']);
+date_default_timezone_set('Europe/Rome');
 
 $stmt = $mysqli->prepare("INSERT INTO utenti_personaggi (utente_id, personaggio_id, data, quantità) VALUES (?, ?, NOW(), 1) ON DUPLICATE KEY UPDATE quantità = quantità + 1");
 $stmt->bind_param("ii", $user_id, $character_id);
