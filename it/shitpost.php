@@ -443,7 +443,7 @@ if (isset($_SESSION['user_id'])) {
                                 <img src="../img/sossio.png" alt="Sossio">
                             </div>
                             <div class="post-details">
-                                <h2>SOSSIOOOHH</h2>
+                                <h2>SOSSIOH</h2>
                                 <p class="post-author">di lacly</p>
                                 <p class="post-description">Lui è sossio, uno sviluppatore di mod per mario kart. È anche un grande giocatore di wuthering waves e si fa tante seghe, qui avete una sua immagine mentre se la chilla con i piedi all'aria</p>
                                 <div class="post-stats">
