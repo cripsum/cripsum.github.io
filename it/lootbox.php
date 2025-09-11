@@ -561,7 +561,6 @@ require_once '../api/api_personaggi.php';
                         });
                     }
                 }
-
                 return (rarityProbabilities = {
                     comune: 52,
                     raro: 28,
