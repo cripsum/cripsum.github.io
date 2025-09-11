@@ -411,23 +411,15 @@ checkBan($mysqli);
 
                 <!-- Statistiche Utente -->
                 <div class="stats-overview fadeup">
-                    <h2 style="color: white; text-align: center; margin-bottom: 1rem;">📊 Le tue Statistiche</h2>
+                    <h2 style="color: white; text-align: center; margin-bottom: 1rem;">🏆 Le tue Statistiche</h2>
                     <div class="stats-grid">
                         <div class="stat-card">
-                            <div class="stat-value" id="totalTimeDisplay"><?= gmdate('H:i', $userStats['total_time'] ?? 0) ?></div>
+                            <div class="stat-value" id="totalTimeDisplay">00:00</div>
                             <div class="stat-label">Tempo Totale</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-value"><?= $userStats['total_sessions'] ?? 0 ?></div>
-                            <div class="stat-label">Sessioni Totali</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value"><?= $userStats['approved_shitposts'] ?? 0 ?></div>
-                            <div class="stat-label">Shitpost Approvati</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value"><?= $userStats['days_since_registration'] ?></div>
-                            <div class="stat-label">Giorni su Cripsum™</div>
+                            <div class="stat-value" id="unlockedCountDisplay">0</div>
+                            <div class="stat-label">Achievement Sbloccati</div>
                         </div>
                     </div>
                 </div>
