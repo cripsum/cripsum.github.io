@@ -64,7 +64,6 @@ if (isset($_SESSION['user_id'])) {
             border-color: rgba(100, 200, 255, 0.3);
         }
 
-        /* Admin section styles */
         .admin-section {
             max-width: 1400px;
             margin: 0 auto;
@@ -288,7 +287,6 @@ if (isset($_SESSION['user_id'])) {
             padding: 4rem 2rem;
         }
 
-        /* Legacy shitpost styles for original content */
         .legacy-shitpost {
             max-width: 1400px;
             margin: 0 auto;
@@ -564,7 +562,6 @@ if (isset($_SESSION['user_id'])) {
                 const data = await response.json();
                 
                 if (Array.isArray(data) && data.length > 0) {
-                    // Sort by date (newest first)
                     allPosts = data.sort((a, b) => new Date(b.data_creazione) - new Date(a.data_creazione));
                     displayPosts(allPosts);
                 } else {
