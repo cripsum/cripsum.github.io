@@ -334,33 +334,7 @@ checkBan($mysqli);
 
             .filter-btn:hover,
             .filter-btn.active {
-                background: linear-gradient(135deg, #4fc3f7, #29b6f6);
-                border-color: #4fc3f7;
-                transform: translateY(-2px);
-            }
-
-            .loading-container {
-                text-align: center;
-                padding: 4rem 2rem;
-            }
-
-            @media (max-width: 768px) {
-                .achievements-section {
-                    max-width: 95%;
-                }
-                
-                .achievements-grid {
-                    grid-template-columns: 1fr;
-                    gap: 1.5rem;
-                }
-
-                .achievement-header {
-                    flex-direction: column;
-                    text-align: center;
-                    gap: 1rem;
-                }
-
-                .achievement-icon {
+                background: linear-gradient(135deg, #4fc3f7, #29b6f6);icon {
                     width: 60px;
                     height: 60px;
                 }
@@ -373,18 +347,44 @@ checkBan($mysqli);
                     width: 100px;
                     height: 100px;
                 }
-
-                .category-filter {
-                    gap: 0.5rem;
-                }
-
-                .filter-btn {
-                    padding: 0.6rem 1rem;
-                    font-size: 0.8rem;
-                }
             }
 
             @media (max-width: 480px) {
+                .achievements-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .stats-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <?php include '../includes/navbar.php'; ?>
+        <?php include '../includes/impostazioni.php'; ?>
+
+        <div class="paginainterachisiamo testobianco" style="padding-top: 7rem; padding-bottom: 4rem;">
+            <div class="achievements-section">
+                <!-- Header Section -->
+                <div class="chisiamo-section fadeup"></div>
+                    <h1 class="chisiamo-title">🏆 Achievement Sbloccati</h1>
+                    <p class="chisiamo-subtitle">
+                        Traccia i tuoi progressi e sblocca nuovi traguardi esplorando tutte le funzionalità di Cripsum™
+                    </p>
+                </div>
+
+                <!-- Statistiche Utente -->
+                <div class="stats-overview fadeup">
+                    <h2 style="color: white; text-align: center; margin-bottom: 1rem;">🏆 Le tue Statistiche</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalTimeDisplay">00:00</div>
+                            <div class="stat-label">Tempo Totale</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="unlockedCountDisplay">0</div>
+                            <div class="stat-
                 .achievements-grid {
                     grid-template-columns: 1fr;
                 }
@@ -435,15 +435,6 @@ checkBan($mysqli);
                     </div>
                     <h3 style="color: white; margin-bottom: 0.5rem;">Completamento Achievement</h3>
                     <p style="color: rgba(255, 255, 255, 0.7);" id="completionText">Caricamento...</p>
-                </div>
-
-                <!-- Filtri Categoria -->
-                <div class="category-filter fadeup">
-                    <button class="filter-btn active" data-category="all">Tutti</button>
-                    <button class="filter-btn" data-category="tempo">⏰ Tempo</button>
-                    <button class="filter-btn" data-category="contenuti">📝 Contenuti</button>
-                    <button class="filter-btn" data-category="community">👥 Community</button>
-                    <button class="filter-btn" data-category="speciali">✨ Speciali</button>
                 </div>
 
                 <!-- Loading State -->
