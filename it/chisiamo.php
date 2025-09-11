@@ -284,8 +284,8 @@ checkBan($mysqli);
                         <i class="fas fa-star"></i>
                     </div>
                     <p class="mystery-text">
-                        Cerchiamo talenti in ogni campo:<br>
-                        <strong>Design • Sviluppo • Content • Marketing</strong>
+                        Cerchiamo talenti che siano:<br>
+                        <strong>Fichi • King • Bravi su silksong</strong>
                     </p>
                 </div>
             </div>
