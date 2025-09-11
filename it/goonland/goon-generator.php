@@ -4,9 +4,7 @@ ini_set('display_startup_errors', 1);
 ini_set('log_errors', 1);
 error_reporting(1);
 
-ini_set('session.gc_maxlifetime', 604800);
-session_set_cookie_params(604800);
-session_start();
+require_once '../config/session_init.php';
 require_once '../../config/database.php';
 require_once '../../includes/functions.php';
 checkBan($mysqli);
@@ -28,7 +26,6 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
 if (isset($_GET['download_image']) && $_GET['download_image'] == '1' && isset($_GET['url'])) {
     $url = $_GET['url'];
     
-    // Controllo sicurezza base: consenti solo immagini da waifu.pics
     if (strpos($url, 'https://i.waifu.pics/') !== 0) {
         http_response_code(403);
         exit('URL non valido');
