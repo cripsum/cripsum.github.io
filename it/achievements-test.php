@@ -17,27 +17,6 @@ $userId = $_SESSION['user_id'];
 
 checkBan($mysqli);
 
-// Ottieni statistiche utente per il tracking del progresso
-$userStats = [];
-$statsQuery = "SELECT 
-    (SELECT COUNT(*) FROM sessioni WHERE user_id = ? AND durata > 0) as total_sessions,
-    (SELECT SUM(durata) FROM sessioni WHERE user_id = ?) as total_time,
-    (SELECT COUNT(*) FROM shitpost WHERE user_id = ? AND approvato = 1) as approved_shitposts,
-    (SELECT COUNT(*) FROM shitpost WHERE user_id = ?) as total_shitposts,
-    (SELECT data_registrazione FROM utenti WHERE id = ?) as registration_date,
-    (SELECT COUNT(*) FROM achievement_utente WHERE user_id = ?) as unlocked_count";
-
-$stmt = $mysqli->prepare($statsQuery);
-$stmt->bind_param("iiiiii", $userId, $userId, $userId, $userId, $userId, $userId);
-$stmt->execute();
-$result = $stmt->get_result();
-$userStats = $result->fetch_assoc();
-
-// Calcola giorni di registrazione
-$regDate = new DateTime($userStats['registration_date']);
-$today = new DateTime();
-$daysSinceReg = $today->diff($regDate)->days;
-$userStats['days_since_registration'] = $daysSinceReg;
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -429,29 +408,6 @@ $userStats['days_since_registration'] = $daysSinceReg;
                     <p class="chisiamo-subtitle">
                         Traccia i tuoi progressi e sblocca nuovi traguardi esplorando tutte le funzionalità di Cripsum™
                     </p>
-                </div>
-
-                <!-- Statistiche Utente -->
-                <div class="stats-overview fadeup">
-                    <h2 style="color: white; text-align: center; margin-bottom: 1rem;">📊 Le tue Statistiche</h2>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-value" id="totalTimeDisplay"><?= gmdate('H:i', $userStats['total_time'] ?? 0) ?></div>
-                            <div class="stat-label">Tempo Totale</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value"><?= $userStats['total_sessions'] ?? 0 ?></div>
-                            <div class="stat-label">Sessioni Totali</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value"><?= $userStats['approved_shitposts'] ?? 0 ?></div>
-                            <div class="stat-label">Shitpost Approvati</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value"><?= $userStats['days_since_registration'] ?></div>
-                            <div class="stat-label">Giorni su Cripsum™</div>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Completamento Generale -->
