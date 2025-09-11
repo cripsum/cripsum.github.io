@@ -684,9 +684,9 @@ function calculateProgress(achievement) {
         case 10:
             const isUnlocked10 = unlockedAchievements.some(a => a.id === 10);
             return {
-                current: isUnlocked5 ? 1 : 0,
+                current: isUnlocked10 ? 1 : 0,
                 target: 1,
-                display: isUnlocked5 ? "Completato!" : "riscatta v-bucks gratis"
+                display: isUnlocked10 ? "Completato!" : "riscatta v-bucks gratis"
             };
 
         case 11:
@@ -715,9 +715,9 @@ function calculateProgress(achievement) {
         case 15:
             const isUnlocked15 = unlockedAchievements.some(a => a.id === 15);
             return {
-                current: isUnlocked5 ? 1 : 0,
+                current: isUnlocked15 ? 1 : 0,
                 target: 1,
-                display: isUnlocked5 ? "Completato!" : "esplora per la prima volta goonland"
+                display: isUnlocked15 ? "Completato!" : "esplora per la prima volta goonland"
             };
 
         case 16:
