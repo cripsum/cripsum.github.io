@@ -42,7 +42,10 @@ function checkTimeSpent() {
 setInterval(checkTimeSpent, 1000);
 
 function checkDaysVisited() {
-    let daysVisited = getCookie("daysVisited") || [];
+    let daysVisited = getCookie("daysVisited");
+    if (!Array.isArray(daysVisited)) {
+        daysVisited = [];
+    }
     const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
     if (!daysVisited.includes(today)) {
         daysVisited.push(today);

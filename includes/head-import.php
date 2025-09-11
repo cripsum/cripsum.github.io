@@ -34,7 +34,7 @@
         <script src="/js/controlloLingua-it.js?v=2"></script>
         <script src="/js/controlloTema.js"></script>
         <script src="/js/unlockAchievement-it.js?v=2"></script>
-        <script src="/js/achievements-globali.js?v=2"></script>
+        <script src="/js/achievements-globali.js?v=3"></script>
         <script src="/js/impostazioni.js?v=2"></script>
 
         <meta charset="UTF-8" />
