@@ -811,8 +811,7 @@ require_once '../api/api_personaggi.php';
 
                 document.addEventListener("keydown", function (event) {
                     if (event.code === "Enter") {
-                        if(theOnePulled === true || nuovoPersonaggio === true){
-                        } else {
+                        if(theOnePulled !== true && nuovoPersonaggio !== true){
                             event.preventDefault();
                             refresh();
                         }
