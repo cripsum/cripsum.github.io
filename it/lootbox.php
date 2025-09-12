@@ -781,43 +781,44 @@ require_once '../api/api_personaggi.php';
             }
 
             document.addEventListener("DOMContentLoaded", function() {
-            document.addEventListener("keydown", function (event) {
-                if (event.code === "Space") {
-                    if(theOnePulled === true || nuovoPersonaggio === true){
-                        event.preventDefault(); 
-                        apriNormale();
-                    } else{
-                        event.preventDefault(); 
-                        if (!cassa.classList.contains("aperta")) {
-                            if (!contenuto.classList.contains("salto")) {
-                                pullaPersonaggio().then(() => {
-                                    bagliore.style.opacity = 0.6;
-                                    bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
+                document.addEventListener("keydown", function (event) {
+                    if (event.code === "Space") {
+                        if(theOnePulled === true || nuovoPersonaggio === true){
+                            event.preventDefault(); 
+                            apriNormale();
+                        } else{
+                            event.preventDefault(); 
+                            if (!cassa.classList.contains("aperta")) {
+                                if (!contenuto.classList.contains("salto")) {
+                                    pullaPersonaggio().then(() => {
+                                        bagliore.style.opacity = 0.6;
+                                        bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
 
-                                    audio.currentTime = 0;
-                                    audio.play();
+                                        audio.currentTime = 0;
+                                        audio.play();
 
-                                    generaParticelle();
-                                    apriCassa();
-                                    apriVeloce();
-                                });
+                                        generaParticelle();
+                                        apriCassa();
+                                        apriVeloce();
+                                    });
+                                }
+                            } else {
+                                apriVeloce();
                             }
-                        } else {
-                            apriVeloce();
                         }
                     }
-                }
-            });
+                });
 
-            document.addEventListener("keydown", function (event) {
-                if (event.code === "Enter") {
-                    if(theOnePulled !== true || nuovoPersonaggio !== true){
-                        event.preventDefault();
-                        refresh();
+                document.addEventListener("keydown", function (event) {
+                    if (event.code === "Enter") {
+                        if(theOnePulled === true || nuovoPersonaggio === true){
+                        } else {
+                            event.preventDefault();
+                            refresh();
+                        }
                     }
-                }
+                });
             });
-        });
 
 
             async function riscattaCodice() {
