@@ -783,14 +783,15 @@ require_once '../api/api_personaggi.php';
             document.addEventListener("DOMContentLoaded", function() {
                 document.addEventListener("keydown", function (event) {
                     if (event.code === "Space") {
-                        if(theOnePulled === true || nuovoPersonaggio === true){
                             event.preventDefault(); 
-                            apriNormale();
-                        } else{
-                            event.preventDefault(); 
+
                             if (!cassa.classList.contains("aperta")) {
                                 if (!contenuto.classList.contains("salto")) {
                                     pullaPersonaggio().then(() => {
+                                        if(theOnePulled === true || nuovoPersonaggio === true){
+                                            event.preventDefault(); 
+                                            apriNormale();
+                                        } else{
                                         bagliore.style.opacity = 0.6;
                                         bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
 
@@ -800,12 +801,18 @@ require_once '../api/api_personaggi.php';
                                         generaParticelle();
                                         apriCassa();
                                         apriVeloce();
+                                        }
                                     });
                                 }
                             } else {
-                                apriVeloce();
+                                if(theOnePulled === true || nuovoPersonaggio === true){
+                                    event.preventDefault(); 
+                                    apriNormale();
+                                } else{
+                                    apriVeloce();
+                                }
                             }
-                        }
+                        
                     }
                 });
 
