@@ -783,9 +783,11 @@ require_once '../api/api_personaggi.php';
             document.addEventListener("DOMContentLoaded", function() {
             document.addEventListener("keydown", function (event) {
                 if (event.code === "Space") {
-                    if(theOnePulled !== true && nuovoPersonaggio !== true){
+                    if(theOnePulled === true || nuovoPersonaggio === true){
                         event.preventDefault(); 
-
+                        apriNormale();
+                    } else{
+                        event.preventDefault(); 
                         if (!cassa.classList.contains("aperta")) {
                             if (!contenuto.classList.contains("salto")) {
                                 pullaPersonaggio().then(() => {
@@ -803,16 +805,13 @@ require_once '../api/api_personaggi.php';
                         } else {
                             apriVeloce();
                         }
-                    } else{
-                        event.preventDefault(); 
-                        apriNormale();
                     }
                 }
             });
 
             document.addEventListener("keydown", function (event) {
                 if (event.code === "Enter") {
-                    if(theOnePulled !== true && nuovoPersonaggio !== true){
+                    if(theOnePulled !== true || nuovoPersonaggio !== true){
                         event.preventDefault();
                         refresh();
                     }
