@@ -220,21 +220,7 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
         </div>
 
         <?php if ($user_cercato_id == $_SESSION['user_id']): ?>
-        <h4 class="mb-3 fadeup">Modifica Profilo</h4>
-        <form method="POST" enctype="multipart/form-data" class="fadeup">
-            <input type="hidden" name="action" value="update_profile">
-
-            <div class="mb-3">
-            <label for="username" class="form-label">Nome utente</label>
-            <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" required>
-            </div>
-
-            <div class="mb-3">
-            <label for="pfp" class="form-label">Immagine profilo</label>
-            <input type="file" class="form-control" id="pfp" name="pfp" accept="image/*">
-            </div>
-            <button class="btn btn-secondary bottone" type="submit">Salva modifiche</button>
-        </form>
+        <a class="btn btn-secondary bottone mt-2" href="it/impostazioni" style="cursor: pointer">Modifica Profilo</a>
         <?php endif; ?>
 
         <div class="mt-4 fadeup">

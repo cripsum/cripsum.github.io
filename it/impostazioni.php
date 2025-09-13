@@ -13,11 +13,39 @@ $userId = $_SESSION['user_id'];
 $username = $_SESSION['username'] ?? '';
 $profilePic = "/includes/get_pfp.php?id=$userId";
 $ruolo = $_SESSION['ruolo'] ?? 'utente';
-$nsfw = $_SESSION['nsfw'] ?? 0; // Imposta nsfw a 0 se non è definito
-$richpresence = $_SESSION['richpresence'] ?? 0; // Imposta richpresence a 0 se non è definito
+$nsfw = $_SESSION['nsfw'] ?? 0;
+$richpresence = $_SESSION['richpresence'] ?? 0;
 $oldEmail = $_SESSION['email'] ?? '';
 $success = '';
 $error = '';
+
+function isValidUsername($username) {
+    if (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
+        return false;
+    }
+
+    if (preg_match('/[_]$/', $username)) {
+        return false;
+    }
+    
+    if (preg_match('/^[_]/', $username)) {
+        return false;
+    }
+
+    if (strlen($username) < 3) {
+        return false;
+    }
+
+    if (strlen($username) > 20) {
+        return false;
+    }
+
+    if (preg_match('/\s/', $username)) {
+        return false;
+    }
+    
+    return true;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
@@ -30,10 +58,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Compila tutti i campi';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Email non valida';
+    } elseif (!isValidUsername($username)) {
+        $error = "L'username può contenere solo lettere, numeri e underscore, non può iniziare o finire con un carattere speciale, deve essere lungo tra 3 e 20 caratteri e non può contenere spazi.";
     } else {
         $result = updateUserSettings($mysqli, $userId, $username, $email, $password, $nsfw, $richpresence);
         if ($result === true) {
-            //if the email was changed, we need to log out the user
             if($_SESSION['email'] !== $oldEmail) {
                 session_destroy();
                 $success = "Modifica dell'email completata! Controlla la tua email per verificarla prima di poter accedere di nuovo.";
