@@ -70,7 +70,7 @@ if ($_POST) {
     } elseif ($password !== $repeatPassword) {
         $error = 'Le password non corrispondono';
     } elseif (!isValidUsername($username)) {
-        $error = "L'username può contenere solo lettere, numeri e underscore, e non può iniziare o finire con underscore";
+        $error = "L'username può contenere solo lettere, numeri e underscore, non può iniziare o finire con un carattere speciale, deve essere lungo tra 3 e 20 caratteri e non può contenere spazi.";
     } elseif (strlen($password) < 6) {
         $error = 'La password deve essere di almeno 6 caratteri';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {

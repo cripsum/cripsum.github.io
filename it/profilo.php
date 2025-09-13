@@ -14,30 +14,64 @@ if (!isLoggedIn()) {
 
 $user_id = $_SESSION['user_id'];
 
+function isValidUsername($username) {
+    if (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
+        return false;
+    }
+
+    if (preg_match('/[_]$/', $username)) {
+        return false;
+    }
+    
+    if (preg_match('/^[_]/', $username)) {
+        return false;
+    }
+
+    if (strlen($username) < 3) {
+        return false;
+    }
+
+    if (strlen($username) > 20) {
+        return false;
+    }
+
+    if (preg_match('/\s/', $username)) {
+        return false;
+    }
+    
+    return true;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'update_profile') {
-    $username = $mysqli->real_escape_string($_POST['username']);
+    $username = trim($_POST['username'] ?? '');
     $pfp_blob = null;
     $pfp_mime = null;
 
-    if (isset($_FILES['pfp']) && $_FILES['pfp']['error'] === 0) {
-        $pfp_blob = file_get_contents($_FILES['pfp']['tmp_name']);
-        $pfp_mime = mime_content_type($_FILES['pfp']['tmp_name']);
-    }
-
-    if ($pfp_blob !== null && $pfp_mime !== null) {
-        $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, profile_pic = ?, profile_pic_type = ? WHERE id = ?");
-        $null = NULL;
-        $stmt->bind_param("sbsi", $username, $null, $pfp_mime, $user_id);
-        $stmt->send_long_data(1, $pfp_blob);
+    if (!isValidUsername($username)) {
+        $error = "L'username può contenere solo lettere, numeri e underscore, non può iniziare o finire con un carattere speciale, deve essere lungo tra 3 e 20 caratteri e non può contenere spazi.";
     } else {
-        $stmt = $mysqli->prepare("UPDATE utenti SET username = ? WHERE id = ?");
-        $stmt->bind_param("si", $username, $user_id);
+        $username = $mysqli->real_escape_string($username);
+
+        if (isset($_FILES['pfp']) && $_FILES['pfp']['error'] === 0) {
+            $pfp_blob = file_get_contents($_FILES['pfp']['tmp_name']);
+            $pfp_mime = mime_content_type($_FILES['pfp']['tmp_name']);
+        }
+
+        if ($pfp_blob !== null && $pfp_mime !== null) {
+            $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, profile_pic = ?, profile_pic_type = ? WHERE id = ?");
+            $null = NULL;
+            $stmt->bind_param("sbsi", $username, $null, $pfp_mime, $user_id);
+            $stmt->send_long_data(1, $pfp_blob);
+        } else {
+            $stmt = $mysqli->prepare("UPDATE utenti SET username = ? WHERE id = ?");
+            $stmt->bind_param("si", $username, $user_id);
+        }
+
+        $stmt->execute();
+        $stmt->close();
+
+        $_SESSION['username'] = $username;
     }
-
-    $stmt->execute();
-    $stmt->close();
-
-    $_SESSION['username'] = $username;
 }
 
 $stmt = $mysqli->prepare("
