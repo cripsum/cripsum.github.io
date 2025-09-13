@@ -9,7 +9,7 @@
     height: 100%;
   }
   body {
-    animation: flash 0.2s infinite;
+    animation: flash 0.1s infinite;
   }
   @keyframes flash {
     0%   { background: black; }
@@ -19,5 +19,23 @@
 </style>
 </head>
 <body>
+    <div style="
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 3em;
+        font-weight: bold;
+        animation: textFlash 0.1s infinite;
+    ">
+        uwu
+    </div>
+    <style>
+    @keyframes textFlash {
+        0%   { color: white; }
+        50%  { color: black; }
+        100% { color: white; }
+    }
+    </style>
 </body>
 </html>
