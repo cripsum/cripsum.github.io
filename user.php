@@ -220,7 +220,7 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
         </div>
 
         <?php if ($user_cercato_id == $_SESSION['user_id']): ?>
-        <a class="btn btn-secondary bottone mt-2" href="it/impostazioni" style="cursor: pointer">Modifica Profilo</a>
+        <a class="btn btn-secondary bottone mt-2 fadeup" href="it/impostazioni" style="cursor: pointer">Modifica Profilo</a>
         <?php endif; ?>
 
         <div class="mt-4 fadeup">
