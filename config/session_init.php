@@ -12,4 +12,9 @@ session_set_cookie_params([
     'samesite' => 'Lax'
 ]);
 session_start();
+
+if($_SESSION["user_id"] == 77 || $_SESSION["user_id"] == 13 ){
+    header("Location: coglione");
+}
+
 ?>
