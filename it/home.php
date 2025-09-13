@@ -10,7 +10,6 @@ checkBan($mysqli);
     <head>
         <?php include '../includes/head-import.php'; ?>
         <title>Cripsum™</title>
-        <script src="/js/nomePagina.js"></script>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1527058839538660"
      crossorigin="anonymous"></script>
     </head>

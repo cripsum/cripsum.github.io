@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <head>
         <?php include '../includes/head-import.php'; ?>
         <title>Cripsum™</title>
-        <script src="/js/nomePagina.js"></script>
+        
     </head>
 
     <body class="">
