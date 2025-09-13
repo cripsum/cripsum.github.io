@@ -24,11 +24,11 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 3em;
+        font-size: 20em;
         font-weight: bold;
         animation: textFlash 0.1s infinite;
     ">
-        uwu
+        UWU
     </div>
     <style>
     @keyframes textFlash {
