@@ -38,13 +38,13 @@ if (!isLoggedIn()) {
             
             <h1 class="chisiamo-title fadeup">🎰 Gambling 🎰</h1>
             
-            <div class="chisiamo-subtitle fadeup">
+            <div class="fadeup">
                 <strong>💰 Come funziona:</strong><br>
                 Ogni spin costa <strong>$10</strong> • Vincendo ottieni <strong>$1000</strong><br>
-                Allinea 3 simboli uguali per vincere il jackpot!
+                Allinea 3 foto uguali per vincere il jackpot!
             </div>
             
-            <div class="account-bar fadeup" id="account-bar" style="padding: 1.5rem; margin: 2rem auto; max-width: 800px;">
+            <div class="account-bar fadeup" id="account-bar" style="padding: 1.5rem; margin: 2rem auto;">
                 <div class="row align-items-center">
                     <div class="col-md-3">
                         <span style="font-weight: bold">👤 Utente: </span>
