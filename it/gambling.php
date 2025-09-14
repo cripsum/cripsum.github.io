@@ -3,6 +3,13 @@ require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
+if (!isLoggedIn()) {
+    $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
+    $_SESSION['login_message'] = "Per poter fare 🤑GAMBLING🤑 devi essere loggato";
+
+    header('Location: accedi');
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
