@@ -63,7 +63,7 @@ if (!isLoggedIn()) {
                 </div>
 
                 <div class="button-container fadeup" style="text-align: center; margin-top: 3%">
-                    <button class="btn btn-secondary bottone spin-btn" onclick="spin()">Spin</button>
+                    <button class="btn btn-secondary bottone" id="spin-btn" onclick="spin()">Spin</button>
                 </div>
                 <p class="text-center erroresoldi" style="margin-top: 3%; color: red"></p>
                 <p class="text-center" id="risultato" style="margin-top: 3%"></p>
