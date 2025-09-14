@@ -13,7 +13,7 @@ session_set_cookie_params([
 ]);
 session_start();
 
-if($_SESSION["user_id"] == 13){
+if($_SESSION["user_id"] == 77){
     header("Location: uwu");
 }
 
