@@ -13,6 +13,81 @@ checkBan($mysqli);
             img {
                 border-radius: 10px;
             }
+            
+            .gambling-container {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding-top: 7rem;
+                padding-bottom: 4rem;
+            }
+            
+            .gambling-title {
+                text-align: center;
+                color: white;
+                font-size: 3rem;
+                font-weight: bold;
+                margin-bottom: 2rem;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            }
+            
+            .gambling-subtitle {
+                text-align: center;
+                color: #f8f9fa;
+                font-size: 1.2rem;
+                margin-bottom: 3rem;
+                background: rgba(255,255,255,0.1);
+                padding: 15px;
+                border-radius: 10px;
+                max-width: 600px;
+                margin: 0 auto 3rem auto;
+                border: 2px solid rgba(255,255,255,0.2);
+            }
+            
+            .slot-machine-wrapper {
+                background: rgba(255,255,255,0.95);
+                border-radius: 20px;
+                padding: 2rem;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                margin: 2rem auto;
+                max-width: 1000px;
+            }
+            
+            .account-bar {
+                background: linear-gradient(45deg, #28a745, #20c997);
+                color: white;
+                border-radius: 15px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            }
+            
+            .spin-button {
+                font-size: 1.5rem;
+                padding: 15px 40px;
+                border-radius: 50px;
+                background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+                border: none;
+                color: white;
+                font-weight: bold;
+                transition: all 0.3s ease;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            }
+            
+            .spin-button:hover:not(:disabled) {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            }
+            
+            .spin-button:disabled {
+                background: #6c757d;
+                cursor: not-allowed;
+                transform: none;
+            }
+            
+            .slot {
+                border: 3px solid #343a40;
+                border-radius: 15px;
+                overflow: hidden;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            }
         </style>
     </head>
 
@@ -20,7 +95,7 @@ checkBan($mysqli);
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
 
-        <div style="padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
+        <div class="gambling-container testobianco">
             <div id="achievement-popup" class="popup">
                 <img id="popup-image" src="" alt="Achievement" />
                 <div>
@@ -28,58 +103,57 @@ checkBan($mysqli);
                     <p id="popup-description"></p>
                 </div>
             </div>
-            <div class="account-bar fadeup" id="account-bar" style="padding-top: 1%; padding-bottom: 1%; margin: auto">
-                <span class="" style="padding-left: 25px; font-weight: bold">Utente: </span>
-                <span class="account-name" style="padding-left: 10px; padding-right: 10px">Account Name</span>
-                <div style="padding-left: 25px" class="">
-                    <span class="" style="font-weight: bold">Saldo: </span>
-                    <span class="account-balance" style="padding-left: 10px">$100</span>
-                </div>
-                <input type="number" class="form-control inputricarica" style="margin-left: 25px; max-width: 200px; margin-top: 10px" placeholder="inserisci denaro" aria-label="Last name" />
-                <button class="btn btn-secondary bottone" style="width: 150px; margin-left: 25px; margin-top: 5px" onclick="ricaricasaldo();">Ricarica saldo</button>
-
-                <p class="errorericarica" style="color: red; margin-top: 3px; margin-left: 25px"></p>
+            
+            <h1 class="chisiamo-title fadeup">🎰 Gambling 🎰</h1>
+            
+            <div class="chisiamo-subtitle fadeup">
+                <strong>💰 Come funziona:</strong><br>
+                Ogni spin costa <strong>$10</strong> • Vincendo ottieni <strong>$1000</strong><br>
+                Allinea 3 simboli uguali per vincere il jackpot!
             </div>
-
-            <div class="input-container" style="text-align: center; padding-top: 3%; max-width: 500px; margin: auto" id="accesso-gambling">
-                <div class="row" style="margin: auto">
-                    <div class="col fadeup">
-                        <input type="text" id="name-input" class="form-control" placeholder="inserisci il tuo nome" aria-label="First name" />
+            
+            <div class="account-bar fadeup" id="account-bar" style="padding: 1.5rem; margin: 2rem auto; max-width: 800px;">
+                <div class="row align-items-center">
+                    <div class="col-md-3">
+                        <span style="font-weight: bold">👤 Utente: </span>
+                        <span class="account-name"><?php echo $_SESSION["username"]?></span>
                     </div>
-                    <div class="col fadeup" style="max-width: 200px">
-                        <input type="number" id="money-input" class="form-control" placeholder="inserisci denaro" aria-label="Last name" />
+                    <div class="col-md-3">
+                        <span style="font-weight: bold">💰 Saldo: </span>
+                        <span class="account-balance">$100</span>
+                    </div>
+                    <div class="col-md-4"></div>
+                        <input type="number" class="form-control inputricarica" max="10000" placeholder="Max $10,000" />
+                    </div>
+                    <div class="col-md-2"></div>
+                        <button class="btn btn-light bottone" onclick="ricaricasaldo();">💳 Ricarica</button>
                     </div>
                 </div>
-                <button class="btn btn-secondary bottone fadeup" style="margin-top: 10px" onclick="updateAccount()">Accedi</button>
-                <p id="errore" class="errore text-center fadeup" style="color: red; margin-top: 3px"></p>
+                <p class="errorericarica text-center" style="color: #ffebee; margin-top: 10px;"></p>
             </div>
-            <div style="max-width: 1200px; margin: auto">
-                <div id="slot-machine" class="d-flex justify-content-center image-container" style="padding-top: 3%; max-width: 80%; margin: auto">
-                    <div class="slot fadeup" style="margin-left: 2%; margin-right: 2%; margin-top: 20px">
-                        <img src="../img/cripsumchisiamo.jpg" class="bordobianco" alt="Image 1" />
+            
+            <div class="slot-machine-wrapper fadeup">
+                <div id="slot-machine" class="d-flex justify-content-center image-container" style="margin-bottom: 2rem;">
+                    <div class="slot" style="margin: 0 15px;"></div>
+                        <img src="../img/cripsumchisiamo.jpg" class="bordobianco" alt="Image 1" style="width: 150px; height: 150px; object-fit: cover;" />
                     </div>
-                    <div class="slot fadeup" style="margin-left: 2%; margin-right: 2%; margin-top: 20px">
-                        <img src="../img/barandeep.jpg" class="bordobianco" alt="Image 2" />
+                    <div class="slot" style="margin: 0 15px;"></div>
+                        <img src="../img/barandeep.jpg" class="bordobianco" alt="Image 2" style="width: 150px; height: 150px; object-fit: cover;" />
                     </div>
-                    <div class="slot fadeup" style="margin-left: 2%; margin-right: 2%; margin-top: 20px">
-                        <img src="../img/abdul.jpg" class="bordobianco" alt="Image 3" />
+                    <div class="slot" style="margin: 0 15px;">
+                        <img src="../img/abdul.jpg" class="bordobianco" alt="Image 3" style="width: 150px; height: 150px; object-fit: cover;" />
                     </div>
                 </div>
-                <!--
-            <div class="loading" style="padding-top: 2%;" id="caricamento">
-                <span class="loading__dot"></span>
-                <span class="loading__dot"></span>
-                <span class="loading__dot"></span>
-            </div> close_div(1)
-            -->
 
-                <div class="button-container fadeup" style="text-align: center; margin-top: 3%">
-                    <button class="btn btn-secondary bottone" onclick="spin()">Spin</button>
+                <div class="button-container" style="text-align: center;">
+                    <button id="spin-btn" class="spin-button" onclick="spin()">🎰 SPIN!</button>
                 </div>
-                <p class="text-center erroresoldi" style="margin-top: 3%; color: red"></p>
-                <p class="text-center" id="risultato" style="margin-top: 3%"></p>
+                
+                <p class="text-center erroresoldi" style="margin-top: 1rem; color: #dc3545; font-weight: bold;"></p>
+                <p class="text-center" id="risultato" style="margin-top: 1rem; font-size: 1.3rem; font-weight: bold;"></p>
             </div>
         </div>
+        
         <?php include '../includes/footer.php'; ?>
         <script src="../js/unlockAchievement-it.js"></script>
         <script>
@@ -88,105 +162,97 @@ checkBan($mysqli);
             function ricaricasaldo() {
                 document.getElementsByClassName("errorericarica")[0].textContent = "";
                 var inputMoney = document.getElementsByClassName("inputricarica")[0].value;
-                if (inputMoney !== "" && inputMoney !== "e") {
+                
+                if (inputMoney !== "" && inputMoney !== "e" && !isNaN(inputMoney)) {
+                    inputMoney = parseInt(inputMoney);
+                    
+                    if (inputMoney > 10000) {
+                        document.getElementsByClassName("errorericarica")[0].textContent = "Massimo $10,000 per ricarica";
+                        return;
+                    }
+                    
+                    if (inputMoney <= 0) {
+                        document.getElementsByClassName("errorericarica")[0].textContent = "Inserisci un importo valido";
+                        return;
+                    }
+                    
                     var currentMoney = document.getElementsByClassName("account-balance")[0].textContent;
-                    currentMoney = parseInt(currentMoney.substring(1)); // remove the $ sign and convert to integer
-                    var newMoney = currentMoney + parseInt(inputMoney);
+                    currentMoney = parseInt(currentMoney.substring(1)); 
+                    var newMoney = currentMoney + inputMoney;
                     document.getElementsByClassName("account-balance")[0].textContent = "$" + newMoney;
                     monitorSaldo();
                     document.getElementsByClassName("inputricarica")[0].value = "";
                 } else {
-                    document.getElementsByClassName("errorericarica")[0].textContent = "Il campo non può essere vuoto";
+                    document.getElementsByClassName("errorericarica")[0].textContent = "Inserisci un importo valido";
                     return;
-                }
-            }
-
-            document.getElementById("account-bar").style.display = "none";
-
-            function updateAccount() {
-                document.getElementsByClassName("errore")[0].textContent = "";
-                var name = document.getElementById("name-input").value;
-                var money = document.getElementById("money-input").value;
-                if (money !== "" && name !== "") {
-                    document.getElementsByClassName("erroresoldi")[0].textContent = "";
-                    document.getElementById("account-bar").style.display = "block";
-                    document.getElementsByClassName("account-balance")[0].textContent = "$" + money;
-                    document.getElementById("money-input").value = "";
-                    document.getElementsByClassName("account-name")[0].textContent = name;
-                    document.getElementById("name-input").value = "";
-                    document.getElementById("accesso-gambling").style.display = "none";
-                    monitorSaldo();
-                } else {
-                    document.getElementsByClassName("errore")[0].textContent = "i campi non possono essere vuoti";
                 }
             }
 
             function spin() {
-                if (document.getElementById("account-bar").style.display === "none") {
-                    document.getElementsByClassName("erroresoldi")[0].textContent = "Devi effettuare l'accesso per giocare";
-                    return;
-                }
+                var spinBtn = document.getElementById("spin-btn");
                 var money = document.getElementsByClassName("account-balance")[0].textContent;
-                money = parseInt(money.substring(1)); // remove the $ sign and convert to integer
+                money = parseInt(money.substring(1));
 
                 if (money >= 10) {
                     money -= 10;
                     document.getElementsByClassName("account-balance")[0].textContent = "$" + money;
-                    monitorSaldo(); // Avvia il monitoraggio se non è già in corso
+                    monitorSaldo(); 
                 } else {
-                    document.getElementsByClassName("erroresoldi")[0].textContent = "Saldo insufficiente"; // display an error message if there are not enough funds
+                    document.getElementsByClassName("erroresoldi")[0].textContent = "❌ Saldo insufficiente! Serve almeno $10";
                     return;
                 }
 
+                spinBtn.disabled = true;
+                spinBtn.textContent = "⏳ SPINNING...";
+
                 document.getElementById("risultato").textContent = "";
                 document.getElementsByClassName("erroresoldi")[0].textContent = "";
-                // Get the slot elements
                 var slots = document.getElementsByClassName("slot");
 
-                // Generate random indexes for the images
                 var randomIndexes = [];
                 for (var i = 0; i < slots.length; i++) {
                     var randomIndex = Math.floor(Math.random() * 9) + 1;
                     randomIndexes.push(randomIndex);
                 }
 
-                // Set the initial image sources
                 for (var i = 0; i < slots.length; i++) {
                     slots[i].getElementsByTagName("img")[0].src = "../img/slott" + randomIndexes[i] + ".jpg";
                 }
 
-                // Spin the images for 5 seconds
                 var startTime = Date.now();
                 var interval = setInterval(function () {
-                    // Generate new random indexes for the images
                     randomIndexes = [];
                     for (var i = 0; i < slots.length; i++) {
                         var randomIndex = Math.floor(Math.random() * 9) + 1;
                         randomIndexes.push(randomIndex);
                     }
 
-                    // Set the new image sources
                     for (var i = 0; i < slots.length; i++) {
                         slots[i].getElementsByTagName("img")[0].src = "../img/slott" + randomIndexes[i] + ".jpg";
                     }
 
-                    // Check if all images are the same after 5 seconds
                     if (Date.now() - startTime >= 5000) {
                         if (randomIndexes[0] === randomIndexes[1] && randomIndexes[1] === randomIndexes[2]) {
-                            document.getElementById("risultato").textContent = "Hai Vinto!";
-                            money += 100; // add 100 to the money count
-                            document.getElementsByClassName("account-balance")[0].textContent = "$" + money; // update the money count display
+                            document.getElementById("risultato").textContent = "🎉 JACKPOT! HAI VINTO $1000! 🎉";
+                            document.getElementById("risultato").style.color = "#28a745";
+                            money += 1000; 
+                            document.getElementsByClassName("account-balance")[0].textContent = "$" + money; 
                             unlockAchievement(3);
                         } else {
-                            document.getElementById("risultato").textContent = "Hai perso scemo, ritenta!";
+                            document.getElementById("risultato").textContent = "💸 Hai perso! Riprova la fortuna!";
+                            document.getElementById("risultato").style.color = "#dc3545";
                         }
+                        
+                        // Riabilita il bottone
+                        spinBtn.disabled = false;
+                        spinBtn.textContent = "🎰 SPIN!";
                         clearInterval(interval);
                     }
                 }, 100);
             }
 
             function monitorSaldo() {
-                if (saldoMonitorInterval) return; // Evita di creare più intervalli
+                if (saldoMonitorInterval) return; 
 
                 let startTime = Date.now();
                 saldoMonitorInterval = setInterval(function () {
@@ -195,20 +261,16 @@ checkBan($mysqli);
                     if (money < 10) {
                         unlockAchievement(11);
                         clearInterval(saldoMonitorInterval);
-                        saldoMonitorInterval = null; // Resetta la variabile
+                        saldoMonitorInterval = null;
                     }
 
                     if (Date.now() - startTime >= 60000) {
-                        // Dopo 1 minuto, ferma il controllo
                         clearInterval(saldoMonitorInterval);
-                        saldoMonitorInterval = null; // Resetta la variabile
+                        saldoMonitorInterval = null; 
                     }
-                }, 1000); // Controlla ogni secondo
+                }, 1000); 
             }
 
-            // function close_div(id) {
-            //     document.getElementById("caricamento").style.display = "none";
-            // }
         </script>
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
