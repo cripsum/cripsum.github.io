@@ -45,7 +45,7 @@ if (!isLoggedIn()) {
                     <span class="account-balance" style="padding-left: 10px">$100</span>
                 </div>
                 <input type="number" class="form-control inputricarica" style="margin-left: 25px; max-width: 200px; margin-top: 10px" placeholder="inserisci denaro" aria-label="Last name" />
-                <button class="btn btn-secondary bottone" style="width: 150px; margin-left: 25px; margin-top: 5px" onclick="ricaricasaldo();">Ricarica saldo</button>
+                <button class="btn btn-secondary bottone" style="width: 150px; margin-left: 25px; margin-top: 5px" onclick="ricaricasaldo();">Ricarica</button>
 
                 <p class="errorericarica" style="color: red; margin-top: 3px; margin-left: 25px"></p>
             </div>
