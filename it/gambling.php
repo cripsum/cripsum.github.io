@@ -3,13 +3,6 @@ require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
-if (!isLoggedIn()) {
-    $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-    $_SESSION['login_message'] = "Per poter fare 🤑GAMBLING🤑 devi essere loggato";
-
-    header('Location: accedi');
-    exit();
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -27,7 +20,7 @@ if (!isLoggedIn()) {
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
 
-        <div class="gambling-container testobianco">
+        <div style="padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
             <div id="achievement-popup" class="popup">
                 <img id="popup-image" src="" alt="Achievement" />
                 <div>
@@ -35,57 +28,38 @@ if (!isLoggedIn()) {
                     <p id="popup-description"></p>
                 </div>
             </div>
-            
-            <h1 class="chisiamo-title fadeup">🎰 Gambling 🎰</h1>
-            
-            <div class="fadeup">
-                <strong>💰 Come funziona:</strong><br>
-                Ogni spin costa <strong>$10</strong> • Vincendo ottieni <strong>$1000</strong><br>
-                Allinea 3 foto uguali per vincere il jackpot!
-            </div>
-            
-            <div class="account-bar fadeup" id="account-bar" style="padding: 1.5rem; margin: 2rem auto;">
-                <div class="row align-items-center">
-                    <div class="col-md-3">
-                        <span style="font-weight: bold">👤 Utente: </span>
-                        <span class="account-name"><?php echo $_SESSION["username"]?></span>
-                    </div>
-                    <div class="col-md-3">
-                        <span style="font-weight: bold">💰 Saldo: </span>
-                        <span class="account-balance">$100</span>
-                    </div>
-                    <div class="col-md-4">
-                        <input type="number" class="form-control inputricarica" max="10000" placeholder="Max $10,000" />
-                    </div>
-                    <div class="col-md-2">
-                        <button class="btn btn-light bottone" onclick="ricaricasaldo();">💳 Ricarica</button>
-                    </div>
+            <div class="account-bar fadeup" id="account-bar" style="padding-top: 1%; padding-bottom: 1%; margin: auto">
+                <span class="" style="padding-left: 25px; font-weight: bold">Utente: </span>
+                <span class="account-name" style="padding-left: 10px; padding-right: 10px"><?php echo $_SESSION["username"]?></span>
+                <div style="padding-left: 25px" class="">
+                    <span class="" style="font-weight: bold">Saldo: </span>
+                    <span class="account-balance" style="padding-left: 10px">$100</span>
                 </div>
-                <p class="errorericarica text-center" style="color: #ffebee; margin-top: 10px;"></p>
+                <input type="number" class="form-control inputricarica" style="margin-left: 25px; max-width: 200px; margin-top: 10px" placeholder="inserisci denaro" aria-label="Last name" />
+                <button class="btn btn-secondary bottone" style="width: 150px; margin-left: 25px; margin-top: 5px" onclick="ricaricasaldo();">Ricarica saldo</button>
+
+                <p class="errorericarica" style="color: red; margin-top: 3px; margin-left: 25px"></p>
             </div>
-            
-            <div class="slot-machine-wrapper fadeup">
-                <div id="slot-machine" class="d-flex justify-content-center image-container" style="margin-bottom: 2rem;">
-                    <div class="slot" style="margin: 0 15px;">
-                        <img src="../img/cripsumchisiamo.jpg" class="bordobianco" alt="Image 1" style="width: 150px; height: 150px; object-fit: cover;" />
+            <div style="max-width: 1200px; margin: auto">
+                <div id="slot-machine" class="d-flex justify-content-center image-container" style="padding-top: 3%; max-width: 80%; margin: auto">
+                    <div class="slot fadeup" style="margin-left: 2%; margin-right: 2%; margin-top: 20px">
+                        <img src="../img/cripsumchisiamo.jpg" class="bordobianco" alt="Image 1" />
                     </div>
-                    <div class="slot" style="margin: 0 15px;">
-                        <img src="../img/barandeep.jpg" class="bordobianco" alt="Image 2" style="width: 150px; height: 150px; object-fit: cover;" />
+                    <div class="slot fadeup" style="margin-left: 2%; margin-right: 2%; margin-top: 20px">
+                        <img src="../img/barandeep.jpg" class="bordobianco" alt="Image 2" />
                     </div>
-                    <div class="slot" style="margin: 0 15px;">
-                        <img src="../img/abdul.jpg" class="bordobianco" alt="Image 3" style="width: 150px; height: 150px; object-fit: cover;" />
+                    <div class="slot fadeup" style="margin-left: 2%; margin-right: 2%; margin-top: 20px">
+                        <img src="../img/abdul.jpg" class="bordobianco" alt="Image 3" />
                     </div>
                 </div>
 
-                <div class="button-container" style="text-align: center;">
-                    <button id="spin-btn" class="spin-button" onclick="spin()">🎰 SPIN!</button>
+                <div class="button-container fadeup" style="text-align: center; margin-top: 3%">
+                    <button class="btn btn-secondary bottone spin-btn" onclick="spin()">Spin</button>
                 </div>
-                
-                <p class="text-center erroresoldi" style="margin-top: 1rem; color: #dc3545; font-weight: bold;"></p>
-                <p class="text-center" id="risultato" style="margin-top: 1rem; font-size: 1.3rem; font-weight: bold;"></p>
+                <p class="text-center erroresoldi" style="margin-top: 3%; color: red"></p>
+                <p class="text-center" id="risultato" style="margin-top: 3%"></p>
             </div>
         </div>
-        
         <?php include '../includes/footer.php'; ?>
         <script src="../js/unlockAchievement-it.js"></script>
         <script>
@@ -94,28 +68,15 @@ if (!isLoggedIn()) {
             function ricaricasaldo() {
                 document.getElementsByClassName("errorericarica")[0].textContent = "";
                 var inputMoney = document.getElementsByClassName("inputricarica")[0].value;
-                
-                if (inputMoney !== "" && inputMoney !== "e" && !isNaN(inputMoney)) {
-                    inputMoney = parseInt(inputMoney);
-                    
-                    if (inputMoney > 10000) {
-                        document.getElementsByClassName("errorericarica")[0].textContent = "Massimo $10,000 per ricarica";
-                        return;
-                    }
-                    
-                    if (inputMoney <= 0) {
-                        document.getElementsByClassName("errorericarica")[0].textContent = "Inserisci un importo valido";
-                        return;
-                    }
-                    
+                if (inputMoney !== "" && inputMoney !== "e") {
                     var currentMoney = document.getElementsByClassName("account-balance")[0].textContent;
                     currentMoney = parseInt(currentMoney.substring(1)); 
-                    var newMoney = currentMoney + inputMoney;
+                    var newMoney = currentMoney + parseInt(inputMoney);
                     document.getElementsByClassName("account-balance")[0].textContent = "$" + newMoney;
                     monitorSaldo();
                     document.getElementsByClassName("inputricarica")[0].value = "";
                 } else {
-                    document.getElementsByClassName("errorericarica")[0].textContent = "Inserisci un importo valido";
+                    document.getElementsByClassName("errorericarica")[0].textContent = "Il campo non può essere vuoto";
                     return;
                 }
             }
@@ -171,7 +132,7 @@ if (!isLoggedIn()) {
                             document.getElementsByClassName("account-balance")[0].textContent = "$" + money; 
                             unlockAchievement(3);
                         } else {
-                            document.getElementById("risultato").textContent = "💸 Hai perso! Riprova la fortuna!";
+                            document.getElementById("risultato").textContent = "💸 Hai perso scemo! Riprova la fortuna!";
                             document.getElementById("risultato").style.color = "#dc3545";
                         }
                         
