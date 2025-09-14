@@ -250,7 +250,6 @@ if (!isLoggedIn()) {
                             document.getElementById("risultato").style.color = "#dc3545";
                         }
                         
-                        // Riabilita il bottone
                         spinBtn.disabled = false;
                         spinBtn.textContent = "🎰 SPIN!";
                         clearInterval(interval);
