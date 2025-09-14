@@ -129,10 +129,10 @@ if (!isLoggedIn()) {
                         <span style="font-weight: bold">💰 Saldo: </span>
                         <span class="account-balance">$100</span>
                     </div>
-                    <div class="col-md-4"></div>
+                    <div class="col-md-4">
                         <input type="number" class="form-control inputricarica" max="10000" placeholder="Max $10,000" />
                     </div>
-                    <div class="col-md-2"></div>
+                    <div class="col-md-2">
                         <button class="btn btn-light bottone" onclick="ricaricasaldo();">💳 Ricarica</button>
                     </div>
                 </div>
@@ -141,10 +141,10 @@ if (!isLoggedIn()) {
             
             <div class="slot-machine-wrapper fadeup">
                 <div id="slot-machine" class="d-flex justify-content-center image-container" style="margin-bottom: 2rem;">
-                    <div class="slot" style="margin: 0 15px;"></div>
+                    <div class="slot" style="margin: 0 15px;">
                         <img src="../img/cripsumchisiamo.jpg" class="bordobianco" alt="Image 1" style="width: 150px; height: 150px; object-fit: cover;" />
                     </div>
-                    <div class="slot" style="margin: 0 15px;"></div>
+                    <div class="slot" style="margin: 0 15px;">
                         <img src="../img/barandeep.jpg" class="bordobianco" alt="Image 2" style="width: 150px; height: 150px; object-fit: cover;" />
                     </div>
                     <div class="slot" style="margin: 0 15px;">
