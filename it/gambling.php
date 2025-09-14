@@ -133,7 +133,7 @@ if (!isLoggedIn()) {
                         slots[i].getElementsByTagName("img")[0].src = "../img/slott" + randomIndexes[i] + ".jpg";
                     }
 
-                    if (Date.now() - startTime >= 5000) {
+                    if (Date.now() - startTime >= 3000) {
                         if (randomIndexes[0] === randomIndexes[1] && randomIndexes[1] === randomIndexes[2]) {
                             document.getElementById("risultato").textContent = "🎉 JACKPOT! HAI VINTO $1000! 🎉";
                             document.getElementById("risultato").style.color = "#28a745";
