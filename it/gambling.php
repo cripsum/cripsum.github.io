@@ -106,6 +106,7 @@ if (!isLoggedIn()) {
 
                 spinBtn.disabled = true;
                 spinBtn.textContent = "⏳ SPINNING...";
+                spinBtn.style.cursor = "not-allowed";
 
                 document.getElementById("risultato").textContent = "";
                 document.getElementsByClassName("erroresoldi")[0].textContent = "";
@@ -147,6 +148,7 @@ if (!isLoggedIn()) {
                         
                         spinBtn.disabled = false;
                         spinBtn.textContent = "🎰 SPIN!";
+                        spinBtn.style.cursor = "pointer";
                         clearInterval(interval);
                     }
                 }, 100);
