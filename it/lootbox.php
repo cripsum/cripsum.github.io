@@ -26,7 +26,7 @@ require_once '../api/api_personaggi.php';
 <html lang="en">
     <head>
         <?php include '../includes/head-import.php'; ?>
-        <link rel="stylesheet" href="/css/lootbox.css?v=5" />
+        <link rel="stylesheet" href="/css/lootbox.css?v=6" />
         <title>Cripsum™ - lootbox</title>
     </head>
 
@@ -233,6 +233,28 @@ require_once '../api/api_personaggi.php';
             </div>
 
             <audio id="suonoCassa"></audio>
+            <div class="leaderboard-section" style="max-width: 1200px; margin: 4rem auto; padding: 2rem;">
+                <div class="leaderboard-container">
+                    <div class="leaderboard-header">
+                        <h2 class="leaderboard-title">🏆 Classifiche</h2>
+                        <div class="leaderboard-tabs">
+                            <button class="leaderboard-tab active" onclick="switchLeaderboard('casse_aperte')" id="tab-casse">
+                                📦 Casse Aperte
+                            </button>
+                            <button class="leaderboard-tab" onclick="switchLeaderboard('personaggi_sbloccati')" id="tab-personaggi">
+                                👥 Personaggi Sbloccati
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="leaderboard-content" id="leaderboard-content">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                            <p>Caricamento classifica...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div id="achievement-popup" class="popup" style="max-height: 100px">
             <img id="popup-image" src="" alt="Achievement" />
@@ -1353,6 +1375,108 @@ require_once '../api/api_personaggi.php';
                     video.play();
                 });
             }
+
+                let currentLeaderboardType = 'casse_aperte';
+
+                document.addEventListener('DOMContentLoaded', function() {
+                    loadLeaderboard('casse_aperte');
+                });
+
+                async function loadLeaderboard(type) {
+                    const content = document.getElementById('leaderboard-content');
+
+                    content.innerHTML = `
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                            <p>Caricamento classifica...</p>
+                        </div>
+                    `;
+
+                    try {
+                        const response = await fetch(`https://cripsum.com/api/get_leaderboard?type=${type}`);
+                        const data = await response.json();
+
+                        if (data.status === 'success') {
+                            displayLeaderboard(data.data, type);
+                        } else {
+                            showError('Errore nel caricamento della classifica');
+                        }
+                    } catch (error) {
+                        console.error('Errore leaderboard:', error);
+                        showError('Errore di connessione');
+                    }
+                }
+
+                function displayLeaderboard(leaderboardData, type) {
+                    const content = document.getElementById('leaderboard-content');
+                    
+                    if (!leaderboardData || leaderboardData.length === 0) {
+                        content.innerHTML = `
+                            <div class="empty-leaderboard">
+                                <p>Nessun dato disponibile per questa classifica.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    const valueLabel = type === 'casse_aperte' ? 'casse' : 'personaggi';
+                    
+                    const listHTML = leaderboardData.map(item => {
+                        const positionClass = `position-${item.position}`;
+                        const medal = item.position === 1 ? '🥇' : 
+                                     item.position === 2 ? '🥈' : 
+                                     item.position === 3 ? '🥉' : '';
+
+                        return `
+                            <div class="leaderboard-item ${positionClass}">
+                                <div class="leaderboard-position">
+                                    <span class="position-medal">${medal}</span>
+                                    <span class="position-number">${item.position}</span>
+                                    <span class="leaderboard-username">${item.username}</span>
+                                </div>
+                                <div class="leaderboard-value">
+                                    ${item.value} ${valueLabel}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    content.innerHTML = `<div class="leaderboard-list">${listHTML}</div>`;
+                }
+
+                function showError(message) {
+                    const content = document.getElementById('leaderboard-content');
+                    content.innerHTML = `
+                        <div class="empty-leaderboard">
+                            <p style="color: #ff6b6b;">${message}</p>
+                            <button onclick="loadLeaderboard(currentLeaderboardType)" style="
+                                margin-top: 1rem;
+                                padding: 0.5rem 1rem;
+                                background: rgba(255, 255, 255, 0.1);
+                                border: 1px solid rgba(255, 255, 255, 0.2);
+                                border-radius: 10px;
+                                color: white;
+                                cursor: pointer;
+                            ">Riprova</button>
+                        </div>
+                    `;
+                }
+
+                function switchLeaderboard(type) {
+                    currentLeaderboardType = type;
+                    
+                    document.querySelectorAll('.leaderboard-tab').forEach(tab => {
+                        tab.classList.remove('active');
+                    });
+                    
+                    if (type === 'casse_aperte') {
+                        document.getElementById('tab-casse').classList.add('active');
+                    } else {
+                        document.getElementById('tab-personaggi').classList.add('active');
+                    }
+                    
+                    loadLeaderboard(type);
+                }
 
         </script>
         <script src="../js/modeChanger.js"></script>

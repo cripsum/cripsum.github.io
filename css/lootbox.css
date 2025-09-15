@@ -366,3 +366,215 @@ body.overflow-hidden {
     opacity: 1;
     transform: translateX(0);
 }
+
+.leaderboard-section {
+    background: linear-gradient(135deg, rgba(26, 26, 46, 0.9), rgba(22, 33, 62, 0.9));
+    border-radius: 20px;
+    border: 2px solid rgba(61, 90, 128, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.leaderboard-container {
+    width: 100%;
+}
+
+.leaderboard-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.leaderboard-title {
+    color: #fff;
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.leaderboard-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.leaderboard-tab {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    padding: 12px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.leaderboard-tab:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+.leaderboard-tab.active {
+    background: linear-gradient(135deg, #3d5a80, #2c4a6b);
+    border-color: #3d5a80;
+    box-shadow: 0 4px 15px rgba(61, 90, 128, 0.4);
+}
+
+.leaderboard-content {
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: #fff;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-left-color: #3d5a80;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.leaderboard-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.leaderboard-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.leaderboard-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.leaderboard-item.position-1 {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.1));
+    border-color: #ffd700;
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+}
+
+.leaderboard-item.position-2 {
+    background: linear-gradient(135deg, rgba(192, 192, 192, 0.2), rgba(192, 192, 192, 0.1));
+    border-color: #c0c0c0;
+    box-shadow: 0 4px 20px rgba(192, 192, 192, 0.3);
+}
+
+.leaderboard-item.position-3 {
+    background: linear-gradient(135deg, rgba(205, 127, 50, 0.2), rgba(205, 127, 50, 0.1));
+    border-color: #cd7f32;
+    box-shadow: 0 4px 20px rgba(205, 127, 50, 0.3);
+}
+
+.leaderboard-position {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.position-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #fff;
+    min-width: 40px;
+    text-align: center;
+}
+
+.position-1 .position-number {
+    color: #ffd700;
+}
+.position-2 .position-number {
+    color: #c0c0c0;
+}
+.position-3 .position-number {
+    color: #cd7f32;
+}
+
+.position-medal {
+    font-size: 2rem;
+    margin-right: 0.5rem;
+}
+
+.leaderboard-username {
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.leaderboard-value {
+    color: #3d5a80;
+    font-size: 1.3rem;
+    font-weight: bold;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+}
+
+.empty-leaderboard {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.2rem;
+    padding: 3rem;
+}
+
+@media (max-width: 768px) {
+    .leaderboard-section {
+        margin: 2rem auto;
+        padding: 1rem;
+    }
+
+    .leaderboard-title {
+        font-size: 2rem;
+    }
+
+    .leaderboard-tabs {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .leaderboard-tab {
+        width: 200px;
+        text-align: center;
+    }
+
+    .leaderboard-item {
+        padding: 1rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+
+    .leaderboard-position {
+        justify-content: center;
+    }
+}
