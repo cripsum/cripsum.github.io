@@ -260,9 +260,7 @@ require_once '../api/api_personaggi.php';
                     <div class="button-container mt-4" style="text-align: center; max-width: 95%; margin: auto">
                         <a class="btn btn-secondary bottone mt-2" onclick="refresh()" style="cursor: pointer">Apri cassa</a>
                         <a class="btn btn-secondary bottone mt-2" href="inventario" style="cursor: pointer">Apri l'inventario</a>
-                        <button class="btn btn-secondary bottone mt-2" onclick="toggleLeaderboard()" style="cursor: pointer">
-                            Visualizza Classifiche
-                        </button>
+                        <a class="btn btn-secondary bottone mt-2" onclick="toggleLeaderboard()" style="cursor: pointer">Visualizza Classifiche</a>
                     </div>
                 </div>
         <div id="achievement-popup" class="popup" style="max-height: 100px">
