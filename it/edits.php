@@ -120,6 +120,16 @@ checkBan($mysqli);
             min-width: 0; 
         }
 
+        .edit-card.filtering {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+        }
+
+        .edit-card.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
         .edit-card::before {
             content: "";
             position: absolute;
@@ -425,7 +435,7 @@ checkBan($mysqli);
                     </div>
                 </div>
             </div>
-            <div class="edit-card" data-category="games" onclick="playVideo(this, 26)">
+            <div class="edit-card" data-category="anime games" onclick="playVideo(this, 26)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/ypekqr?" 
@@ -1146,28 +1156,58 @@ checkBan($mysqli);
 
     <script>
             document.addEventListener('DOMContentLoaded', function() {
-                unlockAchievement(6);
+            unlockAchievement(6);
 
-                document.querySelectorAll('.filter-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        
-                        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        
-                        const filter = btn.dataset.filter;
-                        const cards = document.querySelectorAll('.edit-card');
+            let currentFilter = 'all';
+
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    if (btn.dataset.filter === currentFilter) return;
+                    
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    const filter = btn.dataset.filter;
+                    currentFilter = filter;
+                    const cards = document.querySelectorAll('.edit-card');
+                    
+                    cards.forEach((card, index) => {
+                        card.style.transition = 'all 0.3s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(20px) scale(0.95)';
+                    });
+                    
+                    setTimeout(() => {
+                        let visibleIndex = 0;
                         
                         cards.forEach(card => {
-                            if (filter === 'all' || card.dataset.category === filter) {
+                            const categories = card.dataset.category;
+                            let shouldShow = false;
+                            
+                            if (filter === 'all') {
+                                shouldShow = true;
+                            } else {
+                                const cardCategories = categories.split(/[\s,\-]+/).map(cat => cat.trim());
+                                shouldShow = cardCategories.includes(filter);
+                            }
+                            
+                            if (shouldShow) {
                                 card.style.display = 'block';
+                                setTimeout(() => {
+                                    card.style.opacity = '1';
+                                    card.style.transform = 'translateY(0) scale(1)';
+                                }, visibleIndex * 100);
+                                visibleIndex++;
                             } else {
                                 card.style.display = 'none';
                             }
                         });
-                    });
+                    }, 300);
                 });
             });
+        });
 
             function playVideo(card, id) {
                 document.querySelectorAll('.edit-card').forEach(c => c.classList.remove('playing'));
