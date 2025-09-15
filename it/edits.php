@@ -425,7 +425,7 @@ checkBan($mysqli);
                     </div>
                 </div>
             </div>
-            <div class="edit-card" data-category="games, anime" onclick="playVideo(this, 26)">
+            <div class="edit-card" data-category="games" onclick="playVideo(this, 26)">
                 <div class="video-container">
                     <iframe 
                         src="https://streamable.com/e/ypekqr?" 
