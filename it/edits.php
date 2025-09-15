@@ -120,16 +120,6 @@ checkBan($mysqli);
             min-width: 0; 
         }
 
-        .edit-card.filtering {
-            opacity: 0;
-            transform: translateY(20px) scale(0.95);
-        }
-
-        .edit-card.show {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-
         .edit-card::before {
             content: "";
             position: absolute;
