@@ -1146,28 +1146,38 @@ checkBan($mysqli);
 
     <script>
             document.addEventListener('DOMContentLoaded', function() {
-                unlockAchievement(6);
+            unlockAchievement(6);
 
-                document.querySelectorAll('.filter-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.preventDefault();
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    const filter = btn.dataset.filter;
+                    const cards = document.querySelectorAll('.edit-card');
+                    
+                    cards.forEach(card => {
+                        const categories = card.dataset.category;
+                        let shouldShow = false;
                         
-                        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
+                        if (filter === 'all') {
+                            shouldShow = true;
+                        } else {
+                            const cardCategories = categories.split(/[\s,]+/).map(cat => cat.trim());
+                            shouldShow = cardCategories.includes(filter);
+                        }
                         
-                        const filter = btn.dataset.filter;
-                        const cards = document.querySelectorAll('.edit-card');
-                        
-                        cards.forEach(card => {
-                            if (filter === 'all' || card.dataset.category === filter) {
-                                card.style.display = 'block';
-                            } else {
-                                card.style.display = 'none';
-                            }
-                        });
+                        if (shouldShow) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
                     });
                 });
             });
+        });
 
             function playVideo(card, id) {
                 document.querySelectorAll('.edit-card').forEach(c => c.classList.remove('playing'));
