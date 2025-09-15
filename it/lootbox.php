@@ -233,29 +233,37 @@ require_once '../api/api_personaggi.php';
             </div>
 
             <audio id="suonoCassa"></audio>
-            <div class="leaderboard-section" style="max-width: 1200px; margin: 4rem auto; padding: 2rem;">
-                <div class="leaderboard-container">
-                    <div class="leaderboard-header">
-                        <h2 class="leaderboard-title">🏆 Classifiche</h2>
-                        <div class="leaderboard-tabs">
-                            <button class="leaderboard-tab active" onclick="switchLeaderboard('casse_aperte')" id="tab-casse">
-                                📦 Casse Aperte
-                            </button>
-                            <button class="leaderboard-tab" onclick="switchLeaderboard('personaggi_sbloccati')" id="tab-personaggi">
-                                👥 Personaggi Sbloccati
-                            </button>
-                        </div>
+            <div class="leaderboard-wrapper" id="leaderboard-wrapper" style="display: none;">
+                <div class="leaderboard-box">
+                    <h3 class="testobianco">🏆 Classifiche</h3>
+                    
+                    <div class="leaderboard-buttons">
+                        <button class="btn btn-secondary bottone leaderboard-btn active" onclick="switchLeaderboard('casse_aperte')" id="btn-casse">
+                            Casse Aperte
+                        </button>
+                        <button class="btn btn-secondary bottone leaderboard-btn" onclick="switchLeaderboard('personaggi_sbloccati')" id="btn-personaggi">
+                            Personaggi
+                        </button>
                     </div>
                     
-                    <div class="leaderboard-content" id="leaderboard-content">
-                        <div class="loading-spinner">
-                            <div class="spinner"></div>
-                            <p>Caricamento classifica...</p>
-                        </div>
+                    <div id="leaderboard-data">
+                        <div class="loading-text testobianco">Caricamento...</div>
                     </div>
+                    
+                    <button class="btn btn-secondary bottone mt-3" onclick="toggleLeaderboard()">
+                        Chiudi Classifica
+                    </button>
                 </div>
             </div>
-        </div>
+
+
+            <div class="button-container mt-4" style="text-align: center; max-width: 95%; margin: auto">
+                <a class="btn btn-secondary bottone mt-2" onclick="refresh()" style="cursor: pointer">Apri cassa</a>
+                <a class="btn btn-secondary bottone mt-2" href="inventario" style="cursor: pointer">Apri l'inventario</a>
+                <button class="btn btn-secondary bottone mt-2" onclick="toggleLeaderboard()" style="cursor: pointer">
+                    Visualizza Classifiche
+                </button>
+            </div>
         <div id="achievement-popup" class="popup" style="max-height: 100px">
             <img id="popup-image" src="" alt="Achievement" />
             <div>
@@ -1377,106 +1385,89 @@ require_once '../api/api_personaggi.php';
             }
 
                 let currentLeaderboardType = 'casse_aperte';
+            let leaderboardVisible = false;
 
-                document.addEventListener('DOMContentLoaded', function() {
-                    loadLeaderboard('casse_aperte');
-                });
-
-                async function loadLeaderboard(type) {
-                    const content = document.getElementById('leaderboard-content');
-
-                    content.innerHTML = `
-                        <div class="loading-spinner">
-                            <div class="spinner"></div>
-                            <p>Caricamento classifica...</p>
-                        </div>
-                    `;
-
-                    try {
-                        const response = await fetch(`https://cripsum.com/api/get_leaderboard?type=${type}`);
-                        const data = await response.json();
-
-                        if (data.status === 'success') {
-                            displayLeaderboard(data.data, type);
-                        } else {
-                            showError('Errore nel caricamento della classifica');
-                        }
-                    } catch (error) {
-                        console.error('Errore leaderboard:', error);
-                        showError('Errore di connessione');
-                    }
+            function toggleLeaderboard() {
+                const wrapper = document.getElementById('leaderboard-wrapper');
+                
+                if (leaderboardVisible) {
+                    wrapper.style.display = 'none';
+                    leaderboardVisible = false;
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    wrapper.style.display = 'flex';
+                    leaderboardVisible = true;
+                    loadLeaderboard(currentLeaderboardType);
+                    document.body.style.overflow = 'hidden';
                 }
+            }
 
-                function displayLeaderboard(leaderboardData, type) {
-                    const content = document.getElementById('leaderboard-content');
-                    
-                    if (!leaderboardData || leaderboardData.length === 0) {
-                        content.innerHTML = `
-                            <div class="empty-leaderboard">
-                                <p>Nessun dato disponibile per questa classifica.</p>
-                            </div>
-                        `;
-                        return;
-                    }
+            async function loadLeaderboard(type) {
+                const dataDiv = document.getElementById('leaderboard-data');
+                
+                dataDiv.innerHTML = '<div class="loading-text testobianco">Caricamento...</div>';
 
-                    const valueLabel = type === 'casse_aperte' ? 'casse' : 'personaggi';
-                    
-                    const listHTML = leaderboardData.map(item => {
-                        const positionClass = `position-${item.position}`;
-                        const medal = item.position === 1 ? '🥇' : 
-                                     item.position === 2 ? '🥈' : 
-                                     item.position === 3 ? '🥉' : '';
+                try {
+                    const response = await fetch(`https://cripsum.com/api/get_leaderboard?type=${type}`);
+                    const data = await response.json();
 
-                        return `
-                            <div class="leaderboard-item ${positionClass}">
-                                <div class="leaderboard-position">
-                                    <span class="position-medal">${medal}</span>
-                                    <span class="position-number">${item.position}</span>
-                                    <span class="leaderboard-username">${item.username}</span>
-                                </div>
-                                <div class="leaderboard-value">
-                                    ${item.value} ${valueLabel}
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-
-                    content.innerHTML = `<div class="leaderboard-list">${listHTML}</div>`;
-                }
-
-                function showError(message) {
-                    const content = document.getElementById('leaderboard-content');
-                    content.innerHTML = `
-                        <div class="empty-leaderboard">
-                            <p style="color: #ff6b6b;">${message}</p>
-                            <button onclick="loadLeaderboard(currentLeaderboardType)" style="
-                                margin-top: 1rem;
-                                padding: 0.5rem 1rem;
-                                background: rgba(255, 255, 255, 0.1);
-                                border: 1px solid rgba(255, 255, 255, 0.2);
-                                border-radius: 10px;
-                                color: white;
-                                cursor: pointer;
-                            ">Riprova</button>
-                        </div>
-                    `;
-                }
-
-                function switchLeaderboard(type) {
-                    currentLeaderboardType = type;
-                    
-                    document.querySelectorAll('.leaderboard-tab').forEach(tab => {
-                        tab.classList.remove('active');
-                    });
-                    
-                    if (type === 'casse_aperte') {
-                        document.getElementById('tab-casse').classList.add('active');
+                    if (data.status === 'success' && data.data.length > 0) {
+                        displayLeaderboard(data.data, type);
                     } else {
-                        document.getElementById('tab-personaggi').classList.add('active');
+                        dataDiv.innerHTML = '<div class="loading-text testobianco">Nessun dato disponibile</div>';
                     }
-                    
-                    loadLeaderboard(type);
+                } catch (error) {
+                    console.error('Errore leaderboard:', error);
+                    dataDiv.innerHTML = '<div class="loading-text testobianco" style="color: #ff6b6b;">Errore di connessione</div>';
                 }
+            }
+
+            function displayLeaderboard(leaderboardData, type) {
+                const dataDiv = document.getElementById('leaderboard-data');
+                const valueLabel = type === 'casse_aperte' ? 'casse' : 'personaggi';
+                
+                const html = leaderboardData.map(item => {
+                    const rankClass = item.position === 1 ? 'gold' : 
+                                    item.position === 2 ? 'silver' : 
+                                    item.position === 3 ? 'bronze' : '';
+                    
+                    const medal = item.position === 1 ? '🥇 ' : 
+                                item.position === 2 ? '🥈 ' : 
+                                item.position === 3 ? '🥉 ' : '';
+
+                    return `
+                        <div class="leaderboard-entry ${rankClass}">
+                            <span class="entry-position testobianco">${medal}${item.position}</span>
+                            <span class="entry-username testobianco">${item.username}</span>
+                            <span class="entry-value">${item.value}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                dataDiv.innerHTML = html;
+            }
+
+            function switchLeaderboard(type) {
+                currentLeaderboardType = type;
+                
+                document.querySelectorAll('.leaderboard-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                if (type === 'casse_aperte') {
+                    document.getElementById('btn-casse').classList.add('active');
+                } else {
+                    document.getElementById('btn-personaggi').classList.add('active');
+                }
+                
+                loadLeaderboard(type);
+            }
+
+            document.addEventListener('click', function(e) {
+                if (leaderboardVisible && e.target.id === 'leaderboard-wrapper') {
+                    toggleLeaderboard();
+                }
+            });
 
         </script>
         <script src="../js/modeChanger.js"></script>

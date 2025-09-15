@@ -455,126 +455,116 @@ body.overflow-hidden {
     }
 }
 
-.leaderboard-list {
-    display: grid;
-    gap: 1rem;
+.leaderboard-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.leaderboard-item {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+.leaderboard-box {
+    background: rgba(17, 17, 17, 0.95);
+    border: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: 15px;
-    padding: 1rem 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(5px);
-}
-
-.leaderboard-item:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
-}
-
-.leaderboard-item.position-1 {
-    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.1));
-    border-color: #ffd700;
-    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
-}
-
-.leaderboard-item.position-2 {
-    background: linear-gradient(135deg, rgba(192, 192, 192, 0.2), rgba(192, 192, 192, 0.1));
-    border-color: #c0c0c0;
-    box-shadow: 0 4px 20px rgba(192, 192, 192, 0.3);
-}
-
-.leaderboard-item.position-3 {
-    background: linear-gradient(135deg, rgba(205, 127, 50, 0.2), rgba(205, 127, 50, 0.1));
-    border-color: #cd7f32;
-    box-shadow: 0 4px 20px rgba(205, 127, 50, 0.3);
-}
-
-.leaderboard-position {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.position-number {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #fff;
-    min-width: 40px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
     text-align: center;
 }
 
-.position-1 .position-number {
+.leaderboard-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 1rem 0;
+}
+
+.leaderboard-btn {
+    font-size: 0.9rem !important;
+    padding: 8px 16px !important;
+}
+
+.leaderboard-btn.active {
+    background-color: #0d6efd !important;
+}
+
+#leaderboard-data {
+    margin: 1.5rem 0;
+    min-height: 200px;
+}
+
+.loading-text {
+    padding: 2rem;
+    font-size: 1.1rem;
+}
+
+.leaderboard-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    margin: 5px 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border-left: 3px solid transparent;
+}
+
+.leaderboard-entry.gold {
+    border-left-color: #ffd700;
+}
+.leaderboard-entry.silver {
+    border-left-color: #c0c0c0;
+}
+.leaderboard-entry.bronze {
+    border-left-color: #cd7f32;
+}
+
+.entry-position {
+    font-weight: bold;
+    margin-right: 10px;
+    min-width: 30px;
+}
+
+.entry-username {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.entry-value {
+    font-weight: bold;
     color: #ffd700;
 }
-.position-2 .position-number {
+
+.gold .entry-position {
+    color: #ffd700;
+}
+.silver .entry-position {
     color: #c0c0c0;
 }
-.position-3 .position-number {
+.bronze .entry-position {
     color: #cd7f32;
 }
 
-.position-medal {
-    font-size: 2rem;
-    margin-right: 0.5rem;
-}
-
-.leaderboard-username {
-    color: #fff;
-    font-size: 1.2rem;
-    font-weight: 600;
-}
-
-.leaderboard-value {
-    color: #3d5a80;
-    font-size: 1.3rem;
-    font-weight: bold;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-}
-
-.empty-leaderboard {
-    text-align: center;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 1.2rem;
-    padding: 3rem;
-}
-
 @media (max-width: 768px) {
-    .leaderboard-section {
-        margin: 2rem auto;
+    .leaderboard-box {
         padding: 1rem;
+        max-width: 95%;
     }
 
-    .leaderboard-title {
-        font-size: 2rem;
-    }
-
-    .leaderboard-tabs {
+    .leaderboard-buttons {
         flex-direction: column;
         align-items: center;
     }
 
-    .leaderboard-tab {
-        width: 200px;
-        text-align: center;
-    }
-
-    .leaderboard-item {
-        padding: 1rem;
-        flex-direction: column;
-        text-align: center;
-        gap: 0.5rem;
-    }
-
-    .leaderboard-position {
-        justify-content: center;
+    .leaderboard-btn {
+        width: 150px;
     }
 }
