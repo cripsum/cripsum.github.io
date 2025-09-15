@@ -398,7 +398,7 @@ checkBan($mysqli);
 
     <div class="edits-container">
         <div class="edits-grid">
-            <div class="edit-card" data-category="games" onclick="playVideo(this, 27)">
+            <div class="edit-card" data-category="anime" onclick="playVideo(this, 27)">
                 <div class="edit-badge">Latest</div>
                 <div class="video-container">
                     <iframe 
@@ -442,7 +442,7 @@ checkBan($mysqli);
                 </div>
                 <div class="edit-info">
                     <div class="character-name">
-                        <i class="fas fa-user character-icon"></i>
+                        <i class="fas fa-gamepad character-icon"></i>
                         Iuno - Wuthering Waves
                     </div>
                     <div class="music-info">
