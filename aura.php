@@ -143,45 +143,30 @@ $user_id = $_SESSION['user_id'] ?? null;
         /* Nuove animazioni fluide */
         @keyframes randomPath1 {
             0% { transform: translate(10vw, 10vh) rotate(0deg); }
-            15% { transform: translate(80vw, 20vh) rotate(54deg); }
-            30% { transform: translate(70vw, 70vh) rotate(108deg); }
-            45% { transform: translate(20vw, 80vh) rotate(162deg); }
+            15% { transform: translate(calc(80vw - 130px), 20vh) rotate(54deg); }
+            30% { transform: translate(calc(70vw - 130px), calc(70vh - 130px)) rotate(108deg); }
+            45% { transform: translate(20vw, calc(80vh - 130px)) rotate(162deg); }
             60% { transform: translate(5vw, 50vh) rotate(216deg); }
-            75% { transform: translate(60vw, 30vh) rotate(270deg); }
-            90% { transform: translate(40vw, 60vh) rotate(324deg); }
+            75% { transform: translate(calc(60vw - 130px), 30vh) rotate(270deg); }
+            90% { transform: translate(calc(40vw - 130px), calc(60vh - 130px)) rotate(324deg); }
             100% { transform: translate(10vw, 10vh) rotate(360deg); }
         }
 
         @keyframes randomPath2 {
-            0% { transform: translate(90vw, 80vh) rotate(0deg) scale(1); }
+            0% { transform: translate(calc(90vw - 170px), calc(80vh - 170px)) rotate(0deg) scale(1); }
             20% { transform: translate(30vw, 10vh) rotate(72deg) scale(1.3); }
-            40% { transform: translate(10vw, 60vh) rotate(144deg) scale(0.7); }
-            60% { transform: translate(75vw, 40vh) rotate(216deg) scale(1.1); }
-            80% { transform: translate(50vw, 85vh) rotate(288deg) scale(0.9); }
-            100% { transform: translate(90vw, 80vh) rotate(360deg) scale(1); }
+            40% { transform: translate(10vw, calc(60vh - 170px)) rotate(144deg) scale(0.7); }
+            60% { transform: translate(calc(75vw - 170px), calc(40vh - 170px)) rotate(216deg) scale(1.1); }
+            80% { transform: translate(calc(50vw - 170px), calc(85vh - 170px)) rotate(288deg) scale(0.9); }
+            100% { transform: translate(calc(90vw - 170px), calc(80vh - 170px)) rotate(360deg) scale(1); }
         }
 
         @keyframes dvdBounce {
-            0% { 
-                transform: translate(0vw, 0vh);
-                animation-timing-function: linear;
-            }
-            25% { 
-                transform: translate(calc(100vw - 110px), 25vh);
-                animation-timing-function: linear;
-            }
-            50% { 
-                transform: translate(calc(100vw - 110px), calc(100vh - 110px));
-                animation-timing-function: linear;
-            }
-            75% { 
-                transform: translate(0vw, calc(100vh - 110px));
-                animation-timing-function: linear;
-            }
-            100% { 
-                transform: translate(0vw, 0vh);
-                animation-timing-function: linear;
-            }
+            0% { transform: translate(0px, 0px); }
+            25% { transform: translate(calc(100vw - 110px), calc(25vh - 55px)); }
+            50% { transform: translate(calc(100vw - 110px), calc(100vh - 110px)); }
+            75% { transform: translate(0px, calc(100vh - 110px)); }
+            100% { transform: translate(0px, 0px); }
         }
 
         .goofy-animation-1 {
