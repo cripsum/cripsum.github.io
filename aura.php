@@ -28,27 +28,151 @@ $user_id = $_SESSION['user_id'] ?? null;
     <?php include 'includes/navbar.php'; ?>
     <?php include 'includes/impostazioni.php'; ?>
 
-    <div class="container my-5 paginainterachisiamo testobianco" style="padding-top: 5rem; padding-bottom: 4rem;">
+    <div class="container-fluid my-5 paginainterachisiamo testobianco" style="padding-top: 5rem; padding-bottom: 4rem; overflow: hidden;"></div>
         <div class="text-center">
-            <img src="img/absolutetopaz.jpg" alt="Goofy Animation" class="goofy-animation" style="max-width: 300px; height: auto;">
+            <img src="img/absolutetopaz.jpg" alt="Goofy Animation 1" class="goofy-animation-1" style="max-width: 200px; height: auto; position: absolute; top: 10%; left: 10%;">
+            <img src="img/absolutetopaz.jpg" alt="Goofy Animation 2" class="goofy-animation-2" style="max-width: 150px; height: auto; position: absolute; top: 20%; right: 15%;">
+            <img src="img/absolutetopaz.jpg" alt="Goofy Animation 3" class="goofy-animation-3" style="max-width: 180px; height: auto; position: absolute; top: 50%; left: 5%;">
+            <img src="img/absolutetopaz.jpg" alt="Goofy Animation 4" class="goofy-animation-4" style="max-width: 120px; height: auto; position: absolute; bottom: 20%; right: 20%;">
+            <img src="img/absolutetopaz.jpg" alt="Goofy Animation 5" class="goofy-animation-5" style="max-width: 250px; height: auto; position: absolute; top: 70%; left: 30%;">
+            <img src="img/absolutetopaz.jpg" alt="Goofy Animation 6" class="goofy-animation-6" style="max-width: 100px; height: auto; position: absolute; top: 30%; left: 50%;">
+            <img src="img/absolutetopaz.jpg" alt="Goofy Animation 7" class="goofy-animation-7" style="max-width: 160px; height: auto; position: absolute; bottom: 40%; left: 70%;">
+            <img src="img/absolutetopaz.jpg" alt="Goofy Animation 8" class="goofy-animation-8" style="max-width: 220px; height: auto; position: absolute; top: 60%; right: 40%;">
+            <img src="img/absolutetopaz.jpg" alt="Goofy Animation 9" class="goofy-animation-9" style="max-width: 140px; height: auto; position: absolute; bottom: 10%; left: 45%;">
+            <img src="img/absolutetopaz.jpg" alt="Goofy Animation 10" class="goofy-animation-10" style="max-width: 190px; height: auto; position: absolute; top: 40%; right: 5%;">
         </div>
     </div>
 
     <style>
         @keyframes goofyBounce {
             0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0) rotate(0deg);
+                transform: translateY(0) rotate(0deg) scale(1);
             }
             40% {
-                transform: translateY(-30px) rotate(-5deg);
+                transform: translateY(-30px) rotate(-15deg) scale(1.2);
             }
             60% {
-                transform: translateY(-15px) rotate(5deg);
+                transform: translateY(-15px) rotate(15deg) scale(0.8);
             }
         }
 
-        .goofy-animation {
-            animation: goofyBounce 2s ease-in-out infinite;
+        @keyframes crazyRotate {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(90deg) scale(1.5); }
+            50% { transform: rotate(180deg) scale(0.5); }
+            75% { transform: rotate(270deg) scale(1.8); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        @keyframes zigzag {
+            0% { transform: translateX(0) translateY(0) rotate(0deg); }
+            25% { transform: translateX(50px) translateY(-30px) rotate(45deg); }
+            50% { transform: translateX(-30px) translateY(-60px) rotate(-45deg); }
+            75% { transform: translateX(80px) translateY(-20px) rotate(90deg); }
+            100% { transform: translateX(0) translateY(0) rotate(0deg); }
+        }
+
+        @keyframes wobble {
+            0% { transform: translateX(0) skew(0deg, 0deg); }
+            15% { transform: translateX(-25px) skew(-15deg, 5deg); }
+            30% { transform: translateX(20px) skew(10deg, -5deg); }
+            45% { transform: translateX(-15px) skew(-10deg, 3deg); }
+            60% { transform: translateX(10px) skew(5deg, -3deg); }
+            75% { transform: translateX(-5px) skew(-5deg, 2deg); }
+            100% { transform: translateX(0) skew(0deg, 0deg); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(2) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+
+        @keyframes fly {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            20% { transform: translate(100px, -50px) rotate(72deg); }
+            40% { transform: translate(-80px, -100px) rotate(144deg); }
+            60% { transform: translate(120px, 30px) rotate(216deg); }
+            80% { transform: translate(-60px, 80px) rotate(288deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10% { transform: translateX(-10px) rotate(-5deg); }
+            20% { transform: translateX(10px) rotate(5deg); }
+            30% { transform: translateX(-10px) rotate(-3deg); }
+            40% { transform: translateX(10px) rotate(3deg); }
+            50% { transform: translateX(-10px) rotate(-2deg); }
+            60% { transform: translateX(10px) rotate(2deg); }
+            70% { transform: translateX(-10px) rotate(-1deg); }
+            80% { transform: translateX(10px) rotate(1deg); }
+            90% { transform: translateX(-10px) rotate(0deg); }
+        }
+
+        @keyframes spiral {
+            0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+            25% { transform: translate(50px, 50px) rotate(90deg) scale(0.5); }
+            50% { transform: translate(0, 100px) rotate(180deg) scale(1.5); }
+            75% { transform: translate(-50px, 50px) rotate(270deg) scale(0.8); }
+            100% { transform: translate(0, 0) rotate(360deg) scale(1); }
+        }
+
+        @keyframes elastic {
+            0% { transform: scale(1, 1); }
+            20% { transform: scale(1.5, 0.5); }
+            40% { transform: scale(0.5, 1.5); }
+            60% { transform: scale(1.2, 0.8); }
+            80% { transform: scale(0.9, 1.1); }
+            100% { transform: scale(1, 1); }
+        }
+
+        @keyframes flip {
+            0% { transform: perspective(400px) rotateY(0); }
+            40% { transform: perspective(400px) translateZ(150px) rotateY(170deg); }
+            50% { transform: perspective(400px) translateZ(150px) rotateY(190deg) scale(1.5); }
+            80% { transform: perspective(400px) rotateY(360deg) scale(0.8); }
+            100% { transform: perspective(400px) rotateY(360deg) scale(1); }
+        }
+
+        .goofy-animation-1 {
+            animation: goofyBounce 1.5s ease-in-out infinite;
+        }
+
+        .goofy-animation-2 {
+            animation: crazyRotate 3s linear infinite;
+        }
+
+        .goofy-animation-3 {
+            animation: zigzag 2s ease-in-out infinite;
+        }
+
+        .goofy-animation-4 {
+            animation: wobble 1s ease-in-out infinite;
+        }
+
+        .goofy-animation-5 {
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+
+        .goofy-animation-6 {
+            animation: fly 4s ease-in-out infinite;
+        }
+
+        .goofy-animation-7 {
+            animation: shake 0.5s ease-in-out infinite;
+        }
+
+        .goofy-animation-8 {
+            animation: spiral 3.5s ease-in-out infinite;
+        }
+
+        .goofy-animation-9 {
+            animation: elastic 1.8s ease-in-out infinite;
+        }
+
+        .goofy-animation-10 {
+            animation: flip 2.2s ease-in-out infinite;
         }
     </style>
 
