@@ -40,6 +40,11 @@ $user_id = $_SESSION['user_id'] ?? null;
             <img src="img/absolutetopaz.jpg" alt="Goofy Animation 8" class="goofy-animation-8" style="max-width: 220px; height: auto; position: absolute; top: 60%; right: 40%;">
             <img src="img/absolutetopaz.jpg" alt="Goofy Animation 9" class="goofy-animation-9" style="max-width: 140px; height: auto; position: absolute; bottom: 10%; left: 45%;">
             <img src="img/absolutetopaz.jpg" alt="Goofy Animation 10" class="goofy-animation-10" style="max-width: 190px; height: auto; position: absolute; top: 40%; right: 5%;">
+            
+            <!-- Nuove animazioni fluide -->
+            <img src="img/absolutetopaz.jpg" alt="Random Mover 1" class="random-mover-1" style="max-width: 130px; height: auto; position: fixed; z-index: 1000;">
+            <img src="img/absolutetopaz.jpg" alt="Random Mover 2" class="random-mover-2" style="max-width: 170px; height: auto; position: fixed; z-index: 1000;">
+            <img src="img/absolutetopaz.jpg" alt="DVD Bouncer" class="dvd-bouncer" style="max-width: 110px; height: auto; position: fixed; z-index: 1000;">
         </div>
     </div>
 
@@ -135,6 +140,50 @@ $user_id = $_SESSION['user_id'] ?? null;
             100% { transform: perspective(400px) rotateY(360deg) scale(1); }
         }
 
+        /* Nuove animazioni fluide */
+        @keyframes randomPath1 {
+            0% { transform: translate(10vw, 10vh) rotate(0deg); }
+            15% { transform: translate(80vw, 20vh) rotate(54deg); }
+            30% { transform: translate(70vw, 70vh) rotate(108deg); }
+            45% { transform: translate(20vw, 80vh) rotate(162deg); }
+            60% { transform: translate(5vw, 50vh) rotate(216deg); }
+            75% { transform: translate(60vw, 30vh) rotate(270deg); }
+            90% { transform: translate(40vw, 60vh) rotate(324deg); }
+            100% { transform: translate(10vw, 10vh) rotate(360deg); }
+        }
+
+        @keyframes randomPath2 {
+            0% { transform: translate(90vw, 80vh) rotate(0deg) scale(1); }
+            20% { transform: translate(30vw, 10vh) rotate(72deg) scale(1.3); }
+            40% { transform: translate(10vw, 60vh) rotate(144deg) scale(0.7); }
+            60% { transform: translate(75vw, 40vh) rotate(216deg) scale(1.1); }
+            80% { transform: translate(50vw, 85vh) rotate(288deg) scale(0.9); }
+            100% { transform: translate(90vw, 80vh) rotate(360deg) scale(1); }
+        }
+
+        @keyframes dvdBounce {
+            0% { 
+                transform: translate(0vw, 0vh);
+                animation-timing-function: linear;
+            }
+            25% { 
+                transform: translate(calc(100vw - 110px), 25vh);
+                animation-timing-function: linear;
+            }
+            50% { 
+                transform: translate(calc(100vw - 110px), calc(100vh - 110px));
+                animation-timing-function: linear;
+            }
+            75% { 
+                transform: translate(0vw, calc(100vh - 110px));
+                animation-timing-function: linear;
+            }
+            100% { 
+                transform: translate(0vw, 0vh);
+                animation-timing-function: linear;
+            }
+        }
+
         .goofy-animation-1 {
             animation: goofyBounce 1.5s ease-in-out infinite;
         }
@@ -173,6 +222,19 @@ $user_id = $_SESSION['user_id'] ?? null;
 
         .goofy-animation-10 {
             animation: flip 2.2s ease-in-out infinite;
+        }
+
+        /* Nuove classi per movimenti fluidi */
+        .random-mover-1 {
+            animation: randomPath1 12s ease-in-out infinite;
+        }
+
+        .random-mover-2 {
+            animation: randomPath2 15s ease-in-out infinite;
+        }
+
+        .dvd-bouncer {
+            animation: dvdBounce 8s linear infinite;
         }
     </style>
 
