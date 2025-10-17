@@ -42,9 +42,9 @@ $user_id = $_SESSION['user_id'] ?? null;
             <img src="img/absolutetopaz.jpg" alt="Goofy Animation 10" class="goofy-animation-10" style="max-width: 190px; height: auto; position: absolute; top: 40%; right: 5%;">
             
             <!-- Nuove animazioni fluide -->
-            <img src="img/absolutetopaz.jpg" alt="Random Mover 1" class="random-mover-1" style="max-width: 130px; height: auto; position: fixed; z-index: 1000;">
-            <img src="img/absolutetopaz.jpg" alt="Random Mover 2" class="random-mover-2" style="max-width: 170px; height: auto; position: fixed; z-index: 1000;">
-            <img src="img/absolutetopaz.jpg" alt="DVD Bouncer" class="dvd-bouncer" style="max-width: 110px; height: auto; position: fixed; z-index: 1000;">
+            <img src="img/absolutetopaz.jpg" alt="Random Mover 1" class="random-mover-1" style="max-width: 130px; height: auto; position: fixed; z-index: 1000; top: 0; left: 0;">
+            <img src="img/absolutetopaz.jpg" alt="Random Mover 2" class="random-mover-2" style="max-width: 170px; height: auto; position: fixed; z-index: 1000; top: 0; left: 0;">
+            <img src="img/absolutetopaz.jpg" alt="DVD Bouncer" class="dvd-bouncer" style="max-width: 110px; height: auto; position: fixed; z-index: 1000; top: 0; left: 0;">
         </div>
     </div>
 
