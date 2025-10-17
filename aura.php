@@ -176,7 +176,7 @@ $user_id = $_SESSION['user_id'] ?? null;
         }
     </style>
 
-            <div id="achievement-popup" class="popup">
+            <!-- <div id="achievement-popup" class="popup">
             <img id="popup-image" src="" alt="Achievement" />
             <div>
                 <h3 id="popup-title"></h3>
@@ -190,6 +190,6 @@ $user_id = $_SESSION['user_id'] ?? null;
             crossorigin="anonymous"
         ></script>
 
-        <script src="../js/modeChanger.js"></script>
+        <script src="../js/modeChanger.js"></script> -->
 </body>
 </html>
