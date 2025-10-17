@@ -163,10 +163,56 @@ $user_id = $_SESSION['user_id'] ?? null;
 
         @keyframes dvdBounce {
             0% { transform: translate(0px, 0px); }
-            25% { transform: translate(calc(100vw - 110px), calc(25vh - 55px)); }
-            50% { transform: translate(calc(100vw - 110px), calc(100vh - 110px)); }
-            75% { transform: translate(0px, calc(100vh - 110px)); }
-            100% { transform: translate(0px, 0px); }
+            2% { transform: translate(calc(8vw - 11px), calc(6vh - 11px)); }
+            4% { transform: translate(calc(16vw - 22px), calc(12vh - 22px)); }
+            6% { transform: translate(calc(24vw - 33px), calc(18vh - 33px)); }
+            8% { transform: translate(calc(32vw - 44px), calc(24vh - 44px)); }
+            10% { transform: translate(calc(40vw - 55px), calc(30vh - 55px)); }
+            12% { transform: translate(calc(48vw - 66px), calc(36vh - 66px)); }
+            14% { transform: translate(calc(56vw - 77px), calc(42vh - 77px)); }
+            16% { transform: translate(calc(64vw - 88px), calc(48vh - 88px)); }
+            18% { transform: translate(calc(72vw - 99px), calc(54vh - 99px)); }
+            20% { transform: translate(calc(80vw - 110px), calc(60vh - 110px)); }
+            22% { transform: translate(calc(88vw - 110px), calc(66vh - 110px)); }
+            24% { transform: translate(calc(96vw - 110px), calc(72vh - 110px)); }
+            26% { transform: translate(calc(94vw - 110px), calc(78vh - 110px)); }
+            28% { transform: translate(calc(92vw - 110px), calc(84vh - 110px)); }
+            30% { transform: translate(calc(90vw - 110px), calc(90vh - 110px)); }
+            32% { transform: translate(calc(86vw - 110px), calc(88vh - 110px)); }
+            34% { transform: translate(calc(82vw - 110px), calc(86vh - 110px)); }
+            36% { transform: translate(calc(78vw - 110px), calc(84vh - 110px)); }
+            38% { transform: translate(calc(74vw - 110px), calc(82vh - 110px)); }
+            40% { transform: translate(calc(70vw - 110px), calc(80vh - 110px)); }
+            42% { transform: translate(calc(66vw - 110px), calc(78vh - 110px)); }
+            44% { transform: translate(calc(62vw - 110px), calc(76vh - 110px)); }
+            46% { transform: translate(calc(58vw - 110px), calc(74vh - 110px)); }
+            48% { transform: translate(calc(54vw - 110px), calc(72vh - 110px)); }
+            50% { transform: translate(calc(50vw - 110px), calc(70vh - 110px)); }
+            52% { transform: translate(calc(46vw - 110px), calc(68vh - 110px)); }
+            54% { transform: translate(calc(42vw - 110px), calc(66vh - 110px)); }
+            56% { transform: translate(calc(38vw - 110px), calc(64vh - 110px)); }
+            58% { transform: translate(calc(34vw - 110px), calc(62vh - 110px)); }
+            60% { transform: translate(calc(30vw - 110px), calc(60vh - 110px)); }
+            62% { transform: translate(calc(26vw - 110px), calc(56vh - 110px)); }
+            64% { transform: translate(calc(22vw - 110px), calc(52vh - 110px)); }
+            66% { transform: translate(calc(18vw - 110px), calc(48vh - 110px)); }
+            68% { transform: translate(calc(14vw - 110px), calc(44vh - 110px)); }
+            70% { transform: translate(calc(10vw - 110px), calc(40vh - 110px)); }
+            72% { transform: translate(calc(6vw - 66px), calc(36vh - 110px)); }
+            74% { transform: translate(calc(2vw - 22px), calc(32vh - 110px)); }
+            76% { transform: translate(0px, calc(28vh - 110px)); }
+            78% { transform: translate(calc(4vw - 44px), calc(24vh - 110px)); }
+            80% { transform: translate(calc(8vw - 88px), calc(20vh - 110px)); }
+            82% { transform: translate(calc(12vw - 110px), calc(16vh - 110px)); }
+            84% { transform: translate(calc(16vw - 110px), calc(12vh - 77px)); }
+            86% { transform: translate(calc(20vw - 110px), calc(8vh - 44px)); }
+            88% { transform: translate(calc(24vw - 110px), calc(4vh - 22px)); }
+            90% { transform: translate(calc(28vw - 110px), 0px); }
+            92% { transform: translate(calc(32vw - 110px), calc(6vh - 33px)); }
+            94% { transform: translate(calc(36vw - 110px), calc(12vh - 66px)); }
+            96% { transform: translate(calc(40vw - 110px), calc(18vh - 99px)); }
+            98% { transform: translate(calc(44vw - 110px), calc(24vh - 110px)); }
+            100% { transform: translate(calc(48vw - 110px), calc(30vh - 110px)); }
         }
 
         .goofy-animation-1 {
