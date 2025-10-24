@@ -589,7 +589,7 @@ $user_cercato_id = $user['id'];
                 </div>
                 
                 <h1 class="user-username text-center" style="text-align: center;">cripsum</h1>
-                <p class="profile-subtitle">AKA - Leo, Sofficino alla pesca</p>
+                <p class="profile-subtitle">AKA - Leo, Cripsy Cripsy</p>
                 
                 <div class="profile-info">
                     <div><span>⟡</span>🇮🇹 | 20</div>
