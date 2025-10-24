@@ -400,7 +400,7 @@ checkBan($mysqli);
         <div class="paginainterachisiamo testobianco" style="padding-top: 4rem; padding-bottom: 4rem;">
             <div class="achievements-section">
                 <div class="chisiamo-section fadeup">
-                    <h1 class="chisiamo-title">🏆 Achievement Sbloccati</h1>
+                    <h1 class="chisiamo-title">Achievement Sbloccati</h1>
                     <p class="chisiamo-subtitle">
                         Traccia i tuoi progressi e sblocca nuovi traguardi esplorando tutte le funzionalità di Cripsum™
                     </p>
@@ -557,7 +557,7 @@ checkBan($mysqli);
 
                         ${isUnlocked && unlocked.data ? `
                         <div class="achievement-unlock-date">
-                            🎉 Sbloccato il ${new Date(unlocked.data).toLocaleDateString('it-IT')} 
+                            Sbloccato il ${new Date(unlocked.data).toLocaleDateString('it-IT')} 
                             alle ${new Date(unlocked.data).toLocaleTimeString('it-IT')}
                         </div>
                         ` : ''}
@@ -849,7 +849,7 @@ function calculateProgress(achievement) {
             
             notification.innerHTML = `
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div style="font-size: 2rem;">🎉</div>
+                    <div style="font-size: 2rem;"></div>
                     <div>
                         <div style="font-weight: bold; margin-bottom: 0.5rem;">Achievement Sbloccato!</div>
                         <div style="font-size: 0.9rem; opacity: 0.9;">${achievement.nome}</div>

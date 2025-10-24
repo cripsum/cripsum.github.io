@@ -51,7 +51,7 @@ checkBan($mysqli);
                     un investimento di <span class="fw-bold text-warning">€3000/4000</span>.
                     </p>
                     <p class="text-white fs-6 mb-4">
-                    La tua donazione ci aiuta a mantenere il sito gratuito e a sviluppare nuove funzionalità! ☕✨
+                    La tua donazione ci aiuta a mantenere il sito gratuito e a sviluppare nuove funzionalità!
                     </p>
                     <div class="d-flex justify-content-center gap-3 flex-wrap">
                     <span class="badge bg-light text-dark px-3 py-2 rounded-pill">

@@ -257,7 +257,7 @@ checkBan($mysqli);
         </section>
 
         <section class="join-team-section">
-            <h2 class="join-title">Unisciti al Team! 🚀</h2>
+            <h2 class="join-title">Unisciti al Team!</h2>
             <p class="join-description">
                 Hai quello che serve per far parte della squadra più king del web? 
                 Mandaci la tua candidatura e diventa parte della squadra + da king del secolo!
