@@ -89,7 +89,7 @@ $user_cercato_id = $user['id'];
                 box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 
                            0 0 0 1px rgba(255, 255, 255, 0.05);
                 width: 100%;
-                max-width: 480px;
+                max-width: 600px;
                 padding: 40px;
                 text-align: center;
                 position: relative;
