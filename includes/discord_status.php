@@ -16,6 +16,19 @@ $data = getDiscordPresence($discord_id);
     $status = $data['data']['discord_status'];
     $activities = $data['data']['activities'];
     
+    $custom_status = null;
+    $filtered_activities = [];
+    
+    if (!empty($activities)) {
+        foreach ($activities as $activity) {
+            if (isset($activity['type']) && $activity['type'] === 4) {
+                $custom_status = $activity;
+            } else {
+                $filtered_activities[] = $activity;
+            }
+        }
+    }
+    
     $avatar_url = "https://cdn.discordapp.com/avatars/{$user['id']}/{$user['avatar']}.png?size=64";
 ?>
     <div class="discord-card">
@@ -40,17 +53,10 @@ $data = getDiscordPresence($discord_id);
                 </div>
                 <div class="profile-status">
                     <?php 
-                    $status_text = '';
-                    switch($status) {
-                        case 'online': $status_text = 'Online'; break;
-                        case 'idle': $status_text = 'Away'; break;
-                        case 'dnd': $status_text = 'Do Not Disturb'; break;
-                        case 'offline': $status_text = 'Offline'; break;
-                        default: $status_text = 'Unknown'; break;
-                    }
-                    
-                    if (!empty($activities)) {
-                        $activity = $activities[0];
+                    if ($custom_status && !empty($custom_status['state'])) {
+                        echo "<span class=\"activity-state\" style=\"color:white; text-align:left\">" . htmlspecialchars($custom_status['state']) . "</span>";
+                    } elseif (!empty($filtered_activities)) {
+                        $activity = $filtered_activities[0];
                         $activity_verb = '';
                         
                         if (isset($activity['type'])) {
@@ -59,7 +65,6 @@ $data = getDiscordPresence($discord_id);
                                 case 1: $activity_verb = 'Streaming'; break;
                                 case 2: $activity_verb = 'Listening to'; break;
                                 case 3: $activity_verb = 'Watching'; break;
-                                case 4: $activity_verb = 'Custom'; break;
                                 case 5: $activity_verb = 'Competing in'; break;
                                 default: $activity_verb = 'Playing'; break;
                             }
@@ -68,9 +73,25 @@ $data = getDiscordPresence($discord_id);
                         if ($activity_verb && isset($activity['name'])) {
                             echo "<span class=\"activity-state\" style=\"color:white; text-align:left\">{$activity_verb} {$activity['name']}</span>";
                         } else {
+                            $status_text = '';
+                            switch($status) {
+                                case 'online': $status_text = 'Online'; break;
+                                case 'idle': $status_text = 'Away'; break;
+                                case 'dnd': $status_text = 'Do Not Disturb'; break;
+                                case 'offline': $status_text = 'Offline'; break;
+                                default: $status_text = 'Unknown'; break;
+                            }
                             echo "<span class=\"activity-state\" style=\"color:white; text-align:left \">{$status_text}</span>";
                         }
                     } else {
+                        $status_text = '';
+                        switch($status) {
+                            case 'online': $status_text = 'Online'; break;
+                            case 'idle': $status_text = 'Away'; break;
+                            case 'dnd': $status_text = 'Do Not Disturb'; break;
+                            case 'offline': $status_text = 'Offline'; break;
+                            default: $status_text = 'Unknown'; break;
+                        }
                         echo "<span class=\"activity-state\" style=\"color:white; text-align:left \">{$status_text}</span>";
                     }
                     ?>
@@ -78,9 +99,9 @@ $data = getDiscordPresence($discord_id);
             </div>
         </div>
 
-        <?php if (!empty($activities)): ?>
+        <?php if (!empty($filtered_activities)): ?>
             <div class="activity-section">
-                <?php foreach ($activities as $index => $activity): ?>
+                <?php foreach ($filtered_activities as $index => $activity): ?>
                     <div class="activity-item" style="<?php echo $index !== 0 ? 'display:none;' : ''; ?>">
                         <div class="activity-icon-container">
                             <?php
@@ -164,7 +185,6 @@ $data = getDiscordPresence($discord_id);
             </div>
         <?php endif; ?>
     </div>
-
 
     <style>
         .discord-card {
