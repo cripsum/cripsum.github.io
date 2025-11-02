@@ -416,7 +416,7 @@ checkBan($mysqli);
                 </div>
                 <div class="edit-info">
                     <div class="character-name">
-                        <i class="fas fa-user character-icon"></i>
+                        <i class="fas fa-gamepad character-icon"></i>
                         <p>The herta & Sparkle - HSR <br> (collab con <a href="https://www.tiktok.com/@nauz_aep" class="linkbianco">Nauz</a>)</p>
                     </div>
                     <div class="music-info">
