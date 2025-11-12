@@ -26,7 +26,7 @@ checkBan($mysqli);
             }
 
             .achievements-section {
-                max-width: 85%;
+                max-width: 100%;
                 margin: 0 auto;
                 padding: 2rem 0;
             }
