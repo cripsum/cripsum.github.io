@@ -118,21 +118,3 @@ if ($isLoggedIn) {
             });
         </script>
     <?php endif; ?>
-
-    <?php if ($isLoggedIn): ?>
-        <script>
-            window.addEventListener('load', function() {
-                var script = document.createElement('script');
-                script.src = '/js/unlockAchievement-it.js?v=2';
-                document.head.appendChild(script);
-            });
-        </script>
-        <script>
-            window.addEventListener('load', function() {
-                var script = document.createElement('script');
-                script.src = '/js/achievements-globali.js?v=3';
-                document.head.appendChild(script);
-            });
-        </script>
-
-    <?php endif; ?>
