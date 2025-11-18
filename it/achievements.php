@@ -615,7 +615,7 @@ function calculateProgress(achievement) {
         
         case 17: 
             const watchedVideos = getCookie("watchedVideos") || [];
-            const totalVideos = 27; 
+            const totalVideos = 28; 
             return {
                 current: watchedVideos.length,
                 target: totalVideos
