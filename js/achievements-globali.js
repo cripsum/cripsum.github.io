@@ -28,17 +28,20 @@ if (now.getHours() === 3) {
 
 function checkTimeSpent() {
     let timeSpent = parseInt(getCookie("timeSpent")) || 0;
-    // Increment time spent by 1 second
+
     timeSpent += 1;
-    // Update the cookie with the new time spent
+
     setCookie("timeSpent", timeSpent);
-    // Check if 2 hours (7200 seconds) have been reached
+
     if (timeSpent >= 7200) {
-        unlockAchievement(14);
+        if (getCookie("achievement14Unlocked")){}
+        else {
+            unlockAchievement(14);
+            setCookie("achievement14Unlocked", true);
+        }
     }
 }
 
-// Check time spent every second
 setInterval(checkTimeSpent, 1000);
 
 function checkDaysVisited() {
@@ -46,7 +49,7 @@ function checkDaysVisited() {
     if (!Array.isArray(daysVisited)) {
         daysVisited = [];
     }
-    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const today = new Date().toISOString().slice(0, 10);
     if (!daysVisited.includes(today)) {
         daysVisited.push(today);
         setCookie("daysVisited", daysVisited);
