@@ -304,6 +304,7 @@ require_once '../api/api_personaggi.php';
             var secretPulled = false;
             var specialPulled = false;
             var nuovoPersonaggio = false;
+            var isopening = false;
             //|| {
             //    comune: 45,
             //    raro: 25,
@@ -794,21 +795,21 @@ require_once '../api/api_personaggi.php';
                             if (!contenuto.classList.contains("salto")) {
                                 pullaPersonaggio().then(() => {
                                     if (theOnePulled === true) {
-                                        theOnePulled = false;
                                         event.preventDefault();
                                         apriNormale();
+                                        isopening = true;
                                     } else if (secretPulled === true) {
-                                        secretPulled = false;
                                         event.preventDefault();
                                         apriNormale();
+                                        isopening = true;
                                     } else if (specialPulled === true) {
-                                        specialPulled = false;
                                         event.preventDefault();
                                         apriNormale();
+                                        isopening = true;
                                     } else if (nuovoPersonaggio === true) {
-                                        nuovoPersonaggio = false;
                                         event.preventDefault();
                                         apriNormale();
+                                        isopening = true;
                                     } else {
                                         event.preventDefault();
                                         bagliore.style.opacity = 0.6;
@@ -825,22 +826,21 @@ require_once '../api/api_personaggi.php';
                             }
                         } else {
                             if (theOnePulled === true) {
-                                theOnePulled = false;
                                 event.preventDefault();
                                 apriNormale();
-
+                                isopening = true;
                             } else if (secretPulled === true) {
-                                secretPulled = false;
                                 event.preventDefault();
                                 apriNormale();
+                                isopening = true;
                             } else if (specialPulled === true) {
-                                specialPulled = false;
                                 event.preventDefault();
                                 apriNormale();
+                                isopening = true;
                             } else if (nuovoPersonaggio === true) {
-                                nuovoPersonaggio = false;
                                 event.preventDefault();
                                 apriNormale();
+                                isopening = true;
                             } else {
                                 event.preventDefault();
                                 apriVeloce();
@@ -916,6 +916,9 @@ require_once '../api/api_personaggi.php';
             }
 
             async function apriNormale() {
+                if (isopening) {
+                    return;
+                }
                 cassa.onclick = null;
                 await apriCassa();
 
@@ -960,7 +963,7 @@ require_once '../api/api_personaggi.php';
                 } else if (secretPulled === true) {
                     event.preventDefault();
                     apriNormale();
-                    
+
                 } else if (specialPulled === true) {
                     event.preventDefault();
                     apriNormale();
