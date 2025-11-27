@@ -104,12 +104,16 @@ $stmt->close();
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Profilo</title>
     <style>
+        .card {
+            background: transparent !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0) !important;
+            border-color: rgba(255, 255, 255, 0) !important;
+        }
+
         .card:hover {
             transform: translateY(0px) scale(1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0);
-            border-color: rgba(255, 255, 255, 0);
-            background: transparent !important;
         }
+
         .card:hover::before {
             opacity: 0;
         }
