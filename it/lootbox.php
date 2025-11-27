@@ -945,12 +945,16 @@ require_once '../api/api_personaggi.php';
             function controlloApriVeloce() {
                 if (theOnePulled === true) {
                     apriNormale();
+                    event.preventDefault();
                 } else if (secretPulled === true) {
                     apriNormale();
+                    event.preventDefault();
                 } else if (specialPulled === true) {
                     apriNormale();
+                    event.preventDefault();
                 } else if (nuovoPersonaggio === true) {
                     apriNormale();
+                    event.preventDefault();
                 } else {
                     apriVeloce();
                 }
