@@ -794,15 +794,19 @@ require_once '../api/api_personaggi.php';
                             if (!contenuto.classList.contains("salto")) {
                                 pullaPersonaggio().then(() => {
                                     if (theOnePulled === true) {
+                                        theOnePulled = false;
                                         event.preventDefault();
                                         apriNormale();
                                     } else if (secretPulled === true) {
+                                        secretPulled = false;
                                         event.preventDefault();
                                         apriNormale();
                                     } else if (specialPulled === true) {
+                                        specialPulled = false;
                                         event.preventDefault();
                                         apriNormale();
                                     } else if (nuovoPersonaggio === true) {
+                                        nuovoPersonaggio = false;
                                         event.preventDefault();
                                         apriNormale();
                                     } else {
@@ -821,16 +825,20 @@ require_once '../api/api_personaggi.php';
                             }
                         } else {
                             if (theOnePulled === true) {
+                                theOnePulled = false;
                                 event.preventDefault();
                                 apriNormale();
 
                             } else if (secretPulled === true) {
+                                secretPulled = false;
                                 event.preventDefault();
                                 apriNormale();
                             } else if (specialPulled === true) {
+                                specialPulled = false;
                                 event.preventDefault();
                                 apriNormale();
                             } else if (nuovoPersonaggio === true) {
+                                nuovoPersonaggio = false;
                                 event.preventDefault();
                                 apriNormale();
                             } else {
@@ -947,17 +955,18 @@ require_once '../api/api_personaggi.php';
 
             function controlloApriVeloce() {
                 if (theOnePulled === true) {
-                    apriNormale();
                     event.preventDefault();
+                    apriNormale();
                 } else if (secretPulled === true) {
-                    apriNormale();
                     event.preventDefault();
+                    apriNormale();
+                    
                 } else if (specialPulled === true) {
-                    apriNormale();
                     event.preventDefault();
+                    apriNormale();
                 } else if (nuovoPersonaggio === true) {
-                    apriNormale();
                     event.preventDefault();
+                    apriNormale();
                 } else {
                     apriVeloce();
                 }
