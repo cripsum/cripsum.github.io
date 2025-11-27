@@ -498,6 +498,10 @@ if (!isLoggedIn()) {
                 const foundInRarity = inventory.filter((p) => p.rarità === rarity).length;
                 const totalInRarity = totalCharacters.filter((p) => p.rarità === rarity).length;
 
+                if (rarity === "segreto" && foundInRarity === 0) {
+                    return;
+                }
+
                 if (rarity === "theone" && foundInRarity === 0) {
                     return;
                 }
