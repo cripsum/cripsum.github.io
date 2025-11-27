@@ -788,10 +788,7 @@ require_once '../api/api_personaggi.php';
                         if (!cassa.classList.contains("aperta")) {
                             if (!contenuto.classList.contains("salto")) {
                                 pullaPersonaggio().then(() => {
-                                    if (theOnePulled === true || nuovoPersonaggio === true) {
-                                        event.preventDefault();
-                                        apriNormale();
-                                    } else {
+                                    if (theOnePulled !== true || nuovoPersonaggio !== true) {
                                         bagliore.style.opacity = 0.6;
                                         bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
 
@@ -801,15 +798,20 @@ require_once '../api/api_personaggi.php';
                                         generaParticelle();
                                         apriCassa();
                                         apriVeloce();
+
+                                    } else {
+                                        event.preventDefault();
+                                        apriNormale();
                                     }
                                 });
                             }
                         } else {
-                            if (theOnePulled === true || nuovoPersonaggio === true) {
+                            if (theOnePulled !== true || nuovoPersonaggio !== true) {
+
+                                apriVeloce();
+                            } else {
                                 event.preventDefault();
                                 apriNormale();
-                            } else {
-                                apriVeloce();
                             }
                         }
 
