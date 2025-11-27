@@ -1,4 +1,3 @@
-unlockAchievement(1);
 
 (async () => {
     const unlockedAchievementsnum = await getUnlockedAchievementsNumber();

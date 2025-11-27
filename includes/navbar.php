@@ -4,7 +4,7 @@ $uri = $_SERVER['REQUEST_URI'];
 $lang = explode('/', trim($uri, '/'))[0];
 
 if (!in_array($lang, ['it', 'en'])) {
-    $lang = 'it'; 
+    $lang = 'it';
 }
 
 if ($isLoggedIn) {
@@ -12,9 +12,8 @@ if ($isLoggedIn) {
     $userId = $_SESSION['user_id'];
     $profilePic = "/includes/get_pfp.php?id=$userId";
     $ruolo = $_SESSION['ruolo'] ?? '';
-    $nsfw = $_SESSION['nsfw'] ?? 0; 
+    $nsfw = $_SESSION['nsfw'] ?? 0;
     $richpresence = $_SESSION['richpresence'] ?? 0;
-
 }
 ?>
 
@@ -33,8 +32,7 @@ if ($isLoggedIn) {
             aria-controls="navbarSupportedContent"
             aria-expanded="false"
             aria-label="Toggle navigation"
-            style="z-index: 1000"
-        >
+            style="z-index: 1000">
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -77,8 +75,8 @@ if ($isLoggedIn) {
                 <?php else: ?>
                     <li class="nav-item dropdown dropdownutenti">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
-                            <img src="<?php echo htmlspecialchars($profilePic); ?>&t=<?php echo time(); ?>" alt="Profilo" 
-                                 class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;">
+                            <img src="<?php echo htmlspecialchars($profilePic); ?>&t=<?php echo time(); ?>" alt="Profilo"
+                                class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;">
                             <span><?php echo htmlspecialchars($username); ?></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end animate slideIn">
@@ -94,7 +92,9 @@ if ($isLoggedIn) {
                             <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
                                 <li><a class="dropdown-item" href="/<?= $lang ?>/admin"><i class="fas fa-shield-alt me-2"></i>Pannello Admin</a></li>
                             <?php endif; ?>
-                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <li><a class="dropdown-item text-danger" href="https://cripsum.com/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                         </ul>
                     </li>
@@ -109,12 +109,20 @@ if ($isLoggedIn) {
         </div> -->
     </div>
 </nav>
-    <?php if ($richpresence === 1): ?>
-        <script>
-            window.addEventListener('load', function() {
-                var script = document.createElement('script');
-                script.src = '/js/richpresence.js';
-                document.head.appendChild(script);
-            });
-        </script>
-    <?php endif; ?>
+<?php if ($richpresence === 1): ?>
+    <script>
+        window.addEventListener('load', function() {
+            var script = document.createElement('script');
+            script.src = '/js/richpresence.js';
+            document.head.appendChild(script);
+        });
+    </script>
+<?php endif; ?>
+<?php if ($isLoggedIn): ?>
+    <script>
+        if (getCookie("achievement1Unlocked")) {} else {
+            unlockAchievement(1);
+            setCookie("achievement1Unlocked", true);
+        }
+    </script>
+<?php endif; ?>
