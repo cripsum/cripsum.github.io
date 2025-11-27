@@ -38,14 +38,6 @@ checkBan($mysqli);
         <?php include '../includes/navbar.php'; ?>
         <?php include '../includes/impostazioni.php'; ?>
 
-        <div class="floating-elements fadeup">
-        <div class="floating-element"></div>
-        <div class="floating-element"></div>
-        <div class="floating-element"></div>
-        <div class="floating-element"></div>
-        <div class="floating-element"></div>
-    </div>
-
     <div class="main-container fadeup" style="padding-top: 2rem">
         <section class="chisiamo-section">
             <h1 class="chisiamo-title">Il Nostro Team di Sviluppo</h1>
