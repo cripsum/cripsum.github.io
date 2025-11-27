@@ -142,7 +142,7 @@ if (!isLoggedIn()) {
                 height: 150px;
                 border-radius: 50%;
                 object-fit: cover;
-                border: 3px solid #3d5a80;
+                border: 3px solid #ffffff;
                 margin-bottom: 1rem;
                 transition: transform 0.3s;
             }
@@ -188,7 +188,7 @@ if (!isLoggedIn()) {
                 background: rgba(255, 255, 255, 0.1);
                 padding: 1rem;
                 border-radius: 10px;
-                border-left: 4px solid #3d5a80;
+                border-left: 4px solid #ffffff;
             }
 
             .character-date {
@@ -459,12 +459,12 @@ if (!isLoggedIn()) {
                 <div class="modal-content rarity-${character.rarità}">
                 <span class="close-modal">&times;</span>
                 <div class="modal-character-info">
-                    <img src="/img/${character.img_url}" class="modal-character-image" alt="${character.nome}">
+                    <img src="/img/${character.img_url}" class="modal-character-image rarity-${character.rarità}" alt="${character.nome}">
                     <h2>${character.nome}</h2>
                     <p class="character-rarity">Rarità: ${character.rarità === "theone" ? "THE ONE" : character.rarità}</p>
                     <p class="character-quantity">Quantità: x${character.quantità}</p>
                     <p class="character-description">${character.descrizione || 'Nessuna descrizione disponibile'}</p>
-                    <p class="character-traits"><strong>Tratti distintivi:</strong><br>- ${character.caratteristiche ? character.caratteristiche.split(';').join('<br> -') : 'Nessun tratto specificato'}</p>
+                    <p class="character-traits rarity-${character.rarità}"><strong>Tratti distintivi:</strong><br>- ${character.caratteristiche ? character.caratteristiche.split(';').join('<br> -') : 'Nessun tratto specificato'}</p>
                     <p class="character-date">Trovato il: ${new Date(character.data).toLocaleDateString()} alle ${new Date(character.data).toLocaleTimeString('it-IT')}</p>
                     <button class="animation-button" onclick="window.location.href='animazione_personaggio?id_personaggio=${character.id}'">Visualizza Animazione Apertura</button>
                 </div>
