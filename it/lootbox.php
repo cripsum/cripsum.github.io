@@ -806,6 +806,7 @@ require_once '../api/api_personaggi.php';
                                         event.preventDefault();
                                         apriNormale();
                                     } else {
+                                        event.preventDefault();
                                         bagliore.style.opacity = 0.6;
                                         bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
 
@@ -822,6 +823,7 @@ require_once '../api/api_personaggi.php';
                             if (theOnePulled === true) {
                                 event.preventDefault();
                                 apriNormale();
+
                             } else if (secretPulled === true) {
                                 event.preventDefault();
                                 apriNormale();
@@ -832,6 +834,7 @@ require_once '../api/api_personaggi.php';
                                 event.preventDefault();
                                 apriNormale();
                             } else {
+                                event.preventDefault();
                                 apriVeloce();
                             }
                         }
