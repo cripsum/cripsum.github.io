@@ -2,7 +2,7 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <h5 class="footer-title">Cripsum™</h5>
-                    <p class="footer-description">Il sito da king</p>
+                    <p class="footer-description">Il sito da fichi</p>
                 </div>
             
                 <div class="footer-section">

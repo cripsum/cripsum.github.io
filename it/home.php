@@ -135,7 +135,7 @@ checkBan($mysqli);
                         </div>
                         <div class="modal-body">
                             <p class="fw-bold">Questo sito è pensato per intrattenere e far sorridere. <br />Di seguito alcune note importanti per un’esperienza sicura e positiva.</p>
-                            <ul class="text-start mb-2 mb-lg-0">
+                            <ul class="text-start mb-2 mb-lg-0" style="font-weight: 600; ">
                                 <li class="mb-2">
                                     Il contenuto di questo sito è creato per divertire, senza intenzione di offendere o mancare di rispetto a nessuno. un esempio sono le pagine "TikTokPedia", "Top
                                     Rimasti" o "Chi Siamo".
