@@ -139,9 +139,7 @@ if (isUserOnline($mysqli, $user_cercato_id)) {
                                 type="button"
                                 class="btn btn-light px-4 shadow-sm"
                                 onclick="searchUser()"
-                                style="border-radius: 0 50px 50px 0; font-weight: 600; transition: all 0.3s ease;"
-                                onmouseover="this.style.transform='translateY(-2px)'"
-                                onmouseout="this.style.transform='translateY(0)'">
+                                style="border-radius: 0 50px 50px 0; font-weight: 600; transition: all 0.3s ease;">
                                 <i class="fas fa-search me-1"></i>
                                 Cerca
                             </button>
