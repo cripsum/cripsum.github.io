@@ -80,11 +80,11 @@ if ($isLoggedIn) {
             </ul>
         </div>
 
-        <div class="btn-group ms-auto me-3 linguanuova">
+        <!-- <div class="btn-group ms-auto me-3 linguanuova">
             <button type="button" class="btn impostazioni-toggler" data-bs-toggle="modal" data-bs-target="#impostazioniModal">
                 <img src="/img/settings-icon.svg" alt="Impostazioni" style="width: 25px" class="imgbianca" />
             </button>
-        </div>
+        </div> -->
     </div>
 </nav>
     <?php if ($richpresence === 1): ?>
