@@ -37,6 +37,7 @@ checkBan($mysqli);
             font-size: clamp(2.5rem, 8vw, 5rem);
             font-weight: 800;
             margin-bottom: 1.5rem;
+            color: #ffffff;
             position: relative;
             z-index: 2;
         }
