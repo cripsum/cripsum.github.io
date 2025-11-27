@@ -301,6 +301,8 @@ require_once '../api/api_personaggi.php';
             var casseAperte;
             var comuniDiFila;
             var theOnePulled = false;
+            var secretPulled = false;
+            var specialPulled = false;
             var nuovoPersonaggio = false;
             //|| {
             //    comune: 45,
@@ -651,6 +653,8 @@ require_once '../api/api_personaggi.php';
                         messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
                         bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
                     } else if (rarita === "speciale") {
+
+                        specialPulled = true;
                         messaggioRarita.innerText = "COM'É POSSIBILE? HAI PULLATO UN PERSONAGGIO SPECIALE!";
 
                         bagliore.style.position = "fixed";
@@ -663,6 +667,7 @@ require_once '../api/api_personaggi.php';
                         bagliore.style.animation = "rainbowBackground 6s linear infinite";
                     } else if (rarita === "segreto") {
 
+                        secretPulled = true;
                         startIntroAnimation(pull.nome);
                         messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
                         bagliore.style.position = "fixed";
@@ -788,7 +793,10 @@ require_once '../api/api_personaggi.php';
                         if (!cassa.classList.contains("aperta")) {
                             if (!contenuto.classList.contains("salto")) {
                                 pullaPersonaggio().then(() => {
-                                    if (theOnePulled !== true || nuovoPersonaggio !== true) {
+                                    if (theOnePulled === true || nuovoPersonaggio === true) {
+                                        event.preventDefault();
+                                        apriNormale();
+                                    } else {
                                         bagliore.style.opacity = 0.6;
                                         bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
 
@@ -798,10 +806,6 @@ require_once '../api/api_personaggi.php';
                                         generaParticelle();
                                         apriCassa();
                                         apriVeloce();
-
-                                    } else {
-                                        event.preventDefault();
-                                        apriNormale();
                                     }
                                 });
                             }
