@@ -203,7 +203,7 @@ if (!isLoggedIn()) {
                 border-color: #9b59b6;
             }
 
-            .modal-character-image.personaggio-leggendaro {
+            .modal-character-image.personaggio-leggendario {
                 border-color: #ffa500;
             }
 
@@ -231,7 +231,7 @@ if (!isLoggedIn()) {
                 border-left-color: #9b59b6;
             }
 
-            .character-traits.personaggio-leggendaro {
+            .character-traits.personaggio-leggendario {
                 border-left-color: #ffa500;
             }
 

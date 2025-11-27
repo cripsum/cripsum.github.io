@@ -293,7 +293,7 @@ body {
 
 .character-card:hover .character-image {
     border-color: rgba(255, 255, 255, 0.8);
-    transform: scale(1.15) rotate(5deg);
+    transform: scale(1.15);
     box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
 }
 
