@@ -64,8 +64,8 @@ checkBan($mysqli);
                 </div>
                 <div class="edit-info">
                     <div class="character-name">
-                        <i class="fas fa-gamepad character-icon"></i>
-                        <p>Danil Showman</p>
+                        <i class="fas fa-star character-icon"></i>
+                        Danil Showman
                     </div>
                     <div class="music-info">
                         <i class="fas fa-music music-icon"></i>
@@ -91,7 +91,7 @@ checkBan($mysqli);
                 </div>
                 <div class="edit-info">
                     <div class="character-name">
-                        <i class="fas fa-star character-icon"></i>
+                        <i class="fas fa-gamepad character-icon"></i>
                         <p>The herta & Sparkle - HSR <br> (collab con <a href="https://www.tiktok.com/@nauz_aep" class="linkbianco">Nauz</a>)</p>
                     </div>
                     <div class="music-info">
