@@ -852,7 +852,15 @@ require_once '../api/api_personaggi.php';
 
                 document.addEventListener("keydown", function(event) {
                     if (event.code === "Enter") {
-                        if (theOnePulled !== true && nuovoPersonaggio !== true) {
+                        if (theOnePulled === true) {
+
+                        } else if (secretPulled === true) {
+
+                        } else if (specialPulled === true) {
+
+                        } else if (nuovoPersonaggio === true) {
+
+                        } else {
                             event.preventDefault();
                             refresh();
                         }
