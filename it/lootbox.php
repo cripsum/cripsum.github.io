@@ -793,7 +793,7 @@ require_once '../api/api_personaggi.php';
                         if (!cassa.classList.contains("aperta")) {
                             if (!contenuto.classList.contains("salto")) {
                                 pullaPersonaggio().then(() => {
-                                    if (theOnePulled !== true || nuovoPersonaggio !== true) {
+                                    if (theOnePulled !== true) {
                                         event.preventDefault();
                                         apriNormale();
                                     } else {
