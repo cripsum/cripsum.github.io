@@ -104,7 +104,7 @@ if ($isLoggedIn) {
 
         <div class="btn-group ms-auto me-3 linguanuova">
             <button type="button" class="btn impostazioni-toggler" data-bs-toggle="modal" data-bs-target="#impostazioniModal">
-                <img src="/img/settings-icon.svg" alt="Impostazioni" style="width: 25px" class="imgbianca" />
+                <img src="/img/settings-icon.svg" alt="Impostazioni" style="width: 25px" class="imgbianca impostazioni-toggler-icon" />
             </button>
         </div>
     </div>

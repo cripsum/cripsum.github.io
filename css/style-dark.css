@@ -653,8 +653,16 @@ radio:hover {
 
 .impostazioni-toggler:hover {
     background: rgba(255, 255, 255, 0.15) !important;
-    transform: rotate(90deg) scale(1.05) !important;
+    transform: scale(1.05) !important;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+.impostazioni-toggler-icon {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.impostazioni-toggler:hover .impostazioni-toggler-icon {
+    transform: rotate(90deg);
 }
 
 .nav-link img.rounded-circle {
