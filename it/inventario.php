@@ -219,6 +219,34 @@ if (!isLoggedIn()) {
                 border-color: #ffffff;
             }
 
+            .character-traits.personaggio-comune {
+                border-left-color: #666;
+            }
+
+            .character-traits.personaggio-raro {
+                border-left-color: #4a90e2;
+            }
+
+            .character-traits.personaggio-epico {
+                border-left-color: #9b59b6;
+            }
+
+            .character-traits.personaggio-leggendaro {
+                border-left-color: #ffa500;
+            }
+
+            .character-traits.personaggio-speciale {
+                border-left-color: #fff;
+            }
+
+            .character-traits.personaggio-segreto {
+                border-left-color: #8b00ff;
+            }
+
+            .character-traits.personaggio-theone {
+                border-left-color: #ffffff;
+            }
+
             .character-date {
                 margin: 1rem 0;
                 color: #888;
@@ -334,31 +362,31 @@ if (!isLoggedIn()) {
             }
 
             @keyframes newPulse {
-    0% {
-        transform: scale(0.8) rotate(15deg);
-    }
-    100% {
-        transform: scale(1) rotate(15deg);
-    }
-}
+                0% {
+                    transform: scale(0.8) rotate(15deg);
+                }
+                100% {
+                    transform: scale(1) rotate(15deg);
+                }
+            }
 
-            @keyframes backgroundAnimate {
-    0% {
-        background-position: 0% 0%;
-    }
-    100% {
-        background-position: 300% 0%;
-    }
-}
+                        @keyframes backgroundAnimate {
+                0% {
+                    background-position: 0% 0%;
+                }
+                100% {
+                    background-position: 300% 0%;
+                }
+            }
 
-@keyframes rainbowFlow {
-    0% {
-        background-position: 0% 50%;
-    }
-    100% {
-        background-position: 400% 50%;
-    }
-}
+            @keyframes rainbowFlow {
+                0% {
+                    background-position: 0% 50%;
+                }
+                100% {
+                    background-position: 400% 50%;
+                }
+            }
 
             @media (max-width: 768px) {
                 .modal-content {
