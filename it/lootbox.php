@@ -793,7 +793,16 @@ require_once '../api/api_personaggi.php';
                         if (!cassa.classList.contains("aperta")) {
                             if (!contenuto.classList.contains("salto")) {
                                 pullaPersonaggio().then(() => {
-                                    if (theOnePulled !== true) {
+                                    if (theOnePulled === true) {
+                                        event.preventDefault();
+                                        apriNormale();
+                                    } else if (secretPulled === true) {
+                                        event.preventDefault();
+                                        apriNormale();
+                                    } else if (specialPulled === true) {
+                                        event.preventDefault();
+                                        apriNormale();
+                                    } else if (nuovoPersonaggio === true) {
                                         event.preventDefault();
                                         apriNormale();
                                     } else {
@@ -810,12 +819,20 @@ require_once '../api/api_personaggi.php';
                                 });
                             }
                         } else {
-                            if (theOnePulled !== true || nuovoPersonaggio !== true) {
-
-                                apriVeloce();
-                            } else {
+                            if (theOnePulled === true) {
                                 event.preventDefault();
                                 apriNormale();
+                            } else if (secretPulled === true) {
+                                event.preventDefault();
+                                apriNormale();
+                            } else if (specialPulled === true) {
+                                event.preventDefault();
+                                apriNormale();
+                            } else if (nuovoPersonaggio === true) {
+                                event.preventDefault();
+                                apriNormale();
+                            } else {
+                                apriVeloce();
                             }
                         }
 
