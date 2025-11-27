@@ -247,14 +247,12 @@ hr.rounded {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
-    margin-left: -2px !important;
 }
 
 .dropdownutenti .dropdown-menu .dropdown-item:hover {
     color: #ffffff;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08));
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    transform: translateX(4px);
 }
 
 .dropdownutenti .dropdown-menu .dropdown-item i {
