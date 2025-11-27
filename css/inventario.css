@@ -31,11 +31,7 @@ body {
 .inventory-title {
     font-size: 4rem;
     font-weight: 900;
-    background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7);
-    background-size: 300% 300%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: white;
     margin-bottom: 1rem;
     text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
     animation: gradientShift 4s ease-in-out infinite, fadeInUp 1s ease-out;
