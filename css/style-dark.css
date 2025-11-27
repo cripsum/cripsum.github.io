@@ -243,7 +243,7 @@ hr.rounded {
     font-weight: 500;
     padding: 12px 20px;
     border-radius: 8px;
-    margin: 0px 8px;
+    margin: 0;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
