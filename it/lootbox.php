@@ -129,7 +129,7 @@ require_once '../api/api_personaggi.php';
         </script>
         <div class="container">
 
-            <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein" ondblclick="apriVeloce()" onclick="pullaPersonaggio(); apriNormale()" />
+            <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein" ondblclick="controlloApriVeloce()" onclick="pullaPersonaggio(); apriNormale()" />
 
             <div id="baglioreWrapper">
                 <div class="bagliore" id="bagliore"></div>
@@ -940,6 +940,20 @@ require_once '../api/api_personaggi.php';
                 newLabel.classList.add("new-label");
                 newLabel.innerText = "NEW!";
                 contenuto.appendChild(newLabel);
+            }
+
+            function controlloApriVeloce() {
+                if (theOnePulled === true) {
+                    apriNormale();
+                } else if (secretPulled === true) {
+                    apriNormale();
+                } else if (specialPulled === true) {
+                    apriNormale();
+                } else if (nuovoPersonaggio === true) {
+                    apriNormale();
+                } else {
+                    apriVeloce();
+                }
             }
 
             function apriVeloce() {
