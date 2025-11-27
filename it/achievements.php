@@ -632,7 +632,7 @@ checkBan($mysqli);
 
                 case 17:
                     const watchedVideos = getCookie("watchedVideos") || [];
-                    const totalVideos = 28;
+                    const totalVideos = 29;
                     return {
                         current: watchedVideos.length,
                             target: totalVideos

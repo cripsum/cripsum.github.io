@@ -46,8 +46,35 @@ checkBan($mysqli);
 
     <div class="edits-container">
         <div class="edits-grid">
-            <div class="edit-card" data-category="games" onclick="playVideo(this, 28)">
-                <div class="edit-badge">Latest - Collab</div>
+            <div class="edit-card" data-category="games" onclick="playVideo(this, 29)">
+                <div class="edit-badge">Latest</div>
+                <div class="video-container">
+                    <iframe
+                        src="https://streamable.com/e/934apl?"
+                        class="video-iframe"
+                        allow="fullscreen;autoplay"
+                        allowfullscreen
+                        id="video-29">
+                    </iframe>
+                    <div class="video-overlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-info">
+                    <div class="character-name">
+                        <i class="fas fa-star character-icon"></i>
+                        <p>The herta & Sparkle - HSR <br> (collab con <a href="https://www.tiktok.com/@nauz_aep" class="linkbianco">Nauz</a>)</p>
+                    </div>
+                    <div class="music-info">
+                        <i class="fas fa-music music-icon"></i>
+                        TWICE - Strategy
+                    </div>
+                </div>
+            </div>
+            <div class="edit-card" data-category="influencer" onclick="playVideo(this, 28)">
+                <div class="edit-badge">Collab</div>
                 <div class="video-container">
                     <iframe
                         src="https://streamable.com/e/kez9r2?"
@@ -65,11 +92,11 @@ checkBan($mysqli);
                 <div class="edit-info">
                     <div class="character-name">
                         <i class="fas fa-gamepad character-icon"></i>
-                        <p>The herta & Sparkle - HSR <br> (collab con <a href="https://www.tiktok.com/@nauz_aep" class="linkbianco">Nauz</a>)</p>
+                        <p>Danil Showman</p>
                     </div>
                     <div class="music-info">
                         <i class="fas fa-music music-icon"></i>
-                        TWICE - Strategy
+                        Sto bene al mare - Marco Mengoni
                     </div>
                 </div>
             </div>
