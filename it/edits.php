@@ -33,26 +33,10 @@ checkBan($mysqli);
             position: relative;
         }
 
-        .introduzione-edit-section::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 50% 30%, rgba(100, 200, 255, 0.1) 0%, transparent 50%);
-            pointer-events: none;
-        }
-
         .introduzione-edit-title {
             font-size: clamp(2.5rem, 8vw, 5rem);
             font-weight: 800;
             margin-bottom: 1.5rem;
-            background: linear-gradient(135deg, #ffffff 0%, #64c8ff 50%, #ff64c8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: shimmer 3s ease-in-out infinite;
             position: relative;
             z-index: 2;
         }
@@ -376,7 +360,7 @@ checkBan($mysqli);
             <h1 class="introduzione-edit-title">My Latest Edits</h1>
             <p class="introduzione-edit-subtitle">
                 Discover my latest edits. 
-                Each edit is made with passion and attention to details :P
+                Each edit is made with passion and attention to details :P (non è vero)
             </p>
             <a href="https://tiktok.com/@cripsum" class="tiktok-link" target="_blank">
                 <i class="fab fa-tiktok me-2"></i>
