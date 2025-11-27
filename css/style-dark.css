@@ -713,11 +713,12 @@ radio:hover {
 
 .nav-link:focus,
 .dropdown-item:focus,
+.dropdown-item:focus-visible,
+.dropdown-item:active,
 .navbar-toggler:focus,
 .impostazioni-toggler:focus,
 .btn-link:focus {
-    outline: 2px solid rgba(255, 255, 255, 0.3);
-    outline-offset: 2px;
+    outline: none !important;
 }
 
 @media only screen and (max-width: 1199px) {
