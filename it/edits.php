@@ -46,7 +46,7 @@ checkBan($mysqli);
 
     <div class="edits-container">
         <div class="edits-grid">
-            <div class="edit-card" data-category="games" onclick="playVideo(this, 29)">
+            <div class="edit-card" data-category="influencer" onclick="playVideo(this, 29)">
                 <div class="edit-badge">Latest</div>
                 <div class="video-container">
                     <iframe
@@ -73,7 +73,7 @@ checkBan($mysqli);
                     </div>
                 </div>
             </div>
-            <div class="edit-card" data-category="influencer" onclick="playVideo(this, 28)">
+            <div class="edit-card" data-category="games" onclick="playVideo(this, 28)">
                 <div class="edit-badge">Collab</div>
                 <div class="video-container">
                     <iframe
