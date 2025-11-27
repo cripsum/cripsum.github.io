@@ -177,26 +177,27 @@ hr.rounded {
 }
 
 .navbarutenti .nav-link:hover,
+.navbarutenti .nav-link:active,
 .navbarutenti .nav-link:focus,
 .navbarutenti .nav-link:focus-visible {
     color: #ffffff;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08));
     /*box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);*/
     transform: translateY(-1px);
-    outline: none;
-    box-shadow: none;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .navbarutenti .nav-link:active {
-    box-shadow: none;
-    outline: none;
-    border: none;
+    box-shadow: none !important;
+    outline: none !important;
+    border: none !important;
 }
 
 .navbarutenti .nav-item {
-    box-shadow: none;
-    outline: none;
-    border: none;
+    box-shadow: none !important;
+    outline: none !important;
+    border: none !important;
 }
 
 .link-lingua {
@@ -292,7 +293,7 @@ hr.rounded {
 }
 
 .navbarutenti .navbar-toggler:focus {
-    outline: none;
+    outline: none !important;
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 
@@ -302,7 +303,7 @@ hr.rounded {
 }
 
 .lingua-toggler:focus {
-    outline: none;
+    outline: none !important;
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 
@@ -363,7 +364,7 @@ input[type="file"]:focus,
 textarea:focus,
 select:focus {
     color: white;
-    outline: none;
+    outline: none !important;
     background: linear-gradient(135deg, rgba(68, 68, 68, 0.95), rgba(55, 55, 55, 0.98));
     border-color: rgba(255, 255, 255, 0.4);
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1), 0 4px 16px rgba(0, 0, 0, 0.3);
