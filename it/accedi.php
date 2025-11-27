@@ -15,7 +15,7 @@ $success = '';
 if ($_POST) {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
-    
+
     if (empty($email) || empty($password)) {
         $error = 'Compila tutti i campi';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -36,6 +36,7 @@ if ($_POST) {
 
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Accedi</title>
@@ -50,31 +51,31 @@ if ($_POST) {
             <div class="tab-content">
                 <div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="tab-login">
                     <?php if ($error): ?>
-                    <div class="alert alert-danger fadeup" role="alert">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                        <?php echo htmlspecialchars($error); ?>
-                        
-                        <?php if (strpos($error, 'verificare') !== false): ?>
-                        <div class="mt-2">
-                            <a href="verifica-email" class="alert-link">Clicca qui per reinviare l'email di verifica</a>
+                        <div class="alert alert-danger fadeup" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <?php echo htmlspecialchars($error); ?>
+
+                            <?php if (strpos($error, 'verificare') !== false): ?>
+                                <div class="mt-2">
+                                    <a href="verifica-email" class="alert-link">Clicca qui per reinviare l'email di verifica</a>
+                                </div>
+                            <?php endif; ?>
                         </div>
-                        <?php endif; ?>
-                    </div>
                     <?php endif; ?>
 
                     <?php if ($success): ?>
-                    <div class="alert alert-success fadeup" role="alert">
-                        <i class="bi bi-check-circle-fill me-2"></i>
-                        <?php echo htmlspecialchars($success); ?>
-                    </div>
+                        <div class="alert alert-success fadeup" role="alert">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            <?php echo htmlspecialchars($success); ?>
+                        </div>
                     <?php endif; ?>
 
                     <?php if (isset($_SESSION['login_message'])): ?>
-                    <div class="alert alert-info fadeup" role="alert">
-                        <i class="bi bi-info-circle-fill me-2"></i>
-                        <?php echo htmlspecialchars($_SESSION['login_message']); ?>
-                    </div>
-                    <?php unset($_SESSION['login_message']); ?>
+                        <div class="alert alert-info fadeup" role="alert">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            <?php echo htmlspecialchars($_SESSION['login_message']); ?>
+                        </div>
+                        <?php unset($_SESSION['login_message']); ?>
                     <?php endif; ?>
 
                     <form method="POST" action="">
@@ -83,8 +84,8 @@ if ($_POST) {
                         <!-- Email input -->
                         <div data-mdb-input-init class="form-outline mb-4 fadeup">
                             <label class="form-label" for="email">Email</label>
-                            <input type="email" id="email" name="email" class="form-control" 
-                                   value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" required />
+                            <input type="email" id="email" name="email" class="form-control"
+                                value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" required />
                         </div>
 
                         <!-- Password input -->
@@ -126,7 +127,7 @@ if ($_POST) {
                                 <a href="password-dimenticata" style="font-weight: bold" class="linkbianco">Password dimenticata?</a>
                             </p>
                             <p>
-                                Non hai ancora un account? 
+                                Non hai ancora un account?
                                 <a href="registrati" style="font-weight: bold" class="linkbianco">Registrati</a>
                             </p>
                         </div>
@@ -135,15 +136,15 @@ if ($_POST) {
             </div>
         </div>
 
-        
+
     </div>
     <?php include '../includes/footer.php'; ?>
     <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-        crossorigin="anonymous"
-    ></script>
+        crossorigin="anonymous"></script>
     <script src="../js/modeChanger.js"></script>
     <script src="../js/login.js"></script>
 </body>
+
 </html>

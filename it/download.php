@@ -6,35 +6,27 @@ checkBan($mysqli);
 ?>
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <?php include '../includes/head-import.php'; ?>
-        <title>Cripsum™ - download</title>
-        <style>
-            img {
-                border-radius: 10px;
-            }
 
-            .overlay-icon{
-                -webkit-background-clip: inherit;
-                -webkit-text-fill-color: inherit;
-                background-clip: inherit;
-                background: transparent;
-            }
-        </style>
-    </head>
-    <body>
-        <?php include '../includes/navbar.php'; ?>
-        <?php include '../includes/impostazioni.php'; ?>
-        
-    <!--<div class="hero-section py-5" style="margin-top: 5rem;">
-        <div class="hero-content fadeup">
-            <div class="hero-text">
-                <h1 class="hero-title">Cripsum™ - Download</h1>
-                <p class="hero-subtitle">Scopri i nostri contenuti esclusivi</p>
-                <p class="hero-question">Cosa vorresti scaricare oggi?</p>
-            </div>
-        </div>
-    </div>-->
+<head>
+    <?php include '../includes/head-import.php'; ?>
+    <title>Cripsum™ - download</title>
+    <style>
+        img {
+            border-radius: 10px;
+        }
+
+        .overlay-icon {
+            -webkit-background-clip: inherit;
+            -webkit-text-fill-color: inherit;
+            background-clip: inherit;
+            background: transparent;
+        }
+    </style>
+</head>
+
+<body>
+    <?php include '../includes/navbar.php'; ?>
+    <?php include '../includes/impostazioni.php'; ?>
 
     <div class="card-section" style="margin-top: 7rem; padding-bottom: 7rem">
         <div class="card-grid">
@@ -154,37 +146,12 @@ checkBan($mysqli);
             </div>
         </div>
     </div>
-        <!--<div class="button-container mt-5 fadeup" style="text-align: center; max-width: 70%; margin: auto;" >
-            <a class="btn btn-secondary bottone mt-2" onclick="playAudio()" style="cursor: pointer;" >Riproduci la musica</a>
-            <a class="btn btn-secondary bottone mt-2"  onclick="pauseAudio()" style="cursor: pointer;">Ferma la musica</a>
-            <a class="btn btn-secondary bottone mt-2" href="../audio/fitgirl.mp3" download="FitGirlRepacks_Song_downloadTEST.mp3">Clicca qui per scaricare questa musica!</a>
-        </div>
+    <?php include '../includes/footer.php'; ?>
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+    <script src="../js/modeChanger.js"></script>
+</body>
 
-
-        <audio autoplay id="myaudio">
-            <source src="../audio/fitgirl.mp3" type="audio/mpeg">
-          </audio>-->
-        <?php include '../includes/footer.php'; ?>
-        <script
-            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-            crossorigin="anonymous"
-        ></script>
-        <script src="../js/modeChanger.js"></script>
-        <!--<script>
-            var audio = document.getElementById("myaudio");
-            audio.volume = 0.2;
-        </script>
-        <script>
-            var x = document.getElementById("myaudio"); 
-            
-            function playAudio() { 
-              x.play(); 
-            } 
-            
-            function pauseAudio() { 
-              x.pause(); 
-            } 
-            </script>-->
-    </body>
 </html>

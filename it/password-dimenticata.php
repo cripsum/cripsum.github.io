@@ -7,6 +7,7 @@ $user_id = $_SESSION['user_id'] ?? null;
 
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <meta charset="UTF-8">
@@ -22,6 +23,7 @@ $user_id = $_SESSION['user_id'] ?? null;
             height: 100vh;
             margin: 0;
         }
+
         .box {
             background: #1a1a1a;
             padding: 30px;
@@ -32,6 +34,7 @@ $user_id = $_SESSION['user_id'] ?? null;
             width: 100%;
             max-width: 400px;
         }
+
         input {
             padding: 12px;
             width: 100%;
@@ -41,6 +44,7 @@ $user_id = $_SESSION['user_id'] ?? null;
             background: #111;
             color: white;
         }
+
         button {
             background: #ffffff;
             color: black;
@@ -50,11 +54,13 @@ $user_id = $_SESSION['user_id'] ?? null;
             cursor: pointer;
             transition: 0.2s;
         }
+
         button:hover {
             background: #ddd;
         }
     </style>
 </head>
+
 <body>
     <?php include '../includes/navbar-morta.php'; ?>
     <div class="box">
@@ -66,4 +72,5 @@ $user_id = $_SESSION['user_id'] ?? null;
         <a class="nav-link" href="accedi"><i class="fas fa-arrow-left"></i> Torna al login</a>
     </div>
 </body>
+
 </html>

@@ -90,28 +90,29 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
     exit;
 }
 
-                        if(isUserOnline($mysqli,$user_cercato_id)){
-                            $is_online = true;
-                        } else {
-                            $is_online = false;
-                            $ultimo_accesso = getUltimoAccesso($mysqli, $user_cercato_id);
-                        }
+if (isUserOnline($mysqli, $user_cercato_id)) {
+    $is_online = true;
+} else {
+    $is_online = false;
+    $ultimo_accesso = getUltimoAccesso($mysqli, $user_cercato_id);
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include 'includes/head-import.php'; ?>
     <title>Cripsum™ - Profilo di <?php echo htmlspecialchars($user['username']); ?></title>
-        <style>
+    <style>
         .card:hover {
             transform: translateY(0px) scale(1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             border-color: rgba(255, 255, 255, 0.12);
         }
-
     </style>
 </head>
+
 <body>
 
     <?php include 'includes/navbar.php'; ?>
@@ -127,22 +128,20 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
                             Cerca Utenti
                         </h5>
                         <div class="input-group mb-2">
-                            <input 
-                                type="text" 
-                                class="form-control border-0 shadow-sm" 
-                                id="userSearch" 
+                            <input
+                                type="text"
+                                class="form-control border-0 shadow-sm"
+                                id="userSearch"
                                 placeholder="Inserisci username..."
                                 maxlength="50"
-                                style="border-radius: 50px 0 0 50px; padding: 12px 20px; font-size: 16px;"
-                            >
-                            <button 
-                                type="button" 
-                                class="btn btn-light px-4 shadow-sm" 
+                                style="border-radius: 50px 0 0 50px; padding: 12px 20px; font-size: 16px;">
+                            <button
+                                type="button"
+                                class="btn btn-light px-4 shadow-sm"
                                 onclick="searchUser()"
                                 style="border-radius: 0 50px 50px 0; font-weight: 600; transition: all 0.3s ease;"
                                 onmouseover="this.style.transform='translateY(-2px)'"
-                                onmouseout="this.style.transform='translateY(0)'"
-                            >
+                                onmouseout="this.style.transform='translateY(0)'">
                                 <i class="fas fa-search me-1"></i>
                                 Cerca
                             </button>
@@ -160,7 +159,7 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
 
         <div class="row mb-4">
             <div class="col-md-4 text-center fadeup">
-                
+
                 <div style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin: 0 auto; position: relative;" class="mb-3">
                     <img src="../includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>&t=<?php echo time(); ?>" alt="Foto Profilo"
                         style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
@@ -168,24 +167,24 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
 
                 <h3><?php echo htmlspecialchars($user['username']); ?></h3>
                 <p>Membro dal: <?php echo date('d/m/Y', strtotime($user['data_creazione'])); ?></p>
-                    <?php if ($is_online): ?>
-                        <div style="background-color: #28a745; color: white; padding: 2px 2px; border-radius: 5px; font-size: 15px; font-weight: bold;">
-                            Online
-                        </div>
-                    <?php else:?>
-                            <div style="background-color: #6c757d; color: white; padding: 2px 2px; border-radius: 5px; font-size: 15px;">
-                                Ultimo accesso: <?php 
-                                    if ($ultimo_accesso) {
-                                        $date = new DateTime($ultimo_accesso);
-                                        $date->setTimezone(new DateTimeZone('Europe/Rome'));
-                                        echo $date->format('d/m/Y H:i');
-                                    } else {
-                                        echo 'Sconosciuto';
-                                    }
-                                ?>
-                            </div>
-                    <?php endif; ?>
-                
+                <?php if ($is_online): ?>
+                    <div style="background-color: #28a745; color: white; padding: 2px 2px; border-radius: 5px; font-size: 15px; font-weight: bold;">
+                        Online
+                    </div>
+                <?php else: ?>
+                    <div style="background-color: #6c757d; color: white; padding: 2px 2px; border-radius: 5px; font-size: 15px;">
+                        Ultimo accesso: <?php
+                                        if ($ultimo_accesso) {
+                                            $date = new DateTime($ultimo_accesso);
+                                            $date->setTimezone(new DateTimeZone('Europe/Rome'));
+                                            echo $date->format('d/m/Y H:i');
+                                        } else {
+                                            echo 'Sconosciuto';
+                                        }
+                                        ?>
+                    </div>
+                <?php endif; ?>
+
                 <div class="mt-3">
                     <button class="btn btn-sm btn-outline-primary" onclick="copyProfileLink('username')">
                         Copia link profilo
@@ -220,7 +219,7 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
         </div>
 
         <?php if ($user_cercato_id == $_SESSION['user_id']): ?>
-        <a class="btn btn-secondary bottone mt-2 fadeup" href="/it/impostazioni" style="cursor: pointer">Modifica Profilo</a>
+            <a class="btn btn-secondary bottone mt-2 fadeup" href="/it/impostazioni" style="cursor: pointer">Modifica Profilo</a>
         <?php endif; ?>
 
         <div class="mt-4 fadeup">
@@ -233,14 +232,14 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
             const username = <?php echo json_encode($user['username']); ?>;
             const userId = <?php echo $user['id']; ?>;
             const baseUrl = window.location.origin;
-            
+
             let url;
             if (type === 'username') {
                 url = `${baseUrl}/user/${encodeURIComponent(username)}`;
             } else {
                 url = `${baseUrl}/user?id=${userId}`;
             }
-            
+
             navigator.clipboard.writeText(url).then(function() {
                 alert('Link copiato negli appunti!');
             }, function(err) {
@@ -261,36 +260,36 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'
         }
     </script>
 
-            <div id="achievement-popup" class="popup">
-            <img id="popup-image" src="" alt="Achievement" />
-            <div>
-                <h3 id="popup-title"></h3>
-                <p id="popup-description"></p>
-            </div>
+    <div id="achievement-popup" class="popup">
+        <img id="popup-image" src="" alt="Achievement" />
+        <div>
+            <h3 id="popup-title"></h3>
+            <p id="popup-description"></p>
         </div>
-        <?php include 'includes/footer.php'; ?>
-            <script>
-                function searchUser() {
-                    const username = document.getElementById('userSearch').value.trim();
-                    if (username) {
-                        window.location.href = `../user/${encodeURIComponent(username.toLowerCase())}`;
-                    } else {
-                        alert('Inserisci un nome utente per continuare');
-                    }
-                }
+    </div>
+    <?php include 'includes/footer.php'; ?>
+    <script>
+        function searchUser() {
+            const username = document.getElementById('userSearch').value.trim();
+            if (username) {
+                window.location.href = `../user/${encodeURIComponent(username.toLowerCase())}`;
+            } else {
+                alert('Inserisci un nome utente per continuare');
+            }
+        }
 
-                document.getElementById('userSearch').addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        searchUser();
-                    }
-                });
-                </script>
-        <script
-            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-            crossorigin="anonymous"
-        ></script>
+        document.getElementById('userSearch').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchUser();
+            }
+        });
+    </script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
 
-        <script src="../js/modeChanger.js"></script>
+    <script src="../js/modeChanger.js"></script>
 </body>
+
 </html>

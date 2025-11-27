@@ -6,57 +6,58 @@ checkBan($mysqli);
 ?>
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <?php include '../includes/head-import.php'; ?>
-        <title>Cripsum™ - rimasti</title>
-        <style>
-            img {
-                border-radius: 10px;
-            }
-        </style>
-    </head>
 
-    <body>
-        <?php include '../includes/navbar.php'; ?>
-        <?php include '../includes/impostazioni.php'; ?>
+<head>
+    <?php include '../includes/head-import.php'; ?>
+    <title>Cripsum™ - rimasti</title>
+    <style>
+        img {
+            border-radius: 10px;
+        }
+    </style>
+</head>
 
-        <div style="max-width: 550px; margin: auto; padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
-            <h1 class="text-center fadein" style="padding-top: 3%; font-weight: bolder; color: red">classifica top 10 rimasti</h1>
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 3%">
-                <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description fadeup" style="margin-bottom: 2%; margin-left: 0">
-                        <h3 class="text-center">Top 1.</h3>
-                        <h5 class="text-center">Aura</h5>
-                        <h6 class="text-center">
-                            rimosso per copyright (godo)
-                        </h6>
-                    </div>
-                    <img src="../img/toppng.com-laughing-pointing-emoji-1645x1070.png" alt="WryCharles" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
-                </div>
-            </div>
-            <hr class="rounded fadeuphr" />
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
-                <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description fadeup" style="margin-bottom: 2%">
-                        <h3 class="text-center">Top 2.</h3>
-                        <h5 class="text-center">Shin</h5>
-                        <h6 class="text-center">insulta brawl stars dicendo che è mid, e poi guarda anime dalla mattina alla sera</h6>
-                    </div>
-                    <img src="../img/rimastotop2.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
-                </div>
-            </div>
-            <hr class="rounded fadeuphr" />
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 3%">
-                <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description fadeup" style="margin-bottom: 2%; margin-left: 0">
-                        <h3 class="text-center">Top 3.</h3>
-                        <h5 class="text-center">Lulasorca</h5>
-                    </div>
-                    <img src="../img/lulasorca.jpeg" alt="lulasorca" class="img-fluid fadeup" />
-                </div>
-            </div>
+<body>
+    <?php include '../includes/navbar.php'; ?>
+    <?php include '../includes/impostazioni.php'; ?>
 
-            <!--
+    <div style="max-width: 550px; margin: auto; padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
+        <h1 class="text-center fadein" style="padding-top: 3%; font-weight: bolder; color: red">classifica top 10 rimasti</h1>
+        <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 3%">
+            <div style="margin: auto; padding-top: 1%">
+                <div class="image-description fadeup" style="margin-bottom: 2%; margin-left: 0">
+                    <h3 class="text-center">Top 1.</h3>
+                    <h5 class="text-center">Aura</h5>
+                    <h6 class="text-center">
+                        rimosso per copyright (godo)
+                    </h6>
+                </div>
+                <img src="../img/toppng.com-laughing-pointing-emoji-1645x1070.png" alt="WryCharles" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
+            </div>
+        </div>
+        <hr class="rounded fadeuphr" />
+        <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
+            <div style="margin: auto; padding-top: 1%">
+                <div class="image-description fadeup" style="margin-bottom: 2%">
+                    <h3 class="text-center">Top 2.</h3>
+                    <h5 class="text-center">Shin</h5>
+                    <h6 class="text-center">insulta brawl stars dicendo che è mid, e poi guarda anime dalla mattina alla sera</h6>
+                </div>
+                <img src="../img/rimastotop2.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
+            </div>
+        </div>
+        <hr class="rounded fadeuphr" />
+        <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 3%">
+            <div style="margin: auto; padding-top: 1%">
+                <div class="image-description fadeup" style="margin-bottom: 2%; margin-left: 0">
+                    <h3 class="text-center">Top 3.</h3>
+                    <h5 class="text-center">Lulasorca</h5>
+                </div>
+                <img src="../img/lulasorca.jpeg" alt="lulasorca" class="img-fluid fadeup" />
+            </div>
+        </div>
+
+        <!--
             <hr class="rounded fadeuphr" />
             <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
                 <div style="margin: auto; padding-top: 1%">
@@ -100,83 +101,83 @@ checkBan($mysqli);
                 </div>
             </div>
             -->
-            <hr class="rounded fadeuphr" style="margin-top: 2%" />
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 3%">
-                <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description fadeup" style="margin-bottom: 2%">
-                        <h3 class="text-center">Top 4.</h3>
-                        <h5 class="text-center">ancora da decidere</h5>
-                    </div>
-                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
+        <hr class="rounded fadeuphr" style="margin-top: 2%" />
+        <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 3%">
+            <div style="margin: auto; padding-top: 1%">
+                <div class="image-description fadeup" style="margin-bottom: 2%">
+                    <h3 class="text-center">Top 4.</h3>
+                    <h5 class="text-center">ancora da decidere</h5>
                 </div>
-            </div>
-            <hr class="rounded fadeuphr" style="margin-top: 2%" />
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 3%">
-                <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description fadeup" style="margin-bottom: 2%">
-                        <h3 class="text-center">Top 5.</h3>
-                        <h5 class="text-center">ancora da decidere</h5>
-                    </div>
-                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
-                </div>
-            </div>
-            <hr class="rounded fadeuphr" />
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
-                <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description fadeup" style="margin-bottom: 2%">
-                        <h3 class="text-center">Top 6.</h3>
-                        <h5 class="text-center">ancora da decidere</h5>
-                    </div>
-                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
-                </div>
-            </div>
-            <hr class="rounded fadeuphr" />
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
-                <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description fadeup" style="margin-bottom: 2%">
-                        <h3 class="text-center">Top 7.</h3>
-                        <h5 class="text-center">ancora da decidere</h5>
-                    </div>
-                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
-                </div>
-            </div>
-            <hr class="rounded fadeuphr" />
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
-                <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description fadeup" style="margin-bottom: 2%">
-                        <h3 class="text-center">Top 8.</h3>
-                        <h5 class="text-center">ancora da decidere</h5>
-                    </div>
-                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
-                </div>
-            </div>
-            <hr class="rounded fadeuphr" />
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
-                <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description fadeup" style="margin-bottom: 2%">
-                        <h3 class="text-center">Top 9.</h3>
-                        <h5 class="text-center">ancora da decidere</h5>
-                    </div>
-                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
-                </div>
-            </div>
-            <hr class="rounded fadeuphr" />
-            <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
-                <div style="margin: auto; padding-top: 1%">
-                    <div class="image-description fadeup" style="margin-bottom: 2%">
-                        <h3 class="text-center">Top 10.</h3>
-                        <h5 class="text-center">ancora da decidere</h5>
-                    </div>
-                    <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
-                </div>
+                <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
             </div>
         </div>
-        <?php include '../includes/footer.php'; ?>
-        <script
-            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-            crossorigin="anonymous"
-        ></script>
-        <script src="../js/modeChanger.js"></script>
-    </body>
+        <hr class="rounded fadeuphr" style="margin-top: 2%" />
+        <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 3%">
+            <div style="margin: auto; padding-top: 1%">
+                <div class="image-description fadeup" style="margin-bottom: 2%">
+                    <h3 class="text-center">Top 5.</h3>
+                    <h5 class="text-center">ancora da decidere</h5>
+                </div>
+                <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
+            </div>
+        </div>
+        <hr class="rounded fadeuphr" />
+        <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
+            <div style="margin: auto; padding-top: 1%">
+                <div class="image-description fadeup" style="margin-bottom: 2%">
+                    <h3 class="text-center">Top 6.</h3>
+                    <h5 class="text-center">ancora da decidere</h5>
+                </div>
+                <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
+            </div>
+        </div>
+        <hr class="rounded fadeuphr" />
+        <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
+            <div style="margin: auto; padding-top: 1%">
+                <div class="image-description fadeup" style="margin-bottom: 2%">
+                    <h3 class="text-center">Top 7.</h3>
+                    <h5 class="text-center">ancora da decidere</h5>
+                </div>
+                <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
+            </div>
+        </div>
+        <hr class="rounded fadeuphr" />
+        <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
+            <div style="margin: auto; padding-top: 1%">
+                <div class="image-description fadeup" style="margin-bottom: 2%">
+                    <h3 class="text-center">Top 8.</h3>
+                    <h5 class="text-center">ancora da decidere</h5>
+                </div>
+                <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
+            </div>
+        </div>
+        <hr class="rounded fadeuphr" />
+        <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
+            <div style="margin: auto; padding-top: 1%">
+                <div class="image-description fadeup" style="margin-bottom: 2%">
+                    <h3 class="text-center">Top 9.</h3>
+                    <h5 class="text-center">ancora da decidere</h5>
+                </div>
+                <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
+            </div>
+        </div>
+        <hr class="rounded fadeuphr" />
+        <div class="image-container" style="max-width: 80%; margin: auto; padding-top: 1%">
+            <div style="margin: auto; padding-top: 1%">
+                <div class="image-description fadeup" style="margin-bottom: 2%">
+                    <h3 class="text-center">Top 10.</h3>
+                    <h5 class="text-center">ancora da decidere</h5>
+                </div>
+                <img src="../img/segone4.png" alt="lulasorca" class="img-fluid fadeup" style="display: block; margin-left: auto; margin-right: auto" />
+            </div>
+        </div>
+    </div>
+    <?php include '../includes/footer.php'; ?>
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+    <script src="../js/modeChanger.js"></script>
+</body>
+
 </html>

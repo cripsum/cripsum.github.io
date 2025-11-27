@@ -6,10 +6,11 @@ checkBan($mysqli);
 ?>
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <?php include '../includes/head-import.php'; ?>
-        <title>Cripsum™ - chisiamo</title>
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<head>
+    <?php include '../includes/head-import.php'; ?>
+    <title>Cripsum™ - chisiamo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @font-face {
             font-family: NotoColorEmojiLimited;
@@ -32,11 +33,12 @@ checkBan($mysqli);
             color: #ffffff;
             overflow-x: hidden;
         }
-        </style>
-    </head>
-    <body>
-        <?php include '../includes/navbar.php'; ?>
-        <?php include '../includes/impostazioni.php'; ?>
+    </style>
+</head>
+
+<body>
+    <?php include '../includes/navbar.php'; ?>
+    <?php include '../includes/impostazioni.php'; ?>
 
     <div class="main-container fadeup" style="padding-top: 2rem">
         <section class="chisiamo-section">
@@ -74,7 +76,7 @@ checkBan($mysqli);
                                 <a href="../user/simonetussi">simonetussi.ph</a>
                             </h3>
                             <p class="member-description">
-                                Seguite tutti simonetussi.ph su <a href="https://instagram.com/simonetussi.ph">Instagram</a> e 
+                                Seguite tutti simonetussi.ph su <a href="https://instagram.com/simonetussi.ph">Instagram</a> e
                                 <a href="https://tiktok.com/@simonetussi.ph">TikTok</a> per degli scatti fantastici.
                             </p>
                         </div>
@@ -251,14 +253,14 @@ checkBan($mysqli);
         <section class="join-team-section">
             <h2 class="join-title">Unisciti al Team!</h2>
             <p class="join-description">
-                Hai quello che serve per far parte della squadra più king del web? 
+                Hai quello che serve per far parte della squadra più king del web?
                 Mandaci la tua candidatura e diventa parte della squadra + da king del secolo!
             </p>
             <a href="candidatura-chisiamo" class="join-email">
                 <i class="fas fa-envelope me-2"></i>
                 clicca qui per inviare la tua candidatura
             </a>
-            
+
             <div class="mystery-members">
                 <div class="mystery-card">
                     <div class="mystery-icon">
@@ -313,12 +315,12 @@ checkBan($mysqli);
             element.style.top = Math.random() * 100 + '%';
             element.style.animationDelay = Math.random() * 6 + 's';
             element.style.animationDuration = (Math.random() * 4 + 4) + 's';
-            
+
             const colors = ['rgba(100, 200, 255, 0.3)', 'rgba(255, 100, 200, 0.3)', 'rgba(100, 255, 150, 0.3)'];
             element.style.background = colors[Math.floor(Math.random() * colors.length)];
-            
+
             document.querySelector('.floating-elements').appendChild(element);
-            
+
             setTimeout(() => {
                 element.remove();
             }, 8000);
@@ -327,7 +329,7 @@ checkBan($mysqli);
         setInterval(createFloatingElement, 2000);
 
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
+            anchor.addEventListener('click', function(e) {
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) {
@@ -342,7 +344,7 @@ checkBan($mysqli);
         window.addEventListener('scroll', () => {
             const scrolled = window.pageYOffset;
             const parallax = scrolled * 0.3;
-            
+
             const chisiamoSection = document.querySelector('.chisiamo-section');
             if (chisiamoSection) {
                 chisiamoSection.style.transform = `translateY(${parallax}px)`;
@@ -353,7 +355,7 @@ checkBan($mysqli);
             member.addEventListener('mouseenter', function() {
                 this.style.transition = 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
             });
-            
+
             member.addEventListener('mouseleave', function() {
                 this.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
             });
@@ -374,11 +376,11 @@ checkBan($mysqli);
         scrollIndicator.style.transform = 'translateY(20px)';
         scrollIndicator.style.transition = 'all 0.3s ease';
     </script>
-        <script
-            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-            crossorigin="anonymous"
-        ></script>
-        <script src="../js/modeChanger.js"></script>
-    </body>
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+    <script src="../js/modeChanger.js"></script>
+</body>
+
 </html>

@@ -12,7 +12,8 @@ if (isLoggedIn()) {
 $error = '';
 $success = '';
 
-function isValidUsername($username) {
+function isValidUsername($username)
+{
 
     if (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
         return false;
@@ -21,7 +22,7 @@ function isValidUsername($username) {
     if (preg_match('/[_]$/', $username)) {
         return false;
     }
-    
+
     if (preg_match('/^[_]/', $username)) {
         return false;
     }
@@ -37,7 +38,7 @@ function isValidUsername($username) {
     if (preg_match('/\s/', $username)) {
         return false;
     }
-    
+
     return true;
 }
 
@@ -90,29 +91,30 @@ if ($_POST) {
 
 <!DOCTYPE html>
 <html lang="it">
-    <head>
-        <?php include '../includes/head-import.php'; ?>
-        <title>Cripsum™ - registrati</title>
-        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    </head>
 
-    <body>
-        <?php include '../includes/navbar.php'; ?>
-        <?php include '../includes/impostazioni.php'; ?>
+<head>
+    <?php include '../includes/head-import.php'; ?>
+    <title>Cripsum™ - registrati</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
 
-        <div style="max-width: 1920px; margin: auto; padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
-            <div class="loginpagege text-center mt-5">
-                <!-- Pills content -->
-                <div class="tab-content">
-                    <div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="tab-login">
-                        <?php if ($error): ?>
+<body>
+    <?php include '../includes/navbar.php'; ?>
+    <?php include '../includes/impostazioni.php'; ?>
+
+    <div style="max-width: 1920px; margin: auto; padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
+        <div class="loginpagege text-center mt-5">
+            <!-- Pills content -->
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="tab-login">
+                    <?php if ($error): ?>
                         <div class="alert alert-danger fadeup" role="alert">
                             <i class="bi bi-exclamation-triangle-fill me-2"></i>
                             <?php echo htmlspecialchars($error); ?>
                         </div>
-                        <?php endif; ?>
+                    <?php endif; ?>
 
-                        <?php if ($success): ?>
+                    <?php if ($success): ?>
                         <div class="alert alert-success fadeup" role="alert">
                             <i class="bi bi-check-circle-fill me-2"></i>
                             <?php echo htmlspecialchars($success); ?>
@@ -121,9 +123,9 @@ if ($_POST) {
                             <i class="bi bi-info-circle-fill me-2"></i>
                             Non hai ricevuto l'email? Controlla la cartella spam o <a href="verifica-email" class="alert-link">clicca qui per reinviare</a>.
                         </div>
-                        <?php endif; ?>
+                    <?php endif; ?>
 
-                        <?php if (!$success): ?>
+                    <?php if (!$success): ?>
                         <form method="POST" action="">
                             <p class="fs-1 text mb-5 fadeup" style="font-weight: bold">Registrati</p>
 
@@ -173,8 +175,7 @@ if ($_POST) {
                             <!-- Checkbox -->
                             <div class="form-check d-flex justify-content-center mb-4 fadeup">
                                 <input class="form-check-input me-2 checco" type="checkbox" value="1" id="acceptTerms" name="acceptTerms" required
-                                <?php echo (isset($_POST['acceptTerms']) ? 'checked' : ''); ?>
-                                />
+                                    <?php echo (isset($_POST['acceptTerms']) ? 'checked' : ''); ?> />
                                 <label class="form-check-label text-center">
                                     Ho letto e accetto i <a href="tos" style="text-decoration: none; font-weight: bold" class="linkbianco">termini e condizioni</a>
                                 </label>
@@ -193,39 +194,39 @@ if ($_POST) {
                                 <p>Hai già un account? <a href="accedi" style="font-weight: bold" class="linkbianco">Accedi</a></p>
                             </div>
                         </form>
-                        <?php else: ?>
+                    <?php else: ?>
                         <div class="text-center fadeup mt-4">
                             <p>Hai già un account? <a href="accedi" style="font-weight: bold" class="linkbianco">Accedi</a></p>
                         </div>
-                        <?php endif; ?>
-                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
-
-            <!-- Pills content -->
-            
         </div>
-        <?php include '../includes/footer.php'; ?>
-        <script
-            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-            crossorigin="anonymous"
-        ></script>
-        <script src="../js/modeChanger.js"></script>
-        <script src="../js/login.js"></script>
 
-        <script>
-            // Validazione password in tempo reale
-            document.getElementById("repeatPassword").addEventListener("input", function () {
-                const password = document.getElementById("password").value;
-                const repeatPassword = this.value;
+        <!-- Pills content -->
 
-                if (password !== repeatPassword && repeatPassword.length > 0) {
-                    this.setCustomValidity("Le password non corrispondono");
-                } else {
-                    this.setCustomValidity("");
-                }
-            });
-        </script>
-    </body>
+    </div>
+    <?php include '../includes/footer.php'; ?>
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+    <script src="../js/modeChanger.js"></script>
+    <script src="../js/login.js"></script>
+
+    <script>
+        // Validazione password in tempo reale
+        document.getElementById("repeatPassword").addEventListener("input", function() {
+            const password = document.getElementById("password").value;
+            const repeatPassword = this.value;
+
+            if (password !== repeatPassword && repeatPassword.length > 0) {
+                this.setCustomValidity("Le password non corrispondono");
+            } else {
+                this.setCustomValidity("");
+            }
+        });
+    </script>
+</body>
+
 </html>

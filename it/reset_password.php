@@ -4,6 +4,7 @@ $token = $_GET['token'] ?? '';
 
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta charset="UTF-8">
     <?php include '../includes/head-import.php'; ?>
@@ -19,6 +20,7 @@ $token = $_GET['token'] ?? '';
             height: 100vh;
             margin: 0;
         }
+
         .box {
             background: #1a1a1a;
             padding: 30px;
@@ -29,6 +31,7 @@ $token = $_GET['token'] ?? '';
             width: 100%;
             max-width: 400px;
         }
+
         input {
             padding: 12px;
             width: 100%;
@@ -38,6 +41,7 @@ $token = $_GET['token'] ?? '';
             background: #111;
             color: white;
         }
+
         button {
             background: #ffffff;
             color: black;
@@ -47,11 +51,13 @@ $token = $_GET['token'] ?? '';
             cursor: pointer;
             transition: 0.2s;
         }
+
         button:hover {
             background: #ddd;
         }
     </style>
 </head>
+
 <body>
     <?php include '../includes/navbar-morta.php'; ?>
     <div class="box">
@@ -64,4 +70,5 @@ $token = $_GET['token'] ?? '';
         <a class="nav-link" href="accedi"><i class="fas fa-arrow-left"></i> Torna al login</a>
     </div>
 </body>
+
 </html>

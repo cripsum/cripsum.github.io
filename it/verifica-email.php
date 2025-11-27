@@ -8,14 +8,14 @@ $messageType = '';
 
 if (isset($_GET['token'])) {
     $token = trim($_GET['token']);
-    
+
     if (!empty($token)) {
         $user = verifyEmail($mysqli, $token);
-        
+
         if ($user) {
             $message = "Email verificata con successo! Ora puoi accedere al tuo account.";
             $messageType = 'success';
-            
+
             sendWelcomeEmail($user['email'], $user['username']);
         } else {
             $message = "Token di verifica non valido o già utilizzato.";
@@ -32,7 +32,7 @@ if (isset($_GET['token'])) {
 
 if ($_POST && isset($_POST['resend_email'])) {
     $email = trim($_POST['email'] ?? '');
-    
+
     if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
         if (resendVerificationEmail($mysqli, $email)) {
             $message = "Email di verifica reinviata con successo!";
@@ -50,6 +50,7 @@ if ($_POST && isset($_POST['resend_email'])) {
 
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Verifica Email</title>
@@ -66,7 +67,7 @@ if ($_POST && isset($_POST['resend_email'])) {
                     <div class="text-center mt-5">
                         <div class="fadeup">
                             <h1 class="fs-1 mb-4" style="font-weight: bold">Verifica Email</h1>
-                            
+
                             <?php if ($messageType === 'success'): ?>
                                 <div class="alert alert-success" role="alert">
                                     <i class="bi bi-check-circle-fill me-2"></i>
@@ -82,11 +83,11 @@ if ($_POST && isset($_POST['resend_email'])) {
                                     <i class="bi bi-exclamation-triangle-fill me-2"></i>
                                     <?php echo htmlspecialchars($message); ?>
                                 </div>
-                                
+
                                 <div class="mt-4">
                                     <h4>Non hai ricevuto l'email di verifica?</h4>
                                     <p class="text-muted">Inserisci la tua email per ricevere un nuovo link di verifica:</p>
-                                    
+
                                     <form method="POST" action="" class="mt-3">
                                         <div class="mb-3">
                                             <label for="email" class="form-label">Email</label>
@@ -98,7 +99,7 @@ if ($_POST && isset($_POST['resend_email'])) {
                                     </form>
                                 </div>
                             <?php endif; ?>
-                            
+
                             <div class="mt-4">
                                 <a href="registrati" class="linkbianco">Torna alla registrazione</a>
                             </div>
@@ -107,15 +108,15 @@ if ($_POST && isset($_POST['resend_email'])) {
                 </div>
             </div>
         </div>
-        
-        
+
+
     </div>
     <?php include '../includes/footer.php'; ?>
     <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-        crossorigin="anonymous"
-    ></script>
+        crossorigin="anonymous"></script>
     <script src="../js/modeChanger.js"></script>
 </body>
+
 </html>

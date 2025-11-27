@@ -1,0 +1,380 @@
+img {
+    border-radius: 10px;
+}
+
+.logodesc {
+    margin-top: 1rem;
+}
+
+body {
+    font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    color: #ffffff;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+.introduzione-edit-section {
+    padding: 120px 0 60px;
+    text-align: center;
+    position: relative;
+}
+
+.introduzione-edit-title {
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    color: #ffffff;
+    position: relative;
+    z-index: 2;
+}
+
+.introduzione-edit-subtitle {
+    font-size: 1.3rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    z-index: 2;
+}
+
+.tiktok-link {
+    display: inline-block;
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #ff0050, #ff4081);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 24px rgba(255, 0, 80, 0.3);
+    position: relative;
+    z-index: 2;
+}
+
+.tiktok-link:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 12px 36px rgba(255, 0, 80, 0.5);
+    color: white;
+}
+
+.edits-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.edits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    padding: 2rem 0;
+    width: 100%;
+}
+
+.edit-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(20px);
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(40px);
+    animation: fadeInUp 0.8s ease forwards;
+    width: 100%;
+    min-width: 0;
+}
+
+.edit-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(100, 200, 255, 0.05) 0%, rgba(255, 100, 200, 0.03) 50%, rgba(100, 255, 150, 0.05) 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    border-radius: 24px;
+}
+
+.edit-card:hover {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(100, 200, 255, 0.15);
+    border-color: rgba(100, 200, 255, 0.3);
+}
+
+.edit-card:hover::before {
+    opacity: 1;
+}
+
+.video-container {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+    border-radius: 20px 20px 0 0;
+    background: linear-gradient(135deg, rgba(30, 32, 42, 0.8) 0%, rgba(40, 45, 60, 0.8) 100%);
+}
+
+.video-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 20px 20px 0 0;
+    transition: all 0.3s ease;
+}
+
+.edit-card:hover .video-iframe {
+    transform: scale(1.02);
+}
+
+.video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(30, 32, 42, 0.7), rgba(0, 0, 0, 0.5));
+    opacity: 0;
+    transition: all 0.4s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+.edit-card:hover .video-overlay {
+    opacity: 1;
+}
+
+.play-button {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: #0a0a0a;
+    transform: scale(0.8);
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.edit-card:hover .play-button {
+    transform: scale(1);
+}
+
+.edit-info {
+    padding: 1.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+.character-name {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.character-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 0.5rem;
+    opacity: 0.8;
+}
+
+.music-info {
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.4;
+}
+
+.music-icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 0.5rem;
+    opacity: 0.7;
+}
+
+.edit-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: linear-gradient(135deg, #ff6b6b, #ffa726);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+    z-index: 3;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes shimmer {
+    0%,
+    100% {
+        filter: hue-rotate(0deg);
+    }
+
+    50% {
+        filter: hue-rotate(180deg);
+    }
+}
+
+@media (max-width: 768px) {
+    .edits-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 1.5rem 0;
+    }
+
+    .edits-container {
+        padding: 0 1rem;
+    }
+
+    .introduzione-edit-section {
+        padding: 100px 0 40px;
+    }
+
+    .video-container {
+        height: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .edit-card {
+        border-radius: 20px;
+    }
+
+    .video-container {
+        height: 250px;
+        border-radius: 16px 16px 0 0;
+    }
+
+    .edit-info {
+        padding: 1.25rem;
+    }
+}
+
+.edit-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.edit-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.edit-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.edit-card:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.edit-card:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+.edit-card:nth-child(6) {
+    animation-delay: 0.6s;
+}
+
+.edit-card:nth-child(7) {
+    animation-delay: 0.7s;
+}
+
+.edit-card:nth-child(8) {
+    animation-delay: 0.8s;
+}
+
+.edit-card:nth-child(9) {
+    animation-delay: 0.9s;
+}
+
+.edit-card:nth-child(10) {
+    animation-delay: 1s;
+}
+
+.edit-card:nth-child(11) {
+    animation-delay: 1.1s;
+}
+
+.edit-card:nth-child(12) {
+    animation-delay: 1.2s;
+}
+
+.filter-section {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    margin-bottom: 2rem;
+}
+
+.filter-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 25px;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+    background: linear-gradient(135deg, rgba(100, 200, 255, 0.2), rgba(255, 100, 200, 0.15));
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.edit-card.playing .video-overlay {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.edit-card.playing {
+    border-color: rgba(100, 200, 255, 0.5);
+    box-shadow: 0 0 30px rgba(100, 200, 255, 0.3);
+}

@@ -14,7 +14,8 @@ if (!isLoggedIn()) {
 
 $user_id = $_SESSION['user_id'];
 
-function isValidUsername($username) {
+function isValidUsername($username)
+{
     if (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
         return false;
     }
@@ -22,7 +23,7 @@ function isValidUsername($username) {
     if (preg_match('/[_]$/', $username)) {
         return false;
     }
-    
+
     if (preg_match('/^[_]/', $username)) {
         return false;
     }
@@ -38,7 +39,7 @@ function isValidUsername($username) {
     if (preg_match('/\s/', $username)) {
         return false;
     }
-    
+
     return true;
 }
 
@@ -98,6 +99,7 @@ $stmt->close();
 
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Profilo</title>
@@ -107,10 +109,10 @@ $stmt->close();
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             border-color: rgba(255, 255, 255, 0.12);
         }
-
     </style>
 </head>
-<body >
+
+<body>
 
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
@@ -125,22 +127,20 @@ $stmt->close();
                             Cerca Utenti
                         </h5>
                         <div class="input-group mb-2">
-                            <input 
-                                type="text" 
-                                class="form-control border-0 shadow-sm" 
-                                id="userSearch" 
+                            <input
+                                type="text"
+                                class="form-control border-0 shadow-sm"
+                                id="userSearch"
                                 placeholder="Inserisci username..."
                                 maxlength="50"
-                                style="border-radius: 50px 0 0 50px; padding: 12px 20px; font-size: 16px;"
-                            >
-                            <button 
-                                type="button" 
-                                class="btn btn-light px-4 shadow-sm" 
+                                style="border-radius: 50px 0 0 50px; padding: 12px 20px; font-size: 16px;">
+                            <button
+                                type="button"
+                                class="btn btn-light px-4 shadow-sm"
                                 onclick="searchUser()"
                                 style="border-radius: 0 50px 50px 0; font-weight: 600; transition: all 0.3s ease;"
                                 onmouseover="this.style.transform='translateY(-2px)'"
-                                onmouseout="this.style.transform='translateY(0)'"
-                            >
+                                onmouseout="this.style.transform='translateY(0)'">
                                 <i class="fas fa-search me-1"></i>
                                 Cerca
                             </button>
@@ -157,10 +157,10 @@ $stmt->close();
 
         <div class="row mb-4">
             <div class="col-md-4 text-center fadeup">
-                    <div style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin: 0 auto;" class="mb-3">
-                        <img src="../includes/get_pfp.php?id=<?php echo $user_id; ?>&t=<?php echo time(); ?>" alt="Foto Profilo"
-                            style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
-                    </div>
+                <div style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin: 0 auto;" class="mb-3">
+                    <img src="../includes/get_pfp.php?id=<?php echo $user_id; ?>&t=<?php echo time(); ?>" alt="Foto Profilo"
+                        style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+                </div>
 
                 <h3><?php echo htmlspecialchars($user['username']); ?></h3>
                 <p>Membro dal: <?php echo date('d/m/Y', strtotime($user['data_creazione'])); ?></p>
@@ -210,37 +210,37 @@ $stmt->close();
         </div>
     </div>
 
-            <div id="achievement-popup" class="popup">
-            <img id="popup-image" src="" alt="Achievement" />
-            <div>
-                <h3 id="popup-title"></h3>
-                <p id="popup-description"></p>
-            </div>
+    <div id="achievement-popup" class="popup">
+        <img id="popup-image" src="" alt="Achievement" />
+        <div>
+            <h3 id="popup-title"></h3>
+            <p id="popup-description"></p>
         </div>
-        <?php include '../includes/footer.php'; ?>
+    </div>
+    <?php include '../includes/footer.php'; ?>
 
-            <script>
-                function searchUser() {
-                    const username = document.getElementById('userSearch').value.trim();
-                    if (username) {
-                        window.location.href = `../user/${encodeURIComponent(username.toLowerCase())}`;
-                    } else {
-                        alert('Inserisci un nome utente per continuare');
-                    }
-                }
+    <script>
+        function searchUser() {
+            const username = document.getElementById('userSearch').value.trim();
+            if (username) {
+                window.location.href = `../user/${encodeURIComponent(username.toLowerCase())}`;
+            } else {
+                alert('Inserisci un nome utente per continuare');
+            }
+        }
 
-                document.getElementById('userSearch').addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        searchUser();
-                    }
-                });
-                </script>
-        <script
-            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-            crossorigin="anonymous"
-        ></script>
+        document.getElementById('userSearch').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchUser();
+            }
+        });
+    </script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
 
-        <script src="../js/modeChanger.js"></script>
+    <script src="../js/modeChanger.js"></script>
 </body>
+
 </html>

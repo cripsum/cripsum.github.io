@@ -19,10 +19,11 @@ if (isset($_SESSION['user_id'])) {
 
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <?php include '../includes/head-import.php'; ?>
-        <title>Cripsum™ - rimasti</title>
-        <style>
+
+<head>
+    <?php include '../includes/head-import.php'; ?>
+    <title>Cripsum™ - rimasti</title>
+    <style>
         .posts-section {
             max-width: 1400px;
             margin: 0 auto;
@@ -314,9 +315,12 @@ if (isset($_SESSION['user_id'])) {
             background: linear-gradient(135deg, #ff4757, #ff3838);
             color: white;
             border: none;
-            padding: 0.75rem 1.5rem;;
-            border-radius: 25px;;
-            cursor: pointer;;
+            padding: 0.75rem 1.5rem;
+            ;
+            border-radius: 25px;
+            ;
+            cursor: pointer;
+            ;
             transition: all 0.3s ease;
             font-weight: 600;
         }
@@ -646,34 +650,34 @@ if (isset($_SESSION['user_id'])) {
                 font-size: 0.9rem;
             }
         }
-        </style>
-    </head>
+    </style>
+</head>
 
-    <body>
-        <?php include '../includes/navbar.php'; ?>
-        <?php include '../includes/impostazioni.php'; ?>
+<body>
+    <?php include '../includes/navbar.php'; ?>
+    <?php include '../includes/impostazioni.php'; ?>
 
-        <div class="paginaprincipale">
-            <div class="main-container">
+    <div class="paginaprincipale">
+        <div class="main-container">
 
-                <div class="chisiamo-section fadeup">
-                    <h1 class="chisiamo-title">Top Rimasti</h1>
-                    <p class="chisiamo-subtitle">
-                        Scopri la classifica dei soggetti più imbarazzanti mai incontrati dalla community di Cripsum™. 
-                        Vota i tuoi preferiti e contribuisci a determinare chi si aggiudica il titolo di "più rimasto"!
-                    </p>
-                </div>
+            <div class="chisiamo-section fadeup">
+                <h1 class="chisiamo-title">Top Rimasti</h1>
+                <p class="chisiamo-subtitle">
+                    Scopri la classifica dei soggetti più imbarazzanti mai incontrati dalla community di Cripsum™.
+                    Vota i tuoi preferiti e contribuisci a determinare chi si aggiudica il titolo di "più rimasto"!
+                </p>
+            </div>
 
-                <?php if (isset($_SESSION['user_id'])): ?>
+            <?php if (isset($_SESSION['user_id'])): ?>
                 <div class="add-post-section fadeup" style="margin-bottom: 3rem;">
                     <div class="add-post-card">
                         <h3 class="add-post-title">Hai incontrato un rimasto? condivi qui la tua esperienza :P</h3>
                         <button class="bottone" onclick="toggleAddPostForm()">
                             <span id="toggleButtonText">Aggiungi nuovo post</span>
                         </button>
-                        
+
                         <div id="addPostForm" class="add-post-form" style="display: none;">
-                            <form id="newPostForm" enctype="multipart/form-data" >
+                            <form id="newPostForm" enctype="multipart/form-data">
                                 <div class="form-group">
                                     <input type="text" name="titolo" placeholder="Titolo del post" required>
                                 </div>
@@ -695,80 +699,80 @@ if (isset($_SESSION['user_id'])) {
                         </div>
                     </div>
                 </div>
-                <?php endif; ?>
+            <?php endif; ?>
 
-                <div id="loadingState" class="loading-container fadeup">
+            <div id="loadingState" class="loading-container fadeup">
+                <div class="loading_white">
+                    <div class="loading__dot_white"></div>
+                    <div class="loading__dot_white"></div>
+                    <div class="loading__dot_white"></div>
+                </div>
+                <p class="testobianco" style="text-align: center; margin-top: 1rem;">Caricamento dei post...</p>
+            </div>
+
+            <div id="postsContainer" class="posts-section" style="display: none;"></div>
+            <div id="postsGrid" class="posts-grid">
+
+            </div>
+        </div>
+
+        <?php if ($isAdmin): ?>
+            <div id="adminSection" class="admin-section" style="display: none;">
+                <h2 class="admin-title">👑 Pannello Admin - Post in Attesa</h2>
+                <p class="admin-subtitle">Gestisci i post in attesa di approvazione</p>
+
+                <div id="loadingPendingState" class="loading-container">
                     <div class="loading_white">
                         <div class="loading__dot_white"></div>
                         <div class="loading__dot_white"></div>
                         <div class="loading__dot_white"></div>
                     </div>
-                    <p class="testobianco" style="text-align: center; margin-top: 1rem;">Caricamento dei post...</p>
+                    <p class="testobianco" style="text-align: center; margin-top: 1rem;">Caricamento post in attesa...</p>
                 </div>
 
-                <div id="postsContainer" class="posts-section" style="display: none;"></div>
-                    <div id="postsGrid" class="posts-grid">
+                <div id="pendingPostsContainer" class="posts-section" style="display: none;">
+                    <div id="pendingPostsGrid" class="posts-grid">
 
                     </div>
                 </div>
 
-                <?php if ($isAdmin): ?>
-                <div id="adminSection" class="admin-section" style="display: none;">
-                    <h2 class="admin-title">👑 Pannello Admin - Post in Attesa</h2>
-                    <p class="admin-subtitle">Gestisci i post in attesa di approvazione</p>
-                    
-                    <div id="loadingPendingState" class="loading-container">
-                        <div class="loading_white">
-                            <div class="loading__dot_white"></div>
-                            <div class="loading__dot_white"></div>
-                            <div class="loading__dot_white"></div>
-                        </div>
-                        <p class="testobianco" style="text-align: center; margin-top: 1rem;">Caricamento post in attesa...</p>
-                    </div>
-
-                    <div id="pendingPostsContainer" class="posts-section" style="display: none;">
-                        <div id="pendingPostsGrid" class="posts-grid">
-
-                        </div>
-                    </div>
-
-                    <div id="noPendingPosts" class="empty-state" style="display: none;">
-                        <div class="empty-card">
-                            <div class="empty-icon">✅</div>
-                            <h3>Nessun post in attesa</h3>
-                            <p>Tutti i post sono stati gestiti.</p>
-                        </div>
-                    </div>
-                </div>
-                <?php endif; ?>
-
-                <div id="emptyState" class="empty-state fadeup" style="display: none;">
+                <div id="noPendingPosts" class="empty-state" style="display: none;">
                     <div class="empty-card">
-                        <div class="empty-icon">🤷‍♂️</div>
-                        <h3>Nessun post trovato</h3>
-                        <p>Non ci sono ancora post da mostrare. Sii il primo a postare un rimasto!</p>
-                        <?php if (isset($_SESSION['user_id'])): ?>
-                        <button class="bottone" onclick="toggleAddPostForm()">Aggiungi il primo post</button>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <div id="postModal" class="modal-overlay" style="display: none;">
-                    <div class="modal-content">
-                        <button class="modal-close" onclick="closePostModal()" style="line-height: 1; padding-top: 0;">&times;</button>
-                        <div id="modalContent">
-                        </div>
+                        <div class="empty-icon">✅</div>
+                        <h3>Nessun post in attesa</h3>
+                        <p>Tutti i post sono stati gestiti.</p>
                     </div>
                 </div>
             </div>
+        <?php endif; ?>
+
+        <div id="emptyState" class="empty-state fadeup" style="display: none;">
+            <div class="empty-card">
+                <div class="empty-icon">🤷‍♂️</div>
+                <h3>Nessun post trovato</h3>
+                <p>Non ci sono ancora post da mostrare. Sii il primo a postare un rimasto!</p>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <button class="bottone" onclick="toggleAddPostForm()">Aggiungi il primo post</button>
+                <?php endif; ?>
+            </div>
         </div>
 
-        <?php include '../includes/footer.php'; ?>
+        <div id="postModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closePostModal()" style="line-height: 1; padding-top: 0;">&times;</button>
+                <div id="modalContent">
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="../js/modeChanger.js"></script>
+    <?php include '../includes/footer.php'; ?>
 
-        <script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/modeChanger.js"></script>
+
+    <script>
         let allPosts = [];
         let pendingPosts = [];
         let userVotes = {};
@@ -785,7 +789,7 @@ if (isset($_SESSION['user_id'])) {
             try {
                 const response = await fetch('../api/get_toprimasti.php');
                 const data = await response.json();
-                
+
                 if (Array.isArray(data)) {
                     allPosts = data.sort((a, b) => parseInt(b.reazioni) - parseInt(a.reazioni));
                     displayPosts(allPosts);
@@ -801,13 +805,13 @@ if (isset($_SESSION['user_id'])) {
 
         async function loadPendingPosts() {
             if (!isAdmin) return;
-            
+
             try {
                 const response = await fetch('../api/get_pending_toprimasti.php');
                 const data = await response.json();
-                
+
                 document.getElementById('loadingPendingState').style.display = 'none';
-                
+
                 if (Array.isArray(data) && data.length > 0) {
                     pendingPosts = data;
                     displayPendingPosts(pendingPosts);
@@ -826,16 +830,16 @@ if (isset($_SESSION['user_id'])) {
 
         async function loadUserVotes() {
             <?php if (isset($_SESSION['user_id'])): ?>
-            try {
-                const response = await fetch('../api/get_user_votes.php');
-                const votes = await response.json();
-                if (votes.success) {
-                    userVotes = votes.votes;
-                    updateVoteButtons();
+                try {
+                    const response = await fetch('../api/get_user_votes.php');
+                    const votes = await response.json();
+                    if (votes.success) {
+                        userVotes = votes.votes;
+                        updateVoteButtons();
+                    }
+                } catch (error) {
+                    console.error('Errore nel caricamento dei voti:', error);
                 }
-            } catch (error) {
-                console.error('Errore nel caricamento dei voti:', error);
-            }
             <?php endif; ?>
         }
 
@@ -846,7 +850,7 @@ if (isset($_SESSION['user_id'])) {
             const postsGrid = document.getElementById('postsGrid');
 
             loadingState.style.display = 'none';
-            
+
             if (posts.length === 0) {
                 showEmptyState();
                 return;
@@ -858,7 +862,7 @@ if (isset($_SESSION['user_id'])) {
             postsGrid.innerHTML = posts.map((post, index) => {
                 const position = index + 1;
                 const positionClass = position <= 3 ? `position-${position}` : '';
-                
+
                 return `
                     <div class="post-card ${positionClass} fadeup" style="animation-delay: ${index * 0.1}s">
                         ${isAdmin ? `
@@ -1011,12 +1015,12 @@ if (isset($_SESSION['user_id'])) {
 
         async function changeApproval(postId, approval) {
             if (!isAdmin) return;
-            
+
             const action = approval === 1 ? 'approvare' : 'rimuovere approvazione da';
             if (!confirm(`Sei sicuro di voler ${action} questo post?`)) {
                 return;
             }
-            
+
             try {
                 const response = await fetch('../api/manage_post_approval.php', {
                     method: 'POST',
@@ -1030,7 +1034,7 @@ if (isset($_SESSION['user_id'])) {
                 });
 
                 const result = await response.json();
-                
+
                 if (result.success) {
                     if (approval === 1) {
                         pendingPosts = pendingPosts.filter(p => p.id != postId);
@@ -1052,11 +1056,11 @@ if (isset($_SESSION['user_id'])) {
 
         async function deletePost(postId, isPending) {
             if (!isAdmin) return;
-            
+
             if (!confirm('Sei sicuro di voler eliminare questo post? Questa azione non può essere annullata.')) {
                 return;
             }
-            
+
             try {
                 const response = await fetch('../api/delete_toprimasti_post.php', {
                     method: 'POST',
@@ -1069,7 +1073,7 @@ if (isset($_SESSION['user_id'])) {
                 });
 
                 const result = await response.json();
-                
+
                 if (result.success) {
                     if (isPending) {
                         pendingPosts = pendingPosts.filter(p => p.id != postId);
@@ -1095,13 +1099,13 @@ if (isset($_SESSION['user_id'])) {
 
         async function toggleVote(postId) {
             <?php if (!isset($_SESSION['user_id'])): ?>
-            window.location.href = 'accedi';
-            return;
+                window.location.href = 'accedi';
+                return;
             <?php endif; ?>
 
             const voteBtn = document.querySelector(`[data-post-id="${postId}"]`);
             const isVoted = userVotes[postId] || false;
-            
+
             try {
                 voteBtn.classList.add('voting');
                 voteBtn.disabled = true;
@@ -1118,10 +1122,10 @@ if (isset($_SESSION['user_id'])) {
                 });
 
                 const result = await response.json();
-                
+
                 if (result.success) {
                     userVotes[postId] = !isVoted;
-                    
+
                     const postIndex = allPosts.findIndex(p => p.id == postId);
                     if (postIndex !== -1) {
                         allPosts[postIndex].reazioni = result.newVoteCount;
@@ -1191,7 +1195,7 @@ if (isset($_SESSION['user_id'])) {
         function toggleAddPostForm() {
             const form = document.getElementById('addPostForm');
             const button = document.getElementById('toggleButtonText');
-            
+
             if (form.style.display === 'none') {
                 form.style.display = 'block';
                 button.textContent = 'Annulla';
@@ -1204,11 +1208,11 @@ if (isset($_SESSION['user_id'])) {
 
         document.getElementById('newPostForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             const formData = new FormData(this);
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.textContent;
-            
+
             console.log('Invio nuovo post...');
             for (let [key, value] of formData.entries()) {
                 if (key === 'foto_rimasto') {
@@ -1217,42 +1221,42 @@ if (isset($_SESSION['user_id'])) {
                     console.log(key + ':', value);
                 }
             }
-            
+
             const fileInput = this.querySelector('input[type="file"]');
             if (!fileInput.files[0]) {
                 alert('Per favore seleziona un\'immagine');
                 return;
             }
-            
+
             const file = fileInput.files[0];
             console.log('File selezionato:', file.name, file.size + ' bytes', file.type);
-            
+
             if (file.size > 5 * 1024 * 1024) {
                 alert('File troppo grande. Massimo 5MB');
                 return;
             }
-            
+
             const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
             if (!allowedTypes.includes(file.type)) {
                 alert('Tipo di file non consentito. Usa solo JPEG, PNG, GIF o WebP');
                 return;
             }
-            
+
             submitBtn.disabled = true;
             submitBtn.textContent = 'Invio in corso...';
-            
+
             try {
                 const response = await fetch('../api/set_new_toprimasti_post.php', {
                     method: 'POST',
                     body: formData
                 });
-                
+
                 console.log('Response status:', response.status);
                 console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-                
+
                 const result = await response.json();
                 console.log('Response data:', result);
-                
+
                 if (result.success) {
                     alert('Post inviato con successo! Sarà visibile dopo l\'approvazione dell\'admin.');
                     toggleAddPostForm();
@@ -1293,6 +1297,7 @@ if (isset($_SESSION['user_id'])) {
                 closePostModal();
             }
         });
-        </script>
-    </body>
+    </script>
+</body>
+
 </html>

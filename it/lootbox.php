@@ -24,25 +24,26 @@ require_once '../api/api_personaggi.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <?php include '../includes/head-import.php'; ?>
-        <link rel="stylesheet" href="/css/lootbox.css?v=6" />
-        <title>Cripsum™ - lootbox</title>
-    </head>
 
-    <body class="">
-        <?php include '../includes/navbar-lootbox.php'; ?>
-        <div class="stars" id="stars"></div>
-        
-        <!-- TO DO
+<head>
+    <?php include '../includes/head-import.php'; ?>
+    <link rel="stylesheet" href="/css/lootbox.css?v=6" />
+    <title>Cripsum™ - lootbox</title>
+</head>
+
+<body class="">
+    <?php include '../includes/navbar-lootbox.php'; ?>
+    <div class="stars" id="stars"></div>
+
+    <!-- TO DO
            bloccare lo scorrimento della pagina quando il menu della navbar è aperto (aggiungere classe overflow-hidden al body) 
            bloccare lo scorrimento della pagina quando il pop up è aperto (aggiungere classe overflow-hidden al body)  
         -->
 
-        <div style="max-width: 1520px; margin: auto; padding-top: 5rem" class="testobianco" id="paginaintera">
-            <div
-                id="popup-overlay"
-                style="
+    <div style="max-width: 1520px; margin: auto; padding-top: 5rem" class="testobianco" id="paginaintera">
+        <div
+            id="popup-overlay"
+            style="
                     position: fixed;
                     top: 0;
                     left: 0;
@@ -55,12 +56,11 @@ require_once '../api/api_personaggi.php';
                     z-index: 9999;
                     opacity: 0;
                     transition: opacity 0.5s ease;
-                "
-            >
-                <div
-                    id="collegamentoedits"
-                    class="collegamentoedit ombra fadeup"
-                    style="
+                ">
+            <div
+                id="collegamentoedits"
+                class="collegamentoedit ombra fadeup"
+                style="
                         backdrop-filter: blur(15px);
                         background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(64, 64, 64, 0.1));
                         box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5);
@@ -73,105 +73,102 @@ require_once '../api/api_personaggi.php';
                         opacity: 0;
                         transform: translateY(-20px);
                         transition: opacity 0.5s ease, transform 0.5s ease;
-                    "
-                >
-                    <button style="position: absolute; top: 0px; right: 5px; background-color: transparent; border: none; cursor: pointer" onclick="closePopup()">
-                        <span class="close_div tastobianco" style="font-size: 20px; color: rgb(255, 255, 255)"
-                            >&times;<span class="linkbianco" style="font-size: small; position: relative; top: -3px; left: 3px">chiudi</span></span
-                        >
-                    </button>
-                    <div id="banner-content"></div>
-                </div>
+                    ">
+                <button style="position: absolute; top: 0px; right: 5px; background-color: transparent; border: none; cursor: pointer" onclick="closePopup()">
+                    <span class="close_div tastobianco" style="font-size: 20px; color: rgb(255, 255, 255)">&times;<span class="linkbianco" style="font-size: small; position: relative; top: -3px; left: 3px">chiudi</span></span>
+                </button>
+                <div id="banner-content"></div>
             </div>
+        </div>
 
-            <script>
-                function getRandomBanner() {
-                    const banners = [
-                        `<div class="bannerino">
+        <script>
+            function getRandomBanner() {
+                const banners = [
+                    `<div class="bannerino">
             <h2 style="color: rgb(255, 255, 255); padding-top: 11px">Ti offriamo un cookie! 🍪</h2>
             <p style="color: rgb(255, 255, 255);">Questo sito utilizza i cookie per salvare i tuoi dati. Se li disattivi, alcune funzioni come le impostazioni e l'inventario potrebbero non funzionare correttamente.</p>
             <p style="color: rgb(255, 255, 255);">Buon divertimento!</p>
             <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="closePopup()">Prendi i miei dati 😆</button>
 
         </div>`,
-                    ];
-                    return banners[Math.floor(Math.random() * banners.length)];
-                }
+                ];
+                return banners[Math.floor(Math.random() * banners.length)];
+            }
 
-                function showPopup() {
-                    if (getCookie("popupSeen")) return;
+            function showPopup() {
+                if (getCookie("popupSeen")) return;
 
-                    const overlay = document.getElementById("popup-overlay");
-                    const popup = document.getElementById("collegamentoedits");
-                    document.getElementById("banner-content").innerHTML = getRandomBanner();
-                    overlay.style.display = "flex";
-                    document.body.style.overflow = "hidden";
-                    setTimeout(() => {
-                        overlay.style.opacity = "1";
-                        popup.style.opacity = "1";
-                        popup.style.transform = "translateY(0)";
-                    }, 10);
-                }
+                const overlay = document.getElementById("popup-overlay");
+                const popup = document.getElementById("collegamentoedits");
+                document.getElementById("banner-content").innerHTML = getRandomBanner();
+                overlay.style.display = "flex";
+                document.body.style.overflow = "hidden";
+                setTimeout(() => {
+                    overlay.style.opacity = "1";
+                    popup.style.opacity = "1";
+                    popup.style.transform = "translateY(0)";
+                }, 10);
+            }
 
-                function closePopup() {
-                    const overlay = document.getElementById("popup-overlay");
-                    const popup = document.getElementById("collegamentoedits");
-                    popup.style.opacity = "0";
-                    popup.style.transform = "translateY(-20px)";
-                    overlay.style.opacity = "0";
-                    document.body.style.overflow = "auto";
-                    setTimeout(() => {
-                        overlay.style.display = "none";
-                    }, 500);
-                    setCookie("popupSeen", true);
-                }
+            function closePopup() {
+                const overlay = document.getElementById("popup-overlay");
+                const popup = document.getElementById("collegamentoedits");
+                popup.style.opacity = "0";
+                popup.style.transform = "translateY(-20px)";
+                overlay.style.opacity = "0";
+                document.body.style.overflow = "auto";
+                setTimeout(() => {
+                    overlay.style.display = "none";
+                }, 500);
+                setCookie("popupSeen", true);
+            }
 
-                window.onload = function () {
-                    setTimeout(showPopup, 700);
-                };
-            </script>
-            <div class="container">
+            window.onload = function() {
+                setTimeout(showPopup, 700);
+            };
+        </script>
+        <div class="container">
 
-                <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein" ondblclick="apriVeloce()" onclick="pullaPersonaggio(); apriNormale()" />
+            <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein" ondblclick="apriVeloce()" onclick="pullaPersonaggio(); apriNormale()" />
 
-                <div id="baglioreWrapper">
-                    <div class="bagliore" id="bagliore"></div>
+            <div id="baglioreWrapper">
+                <div class="bagliore" id="bagliore"></div>
+            </div>
+
+            <div id="contenuto"></div>
+
+            <div id="messaggio" class="nascosto">
+                <h1 style="margin-top: 100px; font-size: 25px" id="messaggioRarita" class="non-selezionabile"></h1>
+                <a onclick="refresh()" id="apriAncora" class="linkbianco"></a>
+            </div>
+
+            <div id="divApriAncora" class="nascosto">
+                <div class="button-container mt-4" style="text-align: center; max-width: 95%; margin: auto">
+                    <a class="btn btn-secondary bottone mt-2" onclick="refresh()" style="cursor: pointer">Apri cassa</a>
+                    <a class="btn btn-secondary bottone mt-2" href="inventario" style="cursor: pointer">Apri l'inventario</a><br>
+                    <a class="btn btn-secondary bottone mt-2" onclick="toggleLeaderboard()" style="cursor: pointer">Visualizza Classifiche</a>
                 </div>
+            </div>
 
-                <div id="contenuto"></div>
-
-                <div id="messaggio" class="nascosto">
-                    <h1 style="margin-top: 100px; font-size: 25px" id="messaggioRarita" class="non-selezionabile"></h1>
-                    <a onclick="refresh()" id="apriAncora" class="linkbianco"></a>
-                </div>
-
-                <div id="divApriAncora" class="nascosto">
-                    <div class="button-container mt-4" style="text-align: center; max-width: 95%; margin: auto">
-                        <a class="btn btn-secondary bottone mt-2" onclick="refresh()" style="cursor: pointer">Apri cassa</a>
-                        <a class="btn btn-secondary bottone mt-2" href="inventario" style="cursor: pointer">Apri l'inventario</a><br>
-                        <a class="btn btn-secondary bottone mt-2" onclick="toggleLeaderboard()" style="cursor: pointer">Visualizza Classifiche</a>
-                    </div>
-                </div>
-
-                <div class="modal fade" id="impostazioniModal" tabindex="-1" aria-labelledby="impostazioniModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content bgimpostazioni">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="disclaimerModalLabel">⚙️ Impostazioni & Probabilità</h5>
+            <div class="modal fade" id="impostazioniModal" tabindex="-1" aria-labelledby="impostazioniModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content bgimpostazioni">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="disclaimerModalLabel">⚙️ Impostazioni & Probabilità</h5>
+                        </div>
+                        <div class="col-md-6 d-flex text-center" style="text-align: center; padding-top: 20px; padding-bottom: 20px; margin: auto;">
+                            <div style="color: white; font-size: 14px; margin: auto;">
+                                <h6 style="color: white; margin-bottom: 10px;">🎲 Probabilità Rarità:</h6>
+                                <div>Comune: 47%</div>
+                                <div>Raro: 27%</div>
+                                <div>Epico: 12%</div>
+                                <div>Leggendario: 8%</div>
+                                <div>Speciale: 0.9%</div>
+                                <div>???: 0.1%</div>
                             </div>
-                                <div class="col-md-6 d-flex text-center" style="text-align: center; padding-top: 20px; padding-bottom: 20px; margin: auto;">
-                                    <div style="color: white; font-size: 14px; margin: auto;">
-                                        <h6 style="color: white; margin-bottom: 10px;">🎲 Probabilità Rarità:</h6>
-                                        <div>Comune: 47%</div>
-                                        <div>Raro: 27%</div>
-                                        <div>Epico: 12%</div>
-                                        <div>Leggendario: 8%</div>
-                                        <div>Speciale: 0.9%</div>
-                                        <div>???: 0.1%</div>
-                                    </div>
-                                </div>
+                        </div>
 
-                            <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
+                        <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
                             <div id="admin-cheats">
                                 <h4>🎮 Cheats (Admin Only)</h4>
                                 <div class="modal-body">
@@ -214,48 +211,48 @@ require_once '../api/api_personaggi.php';
                                     </div>
                                 </div>
                             </div>
-                            <?php endif; ?>
+                        <?php endif; ?>
 
-                                <div data-mdb-input-init class="form-outline mb-4">
-                                    <label class="form-label" for="registerName">🔐 Codice Segreto</label>
-                                    <input type="text" id="codiceSegreto" class="form-control" />
-                                    <br />
-                                    <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="riscattaCodice()">Riscatta codice</button>
-                                </div>
-                            
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="salvaPreferenze()">Salva Preferenze</button>
-                            </div>
+                        <div data-mdb-input-init class="form-outline mb-4">
+                            <label class="form-label" for="registerName">🔐 Codice Segreto</label>
+                            <input type="text" id="codiceSegreto" class="form-control" />
+                            <br />
+                            <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="riscattaCodice()">Riscatta codice</button>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="salvaPreferenze()">Salva Preferenze</button>
                         </div>
                     </div>
                 </div>
-
-                <div id="particelle"></div>
             </div>
 
-            <audio id="suonoCassa"></audio>
-            <div class="leaderboard-wrapper" id="leaderboard-wrapper" style="display: none;">
-                <div class="leaderboard-box">
-                    <h3 class="testobianco">🏆 Classifiche</h3>
-                    
-                    <div class="leaderboard-buttons">
-                        <button class="btn btn-secondary bottone leaderboard-btn active" onclick="switchLeaderboard('casse_aperte')" id="btn-casse">
-                            Casse Aperte
-                        </button>
-                        <button class="btn btn-secondary bottone leaderboard-btn" onclick="switchLeaderboard('personaggi_sbloccati')" id="btn-personaggi">
-                            Personaggi
-                        </button>
-                    </div>
-                    
-                    <div id="leaderboard-data">
-                        <div class="loading-text testobianco">Caricamento...</div>
-                    </div>
-                    
-                    <button class="btn btn-secondary bottone mt-3" onclick="toggleLeaderboard()">
-                        Chiudi Classifica
+            <div id="particelle"></div>
+        </div>
+
+        <audio id="suonoCassa"></audio>
+        <div class="leaderboard-wrapper" id="leaderboard-wrapper" style="display: none;">
+            <div class="leaderboard-box">
+                <h3 class="testobianco">🏆 Classifiche</h3>
+
+                <div class="leaderboard-buttons">
+                    <button class="btn btn-secondary bottone leaderboard-btn active" onclick="switchLeaderboard('casse_aperte')" id="btn-casse">
+                        Casse Aperte
+                    </button>
+                    <button class="btn btn-secondary bottone leaderboard-btn" onclick="switchLeaderboard('personaggi_sbloccati')" id="btn-personaggi">
+                        Personaggi
                     </button>
                 </div>
+
+                <div id="leaderboard-data">
+                    <div class="loading-text testobianco">Caricamento...</div>
+                </div>
+
+                <button class="btn btn-secondary bottone mt-3" onclick="toggleLeaderboard()">
+                    Chiudi Classifica
+                </button>
             </div>
+        </div>
         <div id="achievement-popup" class="popup" style="max-height: 100px">
             <img id="popup-image" src="" alt="Achievement" />
             <div>
@@ -274,8 +271,7 @@ require_once '../api/api_personaggi.php';
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-            crossorigin="anonymous"
-        ></script>
+            crossorigin="anonymous"></script>
         <script src="../js/unlockAchievement-it.js"></script>
         <script>
             const cassa = document.getElementById("cassa");
@@ -332,32 +328,32 @@ require_once '../api/api_personaggi.php';
             function testRandomicity(iterations = 10000) {
                 console.log("🎲 Test randomicità con", iterations, "pull:");
                 console.log("Probabilità teoriche:", rarityProbabilities);
-                
+
                 const results = {};
                 const startTime = performance.now();
-                
+
                 for (let i = 0; i < iterations; i++) {
                     const rarity = getRandomRarity();
                     results[rarity] = (results[rarity] || 0) + 1;
                 }
-                
+
                 const endTime = performance.now();
                 console.log(`⏱️ Test completato in ${(endTime - startTime).toFixed(2)}ms`);
-                
+
                 console.log("\n📊 RISULTATI:");
                 for (let [rarity, count] of Object.entries(results)) {
                     const percentage = ((count / iterations) * 100).toFixed(3);
                     const expected = rarityProbabilities[rarity];
                     const difference = Math.abs(percentage - expected).toFixed(3);
                     const status = difference < 1 ? "✅" : difference < 2 ? "⚠️" : "❌";
-                    
+
                     console.log(`${status} ${rarity}: ${count} (${percentage}%) - Atteso: ${expected}% - Diff: ${difference}%`);
                 }
-                
+
                 return results;
             }
 
-            
+
 
             function createStars() {
                 const starsContainer = document.getElementById('stars');
@@ -414,7 +410,10 @@ require_once '../api/api_personaggi.php';
                     let characterFound = inventory.find((p) => p.nome === character.nome);
 
                     if (!characterFound) {
-                        inventory.push({ ...character, count: 1 });
+                        inventory.push({
+                            ...character,
+                            count: 1
+                        });
                         testoNuovo();
                         nuovoPersonaggio = true;
                     } else {
@@ -472,24 +471,9 @@ require_once '../api/api_personaggi.php';
                 return data;
             }
 
-            /*function resettaInventario() {
-                if (!confirm("Sei sicuro di voler resettare l'inventario? Tutti i personaggi saranno persi!")) {
-                    return;
-                }
-                localStorage.setItem("inventory", JSON.stringify([]));
-                setCookie("casseAperte", 0);
-                setCookie("comuniDiFila", 0);
-                setCookie("preferences", {});
-                setLastCharacterFound("");
-                localStorage.clear();
-                alert("Inventario resettato con successo!");
-                location.reload();
-            }*/
-
             async function getRandomPull() {
                 const allCharacters = await getAllCharacters();
                 const selectedRarity = getRandomRarity();
-                //const filteredRarities = rarities.filter((item) => item.rarity === selectedRarity);
                 const filteredRarities = allCharacters.filter((item) => item.rarità === selectedRarity);
                 return filteredRarities[Math.floor(Math.random() * filteredRarities.length)];
             }
@@ -561,7 +545,7 @@ require_once '../api/api_personaggi.php';
                             segreto: 0,
                             theone: 100,
                         });
-                    } else if ("<?php echo $_SESSION['username']?>" === 'nauz') {
+                    } else if ("<?php echo $_SESSION['username'] ?>" === 'nauz') {
                         return (rarityProbabilities = {
                             comune: 52,
                             raro: 28,
@@ -600,7 +584,7 @@ require_once '../api/api_personaggi.php';
                 return data;
             }
 
-            function getRarità(){
+            function getRarità() {
                 rarityProbabilities = aggiornaRarita();
                 return rarityProbabilities;
             }
@@ -629,24 +613,24 @@ require_once '../api/api_personaggi.php';
                 return await getRandomPull();
             }
 
-            async function pullaPersonaggio(){
+            async function pullaPersonaggio() {
 
                 if (isProcessing) {
                     return;
                 }
-                    
+
                 isProcessing = true;
 
                 try {
                     const pull = await filtroPull();
-                    
+
                     document.getElementById("contenuto").innerHTML = `
                         <p style="top 10px; font-size: 20px; max-width: 600px; text-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);" id="nomePersonaggio">${pull.nome}</p>
                         <img src="/img/${pull.img_url}" alt="Premio" class="premio" />
                     `;
-                    
+
                     await addToInventory(pull);
-                    
+
                     if (typeof setLastCharacterFound === 'function') {
                         setLastCharacterFound(pull.nome);
                     }
@@ -657,9 +641,6 @@ require_once '../api/api_personaggi.php';
                     if (rarita === "comune") {
                         messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
                         bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
-                    // } else if (rarita === "mitico") {
-                    //     messaggioRarita.innerText = "PAZZESCO FRA, hai pullato un personaggio mitico";
-                    //     bagliore.style.background = "radial-gradient(circle, rgba(245, 15, 15, 1) 0%, rgba(0, 255, 0, 0) 70%)";
                     } else if (rarita === "leggendario") {
                         messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
                         bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
@@ -704,7 +685,7 @@ require_once '../api/api_personaggi.php';
                     document.getElementById("suonoCassa").innerHTML = `
                         <source src="/audio/${pull.audio_url}" type="audio/mpeg" id="suono" />
                     `;
-                    
+
                 } catch (error) {
                     console.error('Errore nel pull del personaggio:', error);
                     messaggioRarita.innerText = "Errore durante l'apertura della cassa. Riprova.";
@@ -715,26 +696,26 @@ require_once '../api/api_personaggi.php';
                 }
             }
 
-            async function riscattaPersonaggio(nomePersonaggio){
+            async function riscattaPersonaggio(nomePersonaggio) {
 
                 if (isProcessing) {
                     return;
                 }
-                    
+
                 isProcessing = true;
 
                 try {
                     const pull = await getCharacter(nomePersonaggio);
-                    
+
                     document.getElementById("contenuto").innerHTML = `
                         <p style="top 10px; font-size: 20px; max-width: 600px; text-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);" id="nomePersonaggio">${pull.nome}</p>
                         <img src="/img/${pull.img_url}" alt="Premio" class="premio" />
                     `;
-                    
-                    await addToInventory(pull);
-                    
 
-                    
+                    await addToInventory(pull);
+
+
+
                     if (typeof setLastCharacterFound === 'function') {
                         setLastCharacterFound(pull.nome);
                     }
@@ -745,9 +726,6 @@ require_once '../api/api_personaggi.php';
                     if (rarita === "comune") {
                         messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
                         bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
-                    // } else if (rarita === "mitico") {
-                    //     messaggioRarita.innerText = "PAZZESCO FRA, hai pullato un personaggio mitico";
-                    //     bagliore.style.background = "radial-gradient(circle, rgba(245, 15, 15, 1) 0%, rgba(0, 255, 0, 0) 70%)";
                     } else if (rarita === "leggendario") {
                         messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
                         bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
@@ -770,7 +748,7 @@ require_once '../api/api_personaggi.php';
                         bagliore.style.animation = "rainbowBackground 6s linear infinite";
                     } else if (rarita === "segreto") {
                         startIntroAnimation(pull.nome);
-                        
+
                         messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
                         bagliore.style.position = "fixed";
                         bagliore.style.width = "100vw";
@@ -791,7 +769,7 @@ require_once '../api/api_personaggi.php';
                     document.getElementById("suonoCassa").innerHTML = `
                         <source src="/audio/${pull.audio_url}" type="audio/mpeg" id="suono" />
                     `;
-                    
+
                 } catch (error) {
                     console.error('Errore nel pull del personaggio:', error);
                     messaggioRarita.innerText = "Errore durante l'apertura della cassa. Riprova.";
@@ -803,17 +781,17 @@ require_once '../api/api_personaggi.php';
             }
 
             document.addEventListener("DOMContentLoaded", function() {
-                document.addEventListener("keydown", function (event) {
+                document.addEventListener("keydown", function(event) {
                     if (event.code === "Space") {
-                            event.preventDefault(); 
+                        event.preventDefault();
 
-                            if (!cassa.classList.contains("aperta")) {
-                                if (!contenuto.classList.contains("salto")) {
-                                    pullaPersonaggio().then(() => {
-                                        if(theOnePulled === true || nuovoPersonaggio === true){
-                                            event.preventDefault(); 
-                                            apriNormale();
-                                        } else{
+                        if (!cassa.classList.contains("aperta")) {
+                            if (!contenuto.classList.contains("salto")) {
+                                pullaPersonaggio().then(() => {
+                                    if (theOnePulled === true || nuovoPersonaggio === true) {
+                                        event.preventDefault();
+                                        apriNormale();
+                                    } else {
                                         bagliore.style.opacity = 0.6;
                                         bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
 
@@ -823,24 +801,24 @@ require_once '../api/api_personaggi.php';
                                         generaParticelle();
                                         apriCassa();
                                         apriVeloce();
-                                        }
-                                    });
-                                }
-                            } else {
-                                if(theOnePulled === true || nuovoPersonaggio === true){
-                                    event.preventDefault(); 
-                                    apriNormale();
-                                } else{
-                                    apriVeloce();
-                                }
+                                    }
+                                });
                             }
-                        
+                        } else {
+                            if (theOnePulled === true || nuovoPersonaggio === true) {
+                                event.preventDefault();
+                                apriNormale();
+                            } else {
+                                apriVeloce();
+                            }
+                        }
+
                     }
                 });
 
-                document.addEventListener("keydown", function (event) {
+                document.addEventListener("keydown", function(event) {
                     if (event.code === "Enter") {
-                        if(theOnePulled !== true && nuovoPersonaggio !== true){
+                        if (theOnePulled !== true && nuovoPersonaggio !== true) {
                             event.preventDefault();
                             refresh();
                         }
@@ -1219,7 +1197,7 @@ require_once '../api/api_personaggi.php';
                     introOverlay.style.opacity = '1';
                     purpleContainer.style.opacity = '1';
                     purpleContainer.style.transform = 'scale(1)';
-                    
+
                     setTimeout(() => {
                         purpleCircle.style.opacity = '1';
                         purpleCircle.style.transform = 'scale(1)';
@@ -1231,7 +1209,7 @@ require_once '../api/api_personaggi.php';
                             ring.style.opacity = '1';
                         }, 800 + index * 200);
                     });
-                    
+
                     const lightnings = purpleContainer.querySelectorAll('div[style*="linear-gradient(to bottom"]');
                     lightnings.forEach((lightning, index) => {
                         setTimeout(() => {
@@ -1244,24 +1222,24 @@ require_once '../api/api_personaggi.php';
                         mysteriousText.style.transform = 'scale(1)';
                         createStars();
                     }, 1000);
-                    
+
                     const particles = purpleContainer.querySelectorAll('div[style*="radial-gradient(circle, #ff00ff"]');
                     particles.forEach((particle, index) => {
                         setTimeout(() => {
                             particle.style.opacity = '1';
                         }, 1500 + Math.random() * 500);
                     });
-                    
 
-                        bagliore.style.background = "radial-gradient(circle, rgba(147, 0, 211, 1) 0%, rgba(75, 0, 130, 0.8) 30%, rgba(138, 43, 226, 0.6) 60%, rgba(148, 0, 211, 0) 100%)";
-                        bagliore.style.animation = "secretGlowRotate 8s ease-in-out infinite";
-                        bagliore.style.boxShadow = "0 0 100px rgba(147, 0, 211, 0.8), 0 0 200px rgba(75, 0, 130, 0.6), inset 0 0 50px rgba(138, 43, 226, 0.4)";
-                        bagliore.style.borderRadius = "50%";
-                        bagliore.style.width = "150vw";
-                        bagliore.style.height = "150vw";
 
-                        const secretStyleSheet = document.createElement('style');
-                        secretStyleSheet.textContent = `
+                    bagliore.style.background = "radial-gradient(circle, rgba(147, 0, 211, 1) 0%, rgba(75, 0, 130, 0.8) 30%, rgba(138, 43, 226, 0.6) 60%, rgba(148, 0, 211, 0) 100%)";
+                    bagliore.style.animation = "secretGlowRotate 8s ease-in-out infinite";
+                    bagliore.style.boxShadow = "0 0 100px rgba(147, 0, 211, 0.8), 0 0 200px rgba(75, 0, 130, 0.6), inset 0 0 50px rgba(138, 43, 226, 0.4)";
+                    bagliore.style.borderRadius = "50%";
+                    bagliore.style.width = "150vw";
+                    bagliore.style.height = "150vw";
+
+                    const secretStyleSheet = document.createElement('style');
+                    secretStyleSheet.textContent = `
                             @keyframes secretGlowRotate {
                                 0% { 
                                     transform: translate(-50%, -50%) scale(1) rotate(0deg);
@@ -1285,8 +1263,8 @@ require_once '../api/api_personaggi.php';
                                 }
                             }
                         `;
-                        document.head.appendChild(secretStyleSheet);
-                    
+                    document.head.appendChild(secretStyleSheet);
+
                 }, 100);
 
                 setTimeout(() => {
@@ -1356,14 +1334,14 @@ require_once '../api/api_personaggi.php';
                     videoContainer.style.transform = 'scale(1)';
                     video.play();
                 }, 800);
-                
+
                 bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
 
                 setTimeout(() => {
                     introOverlay.style.transition = 'opacity 2s ease-in-out, z-index 0s ease-in-out 2s';
                     introOverlay.style.opacity = '0.3';
                     video.style.filter = 'brightness(0.7) contrast(0.9) blur(1px)';
-                    
+
                     setTimeout(() => {
                         introOverlay.style.zIndex = '-1';
                         introOverlay.style.transition = 'opacity 0.8s ease-in-out';
@@ -1376,12 +1354,12 @@ require_once '../api/api_personaggi.php';
                 });
             }
 
-                let currentLeaderboardType = 'casse_aperte';
+            let currentLeaderboardType = 'casse_aperte';
             let leaderboardVisible = false;
 
             function toggleLeaderboard() {
                 const wrapper = document.getElementById('leaderboard-wrapper');
-                
+
                 if (leaderboardVisible) {
                     wrapper.style.display = 'none';
                     leaderboardVisible = false;
@@ -1396,7 +1374,7 @@ require_once '../api/api_personaggi.php';
 
             async function loadLeaderboard(type) {
                 const dataDiv = document.getElementById('leaderboard-data');
-                
+
                 dataDiv.innerHTML = '<div class="loading-text testobianco">Caricamento...</div>';
 
                 try {
@@ -1417,15 +1395,15 @@ require_once '../api/api_personaggi.php';
             function displayLeaderboard(leaderboardData, type) {
                 const dataDiv = document.getElementById('leaderboard-data');
                 const valueLabel = type === 'casse_aperte' ? 'casse' : 'personaggi';
-                
+
                 const html = leaderboardData.map(item => {
-                    const rankClass = item.position === 1 ? 'gold' : 
-                                    item.position === 2 ? 'silver' : 
-                                    item.position === 3 ? 'bronze' : '';
-                    
-                    const medal = item.position === 1 ? '🥇 ' : 
-                                item.position === 2 ? '🥈 ' : 
-                                item.position === 3 ? '🥉 ' : '';
+                    const rankClass = item.position === 1 ? 'gold' :
+                        item.position === 2 ? 'silver' :
+                        item.position === 3 ? 'bronze' : '';
+
+                    const medal = item.position === 1 ? '🥇 ' :
+                        item.position === 2 ? '🥈 ' :
+                        item.position === 3 ? '🥉 ' : '';
 
                     return `
                         <div class="leaderboard-entry ${rankClass}">
@@ -1441,17 +1419,17 @@ require_once '../api/api_personaggi.php';
 
             function switchLeaderboard(type) {
                 currentLeaderboardType = type;
-                
+
                 document.querySelectorAll('.leaderboard-btn').forEach(btn => {
                     btn.classList.remove('active');
                 });
-                
+
                 if (type === 'casse_aperte') {
                     document.getElementById('btn-casse').classList.add('active');
                 } else {
                     document.getElementById('btn-personaggi').classList.add('active');
                 }
-                
+
                 loadLeaderboard(type);
             }
 
@@ -1460,8 +1438,8 @@ require_once '../api/api_personaggi.php';
                     toggleLeaderboard();
                 }
             });
-
         </script>
         <script src="../js/modeChanger.js"></script>
-    </body>
+</body>
+
 </html>

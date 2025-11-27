@@ -19,10 +19,11 @@ if (isset($_SESSION['user_id'])) {
 
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <?php include '../includes/head-import.php'; ?>
-        <title>Cripsum™ - shitpost</title>
-        <style>
+
+<head>
+    <?php include '../includes/head-import.php'; ?>
+    <title>Cripsum™ - shitpost</title>
+    <style>
         img {
             border-radius: 10px;
         }
@@ -362,37 +363,37 @@ if (isset($_SESSION['user_id'])) {
                 font-size: 1.4rem;
             }
         }
-        </style>
-    </head>
+    </style>
+</head>
 
-    <body>
-        <?php include '../includes/navbar.php'; ?>
-        <?php include '../includes/impostazioni.php'; ?>
+<body>
+    <?php include '../includes/navbar.php'; ?>
+    <?php include '../includes/impostazioni.php'; ?>
 
-        <div class="paginaprincipale">
-            <div class="main-container">
+    <div class="paginaprincipale">
+        <div class="main-container">
 
-                <div class="chisiamo-section fadeup">
-                    <h1 class="chisiamo-title">Shitpost</h1>
-                    <p class="chisiamo-subtitle">
-                        Hey, hai dei meme o contenuti shitpost che sarebbero perfetti per questa pagina? 
-                        Condividi i tuoi contenuti più assurdi e divertenti con la community di Cripsum™!
-                    </p>
-                </div>
+            <div class="chisiamo-section fadeup">
+                <h1 class="chisiamo-title">Shitpost</h1>
+                <p class="chisiamo-subtitle">
+                    Hey, hai dei meme o contenuti shitpost che sarebbero perfetti per questa pagina?
+                    Condividi i tuoi contenuti più assurdi e divertenti con la community di Cripsum™!
+                </p>
+            </div>
 
-                <?php if (isset($_SESSION['user_id'])): ?>
+            <?php if (isset($_SESSION['user_id'])): ?>
                 <div class="add-post-section fadeup" style="margin-bottom: 2rem;">
                     <div class="add-post-card">
                         <h3 class="add-post-title">Condividi il tuo shitpost con la community!</h3>
                         <button class="bottone" onclick="toggleAddPostForm()">
                             <span id="toggleButtonText">Aggiungi nuovo shitpost</span>
                         </button>
-                        
-                    <div id="addPostForm" class="add-post-form" style="display: none;">
-                        <form id="newPostForm" enctype="multipart/form-data">
-                            <div class="form-group">
-                                <input type="text" name="titolo" placeholder="Titolo del shitpost" required>
-                            </div>
+
+                        <div id="addPostForm" class="add-post-form" style="display: none;">
+                            <form id="newPostForm" enctype="multipart/form-data">
+                                <div class="form-group">
+                                    <input type="text" name="titolo" placeholder="Titolo del shitpost" required>
+                                </div>
                                 <div class="form-group">
                                     <textarea name="descrizione" placeholder="Descrizione o contesto del meme..." rows="4" required></textarea>
                                 </div>
@@ -408,108 +409,108 @@ if (isset($_SESSION['user_id'])) {
                         </div>
                     </div>
                 </div>
-                <?php endif; ?>
+            <?php endif; ?>
 
-                <div id="loadingState" class="loading-container">
-                    <div class="loading_white">
-                        <div class="loading__dot_white"></div>
-                        <div class="loading__dot_white"></div>
-                        <div class="loading__dot_white"></div>
-                    </div>
-                    <p class="testobianco" style="text-align: center; margin-top: 1rem;">Caricamento degli shitpost...</p>
+            <div id="loadingState" class="loading-container">
+                <div class="loading_white">
+                    <div class="loading__dot_white"></div>
+                    <div class="loading__dot_white"></div>
+                    <div class="loading__dot_white"></div>
                 </div>
+                <p class="testobianco" style="text-align: center; margin-top: 1rem;">Caricamento degli shitpost...</p>
+            </div>
 
-                <div id="postsContainer" class="posts-section" style="display: none;">
-                    <div id="postsGrid" class="posts-grid">
+            <div id="postsContainer" class="posts-section" style="display: none;">
+                <div id="postsGrid" class="posts-grid">
 
-                    </div>
                 </div>
+            </div>
 
 
-                <div class="legacy-shitpost" style="max-width: 80%">
-                    <div class="posts-grid" style="margin: 1rem 0;">
-                        <div class="post-card fadeup">
-                            <?php if ($isAdmin): ?>
+            <div class="legacy-shitpost" style="max-width: 80%">
+                <div class="posts-grid" style="margin: 1rem 0;">
+                    <div class="post-card fadeup">
+                        <?php if ($isAdmin): ?>
                             <div class="admin-controls">
                                 <span class="admin-btn" style="background: rgba(100, 100, 100, 0.8); cursor: default;">Legacy</span>
                             </div>
-                            <?php endif; ?>
-                            
-                            <div class="post-image">
-                                <img src="../img/sossio.png" alt="Sossio">
-                            </div>
-                            <div class="post-details">
-                                <h2>SOSSIOH</h2>
-                                <p class="post-author">di lacly</p>
-                                <p class="post-description">Lui è sossio, uno sviluppatore di mod per mario kart. È anche un grande giocatore di wuthering waves e si fa tante seghe, qui avete una sua immagine mentre se la chilla con i piedi all'aria</p>
-                                <div class="post-stats">
-                                    <span class="post-date">10 settembre 2025</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="posts-grid" style="margin: 1rem 0;">
-                        <div class="post-card fadeup">
-                            <?php if ($isAdmin): ?>
-                            <div class="admin-controls">
-                                <span class="admin-btn" style="background: rgba(100, 100, 100, 0.8); cursor: default;">Legacy</span>
-                            </div>
-                            <?php endif; ?>
-                            
-                            <div class="post-image">
-                                <img src="../img/beans.jpg" alt="Magia del Natale">
-                            </div>
-                            <div class="post-details">
-                                <h2>Questa è la magia</h2>
-                                <p class="post-author">di cripsum</p>
-                                <p class="post-description">La magia del natale, quella vera</p>
-                                <div class="post-stats">
-                                    <span class="post-date">Shitpost originale</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="posts-grid" style="margin: 1rem 0;">
-                        <div class="post-card fadeup">
-                            <?php if ($isAdmin): ?>
-                            <div class="admin-controls">
-                                <span class="admin-btn" style="background: rgba(100, 100, 100, 0.8); cursor: default;">Legacy</span>
-                            </div>
-                            <?php endif; ?>
-                            
-                            <div class="post-image">
-                                <img src="../img/tengodiarrea.jpg" alt="Le mie palle quando">
-                            </div>
-                            <div class="post-details">
-                                <h2>Le mie palle quando</h2>
-                                <p class="post-author">di sk8ing ray</p>
-                                <p class="post-description">Ma soprattutto il mio culetto quando...</p>
-                                <div class="post-stats">
-                                    <span class="post-date">Shitpost originale</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                </div>
-
-                <div id="emptyState" class="empty-state fadeup" style="display: none;">
-                    <div class="empty-card">
-                        <div class="empty-icon">🤷‍♂️</div>
-                        <h3>Nessun shitpost trovato</h3>
-                        <p>Non ci sono ancora shitpost da mostrare. Sii il primo a condividere un meme!</p>
-                        <?php if (isset($_SESSION['user_id'])): ?>
-                        <button class="bottone" onclick="toggleAddPostForm()">Aggiungi il primo shitpost</button>
                         <?php endif; ?>
+
+                        <div class="post-image">
+                            <img src="../img/sossio.png" alt="Sossio">
+                        </div>
+                        <div class="post-details">
+                            <h2>SOSSIOH</h2>
+                            <p class="post-author">di lacly</p>
+                            <p class="post-description">Lui è sossio, uno sviluppatore di mod per mario kart. È anche un grande giocatore di wuthering waves e si fa tante seghe, qui avete una sua immagine mentre se la chilla con i piedi all'aria</p>
+                            <div class="post-stats">
+                                <span class="post-date">10 settembre 2025</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="posts-grid" style="margin: 1rem 0;">
+                    <div class="post-card fadeup">
+                        <?php if ($isAdmin): ?>
+                            <div class="admin-controls">
+                                <span class="admin-btn" style="background: rgba(100, 100, 100, 0.8); cursor: default;">Legacy</span>
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="post-image">
+                            <img src="../img/beans.jpg" alt="Magia del Natale">
+                        </div>
+                        <div class="post-details">
+                            <h2>Questa è la magia</h2>
+                            <p class="post-author">di cripsum</p>
+                            <p class="post-description">La magia del natale, quella vera</p>
+                            <div class="post-stats">
+                                <span class="post-date">Shitpost originale</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <?php if ($isAdmin): ?>
+                <div class="posts-grid" style="margin: 1rem 0;">
+                    <div class="post-card fadeup">
+                        <?php if ($isAdmin): ?>
+                            <div class="admin-controls">
+                                <span class="admin-btn" style="background: rgba(100, 100, 100, 0.8); cursor: default;">Legacy</span>
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="post-image">
+                            <img src="../img/tengodiarrea.jpg" alt="Le mie palle quando">
+                        </div>
+                        <div class="post-details">
+                            <h2>Le mie palle quando</h2>
+                            <p class="post-author">di sk8ing ray</p>
+                            <p class="post-description">Ma soprattutto il mio culetto quando...</p>
+                            <div class="post-stats">
+                                <span class="post-date">Shitpost originale</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="emptyState" class="empty-state fadeup" style="display: none;">
+                <div class="empty-card">
+                    <div class="empty-icon">🤷‍♂️</div>
+                    <h3>Nessun shitpost trovato</h3>
+                    <p>Non ci sono ancora shitpost da mostrare. Sii il primo a condividere un meme!</p>
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                        <button class="bottone" onclick="toggleAddPostForm()">Aggiungi il primo shitpost</button>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <?php if ($isAdmin): ?>
                 <div id="adminSection" class="admin-section" style="display: none;">
                     <h2 class="admin-title">👑 Pannello Admin - Shitpost in Attesa</h2>
                     <p class="admin-subtitle">Gestisci i shitpost in attesa di approvazione</p>
-                    
+
                     <div id="loadingPendingState" class="loading-container">
                         <div class="loading_white">
                             <div class="loading__dot_white"></div>
@@ -533,16 +534,16 @@ if (isset($_SESSION['user_id'])) {
                         </div>
                     </div>
                 </div>
-                <?php endif; ?>
-            </div>
+            <?php endif; ?>
         </div>
+    </div>
 
-        <?php include '../includes/footer.php'; ?>
+    <?php include '../includes/footer.php'; ?>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="../js/modeChanger.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/modeChanger.js"></script>
 
-        <script>
+    <script>
         let allPosts = [];
         let pendingPosts = [];
         const isAdmin = <?php echo json_encode($isAdmin); ?>;
@@ -558,7 +559,7 @@ if (isset($_SESSION['user_id'])) {
             try {
                 const response = await fetch('../api/get_shitpost.php');
                 const data = await response.json();
-                
+
                 if (Array.isArray(data) && data.length > 0) {
                     allPosts = data.sort((a, b) => new Date(b.data_creazione) - new Date(a.data_creazione));
                     displayPosts(allPosts);
@@ -573,13 +574,13 @@ if (isset($_SESSION['user_id'])) {
 
         async function loadPendingPosts() {
             if (!isAdmin) return;
-            
+
             try {
                 const response = await fetch('../api/get_pending_shitposts.php');
                 const data = await response.json();
-                
+
                 document.getElementById('loadingPendingState').style.display = 'none';
-                
+
                 if (Array.isArray(data) && data.length > 0) {
                     pendingPosts = data.sort((a, b) => new Date(b.data_creazione) - new Date(a.data_creazione));
                     displayPendingPosts(pendingPosts);
@@ -603,7 +604,7 @@ if (isset($_SESSION['user_id'])) {
             const postsGrid = document.getElementById('postsGrid');
 
             loadingState.style.display = 'none';
-            
+
             if (posts.length === 0) {
                 showEmptyState();
                 return;
@@ -707,12 +708,12 @@ if (isset($_SESSION['user_id'])) {
 
         async function changeApproval(postId, approval) {
             if (!isAdmin) return;
-            
+
             const action = approval === 1 ? 'approvare' : 'rimuovere approvazione da';
             if (!confirm(`Sei sicuro di voler ${action} questo shitpost?`)) {
                 return;
             }
-            
+
             try {
                 const response = await fetch('../api/manage_shitpost_approval.php', {
                     method: 'POST',
@@ -726,7 +727,7 @@ if (isset($_SESSION['user_id'])) {
                 });
 
                 const result = await response.json();
-                
+
                 if (result.success) {
                     if (approval === 1) {
                         pendingPosts = pendingPosts.filter(p => p.id != postId);
@@ -748,11 +749,11 @@ if (isset($_SESSION['user_id'])) {
 
         async function deletePost(postId, isPending) {
             if (!isAdmin) return;
-            
+
             if (!confirm('Sei sicuro di voler eliminare questo shitpost? Questa azione non può essere annullata.')) {
                 return;
             }
-            
+
             try {
                 const response = await fetch('../api/delete_shitpost.php', {
                     method: 'POST',
@@ -765,7 +766,7 @@ if (isset($_SESSION['user_id'])) {
                 });
 
                 const result = await response.json();
-                
+
                 if (result.success) {
                     if (isPending) {
                         pendingPosts = pendingPosts.filter(p => p.id != postId);
@@ -792,7 +793,7 @@ if (isset($_SESSION['user_id'])) {
         function toggleAddPostForm() {
             const form = document.getElementById('addPostForm');
             const button = document.getElementById('toggleButtonText');
-            
+
             if (form.style.display === 'none') {
                 form.style.display = 'block';
                 button.textContent = 'Annulla';
@@ -805,11 +806,11 @@ if (isset($_SESSION['user_id'])) {
 
         document.getElementById('newPostForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             const formData = new FormData(this);
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.textContent;
-            
+
             console.log('Invio nuovo shitpost...');
             for (let [key, value] of formData.entries()) {
                 if (key === 'foto_shitpost') {
@@ -818,42 +819,42 @@ if (isset($_SESSION['user_id'])) {
                     console.log(key + ':', value);
                 }
             }
-            
+
             const fileInput = this.querySelector('input[type="file"]');
             if (!fileInput.files[0]) {
                 alert('Per favore seleziona un\'immagine');
                 return;
             }
-            
+
             const file = fileInput.files[0];
             console.log('File selezionato:', file.name, file.size + ' bytes', file.type);
-            
+
             if (file.size > 5 * 1024 * 1024) {
                 alert('File troppo grande. Massimo 5MB');
                 return;
             }
-            
+
             const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
             if (!allowedTypes.includes(file.type)) {
                 alert('Tipo di file non consentito. Usa solo JPEG, PNG, GIF o WebP');
                 return;
             }
-            
+
             submitBtn.disabled = true;
             submitBtn.textContent = 'Invio in corso...';
-            
+
             try {
                 const response = await fetch('../api/set_new_shitpost.php', {
                     method: 'POST',
                     body: formData
                 });
-                
+
                 console.log('Response status:', response.status);
                 console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-                
+
                 const result = await response.json();
                 console.log('Response data:', result);
-                
+
                 if (result.success) {
                     alert('Shitpost inviato con successo! Sarà visibile dopo l\'approvazione dell\'admin.');
                     toggleAddPostForm();
@@ -882,6 +883,7 @@ if (isset($_SESSION['user_id'])) {
                 year: 'numeric'
             });
         }
-        </script>
-    </body>
+    </script>
+</body>
+
 </html>

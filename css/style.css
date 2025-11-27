@@ -1324,13 +1324,13 @@ select {
 
 /*wise mystical tree*/
 
-.hero-section {
+.home-section {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem 1rem;
 }
 
-.hero-content {
+.home-content {
     display: flex;
     align-items: center;
     gap: 3rem;
@@ -1341,28 +1341,28 @@ select {
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.hero-image {
+.home-image {
     flex: 0 0 300px;
 }
 
-.hero-img {
+.home-img {
     width: 100%;
     height: auto;
     border-radius: 15px;
     transition: transform 0.3s ease, filter 0.3s ease;
 }
 
-/*.hero-img:hover {
+/*.home-img:hover {
     transform: scale(1.05);
     filter: brightness(1.1);
 }*/
 
-.hero-text {
+.home-text {
     flex: 1;
     color: white;
 }
 
-.hero-title {
+.home-title {
     font-size: clamp(1.8rem, 4vw, 3rem);
     font-weight: 800;
     margin-bottom: 1.5rem;
@@ -1373,33 +1373,33 @@ select {
     line-height: 1.2;
 }
 
-.hero-subtitle {
+.home-subtitle {
     font-size: 1.3rem;
     margin-bottom: 1rem;
     color: rgba(255, 255, 255, 0.9);
     font-weight: 500;
 }
 
-.hero-question {
+.home-question {
     font-size: 1.1rem;
     color: rgba(255, 255, 255, 0.8);
     font-style: italic;
 }
 
-.emotions-section {
+.alberi-section {
     max-width: 1200px;
     margin: 1rem auto 0;
     padding: 0 1rem;
 }
 
-.emotions-grid {
+.alberi-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 2rem;
     padding: 2rem 0;
 }
 
-.emotion-card {
+.albero-card {
     text-align: center;
     padding: 2rem 1.5rem;
     /*background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
@@ -1411,7 +1411,7 @@ select {
     overflow: hidden;
 }
 
-/*.emotion-card::before {
+/*.albero-card::before {
     content: "";
     position: absolute;
     top: -50%;
@@ -1424,23 +1424,23 @@ select {
     opacity: 0;
 }
 
-.emotion-card:hover::before {
+.albero-card:hover::before {
     opacity: 1;
     transform: rotate(45deg) translate(50%, 50%);
 }*/
 
-/*.emotion-card:hover {
+/*.albero-card:hover {
     transform: translateY(-10px);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     border-color: rgba(255, 255, 255, 0.2);
 }*/
 
-.emotion-image-wrapper {
+.albero-image-wrapper {
     position: relative;
     margin-bottom: 1.5rem;
 }
 
-.emotion-img {
+.albero-img {
     width: 200px;
     height: 200px;
     object-fit: cover;
@@ -1449,12 +1449,12 @@ select {
     border: 3px solid rgba(255, 255, 255, 0.2);
 }
 
-/*.emotion-card:hover .emotion-img {
+/*.albero-card:hover .albero-img {
     transform: scale(1.1);
     border-color: rgba(255, 255, 255, 0.4);
 }*/
 
-.emotion-label {
+.albero-label {
     font-size: 1.4rem;
     font-weight: 600;
     color: white;
@@ -1464,7 +1464,7 @@ select {
 }
 
 @media (max-width: 768px) {
-    .hero-content {
+    .home-content {
         max-width: 90%;
         margin: 0 auto;
         flex-direction: column;
@@ -1473,37 +1473,37 @@ select {
         padding: 2rem 1.5rem;
     }
 
-    .emotions-section {
+    .alberi-section {
         max-width: 83.5%;
         margin: 0 auto;
     }
 
-    .hero-image {
+    .home-image {
         flex: none;
     }
 
-    .emotions-grid {
+    .alberi-grid {
         grid-template-columns: 1fr;
         gap: 1.5rem;
     }
 
-    .emotion-card {
+    .albero-card {
         padding: 1.5rem 1rem;
     }
 }
 
 @media (max-width: 480px) {
-    .hero-section {
+    .home-section {
         max-width: 90%;
         margin: 0 auto;
         padding: 1rem 0.5rem;
     }
 
-    .hero-content {
+    .home-content {
         padding: 1.5rem 1rem;
     }
 
-    .emotion-img {
+    .albero-img {
         width: 200px;
         height: 200px;
     }

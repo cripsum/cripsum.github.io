@@ -3,7 +3,7 @@ require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
-if(!isLoggedIn()) {
+if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
     $_SESSION['login_message'] = "Per poter mandare la tua candidatura devi avere un account Cripsum™";
 
@@ -22,6 +22,7 @@ $result_candidatura = $_SESSION['result_candidatura'] ?? '';
 
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <meta charset="UTF-8">
@@ -35,6 +36,7 @@ $result_candidatura = $_SESSION['result_candidatura'] ?? '';
             height: 100vh;
             margin: 0;
         }
+
         .box {
             background: #1a1a1a;
             padding: 30px;
@@ -45,6 +47,7 @@ $result_candidatura = $_SESSION['result_candidatura'] ?? '';
             width: 100%;
             max-width: 400px;
         }
+
         input {
             padding: 12px;
             width: 100%;
@@ -54,6 +57,7 @@ $result_candidatura = $_SESSION['result_candidatura'] ?? '';
             background: #111;
             color: white;
         }
+
         button {
             background: #ffffff;
             color: black;
@@ -63,11 +67,13 @@ $result_candidatura = $_SESSION['result_candidatura'] ?? '';
             cursor: pointer;
             transition: 0.2s;
         }
+
         button:hover {
             background: #ddd;
         }
     </style>
 </head>
+
 <body>
     <?php include '../includes/navbar.php'; ?>
 
@@ -94,9 +100,9 @@ $result_candidatura = $_SESSION['result_candidatura'] ?? '';
         <a class="nav-link" href="../"><i class="fas fa-arrow-left"></i> Torna alla home</a>
     </div>
     <script
-            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-            crossorigin="anonymous"
-        ></script>
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
 </body>
+
 </html>
