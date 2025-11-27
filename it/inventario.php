@@ -102,7 +102,7 @@ if (!isLoggedIn()) {
                 background-size: 300% 300%;
                 animation: backgroundAnimate 5s linear infinite;
                 box-shadow: 0 10px 50px rgba(0, 11, 112, 0.8);
-                border: 2px solidrgb(4, 104, 255);
+                border: 2px solid #ffffff;
             }
 
             @keyframes epicPulse {
@@ -189,6 +189,34 @@ if (!isLoggedIn()) {
                 padding: 1rem;
                 border-radius: 10px;
                 border-left: 4px solid #ffffff;
+            }
+
+            .modal-character-image.personaggio-comune {
+                border-color: #666;
+            }
+
+            .modal-character-image.personaggio-raro {
+                border-color: #4a90e2;
+            }
+
+            .modal-character-image.personaggio-epico {
+                border-color: #9b59b6;
+            }
+
+            .modal-character-image.personaggio-leggendaro {
+                border-color: #ffa500;
+            }
+
+            .modal-character-image.personaggio-speciale {
+                border-color: #fff;
+            }
+
+            .modal-character-image.personaggio-segreto {
+                border-color: #8b00ff;
+            }
+
+            .modal-character-image.personaggio-theone {
+                border-color: #ffffff;
             }
 
             .character-date {
@@ -459,12 +487,12 @@ if (!isLoggedIn()) {
                 <div class="modal-content rarity-${character.rarità}">
                 <span class="close-modal">&times;</span>
                 <div class="modal-character-info">
-                    <img src="/img/${character.img_url}" class="modal-character-image rarity-${character.rarità}" alt="${character.nome}">
+                    <img src="/img/${character.img_url}" class="modal-character-image personaggio-${character.rarità}" alt="${character.nome}">
                     <h2>${character.nome}</h2>
                     <p class="character-rarity">Rarità: ${character.rarità === "theone" ? "THE ONE" : character.rarità}</p>
                     <p class="character-quantity">Quantità: x${character.quantità}</p>
                     <p class="character-description">${character.descrizione || 'Nessuna descrizione disponibile'}</p>
-                    <p class="character-traits rarity-${character.rarità}"><strong>Tratti distintivi:</strong><br>- ${character.caratteristiche ? character.caratteristiche.split(';').join('<br> -') : 'Nessun tratto specificato'}</p>
+                    <p class="character-traits personaggio-${character.rarità}"><strong>Tratti distintivi:</strong><br>- ${character.caratteristiche ? character.caratteristiche.split(';').join('<br> -') : 'Nessun tratto specificato'}</p>
                     <p class="character-date">Trovato il: ${new Date(character.data).toLocaleDateString()} alle ${new Date(character.data).toLocaleTimeString('it-IT')}</p>
                     <button class="animation-button" onclick="window.location.href='animazione_personaggio?id_personaggio=${character.id}'">Visualizza Animazione Apertura</button>
                 </div>
