@@ -511,7 +511,7 @@ if (!isLoggedIn()) {
 
                 const titleDiv = document.createElement("div");
                 titleDiv.classList.add("rarity-title");
-                const displayRarity = rarity === "theone" ? "GOONING" : rarity.toUpperCase();
+                const displayRarity = rarity === "theone" ? "THE ONE" : rarity.toUpperCase();
                 titleDiv.textContent = `${displayRarity}: ${foundInRarity} / ${totalInRarity}`;
                 section.appendChild(titleDiv);
 
@@ -533,7 +533,7 @@ if (!isLoggedIn()) {
                 <div class="modal-character-info">
                     <img src="/img/${character.img_url}" class="modal-character-image personaggio-${character.rarità}" alt="${character.nome}">
                     <h2>${character.nome}</h2>
-                    <p class="character-rarity">Rarità: ${character.rarità === "theone" ? "GOONING" : character.rarità}</p>
+                    <p class="character-rarity">Rarità: ${character.rarità === "theone" ? "THE ONE" : character.rarità}</p>
                     <p class="character-quantity">Quantità: x${character.quantità}</p>
                     <p class="character-description">${character.descrizione || 'Nessuna descrizione disponibile'}</p>
                     <p class="character-traits personaggio-${character.rarità}"><strong>Tratti distintivi:</strong><br>- ${character.caratteristiche ? character.caratteristiche.split(';').join('<br> -') : 'Nessun tratto specificato'}</p>
