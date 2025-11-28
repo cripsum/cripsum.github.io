@@ -237,7 +237,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
                 // If name is longer than 15 characters, adjust the label position
                 if (nameLength > 15) {
-                    const adjustment = Math.min((nameLength - 15) * 2, 50); // Max 20px adjustment
+                    const adjustment = Math.min((nameLength - 15) * 3, 50); // Max 20px adjustment
                     newLabel.style.marginRight = `-${adjustment}px`;
                 }
             }
