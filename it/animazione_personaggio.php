@@ -72,6 +72,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
     <script src="../js/unlockAchievement-it.js"></script>
     <script>
         const cassa = document.getElementById("cassa");
+        const cassas = document.getElementById("cassas");
         const nomePersonaggio = document.getElementById("nomePersonaggio");
         const messaggioRarita = document.getElementById("messaggioRarita");
         const audio = document.getElementById("suonoCassa");
@@ -136,7 +137,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
                 document.getElementById("contenuto").innerHTML = `
                         <p style="top 10px; font-size: 20px; max-width: 600px; text-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);" id="nomePersonaggio">${pull.nome}</p>
-                        <img src="/img/${pull.img_url}" alt="Premio" class="premio" />
+                        <img src="/img/${pull.img_url}" alt="Premio" class="premio" id="cassas" />
                     `;
 
                 if (pull.rarità === "comune") {
@@ -230,7 +231,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
             let newLabel = document.createElement("span");
             newLabel.classList.add("new-label");
             newLabel.innerText = "NEW!";
-            contenuto.appendChild(newLabel);
+            cassas.appendChild(newLabel);
         }
 
 
