@@ -548,16 +548,6 @@ require_once '../api/api_personaggi.php';
                             segreto: 0,
                             theone: 100,
                         });
-                    } else if ("<?php echo $_SESSION['username'] ?>" === 'nauz') {
-                        return (rarityProbabilities = {
-                            comune: 52,
-                            raro: 28,
-                            epico: 12,
-                            leggendario: 6,
-                            speciale: 0.9,
-                            segreto: 0.1,
-                            theone: 1,
-                        });
                     } else {
                         return (rarityProbabilities = {
                             comune: 52,
