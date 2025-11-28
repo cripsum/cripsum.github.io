@@ -135,9 +135,7 @@ require_once '../api/api_personaggi.php';
                 <div class="bagliore" id="bagliore"></div>
             </div>
 
-            <div id="contenuto">
-
-            </div>
+            <div id="contenuto"></div>
 
             <div id="messaggio" class="nascosto">
                 <h1 style="margin-top: 100px; font-size: 25px" id="messaggioRarita" class="non-selezionabile"></h1>
@@ -283,7 +281,6 @@ require_once '../api/api_personaggi.php';
             const bagliore = document.getElementById("bagliore");
             const messaggio = document.getElementById("messaggio");
             const contenuto = document.getElementById("contenuto");
-            const contenuto2 = document.getElementById("contenuto2");
             const particelleContainer = document.getElementById("particelle");
             const paginaintera = document.getElementById("paginaintera");
             const apriAncora = document.getElementById("apriAncora");
@@ -632,11 +629,8 @@ require_once '../api/api_personaggi.php';
 
                     document.getElementById("contenuto").innerHTML = `
                         <p style="top 10px; font-size: 20px; max-width: 600px; text-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);" id="nomePersonaggio">${pull.nome}</p>
-                        <div id="contenuto2">
                         <img src="/img/${pull.img_url}" alt="Premio" class="premio" />
-                        </div>
                     `;
-
 
                     await addToInventory(pull);
 
@@ -721,9 +715,7 @@ require_once '../api/api_personaggi.php';
 
                     document.getElementById("contenuto").innerHTML = `
                         <p style="top 10px; font-size: 20px; max-width: 600px; text-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);" id="nomePersonaggio">${pull.nome}</p>
-                                    <div id="contenuto2">
                         <img src="/img/${pull.img_url}" alt="Premio" class="premio" />
-                                    </div>
                     `;
 
                     await addToInventory(pull);
@@ -969,7 +961,7 @@ require_once '../api/api_personaggi.php';
                 let newLabel = document.createElement("span");
                 newLabel.classList.add("new-label");
                 newLabel.innerText = "NEW!";
-                contenuto2.appendChild(newLabel);
+                contenuto.appendChild(newLabel);
             }
 
             function controlloApriVeloce() {

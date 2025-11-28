@@ -44,9 +44,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                 <div class="bagliore" id="bagliore"></div>
             </div>
 
-            <div id="contenuto">
-
-            </div>
+            <div id="contenuto"></div>
 
             <div id="messaggio" class="nascosto">
                 <h1 style="margin-top: 100px; font-size: 25px" id="messaggioRarita" class="non-selezionabile"></h1>
@@ -80,7 +78,6 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
         const bagliore = document.getElementById("bagliore");
         const messaggio = document.getElementById("messaggio");
         const contenuto = document.getElementById("contenuto");
-        const contenuto2 = document.getElementById("contenuto2");
         const particelleContainer = document.getElementById("particelle");
         const paginaintera = document.getElementById("paginaintera");
         const apriAncora = document.getElementById("apriAncora");
@@ -139,9 +136,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
                 document.getElementById("contenuto").innerHTML = `
                         <p style="top 10px; font-size: 20px; max-width: 600px; text-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);" id="nomePersonaggio">${pull.nome}</p>
-                        <div id="contenuto2">
                         <img src="/img/${pull.img_url}" alt="Premio" class="premio" />
-                        </div>
                     `;
 
                 if (pull.rarità === "comune") {
@@ -235,7 +230,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
             let newLabel = document.createElement("span");
             newLabel.classList.add("new-label");
             newLabel.innerText = "NEW!";
-            contenuto2.appendChild(newLabel);
+            contenuto.appendChild(newLabel);
         }
 
 
