@@ -227,16 +227,14 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
         }
 
         function testoNuovo() {
-            let nomePersonaggio = document.getElementById("nomePersonaggio");
             let newLabel = document.createElement("span");
             newLabel.classList.add("new-label");
             newLabel.innerText = "NEW!";
             contenuto.appendChild(newLabel);
             let dynamicMargin = -20;
-            if (nomePersonaggio.innerText.length > 20) {
+            if (newLabel.parentElement.querySelector('#nomePersonaggio').innerText.length > 20) {
                 dynamicMargin = 20;
-            }
-            if (nomePersonaggio.innerText.length > 15) {
+            } else if (newLabel.parentElement.querySelector('#nomePersonaggio').innerText.length > 15) {
                 dynamicMargin = 0;
             }
             newLabel.style.marginRight = dynamicMargin + 'px';
