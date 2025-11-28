@@ -317,7 +317,7 @@ body.overflow-hidden {
 }
 
 .new-label {
-    position: absolute;
+    position: relative;
     top: 30px;
     right: -20px;
     background-color: red;
