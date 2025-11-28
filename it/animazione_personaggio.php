@@ -227,6 +227,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
         }
 
         function testoNuovo() {
+            let nomePersonaggio = document.getElementById("nomePersonaggio");
             let newLabel = document.createElement("span");
             newLabel.classList.add("new-label");
             newLabel.innerText = "NEW!";
