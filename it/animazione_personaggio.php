@@ -231,9 +231,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
             newLabel.classList.add("new-label");
             newLabel.innerText = "NEW!";
             contenuto.appendChild(newLabel);
-            if (newLabel.parentElement.querySelector('p').textContent.length > 15) {
-                newLabel.style.marginRight = `-${Math.min(newLabel.parentElement.querySelector('p').textContent.length * 2, 40)}px`;
-            }
+            newLabel.style.right = nomePersonaggio.length > 15 ? '-5px' : '-20px';
         }
 
 
