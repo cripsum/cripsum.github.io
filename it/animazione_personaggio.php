@@ -232,10 +232,17 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
             newLabel.innerText = "NEW!";
             contenuto.appendChild(newLabel);
             let dynamicMargin = -20;
-            if (newLabel.parentElement.querySelector('#nomePersonaggio').innerText.length > 20) {
+            const nameLength = newLabel.parentElement.querySelector('#nomePersonaggio').innerText.length;
+            if (nameLength > 25) {
+                dynamicMargin = 40;
+            } else if (nameLength > 20) {
                 dynamicMargin = 20;
-            } else if (newLabel.parentElement.querySelector('#nomePersonaggio').innerText.length > 15) {
+            } else if (nameLength > 15) {
                 dynamicMargin = 0;
+            } else if (nameLength > 10) {
+                dynamicMargin = -10;
+            } else {
+                dynamicMargin = -20;
             }
             newLabel.style.marginRight = dynamicMargin + 'px';
         }
