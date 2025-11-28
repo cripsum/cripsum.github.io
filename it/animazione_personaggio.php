@@ -234,11 +234,11 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
             let dynamicMargin = -20;
             const nameLength = newLabel.parentElement.querySelector('#nomePersonaggio').innerText.length;
             if (nameLength > 25) {
-                dynamicMargin = 40;
+                dynamicMargin = 50;
             } else if (nameLength > 20) {
-                dynamicMargin = 20;
+                dynamicMargin = 30;
             } else if (nameLength > 15) {
-                dynamicMargin = 0;
+                dynamicMargin = 10;
             } else if (nameLength > 10) {
                 dynamicMargin = -10;
             } else {
