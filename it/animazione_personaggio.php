@@ -231,7 +231,21 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
             newLabel.classList.add("new-label");
             newLabel.innerText = "NEW!";
             contenuto.appendChild(newLabel);
-            newLabel.style.right = nomePersonaggio.length > 15 ? '-5px' : '-20px';
+            // Adjust the positioning of the "NEW!" label if character name is too long
+            setTimeout(() => {
+                const characterName = document.querySelector('#nomePersonaggio');
+                const newLabel = document.querySelector('.new-label');
+                
+                if (characterName && newLabel) {
+                    const nameLength = characterName.textContent.length;
+                    
+                    // If name is longer than 15 characters, adjust the label position
+                    if (nameLength > 15) {
+                        const adjustment = Math.min((nameLength - 15) * 2, 20); // Max 20px adjustment
+                        newLabel.style.marginRight = `-${adjustment}px`;
+                    }
+                }
+            }, 100);
         }
 
 
