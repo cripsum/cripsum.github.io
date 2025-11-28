@@ -173,7 +173,6 @@ body {
 }*/
 
 .rarity-speciale {
-    white-space: nowrap;
     background: linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000);
     background-size: 300% 300%;
     animation: backgroundAnimate 6s linear infinite;

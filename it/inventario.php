@@ -82,7 +82,6 @@ if (!isLoggedIn()) {
         }
 
         .modal-content.rarity-speciale {
-            white-space: nowrap;
             background: linear-gradient(90deg, #8b0000, #b85500, #cccc00, #2eb800, #0099cc, #1a4dcc, #5500cc, #8b0000);
             background-size: 300% 300%;
             animation: backgroundAnimate 6s linear infinite;
