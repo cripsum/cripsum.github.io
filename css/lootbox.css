@@ -132,7 +132,6 @@ body.overflow-hidden {
     opacity: 0;
 }
 
-
 #contenuto.salto {
     transform: translate(-50%, -150px) scale(1);
     max-width: 90%;
@@ -149,6 +148,25 @@ body.overflow-hidden {
 }
 
 #contenuto img:hover {
+    transform: scale(1.05);
+}
+
+#contenuto2.salto {
+    transform: translate(-50%, -150px) scale(1);
+    max-width: 90%;
+    opacity: 1;
+}
+
+#contenuto2 img {
+    max-width: 300px;
+    max-height: 300px;
+    border-radius: 15px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    margin-bottom: 1rem;
+    transition: transform 0.3s ease;
+}
+
+#contenuto2 img:hover {
     transform: scale(1.05);
 }
 
