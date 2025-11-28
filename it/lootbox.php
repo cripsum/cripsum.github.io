@@ -641,7 +641,11 @@ require_once '../api/api_personaggi.php';
                         messaggioRarita.innerText = "hai pullato un personaggio epico, tanta roba, ma poteva andare meglio";
                         bagliore.style.background = "radial-gradient(circle, rgba(195, 0, 235, 1) 0%, rgba(0, 0, 255, 0) 70%)";
                     } else if (rarita === "raro") {
-                        messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
+                        if (pull.nome === "JOB APPLICATION") {
+                            messaggioRarita.innerText = "BOO! DID I SCARE YOU? I'M A JOB APPLICATION! GET A JOB NOW!";
+                        } else {
+                            messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
+                        }
                         bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
                     } else if (rarita === "speciale") {
 
