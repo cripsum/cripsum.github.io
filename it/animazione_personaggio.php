@@ -136,7 +136,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
                 document.getElementById("contenuto").innerHTML = `
                         <p style="top 10px; font-size: 20px; max-width: 600px; text-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);" id="nomePersonaggio">${pull.nome}</p>
-                        <img src="/img/${pull.img_url}" alt="Premio" class="premio" id="cassas"></img>
+                        <img src="/img/${pull.img_url}" alt="Premio" class="premio" />
                     `;
 
                 if (pull.rarità === "comune") {
@@ -227,11 +227,13 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
         }
 
         function testoNuovo() {
-            let cassas = document.getElementById("cassas");
             let newLabel = document.createElement("span");
             newLabel.classList.add("new-label");
             newLabel.innerText = "NEW!";
-            cassas.appendChild(newLabel);
+            contenuto.appendChild(newLabel);
+            if (newLabel.parentElement.querySelector('p').textContent.length > 15) {
+                newLabel.style.marginRight = `-${Math.min(newLabel.parentElement.querySelector('p').textContent.length * 2, 40)}px`;
+            }
         }
 
 
