@@ -317,7 +317,7 @@ body.overflow-hidden {
 }
 
 .new-label {
-    position: relative;
+    position: absolute;
     top: 30px;
     right: -20px;
     background-color: red;
@@ -328,7 +328,7 @@ body.overflow-hidden {
     border-radius: 5px;
     transform: rotate(-15deg);
     animation: newPulse 1s infinite alternate ease-in-out;
-    z-index: 6;
+    z-index: 1000;
 }
 
 @keyframes newPulse {
