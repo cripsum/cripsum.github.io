@@ -233,11 +233,9 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
             contenuto.appendChild(newLabel);
             // Adjust the positioning of the "NEW!" label if character name is too long
             setTimeout(() => {
-                const characterName = document.querySelector('#nomePersonaggio');
                 const newLabel = document.querySelector('.new-label');
-                
-                if (characterName && newLabel) {
-                    const nameLength = characterName.textContent.length;
+                if (nomePersonaggio && newLabel) {
+                    const nameLength = nomePersonaggio.textContent.length;
                     
                     // If name is longer than 15 characters, adjust the label position
                     if (nameLength > 15) {
