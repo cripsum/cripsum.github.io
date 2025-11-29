@@ -240,17 +240,14 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
             const nameElement = newLabel.parentElement.querySelector('#nomePersonaggio');
             const nameLength = nameElement.innerText.length;
 
-            // Use requestAnimationFrame to ensure DOM is fully rendered
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
-                    // Force layout calculation
                     nameElement.offsetHeight;
                     
-                    // Calculate line height for better multiline detection
                     const computedStyle = window.getComputedStyle(nameElement);
                     const lineHeight = parseFloat(computedStyle.lineHeight) || parseFloat(computedStyle.fontSize) * 1.2;
                     const actualHeight = nameElement.offsetHeight;
-                    const isMultiline = actualHeight > lineHeight * 1.1; // Allow small tolerance
+                    const isMultiline = actualHeight > lineHeight * 1.1; 
                     
                     if (nameLength > 25) {
                         dynamicMargin = 50;

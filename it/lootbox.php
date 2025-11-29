@@ -962,19 +962,40 @@ require_once '../api/api_personaggi.php';
                 newLabel.innerText = "NEW!";
                 contenuto.appendChild(newLabel);
                 let dynamicMargin = -20;
-                const nameLength = newLabel.parentElement.querySelector('#nomePersonaggio').innerText.length;
-                if (nameLength > 25) {
-                    dynamicMargin = 50;
-                } else if (nameLength > 20) {
-                    dynamicMargin = 30;
-                } else if (nameLength > 15) {
-                    dynamicMargin = 10;
-                } else if (nameLength > 10) {
-                    dynamicMargin = -10;
-                } else {
-                    dynamicMargin = -20;
-                }
-                newLabel.style.marginRight = dynamicMargin + 'px';
+                let topMargin = 0;
+                const nameElement = newLabel.parentElement.querySelector('#nomePersonaggio');
+                const nameLength = nameElement.innerText.length;
+
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        nameElement.offsetHeight;
+
+                        const computedStyle = window.getComputedStyle(nameElement);
+                        const lineHeight = parseFloat(computedStyle.lineHeight) || parseFloat(computedStyle.fontSize) * 1.2;
+                        const actualHeight = nameElement.offsetHeight;
+                        const isMultiline = actualHeight > lineHeight * 1.1;
+
+                        if (nameLength > 25) {
+                            dynamicMargin = 50;
+                            topMargin = isMultiline ? 30 : 0;
+                        } else if (nameLength > 20) {
+                            dynamicMargin = 30;
+                            topMargin = isMultiline ? 30 : 0;
+                        } else if (nameLength > 15) {
+                            dynamicMargin = 10;
+                            topMargin = isMultiline ? 30 : 0;
+                        } else if (nameLength > 10) {
+                            dynamicMargin = -10;
+                            topMargin = isMultiline ? 30 : 0;
+                        } else {
+                            dynamicMargin = -20;
+                            topMargin = isMultiline ? 30 : 0;
+                        }
+
+                        newLabel.style.marginRight = dynamicMargin + 'px';
+                        newLabel.style.marginTop = topMargin + 'px';
+                    });
+                });
             }
 
             function controlloApriVeloce() {
