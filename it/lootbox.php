@@ -1000,27 +1000,25 @@ require_once '../api/api_personaggi.php';
             }
 
             function controlloApriVeloce() {
-                setTimeout(() => {
-                    if (theOnePulled === true) {
-                        event.preventDefault();
-                        apriNormale();
-                        isopening = true;
-                    } else if (secretPulled === true) {
-                        event.preventDefault();
-                        apriNormale();
-                        isopening = true;
-                    } else if (specialPulled === true) {
-                        event.preventDefault();
-                        apriNormale();
-                        isopening = true;
-                    } else if (nuovoPersonaggio === true) {
-                        event.preventDefault();
-                        apriNormale();
-                        isopening = true;
-                    } else {
-                        apriVeloce();
-                    }
-                }, 300);
+                if (theOnePulled === true) {
+                    event.preventDefault();
+                    apriNormale();
+                    isopening = true;
+                } else if (secretPulled === true) {
+                    event.preventDefault();
+                    apriNormale();
+                    isopening = true;
+                } else if (specialPulled === true) {
+                    event.preventDefault();
+                    apriNormale();
+                    isopening = true;
+                } else if (nuovoPersonaggio === true) {
+                    event.preventDefault();
+                    apriNormale();
+                    isopening = true;
+                } else {
+                    apriVeloce();
+                }
             }
 
             function apriVeloce() {
