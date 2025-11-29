@@ -240,29 +240,39 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
             const nameElement = newLabel.parentElement.querySelector('#nomePersonaggio');
             const nameLength = nameElement.innerText.length;
 
-            setTimeout(() => {
-                const isMultiline = nameElement.scrollHeight > nameElement.clientHeight;
+            // Use requestAnimationFrame to ensure DOM is fully rendered
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    // Force layout calculation
+                    nameElement.offsetHeight;
+                    
+                    // Calculate line height for better multiline detection
+                    const computedStyle = window.getComputedStyle(nameElement);
+                    const lineHeight = parseFloat(computedStyle.lineHeight) || parseFloat(computedStyle.fontSize) * 1.2;
+                    const actualHeight = nameElement.offsetHeight;
+                    const isMultiline = actualHeight > lineHeight * 1.1; // Allow small tolerance
+                    
+                    if (nameLength > 25) {
+                        dynamicMargin = 50;
+                        topMargin = isMultiline ? 30 : 0;
+                    } else if (nameLength > 20) {
+                        dynamicMargin = 30;
+                        topMargin = isMultiline ? 30 : 0;
+                    } else if (nameLength > 15) {
+                        dynamicMargin = 10;
+                        topMargin = isMultiline ? 30 : 0;
+                    } else if (nameLength > 10) {
+                        dynamicMargin = -10;
+                        topMargin = isMultiline ? 30 : 0;
+                    } else {
+                        dynamicMargin = -20;
+                        topMargin = isMultiline ? 30 : 0;
+                    }
 
-                if (nameLength > 25) {
-                    dynamicMargin = 50;
-                    topMargin = isMultiline ? 30 : 0;
-                } else if (nameLength > 20) {
-                    dynamicMargin = 30;
-                    topMargin = isMultiline ? 30 : 0;
-                } else if (nameLength > 15) {
-                    dynamicMargin = 10;
-                    topMargin = isMultiline ? 30 : 0;
-                } else if (nameLength > 10) {
-                    dynamicMargin = -10;
-                    topMargin = isMultiline ? 30 : 0;
-                } else {
-                    dynamicMargin = isMultiline ? -20 : -20;
-                    topMargin = isMultiline ? 30 : 0;
-                }
-
-                newLabel.style.marginRight = dynamicMargin + 'px';
-                newLabel.style.marginTop = topMargin + 'px';
-            }, 100);
+                    newLabel.style.marginRight = dynamicMargin + 'px';
+                    newLabel.style.marginTop = topMargin + 'px';
+                });
+            });
         }
 
 
