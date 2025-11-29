@@ -1000,6 +1000,10 @@ require_once '../api/api_personaggi.php';
             }
 
             function controlloApriVeloce() {
+                if (isopening) {
+                    return;
+                }
+                
                 if (theOnePulled === true) {
                     event.preventDefault();
                     apriNormale();
