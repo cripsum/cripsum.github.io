@@ -5,13 +5,13 @@ require_once '../includes/functions.php';
 checkBan($mysqli);
 
 
-if (!isLoggedIn()) {
-    $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-    $_SESSION['login_message'] = "Per accedere alle lootbox devi essere loggato";
+// if (!isLoggedIn()) {
+//     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
+//     $_SESSION['login_message'] = "Per accedere alle lootbox devi essere loggato";
 
-    header('Location: accedi');
-    exit();
-}
+//     header('Location: accedi');
+//     exit();
+// }
 require_once '../api/api_personaggi.php';
 
 $idPersonaggio = $_GET['id_personaggio'] ?? 0;
