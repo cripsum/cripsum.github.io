@@ -104,7 +104,6 @@ if ($_POST) {
 
     <div style="max-width: 1920px; margin: auto; padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
         <div class="loginpagege text-center mt-5">
-            <!-- Pills content -->
             <div class="tab-content">
                 <div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="tab-login">
                     <?php if ($error): ?>
@@ -152,27 +151,7 @@ if ($_POST) {
                                 <input type="password" id="repeatPassword" name="repeatPassword" class="form-control" required />
                             </div>
 
-                            <p class="text-center fadeup">Oppure:</p>
 
-                            <div class="text-center mb-3 fadeup">
-                                <button data-mdb-ripple-init type="button" class="btn btn-floating mx-1">
-                                    <i class="bi bi-facebook" style="color: #ffffff"></i>
-                                </button>
-
-                                <button data-mdb-ripple-init type="button" class="btn btn-floating mx-1">
-                                    <i class="bi bi-google" style="color: #ffffff"></i>
-                                </button>
-
-                                <button data-mdb-ripple-init type="button" class="btn btn-floating mx-1">
-                                    <i class="bi bi-twitter" style="color: #ffffff"></i>
-                                </button>
-
-                                <button data-mdb-ripple-init type="button" class="btn btn-floating mx-1">
-                                    <i class="bi bi-github" style="color: #ffffff"></i>
-                                </button>
-                            </div>
-
-                            <!-- Checkbox -->
                             <div class="form-check d-flex justify-content-center mb-4 fadeup">
                                 <input class="form-check-input me-2 checco" type="checkbox" value="1" id="acceptTerms" name="acceptTerms" required
                                     <?php echo (isset($_POST['acceptTerms']) ? 'checked' : ''); ?> />
@@ -182,14 +161,12 @@ if ($_POST) {
                             </div>
                             <div class="g-recaptcha text-center" style="margin: auto;" data-sitekey="6Lcy-7srAAAAABHpyz_WFjiMIpLlfKi55pgsEHv4" data-theme="dark"></div>
 
-                            <!-- Submit button -->
                             <div class="button-container mb-3 fadeup" style="text-align: center; margin-top: 3%">
                                 <button class="btn btn-secondary bottone" type="submit">
                                     <span class="testobianco">Registrati</span>
                                 </button>
                             </div>
 
-                            <!-- Login link -->
                             <div class="text-center fadeup">
                                 <p>Hai già un account? <a href="accedi" style="font-weight: bold" class="linkbianco">Accedi</a></p>
                             </div>
@@ -203,7 +180,6 @@ if ($_POST) {
             </div>
         </div>
 
-        <!-- Pills content -->
 
     </div>
     <?php include '../includes/footer.php'; ?>
@@ -215,7 +191,6 @@ if ($_POST) {
     <script src="../js/login.js"></script>
 
     <script>
-        // Validazione password in tempo reale
         document.getElementById("repeatPassword").addEventListener("input", function() {
             const password = document.getElementById("password").value;
             const repeatPassword = this.value;

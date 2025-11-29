@@ -13,22 +13,20 @@ $error = '';
 $success = '';
 
 if ($_POST) {
-    $email = trim($_POST['email'] ?? '');
+    $email_or_username = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    if (empty($email) || empty($password)) {
+    if (empty($email_or_username) || empty($password)) {
         $error = 'Compila tutti i campi';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = 'Email non valida';
     } else {
-        $result = loginUser($mysqli, $email, $password);
+        $result = loginUser($mysqli, $email_or_username, $password);
         if ($result === true) {
             $redirect = $_SESSION['redirect_after_login'] ?? 'home';
-            unset($_SESSION['redirect_after_login']); // pulizia
+            unset($_SESSION['redirect_after_login']);
             header("Location: $redirect");
             exit();
         } else {
-            $error = is_string($result) ? $result : 'Email o password non corretti';
+            $error = is_string($result) ? $result : 'Email/Username o password non corretti';
         }
     }
 }
@@ -81,47 +79,23 @@ if ($_POST) {
                     <form method="POST" action="">
                         <p class="fs-1 text mb-5 fadeup" style="font-weight: bold">Accedi</p>
 
-                        <!-- Email input -->
                         <div data-mdb-input-init class="form-outline mb-4 fadeup">
-                            <label class="form-label" for="email">Email</label>
-                            <input type="email" id="email" name="email" class="form-control"
+                            <label class="form-label" for="email">Email o Username</label>
+                            <input type="text" id="email" name="email" class="form-control"
                                 value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" required />
                         </div>
 
-                        <!-- Password input -->
                         <div data-mdb-input-init class="form-outline mb-4 fadeup">
                             <label class="form-label" for="password">Password</label>
                             <input type="password" id="password" name="password" class="form-control" required />
                         </div>
 
-                        <p class="text-center fadeup">Oppure:</p>
-
-                        <div class="text-center mb-3 fadeup">
-                            <button data-mdb-ripple-init type="button" class="btn btn-floating mx-1">
-                                <i class="bi bi-facebook" style="color: #ffffff"></i>
-                            </button>
-
-                            <button data-mdb-ripple-init type="button" class="btn btn-floating mx-1">
-                                <i class="bi bi-google" style="color: #ffffff"></i>
-                            </button>
-
-                            <button data-mdb-ripple-init type="button" class="btn btn-floating mx-1">
-                                <i class="bi bi-twitter" style="color: #ffffff"></i>
-                            </button>
-
-                            <button data-mdb-ripple-init type="button" class="btn btn-floating mx-1">
-                                <i class="bi bi-github" style="color: #ffffff"></i>
-                            </button>
-                        </div>
-
-                        <!-- Submit button -->
                         <div class="button-container mb-3 fadeup" style="text-align: center; margin-top: 3%">
                             <button class="btn btn-secondary bottone" type="submit">
                                 <span class="testobianco">Accedi</span>
                             </button>
                         </div>
 
-                        <!-- Links -->
                         <div class="text-center fadeup">
                             <p>
                                 <a href="password-dimenticata" style="font-weight: bold" class="linkbianco">Password dimenticata?</a>

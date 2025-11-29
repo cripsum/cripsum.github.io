@@ -2,14 +2,15 @@
 
 require_once __DIR__ . '/../config/email_config.php';
 
-function sendVerificationEmail($email, $username, $token) {
+function sendVerificationEmail($email, $username, $token)
+{
     $subject = 'Verifica la tua email - ' . SITE_NAME;
     $verificationLink = SITE_URL . '/it/verifica-email?token=' . $token;
 
     $htmlBody = getVerificationEmailTemplate($username, $verificationLink);
-    
+
     $textBody = "Ciao $username,\n\nGrazie per esserti registrato su " . SITE_NAME . ".\n\nPer completare la registrazione, visita questo link: $verificationLink\n\nSe non ti sei registrato, ignora questa email.\n\nCordiali saluti,\nIl team di " . SITE_NAME;
-    
+
     $headers = array();
     $headers[] = 'MIME-Version: 1.0';
     $headers[] = 'Content-type: text/html; charset=UTF-8';
@@ -17,7 +18,7 @@ function sendVerificationEmail($email, $username, $token) {
     $headers[] = 'Reply-To: ' . FROM_EMAIL;
     $headers[] = 'Return-Path: ' . FROM_EMAIL;
     $headers[] = 'X-Mailer: PHP/' . phpversion();
-    
+
     if (mail($email, $subject, $htmlBody, implode("\r\n", $headers))) {
         return true;
     } else {
@@ -26,7 +27,8 @@ function sendVerificationEmail($email, $username, $token) {
     }
 }
 
-function getVerificationEmailTemplate($username, $verificationLink) {
+function getVerificationEmailTemplate($username, $verificationLink)
+{
     return "
     <!DOCTYPE html>
     <html lang='it'>
@@ -124,14 +126,15 @@ function getVerificationEmailTemplate($username, $verificationLink) {
     ";
 }
 
-function sendVerificationEmailChanged($email, $username, $token) {
+function sendVerificationEmailChanged($email, $username, $token)
+{
     $subject = 'Verifica la tua email - ' . SITE_NAME;
     $verificationLink = SITE_URL . '/it/verifica-email?token=' . $token;
-    
+
     $htmlBody = getVerificationEmailChangedTemplate($username, $verificationLink);
-    
+
     $textBody = "Ciao $username,\n\nGrazie per esserti registrato su " . SITE_NAME . ".\n\nPer completare la registrazione, visita questo link: $verificationLink\n\nSe non ti sei registrato, ignora questa email.\n\nCordiali saluti,\nIl team di " . SITE_NAME;
-    
+
     $headers = array();
     $headers[] = 'MIME-Version: 1.0';
     $headers[] = 'Content-type: text/html; charset=UTF-8';
@@ -139,7 +142,7 @@ function sendVerificationEmailChanged($email, $username, $token) {
     $headers[] = 'Reply-To: ' . FROM_EMAIL;
     $headers[] = 'Return-Path: ' . FROM_EMAIL;
     $headers[] = 'X-Mailer: PHP/' . phpversion();
-    
+
     if (mail($email, $subject, $htmlBody, implode("\r\n", $headers))) {
         return true;
     } else {
@@ -148,7 +151,8 @@ function sendVerificationEmailChanged($email, $username, $token) {
     }
 }
 
-function getVerificationEmailChangedTemplate($username, $verificationLink) {
+function getVerificationEmailChangedTemplate($username, $verificationLink)
+{
     return "
     <!DOCTYPE html>
     <html lang='it'>
@@ -246,7 +250,8 @@ function getVerificationEmailChangedTemplate($username, $verificationLink) {
     ";
 }
 
-function verifyEmail($mysqli, $token) {
+function verifyEmail($mysqli, $token)
+{
     $stmt = $mysqli->prepare("
         SELECT id, username, email 
         FROM utenti 
@@ -257,11 +262,11 @@ function verifyEmail($mysqli, $token) {
     $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
-    
+
     if ($user) {
         $updateStmt = $mysqli->prepare("UPDATE utenti SET email_verificata = 1, email_token = NULL WHERE id = ?");
         $updateStmt->bind_param("i", $user['id']);
-        
+
         if ($updateStmt->execute()) {
             $updateStmt->close();
             $stmt->close();
@@ -269,16 +274,17 @@ function verifyEmail($mysqli, $token) {
         }
         $updateStmt->close();
     }
-    
+
     $stmt->close();
     return false;
 }
 
-function sendWelcomeEmail($email, $username) {
+function sendWelcomeEmail($email, $username)
+{
     $subject = 'Benvenuto su ' . SITE_NAME . '!';
     $htmlBody = getWelcomeEmailTemplate($username);
     $textBody = "Benvenuto su " . SITE_NAME . ", $username!\n\nIl tuo account è stato verificato con successo.\n\nPuoi ora accedere e iniziare a utilizzare tutti i nostri servizi.\n\nGrazie per esserti unito a noi!\n\nCordiali saluti,\nIl team di " . SITE_NAME;
-    
+
     $headers = array();
     $headers[] = 'MIME-Version: 1.0';
     $headers[] = 'Content-type: text/html; charset=UTF-8';
@@ -286,7 +292,7 @@ function sendWelcomeEmail($email, $username) {
     $headers[] = 'Reply-To: ' . FROM_EMAIL;
     $headers[] = 'Return-Path: ' . FROM_EMAIL;
     $headers[] = 'X-Mailer: PHP/' . phpversion();
-    
+
     if (mail($email, $subject, $htmlBody, implode("\r\n", $headers))) {
         return true;
     } else {
@@ -295,7 +301,8 @@ function sendWelcomeEmail($email, $username) {
     }
 }
 
-function getWelcomeEmailTemplate($username) {
+function getWelcomeEmailTemplate($username)
+{
     return "
     <!DOCTYPE html>
     <html lang='it'>
@@ -380,12 +387,23 @@ function getWelcomeEmailTemplate($username) {
     ";
 }
 
-function loginUser($mysqli, $email, $password) {
-    $stmt = $mysqli->prepare("SELECT id, username, email, password, profile_pic, ruolo, email_verificata, isBannato, nsfw, richpresence FROM utenti WHERE email = ?");
-    $stmt->bind_param("s", $email);
+function loginUser($mysqli, $email_or_username, $password)
+{
+    $is_email = filter_var($email_or_username, FILTER_VALIDATE_EMAIL);
+
+    if ($is_email) {
+
+        $stmt = $mysqli->prepare("SELECT id, username, email, password, profile_pic, ruolo, email_verificata, isBannato, nsfw, richpresence FROM utenti WHERE email = ?");
+    } else {
+
+        $stmt = $mysqli->prepare("SELECT id, username, email, password, profile_pic, ruolo, email_verificata, isBannato, nsfw, richpresence FROM utenti WHERE username = ?");
+    }
+
+    $stmt->bind_param("s", $email_or_username);
     $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
+    $stmt->close();
 
     if ($user && password_verify($password, $user['password'])) {
         if ($user['email_verificata'] == 0) {
@@ -394,7 +412,7 @@ function loginUser($mysqli, $email, $password) {
         if ($user['isBannato']) {
             return 'Il tuo account è stato bannato. Contatta cripsum@cripsum.com per ulteriori informazioni.';
         }
-        
+
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['email'] = $user['email'];
@@ -407,40 +425,48 @@ function loginUser($mysqli, $email, $password) {
     return false;
 }
 
-function isLoggedIn() {
+function isLoggedIn()
+{
     return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
 }
 
-function isAdmin() {
+function isAdmin()
+{
     return isset($_SESSION['ruolo']) && $_SESSION['ruolo'] === 'admin';
 }
 
-function isOwner() {
+function isOwner()
+{
     return isset($_SESSION['ruolo']) && $_SESSION['ruolo'] === 'owner';
 }
 
 
-function requireLogin() {
+function requireLogin()
+{
     if (!isLoggedIn()) {
         header('Location: accedi');
         exit();
     }
 }
 
-function validateMessage($message) {
+function validateMessage($message)
+{
     return strlen($message) <= 30;
 }
 
-function getUserRole() {
+function getUserRole()
+{
     return $_SESSION['ruolo'] ?? 'utente';
 }
 
-function canDeleteMessage($messageUserId) {
+function canDeleteMessage($messageUserId)
+{
     $userRole = getUserRole();
     return $userRole === 'admin' || $userRole === 'owner' || $_SESSION['user_id'] == $messageUserId;
 }
 
-function setMessageTimeout() {
+function setMessageTimeout()
+{
     if (!isset($_SESSION['last_message_time'])) {
         $_SESSION['last_message_time'] = time();
         return true;
@@ -455,7 +481,8 @@ function setMessageTimeout() {
     return false;
 }
 
-function checkBan($mysqli) {
+function checkBan($mysqli)
+{
     if (isset($_COOKIE['banned']) && $_COOKIE['banned'] == '1') {
         header('Location: https://cripsum.com/it/banned');
         exit();
@@ -479,13 +506,15 @@ function checkBan($mysqli) {
     }
 }
 
-function logoutUser() {
+function logoutUser()
+{
     session_destroy();
     header('Location: https://cripsum.com');
     exit();
 }
 
-function registerUser($mysqli, $username, $email, $password) {
+function registerUser($mysqli, $username, $email, $password)
+{
     $checkStmt = $mysqli->prepare("SELECT id FROM utenti WHERE username = ? OR email = ?");
     $checkStmt->bind_param("ss", $username, $email);
     $checkStmt->execute();
@@ -496,7 +525,7 @@ function registerUser($mysqli, $username, $email, $password) {
     $checkStmt->close();
 
     $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-    
+
     $emailToken = bin2hex(random_bytes(32));
 
     $insertStmt = $mysqli->prepare("
@@ -505,7 +534,7 @@ function registerUser($mysqli, $username, $email, $password) {
 
     if ($insertStmt->execute()) {
         $insertStmt->close();
-        
+
         if (sendVerificationEmail($email, $username, $emailToken)) {
             return true;
         } else {
@@ -517,16 +546,17 @@ function registerUser($mysqli, $username, $email, $password) {
     }
 }
 
-function resendVerificationEmail($mysqli, $email) {
+function resendVerificationEmail($mysqli, $email)
+{
     $stmt = $mysqli->prepare("SELECT id, username, email_token FROM utenti WHERE email = ? AND email_verificata = 0");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
-    
+
     if ($user) {
         $newToken = bin2hex(random_bytes(32));
-        
+
         $updateStmt = $mysqli->prepare("UPDATE utenti SET email_token = ? WHERE id = ?");
         $updateStmt->bind_param("si", $newToken, $user['id']);
         $updateStmt->execute();
@@ -537,13 +567,14 @@ function resendVerificationEmail($mysqli, $email) {
             return true;
         }
     }
-    
+
     $stmt->close();
     return false;
 }
 
 
-function getCurrentUser($mysqli) {
+function getCurrentUser($mysqli)
+{
     if (!isLoggedIn()) {
         return null;
     }
@@ -561,7 +592,8 @@ function getCurrentUser($mysqli) {
     return $user ?: null;
 }
 
-function getUserProfile($mysqli, $userId) {
+function getUserProfile($mysqli, $userId)
+{
     $stmt = $mysqli->prepare("
         SELECT id, username, email, profile_pic, data_creazione, ruolo, soldi, isBannato, nswf
         FROM utenti 
@@ -575,7 +607,8 @@ function getUserProfile($mysqli, $userId) {
     return $user ?: null;
 }
 
-function updateUserProfile($mysqli, $userId, $username, $email, $profilePic) {
+function updateUserProfile($mysqli, $userId, $username, $email, $profilePic)
+{
     $stmt = $mysqli->prepare("
         UPDATE utenti 
         SET username = ?, email = ?, profile_pic = ? 
@@ -591,7 +624,8 @@ function updateUserProfile($mysqli, $userId, $username, $email, $profilePic) {
     }
 }
 
-function deleteUserAccount($mysqli, $userId) {
+function deleteUserAccount($mysqli, $userId)
+{
     $stmt = $mysqli->prepare("DELETE FROM utenti WHERE id = ?");
     $stmt->bind_param("i", $userId);
     if ($stmt->execute()) {
@@ -604,13 +638,15 @@ function deleteUserAccount($mysqli, $userId) {
     }
 }
 
-function cleanExpiredTokens($mysqli) {
+function cleanExpiredTokens($mysqli)
+{
     $stmt = $mysqli->prepare("UPDATE utenti SET email_token = NULL WHERE email_token IS NOT NULL AND data_creazione < DATE_SUB(NOW(), INTERVAL 24 HOUR)");
     $stmt->execute();
     $stmt->close();
 }
 
-function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsfw, $richpresence) {
+function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsfw, $richpresence)
+{
     $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE username = ? AND id != ?");
     $stmt->bind_param("si", $username, $userId);
     $stmt->execute();
@@ -633,10 +669,10 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
     $currentEmailResult = $currentEmailStmt->get_result();
     $currentUser = $currentEmailResult->fetch_assoc();
     $currentEmailStmt->close();
-    
+
     $emailChanged = ($currentUser['email'] !== $email);
-    
-    
+
+
     if (!empty($password)) {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         if ($emailChanged) {
@@ -657,27 +693,27 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
             $stmt->bind_param("siii", $username, $nsfw, $richpresence, $userId);
         }
     }
-    
+
     if ($stmt->execute()) {
         if ($emailChanged) {
             $_SESSION['username'] = $username;
             $_SESSION['email'] = $email;
             $_SESSION['nsfw'] = $nsfw;
             $_SESSION['richpresence'] = $richpresence;
-        return true;
+            return true;
         } else {
             $_SESSION['username'] = $username;
             $_SESSION['nsfw'] = $nsfw;
             $_SESSION['richpresence'] = $richpresence;
             return true;
         }
-    }
-    else {
+    } else {
         return "Errore durante l'aggiornamento";
     }
 }
 
-function isUserOnline($mysqli, $user_id){
+function isUserOnline($mysqli, $user_id)
+{
     $ultimo_accesso = null;
 
     $time_limit = date('Y-m-d H:i:s', strtotime('-30 seconds'));
@@ -688,11 +724,12 @@ function isUserOnline($mysqli, $user_id){
     $stmt->fetch();
     $stmt->close();
 
-    if(!$ultimo_accesso) return false;
+    if (!$ultimo_accesso) return false;
     return ($ultimo_accesso > $time_limit);
 }
 
-function getUltimoAccesso($mysqli, $user_id){
+function getUltimoAccesso($mysqli, $user_id)
+{
     $ultimo_accesso = null;
 
     $stmt = $mysqli->prepare("SELECT ultimo_accesso FROM utenti WHERE id = ?");
@@ -704,5 +741,3 @@ function getUltimoAccesso($mysqli, $user_id){
 
     return $ultimo_accesso;
 }
-
-?>
