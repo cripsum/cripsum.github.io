@@ -284,9 +284,7 @@ checkBan($mysqli);
         </section>
     </div>
 
-    <a href="#" class="scroll-indicator" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
-        <i class="fas fa-arrow-up"></i>
-    </a>
+    <?php include '../includes/scroll_indicator.php'; ?>
 
     <?php include '../includes/footer.php'; ?>
     <script>
@@ -360,21 +358,6 @@ checkBan($mysqli);
                 this.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
             });
         });
-
-        const scrollIndicator = document.querySelector('.scroll-indicator');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 300) {
-                scrollIndicator.style.opacity = '1';
-                scrollIndicator.style.transform = 'translateY(0)';
-            } else {
-                scrollIndicator.style.opacity = '0';
-                scrollIndicator.style.transform = 'translateY(20px)';
-            }
-        });
-
-        scrollIndicator.style.opacity = '0';
-        scrollIndicator.style.transform = 'translateY(20px)';
-        scrollIndicator.style.transition = 'all 0.3s ease';
     </script>
     <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
