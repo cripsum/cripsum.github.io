@@ -960,6 +960,20 @@ require_once '../api/api_personaggi.php';
                 newLabel.classList.add("new-label");
                 newLabel.innerText = "NEW!";
                 contenuto.appendChild(newLabel);
+                let dynamicMargin = -20;
+                const nameLength = newLabel.parentElement.querySelector('#nomePersonaggio').innerText.length;
+                if (nameLength > 25) {
+                    dynamicMargin = 50;
+                } else if (nameLength > 20) {
+                    dynamicMargin = 30;
+                } else if (nameLength > 15) {
+                    dynamicMargin = 10;
+                } else if (nameLength > 10) {
+                    dynamicMargin = -10;
+                } else {
+                    dynamicMargin = -20;
+                }
+                newLabel.style.marginRight = dynamicMargin + 'px';
             }
 
             function controlloApriVeloce() {
