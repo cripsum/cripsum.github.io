@@ -23,7 +23,7 @@ checkBan($mysqli);
     <?php include '../includes/impostazioni.php'; ?>
 
     <div class="container mt-5 testobianco fadeup" style=" margin: auto; padding-top: 7rem">
-        <h4 class="text-center">attenzione, la pagina è ancora in fase di creazione, è pertanto costituita esclusivamente da dei placeholder, godetevi questa musica per il momento :)</h1>
+        <h4 class="text-center">Attenzione, la pagina è ancora in fase di creazione, è pertanto costituita esclusivamente da dei placeholder, godetevi questa musica per il momento :)</h1>
             <br /><br />
             <h1 class="text-center">TikTokPedia</h1>
             <p class="text-center">Benvenuto nella TikTokPedia, la tua enciclopedia di TikTok!</p>
