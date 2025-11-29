@@ -236,19 +236,32 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
             newLabel.innerText = "NEW!";
             contenuto.appendChild(newLabel);
             let dynamicMargin = -20;
-            const nameLength = newLabel.parentElement.querySelector('#nomePersonaggio').innerText.length;
+            let topMargin = 0;
+            const nameElement = newLabel.parentElement.querySelector('#nomePersonaggio');
+            const nameLength = nameElement.innerText.length;
+
+            // Check if text goes to multiple lines by comparing scrollHeight to clientHeight
+            const isMultiline = nameElement.scrollHeight > nameElement.clientHeight;
+
             if (nameLength > 25) {
                 dynamicMargin = 50;
+                topMargin = isMultiline ? 60 : 30;
             } else if (nameLength > 20) {
                 dynamicMargin = 30;
+                topMargin = isMultiline ? 60 : 30;
             } else if (nameLength > 15) {
                 dynamicMargin = 10;
+                topMargin = isMultiline ? 60 : 30;
             } else if (nameLength > 10) {
                 dynamicMargin = -10;
+                topMargin = isMultiline ? 60 : 30;
             } else {
                 dynamicMargin = -20;
+                topMargin = 30;
             }
+
             newLabel.style.marginRight = dynamicMargin + 'px';
+            newLabel.style.marginTop = topMargin + 'px';
         }
 
 
