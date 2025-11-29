@@ -36,9 +36,9 @@ checkBan($mysqli);
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
-    <div class="paginaintera" style="padding-bottom: 4rem;">
+    <div class="paginaintera" style="padding-bottom: 1rem;">
         <p class="text-center fadein" style="font-size: 50px; font-weight: bolder; margin-top: 20px">NEW MERCH OUT NOW</p>
-        <p class="text-center fadein" style="font-size: 50px">🤑🦩🔸</p>
+        <p class="text-center fadein" style="font-size: 50px">🤑🐦📸</p>
     </div>
 
     <div class="card-section" style="margin-top: 3rem; padding-bottom: 7rem">
