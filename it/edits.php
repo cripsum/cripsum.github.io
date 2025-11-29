@@ -834,6 +834,8 @@ checkBan($mysqli);
         </div>
     </div>
 
+    <?php include '../includes/scroll_indicator.php'; ?>
+
 
     <div id="achievement-popup" class="popup">
         <img id="popup-image" src="" alt="Achievement" />
