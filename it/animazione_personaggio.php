@@ -246,19 +246,19 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
                 if (nameLength > 25) {
                     dynamicMargin = 50;
-                    topMargin = isMultiline ? 60 : 30;
+                    topMargin = isMultiline ? 30 : 0;
                 } else if (nameLength > 20) {
                     dynamicMargin = 30;
-                    topMargin = isMultiline ? 60 : 30;
+                    topMargin = isMultiline ? 30 : 0;
                 } else if (nameLength > 15) {
                     dynamicMargin = 10;
-                    topMargin = isMultiline ? 60 : 30;
+                    topMargin = isMultiline ? 30 : 0;
                 } else if (nameLength > 10) {
                     dynamicMargin = -10;
-                    topMargin = isMultiline ? 60 : 30;
+                    topMargin = isMultiline ? 30 : 0;
                 } else {
                     dynamicMargin = -20;
-                    topMargin = 30;
+                    topMargin = 0;
                 }
 
                 newLabel.style.marginRight = dynamicMargin + 'px';
