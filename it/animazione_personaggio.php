@@ -240,7 +240,6 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
             const nameElement = newLabel.parentElement.querySelector('#nomePersonaggio');
             const nameLength = nameElement.innerText.length;
 
-            // Force reflow and check multiline after DOM is ready
             setTimeout(() => {
                 const isMultiline = nameElement.scrollHeight > nameElement.clientHeight;
 
@@ -257,13 +256,13 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                     dynamicMargin = -10;
                     topMargin = isMultiline ? 30 : 0;
                 } else {
-                    dynamicMargin = -20;
-                    topMargin = 0;
+                    dynamicMargin = isMultiline ? -20 : -20;
+                    topMargin = isMultiline ? 30 : 0;
                 }
 
                 newLabel.style.marginRight = dynamicMargin + 'px';
                 newLabel.style.marginTop = topMargin + 'px';
-            }, 0);
+            }, 100);
         }
 
 
