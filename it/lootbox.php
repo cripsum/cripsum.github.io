@@ -158,6 +158,15 @@ require_once '../api/api_personaggi.php';
                         </div>
                         <div class="col-md-6 d-flex text-center" style="text-align: center; padding-top: 20px; padding-bottom: 20px; margin: auto;">
                             <div style="color: white; font-size: 14px; margin: auto;">
+                                <h6 style="color: white; margin-bottom: 10px;">🎮 Comandi:</h6>
+                                <div>Click: apri cassa</div>
+                                <div>Double click: skippa animazione</div>
+                                <div>Space: apri velocemente</div>
+                                <div>Enter: apri un'altra cassa</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 d-flex text-center" style="text-align: center; padding-top: 20px; padding-bottom: 20px; margin: auto;">
+                            <div style="color: white; font-size: 14px; margin: auto;">
                                 <h6 style="color: white; margin-bottom: 10px;">🎲 Probabilità Rarità:</h6>
                                 <div>Comune: 47%</div>
                                 <div>Raro: 27%</div>
