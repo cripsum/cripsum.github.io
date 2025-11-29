@@ -1000,9 +1000,6 @@ require_once '../api/api_personaggi.php';
             }
 
             async function controlloApriVeloce() {
-                if (isProcessing) {
-                    return;
-                }
 
                 if (!cassa.classList.contains("aperta")) {
                     await pullaPersonaggio();
