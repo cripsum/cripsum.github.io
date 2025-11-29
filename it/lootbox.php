@@ -129,7 +129,7 @@ require_once '../api/api_personaggi.php';
         </script>
         <div class="container">
 
-            <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein" ondblclick="controlloApriVeloce()" onclick="pullaPersonaggio(); apriNormale()" />
+            <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein" ondblclick="handleDoubleClick()" onclick="pullaPersonaggio(); apriNormale()" />
 
             <div id="baglioreWrapper">
                 <div class="bagliore" id="bagliore"></div>
@@ -306,7 +306,6 @@ require_once '../api/api_personaggi.php';
             var specialPulled = false;
             var nuovoPersonaggio = false;
             var isopening = false;
-            var isSkippable = false;
             //|| {
             //    comune: 45,
             //    raro: 25,
@@ -1001,10 +1000,6 @@ require_once '../api/api_personaggi.php';
             }
 
             function controlloApriVeloce() {
-                if(isSkippable){
-                    apriVeloce();
-                    return;
-                }
 
                 if (theOnePulled === true) {
                     event.preventDefault();
@@ -1023,7 +1018,13 @@ require_once '../api/api_personaggi.php';
                     apriNormale();
                     isopening = true;
                 } else {
-                    isSkippable = true;
+                    apriVeloce();
+                }
+            }
+
+            function handleDoubleClick() {
+                if (cassa.classList.contains("aperta")) {
+                    controlloApriVeloce();
                 }
             }
 
