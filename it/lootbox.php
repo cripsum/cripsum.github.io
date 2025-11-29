@@ -1005,19 +1005,15 @@ require_once '../api/api_personaggi.php';
                 }
                 
                 if (theOnePulled === true) {
-                    event.preventDefault();
                     apriNormale();
                     isopening = true;
                 } else if (secretPulled === true) {
-                    event.preventDefault();
                     apriNormale();
                     isopening = true;
                 } else if (specialPulled === true) {
-                    event.preventDefault();
                     apriNormale();
                     isopening = true;
                 } else if (nuovoPersonaggio === true) {
-                    event.preventDefault();
                     apriNormale();
                     isopening = true;
                 } else {
