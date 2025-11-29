@@ -306,6 +306,7 @@ require_once '../api/api_personaggi.php';
             var specialPulled = false;
             var nuovoPersonaggio = false;
             var isopening = false;
+            var isSkippable = false;
             //|| {
             //    comune: 45,
             //    raro: 25,
@@ -1000,6 +1001,11 @@ require_once '../api/api_personaggi.php';
             }
 
             function controlloApriVeloce() {
+                if(isSkippable){
+                    apriVeloce();
+                    return;
+                }
+
                 if (theOnePulled === true) {
                     event.preventDefault();
                     apriNormale();
@@ -1017,7 +1023,7 @@ require_once '../api/api_personaggi.php';
                     apriNormale();
                     isopening = true;
                 } else {
-                    apriVeloce();
+                    isSkippable = true;
                 }
             }
 
