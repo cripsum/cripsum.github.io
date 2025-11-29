@@ -926,6 +926,7 @@ require_once '../api/api_personaggi.php';
                 if (isopening) {
                     return;
                 }
+                isopening = true;
                 cassa.onclick = null;
                 await apriCassa();
 
