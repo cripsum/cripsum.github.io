@@ -2028,7 +2028,7 @@ html {
 }
 
 .scroll-indicator:hover {
-    background: linear-gradient(135deg, rgba(100, 200, 255, 0.2), rgba(255, 100, 200, 0.15));
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.15));
     transform: translateY(-3px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
     color: white;
