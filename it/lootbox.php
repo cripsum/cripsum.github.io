@@ -233,14 +233,15 @@ require_once '../api/api_personaggi.php';
         <audio id="suonoCassa"></audio>
         <div class="leaderboard-wrapper" id="leaderboard-wrapper" style="display: none;">
             <div class="leaderboard-box">
-                <h3 class="testobianco">🏆 Classifiche</h3>
+                <h3 class="testobianco">🏆 Classifica</h3>
+                <h6 class="testobianco">filtra per:</h6>
 
                 <div class="leaderboard-buttons">
                     <button class="btn btn-secondary bottone leaderboard-btn active" onclick="switchLeaderboard('casse_aperte')" id="btn-casse">
-                        Casse Aperte
+                        Numero di casse aperte
                     </button>
                     <button class="btn btn-secondary bottone leaderboard-btn" onclick="switchLeaderboard('personaggi_sbloccati')" id="btn-personaggi">
-                        Personaggi
+                        Personaggi trovati
                     </button>
                 </div>
 
