@@ -999,31 +999,28 @@ require_once '../api/api_personaggi.php';
                 });
             }
 
-            async function controlloApriVeloce() {
-
-                if (!cassa.classList.contains("aperta")) {
-                    await pullaPersonaggio();
-                }
-
-                if (theOnePulled === true) {
-                    event.preventDefault();
-                    apriNormale();
-                    isopening = true;
-                } else if (secretPulled === true) {
-                    event.preventDefault();
-                    apriNormale();
-                    isopening = true;
-                } else if (specialPulled === true) {
-                    event.preventDefault();
-                    apriNormale();
-                    isopening = true;
-                } else if (nuovoPersonaggio === true) {
-                    event.preventDefault();
-                    apriNormale();
-                    isopening = true;
-                } else {
-                    apriVeloce();
-                }
+            function controlloApriVeloce() {
+                setTimeout(() => {
+                    if (theOnePulled === true) {
+                        event.preventDefault();
+                        apriNormale();
+                        isopening = true;
+                    } else if (secretPulled === true) {
+                        event.preventDefault();
+                        apriNormale();
+                        isopening = true;
+                    } else if (specialPulled === true) {
+                        event.preventDefault();
+                        apriNormale();
+                        isopening = true;
+                    } else if (nuovoPersonaggio === true) {
+                        event.preventDefault();
+                        apriNormale();
+                        isopening = true;
+                    } else {
+                        apriVeloce();
+                    }
+                }, 300);
             }
 
             function apriVeloce() {
