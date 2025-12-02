@@ -22,7 +22,6 @@ checkBan($mysqli);
         <div class="container-fluid py-5">
             <div class="row justify-content-center">
                 <div class="col-lg-11">
-                    <!-- Page Header -->
                     <div class="page-header">
                         <div class="page-icon-wrapper">
                             <i class="fas fa-download page-icon"></i>
@@ -33,7 +32,6 @@ checkBan($mysqli);
                             <i class="fab fa-adobe"></i> After Effects
                         </div>
 
-                        <!-- Search & Filter Bar -->
                         <div class="filter-bar">
                             <div class="search-box">
                                 <i class="fas fa-search"></i>
@@ -48,9 +46,7 @@ checkBan($mysqli);
                         </div>
                     </div>
 
-                    <!-- Content Grid -->
                     <div class="content-grid">
-                        <!-- Item 1 -->
                         <div class="content-card">
                             <div class="card-thumbnail">
                                 <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Plugin" alt="Download">
@@ -79,7 +75,6 @@ checkBan($mysqli);
                             </div>
                         </div>
 
-                        <!-- Item 2 -->
                         <div class="content-card">
                             <div class="card-thumbnail">
                                 <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Plugin" alt="Download">
@@ -108,7 +103,6 @@ checkBan($mysqli);
                             </div>
                         </div>
 
-                        <!-- Item 3 -->
                         <div class="content-card">
                             <div class="card-thumbnail">
                                 <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Script" alt="Download">
@@ -137,7 +131,6 @@ checkBan($mysqli);
                             </div>
                         </div>
 
-                        <!-- Item 4 -->
                         <div class="content-card">
                             <div class="card-thumbnail">
                                 <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Plugin" alt="Download">
@@ -166,7 +159,6 @@ checkBan($mysqli);
                             </div>
                         </div>
 
-                        <!-- Item 5 -->
                         <div class="content-card">
                             <div class="card-thumbnail">
                                 <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Software" alt="Download">
@@ -195,7 +187,6 @@ checkBan($mysqli);
                             </div>
                         </div>
 
-                        <!-- Item 6 -->
                         <div class="content-card">
                             <div class="card-thumbnail">
                                 <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Script" alt="Download">
@@ -225,7 +216,6 @@ checkBan($mysqli);
                         </div>
                     </div>
 
-                    <!-- Load More Button -->
                     <div class="load-more-section">
                         <button class="load-more-btn">
                             <i class="fas fa-plus"></i> Carica altri

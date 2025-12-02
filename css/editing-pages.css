@@ -1,16 +1,8 @@
-/* ==========================================
-   PAGES STYLING - MINIMAL DARK THEME
-   ========================================== */
-
 .page-section {
     background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
     min-height: 100vh;
     padding: 4rem 0;
 }
-
-/* ==========================================
-   PAGE HEADER
-   ========================================== */
 
 .page-header {
     text-align: center;
@@ -85,10 +77,6 @@
     background: var(--gray-300);
     transform: scale(1.05);
 }
-
-/* ==========================================
-   FILTER BAR
-   ========================================== */
 
 .filter-bar {
     display: flex;
@@ -170,10 +158,6 @@
     color: var(--gray-100);
 }
 
-/* ==========================================
-   CONTENT GRID
-   ========================================== */
-
 .content-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
@@ -214,10 +198,6 @@
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     border-color: var(--gray-400);
 }
-
-/* ==========================================
-   CARD THUMBNAIL
-   ========================================== */
 
 .card-thumbnail {
     position: relative;
@@ -273,10 +253,6 @@
     color: white;
 }
 
-/* ==========================================
-   CARD CONTENT
-   ========================================== */
-
 .card-content {
     padding: 1.75rem;
 }
@@ -314,10 +290,6 @@
     font-size: 0.95rem;
 }
 
-/* ==========================================
-   CARD TAGS
-   ========================================== */
-
 .card-tags {
     display: flex;
     gap: 0.5rem;
@@ -338,10 +310,6 @@
 .tag:hover {
     background: var(--gray-400);
 }
-
-/* ==========================================
-   CARD ACTIONS
-   ========================================== */
 
 .card-actions {
     display: flex;
@@ -401,10 +369,6 @@
     font-size: 0.85rem;
 }
 
-/* ==========================================
-   LOAD MORE SECTION
-   ========================================== */
-
 .load-more-section {
     text-align: center;
     padding: 2rem 0;
@@ -440,10 +404,6 @@
     transform: rotate(90deg);
 }
 
-/* ==========================================
-   ANIMATIONS
-   ========================================== */
-
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -474,10 +434,6 @@
         transform: translateY(0);
     }
 }
-
-/* ==========================================
-   RESPONSIVE DESIGN
-   ========================================== */
 
 @media (max-width: 1200px) {
     .content-grid {

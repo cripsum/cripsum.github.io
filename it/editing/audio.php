@@ -22,7 +22,6 @@ checkBan($mysqli);
         <div class="container-fluid py-5">
             <div class="row justify-content-center">
                 <div class="col-lg-11">
-                    <!-- Page Header -->
                     <div class="page-header">
                         <div class="page-icon-wrapper">
                             <i class="fas fa-music page-icon"></i>
@@ -33,7 +32,6 @@ checkBan($mysqli);
                             <i class="fas fa-headphones"></i> Sound Library
                         </div>
 
-                        <!-- Search & Filter Bar -->
                         <div class="filter-bar">
                             <div class="search-box">
                                 <i class="fas fa-search"></i>
@@ -48,9 +46,7 @@ checkBan($mysqli);
                         </div>
                     </div>
 
-                    <!-- Content Grid -->
                     <div class="content-grid">
-                        <!-- Item 1 -->
                         <div class="content-card">
                             <div class="card-thumbnail">
                                 <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Trap+Beats" alt="Audio">
@@ -82,7 +78,6 @@ checkBan($mysqli);
                             </div>
                         </div>
 
-                        <!-- Item 2 -->
                         <div class="content-card">
                             <div class="card-thumbnail">
                                 <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Sound+FX" alt="Audio">
@@ -114,7 +109,6 @@ checkBan($mysqli);
                             </div>
                         </div>
 
-                        <!-- Item 3 -->
                         <div class="content-card">
                             <div class="card-thumbnail">
                                 <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Lo-Fi+Beats" alt="Audio">
@@ -146,7 +140,6 @@ checkBan($mysqli);
                             </div>
                         </div>
 
-                        <!-- Item 4 -->
                         <div class="content-card">
                             <div class="card-thumbnail">
                                 <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Glitch+SFX" alt="Audio">
@@ -178,7 +171,6 @@ checkBan($mysqli);
                             </div>
                         </div>
 
-                        <!-- Item 5 -->
                         <div class="content-card">
                             <div class="card-thumbnail">
                                 <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Epic+Music" alt="Audio">
@@ -210,7 +202,6 @@ checkBan($mysqli);
                             </div>
                         </div>
 
-                        <!-- Item 6 -->
                         <div class="content-card">
                             <div class="card-thumbnail">
                                 <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Ambient+Sounds" alt="Audio">
@@ -243,7 +234,6 @@ checkBan($mysqli);
                         </div>
                     </div>
 
-                    <!-- Load More Button -->
                     <div class="load-more-section">
                         <button class="load-more-btn">
                             <i class="fas fa-plus"></i> Carica altri
