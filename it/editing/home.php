@@ -23,7 +23,7 @@ checkBan($mysqli);
                 <div class="col-lg-10">
                     <div class="editing-content">
                         <h1 class="editing-title">Benvenuto su Cripsum™</h1>
-                        <p class="editing-subtitle">La piattaforma completa per i tuoi progetti creativi</p>
+                        <p class="editing-subtitle">Risorse per i tuoi progetti di editing</p>
                         <div class="free-banner">
                             <p class="free-text"><i class="fas fa-gift"></i> E la cosa migliore? È tutto completamente gratuito! :P</p>
                         </div>
@@ -35,7 +35,7 @@ checkBan($mysqli);
                                 <i class="fas fa-book-open"></i>
                             </div>
                             <h3 class="resource-title">Tutorial & Preset</h3>
-                            <p class="resource-description">Guide complete con preset professionali inclusi. Impara le tecniche avanzate e applica subito gli effetti ai tuoi progetti.</p>
+                            <p class="resource-description">Guide semplici con preset pronti da usare. Impara qualche tecnica interessante e prova subito gli effetti nei tuoi video.</p>
                             <a href="#" class="resource-link">
                                 <span>Inizia ad imparare</span>
                                 <i class="fas fa-arrow-right"></i>
@@ -47,7 +47,7 @@ checkBan($mysqli);
                                 <i class="fas fa-download"></i>
                             </div>
                             <h3 class="resource-title">Download</h3>
-                            <p class="resource-description">Software, plugin e strumenti professionali sempre aggiornati per il tuo workflow creativo.</p>
+                            <p class="resource-description">Software, plugin e strumenti utili che uso anch'io per editare. Li aggiorno quando posso!</p>
                             <a href="#" class="resource-link success">
                                 <span>Scarica ora</span>
                                 <i class="fas fa-arrow-right"></i>
@@ -59,7 +59,7 @@ checkBan($mysqli);
                                 <i class="fas fa-film"></i>
                             </div>
                             <h3 class="resource-title">Clip & Flowframe</h3>
-                            <p class="resource-description">Materiale video di qualità e tool per la fluidità dei frame. Tutto ciò che serve per creare edit professionali.</p>
+                            <p class="resource-description">Video clips e tool per rendere i tuoi edit più fluidi. Tutto quello che ti serve per fare edit fighi.</p>
                             <a href="#" class="resource-link warning">
                                 <span>Scopri le risorse</span>
                                 <i class="fas fa-arrow-right"></i>
@@ -71,7 +71,7 @@ checkBan($mysqli);
                                 <i class="fas fa-layer-group"></i>
                             </div>
                             <h3 class="resource-title">Overlay</h3>
-                            <p class="resource-description">Effetti visivi premium e overlay di alta qualità per arricchire i tuoi contenuti creativi.</p>
+                            <p class="resource-description">Effetti visivi e overlay carini per dare quel tocco in più ai tuoi video.</p>
                             <a href="#" class="resource-link info">
                                 <span>Visualizza overlay</span>
                                 <i class="fas fa-arrow-right"></i>
@@ -83,7 +83,7 @@ checkBan($mysqli);
                                 <i class="fas fa-music"></i>
                             </div>
                             <h3 class="resource-title">Audio</h3>
-                            <p class="resource-description">Libreria completa di effetti sonori e tracce musicali per i tuoi progetti.</p>
+                            <p class="resource-description">Una collezione di effetti sonori e musiche che ho raccolto per i miei edit.</p>
                             <a href="#" class="resource-link danger">
                                 <span>Ascolta ora</span>
                                 <i class="fas fa-arrow-right"></i>
@@ -95,7 +95,7 @@ checkBan($mysqli);
                                 <i class="fas fa-file-archive"></i>
                             </div>
                             <h3 class="resource-title">Progetti</h3>
-                            <p class="resource-description">File di progetto completi e template pronti all'uso per accelerare il tuo processo creativo.</p>
+                            <p class="resource-description">File di progetto completi e template già pronti che puoi modificare e usare come vuoi.</p>
                             <a href="#" class="resource-link secondary">
                                 <span>Ottieni progetti</span>
                                 <i class="fas fa-arrow-right"></i>
