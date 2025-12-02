@@ -3,6 +3,19 @@ require_once '../../config/session_init.php';
 require_once '../../config/database.php';
 require_once '../../includes/functions.php';
 checkBan($mysqli);
+
+if (!isLoggedIn()) {
+    $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
+    $_SESSION['login_message'] = "Per accedere alla sezione editing devi essere loggato";
+
+    header('Location: accedi');
+    exit();
+}
+
+if (!isOwner()) {
+    http_response_code(403);
+    exit('Non autorizzato, scemo');
+}
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -22,7 +35,6 @@ checkBan($mysqli);
         <div class="container-fluid py-5">
             <div class="row justify-content-center">
                 <div class="col-lg-11">
-                    <!-- Page Header -->
                     <div class="page-header">
                         <div class="page-icon-wrapper">
                             <i class="fas fa-file-archive page-icon"></i>
@@ -33,7 +45,6 @@ checkBan($mysqli);
                             <i class="fab fa-adobe"></i> After Effects
                         </div>
 
-                        <!-- Search & Filter Bar -->
                         <div class="filter-bar">
                             <div class="search-box">
                                 <i class="fas fa-search"></i>

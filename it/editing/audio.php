@@ -3,6 +3,21 @@ require_once '../../config/session_init.php';
 require_once '../../config/database.php';
 require_once '../../includes/functions.php';
 checkBan($mysqli);
+
+
+if (!isLoggedIn()) {
+    $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
+    $_SESSION['login_message'] = "Per accedere alla sezione editing devi essere loggato";
+
+    header('Location: accedi');
+    exit();
+}
+
+if (!isOwner()) {
+    http_response_code(403);
+    exit('Non autorizzato, scemo');
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="it">
