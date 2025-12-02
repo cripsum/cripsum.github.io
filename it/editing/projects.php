@@ -10,7 +10,7 @@ checkBan($mysqli);
 <head>
     <?php include '../../includes/head-import.php'; ?>
     <link rel="stylesheet" href="../../css/editing.css">
-    <link rel="stylesheet" href="../../css/pages.css">
+    <link rel="stylesheet" href="../../css/editing-pages.css">
     <title>Cripsum™ - Progetti</title>
 </head>
 
