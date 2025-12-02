@@ -5,10 +5,11 @@ require_once '../../includes/functions.php';
 checkBan($mysqli);
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 
 <head>
     <?php include '../../includes/head-import.php'; ?>
+    <link rel="stylesheet" href="../../css/editing.css">
     <title>Editing™ - Home</title>
 </head>
 
@@ -16,100 +17,94 @@ checkBan($mysqli);
     <?php include '../../includes/navbar.php'; ?>
     <?php include '../../includes/impostazioni.php'; ?>
 
-    <div class="container-fluid py-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="text-center mb-5">
-                    <h1 class="display-4 fw-bold text-primary">Welcome to Editing™</h1>
-                    <p class="lead text-muted">Your ultimate destination for creative editing resources</p>
-                </div>
-                
-                <div class="row g-4">
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 shadow-sm border-0">
-                            <div class="card-body text-center p-4">
-                                <div class="mb-3">
-                                    <i class="fas fa-graduation-cap fa-3x text-primary"></i>
-                                </div>
-                                <h5 class="card-title">Tutorials</h5>
-                                <p class="card-text text-muted">Learn editing techniques with our comprehensive guides and step-by-step tutorials.</p>
-                                <a href="#" class="btn btn-outline-primary">Explore Tutorials</a>
+    <div class="editing-section">
+        <div class="container-fluid py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="editing-content">
+                        <h1 class="editing-title">Benvenuto su Editing™</h1>
+                        <p class="editing-subtitle">La piattaforma completa per i tuoi progetti creativi</p>
+                    </div>
+
+                    <div class="resources-grid">
+                        <div class="resource-card">
+                            <div class="resource-icon">
+                                <i class="fas fa-graduation-cap"></i>
                             </div>
+                            <h3 class="resource-title">Tutorial</h3>
+                            <p class="resource-description">Guide dettagliate e tutorial passo-passo per padroneggiare le tecniche di editing più avanzate.</p>
+                            <a href="#" class="resource-link">
+                                <span>Esplora i tutorial</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+
+                        <div class="resource-card">
+                            <div class="resource-icon success">
+                                <i class="fas fa-download"></i>
+                            </div>
+                            <h3 class="resource-title">Download</h3>
+                            <p class="resource-description">Software, plugin e strumenti professionali sempre aggiornati per il tuo workflow creativo.</p>
+                            <a href="#" class="resource-link success">
+                                <span>Scarica ora</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+
+                        <div class="resource-card">
+                            <div class="resource-icon warning">
+                                <i class="fas fa-palette"></i>
+                            </div>
+                            <h3 class="resource-title">Preset</h3>
+                            <p class="resource-description">Collezione curata di preset professionali per dare ai tuoi progetti uno stile unico e distintivo.</p>
+                            <a href="#" class="resource-link warning">
+                                <span>Scopri i preset</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+
+                        <div class="resource-card">
+                            <div class="resource-icon info">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                            <h3 class="resource-title">Overlay</h3>
+                            <p class="resource-description">Effetti visivi premium e overlay di alta qualità per arricchire i tuoi contenuti creativi.</p>
+                            <a href="#" class="resource-link info">
+                                <span>Visualizza overlay</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+
+                        <div class="resource-card">
+                            <div class="resource-icon danger">
+                                <i class="fas fa-music"></i>
+                            </div>
+                            <h3 class="resource-title">Audio</h3>
+                            <p class="resource-description">Libreria completa di effetti sonori e tracce musicali royalty-free per i tuoi progetti.</p>
+                            <a href="#" class="resource-link danger">
+                                <span>Ascolta ora</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+
+                        <div class="resource-card">
+                            <div class="resource-icon secondary">
+                                <i class="fas fa-file-archive"></i>
+                            </div>
+                            <h3 class="resource-title">Progetti</h3>
+                            <p class="resource-description">File di progetto completi e template pronti all'uso per accelerare il tuo processo creativo.</p>
+                            <a href="#" class="resource-link secondary">
+                                <span>Ottieni progetti</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
                         </div>
                     </div>
-                    
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 shadow-sm border-0">
-                            <div class="card-body text-center p-4">
-                                <div class="mb-3">
-                                    <i class="fas fa-download fa-3x text-success"></i>
-                                </div>
-                                <h5 class="card-title">Downloads</h5>
-                                <p class="card-text text-muted">Get the latest programs, plugins, and tools for professional editing.</p>
-                                <a href="#" class="btn btn-outline-success">Download Now</a>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 shadow-sm border-0">
-                            <div class="card-body text-center p-4">
-                                <div class="mb-3">
-                                    <i class="fas fa-palette fa-3x text-warning"></i>
-                                </div>
-                                <h5 class="card-title">Presets</h5>
-                                <p class="card-text text-muted">Enhance your projects with our curated collection of editing presets.</p>
-                                <a href="#" class="btn btn-outline-warning">Browse Presets</a>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 shadow-sm border-0">
-                            <div class="card-body text-center p-4">
-                                <div class="mb-3">
-                                    <i class="fas fa-layer-group fa-3x text-info"></i>
-                                </div>
-                                <h5 class="card-title">Overlays</h5>
-                                <p class="card-text text-muted">Add visual flair to your content with our premium overlay collection.</p>
-                                <a href="#" class="btn btn-outline-info">View Overlays</a>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 shadow-sm border-0">
-                            <div class="card-body text-center p-4">
-                                <div class="mb-3">
-                                    <i class="fas fa-music fa-3x text-danger"></i>
-                                </div>
-                                <h5 class="card-title">Audio Assets</h5>
-                                <p class="card-text text-muted">Discover high-quality sound effects and music tracks for your projects.</p>
-                                <a href="#" class="btn btn-outline-danger">Listen Now</a>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 shadow-sm border-0">
-                            <div class="card-body text-center p-4">
-                                <div class="mb-3">
-                                    <i class="fas fa-file-archive fa-3x text-secondary"></i>
-                                </div>
-                                <h5 class="card-title">Project Files</h5>
-                                <p class="card-text text-muted">Download complete project files and templates to jumpstart your creativity.</p>
-                                <a href="#" class="btn btn-outline-secondary">Get Projects</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="text-center mt-5">
-                    <div class="row justify-content-center">
-                        <div class="col-lg-8">
-                            <h3 class="mb-3">Ready to elevate your editing game?</h3>
-                            <p class="text-muted mb-4">Join thousands of creators who trust Editing™ for their creative resources. Whether you're a beginner or a professional, we have everything you need to bring your vision to life.</p>
-                            <button class="btn btn-primary btn-lg">Get Started</button>
+
+                    <div class="cta-section">
+                        <div class="cta-content">
+                            <h2 class="cta-title">Porta il tuo editing al livello successivo</h2>
+                            <p class="cta-description">Unisciti a migliaia di creator che si affidano a Editing™ per le loro risorse creative. Che tu sia alle prime armi o un professionista esperto, abbiamo tutto ciò che ti serve per trasformare le tue idee in realtà.</p>
+                            <button class="cta-button">Inizia ora</button>
                         </div>
                     </div>
                 </div>

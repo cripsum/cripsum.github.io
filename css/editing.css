@@ -1,0 +1,420 @@
+/* ==========================================
+   EDITING™ - MINIMAL GRAY THEME
+   ========================================== */
+
+:root {
+    --gray-50: #fafafa;
+    --gray-100: #f5f5f5;
+    --gray-200: #e5e5e5;
+    --gray-300: #d4d4d4;
+    --gray-400: #a3a3a3;
+    --gray-500: #737373;
+    --gray-600: #525252;
+    --gray-700: #404040;
+    --gray-800: #262626;
+    --gray-900: #171717;
+
+    --primary: #3b82f6;
+    --primary-dark: #2563eb;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --info: #06b6d4;
+    --danger: #ef4444;
+    --secondary: #6b7280;
+
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================
+   HERO SECTION
+   ========================================== */
+
+.editing-section {
+    background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-50) 100%);
+    min-height: 100vh;
+    padding: 4rem 0;
+}
+
+.editing-content {
+    text-align: center;
+    margin-bottom: 5rem;
+    padding: 2rem 0;
+}
+
+.editing-title {
+    font-size: 4rem;
+    font-weight: 800;
+    color: var(--gray-900);
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+}
+
+.editing-subtitle {
+    font-size: 1.5rem;
+    color: var(--gray-600);
+    font-weight: 400;
+    margin: 0;
+}
+
+/* ==========================================
+   RESOURCES GRID
+   ========================================== */
+
+.resources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    margin-bottom: 5rem;
+}
+
+.resource-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2.5rem;
+    transition: var(--transition);
+    border: 1px solid var(--gray-200);
+    position: relative;
+    overflow: hidden;
+}
+
+.resource-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--gray-300);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: var(--transition);
+}
+
+.resource-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    border-color: var(--gray-300);
+}
+
+.resource-card:hover::before {
+    transform: scaleX(1);
+}
+
+/* ==========================================
+   RESOURCE ICONS
+   ========================================== */
+
+.resource-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--gray-100);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    transition: var(--transition);
+}
+
+.resource-icon i {
+    font-size: 2rem;
+    color: var(--gray-700);
+    transition: var(--transition);
+}
+
+.resource-card:hover .resource-icon {
+    background: var(--gray-900);
+    transform: rotate(5deg) scale(1.05);
+}
+
+.resource-card:hover .resource-icon i {
+    color: white;
+}
+
+/* Icon Variants */
+.resource-icon.success {
+    background: rgba(16, 185, 129, 0.1);
+}
+.resource-icon.success i {
+    color: var(--success);
+}
+.resource-card:hover .resource-icon.success {
+    background: var(--success);
+}
+
+.resource-icon.warning {
+    background: rgba(245, 158, 11, 0.1);
+}
+.resource-icon.warning i {
+    color: var(--warning);
+}
+.resource-card:hover .resource-icon.warning {
+    background: var(--warning);
+}
+
+.resource-icon.info {
+    background: rgba(6, 182, 212, 0.1);
+}
+.resource-icon.info i {
+    color: var(--info);
+}
+.resource-card:hover .resource-icon.info {
+    background: var(--info);
+}
+
+.resource-icon.danger {
+    background: rgba(239, 68, 68, 0.1);
+}
+.resource-icon.danger i {
+    color: var(--danger);
+}
+.resource-card:hover .resource-icon.danger {
+    background: var(--danger);
+}
+
+.resource-icon.secondary {
+    background: rgba(107, 114, 128, 0.1);
+}
+.resource-icon.secondary i {
+    color: var(--secondary);
+}
+.resource-card:hover .resource-icon.secondary {
+    background: var(--secondary);
+}
+
+.resource-card:hover .resource-icon i {
+    color: white;
+}
+
+/* ==========================================
+   RESOURCE CONTENT
+   ========================================== */
+
+.resource-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 1rem;
+    letter-spacing: -0.01em;
+}
+
+.resource-description {
+    font-size: 1rem;
+    color: var(--gray-600);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+}
+
+/* ==========================================
+   RESOURCE LINKS
+   ========================================== */
+
+.resource-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gray-700);
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition);
+    font-size: 0.95rem;
+}
+
+.resource-link i {
+    transition: var(--transition);
+    font-size: 0.9rem;
+}
+
+.resource-link:hover {
+    gap: 0.75rem;
+    color: var(--gray-900);
+}
+
+.resource-link:hover i {
+    transform: translateX(4px);
+}
+
+/* Link Variants */
+.resource-link.success {
+    color: var(--success);
+}
+.resource-link.success:hover {
+    color: var(--success);
+}
+
+.resource-link.warning {
+    color: var(--warning);
+}
+.resource-link.warning:hover {
+    color: var(--warning);
+}
+
+.resource-link.info {
+    color: var(--info);
+}
+.resource-link.info:hover {
+    color: var(--info);
+}
+
+.resource-link.danger {
+    color: var(--danger);
+}
+.resource-link.danger:hover {
+    color: var(--danger);
+}
+
+.resource-link.secondary {
+    color: var(--secondary);
+}
+.resource-link.secondary:hover {
+    color: var(--secondary);
+}
+
+/* ==========================================
+   CTA SECTION
+   ========================================== */
+
+.cta-section {
+    background: var(--gray-900);
+    border-radius: 24px;
+    padding: 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+.cta-content {
+    position: relative;
+    z-index: 1;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.cta-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+.cta-description {
+    font-size: 1.125rem;
+    color: var(--gray-300);
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+}
+
+.cta-button {
+    background: white;
+    color: var(--gray-900);
+    border: none;
+    padding: 1rem 3rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    background: var(--gray-100);
+}
+
+.cta-button:active {
+    transform: translateY(0);
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+@media (max-width: 1200px) {
+    .editing-title {
+        font-size: 3.5rem;
+    }
+
+    .resources-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .editing-title {
+        font-size: 2.5rem;
+    }
+
+    .editing-subtitle {
+        font-size: 1.25rem;
+    }
+
+    .editing-content {
+        margin-bottom: 3rem;
+    }
+
+    .resources-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .resource-card {
+        padding: 2rem;
+    }
+
+    .cta-section {
+        padding: 3rem 2rem;
+    }
+
+    .cta-title {
+        font-size: 2rem;
+    }
+
+    .cta-description {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .editing-title {
+        font-size: 2rem;
+    }
+
+    .editing-subtitle {
+        font-size: 1.125rem;
+    }
+
+    .resource-icon {
+        width: 70px;
+        height: 70px;
+    }
+
+    .resource-icon i {
+        font-size: 1.75rem;
+    }
+
+    .resource-title {
+        font-size: 1.25rem;
+    }
+
+    .cta-button {
+        width: 100%;
+        padding: 1rem 2rem;
+    }
+}
