@@ -367,6 +367,12 @@
     border: 2px solid transparent;
 }
 
+.btn-primary.full-width,
+.btn-secondary.full-width {
+    flex: none;
+    width: 100%;
+}
+
 .btn-primary {
     background: var(--gray-900);
     color: var(--gray-100);
