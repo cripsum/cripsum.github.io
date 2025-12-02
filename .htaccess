@@ -21,26 +21,12 @@ AddDefaultCharset UTF-8
   Deny from all
 </FilesMatch>
 
-RewriteEngine On
-RewriteRule ^user/([a-zA-Z0-9_]+)$ user.php?username=$1 [L,QSA]
-
-RewriteCond %{REQUEST_FILENAME} -f
-RewriteRule ^ - [L]
-
-# NON riscrivere cartelle fisiche esistenti
+RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# Escludi cartelle statiche (assets)
-RewriteCond %{REQUEST_URI} !^/(css|js|img|audio|vid|api|config|includes|data|mc|random stuff|secure|user)/
+RewriteRule ^it/(.+)$ /$1 [R=302,L]
 
-# Escludi file statici generici
-RewriteCond %{REQUEST_URI} !\.(css|js|png|jpg|jpeg|gif|webp|svg|ico|webm|mp4|ogg|wav|json|txt|html|woff|woff2)$
-
-# Evita loop: non riscrivere se già dentro /it
 RewriteCond %{REQUEST_URI} !^/it/
 
-# URL pulita → usa /it come sorgente
 RewriteRule ^(.+)$ /it/$1 [L]
-
-# Se l'utente apre /it/... → mostra /...
