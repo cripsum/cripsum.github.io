@@ -10,7 +10,7 @@ checkBan($mysqli);
 <head>
     <?php include '../../includes/head-import.php'; ?>
     <link rel="stylesheet" href="../../css/editing.css">
-    <title>Editing™ - Home</title>
+    <title>Cripsum™ - Editing Home</title>
 </head>
 
 <body>
@@ -22,19 +22,22 @@ checkBan($mysqli);
             <div class="row justify-content-center">
                 <div class="col-lg-10">
                     <div class="editing-content">
-                        <h1 class="editing-title">Benvenuto su Editing™</h1>
+                        <h1 class="editing-title">Benvenuto su Cripsum™</h1>
                         <p class="editing-subtitle">La piattaforma completa per i tuoi progetti creativi</p>
+                        <div class="free-banner">
+                            <p class="free-text"><i class="fas fa-gift"></i> E la cosa migliore? È tutto completamente gratuito! :P</p>
+                        </div>
                     </div>
 
                     <div class="resources-grid">
                         <div class="resource-card">
                             <div class="resource-icon">
-                                <i class="fas fa-graduation-cap"></i>
+                                <i class="fas fa-book-open"></i>
                             </div>
-                            <h3 class="resource-title">Tutorial</h3>
-                            <p class="resource-description">Guide dettagliate e tutorial passo-passo per padroneggiare le tecniche di editing più avanzate.</p>
+                            <h3 class="resource-title">Tutorial & Preset</h3>
+                            <p class="resource-description">Guide complete con preset professionali inclusi. Impara le tecniche avanzate e applica subito gli effetti ai tuoi progetti.</p>
                             <a href="#" class="resource-link">
-                                <span>Esplora i tutorial</span>
+                                <span>Inizia ad imparare</span>
                                 <i class="fas fa-arrow-right"></i>
                             </a>
                         </div>
@@ -53,12 +56,12 @@ checkBan($mysqli);
 
                         <div class="resource-card">
                             <div class="resource-icon warning">
-                                <i class="fas fa-palette"></i>
+                                <i class="fas fa-film"></i>
                             </div>
-                            <h3 class="resource-title">Preset</h3>
-                            <p class="resource-description">Collezione curata di preset professionali per dare ai tuoi progetti uno stile unico e distintivo.</p>
+                            <h3 class="resource-title">Clip & Flowframe</h3>
+                            <p class="resource-description">Materiale video di qualità e tool per la fluidità dei frame. Tutto ciò che serve per creare edit professionali.</p>
                             <a href="#" class="resource-link warning">
-                                <span>Scopri i preset</span>
+                                <span>Scopri le risorse</span>
                                 <i class="fas fa-arrow-right"></i>
                             </a>
                         </div>
@@ -80,7 +83,7 @@ checkBan($mysqli);
                                 <i class="fas fa-music"></i>
                             </div>
                             <h3 class="resource-title">Audio</h3>
-                            <p class="resource-description">Libreria completa di effetti sonori e tracce musicali royalty-free per i tuoi progetti.</p>
+                            <p class="resource-description">Libreria completa di effetti sonori e tracce musicali per i tuoi progetti.</p>
                             <a href="#" class="resource-link danger">
                                 <span>Ascolta ora</span>
                                 <i class="fas fa-arrow-right"></i>
@@ -102,9 +105,9 @@ checkBan($mysqli);
 
                     <div class="cta-section">
                         <div class="cta-content">
-                            <h2 class="cta-title">Porta il tuo editing al livello successivo</h2>
-                            <p class="cta-description">Unisciti a migliaia di creator che si affidano a Editing™ per le loro risorse creative. Che tu sia alle prime armi o un professionista esperto, abbiamo tutto ciò che ti serve per trasformare le tue idee in realtà.</p>
-                            <button class="cta-button">Inizia ora</button>
+                            <h2 class="cta-title">Un progetto fatto con passione</h2>
+                            <p class="cta-description">Questo è un piccolo progetto personale creato con l'idea di condividere risorse utili per l'editing. Non sono un esperto, ma spero che possa essere d'aiuto a chi come me ama sperimentare e imparare cose nuove nel mondo creativo.</p>
+                            <button class="cta-button">Esplora</button>
                         </div>
                     </div>
                 </div>

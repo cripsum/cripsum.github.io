@@ -110,7 +110,7 @@
 
 .resource-card:hover .resource-icon {
     background: var(--gray-900);
-    transform: rotate(5deg) scale(1.05);
+    transform: scale(1.05);
 }
 
 .resource-card:hover .resource-icon i {
@@ -385,5 +385,65 @@
     .cta-button {
         width: 100%;
         padding: 1rem 2rem;
+    }
+}
+
+.free-banner {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    border-radius: 12px;
+    padding: 20px 30px;
+    margin: 30px 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.free-text {
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+    text-align: center;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.free-text i {
+    margin-right: 10px;
+    font-size: 1.3rem;
+    animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    50% {
+        transform: scale(1.02);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+}
+
+@keyframes bounce {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+@media (max-width: 768px) {
+    .free-banner {
+        padding: 15px 20px;
+    }
+
+    .free-text {
+        font-size: 1rem;
+    }
+
+    .free-text i {
+        font-size: 1.1rem;
     }
 }
