@@ -36,7 +36,7 @@ checkBan($mysqli);
                             </div>
                             <h3 class="resource-title">Tutorial & Preset</h3>
                             <p class="resource-description">Guide semplici con preset pronti da usare. Impara qualche tecnica interessante e prova subito gli effetti nei tuoi video.</p>
-                            <a href="#" class="resource-link">
+                            <a href="tutorials" class="resource-link">
                                 <span>Inizia ad imparare</span>
                                 <i class="fas fa-arrow-right"></i>
                             </a>
@@ -48,7 +48,7 @@ checkBan($mysqli);
                             </div>
                             <h3 class="resource-title">Download</h3>
                             <p class="resource-description">Software, plugin e strumenti utili che uso anch'io per editare. Li aggiorno quando posso!</p>
-                            <a href="#" class="resource-link success">
+                            <a href="downloads" class="resource-link success">
                                 <span>Scarica ora</span>
                                 <i class="fas fa-arrow-right"></i>
                             </a>
@@ -60,7 +60,7 @@ checkBan($mysqli);
                             </div>
                             <h3 class="resource-title">Clip & Flowframe</h3>
                             <p class="resource-description">Flowframe anime, clip da film e serie TV, animazioni manga e tanto altro per creare i tuoi edit.</p>
-                            <a href="#" class="resource-link warning">
+                            <a href="clips" class="resource-link warning">
                                 <span>Scopri le risorse</span>
                                 <i class="fas fa-arrow-right"></i>
                             </a>
@@ -72,7 +72,7 @@ checkBan($mysqli);
                             </div>
                             <h3 class="resource-title">Overlay</h3>
                             <p class="resource-description">Effetti visivi e overlay carini per dare quel tocco in più ai tuoi video.</p>
-                            <a href="#" class="resource-link info">
+                            <a href="overlays" class="resource-link info">
                                 <span>Visualizza overlay</span>
                                 <i class="fas fa-arrow-right"></i>
                             </a>
@@ -84,7 +84,7 @@ checkBan($mysqli);
                             </div>
                             <h3 class="resource-title">Audio</h3>
                             <p class="resource-description">Una collezione di effetti sonori e musiche che ho raccolto per i miei edit.</p>
-                            <a href="#" class="resource-link danger">
+                            <a href="audio" class="resource-link danger">
                                 <span>Ascolta ora</span>
                                 <i class="fas fa-arrow-right"></i>
                             </a>
@@ -96,7 +96,7 @@ checkBan($mysqli);
                             </div>
                             <h3 class="resource-title">Progetti</h3>
                             <p class="resource-description">File di progetto completi e template già pronti che puoi modificare e usare come vuoi.</p>
-                            <a href="#" class="resource-link secondary">
+                            <a href="projects" class="resource-link secondary">
                                 <span>Ottieni progetti</span>
                                 <i class="fas fa-arrow-right"></i>
                             </a>
