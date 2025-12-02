@@ -26,6 +26,6 @@ RewriteRule ^user/([a-zA-Z0-9_]+)$ user.php?username=$1 [L,QSA]
 
 
 RewriteCond %{REQUEST_URI} !^/it/
-RewriteRule ^(.+)$ /it/$1 [L]
+RewriteCond %{REQUEST_URI} !\.(jpg|png|css|js|gif|ico)$
 
-RewriteRule ^it/(.+)$ /$1 [R=302,L]
+RewriteRule ^(.*)$ /it/$1 [L]
