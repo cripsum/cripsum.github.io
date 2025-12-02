@@ -64,7 +64,7 @@ if (!isOwner()) {
                     <div class="content-grid">
                         <div class="content-card">
                             <div class="card-thumbnail">
-                                <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Trap+Beats" alt="Audio">
+                                <img src="/img/eiopago.jpg" alt="Audio">
                                 <div class="card-overlay">
                                     <span class="difficulty-badge beginner">Musica</span>
                                 </div>
@@ -95,7 +95,7 @@ if (!isOwner()) {
 
                         <div class="content-card">
                             <div class="card-thumbnail">
-                                <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Sound+FX" alt="Audio">
+                                <img src="/img/eiopago.jpg" alt="Audio">
                                 <div class="card-overlay">
                                     <span class="difficulty-badge intermediate">SFX</span>
                                 </div>
@@ -126,7 +126,7 @@ if (!isOwner()) {
 
                         <div class="content-card">
                             <div class="card-thumbnail">
-                                <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Lo-Fi+Beats" alt="Audio">
+                                <img src="/img/eiopago.jpg" alt="Audio">
                                 <div class="card-overlay">
                                     <span class="difficulty-badge beginner">Musica</span>
                                 </div>
@@ -157,7 +157,7 @@ if (!isOwner()) {
 
                         <div class="content-card">
                             <div class="card-thumbnail">
-                                <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Glitch+SFX" alt="Audio">
+                                <img src="/img/eiopago.jpg" alt="Audio">
                                 <div class="card-overlay">
                                     <span class="difficulty-badge intermediate">SFX</span>
                                 </div>
@@ -188,7 +188,7 @@ if (!isOwner()) {
 
                         <div class="content-card">
                             <div class="card-thumbnail">
-                                <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Epic+Music" alt="Audio">
+                                <img src="/img/eiopago.jpg" alt="Audio">
                                 <div class="card-overlay">
                                     <span class="difficulty-badge beginner">Musica</span>
                                 </div>
@@ -219,7 +219,7 @@ if (!isOwner()) {
 
                         <div class="content-card">
                             <div class="card-thumbnail">
-                                <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Ambient+Sounds" alt="Audio">
+                                <img src="/img/eiopago.jpg" alt="Audio">
                                 <div class="card-overlay">
                                     <span class="difficulty-badge advanced">Ambient</span>
                                 </div>

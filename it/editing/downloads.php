@@ -62,7 +62,7 @@ if (!isOwner()) {
                     <div class="content-grid">
                         <div class="content-card">
                             <div class="card-thumbnail">
-                                <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Plugin" alt="Download">
+                                <img src="/img/eiopago.jpg" alt="Download">
                                 <div class="card-overlay">
                                     <span class="difficulty-badge beginner">Gratis</span>
                                 </div>
@@ -90,7 +90,7 @@ if (!isOwner()) {
 
                         <div class="content-card">
                             <div class="card-thumbnail">
-                                <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Plugin" alt="Download">
+                                <img src="/img/eiopago.jpg" alt="Download">
                                 <div class="card-overlay">
                                     <span class="difficulty-badge beginner">Gratis</span>
                                 </div>
@@ -118,7 +118,7 @@ if (!isOwner()) {
 
                         <div class="content-card">
                             <div class="card-thumbnail">
-                                <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Script" alt="Download">
+                                <img src="/img/eiopago.jpg" alt="Download">
                                 <div class="card-overlay">
                                     <span class="difficulty-badge beginner">Gratis</span>
                                 </div>
@@ -146,7 +146,7 @@ if (!isOwner()) {
 
                         <div class="content-card">
                             <div class="card-thumbnail">
-                                <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Plugin" alt="Download">
+                                <img src="/img/eiopago.jpg" alt="Download">
                                 <div class="card-overlay">
                                     <span class="difficulty-badge intermediate">Premium</span>
                                 </div>
@@ -174,7 +174,7 @@ if (!isOwner()) {
 
                         <div class="content-card">
                             <div class="card-thumbnail">
-                                <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Software" alt="Download">
+                                <img src="/img/eiopago.jpg" alt="Download">
                                 <div class="card-overlay">
                                     <span class="difficulty-badge advanced">Trial</span>
                                 </div>
@@ -202,7 +202,7 @@ if (!isOwner()) {
 
                         <div class="content-card">
                             <div class="card-thumbnail">
-                                <img src="https://via.placeholder.com/400x250/262626/d4d4d4?text=Script" alt="Download">
+                                <img src="/img/eiopago.jpg" alt="Download">
                                 <div class="card-overlay">
                                     <span class="difficulty-badge beginner">Gratis</span>
                                 </div>
