@@ -68,16 +68,16 @@ if (!isOwner()) {
                                 </div>
                             </div>
                             <div class="card-content">
-                                <h3 class="card-title">Motion Bro</h3>
+                                <h3 class="card-title">After Effects</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-cube"></i> Plugin
+                                    <i class="fas fa-cube"></i> Software
                                     <span class="divider">•</span>
                                     <i class="fas fa-download"></i> 1.2k
                                 </p>
-                                <p class="card-description">Libreria completa di preset, template ed effetti pronti all'uso direttamente in After Effects.</p>
+                                <p class="card-description">Il software di riferimento per animazioni, effetti visivi e motion graphics professionale.</p>
                                 <div class="card-tags">
-                                    <span class="tag">Preset</span>
-                                    <span class="tag">Template</span>
+                                    <span class="tag">Software</span>
+                                    <span class="tag">Editing</span>
                                     <span class="tag">Gratuito</span>
                                 </div>
                                 <div class="card-actions">
