@@ -41,9 +41,9 @@ if (!isOwner()) {
                         </div>
                         <h1 class="page-title">Clip & Flowframe</h1>
                         <p class="page-description">Materiale video di qualità e tool per la fluidità dei frame per creare edit professionali</p>
-                        <div class="software-badge">
+                        <!-- <div class="software-badge">
                             <i class="fas fa-video"></i> Material & Tools
-                        </div>
+                        </div> -->
 
                         <div class="filter-bar">
                             <div class="search-box">

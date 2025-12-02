@@ -41,9 +41,9 @@ if (!isOwner()) {
                         </div>
                         <h1 class="page-title">Tutorial & Preset</h1>
                         <p class="page-description">Impara le tecniche di editing più avanzate in After Effects e applica subito i preset professionali ai tuoi progetti</p>
-                        <div class="software-badge">
+                        <!-- <div class="software-badge">
                             <i class="fab fa-adobe"></i> After Effects
-                        </div>
+                        </div> -->
 
                         <div class="filter-bar">
                             <div class="search-box">

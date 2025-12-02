@@ -41,9 +41,9 @@ if (!isOwner()) {
                         </div>
                         <h1 class="page-title">Progetti</h1>
                         <p class="page-description">File di progetto completi e template pronti all'uso per accelerare il tuo processo creativo</p>
-                        <div class="software-badge">
+                        <!-- <div class="software-badge">
                             <i class="fab fa-adobe"></i> After Effects
-                        </div>
+                        </div> -->
 
                         <div class="filter-bar">
                             <div class="search-box">

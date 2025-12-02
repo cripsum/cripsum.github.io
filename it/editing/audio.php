@@ -43,9 +43,9 @@ if (!isOwner()) {
                         </div>
                         <h1 class="page-title">Audio</h1>
                         <p class="page-description">Libreria completa di effetti sonori e tracce musicali per i tuoi progetti</p>
-                        <div class="software-badge">
+                        <!-- <div class="software-badge">
                             <i class="fas fa-headphones"></i> Sound Library
-                        </div>
+                        </div> -->
 
                         <div class="filter-bar">
                             <div class="search-box">

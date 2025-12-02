@@ -41,9 +41,9 @@ if (!isOwner()) {
                         </div>
                         <h1 class="page-title">Overlay</h1>
                         <p class="page-description">Effetti visivi premium e overlay di alta qualità per arricchire i tuoi contenuti creativi</p>
-                        <div class="software-badge">
+                        <!-- <div class="software-badge">
                             <i class="fas fa-magic"></i> VFX Assets
-                        </div>
+                        </div> -->
 
                         <div class="filter-bar">
                             <div class="search-box">

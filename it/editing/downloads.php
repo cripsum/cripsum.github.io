@@ -41,9 +41,9 @@ if (!isOwner()) {
                         </div>
                         <h1 class="page-title">Download</h1>
                         <p class="page-description">Software, plugin e strumenti essenziali per After Effects sempre aggiornati</p>
-                        <div class="software-badge">
+                        <!-- <div class="software-badge">
                             <i class="fab fa-adobe"></i> After Effects
-                        </div>
+                        </div> -->
 
                         <div class="filter-bar">
                             <div class="search-box">
