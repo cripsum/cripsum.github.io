@@ -21,12 +21,4 @@ AddDefaultCharset UTF-8
   Deny from all
 </FilesMatch>
 
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
-
-RewriteRule ^it/(.+)$ /$1 [R=302,L]
-
-RewriteCond %{REQUEST_URI} !^/it/
-
-RewriteRule ^(.+)$ /it/$1 [L]
+RewriteRule ^user/([a-zA-Z0-9_]+)$ user.php?username=$1 [L,QSA]
