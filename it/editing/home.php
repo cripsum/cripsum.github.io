@@ -59,7 +59,7 @@ checkBan($mysqli);
                                 <i class="fas fa-film"></i>
                             </div>
                             <h3 class="resource-title">Clip & Flowframe</h3>
-                            <p class="resource-description">Video clips e tool per rendere i tuoi edit più fluidi. Tutto quello che ti serve per fare edit fighi.</p>
+                            <p class="resource-description">Flowframe anime, clip da film e serie TV, animazioni manga e tanto altro per creare i tuoi edit.</p>
                             <a href="#" class="resource-link warning">
                                 <span>Scopri le risorse</span>
                                 <i class="fas fa-arrow-right"></i>
