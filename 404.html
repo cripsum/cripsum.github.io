@@ -12,67 +12,18 @@
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <script>
-            // Funzione per correggere i percorsi relativi
-            function adjustPaths() {
-              const basePath = Array(window.location.pathname.split('/').length - 2).fill('..').join('/');
-              const cssLink = document.createElement('link');
-              const cssLink2 = document.createElement('link');
-              const cssLink3 = document.createElement('link');
 
-              const iconLink = document.createElement('link');
-              const iconShortcutLink = document.createElement('link');
-
-              const scriptLink = document.createElement('script');
-              const scriptLink2 = document.createElement('script');
-              scriptLink2.src = `${basePath}/js/richpresence.js`;
-                document.head.appendChild(scriptLink2);
-              cssLink.rel = 'stylesheet';
-              cssLink.href = `${basePath}/css/style.css`;
-              cssLink2.rel = 'stylesheet';
-              cssLink2.href = `${basePath}/css/style-dark.css`; 
-              cssLink3.rel = 'stylesheet';
-              cssLink3.href = `${basePath}/css/achievement-style.css`; 
-              iconLink.rel = 'icon';
-              iconLink.href = `${basePath}/img/Susremaster.png`;
-              iconLink.type = 'image/png';
-              iconShortcutLink.rel = 'shortcut icon';
-              iconShortcutLink.href = `${basePath}/img/Susremaster.png`;
-              iconShortcutLink.type = 'image/png';
-              scriptLink.src = `${basePath}/js/unlockAchievement-en.js`; 
-              document.head.appendChild(cssLink);
-              document.head.appendChild(cssLink2);
-              document.head.appendChild(cssLink3);
-              document.head.appendChild(scriptLink);
-                document.head.appendChild(iconLink);
-                document.head.appendChild(iconShortcutLink);
-        
-              // Correggi anche altri asset come immagini se necessario
-              const images = document.querySelectorAll('img[data-src]');
-              images.forEach(img => {
-                img.src = `${basePath}/${img.getAttribute('data-src')}`;
-              });
-
-              document.querySelectorAll('link[data-href]').forEach(link => {
-                    link.href = `${basePath}${link.getAttribute('data-href')}`;
-                });
-            }
-
-            
-        
-            document.addEventListener('DOMContentLoaded', adjustPaths);
-
-            setTimeout(() => {
-                unlockAchievement(15);
-            }, 500);
-          </script>
+        <link rel="stylesheet" href="css/style.css" />
+        <link rel="stylesheet" href="css/style-dark.css" />
+        <link rel="stylesheet" href="css/achievement-style.css" />
+        <script src="js/richpresence.js"></script>
         <title>Cripsum™</title>
     </head>
     <body>
         <nav class="navbarutenti navbar navbar-expand-xl">
             <div class="container-fluid">
-                <a class="navbar-brand" href="https://cripsum.com/en/home">
-                    <img data-src="img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
+                <a class="navbar-brand" href="https://cripsum.com/it/home">
+                    <img src="img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
                     <span class="align-middle ms-3 fw-bold" style="color: white">Cripsum™</span>
                 </a>
         </nav>
@@ -81,9 +32,9 @@
                 <h1 class="text text-center mt-3" style="font-weight: bold; ">404</h1>
                 <h1 class="text text-center mt-3">This page doesn't exist.</h1>
                 <p class="text-center mt-3" style="font-size: small"> Seriously bro, where were you trying to go?</p>
-                <img data-src="img/emojithinkingmeme.png" alt="" style="max-width: 100%; margin: auto; display: block;">
+                <img src="img/emojithinkingmeme.png" alt="" style="max-width: 100%; margin: auto; display: block;">
                 <br><br>
-                <p class="text-center mt-3"><a href="https://cripsum.com/en/home" class="linkbianco">Go back to the homepage</a></p>
+                <p class="text-center mt-3"><a href="https://cripsum.com/it/home" class="linkbianco">Go back to the homepage</a></p>
             </div>
         </div>
         <div id="achievement-popup" class="popup">
