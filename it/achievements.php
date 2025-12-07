@@ -756,7 +756,7 @@ checkBan($mysqli);
 
                 case 18:
                     const personaggiCount = window.serverData?.personaggiCount || 0;
-                    const totalCharacters = 84;
+                    const totalCharacters = 85;
                     return {
                         current: Math.min(personaggiCount, totalCharacters),
                             target: totalCharacters,
