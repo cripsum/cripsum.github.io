@@ -100,10 +100,11 @@ if ($result) {
                 Seleziona tipo di contenuto:
             </label>
             <select id="contentType" style="padding: 10px; border-radius: 10px; border: 2px solid #d63384; background: white; color: #d63384; font-weight: bold; display: block; margin: 0 auto; min-width: 200px; text-align: center;">
-                <option value="waifu" style="color: #d63384;">Waifu</option>
-                <option value="neko" style="color: #d63384;">Neko</option>
-                <option value="trap" style="color: #d63384;">Trap</option>
-                <option value="blowjob" style="color: #d63384;">Blowjob</option>
+                <option value="sfw/waifu" style="color: #d63384;">Waifu - sfw</option>
+                <option value="nsfw/waifu" style="color: #d63384;">Waifu - nsfw</option>
+                <option value="nsfw/neko" style="color: #d63384;">Neko - nsfw</option>
+                <option value="nsfw/trap" style="color: #d63384;">Trap - nsfw</option>
+                <option value="nsfw/blowjob" style="color: #d63384;">Blowjob - nsfw</option>
             </select>
         </div>
 
@@ -211,7 +212,6 @@ if ($result) {
             const contentType = document.getElementById('contentType').value;
             const downloadBtn = document.getElementById('downloadBtn');
 
-            // Reset countdown and download button
             downloadBtn.style.display = 'block';
 
             isLoading = true;
@@ -231,7 +231,7 @@ if ($result) {
             }
 
             try {
-                const response = await fetch('https://api.waifu.pics/nsfw/' + contentType);
+                const response = await fetch('https://api.waifu.pics/' + contentType);
                 const data = await response.json();
 
                 const img = new Image();
