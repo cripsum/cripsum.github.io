@@ -506,6 +506,35 @@ function checkBan($mysqli)
     }
 }
 
+function checkPermissions($mysqli, $requiredRole)
+{
+    $rolesHierarchy = ['utente' => 1, 'admin' => 2, 'owner' => 3];
+    
+    if (isLoggedIn()) {
+        $stmt = $mysqli->prepare("SELECT ruolo FROM utenti WHERE id = ?");
+        $stmt->bind_param("i", $_SESSION['user_id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+        $stmt->close();
+        
+        if ($user) {
+            $currentUserRole = $user['ruolo'];
+            $_SESSION['ruolo'] = $currentUserRole;
+        } else {
+            $currentUserRole = 'utente';
+        }
+    } else {
+        $currentUserRole = 'utente';
+    }
+
+    if ($rolesHierarchy[$currentUserRole] < $rolesHierarchy[$requiredRole]) {
+        header('HTTP/1.1 403 Forbidden');
+        echo 'Accesso negato. Non hai i permessi necessari per accedere a questa pagina.';
+        exit();
+    }
+}
+
 function logoutUser()
 {
     session_destroy();

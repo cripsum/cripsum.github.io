@@ -12,6 +12,7 @@ if (!isLoggedIn()) {
     header('Location: accedi');
     exit();
 }
+checkPermissions($mysqli, 'utente');
 
 // if (  === 'utente') {
 //     $_SESSION['error_message'] = "la pagina attualmente è in manutenzione, torna più tardi";
