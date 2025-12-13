@@ -57,12 +57,6 @@ if (isset($_SESSION['user_id'])) {
             padding: 2rem;
         }
 
-        .post-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(100, 200, 255, 0.1);
-            border-color: rgba(100, 200, 255, 0.3);
-        }
-
         .admin-section {
             max-width: 1400px;
             margin: 0 auto;
