@@ -14,14 +14,174 @@ if (!isLoggedIn()) {
 
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <title>Cripsum™ - gambling</title>
+    <title>Cripsum™ - Gambling</title>
     <style>
-        img {
+        .gambling-container {
+            padding-top: 7rem;
+            padding-bottom: 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .account-bar {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 3rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .account-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .account-label {
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .account-value {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .recharge-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .recharge-input {
+            max-width: 180px;
+            border-radius: 8px;
+        }
+
+        .recharge-btn {
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .recharge-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .error-message {
+            color: #dc3545;
+            margin: 0;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        .slot-machine-container {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .slots-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .slot {
+            flex: 0 0 auto;
+            transition: transform 0.3s ease;
+        }
+
+        .slot:hover {
+            transform: scale(1.05);
+        }
+
+        .slot img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 15px;
+            border: 3px solid var(--border-color);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .spin-btn {
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+
+        .spin-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .spin-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed !important;
+        }
+
+        .result-message {
+            margin-top: 2rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 1rem;
             border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .result-message.success {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+
+        .result-message.error {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            .account-bar {
+                padding: 1rem;
+                gap: 1rem;
+            }
+
+            .slot img {
+                width: 150px;
+                height: 150px;
+            }
+
+            .slots-wrapper {
+                gap: 1rem;
+            }
+
+            .slot-machine-container {
+                padding: 2rem 1rem;
+            }
+
+            .spin-btn {
+                padding: 0.8rem 2rem;
+                font-size: 1rem;
+                min-width: 150px;
+            }
         }
     </style>
 </head>
@@ -30,7 +190,7 @@ if (!isLoggedIn()) {
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
-    <div style="padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
+    <div class="gambling-container testobianco">
         <div id="achievement-popup" class="popup">
             <img id="popup-image" src="" alt="Achievement" />
             <div>
@@ -38,119 +198,120 @@ if (!isLoggedIn()) {
                 <p id="popup-description"></p>
             </div>
         </div>
-        <div class="account-bar fadeup" id="account-bar" style="padding-top: 1%; padding-bottom: 1%; margin: auto">
-            <span class="" style="padding-left: 25px; font-weight: bold">Utente: </span>
-            <span class="account-name" style="padding-left: 10px; padding-right: 10px"><?php echo $_SESSION["username"] ?></span>
-            <div style="padding-left: 25px" class="">
-                <span class="" style="font-weight: bold">Saldo: </span>
-                <span class="account-balance" style="padding-left: 10px">$100</span>
-            </div>
-            <input type="number" class="form-control inputricarica" style="margin-left: 25px; max-width: 200px; margin-top: 10px" placeholder="inserisci denaro" aria-label="Last name" />
-            <button class="btn btn-secondary bottone" style="width: 150px; margin-left: 25px; margin-top: 5px" onclick="ricaricasaldo();">Ricarica</button>
 
-            <p class="errorericarica" style="color: red; margin-top: 3px; margin-left: 25px"></p>
+        <div class="account-bar fadeup">
+            <div class="account-info">
+                <span class="account-label">Utente:</span>
+                <span class="account-value"><?php echo htmlspecialchars($_SESSION["username"]) ?></span>
+            </div>
+            <div class="account-info">
+                <span class="account-label">Saldo:</span>
+                <span class="account-value account-balance">$100</span>
+            </div>
+            <div class="recharge-section">
+                <input type="number" class="form-control recharge-input" placeholder="Importo" min="1" />
+                <button class="btn btn-secondary recharge-btn" onclick="ricaricasaldo()">Ricarica</button>
+                <p class="error-message errorericarica"></p>
+            </div>
         </div>
-        <div style="max-width: 1200px; margin: auto">
-            <div id="slot-machine" class="d-flex justify-content-center image-container" style="padding-top: 3%; max-width: 80%; margin: auto">
-                <div class="slot fadeup" style="margin-left: 2%; margin-right: 2%; margin-top: 20px">
-                    <img src="../img/cripsumchisiamo.jpg" class="bordobianco" alt="Image 1" />
+
+        <div class="slot-machine-container fadeup">
+            <div class="slots-wrapper">
+                <div class="slot">
+                    <img src="../img/cripsumchisiamo.jpg" alt="Slot 1" />
                 </div>
-                <div class="slot fadeup" style="margin-left: 2%; margin-right: 2%; margin-top: 20px">
-                    <img src="../img/barandeep.jpg" class="bordobianco" alt="Image 2" />
+                <div class="slot">
+                    <img src="../img/barandeep.jpg" alt="Slot 2" />
                 </div>
-                <div class="slot fadeup" style="margin-left: 2%; margin-right: 2%; margin-top: 20px">
-                    <img src="../img/abdul.jpg" class="bordobianco" alt="Image 3" />
+                <div class="slot">
+                    <img src="../img/abdul.jpg" alt="Slot 3" />
                 </div>
             </div>
 
-            <div class="button-container fadeup" style="text-align: center; margin-top: 3%">
-                <button class="btn btn-secondary bottone" id="spin-btn" onclick="spin()">Spin</button>
+            <div class="text-center">
+                <button class="btn btn-primary spin-btn" id="spin-btn" onclick="spin()">SPIN!</button>
             </div>
-            <p class="text-center erroresoldi" style="margin-top: 3%; color: red"></p>
-            <p class="text-center" id="risultato" style="margin-top: 3%"></p>
+            <p class="error-message text-center erroresoldi"></p>
+            <p id="risultato"></p>
         </div>
     </div>
+
     <?php include '../includes/footer.php'; ?>
     <script src="../js/unlockAchievement-it.js"></script>
     <script>
         let saldoMonitorInterval = null;
 
         function ricaricasaldo() {
-            document.getElementsByClassName("errorericarica")[0].textContent = "";
-            var inputMoney = document.getElementsByClassName("inputricarica")[0].value;
-            if (inputMoney !== "" && inputMoney !== "e") {
-                var currentMoney = document.getElementsByClassName("account-balance")[0].textContent;
-                currentMoney = parseInt(currentMoney.substring(1));
-                var newMoney = currentMoney + parseInt(inputMoney);
-                document.getElementsByClassName("account-balance")[0].textContent = "$" + newMoney;
-                monitorSaldo();
-                document.getElementsByClassName("inputricarica")[0].value = "";
-            } else {
-                document.getElementsByClassName("errorericarica")[0].textContent = "Il campo non può essere vuoto";
+            const errorElement = document.querySelector(".errorericarica");
+            const inputElement = document.querySelector(".recharge-input");
+            const balanceElement = document.querySelector(".account-balance");
+
+            errorElement.textContent = "";
+            const inputMoney = inputElement.value;
+
+            if (!inputMoney || inputMoney === "e" || inputMoney <= 0) {
+                errorElement.textContent = "Inserisci un importo valido";
                 return;
             }
+
+            let currentMoney = parseInt(balanceElement.textContent.substring(1));
+            const newMoney = currentMoney + parseInt(inputMoney);
+            balanceElement.textContent = "$" + newMoney;
+            monitorSaldo();
+            inputElement.value = "";
         }
 
         function spin() {
-            var spinBtn = document.getElementById("spin-btn");
-            var money = document.getElementsByClassName("account-balance")[0].textContent;
-            money = parseInt(money.substring(1));
+            const spinBtn = document.getElementById("spin-btn");
+            const balanceElement = document.querySelector(".account-balance");
+            const resultElement = document.getElementById("risultato");
+            const errorElement = document.querySelector(".erroresoldi");
 
-            if (money >= 10) {
-                money -= 10;
-                document.getElementsByClassName("account-balance")[0].textContent = "$" + money;
-                monitorSaldo();
-            } else {
-                document.getElementsByClassName("erroresoldi")[0].textContent = "Saldo insufficiente! Servono almeno $10";
+            let money = parseInt(balanceElement.textContent.substring(1));
+
+            if (money < 10) {
+                errorElement.textContent = "Saldo insufficiente! Servono almeno $10";
                 return;
             }
 
+            money -= 10;
+            balanceElement.textContent = "$" + money;
+            monitorSaldo();
+
             spinBtn.disabled = true;
             spinBtn.textContent = "SPINNING...";
-            spinBtn.style.cursor = "not-allowed";
+            resultElement.textContent = "";
+            resultElement.className = "";
+            errorElement.textContent = "";
 
-            document.getElementById("risultato").textContent = "";
-            document.getElementsByClassName("erroresoldi")[0].textContent = "";
-            var slots = document.getElementsByClassName("slot");
+            const slots = document.querySelectorAll(".slot img");
+            let randomIndexes = [];
 
-            var randomIndexes = [];
-            for (var i = 0; i < slots.length; i++) {
-                var randomIndex = Math.floor(Math.random() * 9) + 1;
-                randomIndexes.push(randomIndex);
-            }
-
-            for (var i = 0; i < slots.length; i++) {
-                slots[i].getElementsByTagName("img")[0].src = "../img/slott" + randomIndexes[i] + ".jpg";
-            }
-
-            var startTime = Date.now();
-            var interval = setInterval(function() {
-                randomIndexes = [];
-                for (var i = 0; i < slots.length; i++) {
-                    var randomIndex = Math.floor(Math.random() * 9) + 1;
-                    randomIndexes.push(randomIndex);
-                }
-
-                for (var i = 0; i < slots.length; i++) {
-                    slots[i].getElementsByTagName("img")[0].src = "../img/slott" + randomIndexes[i] + ".jpg";
-                }
+            const startTime = Date.now();
+            const interval = setInterval(() => {
+                randomIndexes = Array.from({
+                    length: 3
+                }, () => Math.floor(Math.random() * 9) + 1);
+                slots.forEach((slot, i) => {
+                    slot.src = `../img/slott${randomIndexes[i]}.jpg`;
+                });
 
                 if (Date.now() - startTime >= 2000) {
+                    clearInterval(interval);
+
                     if (randomIndexes[0] === randomIndexes[1] && randomIndexes[1] === randomIndexes[2]) {
-                        document.getElementById("risultato").textContent = "JACKPOT! HAI VINTO $1000!";
-                        document.getElementById("risultato").style.color = "#28a745";
+                        resultElement.textContent = "JACKPOT! HAI VINTO $1000!";
+                        resultElement.className = "result-message success";
                         money += 1000;
-                        document.getElementsByClassName("account-balance")[0].textContent = "$" + money;
+                        balanceElement.textContent = "$" + money;
                         unlockAchievement(3);
                     } else {
-                        document.getElementById("risultato").textContent = "Hai perso scemo! Riprova!";
-                        document.getElementById("risultato").style.color = "#dc3545";
+                        resultElement.textContent = "Hai perso! Riprova!";
+                        resultElement.className = "result-message error";
                     }
 
                     spinBtn.disabled = false;
                     spinBtn.textContent = "SPIN!";
-                    spinBtn.style.cursor = "pointer";
-                    clearInterval(interval);
                 }
             }, 100);
         }
@@ -158,9 +319,9 @@ if (!isLoggedIn()) {
         function monitorSaldo() {
             if (saldoMonitorInterval) return;
 
-            let startTime = Date.now();
-            saldoMonitorInterval = setInterval(function() {
-                let money = parseInt(document.getElementsByClassName("account-balance")[0].textContent.substring(1));
+            const startTime = Date.now();
+            saldoMonitorInterval = setInterval(() => {
+                const money = parseInt(document.querySelector(".account-balance").textContent.substring(1));
 
                 if (money < 10) {
                     unlockAchievement(11);
@@ -174,6 +335,10 @@ if (!isLoggedIn()) {
                 }
             }, 1000);
         }
+
+        document.querySelector(".recharge-input").addEventListener("keypress", (e) => {
+            if (e.key === "Enter") ricaricasaldo();
+        });
     </script>
     <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
