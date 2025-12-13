@@ -289,7 +289,7 @@ if ($result) {
             const btn = document.getElementById('generateBtn');
             const countdown = document.getElementById('countdown');
 
-            let timeLeft = 3;
+            let timeLeft = 2;
 
             const updateCountdown = () => {
                 countdown.textContent = `Attendi ${timeLeft} secondi...`;
