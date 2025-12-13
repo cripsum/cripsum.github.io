@@ -191,7 +191,7 @@ if (isset($_SESSION['user_id'])) {
         }
 
         .comments-toggle {
-            background: linear-gradient(135deg, rgba(30, 144, 255, 0.3), rgba(46, 213, 115, 0.3));
+            background: linear-gradient(135deg, rgba(65, 65, 65, 0.3), rgba(0, 0, 0, 0.3));
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
             padding: 0.5rem 1rem;
@@ -205,7 +205,7 @@ if (isset($_SESSION['user_id'])) {
         }
 
         .comments-toggle:hover {
-            background: linear-gradient(135deg, rgba(30, 144, 255, 0.5), rgba(46, 213, 115, 0.5));
+            background: linear-gradient(135deg, rgba(51, 51, 51, 0.5), rgba(0, 0, 0, 0.5));
             transform: translateY(-2px);
         }
 
@@ -239,7 +239,7 @@ if (isset($_SESSION['user_id'])) {
 
         .comment-input:focus {
             outline: none;
-            border-color: rgba(30, 144, 255, 0.5);
+            border-color: rgba(255, 255, 255, 0.44);
             background: rgba(255, 255, 255, 0.08);
         }
 
