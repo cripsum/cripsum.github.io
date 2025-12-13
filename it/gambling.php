@@ -101,12 +101,12 @@ if (!isLoggedIn()) {
                 document.getElementsByClassName("account-balance")[0].textContent = "$" + money;
                 monitorSaldo();
             } else {
-                document.getElementsByClassName("erroresoldi")[0].textContent = "❌ Saldo insufficiente! Serve almeno $10";
+                document.getElementsByClassName("erroresoldi")[0].textContent = "Saldo insufficiente! Servono almeno $10";
                 return;
             }
 
             spinBtn.disabled = true;
-            spinBtn.textContent = "⏳ SPINNING...";
+            spinBtn.textContent = "SPINNING...";
             spinBtn.style.cursor = "not-allowed";
 
             document.getElementById("risultato").textContent = "";
@@ -137,18 +137,18 @@ if (!isLoggedIn()) {
 
                 if (Date.now() - startTime >= 2000) {
                     if (randomIndexes[0] === randomIndexes[1] && randomIndexes[1] === randomIndexes[2]) {
-                        document.getElementById("risultato").textContent = "🎉 JACKPOT! HAI VINTO $1000! 🎉";
+                        document.getElementById("risultato").textContent = "JACKPOT! HAI VINTO $1000!";
                         document.getElementById("risultato").style.color = "#28a745";
                         money += 1000;
                         document.getElementsByClassName("account-balance")[0].textContent = "$" + money;
                         unlockAchievement(3);
                     } else {
-                        document.getElementById("risultato").textContent = "💸 Hai perso scemo! Riprova la fortuna!";
+                        document.getElementById("risultato").textContent = "Hai perso scemo! Riprova!";
                         document.getElementById("risultato").style.color = "#dc3545";
                     }
 
                     spinBtn.disabled = false;
-                    spinBtn.textContent = "🎰 SPIN!";
+                    spinBtn.textContent = "SPIN!";
                     spinBtn.style.cursor = "pointer";
                     clearInterval(interval);
                 }
