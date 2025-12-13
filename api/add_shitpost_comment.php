@@ -32,7 +32,7 @@ if (strlen($commento) > 500) {
 }
 
 try {
-    $checkStmt = $mysqli->prepare("SELECT id FROM shitpost WHERE id = ?");
+    $checkStmt = $mysqli->prepare("SELECT id FROM shitposts WHERE id = ?");
     $checkStmt->bind_param("i", $shitpost_id);
     $checkStmt->execute();
     $result = $checkStmt->get_result();
