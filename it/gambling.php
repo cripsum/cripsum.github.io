@@ -21,156 +21,193 @@ if (!isLoggedIn()) {
     <title>Cripsum™ - Gambling</title>
     <style>
         .gambling-container {
-            padding-top: 7rem;
-            padding-bottom: 4rem;
-            max-width: 1200px;
+            padding: 8rem 1.5rem 4rem;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
         .account-bar {
-            background: var(--bg-secondary);
-            border-radius: 15px;
-            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 2rem;
             margin-bottom: 3rem;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         .account-info {
             display: flex;
-            align-items: center;
+            flex-direction: column;
             gap: 0.5rem;
         }
 
         .account-label {
-            font-weight: bold;
-            color: var(--text-primary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .account-value {
-            color: var(--accent-color);
+            font-size: 1.5rem;
+            color: #fff;
             font-weight: 600;
+        }
+
+        .account-balance {
+            color: #4ade80;
         }
 
         .recharge-section {
             display: flex;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 0.75rem;
         }
 
         .recharge-input {
-            max-width: 180px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #fff;
             border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .recharge-input:focus {
+            outline: none;
+            border-color: #4ade80;
+            background: #0f0f0f;
         }
 
         .recharge-btn {
+            background: #4ade80;
+            color: #000;
+            border: none;
             border-radius: 8px;
-            padding: 0.5rem 1.5rem;
-            transition: all 0.3s ease;
+            padding: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
         }
 
         .recharge-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background: #22c55e;
         }
 
         .error-message {
-            color: #dc3545;
+            color: #ef4444;
             margin: 0;
-            font-size: 0.9rem;
-            width: 100%;
+            font-size: 0.875rem;
         }
 
         .slot-machine-container {
-            background: var(--bg-secondary);
-            border-radius: 20px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 1px solid #333;
+            border-radius: 12px;
             padding: 3rem 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         .slots-wrapper {
             display: flex;
             justify-content: center;
-            gap: 2rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+            padding: 2rem;
+            background: #0f0f0f;
+            border-radius: 12px;
+            border: 1px solid #222;
         }
 
         .slot {
-            flex: 0 0 auto;
-            transition: transform 0.3s ease;
-        }
-
-        .slot:hover {
-            transform: scale(1.05);
+            position: relative;
         }
 
         .slot img {
-            width: 200px;
-            height: 200px;
+            width: 180px;
+            height: 180px;
             object-fit: cover;
-            border-radius: 15px;
-            border: 3px solid var(--border-color);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            border: 2px solid #333;
+            display: block;
+        }
+
+        .text-center {
+            text-align: center;
         }
 
         .spin-btn {
-            padding: 1rem 3rem;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-            min-width: 200px;
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            color: #000;
+            border: none;
+            padding: 1rem 4rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(74, 222, 128, 0.3);
         }
 
         .spin-btn:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 6px 20px rgba(74, 222, 128, 0.4);
+        }
+
+        .spin-btn:active:not(:disabled) {
+            transform: scale(0.98);
         }
 
         .spin-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed !important;
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+            box-shadow: none;
         }
 
         .result-message {
             margin-top: 2rem;
-            font-size: 1.5rem;
-            font-weight: bold;
+            font-size: 1.25rem;
+            font-weight: 600;
             text-align: center;
             padding: 1rem;
-            border-radius: 10px;
-            transition: all 0.3s ease;
+            border-radius: 8px;
         }
 
         .result-message.success {
-            background: rgba(40, 167, 69, 0.1);
-            color: #28a745;
+            background: rgba(74, 222, 128, 0.1);
+            color: #4ade80;
+            border: 1px solid rgba(74, 222, 128, 0.3);
         }
 
         .result-message.error {
-            background: rgba(220, 53, 69, 0.1);
-            color: #dc3545;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
         }
 
         @media (max-width: 768px) {
-            .account-bar {
-                padding: 1rem;
-                gap: 1rem;
+            .gambling-container {
+                padding: 7rem 1rem 3rem;
             }
 
-            .slot img {
-                width: 150px;
-                height: 150px;
+            .account-bar {
+                padding: 1.5rem;
+                gap: 1.5rem;
             }
 
             .slots-wrapper {
                 gap: 1rem;
+                padding: 1.5rem;
+                flex-wrap: wrap;
+            }
+
+            .slot img {
+                width: 140px;
+                height: 140px;
             }
 
             .slot-machine-container {
@@ -178,9 +215,12 @@ if (!isLoggedIn()) {
             }
 
             .spin-btn {
-                padding: 0.8rem 2rem;
-                font-size: 1rem;
-                min-width: 150px;
+                padding: 0.875rem 3rem;
+                font-size: 1.1rem;
+            }
+
+            .account-value {
+                font-size: 1.25rem;
             }
         }
     </style>
