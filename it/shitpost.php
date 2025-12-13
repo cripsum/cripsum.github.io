@@ -800,13 +800,29 @@ if (isset($_SESSION['user_id'])) {
         async function loadCommentCount(postId) {
             try {
                 const response = await fetch(`../api/get_shitpost_comments.php?shitpost_id=${postId}`);
-                const data = await response.json();
+                const text = await response.text();
+
+                if (!text) {
+                    console.error('Empty response for post', postId);
+                    return;
+                }
+
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    console.error('JSON parse error for count:', e);
+                    console.error('Response was:', text);
+                    return;
+                }
 
                 if (data.success) {
                     const countElement = document.getElementById(`comment-count-${postId}`);
                     if (countElement) {
                         countElement.textContent = data.comments.length;
                     }
+                } else {
+                    console.error('Error loading comment count:', data.error);
                 }
             } catch (error) {
                 console.error('Errore nel caricamento del conteggio commenti:', error);
