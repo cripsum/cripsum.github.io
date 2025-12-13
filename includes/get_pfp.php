@@ -24,6 +24,5 @@ if ($stmt->num_rows === 1) {
     }
 }
 
-// Se l'utente non ha immagine: serve immagine predefinita
 readfile(__DIR__ . '/../img/abdul.jpg');
 exit;

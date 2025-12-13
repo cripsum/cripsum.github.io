@@ -1,15 +1,12 @@
 <?php
-// Previeni output indesiderato
 ob_start();
 
 require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
-// Pulisci il buffer di output prima di inviare JSON
 ob_end_clean();
 
-// Imposta l'encoding corretto
 $mysqli->set_charset("utf8mb4");
 
 header('Content-Type: application/json; charset=utf-8');
@@ -41,7 +38,6 @@ if (strlen($commento) > 500) {
 }
 
 try {
-    // Verifica che lo shitpost esista
     $checkStmt = $mysqli->prepare("SELECT id FROM shitposts WHERE id = ?");
     if (!$checkStmt) {
         throw new Exception("Errore nella preparazione della query: " . $mysqli->error);
@@ -57,7 +53,6 @@ try {
     }
     $checkStmt->close();
 
-    // Inserisci il commento
     $stmt = $mysqli->prepare("
         INSERT INTO commenti_shitpost (id_shitpost, id_utente, commento, data_commento)
         VALUES (?, ?, ?, NOW())
@@ -71,8 +66,6 @@ try {
 
     if ($stmt->execute()) {
         $comment_id = $stmt->insert_id;
-
-        // Recupera i dati del commento appena inserito
         $getStmt = $mysqli->prepare("
             SELECT 
                 c.id,
