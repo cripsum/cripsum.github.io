@@ -346,7 +346,7 @@ if (!isLoggedIn()) {
                         balanceElement.textContent = "$" + money;
                         unlockAchievement(3);
                     } else {
-                        resultElement.textContent = "Hai perso! Riprova!";
+                        resultElement.textContent = "Hai perso scemo! Riprova!";
                         resultElement.className = "result-message error";
                     }
 
