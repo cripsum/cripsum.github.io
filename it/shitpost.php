@@ -5,7 +5,9 @@ require_once '../includes/functions.php';
 checkBan($mysqli);
 
 $isAdmin = false;
+$currentUserId = null;
 if (isset($_SESSION['user_id'])) {
+    $currentUserId = $_SESSION['user_id'];
     $stmt = $mysqli->prepare("SELECT ruolo FROM utenti WHERE id = ?");
     $stmt->bind_param("i", $_SESSION['user_id']);
     $stmt->execute();
@@ -182,10 +184,149 @@ if (isset($_SESSION['user_id'])) {
 
         .post-stats {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             align-items: center;
             color: rgba(255, 255, 255, 0.7);
             font-size: 0.9rem;
+        }
+
+        .comments-toggle {
+            background: linear-gradient(135deg, rgba(30, 144, 255, 0.3), rgba(46, 213, 115, 0.3));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .comments-toggle:hover {
+            background: linear-gradient(135deg, rgba(30, 144, 255, 0.5), rgba(46, 213, 115, 0.5));
+            transform: translateY(-2px);
+        }
+
+        .comments-section {
+            grid-column: 1 / -1;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+        }
+
+        .comments-section.active {
+            display: block;
+        }
+
+        .comment-form {
+            margin-bottom: 1.5rem;
+        }
+
+        .comment-input {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: rgba(30, 144, 255, 0.5);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .comment-submit {
+            margin-top: 0.5rem;
+            background: linear-gradient(135deg, #1e90ff, #2ed573);
+            border: none;
+            color: white;
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .comment-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 144, 255, 0.4);
+        }
+
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .comment {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .comment-author {
+            color: rgba(30, 144, 255, 0.9);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .comment-date {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+            margin-left: auto;
+        }
+
+        .comment-text {
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.5;
+            font-size: 0.9rem;
+            margin-left: 2.5rem;
+        }
+
+        .comment-delete {
+            background: rgba(255, 71, 87, 0.2);
+            border: 1px solid rgba(255, 71, 87, 0.4);
+            color: #ff4757;
+            padding: 0.3rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .comment-delete:hover {
+            background: rgba(255, 71, 87, 0.4);
+        }
+
+        .no-comments {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            padding: 2rem;
+            font-style: italic;
         }
 
         .add-post-section {
@@ -278,17 +419,6 @@ if (isset($_SESSION['user_id'])) {
         .loading-container {
             text-align: center;
             padding: 4rem 2rem;
-        }
-
-        .legacy-shitpost {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem 0;
-        }
-
-        .shitposttext {
-            padding: 2rem;
-            text-align: center;
         }
 
         @media (max-width: 1200px) {
@@ -474,6 +604,8 @@ if (isset($_SESSION['user_id'])) {
         let allPosts = [];
         let pendingPosts = [];
         const isAdmin = <?php echo json_encode($isAdmin); ?>;
+        const isLoggedIn = <?php echo json_encode(isset($_SESSION['user_id'])); ?>;
+        const currentUserId = <?php echo json_encode($currentUserId); ?>;
 
         document.addEventListener('DOMContentLoaded', function() {
             loadPosts();
@@ -542,7 +674,7 @@ if (isset($_SESSION['user_id'])) {
 
             postsGrid.innerHTML = posts.map((post, index) => {
                 return `
-                    <div class="post-card fadeup" style="animation-delay: ${index * 0.1}s">
+                    <div class="post-card fadeup" style="animation-delay: ${index * 0.1}s" data-post-id="${post.id}">
                         ${isAdmin ? `
                         <div class="admin-controls">
                             <button class="admin-btn delete" onclick="deletePost(${post.id}, false)" title="Elimina shitpost">
@@ -567,6 +699,21 @@ if (isset($_SESSION['user_id'])) {
                             <p class="post-description">${post.descrizione}</p>
                             <div class="post-stats">
                                 <span class="post-date">${formatDate(post.data_creazione)}</span>
+                                <button class="comments-toggle" onclick="toggleComments(${post.id})">
+                                    💬 <span id="comment-count-${post.id}">0</span> Commenti
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="comments-section" id="comments-${post.id}">
+                            ${isLoggedIn ? `
+                            <div class="comment-form">
+                                <textarea class="comment-input" id="comment-text-${post.id}" placeholder="Scrivi un commento..." maxlength="500"></textarea>
+                                <button class="comment-submit" onclick="submitComment(${post.id})">Pubblica commento</button>
+                            </div>
+                            ` : '<p class="no-comments">Accedi per commentare</p>'}
+                            <div class="comments-list" id="comments-list-${post.id}">
+                                <p class="no-comments">Caricamento commenti...</p>
                             </div>
                         </div>
                     </div>
@@ -579,6 +726,11 @@ if (isset($_SESSION['user_id'])) {
                     card.style.opacity = '1';
                     card.style.transform = 'translateY(0)';
                 }, index * 100);
+            });
+
+            // Carica i conteggi dei commenti per tutti i post
+            posts.forEach(post => {
+                loadCommentCount(post.id);
             });
         }
 
@@ -631,6 +783,149 @@ if (isset($_SESSION['user_id'])) {
                     card.style.transform = 'translateY(0)';
                 }, index * 100);
             });
+        }
+
+        async function toggleComments(postId) {
+            const commentsSection = document.getElementById(`comments-${postId}`);
+            const isActive = commentsSection.classList.contains('active');
+
+            if (isActive) {
+                commentsSection.classList.remove('active');
+            } else {
+                commentsSection.classList.add('active');
+                await loadComments(postId);
+            }
+        }
+
+        async function loadCommentCount(postId) {
+            try {
+                const response = await fetch(`../api/get_shitpost_comments.php?shitpost_id=${postId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const countElement = document.getElementById(`comment-count-${postId}`);
+                    if (countElement) {
+                        countElement.textContent = data.comments.length;
+                    }
+                }
+            } catch (error) {
+                console.error('Errore nel caricamento del conteggio commenti:', error);
+            }
+        }
+
+        async function loadComments(postId) {
+            const commentsList = document.getElementById(`comments-list-${postId}`);
+            commentsList.innerHTML = '<p class="no-comments">Caricamento commenti...</p>';
+
+            try {
+                const response = await fetch(`../api/get_shitpost_comments.php?shitpost_id=${postId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.comments.length === 0) {
+                        commentsList.innerHTML = '<p class="no-comments">Nessun commento ancora. Sii il primo a commentare!</p>';
+                    } else {
+                        commentsList.innerHTML = data.comments.map(comment => {
+                            const canDelete = isAdmin || (currentUserId == comment.id_utente);
+                            return `
+                                <div class="comment" data-comment-id="${comment.id}">
+                                    <div class="comment-header">
+                                        <img src="${comment.profile_pic || '../img/abdul.jpg'}" alt="${comment.username}" class="comment-avatar">
+                                        <span class="comment-author">${comment.username}</span>
+                                        <span class="comment-date">${formatDate(comment.data_commento)}</span>
+                                        ${canDelete ? `<button class="comment-delete" onclick="deleteComment(${comment.id}, ${postId})">🗑️ Elimina</button>` : ''}
+                                    </div>
+                                    <p class="comment-text">${escapeHtml(comment.commento)}</p>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+
+                    // Aggiorna il conteggio
+                    const countElement = document.getElementById(`comment-count-${postId}`);
+                    if (countElement) {
+                        countElement.textContent = data.comments.length;
+                    }
+                } else {
+                    commentsList.innerHTML = '<p class="no-comments">Errore nel caricamento dei commenti</p>';
+                }
+            } catch (error) {
+                console.error('Errore nel caricamento dei commenti:', error);
+                commentsList.innerHTML = '<p class="no-comments">Errore nel caricamento dei commenti</p>';
+            }
+        }
+
+        async function submitComment(postId) {
+            if (!isLoggedIn) {
+                alert('Devi essere loggato per commentare');
+                return;
+            }
+
+            const commentText = document.getElementById(`comment-text-${postId}`).value.trim();
+
+            if (!commentText) {
+                alert('Il commento non può essere vuoto');
+                return;
+            }
+
+            if (commentText.length > 500) {
+                alert('Il commento è troppo lungo (max 500 caratteri)');
+                return;
+            }
+
+            try {
+                const response = await fetch('../api/add_shitpost_comment.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        shitpost_id: postId,
+                        commento: commentText
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById(`comment-text-${postId}`).value = '';
+                    await loadComments(postId);
+                } else {
+                    alert('Errore: ' + (result.error || 'Errore sconosciuto'));
+                }
+            } catch (error) {
+                console.error('Errore nell\'invio del commento:', error);
+                alert('Errore nell\'invio del commento');
+            }
+        }
+
+        async function deleteComment(commentId, postId) {
+            if (!confirm('Sei sicuro di voler eliminare questo commento?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('../api/delete_shitpost_comment.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        comment_id: commentId
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    await loadComments(postId);
+                } else {
+                    alert('Errore: ' + (result.error || 'Errore sconosciuto'));
+                }
+            } catch (error) {
+                console.error('Errore nell\'eliminazione del commento:', error);
+                alert('Errore nell\'eliminazione del commento');
+            }
         }
 
         async function changeApproval(postId, approval) {
@@ -738,15 +1033,6 @@ if (isset($_SESSION['user_id'])) {
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.textContent;
 
-            console.log('Invio nuovo shitpost...');
-            for (let [key, value] of formData.entries()) {
-                if (key === 'foto_shitpost') {
-                    console.log(key + ':', value.name, value.size + ' bytes', value.type);
-                } else {
-                    console.log(key + ':', value);
-                }
-            }
-
             const fileInput = this.querySelector('input[type="file"]');
             if (!fileInput.files[0]) {
                 alert('Per favore seleziona un\'immagine');
@@ -754,7 +1040,6 @@ if (isset($_SESSION['user_id'])) {
             }
 
             const file = fileInput.files[0];
-            console.log('File selezionato:', file.name, file.size + ' bytes', file.type);
 
             if (file.size > 5 * 1024 * 1024) {
                 alert('File troppo grande. Massimo 5MB');
@@ -776,11 +1061,7 @@ if (isset($_SESSION['user_id'])) {
                     body: formData
                 });
 
-                console.log('Response status:', response.status);
-                console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-
                 const result = await response.json();
-                console.log('Response data:', result);
 
                 if (result.success) {
                     alert('Shitpost inviato con successo! Sarà visibile dopo l\'approvazione dell\'admin.');
@@ -791,7 +1072,6 @@ if (isset($_SESSION['user_id'])) {
                     }
                 } else {
                     alert('Errore: ' + (result.error || 'Errore sconosciuto'));
-                    console.error('Errore dal server:', result.error);
                 }
             } catch (error) {
                 console.error('Errore nell\'invio del shitpost:', error);
@@ -809,6 +1089,17 @@ if (isset($_SESSION['user_id'])) {
                 month: 'long',
                 year: 'numeric'
             });
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
         }
     </script>
 </body>
