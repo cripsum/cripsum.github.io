@@ -819,7 +819,18 @@ if (isset($_SESSION['user_id'])) {
 
             try {
                 const response = await fetch(`../api/get_shitpost_comments.php?shitpost_id=${postId}`);
-                const data = await response.json();
+                const text = await response.text();
+                console.log('Load comments response:', text);
+
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    console.error('JSON parse error:', e);
+                    console.error('Response was:', text);
+                    commentsList.innerHTML = '<p class="no-comments">Errore nel parsing della risposta</p>';
+                    return;
+                }
 
                 if (data.success) {
                     if (data.comments.length === 0) {
@@ -847,7 +858,8 @@ if (isset($_SESSION['user_id'])) {
                         countElement.textContent = data.comments.length;
                     }
                 } else {
-                    commentsList.innerHTML = '<p class="no-comments">Errore nel caricamento dei commenti</p>';
+                    console.error('Error from API:', data);
+                    commentsList.innerHTML = '<p class="no-comments">Errore nel caricamento dei commenti: ' + (data.error || 'Errore sconosciuto') + '</p>';
                 }
             } catch (error) {
                 console.error('Errore nel caricamento dei commenti:', error);
@@ -885,12 +897,24 @@ if (isset($_SESSION['user_id'])) {
                     })
                 });
 
-                const result = await response.json();
+                const text = await response.text();
+                console.log('Response text:', text);
+
+                let result;
+                try {
+                    result = JSON.parse(text);
+                } catch (e) {
+                    console.error('JSON parse error:', e);
+                    console.error('Response was:', text);
+                    alert('Errore nel parsing della risposta del server');
+                    return;
+                }
 
                 if (result.success) {
                     document.getElementById(`comment-text-${postId}`).value = '';
                     await loadComments(postId);
                 } else {
+                    console.error('Error from API:', result);
                     alert('Errore: ' + (result.error || 'Errore sconosciuto'));
                 }
             } catch (error) {
