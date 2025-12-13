@@ -246,7 +246,7 @@ if (isset($_SESSION['user_id'])) {
         .comment-submit {
             margin-top: 0.5rem;
             background: linear-gradient(135deg, rgba(65, 65, 65, 0.3), rgba(0, 0, 0, 0.3));
-            border: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
             padding: 0.6rem 1.5rem;
             border-radius: 8px;
@@ -256,8 +256,8 @@ if (isset($_SESSION['user_id'])) {
         }
 
         .comment-submit:hover {
+            background: linear-gradient(135deg, rgba(65, 65, 65, 0.5), rgba(0, 0, 0, 0.5));
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.4);
         }
 
         .comments-list {
