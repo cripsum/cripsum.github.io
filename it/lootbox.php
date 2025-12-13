@@ -561,24 +561,33 @@ require_once '../api/api_personaggi.php';
                         });
                     } else {
                         return (rarityProbabilities = {
-                            comune: 52,
+                            comune: 51,
                             raro: 28,
                             epico: 13,
-                            leggendario: 5.995,
-                            speciale: 0.9,
-                            segreto: 0.1,
-                            theone: 0.005,
+                            leggendario: 5.99,
+                            speciale: 1.8,
+                            segreto: 0.2,
+                            theone: 0.01,
                         });
                     }
                 }
+                // return (rarityProbabilities = {
+                //     comune: 52,
+                //     raro: 28,
+                //     epico: 13,
+                //     leggendario: 5.995,
+                //     speciale: 0.9,
+                //     segreto: 0.1,
+                //     theone: 0.005,
+                // });
                 return (rarityProbabilities = {
-                    comune: 52,
+                    comune: 51,
                     raro: 28,
                     epico: 13,
-                    leggendario: 5.995,
-                    speciale: 0.9,
-                    segreto: 0.1,
-                    theone: 0.005,
+                    leggendario: 5.99,
+                    speciale: 1.8,
+                    segreto: 0.2,
+                    theone: 0.01,
                 });
             }
 
