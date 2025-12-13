@@ -376,15 +376,15 @@ if (isset($_SESSION['user_id'])) {
             <div class="chisiamo-section fadeup">
                 <h1 class="chisiamo-title">Shitpost</h1>
                 <p class="chisiamo-subtitle">
-                    Hey, hai dei meme o contenuti shitpost che sarebbero perfetti per questa pagina?
-                    Condividi i tuoi contenuti più assurdi e divertenti con la community di Cripsum™!
+                    Benvenuto nella sezione più stupida e bassochiave divertente di Cripsum™! Qui troverai i meme più cringe e insensati della community.
                 </p>
             </div>
 
             <?php if (isset($_SESSION['user_id'])): ?>
                 <div class="add-post-section fadeup" style="margin-bottom: 2rem;">
                     <div class="add-post-card">
-                        <h3 class="add-post-title">Condividi il tuo shitpost con la community!</h3>
+                        <h3 class="add-post-title">Hey, hai dei meme o contenuti shitpost che sarebbero perfetti per questa pagina?
+                            Condividi i tuoi contenuti più assurdi e divertenti con la community di Cripsum™!</h3>
                         <button class="bottone" onclick="toggleAddPostForm()">
                             <span id="toggleButtonText">Aggiungi nuovo shitpost</span>
                         </button>
@@ -508,8 +508,8 @@ if (isset($_SESSION['user_id'])) {
 
             <?php if ($isAdmin): ?>
                 <div id="adminSection" class="admin-section" style="display: none;">
-                    <h2 class="admin-title">👑 Pannello Admin - Shitpost in Attesa</h2>
-                    <p class="admin-subtitle">Gestisci i shitpost in attesa di approvazione</p>
+                    <h2 class="admin-title">Pannello Admin - Shitpost in Attesa</h2>
+                    <p class="admin-subtitle">Gestisci gli shitpost in attesa di approvazione</p>
 
                     <div id="loadingPendingState" class="loading-container">
                         <div class="loading_white">
@@ -529,8 +529,8 @@ if (isset($_SESSION['user_id'])) {
                     <div id="noPendingPosts" class="empty-state" style="display: none;">
                         <div class="empty-card">
                             <div class="empty-icon">✅</div>
-                            <h3>Nessun shitpost in attesa</h3>
-                            <p>Tutti i shitpost sono stati gestiti.</p>
+                            <h3>Nessuno shitpost in attesa</h3>
+                            <p>Tutti gli shitpost sono stati gestiti.</p>
                         </div>
                     </div>
                 </div>

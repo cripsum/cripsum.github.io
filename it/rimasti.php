@@ -718,7 +718,7 @@ if (isset($_SESSION['user_id'])) {
 
         <?php if ($isAdmin): ?>
             <div id="adminSection" class="admin-section" style="display: none;">
-                <h2 class="admin-title">👑 Pannello Admin - Post in Attesa</h2>
+                <h2 class="admin-title">Pannello Admin - Post in Attesa</h2>
                 <p class="admin-subtitle">Gestisci i post in attesa di approvazione</p>
 
                 <div id="loadingPendingState" class="loading-container">
