@@ -4,7 +4,6 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/chat_config.php';
 
 function sendMessage($mysqli, $userId, $message, $replyTo = null) {
-    // Validazione base
     $message = trim($message);
     if (empty($message)) {
         return 'Il messaggio non può essere vuoto';
@@ -14,7 +13,6 @@ function sendMessage($mysqli, $userId, $message, $replyTo = null) {
         return 'Il messaggio è troppo lungo';
     }
     
-    // Se c'è una reply, verifica che il messaggio esista
     if ($replyTo !== null) {
         $replyTo = intval($replyTo);
         $checkStmt = $mysqli->prepare("SELECT id FROM messages WHERE id = ?");
@@ -31,11 +29,9 @@ function sendMessage($mysqli, $userId, $message, $replyTo = null) {
     
     try {
         if ($replyTo !== null) {
-            // Inserisci messaggio con reply
             $stmt = $mysqli->prepare("INSERT INTO messages (user_id, message, reply_to, created_at) VALUES (?, ?, ?, NOW())");
             $stmt->bind_param("isi", $userId, $message, $replyTo);
         } else {
-            // Inserisci messaggio normale
             $stmt = $mysqli->prepare("INSERT INTO messages (user_id, message, created_at) VALUES (?, ?, NOW())");
             $stmt->bind_param("is", $userId, $message);
         }
@@ -71,7 +67,7 @@ function checkMessageTimeout($mysqli, $userId) {
         return ($currentTime - $lastMessageTime) >= MESSAGE_TIMEOUT;
     }
     
-    return true; // Primo messaggio
+    return true; 
 }
 
 function getMessages($mysqli, $lastMessageId = 0) {
@@ -136,30 +132,29 @@ function getAllMessages($mysqli) {
         $messages[] = $row;
     }
 
-    return array_reverse($messages); // Mostra dal più vecchio al più nuovo
+    return array_reverse($messages);
 }
 
 function deleteMessage($mysqli, $messageId, $userId, $userRole) {
     try {
-        // Verifica se il messaggio esiste
+
         $stmt = $mysqli->prepare("SELECT user_id FROM chat_messages WHERE id = ?");
         $stmt->bind_param("i", $messageId);
         $stmt->execute();
         $result = $stmt->get_result();
         
         if ($result->num_rows === 0) {
-            return false; // Messaggio non trovato
+            return false; 
         }
         
         $message = $result->fetch_assoc();
         $messageUserId = $message['user_id'];
         
-        // Verifica permessi
+
         if ($messageUserId != $userId && $userRole !== 'admin' && $userRole !== 'owner') {
-            return false; // Non autorizzato
+            return false; 
         }
-        
-        // Elimina il messaggio
+
         $deleteStmt = $mysqli->prepare("DELETE FROM chat_messages WHERE id = ?");
         $deleteStmt->bind_param("i", $messageId);
         

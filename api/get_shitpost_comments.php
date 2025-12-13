@@ -28,8 +28,7 @@ try {
             c.commento,
             c.data_commento,
             c.id_utente,
-            u.username,
-            u.profile_pic
+            u.username
         FROM commenti_shitpost c
         JOIN utenti u ON c.id_utente = u.id
         WHERE c.id_shitpost = ?
@@ -56,7 +55,7 @@ try {
             'data_commento' => $row['data_commento'],
             'id_utente' => intval($row['id_utente']),
             'username' => $row['username'],
-            'profile_pic' => $row['profile_pic']
+            'profile_pic' => '../includes/get_pfp.php?id=' . $row['id_utente']
         ];
     }
 

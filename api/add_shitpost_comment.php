@@ -79,8 +79,7 @@ try {
                 c.commento,
                 c.data_commento,
                 c.id_utente,
-                u.username,
-                u.profile_pic
+                u.username
             FROM commenti_shitpost c
             JOIN utenti u ON c.id_utente = u.id
             WHERE c.id = ?
@@ -104,7 +103,7 @@ try {
                 'data_commento' => $comment['data_commento'],
                 'id_utente' => intval($comment['id_utente']),
                 'username' => $comment['username'],
-                'profile_pic' => $comment['profile_pic']
+                'profile_pic' => '../includes/get_pfp.php?id=' . $comment['id_utente']
             ],
             'message' => 'Commento aggiunto con successo'
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
