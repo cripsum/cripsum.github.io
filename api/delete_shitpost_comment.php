@@ -1,7 +1,11 @@
 <?php
+ob_start();
+
 require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+
+ob_end_clean();
 
 header('Content-Type: application/json');
 
@@ -28,6 +32,10 @@ try {
         WHERE c.id = ?
     ");
 
+    if (!$stmt) {
+        throw new Exception("Errore nella preparazione della query: " . $mysqli->error);
+    }
+
     $stmt->bind_param("ii", $user_id, $comment_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -40,12 +48,22 @@ try {
     $data = $result->fetch_assoc();
     $stmt->close();
 
+
     $checkStmt = $mysqli->prepare("SELECT id_utente FROM commenti_shitpost WHERE id = ?");
+    if (!$checkStmt) {
+        throw new Exception("Errore nella preparazione della query di verifica: " . $mysqli->error);
+    }
+
     $checkStmt->bind_param("i", $comment_id);
     $checkStmt->execute();
     $checkResult = $checkStmt->get_result();
     $comment = $checkResult->fetch_assoc();
     $checkStmt->close();
+
+    if (!$comment) {
+        echo json_encode(['success' => false, 'error' => 'Commento non trovato']);
+        exit();
+    }
 
     $isOwner = ($comment['id_utente'] == $user_id);
     $isAdminOrOwner = in_array($data['ruolo'], ['admin', 'owner']);
@@ -56,18 +74,22 @@ try {
     }
 
     $deleteStmt = $mysqli->prepare("DELETE FROM commenti_shitpost WHERE id = ?");
+    if (!$deleteStmt) {
+        throw new Exception("Errore nella preparazione della query di eliminazione: " . $mysqli->error);
+    }
+
     $deleteStmt->bind_param("i", $comment_id);
 
     if ($deleteStmt->execute()) {
         echo json_encode(['success' => true, 'message' => 'Commento eliminato con successo']);
     } else {
-        throw new Exception('Errore durante l\'eliminazione del commento');
+        throw new Exception('Errore durante l\'eliminazione del commento: ' . $deleteStmt->error);
     }
 
     $deleteStmt->close();
 } catch (Exception $e) {
     error_log("Errore nell'eliminazione del commento: " . $e->getMessage());
-    echo json_encode(['success' => false, 'error' => 'Errore nell\'eliminazione del commento']);
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
 
 $mysqli->close();

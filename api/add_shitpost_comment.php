@@ -1,7 +1,11 @@
 <?php
+ob_start();
+
 require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+
+ob_end_clean();
 
 header('Content-Type: application/json');
 
@@ -33,6 +37,10 @@ if (strlen($commento) > 500) {
 
 try {
     $checkStmt = $mysqli->prepare("SELECT id FROM shitposts WHERE id = ?");
+    if (!$checkStmt) {
+        throw new Exception("Errore nella preparazione della query: " . $mysqli->error);
+    }
+
     $checkStmt->bind_param("i", $shitpost_id);
     $checkStmt->execute();
     $result = $checkStmt->get_result();
@@ -47,6 +55,10 @@ try {
         INSERT INTO commenti_shitpost (id_shitpost, id_utente, commento, data_commento)
         VALUES (?, ?, ?, NOW())
     ");
+
+    if (!$stmt) {
+        throw new Exception("Errore nella preparazione della query di inserimento: " . $mysqli->error);
+    }
 
     $stmt->bind_param("iis", $shitpost_id, $user_id, $commento);
 
@@ -66,6 +78,10 @@ try {
             WHERE c.id = ?
         ");
 
+        if (!$getStmt) {
+            throw new Exception("Errore nella preparazione della query di recupero: " . $mysqli->error);
+        }
+
         $getStmt->bind_param("i", $comment_id);
         $getStmt->execute();
         $result = $getStmt->get_result();
@@ -78,13 +94,13 @@ try {
             'message' => 'Commento aggiunto con successo'
         ]);
     } else {
-        throw new Exception('Errore durante l\'inserimento del commento');
+        throw new Exception('Errore durante l\'inserimento del commento: ' . $stmt->error);
     }
 
     $stmt->close();
 } catch (Exception $e) {
     error_log("Errore nell'aggiunta del commento: " . $e->getMessage());
-    echo json_encode(['success' => false, 'error' => 'Errore nell\'aggiunta del commento']);
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
 
 $mysqli->close();

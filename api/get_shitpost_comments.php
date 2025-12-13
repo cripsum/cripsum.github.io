@@ -1,7 +1,11 @@
 <?php
+ob_start();
+
 require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+
+ob_end_clean();
 
 header('Content-Type: application/json');
 
@@ -27,8 +31,16 @@ try {
         ORDER BY c.data_commento DESC
     ");
 
+    if (!$stmt) {
+        throw new Exception("Errore nella preparazione della query: " . $mysqli->error);
+    }
+
     $stmt->bind_param("i", $shitpost_id);
-    $stmt->execute();
+
+    if (!$stmt->execute()) {
+        throw new Exception("Errore nell'esecuzione della query: " . $stmt->error);
+    }
+
     $result = $stmt->get_result();
 
     $comments = [];
@@ -47,7 +59,7 @@ try {
     echo json_encode(['success' => true, 'comments' => $comments]);
 } catch (Exception $e) {
     error_log("Errore nel recupero dei commenti: " . $e->getMessage());
-    echo json_encode(['success' => false, 'error' => 'Errore nel recupero dei commenti']);
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
 
 $mysqli->close();
