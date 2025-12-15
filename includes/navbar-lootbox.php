@@ -47,7 +47,7 @@ if ($isLoggedIn) {
                         <li><a class="dropdown-item" href="/<?= $lang ?>/shitpost">Shitpost</a></li>
                         <li><a class="dropdown-item" href="/<?= $lang ?>/tiktokpedia">TikTokPedia</a></li>
                         <li><a class="dropdown-item" href="/<?= $lang ?>/rimasti">Top rimasti</a></li>
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/CripsumPedia" >CripsumPedia</a></li>
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/cripsumpedia" >CripsumPedia</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown dropdownutenti">
