@@ -21,8 +21,8 @@ checkBan($mysqli);
 
     <div class="testobianco paginaprincipale text-center max-width: 600px; margin: auto;">
         <h3 class="text-center mt-1">Questa sezione del sito è attualmente in costruzione.</h3>
-        <h4 class="text-center mt-1">Torna più tardi per ulteriori aggiornamenti!</h4>
-        <img src="/img/rockstop.png" alt="" class="mt-1" style="max-width: 400px;">
+        <h4 class="text-center mt-2">Torna più tardi per ulteriori aggiornamenti!</h4>
+        <img src="/img/rockstop.png" alt="" class="mt-2" style="max-width: 400px;">
         <p class="text-center mt-3">Godo!</p>
     </div>
     <div id="achievement-popup" class="popup">
