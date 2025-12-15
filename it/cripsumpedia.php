@@ -20,7 +20,7 @@ checkBan($mysqli);
     <?php include '../includes/impostazioni.php'; ?>
 
     <div class="testobianco paginaprincipale text-center">
-        <h1 class="text-center mt-1">Questa sezione del sito è attualmente in costruzione. Torna più tardi per ulteriori aggiornamenti!</h1>
+        <h3 class="text-center mt-1">Questa sezione del sito è attualmente in costruzione. Torna più tardi per ulteriori aggiornamenti!</h3>
         <img src="/img/rockstop.png" alt="" class="mt-1" style="max-width: 400px;">
         <p class="text-center mt-3">Godo!</p>
     </div>
