@@ -19,8 +19,10 @@ checkBan($mysqli);
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
-    <div class="testobianco paginaprincipale">
-
+    <div class="testobianco paginaprincipale text-center">
+        <p class="text-center mt-1">Questa pagina è attualmente in costruzione. Torna più tardi per ulteriori aggiornamenti!</p>
+        <img src="/img/rockstop.png" alt="" class="mt-1 img-fluid">
+        <p class="text-center mt-1">Godo!</p>
     </div>
     <div id="achievement-popup" class="popup">
         <img id="popup-image" src="" alt="Achievement" />
