@@ -315,7 +315,7 @@ checkBan($mysqli);
     <?php include '../../includes/impostazioni.php'; ?>
     <div class="main-content">
         <div class="page-header">
-            <a href="cripsumpedia.php" class="back-link">
+            <a href="../cripsumpedia" class="back-link">
                 <i class="fas fa-arrow-left"></i>
                 Torna alla home
             </a>
