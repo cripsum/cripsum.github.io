@@ -352,13 +352,13 @@ if (!isOwner()) {
 
         <div class="people-list" id="peopleList">
 
-            <a href="u?id=cripsum" class="person-card">
+            <a href="u?id=godo" class="person-card">
                 <div class="person-avatar">
                     <i class="fas fa-user"></i>
                 </div>
                 <div class="person-info">
                     <div class="person-header">
-                        <h2 class="person-name">Cripsum</h2>
+                        <h2 class="person-name">Godo</h2>
                         <span class="person-badge">Lorem ipsum</span>
                     </div>
                     <div class="person-meta">

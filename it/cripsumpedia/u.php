@@ -364,9 +364,9 @@ if (!isOwner()) {
 <body>
     <div class="main-content">
         <nav class="breadcrumb-nav">
-            <a href="cripsumpedia.php" class="breadcrumb-link">Home</a>
+            <a href="../cripsumpedia" class="breadcrumb-link">Home</a>
             <span class="breadcrumb-separator">›</span>
-            <a href="persone.html" class="breadcrumb-link">Persone</a>
+            <a href="utenti" class="breadcrumb-link">Persone</a>
             <span class="breadcrumb-separator">›</span>
             <span>Mario Rossi</span>
         </nav>
