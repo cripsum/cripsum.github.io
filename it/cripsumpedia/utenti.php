@@ -352,7 +352,7 @@ if (!isOwner()) {
 
         <div class="people-list" id="peopleList">
 
-            <a href="persona-dettaglio.html?id=mario" class="person-card">
+            <a href="u?id=cripsum" class="person-card">
                 <div class="person-avatar">
                     <i class="fas fa-user"></i>
                 </div>
@@ -379,7 +379,7 @@ if (!isOwner()) {
                 <i class="fas fa-chevron-right person-arrow"></i>
             </a>
 
-            <a href="persona-dettaglio.html?id=luca" class="person-card">
+            <a href="u?id=Lorem ipsum" class="person-card">
                 <div class="person-avatar">
                     <i class="fas fa-user"></i>
                 </div>
@@ -407,7 +407,7 @@ if (!isOwner()) {
                 <i class="fas fa-chevron-right person-arrow"></i>
             </a>
 
-            <a href="persona-dettaglio.html?id=giulia" class="person-card">
+            <a href="u?id=Lorem ipsum" class="person-card">
                 <div class="person-avatar">
                     <i class="fas fa-user"></i>
                 </div>
