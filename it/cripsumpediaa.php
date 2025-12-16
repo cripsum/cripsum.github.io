@@ -338,7 +338,7 @@ if (!isOwner()) {
         </div>
 
         <div class="sections-grid">
-            <a href="cripsumpediaa/utenti" class="section-card">
+            <a href="cripsumpedia/utenti" class="section-card">
                 <div class="section-icon-wrapper">
                     <i class="fas fa-users section-icon"></i>
                 </div>
@@ -354,7 +354,7 @@ if (!isOwner()) {
                 </div>
             </a>
 
-            <a href="cripsumpediaa/eventi" class="section-card">
+            <a href="cripsumpedia/eventi" class="section-card">
                 <div class="section-icon-wrapper">
                     <i class="fas fa-star section-icon"></i>
                 </div>
@@ -370,7 +370,7 @@ if (!isOwner()) {
                 </div>
             </a>
 
-            <a href="cripsumpediaa/memes" class="section-card">
+            <a href="cripsumpedia/memes" class="section-card">
                 <div class="section-icon-wrapper">
                     <i class="fas fa-face-grin-tears section-icon"></i>
                 </div>
