@@ -22,3 +22,5 @@ AddDefaultCharset UTF-8
 </FilesMatch>
 
 RewriteRule ^user/([a-zA-Z0-9_]+)$ user.php?username=$1 [L,QSA]
+
+RewriteRule ^it/cripsumpedia/u/([^/]+)$ /it/cripsumpedia/u.php?id=$1 [L,QSA]
