@@ -358,7 +358,7 @@ if (!isOwner()) {
                 </div>
                 <div class="person-info">
                     <div class="person-header">
-                        <h2 class="person-name">Lorem ipsum</h2>
+                        <h2 class="person-name">Cripsum</h2>
                         <span class="person-badge">Lorem ipsum</span>
                     </div>
                     <div class="person-meta">
