@@ -344,7 +344,7 @@ checkBan($mysqli);
 
             <a href="cripsumpedia/eventi" class="section-card">
                 <div class="section-icon-wrapper">
-                    <i class="fas fa-calendar-star section-icon"></i>
+                    <i class="fas fa-star section-icon"></i>
                 </div>
                 <h2 class="section-title">Eventi</h2>
                 <p class="section-text">
