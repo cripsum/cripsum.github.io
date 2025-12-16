@@ -15,7 +15,7 @@ RewriteRule ^it/cripsumpedia/u/([^/]+)$ /it/cripsumpedia/u.php?id=$1 [L,QSA]
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME}.php -f
-RewriteRule ^(.+)$ $1.php [L]
+RewriteRule ^(.*)$ $1.php [L]
 
 <FilesMatch "^\.">
   Order allow,deny
