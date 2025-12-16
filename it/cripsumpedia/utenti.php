@@ -352,7 +352,7 @@ if (!isOwner()) {
 
         <div class="people-list" id="peopleList">
 
-            <a href="u?id=godo" class="person-card">
+            <a href="u/godo" class="person-card">
                 <div class="person-avatar">
                     <i class="fas fa-user"></i>
                 </div>
