@@ -3,7 +3,7 @@ require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
-if(!isLoggedIn()){
+if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
     $_SESSION['login_message'] = "Devi essere loggato per accedere a Cripsumpedia™.";
     header('Location: accedi');
@@ -338,7 +338,7 @@ if (!isOwner()) {
         </div>
 
         <div class="sections-grid">
-            <a href="cripsumpedia/utenti" class="section-card">
+            <a href="cripsumpediaa/utenti" class="section-card">
                 <div class="section-icon-wrapper">
                     <i class="fas fa-users section-icon"></i>
                 </div>
@@ -354,7 +354,7 @@ if (!isOwner()) {
                 </div>
             </a>
 
-            <a href="cripsumpedia/eventi" class="section-card">
+            <a href="cripsumpediaa/eventi" class="section-card">
                 <div class="section-icon-wrapper">
                     <i class="fas fa-star section-icon"></i>
                 </div>
@@ -370,7 +370,7 @@ if (!isOwner()) {
                 </div>
             </a>
 
-            <a href="cripsumpedia/memes" class="section-card">
+            <a href="cripsumpediaa/memes" class="section-card">
                 <div class="section-icon-wrapper">
                     <i class="fas fa-face-grin-tears section-icon"></i>
                 </div>
