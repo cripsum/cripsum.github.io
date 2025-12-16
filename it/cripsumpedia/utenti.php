@@ -338,7 +338,7 @@ if (!isOwner()) {
                 Persone
             </h1>
             <p class="page-description">
-                Esplora i profili di tutti i membri del gruppo. Ogni persona ha la propria storia,
+                Esplora la lore di tutti i membri del gruppo. Ogni persona ha la propria storia,
                 personalità e contributi unici che hanno aiutato a costruire la nostra community.
             </p>
         </div>
@@ -358,23 +358,22 @@ if (!isOwner()) {
                 </div>
                 <div class="person-info">
                     <div class="person-header">
-                        <h2 class="person-name">Mario Rossi</h2>
-                        <span class="person-badge">Fondatore</span>
+                        <h2 class="person-name">Lorem ipsum</h2>
+                        <span class="person-badge">Lorem ipsum</span>
                     </div>
                     <div class="person-meta">
                         <span class="meta-item">
                             <i class="fas fa-calendar"></i>
-                            Nel gruppo dal 2020
+                            Lorem ipsum
                         </span>
                         <span class="meta-item">
                             <i class="fas fa-map-marker-alt"></i>
-                            Milano
+                            Lorem ipsum
                         </span>
                     </div>
                     <p class="person-description">
-                        Uno dei fondatori del gruppo, conosciuto per il suo senso dell'umorismo unico e
-                        la capacità di trasformare qualsiasi situazione in un momento memorabile. Ha dato
-                        vita a innumerevoli meme e inside jokes che ancora oggi vengono citati.
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
+                        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
                     </p>
                 </div>
                 <i class="fas fa-chevron-right person-arrow"></i>
@@ -386,23 +385,23 @@ if (!isOwner()) {
                 </div>
                 <div class="person-info">
                     <div class="person-header">
-                        <h2 class="person-name">Luca Bianchi</h2>
-                        <span class="person-badge">Membro Storico</span>
+                        <h2 class="person-name">Lorem ipsum</h2>
+                        <span class="person-badge">Lorem ipsum</span>
                     </div>
                     <div class="person-meta">
                         <span class="meta-item">
                             <i class="fas fa-calendar"></i>
-                            Nel gruppo dal 2021
+                            Lorem ipsum
                         </span>
                         <span class="meta-item">
                             <i class="fas fa-map-marker-alt"></i>
-                            Roma
+                            Lorem ipsum
                         </span>
                     </div>
                     <p class="person-description">
-                        Entrato nel gruppo nel 2021, è rapidamente diventato una figura centrale grazie
-                        alla sua personalità carismatica. Organizzatore di eventi epici e creatore di
-                        alcune delle avventure più memorabili del gruppo.
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
+                        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                    </p>
                     </p>
                 </div>
                 <i class="fas fa-chevron-right person-arrow"></i>
@@ -414,22 +413,21 @@ if (!isOwner()) {
                 </div>
                 <div class="person-info">
                     <div class="person-header">
-                        <h2 class="person-name">Giulia Verdi</h2>
+                        <h2 class="person-name">Lorem ipsum</h2>
                     </div>
                     <div class="person-meta">
                         <span class="meta-item">
                             <i class="fas fa-calendar"></i>
-                            Nel gruppo dal 2022
+                            Lorem ipsum
                         </span>
                         <span class="meta-item">
                             <i class="fas fa-map-marker-alt"></i>
-                            Torino
+                            Lorem ipsum
                         </span>
                     </div>
                     <p class="person-description">
-                        La più recente aggiunta al gruppo, ma già protagonista di numerose storie
-                        leggendarie. Famosa per le sue battute fulminanti e per essere stata al centro
-                        di alcuni degli eventi più divertenti degli ultimi anni.
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
+                        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
                     </p>
                 </div>
                 <i class="fas fa-chevron-right person-arrow"></i>

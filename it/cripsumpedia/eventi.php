@@ -343,7 +343,7 @@ if (!isOwner()) {
             <div class="timeline-line"></div>
 
             <div class="timeline-year">
-                <h2 class="year-label">2024</h2>
+                <h2 class="year-label">2025</h2>
                 <div class="events-grid">
                     <a href="evento-dettaglio.html?id=capodanno-2024" class="event-card">
                         <div class="event-header">
@@ -351,23 +351,23 @@ if (!isOwner()) {
                                 <i class="fas fa-champagne-glasses"></i>
                             </div>
                             <div class="event-info">
-                                <h3 class="event-title">Capodanno Epico 2024</h3>
+                                <h3 class="event-title">Lorem ipsum</h3>
                                 <div class="event-date">
                                     <i class="fas fa-calendar"></i>
-                                    31 Dicembre 2023 - 1 Gennaio 2024
+                                    Lorem ipsum
                                 </div>
                             </div>
                             <i class="fas fa-chevron-right event-arrow"></i>
                         </div>
                         <p class="event-description">
-                            Il capodanno più leggendario della storia del gruppo. Tra fuochi d'artificio improvvisati,
-                            karaoke fino all'alba e la nascita di almeno tre nuovi meme immortali, questa notte ha
-                            definito gli standard per tutti i futuri eventi del gruppo.
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                            labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                            laboris nisi ut aliquip ex ea commodo consequat.
                         </p>
                         <div class="event-tags">
-                            <span class="event-tag">Epico</span>
-                            <span class="event-tag">Festa</span>
-                            <span class="event-tag">Memorabile</span>
+                            <span class="event-tag">Lorem ipsum</span>
+                            <span class="event-tag">Lorem ipsum</span>
+                            <span class="event-tag">Lorem ipsum</span>
                         </div>
                     </a>
 
@@ -377,30 +377,30 @@ if (!isOwner()) {
                                 <i class="fas fa-mountain"></i>
                             </div>
                             <div class="event-info">
-                                <h3 class="event-title">Weekend al Lago di Como</h3>
+                                <h3 class="event-title">Lorem ipsum</h3>
                                 <div class="event-date">
                                     <i class="fas fa-calendar"></i>
-                                    15-17 Giugno 2024
+                                    Lorem ipsum
                                 </div>
                             </div>
                             <i class="fas fa-chevron-right event-arrow"></i>
                         </div>
                         <p class="event-description">
-                            Un weekend che doveva essere rilassante si è trasformato in una serie di avventure
-                            impreviste. Dal gommone che si è sgonfiato nel mezzo del lago, alla grigliata che è
-                            quasi diventata un falò, ogni momento è stato un'esperienza indimenticabile.
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                            labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                            laboris nisi ut aliquip ex ea commodo consequat.
                         </p>
                         <div class="event-tags">
-                            <span class="event-tag">Avventura</span>
-                            <span class="event-tag">Natura</span>
-                            <span class="event-tag">Disastro Controllato</span>
+                            <span class="event-tag">Lorem ipsum</span>
+                            <span class="event-tag">Lorem ipsum</span>
+                            <span class="event-tag">Lorem ipsum</span>
                         </div>
                     </a>
                 </div>
             </div>
 
             <div class="timeline-year">
-                <h2 class="year-label">2023</h2>
+                <h2 class="year-label">2024</h2>
                 <div class="events-grid">
                     <a href="evento-dettaglio.html?id=lan-party" class="event-card">
                         <div class="event-header">
@@ -408,23 +408,23 @@ if (!isOwner()) {
                                 <i class="fas fa-gamepad"></i>
                             </div>
                             <div class="event-info">
-                                <h3 class="event-title">Mega LAN Party Autunnale</h3>
+                                <h3 class="event-title">Lorem ipsum</h3>
                                 <div class="event-date">
                                     <i class="fas fa-calendar"></i>
-                                    20-22 Ottobre 2023
+                                    Lorem ipsum
                                 </div>
                             </div>
                             <i class="fas fa-chevron-right event-arrow"></i>
                         </div>
                         <p class="event-description">
-                            48 ore no-stop di gaming, pizza e competizioni accanite. Il torneo di Mario Kart è
-                            quasi degenerato in una guerra civile, ma alla fine siamo tutti sopravvissuti (a malapena).
-                            Sono nati rivalità epiche e alleanze improbabili che durano ancora oggi.
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                            labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                            laboris nisi ut aliquip ex ea commodo consequat.
                         </p>
                         <div class="event-tags">
-                            <span class="event-tag">Gaming</span>
-                            <span class="event-tag">Competizione</span>
-                            <span class="event-tag">Nottata</span>
+                            <span class="event-tag">Lorem ipsum</span>
+                            <span class="event-tag">Lorem ipsum</span>
+                            <span class="event-tag">Lorem ipsum</span>
                         </div>
                     </a>
 
@@ -434,30 +434,30 @@ if (!isOwner()) {
                                 <i class="fas fa-lock"></i>
                             </div>
                             <div class="event-info">
-                                <h3 class="event-title">Escape Room Challenge</h3>
+                                <h3 class="event-title">Lorem ipsum</h3>
                                 <div class="event-date">
                                     <i class="fas fa-calendar"></i>
-                                    5 Maggio 2023
+                                    Lorem ipsum
                                 </div>
                             </div>
                             <i class="fas fa-chevron-right event-arrow"></i>
                         </div>
                         <p class="event-description">
-                            L'escape room più difficile della città non era pronta per noi. Dopo aver battuto il
-                            record di tempo, abbiamo scoperto che avevamo risolto gli enigmi in un ordine completamente
-                            diverso da quello previsto. Gli operatori non hanno ancora capito come abbiamo fatto.
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                            labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                            laboris nisi ut aliquip ex ea commodo consequat.
                         </p>
                         <div class="event-tags">
-                            <span class="event-tag">Puzzle</span>
-                            <span class="event-tag">Teamwork</span>
-                            <span class="event-tag">Record</span>
+                            <span class="event-tag">Lorem ipsum</span>
+                            <span class="event-tag">Lorem ipsum</span>
+                            <span class="event-tag">Lorem ipsum</span>
                         </div>
                     </a>
                 </div>
             </div>
 
             <div class="timeline-year">
-                <h2 class="year-label">2022</h2>
+                <h2 class="year-label">2023</h2>
                 <div class="events-grid">
                     <a href="evento-dettaglio.html?id=primo-incontro" class="event-card">
                         <div class="event-header">
@@ -465,23 +465,23 @@ if (!isOwner()) {
                                 <i class="fas fa-users"></i>
                             </div>
                             <div class="event-info">
-                                <h3 class="event-title">Il Primo Incontro Ufficiale</h3>
+                                <h3 class="event-title">Lorem ipsum</h3>
                                 <div class="event-date">
                                     <i class="fas fa-calendar"></i>
-                                    12 Marzo 2022
+                                    Lorem ipsum
                                 </div>
                             </div>
                             <i class="fas fa-chevron-right event-arrow"></i>
                         </div>
                         <p class="event-description">
-                            Tutto è iniziato qui. Quello che doveva essere un semplice aperitivo è diventato una
-                            serata di 8 ore di risate, storie e la nascita di un'amicizia che avrebbe cambiato
-                            tutto. Da quel giorno, il gruppo non si è più fermato.
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                            labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                            laboris nisi ut aliquip ex ea commodo consequat.
                         </p>
                         <div class="event-tags">
-                            <span class="event-tag">Storico</span>
-                            <span class="event-tag">Fondazione</span>
-                            <span class="event-tag">Leggendario</span>
+                            <span class="event-tag">Lorem ipsum</span>
+                            <span class="event-tag">Lorem ipsum</span>
+                            <span class="event-tag">Lorem ipsum</span>
                         </div>
                     </a>
                 </div>

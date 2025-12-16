@@ -349,11 +349,11 @@ if (!isOwner()) {
         <div class="filter-section">
             <span class="filter-label">Filtra per categoria:</span>
             <div class="filter-buttons">
-                <button class="filter-btn active" data-filter="all">Tutti</button>
-                <button class="filter-btn" data-filter="citazioni">Citazioni</button>
-                <button class="filter-btn" data-filter="situazioni">Situazioni</button>
-                <button class="filter-btn" data-filter="inside-jokes">Inside Jokes</button>
-                <button class="filter-btn" data-filter="leggende">Leggende</button>
+                <button class="filter-btn active" data-filter="all">Lorem ipsum</button>
+                <button class="filter-btn" data-filter="citazioni">Lorem ipsum</button>
+                <button class="filter-btn" data-filter="situazioni">Lorem ipsum</button>
+                <button class="filter-btn" data-filter="inside-jokes">Lorem ipsum</button>
+                <button class="filter-btn" data-filter="leggende">Lorem ipsum</button>
             </div>
         </div>
 
@@ -369,25 +369,24 @@ if (!isOwner()) {
                 </div>
                 <div class="meme-content">
                     <div class="meme-header">
-                        <h3 class="meme-title">"Godo!"</h3>
+                        <h3 class="meme-title">Lorem ipsum</h3>
                         <div class="meme-meta">
                             <span class="meta-item">
                                 <i class="fas fa-user"></i>
-                                Mario
+                                Lorem ipsum
                             </span>
                             <span class="meta-item">
                                 <i class="fas fa-calendar"></i>
-                                2022
+                                Lorem ipsum
                             </span>
                         </div>
                     </div>
                     <p class="meme-description">
-                        La citazione più iconica del gruppo, nata durante una partita particolarmente tesa.
-                        Da allora viene usata in qualsiasi contesto, dalla vittoria più epica al più piccolo
-                        successo quotidiano. È diventata la firma del gruppo.
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
+                        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
                     </p>
                     <div class="meme-footer">
-                        <span class="meme-category">Citazioni</span>
+                        <span class="meme-category">Lorem ipsum</span>
                         <i class="fas fa-chevron-right meme-arrow"></i>
                     </div>
                 </div>
@@ -399,26 +398,25 @@ if (!isOwner()) {
                 </div>
                 <div class="popularity-badge">
                     <i class="fas fa-star"></i>
-                    Leggendario
+                    Lorem ipsum
                 </div>
                 <div class="meme-content">
                     <div class="meme-header">
-                        <h3 class="meme-title">L'Incidente della Pizza</h3>
+                        <h3 class="meme-title">Lorem ipsum</h3>
                         <div class="meme-meta">
                             <span class="meta-item">
                                 <i class="fas fa-users"></i>
-                                Gruppo
+                                Lorem ipsum
                             </span>
                             <span class="meta-item">
                                 <i class="fas fa-calendar"></i>
-                                2023
+                                Lorem ipsum
                             </span>
                         </div>
                     </div>
                     <p class="meme-description">
-                        Quella sera in cui abbiamo ordinato pizza per 15 persone ma ne sono arrivate 50.
-                        Nessuno sa ancora come sia potuto succedere, ma quella notte abbiamo mangiato pizza
-                        per una settimana. Ora "ordinare pizza" ha un significato completamente diverso.
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
+                        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
                     </p>
                     <div class="meme-footer">
                         <span class="meme-category">Situazioni</span>
@@ -433,25 +431,24 @@ if (!isOwner()) {
                 </div>
                 <div class="meme-content">
                     <div class="meme-header">
-                        <h3 class="meme-title">La Teoria del Complotto di Luca</h3>
+                        <h3 class="meme-title">Lorem ipsum</h3>
                         <div class="meme-meta">
                             <span class="meta-item">
                                 <i class="fas fa-user"></i>
-                                Luca
+                                Lorem ipsum
                             </span>
                             <span class="meta-item">
                                 <i class="fas fa-calendar"></i>
-                                2023
+                                Lorem ipsum
                             </span>
                         </div>
                     </div>
                     <p class="meme-description">
-                        Durante una serata, Luca ha elaborato una teoria del complotto su come tutti i distributori
-                        automatici del mondo siano collegati. La presentazione è durata 2 ore e includeva grafici
-                        disegnati su tovaglioli. Ora ogni volta che qualcosa va storto diciamo "è colpa dei distributori".
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
+                        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
                     </p>
                     <div class="meme-footer">
-                        <span class="meme-category">Inside Jokes</span>
+                        <span class="meme-category">Lorem ipsum</span>
                         <i class="fas fa-chevron-right meme-arrow"></i>
                     </div>
                 </div>
@@ -463,29 +460,28 @@ if (!isOwner()) {
                 </div>
                 <div class="popularity-badge">
                     <i class="fas fa-fire"></i>
-                    Virale
+                    Lorem ipsum
                 </div>
                 <div class="meme-content">
                     <div class="meme-header">
-                        <h3 class="meme-title">La Mossa di Danza Proibita</h3>
+                        <h3 class="meme-title">Lorem ipsum</h3>
                         <div class="meme-meta">
                             <span class="meta-item">
                                 <i class="fas fa-user"></i>
-                                Giulia
+                                Lorem ipsum
                             </span>
                             <span class="meta-item">
                                 <i class="fas fa-calendar"></i>
-                                2024
+                                Lorem ipsum
                             </span>
                         </div>
                     </div>
                     <p class="meme-description">
-                        Giulia ha inventato una mossa di danza così imbarazzante che è stata ufficialmente bandita
-                        da tutte le feste del gruppo. Naturalmente, questo significa che ora tutti la fanno ogni
-                        volta che c'è musica. È diventata la nostra signature move non ufficiale.
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
+                        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
                     </p>
                     <div class="meme-footer">
-                        <span class="meme-category">Leggende</span>
+                        <span class="meme-category">Lorem ipsum</span>
                         <i class="fas fa-chevron-right meme-arrow"></i>
                     </div>
                 </div>
@@ -497,25 +493,24 @@ if (!isOwner()) {
                 </div>
                 <div class="meme-content">
                     <div class="meme-header">
-                        <h3 class="meme-title">L'Origine dei Nickname Assurdi</h3>
+                        <h3 class="meme-title">Lorem ipsum</h3>
                         <div class="meme-meta">
                             <span class="meta-item">
                                 <i class="fas fa-users"></i>
-                                Gruppo
+                                Lorem ipsum
                             </span>
                             <span class="meta-item">
                                 <i class="fas fa-calendar"></i>
-                                2022
+                                Lorem ipsum
                             </span>
                         </div>
                     </div>
                     <p class="meme-description">
-                        Una sera abbiamo deciso di darci dei nickname. Il processo è degenerato completamente e
-                        ora abbiamo soprannomi che non hanno assolutamente senso ma che ci identifica perfettamente.
-                        Chiedere spiegazioni è inutile, bisogna esserci stati.
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
+                        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
                     </p>
                     <div class="meme-footer">
-                        <span class="meme-category">Inside Jokes</span>
+                        <span class="meme-category">Lorem ipsum</span>
                         <i class="fas fa-chevron-right meme-arrow"></i>
                     </div>
                 </div>
@@ -527,25 +522,24 @@ if (!isOwner()) {
                 </div>
                 <div class="meme-content">
                     <div class="meme-header">
-                        <h3 class="meme-title">Il Grande Fallimento del 2023</h3>
+                        <h3 class="meme-title">Lorem ipsum</h3>
                         <div class="meme-meta">
                             <span class="meta-item">
                                 <i class="fas fa-users"></i>
-                                Gruppo
+                                Lorem ipsum
                             </span>
                             <span class="meta-item">
                                 <i class="fas fa-calendar"></i>
-                                2023
+                                Lorem ipsum
                             </span>
                         </div>
                     </div>
                     <p class="meme-description">
-                        Abbiamo provato a organizzare un evento a sorpresa. Tutto quello che poteva andare storto
-                        è andato storto, ma in modo così spettacolare che è diventato il miglior evento dell'anno.
-                        Ora "organizzare una sorpresa" è sinonimo di caos controllato.
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
+                        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
                     </p>
                     <div class="meme-footer">
-                        <span class="meme-category">Situazioni</span>
+                        <span class="meme-category">Lorem ipsum</span>
                         <i class="fas fa-chevron-right meme-arrow"></i>
                     </div>
                 </div>
@@ -569,7 +563,6 @@ if (!isOwner()) {
     <script src="../../js/modeChanger.js"></script>
 
     <script>
-
         const filterButtons = document.querySelectorAll('.filter-btn');
         const memeCards = document.querySelectorAll('.meme-card');
 
