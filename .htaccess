@@ -23,7 +23,4 @@ AddDefaultCharset UTF-8
 
 RewriteRule ^user/([a-zA-Z0-9_]+)$ user.php?username=$1 [L,QSA]
 
-RewriteCond %{THE_REQUEST} \s/it/cripsumpedia/u\?id=([a-zA-Z0-9_]+)[\s&] [NC]
-RewriteRule ^ /it/cripsumpedia/u/%1? [R=301,L]
-
 RewriteRule ^it/cripsumpedia/u/([a-zA-Z0-9_]+)$ it/cripsumpedia/u.php?id=$1 [L,QSA]
