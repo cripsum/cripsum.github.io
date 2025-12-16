@@ -379,7 +379,7 @@ if (!isOwner()) {
                 <i class="fas fa-chevron-right person-arrow"></i>
             </a>
 
-            <a href="u/Lorem ipsum" class="person-card">
+            <a href="u/loremipsum" class="person-card">
                 <div class="person-avatar">
                     <i class="fas fa-user"></i>
                 </div>
