@@ -358,7 +358,7 @@ if (!isOwner()) {
         </div>
 
         <div class="memes-grid">
-            <!-- Meme 1 -->
+
             <a href="meme-dettaglio.html?id=godo" class="meme-card" data-category="citazioni">
                 <div class="meme-image">
                     <i class="fas fa-quote-left"></i>
@@ -393,7 +393,6 @@ if (!isOwner()) {
                 </div>
             </a>
 
-            <!-- Meme 2 -->
             <a href="meme-dettaglio.html?id=pizza-incident" class="meme-card" data-category="situazioni">
                 <div class="meme-image">
                     <i class="fas fa-pizza-slice"></i>
@@ -428,7 +427,6 @@ if (!isOwner()) {
                 </div>
             </a>
 
-            <!-- Meme 3 -->
             <a href="meme-dettaglio.html?id=teoria-complotto" class="meme-card" data-category="inside-jokes">
                 <div class="meme-image">
                     <i class="fas fa-eye"></i>
@@ -459,7 +457,6 @@ if (!isOwner()) {
                 </div>
             </a>
 
-            <!-- Meme 4 -->
             <a href="meme-dettaglio.html?id=dance-move" class="meme-card" data-category="leggende">
                 <div class="meme-image">
                     <i class="fas fa-person-dancing"></i>
@@ -494,7 +491,6 @@ if (!isOwner()) {
                 </div>
             </a>
 
-            <!-- Meme 5 -->
             <a href="meme-dettaglio.html?id=nickname-origins" class="meme-card" data-category="inside-jokes">
                 <div class="meme-image">
                     <i class="fas fa-tag"></i>
@@ -525,7 +521,6 @@ if (!isOwner()) {
                 </div>
             </a>
 
-            <!-- Meme 6 -->
             <a href="meme-dettaglio.html?id=epic-fail" class="meme-card" data-category="situazioni">
                 <div class="meme-image">
                     <i class="fas fa-face-grin-beam-sweat"></i>
@@ -574,15 +569,15 @@ if (!isOwner()) {
     <script src="../../js/modeChanger.js"></script>
 
     <script>
-        // Filtro per categoria
+
         const filterButtons = document.querySelectorAll('.filter-btn');
         const memeCards = document.querySelectorAll('.meme-card');
 
         filterButtons.forEach(button => {
             button.addEventListener('click', () => {
-                // Rimuovi classe active da tutti i bottoni
+
                 filterButtons.forEach(btn => btn.classList.remove('active'));
-                // Aggiungi classe active al bottone cliccato
+
                 button.classList.add('active');
 
                 const filterValue = button.dataset.filter;

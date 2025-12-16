@@ -351,7 +351,7 @@ if (!isOwner()) {
         </div>
 
         <div class="people-list" id="peopleList">
-            <!-- Esempio 1 -->
+
             <a href="persona-dettaglio.html?id=mario" class="person-card">
                 <div class="person-avatar">
                     <i class="fas fa-user"></i>
@@ -380,7 +380,6 @@ if (!isOwner()) {
                 <i class="fas fa-chevron-right person-arrow"></i>
             </a>
 
-            <!-- Esempio 2 -->
             <a href="persona-dettaglio.html?id=luca" class="person-card">
                 <div class="person-avatar">
                     <i class="fas fa-user"></i>
@@ -409,7 +408,6 @@ if (!isOwner()) {
                 <i class="fas fa-chevron-right person-arrow"></i>
             </a>
 
-            <!-- Esempio 3 -->
             <a href="persona-dettaglio.html?id=giulia" class="person-card">
                 <div class="person-avatar">
                     <i class="fas fa-user"></i>

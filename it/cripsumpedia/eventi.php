@@ -342,7 +342,6 @@ if (!isOwner()) {
         <div class="timeline-section">
             <div class="timeline-line"></div>
 
-            <!-- Anno 2024 -->
             <div class="timeline-year">
                 <h2 class="year-label">2024</h2>
                 <div class="events-grid">
@@ -400,7 +399,6 @@ if (!isOwner()) {
                 </div>
             </div>
 
-            <!-- Anno 2023 -->
             <div class="timeline-year">
                 <h2 class="year-label">2023</h2>
                 <div class="events-grid">
@@ -458,7 +456,6 @@ if (!isOwner()) {
                 </div>
             </div>
 
-            <!-- Anno 2022 -->
             <div class="timeline-year">
                 <h2 class="year-label">2022</h2>
                 <div class="events-grid">
