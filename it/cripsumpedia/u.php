@@ -364,7 +364,7 @@ if (!isOwner()) {
 <body>
     <div class="main-content">
         <nav class="breadcrumb-nav">
-            <a href="../cripsumpedia" class="breadcrumb-link">Home</a>
+            <a href="home" class="breadcrumb-link">Home</a>
             <span class="breadcrumb-separator">›</span>
             <a href="utenti" class="breadcrumb-link">Persone</a>
             <span class="breadcrumb-separator">›</span>
