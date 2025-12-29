@@ -93,7 +93,7 @@ checkBan($mysqli);
             <?php unset($_SESSION['error_message']); ?>
         <?php endif; ?>
 
-        <div style="display: flex; justify-content: center; align-items: center; margin: 2rem 0;">
+        <div style="display: flex; align-items: center; margin: 2rem 0;">
             <a href="https://store.steampowered.com/app/3527290/PEAK/" target="_blank" rel="noopener"></a>
             <img src="../img/FREE.png" alt="Centered Image" style="max-width: 1000px" />
             </a>
