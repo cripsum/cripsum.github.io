@@ -95,7 +95,7 @@ checkBan($mysqli);
 
         <div style="display: flex; justify-content: center; align-items: center; margin: auto;">
             <a href="https://store.steampowered.com/app/3527290/PEAK/" target="_blank" rel="noopener">
-                <img src="../img/FREE.png" alt="Centered Image" style="width: 750px" />
+                <img src="../img/FREE.png" alt="Centered Image" style="max-width: 750px" />
             </a>
         </div>
 
