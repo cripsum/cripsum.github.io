@@ -87,11 +87,17 @@ checkBan($mysqli);
 
         <?php if (isset($_SESSION['error_message'])): ?>
             <div class="alert alert-danger fadeup" role="alert" style="max-width: 80%; margin: auto; margin-top: 3rem">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <i class="bi bi-exclamation-triangle</a>-fill me-2"></i>
                 <?php echo htmlspecialchars($_SESSION['error_message']); ?>
             </div>
             <?php unset($_SESSION['error_message']); ?>
         <?php endif; ?>
+
+        <div style="display: flex; justify-content: center; align-items: center; margin: 2rem 0;">
+            <a href="https://store.steampowered.com/app/3527290/PEAK/" target="_blank" rel="noopener"></a>
+            <img src="../img/FREE.png" alt="Centered Image" style="max-width: 1000px; height: auto; display: block;" />
+            </a>
+        </div>
 
         <div id="disclaimer" class="divdisclaimer fadeup">
             <button class="btn btn-secondary bottone" type="button" data-bs-toggle="modal" data-bs-target="#disclaimerModal" style="margin-top: 30px; max-width: 70%">
