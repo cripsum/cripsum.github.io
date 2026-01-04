@@ -93,11 +93,11 @@ checkBan($mysqli);
             <?php unset($_SESSION['error_message']); ?>
         <?php endif; ?>
 
-        <div style="display: flex; justify-content: center; align-items: center; margin: auto;">
+        <!-- <div style="display: flex; justify-content: center; align-items: center; margin: auto;">
             <a href="https://store.steampowered.com/app/3527290/PEAK/" target="_blank" rel="noopener">
                 <img src="../img/FREE.png" alt="Centered Image" style="max-width: 750px" />
             </a>
-        </div>
+        </div> -->
 
         <div id="disclaimer" class="divdisclaimer fadeup">
             <button class="btn btn-secondary bottone" type="button" data-bs-toggle="modal" data-bs-target="#disclaimerModal" style="margin-top: 30px; max-width: 70%">
