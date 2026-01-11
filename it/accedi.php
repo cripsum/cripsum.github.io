@@ -17,7 +17,7 @@ if ($_POST) {
     $password = $_POST['password'] ?? '';
 
     if (empty($email_or_username) || empty($password)) {
-        $error = 'Compila tutti i campi';
+        $error = 'Compila tutti i campi!';
     } else {
         $result = loginUser($mysqli, $email_or_username, $password);
         if ($result === true) {
