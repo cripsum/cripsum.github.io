@@ -629,7 +629,7 @@ if (!isLoggedIn()) {
         }
     </script>
 
-    <script src="../js/modeChanger.js"></script>
+    
 </body>
 
 </html>

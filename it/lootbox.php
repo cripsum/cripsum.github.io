@@ -1567,7 +1567,7 @@ require_once '../api/api_personaggi.php';
                 }
             });
         </script>
-        <script src="../js/modeChanger.js"></script>
+        
 </body>
 
 </html>
