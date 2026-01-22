@@ -112,7 +112,7 @@ checkBan($mysqli);
                         <h5 class="modal-title" id="disclaimerModalLabel">Disclaimer</h5>
                     </div>
                     <div class="modal-body">
-                        <p class="fw-bold">Questo sito è pensato per intrattenere e far sorridere. <br />Di seguito alcune note importanti per un’esperienza sicura e positiva.</p>
+                        <p class="">Questo sito è pensato per intrattenere e far sorridere. <br />Di seguito alcune note importanti per un’esperienza sicura e positiva.</p>
                         <ul class="text-start mb-2 mb-lg-0" style="font-weight: normal;">
                             <li class="mb-2">
                                 Il contenuto di questo sito è creato per divertire, senza intenzione di offendere o mancare di rispetto a nessuno. un esempio sono le pagine "TikTokPedia", "Top
@@ -126,8 +126,8 @@ checkBan($mysqli);
                                 La pagina delle donazioni è reale e consente invii di denaro; tuttavia, questo sito non è a scopo di lucro, quindi ti invitiamo a non procedere con donazioni.
                             </li>
                         </ul>
-                        <p class="">
-                            *NOTA: Per trasparenza, il codice del sito è pubblico su <a href="https://github.com/cripsum/cripsum.github.io" class="linkbianco">GitHub</a>. Puoi verificare tu stesso
+                        <p style="font-weight: normal;">
+                            <strong>*NOTA</strong>: Per trasparenza, il codice del sito è pubblico su <a href="https://github.com/cripsum/cripsum.github.io" class="linkbianco">GitHub</a>. Puoi verificare tu stesso
                             l'autenticità del disclaimer.
                         </p>
                     </div>
