@@ -409,7 +409,7 @@ checkBan($mysqli);
             <div class="chisiamo-section fadeup">
                 <h1 class="chisiamo-title">Achievement Sbloccati</h1>
                 <p class="chisiamo-subtitle">
-                    Traccia i tuoi progressi e sblocca nuovi traguardi esplorando tutte le funzionalità di Cripsum™
+                    Traccia i tuoi progressi e sblocca nuovi achievement esplorando Cripsum™
                 </p>
             </div>
 
@@ -444,7 +444,7 @@ checkBan($mysqli);
     <?php include '../includes/footer.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
+
 
     <script>
         let allAchievements = [];
