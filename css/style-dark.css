@@ -571,7 +571,7 @@ radio:hover {
 
 .btn-link {
     color: white;
-    text-decoration: underline;
+    text-decoration: none;
     padding: 8px 12px;
     border-radius: 8px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
