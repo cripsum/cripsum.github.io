@@ -32,6 +32,63 @@ $stmt->close();
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style-dark.css">
     <style>
+        body {
+            font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            padding-top: 5rem;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem 4rem;
+        }
+
+        .page-header {
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #ff64c8;
+            transform: translateX(-3px);
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .page-icon {
+            color: #ff64c8;
+            font-size: 2rem;
+        }
+
+        .page-description {
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.7;
+        }
+
         .timeline-section {
             position: relative;
             padding-left: 3rem;
@@ -43,7 +100,10 @@ $stmt->close();
             top: 0;
             bottom: 0;
             width: 2px;
-            background: linear-gradient(180deg, rgba(255, 100, 200, 0.5), rgba(255, 100, 200, 0.2), rgba(255, 100, 200, 0.1));
+            background: linear-gradient(180deg,
+                    rgba(255, 100, 200, 0.5),
+                    rgba(255, 100, 200, 0.2),
+                    rgba(255, 100, 200, 0.1));
         }
 
         .timeline-year {
@@ -58,13 +118,12 @@ $stmt->close();
             display: flex;
             align-items: center;
             gap: 1rem;
-            position: relative;
         }
 
         .year-label::before {
             content: '';
             position: absolute;
-            left: -1.9rem;
+            left: 1.1rem;
             width: 0.8rem;
             height: 0.8rem;
             background: #ff64c8;
@@ -112,6 +171,157 @@ $stmt->close();
 
         .event-card:hover::before {
             opacity: 1;
+        }
+
+        .event-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .event-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(255, 100, 200, 0.2), rgba(255, 74, 169, 0.1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #ff64c8;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .event-card:hover .event-icon {
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(255, 100, 200, 0.2);
+        }
+
+        .event-info {
+            flex: 1;
+        }
+
+        .event-title {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .event-date {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .event-date i {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .event-description {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .event-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .event-tag {
+            font-size: 0.75rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 12px;
+            background: rgba(255, 100, 200, 0.15);
+            color: #ff64c8;
+            border: 1px solid rgba(255, 100, 200, 0.3);
+        }
+
+        .event-arrow {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            z-index: 1;
+        }
+
+        .event-card:hover .event-arrow {
+            color: #ff64c8;
+            transform: translateX(5px);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 2rem 1.5rem 3rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .timeline-section {
+                padding-left: 2rem;
+            }
+
+            .timeline-line {
+                left: 0.75rem;
+            }
+
+            .year-label::before {
+                left: 0.35rem;
+            }
+
+            .event-card {
+                padding: 1.5rem;
+            }
+
+            .event-header {
+                gap: 1rem;
+            }
+
+            .event-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.25rem;
+            }
+
+            .event-arrow {
+                position: static;
+                margin-top: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 1.5rem 1rem 2rem;
+            }
+
+            .event-card {
+                padding: 1.25rem;
+            }
+
+            .event-title {
+                font-size: 1.2rem;
+            }
         }
     </style>
 </head>

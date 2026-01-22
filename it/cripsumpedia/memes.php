@@ -29,6 +29,102 @@ $stmt->close();
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style-dark.css">
     <style>
+        body {
+            font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            padding-top: 5rem;
+        }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem 4rem;
+        }
+
+        .page-header {
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #ffd764;
+            transform: translateX(-3px);
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .page-icon {
+            color: #ffd764;
+            font-size: 2rem;
+        }
+
+        .page-description {
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.7;
+        }
+
+        .filter-section {
+            margin-bottom: 2.5rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-label {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1.25rem;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: linear-gradient(135deg, rgba(255, 215, 100, 0.2), rgba(255, 184, 68, 0.15));
+            border-color: rgba(255, 215, 100, 0.4);
+            color: #ffd764;
+        }
+
         .memes-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -72,9 +168,161 @@ $stmt->close();
             opacity: 1;
         }
 
+        .meme-image {
+            width: 100%;
+            height: 220px;
+            background: linear-gradient(135deg, rgba(255, 215, 100, 0.15), rgba(255, 184, 68, 0.1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: #ffd764;
+            position: relative;
+            z-index: 1;
+        }
+
+        .meme-content {
+            padding: 1.75rem;
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meme-header {
+            margin-bottom: 1rem;
+        }
+
+        .meme-title {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .meme-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 0.75rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .meta-item i {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .meme-description {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+            flex: 1;
+        }
+
+        .meme-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1.25rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .meme-category {
+            font-size: 0.75rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 12px;
+            background: rgba(255, 215, 100, 0.15);
+            color: #ffd764;
+            border: 1px solid rgba(255, 215, 100, 0.3);
+            font-weight: 500;
+        }
+
+        .meme-arrow {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .meme-card:hover .meme-arrow {
+            color: #ffd764;
+            transform: translateX(5px);
+        }
+
+        .popularity-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: #ffd764;
+            border: 1px solid rgba(255, 215, 100, 0.3);
+            z-index: 2;
+        }
+
+        .popularity-badge i {
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 992px) {
+            .memes-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 1.5rem;
+            }
+        }
+
         @media (max-width: 768px) {
+            .main-content {
+                padding: 2rem 1.5rem 3rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
             .memes-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .filter-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 1.5rem 1rem 2rem;
+            }
+
+            .memes-grid {
+                grid-template-columns: minmax(280px, 1fr);
+            }
+
+            .meme-content {
+                padding: 1.5rem;
+            }
+
+            .meme-image {
+                height: 180px;
+                font-size: 3rem;
             }
         }
     </style>
