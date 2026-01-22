@@ -499,9 +499,9 @@ $stmt->close();
 
     <div class="main-content" style="max-width: 1000px; margin: 0 auto; padding: 3rem 2rem 4rem;">
         <nav style="margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; color: rgba(255, 255, 255, 0.5); flex-wrap: wrap;">
-            <a href="cripsumpedia.php" style="color: rgba(255, 255, 255, 0.6); text-decoration: none;">Home</a>
+            <a href="home" style="color: rgba(255, 255, 255, 0.6); text-decoration: none;">Home</a>
             <span>›</span>
-            <a href="eventi.php" style="color: rgba(255, 255, 255, 0.6); text-decoration: none;">Eventi</a>
+            <a href="eventi" style="color: rgba(255, 255, 255, 0.6); text-decoration: none;">Eventi</a>
             <span>›</span>
             <span><?= htmlspecialchars($evento['titolo']) ?></span>
         </nav>

@@ -333,7 +333,7 @@ $stmt->close();
 
     <div class="main-content" style="max-width: 1400px; margin: 0 auto; padding: 3rem 2rem 4rem;">
         <div class="page-header" style="margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-            <a href="cripsumpedia.php" style="display: inline-flex; align-items: center; gap: 0.5rem; color: rgba(255, 255, 255, 0.6); text-decoration: none; font-size: 0.95rem; margin-bottom: 1.5rem; transition: all 0.3s ease;">
+            <a href="home" style="display: inline-flex; align-items: center; gap: 0.5rem; color: rgba(255, 255, 255, 0.6); text-decoration: none; font-size: 0.95rem; margin-bottom: 1.5rem; transition: all 0.3s ease;">
                 <i class="fas fa-arrow-left"></i>
                 Torna alla home
             </a>

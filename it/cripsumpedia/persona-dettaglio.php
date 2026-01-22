@@ -390,9 +390,9 @@ $stmt->close();
 
     <div class="main-content" style="max-width: 1000px; margin: 0 auto; padding: 3rem 2rem 4rem;">
         <nav class="breadcrumb-nav" style="margin-bottom: 2rem;">
-            <a href="cripsumpedia.php" class="breadcrumb-link">Home</a>
+            <a href="home" class="breadcrumb-link">Home</a>
             <span class="breadcrumb-separator">›</span>
-            <a href="persone.php" class="breadcrumb-link">Persone</a>
+            <a href="persone" class="breadcrumb-link">Persone</a>
             <span class="breadcrumb-separator">›</span>
             <span><?= htmlspecialchars($persona['nome']) ?></span>
         </nav>
