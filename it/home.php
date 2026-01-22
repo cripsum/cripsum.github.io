@@ -243,9 +243,7 @@ checkBan($mysqli);
 
                     <p class="sottopag">
                         Non hai un account?
-                        <button class="btn btn-secondary bottone" type="button">
-                            <a href="registrati" class="testobianco">Registrati ora</a>
-                        </button>
+                        <a href="registrati" class="btn-link">Registrati ora</a>
                         e inizia a esplorare!
                     </p>
                 </div>
