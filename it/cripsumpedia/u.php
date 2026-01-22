@@ -7,12 +7,10 @@ checkBan($mysqli);
 $persona = $_GET['id'] ?? null;
 
 if (!isLoggedIn()) {
-    $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-    $_SESSION['login_message'] = "Devi essere loggato per accedere a Cripsumpedia™.";
-    header('Location: ../accedi');
+    $_SESSION['error_message'] = "mi dispiace, ma la pagina Cripsumpedia™ è ancora in fase di sviluppo.";
+    header('Location: ../home');
     exit();
 }
-
 if (!isOwner()) {
     $_SESSION['error_message'] = "mi dispiace, ma la pagina Cripsumpedia™ è ancora in fase di sviluppo.";
     header('Location: ../home');
