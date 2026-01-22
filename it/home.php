@@ -112,7 +112,7 @@ checkBan($mysqli);
                         <h5 class="modal-title" id="disclaimerModalLabel">Disclaimer</h5>
                     </div>
                     <div class="modal-body">
-                        <p class="">Questo sito è pensato per intrattenere e far sorridere. <br />Di seguito alcune note importanti per un’esperienza sicura e positiva.</p>
+                        <p style="font-weight: normal;">Questo sito è pensato per intrattenere e far sorridere. <br />Di seguito alcune note importanti per un’esperienza sicura e positiva.</p>
                         <ul class="text-start mb-2 mb-lg-0" style="font-weight: normal;">
                             <li class="mb-2">
                                 Il contenuto di questo sito è creato per divertire, senza intenzione di offendere o mancare di rispetto a nessuno. un esempio sono le pagine "TikTokPedia", "Top
