@@ -153,7 +153,7 @@ checkBan($mysqli);
         </div>
     </div>
     <?php include '../includes/footer.php'; ?>
-    <embed src="../audio/Elevator Music.mp3" loop="true" autostart="true" width="2" height="0" />
+    <!-- <embed src="../audio/Elevator Music.mp3" loop="true" autostart="true" width="2" height="0" /> -->
     <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
