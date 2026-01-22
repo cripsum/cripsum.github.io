@@ -1,6 +1,8 @@
 <?php
 // admin-parts/dashboard.php
-
+require_once '../../../config/session_init.php';
+require_once '../../../config/database.php';
+require_once '../../../includes/functions.php';
 // Conta elementi
 $count_persone = $mysqli->query("SELECT COUNT(*) as count FROM cripsumpedia_persone")->fetch_assoc()['count'];
 $count_eventi = $mysqli->query("SELECT COUNT(*) as count FROM cripsumpedia_eventi")->fetch_assoc()['count'];
