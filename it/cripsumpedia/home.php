@@ -337,7 +337,7 @@ if (!isOwner()) {
         </div>
 
         <div class="sections-grid">
-            <a href="utenti" class="section-card">
+            <a href="persone" class="section-card">
                 <div class="section-icon-wrapper">
                     <i class="fas fa-users section-icon"></i>
                 </div>
