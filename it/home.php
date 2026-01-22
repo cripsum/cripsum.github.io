@@ -223,7 +223,7 @@ checkBan($mysqli);
                 <div class="account-section fadeup mt-4">
                     <h3 class="sottopag mb-3">Hai un account Cripsum™?</h3>
                     <p class="sottopag mb-4">
-                        <a href="accedi" class="linkbianco btn-link">Accedi</a> al sito per sbloccare tutti i contenuti:
+                        <a href="accedi" class="btn-link">Accedi</a> al sito per sbloccare tutti i contenuti:
                     </p>
 
                     <div class="features-list mb-4">
@@ -243,7 +243,7 @@ checkBan($mysqli);
 
                     <p class="sottopag">
                         Non hai un account?
-                        <a href="registrati" class="linkbianco btn-link">Registrati ora</a>
+                        <a href="registrati" class="btn-link">Registrati ora</a>
                         e inizia a esplorare!
                     </p>
                 </div>
