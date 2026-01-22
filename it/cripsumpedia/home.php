@@ -385,16 +385,6 @@ if (!isOwner()) {
                 </div>
             </a>
         </div>
-
-        <!-- <div class="info-section">
-            <h3 class="info-title">Contribuisci all'archivio</h3>
-            <p class="info-text">
-                Cripsumpedia™ è un progetto in continua evoluzione. Se hai storie, foto o ricordi da aggiungere,
-                o se vuoi suggerire nuove voci per l'enciclopedia, sentiti libero di contribuire. Questo spazio
-                è di tutti noi e cresce grazie ai contributi di ciascun membro del gruppo. Insieme possiamo
-                preservare e celebrare la nostra storia condivisa.
-            </p>
-        </div> -->
     </div>
     <div id="achievement-popup" class="popup">
         <img id="popup-image" src="" alt="Achievement" />
