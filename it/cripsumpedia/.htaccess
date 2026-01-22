@@ -1,9 +1,5 @@
 RewriteEngine On
 
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^u/([a-zA-Z0-9_]+)$ u.php?id=$1 [L,QSA]
-
 RewriteCond %{REQUEST_FILENAME}.html -f
 RewriteRule ^(.*)$ $1.html [L]
 
