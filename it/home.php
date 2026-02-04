@@ -57,7 +57,7 @@ checkBan($mysqli);
             if (activeVideo) {
                 activeVideo.addEventListener('ended', hideSplash);
             }
-            setTimeout(hideSplash, 3500);
+            setTimeout(hideSplash, 3800);
         });
     </script>
 
