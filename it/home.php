@@ -33,10 +33,10 @@ checkBan($mysqli);
                 document.body.style.overflow = "auto";
                 setTimeout(() => {
                     splash.style.display = "none";
-                }, 700);
+                }, 1000);
             }
             video.addEventListener('ended', hideSplash);
-            setTimeout(hideSplash, 5000);
+            setTimeout(hideSplash, 7000);
         });
     </script>
 
