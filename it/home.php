@@ -20,7 +20,7 @@ checkBan($mysqli);
     <?php include '../includes/impostazioni.php'; ?>
 
     <div id="splash-screen" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:#000;display:flex;align-items:center;justify-content:center;">
-        <video id="splash-video" src="../video/splash.mp4" autoplay muted playsinline style="width:100vw;height:100vh;object-fit:cover;"></video>
+        <video id="splash-video" src="../vid/splash.mp4" autoplay muted playsinline style="width:100vw;height:100vh;object-fit:cover;"></video>
     </div>
     <script>
         document.body.style.overflow = "hidden";
