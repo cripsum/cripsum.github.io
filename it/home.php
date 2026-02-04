@@ -20,13 +20,28 @@ checkBan($mysqli);
     <?php include '../includes/impostazioni.php'; ?>
 
     <div id="splash-screen" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity 0.7s cubic-bezier(.4,0,.2,1);opacity:1;">
-        <video id="splash-video" src="../vid/splash.mp4" autoplay muted playsinline style="width:100vw;height:100vh;object-fit:cover;"></video>
+        <video id="splash-video-portrait" src="../vid/splash-portrait.mp4" autoplay muted playsinline style="width:100vw;height:100vh;object-fit:cover;display:none;"></video>
+        <video id="splash-video-landscape" src="../vid/splash-landscape.mp4" autoplay muted playsinline style="width:100vw;height:100vh;object-fit:cover;display:none;"></video>
     </div>
     <script>
         document.body.style.overflow = "hidden";
         window.addEventListener('DOMContentLoaded', function() {
             const splash = document.getElementById('splash-screen');
-            const video = document.getElementById('splash-video');
+            const videoPortrait = document.getElementById('splash-video-portrait');
+            const videoLandscape = document.getElementById('splash-video-landscape');
+            let activeVideo;
+
+            function selectVideo() {
+                if (window.innerHeight > window.innerWidth) {
+                    videoPortrait.style.display = "block";
+                    videoLandscape.style.display = "none";
+                    activeVideo = videoPortrait;
+                } else {
+                    videoPortrait.style.display = "none";
+                    videoLandscape.style.display = "block";
+                    activeVideo = videoLandscape;
+                }
+            }
 
             function hideSplash() {
                 splash.style.opacity = "0";
@@ -35,8 +50,14 @@ checkBan($mysqli);
                     splash.style.display = "none";
                 }, 1000);
             }
-            video.addEventListener('ended', hideSplash);
-            setTimeout(hideSplash, 7000);
+
+            selectVideo();
+            window.addEventListener('resize', selectVideo);
+
+            if (activeVideo) {
+                activeVideo.addEventListener('ended', hideSplash);
+            }
+            setTimeout(hideSplash, 5000);
         });
     </script>
 
