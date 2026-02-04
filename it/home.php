@@ -19,7 +19,7 @@ checkBan($mysqli);
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
-    <div id="splash-screen" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:#000;display:flex;align-items:center;justify-content:center;">
+    <div id="splash-screen" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity 0.7s cubic-bezier(.4,0,.2,1);opacity:1;">
         <video id="splash-video" src="../vid/splash.mp4" autoplay muted playsinline style="width:100vw;height:100vh;object-fit:cover;"></video>
     </div>
     <script>
@@ -30,10 +30,10 @@ checkBan($mysqli);
 
             function hideSplash() {
                 splash.style.opacity = "0";
+                document.body.style.overflow = "auto";
                 setTimeout(() => {
                     splash.style.display = "none";
-                    document.body.style.overflow = "auto";
-                }, 500);
+                }, 700);
             }
             video.addEventListener('ended', hideSplash);
             setTimeout(hideSplash, 5000);
