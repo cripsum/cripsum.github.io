@@ -19,7 +19,7 @@ checkBan($mysqli);
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
-    <div id="splash-screen" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity 0.7s cubic-bezier(.4,0,.2,1);opacity:1;">
+    <!-- <div id="splash-screen" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity 0.7s cubic-bezier(.4,0,.2,1);opacity:1;">
         <video id="splash-video-portrait" src="../vid/splash-portrait.mp4" autoplay muted playsinline style="width:100vw;height:100vh;object-fit:cover;display:none;"></video>
         <video id="splash-video-landscape" src="../vid/splash-landscape.mp4" autoplay muted playsinline style="width:100vw;height:100vh;object-fit:cover;display:none;"></video>
     </div>
@@ -59,7 +59,7 @@ checkBan($mysqli);
             }
             setTimeout(hideSplash, 3800);
         });
-    </script>
+    </script> -->
 
     <div class="testobianco paginaprincipale">
 
