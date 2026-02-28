@@ -32,20 +32,20 @@ $user_id = $_SESSION['user_id'] ?? null;
     <div class="container-fluid my-5 paginainterachisiamo testobianco" style="padding-top: 5rem; padding-bottom: 4rem; overflow: hidden;"></div>
     <div class="text-center">
         <img src="img/absolutetopaz.jpg" alt="Goofy Animation 1" class="goofy-animation-1" style="max-width: 200px; height: auto; position: absolute; top: 10%; left: 10%;">
-        <img src="img/absolutetopaz.jpg" alt="Goofy Animation 2" class="goofy-animation-2" style="max-width: 150px; height: auto; position: absolute; top: 20%; right: 15%;">
-        <img src="img/absolutetopaz.jpg" alt="Goofy Animation 3" class="goofy-animation-3" style="max-width: 180px; height: auto; position: absolute; top: 50%; left: 5%;">
-        <img src="img/absolutetopaz.jpg" alt="Goofy Animation 4" class="goofy-animation-4" style="max-width: 120px; height: auto; position: absolute; bottom: 20%; right: 20%;">
-        <img src="img/absolutetopaz.jpg" alt="Goofy Animation 5" class="goofy-animation-5" style="max-width: 250px; height: auto; position: absolute; top: 70%; left: 30%;">
-        <img src="img/absolutetopaz.jpg" alt="Goofy Animation 6" class="goofy-animation-6" style="max-width: 100px; height: auto; position: absolute; top: 30%; left: 50%;">
+        <img src="img/toki.jpg" alt="Goofy Animation 2" class="goofy-animation-2" style="max-width: 150px; height: auto; position: absolute; top: 20%; right: 15%;">
+        <img src="img/toki2.jpg" alt="Goofy Animation 3" class="goofy-animation-3" style="max-width: 180px; height: auto; position: absolute; top: 50%; left: 5%;">
+        <img src="img/toki3.jpg" alt="Goofy Animation 4" class="goofy-animation-4" style="max-width: 120px; height: auto; position: absolute; bottom: 20%; right: 20%;">
+        <img src="img/toki5.jpg" alt="Goofy Animation 5" class="goofy-animation-5" style="max-width: 250px; height: auto; position: absolute; top: 70%; left: 30%;">
+        <img src="img/toki4.jpg" alt="Goofy Animation 6" class="goofy-animation-6" style="max-width: 100px; height: auto; position: absolute; top: 30%; left: 50%;">
         <img src="img/absolutetopaz.jpg" alt="Goofy Animation 7" class="goofy-animation-7" style="max-width: 160px; height: auto; position: absolute; bottom: 40%; left: 70%;">
-        <img src="img/absolutetopaz.jpg" alt="Goofy Animation 8" class="goofy-animation-8" style="max-width: 220px; height: auto; position: absolute; top: 60%; right: 40%;">
-        <img src="img/absolutetopaz.jpg" alt="Goofy Animation 9" class="goofy-animation-9" style="max-width: 140px; height: auto; position: absolute; bottom: 10%; left: 45%;">
+        <img src="img/toki3.jpg" alt="Goofy Animation 8" class="goofy-animation-8" style="max-width: 220px; height: auto; position: absolute; top: 60%; right: 40%;">
+        <img src="img/toki4.jpg" alt="Goofy Animation 9" class="goofy-animation-9" style="max-width: 140px; height: auto; position: absolute; bottom: 10%; left: 45%;">
         <img src="img/absolutetopaz.jpg" alt="Goofy Animation 10" class="goofy-animation-10" style="max-width: 190px; height: auto; position: absolute; top: 40%; right: 5%;">
 
         <!-- Nuove animazioni fluide -->
-        <img src="img/absolutetopaz.jpg" alt="Random Mover 1" class="random-mover-1" style="max-width: 130px; height: auto; position: fixed; z-index: 1000; top: 0; left: 0;">
+        <img src="img/toki5.jpg" alt="Random Mover 1" class="random-mover-1" style="max-width: 130px; height: auto; position: fixed; z-index: 1000; top: 0; left: 0;">
         <img src="img/absolutetopaz.jpg" alt="Random Mover 2" class="random-mover-2" style="max-width: 170px; height: auto; position: fixed; z-index: 1000; top: 0; left: 0;">
-        <img src="img/absolutetopaz.jpg" alt="DVD Bouncer" class="dvd-bouncer" style="max-width: 110px; height: auto; position: fixed; z-index: 1000; top: 0; left: 0;">
+        <img src="img/toki.jpg" alt="DVD Bouncer" class="dvd-bouncer" style="max-width: 110px; height: auto; position: fixed; z-index: 1000; top: 0; left: 0;">
     </div>
     </div>
 
