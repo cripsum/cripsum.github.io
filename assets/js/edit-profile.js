@@ -1,0 +1,225 @@
+(function () {
+    const form = document.getElementById('profileEditForm');
+    if (!form) return;
+
+    const $ = (selector, parent = document) => parent.querySelector(selector);
+    const $$ = (selector, parent = document) => Array.from(parent.querySelectorAll(selector));
+
+    function readJson(id) {
+        const node = document.getElementById(id);
+        if (!node) return [];
+        try {
+            return JSON.parse(node.textContent || '[]');
+        } catch (_) {
+            return [];
+        }
+    }
+
+    function escapeAttr(value) {
+        return String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function boolAttr(value) {
+        return Number(value) === 1 || value === true ? 'checked' : '';
+    }
+
+    const repeaters = {
+        socials: $('#socialsRepeater'),
+        links: $('#linksRepeater'),
+        projects: $('#projectsRepeater'),
+        contents: $('#contentsRepeater'),
+    };
+
+    const platformOptions = ['tiktok', 'instagram', 'youtube', 'twitch', 'github', 'discord', 'telegram', 'x', 'website', 'steam', 'other'];
+    const projectStatuses = [['active', 'Attivo'], ['paused', 'In pausa'], ['finished', 'Finito'], ['idea', 'Idea']];
+    const contentTypes = [['edit', 'Edit'], ['video', 'Video'], ['game', 'Gioco'], ['post', 'Post'], ['other', 'Altro']];
+
+    function options(list, selected) {
+        return list.map((item) => {
+            const value = Array.isArray(item) ? item[0] : item;
+            const label = Array.isArray(item) ? item[1] : item;
+            return `<option value="${escapeAttr(value)}" ${String(selected || '') === String(value) ? 'selected' : ''}>${escapeAttr(label)}</option>`;
+        }).join('');
+    }
+
+    function makeRow(type, data = {}) {
+        const row = document.createElement('div');
+        row.className = 'profile-row-card';
+        row.dataset.rowType = type;
+
+        let body = '';
+        if (type === 'socials') {
+            body = `
+                <div class="profile-row-grid">
+                    <label>Platform<select data-field="platform">${options(platformOptions, data.platform || 'website')}</select></label>
+                    <label>Label<input data-field="label" maxlength="40" value="${escapeAttr(data.label || '')}" placeholder="TikTok"></label>
+                    <label class="profile-row-grid full">URL<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://..."></label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visibile</label>
+                </div>`;
+        }
+
+        if (type === 'links') {
+            body = `
+                <div class="profile-row-grid">
+                    <label>Titolo<input data-field="title" maxlength="60" value="${escapeAttr(data.title || '')}" placeholder="Portfolio"></label>
+                    <label>Icona FontAwesome<input data-field="icon" maxlength="40" value="${escapeAttr(data.icon || 'fas fa-link')}"></label>
+                    <label class="profile-row-grid full">Descrizione<input data-field="description" maxlength="160" value="${escapeAttr(data.description || '')}" placeholder="Una frase breve"></label>
+                    <label class="profile-row-grid full">URL<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://..."></label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> In evidenza</label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visibile</label>
+                </div>`;
+        }
+
+        if (type === 'projects') {
+            body = `
+                <div class="profile-row-grid">
+                    <label>Titolo<input data-field="title" maxlength="70" value="${escapeAttr(data.title || '')}" placeholder="Nome progetto"></label>
+                    <label>Stato<select data-field="status">${options(projectStatuses, data.status || 'active')}</select></label>
+                    <label class="profile-row-grid full">Descrizione<textarea data-field="description" maxlength="260" placeholder="Cosa fa questo progetto">${escapeAttr(data.description || '')}</textarea></label>
+                    <label>URL<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://..."></label>
+                    <label>Immagine URL<input data-field="image_url" value="${escapeAttr(data.image_url || '')}" placeholder="https://..."></label>
+                    <label class="profile-row-grid full">Tech stack<input data-field="tech_stack" maxlength="160" value="${escapeAttr(data.tech_stack || '')}" placeholder="PHP, JS, MySQL"></label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> In evidenza</label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visibile</label>
+                </div>`;
+        }
+
+        if (type === 'contents') {
+            body = `
+                <div class="profile-row-grid">
+                    <label>Tipo<select data-field="content_type">${options(contentTypes, data.content_type || 'edit')}</select></label>
+                    <label>Titolo<input data-field="title" maxlength="70" value="${escapeAttr(data.title || '')}" placeholder="Titolo contenuto"></label>
+                    <label class="profile-row-grid full">Descrizione<textarea data-field="description" maxlength="220" placeholder="Descrizione breve">${escapeAttr(data.description || '')}</textarea></label>
+                    <label>URL<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://..."></label>
+                    <label>Thumbnail URL<input data-field="thumbnail_url" value="${escapeAttr(data.thumbnail_url || '')}" placeholder="https://..."></label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> In evidenza</label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visibile</label>
+                </div>`;
+        }
+
+        row.innerHTML = `
+            <div class="profile-row-head">
+                <strong>${type === 'socials' ? 'Social' : type === 'links' ? 'Link' : type === 'projects' ? 'Progetto' : 'Contenuto'}</strong>
+                <button type="button" class="profile-remove-row">Rimuovi</button>
+            </div>
+            ${body}`;
+
+        $('.profile-remove-row', row).addEventListener('click', () => row.remove());
+        return row;
+    }
+
+    function addRow(type, data = {}) {
+        if (!repeaters[type]) return;
+        repeaters[type].appendChild(makeRow(type, data));
+    }
+
+    readJson('initialSocialsData').forEach((item) => addRow('socials', item));
+    readJson('initialLinksData').forEach((item) => addRow('links', item));
+    readJson('initialProjectsData').forEach((item) => addRow('projects', item));
+    readJson('initialContentsData').forEach((item) => addRow('contents', item));
+
+    Object.entries(repeaters).forEach(([type, node]) => {
+        if (node && node.children.length === 0) addRow(type, {});
+    });
+
+    $$('[data-add-row]').forEach((button) => {
+        button.addEventListener('click', () => addRow(button.dataset.addRow, {}));
+    });
+
+    $$('[data-edit-tab]').forEach((tab) => {
+        tab.addEventListener('click', () => {
+            const target = tab.dataset.editTab;
+            $$('[data-edit-tab]').forEach((item) => item.classList.toggle('is-active', item === tab));
+            $$('[data-edit-section]').forEach((section) => section.classList.toggle('is-active', section.dataset.editSection === target));
+        });
+    });
+
+    function collectRows(type) {
+        return $$('.profile-row-card', repeaters[type]).map((row) => {
+            const obj = {};
+            $$('[data-field]', row).forEach((input) => {
+                const key = input.dataset.field;
+                obj[key] = input.type === 'checkbox' ? input.checked : input.value.trim();
+            });
+            return obj;
+        }).filter((obj) => Object.values(obj).some((value) => value !== '' && value !== false));
+    }
+
+    function collectBadges() {
+        return $$('#badgePicker input[type="checkbox"]:checked').slice(0, 8).map((input) => Number(input.value));
+    }
+
+    const displayNameInput = $('#displayNameInput');
+    const usernameInput = $('#usernameInput');
+    const bioInput = $('#bioInput');
+    const bioCounter = $('#bioCounter');
+    const accentInput = $('#accentInput');
+    const themeInput = $('#themeInput');
+    const avatarInput = $('#avatarInput');
+    const bannerInput = $('#bannerInput');
+
+    function updatePreview() {
+        const name = displayNameInput.value.trim() || usernameInput.value.trim() || 'Utente';
+        $('#previewName').textContent = name;
+        $('#previewUsername').textContent = '@' + (usernameInput.value.trim() || 'username');
+        $('#previewBio').textContent = bioInput.value.trim() || 'La tua bio apparirà qui.';
+        bioCounter.textContent = bioInput.value.length;
+        document.body.style.setProperty('--profile-accent', accentInput.value);
+        document.body.classList.remove('profile-theme-dark', 'profile-theme-light', 'profile-theme-auto');
+        document.body.classList.add('profile-theme-' + themeInput.value);
+    }
+
+    [displayNameInput, usernameInput, bioInput, accentInput, themeInput].forEach((input) => {
+        input.addEventListener('input', updatePreview);
+        input.addEventListener('change', updatePreview);
+    });
+    updatePreview();
+
+    function previewFile(input, target, asBackground) {
+        const file = input.files && input.files[0];
+        if (!file || !file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            if (asBackground) target.style.backgroundImage = `url('${reader.result}')`;
+            else target.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    avatarInput.addEventListener('change', () => previewFile(avatarInput, $('#previewAvatar'), false));
+    bannerInput.addEventListener('change', () => previewFile(bannerInput, $('#previewBanner'), true));
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        $('#socialsJson').value = JSON.stringify(collectRows('socials'));
+        $('#linksJson').value = JSON.stringify(collectRows('links'));
+        $('#projectsJson').value = JSON.stringify(collectRows('projects'));
+        $('#contentsJson').value = JSON.stringify(collectRows('contents'));
+        $('#badgesJson').value = JSON.stringify(collectBadges());
+
+        const button = $('#saveProfileButton');
+        button.disabled = true;
+        button.textContent = 'Salvataggio...';
+
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                credentials: 'same-origin',
+                headers: { 'Accept': 'application/json' },
+            });
+            const data = await response.json();
+            if (!response.ok || !data.ok) throw new Error(data.message || 'Errore salvataggio.');
+            window.profileToast(data.message || 'Profilo salvato.');
+            setTimeout(() => {
+                window.location.href = data.profile_url || '/profile.php';
+            }, 650);
+        } catch (error) {
+            window.profileToast(error.message || 'Errore salvataggio.');
+        } finally {
+            button.disabled = false;
+            button.textContent = 'Salva profilo';
+        }
+    });
+})();
