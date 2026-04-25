@@ -207,6 +207,32 @@
         }
     };
 
+
+    const initQrModal = () => {
+        const modal = document.getElementById('profileQrModal');
+        if (!modal) return;
+        const image = modal.querySelector('.profile-qr-image');
+        const openButtons = document.querySelectorAll('.js-open-qr');
+        const closeButtons = modal.querySelectorAll('.js-close-qr');
+
+        const open = () => {
+            if (image && !image.src && image.dataset.qrSrc) image.src = image.dataset.qrSrc;
+            modal.classList.add('is-visible');
+            modal.setAttribute('aria-hidden', 'false');
+        };
+
+        const close = () => {
+            modal.classList.remove('is-visible');
+            modal.setAttribute('aria-hidden', 'true');
+        };
+
+        openButtons.forEach((button) => button.addEventListener('click', open));
+        closeButtons.forEach((button) => button.addEventListener('click', close));
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') close();
+        });
+    };
+
     const persistDetailsState = () => {
         const details = document.querySelectorAll('.bio-details');
         details.forEach((detail, index) => {
@@ -223,6 +249,7 @@
         initActions();
         initReveal();
         initTilt();
+        initQrModal();
         initActivityCarousel();
         updateActivityTimestamps();
         persistDetailsState();

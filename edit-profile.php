@@ -55,9 +55,9 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/includes/head-import.php'; ?>
     <title>Cripsum™ - Modifica profilo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=2.3-full-bg">
-    <script src="/assets/js/profile.js?v=2.3-full-bg" defer></script>
-    <script src="/assets/js/edit-profile.js?v=2.3-full-bg" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=2.4-smart-bio">
+    <script src="/assets/js/profile.js?v=2.4-smart-bio" defer></script>
+    <script src="/assets/js/edit-profile.js?v=2.4-smart-bio" defer></script>
 </head>
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>">
     <?php
@@ -112,6 +112,7 @@ function profile_json_script(string $id, array $data): void
                     <button type="button" data-edit-tab="projects">Progetti</button>
                     <button type="button" data-edit-tab="content">Contenuti</button>
                     <button type="button" data-edit-tab="badges">Badge</button>
+                    <button type="button" data-edit-tab="visibility">Visibilità</button>
                 </div>
 
                 <div class="profile-edit-section is-active" data-edit-section="identity">
@@ -124,7 +125,10 @@ function profile_json_script(string $id, array $data): void
 
                     <label class="profile-field"><span>Bio</span><textarea name="bio" id="bioInput" maxlength="280" rows="5" placeholder="Scrivi qualcosa di tuo..."><?php echo profile_h($profile['bio'] ?? ''); ?></textarea><small><span id="bioCounter">0</span>/280</small></label>
 
-                    <label class="profile-field"><span>Discord user ID</span><input type="text" name="discord_id" id="discordIdInput" maxlength="25" value="<?php echo profile_h($profile['discord_id'] ?? ''); ?>" placeholder="Es. 963536045180350474"><small>Serve per mostrare Rich Presence tramite Lanyard. Devi essere nel server Lanyard o avere il servizio attivo.</small></label>
+                    <div class="profile-field-grid two">
+                        <label class="profile-field"><span>Stato breve</span><input type="text" name="profile_status" id="statusInput" maxlength="60" value="<?php echo profile_h($profile['profile_status'] ?? ''); ?>" placeholder="editing, gaming, busy..."><small>Appare vicino al nome se non sei online.</small></label>
+                        <label class="profile-field"><span>Discord user ID</span><input type="text" name="discord_id" id="discordIdInput" maxlength="25" value="<?php echo profile_h($profile['discord_id'] ?? ''); ?>" placeholder="Es. 963536045180350474"><small>Serve per la Rich Presence.</small></label>
+                    </div>
 
                     <div class="profile-field-grid two">
                         <label class="profile-field"><span>Avatar</span><input type="file" name="avatar" id="avatarInput" accept="image/jpeg,image/png,image/webp,image/gif"><small>Max 2MB. JPG, PNG, WEBP o GIF.</small></label>
@@ -175,6 +179,19 @@ function profile_json_script(string $id, array $data): void
                     <?php endif; ?>
                 </div>
 
+                <div class="profile-edit-section" data-edit-section="visibility">
+                    <div class="bio-section-heading"><div><span><i class="fas fa-eye"></i> Sezioni pubbliche</span><p>Spegni ciò che non vuoi mostrare. Se una sezione è vuota, resta nascosta comunque.</p></div></div>
+                    <div class="profile-toggle-grid">
+                        <label class="profile-toggle-card"><input type="hidden" name="profile_show_socials" value="0"><input type="checkbox" name="profile_show_socials" value="1" <?php echo (int)($profile['profile_show_socials'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fab fa-instagram"></i>Social</span></label>
+                        <label class="profile-toggle-card"><input type="hidden" name="profile_show_links" value="0"><input type="checkbox" name="profile_show_links" value="1" <?php echo (int)($profile['profile_show_links'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-link"></i>Link</span></label>
+                        <label class="profile-toggle-card"><input type="hidden" name="profile_show_projects" value="0"><input type="checkbox" name="profile_show_projects" value="1" <?php echo (int)($profile['profile_show_projects'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-cubes"></i>Progetti</span></label>
+                        <label class="profile-toggle-card"><input type="hidden" name="profile_show_contents" value="0"><input type="checkbox" name="profile_show_contents" value="1" <?php echo (int)($profile['profile_show_contents'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-play"></i>Edit e contenuti</span></label>
+                        <label class="profile-toggle-card"><input type="hidden" name="profile_show_badges" value="0"><input type="checkbox" name="profile_show_badges" value="1" <?php echo (int)($profile['profile_show_badges'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-trophy"></i>Badge</span></label>
+                        <label class="profile-toggle-card"><input type="hidden" name="profile_show_stats" value="0"><input type="checkbox" name="profile_show_stats" value="1" <?php echo (int)($profile['profile_show_stats'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-chart-simple"></i>Statistiche</span></label>
+                        <label class="profile-toggle-card"><input type="hidden" name="profile_show_activity" value="0"><input type="checkbox" name="profile_show_activity" value="1" <?php echo (int)($profile['profile_show_activity'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-clock"></i>Attività</span></label>
+                        <label class="profile-toggle-card"><input type="hidden" name="profile_show_discord" value="0"><input type="checkbox" name="profile_show_discord" value="1" <?php echo (int)($profile['profile_show_discord'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fab fa-discord"></i>Discord</span></label>
+                    </div>
+                </div>
                 <div class="profile-editor-footer">
                     <button type="submit" class="bio-button bio-button--primary" id="saveProfileButton"><i class="fas fa-save"></i>Salva profilo</button>
                     <a class="bio-button" href="/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>">Annulla</a>
@@ -187,7 +204,7 @@ function profile_json_script(string $id, array $data): void
                 <div class="bio-avatar-wrap"><div class="bio-avatar-ring"></div><img class="bio-avatar" id="previewAvatar" src="/includes/get_pfp.php?id=<?php echo (int)$profile['id']; ?>&t=<?php echo time(); ?>" alt=""></div>
                 <div class="bio-name-block"><p class="bio-kicker">preview profilo</p><h1 id="previewName"><?php echo profile_h($displayName); ?></h1><p class="bio-username" id="previewUsername">@<?php echo profile_h($profile['username']); ?></p></div>
                 <p class="bio-tagline" id="previewBio"><?php echo profile_h($profile['bio'] ?: 'La tua bio apparirà qui.'); ?></p>
-                <div class="bio-badges"><span class="bio-badge"><i class="fas fa-link"></i>Social</span><span class="bio-badge"><i class="fab fa-discord"></i>Discord</span><span class="bio-badge"><i class="fas fa-trophy"></i>Badge</span></div>
+                <div class="bio-badges"><span class="bio-badge" id="previewStatusBadge"><i class="fas fa-signal"></i>Stato</span><span class="bio-badge"><i class="fas fa-link"></i>Link</span><span class="bio-badge"><i class="fas fa-trophy"></i>Badge</span></div>
                 <p class="bio-description">Il profilo vero usa anche statistiche, contenuti e Rich Presence.</p>
             </aside>
         </form>

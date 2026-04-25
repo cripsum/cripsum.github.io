@@ -159,6 +159,15 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
             u.profile_layout,
             u.profile_visibility,
             u.discord_id,
+            u.profile_status,
+            u.profile_show_stats,
+            u.profile_show_socials,
+            u.profile_show_links,
+            u.profile_show_projects,
+            u.profile_show_contents,
+            u.profile_show_badges,
+            u.profile_show_activity,
+            u.profile_show_discord,
             u.profile_views,
             u.featured_badge_id,
             u.featured_project_id,
@@ -193,7 +202,7 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
 
 function profile_get_edit_profile(mysqli $mysqli, int $userId): ?array
 {
-    $stmt = $mysqli->prepare("SELECT id, username, display_name, bio, data_creazione, ruolo, profile_banner_type, accent_color, profile_theme, profile_layout, profile_visibility, discord_id, profile_views, featured_badge_id, featured_project_id, featured_content_id, profile_updated_at FROM utenti WHERE id = ? LIMIT 1");
+    $stmt = $mysqli->prepare("SELECT id, username, display_name, bio, data_creazione, ruolo, profile_banner_type, accent_color, profile_theme, profile_layout, profile_visibility, discord_id, profile_status, profile_show_stats, profile_show_socials, profile_show_links, profile_show_projects, profile_show_contents, profile_show_badges, profile_show_activity, profile_show_discord, profile_views, featured_badge_id, featured_project_id, featured_content_id, profile_updated_at FROM utenti WHERE id = ? LIMIT 1");
     $stmt->bind_param('i', $userId);
     $stmt->execute();
     $profile = $stmt->get_result()->fetch_assoc();
@@ -450,4 +459,22 @@ function profile_status_label(string $status): string
         'idea' => 'Idea',
         default => 'Attivo',
     };
+}
+
+function profile_bool_from_post(string $key, bool $default = true): int
+{
+    if (!array_key_exists($key, $_POST)) {
+        return $default ? 1 : 0;
+    }
+    $value = $_POST[$key];
+    if (is_array($value)) return 0;
+    return in_array((string)$value, ['1', 'true', 'on', 'yes'], true) ? 1 : 0;
+}
+
+function profile_badge_rarity(int $points): array
+{
+    if ($points >= 100) return ['label' => 'Legendary', 'class' => 'legendary'];
+    if ($points >= 50) return ['label' => 'Epic', 'class' => 'epic'];
+    if ($points >= 20) return ['label' => 'Rare', 'class' => 'rare'];
+    return ['label' => 'Common', 'class' => 'common'];
 }

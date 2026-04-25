@@ -43,6 +43,16 @@ $layout = profile_allowed_value((string)($_POST['profile_layout'] ?? 'standard')
 $visibility = profile_allowed_value((string)($_POST['profile_visibility'] ?? 'public'), ['public', 'logged_in', 'private'], 'public');
 $discordId = trim((string)($_POST['discord_id'] ?? ''));
 $discordIdDb = $discordId !== '' ? $discordId : null;
+$profileStatus = profile_clean_text($_POST['profile_status'] ?? '', 60);
+$profileStatusDb = $profileStatus !== '' ? $profileStatus : null;
+$showStats = profile_bool_from_post('profile_show_stats', true);
+$showSocials = profile_bool_from_post('profile_show_socials', true);
+$showLinks = profile_bool_from_post('profile_show_links', true);
+$showProjects = profile_bool_from_post('profile_show_projects', true);
+$showContents = profile_bool_from_post('profile_show_contents', true);
+$showBadges = profile_bool_from_post('profile_show_badges', true);
+$showActivity = profile_bool_from_post('profile_show_activity', true);
+$showDiscord = profile_bool_from_post('profile_show_discord', true);
 
 if (!profile_is_valid_username($username)) {
     profile_json_response(['ok' => false, 'message' => 'Username non valido. Usa 3-20 caratteri, lettere, numeri o underscore.'], 422);
@@ -97,10 +107,10 @@ try {
 
     $stmt = $mysqli->prepare("
         UPDATE utenti
-        SET username = ?, display_name = ?, bio = ?, accent_color = ?, profile_theme = ?, profile_layout = ?, profile_visibility = ?, discord_id = ?, profile_updated_at = NOW()
+        SET username = ?, display_name = ?, bio = ?, accent_color = ?, profile_theme = ?, profile_layout = ?, profile_visibility = ?, discord_id = ?, profile_status = ?, profile_show_stats = ?, profile_show_socials = ?, profile_show_links = ?, profile_show_projects = ?, profile_show_contents = ?, profile_show_badges = ?, profile_show_activity = ?, profile_show_discord = ?, profile_updated_at = NOW()
         WHERE id = ?
     ");
-    $stmt->bind_param('ssssssssi', $username, $displayNameDb, $bioDb, $accentColor, $theme, $layout, $visibility, $discordIdDb, $targetUserId);
+    $stmt->bind_param('sssssssssiiiiiiiii', $username, $displayNameDb, $bioDb, $accentColor, $theme, $layout, $visibility, $discordIdDb, $profileStatusDb, $showStats, $showSocials, $showLinks, $showProjects, $showContents, $showBadges, $showActivity, $showDiscord, $targetUserId);
     if (!$stmt->execute()) throw new RuntimeException('Errore salvataggio profilo.');
     $stmt->close();
 

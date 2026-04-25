@@ -159,6 +159,7 @@
     const displayNameInput = $('#displayNameInput');
     const usernameInput = $('#usernameInput');
     const bioInput = $('#bioInput');
+    const statusInput = $('#statusInput');
     const bioCounter = $('#bioCounter');
     const accentInput = $('#accentInput');
     const themeInput = $('#themeInput');
@@ -170,7 +171,11 @@
         $('#previewName').textContent = name;
         $('#previewUsername').textContent = '@' + (usernameInput.value.trim() || 'username');
         $('#previewBio').textContent = bioInput.value.trim() || 'La tua bio apparirà qui.';
-        bioCounter.textContent = bioInput.value.length;
+        const statusBadge = $('#previewStatusBadge');
+        if (statusBadge) {
+            const status = statusInput && statusInput.value.trim() ? statusInput.value.trim() : 'Stato';
+            statusBadge.innerHTML = `<i class="fas fa-signal"></i>${escapeAttr(status)}`;
+        }        bioCounter.textContent = bioInput.value.length;
         document.documentElement.style.setProperty('--accent', accentInput.value);
         document.documentElement.style.setProperty('--accent-rgb', hexToRgbLocal(accentInput.value));
         document.documentElement.style.setProperty('--profile-accent', accentInput.value);
@@ -178,7 +183,7 @@
         document.body.dataset.theme = themeInput.value === 'auto' ? 'dark' : themeInput.value;
     }
 
-    [displayNameInput, usernameInput, bioInput, accentInput, themeInput].forEach((input) => {
+    [displayNameInput, usernameInput, bioInput, statusInput, accentInput, themeInput].filter(Boolean).forEach((input) => {
         input.addEventListener('input', updatePreview);
         input.addEventListener('change', updatePreview);
     });
