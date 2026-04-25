@@ -363,6 +363,57 @@
 
 
 
+
+    const fitDropdownMenu = (menu) => {
+        if (!menu) return;
+        const padding = 10;
+
+        menu.classList.add('profile-dropdown-safe');
+        menu.style.maxWidth = `calc(100vw - ${padding * 2}px)`;
+
+        requestAnimationFrame(() => {
+            const rect = menu.getBoundingClientRect();
+
+            if (rect.right > window.innerWidth - padding) {
+                menu.classList.add('dropdown-menu-end', 'profile-navbar-menu-end');
+                menu.style.right = '0';
+                menu.style.left = 'auto';
+            }
+
+            if (rect.left < padding) {
+                menu.style.left = `${padding - rect.left}px`;
+                menu.style.right = 'auto';
+            }
+        });
+    };
+
+    const initNavbarDropdownAlignment = () => {
+        const navbarMenus = document.querySelectorAll(
+            '.navbar .dropdown:last-child > .dropdown-menu, ' +
+            '.navbar-nav .dropdown:last-child > .dropdown-menu, ' +
+            '.navbarutenti .dropdown:last-child > .dropdown-menu, ' +
+            '.dropdownutenti:last-child > .dropdown-menu'
+        );
+
+        navbarMenus.forEach((menu) => {
+            menu.classList.add('dropdown-menu-end', 'profile-navbar-menu-end');
+        });
+
+        document.querySelectorAll('.dropdown, .dropdownutenti, .nav-item').forEach((item) => {
+            const menu = item.querySelector(':scope > .dropdown-menu, .dropdown-menu');
+            if (!menu) return;
+
+            item.addEventListener('shown.bs.dropdown', () => fitDropdownMenu(menu));
+            item.addEventListener('click', () => {
+                if (menu.classList.contains('show')) fitDropdownMenu(menu);
+            }, true);
+        });
+
+        window.addEventListener('resize', () => {
+            document.querySelectorAll('.dropdown-menu.show').forEach(fitDropdownMenu);
+        }, { passive: true });
+    };
+
     const initDropdownFallback = () => {
         if (window.bootstrap && window.bootstrap.Dropdown) return;
 
@@ -389,6 +440,7 @@
                 closeAll(menu);
                 menu.classList.toggle('show', willOpen);
                 parent.classList.toggle('show', willOpen);
+                if (willOpen) fitDropdownMenu(menu);
             });
         });
 
@@ -402,6 +454,7 @@
         setAccent(body.dataset.accent || '#0f5bff');
         setTheme(localStorage.getItem('cripsum.profile.viewerTheme') || body.dataset.theme || 'dark');
         initActions();
+        initNavbarDropdownAlignment();
         initDropdownFallback();
         initReveal();
         initTilt();

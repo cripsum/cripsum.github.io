@@ -198,14 +198,21 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
             u.featured_content_id,
             u.profile_updated_at,
             u.ultimo_accesso,
-            COUNT(DISTINCT ua.achievement_id) AS num_achievement,
-            COUNT(DISTINCT up.personaggio_id) AS num_personaggi,
-            COALESCE(SUM(up.quantità), 0) AS total_personaggi
+            COALESCE(ach.num_achievement, 0) AS num_achievement,
+            COALESCE(inv.num_personaggi, 0) AS num_personaggi,
+            COALESCE(inv.total_personaggi, 0) AS total_personaggi
         FROM utenti u
-        LEFT JOIN utenti_achievement ua ON ua.utente_id = u.id
-        LEFT JOIN utenti_personaggi up ON up.utente_id = u.id
+        LEFT JOIN (
+            SELECT utente_id, COUNT(DISTINCT achievement_id) AS num_achievement
+            FROM utenti_achievement
+            GROUP BY utente_id
+        ) ach ON ach.utente_id = u.id
+        LEFT JOIN (
+            SELECT utente_id, COUNT(DISTINCT personaggio_id) AS num_personaggi, COALESCE(SUM(`quantità`), 0) AS total_personaggi
+            FROM utenti_personaggi
+            GROUP BY utente_id
+        ) inv ON inv.utente_id = u.id
         WHERE " . ($byId ? "u.id = ?" : "LOWER(u.username) = LOWER(?)") . "
-        GROUP BY u.id
         LIMIT 1
     ";
 
@@ -382,6 +389,28 @@ function profile_list_unlocked_badges(mysqli $mysqli, int $userId): array
     $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
     return $rows ?: [];
+}
+
+
+function profile_unlock_achievement(mysqli $mysqli, int $userId, int $achievementId): bool
+{
+    if ($userId <= 0 || $achievementId <= 0) return false;
+
+    $stmt = $mysqli->prepare("
+        INSERT INTO utenti_achievement (utente_id, achievement_id, data)
+        SELECT ?, ?, NOW()
+        WHERE EXISTS (SELECT 1 FROM achievement WHERE id = ?)
+          AND NOT EXISTS (
+              SELECT 1 FROM utenti_achievement
+              WHERE utente_id = ? AND achievement_id = ?
+          )
+    ");
+    if (!$stmt) return false;
+
+    $stmt->bind_param('iiiii', $userId, $achievementId, $achievementId, $userId, $achievementId);
+    $ok = $stmt->execute() && $stmt->affected_rows > 0;
+    $stmt->close();
+    return $ok;
 }
 
 function profile_recent_activity(mysqli $mysqli, int $userId): array

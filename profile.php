@@ -63,7 +63,7 @@ function profile_flag(array $profile, string $key, bool $default = true): bool
 
 function profile_state_page(string $code, string $title, string $text, ?string $buttonText = null, ?string $buttonUrl = null): void
 {
-?>
+    ?>
     <main class="bio-page bio-state-page profile-smart-page profile-smart-page--single">
         <section class="bio-card bio-state-card js-reveal">
             <span class="bio-pill"><?php echo profile_h($code); ?></span>
@@ -74,7 +74,7 @@ function profile_state_page(string $code, string $title, string $text, ?string $
             <?php endif; ?>
         </section>
     </main>
-<?php
+    <?php
 }
 
 function profile_render_background(?array $profile, ?string $backgroundUrl, string $backgroundType): void
@@ -84,7 +84,7 @@ function profile_render_background(?array $profile, ?string $backgroundUrl, stri
     $type = $backgroundUrl ? $backgroundType : 'video/mp4';
     $isVideo = str_starts_with($type, 'video/');
     $isImage = str_starts_with($type, 'image/');
-?>
+    ?>
     <div class="bio-background" aria-hidden="true">
         <?php if ($isVideo): ?>
             <video class="bio-background__media" autoplay muted loop playsinline poster="">
@@ -102,19 +102,19 @@ function profile_render_background(?array $profile, ?string $backgroundUrl, stri
         <div class="bio-orb bio-orb--two"></div>
         <div class="bio-grid-glow"></div>
     </div>
-<?php
+    <?php
 }
 
 function profile_render_section_heading(string $icon, string $title, ?string $subtitle = null): void
 {
-?>
+    ?>
     <div class="bio-section-heading profile-clean-heading">
         <div>
             <span><i class="<?php echo profile_h($icon); ?>"></i><?php echo profile_h($title); ?></span>
             <?php if ($subtitle): ?><p><?php echo profile_h($subtitle); ?></p><?php endif; ?>
         </div>
     </div>
-<?php
+    <?php
 }
 
 $theme = $profile ? profile_allowed_value((string)($profile['profile_theme'] ?? 'dark'), ['dark', 'light', 'auto'], 'dark') : 'dark';
@@ -194,7 +194,6 @@ if ($profile) {
 ?>
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
     <?php include __DIR__ . '/includes/head-import.php'; ?>
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
@@ -207,10 +206,9 @@ if ($profile) {
         <meta property="og:url" content="<?php echo profile_h($profileUrl); ?>">
         <meta property="og:image" content="/includes/get_pfp.php?id=<?php echo (int)$profile['id']; ?>">
     <?php endif; ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=2.7-links-colors">
-    <script src="/assets/js/profile.js?v=2.7-links-colors" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=2.8-mobile-achievement-fixes">
+    <script src="/assets/js/profile.js?v=2.8-mobile-achievement-fixes" defer></script>
 </head>
-
 <body
     class="bio-v2-body public-profile-body"
     data-theme="<?php echo profile_h($theme); ?>"
@@ -220,7 +218,8 @@ if ($profile) {
     data-profile-effect="<?php echo profile_h($profileEffect); ?>"
     data-profile-link-style="<?php echo profile_h($linkStyle); ?>"
     data-profile-button-shape="<?php echo profile_h($buttonShape); ?>"
-    style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
+    style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;"
+>
     <?php
     if (file_exists(__DIR__ . '/includes/navbar-bio.php')) include __DIR__ . '/includes/navbar-bio.php';
     else include __DIR__ . '/includes/navbar.php';
@@ -295,8 +294,7 @@ if ($profile) {
                             <span><i class="fab fa-discord"></i>Discord</span>
                         </div>
                         <div class="discord-box" id="discordBox">
-                            <?php $discordProfileId = $discordId;
-                            require __DIR__ . '/includes/discord_status.php'; ?>
+                            <?php $discordProfileId = $discordId; require __DIR__ . '/includes/discord_status.php'; ?>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -369,8 +367,8 @@ if ($profile) {
                             <div class="bio-featured-grid profile-link-grid profile-link-count-<?php echo count(array_merge($featuredLinks, $normalLinks)); ?>">
                                 <?php foreach (array_merge($featuredLinks, $normalLinks) as $item): ?>
                                     <?php
-                                    $buttonStyle = profile_allowed_value((string)($item['button_style'] ?? 'card'), ['card', 'compact', 'icon'], 'card');
-                                    $linkTitle = (string)($item['title'] ?? 'Link');
+                                        $buttonStyle = profile_allowed_value((string)($item['button_style'] ?? 'card'), ['card', 'compact', 'icon'], 'card');
+                                        $linkTitle = (string)($item['title'] ?? 'Link');
                                     ?>
                                     <a class="bio-featured-link profile-link-button button-style-<?php echo profile_h($buttonStyle); ?> <?php echo !empty($item['is_featured']) ? 'is-pinned' : ''; ?>" href="<?php echo profile_h($item['url']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo profile_h($linkTitle); ?>">
                                         <span class="bio-featured-link__icon"><i class="<?php echo profile_h($item['icon'] ?: 'fas fa-link'); ?>"></i></span>
@@ -513,7 +511,6 @@ if ($profile) {
     </div>
 
     <div class="bio-toast" id="bioToast" role="status" aria-live="polite"></div>
-    <!-- <?php if (file_exists(__DIR__ . '/includes/footer.php')) include __DIR__ . '/includes/footer.php'; ?> -->
+    <?php if (file_exists(__DIR__ . '/includes/footer.php')) include __DIR__ . '/includes/footer.php'; ?>
 </body>
-
 </html>

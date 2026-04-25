@@ -38,9 +38,9 @@ $bio = trim((string)($_POST['bio'] ?? ''));
 $bio = mb_substr($bio, 0, 280, 'UTF-8');
 $bioDb = $bio !== '' ? $bio : null;
 $accentColor = profile_normalize_hex_color($_POST['accent_color'] ?? '#0f5bff');
-$secondaryColor = profile_normalize_hex_color($_POST['profile_secondary_color'] ?? $accentColor);
-$cardColor = profile_optional_hex_color($_POST['profile_card_color'] ?? '');
-$textColor = profile_optional_hex_color($_POST['profile_text_color'] ?? '');
+$secondaryColor = profile_normalize_hex_color($_POST['profile_secondary_color'] ?? '#8b5cf6');
+$cardColorDb = profile_optional_hex_color($_POST['profile_card_color'] ?? '');
+$textColorDb = profile_optional_hex_color($_POST['profile_text_color'] ?? '');
 $linkStyle = profile_allowed_value((string)($_POST['profile_link_style'] ?? 'glass'), ['glass', 'solid', 'outline', 'neon'], 'glass');
 $buttonShape = profile_allowed_value((string)($_POST['profile_button_shape'] ?? 'pill'), ['pill', 'rounded', 'sharp'], 'pill');
 $theme = profile_allowed_value((string)($_POST['profile_theme'] ?? 'dark'), ['dark', 'light', 'auto'], 'dark');
@@ -110,6 +110,7 @@ if (!empty($musicUpload['error'])) {
     profile_json_response(['ok' => false, 'message' => 'Audio profilo: ' . $musicUpload['error']], 422);
 }
 $removeMusicUpload = !empty($_POST['remove_profile_music_upload']);
+$avatarChanged = !empty($avatarUpload['has_file']);
 if (!empty($musicUpload['has_file'])) {
     $musicUrlDb = null;
 }
@@ -151,8 +152,8 @@ try {
         $bioDb,
         $accentColor,
         $secondaryColor,
-        $cardColor,
-        $textColor,
+        $cardColorDb,
+        $textColorDb,
         $linkStyle,
         $buttonShape,
         $theme,
@@ -188,6 +189,11 @@ try {
         $stmt->send_long_data(0, $avatarUpload['blob']);
         if (!$stmt->execute()) throw new RuntimeException('Errore salvataggio avatar.');
         $stmt->close();
+
+        if (function_exists('profile_unlock_achievement')) {
+            profile_unlock_achievement($mysqli, $targetUserId, 2);
+        }
+        profile_record_activity($mysqli, $targetUserId, 'profile_update', 'Ha aggiornato la foto profilo');
     }
 
     if (!empty($bannerUpload['has_file']) && isset($bannerUpload['blob'], $bannerUpload['mime'])) {
@@ -224,11 +230,12 @@ try {
         $platform = in_array($platform, $allowedPlatforms, true) ? $platform : 'other';
         $label = profile_clean_text($row['label'] ?? $platform, 40);
         $displayUsername = profile_clean_text($row['display_username'] ?? '', 60);
+        $displayUsernameDb = $displayUsername !== '' ? $displayUsername : null;
         $url = trim((string)($row['url'] ?? ''));
         $visible = !empty($row['is_visible']) ? 1 : 0;
         if ($url === '') continue;
         if (!profile_is_safe_url($url, true)) throw new RuntimeException('URL social non valido: ' . $label);
-        $insertSocial->bind_param('issssii', $targetUserId, $platform, $label, $displayUsername, $url, $i, $visible);
+        $insertSocial->bind_param('issssii', $targetUserId, $platform, $label, $displayUsernameDb, $url, $i, $visible);
         if (!$insertSocial->execute()) throw new RuntimeException('Errore salvataggio social.');
     }
     $insertSocial->close();
