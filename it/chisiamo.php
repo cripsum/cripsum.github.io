@@ -149,7 +149,7 @@ checkBan($mysqli);
                         </div>
                         <div class="member-info">
                             <h3 class="member-name">
-                                <a href="../user/marine_houshou">Marine Houshou</a>
+                                <a href="../user/marine_houshou">Tsundere Nyan</a>
                             </h3>
                             <p class="member-description">
                                 <strong>Cantarella</strong> è solo sua e <strong>Cipher</strong> l'ha già ingravidata, è un grande amante dei gacha e del gooning. Si è aggiudicato il primo posto in <a href="goonland/goon-generator">Goonland</a>
@@ -363,7 +363,7 @@ checkBan($mysqli);
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
         crossorigin="anonymous"></script>
-    
+
 </body>
 
 </html>
