@@ -454,6 +454,7 @@ if ($profile) {
                                 <?php endforeach; ?>
                             </div>
                         </section>
+                        
                     <?php endif; ?>
 
                     <?php if ($visibleBadges): ?>
