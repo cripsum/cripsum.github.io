@@ -64,6 +64,7 @@ function profile_json_script(string $id, array $data): void
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include __DIR__ . '/includes/head-import.php'; ?>
     <title>Cripsum™ - Modifica profilo</title>
@@ -72,6 +73,7 @@ function profile_json_script(string $id, array $data): void
     <script src="/assets/js/profile.js?v=2.9-discord-login" defer></script>
     <script src="/assets/js/edit-profile.js?v=2.9-discord-login" defer></script>
 </head>
+
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" style="--accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColor ?: 'var(--card)'); ?>; --profile-text-color: <?php echo profile_h($textColor ?: 'var(--text)'); ?>;">
     <?php
     if (file_exists(__DIR__ . '/includes/navbar-bio.php')) {
@@ -91,11 +93,15 @@ function profile_json_script(string $id, array $data): void
 
     <div class="bio-background" aria-hidden="true">
         <?php if ($backgroundIsVideo): ?>
-            <video class="bio-background__media" autoplay muted loop playsinline poster=""><source src="<?php echo profile_h($backgroundUrl); ?>" type="<?php echo profile_h($backgroundType); ?>"></video>
+            <video class="bio-background__media" autoplay muted loop playsinline poster="">
+                <source src="<?php echo profile_h($backgroundUrl); ?>" type="<?php echo profile_h($backgroundType); ?>">
+            </video>
         <?php elseif ($backgroundIsImage): ?>
             <img class="bio-background__media" src="<?php echo profile_h($backgroundUrl); ?>" alt="" loading="eager">
         <?php else: ?>
-            <video class="bio-background__media" autoplay muted loop playsinline poster=""><source src="/vid/Shorekeeper Wallpaper 4K Loop.mp4" type="video/mp4"></video>
+            <video class="bio-background__media" autoplay muted loop playsinline poster="">
+                <source src="/vid/Shorekeeper Wallpaper 4K Loop.mp4" type="video/mp4">
+            </video>
         <?php endif; ?>
         <div class="bio-background__overlay"></div>
         <div class="bio-orb bio-orb--one"></div>
@@ -146,7 +152,11 @@ function profile_json_script(string $id, array $data): void
                 </div>
 
                 <div class="profile-edit-section is-active" data-edit-section="identity">
-                    <div class="bio-section-heading"><div><span><i class="fas fa-id-card"></i> Identità</span><p>Questi dati finiscono nella hero del profilo pubblico.</p></div></div>
+                    <div class="bio-section-heading">
+                        <div><span><i class="fas fa-id-card"></i> Identità</span>
+                            <p>Questi dati finiscono nella hero del profilo pubblico.</p>
+                        </div>
+                    </div>
 
                     <div class="profile-field-grid two">
                         <label class="profile-field"><span>Nome visualizzato</span><input type="text" name="display_name" id="displayNameInput" maxlength="40" value="<?php echo profile_h($profile['display_name'] ?? ''); ?>" placeholder="Es. Cripsum"></label>
@@ -184,7 +194,7 @@ function profile_json_script(string $id, array $data): void
                         </div>
                     </div>
 
-                    <div class="profile-discord-note">
+                    <div class="profile-discord-note mb-2">
                         <i class="fas fa-circle-info"></i>
                         <span>Il login Discord salva solo ID, username e avatar. La Rich Presence resta su Lanyard: per farla funzionare devi entrare nel <a href="https://discord.com/invite/lanyard" target="_blank" rel="noopener noreferrer">server Lanyard</a>.</span>
                     </div>
@@ -202,17 +212,21 @@ function profile_json_script(string $id, array $data): void
                     <div class="profile-field-grid three">
                         <label class="profile-field"><span>Accent principale</span><input type="color" name="accent_color" id="accentInput" value="<?php echo profile_h($accent); ?>"></label>
                         <label class="profile-field"><span>Accent secondario</span><input type="color" name="profile_secondary_color" id="secondaryColorInput" value="<?php echo profile_h($secondaryColor); ?>"></label>
-                        <label class="profile-field"><span>Tema</span><select name="profile_theme" id="themeInput"><?php foreach (['dark'=>'Scuro','light'=>'Chiaro','auto'=>'Auto'] as $value=>$label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_theme'] ?? 'dark') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
-                        <label class="profile-field"><span>Layout</span><select name="profile_layout" id="layoutInput"><?php foreach (['standard'=>'Standard','compact'=>'Compatto','showcase'=>'Showcase'] as $value=>$label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_layout'] ?? 'standard') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
+                        <label class="profile-field"><span>Tema</span><select name="profile_theme" id="themeInput"><?php foreach (['dark' => 'Scuro', 'light' => 'Chiaro', 'auto' => 'Auto'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_theme'] ?? 'dark') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
+                        <label class="profile-field"><span>Layout</span><select name="profile_layout" id="layoutInput"><?php foreach (['standard' => 'Standard', 'compact' => 'Compatto', 'showcase' => 'Showcase'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_layout'] ?? 'standard') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
                         <label class="profile-field"><span>Colore card</span><input type="color" name="profile_card_color" id="cardColorInput" value="<?php echo profile_h($cardColor ?: '#080c18'); ?>"><small>Lascia il default se vuoi il glass classico.</small></label>
                         <label class="profile-field"><span>Colore testo</span><input type="color" name="profile_text_color" id="textColorInput" value="<?php echo profile_h($textColor ?: ($theme === 'light' ? '#111827' : '#f7f8ff')); ?>"></label>
-                        <label class="profile-field"><span>Stile link</span><select name="profile_link_style" id="linkStyleInput"><?php foreach (['glass'=>'Glass','solid'=>'Pieno','outline'=>'Outline','neon'=>'Neon'] as $value=>$label): ?><option value="<?php echo $value; ?>" <?php echo $linkStyle === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
-                        <label class="profile-field"><span>Forma bottoni</span><select name="profile_button_shape" id="buttonShapeInput"><?php foreach (['pill'=>'Pill','rounded'=>'Rounded','sharp'=>'Squadrato'] as $value=>$label): ?><option value="<?php echo $value; ?>" <?php echo $buttonShape === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
+                        <label class="profile-field"><span>Stile link</span><select name="profile_link_style" id="linkStyleInput"><?php foreach (['glass' => 'Glass', 'solid' => 'Pieno', 'outline' => 'Outline', 'neon' => 'Neon'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo $linkStyle === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
+                        <label class="profile-field"><span>Forma bottoni</span><select name="profile_button_shape" id="buttonShapeInput"><?php foreach (['pill' => 'Pill', 'rounded' => 'Rounded', 'sharp' => 'Squadrato'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo $buttonShape === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
                     </div>
 
-                    <label class="profile-field"><span>Privacy profilo</span><select name="profile_visibility" id="visibilityInput"><?php foreach (['public'=>'Pubblico','logged_in'=>'Solo utenti loggati','private'=>'Privato'] as $value=>$label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_visibility'] ?? 'public') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
+                    <label class="profile-field"><span>Privacy profilo</span><select name="profile_visibility" id="visibilityInput"><?php foreach (['public' => 'Pubblico', 'logged_in' => 'Solo utenti loggati', 'private' => 'Privato'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_visibility'] ?? 'public') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
 
-                    <div class="bio-section-heading profile-mt"><div><span><i class="fas fa-music"></i> Audio profilo</span><p>Carica un MP3 oppure usa un URL audio pubblico.</p></div></div>
+                    <div class="bio-section-heading profile-mt">
+                        <div><span><i class="fas fa-music"></i> Audio profilo</span>
+                            <p>Carica un MP3 oppure usa un URL audio pubblico.</p>
+                        </div>
+                    </div>
                     <div class="profile-field-grid two">
                         <label class="profile-field"><span>Carica MP3</span><input type="file" name="profile_music_file" id="musicFileInput" accept="audio/mpeg,audio/mp3,.mp3"><small>Max 12MB. Se carichi un MP3, sostituisce l’URL.</small></label>
                         <label class="profile-field"><span>URL canzone</span><input type="url" name="profile_music_url" id="musicUrlInput" maxlength="255" value="<?php echo profile_h($profile['profile_music_url'] ?? ''); ?>" placeholder="https://.../audio.mp3"><small>Usalo solo se non carichi un file.</small></label>
@@ -226,44 +240,72 @@ function profile_json_script(string $id, array $data): void
                 </div>
 
                 <div class="profile-edit-section" data-edit-section="links">
-                    <div class="bio-section-heading"><div><span><i class="fas fa-link"></i> Social</span><p>Icone rapide sotto il profilo.</p></div><button type="button" class="bio-button" data-add-row="socials">+ Social</button></div>
+                    <div class="bio-section-heading">
+                        <div><span><i class="fas fa-link"></i> Social</span>
+                            <p>Icone rapide sotto il profilo.</p>
+                        </div><button type="button" class="bio-button" data-add-row="socials">+ Social</button>
+                    </div>
                     <div class="profile-repeater" id="socialsRepeater"></div>
 
-                    <div class="bio-section-heading profile-mt"><div><span><i class="fas fa-star"></i> Link personalizzati</span><p>Card grandi in evidenza.</p></div><button type="button" class="bio-button" data-add-row="links">+ Link</button></div>
+                    <div class="bio-section-heading profile-mt">
+                        <div><span><i class="fas fa-star"></i> Link personalizzati</span>
+                            <p>Card grandi in evidenza.</p>
+                        </div><button type="button" class="bio-button" data-add-row="links">+ Link</button>
+                    </div>
                     <div class="profile-repeater" id="linksRepeater"></div>
                 </div>
 
                 <div class="profile-edit-section" data-edit-section="projects">
-                    <div class="bio-section-heading"><div><span><i class="fas fa-cubes"></i> Progetti</span><p>Sito, mod, launcher, tool, game, repo.</p></div><button type="button" class="bio-button" data-add-row="projects">+ Progetto</button></div>
+                    <div class="bio-section-heading">
+                        <div><span><i class="fas fa-cubes"></i> Progetti</span>
+                            <p>Sito, mod, launcher, tool, game, repo.</p>
+                        </div><button type="button" class="bio-button" data-add-row="projects">+ Progetto</button>
+                    </div>
                     <div class="profile-repeater" id="projectsRepeater"></div>
                 </div>
 
                 <div class="profile-edit-section" data-edit-section="content">
-                    <div class="bio-section-heading"><div><span><i class="fas fa-play-circle"></i> Contenuti</span><p>Edit, video, pagine e showcase.</p></div><button type="button" class="bio-button" data-add-row="contents">+ Contenuto</button></div>
+                    <div class="bio-section-heading">
+                        <div><span><i class="fas fa-play-circle"></i> Contenuti</span>
+                            <p>Edit, video, pagine e showcase.</p>
+                        </div><button type="button" class="bio-button" data-add-row="contents">+ Contenuto</button>
+                    </div>
                     <div class="profile-repeater" id="contentsRepeater"></div>
                 </div>
 
                 <div class="profile-edit-section" data-edit-section="custom">
-                    <div class="bio-section-heading"><div><span><i class="fas fa-wand-magic-sparkles"></i> Blocchi custom</span><p>Testi, immagini, GIF o video. Se sono vuoti non appaiono nel profilo.</p></div><button type="button" class="bio-button" data-add-row="blocks">+ Blocco</button></div>
+                    <div class="bio-section-heading">
+                        <div><span><i class="fas fa-wand-magic-sparkles"></i> Blocchi custom</span>
+                            <p>Testi, immagini, GIF o video. Se sono vuoti non appaiono nel profilo.</p>
+                        </div><button type="button" class="bio-button" data-add-row="blocks">+ Blocco</button>
+                    </div>
                     <div class="profile-repeater" id="blocksRepeater"></div>
                 </div>
 
                 <div class="profile-edit-section" data-edit-section="effects">
-                    <div class="bio-section-heading"><div><span><i class="fas fa-sparkles"></i> Effetti</span><p>Effetti leggeri su pagina, mouse e foto profilo.</p></div></div>
+                    <div class="bio-section-heading">
+                        <div><span><i class="fas fa-sparkles"></i> Effetti</span>
+                            <p>Effetti leggeri su pagina, mouse e foto profilo.</p>
+                        </div>
+                    </div>
                     <div class="profile-field-grid three">
                         <label class="profile-field"><span>Effetto pagina</span><select name="profile_effect" id="profileEffectInput">
-                            <?php foreach (['none'=>'Nessuno','cursor_glow'=>'Mouse glow','soft_particles'=>'Particles leggere','scanlines'=>'Scanlines','ambient'=>'Ambient glow'] as $value=>$label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_effect'] ?? 'none') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?>
-                        </select></label>
+                                <?php foreach (['none' => 'Nessuno', 'cursor_glow' => 'Mouse glow', 'soft_particles' => 'Particles leggere', 'scanlines' => 'Scanlines', 'ambient' => 'Ambient glow'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_effect'] ?? 'none') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?>
+                            </select></label>
                         <label class="profile-field"><span>Effetto anello PFP</span><select name="avatar_ring_style" id="ringStyleInput">
-                            <?php foreach (['spin'=>'Rotazione','pulse'=>'Pulse','orbit'=>'Orbit','glow'=>'Glow','none'=>'Nessuno'] as $value=>$label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['avatar_ring_style'] ?? 'spin') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?>
-                        </select></label>
+                                <?php foreach (['spin' => 'Rotazione', 'pulse' => 'Pulse', 'orbit' => 'Orbit', 'glow' => 'Glow', 'none' => 'Nessuno'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['avatar_ring_style'] ?? 'spin') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?>
+                            </select></label>
                         <label class="profile-field"><span>Colore anello PFP</span><input type="color" name="avatar_ring_color" id="ringColorInput" value="<?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>"></label>
                     </div>
                     <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="avatar_ring_enabled" value="0"><input type="checkbox" name="avatar_ring_enabled" id="ringEnabledInput" value="1" <?php echo (int)($profile['avatar_ring_enabled'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-circle-notch"></i>Mostra anello intorno alla foto profilo</span></label>
                 </div>
 
                 <div class="profile-edit-section" data-edit-section="badges">
-                    <div class="bio-section-heading"><div><span><i class="fas fa-trophy"></i> Badge visibili</span><p>Puoi mostrarne massimo 8.</p></div></div>
+                    <div class="bio-section-heading">
+                        <div><span><i class="fas fa-trophy"></i> Badge visibili</span>
+                            <p>Puoi mostrarne massimo 8.</p>
+                        </div>
+                    </div>
                     <?php if ($badges): ?>
                         <div class="profile-badge-picker" id="badgePicker">
                             <?php foreach ($badges as $badge): ?>
@@ -275,12 +317,18 @@ function profile_json_script(string $id, array $data): void
                             <?php endforeach; ?>
                         </div>
                     <?php else: ?>
-                        <div class="bio-empty-state"><i class="fas fa-medal"></i><strong>Nessun badge sbloccato</strong><p>Quando sblocchi achievement, puoi mostrarli qui.</p></div>
+                        <div class="bio-empty-state"><i class="fas fa-medal"></i><strong>Nessun badge sbloccato</strong>
+                            <p>Quando sblocchi achievement, puoi mostrarli qui.</p>
+                        </div>
                     <?php endif; ?>
                 </div>
 
                 <div class="profile-edit-section" data-edit-section="visibility">
-                    <div class="bio-section-heading"><div><span><i class="fas fa-eye"></i> Sezioni pubbliche</span><p>Spegni ciò che non vuoi mostrare. Se una sezione è vuota, resta nascosta comunque.</p></div></div>
+                    <div class="bio-section-heading">
+                        <div><span><i class="fas fa-eye"></i> Sezioni pubbliche</span>
+                            <p>Spegni ciò che non vuoi mostrare. Se una sezione è vuota, resta nascosta comunque.</p>
+                        </div>
+                    </div>
                     <div class="profile-toggle-grid">
                         <label class="profile-toggle-card"><input type="hidden" name="profile_show_socials" value="0"><input type="checkbox" name="profile_show_socials" value="1" <?php echo (int)($profile['profile_show_socials'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fab fa-instagram"></i>Social</span></label>
                         <label class="profile-toggle-card"><input type="hidden" name="profile_show_links" value="0"><input type="checkbox" name="profile_show_links" value="1" <?php echo (int)($profile['profile_show_links'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-link"></i>Link</span></label>
@@ -301,8 +349,14 @@ function profile_json_script(string $id, array $data): void
             <aside class="bio-hero bio-card profile-preview-card js-tilt-card js-reveal">
                 <span class="bio-pill">Preview live</span>
                 <div class="profile-background-note"><i class="fas fa-image"></i><span>Lo sfondo scelto appare dietro tutta la pagina, non sopra la foto profilo.</span></div>
-                <div class="bio-avatar-wrap profile-preview-avatar-ring" id="previewAvatarWrap"><div class="bio-avatar-ring" id="previewAvatarRing"></div><img class="bio-avatar" id="previewAvatar" src="<?php echo profile_h(profile_avatar_url($profile, 256)); ?>" alt=""></div>
-                <div class="bio-name-block"><p class="bio-kicker">preview profilo</p><h1 id="previewName"><?php echo profile_h($displayName); ?></h1><p class="bio-username" id="previewUsername">@<?php echo profile_h($profile['username']); ?></p></div>
+                <div class="bio-avatar-wrap profile-preview-avatar-ring" id="previewAvatarWrap">
+                    <div class="bio-avatar-ring" id="previewAvatarRing"></div><img class="bio-avatar" id="previewAvatar" src="<?php echo profile_h(profile_avatar_url($profile, 256)); ?>" alt="">
+                </div>
+                <div class="bio-name-block">
+                    <p class="bio-kicker">preview profilo</p>
+                    <h1 id="previewName"><?php echo profile_h($displayName); ?></h1>
+                    <p class="bio-username" id="previewUsername">@<?php echo profile_h($profile['username']); ?></p>
+                </div>
                 <p class="bio-tagline" id="previewBio"><?php echo profile_h($profile['bio'] ?: 'La tua bio apparirà qui.'); ?></p>
                 <div class="bio-badges"><span class="bio-badge" id="previewStatusBadge"><i class="fas fa-signal"></i>Stato</span><span class="bio-badge"><i class="fas fa-link"></i>Link</span><span class="bio-badge"><i class="fas fa-trophy"></i>Badge</span></div>
                 <p class="bio-description" id="previewExtra">Audio, effetti e blocchi custom appaiono solo se li compili.</p>
@@ -320,4 +374,5 @@ function profile_json_script(string $id, array $data): void
 
     <?php if (file_exists(__DIR__ . '/includes/footer.php')) include __DIR__ . '/includes/footer.php'; ?>
 </body>
+
 </html>
