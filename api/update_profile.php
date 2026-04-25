@@ -32,8 +32,11 @@ if (!$profile) {
 
 $username = trim((string)($_POST['username'] ?? ''));
 $displayName = profile_clean_text($_POST['display_name'] ?? '', 40);
+$displayNameDb = $displayName !== '' ? $displayName : null;
+
 $bio = trim((string)($_POST['bio'] ?? ''));
 $bio = mb_substr($bio, 0, 280, 'UTF-8');
+$bioDb = $bio !== '' ? $bio : null;
 $accentColor = profile_normalize_hex_color($_POST['accent_color'] ?? '#0f5bff');
 $theme = profile_allowed_value((string)($_POST['profile_theme'] ?? 'dark'), ['dark', 'light', 'auto'], 'dark');
 $layout = profile_allowed_value((string)($_POST['profile_layout'] ?? 'standard'), ['standard', 'compact', 'showcase'], 'standard');
@@ -88,10 +91,10 @@ try {
 
     $stmt = $mysqli->prepare("
         UPDATE utenti
-        SET username = ?, display_name = NULLIF(?, ''), bio = NULLIF(?, ''), accent_color = ?, profile_theme = ?, profile_layout = ?, profile_visibility = ?, profile_updated_at = NOW()
+        SET username = ?, display_name = ?, bio = ?, accent_color = ?, profile_theme = ?, profile_layout = ?, profile_visibility = ?, profile_updated_at = NOW()
         WHERE id = ?
     ");
-    $stmt->bind_param('sssssssi', $username, $displayName, $bio, $accentColor, $theme, $layout, $visibility, $targetUserId);
+    $stmt->bind_param('sssssssi', $username, $displayNameDb, $bioDb, $accentColor, $theme, $layout, $visibility, $targetUserId);
     if (!$stmt->execute()) throw new RuntimeException('Errore salvataggio profilo.');
     $stmt->close();
 
