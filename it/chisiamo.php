@@ -260,27 +260,6 @@ checkBan($mysqli);
                 <i class="fas fa-envelope me-2"></i>
                 clicca qui per inviare la tua candidatura
             </a>
-
-            <div class="mystery-members">
-                <div class="mystery-card">
-                    <div class="mystery-icon">
-                        <i class="fas fa-question"></i>
-                    </div>
-                    <p class="mystery-text">
-                        Il prossimo potresti essere <strong>TU!</strong><br>
-                        Manda la tua candidatura per essere aggiunto alla lista dei king!
-                    </p>
-                </div>
-                <div class="mystery-card">
-                    <div class="mystery-icon">
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <p class="mystery-text">
-                        Cerchiamo talenti che siano:<br>
-                        <strong>Fichi • King • Bravi su silksong</strong>
-                    </p>
-                </div>
-            </div>
         </section>
     </div>
 
