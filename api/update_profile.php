@@ -100,6 +100,15 @@ if (!empty($bannerUpload['error'])) {
     profile_json_response(['ok' => false, 'message' => 'Sfondo profilo: ' . $bannerUpload['error']], 422);
 }
 
+$musicUpload = profile_handle_audio_upload($_FILES['profile_music_file'] ?? ['error' => UPLOAD_ERR_NO_FILE], 12 * 1024 * 1024);
+if (!empty($musicUpload['error'])) {
+    profile_json_response(['ok' => false, 'message' => 'Audio profilo: ' . $musicUpload['error']], 422);
+}
+$removeMusicUpload = !empty($_POST['remove_profile_music_upload']);
+if (!empty($musicUpload['has_file'])) {
+    $musicUrlDb = null;
+}
+
 function profile_decode_rows(string $key): array
 {
     $raw = $_POST[$key] ?? '[]';
@@ -177,6 +186,20 @@ try {
         $stmt->bind_param('bsi', $null, $bannerUpload['mime'], $targetUserId);
         $stmt->send_long_data(0, $bannerUpload['blob']);
         if (!$stmt->execute()) throw new RuntimeException('Errore salvataggio sfondo profilo.');
+        $stmt->close();
+    }
+
+    if (!empty($musicUpload['has_file']) && isset($musicUpload['blob'], $musicUpload['mime'])) {
+        $stmt = $mysqli->prepare("UPDATE utenti SET profile_music_blob = ?, profile_music_mime = ?, profile_music_url = NULL WHERE id = ?");
+        $null = null;
+        $stmt->bind_param('bsi', $null, $musicUpload['mime'], $targetUserId);
+        $stmt->send_long_data(0, $musicUpload['blob']);
+        if (!$stmt->execute()) throw new RuntimeException('Errore salvataggio MP3.');
+        $stmt->close();
+    } elseif ($removeMusicUpload || $musicUrlDb) {
+        $stmt = $mysqli->prepare("UPDATE utenti SET profile_music_blob = NULL, profile_music_mime = NULL WHERE id = ?");
+        $stmt->bind_param('i', $targetUserId);
+        if (!$stmt->execute()) throw new RuntimeException('Errore rimozione MP3.');
         $stmt->close();
     }
 
@@ -295,8 +318,8 @@ try {
     }
     $insertBlock->close();
 
-    if ($musicUrlDb) {
-        profile_record_activity($mysqli, $targetUserId, 'music', 'Ha aggiornato la canzone del profilo', $musicUrlDb);
+    if ($musicUrlDb || !empty($musicUpload['has_file'])) {
+        profile_record_activity($mysqli, $targetUserId, 'music', 'Ha aggiornato la canzone del profilo', $musicUrlDb ?: null);
     }
 
     $stmt = $mysqli->prepare("DELETE FROM utenti_profile_badges WHERE utente_id = ?");

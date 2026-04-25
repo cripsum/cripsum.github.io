@@ -125,11 +125,14 @@ $displayName = $profile ? ($profile['display_name'] ?: $profile['username']) : '
 $profileUrl = $profile ? 'https://cripsum.com/u/' . rawurlencode(strtolower($profile['username'])) : 'https://cripsum.com/profile.php';
 $discordId = $profile ? trim((string)($profile['discord_id'] ?? '')) : '';
 $customStatus = $profile ? trim((string)($profile['profile_status'] ?? '')) : '';
-$musicUrl = $profile ? trim((string)($profile['profile_music_url'] ?? '')) : '';
+$musicExternalUrl = $profile ? trim((string)($profile['profile_music_url'] ?? '')) : '';
+$musicMime = $profile ? trim((string)($profile['profile_music_mime'] ?? '')) : '';
+$hasUploadedMusic = $profile && $musicMime !== '';
+$musicUrl = $hasUploadedMusic ? '/includes/get_profile_music.php?id=' . (int)$profile['id'] : $musicExternalUrl;
 $musicTitle = $profile ? trim((string)($profile['profile_music_title'] ?? '')) : '';
 $musicArtist = $profile ? trim((string)($profile['profile_music_artist'] ?? '')) : '';
 $showAudioPlayer = $profile ? ((int)($profile['profile_show_audio_player'] ?? 1) === 1) : false;
-$hasMusic = $musicUrl !== '' && profile_is_safe_url($musicUrl, true);
+$hasMusic = $hasUploadedMusic || ($musicExternalUrl !== '' && profile_is_safe_url($musicExternalUrl, true));
 $profileEffect = $profile ? profile_allowed_value((string)($profile['profile_effect'] ?? 'none'), ['none', 'cursor_glow', 'soft_particles', 'scanlines', 'ambient'], 'none') : 'none';
 $avatarRingEnabled = $profile ? ((int)($profile['avatar_ring_enabled'] ?? 1) === 1) : true;
 $avatarRingStyle = $profile ? profile_allowed_value((string)($profile['avatar_ring_style'] ?? 'spin'), ['spin', 'pulse', 'orbit', 'glow', 'none'], 'spin') : 'spin';
@@ -196,8 +199,8 @@ if ($profile) {
         <meta property="og:url" content="<?php echo profile_h($profileUrl); ?>">
         <meta property="og:image" content="/includes/get_pfp.php?id=<?php echo (int)$profile['id']; ?>">
     <?php endif; ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=2.5-plus">
-    <script src="/assets/js/profile.js?v=2.5-plus" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=2.6-mp3-ui">
+    <script src="/assets/js/profile.js?v=2.6-mp3-ui" defer></script>
 </head>
 <body
     class="bio-v2-body public-profile-body"

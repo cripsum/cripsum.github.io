@@ -181,6 +181,7 @@
     const themeInput = $('#themeInput');
     const avatarInput = $('#avatarInput');
     const bannerInput = $('#bannerInput');
+    const musicFileInput = $('#musicFileInput');
     const profileEffectInput = $('#profileEffectInput');
     const ringEnabledInput = $('#ringEnabledInput');
     const ringStyleInput = $('#ringStyleInput');
@@ -261,8 +262,30 @@
         window.profileToast('Anteprima sfondo aggiornata.');
     }
 
+    function previewMusicFile(input) {
+        const file = input.files && input.files[0];
+        if (!file) return;
+        const isMp3 = file.type === 'audio/mpeg' || file.name.toLowerCase().endsWith('.mp3');
+        if (!isMp3) {
+            window.profileToast('Usa solo file MP3.');
+            input.value = '';
+            return;
+        }
+        if (file.size > 12 * 1024 * 1024) {
+            window.profileToast('MP3 troppo pesante. Max 12MB.');
+            input.value = '';
+            return;
+        }
+        const title = $('#musicTitleInput');
+        if (title && !title.value.trim()) {
+            title.value = file.name.replace(/\.mp3$/i, '');
+        }
+        window.profileToast('MP3 selezionato. Salva per applicarlo.');
+    }
+
     avatarInput.addEventListener('change', () => previewAvatarFile(avatarInput, $('#previewAvatar')));
     bannerInput.addEventListener('change', () => previewBackgroundFile(bannerInput));
+    if (musicFileInput) musicFileInput.addEventListener('change', () => previewMusicFile(musicFileInput));
 
     form.addEventListener('submit', async (event) => {
         event.preventDefault();

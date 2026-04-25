@@ -56,9 +56,9 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/includes/head-import.php'; ?>
     <title>Cripsum™ - Modifica profilo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=2.5-plus">
-    <script src="/assets/js/profile.js?v=2.5-plus" defer></script>
-    <script src="/assets/js/edit-profile.js?v=2.5-plus" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=2.6-mp3-ui">
+    <script src="/assets/js/profile.js?v=2.6-mp3-ui" defer></script>
+    <script src="/assets/js/edit-profile.js?v=2.6-mp3-ui" defer></script>
 </head>
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>">
     <?php
@@ -147,12 +147,16 @@ function profile_json_script(string $id, array $data): void
 
                     <label class="profile-field"><span>Privacy profilo</span><select name="profile_visibility" id="visibilityInput"><?php foreach (['public'=>'Pubblico','logged_in'=>'Solo utenti loggati','private'=>'Privato'] as $value=>$label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_visibility'] ?? 'public') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
 
-                    <div class="bio-section-heading profile-mt"><div><span><i class="fas fa-music"></i> Audio profilo</span><p>Metti un file audio pubblico. Il player appare solo se compili l’URL.</p></div></div>
+                    <div class="bio-section-heading profile-mt"><div><span><i class="fas fa-music"></i> Audio profilo</span><p>Carica un MP3 oppure usa un URL audio pubblico.</p></div></div>
                     <div class="profile-field-grid two">
-                        <label class="profile-field"><span>URL canzone</span><input type="url" name="profile_music_url" id="musicUrlInput" maxlength="255" value="<?php echo profile_h($profile['profile_music_url'] ?? ''); ?>" placeholder="https://.../audio.mp3"></label>
+                        <label class="profile-field"><span>Carica MP3</span><input type="file" name="profile_music_file" id="musicFileInput" accept="audio/mpeg,audio/mp3,.mp3"><small>Max 12MB. Se carichi un MP3, sostituisce l’URL.</small></label>
+                        <label class="profile-field"><span>URL canzone</span><input type="url" name="profile_music_url" id="musicUrlInput" maxlength="255" value="<?php echo profile_h($profile['profile_music_url'] ?? ''); ?>" placeholder="https://.../audio.mp3"><small>Usalo solo se non carichi un file.</small></label>
                         <label class="profile-field"><span>Titolo canzone</span><input type="text" name="profile_music_title" id="musicTitleInput" maxlength="80" value="<?php echo profile_h($profile['profile_music_title'] ?? ''); ?>" placeholder="Nome canzone"></label>
                         <label class="profile-field"><span>Artista / nota</span><input type="text" name="profile_music_artist" id="musicArtistInput" maxlength="80" value="<?php echo profile_h($profile['profile_music_artist'] ?? ''); ?>" placeholder="Artista o fonte"></label>
                         <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_show_audio_player" value="0"><input type="checkbox" name="profile_show_audio_player" value="1" <?php echo (int)($profile['profile_show_audio_player'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-sliders"></i>Mostra player</span></label>
+                        <?php if (!empty($profile['profile_music_mime'])): ?>
+                            <label class="profile-toggle-card profile-inline-toggle"><input type="checkbox" name="remove_profile_music_upload" value="1"><span><i class="fas fa-trash"></i>Rimuovi MP3 caricato</span></label>
+                        <?php endif; ?>
                     </div>
                 </div>
 

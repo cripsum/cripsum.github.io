@@ -169,6 +169,7 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
             u.profile_show_activity,
             u.profile_show_discord,
             u.profile_music_url,
+            u.profile_music_mime,
             u.profile_music_title,
             u.profile_music_artist,
             u.profile_show_audio_player,
@@ -210,7 +211,7 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
 
 function profile_get_edit_profile(mysqli $mysqli, int $userId): ?array
 {
-    $stmt = $mysqli->prepare("SELECT id, username, display_name, bio, data_creazione, ruolo, profile_banner_type, accent_color, profile_theme, profile_layout, profile_visibility, discord_id, profile_status, profile_show_stats, profile_show_socials, profile_show_links, profile_show_projects, profile_show_contents, profile_show_badges, profile_show_activity, profile_show_discord, profile_music_url, profile_music_title, profile_music_artist, profile_show_audio_player, profile_effect, avatar_ring_enabled, avatar_ring_style, avatar_ring_color, profile_views, featured_badge_id, featured_project_id, featured_content_id, profile_updated_at FROM utenti WHERE id = ? LIMIT 1");
+    $stmt = $mysqli->prepare("SELECT id, username, display_name, bio, data_creazione, ruolo, profile_banner_type, accent_color, profile_theme, profile_layout, profile_visibility, discord_id, profile_status, profile_show_stats, profile_show_socials, profile_show_links, profile_show_projects, profile_show_contents, profile_show_badges, profile_show_activity, profile_show_discord, profile_music_url, profile_music_mime, profile_music_title, profile_music_artist, profile_show_audio_player, profile_effect, avatar_ring_enabled, avatar_ring_style, avatar_ring_color, profile_views, featured_badge_id, featured_project_id, featured_content_id, profile_updated_at FROM utenti WHERE id = ? LIMIT 1");
     $stmt->bind_param('i', $userId);
     $stmt->execute();
     $profile = $stmt->get_result()->fetch_assoc();
@@ -520,6 +521,43 @@ function profile_handle_background_upload(array $file, int $maxBytes): array
         'has_file' => true,
         'blob' => file_get_contents($tmp),
         'mime' => $mime,
+    ];
+}
+
+
+function profile_handle_audio_upload(array $file, int $maxBytes): array
+{
+    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        return ['has_file' => false];
+    }
+
+    if (($file['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
+        return ['has_file' => true, 'error' => 'Upload audio non riuscito.'];
+    }
+
+    if (($file['size'] ?? 0) <= 0 || $file['size'] > $maxBytes) {
+        return ['has_file' => true, 'error' => 'MP3 troppo pesante.'];
+    }
+
+    $tmp = $file['tmp_name'] ?? '';
+    if (!is_uploaded_file($tmp)) {
+        return ['has_file' => true, 'error' => 'File audio non valido.'];
+    }
+
+    $originalName = strtolower((string)($file['name'] ?? ''));
+    $extension = pathinfo($originalName, PATHINFO_EXTENSION);
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mime = $finfo->file($tmp) ?: '';
+
+    $allowedMimes = ['audio/mpeg', 'audio/mp3', 'audio/x-mpeg', 'audio/x-mp3', 'audio/mpeg3', 'application/octet-stream'];
+    if ($extension !== 'mp3' || !in_array($mime, $allowedMimes, true)) {
+        return ['has_file' => true, 'error' => 'Formato audio non supportato. Usa solo MP3.'];
+    }
+
+    return [
+        'has_file' => true,
+        'blob' => file_get_contents($tmp),
+        'mime' => 'audio/mpeg',
     ];
 }
 

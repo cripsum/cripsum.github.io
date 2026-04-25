@@ -229,11 +229,13 @@
                 image.src = image.dataset.qrSrc + (image.dataset.qrSrc.includes('?') ? '&' : '?') + 't=' + Date.now();
             }
             modal.classList.add('is-visible');
+            document.body.classList.add('profile-modal-open');
             modal.setAttribute('aria-hidden', 'false');
         };
 
         const close = () => {
             modal.classList.remove('is-visible');
+            document.body.classList.remove('profile-modal-open');
             modal.setAttribute('aria-hidden', 'true');
         };
 
@@ -359,10 +361,48 @@
         });
     };
 
+
+
+    const initDropdownFallback = () => {
+        if (window.bootstrap && window.bootstrap.Dropdown) return;
+
+        const toggles = document.querySelectorAll('[data-bs-toggle="dropdown"], [data-toggle="dropdown"], .dropdown-toggle');
+        if (!toggles.length) return;
+
+        const closeAll = (except = null) => {
+            document.querySelectorAll('.dropdown-menu.show').forEach((menu) => {
+                if (menu === except) return;
+                menu.classList.remove('show');
+                menu.closest('.dropdown, .dropdownutenti')?.classList.remove('show');
+            });
+        };
+
+        toggles.forEach((toggle) => {
+            toggle.addEventListener('click', (event) => {
+                const parent = toggle.closest('.dropdown, .dropdownutenti, li, .nav-item') || toggle.parentElement;
+                const menu = parent ? parent.querySelector('.dropdown-menu') : null;
+                if (!menu) return;
+
+                event.preventDefault();
+                event.stopPropagation();
+                const willOpen = !menu.classList.contains('show');
+                closeAll(menu);
+                menu.classList.toggle('show', willOpen);
+                parent.classList.toggle('show', willOpen);
+            });
+        });
+
+        document.addEventListener('click', () => closeAll());
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') closeAll();
+        });
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
         setAccent(body.dataset.accent || '#0f5bff');
         setTheme(localStorage.getItem('cripsum.profile.viewerTheme') || body.dataset.theme || 'dark');
         initActions();
+        initDropdownFallback();
         initReveal();
         initTilt();
         initQrModal();
