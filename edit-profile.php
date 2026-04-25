@@ -199,7 +199,7 @@ function profile_json_script(string $id, array $data): void
                         <span>Il login Discord salva solo ID, username e avatar. La Rich Presence resta su Lanyard: per farla funzionare devi entrare nel <a href="https://discord.com/invite/lanyard" target="_blank" rel="noopener noreferrer">server Lanyard</a>.</span>
                     </div>
 
-                    <div class="profile-field-grid two mt-2">
+                    <div class="profile-field-grid two" style="margin-top: 2%;">
                         <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="discord_use_display_name" value="0"><input type="checkbox" name="discord_use_display_name" id="discordUseNameInput" value="1" <?php echo (int)($profile['discord_use_display_name'] ?? 0) === 1 ? 'checked' : ''; ?> <?php echo !$discordConnected ? 'disabled' : ''; ?>><span><i class="fab fa-discord"></i>Usa nome Discord</span></label>
                         <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="discord_use_avatar" value="0"><input type="checkbox" name="discord_use_avatar" id="discordUseAvatarInput" value="1" <?php echo (int)($profile['discord_use_avatar'] ?? 0) === 1 ? 'checked' : ''; ?> <?php echo !$discordConnected ? 'disabled' : ''; ?>><span><i class="fab fa-discord"></i>Usa avatar Discord</span></label>
                     </div>
