@@ -91,7 +91,11 @@ $displayName = $profile ? ($profile['display_name'] ?: $profile['username']) : '
 $profileUrl = $profile ? 'https://cripsum.com/u/' . rawurlencode(strtolower($profile['username'])) : 'https://cripsum.com/profile.php';
 $discordId = $profile ? trim((string)($profile['discord_id'] ?? '')) : '';
 $bannerUrl = $profile && !empty($profile['profile_banner_type']) ? '/includes/get_profile_banner.php?id=' . (int)$profile['id'] : null;
-$backgroundVideo = '/vid/Shorekeeper Wallpaper 4K Loop.mp4';
+$defaultBackgroundVideo = '/vid/Shorekeeper Wallpaper 4K Loop.mp4';
+$backgroundMediaUrl = $bannerUrl ?: $defaultBackgroundVideo;
+$backgroundMediaType = $bannerUrl ? (string)$profile['profile_banner_type'] : 'video/mp4';
+$backgroundIsVideo = str_starts_with($backgroundMediaType, 'video/');
+$backgroundIsImage = str_starts_with($backgroundMediaType, 'image/');
 $featuredLinks = array_values(array_filter($links, fn($item) => (int)($item['is_featured'] ?? 0) === 1));
 if (!$featuredLinks) {
     $featuredLinks = array_slice($links, 0, 4);
@@ -139,9 +143,17 @@ if (!$featuredContents) {
     ?>
 
     <div class="bio-background" aria-hidden="true">
-        <video autoplay muted loop playsinline poster="">
-            <source src="<?php echo profile_h($backgroundVideo); ?>" type="video/mp4">
-        </video>
+        <?php if ($backgroundIsVideo): ?>
+            <video class="bio-background__media" autoplay muted loop playsinline poster="">
+                <source src="<?php echo profile_h($backgroundMediaUrl); ?>" type="<?php echo profile_h($backgroundMediaType); ?>">
+            </video>
+        <?php elseif ($backgroundIsImage): ?>
+            <img class="bio-background__media" src="<?php echo profile_h($backgroundMediaUrl); ?>" alt="" loading="eager">
+        <?php else: ?>
+            <video class="bio-background__media" autoplay muted loop playsinline poster="">
+                <source src="<?php echo profile_h($defaultBackgroundVideo); ?>" type="video/mp4">
+            </video>
+        <?php endif; ?>
         <div class="bio-background__overlay"></div>
         <div class="bio-orb bio-orb--one"></div>
         <div class="bio-orb bio-orb--two"></div>
@@ -157,10 +169,6 @@ if (!$featuredContents) {
     <?php else: ?>
         <main class="bio-page" id="bioPage">
             <section class="bio-hero bio-card js-tilt-card js-reveal" aria-label="Profilo pubblico">
-                <?php if ($bannerUrl): ?>
-                    <div class="bio-profile-banner" style="background-image: linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.62)), url('<?php echo profile_h($bannerUrl); ?>');"></div>
-                <?php endif; ?>
-
                 <div class="bio-hero__topline">
                     <span class="bio-pill <?php echo $isOnline ? 'bio-pill--live' : ''; ?>">
                         <span class="bio-dot <?php echo $isOnline ? '' : 'bio-dot--off'; ?>"></span>

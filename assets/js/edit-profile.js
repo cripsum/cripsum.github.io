@@ -184,19 +184,52 @@
     });
     updatePreview();
 
-    function previewFile(input, target, asBackground) {
+    function previewAvatarFile(input, target) {
         const file = input.files && input.files[0];
         if (!file || !file.type.startsWith('image/')) return;
         const reader = new FileReader();
-        reader.onload = () => {
-            if (asBackground) target.style.backgroundImage = `url('${reader.result}')`;
-            else target.src = reader.result;
-        };
+        reader.onload = () => { target.src = reader.result; };
         reader.readAsDataURL(file);
     }
 
-    avatarInput.addEventListener('change', () => previewFile(avatarInput, $('#previewAvatar'), false));
-    bannerInput.addEventListener('change', () => previewFile(bannerInput, $('#previewBanner'), true));
+    function previewBackgroundFile(input) {
+        const file = input.files && input.files[0];
+        if (!file) return;
+
+        const background = document.querySelector('.bio-background');
+        if (!background) return;
+
+        const url = URL.createObjectURL(file);
+        background.querySelectorAll('.bio-background__media, video').forEach((node) => node.remove());
+
+        let media;
+        if (file.type.startsWith('video/')) {
+            media = document.createElement('video');
+            media.autoplay = true;
+            media.muted = true;
+            media.loop = true;
+            media.playsInline = true;
+            const source = document.createElement('source');
+            source.src = url;
+            source.type = file.type;
+            media.appendChild(source);
+        } else if (file.type.startsWith('image/')) {
+            media = document.createElement('img');
+            media.src = url;
+            media.alt = '';
+        } else {
+            window.profileToast('Formato sfondo non supportato.');
+            URL.revokeObjectURL(url);
+            return;
+        }
+
+        media.className = 'bio-background__media';
+        background.prepend(media);
+        window.profileToast('Anteprima sfondo aggiornata.');
+    }
+
+    avatarInput.addEventListener('change', () => previewAvatarFile(avatarInput, $('#previewAvatar')));
+    bannerInput.addEventListener('change', () => previewBackgroundFile(bannerInput));
 
     form.addEventListener('submit', async (event) => {
         event.preventDefault();

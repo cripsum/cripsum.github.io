@@ -70,9 +70,9 @@ if (!empty($avatarUpload['error'])) {
     profile_json_response(['ok' => false, 'message' => 'Avatar: ' . $avatarUpload['error']], 422);
 }
 
-$bannerUpload = profile_handle_image_upload($_FILES['banner'] ?? ['error' => UPLOAD_ERR_NO_FILE], 4 * 1024 * 1024);
+$bannerUpload = profile_handle_background_upload($_FILES['banner'] ?? ['error' => UPLOAD_ERR_NO_FILE], 12 * 1024 * 1024);
 if (!empty($bannerUpload['error'])) {
-    profile_json_response(['ok' => false, 'message' => 'Banner: ' . $bannerUpload['error']], 422);
+    profile_json_response(['ok' => false, 'message' => 'Sfondo profilo: ' . $bannerUpload['error']], 422);
 }
 
 function profile_decode_rows(string $key): array
@@ -118,7 +118,7 @@ try {
         $null = null;
         $stmt->bind_param('bsi', $null, $bannerUpload['mime'], $targetUserId);
         $stmt->send_long_data(0, $bannerUpload['blob']);
-        if (!$stmt->execute()) throw new RuntimeException('Errore salvataggio banner.');
+        if (!$stmt->execute()) throw new RuntimeException('Errore salvataggio sfondo profilo.');
         $stmt->close();
     }
 

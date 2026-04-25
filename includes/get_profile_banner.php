@@ -20,12 +20,13 @@ if (!$blob || !$mime) {
     exit;
 }
 
-$allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+$allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm'];
 if (!in_array($mime, $allowed, true)) {
     http_response_code(415);
     exit;
 }
 
 header('Content-Type: ' . $mime);
+header('Content-Length: ' . strlen($blob));
 header('Cache-Control: public, max-age=86400');
 echo $blob;

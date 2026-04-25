@@ -37,6 +37,10 @@ $accent = profile_normalize_hex_color($profile['accent_color'] ?? '#0f5bff');
 $theme = profile_allowed_value((string)($profile['profile_theme'] ?? 'dark'), ['dark', 'light', 'auto'], 'dark');
 if ($theme === 'auto') $theme = 'dark';
 $displayName = $profile['display_name'] ?: $profile['username'];
+$backgroundUrl = !empty($profile['profile_banner_type']) ? '/includes/get_profile_banner.php?id=' . (int)$profile['id'] : '/vid/Shorekeeper Wallpaper 4K Loop.mp4';
+$backgroundType = !empty($profile['profile_banner_type']) ? (string)$profile['profile_banner_type'] : 'video/mp4';
+$backgroundIsVideo = str_starts_with($backgroundType, 'video/');
+$backgroundIsImage = str_starts_with($backgroundType, 'image/');
 
 function profile_json_script(string $id, array $data): void
 {
@@ -66,7 +70,13 @@ function profile_json_script(string $id, array $data): void
     ?>
 
     <div class="bio-background" aria-hidden="true">
-        <video autoplay muted loop playsinline poster=""><source src="/vid/Shorekeeper Wallpaper 4K Loop.mp4" type="video/mp4"></video>
+        <?php if ($backgroundIsVideo): ?>
+            <video class="bio-background__media" autoplay muted loop playsinline poster=""><source src="<?php echo profile_h($backgroundUrl); ?>" type="<?php echo profile_h($backgroundType); ?>"></video>
+        <?php elseif ($backgroundIsImage): ?>
+            <img class="bio-background__media" src="<?php echo profile_h($backgroundUrl); ?>" alt="" loading="eager">
+        <?php else: ?>
+            <video class="bio-background__media" autoplay muted loop playsinline poster=""><source src="/vid/Shorekeeper Wallpaper 4K Loop.mp4" type="video/mp4"></video>
+        <?php endif; ?>
         <div class="bio-background__overlay"></div>
         <div class="bio-orb bio-orb--one"></div>
         <div class="bio-orb bio-orb--two"></div>
@@ -118,7 +128,7 @@ function profile_json_script(string $id, array $data): void
 
                     <div class="profile-field-grid two">
                         <label class="profile-field"><span>Avatar</span><input type="file" name="avatar" id="avatarInput" accept="image/jpeg,image/png,image/webp,image/gif"><small>Max 2MB. JPG, PNG, WEBP o GIF.</small></label>
-                        <label class="profile-field"><span>Banner</span><input type="file" name="banner" id="bannerInput" accept="image/jpeg,image/png,image/webp,image/gif"><small>Max 4MB. Verrà usato come banner nella hero.</small></label>
+                        <label class="profile-field"><span>Sfondo profilo</span><input type="file" name="banner" id="bannerInput" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"><small>Max 12MB. Foto, GIF o video. Cambia lo sfondo della pagina.</small></label>
                     </div>
 
                     <div class="profile-field-grid three">
@@ -173,7 +183,7 @@ function profile_json_script(string $id, array $data): void
 
             <aside class="bio-hero bio-card profile-preview-card js-tilt-card js-reveal">
                 <span class="bio-pill">Preview live</span>
-                <div class="bio-profile-banner profile-preview-banner" id="previewBanner" <?php if (!empty($profile['profile_banner_type'])): ?>style="background-image: linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.62)), url('/includes/get_profile_banner.php?id=<?php echo (int)$profile['id']; ?>&t=<?php echo time(); ?>')"<?php endif; ?>></div>
+                <div class="profile-background-note"><i class="fas fa-image"></i><span>Lo sfondo scelto appare dietro tutta la pagina, non sopra la foto profilo.</span></div>
                 <div class="bio-avatar-wrap"><div class="bio-avatar-ring"></div><img class="bio-avatar" id="previewAvatar" src="/includes/get_pfp.php?id=<?php echo (int)$profile['id']; ?>&t=<?php echo time(); ?>" alt=""></div>
                 <div class="bio-name-block"><p class="bio-kicker">preview profilo</p><h1 id="previewName"><?php echo profile_h($displayName); ?></h1><p class="bio-username" id="previewUsername">@<?php echo profile_h($profile['username']); ?></p></div>
                 <p class="bio-tagline" id="previewBio"><?php echo profile_h($profile['bio'] ?: 'La tua bio apparirà qui.'); ?></p>

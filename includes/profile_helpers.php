@@ -375,6 +375,53 @@ function profile_handle_image_upload(array $file, int $maxBytes): array
     ];
 }
 
+
+function profile_handle_background_upload(array $file, int $maxBytes): array
+{
+    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        return ['has_file' => false];
+    }
+
+    if (($file['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
+        return ['has_file' => true, 'error' => 'Upload non riuscito.'];
+    }
+
+    if (($file['size'] ?? 0) <= 0 || $file['size'] > $maxBytes) {
+        return ['has_file' => true, 'error' => 'File troppo pesante.'];
+    }
+
+    $tmp = $file['tmp_name'] ?? '';
+    if (!is_uploaded_file($tmp)) {
+        return ['has_file' => true, 'error' => 'File non valido.'];
+    }
+
+    $originalName = strtolower((string)($file['name'] ?? ''));
+    $extension = pathinfo($originalName, PATHINFO_EXTENSION);
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mime = $finfo->file($tmp) ?: '';
+
+    $imageInfo = @getimagesize($tmp);
+    if ($imageInfo && !empty($imageInfo['mime'])) {
+        $mime = $imageInfo['mime'];
+    }
+
+    $allowedImages = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    $allowedVideos = ['video/mp4', 'video/webm'];
+
+    $isImage = in_array($mime, $allowedImages, true);
+    $isVideo = in_array($mime, $allowedVideos, true) && in_array($extension, ['mp4', 'webm'], true);
+
+    if (!$isImage && !$isVideo) {
+        return ['has_file' => true, 'error' => 'Formato non supportato. Usa JPG, PNG, WEBP, GIF, MP4 o WEBM.'];
+    }
+
+    return [
+        'has_file' => true,
+        'blob' => file_get_contents($tmp),
+        'mime' => $mime,
+    ];
+}
+
 function profile_social_icon_class(string $platform): string
 {
     $map = [
