@@ -1,973 +1,551 @@
 <?php
-require_once 'config/session_init.php';
-require_once 'config/database.php';
-require_once 'includes/functions.php';
+require_once __DIR__ . '/config/session_init.php';
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/includes/functions.php';
 
 $isLoggedIn = isset($_SESSION['user_id']);
 $user_id = $_SESSION['user_id'] ?? null;
 $username_session = $_SESSION['username'] ?? null;
 
-// Identifica se è username o ID dalla URL
-$identifier = "cripsum";
+function e($value): string
+{
+    return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+}
 
-$query = "SELECT u.id, u.username, u.data_creazione, u.soldi, u.ruolo,
-        COUNT(DISTINCT ua.achievement_id) AS num_achievement,
-        COUNT(DISTINCT up.personaggio_id) AS num_personaggi
-        FROM utenti u
-        LEFT JOIN utenti_achievement ua ON ua.utente_id = u.id
-        LEFT JOIN utenti_personaggi up ON up.utente_id = u.id
-        WHERE u.username = ?
-        GROUP BY u.id";
-$stmt = $mysqli->prepare($query);
-$stmt->bind_param("s", $identifier);
+function formatShortDate($date): string
+{
+    if (empty($date)) {
+        return '—';
+    }
 
+    $timestamp = strtotime((string) $date);
+    return $timestamp ? date('d/m/Y', $timestamp) : '—';
+}
+
+function formatCompactNumber($number): string
+{
+    $number = (int) $number;
+
+    if ($number >= 1000000) {
+        return round($number / 1000000, 1) . 'M';
+    }
+
+    if ($number >= 1000) {
+        return round($number / 1000, 1) . 'K';
+    }
+
+    return (string) $number;
+}
+
+function fetchSingleValue(mysqli $mysqli, string $query, string $types, $param, $fallback = 0)
+{
+    $stmt = $mysqli->prepare($query);
+    if (!$stmt) {
+        return $fallback;
+    }
+
+    $stmt->bind_param($types, $param);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result ? $result->fetch_assoc() : null;
+    $stmt->close();
+
+    if (!$row) {
+        return $fallback;
+    }
+
+    $firstValue = reset($row);
+    return $firstValue ?? $fallback;
+}
+
+function fetchRecentAchievements(mysqli $mysqli, int $userId): array
+{
+    $query = "SELECT a.id, a.nome, a.descrizione, a.img_url, a.punti, ua.data
+              FROM utenti_achievement ua
+              INNER JOIN achievement a ON a.id = ua.achievement_id
+              WHERE ua.utente_id = ?
+              ORDER BY ua.data DESC
+              LIMIT 6";
+
+    $stmt = $mysqli->prepare($query);
+    if (!$stmt) {
+        return [];
+    }
+
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $achievements = [];
+
+    while ($result && ($row = $result->fetch_assoc())) {
+        $achievements[] = $row;
+    }
+
+    $stmt->close();
+    return $achievements;
+}
+
+$identifier = trim((string) ($_GET['username'] ?? $_GET['u'] ?? $_GET['id'] ?? 'cripsum'));
+$isNumericIdentifier = ctype_digit($identifier);
+$lookupColumn = $isNumericIdentifier ? 'id' : 'username';
+$lookupType = $isNumericIdentifier ? 'i' : 's';
+$lookupValue = $isNumericIdentifier ? (int) $identifier : $identifier;
+
+$userQuery = "SELECT id, username, data_creazione, soldi, ruolo FROM utenti WHERE {$lookupColumn} = ? LIMIT 1";
+$stmt = $mysqli->prepare($userQuery);
+
+if (!$stmt) {
+    http_response_code(500);
+    exit('Errore nel caricamento del profilo.');
+}
+
+$stmt->bind_param($lookupType, $lookupValue);
 $stmt->execute();
 $result = $stmt->get_result();
 
-if ($result->num_rows === 0) {
+if (!$result || $result->num_rows === 0) {
     http_response_code(404);
-    exit("Utente non trovato.");
+    exit('Utente non trovato.');
 }
 
 $user = $result->fetch_assoc();
 $stmt->close();
-$user_cercato_id = $user['id'];
+
+$user_cercato_id = (int) $user['id'];
+
+$achievementCount = (int) fetchSingleValue(
+    $mysqli,
+    'SELECT COUNT(DISTINCT achievement_id) AS total FROM utenti_achievement WHERE utente_id = ?',
+    'i',
+    $user_cercato_id
+);
+
+$inventoryStmt = $mysqli->prepare('SELECT COUNT(DISTINCT personaggio_id) AS unique_characters, COALESCE(SUM(`quantità`), 0) AS total_pulls FROM utenti_personaggi WHERE utente_id = ?');
+$uniqueCharacters = 0;
+$totalPulls = 0;
+
+if ($inventoryStmt) {
+    $inventoryStmt->bind_param('i', $user_cercato_id);
+    $inventoryStmt->execute();
+    $inventoryResult = $inventoryStmt->get_result();
+    $inventoryStats = $inventoryResult ? $inventoryResult->fetch_assoc() : null;
+    $uniqueCharacters = (int) ($inventoryStats['unique_characters'] ?? 0);
+    $totalPulls = (int) ($inventoryStats['total_pulls'] ?? 0);
+    $inventoryStmt->close();
+}
+
+$recentAchievements = fetchRecentAchievements($mysqli, $user_cercato_id);
+
+$host = $_SERVER['HTTP_HOST'] ?? 'cripsum.com';
+$requestUri = $_SERVER['REQUEST_URI'] ?? '/bio';
+$profileUrl = 'https://' . $host . strtok($requestUri, '?');
+
+$profileConfig = [
+    'display_name' => 'cripsum',
+    'username' => $user['username'] ?? 'cripsum',
+    'aliases' => 'AKA Leo / Cripsy Cripsy',
+    'tagline' => 'Video editor, developer e founder di piccoli esperimenti web.',
+    'bio' => 'Creo edit, pagine strane, giochi e strumenti per il mio sito. Questa bio è pensata come hub personale, non come una lista piatta di link.',
+    'location' => 'Italy',
+    'age' => '20',
+    'role' => $user['ruolo'] ?? 'user',
+    'discord_id' => '963536045180350474',
+    'avatar_url' => 'includes/get_pfp.php?id=' . $user_cercato_id,
+    'background_video' => 'vid/Shorekeeper Wallpaper 4K Loop.mp4',
+    'audio_title' => "To the Shore's end",
+    'audio_file' => 'audio/godo.mp3',
+];
+
+$socialLinks = [
+    [
+        'label' => 'TikTok',
+        'handle' => '@cripsum',
+        'url' => 'https://tiktok.cripsum.com',
+        'icon' => 'fab fa-tiktok',
+        'kind' => 'tiktok',
+    ],
+    [
+        'label' => 'Telegram',
+        'handle' => 'sburragrigliata',
+        'url' => 'https://t.me/sburragrigliata',
+        'icon' => 'fab fa-telegram-plane',
+        'kind' => 'telegram',
+    ],
+    [
+        'label' => 'Discord',
+        'handle' => 'server',
+        'url' => 'https://discord.cripsum.com',
+        'icon' => 'fab fa-discord',
+        'kind' => 'discord',
+    ],
+    [
+        'label' => 'Website',
+        'handle' => 'cripsum.com',
+        'url' => 'https://cripsum.com',
+        'icon' => 'fas fa-globe',
+        'kind' => 'website',
+    ],
+];
+
+$featuredLinks = [
+    [
+        'title' => 'Cripsum.com',
+        'description' => 'Hub principale, profili, esperimenti e pagine del sito.',
+        'url' => 'https://cripsum.com',
+        'icon' => 'fas fa-layer-group',
+        'tag' => 'Main',
+    ],
+    [
+        'title' => 'GoonLand™',
+        'description' => 'Micro-universo più ironico, visuale e personale.',
+        'url' => 'https://cripsum.com',
+        'icon' => 'fas fa-bolt',
+        'tag' => 'Project',
+    ],
+    [
+        'title' => 'Discord Community',
+        'description' => 'Server, update, test e roba legata ai progetti.',
+        'url' => 'https://discord.cripsum.com',
+        'icon' => 'fab fa-discord',
+        'tag' => 'Live',
+    ],
+];
+
+$projectCards = [
+    [
+        'title' => 'VanzaKart Launcher',
+        'description' => 'Launcher e updater custom per modpack su Dolphin.',
+        'meta' => 'C# / Dolphin / updater',
+        'icon' => 'fas fa-gamepad',
+        'url' => '#',
+    ],
+    [
+        'title' => 'Cripsum Lootbox',
+        'description' => 'Sistema di personaggi, rarità, inventario e achievement.',
+        'meta' => 'PHP / MySQL / JS',
+        'icon' => 'fas fa-box-open',
+        'url' => 'https://cripsum.com',
+    ],
+    [
+        'title' => 'Edits',
+        'description' => 'Video edit personali, prove visual e contenuti brevi.',
+        'meta' => 'After Effects / TikTok',
+        'icon' => 'fas fa-clapperboard',
+        'url' => 'https://tiktok.cripsum.com',
+    ],
+];
+
+$contentPreviews = [
+    [
+        'title' => 'Latest edits',
+        'description' => 'Raccolta rapida dei contenuti video più recenti.',
+        'url' => 'https://tiktok.cripsum.com',
+        'icon' => 'fas fa-play',
+        'label' => 'Video',
+    ],
+    [
+        'title' => 'Profile hub',
+        'description' => 'Statistiche, badge, social e stato Discord in un posto solo.',
+        'url' => $profileUrl,
+        'icon' => 'fas fa-id-card',
+        'label' => 'Bio',
+    ],
+];
+
+$heroBadges = [
+    ['label' => 'Founder', 'icon' => 'fas fa-crown'],
+    ['label' => 'Editor', 'icon' => 'fas fa-wand-magic-sparkles'],
+    ['label' => 'Developer', 'icon' => 'fas fa-code'],
+];
+
+$statCards = [
+    ['label' => 'Achievement', 'value' => $achievementCount, 'icon' => 'fas fa-trophy'],
+    ['label' => 'Personaggi', 'value' => $uniqueCharacters, 'icon' => 'fas fa-user-astronaut'],
+    ['label' => 'Pull totali', 'value' => $totalPulls, 'icon' => 'fas fa-dice-d20'],
+    ['label' => 'Crediti', 'value' => (int) ($user['soldi'] ?? 0), 'icon' => 'fas fa-coins'],
+];
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="it">
 <head>
-    <?php include 'includes/head-import.php'; ?>
-    <link rel="stylesheet" href="css/style-users.css?v=3" />
-    <title>Profilo di cripsum</title>
-    <script src="js/nomePagina.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
-            min-height: 100vh;
-            color: white;
-            overflow-x: hidden;
-        }
-
-        .bio-page {
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            padding: 20px;
-        }
-
-        .background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -2;
-        }
-
-        .background video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            /* filter: blur(3px) brightness(0.3) contrast(1.2); */
-        }
-
-        .profile-container {
-            background: rgba(0, 0, 0, 0.1);
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-            border-radius: 10px;
-            border: 2px solid rgb(15, 91, 255);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5),
-                0 0 0 1px rgba(255, 255, 255, 0.05);
-            width: 100%;
-            max-width: 600px;
-            padding: 40px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .user-username {
-            font-size: 2rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #00d4ff, #7c3aed, #00d4ff);
-            background-size: 200% 200%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: gradientShift 3s ease-in-out infinite;
-            margin-bottom: 8px;
-            text-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
-        }
-
-        @keyframes gradientShift {
-
-            0%,
-            100% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-        }
-
-        .profile-subtitle {
-            color: #a0a0a0;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-            font-weight: 400;
-        }
-
-        .profile-info {
-            color: #e0e0e0;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 30px;
-            font-weight: 400;
-        }
-
-        .profile-info span {
-            color: #00d4ff;
-            margin-right: 8px;
-        }
-
-        .discord-section {
-            margin: 30px 0;
-            background: rgba(88, 101, 242, 0.1);
-            border: 1px solid rgba(88, 101, 242, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .discord-section:hover {
-            background: rgba(88, 101, 242, 0.15);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(88, 101, 242, 0.2);
-        }
-
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .social-link {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 45px;
-            height: 45px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgb(15, 91, 255);
-            border-radius: 12px;
-            color: white;
-            text-decoration: none;
-            font-size: 1.2rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .social-link i {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            width: 100%;
-            height: 100%;
-        }
-
-        .social-link::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .social-link:hover {
-            transform: translateY(-3px);
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .social-link:hover::before {
-            left: 100%;
-        }
-
-        .social-link:nth-child(1):hover {
-            background: linear-gradient(45deg, #ff0050, #ff4081);
-            border-color: #ff4081;
-        }
-
-        .social-link:nth-child(2):hover {
-            background: linear-gradient(45deg, #0088cc, #00a0e9);
-            border-color: #00a0e9;
-        }
-
-        .social-link:nth-child(3):hover {
-            background: linear-gradient(45deg, #5865f2, #7289da);
-            border-color: #7289da;
-        }
-
-        .floating-elements {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        .floating-particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: rgba(0, 212, 255, 0.6);
-            border-radius: 50%;
-            animation: float 6s infinite linear;
-        }
-
-        .floating-particle:nth-child(2) {
-            background: rgba(124, 58, 237, 0.6);
-            animation-delay: -2s;
-            animation-duration: 8s;
-        }
-
-        .floating-particle:nth-child(3) {
-            background: rgba(0, 212, 255, 0.4);
-            animation-delay: -4s;
-            animation-duration: 10s;
-        }
-
-        @keyframes float {
-            0% {
-                transform: translateY(100vh) rotate(0deg);
-                opacity: 0;
-            }
-
-            10% {
-                opacity: 1;
-            }
-
-            90% {
-                opacity: 1;
-            }
-
-            100% {
-                transform: translateY(-100px) rotate(360deg);
-                opacity: 0;
-            }
-        }
-
-        .navbarutenti {
-            background: rgba(255, 255, 255, 0.1);
-            -webkit-backdrop-filter: blur(20px);
-            backdrop-filter: blur(20px);
-            border: 2px solid rgb(15, 91, 255);
-        }
-
-        .dropdownutenti .dropdown-menu {
-            background: rgba(15, 91, 255, 0.5);
-            border: 2px solid rgb(15, 91, 255);
-        }
-
-        @media (max-width: 2000px) {
-            .bio-page {
-                margin-top: 7rem;
-            }
-
-        }
-
-        @media (max-width: 768px) {
-            .bio-page {
-                margin-top: 7rem;
-            }
-
-
-            .profile-container {
-                margin: 20px;
-                padding: 30px 25px;
-                max-width: calc(100vw - 40px);
-            }
-
-            .profile-username {
-                font-size: 1.8rem;
-            }
-
-            .social-links {
-                gap: 12px;
-            }
-
-            .social-link {
-                width: 42px;
-                height: 42px;
-                font-size: 1.1rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .bio-page {
-                padding: 15px;
-                margin-top: 5rem;
-            }
-
-            .profile-container {
-                padding: 25px 20px;
-                margin: 15px;
-            }
-
-            .profile-username {
-                font-size: 1.6rem;
-            }
-
-        }
-
-        .profile-container {
-            animation: subtlePulse 4s ease-in-out infinite;
-        }
-
-        @keyframes subtlePulse {
-
-            0%,
-            100% {
-                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5),
-                    0 0 0 1px rgba(255, 255, 255, 0.05);
-            }
-
-            50% {
-                box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6),
-                    0 0 0 1px rgba(255, 255, 255, 0.08),
-                    0 0 50px rgba(0, 212, 255, 0.1);
-            }
-        }
-
-        .audio-controls {
-            margin-top: 25px;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.1);
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            border: 2px solid;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-            border-color: rgb(15, 91, 255);
-        }
-
-        .audio-controls:hover {
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(15, 91, 255, 0.1);
-        }
-
-        .song-info {
-            text-align: center;
-            margin-bottom: 15px;
-            color: white;
-            font-weight: 700;
-            font-size: 0.95rem;
-            font-weight: bold;
-        }
-
-        .progress-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .time-display {
-            color: #a0a0a0;
-            font-size: 0.8rem;
-            font-weight: 500;
-            min-width: 40px;
-            text-align: center;
-        }
-
-        .progress-slider {
-            flex: 1;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            outline: none;
-            -webkit-appearance: none;
-            appearance: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .progress-slider:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .progress-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
-            background: linear-gradient(135deg, #00d4ff, #7c3aed);
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
-            transition: all 0.3s ease;
-        }
-
-        .progress-slider::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.7);
-        }
-
-        .progress-slider::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
-            background: linear-gradient(135deg, #00d4ff, #7c3aed);
-            border-radius: 50%;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
-        }
-
-        .bottom-controls {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-        }
-
-        .volume-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .player-controls {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .audio-btn {
-            background: rgba(0, 212, 255, 0.1);
-            border: 2px solid rgba(15, 91, 255, 0.5);
-            border-radius: 8px;
-            width: 35px;
-            height: 35px;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .audio-btn:hover {
-            background: rgba(0, 212, 255, 0.3);
-            border-color: rgb(15, 91, 255);
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(15, 91, 255, 0.3);
-        }
-
-        .audio-btn:active {
-            transform: scale(0.95);
-        }
-
-        .play-pause-btn {
-            width: 40px;
-            height: 40px;
-            font-size: 1.1rem;
-            background: rgba(0, 212, 255, 0.2);
-            border-radius: 10px;
-        }
-
-        .volume-slider {
-            width: 80px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-            outline: none;
-            -webkit-appearance: none;
-            appearance: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .volume-slider:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 14px;
-            height: 14px;
-            background: rgb(15, 91, 255);
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 8px rgba(15, 91, 255, 0.5);
-            transition: all 0.3s ease;
-        }
-
-        .volume-slider::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 12px rgba(15, 91, 255, 0.7);
-        }
-
-        .volume-slider::-moz-range-thumb {
-            width: 14px;
-            height: 14px;
-            background: rgb(15, 91, 255);
-            border-radius: 50%;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 0 8px rgba(15, 91, 255, 0.5);
-        }
-
-        @media (max-width: 480px) {
-            .audio-controls {
-                padding: 15px;
-            }
-
-            .bottom-controls {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .player-controls {
-                gap: 10px;
-            }
-
-            .audio-btn {
-                width: 32px;
-                height: 32px;
-                font-size: 0.8rem;
-            }
-
-            .play-pause-btn {
-                width: 38px;
-                height: 38px;
-                font-size: 1rem;
-            }
-
-            .volume-slider {
-                width: 60px;
-            }
-
-            .time-display {
-                font-size: 0.75rem;
-                min-width: 35px;
-            }
-        }
-    </style>
+    <?php include __DIR__ . '/includes/head-import.php'; ?>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Bio personale di <?= e($profileConfig['display_name']); ?> su cripsum.com">
+    <meta property="og:title" content="<?= e($profileConfig['display_name']); ?> — Bio">
+    <meta property="og:description" content="<?= e($profileConfig['tagline']); ?>">
+    <meta property="og:type" content="profile">
+    <meta property="og:url" content="<?= e($profileUrl); ?>">
+    <link rel="stylesheet" href="css/style-users.css?v=3">
+    <link rel="stylesheet" href="css/bio-v2.css?v=20260425">
+    <title><?= e($profileConfig['display_name']); ?> — Bio</title>
+    <script src="js/nomePagina.js" defer></script>
+    <script src="js/bio-v2.js?v=20260425" defer></script>
 </head>
+<body
+    class="bio-v2-body"
+    data-theme="dark"
+    data-profile-url="<?= e($profileUrl); ?>"
+    data-discord-id="<?= e($profileConfig['discord_id']); ?>"
+>
+    <?php include __DIR__ . '/includes/navbar-bio.php'; ?>
 
-<body>
-    <?php include 'includes/navbar-bio.php'; ?>
-    <div class="background">
-        <video autoplay muted loop>
-            <source src="vid/Shorekeeper Wallpaper 4K Loop.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
+    <div class="bio-background" aria-hidden="true">
+        <video autoplay muted loop playsinline poster="">
+            <source src="<?= e($profileConfig['background_video']); ?>" type="video/mp4">
         </video>
+        <div class="bio-background__overlay"></div>
+        <div class="bio-orb bio-orb--one"></div>
+        <div class="bio-orb bio-orb--two"></div>
+        <div class="bio-grid-glow"></div>
     </div>
 
-    <div class="bio-page">
-
-        <div class="floating-elements">
-            <div class="floating-particle" style="left: 10%; animation-delay: 0s;"></div>
-            <div class="floating-particle" style="left: 20%; animation-delay: -1s;"></div>
-            <div class="floating-particle" style="left: 30%; animation-delay: -2s;"></div>
-            <div class="floating-particle" style="left: 40%; animation-delay: -3s;"></div>
-            <div class="floating-particle" style="left: 50%; animation-delay: -4s;"></div>
-            <div class="floating-particle" style="left: 60%; animation-delay: -5s;"></div>
-            <div class="floating-particle" style="left: 70%; animation-delay: -1.5s;"></div>
-            <div class="floating-particle" style="left: 80%; animation-delay: -2.5s;"></div>
-            <div class="floating-particle" style="left: 90%; animation-delay: -3.5s;"></div>
-        </div>
-
-        <div class="profile-container">
-            <div class="user-avatar">
-                <img src="includes/get_pfp.php?id=<?php echo $user_cercato_id; ?>" alt="Foto Profilo">
+    <main class="bio-page" id="bioPage">
+        <section class="bio-hero bio-card js-tilt-card js-reveal" aria-label="Profilo">
+            <div class="bio-hero__topline">
+                <span class="bio-pill bio-pill--live"><span class="bio-dot"></span> live profile</span>
+                <span class="bio-pill">Cripsum™</span>
             </div>
 
-            <h1 class="user-username text-center" style="text-align: center;">cripsum</h1>
-            <p class="profile-subtitle">AKA - Leo, Cripsy Cripsy</p>
-
-            <div class="profile-info">
-                <div><span>⟡</span>🇮🇹 | 20</div>
-                <div><span>⟡</span>Video Editor</div>
-                <div><span>⟡</span>Developer</div>
+            <div class="bio-avatar-wrap">
+                <div class="bio-avatar-ring"></div>
+                <img class="bio-avatar" src="<?= e($profileConfig['avatar_url']); ?>" alt="Foto profilo di <?= e($profileConfig['display_name']); ?>" loading="eager">
             </div>
 
-            <div class="social-links">
-                <a href="https://tiktok.cripsum.com" target="_blank" class="social-link" title="TikTok">
-                    <i class="fab fa-tiktok" style="display: flex; align-items: center; justify-content: center;"></i>
-                </a>
-                <a href="https://t.me/sburragrigliata" target="_blank" class="social-link" title="Telegram">
-                    <i class="fab fa-telegram-plane" style="display: flex; align-items: center; justify-content: center;"></i>
-                </a>
-                <a href="https://discord.cripsum.com" target="_blank" class="social-link" title="Discord">
-                    <i class="fab fa-discord" style="display: flex; align-items: center; justify-content: center;"></i>
-                </a>
+            <div class="bio-name-block">
+                <p class="bio-kicker"><?= e($profileConfig['aliases']); ?></p>
+                <h1><?= e($profileConfig['display_name']); ?></h1>
+                <p class="bio-username">@<?= e($profileConfig['username']); ?></p>
             </div>
 
-            <div class="discord-box" id="discordBox">
-                <?php include 'includes/discord_status.php?discordId=963536045180350474'; ?>
+            <p class="bio-tagline"><?= e($profileConfig['tagline']); ?></p>
+            <p class="bio-description"><?= e($profileConfig['bio']); ?></p>
+
+            <div class="bio-badges" aria-label="Badge profilo">
+                <?php foreach ($heroBadges as $badge): ?>
+                    <span class="bio-badge"><i class="<?= e($badge['icon']); ?>"></i><?= e($badge['label']); ?></span>
+                <?php endforeach; ?>
             </div>
 
-            <div class="audio-controls">
-                <div class="song-info">
-                    <i class="fas fa-music"></i> To the Shore's end
+            <div class="bio-meta-row">
+                <span><i class="fas fa-location-dot"></i><?= e($profileConfig['location']); ?></span>
+                <span><i class="fas fa-calendar"></i>Dal <?= e(formatShortDate($user['data_creazione'] ?? null)); ?></span>
+                <span><i class="fas fa-shield-halved"></i><?= e($profileConfig['role']); ?></span>
+            </div>
+
+            <div class="bio-actions" aria-label="Azioni profilo">
+                <button class="bio-button bio-button--primary js-copy-profile" type="button">
+                    <i class="fas fa-link"></i>
+                    Copia link
+                </button>
+                <button class="bio-button js-share-profile" type="button">
+                    <i class="fas fa-share-nodes"></i>
+                    Share
+                </button>
+                <button class="bio-icon-button js-theme-toggle" type="button" aria-label="Cambia tema">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+
+            <div class="bio-accent-picker" aria-label="Accent color">
+                <button type="button" class="bio-accent is-active" data-accent="#0f5bff" aria-label="Blu"></button>
+                <button type="button" class="bio-accent" data-accent="#8b5cf6" aria-label="Viola"></button>
+                <button type="button" class="bio-accent" data-accent="#06b6d4" aria-label="Ciano"></button>
+                <button type="button" class="bio-accent" data-accent="#f43f5e" aria-label="Rosa"></button>
+            </div>
+
+            <div class="bio-social-grid" aria-label="Link social">
+                <?php foreach ($socialLinks as $link): ?>
+                    <a class="bio-social bio-social--<?= e($link['kind']); ?>" href="<?= e($link['url']); ?>" target="_blank" rel="noopener noreferrer">
+                        <span class="bio-social__icon"><i class="<?= e($link['icon']); ?>"></i></span>
+                        <span>
+                            <strong><?= e($link['label']); ?></strong>
+                            <small><?= e($link['handle']); ?></small>
+                        </span>
+                        <i class="fas fa-arrow-up-right-from-square bio-social__arrow"></i>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="bio-discord-panel" aria-live="polite">
+                <div class="bio-section-heading bio-section-heading--small">
+                    <span>Discord status</span>
+                    <small>si aggiorna ogni 30s</small>
                 </div>
-
-                <div class="progress-container">
-                    <span id="currentTime" class="time-display">0:00</span>
-                    <input type="range" id="progressSlider" min="0" max="100" value="0" class="progress-slider" title="Posizione Canzone">
-                    <span id="totalTime" class="time-display">0:00</span>
+                <div class="discord-box" id="discordBox">
+                    <?php
+                    $discordProfileId = $profileConfig['discord_id'];
+                    require __DIR__ . '/includes/discord_status.php';
+                    ?>
                 </div>
+            </div>
 
-                <div class="bottom-controls">
-                    <div class="volume-container">
-                        <button id="volumeBtn" class="audio-btn" title="Muto/Volume">
-                            <i class="fas fa-volume-up" id="volumeIcon"></i>
-                        </button>
-                        <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.1" class="volume-slider" title="Volume">
+            <div class="bio-audio" data-audio-player>
+                <audio id="backgroundAudio" preload="metadata" loop>
+                    <source src="<?= e($profileConfig['audio_file']); ?>" type="audio/mpeg">
+                </audio>
+
+                <div class="bio-audio__header">
+                    <div>
+                        <small>now playing</small>
+                        <strong><i class="fas fa-music"></i><?= e($profileConfig['audio_title']); ?></strong>
                     </div>
+                    <button class="bio-icon-button js-audio-toggle" type="button" aria-label="Play o pausa">
+                        <i class="fas fa-play" id="playPauseIcon"></i>
+                    </button>
+                </div>
 
-                    <div class="player-controls">
-                        <button id="prevBtn" class="audio-btn" title="Canzone Precedente">
-                            <i class="fas fa-step-backward"></i>
-                        </button>
-                        <button id="playPauseBtn" class="audio-btn play-pause-btn" title="Play/Pausa">
-                            <i class="fas fa-play" id="playPauseIcon"></i>
-                        </button>
-                        <button id="nextBtn" class="audio-btn" title="Canzone Successiva">
-                            <i class="fas fa-step-forward"></i>
-                        </button>
-                    </div>
+                <div class="bio-audio__progress">
+                    <span id="currentTime">0:00</span>
+                    <input id="progressSlider" type="range" min="0" max="100" value="0" aria-label="Posizione audio">
+                    <span id="totalTime">0:00</span>
+                </div>
+
+                <div class="bio-audio__bottom">
+                    <button class="bio-small-button js-volume-toggle" type="button">
+                        <i class="fas fa-volume-up" id="volumeIcon"></i>
+                    </button>
+                    <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.12" aria-label="Volume audio">
                 </div>
             </div>
+        </section>
 
-        </div>
-        <audio id="background-audio" preload="metadata" autoplay loop>
-            <source src="audio/godo.mp3" type="audio/mpeg">
-        </audio>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const audio = document.getElementById('background-audio');
-                const playPauseBtn = document.getElementById('playPauseBtn');
-                const playPauseIcon = document.getElementById('playPauseIcon');
-                const prevBtn = document.getElementById('prevBtn');
-                const nextBtn = document.getElementById('nextBtn');
-                const volumeBtn = document.getElementById('volumeBtn');
-                const volumeIcon = document.getElementById('volumeIcon');
-                const volumeSlider = document.getElementById('volumeSlider');
-                const progressSlider = document.getElementById('progressSlider');
-                const currentTimeDisplay = document.getElementById('currentTime');
-                const totalTimeDisplay = document.getElementById('totalTime');
+        <section class="bio-content" aria-label="Contenuti profilo">
+            <div class="bio-stats-grid js-reveal">
+                <?php foreach ($statCards as $stat): ?>
+                    <article class="bio-stat-card">
+                        <i class="<?= e($stat['icon']); ?>"></i>
+                        <strong><?= e(formatCompactNumber($stat['value'])); ?></strong>
+                        <span><?= e($stat['label']); ?></span>
+                    </article>
+                <?php endforeach; ?>
+            </div>
 
-                let isPlaying = false;
-                let isMuted = false;
-                let isDragging = false;
-                let hasUserInteracted = false;
-                playPauseIcon.className = 'fas fa-play';
+            <section class="bio-card bio-featured js-reveal">
+                <div class="bio-section-heading">
+                    <div>
+                        <span>In evidenza</span>
+                        <p>Link principali e robe che contano davvero.</p>
+                    </div>
+                </div>
 
-                function tryAutoplay() {
-                    if (!hasUserInteracted) return;
+                <div class="bio-featured-grid">
+                    <?php foreach ($featuredLinks as $item): ?>
+                        <a class="bio-featured-link" href="<?= e($item['url']); ?>" target="_blank" rel="noopener noreferrer">
+                            <span class="bio-featured-link__icon"><i class="<?= e($item['icon']); ?>"></i></span>
+                            <span class="bio-featured-link__content">
+                                <small><?= e($item['tag']); ?></small>
+                                <strong><?= e($item['title']); ?></strong>
+                                <em><?= e($item['description']); ?></em>
+                            </span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </section>
 
-                    audio.play().then(() => {
-                        playPauseIcon.className = 'fas fa-pause';
-                        isPlaying = true;
-                    }).catch(err => {
-                        console.log('Autoplay prevented:', err);
-                        playPauseIcon.className = 'fas fa-play';
-                        isPlaying = false;
-                    });
-                }
+            <details class="bio-card bio-details js-reveal" open>
+                <summary>
+                    <span><i class="fas fa-cubes"></i> Progetti</span>
+                    <i class="fas fa-chevron-down"></i>
+                </summary>
+                <div class="bio-project-grid">
+                    <?php foreach ($projectCards as $project): ?>
+                        <a class="bio-project-card" href="<?= e($project['url']); ?>" <?= $project['url'] !== '#' ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
+                            <span class="bio-project-card__icon"><i class="<?= e($project['icon']); ?>"></i></span>
+                            <strong><?= e($project['title']); ?></strong>
+                            <p><?= e($project['description']); ?></p>
+                            <small><?= e($project['meta']); ?></small>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </details>
 
-                function enableAutoplay() {
-                    hasUserInteracted = true;
-                    tryAutoplay();
-                    document.removeEventListener('click', enableAutoplay);
-                    document.removeEventListener('keydown', enableAutoplay);
-                    document.removeEventListener('touchstart', enableAutoplay);
-                }
+            <details class="bio-card bio-details js-reveal" open>
+                <summary>
+                    <span><i class="fas fa-play-circle"></i> Edit e contenuti</span>
+                    <i class="fas fa-chevron-down"></i>
+                </summary>
+                <div class="bio-preview-grid">
+                    <?php foreach ($contentPreviews as $preview): ?>
+                        <a class="bio-preview-card" href="<?= e($preview['url']); ?>" target="_blank" rel="noopener noreferrer">
+                            <span class="bio-preview-card__label"><?= e($preview['label']); ?></span>
+                            <span class="bio-preview-card__icon"><i class="<?= e($preview['icon']); ?>"></i></span>
+                            <strong><?= e($preview['title']); ?></strong>
+                            <p><?= e($preview['description']); ?></p>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </details>
 
-                document.addEventListener('click', enableAutoplay);
-                document.addEventListener('keydown', enableAutoplay);
-                document.addEventListener('touchstart', enableAutoplay);
-                playPauseIcon.className = 'fas fa-pause';
+            <details class="bio-card bio-details js-reveal" open>
+                <summary>
+                    <span><i class="fas fa-trophy"></i> Badge recenti</span>
+                    <i class="fas fa-chevron-down"></i>
+                </summary>
 
-                function formatTime(seconds) {
-                    const minutes = Math.floor(seconds / 60);
-                    const remainingSeconds = Math.floor(seconds % 60);
-                    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-                }
+                <?php if (!empty($recentAchievements)): ?>
+                    <div class="bio-achievement-grid">
+                        <?php foreach ($recentAchievements as $achievement): ?>
+                            <?php
+                            $achievementImage = !empty($achievement['img_url'])
+                                ? 'img/' . ltrim((string) $achievement['img_url'], '/')
+                                : null;
+                            ?>
+                            <article class="bio-achievement-card">
+                                <?php if ($achievementImage): ?>
+                                    <img src="<?= e($achievementImage); ?>" alt="" loading="lazy">
+                                <?php else: ?>
+                                    <span class="bio-achievement-card__fallback"><i class="fas fa-medal"></i></span>
+                                <?php endif; ?>
+                                <div>
+                                    <strong><?= e($achievement['nome']); ?></strong>
+                                    <p><?= e($achievement['descrizione'] ?? 'Achievement sbloccato.'); ?></p>
+                                    <small><?= e((int) ($achievement['punti'] ?? 0)); ?> punti · <?= e(formatShortDate($achievement['data'] ?? null)); ?></small>
+                                </div>
+                            </article>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="bio-empty-state">
+                        <i class="fas fa-medal"></i>
+                        <strong>Nessun badge recente</strong>
+                        <p>Quando questo profilo sblocca achievement, appariranno qui.</p>
+                    </div>
+                <?php endif; ?>
+            </details>
 
-                function updateProgress() {
-                    if (!isDragging && audio.duration) {
-                        const progress = (audio.currentTime / audio.duration) * 100;
-                        progressSlider.value = progress;
-                        currentTimeDisplay.textContent = formatTime(audio.currentTime);
-                    }
-                }
+            <section class="bio-card bio-about js-reveal">
+                <div class="bio-section-heading">
+                    <div>
+                        <span>Info rapide</span>
+                        <p>Dettagli utili senza riempire troppo la pagina.</p>
+                    </div>
+                </div>
 
-                audio.addEventListener('loadedmetadata', function() {
-                    totalTimeDisplay.textContent = formatTime(audio.duration);
-                    audio.volume = volumeSlider.value;
-                });
+                <div class="bio-info-list">
+                    <div>
+                        <span>Profilo</span>
+                        <strong><?= e($profileConfig['display_name']); ?></strong>
+                    </div>
+                    <div>
+                        <span>Username</span>
+                        <strong>@<?= e($profileConfig['username']); ?></strong>
+                    </div>
+                    <div>
+                        <span>Account creato</span>
+                        <strong><?= e(formatShortDate($user['data_creazione'] ?? null)); ?></strong>
+                    </div>
+                    <div>
+                        <span>Focus</span>
+                        <strong>editing / dev / web experiments</strong>
+                    </div>
+                </div>
+            </section>
+        </section>
+    </main>
 
-                audio.addEventListener('timeupdate', updateProgress);
+    <div class="bio-toast" id="bioToast" role="status" aria-live="polite"></div>
 
-                playPauseBtn.addEventListener('click', function() {
-                    if (isPlaying) {
-                        audio.pause();
-                        playPauseIcon.className = 'fas fa-play';
-                        isPlaying = false;
-                    } else {
-                        audio.play().then(() => {
-                            playPauseIcon.className = 'fas fa-pause';
-                            isPlaying = true;
-                        }).catch(err => {
-                            console.error('Error playing audio:', err);
-                        });
-                    }
-                });
-
-                volumeBtn.addEventListener('click', function() {
-                    if (isMuted) {
-                        audio.muted = false;
-                        volumeIcon.className = audio.volume === 0 ? 'fas fa-volume-mute' : 'fas fa-volume-up';
-                        isMuted = false;
-                    } else {
-                        audio.muted = true;
-                        volumeIcon.className = 'fas fa-volume-mute';
-                        isMuted = true;
-                    }
-                });
-
-                volumeSlider.addEventListener('input', function() {
-                    audio.volume = this.value;
-                    if (this.value == 0) {
-                        volumeIcon.className = 'fas fa-volume-mute';
-                    } else if (this.value < 0.5) {
-                        volumeIcon.className = 'fas fa-volume-down';
-                    } else {
-                        volumeIcon.className = 'fas fa-volume-up';
-                    }
-                    if (isMuted) {
-                        audio.muted = false;
-                        isMuted = false;
-                    }
-                });
-
-                progressSlider.addEventListener('mousedown', function() {
-                    isDragging = true;
-                });
-
-                progressSlider.addEventListener('mouseup', function() {
-                    isDragging = false;
-                    if (audio.duration) {
-                        const newTime = (this.value / 100) * audio.duration;
-                        audio.currentTime = newTime;
-                    }
-                });
-
-                progressSlider.addEventListener('input', function() {
-                    if (isDragging && audio.duration) {
-                        const newTime = (this.value / 100) * audio.duration;
-                        currentTimeDisplay.textContent = formatTime(newTime);
-                    }
-                });
-
-                prevBtn.addEventListener('click', function() {
-                    console.log('Previous track');
-                });
-
-                nextBtn.addEventListener('click', function() {
-                    console.log('Next track');
-                });
-
-                audio.addEventListener('ended', function() {
-                    playPauseIcon.className = 'fas fa-play';
-                    isPlaying = false;
-                    progressSlider.value = 0;
-                    currentTimeDisplay.textContent = '0:00';
-                });
-            });
-
-            fetch('includes/discord_status.php?discordId=963536045180350474')
-                .then(r => r.text())
-                .then(html => {
-                    const discordBox = document.querySelector('.discord-box');
-                    if (discordBox) {
-                        discordBox.innerHTML = html;
-                        initActivityCarousel();
-                    }
-                })
-                .catch(err => console.error('Errore aggiornamento Discord status:', err));
-
-            setInterval(() => {
-                fetch('includes/discord_status.php?discordId=963536045180350474')
-                    .then(r => r.text())
-                    .then(html => {
-                        const discordBox = document.querySelector('.discord-box');
-                        if (discordBox) {
-                            discordBox.innerHTML = html;
-                            initActivityCarousel();
-                        }
-                    })
-                    .catch(err => console.error('Errore aggiornamento Discord status:', err));
-            }, 30000);
-
-            function initActivityCarousel() {
-                const slides = document.querySelectorAll(".activity-item");
-                if (slides.length <= 1) return;
-
-                let current = 0;
-
-                slides.forEach((slide, index) => {
-                    if (index !== 0) {
-                        slide.style.display = "none";
-                    }
-                });
-
-                setInterval(() => {
-                    if (slides.length > 1) {
-                        slides[current].style.display = "none";
-                        current = (current + 1) % slides.length;
-                        slides[current].style.display = "flex";
-                    }
-                }, 4000);
-            }
-
-            document.addEventListener("DOMContentLoaded", () => {
-                initActivityCarousel();
-            });
-
-            function copyProfileLink(type) {
-                const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
-                let url;
-
-                if (type === 'username') {
-                    url = `${baseUrl}/cripsum`;
-                } else {
-                    url = `${baseUrl}/user/<?php echo $user_cercato_id; ?>`;
-                }
-
-                navigator.clipboard.writeText(url).then(() => {
-                    const button = event.target;
-                    const originalText = button.textContent;
-                    button.textContent = 'Copiato!';
-                    button.classList.add('btn-success');
-
-                    setTimeout(() => {
-                        button.textContent = originalText;
-                        button.classList.remove('btn-success');
-                    }, 2000);
-                }).catch(err => {
-                    console.error('Errore nella copia:', err);
-                    const textArea = document.createElement('textarea');
-                    textArea.value = url;
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textArea);
-                });
-            }
-
-            document.addEventListener('mousemove', (e) => {
-                const container = document.querySelector('.profile-container');
-                const rect = container.getBoundingClientRect();
-                const x = e.clientX - rect.left - rect.width / 2;
-                const y = e.clientY - rect.top - rect.height / 2;
-
-                const rotateX = (y / rect.height) * 1;
-                const rotateY = (x / rect.width) * -1;
-
-                container.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-            });
-
-            document.addEventListener('mouseleave', () => {
-                const container = document.querySelector('.profile-container');
-                container.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
-            });
-
-            document.addEventListener('DOMContentLoaded', function() {
-                function updateTimestamps() {
-                    const timestamps = document.querySelectorAll('.activity-timestamp');
-
-                    timestamps.forEach(function(element) {
-                        const startTime = element.getAttribute('data-start');
-                        const endTime = element.getAttribute('data-end');
-
-                        if (startTime || endTime) {
-                            const now = Math.floor(Date.now() / 1000);
-
-                            if (startTime) {
-                                const start = Math.floor(startTime / 1000);
-                                const elapsed = now - start;
-
-                                const hours = Math.floor(elapsed / 3600);
-                                const minutes = Math.floor((elapsed % 3600) / 60);
-                                const seconds = elapsed % 60;
-
-                                if (hours > 0) {
-                                    element.textContent = String(hours).padStart(2, '0') + ':' +
-                                        String(minutes).padStart(2, '0') + ':' +
-                                        String(seconds).padStart(2, '0') + ' elapsed';
-                                } else {
-                                    element.textContent = String(minutes).padStart(2, '0') + ':' +
-                                        String(seconds).padStart(2, '0') + ' elapsed';
-                                }
-                            } else if (endTime) {
-                                const end = Math.floor(endTime / 1000);
-                                const remaining = end - now;
-
-                                if (remaining > 0) {
-                                    const hours = Math.floor(remaining / 3600);
-                                    const minutes = Math.floor((remaining % 3600) / 60);
-                                    const seconds = remaining % 60;
-
-                                    if (hours > 0) {
-                                        element.textContent = String(hours).padStart(2, '0') + ':' +
-                                            String(minutes).padStart(2, '0') + ':' +
-                                            String(seconds).padStart(2, '0') + ' left';
-                                    } else {
-                                        element.textContent = String(minutes).padStart(2, '0') + ':' +
-                                            String(seconds).padStart(2, '0') + ' left';
-                                    }
-                                }
-                            }
-                        }
-                    });
-                }
-
-                updateTimestamps();
-                setInterval(updateTimestamps, 1000);
-            });
-        </script>
-
-        <script
-            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-            crossorigin="anonymous"></script>
-        
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 </body>
-
 </html>
