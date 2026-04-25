@@ -3014,3 +3014,105 @@ body[data-theme="light"].bio-v2-body .dropdown-menu button {
 .profile-field input[type="file"] {
     cursor: pointer;
 }
+
+/* V2.6.1: Discord activity moved to the left profile card */
+.profile-discord-left {
+    margin-top: 0.9rem;
+    text-align: left;
+}
+
+.profile-discord-left__title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.55rem;
+    padding: 0 0.15rem;
+}
+
+.profile-discord-left__title span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.profile-discord-left__title i {
+    color: #5865f2;
+}
+
+.profile-discord-left .ds-card {
+    background: linear-gradient(145deg, rgba(88, 101, 242, 0.105), rgba(var(--accent-rgb), 0.055));
+    border-color: rgba(88, 101, 242, 0.22);
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.16);
+}
+
+.profile-discord-left .ds-profile {
+    padding: 0.78rem;
+    gap: 0.72rem;
+}
+
+.profile-discord-left .ds-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+}
+
+.profile-discord-left .ds-open {
+    width: 2.25rem;
+    height: 2.25rem;
+}
+
+.profile-discord-left .ds-activities {
+    padding: 0.7rem 0.78rem 0.78rem;
+}
+
+.profile-discord-left .ds-activity {
+    min-height: 4.2rem;
+}
+
+.profile-discord-left .ds-activity-icon,
+.profile-discord-left .ds-activity-icon-fallback {
+    width: 46px;
+    height: 46px;
+    border-radius: 15px;
+}
+
+.profile-smart-hero {
+    max-height: calc(100dvh - 7rem);
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(var(--accent-rgb), 0.35) transparent;
+}
+
+.profile-smart-hero::-webkit-scrollbar {
+    width: 5px;
+}
+
+.profile-smart-hero::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: rgba(var(--accent-rgb), 0.35);
+}
+
+@media (max-width: 1080px) {
+    .profile-smart-hero {
+        position: relative;
+        top: auto;
+        max-height: none;
+        overflow: visible;
+    }
+}
+
+@media (max-width: 420px) {
+    .profile-discord-left .ds-profile {
+        grid-template-columns: auto 1fr;
+    }
+
+    .profile-discord-left .ds-open {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+}

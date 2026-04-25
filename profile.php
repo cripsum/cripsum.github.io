@@ -165,7 +165,7 @@ $featuredContents = array_values(array_filter($visibleContents, fn($item) => (in
 $normalContents = array_values(array_filter($visibleContents, fn($item) => (int)($item['is_featured'] ?? 0) !== 1));
 
 $hasStats = $showStats && $profile && ((int)$profile['profile_views'] > 0 || (int)$profile['num_achievement'] > 0 || (int)$profile['num_personaggi'] > 0 || (int)$profile['total_personaggi'] > 0);
-$hasRightContent = $hasStats || $featuredLinks || $normalLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || ($showDiscord && $discordId) || $visibleActivity;
+$hasRightContent = $hasStats || $featuredLinks || $normalLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || $visibleActivity;
 $hasAnyPublicContent = $visibleSocials || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || ($showDiscord && $discordId) || $hasMusic;
 
 $spotlight = null;
@@ -199,8 +199,8 @@ if ($profile) {
         <meta property="og:url" content="<?php echo profile_h($profileUrl); ?>">
         <meta property="og:image" content="/includes/get_pfp.php?id=<?php echo (int)$profile['id']; ?>">
     <?php endif; ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=2.6-mp3-ui">
-    <script src="/assets/js/profile.js?v=2.6-mp3-ui" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=2.6-discord-left">
+    <script src="/assets/js/profile.js?v=2.6-discord-left" defer></script>
 </head>
 <body
     class="bio-v2-body public-profile-body"
@@ -276,6 +276,17 @@ if ($profile) {
                                 <i class="fas fa-arrow-up-right-from-square bio-social__arrow"></i>
                             </a>
                         <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($showDiscord && $discordId): ?>
+                    <div class="profile-discord-left js-reveal" aria-label="Attività Discord">
+                        <div class="profile-discord-left__title">
+                            <span><i class="fab fa-discord"></i>Discord</span>
+                        </div>
+                        <div class="discord-box" id="discordBox">
+                            <?php $discordProfileId = $discordId; require __DIR__ . '/includes/discord_status.php'; ?>
+                        </div>
                     </div>
                 <?php endif; ?>
 
@@ -452,14 +463,6 @@ if ($profile) {
                         </section>
                     <?php endif; ?>
 
-                    <?php if ($showDiscord && $discordId): ?>
-                        <section class="bio-card bio-featured js-reveal">
-                            <?php profile_render_section_heading('fab fa-discord', 'Discord'); ?>
-                            <div class="discord-box" id="discordBox">
-                                <?php $discordProfileId = $discordId; require __DIR__ . '/includes/discord_status.php'; ?>
-                            </div>
-                        </section>
-                    <?php endif; ?>
 
                     <?php if ($visibleActivity): ?>
                         <section class="bio-card bio-about js-reveal">
