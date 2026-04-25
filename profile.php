@@ -207,8 +207,8 @@ if ($profile) {
         <meta property="og:url" content="<?php echo profile_h($profileUrl); ?>">
         <meta property="og:image" content="/includes/get_pfp.php?id=<?php echo (int)$profile['id']; ?>">
     <?php endif; ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=2.9-discord-login">
-    <script src="/assets/js/profile.js?v=2.9-discord-login" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=2.9.1-custom-titles">
+    <script src="/assets/js/profile.js?v=2.9.1-custom-titles" defer></script>
 </head>
 
 <body
@@ -298,12 +298,6 @@ if ($profile) {
                             <?php $discordProfileId = $discordId;
                             require __DIR__ . '/includes/discord_status.php'; ?>
                         </div>
-                        <?php if ($isOwnProfile): ?>
-                            <a class="profile-lanyard-hint" href="https://discord.com/invite/lanyard" target="_blank" rel="noopener noreferrer">
-                                <i class="fas fa-circle-info"></i>
-                                <span>Per la Rich Presence devi essere nel server Lanyard.</span>
-                            </a>
-                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
 
@@ -436,6 +430,7 @@ if ($profile) {
                                             <video src="<?php echo profile_h($mediaUrl); ?>" controls playsinline preload="metadata"></video>
                                         <?php endif; ?>
                                         <div class="profile-block-copy">
+                                            <?php if (!empty($block['title'])): ?><strong><?php echo profile_h($block['title']); ?></strong><?php endif; ?>
                                             <?php if (!empty($block['body'])): ?><p><?php echo nl2br(profile_h($block['body'])); ?></p><?php endif; ?>
                                             <?php if ($isPinned): ?><small>Pin</small><?php endif; ?>
                                         </div>

@@ -69,9 +69,9 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/includes/head-import.php'; ?>
     <title>Cripsum™ - Modifica profilo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=2.9-discord-login">
-    <script src="/assets/js/profile.js?v=2.9-discord-login" defer></script>
-    <script src="/assets/js/edit-profile.js?v=2.9-discord-login" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=2.9.1-custom-titles">
+    <script src="/assets/js/profile.js?v=2.9.1-custom-titles" defer></script>
+    <script src="/assets/js/edit-profile.js?v=2.9.1-custom-titles" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" style="--accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColor ?: 'var(--card)'); ?>; --profile-text-color: <?php echo profile_h($textColor ?: 'var(--text)'); ?>;">
@@ -194,7 +194,7 @@ function profile_json_script(string $id, array $data): void
                         </div>
                     </div>
 
-                    <div class="profile-discord-note mb-2">
+                    <div class="profile-discord-note">
                         <i class="fas fa-circle-info"></i>
                         <span>Il login Discord salva solo ID, username e avatar. La Rich Presence resta su Lanyard: per farla funzionare devi entrare nel <a href="https://discord.com/invite/lanyard" target="_blank" rel="noopener noreferrer">server Lanyard</a>.</span>
                     </div>
