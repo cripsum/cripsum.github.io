@@ -17,7 +17,7 @@ function profile_current_user_id(): ?int
 function profile_is_staff(): bool
 {
     $role = $_SESSION['ruolo'] ?? 'utente';
-    return in_array($role, ['admin', 'owner'], true);
+    return $role === 'owner';
 }
 
 function profile_can_edit(int $profileUserId): bool
