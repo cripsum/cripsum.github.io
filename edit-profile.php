@@ -55,9 +55,9 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/includes/head-import.php'; ?>
     <title>Cripsum™ - Modifica profilo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=2.2-bio">
-    <script src="/assets/js/profile.js?v=2.2-bio" defer></script>
-    <script src="/assets/js/edit-profile.js?v=2.2-bio" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=2.3-full-bg">
+    <script src="/assets/js/profile.js?v=2.3-full-bg" defer></script>
+    <script src="/assets/js/edit-profile.js?v=2.3-full-bg" defer></script>
 </head>
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>">
     <?php

@@ -123,8 +123,8 @@ if (!$featuredContents) {
         <meta property="og:url" content="<?php echo profile_h($profileUrl); ?>">
         <meta property="og:image" content="/includes/get_pfp.php?id=<?php echo (int)$profile['id']; ?>">
     <?php endif; ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=2.2-bio">
-    <script src="/assets/js/profile.js?v=2.2-bio" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=2.3-full-bg">
+    <script src="/assets/js/profile.js?v=2.3-full-bg" defer></script>
 </head>
 <body
     class="bio-v2-body public-profile-body"

@@ -1792,3 +1792,68 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
         flex-basis: 44%;
     }
 }
+
+/* Fullscreen profile background fix */
+.bio-v2-body {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100svh;
+    background: #02040a !important;
+    overflow-x: hidden;
+}
+
+.bio-background {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100svh !important;
+    height: 100dvh !important;
+    z-index: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none;
+    background: #02040a;
+    transform: translateZ(0);
+}
+
+.bio-background video,
+.bio-background__media,
+.bio-background img.bio-background__media {
+    position: absolute !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100svh !important;
+    height: 100dvh !important;
+    max-width: none !important;
+    min-width: 100vw !important;
+    min-height: 100vh !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+    z-index: 1 !important;
+}
+
+.bio-background__overlay {
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 2 !important;
+}
+
+.bio-background .bio-orb,
+.bio-background .bio-grid-glow {
+    z-index: 3 !important;
+}
+
+.bio-v2-body > *:not(.bio-background) {
+    position: relative;
+    z-index: 4;
+}
+
+.public-profile-body .bio-profile-banner {
+    display: none !important;
+}
+
+.bio-toast {
+    z-index: 9999 !important;
+}
