@@ -5,6 +5,19 @@ php_value session.gc_divisor 1000
 
 RewriteEngine On
 
+# /u/username
+RewriteRule ^u/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]
+
+# /profile/username
+RewriteRule ^profile/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]
+
+# /it/u/username
+RewriteRule ^it/u/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]
+
+# Vecchio /user/username, se vuoi mantenerlo compatibile
+RewriteRule ^user/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]
+
+
 RewriteCond %{REQUEST_FILENAME}.html -f
 RewriteRule ^(.*)$ $1.html [L]
 
