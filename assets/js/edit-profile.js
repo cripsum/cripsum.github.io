@@ -38,10 +38,11 @@
         blocks: $('#blocksRepeater'),
     };
 
-    const platformOptions = ['tiktok', 'instagram', 'youtube', 'twitch', 'github', 'discord', 'telegram', 'x', 'website', 'steam', 'other'];
+    const platformOptions = ['tiktok', 'instagram', 'youtube', 'twitch', 'github', 'discord', 'telegram', 'x', 'spotify', 'soundcloud', 'steam', 'reddit', 'pinterest', 'snapchat', 'facebook', 'linkedin', 'paypal', 'patreon', 'kick', 'bluesky', 'threads', 'behance', 'dribbble', 'website', 'email', 'other'];
     const projectStatuses = [['active', 'Attivo'], ['paused', 'In pausa'], ['finished', 'Finito'], ['idea', 'Idea']];
     const contentTypes = [['edit', 'Edit'], ['video', 'Video'], ['game', 'Gioco'], ['post', 'Post'], ['other', 'Altro']];
     const blockTypes = [['text', 'Testo'], ['image', 'Immagine'], ['gif', 'GIF'], ['video', 'Video']];
+    const linkButtonStyles = [['card', 'Card'], ['compact', 'Compatto'], ['icon', 'Solo icona']];
 
     function options(list, selected) {
         return list.map((item) => {
@@ -62,6 +63,7 @@
                 <div class="profile-row-grid">
                     <label>Platform<select data-field="platform">${options(platformOptions, data.platform || 'website')}</select></label>
                     <label>Label<input data-field="label" maxlength="40" value="${escapeAttr(data.label || '')}" placeholder="TikTok"></label>
+                    <label>Username da mostrare<input data-field="display_username" maxlength="60" value="${escapeAttr(data.display_username || '')}" placeholder="@username / nome"></label>
                     <label class="profile-row-grid full">URL<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://..."></label>
                     <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visibile</label>
                 </div>`;
@@ -71,7 +73,8 @@
             body = `
                 <div class="profile-row-grid">
                     <label>Titolo<input data-field="title" maxlength="60" value="${escapeAttr(data.title || '')}" placeholder="Portfolio"></label>
-                    <label>Icona FontAwesome<input data-field="icon" maxlength="40" value="${escapeAttr(data.icon || 'fas fa-link')}"></label>
+                    <label>Icona FontAwesome<input data-field="icon" maxlength="40" value="${escapeAttr(data.icon || 'fas fa-link')}" placeholder="fab fa-spotify"></label>
+                    <label>Tipo tasto<select data-field="button_style">${options(linkButtonStyles, data.button_style || 'card')}</select></label>
                     <label class="profile-row-grid full">Descrizione<input data-field="description" maxlength="160" value="${escapeAttr(data.description || '')}" placeholder="Una frase breve"></label>
                     <label class="profile-row-grid full">URL<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://..."></label>
                     <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> In evidenza</label>
@@ -178,6 +181,11 @@
     const statusInput = $('#statusInput');
     const bioCounter = $('#bioCounter');
     const accentInput = $('#accentInput');
+    const secondaryColorInput = $('#secondaryColorInput');
+    const cardColorInput = $('#cardColorInput');
+    const textColorInput = $('#textColorInput');
+    const linkStyleInput = $('#linkStyleInput');
+    const buttonShapeInput = $('#buttonShapeInput');
     const themeInput = $('#themeInput');
     const avatarInput = $('#avatarInput');
     const bannerInput = $('#bannerInput');
@@ -200,7 +208,12 @@
         document.documentElement.style.setProperty('--accent', accentInput.value);
         document.documentElement.style.setProperty('--accent-rgb', hexToRgbLocal(accentInput.value));
         document.documentElement.style.setProperty('--profile-accent', accentInput.value);
+        document.documentElement.style.setProperty('--accent-2', secondaryColorInput ? secondaryColorInput.value : accentInput.value);
+        document.documentElement.style.setProperty('--profile-card-color', cardColorInput ? cardColorInput.value : 'var(--card)');
+        document.documentElement.style.setProperty('--profile-text-color', textColorInput ? textColorInput.value : 'var(--text)');
         document.body.dataset.accent = accentInput.value;
+        document.body.dataset.profileLinkStyle = linkStyleInput ? linkStyleInput.value : 'glass';
+        document.body.dataset.profileButtonShape = buttonShapeInput ? buttonShapeInput.value : 'pill';
         document.body.dataset.theme = themeInput.value === 'auto' ? 'dark' : themeInput.value;
         document.body.dataset.profileEffect = profileEffectInput ? profileEffectInput.value : 'none';
         const wrap = $('#previewAvatarWrap');
@@ -212,7 +225,7 @@
         }
     }
 
-    [displayNameInput, usernameInput, bioInput, statusInput, accentInput, themeInput, profileEffectInput, ringEnabledInput, ringStyleInput, ringColorInput].filter(Boolean).forEach((input) => {
+    [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, ringStyleInput, ringColorInput].filter(Boolean).forEach((input) => {
         input.addEventListener('input', updatePreview);
         input.addEventListener('change', updatePreview);
     });

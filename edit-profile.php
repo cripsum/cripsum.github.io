@@ -35,6 +35,11 @@ $blocks = function_exists('profile_list_blocks') ? profile_list_blocks($mysqli, 
 $badges = profile_list_unlocked_badges($mysqli, $targetUserId);
 $csrf = profile_csrf_token();
 $accent = profile_normalize_hex_color($profile['accent_color'] ?? '#0f5bff');
+$secondaryColor = profile_normalize_hex_color($profile['profile_secondary_color'] ?? $accent);
+$cardColor = profile_optional_hex_color($profile['profile_card_color'] ?? '') ?: '';
+$textColor = profile_optional_hex_color($profile['profile_text_color'] ?? '') ?: '';
+$linkStyle = profile_allowed_value((string)($profile['profile_link_style'] ?? 'glass'), ['glass', 'solid', 'outline', 'neon'], 'glass');
+$buttonShape = profile_allowed_value((string)($profile['profile_button_shape'] ?? 'pill'), ['pill', 'rounded', 'sharp'], 'pill');
 $theme = profile_allowed_value((string)($profile['profile_theme'] ?? 'dark'), ['dark', 'light', 'auto'], 'dark');
 if ($theme === 'auto') $theme = 'dark';
 $displayName = $profile['display_name'] ?: $profile['username'];
@@ -56,11 +61,11 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/includes/head-import.php'; ?>
     <title>Cripsum™ - Modifica profilo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=2.6-mp3-ui">
-    <script src="/assets/js/profile.js?v=2.6-mp3-ui" defer></script>
-    <script src="/assets/js/edit-profile.js?v=2.6-mp3-ui" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=2.7-links-colors">
+    <script src="/assets/js/profile.js?v=2.7-links-colors" defer></script>
+    <script src="/assets/js/edit-profile.js?v=2.7-links-colors" defer></script>
 </head>
-<body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>">
+<body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" style="--accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColor ?: 'var(--card)'); ?>; --profile-text-color: <?php echo profile_h($textColor ?: 'var(--text)'); ?>;">
     <?php
     if (file_exists(__DIR__ . '/includes/navbar-bio.php')) {
         include __DIR__ . '/includes/navbar-bio.php';
@@ -140,9 +145,14 @@ function profile_json_script(string $id, array $data): void
                     </div>
 
                     <div class="profile-field-grid three">
-                        <label class="profile-field"><span>Accent color</span><input type="color" name="accent_color" id="accentInput" value="<?php echo profile_h($accent); ?>"></label>
+                        <label class="profile-field"><span>Accent principale</span><input type="color" name="accent_color" id="accentInput" value="<?php echo profile_h($accent); ?>"></label>
+                        <label class="profile-field"><span>Accent secondario</span><input type="color" name="profile_secondary_color" id="secondaryColorInput" value="<?php echo profile_h($secondaryColor); ?>"></label>
                         <label class="profile-field"><span>Tema</span><select name="profile_theme" id="themeInput"><?php foreach (['dark'=>'Scuro','light'=>'Chiaro','auto'=>'Auto'] as $value=>$label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_theme'] ?? 'dark') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
                         <label class="profile-field"><span>Layout</span><select name="profile_layout" id="layoutInput"><?php foreach (['standard'=>'Standard','compact'=>'Compatto','showcase'=>'Showcase'] as $value=>$label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_layout'] ?? 'standard') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
+                        <label class="profile-field"><span>Colore card</span><input type="color" name="profile_card_color" id="cardColorInput" value="<?php echo profile_h($cardColor ?: '#080c18'); ?>"><small>Lascia il default se vuoi il glass classico.</small></label>
+                        <label class="profile-field"><span>Colore testo</span><input type="color" name="profile_text_color" id="textColorInput" value="<?php echo profile_h($textColor ?: ($theme === 'light' ? '#111827' : '#f7f8ff')); ?>"></label>
+                        <label class="profile-field"><span>Stile link</span><select name="profile_link_style" id="linkStyleInput"><?php foreach (['glass'=>'Glass','solid'=>'Pieno','outline'=>'Outline','neon'=>'Neon'] as $value=>$label): ?><option value="<?php echo $value; ?>" <?php echo $linkStyle === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
+                        <label class="profile-field"><span>Forma bottoni</span><select name="profile_button_shape" id="buttonShapeInput"><?php foreach (['pill'=>'Pill','rounded'=>'Rounded','sharp'=>'Squadrato'] as $value=>$label): ?><option value="<?php echo $value; ?>" <?php echo $buttonShape === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
                     </div>
 
                     <label class="profile-field"><span>Privacy profilo</span><select name="profile_visibility" id="visibilityInput"><?php foreach (['public'=>'Pubblico','logged_in'=>'Solo utenti loggati','private'=>'Privato'] as $value=>$label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_visibility'] ?? 'public') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>

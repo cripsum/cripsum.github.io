@@ -63,6 +63,16 @@ function profile_normalize_hex_color(?string $color): string
     return '#0f5bff';
 }
 
+function profile_optional_hex_color(?string $color): ?string
+{
+    $color = trim((string)$color);
+    if ($color === '') return null;
+    if (preg_match('/^#[0-9a-fA-F]{6}$/', $color)) {
+        return strtolower($color);
+    }
+    return null;
+}
+
 
 
 function profile_is_valid_discord_id(?string $discordId): bool
@@ -155,6 +165,11 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
             u.ruolo,
             u.profile_banner_type,
             u.accent_color,
+            u.profile_secondary_color,
+            u.profile_card_color,
+            u.profile_text_color,
+            u.profile_link_style,
+            u.profile_button_shape,
             u.profile_theme,
             u.profile_layout,
             u.profile_visibility,
@@ -211,7 +226,7 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
 
 function profile_get_edit_profile(mysqli $mysqli, int $userId): ?array
 {
-    $stmt = $mysqli->prepare("SELECT id, username, display_name, bio, data_creazione, ruolo, profile_banner_type, accent_color, profile_theme, profile_layout, profile_visibility, discord_id, profile_status, profile_show_stats, profile_show_socials, profile_show_links, profile_show_projects, profile_show_contents, profile_show_badges, profile_show_activity, profile_show_discord, profile_music_url, profile_music_mime, profile_music_title, profile_music_artist, profile_show_audio_player, profile_effect, avatar_ring_enabled, avatar_ring_style, avatar_ring_color, profile_views, featured_badge_id, featured_project_id, featured_content_id, profile_updated_at FROM utenti WHERE id = ? LIMIT 1");
+    $stmt = $mysqli->prepare("SELECT id, username, display_name, bio, data_creazione, ruolo, profile_banner_type, accent_color, profile_secondary_color, profile_card_color, profile_text_color, profile_link_style, profile_button_shape, profile_theme, profile_layout, profile_visibility, discord_id, profile_status, profile_show_stats, profile_show_socials, profile_show_links, profile_show_projects, profile_show_contents, profile_show_badges, profile_show_activity, profile_show_discord, profile_music_url, profile_music_mime, profile_music_title, profile_music_artist, profile_show_audio_player, profile_effect, avatar_ring_enabled, avatar_ring_style, avatar_ring_color, profile_views, featured_badge_id, featured_project_id, featured_content_id, profile_updated_at FROM utenti WHERE id = ? LIMIT 1");
     $stmt->bind_param('i', $userId);
     $stmt->execute();
     $profile = $stmt->get_result()->fetch_assoc();
@@ -238,7 +253,7 @@ function profile_increment_views(mysqli $mysqli, int $profileId): void
 
 function profile_list_socials(mysqli $mysqli, int $userId, bool $onlyVisible = true): array
 {
-    $sql = "SELECT id, platform, label, url, sort_order, is_visible FROM utenti_social WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY sort_order ASC, id ASC";
+    $sql = "SELECT id, platform, label, display_username, url, sort_order, is_visible FROM utenti_social WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY sort_order ASC, id ASC";
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param('i', $userId);
     $stmt->execute();
@@ -249,7 +264,7 @@ function profile_list_socials(mysqli $mysqli, int $userId, bool $onlyVisible = t
 
 function profile_list_links(mysqli $mysqli, int $userId, bool $onlyVisible = true): array
 {
-    $sql = "SELECT id, title, description, url, icon, is_featured, sort_order, is_visible FROM utenti_links WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY is_featured DESC, sort_order ASC, id ASC";
+    $sql = "SELECT id, title, description, url, icon, button_style, is_featured, sort_order, is_visible FROM utenti_links WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY is_featured DESC, sort_order ASC, id ASC";
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param('i', $userId);
     $stmt->execute();
@@ -573,8 +588,23 @@ function profile_social_icon_class(string $platform): string
         'telegram' => 'fab fa-telegram-plane',
         'x' => 'fab fa-x-twitter',
         'twitter' => 'fab fa-x-twitter',
-        'website' => 'fas fa-globe',
+        'spotify' => 'fab fa-spotify',
+        'soundcloud' => 'fab fa-soundcloud',
         'steam' => 'fab fa-steam',
+        'reddit' => 'fab fa-reddit-alien',
+        'pinterest' => 'fab fa-pinterest',
+        'snapchat' => 'fab fa-snapchat',
+        'facebook' => 'fab fa-facebook',
+        'linkedin' => 'fab fa-linkedin',
+        'paypal' => 'fab fa-paypal',
+        'patreon' => 'fab fa-patreon',
+        'kick' => 'fas fa-k',
+        'bluesky' => 'fas fa-cloud',
+        'threads' => 'fab fa-threads',
+        'behance' => 'fab fa-behance',
+        'dribbble' => 'fab fa-dribbble',
+        'website' => 'fas fa-globe',
+        'email' => 'fas fa-envelope',
         'other' => 'fas fa-link',
     ];
     return $map[strtolower($platform)] ?? 'fas fa-link';

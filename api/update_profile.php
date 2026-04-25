@@ -38,6 +38,11 @@ $bio = trim((string)($_POST['bio'] ?? ''));
 $bio = mb_substr($bio, 0, 280, 'UTF-8');
 $bioDb = $bio !== '' ? $bio : null;
 $accentColor = profile_normalize_hex_color($_POST['accent_color'] ?? '#0f5bff');
+$secondaryColor = profile_normalize_hex_color($_POST['profile_secondary_color'] ?? $accentColor);
+$cardColor = profile_optional_hex_color($_POST['profile_card_color'] ?? '');
+$textColor = profile_optional_hex_color($_POST['profile_text_color'] ?? '');
+$linkStyle = profile_allowed_value((string)($_POST['profile_link_style'] ?? 'glass'), ['glass', 'solid', 'outline', 'neon'], 'glass');
+$buttonShape = profile_allowed_value((string)($_POST['profile_button_shape'] ?? 'pill'), ['pill', 'rounded', 'sharp'], 'pill');
 $theme = profile_allowed_value((string)($_POST['profile_theme'] ?? 'dark'), ['dark', 'light', 'auto'], 'dark');
 $layout = profile_allowed_value((string)($_POST['profile_layout'] ?? 'standard'), ['standard', 'compact', 'showcase'], 'standard');
 $visibility = profile_allowed_value((string)($_POST['profile_visibility'] ?? 'public'), ['public', 'logged_in', 'private'], 'public');
@@ -123,7 +128,7 @@ $contentRows = array_slice(profile_decode_rows('contents_json'), 0, 8);
 $blockRows = array_slice(profile_decode_rows('blocks_json'), 0, 10);
 $badgeRows = array_slice(profile_decode_rows('badges_json'), 0, 8);
 
-$allowedPlatforms = ['tiktok','instagram','youtube','twitch','github','discord','telegram','x','twitter','website','steam','other'];
+$allowedPlatforms = ['tiktok','instagram','youtube','twitch','github','discord','telegram','x','twitter','spotify','soundcloud','steam','reddit','pinterest','snapchat','facebook','linkedin','paypal','patreon','kick','bluesky','threads','behance','dribbble','website','email','other'];
 $allowedStatuses = ['active','paused','finished','idea'];
 $allowedContentTypes = ['edit','video','game','post','other'];
 $allowedBlockTypes = ['text','image','gif','video'];
@@ -133,18 +138,23 @@ try {
 
     $stmt = $mysqli->prepare("
         UPDATE utenti
-        SET username = ?, display_name = ?, bio = ?, accent_color = ?, profile_theme = ?, profile_layout = ?, profile_visibility = ?, discord_id = ?, profile_status = ?,
+        SET username = ?, display_name = ?, bio = ?, accent_color = ?, profile_secondary_color = ?, profile_card_color = ?, profile_text_color = ?, profile_link_style = ?, profile_button_shape = ?, profile_theme = ?, profile_layout = ?, profile_visibility = ?, discord_id = ?, profile_status = ?,
             profile_music_url = ?, profile_music_title = ?, profile_music_artist = ?, profile_effect = ?, avatar_ring_style = ?, avatar_ring_color = ?,
             profile_show_stats = ?, profile_show_socials = ?, profile_show_links = ?, profile_show_projects = ?, profile_show_contents = ?, profile_show_badges = ?, profile_show_activity = ?, profile_show_discord = ?, profile_show_audio_player = ?, avatar_ring_enabled = ?,
             profile_updated_at = NOW()
         WHERE id = ?
     ");
     $stmt->bind_param(
-        'sssssssssssssssiiiiiiiiiii',
+        'ssssssssssssssssssssiiiiiiiiiii',
         $username,
         $displayNameDb,
         $bioDb,
         $accentColor,
+        $secondaryColor,
+        $cardColor,
+        $textColor,
+        $linkStyle,
+        $buttonShape,
         $theme,
         $layout,
         $visibility,
@@ -208,16 +218,17 @@ try {
     $stmt->execute();
     $stmt->close();
 
-    $insertSocial = $mysqli->prepare("INSERT INTO utenti_social (utente_id, platform, label, url, sort_order, is_visible) VALUES (?, ?, ?, ?, ?, ?)");
+    $insertSocial = $mysqli->prepare("INSERT INTO utenti_social (utente_id, platform, label, display_username, url, sort_order, is_visible) VALUES (?, ?, ?, ?, ?, ?, ?)");
     foreach ($socialRows as $i => $row) {
         $platform = strtolower(profile_clean_text($row['platform'] ?? 'other', 32));
         $platform = in_array($platform, $allowedPlatforms, true) ? $platform : 'other';
         $label = profile_clean_text($row['label'] ?? $platform, 40);
+        $displayUsername = profile_clean_text($row['display_username'] ?? '', 60);
         $url = trim((string)($row['url'] ?? ''));
         $visible = !empty($row['is_visible']) ? 1 : 0;
         if ($url === '') continue;
         if (!profile_is_safe_url($url, true)) throw new RuntimeException('URL social non valido: ' . $label);
-        $insertSocial->bind_param('isssii', $targetUserId, $platform, $label, $url, $i, $visible);
+        $insertSocial->bind_param('issssii', $targetUserId, $platform, $label, $displayUsername, $url, $i, $visible);
         if (!$insertSocial->execute()) throw new RuntimeException('Errore salvataggio social.');
     }
     $insertSocial->close();
@@ -227,18 +238,19 @@ try {
     $stmt->execute();
     $stmt->close();
 
-    $insertLink = $mysqli->prepare("INSERT INTO utenti_links (utente_id, title, description, url, icon, is_featured, is_visible, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $insertLink = $mysqli->prepare("INSERT INTO utenti_links (utente_id, title, description, url, icon, button_style, is_featured, is_visible, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
     foreach ($linkRows as $i => $row) {
         $title = profile_clean_text($row['title'] ?? '', 60);
         $description = profile_clean_text($row['description'] ?? '', 160);
         $url = trim((string)($row['url'] ?? ''));
         $icon = profile_clean_text($row['icon'] ?? 'fas fa-link', 40);
+        $buttonStyle = profile_allowed_value((string)($row['button_style'] ?? 'card'), ['card', 'compact', 'icon'], 'card');
         $featured = !empty($row['is_featured']) ? 1 : 0;
         $visible = !empty($row['is_visible']) ? 1 : 0;
         if ($title === '' && $url === '') continue;
         if ($title === '') throw new RuntimeException('Un link non ha titolo.');
         if (!profile_is_safe_url($url, true)) throw new RuntimeException('URL link non valido: ' . $title);
-        $insertLink->bind_param('issssiii', $targetUserId, $title, $description, $url, $icon, $featured, $visible, $i);
+        $insertLink->bind_param('isssssiii', $targetUserId, $title, $description, $url, $icon, $buttonStyle, $featured, $visible, $i);
         if (!$insertLink->execute()) throw new RuntimeException('Errore salvataggio link.');
     }
     $insertLink->close();

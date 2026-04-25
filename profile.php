@@ -119,6 +119,13 @@ function profile_render_section_heading(string $icon, string $title, ?string $su
 
 $theme = $profile ? profile_allowed_value((string)($profile['profile_theme'] ?? 'dark'), ['dark', 'light', 'auto'], 'dark') : 'dark';
 $accent = $profile ? profile_normalize_hex_color($profile['accent_color'] ?? '#0f5bff') : '#0f5bff';
+$secondaryColor = $profile ? profile_normalize_hex_color($profile['profile_secondary_color'] ?? $accent) : $accent;
+$cardColor = $profile ? profile_optional_hex_color($profile['profile_card_color'] ?? '') : null;
+$textColor = $profile ? profile_optional_hex_color($profile['profile_text_color'] ?? '') : null;
+$linkStyle = $profile ? profile_allowed_value((string)($profile['profile_link_style'] ?? 'glass'), ['glass', 'solid', 'outline', 'neon'], 'glass') : 'glass';
+$buttonShape = $profile ? profile_allowed_value((string)($profile['profile_button_shape'] ?? 'pill'), ['pill', 'rounded', 'sharp'], 'pill') : 'pill';
+$cardColorCss = $cardColor ?: 'var(--card)';
+$textColorCss = $textColor ?: 'var(--text)';
 if ($theme === 'auto') $theme = 'dark';
 
 $displayName = $profile ? ($profile['display_name'] ?: $profile['username']) : 'Profilo';
@@ -199,8 +206,8 @@ if ($profile) {
         <meta property="og:url" content="<?php echo profile_h($profileUrl); ?>">
         <meta property="og:image" content="/includes/get_pfp.php?id=<?php echo (int)$profile['id']; ?>">
     <?php endif; ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=2.6-discord-left">
-    <script src="/assets/js/profile.js?v=2.6-discord-left" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=2.7-links-colors">
+    <script src="/assets/js/profile.js?v=2.7-links-colors" defer></script>
 </head>
 <body
     class="bio-v2-body public-profile-body"
@@ -209,7 +216,9 @@ if ($profile) {
     data-profile-url="<?php echo profile_h($profileUrl); ?>"
     data-discord-id="<?php echo profile_h($showDiscord ? $discordId : ''); ?>"
     data-profile-effect="<?php echo profile_h($profileEffect); ?>"
-    style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>;"
+    data-profile-link-style="<?php echo profile_h($linkStyle); ?>"
+    data-profile-button-shape="<?php echo profile_h($buttonShape); ?>"
+    style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;"
 >
     <?php
     if (file_exists(__DIR__ . '/includes/navbar-bio.php')) include __DIR__ . '/includes/navbar-bio.php';
@@ -271,7 +280,7 @@ if ($profile) {
                                 <span class="bio-social__icon"><i class="<?php echo profile_h(profile_social_icon_class($social['platform'])); ?>"></i></span>
                                 <span>
                                     <strong><?php echo profile_h($social['label'] ?: ucfirst($social['platform'])); ?></strong>
-                                    <small><?php echo profile_h(profile_short_url_label($social['url'])); ?></small>
+                                    <small><?php echo profile_h($social['display_username'] ?: profile_short_url_label($social['url'])); ?></small>
                                 </span>
                                 <i class="fas fa-arrow-up-right-from-square bio-social__arrow"></i>
                             </a>
@@ -355,16 +364,24 @@ if ($profile) {
                     <?php if ($featuredLinks || $normalLinks): ?>
                         <section class="bio-card bio-featured js-reveal">
                             <?php profile_render_section_heading('fas fa-link', 'Link'); ?>
-                            <div class="bio-featured-grid">
+                            <div class="bio-featured-grid profile-link-grid profile-link-count-<?php echo count(array_merge($featuredLinks, $normalLinks)); ?>">
                                 <?php foreach (array_merge($featuredLinks, $normalLinks) as $item): ?>
-                                    <a class="bio-featured-link <?php echo !empty($item['is_featured']) ? 'is-pinned' : ''; ?>" href="<?php echo profile_h($item['url']); ?>" target="_blank" rel="noopener noreferrer">
+                                    <?php
+                                        $buttonStyle = profile_allowed_value((string)($item['button_style'] ?? 'card'), ['card', 'compact', 'icon'], 'card');
+                                        $linkTitle = (string)($item['title'] ?? 'Link');
+                                    ?>
+                                    <a class="bio-featured-link profile-link-button button-style-<?php echo profile_h($buttonStyle); ?> <?php echo !empty($item['is_featured']) ? 'is-pinned' : ''; ?>" href="<?php echo profile_h($item['url']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo profile_h($linkTitle); ?>">
                                         <span class="bio-featured-link__icon"><i class="<?php echo profile_h($item['icon'] ?: 'fas fa-link'); ?>"></i></span>
-                                        <span class="bio-featured-link__content">
-                                            <?php if (!empty($item['is_featured'])): ?><small>Pin</small><?php endif; ?>
-                                            <strong><?php echo profile_h($item['title']); ?></strong>
-                                            <?php if (!empty($item['description'])): ?><em><?php echo profile_h($item['description']); ?></em><?php else: ?><em><?php echo profile_h(profile_short_url_label($item['url'])); ?></em><?php endif; ?>
-                                        </span>
-                                        <i class="fas fa-chevron-right"></i>
+                                        <?php if ($buttonStyle === 'icon'): ?>
+                                            <span class="profile-link-icon-label"><?php echo profile_h($linkTitle); ?></span>
+                                        <?php else: ?>
+                                            <span class="bio-featured-link__content">
+                                                <?php if (!empty($item['is_featured'])): ?><small>Pin</small><?php endif; ?>
+                                                <strong><?php echo profile_h($linkTitle); ?></strong>
+                                                <?php if (!empty($item['description'])): ?><em><?php echo profile_h($item['description']); ?></em><?php else: ?><em><?php echo profile_h(profile_short_url_label($item['url'])); ?></em><?php endif; ?>
+                                            </span>
+                                            <i class="fas fa-chevron-right"></i>
+                                        <?php endif; ?>
                                     </a>
                                 <?php endforeach; ?>
                             </div>
