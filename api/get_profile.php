@@ -39,6 +39,7 @@ profile_json_response([
         'theme' => $profile['profile_theme'],
         'layout' => $profile['profile_layout'],
         'visibility' => $profile['profile_visibility'],
+        'discord_id' => $canEdit ? ($profile['discord_id'] ?? null) : (!empty($profile['discord_id']) ? 'connected' : null),
         'views' => (int)$profile['profile_views'],
         'stats' => [
             'achievements' => (int)$profile['num_achievement'],

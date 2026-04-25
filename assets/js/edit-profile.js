@@ -15,6 +15,13 @@
         }
     }
 
+    function hexToRgbLocal(hex) {
+        const clean = String(hex || '').replace('#', '').trim();
+        if (!/^[0-9a-fA-F]{6}$/.test(clean)) return '15, 91, 255';
+        const value = parseInt(clean, 16);
+        return `${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}`;
+    }
+
     function escapeAttr(value) {
         return String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
@@ -164,9 +171,11 @@
         $('#previewUsername').textContent = '@' + (usernameInput.value.trim() || 'username');
         $('#previewBio').textContent = bioInput.value.trim() || 'La tua bio apparirà qui.';
         bioCounter.textContent = bioInput.value.length;
-        document.body.style.setProperty('--profile-accent', accentInput.value);
-        document.body.classList.remove('profile-theme-dark', 'profile-theme-light', 'profile-theme-auto');
-        document.body.classList.add('profile-theme-' + themeInput.value);
+        document.documentElement.style.setProperty('--accent', accentInput.value);
+        document.documentElement.style.setProperty('--accent-rgb', hexToRgbLocal(accentInput.value));
+        document.documentElement.style.setProperty('--profile-accent', accentInput.value);
+        document.body.dataset.accent = accentInput.value;
+        document.body.dataset.theme = themeInput.value === 'auto' ? 'dark' : themeInput.value;
     }
 
     [displayNameInput, usernameInput, bioInput, accentInput, themeInput].forEach((input) => {

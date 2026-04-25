@@ -63,6 +63,37 @@ function profile_normalize_hex_color(?string $color): string
     return '#0f5bff';
 }
 
+
+
+function profile_is_valid_discord_id(?string $discordId): bool
+{
+    $discordId = trim((string)$discordId);
+    return $discordId === '' || (bool)preg_match('/^\d{15,25}$/', $discordId);
+}
+
+function profile_short_url_label(?string $url): string
+{
+    $url = trim((string)$url);
+    if ($url === '') return 'link';
+    $host = parse_url($url, PHP_URL_HOST) ?: $url;
+    $path = trim((string)(parse_url($url, PHP_URL_PATH) ?: ''), '/');
+    $host = preg_replace('/^www\./i', '', $host) ?: $host;
+    if ($path !== '') {
+        $parts = explode('/', $path);
+        $last = end($parts);
+        if ($last) return '@' . mb_substr($last, 0, 26, 'UTF-8');
+    }
+    return mb_substr($host, 0, 30, 'UTF-8');
+}
+
+function profile_compact_number($number): string
+{
+    $number = (int)$number;
+    if ($number >= 1000000) return rtrim(rtrim(number_format($number / 1000000, 1), '0'), '.') . 'M';
+    if ($number >= 1000) return rtrim(rtrim(number_format($number / 1000, 1), '0'), '.') . 'K';
+    return (string)$number;
+}
+
 function profile_allowed_value(string $value, array $allowed, string $fallback): string
 {
     return in_array($value, $allowed, true) ? $value : $fallback;
@@ -127,6 +158,7 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
             u.profile_theme,
             u.profile_layout,
             u.profile_visibility,
+            u.discord_id,
             u.profile_views,
             u.featured_badge_id,
             u.featured_project_id,
@@ -161,7 +193,7 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
 
 function profile_get_edit_profile(mysqli $mysqli, int $userId): ?array
 {
-    $stmt = $mysqli->prepare("SELECT id, username, display_name, bio, data_creazione, ruolo, profile_banner_type, accent_color, profile_theme, profile_layout, profile_visibility, profile_views, featured_badge_id, featured_project_id, featured_content_id, profile_updated_at FROM utenti WHERE id = ? LIMIT 1");
+    $stmt = $mysqli->prepare("SELECT id, username, display_name, bio, data_creazione, ruolo, profile_banner_type, accent_color, profile_theme, profile_layout, profile_visibility, discord_id, profile_views, featured_badge_id, featured_project_id, featured_content_id, profile_updated_at FROM utenti WHERE id = ? LIMIT 1");
     $stmt->bind_param('i', $userId);
     $stmt->execute();
     $profile = $stmt->get_result()->fetch_assoc();

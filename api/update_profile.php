@@ -41,6 +41,8 @@ $accentColor = profile_normalize_hex_color($_POST['accent_color'] ?? '#0f5bff');
 $theme = profile_allowed_value((string)($_POST['profile_theme'] ?? 'dark'), ['dark', 'light', 'auto'], 'dark');
 $layout = profile_allowed_value((string)($_POST['profile_layout'] ?? 'standard'), ['standard', 'compact', 'showcase'], 'standard');
 $visibility = profile_allowed_value((string)($_POST['profile_visibility'] ?? 'public'), ['public', 'logged_in', 'private'], 'public');
+$discordId = trim((string)($_POST['discord_id'] ?? ''));
+$discordIdDb = $discordId !== '' ? $discordId : null;
 
 if (!profile_is_valid_username($username)) {
     profile_json_response(['ok' => false, 'message' => 'Username non valido. Usa 3-20 caratteri, lettere, numeri o underscore.'], 422);
@@ -48,6 +50,10 @@ if (!profile_is_valid_username($username)) {
 
 if (mb_strlen($bio, 'UTF-8') > 280) {
     profile_json_response(['ok' => false, 'message' => 'Bio troppo lunga.'], 422);
+}
+
+if (!profile_is_valid_discord_id($discordId)) {
+    profile_json_response(['ok' => false, 'message' => 'ID Discord non valido. Deve contenere solo numeri.'], 422);
 }
 
 $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE LOWER(username) = LOWER(?) AND id != ? LIMIT 1");
@@ -91,10 +97,10 @@ try {
 
     $stmt = $mysqli->prepare("
         UPDATE utenti
-        SET username = ?, display_name = ?, bio = ?, accent_color = ?, profile_theme = ?, profile_layout = ?, profile_visibility = ?, profile_updated_at = NOW()
+        SET username = ?, display_name = ?, bio = ?, accent_color = ?, profile_theme = ?, profile_layout = ?, profile_visibility = ?, discord_id = ?, profile_updated_at = NOW()
         WHERE id = ?
     ");
-    $stmt->bind_param('sssssssi', $username, $displayNameDb, $bioDb, $accentColor, $theme, $layout, $visibility, $targetUserId);
+    $stmt->bind_param('ssssssssi', $username, $displayNameDb, $bioDb, $accentColor, $theme, $layout, $visibility, $discordIdDb, $targetUserId);
     if (!$stmt->execute()) throw new RuntimeException('Errore salvataggio profilo.');
     $stmt->close();
 
