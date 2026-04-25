@@ -113,7 +113,6 @@
             body = `
                 <div class="profile-row-grid">
                     <label>Tipo<select data-field="block_type">${options(blockTypes, data.block_type || 'text')}</select></label>
-                    <label>Titolo<input data-field="title" maxlength="80" value="${escapeAttr(data.title || '')}" placeholder="Titolo opzionale"></label>
                     <label class="profile-row-grid full">Testo<textarea data-field="body" maxlength="700" placeholder="Testo breve, nota, descrizione o quote">${escapeAttr(data.body || '')}</textarea></label>
                     <label>Media URL<input data-field="media_url" value="${escapeAttr(data.media_url || '')}" placeholder="https://... immagine/gif/video"></label>
                     <label>Media type<select data-field="media_type">${options(blockTypes, data.media_type || data.block_type || 'image')}</select></label>
@@ -124,7 +123,7 @@
 
         row.innerHTML = `
             <div class="profile-row-head">
-                <strong>${type === 'socials' ? 'Social' : type === 'links' ? 'Link' : type === 'projects' ? 'Progetto' : type === 'blocks' ? 'Blocco custom' : 'Contenuto'}</strong>
+                <strong>${type === 'socials' ? 'Social' : type === 'links' ? 'Link' : type === 'projects' ? 'Progetto' : type === 'blocks' ? 'Blocco' : 'Contenuto'}</strong>
                 <button type="button" class="profile-remove-row">Rimuovi</button>
             </div>
             ${body}`;
@@ -194,6 +193,8 @@
     const ringEnabledInput = $('#ringEnabledInput');
     const ringStyleInput = $('#ringStyleInput');
     const ringColorInput = $('#ringColorInput');
+    const discordUseNameInput = $('#discordUseNameInput');
+    const discordUseAvatarInput = $('#discordUseAvatarInput');
 
     function updatePreview() {
         const name = displayNameInput.value.trim() || usernameInput.value.trim() || 'Utente';
@@ -225,7 +226,7 @@
         }
     }
 
-    [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, ringStyleInput, ringColorInput].filter(Boolean).forEach((input) => {
+    [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput].filter(Boolean).forEach((input) => {
         input.addEventListener('input', updatePreview);
         input.addEventListener('change', updatePreview);
     });

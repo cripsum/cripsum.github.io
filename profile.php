@@ -128,7 +128,7 @@ $cardColorCss = $cardColor ?: 'var(--card)';
 $textColorCss = $textColor ?: 'var(--text)';
 if ($theme === 'auto') $theme = 'dark';
 
-$displayName = $profile ? ($profile['display_name'] ?: $profile['username']) : 'Profilo';
+$displayName = $profile ? profile_display_name($profile) : 'Profilo';
 $profileUrl = $profile ? 'https://cripsum.com/u/' . rawurlencode(strtolower($profile['username'])) : 'https://cripsum.com/profile.php';
 $discordId = $profile ? trim((string)($profile['discord_id'] ?? '')) : '';
 $customStatus = $profile ? trim((string)($profile['profile_status'] ?? '')) : '';
@@ -207,8 +207,8 @@ if ($profile) {
         <meta property="og:url" content="<?php echo profile_h($profileUrl); ?>">
         <meta property="og:image" content="/includes/get_pfp.php?id=<?php echo (int)$profile['id']; ?>">
     <?php endif; ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=2.8-mobile-achievement-fixes">
-    <script src="/assets/js/profile.js?v=2.8-mobile-achievement-fixes" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=2.9-discord-login">
+    <script src="/assets/js/profile.js?v=2.9-discord-login" defer></script>
 </head>
 
 <body
@@ -252,7 +252,7 @@ if ($profile) {
 
                 <div class="bio-avatar-wrap profile-smart-avatar ring-style-<?php echo profile_h($avatarRingStyle); ?> <?php echo (!$avatarRingEnabled || $avatarRingStyle === 'none') ? 'ring-disabled' : ''; ?>">
                     <?php if ($avatarRingEnabled && $avatarRingStyle !== 'none'): ?><div class="bio-avatar-ring"></div><?php endif; ?>
-                    <img class="bio-avatar" src="/includes/get_pfp.php?id=<?php echo (int)$profile['id']; ?>&t=<?php echo (int)strtotime((string)($profile['profile_updated_at'] ?? 'now')); ?>" alt="Avatar di <?php echo profile_h($profile['username']); ?>" loading="eager">
+                    <img class="bio-avatar" src="<?php echo profile_h(profile_avatar_url($profile, 256)); ?>" alt="Avatar di <?php echo profile_h($profile['username']); ?>" loading="eager">
                 </div>
 
                 <div class="bio-name-block profile-smart-name">
@@ -298,6 +298,12 @@ if ($profile) {
                             <?php $discordProfileId = $discordId;
                             require __DIR__ . '/includes/discord_status.php'; ?>
                         </div>
+                        <?php if ($isOwnProfile): ?>
+                            <a class="profile-lanyard-hint" href="https://discord.com/invite/lanyard" target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-circle-info"></i>
+                                <span>Per la Rich Presence devi essere nel server Lanyard.</span>
+                            </a>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
 
@@ -416,7 +422,6 @@ if ($profile) {
 
                     <?php if ($visibleBlocks): ?>
                         <section class="bio-card bio-details profile-clean-section js-reveal">
-                            <?php profile_render_section_heading('fas fa-wand-magic-sparkles', 'Custom'); ?>
                             <div class="profile-block-grid">
                                 <?php foreach ($visibleBlocks as $block): ?>
                                     <?php
@@ -431,7 +436,6 @@ if ($profile) {
                                             <video src="<?php echo profile_h($mediaUrl); ?>" controls playsinline preload="metadata"></video>
                                         <?php endif; ?>
                                         <div class="profile-block-copy">
-                                            <?php if (!empty($block['title'])): ?><strong><?php echo profile_h($block['title']); ?></strong><?php endif; ?>
                                             <?php if (!empty($block['body'])): ?><p><?php echo nl2br(profile_h($block['body'])); ?></p><?php endif; ?>
                                             <?php if ($isPinned): ?><small>Pin</small><?php endif; ?>
                                         </div>
@@ -513,7 +517,6 @@ if ($profile) {
     </div>
 
     <div class="bio-toast" id="bioToast" role="status" aria-live="polite"></div>
-    <!-- <?php if (file_exists(__DIR__ . '/includes/footer.php')) include __DIR__ . '/includes/footer.php'; ?> -->
 </body>
 
 </html>

@@ -17,7 +17,7 @@ function profile_current_user_id(): ?int
 function profile_is_staff(): bool
 {
     $role = $_SESSION['ruolo'] ?? 'utente';
-    return $role === 'owner';
+    return in_array($role, ['admin', 'owner'], true);
 }
 
 function profile_can_edit(int $profileUserId): bool
@@ -79,6 +79,44 @@ function profile_is_valid_discord_id(?string $discordId): bool
 {
     $discordId = trim((string)$discordId);
     return $discordId === '' || (bool)preg_match('/^\d{15,25}$/', $discordId);
+}
+
+
+function profile_discord_avatar_url(string $discordId, ?string $avatarHash, int $size = 256): ?string
+{
+    $discordId = trim($discordId);
+    $avatarHash = trim((string)$avatarHash);
+    if (!profile_is_valid_discord_id($discordId) || $discordId === '' || $avatarHash === '') return null;
+
+    $ext = str_starts_with($avatarHash, 'a_') ? 'gif' : 'png';
+    $size = in_array($size, [64, 128, 256, 512, 1024], true) ? $size : 256;
+
+    return 'https://cdn.discordapp.com/avatars/' . rawurlencode($discordId) . '/' . rawurlencode($avatarHash) . '.' . $ext . '?size=' . $size;
+}
+
+function profile_avatar_url(array $profile, int $size = 256): string
+{
+    $discordId = trim((string)($profile['discord_id'] ?? ''));
+    $discordAvatar = trim((string)($profile['discord_avatar'] ?? ''));
+    $useDiscordAvatar = (int)($profile['discord_use_avatar'] ?? 0) === 1;
+
+    if ($useDiscordAvatar) {
+        $url = profile_discord_avatar_url($discordId, $discordAvatar, $size);
+        if ($url) return $url;
+    }
+
+    $stamp = !empty($profile['profile_updated_at']) ? (int)strtotime((string)$profile['profile_updated_at']) : time();
+    return '/includes/get_pfp.php?id=' . (int)$profile['id'] . '&t=' . $stamp;
+}
+
+function profile_display_name(array $profile): string
+{
+    $useDiscordName = (int)($profile['discord_use_display_name'] ?? 0) === 1;
+    $discordName = trim((string)($profile['discord_global_name'] ?? '')) ?: trim((string)($profile['discord_username'] ?? ''));
+
+    if ($useDiscordName && $discordName !== '') return $discordName;
+
+    return trim((string)($profile['display_name'] ?? '')) ?: (string)($profile['username'] ?? 'Profilo');
 }
 
 function profile_short_url_label(?string $url): string
@@ -174,6 +212,12 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
             u.profile_layout,
             u.profile_visibility,
             u.discord_id,
+            u.discord_username,
+            u.discord_global_name,
+            u.discord_avatar,
+            u.discord_use_avatar,
+            u.discord_use_display_name,
+            u.discord_connected_at,
             u.profile_status,
             u.profile_show_stats,
             u.profile_show_socials,
@@ -233,7 +277,7 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
 
 function profile_get_edit_profile(mysqli $mysqli, int $userId): ?array
 {
-    $stmt = $mysqli->prepare("SELECT id, username, display_name, bio, data_creazione, ruolo, profile_banner_type, accent_color, profile_secondary_color, profile_card_color, profile_text_color, profile_link_style, profile_button_shape, profile_theme, profile_layout, profile_visibility, discord_id, profile_status, profile_show_stats, profile_show_socials, profile_show_links, profile_show_projects, profile_show_contents, profile_show_badges, profile_show_activity, profile_show_discord, profile_music_url, profile_music_mime, profile_music_title, profile_music_artist, profile_show_audio_player, profile_effect, avatar_ring_enabled, avatar_ring_style, avatar_ring_color, profile_views, featured_badge_id, featured_project_id, featured_content_id, profile_updated_at FROM utenti WHERE id = ? LIMIT 1");
+    $stmt = $mysqli->prepare("SELECT id, username, display_name, bio, data_creazione, ruolo, profile_banner_type, accent_color, profile_secondary_color, profile_card_color, profile_text_color, profile_link_style, profile_button_shape, profile_theme, profile_layout, profile_visibility, discord_id, discord_username, discord_global_name, discord_avatar, discord_use_avatar, discord_use_display_name, discord_connected_at, profile_status, profile_show_stats, profile_show_socials, profile_show_links, profile_show_projects, profile_show_contents, profile_show_badges, profile_show_activity, profile_show_discord, profile_music_url, profile_music_mime, profile_music_title, profile_music_artist, profile_show_audio_player, profile_effect, avatar_ring_enabled, avatar_ring_style, avatar_ring_color, profile_views, featured_badge_id, featured_project_id, featured_content_id, profile_updated_at FROM utenti WHERE id = ? LIMIT 1");
     $stmt->bind_param('i', $userId);
     $stmt->execute();
     $profile = $stmt->get_result()->fetch_assoc();
@@ -449,7 +493,7 @@ function profile_recent_activity(mysqli $mysqli, int $userId): array
         $stmt->close();
     }
 
-    if ($stmt = $mysqli->prepare("SELECT 'media' AS activity_type, CONCAT('Custom: ', COALESCE(NULLIF(title, ''), block_type)) AS label, NULL AS url, created_at FROM utenti_profile_blocks WHERE utente_id = ? AND is_visible = 1 ORDER BY created_at DESC LIMIT 3")) {
+    if ($stmt = $mysqli->prepare("SELECT 'media' AS activity_type, CONCAT('Blocco ', block_type) AS label, NULL AS url, created_at FROM utenti_profile_blocks WHERE utente_id = ? AND is_visible = 1 ORDER BY created_at DESC LIMIT 3")) {
         $stmt->bind_param('i', $userId);
         $stmt->execute();
         $items = array_merge($items, $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?: []);

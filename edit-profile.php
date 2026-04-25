@@ -34,6 +34,9 @@ $contents = profile_list_contents($mysqli, $targetUserId, false);
 $blocks = function_exists('profile_list_blocks') ? profile_list_blocks($mysqli, $targetUserId, false) : [];
 $badges = profile_list_unlocked_badges($mysqli, $targetUserId);
 $csrf = profile_csrf_token();
+$profileFlashSuccess = $_SESSION['profile_flash_success'] ?? '';
+$profileFlashError = $_SESSION['profile_flash_error'] ?? '';
+unset($_SESSION['profile_flash_success'], $_SESSION['profile_flash_error']);
 $accent = profile_normalize_hex_color($profile['accent_color'] ?? '#0f5bff');
 $secondaryColor = profile_normalize_hex_color($profile['profile_secondary_color'] ?? $accent);
 $cardColor = profile_optional_hex_color($profile['profile_card_color'] ?? '') ?: '';
@@ -42,7 +45,11 @@ $linkStyle = profile_allowed_value((string)($profile['profile_link_style'] ?? 'g
 $buttonShape = profile_allowed_value((string)($profile['profile_button_shape'] ?? 'pill'), ['pill', 'rounded', 'sharp'], 'pill');
 $theme = profile_allowed_value((string)($profile['profile_theme'] ?? 'dark'), ['dark', 'light', 'auto'], 'dark');
 if ($theme === 'auto') $theme = 'dark';
-$displayName = $profile['display_name'] ?: $profile['username'];
+$displayName = profile_display_name($profile);
+$discordConnected = !empty($profile['discord_id']) && !empty($profile['discord_username']);
+$discordAvatarUrl = $discordConnected ? profile_discord_avatar_url((string)$profile['discord_id'], $profile['discord_avatar'] ?? null, 128) : null;
+$discordDisplayName = trim((string)($profile['discord_global_name'] ?? '')) ?: trim((string)($profile['discord_username'] ?? ''));
+$connectDiscordUrl = '/auth/discord_connect.php' . (profile_is_staff() && $targetUserId !== $currentUserId ? '?target_user_id=' . (int)$targetUserId : '');
 $backgroundUrl = !empty($profile['profile_banner_type']) ? '/includes/get_profile_banner.php?id=' . (int)$profile['id'] : '/vid/Shorekeeper Wallpaper 4K Loop.mp4';
 $backgroundType = !empty($profile['profile_banner_type']) ? (string)$profile['profile_banner_type'] : 'video/mp4';
 $backgroundIsVideo = str_starts_with($backgroundType, 'video/');
@@ -61,9 +68,9 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/includes/head-import.php'; ?>
     <title>Cripsum™ - Modifica profilo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=2.7-links-colors">
-    <script src="/assets/js/profile.js?v=2.7-links-colors" defer></script>
-    <script src="/assets/js/edit-profile.js?v=2.7-links-colors" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=2.9-discord-login">
+    <script src="/assets/js/profile.js?v=2.9-discord-login" defer></script>
+    <script src="/assets/js/edit-profile.js?v=2.9-discord-login" defer></script>
 </head>
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" style="--accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColor ?: 'var(--card)'); ?>; --profile-text-color: <?php echo profile_h($textColor ?: 'var(--text)'); ?>;">
     <?php
@@ -74,6 +81,13 @@ function profile_json_script(string $id, array $data): void
     }
     if (file_exists(__DIR__ . '/includes/impostazioni.php')) include __DIR__ . '/includes/impostazioni.php';
     ?>
+
+    <?php if ($discordConnected): ?>
+        <form id="disconnectDiscordForm" method="post" action="/auth/discord_disconnect.php" class="profile-hidden-form">
+            <input type="hidden" name="csrf_token" value="<?php echo profile_h($csrf); ?>">
+            <input type="hidden" name="target_user_id" value="<?php echo (int)$targetUserId; ?>">
+        </form>
+    <?php endif; ?>
 
     <div class="bio-background" aria-hidden="true">
         <?php if ($backgroundIsVideo): ?>
@@ -90,6 +104,13 @@ function profile_json_script(string $id, array $data): void
     </div>
 
     <main class="profile-edit-layout">
+        <?php if ($profileFlashSuccess || $profileFlashError): ?>
+            <div class="bio-card profile-flash <?php echo $profileFlashError ? 'is-error' : 'is-success'; ?>">
+                <i class="<?php echo $profileFlashError ? 'fas fa-triangle-exclamation' : 'fas fa-check'; ?>"></i>
+                <span><?php echo profile_h($profileFlashError ?: $profileFlashSuccess); ?></span>
+            </div>
+        <?php endif; ?>
+
         <header class="bio-card profile-edit-hero js-reveal">
             <div>
                 <span class="bio-pill">Profile editor</span>
@@ -136,7 +157,41 @@ function profile_json_script(string $id, array $data): void
 
                     <div class="profile-field-grid two">
                         <label class="profile-field"><span>Stato breve</span><input type="text" name="profile_status" id="statusInput" maxlength="60" value="<?php echo profile_h($profile['profile_status'] ?? ''); ?>" placeholder="editing, gaming, busy..."><small>Appare vicino al nome se non sei online.</small></label>
-                        <label class="profile-field"><span>Discord user ID</span><input type="text" name="discord_id" id="discordIdInput" maxlength="25" value="<?php echo profile_h($profile['discord_id'] ?? ''); ?>" placeholder="Es. 963536045180350474"><small>Serve per la Rich Presence.</small></label>
+                        <label class="profile-field"><span>Discord user ID</span><input type="text" name="discord_id" id="discordIdInput" maxlength="25" value="<?php echo profile_h($profile['discord_id'] ?? ''); ?>" placeholder="Es. 963536045180350474"><small>Serve solo per Lanyard/Rich Presence.</small></label>
+                    </div>
+
+                    <div class="profile-discord-connect-card">
+                        <div class="profile-discord-connect-main">
+                            <?php if ($discordConnected): ?>
+                                <?php if ($discordAvatarUrl): ?><img src="<?php echo profile_h($discordAvatarUrl); ?>" alt="" loading="lazy"><?php else: ?><span class="profile-discord-avatar-fallback"><i class="fab fa-discord"></i></span><?php endif; ?>
+                                <div>
+                                    <strong><?php echo profile_h($discordDisplayName ?: $profile['discord_username']); ?></strong>
+                                    <small>@<?php echo profile_h($profile['discord_username']); ?> · ID <?php echo profile_h($profile['discord_id']); ?></small>
+                                </div>
+                            <?php else: ?>
+                                <span class="profile-discord-avatar-fallback"><i class="fab fa-discord"></i></span>
+                                <div>
+                                    <strong>Discord non collegato</strong>
+                                    <small>Collega Discord per salvare ID, username e avatar.</small>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="profile-discord-actions">
+                            <a class="bio-button bio-button--primary" href="<?php echo profile_h($connectDiscordUrl); ?>"><i class="fab fa-discord"></i><?php echo $discordConnected ? 'Ricollega' : 'Collega Discord'; ?></a>
+                            <?php if ($discordConnected): ?>
+                                <button class="bio-button profile-discord-disconnect" type="submit" form="disconnectDiscordForm"><i class="fas fa-link-slash"></i>Scollega</button>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <div class="profile-discord-note">
+                        <i class="fas fa-circle-info"></i>
+                        <span>Il login Discord salva solo ID, username e avatar. La Rich Presence resta su Lanyard: per farla funzionare devi entrare nel <a href="https://discord.com/invite/lanyard" target="_blank" rel="noopener noreferrer">server Lanyard</a>.</span>
+                    </div>
+
+                    <div class="profile-field-grid two">
+                        <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="discord_use_display_name" value="0"><input type="checkbox" name="discord_use_display_name" id="discordUseNameInput" value="1" <?php echo (int)($profile['discord_use_display_name'] ?? 0) === 1 ? 'checked' : ''; ?> <?php echo !$discordConnected ? 'disabled' : ''; ?>><span><i class="fab fa-discord"></i>Usa nome Discord</span></label>
+                        <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="discord_use_avatar" value="0"><input type="checkbox" name="discord_use_avatar" id="discordUseAvatarInput" value="1" <?php echo (int)($profile['discord_use_avatar'] ?? 0) === 1 ? 'checked' : ''; ?> <?php echo !$discordConnected ? 'disabled' : ''; ?>><span><i class="fab fa-discord"></i>Usa avatar Discord</span></label>
                     </div>
 
                     <div class="profile-field-grid two">
@@ -246,7 +301,7 @@ function profile_json_script(string $id, array $data): void
             <aside class="bio-hero bio-card profile-preview-card js-tilt-card js-reveal">
                 <span class="bio-pill">Preview live</span>
                 <div class="profile-background-note"><i class="fas fa-image"></i><span>Lo sfondo scelto appare dietro tutta la pagina, non sopra la foto profilo.</span></div>
-                <div class="bio-avatar-wrap profile-preview-avatar-ring" id="previewAvatarWrap"><div class="bio-avatar-ring" id="previewAvatarRing"></div><img class="bio-avatar" id="previewAvatar" src="/includes/get_pfp.php?id=<?php echo (int)$profile['id']; ?>&t=<?php echo time(); ?>" alt=""></div>
+                <div class="bio-avatar-wrap profile-preview-avatar-ring" id="previewAvatarWrap"><div class="bio-avatar-ring" id="previewAvatarRing"></div><img class="bio-avatar" id="previewAvatar" src="<?php echo profile_h(profile_avatar_url($profile, 256)); ?>" alt=""></div>
                 <div class="bio-name-block"><p class="bio-kicker">preview profilo</p><h1 id="previewName"><?php echo profile_h($displayName); ?></h1><p class="bio-username" id="previewUsername">@<?php echo profile_h($profile['username']); ?></p></div>
                 <p class="bio-tagline" id="previewBio"><?php echo profile_h($profile['bio'] ?: 'La tua bio apparirà qui.'); ?></p>
                 <div class="bio-badges"><span class="bio-badge" id="previewStatusBadge"><i class="fas fa-signal"></i>Stato</span><span class="bio-badge"><i class="fas fa-link"></i>Link</span><span class="bio-badge"><i class="fas fa-trophy"></i>Badge</span></div>

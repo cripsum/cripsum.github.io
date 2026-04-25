@@ -48,6 +48,8 @@ $layout = profile_allowed_value((string)($_POST['profile_layout'] ?? 'standard')
 $visibility = profile_allowed_value((string)($_POST['profile_visibility'] ?? 'public'), ['public', 'logged_in', 'private'], 'public');
 $discordId = trim((string)($_POST['discord_id'] ?? ''));
 $discordIdDb = $discordId !== '' ? $discordId : null;
+$discordUseAvatar = profile_bool_from_post('discord_use_avatar', false);
+$discordUseDisplayName = profile_bool_from_post('discord_use_display_name', false);
 $profileStatus = profile_clean_text($_POST['profile_status'] ?? '', 60);
 $profileStatusDb = $profileStatus !== '' ? $profileStatus : null;
 $musicUrl = trim((string)($_POST['profile_music_url'] ?? ''));
@@ -82,6 +84,12 @@ if (!profile_is_valid_discord_id($discordId)) {
     profile_json_response(['ok' => false, 'message' => 'ID Discord non valido. Deve contenere solo numeri.'], 422);
 }
 
+$hasConnectedDiscord = !empty($profile['discord_username']) && $discordIdDb !== null && $discordIdDb === (string)($profile['discord_id'] ?? '');
+if (!$hasConnectedDiscord) {
+    $discordUseAvatar = 0;
+    $discordUseDisplayName = 0;
+}
+
 if (!profile_is_safe_url($musicUrl, false)) {
     profile_json_response(['ok' => false, 'message' => 'URL canzone non valido.'], 422);
 }
@@ -111,6 +119,9 @@ if (!empty($musicUpload['error'])) {
 }
 $removeMusicUpload = !empty($_POST['remove_profile_music_upload']);
 $avatarChanged = !empty($avatarUpload['has_file']);
+if ($avatarChanged) {
+    $discordUseAvatar = 0;
+}
 if (!empty($musicUpload['has_file'])) {
     $musicUrlDb = null;
 }
@@ -139,14 +150,14 @@ try {
 
     $stmt = $mysqli->prepare("
         UPDATE utenti
-        SET username = ?, display_name = ?, bio = ?, accent_color = ?, profile_secondary_color = ?, profile_card_color = ?, profile_text_color = ?, profile_link_style = ?, profile_button_shape = ?, profile_theme = ?, profile_layout = ?, profile_visibility = ?, discord_id = ?, profile_status = ?,
+        SET username = ?, display_name = ?, bio = ?, accent_color = ?, profile_secondary_color = ?, profile_card_color = ?, profile_text_color = ?, profile_link_style = ?, profile_button_shape = ?, profile_theme = ?, profile_layout = ?, profile_visibility = ?, discord_id = ?, discord_use_avatar = ?, discord_use_display_name = ?, profile_status = ?,
             profile_music_url = ?, profile_music_title = ?, profile_music_artist = ?, profile_effect = ?, avatar_ring_style = ?, avatar_ring_color = ?,
             profile_show_stats = ?, profile_show_socials = ?, profile_show_links = ?, profile_show_projects = ?, profile_show_contents = ?, profile_show_badges = ?, profile_show_activity = ?, profile_show_discord = ?, profile_show_audio_player = ?, avatar_ring_enabled = ?,
             profile_updated_at = NOW()
         WHERE id = ?
     ");
     $stmt->bind_param(
-        'ssssssssssssssssssssiiiiiiiiiii',
+        'sssssssssssssiisssssssiiiiiiiiiii',
         $username,
         $displayNameDb,
         $bioDb,
@@ -160,6 +171,8 @@ try {
         $layout,
         $visibility,
         $discordIdDb,
+        $discordUseAvatar,
+        $discordUseDisplayName,
         $profileStatusDb,
         $musicUrlDb,
         $musicTitleDb,
