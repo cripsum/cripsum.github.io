@@ -1458,7 +1458,7 @@ body[data-theme="light"] .profile-edit-hero h1 {
     margin-bottom: 1rem;
     padding: 0.45rem;
     border: 1px solid var(--border);
-    border-radius: 999px;
+    border-radius: 20px;
     background: rgba(255, 255, 255, 0.045);
 }
 
@@ -1467,7 +1467,7 @@ body[data-theme="light"] .profile-edit-hero h1 {
     min-height: 2.6rem;
     padding: 0.65rem 0.9rem;
     border: 0;
-    border-radius: 20px;
+    border-radius: 999px;
     color: var(--muted);
     background: transparent;
     font-weight: 900;
