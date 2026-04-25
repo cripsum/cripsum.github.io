@@ -25,7 +25,7 @@ $isOwnProfile = false;
 $canEdit = false;
 $isPrivateBlocked = false;
 $isLoginBlocked = false;
-$socials = $links = $projects = $contents = $badges = $activity = [];
+$socials = $links = $projects = $contents = $blocks = $badges = $activity = [];
 $isOnline = false;
 $lastSeen = null;
 
@@ -44,6 +44,7 @@ if ($profile) {
         $links = profile_list_links($mysqli, $profileId, true);
         $projects = profile_list_projects($mysqli, $profileId, true);
         $contents = profile_list_contents($mysqli, $profileId, true);
+        $blocks = function_exists('profile_list_blocks') ? profile_list_blocks($mysqli, $profileId, true) : [];
         $badges = profile_list_visible_badges($mysqli, $profileId);
         $activity = profile_recent_activity($mysqli, $profileId);
 
@@ -124,6 +125,15 @@ $displayName = $profile ? ($profile['display_name'] ?: $profile['username']) : '
 $profileUrl = $profile ? 'https://cripsum.com/u/' . rawurlencode(strtolower($profile['username'])) : 'https://cripsum.com/profile.php';
 $discordId = $profile ? trim((string)($profile['discord_id'] ?? '')) : '';
 $customStatus = $profile ? trim((string)($profile['profile_status'] ?? '')) : '';
+$musicUrl = $profile ? trim((string)($profile['profile_music_url'] ?? '')) : '';
+$musicTitle = $profile ? trim((string)($profile['profile_music_title'] ?? '')) : '';
+$musicArtist = $profile ? trim((string)($profile['profile_music_artist'] ?? '')) : '';
+$showAudioPlayer = $profile ? ((int)($profile['profile_show_audio_player'] ?? 1) === 1) : false;
+$hasMusic = $musicUrl !== '' && profile_is_safe_url($musicUrl, true);
+$profileEffect = $profile ? profile_allowed_value((string)($profile['profile_effect'] ?? 'none'), ['none', 'cursor_glow', 'soft_particles', 'scanlines', 'ambient'], 'none') : 'none';
+$avatarRingEnabled = $profile ? ((int)($profile['avatar_ring_enabled'] ?? 1) === 1) : true;
+$avatarRingStyle = $profile ? profile_allowed_value((string)($profile['avatar_ring_style'] ?? 'spin'), ['spin', 'pulse', 'orbit', 'glow', 'none'], 'spin') : 'spin';
+$avatarRingColor = $profile ? profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent) : $accent;
 $backgroundUrl = $profile && !empty($profile['profile_banner_type']) ? '/includes/get_profile_banner.php?id=' . (int)$profile['id'] : null;
 $backgroundType = $profile && !empty($profile['profile_banner_type']) ? (string)$profile['profile_banner_type'] : 'video/mp4';
 
@@ -140,6 +150,7 @@ $visibleSocials = $showSocials ? $socials : [];
 $visibleLinks = $showLinks ? $links : [];
 $visibleProjects = $showProjects ? $projects : [];
 $visibleContents = $showContents ? $contents : [];
+$visibleBlocks = $showContents ? $blocks : [];
 $visibleBadges = $showBadges ? $badges : [];
 $visibleActivity = $showActivity ? $activity : [];
 
@@ -151,8 +162,8 @@ $featuredContents = array_values(array_filter($visibleContents, fn($item) => (in
 $normalContents = array_values(array_filter($visibleContents, fn($item) => (int)($item['is_featured'] ?? 0) !== 1));
 
 $hasStats = $showStats && $profile && ((int)$profile['profile_views'] > 0 || (int)$profile['num_achievement'] > 0 || (int)$profile['num_personaggi'] > 0 || (int)$profile['total_personaggi'] > 0);
-$hasRightContent = $hasStats || $featuredLinks || $normalLinks || $visibleProjects || $visibleContents || $visibleBadges || ($showDiscord && $discordId) || $visibleActivity;
-$hasAnyPublicContent = $visibleSocials || $visibleLinks || $visibleProjects || $visibleContents || $visibleBadges || ($showDiscord && $discordId);
+$hasRightContent = $hasStats || $featuredLinks || $normalLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || ($showDiscord && $discordId) || $visibleActivity;
+$hasAnyPublicContent = $visibleSocials || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || ($showDiscord && $discordId) || $hasMusic;
 
 $spotlight = null;
 if ($featuredContents) {
@@ -185,8 +196,8 @@ if ($profile) {
         <meta property="og:url" content="<?php echo profile_h($profileUrl); ?>">
         <meta property="og:image" content="/includes/get_pfp.php?id=<?php echo (int)$profile['id']; ?>">
     <?php endif; ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=2.4-smart-bio">
-    <script src="/assets/js/profile.js?v=2.4-smart-bio" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=2.5-plus">
+    <script src="/assets/js/profile.js?v=2.5-plus" defer></script>
 </head>
 <body
     class="bio-v2-body public-profile-body"
@@ -194,6 +205,8 @@ if ($profile) {
     data-accent="<?php echo profile_h($accent); ?>"
     data-profile-url="<?php echo profile_h($profileUrl); ?>"
     data-discord-id="<?php echo profile_h($showDiscord ? $discordId : ''); ?>"
+    data-profile-effect="<?php echo profile_h($profileEffect); ?>"
+    style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>;"
 >
     <?php
     if (file_exists(__DIR__ . '/includes/navbar-bio.php')) include __DIR__ . '/includes/navbar-bio.php';
@@ -202,6 +215,7 @@ if ($profile) {
     ?>
 
     <?php profile_render_background($profile, $backgroundUrl, $backgroundType); ?>
+    <div class="profile-effects-layer" aria-hidden="true"></div>
 
     <?php if ($isNotFound): ?>
         <?php profile_state_page('404', 'Profilo non trovato', 'Questo utente non esiste o ha cambiato username.', 'Home', '/it/home'); ?>
@@ -223,8 +237,8 @@ if ($profile) {
                     <?php endif; ?>
                 </div>
 
-                <div class="bio-avatar-wrap profile-smart-avatar">
-                    <div class="bio-avatar-ring"></div>
+                <div class="bio-avatar-wrap profile-smart-avatar ring-style-<?php echo profile_h($avatarRingStyle); ?> <?php echo (!$avatarRingEnabled || $avatarRingStyle === 'none') ? 'ring-disabled' : ''; ?>">
+                    <?php if ($avatarRingEnabled && $avatarRingStyle !== 'none'): ?><div class="bio-avatar-ring"></div><?php endif; ?>
                     <img class="bio-avatar" src="/includes/get_pfp.php?id=<?php echo (int)$profile['id']; ?>&t=<?php echo (int)strtotime((string)($profile['profile_updated_at'] ?? 'now')); ?>" alt="Avatar di <?php echo profile_h($profile['username']); ?>" loading="eager">
                 </div>
 
@@ -262,7 +276,7 @@ if ($profile) {
                     </div>
                 <?php endif; ?>
 
-                <?php if (!$hasAnyPublicContent && $canEdit): ?>
+                <?php if (!$hasAnyPublicContent && $isOwnProfile): ?>
                     <div class="profile-owner-nudge">
                         <i class="fas fa-plus"></i>
                         <span>Aggiungi link, badge o contenuti per riempire la bio.</span>
@@ -276,6 +290,29 @@ if ($profile) {
                     <button class="bio-icon-button js-open-qr" type="button" aria-label="QR code"><i class="fas fa-qrcode"></i></button>
                     <button class="bio-icon-button js-theme-toggle" type="button" aria-label="Tema"><i class="fas fa-moon"></i></button>
                 </div>
+
+                <?php if ($hasMusic && $showAudioPlayer): ?>
+                    <div class="bio-audio profile-audio-player" data-audio-player>
+                        <audio id="profileAudio" preload="metadata" src="<?php echo profile_h($musicUrl); ?>"></audio>
+                        <div class="bio-audio__header">
+                            <div>
+                                <small>Audio</small>
+                                <strong><i class="fas fa-music"></i><?php echo profile_h($musicTitle ?: 'Canzone profilo'); ?></strong>
+                                <?php if ($musicArtist): ?><span><?php echo profile_h($musicArtist); ?></span><?php endif; ?>
+                            </div>
+                            <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pausa"><i id="profileAudioIcon" class="fas fa-play"></i></button>
+                        </div>
+                        <div class="bio-audio__progress">
+                            <span id="profileAudioCurrent">0:00</span>
+                            <input id="profileAudioProgress" type="range" min="0" max="100" step="0.1" value="0" aria-label="Avanzamento audio">
+                            <span id="profileAudioTotal">0:00</span>
+                        </div>
+                        <div class="bio-audio__bottom">
+                            <button class="bio-small-button js-profile-volume-toggle" type="button" aria-label="Mute"><i id="profileVolumeIcon" class="fas fa-volume-down"></i></button>
+                            <input id="profileVolumeSlider" type="range" min="0" max="1" step="0.01" value="0.18" aria-label="Volume">
+                        </div>
+                    </div>
+                <?php endif; ?>
 
                 <div class="profile-small-meta">
                     <span><i class="fas fa-calendar"></i><?php echo date('d/m/Y', strtotime($profile['data_creazione'])); ?></span>
@@ -344,6 +381,33 @@ if ($profile) {
                         </section>
                     <?php endif; ?>
 
+                    <?php if ($visibleBlocks): ?>
+                        <section class="bio-card bio-details profile-clean-section js-reveal">
+                            <?php profile_render_section_heading('fas fa-wand-magic-sparkles', 'Custom'); ?>
+                            <div class="profile-block-grid">
+                                <?php foreach ($visibleBlocks as $block): ?>
+                                    <?php
+                                    $blockType = profile_allowed_value((string)($block['block_type'] ?? 'text'), ['text', 'image', 'gif', 'video'], 'text');
+                                    $mediaUrl = trim((string)($block['media_url'] ?? ''));
+                                    $isPinned = !empty($block['is_featured']);
+                                    ?>
+                                    <article class="profile-block-card profile-block-<?php echo profile_h($blockType); ?> <?php echo $isPinned ? 'is-pinned' : ''; ?>">
+                                        <?php if ($mediaUrl && in_array($blockType, ['image', 'gif'], true)): ?>
+                                            <img src="<?php echo profile_h($mediaUrl); ?>" alt="" loading="lazy">
+                                        <?php elseif ($mediaUrl && $blockType === 'video'): ?>
+                                            <video src="<?php echo profile_h($mediaUrl); ?>" controls playsinline preload="metadata"></video>
+                                        <?php endif; ?>
+                                        <div class="profile-block-copy">
+                                            <?php if (!empty($block['title'])): ?><strong><?php echo profile_h($block['title']); ?></strong><?php endif; ?>
+                                            <?php if (!empty($block['body'])): ?><p><?php echo nl2br(profile_h($block['body'])); ?></p><?php endif; ?>
+                                            <?php if ($isPinned): ?><small>Pin</small><?php endif; ?>
+                                        </div>
+                                    </article>
+                                <?php endforeach; ?>
+                            </div>
+                        </section>
+                    <?php endif; ?>
+
                     <?php if ($visibleContents): ?>
                         <section class="bio-card bio-details profile-clean-section js-reveal">
                             <?php profile_render_section_heading('fas fa-play-circle', 'Edit e contenuti'); ?>
@@ -397,16 +461,13 @@ if ($profile) {
                     <?php if ($visibleActivity): ?>
                         <section class="bio-card bio-about js-reveal">
                             <?php profile_render_section_heading('fas fa-clock', 'Attività'); ?>
-                            <div class="bio-info-list bio-activity-list">
-                                <?php foreach (array_slice($visibleActivity, 0, 4) as $item): ?>
-                                    <div>
-                                        <span><?php echo profile_h($item['activity_type']); ?> · <?php echo profile_h(profile_time_ago($item['created_at'] ?? null)); ?></span>
-                                        <?php if (!empty($item['url'])): ?>
-                                            <strong><a href="<?php echo profile_h($item['url']); ?>" target="_blank" rel="noopener noreferrer"><?php echo profile_h($item['label']); ?></a></strong>
-                                        <?php else: ?>
-                                            <strong><?php echo profile_h($item['label']); ?></strong>
-                                        <?php endif; ?>
-                                    </div>
+                            <div class="profile-activity-strip">
+                                <?php foreach (array_slice($visibleActivity, 0, 5) as $item): ?>
+                                    <a class="profile-activity-pill" href="<?php echo !empty($item['url']) ? profile_h($item['url']) : '#'; ?>" <?php echo !empty($item['url']) ? 'target="_blank" rel="noopener noreferrer"' : 'aria-disabled="true"'; ?>>
+                                        <i class="<?php echo profile_h(function_exists('profile_activity_icon') ? profile_activity_icon($item['activity_type'] ?? '') : 'fas fa-clock'); ?>"></i>
+                                        <span><?php echo profile_h($item['label']); ?></span>
+                                        <small><?php echo profile_h(profile_time_ago($item['created_at'] ?? null)); ?></small>
+                                    </a>
                                 <?php endforeach; ?>
                             </div>
                         </section>
@@ -421,7 +482,7 @@ if ($profile) {
         <section class="bio-card profile-qr-card" role="dialog" aria-modal="true" aria-label="QR profilo">
             <button class="bio-small-button js-close-qr" type="button" aria-label="Chiudi"><i class="fas fa-xmark"></i></button>
             <strong>QR profilo</strong>
-            <img class="profile-qr-image" alt="QR code del profilo" data-qr-src="/api/profile_qr.php?url=<?php echo rawurlencode($profileUrl); ?>">
+            <img class="profile-qr-image" alt="QR code del profilo" src="/api/profile_qr.php?url=<?php echo rawurlencode($profileUrl); ?>" data-qr-src="/api/profile_qr.php?url=<?php echo rawurlencode($profileUrl); ?>">
             <button class="bio-button bio-button--primary js-copy-profile" type="button"><i class="fas fa-link"></i>Copia link</button>
         </section>
     </div>

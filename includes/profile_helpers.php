@@ -168,6 +168,14 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
             u.profile_show_badges,
             u.profile_show_activity,
             u.profile_show_discord,
+            u.profile_music_url,
+            u.profile_music_title,
+            u.profile_music_artist,
+            u.profile_show_audio_player,
+            u.profile_effect,
+            u.avatar_ring_enabled,
+            u.avatar_ring_style,
+            u.avatar_ring_color,
             u.profile_views,
             u.featured_badge_id,
             u.featured_project_id,
@@ -202,7 +210,7 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
 
 function profile_get_edit_profile(mysqli $mysqli, int $userId): ?array
 {
-    $stmt = $mysqli->prepare("SELECT id, username, display_name, bio, data_creazione, ruolo, profile_banner_type, accent_color, profile_theme, profile_layout, profile_visibility, discord_id, profile_status, profile_show_stats, profile_show_socials, profile_show_links, profile_show_projects, profile_show_contents, profile_show_badges, profile_show_activity, profile_show_discord, profile_views, featured_badge_id, featured_project_id, featured_content_id, profile_updated_at FROM utenti WHERE id = ? LIMIT 1");
+    $stmt = $mysqli->prepare("SELECT id, username, display_name, bio, data_creazione, ruolo, profile_banner_type, accent_color, profile_theme, profile_layout, profile_visibility, discord_id, profile_status, profile_show_stats, profile_show_socials, profile_show_links, profile_show_projects, profile_show_contents, profile_show_badges, profile_show_activity, profile_show_discord, profile_music_url, profile_music_title, profile_music_artist, profile_show_audio_player, profile_effect, avatar_ring_enabled, avatar_ring_style, avatar_ring_color, profile_views, featured_badge_id, featured_project_id, featured_content_id, profile_updated_at FROM utenti WHERE id = ? LIMIT 1");
     $stmt->bind_param('i', $userId);
     $stmt->execute();
     $profile = $stmt->get_result()->fetch_assoc();
@@ -271,6 +279,59 @@ function profile_list_contents(mysqli $mysqli, int $userId, bool $onlyVisible = 
     return $rows ?: [];
 }
 
+
+function profile_list_blocks(mysqli $mysqli, int $userId, bool $onlyVisible = true): array
+{
+    $sql = "SELECT id, block_type, title, body, media_url, media_type, is_featured, sort_order, is_visible FROM utenti_profile_blocks WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY is_featured DESC, sort_order ASC, id ASC";
+    $stmt = $mysqli->prepare($sql);
+    if (!$stmt) return [];
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+    return $rows ?: [];
+}
+
+function profile_media_type_from_url(?string $url, string $fallback = 'image'): string
+{
+    $path = strtolower((string)(parse_url((string)$url, PHP_URL_PATH) ?: ''));
+    if (preg_match('/\.(mp4|webm)$/', $path)) return 'video';
+    if (preg_match('/\.gif$/', $path)) return 'gif';
+    if (preg_match('/\.(jpg|jpeg|png|webp|avif)$/', $path)) return 'image';
+    return profile_allowed_value($fallback, ['image', 'gif', 'video'], 'image');
+}
+
+function profile_content_type_label(string $type): string
+{
+    return match ($type) {
+        'edit' => 'Edit',
+        'video' => 'Video',
+        'game' => 'Gioco',
+        'post' => 'Post',
+        'text' => 'Testo',
+        'image' => 'Immagine',
+        'gif' => 'GIF',
+        default => 'Contenuto',
+    };
+}
+
+function profile_activity_icon(string $type): string
+{
+    return match ($type) {
+        'project' => 'fas fa-cubes',
+        'content' => 'fas fa-play',
+        'badge' => 'fas fa-trophy',
+        'link' => 'fas fa-link',
+        'social' => 'fas fa-share-nodes',
+        'media' => 'fas fa-image',
+        'music' => 'fas fa-music',
+        'discord' => 'fab fa-discord',
+        'status' => 'fas fa-signal',
+        'theme' => 'fas fa-palette',
+        default => 'fas fa-clock',
+    };
+}
+
 function profile_list_visible_badges(mysqli $mysqli, int $userId): array
 {
     $stmt = $mysqli->prepare("
@@ -309,36 +370,67 @@ function profile_list_unlocked_badges(mysqli $mysqli, int $userId): array
 
 function profile_recent_activity(mysqli $mysqli, int $userId): array
 {
-    $activity = [];
+    $items = [];
 
-    $stmt = $mysqli->prepare("SELECT activity_type, label, url, created_at FROM utenti_profile_activity WHERE utente_id = ? AND is_public = 1 ORDER BY created_at DESC LIMIT 6");
-    $stmt->bind_param('i', $userId);
-    $stmt->execute();
-    $activity = $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?: [];
-    $stmt->close();
-
-    if (count($activity) < 6) {
-        $stmt = $mysqli->prepare("
-            SELECT 'badge' AS activity_type, CONCAT('Ha sbloccato ', a.nome) AS label, NULL AS url, ua.data AS created_at
-            FROM utenti_achievement ua
-            INNER JOIN achievement a ON a.id = ua.achievement_id
-            WHERE ua.utente_id = ?
-            ORDER BY ua.data DESC
-            LIMIT 6
-        ");
+    $stmt = $mysqli->prepare("SELECT activity_type, label, url, created_at FROM utenti_profile_activity WHERE utente_id = ? AND is_public = 1 ORDER BY created_at DESC LIMIT 8");
+    if ($stmt) {
         $stmt->bind_param('i', $userId);
         $stmt->execute();
-        $badges = $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?: [];
+        $items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?: [];
         $stmt->close();
-        $activity = array_slice(array_merge($activity, $badges), 0, 6);
     }
 
-    return $activity;
+    $stmt = $mysqli->prepare("SELECT 'badge' AS activity_type, CONCAT('Badge: ', a.nome) AS label, NULL AS url, ua.data AS created_at FROM utenti_achievement ua INNER JOIN achievement a ON a.id = ua.achievement_id WHERE ua.utente_id = ? ORDER BY ua.data DESC LIMIT 4");
+    if ($stmt) {
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $items = array_merge($items, $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?: []);
+        $stmt->close();
+    }
+
+    $stmt = $mysqli->prepare("SELECT 'project' AS activity_type, CONCAT('Progetto: ', title) AS label, url, COALESCE(updated_at, created_at) AS created_at FROM utenti_projects WHERE utente_id = ? AND is_visible = 1 ORDER BY COALESCE(updated_at, created_at) DESC LIMIT 3");
+    if ($stmt) {
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $items = array_merge($items, $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?: []);
+        $stmt->close();
+    }
+
+    $stmt = $mysqli->prepare("SELECT 'content' AS activity_type, CONCAT('Contenuto: ', title) AS label, url, COALESCE(updated_at, created_at) AS created_at FROM utenti_contents WHERE utente_id = ? AND is_visible = 1 ORDER BY COALESCE(updated_at, created_at) DESC LIMIT 3");
+    if ($stmt) {
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $items = array_merge($items, $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?: []);
+        $stmt->close();
+    }
+
+    if ($stmt = $mysqli->prepare("SELECT 'media' AS activity_type, CONCAT('Custom: ', COALESCE(NULLIF(title, ''), block_type)) AS label, NULL AS url, created_at FROM utenti_profile_blocks WHERE utente_id = ? AND is_visible = 1 ORDER BY created_at DESC LIMIT 3")) {
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $items = array_merge($items, $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?: []);
+        $stmt->close();
+    }
+
+    usort($items, function ($a, $b) {
+        return strtotime((string)($b['created_at'] ?? '1970-01-01')) <=> strtotime((string)($a['created_at'] ?? '1970-01-01'));
+    });
+
+    $seen = [];
+    $deduped = [];
+    foreach ($items as $item) {
+        $key = ($item['activity_type'] ?? '') . '|' . ($item['label'] ?? '') . '|' . ($item['created_at'] ?? '');
+        if (isset($seen[$key])) continue;
+        $seen[$key] = true;
+        $deduped[] = $item;
+        if (count($deduped) >= 6) break;
+    }
+
+    return $deduped;
 }
 
 function profile_record_activity(mysqli $mysqli, int $userId, string $type, string $label, ?string $url = null): void
 {
-    $type = profile_allowed_value($type, ['profile_update', 'project', 'content', 'badge', 'link'], 'profile_update');
+    $type = profile_allowed_value($type, ['profile_update', 'project', 'content', 'badge', 'link', 'social', 'media', 'music', 'discord', 'status', 'theme'], 'profile_update');
     $label = profile_clean_text($label, 120);
     if ($label === '') return;
     $url = profile_is_safe_url($url) ? trim((string)$url) : null;

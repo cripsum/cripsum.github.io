@@ -35,11 +35,13 @@
         links: $('#linksRepeater'),
         projects: $('#projectsRepeater'),
         contents: $('#contentsRepeater'),
+        blocks: $('#blocksRepeater'),
     };
 
     const platformOptions = ['tiktok', 'instagram', 'youtube', 'twitch', 'github', 'discord', 'telegram', 'x', 'website', 'steam', 'other'];
     const projectStatuses = [['active', 'Attivo'], ['paused', 'In pausa'], ['finished', 'Finito'], ['idea', 'Idea']];
     const contentTypes = [['edit', 'Edit'], ['video', 'Video'], ['game', 'Gioco'], ['post', 'Post'], ['other', 'Altro']];
+    const blockTypes = [['text', 'Testo'], ['image', 'Immagine'], ['gif', 'GIF'], ['video', 'Video']];
 
     function options(list, selected) {
         return list.map((item) => {
@@ -104,9 +106,22 @@
                 </div>`;
         }
 
+        if (type === 'blocks') {
+            body = `
+                <div class="profile-row-grid">
+                    <label>Tipo<select data-field="block_type">${options(blockTypes, data.block_type || 'text')}</select></label>
+                    <label>Titolo<input data-field="title" maxlength="80" value="${escapeAttr(data.title || '')}" placeholder="Titolo opzionale"></label>
+                    <label class="profile-row-grid full">Testo<textarea data-field="body" maxlength="700" placeholder="Testo breve, nota, descrizione o quote">${escapeAttr(data.body || '')}</textarea></label>
+                    <label>Media URL<input data-field="media_url" value="${escapeAttr(data.media_url || '')}" placeholder="https://... immagine/gif/video"></label>
+                    <label>Media type<select data-field="media_type">${options(blockTypes, data.media_type || data.block_type || 'image')}</select></label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> Pin</label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visibile</label>
+                </div>`;
+        }
+
         row.innerHTML = `
             <div class="profile-row-head">
-                <strong>${type === 'socials' ? 'Social' : type === 'links' ? 'Link' : type === 'projects' ? 'Progetto' : 'Contenuto'}</strong>
+                <strong>${type === 'socials' ? 'Social' : type === 'links' ? 'Link' : type === 'projects' ? 'Progetto' : type === 'blocks' ? 'Blocco custom' : 'Contenuto'}</strong>
                 <button type="button" class="profile-remove-row">Rimuovi</button>
             </div>
             ${body}`;
@@ -124,6 +139,7 @@
     readJson('initialLinksData').forEach((item) => addRow('links', item));
     readJson('initialProjectsData').forEach((item) => addRow('projects', item));
     readJson('initialContentsData').forEach((item) => addRow('contents', item));
+    readJson('initialBlocksData').forEach((item) => addRow('blocks', item));
 
     Object.entries(repeaters).forEach(([type, node]) => {
         if (node && node.children.length === 0) addRow(type, {});
@@ -165,6 +181,10 @@
     const themeInput = $('#themeInput');
     const avatarInput = $('#avatarInput');
     const bannerInput = $('#bannerInput');
+    const profileEffectInput = $('#profileEffectInput');
+    const ringEnabledInput = $('#ringEnabledInput');
+    const ringStyleInput = $('#ringStyleInput');
+    const ringColorInput = $('#ringColorInput');
 
     function updatePreview() {
         const name = displayNameInput.value.trim() || usernameInput.value.trim() || 'Utente';
@@ -181,9 +201,17 @@
         document.documentElement.style.setProperty('--profile-accent', accentInput.value);
         document.body.dataset.accent = accentInput.value;
         document.body.dataset.theme = themeInput.value === 'auto' ? 'dark' : themeInput.value;
+        document.body.dataset.profileEffect = profileEffectInput ? profileEffectInput.value : 'none';
+        const wrap = $('#previewAvatarWrap');
+        if (wrap) {
+            const style = ringStyleInput ? ringStyleInput.value : 'spin';
+            const enabled = ringEnabledInput ? ringEnabledInput.checked : true;
+            wrap.className = `bio-avatar-wrap profile-preview-avatar-ring ring-style-${style} ${(!enabled || style === 'none') ? 'ring-disabled' : ''}`;
+            wrap.style.setProperty('--profile-ring', ringColorInput ? ringColorInput.value : accentInput.value);
+        }
     }
 
-    [displayNameInput, usernameInput, bioInput, statusInput, accentInput, themeInput].filter(Boolean).forEach((input) => {
+    [displayNameInput, usernameInput, bioInput, statusInput, accentInput, themeInput, profileEffectInput, ringEnabledInput, ringStyleInput, ringColorInput].filter(Boolean).forEach((input) => {
         input.addEventListener('input', updatePreview);
         input.addEventListener('change', updatePreview);
     });
@@ -243,6 +271,7 @@
         $('#linksJson').value = JSON.stringify(collectRows('links'));
         $('#projectsJson').value = JSON.stringify(collectRows('projects'));
         $('#contentsJson').value = JSON.stringify(collectRows('contents'));
+        $('#blocksJson').value = JSON.stringify(collectRows('blocks'));
         $('#badgesJson').value = JSON.stringify(collectBadges());
 
         const button = $('#saveProfileButton');

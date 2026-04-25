@@ -33,13 +33,22 @@
         document.documentElement.style.setProperty('--profile-accent', safeAccent);
     };
 
-    const setTheme = (theme) => {
+    const setTheme = (theme, animate = false) => {
         let nextTheme = theme;
         if (nextTheme === 'auto') {
             nextTheme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
         }
         nextTheme = nextTheme === 'light' ? 'light' : 'dark';
+
+        if (animate) {
+            body.classList.remove('profile-theme-changing');
+            void body.offsetWidth;
+            body.classList.add('profile-theme-changing');
+            window.setTimeout(() => body.classList.remove('profile-theme-changing'), 650);
+        }
+
         body.dataset.theme = nextTheme;
+        localStorage.setItem('cripsum.profile.viewerTheme', nextTheme);
         const icon = document.querySelector('.js-theme-toggle i');
         if (icon) icon.className = nextTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
     };
@@ -99,7 +108,7 @@
         document.querySelectorAll('.js-theme-toggle').forEach((button) => {
             button.addEventListener('click', () => {
                 const nextTheme = body.dataset.theme === 'light' ? 'dark' : 'light';
-                setTheme(nextTheme);
+                setTheme(nextTheme, true);
                 showToast(nextTheme === 'light' ? 'Tema chiaro attivo.' : 'Tema scuro attivo.');
             });
         });
@@ -216,7 +225,9 @@
         const closeButtons = modal.querySelectorAll('.js-close-qr');
 
         const open = () => {
-            if (image && !image.src && image.dataset.qrSrc) image.src = image.dataset.qrSrc;
+            if (image && image.dataset.qrSrc) {
+                image.src = image.dataset.qrSrc + (image.dataset.qrSrc.includes('?') ? '&' : '?') + 't=' + Date.now();
+            }
             modal.classList.add('is-visible');
             modal.setAttribute('aria-hidden', 'false');
         };
@@ -233,6 +244,111 @@
         });
     };
 
+
+    const formatTime = (seconds) => {
+        if (!Number.isFinite(seconds)) return '0:00';
+        const minutes = Math.floor(seconds / 60);
+        const remaining = Math.floor(seconds % 60).toString().padStart(2, '0');
+        return `${minutes}:${remaining}`;
+    };
+
+    const initProfileAudio = () => {
+        const audio = document.getElementById('profileAudio');
+        if (!audio) return;
+
+        const playButton = document.querySelector('.js-profile-audio-toggle');
+        const playIcon = document.getElementById('profileAudioIcon');
+        const volumeButton = document.querySelector('.js-profile-volume-toggle');
+        const volumeIcon = document.getElementById('profileVolumeIcon');
+        const volumeSlider = document.getElementById('profileVolumeSlider');
+        const progressSlider = document.getElementById('profileAudioProgress');
+        const currentTime = document.getElementById('profileAudioCurrent');
+        const totalTime = document.getElementById('profileAudioTotal');
+
+        if (!playButton || !progressSlider || !volumeSlider) return;
+
+        let dragging = false;
+        const savedVolume = Number(localStorage.getItem('cripsum.profile.audioVolume') || volumeSlider.value || 0.18);
+        audio.volume = Math.min(Math.max(savedVolume, 0), 1);
+        volumeSlider.value = String(audio.volume);
+
+        const syncIcons = () => {
+            if (playIcon) playIcon.className = audio.paused ? 'fas fa-play' : 'fas fa-pause';
+            if (volumeIcon) {
+                volumeIcon.className = audio.muted || audio.volume === 0
+                    ? 'fas fa-volume-mute'
+                    : audio.volume < 0.5 ? 'fas fa-volume-down' : 'fas fa-volume-up';
+            }
+        };
+
+        const syncProgress = () => {
+            if (!dragging && Number.isFinite(audio.duration) && audio.duration > 0) {
+                progressSlider.value = String((audio.currentTime / audio.duration) * 100);
+                if (currentTime) currentTime.textContent = formatTime(audio.currentTime);
+            }
+        };
+
+        audio.addEventListener('loadedmetadata', () => {
+            if (totalTime) totalTime.textContent = formatTime(audio.duration);
+        });
+        audio.addEventListener('timeupdate', syncProgress);
+        audio.addEventListener('play', syncIcons);
+        audio.addEventListener('pause', syncIcons);
+
+        playButton.addEventListener('click', async () => {
+            if (audio.paused) {
+                try {
+                    await audio.play();
+                    showToast('Audio avviato.');
+                } catch (error) {
+                    showToast('Il browser ha bloccato l’audio. Clicca di nuovo.');
+                }
+            } else {
+                audio.pause();
+            }
+        });
+
+        volumeButton?.addEventListener('click', () => {
+            audio.muted = !audio.muted;
+            syncIcons();
+        });
+
+        volumeSlider.addEventListener('input', () => {
+            const value = Number(volumeSlider.value);
+            audio.volume = value;
+            audio.muted = value === 0;
+            localStorage.setItem('cripsum.profile.audioVolume', String(value));
+            syncIcons();
+        });
+
+        progressSlider.addEventListener('pointerdown', () => { dragging = true; });
+        const seek = () => {
+            if (Number.isFinite(audio.duration) && audio.duration > 0) {
+                audio.currentTime = (Number(progressSlider.value) / 100) * audio.duration;
+            }
+            dragging = false;
+            syncProgress();
+        };
+        progressSlider.addEventListener('pointerup', seek);
+        progressSlider.addEventListener('change', seek);
+        progressSlider.addEventListener('input', () => {
+            if (!Number.isFinite(audio.duration) || audio.duration <= 0) return;
+            if (currentTime) currentTime.textContent = formatTime((Number(progressSlider.value) / 100) * audio.duration);
+        });
+
+        syncIcons();
+    };
+
+    const initProfileEffects = () => {
+        const effect = body.dataset.profileEffect || 'none';
+        if (effect === 'cursor_glow') {
+            window.addEventListener('pointermove', (event) => {
+                document.documentElement.style.setProperty('--cursor-x', `${event.clientX}px`);
+                document.documentElement.style.setProperty('--cursor-y', `${event.clientY}px`);
+            }, { passive: true });
+        }
+    };
+
     const persistDetailsState = () => {
         const details = document.querySelectorAll('.bio-details');
         details.forEach((detail, index) => {
@@ -245,11 +361,13 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         setAccent(body.dataset.accent || '#0f5bff');
-        setTheme(body.dataset.theme || 'dark');
+        setTheme(localStorage.getItem('cripsum.profile.viewerTheme') || body.dataset.theme || 'dark');
         initActions();
         initReveal();
         initTilt();
         initQrModal();
+        initProfileAudio();
+        initProfileEffects();
         initActivityCarousel();
         updateActivityTimestamps();
         persistDetailsState();

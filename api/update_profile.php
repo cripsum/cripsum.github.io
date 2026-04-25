@@ -45,6 +45,17 @@ $discordId = trim((string)($_POST['discord_id'] ?? ''));
 $discordIdDb = $discordId !== '' ? $discordId : null;
 $profileStatus = profile_clean_text($_POST['profile_status'] ?? '', 60);
 $profileStatusDb = $profileStatus !== '' ? $profileStatus : null;
+$musicUrl = trim((string)($_POST['profile_music_url'] ?? ''));
+$musicUrlDb = $musicUrl !== '' ? $musicUrl : null;
+$musicTitle = profile_clean_text($_POST['profile_music_title'] ?? '', 80);
+$musicTitleDb = $musicTitle !== '' ? $musicTitle : null;
+$musicArtist = profile_clean_text($_POST['profile_music_artist'] ?? '', 80);
+$musicArtistDb = $musicArtist !== '' ? $musicArtist : null;
+$showAudioPlayer = profile_bool_from_post('profile_show_audio_player', true);
+$profileEffect = profile_allowed_value((string)($_POST['profile_effect'] ?? 'none'), ['none', 'cursor_glow', 'soft_particles', 'scanlines', 'ambient'], 'none');
+$avatarRingEnabled = profile_bool_from_post('avatar_ring_enabled', true);
+$avatarRingStyle = profile_allowed_value((string)($_POST['avatar_ring_style'] ?? 'spin'), ['spin', 'pulse', 'orbit', 'glow', 'none'], 'spin');
+$avatarRingColor = profile_normalize_hex_color($_POST['avatar_ring_color'] ?? $accentColor);
 $showStats = profile_bool_from_post('profile_show_stats', true);
 $showSocials = profile_bool_from_post('profile_show_socials', true);
 $showLinks = profile_bool_from_post('profile_show_links', true);
@@ -64,6 +75,10 @@ if (mb_strlen($bio, 'UTF-8') > 280) {
 
 if (!profile_is_valid_discord_id($discordId)) {
     profile_json_response(['ok' => false, 'message' => 'ID Discord non valido. Deve contenere solo numeri.'], 422);
+}
+
+if (!profile_is_safe_url($musicUrl, false)) {
+    profile_json_response(['ok' => false, 'message' => 'URL canzone non valido.'], 422);
 }
 
 $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE LOWER(username) = LOWER(?) AND id != ? LIMIT 1");
@@ -96,21 +111,54 @@ $socialRows = array_slice(profile_decode_rows('socials_json'), 0, 10);
 $linkRows = array_slice(profile_decode_rows('links_json'), 0, 12);
 $projectRows = array_slice(profile_decode_rows('projects_json'), 0, 8);
 $contentRows = array_slice(profile_decode_rows('contents_json'), 0, 8);
+$blockRows = array_slice(profile_decode_rows('blocks_json'), 0, 10);
 $badgeRows = array_slice(profile_decode_rows('badges_json'), 0, 8);
 
 $allowedPlatforms = ['tiktok','instagram','youtube','twitch','github','discord','telegram','x','twitter','website','steam','other'];
 $allowedStatuses = ['active','paused','finished','idea'];
 $allowedContentTypes = ['edit','video','game','post','other'];
+$allowedBlockTypes = ['text','image','gif','video'];
 
 try {
     $mysqli->begin_transaction();
 
     $stmt = $mysqli->prepare("
         UPDATE utenti
-        SET username = ?, display_name = ?, bio = ?, accent_color = ?, profile_theme = ?, profile_layout = ?, profile_visibility = ?, discord_id = ?, profile_status = ?, profile_show_stats = ?, profile_show_socials = ?, profile_show_links = ?, profile_show_projects = ?, profile_show_contents = ?, profile_show_badges = ?, profile_show_activity = ?, profile_show_discord = ?, profile_updated_at = NOW()
+        SET username = ?, display_name = ?, bio = ?, accent_color = ?, profile_theme = ?, profile_layout = ?, profile_visibility = ?, discord_id = ?, profile_status = ?,
+            profile_music_url = ?, profile_music_title = ?, profile_music_artist = ?, profile_effect = ?, avatar_ring_style = ?, avatar_ring_color = ?,
+            profile_show_stats = ?, profile_show_socials = ?, profile_show_links = ?, profile_show_projects = ?, profile_show_contents = ?, profile_show_badges = ?, profile_show_activity = ?, profile_show_discord = ?, profile_show_audio_player = ?, avatar_ring_enabled = ?,
+            profile_updated_at = NOW()
         WHERE id = ?
     ");
-    $stmt->bind_param('sssssssssiiiiiiiii', $username, $displayNameDb, $bioDb, $accentColor, $theme, $layout, $visibility, $discordIdDb, $profileStatusDb, $showStats, $showSocials, $showLinks, $showProjects, $showContents, $showBadges, $showActivity, $showDiscord, $targetUserId);
+    $stmt->bind_param(
+        'sssssssssssssssiiiiiiiiiii',
+        $username,
+        $displayNameDb,
+        $bioDb,
+        $accentColor,
+        $theme,
+        $layout,
+        $visibility,
+        $discordIdDb,
+        $profileStatusDb,
+        $musicUrlDb,
+        $musicTitleDb,
+        $musicArtistDb,
+        $profileEffect,
+        $avatarRingStyle,
+        $avatarRingColor,
+        $showStats,
+        $showSocials,
+        $showLinks,
+        $showProjects,
+        $showContents,
+        $showBadges,
+        $showActivity,
+        $showDiscord,
+        $showAudioPlayer,
+        $avatarRingEnabled,
+        $targetUserId
+    );
     if (!$stmt->execute()) throw new RuntimeException('Errore salvataggio profilo.');
     $stmt->close();
 
@@ -216,6 +264,40 @@ try {
         if (!$insertContent->execute()) throw new RuntimeException('Errore salvataggio contenuto.');
     }
     $insertContent->close();
+
+    $stmt = $mysqli->prepare("DELETE FROM utenti_profile_blocks WHERE utente_id = ?");
+    $stmt->bind_param('i', $targetUserId);
+    $stmt->execute();
+    $stmt->close();
+
+    $insertBlock = $mysqli->prepare("INSERT INTO utenti_profile_blocks (utente_id, block_type, title, body, media_url, media_type, is_featured, is_visible, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    foreach ($blockRows as $i => $row) {
+        $type = profile_allowed_value((string)($row['block_type'] ?? 'text'), $allowedBlockTypes, 'text');
+        $title = profile_clean_text($row['title'] ?? '', 80);
+        $body = trim((string)($row['body'] ?? ''));
+        $body = mb_substr($body, 0, 700, 'UTF-8');
+        $mediaUrl = trim((string)($row['media_url'] ?? ''));
+        $mediaType = profile_media_type_from_url($mediaUrl, $type === 'gif' ? 'gif' : ($type === 'video' ? 'video' : 'image'));
+        $featured = !empty($row['is_featured']) ? 1 : 0;
+        $visible = !empty($row['is_visible']) ? 1 : 0;
+
+        if ($title === '' && $body === '' && $mediaUrl === '') continue;
+        if ($type !== 'text' && !profile_is_safe_url($mediaUrl, true)) {
+            throw new RuntimeException('URL media non valido nel blocco custom.');
+        }
+        if ($type === 'text') {
+            $mediaUrl = null;
+            $mediaType = 'text';
+        }
+
+        $insertBlock->bind_param('isssssiii', $targetUserId, $type, $title, $body, $mediaUrl, $mediaType, $featured, $visible, $i);
+        if (!$insertBlock->execute()) throw new RuntimeException('Errore salvataggio blocchi custom.');
+    }
+    $insertBlock->close();
+
+    if ($musicUrlDb) {
+        profile_record_activity($mysqli, $targetUserId, 'music', 'Ha aggiornato la canzone del profilo', $musicUrlDb);
+    }
 
     $stmt = $mysqli->prepare("DELETE FROM utenti_profile_badges WHERE utente_id = ?");
     $stmt->bind_param('i', $targetUserId);
