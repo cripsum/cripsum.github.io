@@ -468,3 +468,56 @@
         setInterval(refreshDiscordStatus, 30000);
     });
 })();
+
+/* V2.9.2 - autoplay hidden profile music when player is disabled */
+(() => {
+    'use strict';
+
+    const showProfileToast = (message) => {
+        if (typeof window.profileToast === 'function') {
+            window.profileToast(message);
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const audio = document.getElementById('profileAudio');
+        if (!audio || audio.dataset.autoplay !== '1') return;
+
+        const savedVolume = Number(localStorage.getItem('cripsum.profile.audioVolume') || 0.18);
+        audio.volume = Math.min(Math.max(Number.isFinite(savedVolume) ? savedVolume : 0.18, 0), 1);
+        audio.loop = true;
+        audio.autoplay = true;
+
+        const tryPlay = async (showMessage = false) => {
+            try {
+                await audio.play();
+                return true;
+            } catch (error) {
+                if (showMessage) showProfileToast('Tocca la pagina per avviare l’audio.');
+                return false;
+            }
+        };
+
+        const unlockOnInteraction = () => {
+            let armed = true;
+            const events = ['pointerdown', 'click', 'keydown', 'touchstart'];
+            const cleanup = () => events.forEach((eventName) => document.removeEventListener(eventName, unlock, true));
+            const unlock = async () => {
+                if (!armed || !audio.paused) return;
+                armed = false;
+                const ok = await tryPlay(false);
+                if (ok) {
+                    cleanup();
+                    showProfileToast('Audio profilo avviato.');
+                } else {
+                    armed = true;
+                }
+            };
+            events.forEach((eventName) => document.addEventListener(eventName, unlock, true));
+        };
+
+        tryPlay(true).then((ok) => {
+            if (!ok) unlockOnInteraction();
+        });
+    });
+})();

@@ -3955,3 +3955,12 @@ body[data-profile-button-shape="sharp"] .bio-icon-button {
         padding: 0.65rem 0.72rem;
     }
 }
+
+/* V2.9.2 - hidden background audio */
+.profile-hidden-audio {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
