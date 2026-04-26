@@ -1,223 +1,248 @@
-        class ContentSlider {
-            constructor() {
-                this.slides = [
-                    {
-                        media: '../img/jay-quadrato.png',
-                        title: 'Ciao! Sono Jay!',
-                        description: 'Vuoi imparare l\'arte dello Spinjitzu?',
-                        buttonText: 'Acquista il videocorso',
-                        buttonClass: 'primary',
-                        link: 'https://payhip.com/b/m0kaT'
-                    },
-                    {
-                        media: '../img/chinese-essay-2.jpg',
-                        title: 'Hey! Mi chiamo 優希!',
-                        description: 'Vuoi imparare l\'arte dello Yoshukai?',
-                        buttonText: 'Scarica la guida gratuita',
-                        buttonClass: 'success',
-                        link: 'download/yoshukai'
-                    },
-                    {
-                        media: '../img/segone4.png',
-                        title: '🏆 Achievements',
-                        description: 'Sblocca tutti gli achievement del sito!',
-                        buttonText: 'Visualizza progressi',
-                        buttonClass: 'warning',
-                        link: 'achievements'
-                    },
-                    {
-                        media: '../img/waguri.jpeg',
-                        title: '📦 Lootboxes',
-                        description: 'Apri lootbox e ottieni ricompense esclusive!',
-                        buttonText: 'Apri lootbox',
-                        buttonClass: 'info',
-                        link: 'lootbox'
-                    },
-                    {
-                        media: '../img/pfp choso2 cc.png',
-                        title: '🎬 I miei Edit',
-                        description: 'Guarda i miei ultimi edit e video!',
-                        buttonText: 'Scopri gli edit',
-                        buttonClass: 'danger',
-                        link: 'edits'
-                    },
-                    {
-                        media: '../img/mentone.jpg',
-                        title: '🌟 Goonland',
-                        description: 'Entra nella dimensione segreta del sito!',
-                        buttonText: 'Accedi a Goonland',
-                        buttonClass: 'dark',
-                        link: 'goonland/home'
-                    },
-                    {
-                        media: '../img/abdul.jpg',
-                        title: '💬 Chat Globale',
-                        description: 'Chatta con tutti gli utenti del sito!',
-                        buttonText: 'Entra in chat',
-                        buttonClass: 'success',
-                        link: 'global-chat'
-                    },
-                    {
-                        media: '../img/dukedennis.jpg',
-                        title: '⬇️ Downloads',
-                        description: 'Scarica contenuti esclusivi e meme!',
-                        buttonText: 'Vai ai download',
-                        buttonClass: 'secondary',
-                        link: 'download'
-                    }
-                ];
-                
-                this.currentIndex = Math.floor(Math.random() * this.slides.length);
-                this.autoSlideInterval = null;
-                this.isTransitioning = false;
-                this.init();
+class ContentSlider {
+    constructor(options = {}) {
+        this.root = document.getElementById(options.rootId || 'content-slider');
+        this.wrapper = document.getElementById(options.wrapperId || 'sliderWrapper');
+        this.dotsContainer = document.getElementById(options.dotsId || 'sliderDots');
+        this.prevButton = document.querySelector('[data-slider-prev]');
+        this.nextButton = document.querySelector('[data-slider-next]');
+
+        this.slides = [
+            {
+                media: '../img/mentone.jpg',
+                fallback: '/img/Susremaster.png',
+                title: '🌟 GoonLand',
+                description: 'La zona più strana del sito. Entra solo se sei pronto.',
+                buttonText: 'Entra in GoonLand',
+                tag: 'Area principale',
+                link: 'goonland/home'
+            },
+            {
+                media: '../img/waguri.jpeg',
+                fallback: '/img/Susremaster.png',
+                title: '📦 Lootbox',
+                description: 'Apri casse, trova personaggi e spera di non beccare sempre comuni.',
+                buttonText: 'Apri lootbox',
+                tag: 'Gioco',
+                link: 'lootbox'
+            },
+            {
+                media: '../img/segone4.png',
+                fallback: '/img/Susremaster.png',
+                title: '🏆 Achievements',
+                description: 'Badge, obiettivi e piccole missioni sparse nel sito.',
+                buttonText: 'Vedi achievement',
+                tag: 'Progressi',
+                link: 'achievements'
+            },
+            {
+                media: '../img/pfp choso2 cc.png',
+                fallback: '/img/Susremaster.png',
+                title: '🎬 Edit',
+                description: 'Una raccolta dei miei edit e dei video più importanti.',
+                buttonText: 'Guarda gli edit',
+                tag: 'Video',
+                link: 'edits'
+            },
+            {
+                media: '../img/abdul.jpg',
+                fallback: '/img/Susremaster.png',
+                title: '💬 Chat Globale',
+                description: 'Un posto semplice per scrivere con gli altri utenti.',
+                buttonText: 'Entra in chat',
+                tag: 'Community',
+                link: 'global-chat'
+            },
+            {
+                media: '../img/dukedennis.jpg',
+                fallback: '/img/Susremaster.png',
+                title: '⬇️ Download',
+                description: 'File, meme e contenuti extra raccolti in una pagina sola.',
+                buttonText: 'Vai ai download',
+                tag: 'Extra',
+                link: 'download'
             }
+        ];
 
-            init() {
-                this.createSlides();
-                this.createDots();
-                setTimeout(() => {
-                    const slides = document.querySelectorAll('.slider-slide');
-                    const dots = document.querySelectorAll('.dot');
-                    
-                    if (slides[this.currentIndex]) {
-                        slides[this.currentIndex].classList.add('active');
-                    }
-                    if (dots[this.currentIndex]) {
-                        dots[this.currentIndex].classList.add('active');
-                    }
-                    
-                    this.startAutoSlide();
-                }, 100);
-            }
+        this.currentIndex = Math.floor(Math.random() * this.slides.length);
+        this.autoSlideInterval = null;
+        this.isTransitioning = false;
+        this.intervalMs = 6000;
 
-            createSlides() {
-                const wrapper = document.getElementById('sliderWrapper');
-                wrapper.innerHTML = '';
+        this.init();
+    }
 
-                this.slides.forEach((slide, index) => {
-                    const slideElement = document.createElement('div');
-                    slideElement.className = 'slider-slide';
-                    
-                    slideElement.innerHTML = `
-                        <div class="content-showcase">
-                            <div class="showcase-wrapper">
-                                <div class="showcase-media">
-                                    <img src="${slide.media}" alt="${slide.title}" class="showcase-image" />
-                                </div>
-                                <div class="showcase-content">
-                                    <h3 class="showcase-title">${slide.title}</h3>
-                                    <p class="showcase-description">${slide.description}</p>
-                                    <a href="${slide.link}" class="showcase-button btn btn-${slide.buttonClass}" data-slide="${index}">
-                                        <span class="testobianco">${slide.buttonText}</span>
-                                    </a>
-                                </div>
-                            </div>
+    init() {
+        if (!this.root || !this.wrapper || !this.dotsContainer || this.slides.length === 0) {
+            return;
+        }
+
+        this.createSlides();
+        this.createDots();
+        this.bindEvents();
+        this.showSlide(this.currentIndex, 'right', false);
+        this.startAutoSlide();
+    }
+
+    createSlides() {
+        this.wrapper.innerHTML = '';
+
+        this.slides.forEach((slide) => {
+            const slideElement = document.createElement('article');
+            slideElement.className = 'slider-slide';
+            slideElement.setAttribute('aria-hidden', 'true');
+
+            slideElement.innerHTML = `
+                <div class="content-showcase">
+                    <div class="showcase-wrapper">
+                        <div class="showcase-media">
+                            <img src="${this.escapeAttribute(slide.media)}" alt="${this.escapeAttribute(slide.title)}" class="showcase-image" loading="lazy" data-fallback="${this.escapeAttribute(slide.fallback)}">
                         </div>
-                    `;
-                    
-                    wrapper.appendChild(slideElement);
-                });
+                        <div class="showcase-content">
+                            <span class="showcase-tag">${this.escapeHTML(slide.tag)}</span>
+                            <h3 class="showcase-title">${this.escapeHTML(slide.title)}</h3>
+                            <p class="showcase-description">${this.escapeHTML(slide.description)}</p>
+                            <a href="${this.escapeAttribute(slide.link)}" class="showcase-button">
+                                ${this.escapeHTML(slide.buttonText)}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const image = slideElement.querySelector('img');
+            if (image) {
+                image.addEventListener('error', () => this.handleImageError(image), { once: true });
             }
 
-            createDots() {
-                const dotsContainer = document.getElementById('sliderDots');
-                dotsContainer.innerHTML = '';
-                
-                this.slides.forEach((_, index) => {
-                    const dot = document.createElement('span');
-                    dot.className = 'dot';
-                    dot.onclick = () => this.goToSlide(index);
-                    dotsContainer.appendChild(dot);
-                });
-            }
-
-            showSlide(index, direction = 'right') {
-                if (this.isTransitioning) return;
-                this.isTransitioning = true;
-
-                const slides = document.querySelectorAll('.slider-slide');
-                const dots = document.querySelectorAll('.dot');
-
-                slides.forEach(slide => {
-                    slide.classList.remove('active', 'from-right', 'from-left');
-                });
-
-                if (slides[index]) {
-                    slides[index].classList.add(direction === 'right' ? 'from-right' : 'from-left');
-                    slides[index].classList.add('active');
-                    
-                    const button = slides[index].querySelector('.showcase-button');
-                    if (button && this.slides[index]) {
-                        button.href = this.slides[index].link;
-                    }
-                }
-
-                dots.forEach(dot => dot.classList.remove('active'));
-                if (dots[index]) {
-                    dots[index].classList.add('active');
-                }
-
-                this.currentIndex = index;
-                
-                setTimeout(() => {
-                    this.isTransitioning = false;
-                    if (slides[index]) {
-                        slides[index].classList.remove('from-right', 'from-left');
-                    }
-                }, 650);
-            }
-
-            nextSlide() {
-                const nextIndex = (this.currentIndex + 1) % this.slides.length;
-                this.showSlide(nextIndex, 'right');
-                this.restartAutoSlide();
-            }
-
-            previousSlide() {
-                const prevIndex = (this.currentIndex - 1 + this.slides.length) % this.slides.length;
-                this.showSlide(prevIndex, 'left');
-                this.restartAutoSlide();
-            }
-
-            goToSlide(index) {
-                if (this.isTransitioning || index === this.currentIndex) return;
-                const direction = index > this.currentIndex ? 'right' : 'left';
-                this.showSlide(index, direction);
-                this.restartAutoSlide();
-            }
-
-            startAutoSlide() {
-                this.autoSlideInterval = setInterval(() => {
-                    this.nextSlide();
-                }, 5000);
-            }
-
-            restartAutoSlide() {
-                clearInterval(this.autoSlideInterval);
-                this.startAutoSlide();
-            }
-
-            pauseAutoSlide() {
-                clearInterval(this.autoSlideInterval);
-            }
-
-            resumeAutoSlide() {
-                this.startAutoSlide();
-            }
-        }
-
-        let contentSlider;
-
-        function nextSlide() {
-            if (contentSlider) contentSlider.nextSlide();
-        }
-
-        function previousSlide() {
-            if (contentSlider) contentSlider.previousSlide();
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            contentSlider = new ContentSlider();
-
+            this.wrapper.appendChild(slideElement);
         });
+    }
+
+    createDots() {
+        this.dotsContainer.innerHTML = '';
+
+        this.slides.forEach((slide, index) => {
+            const dot = document.createElement('button');
+            dot.className = 'dot';
+            dot.type = 'button';
+            dot.setAttribute('aria-label', `Vai alla slide ${index + 1}: ${slide.title}`);
+            dot.addEventListener('click', () => this.goToSlide(index));
+            this.dotsContainer.appendChild(dot);
+        });
+    }
+
+    bindEvents() {
+        if (this.nextButton) {
+            this.nextButton.addEventListener('click', () => this.nextSlide());
+        }
+
+        if (this.prevButton) {
+            this.prevButton.addEventListener('click', () => this.previousSlide());
+        }
+
+        this.root.addEventListener('mouseenter', () => this.pauseAutoSlide());
+        this.root.addEventListener('mouseleave', () => this.resumeAutoSlide());
+        this.root.addEventListener('focusin', () => this.pauseAutoSlide());
+        this.root.addEventListener('focusout', () => this.resumeAutoSlide());
+    }
+
+    showSlide(index, direction = 'right', animate = true) {
+        if (this.isTransitioning || index < 0 || index >= this.slides.length) return;
+
+        this.isTransitioning = animate;
+
+        const slides = this.wrapper.querySelectorAll('.slider-slide');
+        const dots = this.dotsContainer.querySelectorAll('.dot');
+
+        slides.forEach((slide) => {
+            slide.classList.remove('active', 'from-right', 'from-left');
+            slide.setAttribute('aria-hidden', 'true');
+        });
+
+        if (slides[index]) {
+            if (animate) {
+                slides[index].classList.add(direction === 'right' ? 'from-right' : 'from-left');
+            }
+            slides[index].classList.add('active');
+            slides[index].setAttribute('aria-hidden', 'false');
+        }
+
+        dots.forEach((dot) => dot.classList.remove('active'));
+        if (dots[index]) {
+            dots[index].classList.add('active');
+        }
+
+        this.currentIndex = index;
+
+        window.setTimeout(() => {
+            this.isTransitioning = false;
+            if (slides[index]) {
+                slides[index].classList.remove('from-right', 'from-left');
+            }
+        }, 650);
+    }
+
+    nextSlide() {
+        const nextIndex = (this.currentIndex + 1) % this.slides.length;
+        this.showSlide(nextIndex, 'right');
+        this.restartAutoSlide();
+    }
+
+    previousSlide() {
+        const prevIndex = (this.currentIndex - 1 + this.slides.length) % this.slides.length;
+        this.showSlide(prevIndex, 'left');
+        this.restartAutoSlide();
+    }
+
+    goToSlide(index) {
+        if (this.isTransitioning || index === this.currentIndex) return;
+        const direction = index > this.currentIndex ? 'right' : 'left';
+        this.showSlide(index, direction);
+        this.restartAutoSlide();
+    }
+
+    startAutoSlide() {
+        this.pauseAutoSlide();
+        this.autoSlideInterval = window.setInterval(() => this.nextSlide(), this.intervalMs);
+    }
+
+    restartAutoSlide() {
+        this.startAutoSlide();
+    }
+
+    pauseAutoSlide() {
+        if (this.autoSlideInterval) {
+            window.clearInterval(this.autoSlideInterval);
+            this.autoSlideInterval = null;
+        }
+    }
+
+    resumeAutoSlide() {
+        if (!this.autoSlideInterval) {
+            this.startAutoSlide();
+        }
+    }
+
+    handleImageError(image) {
+        const fallback = image.dataset.fallback || '/img/Susremaster.png';
+        image.src = fallback;
+        image.classList.add('image-fallback');
+    }
+
+    escapeHTML(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    escapeAttribute(value) {
+        return this.escapeHTML(value);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    window.contentSlider = new ContentSlider();
+});
