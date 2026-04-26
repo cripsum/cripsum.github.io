@@ -196,7 +196,7 @@ function profile_json_script(string $id, array $data): void
 
                     <div class="profile-discord-note">
                         <i class="fas fa-circle-info"></i>
-                        <span>Il login Discord salva solo ID, username e avatar. La Rich Presence resta su Lanyard: per farla funzionare devi entrare nel <a href="https://discord.com/invite/lanyard" target="_blank" rel="noopener noreferrer">server Lanyard</a>.</span>
+                        <span>Il login Discord salva solo ID, username e avatar. se vuoi abilitare la Rich Presence ti basta entrare nel <a href="https://discord.com/invite/lanyard" target="_blank" rel="noopener noreferrer">server discord Lanyard</a>.</span>
                     </div>
 
                     <div class="profile-field-grid two" style="margin-top: 2%;">
