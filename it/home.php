@@ -163,8 +163,8 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <meta property="og:url" content="<?php echo home_h($ogUrl); ?>">
     <meta name="twitter:card" content="summary_large_image">
     <link rel="preload" as="image" href="../img/amongus.jpg">
-    <link rel="stylesheet" href="/assets/home-original-v2/home-original-v2.css?v=3.2-clean-mobile">
-    <script src="/assets/home-original-v2/home-original-v2.js?v=3.2-clean-mobile" defer></script>
+    <link rel="stylesheet" href="/assets/home-original-v2/home-original-v2.css?v=3.3-original-showcase">
+    <script src="/assets/home-original-v2/home-original-v2.js?v=3.3-original-showcase" defer></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1527058839538660" crossorigin="anonymous"></script>
 </head>
 
@@ -222,43 +222,6 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                 </div>
             </div>
         </section>
-
-        <section class="home-info-row home-reveal">
-            <button class="home-mini-card" type="button" data-bs-toggle="modal" data-bs-target="#disclaimerModal">
-                <i class="fas fa-circle-info"></i>
-                <span>Note sul sito</span>
-            </button>
-
-            <a class="home-mini-card" href="shitpost">
-                <strong><?php echo home_h(home_compact_number($stats['shitposts'])); ?></strong>
-                <span>Shitpost</span>
-            </a>
-
-            <a class="home-mini-card" href="rimasti">
-                <strong><?php echo home_h(home_compact_number($stats['rimasti'])); ?></strong>
-                <span>Top Rimasti</span>
-            </a>
-
-            <a class="home-mini-card" href="achievement">
-                <strong><?php echo home_h(home_compact_number($stats['achievement'])); ?></strong>
-                <span>Achievement</span>
-            </a>
-        </section>
-
-        <?php if ($isLoggedIn): ?>
-            <section class="home-user-strip home-reveal">
-                <div>
-                    <span class="home-kicker">Bentornato</span>
-                    <strong><?php echo home_h($currentUsername ?: 'utente'); ?></strong>
-                </div>
-
-                <div class="home-user-stats">
-                    <span><b><?php echo home_h(home_compact_number($personalStats['personaggi'])); ?></b> pull</span>
-                    <span><b><?php echo home_h(home_compact_number($personalStats['achievement'])); ?></b> badge</span>
-                </div>
-            </section>
-        <?php endif; ?>
-
         <section class="home-tree-section home-reveal">
             <article class="home-tree-card">
                 <img src="../img/felicita.jpg" alt="Felicità" loading="lazy">
@@ -276,73 +239,57 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
             </article>
         </section>
 
-        <section class="home-links-section home-reveal">
+        <section id="featuredContent" class="home-showcase-section home-reveal">
             <div class="home-section-head">
                 <div>
-                    <span class="home-kicker">Sezioni</span>
-                    <h2>Le cose principali</h2>
+                    <span class="home-kicker">Contenuti</span>
+                    <h2>Le pagine del sito</h2>
                 </div>
+                <p>Un giro veloce tra le cose principali, senza casino.</p>
             </div>
 
-            <div class="home-link-grid">
-                <?php foreach ($mainLinks as $link): ?>
-                    <a class="home-link-card" href="<?php echo home_h($link['url']); ?>">
-                        <i class="<?php echo home_h($link['icon']); ?>"></i>
-                        <strong><?php echo home_h($link['title']); ?></strong>
-                        <span><?php echo home_h($link['text']); ?></span>
-                    </a>
-                <?php endforeach; ?>
-            </div>
-        </section>
+            <div class="home-showcase" id="homeShowcase">
+                <button class="home-showcase-arrow home-showcase-arrow--prev" type="button" id="homeShowcasePrev" aria-label="Contenuto precedente">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
 
-        <section id="featuredContent" class="home-carousel-section home-reveal">
-            <div class="home-section-head">
-                <div>
-                    <span class="home-kicker">Carosello</span>
-                    <h2>Contenuti del sito</h2>
-                </div>
-                <p>Una panoramica veloce delle pagine principali.</p>
-            </div>
+                <article class="home-showcase-main" id="homeShowcaseMain" aria-live="polite"></article>
 
-            <div id="content-slider" class="content-slider home-content-slider">
-                <div class="slider-wrapper" id="sliderWrapper"></div>
-                <div class="slider-dots" id="sliderDots"></div>
-            </div>
+                <button class="home-showcase-arrow home-showcase-arrow--next" type="button" id="homeShowcaseNext" aria-label="Contenuto successivo">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
 
-            <noscript>
-                <div class="home-no-js">
-                    Attiva JavaScript per vedere il carosello.
-                </div>
-            </noscript>
+                <div class="home-showcase-thumbs" id="homeShowcaseThumbs" aria-label="Scegli contenuto"></div>
+            </div>
         </section>
 
         <section class="home-social-section home-reveal">
             <div class="home-section-head home-section-head--center">
                 <span class="home-kicker">Social</span>
-                <h2>Seguimi sui social</h2>
+                <h2>I link seri</h2>
             </div>
 
-            <div class="home-social-grid">
-                <a href="https://www.tiktok.com/@cripsum" target="_blank" rel="noopener" class="home-social-link">
+            <div class="home-social-grid home-social-grid--original">
+                <a href="https://www.tiktok.com/@cripsum" target="_blank" rel="noopener" class="home-social-btn home-social-btn--tiktok">
                     <i class="fab fa-tiktok"></i>
                     <span>TikTok</span>
                 </a>
-                <a href="https://www.instagram.com/cripsum/" target="_blank" rel="noopener" class="home-social-link">
+                <a href="https://www.instagram.com/cripsum/" target="_blank" rel="noopener" class="home-social-btn home-social-btn--instagram">
                     <i class="fab fa-instagram"></i>
                     <span>Instagram</span>
                 </a>
-                <a href="https://discord.gg/XdheJHVURw" target="_blank" rel="noopener" class="home-social-link">
+                <a href="https://discord.gg/XdheJHVURw" target="_blank" rel="noopener" class="home-social-btn home-social-btn--discord">
                     <i class="fab fa-discord"></i>
                     <span>Discord</span>
                 </a>
-                <a href="https://t.me/cripsum" target="_blank" rel="noopener" class="home-social-link">
+                <a href="https://t.me/cripsum" target="_blank" rel="noopener" class="home-social-btn home-social-btn--telegram">
                     <i class="fab fa-telegram-plane"></i>
                     <span>Telegram</span>
                 </a>
             </div>
         </section>
 
-        <section class="home-chaos-section home-reveal">
+        <section class="home-chaos-section<section class="home-chaos-section home-reveal">
             <button class="home-btn home-btn--ghost" type="button" onclick="if (typeof unlockAchievement === 'function') unlockAchievement(10); window.open('https://youtu.be/xvFZjo5PgG0?si=uPsap7ILF_8aYheh', '_blank', 'noopener');">
                 <i class="fas fa-gift"></i>
                 <span>V-bucks gratis!!!!</span>
@@ -401,7 +348,6 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
     <?php include '../includes/footer.php'; ?>
 
-    <script src="/js/slider.js?v=5"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
 </html>
