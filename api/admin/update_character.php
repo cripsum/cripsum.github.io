@@ -14,7 +14,7 @@ try {
     $params = [$name];
     $values = [
         'image' => admin_validate_url($input['img_url'] ?? null),
-        'rarity' => trim((string)($input['rarità'] ?? '')) ?: null,
+        'rarity' => trim((string)($input['rarita'] ?? '')) ?: null,
         'audio' => admin_validate_url($input['audio_url'] ?? null),
         'category' => trim((string)($input['categoria'] ?? '')) ?: null,
     ];

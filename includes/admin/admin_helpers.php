@@ -58,7 +58,7 @@ function admin_table_exists(mysqli $mysqli, string $table): bool
     if (!preg_match('/^[a-zA-Z0-9_]+$/', $table)) return $cache[$table] = false;
 
     try {
-        $stmt = $mysqli->prepare("SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? LIMIT 1");
+        $stmt = $mysqli->prepare("SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND BINARY TABLE_NAME = ? LIMIT 1");
         if (!$stmt) return $cache[$table] = false;
         $stmt->bind_param('s', $table);
         $stmt->execute();
@@ -71,32 +71,108 @@ function admin_table_exists(mysqli $mysqli, string $table): bool
     }
 }
 
-function admin_column_exists(mysqli $mysqli, string $table, string $column): bool
+function admin_table_columns(mysqli $mysqli, string $table): array
 {
     static $cache = [];
-    $key = $table . '.' . $column;
-    if (isset($cache[$key])) return $cache[$key];
-    if (!preg_match('/^[a-zA-Z0-9_]+$/', $table) || !preg_match('/^[a-zA-Z0-9_]+$/', $column)) return $cache[$key] = false;
+
+    if (isset($cache[$table])) {
+        return $cache[$table];
+    }
+
+    if (!preg_match('/^[a-zA-Z0-9_]+$/', $table)) {
+        return $cache[$table] = [];
+    }
 
     try {
-        $stmt = $mysqli->prepare("SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ? LIMIT 1");
-        if (!$stmt) return $cache[$key] = false;
-        $stmt->bind_param('ss', $table, $column);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $exists = $result && $result->num_rows > 0;
-        $stmt->close();
-        return $cache[$key] = $exists;
+        $result = $mysqli->query('SHOW COLUMNS FROM ' . admin_qcol($table));
+        if (!$result) {
+            return $cache[$table] = [];
+        }
+
+        $columns = [];
+        while ($row = $result->fetch_assoc()) {
+            if (isset($row['Field'])) {
+                $columns[] = (string)$row['Field'];
+            }
+        }
+
+        return $cache[$table] = $columns;
     } catch (Throwable $e) {
-        return $cache[$key] = false;
+        return $cache[$table] = [];
     }
+}
+
+function admin_normalize_column_name(string $value): string
+{
+    $value = mb_strtolower($value, 'UTF-8');
+
+    $map = [
+        'à' => 'a',
+        'á' => 'a',
+        'â' => 'a',
+        'ä' => 'a',
+        'è' => 'e',
+        'é' => 'e',
+        'ê' => 'e',
+        'ë' => 'e',
+        'ì' => 'i',
+        'í' => 'i',
+        'î' => 'i',
+        'ï' => 'i',
+        'ò' => 'o',
+        'ó' => 'o',
+        'ô' => 'o',
+        'ö' => 'o',
+        'ù' => 'u',
+        'ú' => 'u',
+        'û' => 'u',
+        'ü' => 'u',
+    ];
+
+    return strtr($value, $map);
+}
+
+function admin_column_exists(mysqli $mysqli, string $table, string $column): bool
+{
+    return admin_first_existing_column($mysqli, $table, [$column]) !== null;
 }
 
 function admin_first_existing_column(mysqli $mysqli, string $table, array $columns): ?string
 {
-    foreach ($columns as $column) {
-        if (admin_column_exists($mysqli, $table, $column)) return $column;
+    $existingColumns = admin_table_columns($mysqli, $table);
+    if (!$existingColumns) {
+        return null;
     }
+
+    // 1. Match esatto. Serve per colonne accentate vere, es. `quantità`.
+    foreach ($columns as $wanted) {
+        foreach ($existingColumns as $real) {
+            if ($real === $wanted) {
+                return $real;
+            }
+        }
+    }
+
+    // 2. Match case-insensitive.
+    foreach ($columns as $wanted) {
+        foreach ($existingColumns as $real) {
+            if (mb_strtolower($real, 'UTF-8') === mb_strtolower($wanted, 'UTF-8')) {
+                return $real;
+            }
+        }
+    }
+
+    // 3. Match normalizzato solo come fallback.
+    // Questo evita crash se nel DB hai `rarità`, ma il codice cerca anche `rarita`.
+    foreach ($columns as $wanted) {
+        $wantedNorm = admin_normalize_column_name($wanted);
+        foreach ($existingColumns as $real) {
+            if (admin_normalize_column_name($real) === $wantedNorm) {
+                return $real;
+            }
+        }
+    }
+
     return null;
 }
 
@@ -312,7 +388,7 @@ function admin_update_user_timestamp_sql(mysqli $mysqli): string
 
 function admin_inventory_quantity_column(mysqli $mysqli): ?string
 {
-    return admin_first_existing_column($mysqli, 'utenti_personaggi', ['quantità', 'quantità', 'quantity']);
+    return admin_first_existing_column($mysqli, 'utenti_personaggi', ['quantità', 'quantita', 'quantity']);
 }
 
 function admin_character_columns(mysqli $mysqli): array
@@ -321,7 +397,7 @@ function admin_character_columns(mysqli $mysqli): array
         'id' => 'id',
         'name' => admin_first_existing_column($mysqli, 'personaggi', ['nome', 'name']),
         'image' => admin_first_existing_column($mysqli, 'personaggi', ['img_url', 'immagine', 'image_url', 'img']),
-        'rarity' => admin_first_existing_column($mysqli, 'personaggi', ['rarità', 'rarità', 'rarity']),
+        'rarity' => admin_first_existing_column($mysqli, 'personaggi', ['rarità', 'rarita', 'rarity']),
         'audio' => admin_first_existing_column($mysqli, 'personaggi', ['audio_url', 'audio']),
         'category' => admin_first_existing_column($mysqli, 'personaggi', ['categoria', 'category']),
     ];

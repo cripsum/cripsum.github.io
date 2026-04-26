@@ -33,7 +33,7 @@ try {
     $select = 'id';
     $select .= $nameCol ? ', ' . admin_qcol($nameCol) . ' AS nome' : ", CONCAT('Personaggio #', id) AS nome";
     $select .= $cols['image'] ? ', ' . admin_qcol($cols['image']) . ' AS img_url' : ', NULL AS img_url';
-    $select .= $cols['rarity'] ? ', ' . admin_qcol($cols['rarity']) . ' AS rarità' : ', NULL AS rarità';
+    $select .= $cols['rarity'] ? ', ' . admin_qcol($cols['rarity']) . ' AS rarita' : ', NULL AS rarita';
     $select .= $cols['audio'] ? ', ' . admin_qcol($cols['audio']) . ' AS audio_url' : ', NULL AS audio_url';
     $select .= $cols['category'] ? ', ' . admin_qcol($cols['category']) . ' AS categoria' : ', NULL AS categoria';
 

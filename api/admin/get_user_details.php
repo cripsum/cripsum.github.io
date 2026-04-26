@@ -18,8 +18,8 @@ try {
         $qtyCol = admin_inventory_quantity_column($mysqli);
         $select = "p.id, p." . admin_qcol($nameCol) . " AS nome";
         $select .= $imageCol ? ", p." . admin_qcol($imageCol) . " AS img_url" : ", NULL AS img_url";
-        $select .= $rarityCol ? ", p." . admin_qcol($rarityCol) . " AS rarità" : ", NULL AS rarità";
-        $select .= $qtyCol ? ", up." . admin_qcol($qtyCol) . " AS quantità" : ", 1 AS quantità";
+        $select .= $rarityCol ? ", p." . admin_qcol($rarityCol) . " AS rarita" : ", NULL AS rarita";
+        $select .= $qtyCol ? ", COALESCE(up." . admin_qcol($qtyCol) . ", 1) AS quantita" : ", 1 AS quantita";
 
         $stmt = $mysqli->prepare("SELECT $select FROM utenti_personaggi up INNER JOIN personaggi p ON p.id = up.personaggio_id WHERE up.utente_id = ? ORDER BY p." . admin_qcol($nameCol) . " ASC LIMIT 150");
         if ($stmt) {
