@@ -58,7 +58,7 @@ function admin_table_exists(mysqli $mysqli, string $table): bool
     if (!preg_match('/^[a-zA-Z0-9_]+$/', $table)) return $cache[$table] = false;
 
     try {
-        $stmt = $mysqli->prepare("SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? LIMIT 1");
+        $stmt = $mysqli->prepare("SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND BINARY TABLE_NAME = ? LIMIT 1");
         if (!$stmt) return $cache[$table] = false;
         $stmt->bind_param('s', $table);
         $stmt->execute();
@@ -76,16 +76,31 @@ function admin_column_exists(mysqli $mysqli, string $table, string $column): boo
     static $cache = [];
     $key = $table . '.' . $column;
     if (isset($cache[$key])) return $cache[$key];
-    if (!preg_match('/^[a-zA-Z0-9_]+$/', $table) || !preg_match('/^[a-zA-Z0-9_]+$/', $column)) return $cache[$key] = false;
+
+    // Alcune colonne del progetto usano accenti, es. `quantità` e `rarità`.
+    // La vecchia regex le scartava e information_schema, con collation accent-insensitive,
+    // poteva far risultare esistente `quantita` anche se la colonna reale era `quantità`.
+    if (!preg_match('/^[a-zA-Z0-9_]+$/', $table) || !preg_match('/^[\p{L}\p{N}_]+$/u', $column)) {
+        return $cache[$key] = false;
+    }
 
     try {
-        $stmt = $mysqli->prepare("SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ? LIMIT 1");
+        $stmt = $mysqli->prepare("
+            SELECT 1
+            FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = ?
+              AND BINARY COLUMN_NAME = ?
+            LIMIT 1
+        ");
         if (!$stmt) return $cache[$key] = false;
+
         $stmt->bind_param('ss', $table, $column);
         $stmt->execute();
         $result = $stmt->get_result();
         $exists = $result && $result->num_rows > 0;
         $stmt->close();
+
         return $cache[$key] = $exists;
     } catch (Throwable $e) {
         return $cache[$key] = false;
