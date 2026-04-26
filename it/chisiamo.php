@@ -2,347 +2,282 @@
 require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
-checkBan($mysqli);
+
+if (isset($mysqli) && $mysqli instanceof mysqli) {
+    @$mysqli->set_charset('utf8mb4');
+}
+
+if (function_exists('checkBan')) {
+    checkBan($mysqli);
+}
+
+function chisiamo_h($value): string
+{
+    return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+$teamMembers = [
+    [
+        'name' => 'cripsum',
+        'image' => '../img/cripsumchisiamo.jpg',
+        'alt' => 'Cripsum',
+        'link' => '../user/cripsum',
+        'role' => 'Founder',
+        'description' => 'L\'imperatore del Congo. Editor fallito che continua comunque a sognare in grande.',
+    ],
+    [
+        'name' => 'simonetussi.ph',
+        'image' => '../img/simonetussi.jpg',
+        'alt' => 'Simone Tussi',
+        'link' => '../user/simonetussi',
+        'role' => 'Fotografia',
+        'description' => 'Scatti, visual e roba bella. Seguitelo su Instagram e TikTok.',
+        'socials' => [
+            [
+                'label' => 'Instagram',
+                'url' => 'https://instagram.com/simonetussi.ph',
+                'icon' => 'fab fa-instagram',
+            ],
+            [
+                'label' => 'TikTok',
+                'url' => 'https://tiktok.com/@simonetussi.ph',
+                'icon' => 'fab fa-tiktok',
+            ],
+        ],
+    ],
+    [
+        'name' => 'danebidev',
+        'image' => '../img/sahe.jpg',
+        'alt' => 'Danebidev',
+        'role' => 'Game dev',
+        'description' => 'Game developer sempre in risparmio energetico. JavaScript >> Java, questa è la filosofia.',
+    ],
+    [
+        'name' => 'Ray',
+        'image' => '../img/ray.jpg',
+        'alt' => 'Ray',
+        'role' => 'Trader',
+        'description' => 'Broke/Broken/Broker. Vive la vita al limite e fa scelte finanziarie discutibili.',
+    ],
+    [
+        'name' => 'Barandeep',
+        'image' => '../img/barandeep.jpg',
+        'alt' => 'Barandeep',
+        'role' => 'Project manager',
+        'description' => 'Xenon il gigante indiano. Tiene tutto sotto controllo con presenza imponente.',
+    ],
+    [
+        'name' => 'Scammarpreet',
+        'image' => '../img/samarpreet.jpg',
+        'alt' => 'Scammarpreet',
+        'role' => 'Gambler',
+        'description' => 'Money grabber, scammer, guru, doxer. Fa girare i soldi e pure i dubbi.',
+    ],
+    [
+        'name' => 'Tsundere Nyan',
+        'image' => '../img/houshou_marine.jpeg',
+        'alt' => 'Tsundere Nyan',
+        'link' => '../user/tsundere_nyan',
+        'role' => 'Gacha enjoyer',
+        'description' => 'Grande amante dei gacha e del gooning. Primo posto in GoonLand.',
+        'socials' => [
+            [
+                'label' => 'GoonLand',
+                'url' => 'goonland/goon-generator',
+                'icon' => 'fas fa-wand-magic-sparkles',
+            ],
+        ],
+    ],
+    [
+        'name' => 'Cossu',
+        'image' => '../img/cossu.jpg',
+        'alt' => 'Cossu',
+        'role' => 'Lontra enjoyer',
+        'description' => 'Ama le lontre, le frittate con la banana e gusti culinari particolari.',
+    ],
+    [
+        'name' => 'Zakator',
+        'image' => '../img/photo_2023-11-14_17-21-10.jpg',
+        'alt' => 'Zakator',
+        'link' => '../user/zakator',
+        'role' => 'Music listener',
+        'description' => 'Grande ascoltatore di musica anime e phonk. Hackerino fallito ma non si arrende.',
+    ],
+    [
+        'name' => 'Xalx Andrea',
+        'image' => '../img/salsina.jpg',
+        'alt' => 'Xalx Andrea',
+        'link' => '../user/salsina',
+        'role' => 'Yokai Watch player',
+        'description' => 'Il player più tossico di Yokai Watch. Sa giocare e questo gli basta.',
+    ],
+    [
+        'name' => 'Mabbon',
+        'image' => '../img/mabbon.jpg',
+        'alt' => 'Mabbon',
+        'role' => 'Supporto',
+        'description' => 'Ragazzo sfruttato e sottopagato. Non chiedergli perché, ormai è lore.',
+    ],
+    [
+        'name' => 'LolloLaPulce',
+        'image' => '../img/lollolapulce.jpg',
+        'alt' => 'LolloLaPulce',
+        'role' => 'Minecraft',
+        'description' => 'Addetto alla depressione e grande giocatore di Minecraft. Costruisce mentre piange.',
+    ],
+    [
+        'name' => 'Zazzo',
+        'image' => '../img/zazzo.png',
+        'alt' => 'Zazzo',
+        'role' => 'Roma fan',
+        'description' => 'Scarso in tutti i videogiochi, ma tifa la MAGGICA ROMA.',
+    ],
+];
+
+$totalMembers = count($teamMembers);
+$ogDescription = 'Il team e la lore dietro Cripsum™ / GoonLand.';
+$ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it/chisiamo'), '#');
 ?>
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="it">
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <title>Cripsum™ - chisiamo</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        @font-face {
-            font-family: NotoColorEmojiLimited;
-            unicode-range: U+1F1E6-1F1FF;
-            src: url(https://raw.githack.com/googlefonts/noto-emoji/main/fonts/NotoColorEmoji.ttf);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-            min-height: 100vh;
-            color: #ffffff;
-            overflow-x: hidden;
-        }
-    </style>
+    <title>Cripsum™ - Chi siamo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="<?php echo chisiamo_h($ogDescription); ?>">
+    <meta property="og:site_name" content="Cripsum™">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Chi siamo - Cripsum™">
+    <meta property="og:description" content="<?php echo chisiamo_h($ogDescription); ?>">
+    <meta property="og:image" content="https://cripsum.com/img/cripsumchisiamo.jpg">
+    <meta property="og:url" content="<?php echo chisiamo_h($ogUrl); ?>">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="/assets/chisiamo/chisiamo.css?v=2.0-clean">
+    <script src="/assets/chisiamo/chisiamo.js?v=2.0-clean" defer></script>
 </head>
 
-<body>
+<body class="about-page">
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
-    <div class="main-container fadeup" style="padding-top: 2rem">
-        <section class="chisiamo-section">
-            <h1 class="chisiamo-title">Il Nostro Team di Sviluppo</h1>
-            <p class="chisiamo-subtitle">
-                Vuoi far parte del nostro team di sviluppo? Manda una e-mail allegando immagine, nome e descrizione, e se vuoi, un username o un link social per i crediti.
-            </p>
-        </section>
+    <div class="about-bg" aria-hidden="true">
+        <span class="about-orb about-orb--one"></span>
+        <span class="about-orb about-orb--two"></span>
+        <span class="about-grid"></span>
+    </div>
 
-        <section class="team-section">
-            <div class="team-grid">
-                <div class="team-member">
-                    <div class="member-content">
-                        <div class="member-image">
-                            <img src="../img/cripsumchisiamo.jpg" alt="Cripsum" />
-                        </div>
-                        <div class="member-info">
-                            <h3 class="member-name">
-                                <a href="../user/cripsum">cripsum</a>
-                            </h3>
-                            <p class="member-description">
-                                L'imperatore del Congo, è un editor fallito che continua a sognare in grande.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+    <main class="about-shell">
+        <section class="about-hero about-reveal">
+            <div class="about-hero__copy">
+                <span class="about-pill">Cripsum™ Team</span>
+                <h1>Chi siamo</h1>
+                <p>
+                    Il cast dietro Cripsum™ e GoonLand. Una pagina più lore che curriculum.
+                </p>
 
-                <div class="team-member">
-                    <div class="member-content">
-                        <div class="member-image">
-                            <img src="../img/simonetussi.jpg" alt="Simone Tussi" />
-                        </div>
-                        <div class="member-info">
-                            <h3 class="member-name">
-                                <a href="../user/simonetussi">simonetussi.ph</a>
-                            </h3>
-                            <p class="member-description">
-                                Seguite tutti simonetussi.ph su <a href="https://instagram.com/simonetussi.ph">Instagram</a> e
-                                <a href="https://tiktok.com/@simonetussi.ph">TikTok</a> per degli scatti fantastici.
-                            </p>
-                        </div>
-                    </div>
+                <div class="about-hero__actions">
+                    <a href="#team" class="about-btn about-btn--primary">
+                        <i class="fas fa-users"></i>
+                        <span>Vedi il team</span>
+                    </a>
+                    <a href="candidatura-chisiamo" class="about-btn about-btn--soft">
+                        <i class="fas fa-envelope"></i>
+                        <span>Candidati</span>
+                    </a>
                 </div>
+            </div>
 
-                <div class="team-member">
-                    <div class="member-content">
-                        <div class="member-image">
-                            <img src="../img/sahe.jpg" alt="Danebidev" />
-                        </div>
-                        <div class="member-info">
-                            <h3 class="member-name">danebidev</h3>
-                            <p class="member-description">
-                                Game developer sempre in risparmio energetico.<br>
-                                <strong>JavaScript >> Java</strong> - questa è la sua filosofia di vita.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="team-member">
-                    <div class="member-content">
-                        <div class="member-image">
-                            <img src="../img/ray.jpg" alt="Ray" />
-                        </div>
-                        <div class="member-info">
-                            <h3 class="member-name">Ray</h3>
-                            <p class="member-description">
-                                <strong>Broke/Broken/Broker</strong><br>
-                                Un trader che mangia cani e beve birra fino a stare male. Vive la vita al limite.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="team-member">
-                    <div class="member-content">
-                        <div class="member-image">
-                            <img src="../img/barandeep.jpg" alt="Barandeep" />
-                        </div>
-                        <div class="member-info">
-                            <h3 class="member-name">Barandeep</h3>
-                            <p class="member-description">
-                                Xenon il gigante indiano, è il project manager che tiene tutto sotto controllo con la sua presenza imponente.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="team-member">
-                    <div class="member-content">
-                        <div class="member-image">
-                            <img src="../img/samarpreet.jpg" alt="Scammarpreet" />
-                        </div>
-                        <div class="member-info">
-                            <h3 class="member-name">Scammarpreet</h3>
-                            <p class="member-description">
-                                <strong>Money grabber • Scammer • Guru • Doxer</strong><br>
-                                Gambler professionista che sa come far girare i soldi.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="team-member">
-                    <div class="member-content">
-                        <div class="member-image">
-                            <img src="../img/houshou_marine.jpeg" alt="Tacos" />
-                        </div>
-                        <div class="member-info">
-                            <h3 class="member-name">
-                                <a href="../user/tsundere_nyan">Tsundere Nyan</a>
-                            </h3>
-                            <p class="member-description">
-                                <strong>Cantarella</strong> è solo sua e <strong>Cipher</strong> l'ha già ingravidata, è un grande amante dei gacha e del gooning. Si è aggiudicato il primo posto in <a href="goonland/goon-generator">Goonland</a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="team-member">
-                    <div class="member-content">
-                        <div class="member-image">
-                            <img src="../img/cossu.jpg" alt="Cossu" />
-                        </div>
-                        <div class="member-info">
-                            <h3 class="member-name">Cossu</h3>
-                            <p class="member-description">
-                                <strong>Lontrone spermatozoico</strong> (ama le lontre)<br>
-                                Ama le frittate con la banana e ha gusti culinari... particolari.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="team-member">
-                    <div class="member-content">
-                        <div class="member-image">
-                            <img src="../img/photo_2023-11-14_17-21-10.jpg" alt="Zakator" />
-                        </div>
-                        <div class="member-info">
-                            <h3 class="member-name">
-                                <a href="../user/zakator">Zakator</a>
-                            </h3>
-                            <p class="member-description">
-                                Grande ascoltatore di musica anime e phonk, è un hackerino fallito che non si arrende mai.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="team-member">
-                    <div class="member-content">
-                        <div class="member-image">
-                            <img src="../img/salsina.jpg" alt="Xalx Andrea" />
-                        </div>
-                        <div class="member-info">
-                            <h3 class="member-name">
-                                <a href="../user/salsina">Xalx Andrea</a>
-                            </h3>
-                            <p class="member-description">
-                                Il player + tossico di tutto <strong>Yokai Watch</strong><br>
-                                Boh è anoressico ma almeno sa giocare.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="team-member">
-                    <div class="member-content">
-                        <div class="member-image">
-                            <img src="../img/mabbon.jpg" alt="Mabbon" />
-                        </div>
-                        <div class="member-info">
-                            <h3 class="member-name">Mabbon</h3>
-                            <p class="member-description">
-                                Un ragazzo sfruttato e sottopagato. Forse perché è ne-... meglio non finire la frase.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="team-member">
-                    <div class="member-content">
-                        <div class="member-image">
-                            <img src="../img/lollolapulce.jpg" alt="LolloLaPulce" />
-                        </div>
-                        <div class="member-info">
-                            <h3 class="member-name">LolloLaPulce</h3>
-                            <p class="member-description">
-                                Addetto alla depressione e grande giocatore di Minecraft. Costruisce mentre piange.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="team-member">
-                    <div class="member-content">
-                        <div class="member-image">
-                            <img src="../img/zazzo.png" alt="Zazzo" />
-                        </div>
-                        <div class="member-info">
-                            <h3 class="member-name">Zazzo</h3>
-                            <p class="member-description">
-                                Scarso in culo in tutti i videogiochi, ma tifa la MAGGICA ROMA
-                            </p>
-                        </div>
-                    </div>
-                </div>
+            <div class="about-hero__card" aria-label="Info team">
+                <strong><?php echo (int)$totalMembers; ?></strong>
+                <span>membri nella lore</span>
             </div>
         </section>
 
-        <section class="join-team-section">
-            <h2 class="join-title">Unisciti al Team!</h2>
-            <p class="join-description">
-                Hai quello che serve per far parte della squadra più king del web?
-                Mandaci la tua candidatura e diventa parte della squadra + da king del secolo!
-            </p>
-            <a href="candidatura-chisiamo" class="join-email">
-                <i class="fas fa-envelope me-2"></i>
-                clicca qui per inviare la tua candidatura
+        <section id="team" class="team-section about-reveal">
+            <div class="about-section-head">
+                <div>
+                    <span class="about-kicker">Team</span>
+                    <h2>La squadra</h2>
+                </div>
+                <p>
+                    Vuoi esserci anche tu? Manda immagine, nome, descrizione e un eventuale link per i crediti.
+                </p>
+            </div>
+
+            <div class="team-toolbar" aria-label="Ricerca team">
+                <label class="team-search">
+                    <i class="fas fa-search"></i>
+                    <input type="search" id="teamSearch" placeholder="Cerca un nome..." autocomplete="off">
+                </label>
+                <button type="button" class="about-btn about-btn--soft" id="clearTeamSearch">
+                    <i class="fas fa-xmark"></i>
+                    <span>Pulisci</span>
+                </button>
+            </div>
+
+            <div class="team-grid" id="teamGrid">
+                <?php foreach ($teamMembers as $member): ?>
+                    <article class="team-member about-reveal" data-member-name="<?php echo chisiamo_h(mb_strtolower($member['name'] . ' ' . ($member['role'] ?? ''), 'UTF-8')); ?>">
+                        <div class="member-image">
+                            <img src="<?php echo chisiamo_h($member['image']); ?>" alt="<?php echo chisiamo_h($member['alt'] ?? $member['name']); ?>" loading="lazy">
+                        </div>
+
+                        <div class="member-info">
+                            <?php if (!empty($member['role'])): ?>
+                                <span class="member-role"><?php echo chisiamo_h($member['role']); ?></span>
+                            <?php endif; ?>
+
+                            <h3 class="member-name">
+                                <?php if (!empty($member['link'])): ?>
+                                    <a href="<?php echo chisiamo_h($member['link']); ?>"><?php echo chisiamo_h($member['name']); ?></a>
+                                <?php else: ?>
+                                    <?php echo chisiamo_h($member['name']); ?>
+                                <?php endif; ?>
+                            </h3>
+
+                            <p class="member-description"><?php echo chisiamo_h($member['description']); ?></p>
+
+                            <?php if (!empty($member['socials']) && is_array($member['socials'])): ?>
+                                <div class="member-links">
+                                    <?php foreach ($member['socials'] as $social): ?>
+                                        <a href="<?php echo chisiamo_h($social['url']); ?>" target="_blank" rel="noopener">
+                                            <i class="<?php echo chisiamo_h($social['icon']); ?>"></i>
+                                            <span><?php echo chisiamo_h($social['label']); ?></span>
+                                        </a>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </article>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="team-empty" id="teamEmpty" hidden>
+                <i class="fas fa-face-sad-tear"></i>
+                <strong>Nessuno trovato</strong>
+                <span>Prova con un altro nome.</span>
+            </div>
+        </section>
+
+        <section class="join-team-section about-reveal">
+            <div>
+                <span class="about-kicker">Join</span>
+                <h2>Vuoi entrare nel team?</h2>
+                <p>
+                    Manda candidatura, immagine, nome e descrizione. Se vuoi, aggiungi username o link social.
+                </p>
+            </div>
+
+            <a href="candidatura-chisiamo" class="about-btn about-btn--primary">
+                <i class="fas fa-envelope"></i>
+                <span>Invia candidatura</span>
             </a>
         </section>
-    </div>
+    </main>
 
     <?php include '../includes/scroll_indicator.php'; ?>
-
     <?php include '../includes/footer.php'; ?>
-    <script>
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.animationPlayState = 'running';
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.team-member').forEach(member => {
-            member.style.animationPlayState = 'paused';
-            observer.observe(member);
-        });
-
-        function createFloatingElement() {
-            const element = document.createElement('div');
-            element.className = 'floating-element';
-            element.style.left = Math.random() * 100 + '%';
-            element.style.top = Math.random() * 100 + '%';
-            element.style.animationDelay = Math.random() * 6 + 's';
-            element.style.animationDuration = (Math.random() * 4 + 4) + 's';
-
-            const colors = ['rgba(100, 200, 255, 0.3)', 'rgba(255, 100, 200, 0.3)', 'rgba(100, 255, 150, 0.3)'];
-            element.style.background = colors[Math.floor(Math.random() * colors.length)];
-
-            document.querySelector('.floating-elements').appendChild(element);
-
-            setTimeout(() => {
-                element.remove();
-            }, 8000);
-        }
-
-        setInterval(createFloatingElement, 2000);
-
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-
-        window.addEventListener('scroll', () => {
-            const scrolled = window.pageYOffset;
-            const parallax = scrolled * 0.3;
-
-            const chisiamoSection = document.querySelector('.chisiamo-section');
-            if (chisiamoSection) {
-                chisiamoSection.style.transform = `translateY(${parallax}px)`;
-            }
-        });
-
-        document.querySelectorAll('.team-member').forEach(member => {
-            member.addEventListener('mouseenter', function() {
-                this.style.transition = 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-            });
-
-            member.addEventListener('mouseleave', function() {
-                this.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-            });
-        });
-    </script>
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-        crossorigin="anonymous"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
-
 </html>
