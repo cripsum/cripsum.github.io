@@ -910,6 +910,22 @@ body.content-v2-body .dropdown-menu.show {
     display: block;
 }
 
+body.content-v2-body .dropdown-item,
+body.content-v2-body .dropdown-menu a,
+body.content-v2-body .dropdown-menu button {
+    color: rgba(247, 248, 255, 0.92) !important;
+    border-radius: 12px;
+    transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+body.content-v2-body .dropdown-item:hover,
+body.content-v2-body .dropdown-menu a:hover,
+body.content-v2-body .dropdown-menu button:hover {
+    color: #fff !important;
+    background: rgba(var(--cw-accent-rgb), 0.18) !important;
+    transform: translateX(2px);
+}
+
 body.content-v2-body .dropdown-divider {
     border-color: rgba(255, 255, 255, 0.12);
 }
