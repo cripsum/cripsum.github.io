@@ -108,7 +108,7 @@ if ($isLoggedIn) {
     <script>
         window.addEventListener('load', function() {
             var script = document.createElement('script');
-            script.src = '/js/richpresence.js';
+            script.src = '/js/richpresence.js?v=2';
             document.head.appendChild(script);
         });
     </script>
@@ -124,7 +124,7 @@ if ($isLoggedIn) {
     <script>
         window.addEventListener('load', function() {
             var script = document.createElement('script');
-            script.src = '/js/achievements-globali.js?v=3';
+            script.src = '/js/achievements-globali.js?v=4';
             document.head.appendChild(script);
         });
     </script>
