@@ -131,11 +131,50 @@
         });
     };
 
+    const initSettingsModalFix = () => {
+        const modal = $('#impostazioniModal');
+        if (!modal) return;
+
+        document.addEventListener('click', (event) => {
+            const target = event.target.closest('[data-bs-target="#impostazioniModal"], [href="#impostazioniModal"]');
+            if (!target) return;
+
+            if (window.bootstrap && window.bootstrap.Modal) {
+                try {
+                    window.bootstrap.Modal.getOrCreateInstance(modal).show();
+                    return;
+                } catch {
+                    // fallback sotto
+                }
+            }
+
+            event.preventDefault();
+            modal.classList.add('show');
+            modal.style.display = 'block';
+            modal.removeAttribute('aria-hidden');
+            document.body.classList.add('modal-open');
+        });
+
+        $$('[data-bs-dismiss="modal"]', modal).forEach((button) => {
+            if (button.dataset.lootDismissBound === '1') return;
+            button.dataset.lootDismissBound = '1';
+            button.addEventListener('click', () => {
+                if (window.bootstrap && window.bootstrap.Modal) return;
+                modal.classList.remove('show');
+                modal.style.display = 'none';
+                modal.setAttribute('aria-hidden', 'true');
+                document.body.classList.remove('modal-open');
+            });
+        });
+    };
+
+
     document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('lootbox-ui-ready');
         initChestFeedback();
         initObservers();
         initNavbarDropdownFallback();
         initBootstrapAfterLoad();
+        initSettingsModalFix();
     });
 })();

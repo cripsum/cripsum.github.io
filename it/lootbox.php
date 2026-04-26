@@ -29,7 +29,7 @@ require_once '../api/api_personaggi.php';
 <head>
     <?php include '../includes/head-import.php'; ?>
     <link rel="stylesheet" href="/css/lootbox.css?v=7" />
-    <link rel="stylesheet" href="/css/lootbox-v2-ui.css?v=2.0-ui" />
+    <link rel="stylesheet" href="/css/lootbox-v2-ui.css?v=2.1-fullscreen-fix" />
     <title>Cripsum™ - lootbox</title>
 </head>
 
@@ -155,7 +155,8 @@ require_once '../api/api_personaggi.php';
                 <div class="modal-dialog modal-dialog-centered modal-lg lootbox-settings-dialog">
                     <div class="modal-content bgimpostazioni lootbox-settings-panel">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="disclaimerModalLabel">⚙️ Impostazioni & Probabilità</h5>
+                            <h5 class="modal-title" id="impostazioniModalLabel">⚙️ Impostazioni & Probabilità</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Chiudi"></button>
                         </div>
                         <div class="col-md-6 d-flex text-center" style="text-align: center; padding-top: 20px; padding-bottom: 20px; margin: auto;">
                             <div style="color: white; font-size: 14px; margin: auto;">
@@ -1566,7 +1567,7 @@ require_once '../api/api_personaggi.php';
                 }
             });
         </script>
-        <script src="/js/lootbox-v2-ui.js?v=2.0-ui"></script>
+        <script src="/js/lootbox-v2-ui.js?v=2.1-fullscreen-fix"></script>
         
 </body>
 
