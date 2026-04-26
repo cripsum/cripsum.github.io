@@ -45,8 +45,8 @@ checkBan($mysqli);
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
-    <div class="main-container fadeup" style="padding-top: 2rem">
-        <section class="chisiamo-section">
+    <div class="main-container fadeup" style="padding-top: 4rem">
+        <section class="chisiamo-section" style="border-radius: 20px;">
             <h1 class="chisiamo-title">Il Nostro Team di Sviluppo</h1>
             <p class="chisiamo-subtitle">
                 Vuoi far parte del nostro team di sviluppo? Manda una e-mail allegando immagine, nome e descrizione, e se vuoi, un username o un link social per i crediti.
@@ -283,7 +283,9 @@ checkBan($mysqli);
                         entry.target.classList.add('is-visible');
                         observer.unobserve(entry.target);
                     });
-                }, { threshold: 0.1 });
+                }, {
+                    threshold: 0.1
+                });
 
                 members.forEach((member) => observer.observe(member));
             } else {
@@ -292,7 +294,7 @@ checkBan($mysqli);
         });
     </script>
 
-<script
+    <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         crossorigin="anonymous"></script>
 
