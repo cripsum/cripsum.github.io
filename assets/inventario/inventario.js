@@ -640,6 +640,7 @@
     };
 
     document.addEventListener('DOMContentLoaded', () => {
+        document.body.classList.add('rarity-animations-ready');
         initNavbarDropdownFallback();
         initReveal();
         initControls();

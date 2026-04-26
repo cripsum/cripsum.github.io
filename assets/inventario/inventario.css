@@ -1495,3 +1495,211 @@ body.inv-page .dropdown-menu button:hover {
         animation: none !important;
     }
 }
+
+
+/* V2.5 REAL MOVING RARITY ANIM
+   Fix definitivo: non anima più background-position.
+   Muove fisicamente un layer largo 400%, quindi l'animazione si vede davvero.
+*/
+
+@keyframes rarityLayerMoveReal {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+    100% {
+        transform: translate3d(-75%, 0, 0);
+    }
+}
+
+@keyframes rainbowBadgeMoveReal {
+    0% {
+        background-position: 0% 50%;
+    }
+    100% {
+        background-position: 300% 50%;
+    }
+}
+
+/* Sezioni animate: reset totale dei vecchi overlay */
+body.inv-page .rarity-section.rarity-speciale,
+body.inv-page .rarity-section.rarity-segreto,
+body.inv-page .rarity-section.rarity-theone {
+    position: relative !important;
+    isolation: isolate !important;
+    overflow: hidden !important;
+    background: #05070d !important;
+    animation: none !important;
+}
+
+/* Layer animato visibile SOPRA il fondo, ma sotto i contenuti */
+body.inv-page .rarity-section.rarity-speciale::before,
+body.inv-page .rarity-section.rarity-segreto::before,
+body.inv-page .rarity-section.rarity-theone::before {
+    content: "" !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 400% !important;
+    height: 100% !important;
+    inset: auto !important;
+    z-index: 0 !important;
+    border-radius: 0 !important;
+    filter: none !important;
+    opacity: 1 !important;
+    pointer-events: none !important;
+    will-change: transform !important;
+    animation-name: rarityLayerMoveReal !important;
+    animation-timing-function: linear !important;
+    animation-iteration-count: infinite !important;
+}
+
+/* Overlay scuro leggero per leggibilità */
+body.inv-page .rarity-section.rarity-speciale::after,
+body.inv-page .rarity-section.rarity-segreto::after,
+body.inv-page .rarity-section.rarity-theone::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+    opacity: 1 !important;
+    background:
+        radial-gradient(circle at 80% 12%, rgba(255,255,255,.16), transparent 28%),
+        linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.36)) !important;
+}
+
+/* Tutto il contenuto sopra al layer animato */
+body.inv-page .rarity-section.rarity-speciale > *,
+body.inv-page .rarity-section.rarity-segreto > *,
+body.inv-page .rarity-section.rarity-theone > * {
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+/* SPECIALE: solo arcobaleno, nessun rosa */
+body.inv-page .rarity-section.rarity-speciale {
+    --rarity-color: #ffffff !important;
+    --rarity-glow: rgba(255, 255, 255, .26) !important;
+    border-color: rgba(255,255,255,.45) !important;
+    box-shadow:
+        0 18px 58px rgba(0,0,0,.38),
+        0 0 44px rgba(255,255,255,.16),
+        0 0 64px rgba(0,247,255,.14) !important;
+}
+
+body.inv-page .rarity-section.rarity-speciale::before {
+    background:
+        linear-gradient(90deg,
+            #ff0000 0%,
+            #ff7300 7.14%,
+            #fffb00 14.28%,
+            #48ff00 21.42%,
+            #00f7ff 28.56%,
+            #2b65ff 35.7%,
+            #8000ff 42.84%,
+            #ff0000 50%,
+            #ff7300 57.14%,
+            #fffb00 64.28%,
+            #48ff00 71.42%,
+            #00f7ff 78.56%,
+            #2b65ff 85.7%,
+            #8000ff 92.84%,
+            #ff0000 100%
+        ) !important;
+    animation-duration: 5.8s !important;
+}
+
+/* SEGRETO: vecchia viola, ma in movimento reale */
+body.inv-page .rarity-section.rarity-segreto {
+    border-color: rgba(147,0,211,.72) !important;
+    box-shadow:
+        0 18px 58px rgba(0,0,0,.38),
+        0 0 48px rgba(147,0,211,.48),
+        0 0 68px rgba(75,0,130,.28) !important;
+}
+
+body.inv-page .rarity-section.rarity-segreto::before {
+    background:
+        linear-gradient(90deg,
+            #9400d3 0%,
+            #4b0082 12.5%,
+            #1d002b 25%,
+            #4b0082 37.5%,
+            #9400d3 50%,
+            #4b0082 62.5%,
+            #1d002b 75%,
+            #4b0082 87.5%,
+            #9400d3 100%
+        ) !important;
+    animation-duration: 4.8s !important;
+}
+
+/* THE ONE: vecchia blu/azzurra, ma in movimento reale */
+body.inv-page .rarity-section.rarity-theone {
+    border-color: rgba(0,191,255,.74) !important;
+    box-shadow:
+        0 18px 58px rgba(0,0,0,.38),
+        0 0 54px rgba(0,11,112,.58),
+        0 0 74px rgba(0,191,255,.28) !important;
+}
+
+body.inv-page .rarity-section.rarity-theone::before {
+    background:
+        linear-gradient(90deg,
+            #0000ff 0%,
+            #00bfff 12.5%,
+            rgb(52, 164, 255) 25%,
+            #4169e1 37.5%,
+            #0000ff 50%,
+            #00bfff 62.5%,
+            rgb(52, 164, 255) 75%,
+            #4169e1 87.5%,
+            #0000ff 100%
+        ) !important;
+    animation-duration: 4.8s !important;
+}
+
+/* Griglia e titoli leggibili sopra il movimento */
+body.inv-page .rarity-section.rarity-speciale .characters-grid,
+body.inv-page .rarity-section.rarity-segreto .characters-grid,
+body.inv-page .rarity-section.rarity-theone .characters-grid {
+    background: rgba(0,0,0,.30) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+}
+
+body.inv-page .rarity-section.rarity-speciale .rarity-title,
+body.inv-page .rarity-section.rarity-segreto .rarity-title,
+body.inv-page .rarity-section.rarity-theone .rarity-title {
+    background: rgba(0,0,0,.34) !important;
+    color: #fff !important;
+    text-shadow: 0 3px 14px rgba(0,0,0,.85) !important;
+}
+
+/* Modal speciale: arcobaleno in movimento reale */
+body.inv-page .modal-character.rarity-speciale .modal-character__image,
+body.inv-page .modal-character.rarity-speciale .character-badge--rarity,
+body.inv-page .modal-character.rarity-speciale .modal-character__actions .inv-btn--primary {
+    background:
+        linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000) !important;
+    background-size: 300% 300% !important;
+    animation: rainbowBadgeMoveReal 5.8s linear infinite !important;
+}
+
+/* Forza animazioni anche se vecchi blocchi avevano animation:none.
+   Questa parte è volutamente dopo tutto. */
+body.inv-page .rarity-section.rarity-speciale::before,
+body.inv-page .rarity-section.rarity-segreto::before,
+body.inv-page .rarity-section.rarity-theone::before {
+    animation-play-state: running !important;
+}
+
+/* Disattivabile solo con una classe manuale, non con CSS vecchio */
+body.inv-page.no-rarity-animations .rarity-section.rarity-speciale::before,
+body.inv-page.no-rarity-animations .rarity-section.rarity-segreto::before,
+body.inv-page.no-rarity-animations .rarity-section.rarity-theone::before,
+body.inv-page.no-rarity-animations .modal-character.rarity-speciale .modal-character__image,
+body.inv-page.no-rarity-animations .modal-character.rarity-speciale .character-badge--rarity,
+body.inv-page.no-rarity-animations .modal-character.rarity-speciale .modal-character__actions .inv-btn--primary {
+    animation: none !important;
+}

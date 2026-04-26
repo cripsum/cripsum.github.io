@@ -40,8 +40,8 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <meta property="og:url" content="<?php echo inventario_h($ogUrl); ?>">
     <meta name="twitter:card" content="summary_large_image">
 
-    <link rel="stylesheet" href="/assets/inventario/inventario.css?v=2.4-speciale-modal-rainbow">
-    <script src="/assets/inventario/inventario.js?v=2.4-speciale-modal-rainbow" defer></script>
+    <link rel="stylesheet" href="/assets/inventario/inventario.css?v=2.5-real-moving-rarity-anim">
+    <script src="/assets/inventario/inventario.js?v=2.5-real-moving-rarity-anim" defer></script>
 </head>
 
 <body class="inv-page">
@@ -57,6 +57,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <main class="inv-shell">
         <section class="inv-hero inv-reveal">
             <div class="inv-hero__copy">
+                <span class="inv-pill">GoonLand Collection</span>
                 <h1>Inventario</h1>
                 <p>I personaggi trovati nelle lootbox, ordinati per rarità.</p>
             </div>
