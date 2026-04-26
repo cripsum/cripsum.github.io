@@ -15,9 +15,11 @@
                 fetch('/api/update_activity.php');
             }, 25000);
         </script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-            crossorigin="anonymous"></script>
+            crossorigin="anonymous" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <link rel="icon" href="/img/Susremaster.png" type="image/png" />
         <link rel="shortcut icon" href="/img/Susremaster.png" type="image/png" />
