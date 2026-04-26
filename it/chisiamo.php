@@ -2,17 +2,7 @@
 require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
-
-if (isset($mysqli) && $mysqli instanceof mysqli) {
-    @$mysqli->set_charset('utf8mb4');
-}
-
-if (function_exists('checkBan')) {
-    checkBan($mysqli);
-}
-
-$ogDescription = 'Il team e la lore dietro Cripsum™ / GoonLand.';
-$ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it/chisiamo'), '#');
+checkBan($mysqli);
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -20,28 +10,40 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Chi siamo</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="<?php echo htmlspecialchars($ogDescription, ENT_QUOTES, 'UTF-8'); ?>">
-    <meta property="og:site_name" content="Cripsum™">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Chi siamo - Cripsum™">
-    <meta property="og:description" content="<?php echo htmlspecialchars($ogDescription, ENT_QUOTES, 'UTF-8'); ?>">
-    <meta property="og:image" content="https://cripsum.com/img/cripsumchisiamo.jpg">
-    <meta property="og:url" content="<?php echo htmlspecialchars($ogUrl, ENT_QUOTES, 'UTF-8'); ?>">
-    <meta name="twitter:card" content="summary_large_image">
-    <link rel="stylesheet" href="/assets/chisiamo/chisiamo.css?v=2.1-original-members">
-    <script src="/assets/chisiamo/chisiamo.js?v=2.1-original-members" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/chisiamo/chisiamo-colors.css?v=2.2-original-cards-colors">
+    <style>
+        @font-face {
+            font-family: NotoColorEmojiLimited;
+            unicode-range: U+1F1E6-1F1FF;
+            src: url(https://raw.githack.com/googlefonts/noto-emoji/main/fonts/NotoColorEmoji.ttf);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background:
+                radial-gradient(circle at 8% 6%, rgba(47, 107, 255, .24), transparent 30rem),
+                radial-gradient(circle at 92% 18%, rgba(139, 92, 246, .16), transparent 28rem),
+                linear-gradient(135deg, #05070d 0%, #0a0e1a 100%);
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-size: cover;
+            min-height: 100vh;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+    </style>
 </head>
 
-<body class="about-page about-original-members">
+<body>
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
-
-    <div class="about-bg" aria-hidden="true">
-        <span class="about-orb about-orb--one"></span>
-        <span class="about-orb about-orb--two"></span>
-        <span class="about-grid"></span>
-    </div>
 
     <div class="main-container fadeup" style="padding-top: 2rem">
         <section class="chisiamo-section">
@@ -51,24 +53,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
             </p>
         </section>
 
-        <section class="team-section" id="team">
-            <div class="team-toolbar">
-                <label class="team-search">
-                    <i class="fas fa-search"></i>
-                    <input type="search" id="teamSearch" placeholder="Cerca un membro..." autocomplete="off">
-                </label>
-                <button type="button" class="team-clear" id="clearTeamSearch">
-                    <i class="fas fa-xmark"></i>
-                    <span>Pulisci</span>
-                </button>
-            </div>
-
-            <div class="team-empty" id="teamEmpty" hidden>
-                <i class="fas fa-face-sad-tear"></i>
-                <strong>Nessuno trovato</strong>
-                <span>Prova con un altro nome.</span>
-            </div>
-
+        <section class="team-section">
             <div class="team-grid">
                 <div class="team-member">
                     <div class="member-content">
@@ -284,9 +269,33 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     </div>
 
     <?php include '../includes/scroll_indicator.php'; ?>
+
     <?php include '../includes/footer.php'; ?>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const members = document.querySelectorAll('.team-member');
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (!entry.isIntersecting) return;
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    });
+                }, { threshold: 0.1 });
+
+                members.forEach((member) => observer.observe(member));
+            } else {
+                members.forEach((member) => member.classList.add('is-visible'));
+            }
+        });
+    </script>
+
+<script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous"></script>
+
 </body>
 
 </html>

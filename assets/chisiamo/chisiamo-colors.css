@@ -1,0 +1,142 @@
+/*
+  V2.2 - solo colori/sfondo.
+  Non tocca il layout originale delle card utenti.
+*/
+
+:root {
+    --chisiamo-accent: #2f6bff;
+    --chisiamo-purple: #8b5cf6;
+    --chisiamo-bg: #05070d;
+    --chisiamo-bg-2: #0a0e1a;
+    --chisiamo-card: rgba(10, 14, 27, .72);
+    --chisiamo-border: rgba(255, 255, 255, .12);
+    --chisiamo-text: #f7f8ff;
+    --chisiamo-muted: #aab3c8;
+}
+
+body {
+    background:
+        radial-gradient(circle at 8% 6%, rgba(47, 107, 255, .24), transparent 30rem),
+        radial-gradient(circle at 92% 18%, rgba(139, 92, 246, .16), transparent 28rem),
+        linear-gradient(135deg, var(--chisiamo-bg), var(--chisiamo-bg-2)) !important;
+    background-attachment: fixed !important;
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+    color: var(--chisiamo-text);
+}
+
+/* Colori nuovi, layout originale */
+.chisiamo-section,
+.join-team-section {
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .025)),
+        var(--chisiamo-card) !important;
+    border: 1px solid var(--chisiamo-border) !important;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .32) !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.chisiamo-title,
+.join-title,
+.member-name,
+.member-name a,
+.member-description strong {
+    color: var(--chisiamo-text) !important;
+}
+
+.chisiamo-subtitle,
+.join-description,
+.member-description {
+    color: var(--chisiamo-muted) !important;
+}
+
+.member-description a {
+    color: #b8c8ff !important;
+}
+
+.join-email {
+    background: linear-gradient(135deg, var(--chisiamo-accent), var(--chisiamo-purple)) !important;
+    color: #fff !important;
+    border-color: transparent !important;
+    box-shadow: 0 12px 34px rgba(47, 107, 255, .22) !important;
+}
+
+/* Solo colore/bordo sulle card, senza cambiare layout */
+.team-member {
+    background:
+        radial-gradient(circle at 20% 0%, rgba(47, 107, 255, .09), transparent 14rem),
+        rgba(255, 255, 255, .045) !important;
+    border-color: var(--chisiamo-border) !important;
+}
+
+.team-member:hover {
+    border-color: rgba(47, 107, 255, .42) !important;
+}
+
+/* Navbar dropdown coerenti */
+body .dropdown-menu {
+    border: 1px solid rgba(255, 255, 255, .14) !important;
+    border-radius: 18px !important;
+    background: rgba(7, 10, 22, .96) !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .5) !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+body .dropdown-item,
+body .dropdown-menu a,
+body .dropdown-menu button {
+    color: rgba(247, 248, 255, .92) !important;
+}
+
+body .dropdown-item:hover,
+body .dropdown-menu a:hover,
+body .dropdown-menu button:hover {
+    color: #fff !important;
+    background: rgba(47, 107, 255, .18) !important;
+}
+
+/* Animazione leggera, non cambia layout */
+.team-member {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+        opacity 420ms ease,
+        transform 420ms ease,
+        border-color 180ms ease,
+        background 180ms ease;
+}
+
+.team-member.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (max-width: 620px) {
+    body {
+        background-attachment: scroll !important;
+    }
+
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -10;
+        pointer-events: none;
+        background:
+            radial-gradient(circle at 8% 6%, rgba(47, 107, 255, .24), transparent 30rem),
+            radial-gradient(circle at 92% 18%, rgba(139, 92, 246, .16), transparent 28rem),
+            linear-gradient(135deg, var(--chisiamo-bg), var(--chisiamo-bg-2));
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .team-member {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}
