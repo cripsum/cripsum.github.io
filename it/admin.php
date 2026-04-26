@@ -1,4 +1,8 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
@@ -14,6 +18,7 @@ $csrfToken = admin_csrf_token();
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Admin V2</title>
@@ -21,6 +26,7 @@ $csrfToken = admin_csrf_token();
     <link rel="stylesheet" href="/assets/admin-v2/admin.css?v=2.0-admin-panel">
     <script src="/assets/admin-v2/admin.js?v=2.0-admin-panel" defer></script>
 </head>
+
 <body class="admin-v2-body" data-csrf="<?php echo admin_h($csrfToken); ?>" data-admin-id="<?php echo (int)$currentAdmin['id']; ?>" data-admin-role="<?php echo admin_h($currentAdmin['ruolo']); ?>">
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
     <?php include __DIR__ . '/../includes/impostazioni.php'; ?>
@@ -80,11 +86,15 @@ $csrfToken = admin_csrf_token();
 
                 <div class="admin-grid-two">
                     <article class="admin-panel">
-                        <div class="admin-panel-head"><div><strong>Ultimi utenti</strong><small>Registrazioni recenti</small></div></div>
+                        <div class="admin-panel-head">
+                            <div><strong>Ultimi utenti</strong><small>Registrazioni recenti</small></div>
+                        </div>
                         <div id="latestUsersBox" class="admin-stack"></div>
                     </article>
                     <article class="admin-panel">
-                        <div class="admin-panel-head"><div><strong>Ultime azioni</strong><small>Log admin recenti</small></div></div>
+                        <div class="admin-panel-head">
+                            <div><strong>Ultime azioni</strong><small>Log admin recenti</small></div>
+                        </div>
                         <div id="dashboardLogsBox" class="admin-stack"></div>
                     </article>
                 </div>
@@ -133,7 +143,9 @@ $csrfToken = admin_csrf_token();
             </section>
 
             <section class="admin-section" id="section-logs" data-section-panel="logs">
-                <div class="admin-toolbar"><div><strong>Log admin</strong><small>Azioni recenti del pannello.</small></div></div>
+                <div class="admin-toolbar">
+                    <div><strong>Log admin</strong><small>Azioni recenti del pannello.</small></div>
+                </div>
                 <div id="logsTable" class="admin-table-card"></div>
             </section>
         </section>
@@ -175,4 +187,5 @@ $csrfToken = admin_csrf_token();
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyFhFT3G1rF5DkSG3hkm4kL8ZGpzyC0nwLxg13F4" crossorigin="anonymous"></script>
 </body>
+
 </html>
