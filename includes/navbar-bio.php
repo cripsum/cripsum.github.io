@@ -108,7 +108,7 @@ if ($isLoggedIn) {
     <script>
         window.addEventListener('load', function() {
             var script = document.createElement('script');
-            script.src = '/js/richpresence.js?v=2';
+            script.src = '/js/richpresence.js?v=3';
             document.head.appendChild(script);
         });
     </script>
