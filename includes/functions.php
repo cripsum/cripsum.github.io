@@ -1,6 +1,8 @@
 <?php
 
 require_once __DIR__ . '/../config/email_config.php';
+require_once __DIR__ . '/security_helpers.php';
+require_once __DIR__ . '/totp_helpers.php';
 
 function sendVerificationEmail($email, $username, $token)
 {
@@ -96,26 +98,26 @@ function getVerificationEmailTemplate($username, $verificationLink)
             <div class='header'>
                 <div class='logo'>" . SITE_NAME . "</div>
             </div>
-            
+
             <h2>Ciao " . htmlspecialchars($username) . "!</h2>
-            
+
             <p>Grazie per esserti registrato su " . SITE_NAME . ". Siamo felici di averti nella nostra community!</p>
-            
+
             <p>Per completare la registrazione e iniziare a utilizzare il tuo account, devi verificare il tuo indirizzo email cliccando sul pulsante sottostante:</p>
-            
+
             <div style='text-align: center;'>
                 <a href='" . $verificationLink . "' class='button'>Verifica la tua Email</a>
             </div>
-            
+
             <p>Se non riesci a cliccare sul pulsante, copia e incolla questo link nel tuo browser:</p>
             <p style='word-break: break-all; background-color: #f8f9fa; padding: 10px; border-radius: 5px;'>" . $verificationLink . "</p>
-            
+
             <div class='warning'>
                 <strong>Importante:</strong> Questo link scadrà tra 24 ore per motivi di sicurezza.
             </div>
-            
+
             <p>Se non ti sei registrato su " . SITE_NAME . ", puoi tranquillamente ignorare questa email.</p>
-            
+
             <div class='footer'>
                 <p>Cordiali saluti,<br>Il team di " . SITE_NAME . "</p>
                 <p>Questa è una email automatica, non rispondere a questo messaggio.</p>
@@ -220,26 +222,26 @@ function getVerificationEmailChangedTemplate($username, $verificationLink)
             <div class='header'>
                 <div class='logo'>" . SITE_NAME . "</div>
             </div>
-            
+
             <h2>Ciao " . htmlspecialchars($username) . "!</h2>
-            
+
             <p>La tua email su " . SITE_NAME . "é stata modificata!</p>
-            
+
             <p>Per completare la modifica della email devi verificare il tuo indirizzo email cliccando sul pulsante sottostante:</p>
-            
+
             <div style='text-align: center;'>
                 <a href='" . $verificationLink . "' class='button'>Verifica la tua Email</a>
             </div>
-            
+
             <p>Se non riesci a cliccare sul pulsante, copia e incolla questo link nel tuo browser:</p>
             <p style='word-break: break-all; background-color: #f8f9fa; padding: 10px; border-radius: 5px;'>" . $verificationLink . "</p>
-            
+
             <div class='warning'>
                 <strong>Importante:</strong> Questo link scadrà tra 24 ore per motivi di sicurezza.
             </div>
-            
+
             <p>Se non hai cambiato tu la tua email su " . SITE_NAME . ", contattaci subito a cripsum@cripsum.com per assistenza</p>
-            
+
             <div class='footer'>
                 <p>Cordiali saluti,<br>Il team di " . SITE_NAME . "</p>
                 <p>Questa è una email automatica, non rispondere a questo messaggio.</p>
@@ -366,17 +368,17 @@ function getWelcomeEmailTemplate($username)
                 <div class='logo'>" . SITE_NAME . "</div>
                 <div class='success-icon'>🎉</div>
             </div>
-            
+
             <h2>Benvenuto " . htmlspecialchars($username) . "!</h2>
-            
+
             <p>Il tuo account è stato verificato con successo. Ora puoi accedere e iniziare a utilizzare tutti i nostri servizi.</p>
-            
+
             <div style='text-align: center;'>
                 <a href='" . SITE_URL . "/it/accedi' class='button'>Accedi ora</a>
             </div>
-            
+
             <p>Se hai domande o hai bisogno di assistenza, non esitare a contattarci.</p>
-            
+
             <div class='footer'>
                 <p>Cordiali saluti,<br>Il team di " . SITE_NAME . "</p>
                 <p>Questa è una email automatica, non rispondere a questo messaggio.</p>
@@ -389,39 +391,20 @@ function getWelcomeEmailTemplate($username)
 
 function loginUser($mysqli, $email_or_username, $password)
 {
-    $is_email = filter_var($email_or_username, FILTER_VALIDATE_EMAIL);
+    $result = auth_start_password_login($mysqli, $email_or_username, $password);
 
-    if ($is_email) {
-
-        $stmt = $mysqli->prepare("SELECT id, username, email, password, profile_pic, ruolo, email_verificata, isBannato, nsfw, richpresence FROM utenti WHERE email = ?");
-    } else {
-
-        $stmt = $mysqli->prepare("SELECT id, username, email, password, profile_pic, ruolo, email_verificata, isBannato, nsfw, richpresence FROM utenti WHERE username = ?");
-    }
-
-    $stmt->bind_param("s", $email_or_username);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
-    $stmt->close();
-
-    if ($user && password_verify($password, $user['password'])) {
-        if ($user['email_verificata'] == 0) {
-            return 'Devi verificare la tua email prima di accedere. Controlla la tua casella di posta.';
-        }
-        if ($user['isBannato']) {
-            return 'Il tuo account è stato bannato. Contatta cripsum@cripsum.com per ulteriori informazioni.';
-        }
-
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['username'] = $user['username'];
-        $_SESSION['email'] = $user['email'];
-        $_SESSION['profile_pic'] = $user['profile_pic'] ?? '../img/abdul.jpg';
-        $_SESSION['ruolo'] = $user['ruolo'];
-        $_SESSION['nsfw'] = $user['nsfw'] ?? 0;
-        $_SESSION['richpresence'] = $user['richpresence'] ?? 0;
+    if (is_array($result) && !empty($result['ok'])) {
         return true;
     }
+
+    if (is_array($result) && !empty($result['twofa_required'])) {
+        return '2FA_REQUIRED';
+    }
+
+    if (is_array($result) && !empty($result['message'])) {
+        return $result['message'];
+    }
+
     return false;
 }
 
@@ -509,7 +492,7 @@ function checkBan($mysqli)
 function checkPermissions($mysqli, $requiredRole)
 {
     $rolesHierarchy = ['utente' => 1, 'admin' => 2, 'owner' => 3];
-    
+
     if (isLoggedIn()) {
         $stmt = $mysqli->prepare("SELECT ruolo FROM utenti WHERE id = ?");
         $stmt->bind_param("i", $_SESSION['user_id']);
@@ -517,7 +500,7 @@ function checkPermissions($mysqli, $requiredRole)
         $result = $stmt->get_result();
         $user = $result->fetch_assoc();
         $stmt->close();
-        
+
         if ($user) {
             $currentUserRole = $user['ruolo'];
             $_SESSION['ruolo'] = $currentUserRole;
