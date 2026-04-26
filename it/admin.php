@@ -21,7 +21,7 @@ $csrfToken = admin_csrf_token();
 
 <head>
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
-    <title>Cripsum™ - Admin V2</title>
+    <title>Cripsum™ - Admin panel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/assets/admin-v2/admin.css?v=2.0-admin-panel">
     <script src="/assets/admin-v2/admin.js?v=2.0-admin-panel" defer></script>
