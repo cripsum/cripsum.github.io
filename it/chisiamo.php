@@ -45,7 +45,7 @@ checkBan($mysqli);
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
-    <div class="main-container fadeup" style="padding-top: 5rem">
+    <div class="main-container fadeup" style="padding-top: 7rem">
         <section class="chisiamo-section" style="border-radius: 20px;">
             <h1 class="chisiamo-title">Il Nostro Team di Sviluppo</h1>
             <p class="chisiamo-subtitle">
