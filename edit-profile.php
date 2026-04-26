@@ -121,7 +121,6 @@ function profile_json_script(string $id, array $data): void
             <div>
                 <span class="bio-pill">Profile editor</span>
                 <h1>Modifica profilo</h1>
-                <p>Gestisci identità, link, progetti, contenuti, badge e Rich Presence Discord.</p>
             </div>
             <div class="profile-edit-hero-actions">
                 <a class="bio-button" href="/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>"><i class="fas fa-eye"></i>Vedi profilo</a>
@@ -154,12 +153,11 @@ function profile_json_script(string $id, array $data): void
                 <div class="profile-edit-section is-active" data-edit-section="identity">
                     <div class="bio-section-heading">
                         <div><span><i class="fas fa-id-card"></i> Identità</span>
-                            <p>Questi dati finiscono nella hero del profilo pubblico.</p>
                         </div>
                     </div>
 
                     <div class="profile-field-grid two">
-                        <label class="profile-field"><span>Nome visualizzato</span><input type="text" name="display_name" id="displayNameInput" maxlength="40" value="<?php echo profile_h($profile['display_name'] ?? ''); ?>" placeholder="Es. Cripsum"></label>
+                        <label class="profile-field"><span>Nome visualizzato</span><input type="text" name="display_name" id="displayNameInput" maxlength="40" value="<?php echo profile_h($profile['display_name'] ?? ''); ?>" placeholder="Es. Godo"></label>
                         <label class="profile-field"><span>Username</span><input type="text" name="username" id="usernameInput" maxlength="20" required value="<?php echo profile_h($profile['username']); ?>" placeholder="username"><small>3-20 caratteri. Lettere, numeri e underscore.</small></label>
                     </div>
 
@@ -167,7 +165,7 @@ function profile_json_script(string $id, array $data): void
 
                     <div class="profile-field-grid two">
                         <label class="profile-field"><span>Stato breve</span><input type="text" name="profile_status" id="statusInput" maxlength="60" value="<?php echo profile_h($profile['profile_status'] ?? ''); ?>" placeholder="editing, gaming, busy..."><small>Appare vicino al nome se non sei online.</small></label>
-                        <label class="profile-field"><span>Discord user ID</span><input type="text" name="discord_id" id="discordIdInput" maxlength="25" value="<?php echo profile_h($profile['discord_id'] ?? ''); ?>" placeholder="Es. 963536045180350474"><small>Serve solo per Lanyard/Rich Presence.</small></label>
+                        <label class="profile-field"><span>Discord user ID</span><input type="text" name="discord_id" id="discordIdInput" maxlength="25" value="<?php echo profile_h($profile['discord_id'] ?? ''); ?>" placeholder="Es. 8239582304530540"><small>Serve solo per Lanyard/Rich Presence.</small></label>
                     </div>
 
                     <div class="profile-discord-connect-card">
