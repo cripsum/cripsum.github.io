@@ -186,7 +186,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                rel="noopener"
                onclick="if (typeof unlockAchievement === 'function') unlockAchievement(10);">
                 <i class="fas fa-gift"></i>
-                <span>Clicca qui per V-bucks gratis!!!!</span>
+                <span>Clicca qui per V-bucks gratis!!!</span>
             </a>
         </section>
 
