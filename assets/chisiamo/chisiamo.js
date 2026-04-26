@@ -6,25 +6,6 @@
 
     const normalize = (value) => String(value || '').toLowerCase().trim();
 
-    const initReveal = () => {
-        const items = $$('.about-reveal');
-
-        if (!('IntersectionObserver' in window)) {
-            items.forEach((item) => item.classList.add('is-visible'));
-            return;
-        }
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                if (!entry.isIntersecting) return;
-                entry.target.classList.add('is-visible');
-                observer.unobserve(entry.target);
-            });
-        }, { threshold: 0.12 });
-
-        items.forEach((item) => observer.observe(item));
-    };
-
     const initSearch = () => {
         const input = $('#teamSearch');
         const clear = $('#clearTeamSearch');
@@ -38,8 +19,7 @@
             let visible = 0;
 
             members.forEach((member) => {
-                const haystack = normalize(member.dataset.memberName || member.textContent);
-                const match = query === '' || haystack.includes(query);
+                const match = query === '' || normalize(member.textContent).includes(query);
                 member.classList.toggle('is-hidden', !match);
                 if (match) visible += 1;
             });
@@ -48,11 +28,32 @@
         };
 
         input.addEventListener('input', apply);
-
         clear?.addEventListener('click', () => {
             input.value = '';
             input.focus();
             apply();
+        });
+    };
+
+    const initReveal = () => {
+        const items = $$('.chisiamo-section, .team-section, .join-team-section, .team-member');
+
+        if (!('IntersectionObserver' in window)) {
+            items.forEach((item) => item.classList.add('about-reveal', 'is-visible'));
+            return;
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target);
+            });
+        }, { threshold: 0.12 });
+
+        items.forEach((item) => {
+            item.classList.add('about-reveal');
+            observer.observe(item);
         });
     };
 
@@ -105,7 +106,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         initNavbarDropdownFallback();
         initBootstrapAfterLoad();
-        initReveal();
         initSearch();
+        initReveal();
     });
 })();
