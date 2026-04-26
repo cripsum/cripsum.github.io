@@ -40,17 +40,20 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <meta property="og:image" content="https://cripsum.com/img/Susremaster.png">
     <meta property="og:url" content="<?php echo home_h($ogUrl); ?>">
     <meta name="twitter:card" content="summary_large_image">
+
     <link rel="preload" as="image" href="../img/amongus.jpg">
-    <link rel="stylesheet" href="/assets/home-v4/home.css?v=4.0-original-clean">
-    <script src="/assets/home-v4/home.js?v=4.0-original-clean" defer></script>
+    <link rel="stylesheet" href="/assets/home-v5/home.css?v=5.0-slider-rework">
+    <script src="/assets/home-v5/home.js?v=5.0-slider-rework" defer></script>
+
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1527058839538660" crossorigin="anonymous"></script>
 </head>
 
-<body class="home-v4-body">
+<body class="home-v5-body">
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
     <div class="home-bg" aria-hidden="true">
+        <span class="home-noise"></span>
         <span class="home-orb home-orb--one"></span>
         <span class="home-orb home-orb--two"></span>
         <span class="home-grid"></span>
@@ -66,14 +69,10 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
         <?php endif; ?>
 
         <section class="home-hero home-reveal">
-            <div class="home-hero__image">
-                <img src="../img/amongus.jpg" alt="Cripsum Hero" loading="eager">
-            </div>
-
-            <div class="home-hero__content">
+            <div class="home-hero__copy">
                 <span class="home-pill">Cripsum™</span>
                 <h1>Benvenuto/a nel sito migliore del Congo.</h1>
-                <p class="home-subtitle">Edit, meme, lootbox, profili e roba della community.</p>
+                <p>Editing, meme, lootbox, profili e robe della community. Niente spiegoni, entri e capisci.</p>
                 <p class="home-question">Hai più di 25 anni e possiedi un PC?</p>
 
                 <div class="home-actions">
@@ -87,13 +86,13 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                             <i class="fas fa-user-plus"></i>
                             <span>Registrati</span>
                         </a>
-                        <a class="home-btn home-btn--soft" href="accedi">
+                        <a class="home-btn home-btn--ghost" href="accedi">
                             <i class="fas fa-right-to-bracket"></i>
                             <span>Accedi</span>
                         </a>
                     <?php endif; ?>
 
-                    <a class="home-btn home-btn--soft" href="#featuredContent">
+                    <a class="home-btn home-btn--ghost" href="#featuredContent">
                         <i class="fas fa-layer-group"></i>
                         <span>Contenuti</span>
                     </a>
@@ -104,52 +103,57 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                     </button>
                 </div>
             </div>
+
+            <div class="home-hero__art" aria-hidden="true">
+                <div class="home-hero__glow"></div>
+                <img src="../img/amongus.jpg" alt="">
+            </div>
         </section>
 
         <section class="home-mood home-reveal" aria-label="Mood del sito">
-            <article class="home-mood-card">
-                <div class="home-mood-card__image">
-                    <img src="../img/felicita.jpg" alt="Felicità" loading="lazy">
-                </div>
-                <strong>Felicità</strong>
+            <article class="home-mood-item">
+                <img src="../img/felicita.jpg" alt="Felicità" loading="lazy">
+                <span>Felicità</span>
             </article>
-
-            <article class="home-mood-card">
-                <div class="home-mood-card__image">
-                    <img src="../img/tristezza.jpg" alt="Tristezza" loading="lazy">
-                </div>
-                <strong>Tristezza</strong>
+            <article class="home-mood-item">
+                <img src="../img/tristezza.jpg" alt="Tristezza" loading="lazy">
+                <span>Tristezza</span>
             </article>
-
-            <article class="home-mood-card">
-                <div class="home-mood-card__image">
-                    <img src="../img/stupore.jpg" alt="Stupore" loading="lazy">
-                </div>
-                <strong>Stupore</strong>
+            <article class="home-mood-item">
+                <img src="../img/stupore.jpg" alt="Stupore" loading="lazy">
+                <span>Stupore</span>
             </article>
         </section>
 
-        <section id="featuredContent" class="home-showcase-section home-reveal">
+        <section id="featuredContent" class="home-feature home-reveal">
             <div class="home-section-head">
                 <div>
                     <span class="home-kicker">Contenuti</span>
-                    <h2>Le pagine del sito</h2>
+                    <h2>Cosa c’è dentro</h2>
                 </div>
-                <p>Le cose principali, mostrate bene.</p>
+                <p>Una preview veloce delle pagine principali.</p>
             </div>
 
-            <div class="home-showcase" id="homeShowcase">
-                <button class="home-showcase-arrow home-showcase-arrow--prev" type="button" id="homeShowcasePrev" aria-label="Contenuto precedente">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
+            <div class="home-slider" id="homeSlider">
+                <div class="home-slider__backdrop" id="homeSliderBackdrop" aria-hidden="true"></div>
 
-                <article class="home-showcase-main" id="homeShowcaseMain" aria-live="polite"></article>
+                <div class="home-slider__stage" id="homeSliderStage" aria-live="polite"></div>
 
-                <button class="home-showcase-arrow home-showcase-arrow--next" type="button" id="homeShowcaseNext" aria-label="Contenuto successivo">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
+                <div class="home-slider__controls">
+                    <button class="home-slider__arrow" id="homeSliderPrev" type="button" aria-label="Precedente">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
 
-                <div class="home-showcase-thumbs" id="homeShowcaseThumbs" aria-label="Scegli contenuto"></div>
+                    <div class="home-slider__progress" aria-hidden="true">
+                        <span id="homeSliderProgress"></span>
+                    </div>
+
+                    <button class="home-slider__arrow" id="homeSliderNext" type="button" aria-label="Successivo">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <div class="home-slider__tabs" id="homeSliderTabs" aria-label="Seleziona contenuto"></div>
             </div>
         </section>
 
@@ -159,34 +163,42 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                 <h2>Seguimi sui social</h2>
             </div>
 
-            <div class="home-social-grid">
-                <a href="https://www.tiktok.com/@cripsum" target="_blank" rel="noopener" class="home-social-link home-social-link--tiktok" title="TikTok">
-                    <i class="fab fa-tiktok"></i>
-                    <span>TikTok</span>
+            <div class="social-icons-modern">
+                <a href="https://www.tiktok.com/@cripsum" class="social-link-modern tiktok" title="TikTok" target="_blank" rel="noopener">
+                    <div class="social-icon-wrapper">
+                        <i class="fab fa-tiktok"></i>
+                        <span class="social-label">TikTok</span>
+                    </div>
                 </a>
-                <a href="https://www.instagram.com/cripsum/" target="_blank" rel="noopener" class="home-social-link home-social-link--instagram" title="Instagram">
-                    <i class="fab fa-instagram"></i>
-                    <span>Instagram</span>
+                <a href="https://www.instagram.com/cripsum/" class="social-link-modern instagram" title="Instagram" target="_blank" rel="noopener">
+                    <div class="social-icon-wrapper">
+                        <i class="fab fa-instagram"></i>
+                        <span class="social-label">Instagram</span>
+                    </div>
                 </a>
-                <a href="https://discord.gg/XdheJHVURw" target="_blank" rel="noopener" class="home-social-link home-social-link--discord" title="Discord">
-                    <i class="fab fa-discord"></i>
-                    <span>Discord</span>
+                <a href="https://discord.gg/XdheJHVURw" class="social-link-modern discord" title="Discord" target="_blank" rel="noopener">
+                    <div class="social-icon-wrapper">
+                        <i class="fab fa-discord"></i>
+                        <span class="social-label">Discord</span>
+                    </div>
                 </a>
-                <a href="https://t.me/cripsum" target="_blank" rel="noopener" class="home-social-link home-social-link--telegram" title="Telegram">
-                    <i class="fab fa-telegram-plane"></i>
-                    <span>Telegram</span>
+                <a href="https://t.me/cripsum" class="social-link-modern telegram" title="Telegram" target="_blank" rel="noopener">
+                    <div class="social-icon-wrapper">
+                        <i class="fab fa-telegram-plane"></i>
+                        <span class="social-label">Telegram</span>
+                    </div>
                 </a>
             </div>
         </section>
 
         <section class="home-chaos home-reveal">
-            <a class="home-btn home-btn--soft home-chaos__btn"
+            <a class="home-btn home-btn--ghost home-chaos__btn"
                href="https://youtu.be/xvFZjo5PgG0?si=uPsap7ILF_8aYheh"
                target="_blank"
                rel="noopener"
                onclick="if (typeof unlockAchievement === 'function') unlockAchievement(10);">
                 <i class="fas fa-gift"></i>
-                <span>Clicca qui per V-bucks gratis!!!</span>
+                <span>Clicca qui per V-bucks gratis!!!!</span>
             </a>
         </section>
 
@@ -199,7 +211,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                 </div>
 
                 <div class="home-account__actions">
-                    <a href="accedi" class="home-btn home-btn--soft">Accedi</a>
+                    <a href="accedi" class="home-btn home-btn--ghost">Accedi</a>
                     <a href="registrati" class="home-btn home-btn--primary">Registrati</a>
                 </div>
             </section>
@@ -214,19 +226,19 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Chiudi"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Cripsum™ è un sito personale fatto per intrattenere. Alcuni contenuti usano meme, ironia e riferimenti interni.</p>
+                    <p>Cripsum™ è un sito personale fatto per intrattenere. Alcune pagine usano meme, ironia e riferimenti interni.</p>
                     <ul>
                         <li>Non prendere tutto come contenuto serio.</li>
                         <li>Shop e checkout, se presenti, sono simulati.</li>
                         <li>Le donazioni sono reali: dona solo se vuoi davvero farlo.</li>
                     </ul>
                     <p class="home-muted">
-                        Per trasparenza, parte del codice è pubblico su
+                        Parte del codice è pubblico su
                         <a href="https://github.com/cripsum/cripsum.github.io" target="_blank" rel="noopener">GitHub</a>.
                     </p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="home-btn home-btn--soft" data-bs-dismiss="modal">Chiudi</button>
+                    <button type="button" class="home-btn home-btn--ghost" data-bs-dismiss="modal">Chiudi</button>
                 </div>
             </div>
         </div>
