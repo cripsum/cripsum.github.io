@@ -252,3 +252,60 @@ body.admin-v2-body {
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+
+
+/* V2.0.1 hardfix: Bootstrap/fetch fallback */
+.admin-stat-card--error {
+    grid-column: 1 / -1;
+    min-height: 8rem;
+    border-color: rgba(244, 63, 94, .45);
+    background: linear-gradient(145deg, rgba(244, 63, 94, .14), rgba(255,255,255,.045));
+}
+
+.admin-stat-card--error i {
+    color: #fb7185;
+}
+
+.admin-stat-card--error span {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.45;
+}
+
+.admin-modal.is-open {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: block !important;
+    overflow: auto;
+    padding: 1rem;
+    background: rgba(2, 4, 10, .72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.admin-modal.is-open .modal-dialog {
+    max-width: min(1040px, calc(100vw - 2rem));
+    margin: 4rem auto 1rem;
+}
+
+#confirmModal.admin-modal.is-open .modal-dialog {
+    max-width: min(520px, calc(100vw - 2rem));
+}
+
+.admin-modal.is-open .modal-content {
+    display: flex;
+    flex-direction: column;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+.admin-empty span,
+.admin-row-sub,
+.admin-cell-text,
+.admin-row-title,
+.admin-table td {
+    overflow-wrap: anywhere;
+}

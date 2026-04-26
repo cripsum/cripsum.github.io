@@ -66,9 +66,24 @@
             headers['Content-Type'] = 'application/json';
             bodyPayload = JSON.stringify(bodyPayload);
         }
-        const response = await fetch(url, { ...options, headers, body: bodyPayload, cache: 'no-store' });
+        let response;
+        try {
+            response = await fetch(url, { ...options, headers, body: bodyPayload, cache: 'no-store' });
+        } catch (error) {
+            throw new Error('API non raggiungibile. Controlla che /api/admin sia stato caricato.');
+        }
+
         const contentType = response.headers.get('content-type') || '';
-        const data = contentType.includes('application/json') ? await response.json() : { ok: response.ok, message: await response.text() };
+        let data;
+
+        if (contentType.includes('application/json')) {
+            data = await response.json();
+        } else {
+            const text = await response.text();
+            const clean = text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+            data = { ok: response.ok, message: clean || `HTTP ${response.status}` };
+        }
+
         if (!response.ok || data.ok === false) throw new Error(data.message || `HTTP ${response.status}`);
         return data;
     };
@@ -95,19 +110,80 @@
         ? '<span class="admin-badge admin-badge--danger"><i class="fas fa-ban"></i>Bannato</span>'
         : '<span class="admin-badge admin-badge--success"><i class="fas fa-check"></i>Attivo</span>';
 
+    const createFallbackModal = (element) => ({
+        show() {
+            if (!element) return;
+            element.classList.add('is-open');
+            element.style.display = 'block';
+            element.removeAttribute('aria-hidden');
+            document.body.classList.add('modal-open');
+        },
+        hide() {
+            if (!element) return;
+            element.classList.remove('is-open');
+            element.style.display = 'none';
+            element.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('modal-open');
+        }
+    });
+
+    const initModalInstances = () => {
+        const adminModalElement = $('#adminModal');
+        const confirmModalElement = $('#confirmModal');
+
+        if (window.bootstrap && window.bootstrap.Modal) {
+            modal = adminModalElement ? new window.bootstrap.Modal(adminModalElement) : createFallbackModal(adminModalElement);
+            confirmModal = confirmModalElement ? new window.bootstrap.Modal(confirmModalElement) : createFallbackModal(confirmModalElement);
+            return;
+        }
+
+        modal = createFallbackModal(adminModalElement);
+        confirmModal = createFallbackModal(confirmModalElement);
+
+        $$('[data-bs-dismiss="modal"]').forEach((button) => {
+            button.addEventListener('click', () => {
+                button.closest('.modal')?.classList.contains('admin-modal') && createFallbackModal(button.closest('.modal')).hide();
+            });
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape') return;
+            modal?.hide();
+            confirmModal?.hide();
+        });
+    };
+
     const openModal = (title, subtitle, bodyHtml, footerHtml = '') => {
-        $('#adminModalTitle').textContent = title;
-        $('#adminModalSubtitle').textContent = subtitle || '';
-        $('#adminModalBody').innerHTML = bodyHtml;
-        $('#adminModalFooter').innerHTML = footerHtml;
+        const titleEl = $('#adminModalTitle');
+        const subtitleEl = $('#adminModalSubtitle');
+        const bodyEl = $('#adminModalBody');
+        const footerEl = $('#adminModalFooter');
+
+        if (!titleEl || !bodyEl || !footerEl || !modal) {
+            showToast('Modal admin non inizializzato. Ricarica la pagina.', true);
+            return;
+        }
+
+        titleEl.textContent = title;
+        if (subtitleEl) subtitleEl.textContent = subtitle || '';
+        bodyEl.innerHTML = bodyHtml;
+        footerEl.innerHTML = footerHtml;
         modal.show();
     };
 
-    const closeModal = () => modal.hide();
+    const closeModal = () => modal?.hide();
 
     const confirmBox = (title, bodyHtml, action) => {
-        $('#confirmTitle').textContent = title;
-        $('#confirmBody').innerHTML = bodyHtml;
+        const titleEl = $('#confirmTitle');
+        const bodyEl = $('#confirmBody');
+
+        if (!titleEl || !bodyEl || !confirmModal) {
+            showToast('Conferma non disponibile. Ricarica la pagina.', true);
+            return;
+        }
+
+        titleEl.textContent = title;
+        bodyEl.innerHTML = bodyHtml;
         confirmAction = action;
         confirmModal.show();
     };
@@ -161,6 +237,14 @@
 
             await loadLogs(true);
         } catch (error) {
+            const grid = $('#adminStatsGrid');
+            if (grid) {
+                grid.innerHTML = `<article class="admin-stat-card admin-stat-card--error"><i class="fas fa-triangle-exclamation"></i><strong>Errore</strong><span>${escapeHtml(error.message)}</span></article>`;
+            }
+            const latest = $('#latestUsersBox');
+            const logs = $('#dashboardLogsBox');
+            if (latest) latest.innerHTML = emptyState('fas fa-triangle-exclamation', 'Utenti non caricati', error.message);
+            if (logs) logs.innerHTML = emptyState('fas fa-triangle-exclamation', 'Log non caricati');
             showToast(error.message, true);
         }
     };
@@ -457,32 +541,43 @@
     const reloadCurrent = () => switchSection(state.section);
 
     document.addEventListener('DOMContentLoaded', () => {
-        modal = new bootstrap.Modal($('#adminModal'));
-        confirmModal = new bootstrap.Modal($('#confirmModal'));
+        try {
+            initModalInstances();
 
-        $('#confirmActionBtn')?.addEventListener('click', async () => {
-            if (!confirmAction) return;
-            const btn = $('#confirmActionBtn');
-            btn.disabled = true;
-            try { await confirmAction(); confirmModal.hide(); }
-            catch (error) { showToast(error.message, true); }
-            finally { btn.disabled = false; confirmAction = null; }
-        });
+            $('#confirmActionBtn')?.addEventListener('click', async () => {
+                if (!confirmAction) return;
+                const btn = $('#confirmActionBtn');
+                btn.disabled = true;
+                try { await confirmAction(); confirmModal?.hide(); }
+                catch (error) { showToast(error.message, true); }
+                finally { btn.disabled = false; confirmAction = null; }
+            });
 
-        $$('[data-admin-nav] button').forEach((btn) => btn.addEventListener('click', () => switchSection(btn.dataset.section)));
-        $('#adminRefreshBtn')?.addEventListener('click', reloadCurrent);
-        $('#createCharacterBtn')?.addEventListener('click', () => openCharacterForm());
-        $('#createAchievementBtn')?.addEventListener('click', () => openAchievementForm());
-        $('#usersStatusFilter')?.addEventListener('change', (e) => { state.users.status = e.target.value; state.users.page = 1; loadUsers(); });
-        $('#usersRoleFilter')?.addEventListener('change', (e) => { state.users.role = e.target.value; state.users.page = 1; loadUsers(); });
+            $$('[data-admin-nav] button').forEach((btn) => {
+                btn.addEventListener('click', () => switchSection(btn.dataset.section));
+            });
 
-        $('#adminGlobalSearch')?.addEventListener('input', debounce((e) => {
-            state.q = e.target.value.trim();
-            state.users.page = state.characters.page = state.achievements.page = 1;
-            if (state.section === 'dashboard') switchSection('users');
-            else reloadCurrent();
-        }, 300));
+            $('#adminRefreshBtn')?.addEventListener('click', reloadCurrent);
+            $('#createCharacterBtn')?.addEventListener('click', () => openCharacterForm());
+            $('#createAchievementBtn')?.addEventListener('click', () => openAchievementForm());
+            $('#usersStatusFilter')?.addEventListener('change', (e) => { state.users.status = e.target.value; state.users.page = 1; loadUsers(); });
+            $('#usersRoleFilter')?.addEventListener('change', (e) => { state.users.role = e.target.value; state.users.page = 1; loadUsers(); });
 
-        loadDashboard();
+            $('#adminGlobalSearch')?.addEventListener('input', debounce((e) => {
+                state.q = e.target.value.trim();
+                state.users.page = state.characters.page = state.achievements.page = 1;
+                if (state.section === 'dashboard') switchSection('users');
+                else reloadCurrent();
+            }, 300));
+
+            loadDashboard();
+        } catch (error) {
+            console.error('Admin init error:', error);
+            const grid = $('#adminStatsGrid');
+            if (grid) {
+                grid.innerHTML = `<article class="admin-stat-card admin-stat-card--error"><i class="fas fa-triangle-exclamation"></i><strong>Errore JS</strong><span>${escapeHtml(error.message)}</span></article>`;
+            }
+            showToast('Errore inizializzazione admin: ' + error.message, true);
+        }
     });
 })();
