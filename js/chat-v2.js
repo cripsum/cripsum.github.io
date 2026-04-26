@@ -61,7 +61,8 @@
 
 
     const setViewportHeight = () => {
-        const height = window.visualViewport?.height || window.innerHeight;
+        const rawHeight = window.visualViewport?.height || window.innerHeight || document.documentElement.clientHeight;
+        const height = Math.max(420, Math.floor(rawHeight));
         document.documentElement.style.setProperty('--chat-vh', `${height}px`);
     };
 
@@ -315,10 +316,15 @@
                 state.lastId = Math.max(state.lastId, Number(msg.id));
                 state.firstId = state.firstId === 0 ? Number(msg.id) : Math.min(state.firstId, Number(msg.id));
             });
+            el.messages.classList.add('is-rendering');
             el.messages.innerHTML = clean.length ? addDaySeparators(clean) : emptyHtml();
             state.loadedOnce = true;
             el.app?.classList.add('is-loaded');
-            requestAnimationFrame(() => requestAnimationFrame(() => scrollToBottom('auto')));
+            requestAnimationFrame(() => {
+                el.messages.classList.remove('is-rendering');
+                document.body.classList.add('chat-hydrated');
+                requestAnimationFrame(() => scrollToBottom('auto'));
+            });
             return;
         }
 
@@ -725,10 +731,11 @@
 
     const clearSearch = async () => {
         clearTimeout(state.searchTimer);
+        const hadSearch = Boolean(state.search || (el.searchInput?.value || '').trim());
         if (el.searchInput) el.searchInput.value = '';
         state.search = '';
         if (el.searchBox) el.searchBox.hidden = true;
-        await loadInitial({ silent: true });
+        if (hadSearch) await loadInitial({ silent: true });
     };
 
     const debounceSearch = () => {
@@ -861,6 +868,7 @@
         el.searchInput?.addEventListener('input', debounceSearch);
         document.querySelector('.js-clear-search')?.addEventListener('click', (event) => {
             event.preventDefault();
+            event.stopPropagation();
             clearSearch();
         });
 
@@ -920,8 +928,19 @@
         });
 
         window.addEventListener('resize', setViewportHeight, { passive: true });
-        window.visualViewport?.addEventListener('resize', setViewportHeight, { passive: true });
+        window.visualViewport?.addEventListener('resize', () => {
+            setViewportHeight();
+            if (document.activeElement === el.input) {
+                setTimeout(() => el.input?.scrollIntoView({ block: 'nearest' }), 40);
+            }
+        }, { passive: true });
         window.addEventListener('orientationchange', () => setTimeout(setViewportHeight, 250), { passive: true });
+        el.input?.addEventListener('focus', () => {
+            setTimeout(() => {
+                setViewportHeight();
+                el.input?.scrollIntoView({ block: 'nearest' });
+            }, 80);
+        });
         window.addEventListener('beforeunload', () => sendTyping(false));
     };
 
