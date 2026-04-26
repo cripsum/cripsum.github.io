@@ -115,7 +115,6 @@
         stage.innerHTML = `
             <article class="home-slide">
                 <div class="home-slide__copy">
-                    <span class="home-slide__tag">Cripsum</span>
                     <h3 class="home-slide__title">${escapeHtml(slide.title)}</h3>
                     <p class="home-slide__description">${escapeHtml(slide.description)}</p>
                     <a class="home-btn home-btn--primary home-slide__button" href="${escapeHtml(slide.link)}">
@@ -213,6 +212,15 @@
 
             restartAuto();
         });
+
+        const tabs = $('#homeSliderTabs');
+        tabs?.addEventListener('wheel', (event) => {
+            const shouldScrollHorizontal = Math.abs(event.deltaY) > Math.abs(event.deltaX);
+            if (!shouldScrollHorizontal) return;
+
+            event.preventDefault();
+            tabs.scrollLeft += event.deltaY;
+        }, { passive: false });
     };
 
     const initReveal = () => {

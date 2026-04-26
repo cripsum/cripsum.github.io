@@ -1008,3 +1008,248 @@ body.home-v5-body .dropdown-divider {
         transition-duration: .01ms !important;
     }
 }
+
+
+/* V5.1 fix: slider pulito, niente scrollbar brutta, social original-style */
+
+/* Togli pillole inutili nello showcase/social */
+.home-feature .home-kicker,
+.home-social-section .home-kicker,
+.home-slide__tag {
+    display: none !important;
+}
+
+/* Slider: controlli fuori dalle palle, solo progress bar */
+.home-slider__controls {
+    position: absolute;
+    left: clamp(1rem, 2.5vw, 1.55rem);
+    right: clamp(1rem, 2.5vw, 1.55rem);
+    bottom: 5.15rem;
+    z-index: 4;
+    display: block;
+    pointer-events: none;
+}
+
+.home-slider__arrow {
+    display: none !important;
+}
+
+.home-slider__progress {
+    height: .24rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .105);
+}
+
+.home-slider__progress span {
+    display: block;
+    width: 0%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, rgba(var(--home-accent-rgb), 1), rgba(139, 92, 246, 1));
+    transition: width linear;
+}
+
+/* Pills dello slider: scrollabile con rotellina, ma senza barra visibile */
+.home-slider__tabs {
+    left: clamp(1rem, 2.5vw, 1.55rem);
+    right: clamp(1rem, 2.5vw, 1.55rem);
+    bottom: 1rem;
+    gap: .6rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: .08rem .05rem .15rem;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-behavior: smooth;
+    mask-image: linear-gradient(90deg, transparent 0, #000 22px, #000 calc(100% - 22px), transparent 100%);
+}
+
+.home-slider__tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.home-tab {
+    flex: 0 0 auto;
+    min-height: 2.9rem;
+    padding: .36rem .78rem .36rem .4rem;
+    background: rgba(0, 0, 0, .20);
+    border-color: rgba(255, 255, 255, .105);
+}
+
+.home-tab img {
+    width: 2.05rem;
+    height: 2.05rem;
+}
+
+.home-tab span {
+    max-width: 9.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Slide più ariosa senza label sopra */
+.home-slide__title {
+    margin-top: 0;
+}
+
+.home-slide__copy {
+    padding-bottom: 2.8rem;
+}
+
+.home-slide__media::before {
+    width: min(82%, 360px);
+}
+
+/* Social: ripresi nello stile originale, non tasti larghi */
+.social-icons-modern {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: .95rem;
+    flex-wrap: wrap;
+}
+
+.social-link-modern {
+    display: inline-flex;
+    color: inherit;
+    text-decoration: none;
+}
+
+.social-icon-wrapper {
+    position: relative;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: .28rem;
+    width: 4.7rem;
+    height: 4.7rem;
+    border-radius: 24px;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, .15);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, .24);
+    overflow: hidden;
+    transition: transform 180ms ease, filter 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.social-icon-wrapper::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+}
+
+.social-icon-wrapper::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+        radial-gradient(circle at 22% 0%, rgba(255, 255, 255, .26), transparent 38%),
+        linear-gradient(to bottom, rgba(255, 255, 255, .08), rgba(0, 0, 0, .22));
+    pointer-events: none;
+}
+
+.social-icon-wrapper i {
+    font-size: 1.45rem;
+    line-height: 1;
+}
+
+.social-label {
+    font-size: .68rem;
+    font-weight: 950;
+    line-height: 1;
+}
+
+.social-link-modern:hover .social-icon-wrapper {
+    transform: translateY(-4px) scale(1.035);
+    border-color: rgba(255, 255, 255, .26);
+    box-shadow: 0 20px 42px rgba(0, 0, 0, .32);
+    filter: saturate(1.12);
+}
+
+.social-link-modern.tiktok .social-icon-wrapper::before {
+    background: linear-gradient(135deg, #111, #242429 52%, #00f2ea);
+}
+
+.social-link-modern.instagram .social-icon-wrapper::before {
+    background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+}
+
+.social-link-modern.discord .social-icon-wrapper::before {
+    background: linear-gradient(135deg, #5865f2, #3543a5);
+}
+
+.social-link-modern.telegram .social-icon-wrapper::before {
+    background: linear-gradient(135deg, #2aabee, #1676a8);
+}
+
+/* Immagini: meno "riquadro dentro riquadro" */
+.home-slide__media {
+    background: transparent;
+}
+
+.home-slide__media img,
+.home-hero__art img {
+    border-radius: 0 !important;
+}
+
+@media (max-width: 720px) {
+    .home-slider__controls {
+        bottom: 5.05rem;
+        left: .9rem;
+        right: .9rem;
+    }
+
+    .home-slider__tabs {
+        left: .9rem;
+        right: .9rem;
+        bottom: .8rem;
+    }
+
+    .home-slide__copy {
+        padding-bottom: 2.7rem;
+    }
+
+    .home-tab {
+        min-height: 2.75rem;
+        padding-right: .65rem;
+    }
+
+    .home-tab img {
+        width: 1.95rem;
+        height: 1.95rem;
+    }
+
+    .home-tab span {
+        max-width: 7.5rem;
+        font-size: .74rem;
+    }
+
+    .social-icons-modern {
+        gap: .7rem;
+    }
+
+    .social-icon-wrapper {
+        width: 4.35rem;
+        height: 4.35rem;
+        border-radius: 21px;
+    }
+}
+
+@media (max-width: 420px) {
+    .home-tab span {
+        display: inline-block !important;
+        max-width: 6.4rem;
+    }
+
+    .social-icon-wrapper {
+        width: 4.1rem;
+        height: 4.1rem;
+    }
+
+    .social-label {
+        font-size: .64rem;
+    }
+}

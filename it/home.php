@@ -42,8 +42,8 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <meta name="twitter:card" content="summary_large_image">
 
     <link rel="preload" as="image" href="../img/amongus.jpg">
-    <link rel="stylesheet" href="/assets/home-v5/home.css?v=5.0-slider-rework">
-    <script src="/assets/home-v5/home.js?v=5.0-slider-rework" defer></script>
+    <link rel="stylesheet" href="/assets/home-v5/home.css?v=5.1-slider-social-fix">
+    <script src="/assets/home-v5/home.js?v=5.1-slider-social-fix" defer></script>
 
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1527058839538660" crossorigin="anonymous"></script>
 </head>
@@ -72,7 +72,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
             <div class="home-hero__copy">
                 <span class="home-pill">Cripsum™</span>
                 <h1>Benvenuto/a nel sito migliore del Congo.</h1>
-                <p>Editing, meme, lootbox, profili e robe della community. Niente spiegoni, entri e capisci.</p>
+                <p>Editing, meme, lootbox, profili, achievements, post della community e tanti segreti, cosa aspetti a unirti?</p>
                 <p class="home-question">Hai più di 25 anni e possiedi un PC?</p>
 
                 <div class="home-actions">
@@ -128,8 +128,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
         <section id="featuredContent" class="home-feature home-reveal">
             <div class="home-section-head">
                 <div>
-                    <span class="home-kicker">Contenuti</span>
-                    <h2>Cosa c’è dentro</h2>
+                    <h2>Cosa puoi trovare dentro Cripsum™</h2>
                 </div>
                 <p>Una preview veloce delle pagine principali.</p>
             </div>
@@ -139,18 +138,10 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
                 <div class="home-slider__stage" id="homeSliderStage" aria-live="polite"></div>
 
-                <div class="home-slider__controls">
-                    <button class="home-slider__arrow" id="homeSliderPrev" type="button" aria-label="Precedente">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-
-                    <div class="home-slider__progress" aria-hidden="true">
+                <div class="home-slider__controls" aria-hidden="true">
+                    <div class="home-slider__progress">
                         <span id="homeSliderProgress"></span>
                     </div>
-
-                    <button class="home-slider__arrow" id="homeSliderNext" type="button" aria-label="Successivo">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
                 </div>
 
                 <div class="home-slider__tabs" id="homeSliderTabs" aria-label="Seleziona contenuto"></div>
@@ -159,7 +150,6 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
         <section class="home-social-section home-reveal">
             <div class="home-section-head home-section-head--center">
-                <span class="home-kicker">Social</span>
                 <h2>Seguimi sui social</h2>
             </div>
 
