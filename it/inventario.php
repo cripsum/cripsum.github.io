@@ -27,6 +27,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Inventario</title>
@@ -57,7 +58,6 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <main class="inv-shell">
         <section class="inv-hero inv-reveal">
             <div class="inv-hero__copy">
-                <span class="inv-pill">GoonLand Collection</span>
                 <h1>Inventario</h1>
                 <p>I personaggi trovati nelle lootbox, ordinati per rarità.</p>
             </div>
@@ -169,4 +169,5 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>
