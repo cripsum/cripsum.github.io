@@ -3,6 +3,7 @@ require_once __DIR__ . '/config/session_init.php';
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/profile_helpers.php';
+require_once __DIR__ . '/includes/cripsum_og.php';
 
 checkBan($mysqli);
 
@@ -191,6 +192,7 @@ if ($profile) {
     if ((int)$profile['num_personaggi'] > 0) $stats[] = ['icon' => 'fas fa-user-astronaut', 'value' => profile_compact_number($profile['num_personaggi']), 'label' => 'Personaggi'];
     if ((int)$profile['total_personaggi'] > 0) $stats[] = ['icon' => 'fas fa-dice-d20', 'value' => profile_compact_number($profile['total_personaggi']), 'label' => 'Pull'];
 }
+$ogMeta = cripsum_og_profile($mysqli, $profile);
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -198,14 +200,7 @@ if ($profile) {
     <?php include __DIR__ . '/includes/head-import.php'; ?>
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php if ($profile): ?>
-        <meta name="description" content="<?php echo profile_h($profile['bio'] ?: '@' . $profile['username'] . ' su Cripsum™'); ?>">
-        <meta property="og:title" content="<?php echo profile_h($displayName); ?> su Cripsum™">
-        <meta property="og:description" content="<?php echo profile_h($profile['bio'] ?: '@' . $profile['username']); ?>">
-        <meta property="og:type" content="profile">
-        <meta property="og:url" content="<?php echo profile_h($profileUrl); ?>">
-        <meta property="og:image" content="/includes/get_pfp.php?id=<?php echo (int)$profile['id']; ?>">
-    <?php endif; ?>
+    <?php cripsum_og_print($ogMeta); ?>
     <link rel="stylesheet" href="/assets/css/profile.css?v=2.9.2-audio-autoplay">
     <script src="/assets/js/profile.js?v=2.9.2-audio-autoplay" defer></script>
 </head>
@@ -296,6 +291,12 @@ if ($profile) {
                         <div class="discord-box" id="discordBox">
                             <?php $discordProfileId = $discordId; require __DIR__ . '/includes/discord_status.php'; ?>
                         </div>
+                        <?php if ($isOwnProfile): ?>
+                            <a class="profile-lanyard-hint" href="https://discord.com/invite/lanyard" target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-circle-info"></i>
+                                <span>Per la Rich Presence devi essere nel server Lanyard.</span>
+                            </a>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
 
@@ -520,5 +521,6 @@ if ($profile) {
     </div>
 
     <div class="bio-toast" id="bioToast" role="status" aria-live="polite"></div>
+    <?php if (file_exists(__DIR__ . '/includes/footer.php')) include __DIR__ . '/includes/footer.php'; ?>
 </body>
 </html>
