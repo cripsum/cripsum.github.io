@@ -28,6 +28,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title data-i18n="meta.title">Cripsum™</title>
@@ -42,8 +43,8 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <meta name="twitter:card" content="summary_large_image">
 
     <link rel="preload" as="image" href="../img/amongus.jpg">
-    <link rel="stylesheet" href="/assets/home-v5/home.css?v=5.1-slider-social-fix">
-    <script src="/assets/home-v5/home.js?v=5.1-slider-social-fix" defer></script>
+    <link rel="stylesheet" href="/assets/home-v5/home.css?v=5.2">
+    <script src="/assets/home-v5/home.js?v=5.2" defer></script>
 
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1527058839538660" crossorigin="anonymous"></script>
 </head>
@@ -183,10 +184,10 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
         <section class="home-chaos home-reveal">
             <a class="home-btn home-btn--ghost home-chaos__btn"
-               href="https://youtu.be/xvFZjo5PgG0?si=uPsap7ILF_8aYheh"
-               target="_blank"
-               rel="noopener"
-               onclick="if (typeof unlockAchievement === 'function') unlockAchievement(10);">
+                href="https://youtu.be/xvFZjo5PgG0?si=uPsap7ILF_8aYheh"
+                target="_blank"
+                rel="noopener"
+                onclick="if (typeof unlockAchievement === 'function') unlockAchievement(10);">
                 <i class="fas fa-gift"></i>
                 <span>Clicca qui per V-bucks gratis!!!!</span>
             </a>
@@ -246,4 +247,5 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>
