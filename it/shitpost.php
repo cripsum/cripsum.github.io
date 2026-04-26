@@ -54,7 +54,6 @@ $needsMotivation = false;
     <main class="cw-shell">
         <header class="cw-hero">
             <div class="cw-hero__text">
-                <span class="cw-kicker">GoonLand</span>
                 <h1><?php echo cv2_h($pageTitle); ?></h1>
                 <p><?php echo cv2_h($pageSubtitle); ?></p>
             </div>
