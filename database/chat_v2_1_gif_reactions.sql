@@ -1,4 +1,4 @@
--- Chat Globale V2.1 - GIF Tenor + reazioni
+-- Chat Globale V2.1 / V2.2 - GIF GIPHY + reazioni
 -- Fai backup prima.
 -- Se una colonna esiste già, rimuovi quella riga.
 

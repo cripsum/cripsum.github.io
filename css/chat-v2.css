@@ -907,7 +907,7 @@ html, body { min-height: 100%; }
     }
 }
 
-/* V2.1 polish: bug fix, GIF, reactions */
+/* V2.2: GIPHY GIF, polish, reactions */
 .chat-panel,
 .chat-messages,
 .chat-message,
@@ -1124,7 +1124,7 @@ html, body { min-height: 100%; }
     cursor: pointer;
 }
 .chat-gif-more[hidden] { display: none !important; }
-.chat-tenor-credit {
+.chat-giphy-credit {
     display: block;
     margin-top: .45rem;
     color: var(--chat-muted-2);

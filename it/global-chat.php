@@ -45,8 +45,8 @@ $onlineCount = $lineeGuidaChat === 1 ? chat_get_online_count($mysqli) : 0;
 <head>
     <?php include '../includes/head-import.php'; ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/css/chat-v2.css?v=2.1-polish-gif">
-    <script src="/js/chat-v2.js?v=2.1-polish-gif" defer></script>
+    <link rel="stylesheet" href="/css/chat-v2.css?v=2.2-giphy">
+    <script src="/js/chat-v2.js?v=2.2-giphy" defer></script>
     <title>Chat Globale - Cripsum</title>
 </head>
 <body class="chat-v2-body" data-user-id="<?php echo $userId; ?>" data-user-role="<?php echo htmlspecialchars($userRole, ENT_QUOTES, 'UTF-8'); ?>" data-csrf="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
@@ -150,13 +150,13 @@ $onlineCount = $lineeGuidaChat === 1 ? chat_get_online_count($mysqli) : 0;
                         <div class="chat-gif-head">
                             <div class="chat-gif-search">
                                 <i class="fas fa-magnifying-glass"></i>
-                                <input type="search" id="chatGifSearch" placeholder="Cerca GIF su Tenor..." maxlength="60" autocomplete="off">
+                                <input type="search" id="chatGifSearch" placeholder="Cerca GIF su GIPHY..." maxlength="60" autocomplete="off">
                             </div>
                             <button type="button" class="chat-icon-button js-close-gifs" aria-label="Chiudi GIF"><i class="fas fa-xmark"></i></button>
                         </div>
                         <div class="chat-gif-grid" id="chatGifGrid"></div>
                         <button type="button" class="chat-gif-more js-more-gifs" hidden>Carica altre GIF</button>
-                        <small class="chat-tenor-credit">Powered by Tenor</small>
+                        <small class="chat-giphy-credit">Powered by GIPHY</small>
                     </div>
 
                     <div class="chat-emoji-strip" id="chatEmojiStrip" hidden>

@@ -275,10 +275,19 @@ function chat_is_allowed_gif_url(string $url): bool
 {
     $url = trim($url);
     if ($url === '' || mb_strlen($url, 'UTF-8') > 900) return false;
+
     $parts = parse_url($url);
     if (!$parts || strtolower((string)($parts['scheme'] ?? '')) !== 'https') return false;
+
     $host = strtolower((string)($parts['host'] ?? ''));
-    return $host === 'media.tenor.com' || $host === 'tenor.com' || str_ends_with($host, '.tenor.com');
+
+    // GIPHY CDN principali. Tenor resta accettato per eventuali vecchi messaggi già salvati.
+    if ($host === 'media.tenor.com' || $host === 'tenor.com' || str_ends_with($host, '.tenor.com')) return true;
+    if ($host === 'giphy.com' || $host === 'media.giphy.com' || $host === 'i.giphy.com') return true;
+    if (preg_match('/^media[0-9]+\.giphy\.com$/', $host)) return true;
+    if (str_ends_with($host, '.giphy.com')) return true;
+
+    return false;
 }
 
 function chat_get_reactions(mysqli $mysqli, int $currentUserId, array $messageIds): array
