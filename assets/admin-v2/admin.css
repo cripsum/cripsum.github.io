@@ -309,3 +309,56 @@ body.modal-open {
 .admin-table td {
     overflow-wrap: anywhere;
 }
+
+
+.admin-name-cell {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    min-width: 0;
+}
+
+.admin-thumb {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    overflow: hidden;
+    border: 1px solid rgba(var(--admin-accent-rgb), .28);
+    background: rgba(255, 255, 255, .06);
+    color: var(--admin-accent);
+}
+
+.admin-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.admin-thumb--fallback,
+.admin-thumb.is-broken {
+    background: rgba(var(--admin-accent-rgb), .12);
+}
+
+.admin-modal.is-open .btn-close {
+    filter: invert(1);
+}
+
+.admin-modal .admin-btn[data-admin-close] {
+    cursor: pointer;
+}
+
+@media (max-width: 720px) {
+    .admin-name-cell {
+        align-items: flex-start;
+    }
+
+    .admin-thumb {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+    }
+}

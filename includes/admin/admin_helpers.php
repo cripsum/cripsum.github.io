@@ -57,14 +57,18 @@ function admin_table_exists(mysqli $mysqli, string $table): bool
     if (isset($cache[$table])) return $cache[$table];
     if (!preg_match('/^[a-zA-Z0-9_]+$/', $table)) return $cache[$table] = false;
 
-    $stmt = $mysqli->prepare("SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? LIMIT 1");
-    if (!$stmt) return $cache[$table] = false;
-    $stmt->bind_param('s', $table);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $exists = $result && $result->num_rows > 0;
-    $stmt->close();
-    return $cache[$table] = $exists;
+    try {
+        $stmt = $mysqli->prepare("SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? LIMIT 1");
+        if (!$stmt) return $cache[$table] = false;
+        $stmt->bind_param('s', $table);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $exists = $result && $result->num_rows > 0;
+        $stmt->close();
+        return $cache[$table] = $exists;
+    } catch (Throwable $e) {
+        return $cache[$table] = false;
+    }
 }
 
 function admin_column_exists(mysqli $mysqli, string $table, string $column): bool
@@ -74,14 +78,18 @@ function admin_column_exists(mysqli $mysqli, string $table, string $column): boo
     if (isset($cache[$key])) return $cache[$key];
     if (!preg_match('/^[a-zA-Z0-9_]+$/', $table) || !preg_match('/^[a-zA-Z0-9_]+$/', $column)) return $cache[$key] = false;
 
-    $stmt = $mysqli->prepare("SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ? LIMIT 1");
-    if (!$stmt) return $cache[$key] = false;
-    $stmt->bind_param('ss', $table, $column);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $exists = $result && $result->num_rows > 0;
-    $stmt->close();
-    return $cache[$key] = $exists;
+    try {
+        $stmt = $mysqli->prepare("SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ? LIMIT 1");
+        if (!$stmt) return $cache[$key] = false;
+        $stmt->bind_param('ss', $table, $column);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $exists = $result && $result->num_rows > 0;
+        $stmt->close();
+        return $cache[$key] = $exists;
+    } catch (Throwable $e) {
+        return $cache[$key] = false;
+    }
 }
 
 function admin_first_existing_column(mysqli $mysqli, string $table, array $columns): ?string
@@ -227,7 +235,32 @@ function admin_validate_url(?string $url): ?string
 {
     $url = trim((string)$url);
     if ($url === '') return null;
-    return filter_var($url, FILTER_VALIDATE_URL) ? $url : null;
+
+    if (filter_var($url, FILTER_VALIDATE_URL)) return $url;
+
+    // Permette path locali tipo badge.png, /img/badge.png, img/badge.png.
+    // Blocca path pericolosi e pseudo-protocolli tipo javascript:.
+    if (preg_match('/^[a-zA-Z][a-zA-Z0-9+.-]*:/', $url)) return null;
+    if (str_contains($url, '..') || str_contains($url, "\0")) return null;
+    if (preg_match('/^[a-zA-Z0-9_\-\/.% ]+$/', $url)) return $url;
+
+    return null;
+}
+
+function admin_asset_url(?string $path, string $defaultBase = '/img/'): ?string
+{
+    $path = trim((string)$path);
+    if ($path === '') return null;
+    if (filter_var($path, FILTER_VALIDATE_URL)) return $path;
+    if (str_starts_with($path, '/')) return $path;
+    if (str_starts_with($path, 'img/')) return '/' . $path;
+    return rtrim($defaultBase, '/') . '/' . ltrim($path, '/');
+}
+
+function admin_prepare_error(mysqli $mysqli, string $fallback): string
+{
+    $err = trim((string)$mysqli->error);
+    return $err !== '' ? $fallback . ' Dettaglio: ' . $err : $fallback;
 }
 
 function admin_normalize_role(string $role): string

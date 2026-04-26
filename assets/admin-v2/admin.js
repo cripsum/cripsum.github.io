@@ -110,6 +110,36 @@
         ? '<span class="admin-badge admin-badge--danger"><i class="fas fa-ban"></i>Bannato</span>'
         : '<span class="admin-badge admin-badge--success"><i class="fas fa-check"></i>Attivo</span>';
 
+
+    const assetUrl = (value) => {
+        value = String(value || '').trim();
+        if (!value) return '';
+        if (/^https?:\/\//i.test(value)) return value;
+        if (value.startsWith('/')) return value;
+        if (value.startsWith('img/')) return `/${value}`;
+        return `/img/${value.replace(/^\/+/, '')}`;
+    };
+
+    const thumb = (url, icon = 'fas fa-image') => {
+        const src = assetUrl(url);
+        return src
+            ? `<span class="admin-thumb"><img src="${escapeHtml(src)}" alt="" loading="lazy" onerror="this.closest('.admin-thumb').classList.add('is-broken'); this.remove();"></span>`
+            : `<span class="admin-thumb admin-thumb--fallback"><i class="${icon}"></i></span>`;
+    };
+
+    const closeButtons = (root = document) => {
+        $$('[data-admin-close], [data-admin-close="1"]', root).forEach((button) => {
+            if (button.dataset.adminCloseBound === '1') return;
+            button.dataset.adminCloseBound = '1';
+            button.addEventListener('click', () => {
+                const modalEl = button.closest('.admin-modal');
+                if (!modalEl) return;
+                if (modalEl.id === 'confirmModal') confirmModal?.hide();
+                else modal?.hide();
+            });
+        });
+    };
+
     const createFallbackModal = (element) => ({
         show() {
             if (!element) return;
@@ -140,7 +170,7 @@
         modal = createFallbackModal(adminModalElement);
         confirmModal = createFallbackModal(confirmModalElement);
 
-        $$('[data-bs-dismiss="modal"]').forEach((button) => {
+        $$('[data-admin-close="1"]').forEach((button) => {
             button.addEventListener('click', () => {
                 button.closest('.modal')?.classList.contains('admin-modal') && createFallbackModal(button.closest('.modal')).hide();
             });
@@ -168,6 +198,8 @@
         if (subtitleEl) subtitleEl.textContent = subtitle || '';
         bodyEl.innerHTML = bodyHtml;
         footerEl.innerHTML = footerHtml;
+        closeButtons(footerEl);
+        closeButtons(bodyEl);
         modal.show();
     };
 
@@ -184,6 +216,7 @@
 
         titleEl.textContent = title;
         bodyEl.innerHTML = bodyHtml;
+        closeButtons(bodyEl);
         confirmAction = action;
         confirmModal.show();
     };
@@ -358,7 +391,7 @@
                     <option value="owner" ${user.ruolo === 'owner' ? 'selected' : ''} ${adminRole !== 'owner' ? 'disabled' : ''}>owner</option>
                 </select></div>
             </form>
-        `, `<button class="admin-btn" data-bs-dismiss="modal">Annulla</button><button class="admin-btn admin-btn--primary" id="saveUserBtn">Salva</button>`);
+        `, `<button class="admin-btn" data-admin-close="1">Annulla</button><button class="admin-btn admin-btn--primary" id="saveUserBtn">Salva</button>`);
         $('#saveUserBtn').addEventListener('click', async () => {
             const form = $('#userEditForm');
             const payload = Object.fromEntries(new FormData(form).entries());
@@ -390,7 +423,7 @@
             state.cache.characters = data.characters || [];
             box.innerHTML = state.cache.characters.length ? `
                 <table class="admin-table"><thead><tr><th>Nome</th><th>Rarità</th><th>Categoria</th><th>Azioni</th></tr></thead><tbody>
-                    ${state.cache.characters.map((c) => `<tr><td data-label="Nome"><div class="admin-row-title">${escapeHtml(c.nome)}</div><div class="admin-row-sub">#${Number(c.id)}</div></td><td data-label="Rarità">${escapeHtml(c.rarita || '—')}</td><td data-label="Categoria">${escapeHtml(c.categoria || '—')}</td><td data-label="Azioni"><div class="admin-row-actions"><button class="admin-btn admin-btn--small" data-edit-character="${Number(c.id)}"><i class="fas fa-pen"></i> Modifica</button><button class="admin-btn admin-btn--small admin-btn--danger" data-delete-character="${Number(c.id)}"><i class="fas fa-trash"></i> Elimina</button></div></td></tr>`).join('')}
+                    ${state.cache.characters.map((c) => `<tr><td data-label="Nome"><div class="admin-name-cell">${thumb(c.image_url || c.img_url, 'fas fa-box-open')}<div><div class="admin-row-title">${escapeHtml(c.nome)}</div><div class="admin-row-sub">#${Number(c.id)}</div></div></div></td><td data-label="Rarità">${escapeHtml(c.rarita || '—')}</td><td data-label="Categoria">${escapeHtml(c.categoria || '—')}</td><td data-label="Azioni"><div class="admin-row-actions"><button class="admin-btn admin-btn--small" data-edit-character="${Number(c.id)}"><i class="fas fa-pen"></i> Modifica</button><button class="admin-btn admin-btn--small admin-btn--danger" data-delete-character="${Number(c.id)}"><i class="fas fa-trash"></i> Elimina</button></div></td></tr>`).join('')}
                 </tbody></table>` : emptyState('fas fa-box-open', 'Nessun personaggio');
             $$('[data-edit-character]', box).forEach((b) => b.addEventListener('click', () => openCharacterForm(state.cache.characters.find((c) => Number(c.id) === Number(b.dataset.editCharacter)))));
             $$('[data-delete-character]', box).forEach((b) => b.addEventListener('click', () => deleteCharacter(Number(b.dataset.deleteCharacter))));
@@ -409,9 +442,11 @@
         </form>`;
 
     const openCharacterForm = (item = null) => {
-        openModal(item ? 'Modifica personaggio' : 'Nuovo personaggio', item ? `ID ${item.id}` : '', characterFormHtml(item || {}), `<button class="admin-btn" data-bs-dismiss="modal">Annulla</button><button class="admin-btn admin-btn--primary" id="saveCharacterBtn">Salva</button>`);
-        $('#saveCharacterBtn').addEventListener('click', async () => {
-            const payload = Object.fromEntries(new FormData($('#characterForm')).entries());
+        openModal(item ? 'Modifica personaggio' : 'Nuovo personaggio', item ? `ID ${item.id}` : '', characterFormHtml(item || {}), `<button class="admin-btn" data-admin-close="1">Annulla</button><button class="admin-btn admin-btn--primary" id="saveCharacterBtn">Salva</button>`);
+        $('#saveCharacterBtn')?.addEventListener('click', async () => {
+            const form = $('#characterForm');
+            if (!form) return;
+            const payload = Object.fromEntries(new FormData(form).entries());
             try { await api(item ? 'update_character.php' : 'create_character.php', { method: 'POST', body: payload }); closeModal(); showToast('Personaggio salvato.'); loadCharacters(); loadDashboard(); }
             catch (error) { showToast(error.message, true); }
         });
@@ -430,7 +465,7 @@
             state.cache.achievements = data.achievements || [];
             box.innerHTML = state.cache.achievements.length ? `
                 <table class="admin-table"><thead><tr><th>Nome</th><th>Descrizione</th><th>Punti</th><th>Azioni</th></tr></thead><tbody>
-                    ${state.cache.achievements.map((a) => `<tr><td data-label="Nome"><div class="admin-row-title">${escapeHtml(a.nome)}</div><div class="admin-row-sub">#${Number(a.id)}</div></td><td data-label="Descrizione">${escapeHtml(a.descrizione || '—')}</td><td data-label="Punti">${Number(a.punti || 0)}</td><td data-label="Azioni"><div class="admin-row-actions"><button class="admin-btn admin-btn--small" data-edit-achievement="${Number(a.id)}"><i class="fas fa-pen"></i> Modifica</button><button class="admin-btn admin-btn--small admin-btn--danger" data-delete-achievement="${Number(a.id)}"><i class="fas fa-trash"></i> Elimina</button></div></td></tr>`).join('')}
+                    ${state.cache.achievements.map((a) => `<tr><td data-label="Nome"><div class="admin-name-cell">${thumb(a.image_url || a.img_url, 'fas fa-trophy')}<div><div class="admin-row-title">${escapeHtml(a.nome)}</div><div class="admin-row-sub">#${Number(a.id)}</div></div></div></td><td data-label="Descrizione">${escapeHtml(a.descrizione || '—')}</td><td data-label="Punti">${Number(a.punti || 0)}</td><td data-label="Azioni"><div class="admin-row-actions"><button class="admin-btn admin-btn--small" data-edit-achievement="${Number(a.id)}"><i class="fas fa-pen"></i> Modifica</button><button class="admin-btn admin-btn--small admin-btn--danger" data-delete-achievement="${Number(a.id)}"><i class="fas fa-trash"></i> Elimina</button></div></td></tr>`).join('')}
                 </tbody></table>` : emptyState('fas fa-trophy', 'Nessun achievement');
             $$('[data-edit-achievement]', box).forEach((b) => b.addEventListener('click', () => openAchievementForm(state.cache.achievements.find((a) => Number(a.id) === Number(b.dataset.editAchievement)))));
             $$('[data-delete-achievement]', box).forEach((b) => b.addEventListener('click', () => deleteAchievement(Number(b.dataset.deleteAchievement))));
@@ -448,9 +483,11 @@
         </form>`;
 
     const openAchievementForm = (item = null) => {
-        openModal(item ? 'Modifica achievement' : 'Nuovo achievement', item ? `ID ${item.id}` : '', achievementFormHtml(item || {}), `<button class="admin-btn" data-bs-dismiss="modal">Annulla</button><button class="admin-btn admin-btn--primary" id="saveAchievementBtn">Salva</button>`);
-        $('#saveAchievementBtn').addEventListener('click', async () => {
-            const payload = Object.fromEntries(new FormData($('#achievementForm')).entries());
+        openModal(item ? 'Modifica achievement' : 'Nuovo achievement', item ? `ID ${item.id}` : '', achievementFormHtml(item || {}), `<button class="admin-btn" data-admin-close="1">Annulla</button><button class="admin-btn admin-btn--primary" id="saveAchievementBtn">Salva</button>`);
+        $('#saveAchievementBtn')?.addEventListener('click', async () => {
+            const form = $('#achievementForm');
+            if (!form) return;
+            const payload = Object.fromEntries(new FormData(form).entries());
             try { await api(item ? 'update_achievement.php' : 'create_achievement.php', { method: 'POST', body: payload }); closeModal(); showToast('Achievement salvato.'); loadAchievements(); loadDashboard(); }
             catch (error) { showToast(error.message, true); }
         });
@@ -469,7 +506,7 @@
                 <div class="admin-field admin-field--full"><label>Personaggio</label><select name="character_id" required>${state.cache.characters.map((c) => `<option value="${Number(c.id)}">${escapeHtml(c.nome)}</option>`).join('')}</select></div>
                 <div class="admin-field"><label>Quantità</label><input type="number" name="quantity" value="1" min="1" max="9999"></div>
             </form>
-        `, `<button class="admin-btn" data-bs-dismiss="modal">Annulla</button><button class="admin-btn admin-btn--primary" id="assignCharacterBtn">Aggiungi</button>`);
+        `, `<button class="admin-btn" data-admin-close="1">Annulla</button><button class="admin-btn admin-btn--primary" id="assignCharacterBtn">Aggiungi</button>`);
         $('#assignCharacterBtn').addEventListener('click', async () => {
             const payload = Object.fromEntries(new FormData($('#assignCharacterForm')).entries());
             try { await api('add_character_to_user.php', { method: 'POST', body: payload }); closeModal(); showToast('Personaggio aggiunto.'); openUserDetails(userId); }
@@ -484,7 +521,7 @@
                 <input type="hidden" name="user_id" value="${Number(userId)}">
                 <div class="admin-field admin-field--full"><label>Achievement</label><select name="achievement_id" required>${state.cache.achievements.map((a) => `<option value="${Number(a.id)}">${escapeHtml(a.nome)}</option>`).join('')}</select></div>
             </form>
-        `, `<button class="admin-btn" data-bs-dismiss="modal">Annulla</button><button class="admin-btn admin-btn--primary" id="assignAchievementBtn">Assegna</button>`);
+        `, `<button class="admin-btn" data-admin-close="1">Annulla</button><button class="admin-btn admin-btn--primary" id="assignAchievementBtn">Assegna</button>`);
         $('#assignAchievementBtn').addEventListener('click', async () => {
             const payload = Object.fromEntries(new FormData($('#assignAchievementForm')).entries());
             try { await api('add_achievement_to_user.php', { method: 'POST', body: payload }); closeModal(); showToast('Achievement assegnato.'); openUserDetails(userId); }
@@ -543,6 +580,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         try {
             initModalInstances();
+        closeButtons(document);
 
             $('#confirmActionBtn')?.addEventListener('click', async () => {
                 if (!confirmAction) return;
