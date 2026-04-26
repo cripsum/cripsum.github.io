@@ -27,6 +27,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Inventario</title>
@@ -40,8 +41,8 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <meta property="og:url" content="<?php echo inventario_h($ogUrl); ?>">
     <meta name="twitter:card" content="summary_large_image">
 
-    <link rel="stylesheet" href="/assets/inventario/inventario.css?v=2.6-rarity-polish">
-    <script src="/assets/inventario/inventario.js?v=2.6-rarity-polish" defer></script>
+    <link rel="stylesheet" href="/assets/inventario/inventario.css?v=2.7">
+    <script src="/assets/inventario/inventario.js?v=2.7" defer></script>
 </head>
 
 <body class="inv-page">
@@ -168,4 +169,5 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>
