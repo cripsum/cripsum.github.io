@@ -352,10 +352,11 @@ const editMap = {
 };
 
 
-let profileRefreshScheduledFor = null;
+const DEFAULT_PROFILE_LARGE_IMAGE = "https://media1.tenor.com/m/98wDXMV0R_gAAAAC/wuwa-wuthering-waves.gif";
 
-function cleanProfilePart(value) {
+function cleanProfileUsername(value) {
   const raw = String(value || "").trim();
+
   if (!raw) return null;
 
   try {
@@ -391,117 +392,11 @@ function getProfileInfo() {
       null;
   }
 
-  username = cleanProfilePart(username);
+  username = cleanProfileUsername(username);
 
   if (!username) return null;
 
-  return {
-    username,
-    pathKey: `${path}${window.location.search || ""}`
-  };
-}
-
-function toAbsoluteImageUrl(value) {
-  const raw = String(value || "").trim();
-
-  if (!raw || raw.startsWith("data:") || raw.startsWith("blob:")) {
-    return null;
-  }
-
-  try {
-    if (raw.startsWith("//")) {
-      return `${window.location.protocol}${raw}`;
-    }
-
-    return new URL(raw, window.location.origin).href;
-  } catch {
-    return null;
-  }
-}
-
-function extractUrlFromCssBackground(value) {
-  const match = String(value || "").match(/url\((["']?)(.*?)\1\)/i);
-  return match && match[2] ? match[2] : null;
-}
-
-function getProfilePfpNow() {
-  const selectors = [
-    "[data-richpresence-pfp]",
-    "[data-profile-pfp]",
-    "[data-user-pfp]",
-    "[data-avatar]",
-    "[data-pfp]",
-    ".profile-avatar img",
-    ".profile-pfp img",
-    ".profile-picture img",
-    ".profile-hero__avatar img",
-    ".profile-card__avatar img",
-    ".bio-avatar img",
-    ".bio-pfp img",
-    ".user-avatar img",
-    ".avatar img",
-    ".pfp img",
-    "#profileAvatar",
-    "#userAvatar",
-    "#pfp",
-    "img[src*='get_pfp']",
-    "img[src*='pfp']",
-    "img[src*='avatar']",
-    "meta[property='og:image']",
-    "meta[name='twitter:image']"
-  ];
-
-  for (const selector of selectors) {
-    const element = document.querySelector(selector);
-    if (!element) continue;
-
-    const value =
-      element.getAttribute("data-richpresence-pfp") ||
-      element.getAttribute("data-profile-pfp") ||
-      element.getAttribute("data-user-pfp") ||
-      element.getAttribute("data-avatar") ||
-      element.getAttribute("data-pfp") ||
-      element.getAttribute("data-src") ||
-      element.getAttribute("src") ||
-      element.getAttribute("content");
-
-    const url = toAbsoluteImageUrl(value);
-    if (url) return url;
-  }
-
-  const backgroundSelectors = [
-    ".profile-avatar",
-    ".profile-pfp",
-    ".profile-picture",
-    ".profile-hero__avatar",
-    ".profile-card__avatar",
-    ".bio-avatar",
-    ".bio-pfp",
-    ".user-avatar",
-    ".avatar",
-    ".pfp"
-  ];
-
-  for (const selector of backgroundSelectors) {
-    const element = document.querySelector(selector);
-    if (!element) continue;
-
-    const bgUrl = extractUrlFromCssBackground(window.getComputedStyle(element).backgroundImage);
-    const url = toAbsoluteImageUrl(bgUrl);
-    if (url) return url;
-  }
-
-  return null;
-}
-
-function scheduleProfilePresenceRefresh(profileInfo) {
-  if (!profileInfo || profileRefreshScheduledFor === profileInfo.pathKey) return;
-
-  profileRefreshScheduledFor = profileInfo.pathKey;
-
-  setTimeout(updatePresence, 500);
-  setTimeout(updatePresence, 1500);
-  setTimeout(updatePresence, 3000);
+  return { username };
 }
 
 function connectWebSocket() {
@@ -619,19 +514,13 @@ async function updatePresence() {
 
   const profileInfo = getProfileInfo();
   if (profileInfo) {
-    const profilePfp = getProfilePfpNow();
-
     page = {
       title: `Profilo di ${profileInfo.username}`,
       state: `Visualizzando il profilo di ${profileInfo.username}`,
       imageText: `Profilo di ${profileInfo.username}`,
-      largeImageKey: profilePfp || page.largeImageKey,
+      largeImageKey: DEFAULT_PROFILE_LARGE_IMAGE,
       url: fullPath
     };
-
-    if (!profilePfp) {
-      scheduleProfilePresenceRefresh(profileInfo);
-    }
   }
 
   try {
