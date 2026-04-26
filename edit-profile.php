@@ -256,7 +256,6 @@ function profile_json_script(string $id, array $data): void
                 <div class="profile-edit-section" data-edit-section="projects">
                     <div class="bio-section-heading">
                         <div><span><i class="fas fa-cubes"></i> Progetti</span>
-                            <p>Sito, mod, launcher, tool, game, repo.</p>
                         </div><button type="button" class="bio-button" data-add-row="projects">+ Progetto</button>
                     </div>
                     <div class="profile-repeater" id="projectsRepeater"></div>
@@ -274,7 +273,7 @@ function profile_json_script(string $id, array $data): void
                 <div class="profile-edit-section" data-edit-section="custom">
                     <div class="bio-section-heading">
                         <div><span><i class="fas fa-wand-magic-sparkles"></i> Blocchi custom</span>
-                            <p>Testi, immagini, GIF o video. Se sono vuoti non appaiono nel profilo.</p>
+                            <p>Testi, immagini, GIF o video.</p>
                         </div><button type="button" class="bio-button" data-add-row="blocks">+ Blocco</button>
                     </div>
                     <div class="profile-repeater" id="blocksRepeater"></div>
@@ -345,19 +344,18 @@ function profile_json_script(string $id, array $data): void
             </section>
 
             <aside class="bio-hero bio-card profile-preview-card js-tilt-card js-reveal">
-                <span class="bio-pill">Preview live</span>
-                <div class="profile-background-note"><i class="fas fa-image"></i><span>Lo sfondo scelto appare dietro tutta la pagina, non sopra la foto profilo.</span></div>
+                <span class="bio-pill">Preview profilo</span>
+                <!-- <div class="profile-background-note"><i class="fas fa-image"></i><span>Lo sfondo scelto appare dietro tutta la pagina, non sopra la foto profilo.</span></div> -->
                 <div class="bio-avatar-wrap profile-preview-avatar-ring" id="previewAvatarWrap">
                     <div class="bio-avatar-ring" id="previewAvatarRing"></div><img class="bio-avatar" id="previewAvatar" src="<?php echo profile_h(profile_avatar_url($profile, 256)); ?>" alt="">
                 </div>
                 <div class="bio-name-block">
-                    <p class="bio-kicker">preview profilo</p>
                     <h1 id="previewName"><?php echo profile_h($displayName); ?></h1>
                     <p class="bio-username" id="previewUsername">@<?php echo profile_h($profile['username']); ?></p>
                 </div>
                 <p class="bio-tagline" id="previewBio"><?php echo profile_h($profile['bio'] ?: 'La tua bio apparirà qui.'); ?></p>
                 <div class="bio-badges"><span class="bio-badge" id="previewStatusBadge"><i class="fas fa-signal"></i>Stato</span><span class="bio-badge"><i class="fas fa-link"></i>Link</span><span class="bio-badge"><i class="fas fa-trophy"></i>Badge</span></div>
-                <p class="bio-description" id="previewExtra">Audio, effetti e blocchi custom appaiono solo se li compili.</p>
+                <!-- <p class="bio-description" id="previewExtra">Audio, effetti e blocchi custom appaiono solo se li compili.</p> -->
             </aside>
         </form>
     </main>
