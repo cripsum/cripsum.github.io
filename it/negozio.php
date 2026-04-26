@@ -23,14 +23,16 @@ $products = [
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Negozio</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="Shop statico di Cripsum™. Prodotti seri il giusto.">
-    <link rel="stylesheet" href="/assets/shop/shop.css?v=2.0-static-shop">
-    <script src="/assets/shop/shop.js?v=2.0-static-shop" defer></script>
+    <link rel="stylesheet" href="/assets/shop/shop.css?v=2.1-mobile-bg-fix">
+    <script src="/assets/shop/shop.js?v=2.1-mobile-bg-fix" defer></script>
 </head>
+
 <body class="shop-page shop-theme-store" data-shop-page="negozio" data-favorites="1">
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
@@ -38,15 +40,14 @@ $products = [
     <main class="shop-shell">
         <section class="shop-hero shop-reveal">
             <div class="shop-hero__content">
-                <span class="shop-kicker">Fake store</span>
+                <span class="shop-kicker">Negozio da fichi</span>
                 <h1>Negozio Cripsum™</h1>
-                <p>Prodotti hardcodati, prezzi discutibili e zero checkout serio.</p>
+                <p>Prodotti che solo i più fichi oserebbero comprare.</p>
                 <div class="shop-hero__actions">
                     <a class="shop-btn shop-btn--primary" href="#prodotti">Guarda prodotti</a>
                     <button class="shop-btn shop-btn--ghost" type="button" data-show-favorites>Preferiti</button>
                 </div>
             </div>
-            <div class="shop-hero__emoji" aria-hidden="true">🛒💀⚡</div>
         </section>
 
         <section class="shop-panel shop-reveal" id="prodotti">
@@ -113,6 +114,22 @@ $products = [
                 <span>Prova a cambiare ricerca o filtro.</span>
             </div>
         </section>
+
+        <section class="shop-faq shop-reveal">
+            <h2>Domande frequenti (FAQ)</h2>
+            <details>
+                <summary>Come fate ad avere prodotti che ancora non esistono in commercio?</summary>
+                <p>Abbiamo un team di sviluppo che lavora su prototipi e concept per prodotti futuri. in pratica me le ha date il mio cuggino con lo zio in america</p>
+            </details>
+            <details>
+                <summary>In che senso vendete mia madre?</summary>
+                <p>In senso letterale, stiamo cercando di espandere la nostra linea di prodotti per includere articoli più "personali".</p>
+            </details>
+            <details>
+                <summary>Quali metodi di pagamento accettate?</summary>
+                <p>Accettiamo pagamento in natura.</p>
+            </details>
+        </section>
     </main>
 
     <div class="shop-modal" data-shop-modal hidden>
@@ -129,4 +146,5 @@ $products = [
     <?php include '../includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>

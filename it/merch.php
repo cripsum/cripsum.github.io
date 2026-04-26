@@ -26,14 +26,16 @@ $products = [
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Merch</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="Merch statico di Cripsum™ / simonetussi.ph.">
-    <link rel="stylesheet" href="/assets/shop/shop.css?v=2.0-static-shop">
-    <script src="/assets/shop/shop.js?v=2.0-static-shop" defer></script>
+    <link rel="stylesheet" href="/assets/shop/shop.css?v=2.1-mobile-bg-fix">
+    <script src="/assets/shop/shop.js?v=2.1-mobile-bg-fix" defer></script>
 </head>
+
 <body class="shop-page shop-theme-merch" data-shop-page="merch" data-favorites="1">
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
@@ -43,7 +45,7 @@ $products = [
             <div class="shop-hero__content">
                 <span class="shop-kicker">Merch drop</span>
                 <h1>NEW MERCH OUT NOW</h1>
-                <p>Il merch simonetussi.ph. Giallo, serio il giusto, inutile il giusto.</p>
+                <p>Il merch simonetussi.ph. il fotografo e psicologo più fico di sempre.</p>
                 <div class="shop-hero__actions">
                     <a class="shop-btn shop-btn--primary" href="#prodotti">Guarda prodotti</a>
                     <button class="shop-btn shop-btn--ghost" type="button" data-show-favorites>Preferiti</button>
@@ -122,6 +124,22 @@ $products = [
                 <span>Prova a cambiare ricerca o filtro.</span>
             </div>
         </section>
+
+        <section class="shop-faq shop-reveal">
+            <h2>Domande frequenti (FAQ)</h2>
+            <details>
+                <summary>Quando uscirà il secondo drop del merch di Simone Tussi?</summary>
+                <p>Non abbiamo ancora una data ufficiale, ma ti consigliamo di seguire i nostri canali social per rimanere aggiornato sulle novità! (mai)</p>
+            </details>
+           <details>
+                <summary>Come vengono prodotti i capi?</summary>
+                <p>Il nostro merch è prodotto in 100% poliestere, garantendo discomfort e non-durabilità. Ogni pezzo è realizzato con cura da un ragazzino filippino per offrire il massimo stile e resistenza.</p>
+           </details>
+           <details>
+               <summary>Quali metodi di pagamento accettate?</summary>
+               <p>Accettiamo pagamento in natura.</p>
+           </details>
+        </section>
     </main>
 
     <div class="shop-modal" data-shop-modal hidden>
@@ -138,4 +156,5 @@ $products = [
     <?php include '../includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>

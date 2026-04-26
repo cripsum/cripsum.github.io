@@ -803,3 +803,79 @@ body.shop-page .dropdown-menu button:hover {
         transition-duration: .01ms !important;
     }
 }
+
+
+/* V2.1 mobile width + background fix */
+html,
+body.shop-page {
+    min-height: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+body.shop-page {
+    background:
+        radial-gradient(circle at 8% 6%, rgba(var(--shop-accent-rgb), .22), transparent 30rem),
+        radial-gradient(circle at 92% 18%, rgba(139, 92, 246, .13), transparent 28rem),
+        linear-gradient(135deg, var(--shop-bg), var(--shop-bg-2)) !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+    background-size: cover !important;
+}
+
+body.shop-theme-merch {
+    background:
+        radial-gradient(circle at 10% 4%, rgba(255, 234, 100, .35), transparent 28rem),
+        radial-gradient(circle at 88% 18%, rgba(255, 179, 0, .22), transparent 30rem),
+        linear-gradient(135deg, #2e2203, #9d7606 70%, #c79911) !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+    background-size: cover !important;
+}
+
+@media (max-width: 620px) {
+    .shop-shell {
+        width: 90%;
+        max-width: 560px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-top: 5.5rem;
+    }
+}
+
+@media (max-width: 380px) {
+    .shop-shell {
+        width: 92%;
+    }
+}
+
+/* fallback per mobile dove background-attachment: fixed può glitchare */
+@supports (-webkit-touch-callout: none) {
+    body.shop-page,
+    body.shop-theme-merch {
+        background-attachment: scroll !important;
+    }
+
+    body.shop-page::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -10;
+        pointer-events: none;
+        background:
+            radial-gradient(circle at 8% 6%, rgba(var(--shop-accent-rgb), .22), transparent 30rem),
+            radial-gradient(circle at 92% 18%, rgba(139, 92, 246, .13), transparent 28rem),
+            linear-gradient(135deg, var(--shop-bg), var(--shop-bg-2));
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    body.shop-theme-merch::before {
+        background:
+            radial-gradient(circle at 10% 4%, rgba(255, 234, 100, .35), transparent 28rem),
+            radial-gradient(circle at 88% 18%, rgba(255, 179, 0, .22), transparent 30rem),
+            linear-gradient(135deg, #2e2203, #9d7606 70%, #c79911);
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+}

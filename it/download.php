@@ -20,14 +20,16 @@ $downloads = [
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Download</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="Download statici di Cripsum™.">
-    <link rel="stylesheet" href="/assets/shop/shop.css?v=2.0-static-shop">
-    <script src="/assets/shop/shop.js?v=2.0-static-shop" defer></script>
+    <link rel="stylesheet" href="/assets/shop/shop.css?v=2.1-mobile-bg-fix">
+    <script src="/assets/shop/shop.js?v=2.1-mobile-bg-fix" defer></script>
 </head>
+
 <body class="shop-page shop-theme-download" data-shop-page="download" data-favorites="0">
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
@@ -37,7 +39,7 @@ $downloads = [
             <div class="shop-hero__content">
                 <span class="shop-kicker">Download</span>
                 <h1>Download Center</h1>
-                <p>File e pagine di download del sito. Solo roba statica, niente magia.</p>
+                <p>suca e scarica</p>
                 <div class="shop-hero__actions">
                     <a class="shop-btn shop-btn--primary" href="#download-list">Vai ai download</a>
                     <a class="shop-btn shop-btn--ghost" href="https://discord.gg/XdheJHVURw" target="_blank" rel="noopener">Discord</a>
@@ -50,7 +52,7 @@ $downloads = [
             <i class="fas fa-circle-info"></i>
             <div>
                 <strong>Prima di scaricare</strong>
-                <span>Alcuni link portano a pagine interne, altri a siti esterni. I contenuti “Coming soon” non sono cliccabili.</span>
+                <span>Alcuni link portano a pagine interne, altri a siti esterni. In ogni caso lo staff di Cripsum™ assicura che i download siano sempre sicuri.</span>
             </div>
         </section>
 
@@ -118,13 +120,26 @@ $downloads = [
         </section>
 
         <section class="shop-faq shop-reveal">
+            <h2>Domande frequenti (FAQ)</h2>
             <details>
                 <summary>Come funzionano i download?</summary>
-                <p>Sono link statici. Se un contenuto non è pronto, resta segnato come Coming soon.</p>
+                <p>boh tipo clicchi e ti scarica fra non lo so tipo</p>
             </details>
             <details>
                 <summary>Serve un account?</summary>
-                <p>No. Questa pagina resta pubblica e statica.</p>
+                <p>No.</p>
+            </details>
+            <details>
+                <summary>I download sono sicuri?</summary>
+                <p>Sì, lo staff di Cripsum™ verifica che tutti i download siano sicuri e privi di malware.</p>
+            </details>
+            <details>
+                <summary>Perché alcuni download non sono disponibili?</summary>
+                <p>I contenuti contrassegnati come "Coming soon" saranno disponibili prossimamente. Torna a visitarci per novità!</p>
+            </details>
+            <details>
+                <summary>Posso suggerire nuovi contenuti da scaricare?</summary>
+                <p>Certo! Unisciti al nostro <a href="https://discord.gg/XdheJHVURw" target="_blank" rel="noopener">server Discord</a> e facci sapere cosa vorresti vedere.</p>
             </details>
         </section>
     </main>
@@ -143,4 +158,5 @@ $downloads = [
     <?php include '../includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>
