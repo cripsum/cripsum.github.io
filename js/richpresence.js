@@ -352,24 +352,53 @@ const editMap = {
 };
 
 
+let profileRefreshScheduledFor = null;
 
-let cachedProfilePfpPath = null;
-let cachedProfilePfpUrl = null;
-let profilePfpObserver = null;
-let lastProfilePfpSent = null;
+function cleanProfilePart(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return null;
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
 }
 
-function waitForDomReady() {
-  if (document.readyState !== "loading") {
-    return Promise.resolve();
+function getProfileInfo() {
+  const path = window.location.pathname || "/";
+  const parts = path.replace(/\/+$/, "").split("/").filter(Boolean);
+  const params = new URLSearchParams(window.location.search || "");
+
+  if (parts[0] === "it" || parts[0] === "en") {
+    parts.shift();
   }
 
-  return new Promise((resolve) => {
-    document.addEventListener("DOMContentLoaded", resolve, { once: true });
-  });
+  const section = parts[0] || "";
+  let username = null;
+
+  if (section === "user" || section === "u" || section === "profile") {
+    username = parts[1] || null;
+  }
+
+  if (!username && (section === "user" || section === "u" || section === "profile")) {
+    username =
+      params.get("username") ||
+      params.get("user") ||
+      params.get("u") ||
+      params.get("id") ||
+      params.get("") ||
+      null;
+  }
+
+  username = cleanProfilePart(username);
+
+  if (!username) return null;
+
+  return {
+    username,
+    pathKey: `${path}${window.location.search || ""}`
+  };
 }
 
 function toAbsoluteImageUrl(value) {
@@ -391,57 +420,24 @@ function toAbsoluteImageUrl(value) {
 }
 
 function extractUrlFromCssBackground(value) {
-  const raw = String(value || "");
-  const match = raw.match(/url\((["']?)(.*?)\1\)/i);
-
+  const match = String(value || "").match(/url\((["']?)(.*?)\1\)/i);
   return match && match[2] ? match[2] : null;
 }
 
-function getImageValueFromElement(element) {
-  if (!element) return null;
-
-  const directValue =
-    element.getAttribute("data-richpresence-pfp") ||
-    element.getAttribute("data-profile-pfp") ||
-    element.getAttribute("data-user-pfp") ||
-    element.getAttribute("data-avatar") ||
-    element.getAttribute("data-pfp") ||
-    element.getAttribute("data-src") ||
-    element.getAttribute("src") ||
-    element.getAttribute("href") ||
-    element.getAttribute("content");
-
-  if (directValue) {
-    return directValue;
-  }
-
-  try {
-    const bg = window.getComputedStyle(element).backgroundImage;
-    return extractUrlFromCssBackground(bg);
-  } catch {
-    return null;
-  }
-}
-
-function findProfilePfpOnPage() {
+function getProfilePfpNow() {
   const selectors = [
     "[data-richpresence-pfp]",
     "[data-profile-pfp]",
     "[data-user-pfp]",
     "[data-avatar]",
     "[data-pfp]",
-    "img[data-richpresence-pfp]",
-    "img[data-profile-pfp]",
-    "img[data-user-pfp]",
     ".profile-avatar img",
     ".profile-pfp img",
     ".profile-picture img",
     ".profile-hero__avatar img",
     ".profile-card__avatar img",
-    ".profile-main__avatar img",
     ".bio-avatar img",
     ".bio-pfp img",
-    ".bio-profile__avatar img",
     ".user-avatar img",
     ".avatar img",
     ".pfp img",
@@ -451,21 +447,26 @@ function findProfilePfpOnPage() {
     "img[src*='get_pfp']",
     "img[src*='pfp']",
     "img[src*='avatar']",
-    "img[class*='avatar']",
-    "img[class*='pfp']",
-    "img[id*='avatar']",
-    "img[id*='pfp']",
     "meta[property='og:image']",
     "meta[name='twitter:image']"
   ];
 
   for (const selector of selectors) {
     const element = document.querySelector(selector);
-    const url = toAbsoluteImageUrl(getImageValueFromElement(element));
+    if (!element) continue;
 
-    if (url) {
-      return url;
-    }
+    const value =
+      element.getAttribute("data-richpresence-pfp") ||
+      element.getAttribute("data-profile-pfp") ||
+      element.getAttribute("data-user-pfp") ||
+      element.getAttribute("data-avatar") ||
+      element.getAttribute("data-pfp") ||
+      element.getAttribute("data-src") ||
+      element.getAttribute("src") ||
+      element.getAttribute("content");
+
+    const url = toAbsoluteImageUrl(value);
+    if (url) return url;
   }
 
   const backgroundSelectors = [
@@ -483,128 +484,24 @@ function findProfilePfpOnPage() {
 
   for (const selector of backgroundSelectors) {
     const element = document.querySelector(selector);
-    const url = toAbsoluteImageUrl(getImageValueFromElement(element));
+    if (!element) continue;
 
-    if (url) {
-      return url;
-    }
+    const bgUrl = extractUrlFromCssBackground(window.getComputedStyle(element).backgroundImage);
+    const url = toAbsoluteImageUrl(bgUrl);
+    if (url) return url;
   }
 
   return null;
 }
 
-async function getProfilePfpUrl(pathKey) {
-  if (cachedProfilePfpPath === pathKey && cachedProfilePfpUrl) {
-    return cachedProfilePfpUrl;
-  }
+function scheduleProfilePresenceRefresh(profileInfo) {
+  if (!profileInfo || profileRefreshScheduledFor === profileInfo.pathKey) return;
 
-  cachedProfilePfpPath = pathKey;
-  cachedProfilePfpUrl = null;
+  profileRefreshScheduledFor = profileInfo.pathKey;
 
-  await waitForDomReady();
-
-  for (let attempt = 0; attempt < 10; attempt += 1) {
-    const pfpUrl = findProfilePfpOnPage();
-
-    if (pfpUrl) {
-      cachedProfilePfpUrl = pfpUrl;
-      return cachedProfilePfpUrl;
-    }
-
-    await sleep(250);
-  }
-
-  return null;
-}
-
-function getProfileInfoFromLocation() {
-  const originalPath = window.location.pathname || "/";
-  const cleanPath = originalPath.replace(/\/+$/, "");
-  const parts = cleanPath.split("/").filter(Boolean);
-  const searchParams = new URLSearchParams(window.location.search || "");
-
-  if (parts[0] === "it" || parts[0] === "en") {
-    parts.shift();
-  }
-
-  const section = parts[0] || "";
-  let username = null;
-
-  if (section === "user" || section === "u" || section === "profile") {
-    username = parts[1] || null;
-  }
-
-  if (!username && (section === "user" || section === "u" || section === "profile")) {
-    username =
-      searchParams.get("username") ||
-      searchParams.get("user") ||
-      searchParams.get("u") ||
-      searchParams.get("name") ||
-      searchParams.get("") ||
-      null;
-  }
-
-  if (!username) {
-    return null;
-  }
-
-  try {
-    username = decodeURIComponent(username);
-  } catch {
-    username = String(username);
-  }
-
-  username = username.trim();
-
-  if (!username) {
-    return null;
-  }
-
-  return {
-    username,
-    pathKey: `${originalPath}${window.location.search || ""}`
-  };
-}
-
-function getProfileUsernameFromPath() {
-  const info = getProfileInfoFromLocation();
-  return info ? info.username : null;
-}
-
-function watchProfilePfpChanges() {
-  const profileInfo = getProfileInfoFromLocation();
-
-  if (!profileInfo || profilePfpObserver || !document.body || typeof MutationObserver === "undefined") {
-    return;
-  }
-
-  profilePfpObserver = new MutationObserver(() => {
-    const pfpUrl = findProfilePfpOnPage();
-
-    if (!pfpUrl || pfpUrl === lastProfilePfpSent) {
-      return;
-    }
-
-    cachedProfilePfpPath = null;
-    cachedProfilePfpUrl = null;
-    lastProfilePfpSent = pfpUrl;
-
-    updatePresence();
-  });
-
-  profilePfpObserver.observe(document.body, {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ["src", "style", "data-richpresence-pfp", "data-profile-pfp", "data-user-pfp"]
-  });
-
-  setTimeout(() => {
-    if (profilePfpObserver) {
-      profilePfpObserver.disconnect();
-      profilePfpObserver = null;
-    }
-  }, 8000);
+  setTimeout(updatePresence, 500);
+  setTimeout(updatePresence, 1500);
+  setTimeout(updatePresence, 3000);
 }
 
 function connectWebSocket() {
@@ -720,20 +617,21 @@ async function updatePresence() {
   }
 }
 
-  const profileInfo = getProfileInfoFromLocation();
+  const profileInfo = getProfileInfo();
   if (profileInfo) {
-    const profilePfpUrl = await getProfilePfpUrl(profileInfo.pathKey);
-    lastProfilePfpSent = profilePfpUrl || null;
+    const profilePfp = getProfilePfpNow();
 
     page = {
       title: `Profilo di ${profileInfo.username}`,
       state: `Visualizzando il profilo di ${profileInfo.username}`,
       imageText: `Profilo di ${profileInfo.username}`,
-      largeImageKey: profilePfpUrl || page.largeImageKey,
+      largeImageKey: profilePfp || page.largeImageKey,
       url: fullPath
     };
 
-    watchProfilePfpChanges();
+    if (!profilePfp) {
+      scheduleProfilePresenceRefresh(profileInfo);
+    }
   }
 
   try {
@@ -757,7 +655,7 @@ connectWebSocket();
 
 window.addEventListener("popstate", updatePresence);
 window.addEventListener("hashchange", updatePresence);
-document.addEventListener("DOMContentLoaded", () => { watchProfilePfpChanges(); updatePresence(); });
+document.addEventListener("DOMContentLoaded", updatePresence);
 
 const originalPushState = history.pushState;
 const originalReplaceState = history.replaceState;
