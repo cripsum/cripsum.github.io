@@ -103,5 +103,6 @@
         initBootstrapAfterLoad();
         initReveal();
         initCarouselPolish();
+        document.body.classList.add('home-is-ready');
     });
 })();

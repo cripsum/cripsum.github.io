@@ -163,8 +163,8 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <meta property="og:url" content="<?php echo home_h($ogUrl); ?>">
     <meta name="twitter:card" content="summary_large_image">
     <link rel="preload" as="image" href="../img/amongus.jpg">
-    <link rel="stylesheet" href="/assets/home-original-v2/home-original-v2.css?v=3.1-original-plus">
-    <script src="/assets/home-original-v2/home-original-v2.js?v=3.1-original-plus" defer></script>
+    <link rel="stylesheet" href="/assets/home-original-v2/home-original-v2.css?v=3.2-clean-mobile">
+    <script src="/assets/home-original-v2/home-original-v2.js?v=3.2-clean-mobile" defer></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1527058839538660" crossorigin="anonymous"></script>
 </head>
 
