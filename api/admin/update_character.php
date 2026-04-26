@@ -12,7 +12,12 @@ try {
     $sets = [admin_qcol($nameCol) . ' = ?'];
     $types = 's';
     $params = [$name];
+    $description = trim((string)($input['descrizione'] ?? ''));
+    $features = trim((string)($input['caratteristiche'] ?? ''));
+
     $values = [
+        'description' => $description !== '' ? $description : null,
+        'features' => $features !== '' ? $features : null,
         'image' => admin_validate_url($input['img_url'] ?? null),
         'rarity' => trim((string)($input['rarita'] ?? '')) ?: null,
         'audio' => admin_validate_url($input['audio_url'] ?? null),

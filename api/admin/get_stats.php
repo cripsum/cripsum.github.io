@@ -10,6 +10,10 @@ try {
         'achievements' => admin_table_exists($mysqli, 'achievement') ? admin_safe_count($mysqli, "SELECT COUNT(*) AS total FROM achievement") : 0,
         'inventory_rows' => admin_table_exists($mysqli, 'utenti_personaggi') ? admin_safe_count($mysqli, "SELECT COUNT(*) AS total FROM utenti_personaggi") : 0,
         'unlocked_achievements' => admin_table_exists($mysqli, 'utenti_achievement') ? admin_safe_count($mysqli, "SELECT COUNT(*) AS total FROM utenti_achievement") : 0,
+        'shitposts' => admin_table_exists($mysqli, 'shitposts') ? admin_safe_count($mysqli, "SELECT COUNT(*) AS total FROM shitposts") : 0,
+        'shitposts_pending' => admin_table_exists($mysqli, 'shitposts') ? admin_safe_count($mysqli, "SELECT COUNT(*) AS total FROM shitposts WHERE approvato = 0") : 0,
+        'toprimasti' => admin_table_exists($mysqli, 'toprimasti') ? admin_safe_count($mysqli, "SELECT COUNT(*) AS total FROM toprimasti") : 0,
+        'toprimasti_pending' => admin_table_exists($mysqli, 'toprimasti') ? admin_safe_count($mysqli, "SELECT COUNT(*) AS total FROM toprimasti WHERE approvato = 0") : 0,
     ];
 
     $latestUsers = [];

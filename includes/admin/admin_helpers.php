@@ -396,6 +396,8 @@ function admin_character_columns(mysqli $mysqli): array
     return [
         'id' => 'id',
         'name' => admin_first_existing_column($mysqli, 'personaggi', ['nome', 'name']),
+        'description' => admin_first_existing_column($mysqli, 'personaggi', ['descrizione', 'description', 'desc']),
+        'features' => admin_first_existing_column($mysqli, 'personaggi', ['caratteristiche', 'features', 'traits']),
         'image' => admin_first_existing_column($mysqli, 'personaggi', ['img_url', 'immagine', 'image_url', 'img']),
         'rarity' => admin_first_existing_column($mysqli, 'personaggi', ['rarità', 'rarita', 'rarity']),
         'audio' => admin_first_existing_column($mysqli, 'personaggi', ['audio_url', 'audio']),

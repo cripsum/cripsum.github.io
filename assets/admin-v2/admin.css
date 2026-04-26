@@ -362,3 +362,65 @@ body.modal-open {
         border-radius: 12px;
     }
 }
+
+
+/* V2.1 content moderation */
+.admin-content-thumb {
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
+    object-fit: cover;
+    flex: 0 0 auto;
+    background: rgba(255,255,255,.07);
+    border: 1px solid var(--admin-border);
+}
+
+.admin-content-thumb--empty {
+    display: grid;
+    place-items: center;
+    color: var(--admin-muted);
+}
+
+.admin-cell-text {
+    min-width: 0;
+}
+
+.admin-cell-text span,
+.admin-cell-text small {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+}
+
+.admin-cell-text span {
+    color: var(--admin-muted);
+    font-size: .86rem;
+    line-height: 1.45;
+    -webkit-line-clamp: 2;
+}
+
+.admin-cell-text small {
+    margin-top: .2rem;
+    color: var(--admin-muted-2);
+    font-size: .76rem;
+    line-height: 1.35;
+    -webkit-line-clamp: 2;
+}
+
+@media (max-width: 720px) {
+    .admin-content-thumb {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+    }
+
+    .admin-table td[data-label="Post"] .admin-name-cell,
+    .admin-table td[data-label="Nome"] .admin-name-cell {
+        align-items: flex-start;
+    }
+
+    .admin-row-actions {
+        gap: .4rem;
+    }
+}

@@ -12,7 +12,12 @@ try {
     $types = 's';
     $params = [$name];
 
+    $description = trim((string)($input['descrizione'] ?? ''));
+    $features = trim((string)($input['caratteristiche'] ?? ''));
+
     $map = [
+        'description' => ['input' => 'descrizione', 'type' => 's', 'value' => $description !== '' ? $description : null],
+        'features' => ['input' => 'caratteristiche', 'type' => 's', 'value' => $features !== '' ? $features : null],
         'image' => ['input' => 'img_url', 'type' => 's', 'value' => admin_validate_url($input['img_url'] ?? null)],
         'rarity' => ['input' => 'rarita', 'type' => 's', 'value' => trim((string)($input['rarita'] ?? '')) ?: null],
         'audio' => ['input' => 'audio_url', 'type' => 's', 'value' => admin_validate_url($input['audio_url'] ?? null)],
