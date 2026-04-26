@@ -8,13 +8,14 @@
     const isAdmin = body.dataset.admin === '1';
     const currentUserId = Number(body.dataset.userId || 0);
     const needsMotivation = body.dataset.needsMotivation === '1';
+    const defaultSort = body.dataset.defaultSort || (type === 'rimasto' ? 'top' : 'recent');
 
     const state = {
         page: 1,
         pages: 1,
         loading: false,
         q: '',
-        sort: 'recent',
+        sort: defaultSort,
         status: isAdmin ? 'approved' : 'approved',
         savedOnly: false,
         posts: [],
@@ -125,10 +126,10 @@
 
         return `
             <article class="cw-post ${isSpoiler ? 'is-spoiler' : ''}" data-post-id="${Number(post.id)}" data-approved="${approved ? '1' : '0'}">
-                <div class="cw-post__media-wrap">
+                <button type="button" class="cw-post__media-wrap cw-post__media-button" data-open-post="${Number(post.id)}" aria-label="Apri post">
                     ${mediaHtml(post)}
                     ${isSpoiler ? `<button type="button" class="cw-spoiler-cover" data-reveal-spoiler="${Number(post.id)}"><span class="cw-btn cw-btn--ghost"><i class="fas fa-eye"></i> Mostra spoiler</span></button>` : ''}
-                </div>
+                </button>
 
                 <div class="cw-card-body">
                     <div class="cw-post__head">
@@ -142,7 +143,7 @@
                         ${post.ruolo && post.ruolo !== 'utente' ? `<span class="cw-badge">${escapeHtml(post.ruolo)}</span>` : ''}
                     </div>
 
-                    <h2 class="cw-title">${escapeHtml(post.titolo || 'Senza titolo')}</h2>
+                    <button type="button" class="cw-title cw-title-button" data-open-post="${Number(post.id)}">${escapeHtml(post.titolo || 'Senza titolo')}</button>
                     ${hasDesc ? `<p class="cw-description">${escapeHtml(post.descrizione)}</p>` : ''}
                     ${hasExtra ? `<p class="cw-extra">${escapeHtml(post.extra_text)}</p>` : ''}
 
@@ -309,12 +310,101 @@
             });
         });
 
+        $$('[data-open-post]', root).forEach((btn) => {
+            if (btn.dataset.boundOpen === '1') return;
+            btn.dataset.boundOpen = '1';
+            btn.addEventListener('click', (event) => {
+                event.preventDefault();
+                const id = Number(btn.dataset.openPost || 0);
+                if (id) openPostModal(id);
+            });
+        });
+
         $$('[data-reveal-spoiler]', root).forEach((btn) => {
             if (btn.dataset.bound === '1') return;
             btn.dataset.bound = '1';
-            btn.addEventListener('click', () => btn.closest('.cw-post')?.classList.add('is-revealed'));
+            btn.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                btn.closest('.cw-post')?.classList.add('is-revealed');
+            });
         });
     };
+
+
+    const openPostModal = async (id) => {
+        const post = state.posts.find((item) => Number(item.id) === Number(id));
+        if (!post) return;
+
+        const modal = $('#cwPostModal');
+        const bodyBox = $('#cwPostModalBody');
+        if (!modal || !bodyBox) return;
+
+        const url = `${location.origin}${post.public_url || location.pathname + '?post=' + post.id}`;
+        const hasDesc = String(post.descrizione || '').trim() !== '';
+        const hasExtra = String(post.extra_text || '').trim() !== '';
+        const tag = String(post.tag || '').trim();
+
+        bodyBox.innerHTML = `
+            <article class="cw-post-detail">
+                <div class="cw-post-detail__media">
+                    ${mediaHtml(post)}
+                </div>
+                <div class="cw-post-detail__body">
+                    <div class="cw-post__head">
+                        <a class="cw-user" href="/u/${encodeURIComponent(post.username || '')}">
+                            <img class="cw-avatar" src="/includes/get_pfp.php?id=${Number(post.id_utente)}" alt="">
+                            <span>
+                                <strong>${escapeHtml(post.username || 'utente')}</strong>
+                                <span>${formatDate(post.data_creazione)}</span>
+                            </span>
+                        </a>
+                        ${post.ruolo && post.ruolo !== 'utente' ? `<span class="cw-badge">${escapeHtml(post.ruolo)}</span>` : ''}
+                    </div>
+
+                    <h2 class="cw-title">${escapeHtml(post.titolo || 'Senza titolo')}</h2>
+                    ${hasDesc ? `<p class="cw-description">${escapeHtml(post.descrizione)}</p>` : ''}
+                    ${hasExtra ? `<p class="cw-extra">${escapeHtml(post.extra_text)}</p>` : ''}
+
+                    <div class="cw-meta-row">
+                        ${tag ? `<span class="cw-meta-pill"><i class="fas fa-tag"></i>${escapeHtml(tag)}</span>` : ''}
+                        <span class="cw-meta-pill"><i class="fas fa-fire"></i>${compactNumber(post.score || 0)}</span>
+                        <span class="cw-meta-pill"><i class="fas fa-comment"></i>${compactNumber(post.comments_count || 0)}</span>
+                        <span class="cw-meta-pill"><i class="fas fa-eye"></i>${compactNumber(post.views || 0)}</span>
+                    </div>
+
+                    <div class="cw-actions cw-actions--detail">
+                        <button type="button" class="cw-action ${post.user_liked ? 'is-active' : ''}" data-action="react" data-id="${Number(post.id)}">
+                            <i class="fas fa-fire"></i> <span>${compactNumber(post.score || 0)}</span>
+                        </button>
+                        <button type="button" class="cw-action ${post.user_saved ? 'is-active' : ''}" data-action="save" data-id="${Number(post.id)}">
+                            <i class="fas fa-bookmark"></i> <span>Salva</span>
+                        </button>
+                        <button type="button" class="cw-action" data-action="share" data-url="${escapeHtml(url)}">
+                            <i class="fas fa-share-nodes"></i> <span>Share</span>
+                        </button>
+                    </div>
+
+                    <div class="cw-comments" id="modal-comments-${Number(post.id)}"></div>
+                </div>
+            </article>
+        `;
+
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        bindPostActions(bodyBox);
+        await loadComments(id, `#modal-comments-${Number(post.id)}`);
+    };
+
+    const closePostModal = () => {
+        const modal = $('#cwPostModal');
+        if (!modal) return;
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+        const bodyBox = $('#cwPostModalBody');
+        if (bodyBox) bodyBox.innerHTML = '';
+    };
+
 
     const requireLogin = () => {
         if (isLogged) return true;
@@ -485,8 +575,8 @@
         await loadComments(id);
     };
 
-    const loadComments = async (id) => {
-        const box = $(`#comments-${id}`);
+    const loadComments = async (id, targetSelector = null) => {
+        const box = targetSelector ? $(targetSelector) : $(`#comments-${id}`);
         if (!box) return;
         box.innerHTML = '<div class="cw-loader"><span></span><span></span><span></span></div>';
 
@@ -610,6 +700,12 @@
             if (event.target.id === 'cwTextModal') closeTextModal();
         });
 
+        $('#cwPostModal')?.addEventListener('click', (event) => {
+            if (event.target.id === 'cwPostModal') closePostModal();
+        });
+
+        $$('.js-close-post-modal').forEach((btn) => btn.addEventListener('click', closePostModal));
+
         $('#cwMediaInput')?.addEventListener('change', (event) => {
             const file = event.target.files?.[0];
             const preview = $('#cwPreview');
@@ -678,6 +774,8 @@
 
     const initControls = () => {
         const search = $('#cwSearchInput');
+        const sortSelect = $('#cwSortSelect');
+        if (sortSelect) sortSelect.value = state.sort;
         let searchTimer = null;
 
         search?.addEventListener('input', () => {
@@ -719,11 +817,47 @@
             if (event.key === 'Escape') {
                 closeCreateModal();
                 closeTextModal();
+                closePostModal();
             }
         });
     };
 
+
+    const initNavbarDropdownFallback = () => {
+        const toggles = $$('[data-bs-toggle="dropdown"], .dropdown-toggle');
+        toggles.forEach((toggle) => {
+            if (toggle.dataset.cv2DropdownBound === '1') return;
+            toggle.dataset.cv2DropdownBound = '1';
+
+            toggle.addEventListener('click', (event) => {
+                const hasBootstrap = window.bootstrap && window.bootstrap.Dropdown;
+                if (hasBootstrap) return;
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                const parent = toggle.closest('.dropdown') || toggle.parentElement;
+                const menu = parent?.querySelector('.dropdown-menu');
+                if (!menu) return;
+
+                $$('.dropdown-menu.show').forEach((other) => {
+                    if (other !== menu) other.classList.remove('show');
+                });
+
+                menu.classList.toggle('show');
+                toggle.setAttribute('aria-expanded', menu.classList.contains('show') ? 'true' : 'false');
+            });
+        });
+
+        document.addEventListener('click', (event) => {
+            if (event.target.closest('.dropdown')) return;
+            $$('.dropdown-menu.show').forEach((menu) => menu.classList.remove('show'));
+        });
+    };
+
+
     document.addEventListener('DOMContentLoaded', () => {
+        initNavbarDropdownFallback();
         initControls();
         initCreate();
         loadPosts();

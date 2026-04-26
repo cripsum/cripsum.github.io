@@ -19,26 +19,29 @@ $csrfToken = cv2_csrf_token();
 
 $contentType = 'rimasto';
 $pageTitle = 'Top Rimasti';
-$pageSubtitle = 'La classifica dei post più votati dalla community.';
+$pageSubtitle = 'I post più votati dalla community.';
 $uploadTitle = 'Nuovo rimasto';
 $needsMotivation = true;
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - <?php echo cv2_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/content-v2/content-v2.css?v=2.0-feed-wall">
-    <script src="/assets/content-v2/content-v2.js?v=2.0-feed-wall" defer></script>
+    <link rel="stylesheet" href="/assets/content-v2/content-v2.css?v=2.0.1-ui-fix">
+    <script src="/assets/content-v2/content-v2.js?v=2.0.1-ui-fix" defer></script>
 </head>
+
 <body class="content-v2-body"
-      data-content-type="<?php echo cv2_h($contentType); ?>"
-      data-csrf="<?php echo cv2_h($csrfToken); ?>"
-      data-logged="<?php echo $isLogged ? '1' : '0'; ?>"
-      data-admin="<?php echo $isAdmin ? '1' : '0'; ?>"
-      data-user-id="<?php echo (int)($currentUser['id'] ?? 0); ?>"
-      data-needs-motivation="<?php echo $needsMotivation ? '1' : '0'; ?>">
+    data-content-type="<?php echo cv2_h($contentType); ?>"
+    data-csrf="<?php echo cv2_h($csrfToken); ?>"
+    data-logged="<?php echo $isLogged ? '1' : '0'; ?>"
+    data-admin="<?php echo $isAdmin ? '1' : '0'; ?>"
+    data-user-id="<?php echo (int)($currentUser['id'] ?? 0); ?>"
+    data-needs-motivation="<?php echo $needsMotivation ? '1' : '0'; ?>"
+    data-default-sort="<?php echo $contentType === 'rimasto' ? 'top' : 'recent'; ?>">
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
     <?php include __DIR__ . '/../includes/impostazioni.php'; ?>
 
@@ -51,7 +54,6 @@ $needsMotivation = true;
     <main class="cw-shell">
         <header class="cw-hero">
             <div class="cw-hero__text">
-                <span class="cw-kicker">GoonLand</span>
                 <h1><?php echo cv2_h($pageTitle); ?></h1>
                 <p><?php echo cv2_h($pageSubtitle); ?></p>
             </div>
@@ -132,7 +134,7 @@ $needsMotivation = true;
             <div class="cw-modal__head">
                 <div>
                     <strong id="cwCreateTitle"><?php echo cv2_h($uploadTitle); ?></strong>
-                    <span>Il post sarà visibile dopo approvazione.</span>
+                    <span>Se serve, verrà controllato prima di apparire.</span>
                 </div>
                 <button type="button" class="cw-icon-btn js-close-modal" aria-label="Chiudi"><i class="fas fa-xmark"></i></button>
             </div>
@@ -199,6 +201,22 @@ $needsMotivation = true;
         </div>
     </div>
 
+
+    <div id="cwPostModal" class="cw-modal cw-post-modal" aria-hidden="true">
+        <div class="cw-modal__panel cw-post-modal__panel" role="dialog" aria-modal="true">
+            <button type="button" class="cw-icon-btn cw-post-modal__close js-close-post-modal" aria-label="Chiudi">
+                <i class="fas fa-xmark"></i>
+            </button>
+            <div id="cwPostModalBody"></div>
+        </div>
+    </div>
+
     <div id="cwToast" class="cw-toast"></div>
+
+    <script>
+        window.__CRIPSUM_BOOTSTRAP_FALLBACK__ = true;
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>
