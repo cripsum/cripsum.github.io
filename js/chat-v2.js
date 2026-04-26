@@ -59,6 +59,46 @@
         emojiStrip: document.getElementById('chatEmojiStrip')
     };
 
+
+    const setViewportHeight = () => {
+        const height = window.visualViewport?.height || window.innerHeight;
+        document.documentElement.style.setProperty('--chat-vh', `${height}px`);
+    };
+
+    const isMobileChat = () => window.matchMedia('(max-width: 760px)').matches;
+
+    const closeOpenMessageActions = (except = null) => {
+        document.querySelectorAll('.chat-message.is-actions-open').forEach((item) => {
+            if (item !== except) item.classList.remove('is-actions-open');
+        });
+    };
+
+    const toggleMobileMessageActions = (event) => {
+        if (!isMobileChat()) return;
+        if (event.target.closest('a, button, input, textarea, .chat-reaction-popover')) return;
+
+        const bubble = event.target.closest('.chat-bubble-wrap');
+        if (!bubble) {
+            closeOpenMessageActions();
+            return;
+        }
+
+        const article = bubble.closest('.chat-message');
+        if (!article || !article.querySelector('.chat-message-actions')) return;
+
+        const willOpen = !article.classList.contains('is-actions-open');
+        closeOpenMessageActions(article);
+        article.classList.toggle('is-actions-open', willOpen);
+    };
+
+    const keepBottomAfterMediaLoad = (event) => {
+        const target = event.target;
+        if (!target || target.tagName !== 'IMG') return;
+        if (state.nearBottom || isAtBottom()) {
+            requestAnimationFrame(() => scrollToBottom('auto'));
+        }
+    };
+
     const api = async (url, options = {}) => {
         const response = await fetch(url, {
             credentials: 'same-origin',
@@ -278,7 +318,7 @@
             el.messages.innerHTML = clean.length ? addDaySeparators(clean) : emptyHtml();
             state.loadedOnce = true;
             el.app?.classList.add('is-loaded');
-            requestAnimationFrame(() => scrollToBottom('auto'));
+            requestAnimationFrame(() => requestAnimationFrame(() => scrollToBottom('auto')));
             return;
         }
 
@@ -744,6 +784,8 @@
     const openGifPanel = async () => {
         if (!el.gifPanel) return;
         state.gifOpen = true;
+        if (el.emojiStrip) el.emojiStrip.hidden = true;
+        el.emojiButton?.classList.remove('is-active');
         el.gifPanel.hidden = false;
         el.gifButton?.classList.add('is-active');
         el.gifSearch?.focus();
@@ -789,6 +831,8 @@
         });
 
         el.messages?.addEventListener('click', onMessageAction);
+        el.messages?.addEventListener('click', toggleMobileMessageActions);
+        el.messages?.addEventListener('load', keepBottomAfterMediaLoad, true);
         el.messages?.addEventListener('click', (event) => {
             const target = event.target.closest('[data-scroll-message]');
             if (!target) return;
@@ -851,8 +895,10 @@
 
         el.emojiButton?.addEventListener('click', () => {
             if (!el.emojiStrip) return;
-            el.emojiStrip.hidden = !el.emojiStrip.hidden;
-            el.emojiButton.classList.toggle('is-active', !el.emojiStrip.hidden);
+            const willOpen = el.emojiStrip.hidden;
+            if (willOpen) closeGifPanel();
+            el.emojiStrip.hidden = !willOpen;
+            el.emojiButton.classList.toggle('is-active', willOpen);
         });
         el.emojiStrip?.addEventListener('click', (event) => {
             const emoji = event.target.closest('[data-emoji]')?.dataset.emoji;
@@ -873,6 +919,9 @@
             }
         });
 
+        window.addEventListener('resize', setViewportHeight, { passive: true });
+        window.visualViewport?.addEventListener('resize', setViewportHeight, { passive: true });
+        window.addEventListener('orientationchange', () => setTimeout(setViewportHeight, 250), { passive: true });
         window.addEventListener('beforeunload', () => sendTyping(false));
     };
 
@@ -883,6 +932,8 @@
 
     const init = () => {
         if (!el.app || !el.messages) return;
+        setViewportHeight();
+        document.body.classList.add('chat-app-ready');
         syncSoundButton();
         autoResize();
         initEvents();

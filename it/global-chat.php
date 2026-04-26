@@ -45,8 +45,8 @@ $onlineCount = $lineeGuidaChat === 1 ? chat_get_online_count($mysqli) : 0;
 <head>
     <?php include '../includes/head-import.php'; ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/css/chat-v2.css?v=2.2-giphy">
-    <script src="/js/chat-v2.js?v=2.2-giphy" defer></script>
+    <link rel="stylesheet" href="/css/chat-v2.css?v=2.3-mobile-clean">
+    <script src="/js/chat-v2.js?v=2.3-mobile-clean" defer></script>
     <title>Chat Globale - Cripsum</title>
 </head>
 <body class="chat-v2-body" data-user-id="<?php echo $userId; ?>" data-user-role="<?php echo htmlspecialchars($userRole, ENT_QUOTES, 'UTF-8'); ?>" data-csrf="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
