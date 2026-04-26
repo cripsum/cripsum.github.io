@@ -879,3 +879,36 @@ body.shop-theme-merch {
         background-size: cover;
     }
 }
+
+
+/* V2.3 hard click fix */
+.shop-card[data-product-card] {
+    cursor: pointer;
+}
+
+.shop-card[data-product-card]:focus-visible {
+    outline: 3px solid rgba(var(--shop-accent-rgb), .55);
+    outline-offset: 4px;
+}
+
+.shop-card__actions,
+.shop-card__actions *,
+.shop-fav,
+.shop-icon-btn,
+.shop-btn {
+    position: relative;
+    z-index: 5;
+    pointer-events: auto;
+}
+
+.shop-card a.shop-btn {
+    text-decoration: none;
+}
+
+.shop-card.is-soon {
+    cursor: default;
+}
+
+.shop-card.is-soon .shop-btn.is-disabled {
+    pointer-events: none;
+}

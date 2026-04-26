@@ -28,8 +28,8 @@ $products = [
     <title>Cripsum™ - Negozio</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="Shop statico di Cripsum™. Prodotti seri il giusto.">
-    <link rel="stylesheet" href="/assets/shop/shop.css?v=2.1-mobile-bg-fix">
-    <script src="/assets/shop/shop.js?v=2.1-mobile-bg-fix" defer></script>
+    <link rel="stylesheet" href="/assets/shop/shop.css?v=2.3-hard-click-fix">
+    <script src="/assets/shop/shop.js?v=2.3-hard-click-fix" defer></script>
 </head>
 <body class="shop-page shop-theme-store" data-shop-page="negozio" data-favorites="1">
     <?php include '../includes/navbar.php'; ?>

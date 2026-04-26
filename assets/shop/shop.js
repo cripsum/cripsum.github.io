@@ -1,3 +1,4 @@
+
 (() => {
     'use strict';
 
@@ -7,12 +8,14 @@
     const page = document.body?.dataset.shopPage || 'shop';
     const favoritesEnabled = document.body?.dataset.favorites === '1';
     const favoritesKey = `cripsum:${page}:favorites`;
+
     let currentCategory = 'all';
     let favoritesOnly = false;
     let toastTimer = null;
 
     const getCards = () => $$('[data-product-card]');
     const getGrid = () => $('[data-shop-grid]');
+
     const getFavorites = () => {
         try {
             return JSON.parse(localStorage.getItem(favoritesKey) || '[]');
@@ -38,7 +41,10 @@
     const formatPrice = (value) => {
         const number = Number(value || 0);
         if (!number) return '';
-        return number.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '€';
+        return number.toLocaleString('it-IT', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }) + '€';
     };
 
     const showToast = (message) => {
@@ -74,12 +80,47 @@
         }
     };
 
+    const normalizeTargetUrl = (url) => {
+        const raw = String(url || '').trim();
+        if (!raw || raw === '#') return '';
+
+        if (/^(https?:)?\/\//i.test(raw)) {
+            return raw;
+        }
+
+        if (raw.startsWith('/')) {
+            return raw;
+        }
+
+        return raw;
+    };
+
+    const goToCardLink = (card) => {
+        if (!card) return;
+
+        const link = normalizeTargetUrl(card.dataset.link || '');
+        if (!link) {
+            showToast('Non disponibile.');
+            return;
+        }
+
+        window.location.href = link;
+    };
+
+    const isActionClick = (target) => {
+        return Boolean(target.closest(
+            'button, a, input, select, textarea, label, [data-open-detail], [data-favorite-toggle], [data-copy-link], [data-close-modal], [data-copy-current]'
+        ));
+    };
+
     const applyFavoritesVisual = () => {
         if (!favoritesEnabled) return;
+
         getCards().forEach((card) => {
             const id = card.dataset.id;
             const button = $('[data-favorite-toggle]', card);
             if (!button) return;
+
             const saved = isFavorite(id);
             button.classList.toggle('is-saved', saved);
             button.innerHTML = saved ? '<i class="fas fa-heart"></i>' : '<i class="far fa-heart"></i>';
@@ -91,6 +132,7 @@
         const sort = $('[data-shop-sort]')?.value || 'default';
         const grid = getGrid();
         const empty = $('[data-shop-empty]');
+
         if (!grid) return;
 
         let cards = getCards();
@@ -100,10 +142,12 @@
             const description = (card.dataset.description || '').toLowerCase();
             const category = card.dataset.category || '';
             const id = card.dataset.id || '';
+
             const matchesSearch = !search || name.includes(search) || description.includes(search);
             const matchesCategory = currentCategory === 'all' || category === currentCategory;
             const matchesFavorite = !favoritesOnly || isFavorite(id);
             const visible = matchesSearch && matchesCategory && matchesFavorite;
+
             card.hidden = !visible;
         });
 
@@ -111,23 +155,39 @@
 
         if (sort !== 'default') {
             cards.sort((a, b) => {
-                if (sort === 'name-asc') return (a.dataset.name || '').localeCompare(b.dataset.name || '');
-                if (sort === 'price-asc') return Number(a.dataset.price || 0) - Number(b.dataset.price || 0);
-                if (sort === 'price-desc') return Number(b.dataset.price || 0) - Number(a.dataset.price || 0);
+                if (sort === 'name-asc') {
+                    return (a.dataset.name || '').localeCompare(b.dataset.name || '');
+                }
+
+                if (sort === 'price-asc') {
+                    return Number(a.dataset.price || 0) - Number(b.dataset.price || 0);
+                }
+
+                if (sort === 'price-desc') {
+                    return Number(b.dataset.price || 0) - Number(a.dataset.price || 0);
+                }
+
                 return 0;
             });
+
             cards.forEach((card) => grid.appendChild(card));
         }
 
-        if (empty) empty.hidden = cards.length > 0;
+        if (empty) {
+            empty.hidden = cards.length > 0;
+        }
     };
 
     const toggleFavorite = (card) => {
         if (!favoritesEnabled || !card) return;
+
         const id = card.dataset.id;
         const favorites = getFavorites();
         const saved = favorites.includes(id);
-        const next = saved ? favorites.filter((item) => item !== id) : [...favorites, id];
+        const next = saved
+            ? favorites.filter((item) => item !== id)
+            : [...favorites, id];
+
         setFavorites(next);
         applyFavoritesVisual();
         applyFilters();
@@ -142,12 +202,13 @@
     const openModal = (card) => {
         const modal = $('[data-shop-modal]');
         const content = $('[data-modal-content]');
+
         if (!modal || !content || !card) return;
 
         const name = card.dataset.name || 'Prodotto';
         const description = card.dataset.description || '';
         const image = card.dataset.image || '';
-        const link = card.dataset.link || '';
+        const link = normalizeTargetUrl(card.dataset.link || '');
         const price = formatPrice(card.dataset.price);
         const badge = card.dataset.badge || '';
         const isDownload = page === 'download';
@@ -158,14 +219,23 @@
                 <div class="shop-modal-product__image">
                     <img src="${escapeHtml(image)}" alt="${escapeHtml(name)}">
                 </div>
+
                 <div class="shop-modal-product__body">
                     ${badge ? `<span class="shop-kicker">${escapeHtml(badge)}</span>` : ''}
                     <h2>${escapeHtml(name)}</h2>
                     <p>${escapeHtml(description)}</p>
                     ${price ? `<strong class="shop-modal-product__price">${escapeHtml(price)}</strong>` : ''}
+
                     <div class="shop-modal-actions">
-                        ${isAvailable ? `<a class="shop-btn shop-btn--primary" href="${escapeHtml(link)}">${isDownload ? 'Scarica' : 'Vai'}</a>` : `<span class="shop-btn is-disabled">Non disponibile</span>`}
-                        <button type="button" class="shop-btn shop-btn--ghost" data-copy-current> Copia link </button>
+                        ${isAvailable ? `
+                            <a class="shop-btn shop-btn--primary" href="${escapeHtml(link)}">
+                                ${isDownload ? 'Scarica' : 'Acquista'}
+                            </a>
+                        ` : `<span class="shop-btn is-disabled">Non disponibile</span>`}
+
+                        <button type="button" class="shop-btn shop-btn--ghost" data-copy-current>
+                            Copia link
+                        </button>
                     </div>
                 </div>
             </div>
@@ -183,6 +253,7 @@
     const closeModal = () => {
         const modal = $('[data-shop-modal]');
         if (!modal) return;
+
         modal.hidden = true;
         document.body.style.overflow = '';
     };
@@ -195,7 +266,11 @@
             button.addEventListener('click', () => {
                 favoritesOnly = false;
                 currentCategory = button.dataset.category || 'all';
-                $$('[data-category]').forEach((item) => item.classList.toggle('is-active', item === button));
+
+                $$('[data-category]').forEach((item) => {
+                    item.classList.toggle('is-active', item === button);
+                });
+
                 applyFilters();
             });
         });
@@ -203,7 +278,11 @@
         $('[data-show-favorites]')?.addEventListener('click', () => {
             favoritesOnly = !favoritesOnly;
             currentCategory = 'all';
-            $$('[data-category]').forEach((item) => item.classList.toggle('is-active', item.dataset.category === 'all'));
+
+            $$('[data-category]').forEach((item) => {
+                item.classList.toggle('is-active', item.dataset.category === 'all');
+            });
+
             applyFilters();
             showToast(favoritesOnly ? 'Mostro solo i preferiti.' : 'Mostro tutti i prodotti.');
         });
@@ -211,25 +290,75 @@
 
     const initCards = () => {
         getCards().forEach((card) => {
+            const link = normalizeTargetUrl(card.dataset.link || '');
+
+            if (link) {
+                card.setAttribute('tabindex', '0');
+                card.setAttribute('role', 'link');
+                card.setAttribute('aria-label', `Apri ${card.dataset.name || 'prodotto'}`);
+            }
+
+            card.addEventListener('click', (event) => {
+                if (isActionClick(event.target)) return;
+                goToCardLink(card);
+            });
+
+            card.addEventListener('keydown', (event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
+                if (isActionClick(event.target)) return;
+
+                event.preventDefault();
+                goToCardLink(card);
+            });
+
             $('[data-favorite-toggle]', card)?.addEventListener('click', (event) => {
                 event.preventDefault();
                 event.stopPropagation();
                 toggleFavorite(card);
             });
 
-            $('[data-open-detail]', card)?.addEventListener('click', () => openModal(card));
+            $('[data-open-detail]', card)?.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                openModal(card);
+            });
 
-            $('[data-copy-link]', card)?.addEventListener('click', async () => {
-                const link = card.dataset.link || productUrl(card);
-                const absolute = link.startsWith('http') ? link : `${location.origin}/${link.replace(/^\//, '')}`;
+            $('[data-copy-link]', card)?.addEventListener('click', async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const direct = normalizeTargetUrl(card.dataset.link || '');
+                const absolute = direct
+                    ? new URL(direct, location.href).toString()
+                    : productUrl(card);
+
                 const ok = await copyText(absolute);
                 showToast(ok ? 'Link copiato.' : 'Non sono riuscito a copiare.');
+            });
+
+            $$('.shop-card__actions a[href]', card).forEach((anchor) => {
+                anchor.addEventListener('click', (event) => {
+                    event.stopPropagation();
+
+                    const href = anchor.getAttribute('href') || '';
+                    if (!href || href === '#') {
+                        event.preventDefault();
+                        showToast('Non disponibile.');
+                    }
+                });
             });
         });
     };
 
     const initModal = () => {
         $$('[data-close-modal]').forEach((button) => button.addEventListener('click', closeModal));
+
+        $('[data-shop-modal]')?.addEventListener('click', (event) => {
+            if (event.target.matches('[data-shop-modal]')) {
+                closeModal();
+            }
+        });
+
         document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') closeModal();
         });
@@ -237,6 +366,7 @@
 
     const initReveal = () => {
         const items = $$('.shop-reveal');
+
         if (!('IntersectionObserver' in window)) {
             items.forEach((item) => item.classList.add('is-visible'));
             return;
@@ -255,16 +385,21 @@
 
     const initNavbarDropdownFallback = () => {
         const toggles = $$('[data-bs-toggle="dropdown"], .dropdown-toggle');
+
         toggles.forEach((toggle) => {
             if (toggle.dataset.shopDropdownBound === '1') return;
+
             toggle.dataset.shopDropdownBound = '1';
+
             toggle.addEventListener('click', (event) => {
                 if (window.bootstrap && window.bootstrap.Dropdown) return;
 
                 event.preventDefault();
                 event.stopPropagation();
+
                 const parent = toggle.closest('.dropdown') || toggle.parentElement;
                 const menu = parent?.querySelector('.dropdown-menu');
+
                 if (!menu) return;
 
                 $$('.dropdown-menu.show').forEach((other) => {
@@ -278,6 +413,7 @@
 
         document.addEventListener('click', (event) => {
             if (event.target.closest('.dropdown')) return;
+
             $$('.dropdown-menu.show').forEach((menu) => menu.classList.remove('show'));
         });
     };
@@ -285,8 +421,11 @@
     const initHashOpen = () => {
         const id = decodeURIComponent((location.hash || '').replace('#', ''));
         if (!id) return;
+
         const card = getCards().find((item) => item.dataset.id === id);
-        if (card) setTimeout(() => openModal(card), 250);
+        if (card) {
+            setTimeout(() => openModal(card), 250);
+        }
     };
 
     document.addEventListener('DOMContentLoaded', () => {
