@@ -23,7 +23,6 @@ $products = [
 ?>
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Negozio</title>
@@ -32,7 +31,6 @@ $products = [
     <link rel="stylesheet" href="/assets/shop/shop.css?v=2.1-mobile-bg-fix">
     <script src="/assets/shop/shop.js?v=2.1-mobile-bg-fix" defer></script>
 </head>
-
 <body class="shop-page shop-theme-store" data-shop-page="negozio" data-favorites="1">
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
@@ -115,7 +113,7 @@ $products = [
             </div>
         </section>
 
-        <section class="shop-faq shop-reveal">
+                <section class="shop-faq shop-reveal">
             <h2>Domande frequenti (FAQ)</h2>
             <details>
                 <summary>Come fate ad avere prodotti che ancora non esistono in commercio?</summary>
@@ -146,5 +144,4 @@ $products = [
     <?php include '../includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
-
 </html>
