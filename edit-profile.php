@@ -344,7 +344,7 @@ function profile_json_script(string $id, array $data): void
             </section>
 
             <aside class="bio-hero bio-card profile-preview-card js-tilt-card js-reveal">
-                <span class="bio-pill">Preview profilo</span>
+                <span class="bio-pill mb-2">Preview profilo</span>
                 <!-- <div class="profile-background-note"><i class="fas fa-image"></i><span>Lo sfondo scelto appare dietro tutta la pagina, non sopra la foto profilo.</span></div> -->
                 <div class="bio-avatar-wrap profile-preview-avatar-ring" id="previewAvatarWrap">
                     <div class="bio-avatar-ring" id="previewAvatarRing"></div><img class="bio-avatar" id="previewAvatar" src="<?php echo profile_h(profile_avatar_url($profile, 256)); ?>" alt="">
