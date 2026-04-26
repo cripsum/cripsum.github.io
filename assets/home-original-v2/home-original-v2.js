@@ -19,40 +19,8 @@
         }, 2200);
     };
 
-    const copyText = async (text) => {
-        try {
-            if (navigator.clipboard && window.isSecureContext) {
-                await navigator.clipboard.writeText(text);
-                return true;
-            }
-
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            textarea.setAttribute('readonly', '');
-            textarea.style.position = 'fixed';
-            textarea.style.left = '-9999px';
-            document.body.appendChild(textarea);
-            textarea.select();
-            const ok = document.execCommand('copy');
-            textarea.remove();
-            return ok;
-        } catch {
-            return false;
-        }
-    };
-
-    const initCopy = () => {
-        $$('.js-copy-home').forEach((button) => {
-            button.addEventListener('click', async () => {
-                const url = button.dataset.url || location.href;
-                const ok = await copyText(url);
-                showToast(ok ? 'Link copiato.' : 'Non sono riuscito a copiare.');
-            });
-        });
-    };
-
     const initReveal = () => {
-        const items = $$('.js-home-reveal');
+        const items = $$('.home-reveal');
 
         if (!('IntersectionObserver' in window)) {
             items.forEach((item) => item.classList.add('is-visible'));
@@ -104,6 +72,20 @@
         });
     };
 
+    const initCarouselPolish = () => {
+        const slider = $('#content-slider');
+        const wrapper = $('#sliderWrapper');
+
+        if (!slider || !wrapper) return;
+
+        const observer = new MutationObserver(() => {
+            slider.classList.toggle('has-content', wrapper.children.length > 0);
+        });
+
+        observer.observe(wrapper, { childList: true, subtree: false });
+        slider.classList.toggle('has-content', wrapper.children.length > 0);
+    };
+
     const initBootstrapAfterLoad = () => {
         if (!window.bootstrap || !window.bootstrap.Dropdown) return;
 
@@ -119,7 +101,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         initNavbarDropdownFallback();
         initBootstrapAfterLoad();
-        initCopy();
         initReveal();
+        initCarouselPolish();
     });
 })();
