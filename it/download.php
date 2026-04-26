@@ -45,7 +45,6 @@ $downloads = [
                     <a class="shop-btn shop-btn--ghost" href="https://discord.gg/XdheJHVURw" target="_blank" rel="noopener">Discord</a>
                 </div>
             </div>
-            <div class="shop-hero__emoji" aria-hidden="true">⬇️🗂️⚙️</div>
         </section>
 
         <section class="shop-note shop-reveal">
