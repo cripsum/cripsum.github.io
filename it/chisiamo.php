@@ -252,6 +252,38 @@ checkBan($mysqli);
                         </div>
                     </div>
                 </div>
+
+                <div class="team-member">
+                    <div class="member-content">
+                        <div class="member-image">
+                            <img src="../img/nauz.jpg" alt="nauz" />
+                        </div>
+                        <div class="member-info">
+                            <h3 class="member-name">
+                                <a href="https://www.tiktok.com/@nauz_aep">Nauz</a>
+                            </h3>
+                            <p class="member-description">
+                                il più fico (e terrone)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="team-member">
+                    <div class="member-content">
+                        <div class="member-image">
+                            <img src="../img/lexus.jpg" alt="lexus" />
+                        </div>
+                        <div class="member-info">
+                            <h3 class="member-name">
+                                <a href="https://e-z.bio/lexus">Lexus</a>
+                            </h3>
+                            <p class="member-description">
+                                Sono fico (ti prego cripsum accettami ti giuro che se mi accetti sei più fico di me)
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
