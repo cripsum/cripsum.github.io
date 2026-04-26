@@ -1,4 +1,3 @@
-
 (() => {
     'use strict';
 
@@ -29,7 +28,7 @@
         },
         {
             media: '../img/waguri.jpeg',
-            title: 'Lootboxes',
+            title: 'Lootbox',
             description: 'Apri lootbox e aggiungi personaggi alla tua collezione.',
             buttonText: 'Apri lootbox',
             link: 'lootbox'
@@ -66,23 +65,13 @@
 
     let showcaseIndex = Math.floor(Math.random() * showcaseSlides.length);
     let showcaseTimer = null;
-    let toastTimer = null;
-
-    const showToast = (message) => {
-        const toast = $('#homeToast');
-        if (!toast) return;
-
-        toast.textContent = message;
-        toast.classList.add('is-visible');
-
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => {
-            toast.classList.remove('is-visible');
-        }, 2200);
-    };
 
     const escapeHtml = (value) => String(value ?? '').replace(/[&<>'"]/g, (char) => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '"': '&quot;'
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#039;',
+        '"': '&quot;'
     }[char]));
 
     const renderShowcase = () => {
@@ -95,7 +84,7 @@
 
         main.innerHTML = `
             <div class="home-showcase-media">
-                <img src="${escapeHtml(slide.media)}" alt="${escapeHtml(slide.title)}" loading="lazy">
+                <img src="${escapeHtml(slide.media)}" alt="${escapeHtml(slide.title)}" loading="lazy" onerror="this.closest('.home-showcase-media').classList.add('is-broken')">
             </div>
 
             <div class="home-showcase-content">
@@ -110,9 +99,9 @@
         `;
 
         thumbs.innerHTML = showcaseSlides.map((item, index) => `
-            <button type="button" class="home-showcase-thumb ${index === showcaseIndex ? 'is-active' : ''}" data-showcase-index="${index}">
+            <button type="button" class="home-showcase-thumb ${index === showcaseIndex ? 'is-active' : ''}" data-showcase-index="${index}" aria-label="Apri ${escapeHtml(item.title)}">
                 <img src="${escapeHtml(item.media)}" alt="" loading="lazy">
-                <span>${escapeHtml(item.title.replace(/[🏆📦🎬🌟💬⬇️]/g, '').trim())}</span>
+                <span>${escapeHtml(item.title)}</span>
             </button>
         `).join('');
 
@@ -139,7 +128,7 @@
 
     const startShowcaseAuto = () => {
         clearInterval(showcaseTimer);
-        showcaseTimer = setInterval(nextShowcase, 6000);
+        showcaseTimer = setInterval(nextShowcase, 6500);
     };
 
     const restartShowcaseAuto = () => {

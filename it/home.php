@@ -7,10 +7,11 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
     @$mysqli->set_charset('utf8mb4');
 }
 
-checkBan($mysqli);
+if (function_exists('checkBan')) {
+    checkBan($mysqli);
+}
 
-$isLoggedIn = isset($_SESSION['user_id']);
-$currentUserId = (int)($_SESSION['user_id'] ?? 0);
+$isLoggedIn = isset($_SESSION['user_id']) && (int)$_SESSION['user_id'] > 0;
 $currentUsername = $_SESSION['username'] ?? null;
 
 function home_h($value): string
@@ -18,134 +19,11 @@ function home_h($value): string
     return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
-function home_table_exists(mysqli $mysqli, string $table): bool
-{
-    static $cache = [];
+$profileUrl = ($isLoggedIn && $currentUsername)
+    ? '/u/' . rawurlencode(strtolower((string)$currentUsername))
+    : 'accedi';
 
-    if (isset($cache[$table])) {
-        return $cache[$table];
-    }
-
-    if (!preg_match('/^[a-zA-Z0-9_]+$/', $table)) {
-        return $cache[$table] = false;
-    }
-
-    try {
-        $stmt = $mysqli->prepare("
-            SELECT 1
-            FROM information_schema.TABLES
-            WHERE TABLE_SCHEMA = DATABASE()
-              AND BINARY TABLE_NAME = ?
-            LIMIT 1
-        ");
-
-        if (!$stmt) {
-            return $cache[$table] = false;
-        }
-
-        $stmt->bind_param('s', $table);
-        $stmt->execute();
-        $exists = $stmt->get_result()->num_rows > 0;
-        $stmt->close();
-
-        return $cache[$table] = $exists;
-    } catch (Throwable $e) {
-        return $cache[$table] = false;
-    }
-}
-
-function home_safe_count(mysqli $mysqli, string $sql): int
-{
-    try {
-        $result = $mysqli->query($sql);
-        if (!$result) return 0;
-        $row = $result->fetch_assoc();
-        return (int)($row['total'] ?? 0);
-    } catch (Throwable $e) {
-        return 0;
-    }
-}
-
-function home_compact_number(int $number): string
-{
-    if ($number >= 1000000) return round($number / 1000000, 1) . 'M';
-    if ($number >= 1000) return round($number / 1000, 1) . 'K';
-    return (string)$number;
-}
-
-$stats = [
-    'shitposts' => home_table_exists($mysqli, 'shitposts') ? home_safe_count($mysqli, "SELECT COUNT(*) AS total FROM shitposts WHERE approvato = 1") : 0,
-    'rimasti' => home_table_exists($mysqli, 'toprimasti') ? home_safe_count($mysqli, "SELECT COUNT(*) AS total FROM toprimasti WHERE approvato = 1") : 0,
-    'achievement' => home_table_exists($mysqli, 'achievement') ? home_safe_count($mysqli, "SELECT COUNT(*) AS total FROM achievement") : 0,
-];
-
-$personalStats = [
-    'personaggi' => 0,
-    'achievement' => 0,
-];
-
-if ($isLoggedIn && $currentUserId > 0) {
-    if (home_table_exists($mysqli, 'utenti_personaggi')) {
-        $stmt = $mysqli->prepare("SELECT COALESCE(SUM(`quantità`), 0) AS total FROM utenti_personaggi WHERE utente_id = ?");
-        if ($stmt) {
-            $stmt->bind_param('i', $currentUserId);
-            $stmt->execute();
-            $personalStats['personaggi'] = (int)($stmt->get_result()->fetch_assoc()['total'] ?? 0);
-            $stmt->close();
-        }
-    }
-
-    if (home_table_exists($mysqli, 'utenti_achievement')) {
-        $stmt = $mysqli->prepare("SELECT COUNT(*) AS total FROM utenti_achievement WHERE utente_id = ?");
-        if ($stmt) {
-            $stmt->bind_param('i', $currentUserId);
-            $stmt->execute();
-            $personalStats['achievement'] = (int)($stmt->get_result()->fetch_assoc()['total'] ?? 0);
-            $stmt->close();
-        }
-    }
-}
-
-$mainLinks = [
-    [
-        'title' => 'Edit',
-        'text' => 'Gli ultimi video e lavori.',
-        'url' => 'edits',
-        'icon' => 'fas fa-clapperboard',
-    ],
-    [
-        'title' => 'Shitpost',
-        'text' => 'Meme, GIF e post della community.',
-        'url' => 'shitpost',
-        'icon' => 'fas fa-image',
-    ],
-    [
-        'title' => 'Top Rimasti',
-        'text' => 'La classifica dei post più votati.',
-        'url' => 'rimasti',
-        'icon' => 'fas fa-ranking-star',
-    ],
-    [
-        'title' => 'Chat Globale',
-        'text' => 'La chat del sito.',
-        'url' => 'global-chat',
-        'icon' => 'fas fa-comments',
-    ],
-    [
-        'title' => 'Lootbox',
-        'text' => 'Apri casse e colleziona personaggi.',
-        'url' => 'lootbox',
-        'icon' => 'fas fa-box-open',
-    ],
-    [
-        'title' => 'GoonLand',
-        'text' => 'La parte più interna del sito.',
-        'url' => 'goonland',
-        'icon' => 'fas fa-wand-magic-sparkles',
-    ],
-];
-
-$ogDescription = 'Homepage di Cripsum™. Edit, profili, chat, shitpost, Top Rimasti e GoonLand.';
+$ogDescription = 'Homepage di Cripsum™. Edit, meme, lootbox, profili e GoonLand.';
 $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it/home'), '#');
 ?>
 <!DOCTYPE html>
@@ -163,12 +41,12 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <meta property="og:url" content="<?php echo home_h($ogUrl); ?>">
     <meta name="twitter:card" content="summary_large_image">
     <link rel="preload" as="image" href="../img/amongus.jpg">
-    <link rel="stylesheet" href="/assets/home-original-v2/home-original-v2.css?v=3.3-original-showcase">
-    <script src="/assets/home-original-v2/home-original-v2.js?v=3.3-original-showcase" defer></script>
+    <link rel="stylesheet" href="/assets/home-v4/home.css?v=4.0-original-clean">
+    <script src="/assets/home-v4/home.js?v=4.0-original-clean" defer></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1527058839538660" crossorigin="anonymous"></script>
 </head>
 
-<body class="home-original-v2-body">
+<body class="home-v4-body">
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
@@ -178,7 +56,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
         <span class="home-grid"></span>
     </div>
 
-    <main class="home-wrap">
+    <main class="home-page">
         <?php if (isset($_SESSION['error_message'])): ?>
             <div class="home-alert" role="alert">
                 <i class="fas fa-triangle-exclamation"></i>
@@ -192,15 +70,15 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                 <img src="../img/amongus.jpg" alt="Cripsum Hero" loading="eager">
             </div>
 
-            <div class="home-hero__text">
+            <div class="home-hero__content">
                 <span class="home-pill">Cripsum™</span>
-                <h1>Benvenuto nel sito migliore del Congo.</h1>
-                <p class="home-subtitle">Edit, meme, profili, lootbox e robe della community.</p>
+                <h1>Benvenuto/a nel sito migliore del Congo.</h1>
+                <p class="home-subtitle">Edit, meme, lootbox, profili e roba della community.</p>
                 <p class="home-question">Hai più di 25 anni e possiedi un PC?</p>
 
                 <div class="home-actions">
                     <?php if ($isLoggedIn && $currentUsername): ?>
-                        <a class="home-btn home-btn--primary" href="/u/<?php echo rawurlencode(strtolower($currentUsername)); ?>">
+                        <a class="home-btn home-btn--primary" href="<?php echo home_h($profileUrl); ?>">
                             <i class="fas fa-user"></i>
                             <span>Vai al profilo</span>
                         </a>
@@ -209,32 +87,44 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                             <i class="fas fa-user-plus"></i>
                             <span>Registrati</span>
                         </a>
-                        <a class="home-btn home-btn--ghost" href="accedi">
+                        <a class="home-btn home-btn--soft" href="accedi">
                             <i class="fas fa-right-to-bracket"></i>
                             <span>Accedi</span>
                         </a>
                     <?php endif; ?>
 
-                    <a class="home-btn home-btn--ghost" href="#featuredContent">
+                    <a class="home-btn home-btn--soft" href="#featuredContent">
                         <i class="fas fa-layer-group"></i>
                         <span>Contenuti</span>
                     </a>
+
+                    <button class="home-btn home-btn--plain" type="button" data-bs-toggle="modal" data-bs-target="#disclaimerModal">
+                        <i class="fas fa-circle-info"></i>
+                        <span>Disclaimer</span>
+                    </button>
                 </div>
             </div>
         </section>
-        <section class="home-tree-section home-reveal">
-            <article class="home-tree-card">
-                <img src="../img/felicita.jpg" alt="Felicità" loading="lazy">
+
+        <section class="home-mood home-reveal" aria-label="Mood del sito">
+            <article class="home-mood-card">
+                <div class="home-mood-card__image">
+                    <img src="../img/felicita.jpg" alt="Felicità" loading="lazy">
+                </div>
                 <strong>Felicità</strong>
             </article>
 
-            <article class="home-tree-card">
-                <img src="../img/tristezza.jpg" alt="Tristezza" loading="lazy">
+            <article class="home-mood-card">
+                <div class="home-mood-card__image">
+                    <img src="../img/tristezza.jpg" alt="Tristezza" loading="lazy">
+                </div>
                 <strong>Tristezza</strong>
             </article>
 
-            <article class="home-tree-card">
-                <img src="../img/stupore.jpg" alt="Stupore" loading="lazy">
+            <article class="home-mood-card">
+                <div class="home-mood-card__image">
+                    <img src="../img/stupore.jpg" alt="Stupore" loading="lazy">
+                </div>
                 <strong>Stupore</strong>
             </article>
         </section>
@@ -245,7 +135,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                     <span class="home-kicker">Contenuti</span>
                     <h2>Le pagine del sito</h2>
                 </div>
-                <p>Un giro veloce tra le cose principali, senza casino.</p>
+                <p>Le cose principali, mostrate bene.</p>
             </div>
 
             <div class="home-showcase" id="homeShowcase">
@@ -266,46 +156,50 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
         <section class="home-social-section home-reveal">
             <div class="home-section-head home-section-head--center">
                 <span class="home-kicker">Social</span>
-                <h2>I link seri</h2>
+                <h2>Seguimi sui social</h2>
             </div>
 
-            <div class="home-social-grid home-social-grid--original">
-                <a href="https://www.tiktok.com/@cripsum" target="_blank" rel="noopener" class="home-social-btn home-social-btn--tiktok">
+            <div class="home-social-grid">
+                <a href="https://www.tiktok.com/@cripsum" target="_blank" rel="noopener" class="home-social-link home-social-link--tiktok" title="TikTok">
                     <i class="fab fa-tiktok"></i>
                     <span>TikTok</span>
                 </a>
-                <a href="https://www.instagram.com/cripsum/" target="_blank" rel="noopener" class="home-social-btn home-social-btn--instagram">
+                <a href="https://www.instagram.com/cripsum/" target="_blank" rel="noopener" class="home-social-link home-social-link--instagram" title="Instagram">
                     <i class="fab fa-instagram"></i>
                     <span>Instagram</span>
                 </a>
-                <a href="https://discord.gg/XdheJHVURw" target="_blank" rel="noopener" class="home-social-btn home-social-btn--discord">
+                <a href="https://discord.gg/XdheJHVURw" target="_blank" rel="noopener" class="home-social-link home-social-link--discord" title="Discord">
                     <i class="fab fa-discord"></i>
                     <span>Discord</span>
                 </a>
-                <a href="https://t.me/cripsum" target="_blank" rel="noopener" class="home-social-btn home-social-btn--telegram">
+                <a href="https://t.me/cripsum" target="_blank" rel="noopener" class="home-social-link home-social-link--telegram" title="Telegram">
                     <i class="fab fa-telegram-plane"></i>
                     <span>Telegram</span>
                 </a>
             </div>
         </section>
 
-        <section class="home-chaos-section<section class="home-chaos-section home-reveal">
-            <button class="home-btn home-btn--ghost" type="button" onclick="if (typeof unlockAchievement === 'function') unlockAchievement(10); window.open('https://youtu.be/xvFZjo5PgG0?si=uPsap7ILF_8aYheh', '_blank', 'noopener');">
+        <section class="home-chaos home-reveal">
+            <a class="home-btn home-btn--soft home-chaos__btn"
+               href="https://youtu.be/xvFZjo5PgG0?si=uPsap7ILF_8aYheh"
+               target="_blank"
+               rel="noopener"
+               onclick="if (typeof unlockAchievement === 'function') unlockAchievement(10);">
                 <i class="fas fa-gift"></i>
-                <span>V-bucks gratis!!!!</span>
-            </button>
+                <span>Clicca qui per V-bucks gratis!!!!</span>
+            </a>
         </section>
 
         <?php if (!$isLoggedIn): ?>
-            <section class="home-account-section home-reveal">
+            <section class="home-account home-reveal">
                 <div>
                     <span class="home-kicker">Account</span>
                     <h2>Hai un account Cripsum™?</h2>
-                    <p>Con l’account usi chat, lootbox, achievement, profilo e altre pagine.</p>
+                    <p>Con l’account usi profilo, chat, lootbox e achievement.</p>
                 </div>
 
-                <div class="home-account-actions">
-                    <a href="accedi" class="home-btn home-btn--ghost">Accedi</a>
+                <div class="home-account__actions">
+                    <a href="accedi" class="home-btn home-btn--soft">Accedi</a>
                     <a href="registrati" class="home-btn home-btn--primary">Registrati</a>
                 </div>
             </section>
@@ -316,21 +210,23 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content home-modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="disclaimerModalLabel">Note sul sito</h5>
+                    <h5 class="modal-title" id="disclaimerModalLabel">Disclaimer</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Chiudi"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Cripsum™ è fatto per intrattenere. Alcune pagine usano meme, ironia e contenuti interni.</p>
+                    <p>Cripsum™ è un sito personale fatto per intrattenere. Alcuni contenuti usano meme, ironia e riferimenti interni.</p>
                     <ul>
-                        <li>I contenuti sono pensati per far ridere, non per offendere.</li>
-                        <li>Le pagine di download sono contenuti del sito e meme.</li>
-                        <li>Shop e checkout, se presenti, sono parti simulate.</li>
+                        <li>Non prendere tutto come contenuto serio.</li>
+                        <li>Shop e checkout, se presenti, sono simulati.</li>
                         <li>Le donazioni sono reali: dona solo se vuoi davvero farlo.</li>
                     </ul>
                     <p class="home-muted">
-                        Per trasparenza, parte del codice può essere controllata su
-                        <a href="https://github.com/cripsum/cripsum.github.io" class="home-inline-link" target="_blank" rel="noopener">GitHub</a>.
+                        Per trasparenza, parte del codice è pubblico su
+                        <a href="https://github.com/cripsum/cripsum.github.io" target="_blank" rel="noopener">GitHub</a>.
                     </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="home-btn home-btn--soft" data-bs-dismiss="modal">Chiudi</button>
                 </div>
             </div>
         </div>
@@ -343,8 +239,6 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
             <p id="popup-description"></p>
         </div>
     </div>
-
-    <div id="homeToast" class="home-toast" role="status" aria-live="polite"></div>
 
     <?php include '../includes/footer.php'; ?>
 
