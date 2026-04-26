@@ -3,293 +3,139 @@ require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
+
+function shop_h($value): string
+{
+    return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+$products = [
+    ['id' => 'tshirt-big-logo', 'name' => 'T-Shirt simonetussi.ph', 'variant' => 'Big logo', 'price' => 19.99, 'image' => '../img/magliag.jpg', 'alt' => 'T-Shirt big logo', 'description' => 'Logo grande per massima visibilità.', 'category' => 'maglie', 'badge' => 'Drop', 'link' => 'merch-checkout'],
+    ['id' => 'tshirt-small-logo', 'name' => 'T-Shirt simonetussi.ph', 'variant' => 'Small logo', 'price' => 19.99, 'image' => '../img/magliap.jpg', 'alt' => 'T-Shirt small logo', 'description' => 'Logo piccolo per chi ama la discrezione.', 'category' => 'maglie', 'badge' => 'Minimal', 'link' => 'merch-checkout'],
+    ['id' => 'felpa-big-logo', 'name' => 'Felpa simonetussi.ph', 'variant' => 'Big logo', 'price' => 39.99, 'image' => '../img/felpag.jpg', 'alt' => 'Felpa big logo', 'description' => 'Calda e comoda, con logo grande.', 'category' => 'felpe', 'badge' => 'Premium', 'link' => 'merch-checkout'],
+    ['id' => 'felpa-small-logo', 'name' => 'Felpa simonetussi.ph', 'variant' => 'Small logo', 'price' => 39.99, 'image' => '../img/felpap.jpg', 'alt' => 'Felpa small logo', 'description' => 'Stile più pulito, sempre riconoscibile.', 'category' => 'felpe', 'badge' => 'Clean', 'link' => 'merch-checkout'],
+    ['id' => 'pantaloncini', 'name' => 'Pantaloncini simonetussi.ph', 'variant' => '', 'price' => 23.99, 'image' => '../img/pantaloncini.jpg', 'alt' => 'Pantaloncini', 'description' => 'Comodi per estate e sport.', 'category' => 'abbigliamento', 'badge' => 'Summer', 'link' => 'merch-checkout'],
+    ['id' => 'calzini', 'name' => 'Calzini simonetussi.ph', 'variant' => '', 'price' => 5.99, 'image' => '../img/calze.jpg', 'alt' => 'Calzini', 'description' => 'Anche i piedi meritano stile.', 'category' => 'accessori', 'badge' => 'Cheap', 'link' => 'merch-checkout'],
+    ['id' => 'boxer', 'name' => 'Boxer simonetussi.ph', 'variant' => '', 'price' => 149.99, 'image' => '../img/boxers.jpg', 'alt' => 'Boxer', 'description' => 'Lusso estremo per veri intenditori.', 'category' => 'abbigliamento', 'badge' => 'Luxury', 'link' => 'merch-checkout'],
+    ['id' => 'slip', 'name' => 'Slip simonetussi.ph', 'variant' => '', 'price' => 249.99, 'image' => '../img/mutandinesexi.jpg', 'alt' => 'Slip', 'description' => 'Edizione limitata, pezzo da collezione.', 'category' => 'abbigliamento', 'badge' => 'Limited', 'link' => 'merch-checkout'],
+    ['id' => 'cappellino', 'name' => 'Cappellino simonetussi.ph', 'variant' => '', 'price' => 7.99, 'image' => '../img/cappellino.jpg', 'alt' => 'Cappellino', 'description' => 'Protezione solare con stile.', 'category' => 'accessori', 'badge' => 'Classic', 'link' => 'merch-checkout'],
+    ['id' => 'occhiali-sole', 'name' => 'Occhiali da sole simonetussi.ph', 'variant' => '', 'price' => 8.99, 'image' => '../img/occhialis.jpg', 'alt' => 'Occhiali da sole', 'description' => 'Look da vero influencer.', 'category' => 'accessori', 'badge' => 'Drip', 'link' => 'merch-checkout'],
+    ['id' => 'occhiali-vista', 'name' => 'Occhiali da vista simonetussi.ph', 'variant' => '', 'price' => 35.99, 'image' => '../img/occhialiv.jpg', 'alt' => 'Occhiali da vista', 'description' => 'Vedi meglio il mondo col logo.', 'category' => 'accessori', 'badge' => 'Vision', 'link' => 'merch-checkout'],
+    ['id' => 'tostapane', 'name' => 'Tostapane simonetussi.ph', 'variant' => '', 'price' => 79.99, 'image' => '../img/tostapane.jpg', 'alt' => 'Tostapane', 'description' => 'Toasta il pane con stile.', 'category' => 'altro', 'badge' => 'Peak', 'link' => 'merch-checkout'],
+];
 ?>
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="it">
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <title>Cripsum™ - merch</title>
-    <style>
-        img {
-            border-radius: 10px;
-        }
-
-        .dropdownlingua {
-            background: linear-gradient(135deg, rgba(214, 187, 32, 0.5), rgb(99, 85, 31));
-        }
-
-        .dropdownutenti .dropdown-menu {
-            background: linear-gradient(135deg, rgba(214, 187, 32, 0.5), rgb(99, 85, 31));
-        }
-
-        .overlay-icon {
-            -webkit-background-clip: inherit;
-            -webkit-text-fill-color: inherit;
-            background-clip: inherit;
-            background: transparent;
-        }
-    </style>
+    <title>Cripsum™ - Merch</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="Merch statico di Cripsum™ / simonetussi.ph.">
+    <link rel="stylesheet" href="/assets/shop/shop.css?v=2.0-static-shop">
+    <script src="/assets/shop/shop.js?v=2.0-static-shop" defer></script>
 </head>
-
-<body style="background-color: #bb930f; padding-top: 7rem" class="testobianco">
+<body class="shop-page shop-theme-merch" data-shop-page="merch" data-favorites="1">
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
-    <div class="paginaintera" style="padding-bottom: 1rem;">
-        <p class="text-center fadein" style="font-size: 50px; font-weight: bolder; margin-top: 20px">NEW MERCH OUT NOW</p>
-        <p class="text-center fadein" style="font-size: 50px">🤑🐦📸</p>
+    <main class="shop-shell">
+        <section class="shop-hero shop-reveal">
+            <div class="shop-hero__content">
+                <span class="shop-kicker">Merch drop</span>
+                <h1>NEW MERCH OUT NOW</h1>
+                <p>Il merch simonetussi.ph. Giallo, serio il giusto, inutile il giusto.</p>
+                <div class="shop-hero__actions">
+                    <a class="shop-btn shop-btn--primary" href="#prodotti">Guarda prodotti</a>
+                    <button class="shop-btn shop-btn--ghost" type="button" data-show-favorites>Preferiti</button>
+                </div>
+            </div>
+            <div class="shop-hero__emoji" aria-hidden="true">🤑🐦📸</div>
+        </section>
+
+        <section class="shop-panel shop-reveal" id="prodotti">
+            <div class="shop-toolbar">
+                <label class="shop-search">
+                    <i class="fas fa-search"></i>
+                    <input type="search" data-shop-search placeholder="Cerca prodotto">
+                </label>
+
+                <div class="shop-filters" aria-label="Filtri merch">
+                    <button type="button" class="shop-filter is-active" data-category="all">Tutti</button>
+                    <button type="button" class="shop-filter" data-category="maglie">Maglie</button>
+                    <button type="button" class="shop-filter" data-category="felpe">Felpe</button>
+                    <button type="button" class="shop-filter" data-category="accessori">Accessori</button>
+                    <button type="button" class="shop-filter" data-category="abbigliamento">Abbigliamento</button>
+                    <button type="button" class="shop-filter" data-category="altro">Altro</button>
+                </div>
+
+                <select class="shop-select" data-shop-sort aria-label="Ordina prodotti">
+                    <option value="default">Ordine originale</option>
+                    <option value="name-asc">Nome A-Z</option>
+                    <option value="price-asc">Prezzo crescente</option>
+                    <option value="price-desc">Prezzo decrescente</option>
+                </select>
+            </div>
+
+            <div class="shop-grid" data-shop-grid>
+                <?php foreach ($products as $product): ?>
+                    <article class="shop-card shop-reveal"
+                        id="product-<?php echo shop_h($product['id']); ?>"
+                        data-product-card
+                        data-id="<?php echo shop_h($product['id']); ?>"
+                        data-name="<?php echo shop_h($product['name'] . ' ' . $product['variant']); ?>"
+                        data-category="<?php echo shop_h($product['category']); ?>"
+                        data-price="<?php echo shop_h($product['price']); ?>"
+                        data-description="<?php echo shop_h($product['description']); ?>"
+                        data-image="<?php echo shop_h($product['image']); ?>"
+                        data-link="<?php echo shop_h($product['link']); ?>"
+                        data-badge="<?php echo shop_h($product['badge']); ?>">
+                        <div class="shop-card__media">
+                            <img src="<?php echo shop_h($product['image']); ?>" alt="<?php echo shop_h($product['alt']); ?>" loading="lazy">
+                            <span class="shop-badge"><?php echo shop_h($product['badge']); ?></span>
+                            <button type="button" class="shop-fav" data-favorite-toggle aria-label="Salva preferito">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="shop-card__body">
+                            <div>
+                                <h2><?php echo shop_h($product['name']); ?></h2>
+                                <?php if ($product['variant'] !== ''): ?>
+                                    <span class="shop-variant"><?php echo shop_h($product['variant']); ?></span>
+                                <?php endif; ?>
+                            </div>
+                            <p><?php echo shop_h($product['description']); ?></p>
+                            <div class="shop-card__footer">
+                                <strong><?php echo number_format((float)$product['price'], 2, ',', '.'); ?>€</strong>
+                                <div class="shop-card__actions">
+                                    <button type="button" class="shop-icon-btn" data-open-detail title="Dettagli"><i class="fas fa-eye"></i></button>
+                                    <a class="shop-btn shop-btn--small" href="<?php echo shop_h($product['link']); ?>">Acquista</a>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="shop-empty" data-shop-empty hidden>
+                <i class="fas fa-box-open"></i>
+                <strong>Nessun prodotto trovato</strong>
+                <span>Prova a cambiare ricerca o filtro.</span>
+            </div>
+        </section>
+    </main>
+
+    <div class="shop-modal" data-shop-modal hidden>
+        <div class="shop-modal__backdrop" data-close-modal></div>
+        <article class="shop-modal__panel" role="dialog" aria-modal="true" aria-label="Dettaglio prodotto">
+            <button type="button" class="shop-modal__close" data-close-modal aria-label="Chiudi"><i class="fas fa-xmark"></i></button>
+            <div class="shop-modal__content" data-modal-content></div>
+        </article>
     </div>
 
-    <div class="card-section" style="margin-top: 3rem; padding-bottom: 7rem">
-        <div class="card-grid">
-            <div class="card-item fadeup" onclick="window.location.href='merch-checkout'">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <img src="../img/magliag.jpg" class="card-img" alt="T-Shirt big logo" />
-                        <div class="card-overlay">
-                            <div class="overlay-content">
-                                <i class="fas fa-shopping-cart overlay-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title mb-3">
-                            <a href="merch-checkout" class="text-decoration-none">T-Shirt simonetussi.ph - big logo - 19,99€</a>
-                        </h5>
-                        <p class="card-description">logo grande per massima visibilità</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card-item fadeup" onclick="window.location.href='merch-checkout'">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <img src="../img/magliap.jpg" class="card-img" alt="T-Shirt small logo" />
-                        <div class="card-overlay">
-                            <div class="overlay-content">
-                                <i class="fas fa-shopping-cart overlay-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title mb-3">
-                            <a href="merch-checkout" class="text-decoration-none">T-Shirt simonetussi.ph - small logo - 19,99€</a>
-                        </h5>
-                        <p class="card-description">logo piccolo per chi ama la discrezione</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card-item fadeup" onclick="window.location.href='merch-checkout'">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <img src="../img/felpag.jpg" class="card-img" alt="Felpa big logo" />
-                        <div class="card-overlay">
-                            <div class="overlay-content">
-                                <i class="fas fa-shopping-cart overlay-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title mb-3">
-                            <a href="merch-checkout" class="text-decoration-none">Felpa simonetussi.ph - big logo - 39,99€</a>
-                        </h5>
-                        <p class="card-description">calda e confortevole con logo grande</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card-item fadeup" onclick="window.location.href='merch-checkout'">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <img src="../img/felpap.jpg" class="card-img" alt="Felpa small logo" />
-                        <div class="card-overlay">
-                            <div class="overlay-content">
-                                <i class="fas fa-shopping-cart overlay-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title mb-3">
-                            <a href="merch-checkout" class="text-decoration-none">Felpa simonetussi.ph - small logo - 39,99€</a>
-                        </h5>
-                        <p class="card-description">stile minimal ma sempre riconoscibile</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card-item fadeup" onclick="window.location.href='merch-checkout'">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <img src="../img/pantaloncini.jpg" class="card-img" alt="Pantaloncini" />
-                        <div class="card-overlay">
-                            <div class="overlay-content">
-                                <i class="fas fa-shopping-cart overlay-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title mb-3">
-                            <a href="merch-checkout" class="text-decoration-none">Pantaloncini simonetussi.ph - 23,99€</a>
-                        </h5>
-                        <p class="card-description">comodi per l'estate e lo sport</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card-item fadeup" onclick="window.location.href='merch-checkout'">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <img src="../img/calze.jpg" class="card-img" alt="Calzini" />
-                        <div class="card-overlay">
-                            <div class="overlay-content">
-                                <i class="fas fa-shopping-cart overlay-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title mb-3">
-                            <a href="merch-checkout" class="text-decoration-none">Calzini simonetussi.ph - 5,99€</a>
-                        </h5>
-                        <p class="card-description">anche i piedi meritano stile</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card-item fadeup" onclick="window.location.href='merch-checkout'">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <img src="../img/boxers.jpg" class="card-img" alt="Boxer" />
-                        <div class="card-overlay">
-                            <div class="overlay-content">
-                                <i class="fas fa-shopping-cart overlay-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title mb-3">
-                            <a href="merch-checkout" class="text-decoration-none">Boxer simonetussi.ph - 149,99€</a>
-                        </h5>
-                        <p class="card-description">lusso estremo per veri intenditori</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card-item fadeup" onclick="window.location.href='merch-checkout'">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <img src="../img/mutandinesexi.jpg" class="card-img" alt="Slip" />
-                        <div class="card-overlay">
-                            <div class="overlay-content">
-                                <i class="fas fa-shopping-cart overlay-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title mb-3">
-                            <a href="merch-checkout" class="text-decoration-none">Slip simonetussi.ph - 249,99€</a>
-                        </h5>
-                        <p class="card-description">
-                            edizione limitata, pezzo da <br />
-                            collezione esclusiva
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card-item fadeup" onclick="window.location.href='merch-checkout'">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <img src="../img/cappellino.jpg" class="card-img" alt="Cappellino" />
-                        <div class="card-overlay">
-                            <div class="overlay-content">
-                                <i class="fas fa-shopping-cart overlay-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title mb-3">
-                            <a href="merch-checkout" class="text-decoration-none">Cappellino simonetussi.ph - 7,99€</a>
-                        </h5>
-                        <p class="card-description">protezione solare con stile</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card-item fadeup" onclick="window.location.href='merch-checkout'">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <img src="../img/occhialis.jpg" class="card-img" alt="Occhiali da sole" />
-                        <div class="card-overlay">
-                            <div class="overlay-content">
-                                <i class="fas fa-shopping-cart overlay-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title mb-3">
-                            <a href="merch-checkout" class="text-decoration-none">Occhiali da sole simonetussi.ph - 8,99€</a>
-                        </h5>
-                        <p class="card-description">look da vero influencer</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card-item fadeup" onclick="window.location.href='merch-checkout'">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <img src="../img/occhialiv.jpg" class="card-img" alt="Occhiali da vista" />
-                        <div class="card-overlay">
-                            <div class="overlay-content">
-                                <i class="fas fa-shopping-cart overlay-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title mb-3">
-                            <a href="merch-checkout" class="text-decoration-none">Occhiali da vista simonetussi.ph - 35,99€</a>
-                        </h5>
-                        <p class="card-description">
-                            vedi meglio il mondo con <br />
-                            il logo simonetussi.ph
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card-item fadeup" onclick="window.location.href='merch-checkout'">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <img src="../img/tostapane.jpg" class="card-img" alt="Tostapane" />
-                        <div class="card-overlay">
-                            <div class="overlay-content">
-                                <i class="fas fa-shopping-cart overlay-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title mb-3">
-                            <a href="merch-checkout" class="text-decoration-none">Tostapane simonetussi.ph - 79,99€</a>
-                        </h5>
-                        <p class="card-description">
-                            toasta il pane con logo <br />
-                            simonetussi.ph impresso
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div class="shop-toast" data-shop-toast></div>
 
     <?php include '../includes/scroll_indicator.php'; ?>
-
     <?php include '../includes/footer.php'; ?>
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-        crossorigin="anonymous"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
-
 </html>

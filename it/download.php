@@ -3,156 +3,144 @@ require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
+
+function shop_h($value): string
+{
+    return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+$downloads = [
+    ['id' => 'spinjitzu', 'name' => 'Tutorial Spinjitzu', 'image' => '../img/jayquadrato.png', 'alt' => 'Tutorial Spinjitzu', 'description' => 'Impara la famosa mossa di Ninjago.', 'status' => 'available', 'badge' => 'Esterno', 'link' => 'https://payhip.com/b/m0kaT'],
+    ['id' => 'yoshukai', 'name' => 'Corso Yoshukai', 'image' => '../img/chinese-essay-2.jpg', 'alt' => 'Corso Yoshukai', 'description' => 'Gratis ancora per poco.', 'status' => 'available', 'badge' => 'Gratis', 'link' => 'download/yoshukai'],
+    ['id' => 'fortnite', 'name' => 'Fortnite Hacks', 'image' => '../img/fortnitehack.jpg', 'alt' => 'Fortnite Hacks', 'description' => 'ez win.', 'status' => 'available', 'badge' => 'Download', 'link' => 'download/fortnite'],
+    ['id' => 'osu', 'name' => 'Osu!', 'image' => '../img/osu.jpg', 'alt' => 'Osu!', 'description' => 'hossu - il gioco ritmico per scemotti.', 'status' => 'available', 'badge' => 'Game', 'link' => 'download/osu'],
+    ['id' => 'soon-1', 'name' => 'Coming Soon', 'image' => '../img/comingsoon.jpg', 'alt' => 'Coming Soon', 'description' => 'Prossimamente.', 'status' => 'soon', 'badge' => 'Coming soon', 'link' => ''],
+    ['id' => 'soon-2', 'name' => 'Coming Soon', 'image' => '../img/comingsoon.jpg', 'alt' => 'Coming Soon', 'description' => 'Prossimamente.', 'status' => 'soon', 'badge' => 'Coming soon', 'link' => ''],
+];
 ?>
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="it">
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <title>Cripsum™ - download</title>
-    <style>
-        img {
-            border-radius: 10px;
-        }
-
-        .overlay-icon {
-            -webkit-background-clip: inherit;
-            -webkit-text-fill-color: inherit;
-            background-clip: inherit;
-            background: transparent;
-        }
-    </style>
+    <title>Cripsum™ - Download</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="Download statici di Cripsum™.">
+    <link rel="stylesheet" href="/assets/shop/shop.css?v=2.0-static-shop">
+    <script src="/assets/shop/shop.js?v=2.0-static-shop" defer></script>
 </head>
-
-<body>
+<body class="shop-page shop-theme-download" data-shop-page="download" data-favorites="0">
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
-    <div class="card-section" style="margin-top: 7rem; padding-bottom: 7rem">
-        <div class="card-grid">
-            <div class="card-item fadeup" onclick="window.location.href='https://payhip.com/b/m0kaT'">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <img src="../img/jayquadrato.png" class="card-img" alt="Tutorial Spinjitzu" />
-                        <div class="card-overlay">
-                            <div class="overlay-content">
-                                <i class="fas fa-download overlay-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title mb-3">
-                            <a href="https://payhip.com/b/m0kaT" class="text-decoration-none">Tutorial Spinjitzu</a>
-                        </h5>
-                        <p class="card-description">Impara la famosa mossa di ninjago!</p>
-                    </div>
+    <main class="shop-shell">
+        <section class="shop-hero shop-reveal">
+            <div class="shop-hero__content">
+                <span class="shop-kicker">Download</span>
+                <h1>Download Center</h1>
+                <p>File e pagine di download del sito. Solo roba statica, niente magia.</p>
+                <div class="shop-hero__actions">
+                    <a class="shop-btn shop-btn--primary" href="#download-list">Vai ai download</a>
+                    <a class="shop-btn shop-btn--ghost" href="https://discord.gg/XdheJHVURw" target="_blank" rel="noopener">Discord</a>
                 </div>
+            </div>
+            <div class="shop-hero__emoji" aria-hidden="true">⬇️🗂️⚙️</div>
+        </section>
+
+        <section class="shop-note shop-reveal">
+            <i class="fas fa-circle-info"></i>
+            <div>
+                <strong>Prima di scaricare</strong>
+                <span>Alcuni link portano a pagine interne, altri a siti esterni. I contenuti “Coming soon” non sono cliccabili.</span>
+            </div>
+        </section>
+
+        <section class="shop-panel shop-reveal" id="download-list">
+            <div class="shop-toolbar">
+                <label class="shop-search">
+                    <i class="fas fa-search"></i>
+                    <input type="search" data-shop-search placeholder="Cerca download">
+                </label>
+
+                <div class="shop-filters" aria-label="Filtri download">
+                    <button type="button" class="shop-filter is-active" data-category="all">Tutti</button>
+                    <button type="button" class="shop-filter" data-category="available">Disponibili</button>
+                    <button type="button" class="shop-filter" data-category="soon">Coming soon</button>
+                </div>
+
+                <select class="shop-select" data-shop-sort aria-label="Ordina download">
+                    <option value="default">Ordine originale</option>
+                    <option value="name-asc">Nome A-Z</option>
+                </select>
             </div>
 
-            <div class="card-item fadeup" onclick="window.location.href='download/yoshukai'">
-                <div class="card h-100 download">
-                    <div class="card-header">
-                        <img src="../img/chinese-essay-2.jpg" class="card-img" alt="Corso Yoshukai" />
-                        <div class="card-overlay">
-                            <div class="overlay-content">
-                                <i class="fas fa-download overlay-icon"></i>
-                                <div class="overlay-badge download">Gratis!</div>
+            <div class="shop-grid shop-grid--downloads" data-shop-grid>
+                <?php foreach ($downloads as $item): ?>
+                    <article class="shop-card shop-card--download shop-reveal <?php echo $item['status'] === 'soon' ? 'is-soon' : ''; ?>"
+                        id="download-<?php echo shop_h($item['id']); ?>"
+                        data-product-card
+                        data-id="<?php echo shop_h($item['id']); ?>"
+                        data-name="<?php echo shop_h($item['name']); ?>"
+                        data-category="<?php echo shop_h($item['status']); ?>"
+                        data-price="0"
+                        data-description="<?php echo shop_h($item['description']); ?>"
+                        data-image="<?php echo shop_h($item['image']); ?>"
+                        data-link="<?php echo shop_h($item['link']); ?>"
+                        data-badge="<?php echo shop_h($item['badge']); ?>">
+                        <div class="shop-card__media">
+                            <img src="<?php echo shop_h($item['image']); ?>" alt="<?php echo shop_h($item['alt']); ?>" loading="lazy">
+                            <span class="shop-badge"><?php echo shop_h($item['badge']); ?></span>
+                        </div>
+                        <div class="shop-card__body">
+                            <h2><?php echo shop_h($item['name']); ?></h2>
+                            <p><?php echo shop_h($item['description']); ?></p>
+                            <div class="shop-card__footer">
+                                <strong><?php echo $item['status'] === 'soon' ? 'Non disponibile' : 'Disponibile'; ?></strong>
+                                <div class="shop-card__actions">
+                                    <button type="button" class="shop-icon-btn" data-open-detail title="Dettagli"><i class="fas fa-eye"></i></button>
+                                    <?php if ($item['status'] === 'available'): ?>
+                                        <button type="button" class="shop-icon-btn" data-copy-link title="Copia link"><i class="fas fa-link"></i></button>
+                                        <a class="shop-btn shop-btn--small" href="<?php echo shop_h($item['link']); ?>">Scarica</a>
+                                    <?php else: ?>
+                                        <span class="shop-btn shop-btn--small is-disabled">Presto</span>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title mb-3">
-                            <a href="download/yoshukai" class="text-decoration-none">Corso Yoshukai</a>
-                        </h5>
-                        <p class="card-description">Gratis ancora per poco!!</p>
-                    </div>
-                </div>
+                    </article>
+                <?php endforeach; ?>
             </div>
 
-            <div class="card-item fadeup" onclick="window.location.href='download/fortnite'">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <img src="../img/fortnitehack.jpg" class="card-img" alt="Fortnite Hacks" />
-                        <div class="card-overlay">
-                            <div class="overlay-content">
-                                <i class="fas fa-download overlay-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title mb-3">
-                            <a href="download/fortnite" class="text-decoration-none">Fortnite Hacks</a>
-                        </h5>
-                        <p class="card-description">ez win</p>
-                    </div>
-                </div>
+            <div class="shop-empty" data-shop-empty hidden>
+                <i class="fas fa-folder-open"></i>
+                <strong>Nessun download trovato</strong>
+                <span>Prova a cambiare filtro o ricerca.</span>
             </div>
+        </section>
 
-            <div class="card-item fadeup" onclick="window.location.href='download/osu'">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <img src="../img/osu.jpg" class="card-img" alt="Osu!" />
-                        <div class="card-overlay">
-                            <div class="overlay-content">
-                                <i class="fas fa-download overlay-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title mb-3">
-                            <a href="download/osu" class="text-decoration-none">Osu!</a>
-                        </h5>
-                        <p class="card-description">hossu - il gioco ritmico per scemotti</p>
-                    </div>
-                </div>
-            </div>
+        <section class="shop-faq shop-reveal">
+            <details>
+                <summary>Come funzionano i download?</summary>
+                <p>Sono link statici. Se un contenuto non è pronto, resta segnato come Coming soon.</p>
+            </details>
+            <details>
+                <summary>Serve un account?</summary>
+                <p>No. Questa pagina resta pubblica e statica.</p>
+            </details>
+        </section>
+    </main>
 
-            <div class="card-item fadeup">
-                <div class="card h-100 coming-soon">
-                    <div class="card-header">
-                        <img src="../img/comingsoon.jpg" class="card-img" alt="Coming Soon" />
-                        <div class="card-overlay">
-                            <div class="overlay-content">
-                                <i class="fas fa-clock overlay-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title mb-3">
-                            <span>Coming Soon</span>
-                        </h5>
-                        <p class="card-description">Prossimamente...</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card-item fadeup">
-                <div class="card h-100 coming-soon">
-                    <div class="card-header">
-                        <img src="../img/comingsoon.jpg" class="card-img" alt="Coming Soon" />
-                        <div class="card-overlay">
-                            <div class="overlay-content">
-                                <i class="fas fa-clock overlay-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title mb-3">
-                            <span>Coming Soon</span>
-                        </h5>
-                        <p class="card-description">Prossimamente...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="shop-modal" data-shop-modal hidden>
+        <div class="shop-modal__backdrop" data-close-modal></div>
+        <article class="shop-modal__panel" role="dialog" aria-modal="true" aria-label="Dettaglio download">
+            <button type="button" class="shop-modal__close" data-close-modal aria-label="Chiudi"><i class="fas fa-xmark"></i></button>
+            <div class="shop-modal__content" data-modal-content></div>
+        </article>
     </div>
+
+    <div class="shop-toast" data-shop-toast></div>
+
     <?php include '../includes/scroll_indicator.php'; ?>
     <?php include '../includes/footer.php'; ?>
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-        crossorigin="anonymous"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
-
 </html>
