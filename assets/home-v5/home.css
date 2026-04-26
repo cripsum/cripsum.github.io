@@ -1260,7 +1260,7 @@ body.home-v5-body .dropdown-divider {
 /* V5.2 mobile fix: responsive serio + foto stondate */
 html,
 body.home-v5-body {
-    max-width: 100%;
+    max-width: 90%;
     overflow-x: hidden;
 }
 
