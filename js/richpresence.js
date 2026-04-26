@@ -352,8 +352,11 @@ const editMap = {
 };
 
 
+
 let cachedProfilePfpPath = null;
 let cachedProfilePfpUrl = null;
+let profilePfpObserver = null;
+let lastProfilePfpSent = null;
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -387,18 +390,37 @@ function toAbsoluteImageUrl(value) {
   }
 }
 
+function extractUrlFromCssBackground(value) {
+  const raw = String(value || "");
+  const match = raw.match(/url\((["']?)(.*?)\1\)/i);
+
+  return match && match[2] ? match[2] : null;
+}
+
 function getImageValueFromElement(element) {
   if (!element) return null;
 
-  return (
+  const directValue =
     element.getAttribute("data-richpresence-pfp") ||
     element.getAttribute("data-profile-pfp") ||
     element.getAttribute("data-user-pfp") ||
+    element.getAttribute("data-avatar") ||
+    element.getAttribute("data-pfp") ||
     element.getAttribute("data-src") ||
     element.getAttribute("src") ||
-    element.getAttribute("content") ||
-    null
-  );
+    element.getAttribute("href") ||
+    element.getAttribute("content");
+
+  if (directValue) {
+    return directValue;
+  }
+
+  try {
+    const bg = window.getComputedStyle(element).backgroundImage;
+    return extractUrlFromCssBackground(bg);
+  } catch {
+    return null;
+  }
 }
 
 function findProfilePfpOnPage() {
@@ -406,22 +428,33 @@ function findProfilePfpOnPage() {
     "[data-richpresence-pfp]",
     "[data-profile-pfp]",
     "[data-user-pfp]",
+    "[data-avatar]",
+    "[data-pfp]",
     "img[data-richpresence-pfp]",
     "img[data-profile-pfp]",
     "img[data-user-pfp]",
     ".profile-avatar img",
     ".profile-pfp img",
     ".profile-picture img",
+    ".profile-hero__avatar img",
+    ".profile-card__avatar img",
+    ".profile-main__avatar img",
     ".bio-avatar img",
     ".bio-pfp img",
+    ".bio-profile__avatar img",
     ".user-avatar img",
     ".avatar img",
     ".pfp img",
     "#profileAvatar",
     "#userAvatar",
+    "#pfp",
     "img[src*='get_pfp']",
     "img[src*='pfp']",
     "img[src*='avatar']",
+    "img[class*='avatar']",
+    "img[class*='pfp']",
+    "img[id*='avatar']",
+    "img[id*='pfp']",
     "meta[property='og:image']",
     "meta[name='twitter:image']"
   ];
@@ -435,45 +468,143 @@ function findProfilePfpOnPage() {
     }
   }
 
+  const backgroundSelectors = [
+    ".profile-avatar",
+    ".profile-pfp",
+    ".profile-picture",
+    ".profile-hero__avatar",
+    ".profile-card__avatar",
+    ".bio-avatar",
+    ".bio-pfp",
+    ".user-avatar",
+    ".avatar",
+    ".pfp"
+  ];
+
+  for (const selector of backgroundSelectors) {
+    const element = document.querySelector(selector);
+    const url = toAbsoluteImageUrl(getImageValueFromElement(element));
+
+    if (url) {
+      return url;
+    }
+  }
+
   return null;
 }
 
-async function getProfilePfpUrl(pathOnly) {
-  if (cachedProfilePfpPath === pathOnly) {
+async function getProfilePfpUrl(pathKey) {
+  if (cachedProfilePfpPath === pathKey && cachedProfilePfpUrl) {
     return cachedProfilePfpUrl;
   }
 
-  cachedProfilePfpPath = pathOnly;
+  cachedProfilePfpPath = pathKey;
   cachedProfilePfpUrl = null;
 
-  let pfpUrl = findProfilePfpOnPage();
+  await waitForDomReady();
 
-  if (!pfpUrl) {
-    await waitForDomReady();
-    pfpUrl = findProfilePfpOnPage();
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const pfpUrl = findProfilePfpOnPage();
+
+    if (pfpUrl) {
+      cachedProfilePfpUrl = pfpUrl;
+      return cachedProfilePfpUrl;
+    }
+
+    await sleep(250);
   }
 
-  if (!pfpUrl) {
-    await sleep(350);
-    pfpUrl = findProfilePfpOnPage();
-  }
-
-  cachedProfilePfpUrl = pfpUrl || null;
-  return cachedProfilePfpUrl;
+  return null;
 }
 
-function getProfileUsernameFromPath(pathOnly) {
-  const match = pathOnly.match(/^\/(?:(?:it|en)\/)?(?:user|u)\/([^/?#]+)\/?$/);
+function getProfileInfoFromLocation() {
+  const originalPath = window.location.pathname || "/";
+  const cleanPath = originalPath.replace(/\/+$/, "");
+  const parts = cleanPath.split("/").filter(Boolean);
+  const searchParams = new URLSearchParams(window.location.search || "");
 
-  if (!match || !match[1]) {
+  if (parts[0] === "it" || parts[0] === "en") {
+    parts.shift();
+  }
+
+  const section = parts[0] || "";
+  let username = null;
+
+  if (section === "user" || section === "u" || section === "profile") {
+    username = parts[1] || null;
+  }
+
+  if (!username && (section === "user" || section === "u" || section === "profile")) {
+    username =
+      searchParams.get("username") ||
+      searchParams.get("user") ||
+      searchParams.get("u") ||
+      searchParams.get("name") ||
+      searchParams.get("") ||
+      null;
+  }
+
+  if (!username) {
     return null;
   }
 
   try {
-    return decodeURIComponent(match[1]);
+    username = decodeURIComponent(username);
   } catch {
-    return match[1];
+    username = String(username);
   }
+
+  username = username.trim();
+
+  if (!username) {
+    return null;
+  }
+
+  return {
+    username,
+    pathKey: `${originalPath}${window.location.search || ""}`
+  };
+}
+
+function getProfileUsernameFromPath() {
+  const info = getProfileInfoFromLocation();
+  return info ? info.username : null;
+}
+
+function watchProfilePfpChanges() {
+  const profileInfo = getProfileInfoFromLocation();
+
+  if (!profileInfo || profilePfpObserver || !document.body || typeof MutationObserver === "undefined") {
+    return;
+  }
+
+  profilePfpObserver = new MutationObserver(() => {
+    const pfpUrl = findProfilePfpOnPage();
+
+    if (!pfpUrl || pfpUrl === lastProfilePfpSent) {
+      return;
+    }
+
+    cachedProfilePfpPath = null;
+    cachedProfilePfpUrl = null;
+    lastProfilePfpSent = pfpUrl;
+
+    updatePresence();
+  });
+
+  profilePfpObserver.observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ["src", "style", "data-richpresence-pfp", "data-profile-pfp", "data-user-pfp"]
+  });
+
+  setTimeout(() => {
+    if (profilePfpObserver) {
+      profilePfpObserver.disconnect();
+      profilePfpObserver = null;
+    }
+  }, 8000);
 }
 
 function connectWebSocket() {
@@ -589,17 +720,20 @@ async function updatePresence() {
   }
 }
 
-  const profileUsername = getProfileUsernameFromPath(pathOnly);
-  if (profileUsername) {
-    const profilePfpUrl = await getProfilePfpUrl(pathOnly);
+  const profileInfo = getProfileInfoFromLocation();
+  if (profileInfo) {
+    const profilePfpUrl = await getProfilePfpUrl(profileInfo.pathKey);
+    lastProfilePfpSent = profilePfpUrl || null;
 
     page = {
-      title: `Profilo di ${profileUsername}`,
-      state: `Visualizzando il profilo di ${profileUsername}`,
-      imageText: `Profilo di ${profileUsername}`,
+      title: `Profilo di ${profileInfo.username}`,
+      state: `Visualizzando il profilo di ${profileInfo.username}`,
+      imageText: `Profilo di ${profileInfo.username}`,
       largeImageKey: profilePfpUrl || page.largeImageKey,
       url: fullPath
     };
+
+    watchProfilePfpChanges();
   }
 
   try {
@@ -623,7 +757,7 @@ connectWebSocket();
 
 window.addEventListener("popstate", updatePresence);
 window.addEventListener("hashchange", updatePresence);
-document.addEventListener("DOMContentLoaded", updatePresence);
+document.addEventListener("DOMContentLoaded", () => { watchProfilePfpChanges(); updatePresence(); });
 
 const originalPushState = history.pushState;
 const originalReplaceState = history.replaceState;
