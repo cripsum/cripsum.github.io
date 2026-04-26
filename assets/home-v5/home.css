@@ -1262,6 +1262,7 @@ html,
 body.home-v5-body {
     max-width: 90%;
     overflow-x: hidden;
+    margin: auto;
 }
 
 .home-page,
