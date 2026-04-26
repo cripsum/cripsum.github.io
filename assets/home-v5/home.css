@@ -1173,7 +1173,7 @@ body.home-v5-body .dropdown-divider {
 }
 
 .social-link-modern.tiktok .social-icon-wrapper::before {
-    background: linear-gradient(135deg, #ff0050 52%, #111, #00f2ea);
+    background: linear-gradient(135deg, #ff0050, #111 40%, #00f2ea);
 }
 
 .social-link-modern.instagram .social-icon-wrapper::before {
