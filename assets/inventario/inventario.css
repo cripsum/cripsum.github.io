@@ -1619,7 +1619,7 @@ body.inv-page .rarity-section.rarity-speciale::before {
         #8000ff 92.84%,
         #ff0000 100%
     ) !important;
-    animation-duration: 5.8s !important;
+    animation-duration: 7s !important;
 }
 
 /* SEGRETO: vecchia viola, ma in movimento reale */
@@ -1630,7 +1630,7 @@ body.inv-page .rarity-section.rarity-segreto {
 
 body.inv-page .rarity-section.rarity-segreto::before {
     background: linear-gradient(90deg, #9400d3 0%, #4b0082 12.5%, #1d002b 25%, #4b0082 37.5%, #9400d3 50%, #4b0082 62.5%, #1d002b 75%, #4b0082 87.5%, #9400d3 100%) !important;
-    animation-duration: 4.8s !important;
+    animation-duration: 7s !important;
 }
 
 /* THE ONE: vecchia blu/azzurra, ma in movimento reale */
@@ -1641,7 +1641,7 @@ body.inv-page .rarity-section.rarity-theone {
 
 body.inv-page .rarity-section.rarity-theone::before {
     background: linear-gradient(90deg, #0000ff 0%, #00bfff 12.5%, rgb(52, 164, 255) 25%, #4169e1 37.5%, #0000ff 50%, #00bfff 62.5%, rgb(52, 164, 255) 75%, #4169e1 87.5%, #0000ff 100%) !important;
-    animation-duration: 4.8s !important;
+    animation-duration: 7s !important;
 }
 
 /* Griglia e titoli leggibili sopra il movimento */
