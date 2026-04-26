@@ -270,7 +270,45 @@ function chat_get_visible_badges(mysqli $mysqli, array $userIds): array
     return $badges;
 }
 
-function chat_format_message_row(array $row, int $currentUserId, array $badgeMap = []): array
+
+function chat_is_allowed_gif_url(string $url): bool
+{
+    $url = trim($url);
+    if ($url === '' || mb_strlen($url, 'UTF-8') > 900) return false;
+    $parts = parse_url($url);
+    if (!$parts || strtolower((string)($parts['scheme'] ?? '')) !== 'https') return false;
+    $host = strtolower((string)($parts['host'] ?? ''));
+    return $host === 'media.tenor.com' || $host === 'tenor.com' || str_ends_with($host, '.tenor.com');
+}
+
+function chat_get_reactions(mysqli $mysqli, int $currentUserId, array $messageIds): array
+{
+    $messageIds = array_values(array_unique(array_filter(array_map('intval', $messageIds))));
+    if (!$messageIds || !chat_table_exists($mysqli, 'chat_reactions')) return [];
+
+    $placeholders = implode(',', array_fill(0, count($messageIds), '?'));
+    $types = 'i' . str_repeat('i', count($messageIds));
+    $params = array_merge([$currentUserId], $messageIds);
+
+    $stmt = $mysqli->prepare("\n        SELECT message_id, emoji, COUNT(*) AS total, MAX(CASE WHEN user_id = ? THEN 1 ELSE 0 END) AS mine\n        FROM chat_reactions\n        WHERE message_id IN ($placeholders)\n        GROUP BY message_id, emoji\n        ORDER BY total DESC, emoji ASC\n    ");
+    if (!$stmt) return [];
+    $stmt->bind_param($types, ...$params);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $map = [];
+    while ($row = $result->fetch_assoc()) {
+        $mid = (int)$row['message_id'];
+        $map[$mid][] = [
+            'emoji' => (string)$row['emoji'],
+            'count' => (int)$row['total'],
+            'mine' => (int)$row['mine'] === 1,
+        ];
+    }
+    $stmt->close();
+    return $map;
+}
+
+function chat_format_message_row(array $row, int $currentUserId, array $badgeMap = [], array $reactionMap = []): array
 {
     $userId = (int)$row['user_id'];
     $isDeleted = !empty($row['deleted_at']);
@@ -280,6 +318,8 @@ function chat_format_message_row(array $row, int $currentUserId, array $badgeMap
     $createdAt = (string)$row['created_at'];
     $createdTs = strtotime($createdAt) ?: time();
     $canEdit = !$isDeleted && $isMine && (time() - $createdTs) <= (int)CHAT_EDIT_WINDOW_SECONDS;
+    $messageType = (string)($row['message_type'] ?? 'text');
+    if (!in_array($messageType, ['text', 'gif'], true)) $messageType = 'text';
 
     return [
         'id' => (int)$row['id'],
@@ -290,20 +330,26 @@ function chat_format_message_row(array $row, int $currentUserId, array $badgeMap
         'role' => $role,
         'role_badge' => chat_role_label($role),
         'badge' => $badgeMap[$userId] ?? null,
+        'message_type' => $isDeleted ? 'text' : $messageType,
         'message' => $isDeleted ? 'Messaggio eliminato' : (string)$row['message'],
+        'media_url' => $isDeleted ? null : ($row['media_url'] ?? null),
+        'media_preview_url' => $isDeleted ? null : ($row['media_preview_url'] ?? null),
+        'media_title' => $isDeleted ? null : ($row['media_title'] ?? null),
         'created_at' => $createdAt,
         'created_label' => date('H:i', $createdTs),
         'edited_at' => $row['edited_at'] ?? null,
         'deleted_at' => $row['deleted_at'] ?? null,
         'is_deleted' => $isDeleted,
         'is_mine' => $isMine,
-        'can_edit' => $canEdit,
+        'can_edit' => $canEdit && $messageType === 'text',
         'can_delete' => !$isDeleted && ($isMine || $canMod),
         'can_report' => !$isDeleted && !$isMine,
+        'reactions' => $reactionMap[(int)$row['id']] ?? [],
         'reply' => !empty($row['reply_id']) ? [
             'id' => (int)$row['reply_id'],
             'username' => (string)($row['reply_username'] ?? 'utente'),
             'message' => chat_compact_text((string)($row['reply_message'] ?? ''), 110),
+            'message_type' => (string)($row['reply_message_type'] ?? 'text'),
         ] : null,
     ];
 }
@@ -315,6 +361,17 @@ function chat_fetch_messages(mysqli $mysqli, int $currentUserId, array $options 
     $limit = min(max(1, (int)($options['limit'] ?? MESSAGES_PER_PAGE)), 80);
     $search = trim((string)($options['search'] ?? ''));
     $search = mb_substr($search, 0, CHAT_MAX_SEARCH_LENGTH, 'UTF-8');
+
+    $hasMessageType = chat_column_exists($mysqli, 'messages', 'message_type');
+    $hasMediaUrl = chat_column_exists($mysqli, 'messages', 'media_url');
+    $hasMediaPreview = chat_column_exists($mysqli, 'messages', 'media_preview_url');
+    $hasMediaTitle = chat_column_exists($mysqli, 'messages', 'media_title');
+
+    $selectType = $hasMessageType ? 'm.message_type' : "'text' AS message_type";
+    $selectMediaUrl = $hasMediaUrl ? 'm.media_url' : 'NULL AS media_url';
+    $selectMediaPreview = $hasMediaPreview ? 'm.media_preview_url' : 'NULL AS media_preview_url';
+    $selectMediaTitle = $hasMediaTitle ? 'm.media_title' : 'NULL AS media_title';
+    $selectReplyType = $hasMessageType ? 'rm.message_type AS reply_message_type' : "'text' AS reply_message_type";
 
     $where = ['cm.muter_id IS NULL'];
     $types = 'i';
@@ -333,8 +390,9 @@ function chat_fetch_messages(mysqli $mysqli, int $currentUserId, array $options 
     }
 
     if ($search !== '') {
-        $where[] = 'm.deleted_at IS NULL AND m.message LIKE ?';
-        $types .= 's';
+        $where[] = 'm.deleted_at IS NULL AND (m.message LIKE ? OR ' . ($hasMediaTitle ? 'm.media_title LIKE ?' : 'm.message LIKE ?') . ')';
+        $types .= 'ss';
+        $params[] = '%' . $search . '%';
         $params[] = '%' . $search . '%';
     }
 
@@ -345,6 +403,10 @@ function chat_fetch_messages(mysqli $mysqli, int $currentUserId, array $options 
             m.id,
             m.user_id,
             m.message,
+            $selectType,
+            $selectMediaUrl,
+            $selectMediaPreview,
+            $selectMediaTitle,
             m.reply_to,
             m.created_at,
             m.edited_at,
@@ -353,6 +415,7 @@ function chat_fetch_messages(mysqli $mysqli, int $currentUserId, array $options 
             u.ruolo,
             rm.id AS reply_id,
             rm.message AS reply_message,
+            $selectReplyType,
             ru.username AS reply_username
         FROM messages m
         INNER JOIN utenti u ON u.id = m.user_id
@@ -375,9 +438,11 @@ function chat_fetch_messages(mysqli $mysqli, int $currentUserId, array $options 
 
     $rows = [];
     $userIds = [];
+    $messageIds = [];
     while ($row = $result->fetch_assoc()) {
         $rows[] = $row;
         $userIds[] = (int)$row['user_id'];
+        $messageIds[] = (int)$row['id'];
     }
     $stmt->close();
 
@@ -386,7 +451,8 @@ function chat_fetch_messages(mysqli $mysqli, int $currentUserId, array $options 
     }
 
     $badgeMap = chat_get_visible_badges($mysqli, $userIds);
-    return array_map(fn($row) => chat_format_message_row($row, $currentUserId, $badgeMap), $rows);
+    $reactionMap = chat_get_reactions($mysqli, $currentUserId, $messageIds);
+    return array_map(fn($row) => chat_format_message_row($row, $currentUserId, $badgeMap, $reactionMap), $rows);
 }
 
 function chat_get_online_count(mysqli $mysqli): int

@@ -1,6 +1,6 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
 error_reporting(E_ALL);
 
 require_once '../config/session_init.php';
@@ -42,15 +42,13 @@ $onlineCount = $lineeGuidaChat === 1 ? chat_get_online_count($mysqli) : 0;
 ?>
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
     <?php include '../includes/head-import.php'; ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/css/chat-v2.css?v=2.0">
-    <script src="/js/chat-v2.js?v=2.0" defer></script>
+    <link rel="stylesheet" href="/css/chat-v2.css?v=2.1-polish-gif">
+    <script src="/js/chat-v2.js?v=2.1-polish-gif" defer></script>
     <title>Chat Globale - Cripsum</title>
 </head>
-
 <body class="chat-v2-body" data-user-id="<?php echo $userId; ?>" data-user-role="<?php echo htmlspecialchars($userRole, ENT_QUOTES, 'UTF-8'); ?>" data-csrf="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
     <?php include '../includes/navbar.php'; ?>
 
@@ -104,6 +102,7 @@ $onlineCount = $lineeGuidaChat === 1 ? chat_get_online_count($mysqli) : 0;
                             <span class="chat-online-dot"></span>
                             <strong id="chatOnlineCount"><?php echo (int)$onlineCount; ?></strong>
                         </span>
+                        <span class="chat-sync-state" id="chatSyncState" title="Stato chat"><i class="fas fa-circle"></i><span>Live</span></span>
                         <button type="button" class="chat-icon-button js-toggle-search" aria-label="Cerca messaggi"><i class="fas fa-search"></i></button>
                         <button type="button" class="chat-icon-button js-toggle-sound" aria-label="Notifiche audio"><i class="fas fa-volume-xmark"></i></button>
                     </div>
@@ -147,8 +146,32 @@ $onlineCount = $lineeGuidaChat === 1 ? chat_get_online_count($mysqli) : 0;
                         <button type="button" class="js-cancel-edit" aria-label="Annulla modifica"><i class="fas fa-xmark"></i></button>
                     </div>
 
+                    <div class="chat-gif-panel" id="chatGifPanel" hidden>
+                        <div class="chat-gif-head">
+                            <div class="chat-gif-search">
+                                <i class="fas fa-magnifying-glass"></i>
+                                <input type="search" id="chatGifSearch" placeholder="Cerca GIF su Tenor..." maxlength="60" autocomplete="off">
+                            </div>
+                            <button type="button" class="chat-icon-button js-close-gifs" aria-label="Chiudi GIF"><i class="fas fa-xmark"></i></button>
+                        </div>
+                        <div class="chat-gif-grid" id="chatGifGrid"></div>
+                        <button type="button" class="chat-gif-more js-more-gifs" hidden>Carica altre GIF</button>
+                        <small class="chat-tenor-credit">Powered by Tenor</small>
+                    </div>
+
+                    <div class="chat-emoji-strip" id="chatEmojiStrip" hidden>
+                        <button type="button" data-emoji="😭">😭</button>
+                        <button type="button" data-emoji="🙏">🙏</button>
+                        <button type="button" data-emoji="🔥">🔥</button>
+                        <button type="button" data-emoji="💀">💀</button>
+                        <button type="button" data-emoji="💯">💯</button>
+                        <button type="button" data-emoji="🗣️">🗣️</button>
+                    </div>
+
                     <form id="chatForm" class="chat-form" autocomplete="off">
                         <img class="chat-my-avatar" src="/includes/get_pfp.php?id=<?php echo $userId; ?>" alt="">
+                        <button type="button" class="chat-tool-button js-toggle-gifs" aria-label="Apri GIF"><i class="fas fa-image"></i></button>
+                        <button type="button" class="chat-tool-button js-toggle-emojis" aria-label="Emoji rapide"><i class="far fa-face-smile"></i></button>
                         <div class="chat-input-wrap">
                             <textarea id="chatInput" rows="1" maxlength="<?php echo (int)MAX_MESSAGE_LENGTH; ?>" placeholder="Scrivi..." aria-label="Messaggio"></textarea>
                             <div class="chat-input-footer">
@@ -181,7 +204,9 @@ $onlineCount = $lineeGuidaChat === 1 ? chat_get_online_count($mysqli) : 0;
                     report: '/api/chat/report.php',
                     mute: '/api/chat/mute.php',
                     typing: '/api/chat/typing.php',
-                    status: '/api/chat/status.php'
+                    status: '/api/chat/status.php',
+                    gifs: '/api/chat/gifs.php',
+                    react: '/api/chat/react.php'
                 }
             };
         </script>
@@ -189,5 +214,4 @@ $onlineCount = $lineeGuidaChat === 1 ? chat_get_online_count($mysqli) : 0;
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
