@@ -66,7 +66,27 @@
 
     const getName = (item) => String(getField(item, ['nome', 'name'], ''));
 
-    const getRarity = (item) => normalize(getField(item, ['rarità', 'rarita', 'rarity'], 'comune')) || 'comune';
+    const normalizeRarityValue = (value) => {
+        const rarity = normalize(value)
+            .replaceAll(' ', '')
+            .replaceAll('_', '')
+            .replaceAll('-', '');
+
+        const map = {
+            comune: 'comune',
+            raro: 'raro',
+            epico: 'epico',
+            leggendario: 'leggendario',
+            speciale: 'speciale',
+            segreto: 'segreto',
+            theone: 'theone',
+            one: 'theone'
+        };
+
+        return map[rarity] || rarity || 'comune';
+    };
+
+    const getRarity = (item) => normalizeRarityValue(getField(item, ['rarità', 'rarita', 'rarity'], 'comune'));
 
     const getQuantity = (item) => Math.max(0, toInt(getField(item, ['quantità', 'quantita', 'quantity'], 0)));
 
