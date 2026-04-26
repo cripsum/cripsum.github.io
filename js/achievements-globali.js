@@ -1,3 +1,5 @@
+(() => {
+  'use strict';
 
 (async () => {
     const unlockedAchievementsnum = await getUnlockedAchievementsNumber();
@@ -72,3 +74,4 @@ async function getUnlockedAchievementsNumber()  {
         return 0;
     }
 }
+})();
