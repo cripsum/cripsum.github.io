@@ -14,6 +14,10 @@ try {
         'shitposts_pending' => admin_table_exists($mysqli, 'shitposts') ? admin_safe_count($mysqli, "SELECT COUNT(*) AS total FROM shitposts WHERE approvato = 0") : 0,
         'toprimasti' => admin_table_exists($mysqli, 'toprimasti') ? admin_safe_count($mysqli, "SELECT COUNT(*) AS total FROM toprimasti") : 0,
         'toprimasti_pending' => admin_table_exists($mysqli, 'toprimasti') ? admin_safe_count($mysqli, "SELECT COUNT(*) AS total FROM toprimasti WHERE approvato = 0") : 0,
+        'content_reports_open' => admin_table_exists($mysqli, 'content_reports') ? admin_safe_count($mysqli, "SELECT COUNT(*) AS total FROM content_reports WHERE status = 'open'") : 0,
+        'content_reports_total' => admin_table_exists($mysqli, 'content_reports') ? admin_safe_count($mysqli, "SELECT COUNT(*) AS total FROM content_reports") : 0,
+        'chat_reports_open' => admin_table_exists($mysqli, 'chat_reports') ? admin_safe_count($mysqli, "SELECT COUNT(*) AS total FROM chat_reports WHERE status = 'open'") : 0,
+        'chat_reports_total' => admin_table_exists($mysqli, 'chat_reports') ? admin_safe_count($mysqli, "SELECT COUNT(*) AS total FROM chat_reports") : 0,
     ];
 
     $latestUsers = [];

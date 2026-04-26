@@ -12,18 +12,31 @@ try {
     $limit = min(80, max(10, (int)($_GET['limit'] ?? 30)));
     $offset = ($page - 1) * $limit;
 
+    $hasTag = admin_column_exists($mysqli, 'toprimasti', 'tag');
+    $hasSpoiler = admin_column_exists($mysqli, 'toprimasti', 'is_spoiler');
+    $hasViews = admin_column_exists($mysqli, 'toprimasti', 'views');
+    $hasUpdated = admin_column_exists($mysqli, 'toprimasti', 'updated_at');
+
     $where = [];
     $params = [];
     $types = '';
 
     if ($q !== '') {
-        $where[] = "(t.titolo LIKE ? OR t.descrizione LIKE ? OR t.motivazione LIKE ? OR u.username LIKE ?)";
+        $parts = ['t.titolo LIKE ?', 't.descrizione LIKE ?', 't.motivazione LIKE ?', 'u.username LIKE ?'];
         $like = '%' . $q . '%';
         $params[] = $like;
         $params[] = $like;
         $params[] = $like;
         $params[] = $like;
         $types .= 'ssss';
+
+        if ($hasTag) {
+            $parts[] = 't.`tag` LIKE ?';
+            $params[] = $like;
+            $types .= 's';
+        }
+
+        $where[] = '(' . implode(' OR ', $parts) . ')';
     }
 
     if ($status === 'approved') $where[] = 't.approvato = 1';
@@ -41,6 +54,20 @@ try {
     $votesSql = admin_table_exists($mysqli, 'voti_toprimasti')
         ? "(SELECT COUNT(*) FROM voti_toprimasti v WHERE v.id_post = t.id)"
         : "COALESCE(t.reazioni, 0)";
+    $commentsSql = admin_table_exists($mysqli, 'content_comments')
+        ? "(SELECT COUNT(*) FROM content_comments c WHERE c.content_type = 'rimasto' AND c.post_id = t.id)"
+        : "0";
+    $savesSql = admin_table_exists($mysqli, 'content_saves')
+        ? "(SELECT COUNT(*) FROM content_saves sv WHERE sv.content_type = 'rimasto' AND sv.post_id = t.id)"
+        : "0";
+    $reportsSql = admin_table_exists($mysqli, 'content_reports')
+        ? "(SELECT COUNT(*) FROM content_reports r WHERE r.content_type = 'rimasto' AND r.post_id = t.id AND r.status = 'open')"
+        : "0";
+
+    $tagSql = $hasTag ? "t.`tag`" : "NULL";
+    $spoilerSql = $hasSpoiler ? "COALESCE(t.`is_spoiler`, 0)" : "0";
+    $viewsSql = $hasViews ? "COALESCE(t.`views`, 0)" : "0";
+    $updatedSql = $hasUpdated ? "t.`updated_at`" : "NULL";
 
     $sql = "
         SELECT
@@ -53,9 +80,16 @@ try {
             t.data_creazione,
             t.approvato,
             COALESCE(t.reazioni, 0) AS reazioni,
+            $tagSql AS tag,
+            $spoilerSql AS is_spoiler,
+            $viewsSql AS views,
+            $updatedSql AS updated_at,
             u.username,
             CASE WHEN t.foto_rimasto IS NULL THEN 0 ELSE 1 END AS has_media,
-            $votesSql AS votes_count
+            $votesSql AS votes_count,
+            $commentsSql AS comments_count,
+            $savesSql AS saves_count,
+            $reportsSql AS reports_count
         FROM toprimasti t
         LEFT JOIN utenti u ON u.id = t.id_utente
         $whereSql

@@ -6,14 +6,40 @@ try {
     $id = (int)($input['id'] ?? 0);
     $title = trim((string)($input['titolo'] ?? ''));
     $description = trim((string)($input['descrizione'] ?? ''));
+    $tag = trim((string)($input['tag'] ?? ''));
+    $isSpoiler = (int)($input['is_spoiler'] ?? 0) === 1 ? 1 : 0;
 
     if ($id <= 0) admin_fail('ID shitpost non valido.');
     if ($title === '' || mb_strlen($title) > 120) admin_fail('Titolo non valido.');
     if (mb_strlen($description) > 2000) admin_fail('Descrizione troppo lunga.');
+    if (mb_strlen($tag) > 40) admin_fail('Tag troppo lungo.');
 
-    $stmt = $mysqli->prepare("UPDATE shitposts SET titolo = ?, descrizione = ? WHERE id = ? LIMIT 1");
+    $sets = ['titolo = ?', 'descrizione = ?'];
+    $types = 'ss';
+    $params = [$title, $description];
+
+    if (admin_column_exists($mysqli, 'shitposts', 'tag')) {
+        $sets[] = '`tag` = ?';
+        $types .= 's';
+        $params[] = $tag !== '' ? $tag : null;
+    }
+
+    if (admin_column_exists($mysqli, 'shitposts', 'is_spoiler')) {
+        $sets[] = '`is_spoiler` = ?';
+        $types .= 'i';
+        $params[] = $isSpoiler;
+    }
+
+    if (admin_column_exists($mysqli, 'shitposts', 'updated_at')) {
+        $sets[] = '`updated_at` = NOW()';
+    }
+
+    $params[] = $id;
+    $types .= 'i';
+
+    $stmt = $mysqli->prepare('UPDATE shitposts SET ' . implode(', ', $sets) . ' WHERE id = ? LIMIT 1');
     if (!$stmt) admin_fail(admin_prepare_error($mysqli, 'Query modifica shitpost non valida.'), 500);
-    $stmt->bind_param('ssi', $title, $description, $id);
+    $stmt->bind_param($types, ...$params);
     if (!$stmt->execute()) admin_fail('Non sono riuscito a modificare lo shitpost.', 500);
     $stmt->close();
 

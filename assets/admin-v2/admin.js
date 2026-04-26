@@ -14,7 +14,8 @@
         achievements: { page: 1 },
         shitposts: { page: 1, status: 'all' },
         toprimasti: { page: 1, status: 'all' },
-        cache: { users: [], characters: [], achievements: [], shitposts: [], toprimasti: [] }
+        reports: { page: 1, source: 'all', status: 'open' },
+        cache: { users: [], characters: [], achievements: [], shitposts: [], toprimasti: [], reports: [] }
     };
 
     let toastTimer = null;
@@ -254,9 +255,9 @@
                 ['fas fa-layer-group', stats.inventory_rows, 'Inventario'],
                 ['fas fa-medal', stats.unlocked_achievements, 'Sblocchi'],
                 ['fas fa-image', stats.shitposts, 'Shitpost'],
-                ['fas fa-hourglass-half', stats.shitposts_pending, 'Shitpost pending'],
                 ['fas fa-ranking-star', stats.toprimasti, 'Top Rimasti'],
-                ['fas fa-clock', stats.toprimasti_pending, 'Rimasti pending'],
+                ['fas fa-flag', stats.content_reports_open, 'Report contenuti aperti'],
+                ['fas fa-message-exclamation', stats.chat_reports_open, 'Report chat aperti'],
             ].map(([icon, value, label]) => `
                 <article class="admin-stat-card"><i class="${icon}"></i><strong>${compactNumber(value)}</strong><span>${label}</span></article>
             `).join('');
@@ -428,14 +429,8 @@
             const data = await api(`get_characters.php?${params}`);
             state.cache.characters = data.characters || [];
             box.innerHTML = state.cache.characters.length ? `
-                <table class="admin-table"><thead><tr><th>Nome</th><th>Info</th><th>Rarità</th><th>Categoria</th><th>Azioni</th></tr></thead><tbody>
-                    ${state.cache.characters.map((c) => `<tr>
-                        <td data-label="Nome"><div class="admin-name-cell">${thumb(c.image_url || c.img_url, 'fas fa-box-open')}<div><div class="admin-row-title">${escapeHtml(c.nome)}</div><div class="admin-row-sub">#${Number(c.id)}</div></div></div></td>
-                        <td data-label="Info"><div class="admin-cell-text"><span>${escapeHtml(c.descrizione || '—')}</span><small>${escapeHtml(c.caratteristiche || '')}</small></div></td>
-                        <td data-label="Rarità">${escapeHtml(c.rarita || '—')}</td>
-                        <td data-label="Categoria">${escapeHtml(c.categoria || '—')}</td>
-                        <td data-label="Azioni"><div class="admin-row-actions"><button class="admin-btn admin-btn--small" data-edit-character="${Number(c.id)}"><i class="fas fa-pen"></i> Modifica</button><button class="admin-btn admin-btn--small admin-btn--danger" data-delete-character="${Number(c.id)}"><i class="fas fa-trash"></i> Elimina</button></div></td>
-                    </tr>`).join('')}
+                <table class="admin-table"><thead><tr><th>Nome</th><th>Rarità</th><th>Categoria</th><th>Azioni</th></tr></thead><tbody>
+                    ${state.cache.characters.map((c) => `<tr><td data-label="Nome"><div class="admin-name-cell">${thumb(c.image_url || c.img_url, 'fas fa-box-open')}<div><div class="admin-row-title">${escapeHtml(c.nome)}</div><div class="admin-row-sub">#${Number(c.id)}</div></div></div></td><td data-label="Rarità">${escapeHtml(c.rarita || '—')}</td><td data-label="Categoria">${escapeHtml(c.categoria || '—')}</td><td data-label="Azioni"><div class="admin-row-actions"><button class="admin-btn admin-btn--small" data-edit-character="${Number(c.id)}"><i class="fas fa-pen"></i> Modifica</button><button class="admin-btn admin-btn--small admin-btn--danger" data-delete-character="${Number(c.id)}"><i class="fas fa-trash"></i> Elimina</button></div></td></tr>`).join('')}
                 </tbody></table>` : emptyState('fas fa-box-open', 'Nessun personaggio');
             $$('[data-edit-character]', box).forEach((b) => b.addEventListener('click', () => openCharacterForm(state.cache.characters.find((c) => Number(c.id) === Number(b.dataset.editCharacter)))));
             $$('[data-delete-character]', box).forEach((b) => b.addEventListener('click', () => deleteCharacter(Number(b.dataset.deleteCharacter))));
@@ -449,10 +444,8 @@
             <div class="admin-field"><label>Nome</label><input name="nome" value="${escapeHtml(item.nome || '')}" required maxlength="80"></div>
             <div class="admin-field"><label>Rarità</label><input name="rarita" value="${escapeHtml(item.rarita || '')}" placeholder="comune, raro, epico..."></div>
             <div class="admin-field"><label>Categoria</label><input name="categoria" value="${escapeHtml(item.categoria || '')}" placeholder="anime, poppy..."></div>
-            <div class="admin-field admin-field--full"><label>Descrizione</label><textarea name="descrizione" maxlength="2000" placeholder="Descrizione del personaggio">${escapeHtml(item.descrizione || '')}</textarea></div>
-            <div class="admin-field admin-field--full"><label>Caratteristiche</label><textarea name="caratteristiche" maxlength="2000" placeholder="Caratteristiche, dettagli o note">${escapeHtml(item.caratteristiche || '')}</textarea></div>
             <div class="admin-field"><label>Immagine URL</label><input name="img_url" value="${escapeHtml(item.img_url || '')}" placeholder="https://..."></div>
-            <div class="admin-field"><label>Audio URL</label><input name="audio_url" value="${escapeHtml(item.audio_url || '')}" placeholder="https://..."></div>
+            <div class="admin-field admin-field--full"><label>Audio URL</label><input name="audio_url" value="${escapeHtml(item.audio_url || '')}" placeholder="https://..."></div>
         </form>`;
 
     const openCharacterForm = (item = null) => {
@@ -558,11 +551,31 @@
         ? '<span class="admin-badge admin-badge--success"><i class="fas fa-check"></i>Approvato</span>'
         : '<span class="admin-badge admin-badge--warning"><i class="fas fa-clock"></i>In attesa</span>';
 
+    const reportStatusBadge = (status) => {
+        if (status === 'reviewed') return '<span class="admin-badge admin-badge--info"><i class="fas fa-check-double"></i>Revisionata</span>';
+        if (status === 'dismissed') return '<span class="admin-badge"><i class="fas fa-eye-slash"></i>Ignorata</span>';
+        return '<span class="admin-badge admin-badge--danger"><i class="fas fa-flag"></i>Aperta</span>';
+    };
+
     const postMedia = (url, fallbackIcon = 'fas fa-image') => url
         ? `<img class="admin-content-thumb" src="${escapeHtml(url)}" alt="" loading="lazy">`
         : `<span class="admin-content-thumb admin-content-thumb--empty"><i class="${fallbackIcon}"></i></span>`;
 
-    const postTextCell = (post, extra = '') => `
+    const contentMetrics = (post, mode = 'shitpost') => {
+        const scoreLabel = mode === 'toprimasti' ? 'Voti' : 'Like';
+        const score = mode === 'toprimasti' ? (post.votes_count || post.reazioni || 0) : (post.likes_count || 0);
+        return `
+            <div class="admin-metric-line">
+                <span><i class="fas fa-fire"></i>${scoreLabel}: <b>${compactNumber(score)}</b></span>
+                <span><i class="fas fa-comment"></i>Commenti: <b>${compactNumber(post.comments_count || 0)}</b></span>
+                <span><i class="fas fa-eye"></i>Visite: <b>${compactNumber(post.views || 0)}</b></span>
+                <span><i class="fas fa-bookmark"></i>Salvati: <b>${compactNumber(post.saves_count || 0)}</b></span>
+                <span class="${Number(post.reports_count || 0) > 0 ? 'admin-danger-text' : ''}"><i class="fas fa-flag"></i>Report: <b>${compactNumber(post.reports_count || 0)}</b></span>
+            </div>
+        `;
+    };
+
+    const postTextCell = (post, extra = '', mode = 'shitpost') => `
         <div class="admin-name-cell">
             ${postMedia(post.media_url)}
             <div class="admin-cell-text">
@@ -570,6 +583,12 @@
                 <div class="admin-row-sub">#${Number(post.id)} · ${escapeHtml(post.username || 'utente eliminato')} · ${formatDateTime(post.data_creazione)}</div>
                 ${post.descrizione ? `<span>${escapeHtml(post.descrizione)}</span>` : ''}
                 ${extra ? `<small>${escapeHtml(extra)}</small>` : ''}
+                <div class="admin-content-flags">
+                    ${post.tag ? `<em>#${escapeHtml(post.tag)}</em>` : ''}
+                    ${Number(post.is_spoiler || 0) === 1 ? '<em>Spoiler</em>' : ''}
+                    ${post.updated_at ? `<em>Agg. ${formatDateTime(post.updated_at)}</em>` : ''}
+                </div>
+                ${contentMetrics(post, mode)}
             </div>
         </div>
     `;
@@ -582,11 +601,11 @@
             state.cache.shitposts = data.posts || [];
 
             box.innerHTML = state.cache.shitposts.length ? `
-                <table class="admin-table"><thead><tr><th>Post</th><th>Stato</th><th>Commenti</th><th>Azioni</th></tr></thead><tbody>
+                <table class="admin-table"><thead><tr><th>Post</th><th>Stato</th><th>Dati</th><th>Azioni</th></tr></thead><tbody>
                     ${state.cache.shitposts.map((post) => `<tr>
-                        <td data-label="Post">${postTextCell(post)}</td>
+                        <td data-label="Post">${postTextCell(post, '', 'shitpost')}</td>
                         <td data-label="Stato">${approvalBadge(post.approvato)}</td>
-                        <td data-label="Commenti"><b>${compactNumber(post.comments_count || 0)}</b></td>
+                        <td data-label="Dati"><b>${compactNumber(post.likes_count || 0)}</b> like<br><span class="admin-muted">${compactNumber(post.views || 0)} visite</span></td>
                         <td data-label="Azioni"><div class="admin-row-actions">
                             <button class="admin-btn admin-btn--small" data-edit-shitpost="${Number(post.id)}"><i class="fas fa-pen"></i> Modifica</button>
                             <button class="admin-btn admin-btn--small" data-toggle-shitpost="${Number(post.id)}" data-approved="${Number(post.approvato) === 1 ? 0 : 1}"><i class="fas ${Number(post.approvato) === 1 ? 'fa-xmark' : 'fa-check'}"></i> ${Number(post.approvato) === 1 ? 'Nascondi' : 'Approva'}</button>
@@ -612,6 +631,8 @@
             <input type="hidden" name="id" value="${Number(item.id || 0)}">
             <div class="admin-field admin-field--full"><label>Titolo</label><input name="titolo" value="${escapeHtml(item.titolo || '')}" required maxlength="120"></div>
             <div class="admin-field admin-field--full"><label>Descrizione</label><textarea name="descrizione" maxlength="2000">${escapeHtml(item.descrizione || '')}</textarea></div>
+            <div class="admin-field"><label>Tag</label><input name="tag" value="${escapeHtml(item.tag || '')}" maxlength="40" placeholder="meme, gaming..."></div>
+            <label class="admin-check"><input type="checkbox" name="is_spoiler" value="1" ${Number(item.is_spoiler || 0) === 1 ? 'checked' : ''}><span>Spoiler</span></label>
         </form>`;
 
     const openShitpostForm = (item = null) => {
@@ -620,6 +641,7 @@
             const form = $('#shitpostForm');
             if (!form) return;
             const payload = Object.fromEntries(new FormData(form).entries());
+            payload.is_spoiler = form.querySelector('[name="is_spoiler"]')?.checked ? 1 : 0;
             try { await api('update_shitpost.php', { method: 'POST', body: payload }); closeModal(); showToast('Shitpost salvato.'); loadShitposts(); loadDashboard(); }
             catch (error) { showToast(error.message, true); }
         });
@@ -629,15 +651,15 @@
         confirmBox(approved ? 'Approvare shitpost?' : 'Nascondere shitpost?', `<p class="admin-muted">Post #${Number(id)}</p>`, async () => {
             await api('approve_shitpost.php', { method: 'POST', body: { id, approved } });
             showToast(approved ? 'Shitpost approvato.' : 'Shitpost nascosto.');
-            loadShitposts(); loadDashboard();
+            loadShitposts(); loadReports(); loadDashboard();
         });
     };
 
     const deleteShitpost = (id) => {
-        confirmBox('Eliminare shitpost?', '<p class="admin-muted">Verranno rimossi anche i commenti collegati.</p>', async () => {
+        confirmBox('Eliminare shitpost?', '<p class="admin-muted">Verranno rimossi anche commenti, like, salvati e report collegati.</p>', async () => {
             await api('delete_shitpost_admin.php', { method: 'POST', body: { id } });
             showToast('Shitpost eliminato.');
-            loadShitposts(); loadDashboard();
+            loadShitposts(); loadReports(); loadDashboard();
         });
     };
 
@@ -669,6 +691,7 @@
                     await api('delete_shitpost_comment_admin.php', { method: 'POST', body: { id: Number(b.dataset.deleteComment) } });
                     showToast('Commento eliminato.');
                     openShitpostComments(id);
+                    loadShitposts();
                 } catch (error) { showToast(error.message, true); }
             }));
         } catch (error) {
@@ -684,11 +707,11 @@
             state.cache.toprimasti = data.posts || [];
 
             box.innerHTML = state.cache.toprimasti.length ? `
-                <table class="admin-table"><thead><tr><th>Post</th><th>Stato</th><th>Voti</th><th>Azioni</th></tr></thead><tbody>
+                <table class="admin-table"><thead><tr><th>Post</th><th>Stato</th><th>Dati</th><th>Azioni</th></tr></thead><tbody>
                     ${state.cache.toprimasti.map((post) => `<tr>
-                        <td data-label="Post">${postTextCell(post, post.motivazione ? `Motivazione: ${post.motivazione}` : '')}</td>
+                        <td data-label="Post">${postTextCell(post, post.motivazione ? `Motivazione: ${post.motivazione}` : '', 'toprimasti')}</td>
                         <td data-label="Stato">${approvalBadge(post.approvato)}</td>
-                        <td data-label="Voti"><b>${compactNumber(post.votes_count || post.reazioni || 0)}</b></td>
+                        <td data-label="Dati"><b>${compactNumber(post.votes_count || post.reazioni || 0)}</b> voti<br><span class="admin-muted">${compactNumber(post.views || 0)} visite</span></td>
                         <td data-label="Azioni"><div class="admin-row-actions">
                             <button class="admin-btn admin-btn--small" data-edit-toprimasti="${Number(post.id)}"><i class="fas fa-pen"></i> Modifica</button>
                             <button class="admin-btn admin-btn--small" data-toggle-toprimasti="${Number(post.id)}" data-approved="${Number(post.approvato) === 1 ? 0 : 1}"><i class="fas ${Number(post.approvato) === 1 ? 'fa-xmark' : 'fa-check'}"></i> ${Number(post.approvato) === 1 ? 'Nascondi' : 'Approva'}</button>
@@ -715,6 +738,8 @@
             <div class="admin-field admin-field--full"><label>Titolo</label><input name="titolo" value="${escapeHtml(item.titolo || '')}" required maxlength="120"></div>
             <div class="admin-field admin-field--full"><label>Descrizione</label><textarea name="descrizione" maxlength="2000">${escapeHtml(item.descrizione || '')}</textarea></div>
             <div class="admin-field admin-field--full"><label>Motivazione</label><textarea name="motivazione" maxlength="2000">${escapeHtml(item.motivazione || '')}</textarea></div>
+            <div class="admin-field"><label>Tag</label><input name="tag" value="${escapeHtml(item.tag || '')}" maxlength="40" placeholder="meme, lore..."></div>
+            <label class="admin-check"><input type="checkbox" name="is_spoiler" value="1" ${Number(item.is_spoiler || 0) === 1 ? 'checked' : ''}><span>Spoiler</span></label>
         </form>`;
 
     const openToprimastiForm = (item = null) => {
@@ -723,6 +748,7 @@
             const form = $('#toprimastiForm');
             if (!form) return;
             const payload = Object.fromEntries(new FormData(form).entries());
+            payload.is_spoiler = form.querySelector('[name="is_spoiler"]')?.checked ? 1 : 0;
             try { await api('update_toprimasti.php', { method: 'POST', body: payload }); closeModal(); showToast('Top Rimasti salvato.'); loadToprimasti(); loadDashboard(); }
             catch (error) { showToast(error.message, true); }
         });
@@ -732,15 +758,15 @@
         confirmBox(approved ? 'Approvare post?' : 'Nascondere post?', `<p class="admin-muted">Post #${Number(id)}</p>`, async () => {
             await api('approve_toprimasti.php', { method: 'POST', body: { id, approved } });
             showToast(approved ? 'Post approvato.' : 'Post nascosto.');
-            loadToprimasti(); loadDashboard();
+            loadToprimasti(); loadReports(); loadDashboard();
         });
     };
 
     const deleteToprimasti = (id) => {
-        confirmBox('Eliminare Top Rimasti?', '<p class="admin-muted">Verranno rimossi anche i voti collegati.</p>', async () => {
+        confirmBox('Eliminare Top Rimasti?', '<p class="admin-muted">Verranno rimossi anche voti, salvati e report collegati.</p>', async () => {
             await api('delete_toprimasti_admin.php', { method: 'POST', body: { id } });
             showToast('Post eliminato.');
-            loadToprimasti(); loadDashboard();
+            loadToprimasti(); loadReports(); loadDashboard();
         });
     };
 
@@ -750,6 +776,58 @@
             showToast('Voti resettati.');
             loadToprimasti(); loadDashboard();
         });
+    };
+
+    const loadReports = async () => {
+        const box = $('#reportsTable');
+        if (!box) return;
+        setLoading(box);
+        try {
+            const params = new URLSearchParams({ q: state.q, source: state.reports.source, status: state.reports.status, page: state.reports.page, limit: 30 });
+            const data = await api(`get_reports.php?${params}`);
+            state.cache.reports = data.reports || [];
+
+            box.innerHTML = state.cache.reports.length ? `
+                <table class="admin-table"><thead><tr><th>Segnalazione</th><th>Target</th><th>Stato</th><th>Azioni</th></tr></thead><tbody>
+                    ${state.cache.reports.map((report) => `<tr>
+                        <td data-label="Segnalazione">
+                            <div class="admin-cell-text">
+                                <div class="admin-row-title">${escapeHtml(report.report_source_label || report.report_source)}</div>
+                                <div class="admin-row-sub">Da ${escapeHtml(report.reporter_username || 'utente eliminato')} · ${formatDateTime(report.created_at)}</div>
+                                <span>${escapeHtml(report.reason || 'Nessun motivo')}</span>
+                            </div>
+                        </td>
+                        <td data-label="Target">
+                            <div class="admin-cell-text">
+                                <div class="admin-row-title">${escapeHtml(report.target_title || 'Contenuto non trovato')}</div>
+                                <div class="admin-row-sub">${escapeHtml(report.target_username || 'autore sconosciuto')} · #${Number(report.post_id || 0)}</div>
+                                ${report.target_url ? `<small><a href="${escapeHtml(report.target_url)}" target="_blank" rel="noopener">Apri contenuto</a></small>` : ''}
+                            </div>
+                        </td>
+                        <td data-label="Stato">${reportStatusBadge(report.status)}</td>
+                        <td data-label="Azioni"><div class="admin-row-actions">
+                            <button class="admin-btn admin-btn--small" data-report-status="${Number(report.id)}" data-source="${escapeHtml(report.report_source)}" data-status="reviewed"><i class="fas fa-check-double"></i> Revisionata</button>
+                            <button class="admin-btn admin-btn--small" data-report-status="${Number(report.id)}" data-source="${escapeHtml(report.report_source)}" data-status="dismissed"><i class="fas fa-eye-slash"></i> Ignora</button>
+                            <button class="admin-btn admin-btn--small" data-report-status="${Number(report.id)}" data-source="${escapeHtml(report.report_source)}" data-status="open"><i class="fas fa-flag"></i> Riapri</button>
+                        </div></td>
+                    </tr>`).join('')}
+                </tbody></table>` : emptyState('fas fa-flag', 'Nessuna segnalazione');
+
+            $$('[data-report-status]', box).forEach((btn) => btn.addEventListener('click', () => updateReportStatus(Number(btn.dataset.reportStatus), btn.dataset.source, btn.dataset.status)));
+            pagination('#reportsPagination', data.pagination, (page) => { state.reports.page = page; loadReports(); });
+        } catch (error) {
+            box.innerHTML = emptyState('fas fa-triangle-exclamation', 'Errore segnalazioni', error.message);
+        }
+    };
+
+    const updateReportStatus = async (id, source, status) => {
+        try {
+            await api('update_report_status.php', { method: 'POST', body: { id, source, status } });
+            showToast('Segnalazione aggiornata.');
+            loadReports(); loadDashboard();
+        } catch (error) {
+            showToast(error.message, true);
+        }
     };
 
 
@@ -783,6 +861,7 @@
         if (section === 'achievements') loadAchievements();
         if (section === 'shitposts') loadShitposts();
         if (section === 'toprimasti') loadToprimasti();
+        if (section === 'reports') loadReports();
         if (section === 'logs') loadLogs();
     };
 
@@ -818,10 +897,12 @@
             $('#usersRoleFilter')?.addEventListener('change', (e) => { state.users.role = e.target.value; state.users.page = 1; loadUsers(); });
             $('#shitpostsStatusFilter')?.addEventListener('change', (e) => { state.shitposts.status = e.target.value; state.shitposts.page = 1; loadShitposts(); });
             $('#toprimastiStatusFilter')?.addEventListener('change', (e) => { state.toprimasti.status = e.target.value; state.toprimasti.page = 1; loadToprimasti(); });
+            $('#reportsSourceFilter')?.addEventListener('change', (e) => { state.reports.source = e.target.value; state.reports.page = 1; loadReports(); });
+            $('#reportsStatusFilter')?.addEventListener('change', (e) => { state.reports.status = e.target.value; state.reports.page = 1; loadReports(); });
 
             $('#adminGlobalSearch')?.addEventListener('input', debounce((e) => {
                 state.q = e.target.value.trim();
-                state.users.page = state.characters.page = state.achievements.page = state.shitposts.page = state.toprimasti.page = 1;
+                state.users.page = state.characters.page = state.achievements.page = state.shitposts.page = state.toprimasti.page = state.reports.page = 1;
                 if (state.section === 'dashboard') switchSection('users');
                 else reloadCurrent();
             }, 300));

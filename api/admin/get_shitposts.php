@@ -12,17 +12,30 @@ try {
     $limit = min(80, max(10, (int)($_GET['limit'] ?? 30)));
     $offset = ($page - 1) * $limit;
 
+    $hasTag = admin_column_exists($mysqli, 'shitposts', 'tag');
+    $hasSpoiler = admin_column_exists($mysqli, 'shitposts', 'is_spoiler');
+    $hasViews = admin_column_exists($mysqli, 'shitposts', 'views');
+    $hasUpdated = admin_column_exists($mysqli, 'shitposts', 'updated_at');
+
     $where = [];
     $params = [];
     $types = '';
 
     if ($q !== '') {
-        $where[] = "(s.titolo LIKE ? OR s.descrizione LIKE ? OR u.username LIKE ?)";
+        $parts = ['s.titolo LIKE ?', 's.descrizione LIKE ?', 'u.username LIKE ?'];
         $like = '%' . $q . '%';
         $params[] = $like;
         $params[] = $like;
         $params[] = $like;
         $types .= 'sss';
+
+        if ($hasTag) {
+            $parts[] = 's.`tag` LIKE ?';
+            $params[] = $like;
+            $types .= 's';
+        }
+
+        $where[] = '(' . implode(' OR ', $parts) . ')';
     }
 
     if ($status === 'approved') $where[] = 's.approvato = 1';
@@ -40,6 +53,20 @@ try {
     $commentsSql = admin_table_exists($mysqli, 'commenti_shitpost')
         ? "(SELECT COUNT(*) FROM commenti_shitpost c WHERE c.id_shitpost = s.id)"
         : "0";
+    $likesSql = admin_table_exists($mysqli, 'shitpost_likes')
+        ? "(SELECT COUNT(*) FROM shitpost_likes l WHERE l.id_shitpost = s.id)"
+        : "0";
+    $savesSql = admin_table_exists($mysqli, 'content_saves')
+        ? "(SELECT COUNT(*) FROM content_saves sv WHERE sv.content_type = 'shitpost' AND sv.post_id = s.id)"
+        : "0";
+    $reportsSql = admin_table_exists($mysqli, 'content_reports')
+        ? "(SELECT COUNT(*) FROM content_reports r WHERE r.content_type = 'shitpost' AND r.post_id = s.id AND r.status = 'open')"
+        : "0";
+
+    $tagSql = $hasTag ? "s.`tag`" : "NULL";
+    $spoilerSql = $hasSpoiler ? "COALESCE(s.`is_spoiler`, 0)" : "0";
+    $viewsSql = $hasViews ? "COALESCE(s.`views`, 0)" : "0";
+    $updatedSql = $hasUpdated ? "s.`updated_at`" : "NULL";
 
     $sql = "
         SELECT
@@ -50,9 +77,16 @@ try {
             s.tipo_foto_shitpost,
             s.data_creazione,
             s.approvato,
+            $tagSql AS tag,
+            $spoilerSql AS is_spoiler,
+            $viewsSql AS views,
+            $updatedSql AS updated_at,
             u.username,
             CASE WHEN s.foto_shitpost IS NULL THEN 0 ELSE 1 END AS has_media,
-            $commentsSql AS comments_count
+            $commentsSql AS comments_count,
+            $likesSql AS likes_count,
+            $savesSql AS saves_count,
+            $reportsSql AS reports_count
         FROM shitposts s
         LEFT JOIN utenti u ON u.id = s.id_utente
         $whereSql
