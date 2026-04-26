@@ -351,6 +351,131 @@ const editMap = {
   1: { character: "Heisenberg - Breaking Bad", music: "Travis Scott - MY EYES", image: "https://media1.tenor.com/m/hFGpisu2EDEAAAAC/say-my-name-heisenberg-breaking-bad.gif" }
 };
 
+
+let cachedProfilePfpPath = null;
+let cachedProfilePfpUrl = null;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function waitForDomReady() {
+  if (document.readyState !== "loading") {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve) => {
+    document.addEventListener("DOMContentLoaded", resolve, { once: true });
+  });
+}
+
+function toAbsoluteImageUrl(value) {
+  const raw = String(value || "").trim();
+
+  if (!raw || raw.startsWith("data:") || raw.startsWith("blob:")) {
+    return null;
+  }
+
+  try {
+    if (raw.startsWith("//")) {
+      return `${window.location.protocol}${raw}`;
+    }
+
+    return new URL(raw, window.location.origin).href;
+  } catch {
+    return null;
+  }
+}
+
+function getImageValueFromElement(element) {
+  if (!element) return null;
+
+  return (
+    element.getAttribute("data-richpresence-pfp") ||
+    element.getAttribute("data-profile-pfp") ||
+    element.getAttribute("data-user-pfp") ||
+    element.getAttribute("data-src") ||
+    element.getAttribute("src") ||
+    element.getAttribute("content") ||
+    null
+  );
+}
+
+function findProfilePfpOnPage() {
+  const selectors = [
+    "[data-richpresence-pfp]",
+    "[data-profile-pfp]",
+    "[data-user-pfp]",
+    "img[data-richpresence-pfp]",
+    "img[data-profile-pfp]",
+    "img[data-user-pfp]",
+    ".profile-avatar img",
+    ".profile-pfp img",
+    ".profile-picture img",
+    ".bio-avatar img",
+    ".bio-pfp img",
+    ".user-avatar img",
+    ".avatar img",
+    ".pfp img",
+    "#profileAvatar",
+    "#userAvatar",
+    "img[src*='get_pfp']",
+    "img[src*='pfp']",
+    "img[src*='avatar']",
+    "meta[property='og:image']",
+    "meta[name='twitter:image']"
+  ];
+
+  for (const selector of selectors) {
+    const element = document.querySelector(selector);
+    const url = toAbsoluteImageUrl(getImageValueFromElement(element));
+
+    if (url) {
+      return url;
+    }
+  }
+
+  return null;
+}
+
+async function getProfilePfpUrl(pathOnly) {
+  if (cachedProfilePfpPath === pathOnly) {
+    return cachedProfilePfpUrl;
+  }
+
+  cachedProfilePfpPath = pathOnly;
+  cachedProfilePfpUrl = null;
+
+  let pfpUrl = findProfilePfpOnPage();
+
+  if (!pfpUrl) {
+    await waitForDomReady();
+    pfpUrl = findProfilePfpOnPage();
+  }
+
+  if (!pfpUrl) {
+    await sleep(350);
+    pfpUrl = findProfilePfpOnPage();
+  }
+
+  cachedProfilePfpUrl = pfpUrl || null;
+  return cachedProfilePfpUrl;
+}
+
+function getProfileUsernameFromPath(pathOnly) {
+  const match = pathOnly.match(/^\/(?:(?:it|en)\/)?(?:user|u)\/([^/?#]+)\/?$/);
+
+  if (!match || !match[1]) {
+    return null;
+  }
+
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
 function connectWebSocket() {
   try {
     ws = new WebSocket("ws://localhost:5678");
@@ -464,16 +589,17 @@ async function updatePresence() {
   }
 }
 
-  if (pathOnly.startsWith("/user/")) {
-    const username = pathOnly.split("/user/")[1];
-    if (username) {
-      page = {
-        title: `Profilo di ${username}`,
-        state: `Visualizzando il profilo di ${username}`,
-        imageText: `Profilo di ${username}`,
-        url: fullPath
-      };
-    }
+  const profileUsername = getProfileUsernameFromPath(pathOnly);
+  if (profileUsername) {
+    const profilePfpUrl = await getProfilePfpUrl(pathOnly);
+
+    page = {
+      title: `Profilo di ${profileUsername}`,
+      state: `Visualizzando il profilo di ${profileUsername}`,
+      imageText: `Profilo di ${profileUsername}`,
+      largeImageKey: profilePfpUrl || page.largeImageKey,
+      url: fullPath
+    };
   }
 
   try {
