@@ -29,11 +29,10 @@ require_once '../api/api_personaggi.php';
 <head>
     <?php include '../includes/head-import.php'; ?>
     <link rel="stylesheet" href="/css/lootbox.css?v=7" />
-    <link rel="stylesheet" href="/css/lootbox-v2-ui.css?v=2.1-fullscreen-fix" />
     <title>Cripsum™ - lootbox</title>
 </head>
 
-<body class="lootbox-v2-body">
+<body class="">
     <?php include '../includes/navbar-lootbox.php'; ?>
     <div class="stars" id="stars"></div>
 
@@ -42,7 +41,7 @@ require_once '../api/api_personaggi.php';
            bloccare lo scorrimento della pagina quando il pop up è aperto (aggiungere classe overflow-hidden al body)  
         -->
 
-    <div style="max-width: 1520px; margin: auto; padding-top: 5rem" class="testobianco lootbox-v2-page" id="paginaintera">
+    <div style="max-width: 1520px; margin: auto; padding-top: 5rem" class="testobianco" id="paginaintera">
         <div
             id="popup-overlay"
             style="
@@ -87,9 +86,10 @@ require_once '../api/api_personaggi.php';
             function getRandomBanner() {
                 const banners = [
                     `<div class="bannerino">
-            <h2 style="color: rgb(255, 255, 255); padding-top: 11px">Cookie 🍪</h2>
-            <p style="color: rgb(255, 255, 255);">Uso i cookie per salvare inventario e impostazioni.</p>
-            <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="closePopup()">Ok</button>
+            <h2 style="color: rgb(255, 255, 255); padding-top: 11px">Ti offriamo un cookie! 🍪</h2>
+            <p style="color: rgb(255, 255, 255);">Questo sito utilizza i cookie per salvare i tuoi dati. Se li disattivi, alcune funzioni come le impostazioni e l'inventario potrebbero non funzionare correttamente.</p>
+            <p style="color: rgb(255, 255, 255);">Buon divertimento!</p>
+            <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="closePopup()">Prendi i miei dati 😆</button>
 
         </div>`,
                 ];
@@ -128,7 +128,7 @@ require_once '../api/api_personaggi.php';
                 setTimeout(showPopup, 700);
             };
         </script>
-        <div class="container lootbox-v2-stage">
+        <div class="container">
 
             <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein" ondblclick="handleDoubleClick()" onclick="pullaPersonaggio(); apriNormale()" />
 
@@ -152,11 +152,10 @@ require_once '../api/api_personaggi.php';
             </div>
 
             <div class="modal fade" id="impostazioniModal" tabindex="-1" aria-labelledby="impostazioniModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-lg lootbox-settings-dialog">
-                    <div class="modal-content bgimpostazioni lootbox-settings-panel">
+                <div class="modal-dialog">
+                    <div class="modal-content bgimpostazioni">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="impostazioniModalLabel">⚙️ Impostazioni & Probabilità</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                            <h5 class="modal-title" id="disclaimerModalLabel">⚙️ Impostazioni & Probabilità</h5>
                         </div>
                         <div class="col-md-6 d-flex text-center" style="text-align: center; padding-top: 20px; padding-bottom: 20px; margin: auto;">
                             <div style="color: white; font-size: 14px; margin: auto;">
@@ -282,6 +281,7 @@ require_once '../api/api_personaggi.php';
         </footer>-->
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"></script>
         <script src="../js/unlockAchievement-it.js"></script>
         <script>
@@ -1567,7 +1567,6 @@ require_once '../api/api_personaggi.php';
                 }
             });
         </script>
-        <script src="/js/lootbox-v2-ui.js?v=2.1-fullscreen-fix"></script>
         
 </body>
 
