@@ -1073,3 +1073,142 @@ body.inv-page .dropdown-menu button:hover {
         animation: none !important;
     }
 }
+
+
+/* V2.2 - animazioni vecchie reali per speciale/segreto/theone */
+
+/* Keyframe identico allo stile vecchio */
+@keyframes backgroundAnimate {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 300% 0%;
+    }
+}
+
+/* Stoppa gli effetti extra della V2.1 sulle 3 rarità speciali */
+.rarity-section.rarity-speciale,
+.rarity-section.rarity-segreto,
+.rarity-section.rarity-theone {
+    filter: none !important;
+}
+
+/* SPECIALE: solo arcobaleno, niente rosa fisso */
+.rarity-speciale {
+    --rarity-color: #ffffff;
+    --rarity-glow: rgba(255, 255, 255, .28);
+}
+
+.rarity-section.rarity-speciale {
+    background: linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000) !important;
+    background-size: 300% 300% !important;
+    animation: backgroundAnimate 6s linear infinite !important;
+    border-color: rgba(255, 255, 255, .42) !important;
+    box-shadow: 0 10px 40px rgba(255, 255, 255, .16), 0 0 50px rgba(0, 247, 255, .18) !important;
+}
+
+.rarity-section.rarity-speciale::before {
+    background: rgba(255, 255, 255, .16) !important;
+}
+
+.rarity-section.rarity-speciale::after {
+    background:
+        linear-gradient(135deg, rgba(255,255,255,.16), transparent 45%),
+        radial-gradient(circle at 88% 12%, rgba(255,255,255,.22), transparent 34%) !important;
+    opacity: .6 !important;
+}
+
+.rarity-section.rarity-speciale .rarity-title {
+    background: rgba(0, 0, 0, .28) !important;
+    color: #fff !important;
+    text-shadow: 0 3px 14px rgba(0,0,0,.8) !important;
+}
+
+/* Niente dettagli rosa nelle card speciali */
+.character-card.rarity-speciale {
+    border-color: rgba(255, 255, 255, .24) !important;
+    box-shadow: 0 16px 42px rgba(0,0,0,.28), 0 0 24px rgba(255,255,255,.12) !important;
+}
+
+.character-card.rarity-speciale::before {
+    background: rgba(255, 255, 255, .18) !important;
+}
+
+.character-card.rarity-speciale:hover {
+    border-color: rgba(255, 255, 255, .56) !important;
+    box-shadow: 0 22px 62px rgba(0,0,0,.42), 0 0 38px rgba(255,255,255,.24) !important;
+}
+
+.character-card.rarity-speciale .character-badge--rarity {
+    color: #fff !important;
+    background: linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000) !important;
+    background-size: 300% 300% !important;
+    animation: backgroundAnimate 6s linear infinite !important;
+    border-color: rgba(255, 255, 255, .38) !important;
+    box-shadow: 0 0 20px rgba(255,255,255,.18) !important;
+    text-shadow: 0 2px 8px rgba(0,0,0,.75) !important;
+}
+
+.character-card.rarity-speciale .character-count {
+    border-color: rgba(255,255,255,.32) !important;
+    background: rgba(0,0,0,.55) !important;
+    box-shadow: 0 10px 24px rgba(0,0,0,.32), 0 0 18px rgba(255,255,255,.16) !important;
+}
+
+/* SEGRETO: vecchia animazione viola */
+.rarity-section.rarity-segreto {
+    background: linear-gradient(90deg, #9400d3, #4b0082, #1d002b, #4b0082, #9400d3) !important;
+    background-size: 300% 300% !important;
+    animation: backgroundAnimate 5s linear infinite !important;
+    border-color: rgba(147, 0, 211, .72) !important;
+    box-shadow: 0 10px 40px rgba(147, 0, 211, .6), 0 0 54px rgba(75, 0, 130, .34) !important;
+}
+
+.rarity-section.rarity-segreto::before {
+    background: rgba(147, 0, 211, .32) !important;
+}
+
+.rarity-section.rarity-segreto::after {
+    background:
+        linear-gradient(135deg, rgba(148, 0, 211, .24), transparent 45%),
+        radial-gradient(circle at 88% 12%, rgba(168,85,247,.32), transparent 34%) !important;
+}
+
+/* THE ONE: vecchia animazione blu/azzurra */
+.rarity-section.rarity-theone {
+    background: linear-gradient(90deg, #0000ff, #00bfff, rgb(52, 164, 255), #4169e1, #0000ff) !important;
+    background-size: 300% 300% !important;
+    animation: backgroundAnimate 5s linear infinite !important;
+    border-color: rgba(0, 191, 255, .74) !important;
+    box-shadow: 0 10px 50px rgba(0, 11, 112, .8), 0 0 60px rgba(0, 191, 255, .34) !important;
+}
+
+.rarity-section.rarity-theone::before {
+    background: rgba(0, 191, 255, .32) !important;
+}
+
+.rarity-section.rarity-theone::after {
+    background:
+        linear-gradient(135deg, rgba(0, 191, 255, .22), transparent 45%),
+        radial-gradient(circle at 88% 12%, rgba(52,164,255,.34), transparent 34%) !important;
+}
+
+/* Mantieni leggibile la griglia sopra i gradienti animati */
+.rarity-section.rarity-speciale .characters-grid,
+.rarity-section.rarity-segreto .characters-grid,
+.rarity-section.rarity-theone .characters-grid {
+    background: rgba(0, 0, 0, .28) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* Mantieni le vecchie animazioni attive finché l'utente non chiede riduzione movimento */
+@media (prefers-reduced-motion: reduce) {
+    .rarity-section.rarity-speciale,
+    .rarity-section.rarity-segreto,
+    .rarity-section.rarity-theone,
+    .character-card.rarity-speciale .character-badge--rarity {
+        animation: none !important;
+    }
+}
