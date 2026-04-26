@@ -86,6 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Registrati</title>
@@ -104,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="auth-card__side">
                 <span class="auth-pill">Cripsum™</span>
                 <h1>Crea account</h1>
-                <p>Ti serve per profilo, chat, lootbox e achievement.</p>
+                <p>Unisciti alla community di Cripsum™ e accedi a tantissimi contenuti.</p>
             </div>
 
             <div class="auth-card__form">
@@ -161,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </label>
 
                     <div class="auth-recaptcha">
-                        <div class="g-recaptcha" data-sitekey="6Lcy-7srAAAAAIcwYWnXRPzFZ5oVIfcfNW1H_zLs"></div>
+                        <div class="g-recaptcha" data-sitekey="<?php echo htmlspecialchars(RECAPTCHA_SITE_KEY, ENT_QUOTES, 'UTF-8'); ?>"></div>
                     </div>
 
                     <button class="auth-btn auth-btn--primary" type="submit" data-submit-text="Registrati">
@@ -179,4 +180,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include '../includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>
