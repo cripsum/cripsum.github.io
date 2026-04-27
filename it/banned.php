@@ -1,6 +1,5 @@
 <?php
 require_once '../config/session_init.php';
-
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
@@ -9,7 +8,8 @@ if (!isset($_COOKIE['banned']) || $_COOKIE['banned'] == '0') {
         header('Location: home');
         exit();
     }
-    $user_id = $_SESSION['user_id'];
+
+    $user_id = (int)$_SESSION['user_id'];
 
     $stmt = $mysqli->prepare("SELECT isBannato FROM utenti WHERE id = ?");
     $stmt->bind_param("i", $user_id);
@@ -24,16 +24,22 @@ if (!isset($_COOKIE['banned']) || $_COOKIE['banned'] == '0') {
 
     $row = $result->fetch_assoc();
 
-    if ($row['isBannato'] != 1) {
+    if ((int)$row['isBannato'] !== 1) {
         header('Location: home');
         exit();
     }
 
     setcookie('banned', '1', time() + (10 * 365 * 24 * 60 * 60), '/');
-    setcookie('user_id', $user_id, time() + (10 * 365 * 24 * 60 * 60), '/');
+    setcookie('user_id', (string)$user_id, time() + (10 * 365 * 24 * 60 * 60), '/');
     session_destroy();
 } else {
-    $utente_id = $_COOKIE['user_id'] ?? null;
+    $utente_id = isset($_COOKIE['user_id']) ? (int)$_COOKIE['user_id'] : 0;
+
+    if ($utente_id <= 0) {
+        setcookie('banned', '0', time() + (10 * 365 * 24 * 60 * 60), '/');
+        header('Location: home');
+        exit();
+    }
 
     $stmt = $mysqli->prepare("SELECT isBannato FROM utenti WHERE id = ?");
     $stmt->bind_param("i", $utente_id);
@@ -41,132 +47,59 @@ if (!isset($_COOKIE['banned']) || $_COOKIE['banned'] == '0') {
     $result = $stmt->get_result();
     $stmt->close();
 
-    $row = $result->fetch_assoc();
+    $row = $result ? $result->fetch_assoc() : null;
 
-    if ($row['isBannato'] != 1) {
+    if (!$row || (int)$row['isBannato'] !== 1) {
         setcookie('banned', '0', time() + (10 * 365 * 24 * 60 * 60), '/');
         session_destroy();
         header('Location: home');
         exit();
     }
 }
-
 ?>
-
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <title>Cripsum™ - Account Bannato</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 80vh;
-            box-sizing: border-box;
-        }
+    <title>Cripsum™ - Account sospeso</title>
 
-        .ban-container {
-            padding: 40px;
-            border-radius: 10px;
-            background-color: #333;
-            color: white;
-            box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0);
-            text-align: center;
-            max-width: 500px;
-            width: 100%;
-        }
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="stylesheet" href="/assets/static/static.css?v=1.0-static">
+    <script src="/assets/static/static.js?v=1.0-static" defer></script>
 
-        .ban-icon {
-            font-size: 64px;
-            color: #dc3545;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            color: #dc3545;
-            margin-bottom: 20px;
-            font-size: 2rem;
-        }
-
-        p {
-            color: rgb(255, 255, 255);
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-
-        .contact-info {
-            background-color: rgba(248, 249, 250, 0);
-            padding: 20px;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 15px;
-            }
-
-            .ban-container {
-                padding: 30px 20px;
-            }
-
-            .ban-icon {
-                font-size: 48px;
-            }
-
-            h1 {
-                font-size: 1.5rem;
-            }
-
-            .contact-info {
-                padding: 15px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 10px;
-            }
-
-            .ban-container {
-                padding: 20px 15px;
-            }
-
-            .ban-icon {
-                font-size: 40px;
-            }
-
-            h1 {
-                font-size: 1.3rem;
-            }
-
-            p {
-                font-size: 0.9rem;
-            }
-        }
-    </style>
 </head>
 
-<body>
-    <div class="ban-container">
-        <div class="ban-icon">🚫</div>
-        <h1>Account Bannato</h1>
-        <p>Il tuo account è stato sospeso per violazione dei nostri termini di servizio.</p>
-        <p>Godo coglione</p>
-        <img src="/img/toppng.com-laughing-pointing-emoji-1645x1070.png" alt="" style="max-width: 100%; height: auto; margin: 20px 0;">
-        <p>Se ritieni che questo sia un errore, puoi contattare il nostro supporto.</p>
+<body class="static-page">
 
-        <div class="contact-info">
-            <h3 class="testobianco">Contatta il Supporto</h3>
-            <p>Email: support@cripsum.com</p>
-            <p>Includi il tuo username e una descrizione dettagliata del problema.</p>
-        </div>
+    <div class="static-bg" aria-hidden="true">
+        <span class="static-orb static-orb--one"></span>
+        <span class="static-orb static-orb--two"></span>
+        <span class="static-grid-bg"></span>
     </div>
-</body>
 
+
+    <main class="static-shell static-shell--narrow">
+        <section class="static-ban-card static-reveal">
+            <div class="static-ban-icon">
+                <i class="fas fa-ban"></i>
+            </div>
+
+            <span class="static-pill">Account</span>
+            <h1>Account sospeso</h1>
+            <p>Il tuo account è stato sospeso per violazione dei termini o delle regole del sito.</p>
+
+            <div class="static-alert static-alert--danger" style="margin-top:1rem; text-align:left;">
+                <i class="fas fa-circle-exclamation"></i>
+                <p>Se pensi sia un errore, contatta il supporto e includi username, email dell’account e una descrizione chiara.</p>
+            </div>
+
+            <div class="static-actions" style="justify-content:center;">
+                <a href="mailto:support@cripsum.com" class="static-btn static-btn--primary">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contatta supporto</span>
+                </a>
+            </div>
+        </section>
+    </main>
+</body>
 </html>

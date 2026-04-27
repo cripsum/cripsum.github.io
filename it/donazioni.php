@@ -3,113 +3,120 @@ require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
+
+$isLogged = function_exists('isLoggedIn') && isLoggedIn();
+$username = $_SESSION['username'] ?? '';
 ?>
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="it">
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <style>
-        img {
-            border-radius: 10px;
-        }
+    <title>Cripsum™ - Donazioni</title>
 
-        .donazionis {
-            height: 100%;
-            background: transparent;
-            border-radius: 24px;
-            overflow: hidden;
-            position: relative;
-            cursor: pointer;
-        }
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="stylesheet" href="/assets/static/static.css?v=1.0-static">
+    <script src="/assets/static/static.js?v=1.0-static" defer></script>
 
-        .donazionis-body {
-            padding: 2rem 1.5rem;
-            background: transparent;
-            position: relative;
-            z-index: 2;
-        }
-    </style>
-    <title>Cripsum™ - donazioni</title>
 </head>
 
-<body>
+<body class="static-page">
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
-    <div class="container-fluid py-5" style="margin-top: 5rem;">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 col-md-10">
-                <div class="donazionis border-0 fadeup" style="border-radius: 20px;">
-                    <div class="donazionis-body text-center py-5">
-                        <div class="mb-4">
-                            <i class="fas fa-heart" style="font-size: 3rem; color: #ff6b6b; animation: heartbeat 2s infinite;"></i>
-                        </div>
-                        <h2 class="text-white fw-bold mb-4">Supporta il Progetto</h2>
-                        <p class="text-white-50 fs-5 mb-4 lh-lg">
-                            Questo sito, con oltre <span class="fw-bold text-warning">20/25 pagine</span>,
-                            rappresenta <span class="fw-bold text-warning">migliaia di ore</span> di sviluppo e
-                            un investimento di <span class="fw-bold text-warning">€3000/4000</span>.
-                        </p>
-                        <p class="text-white fs-6 mb-4">
-                            La tua donazione ci aiuta a mantenere il sito gratuito e a sviluppare nuove funzionalità!
-                        </p>
-                        <div class="d-flex justify-content-center gap-3 flex-wrap">
-                            <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
-                                <i class="fas fa-code me-2"></i>Open Source
-                            </span>
-                            <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
-                                <i class="fas fa-globe me-2"></i>Gratuito
-                            </span>
-                            <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
-                                <i class="fas fa-rocket me-2"></i>In Crescita
-                            </span>
-                            <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
-                                <i class="fas fa-carrot me-2"></i>Meme
-                            </span>
-                        </div>
-                        <div class="text-center mt-5">
-                            <a href="https://www.buymeacoffee.com/cripsum" target="_blank"><img
-                                    class="ombra"
-                                    style="border-radius: 10px"
-                                    src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee :P&emoji=☕&slug=cripsum&button_colour=FFDD00&font_colour=000000&font_family=Poppins&outline_colour=000000&coffee_colour=ffffff"
-                                    onclick="unlockAchievement(4)" /></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+    <div class="static-bg" aria-hidden="true">
+        <span class="static-orb static-orb--one"></span>
+        <span class="static-orb static-orb--two"></span>
+        <span class="static-grid-bg"></span>
     </div>
 
-    <style>
-        @keyframes heartbeat {
-            0% {
-                transform: scale(1);
-            }
 
-            50% {
-                transform: scale(1.1);
-            }
+    <main class="static-shell">
+        <section class="static-hero static-hero--split static-reveal">
+            <div>
+                <span class="static-pill">Donazioni</span>
+                <h1>Supporta Cripsum™</h1>
+                <p>Le donazioni aiutano a mantenere il sito online e a portare avanti nuove funzioni. Sono completamente opzionali.</p>
 
-            100% {
-                transform: scale(1);
-            }
-        }
-    </style>
+                <?php if ($isLogged): ?>
+                    <div class="static-meta">
+                        <span class="static-chip"><i class="fas fa-user"></i> Grazie, <?php echo htmlspecialchars($username, ENT_QUOTES, 'UTF-8'); ?></span>
+                    </div>
+                <?php endif; ?>
+
+                <div class="static-actions">
+                    <a href="https://www.buymeacoffee.com/cripsum" target="_blank" rel="noopener" class="static-btn static-btn--primary" onclick="unlockAchievement(4)">
+                        <i class="fas fa-heart"></i>
+                        <span>Dona su BuyMeACoffee</span>
+                    </a>
+                    <a href="supporto" class="static-btn">
+                        <i class="fas fa-circle-question"></i>
+                        <span>Domande?</span>
+                    </a>
+                </div>
+            </div>
+
+            <aside class="static-hero__side">
+                <span class="static-chip"><i class="fas fa-mug-hot"></i> Opzionale</span>
+                <p>Il sito resta utilizzabile anche senza donare.</p>
+
+                <div class="static-donation-button">
+                    <a href="https://www.buymeacoffee.com/cripsum" target="_blank" rel="noopener" onclick="unlockAchievement(4)">
+                        <img
+                            src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee :P&emoji=☕&slug=cripsum&button_colour=FFDD00&font_colour=000000&font_family=Poppins&outline_colour=000000&coffee_colour=ffffff"
+                            alt="Buy me a coffee">
+                    </a>
+                </div>
+            </aside>
+        </section>
+
+        <section class="static-grid static-grid--3" style="margin-top:1rem;">
+            <article class="static-card static-reveal">
+                <h2>Server</h2>
+                <p>Aiuta a coprire hosting, dominio e servizi usati dal sito.</p>
+            </article>
+
+            <article class="static-card static-reveal">
+                <h2>Tempo</h2>
+                <p>Il sito richiede manutenzione, fix e nuove idee.</p>
+            </article>
+
+            <article class="static-card static-reveal">
+                <h2>Libero</h2>
+                <p>Non è obbligatorio. È solo un modo per dare supporto.</p>
+            </article>
+        </section>
+
+        <section class="static-faq static-reveal" id="donationFaq" style="margin-top:1rem;">
+            <h2>FAQ donazioni</h2>
+
+            <details class="static-faq-item">
+                <summary>Devo donare per usare il sito?</summary>
+                <p>No. La donazione è facoltativa.</p>
+            </details>
+
+            <details class="static-faq-item">
+                <summary>Le donazioni sono rimborsabili?</summary>
+                <p>Dipende dalla piattaforma usata per donare. Controlla le condizioni di BuyMeACoffee.</p>
+            </details>
+
+            <details class="static-faq-item">
+                <summary>Ricevo qualcosa in cambio?</summary>
+                <p>Non è un acquisto. È un supporto al progetto. Eventuali badge o bonus vengono gestiti separatamente, solo se esistono davvero.</p>
+            </details>
+        </section>
+    </main>
+
     <div id="achievement-popup" class="popup">
-        <img id="popup-image" src="" alt="Achievement" />
+        <img id="popup-image" src="" alt="Achievement">
         <div>
             <h3 id="popup-title"></h3>
             <p id="popup-description"></p>
         </div>
     </div>
-    <?php include '../includes/footer.php'; ?>
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-        crossorigin="anonymous"></script>
-    <script src="../js/unlockAchievement-it.js"></script>
-    
-</body>
 
+    <?php include '../includes/footer.php'; ?>
+    <script src="../js/unlockAchievement-it.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+</body>
 </html>

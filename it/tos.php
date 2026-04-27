@@ -3,73 +3,106 @@ require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
+
+$lastUpdated = 'Aprile 2026';
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="it">
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <title>Cripsum™ - tos</title>
-    <style>
-        img {
-            border-radius: 10px;
-        }
-    </style>
+    <title>Cripsum™ - Termini</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="stylesheet" href="/assets/static/static.css?v=1.0-static">
+    <script src="/assets/static/static.js?v=1.0-static" defer></script>
+
 </head>
 
-<body>
+<body class="static-page">
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
-    <div style="max-width: 1200px; margin: auto; padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
-        <div class="privacy">
-            <h1 class="text-center fadeup" style="padding-top: 3%; font-weight: bolder">Termini e Condizioni</h1>
-            <p class="fadeup">Benvenuto su Cripsum™. Utilizzando i nostri servizi, accetti i seguenti termini e condizioni.</p>
-            <h4 class="text-center fadeup" style="padding-top: 10px">Uso dei servizi</h4>
-            <p class="fadeup">Devi utilizzare i nostri servizi solo per scopi legali e in conformità con tutte le leggi applicabili. È vietato utilizzare i nostri servizi per:</p>
-            <ul class="fadeup">
-                <li>
-                    <p>Qualsiasi attività illegale o non autorizzata.</p>
-                </li>
-                <li>
-                    <p>Inviare spam o contenuti dannosi.</p>
-                </li>
-            </ul>
-            <h4 class="text-center fadeup" style="padding-top: 10px">Account dell'utente</h4>
-            <p class="fadeup">
-                Se crei un account su Cripsum™, sei responsabile del mantenimento della riservatezza delle tue informazioni di accesso e di tutte le attività che avvengono sotto il tuo account.
-            </p>
-            <h4 class="text-center fadeup" style="padding-top: 10px">Età e responsabilità</h4>
-            <p class="fadeup">
-                Dichiarando di avere 18 anni o più, confermi di essere maggiorenne secondo le leggi del tuo paese di residenza e di essere legalmente responsabile delle tue azioni.
-                Se sei minorenne, devi ottenere il consenso di un genitore o tutore legale prima di utilizzare i nostri servizi.
-            </p>
-            <p class="fadeup">
-                L'utente è completamente responsabile per l'uso dei servizi di Cripsum™ e per tutte le conseguenze che ne derivano.
-                Dichiarando la propria maggiore età, l'utente solleva Cripsum™ da qualsiasi responsabilità relativa all'accesso o all'uso dei servizi da parte di minori.
-            </p>
-            <h4 class="text-center fadeup" style="padding-top: 10px">Proprietà intellettuale</h4>
-            <p class="fadeup">
-                Tutti i contenuti presenti su Cripsum™, inclusi testi, immagini, loghi e software, sono di proprietà di Cripsum™ o dei suoi licenziatari e sono protetti dalle leggi sul diritto
-                d'autore.
-            </p>
-            <h4 class="text-center fadeup" style="padding-top: 10px">Limitazione di responsabilità</h4>
-            <p class="fadeup">Cripsum™ non sarà responsabile per eventuali danni diretti, indiretti, incidentali o consequenziali derivanti dall'uso dei nostri servizi.</p>
-            <h4 class="text-center fadeup" style="padding-top: 10px">Modifiche ai termini</h4>
-            <p class="fadeup">
-                Ci riserviamo il diritto di modificare questi termini e condizioni in qualsiasi momento. Le modifiche saranno pubblicate sul nostro sito web e, se significative, ti informeremo
-                tramite email.
-            </p>
-            <h4 class="text-center fadeup" style="padding-top: 10px">Contatti</h4>
-            <p class="fadeup">Per domande riguardanti questi termini e condizioni, contattaci all'indirizzo email: tos@cripsum.com.</p>
-        </div>
-    </div>
-    <?php include '../includes/footer.php'; ?>
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-        crossorigin="anonymous"></script>
-    
-</body>
 
+
+    <div class="static-bg" aria-hidden="true">
+        <span class="static-orb static-orb--one"></span>
+        <span class="static-orb static-orb--two"></span>
+        <span class="static-grid-bg"></span>
+    </div>
+
+
+    <main class="static-shell">
+        <section class="static-hero static-reveal">
+            <span class="static-pill">Termini</span>
+            <h1>Termini e Condizioni</h1>
+            <p>Usando Cripsum™ accetti queste regole. Sono scritte in modo più leggibile, senza cambiare il senso.</p>
+            <div class="static-meta">
+                <span class="static-chip"><i class="fas fa-calendar"></i> Aggiornati: <?php echo htmlspecialchars($lastUpdated, ENT_QUOTES, 'UTF-8'); ?></span>
+                <span class="static-chip"><i class="fas fa-scale-balanced"></i> Regole del sito</span>
+            </div>
+        </section>
+
+        <div class="static-layout">
+            <aside class="static-toc static-reveal">
+                <h2>Indice</h2>
+                <a href="#uso">Uso dei servizi</a>
+                <a href="#account">Account</a>
+                <a href="#eta">Età e responsabilità</a>
+                <a href="#proprieta">Proprietà intellettuale</a>
+                <a href="#responsabilita">Responsabilità</a>
+                <a href="#modifiche">Modifiche</a>
+                <a href="#contatti">Contatti</a>
+            </aside>
+
+            <div class="static-content">
+                <section class="static-legal-section static-reveal" id="uso">
+                    <h2>Uso dei servizi</h2>
+                    <p>Devi usare Cripsum™ solo per scopi legali e nel rispetto delle leggi applicabili.</p>
+                    <ul>
+                        <li>Non usare il sito per attività illegali o non autorizzate.</li>
+                        <li>Non inviare spam, contenuti dannosi o comportamenti che rovinano l’esperienza agli altri.</li>
+                    </ul>
+                </section>
+
+                <section class="static-legal-section static-reveal" id="account">
+                    <h2>Account dell’utente</h2>
+                    <p>Se crei un account, sei responsabile della sicurezza delle tue credenziali e delle attività fatte dal tuo account.</p>
+                </section>
+
+                <section class="static-legal-section static-reveal" id="eta">
+                    <h2>Età e responsabilità</h2>
+                    <p>Dichiarando di avere 18 anni o più, confermi di essere maggiorenne secondo le leggi del tuo paese e responsabile delle tue azioni.</p>
+                    <p>Se sei minorenne, devi avere il consenso di un genitore o tutore legale prima di usare i servizi.</p>
+                    <p>L’utente è responsabile dell’uso dei servizi e delle conseguenze che ne derivano.</p>
+                </section>
+
+                <section class="static-legal-section static-reveal" id="proprieta">
+                    <h2>Proprietà intellettuale</h2>
+                    <p>Testi, immagini, loghi e software presenti su Cripsum™ appartengono a Cripsum™ o ai rispettivi titolari e sono protetti dalle leggi sul diritto d’autore.</p>
+                </section>
+
+                <section class="static-legal-section static-reveal" id="responsabilita">
+                    <h2>Limitazione di responsabilità</h2>
+                    <p>Cripsum™ non è responsabile per danni diretti, indiretti, incidentali o consequenziali derivanti dall’uso dei servizi.</p>
+                </section>
+
+                <section class="static-legal-section static-reveal" id="modifiche">
+                    <h2>Modifiche ai termini</h2>
+                    <p>Possiamo modificare questi termini. Le modifiche saranno pubblicate sul sito e, se importanti, comunicate tramite email.</p>
+                </section>
+
+                <section class="static-legal-section static-reveal" id="contatti">
+                    <h2>Contatti</h2>
+                    <p>Per domande sui termini puoi scrivere a <a href="mailto:tos@cripsum.com">tos@cripsum.com</a>.</p>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <button class="static-top-btn" id="staticBackTop" type="button" aria-label="Torna su">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <?php include '../includes/footer.php'; ?>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+</body>
 </html>

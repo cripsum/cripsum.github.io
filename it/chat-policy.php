@@ -4,57 +4,88 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="it">
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <title>Cripsum™ - tos</title>
-    <style>
-        img {
-            border-radius: 10px;
-        }
-    </style>
+    <title>Cripsum™ - Linee guida chat</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="stylesheet" href="/assets/static/static.css?v=1.0-static">
+    <script src="/assets/static/static.js?v=1.0-static" defer></script>
+
 </head>
 
-<body>
+<body class="static-page">
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
-    <div style="max-width: 1200px; margin: auto; padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
-        <div class="privacy">
-            <h1 class="text-center fadeup" style="padding-top: 3%; font-weight: bolder">Linee guida della chat globale</h1>
-            <p class="text-center fadeup">Accedendo alla chat, dichiari di aver letto e accettato queste regole. Violazioni possono portare a ban temporanei o permanenti.</p>
-            <h4 class="text-center fadeup" style="padding-top: 10px">Rispetta tutti</h4>
-            <p class="text-center fadeup">Niente insulti, minacce o linguaggio offensivo.</p>
-            <h4 class="text-center fadeup" style="padding-top: 10px">Niente spam</h4>
-            <p class="text-center fadeup">
-                Evita messaggi ripetuti, pubblicità o link inutili.
-            </p>
-            <h4 class="text-center fadeup" style="padding-top: 10px">Contenuti adatti a tutti</h4>
-            <p class="text-center fadeup">
-                Non postare contenuti violenti, sessuali o illegali.
-            </p>
-            <h4 class="text-center fadeup" style="padding-top: 10px">Vietato impersonare altri</h4>
-            <p class="text-center fadeup">
-                Non fingere di essere un altro utente o un moderatore.
-            </p>
-            <h4 class="text-center fadeup" style="padding-top: 10px">Usa il buon senso</h4>
-            <p class="text-center fadeup">Comportati in modo civile e corretto.</p>
-            <h4 class="text-center fadeup" style="padding-top: 10px">Segui le indicazioni dei moderatori</h4>
-            <p class="text-center fadeup">Le loro decisioni vanno rispettate.</p>
-            <div class="mt-4 fadeup text-center ">
-                <a href="global-chat" class="linkbianco">← Torna alla chat globale</a>
-            </div>
-        </div>
+
+
+    <div class="static-bg" aria-hidden="true">
+        <span class="static-orb static-orb--one"></span>
+        <span class="static-orb static-orb--two"></span>
+        <span class="static-grid-bg"></span>
     </div>
 
-    <?php include '../includes/footer.php'; ?>
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-        crossorigin="anonymous"></script>
-    
-</body>
 
+    <main class="static-shell">
+        <section class="static-hero static-hero--split static-reveal">
+            <div>
+                <span class="static-pill">Chat Globale</span>
+                <h1>Linee guida</h1>
+                <p>Regole semplici per tenere la chat leggibile e usabile da tutti.</p>
+                <div class="static-actions">
+                    <a href="global-chat" class="static-btn static-btn--primary">
+                        <i class="fas fa-comments"></i>
+                        <span>Torna alla chat</span>
+                    </a>
+                    <a href="supporto" class="static-btn">
+                        <i class="fas fa-life-ring"></i>
+                        <span>Supporto</span>
+                    </a>
+                </div>
+            </div>
+
+            <aside class="static-hero__side">
+                <span class="static-chip"><i class="fas fa-shield-halved"></i> Moderazione attiva</span>
+                <p>Violazioni gravi o ripetute possono portare a mute o ban.</p>
+            </aside>
+        </section>
+
+        <section class="static-grid static-grid--2" style="margin-top:1rem;">
+            <article class="static-card static-reveal">
+                <h2>Rispetta tutti</h2>
+                <p>Niente insulti, minacce o linguaggio offensivo.</p>
+            </article>
+
+            <article class="static-card static-reveal">
+                <h2>Niente spam</h2>
+                <p>Evita messaggi ripetuti, pubblicità e link messi a caso.</p>
+            </article>
+
+            <article class="static-card static-reveal">
+                <h2>Contenuti adatti</h2>
+                <p>Non inviare contenuti violenti, sessuali, illegali o chiaramente fuori contesto.</p>
+            </article>
+
+            <article class="static-card static-reveal">
+                <h2>Non impersonare</h2>
+                <p>Non fingere di essere un altro utente, un admin o un moderatore.</p>
+            </article>
+
+            <article class="static-card static-reveal">
+                <h2>Usa buon senso</h2>
+                <p>Non serve essere perfetti. Basta non rovinare la chat agli altri.</p>
+            </article>
+
+            <article class="static-card static-reveal">
+                <h2>Segui i moderatori</h2>
+                <p>Le indicazioni dello staff vanno rispettate.</p>
+            </article>
+        </section>
+    </main>
+
+    <?php include '../includes/footer.php'; ?>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+</body>
 </html>
