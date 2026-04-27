@@ -19,12 +19,17 @@ try {
         'description' => ['input' => 'descrizione', 'type' => 's', 'value' => $description !== '' ? $description : null],
         'features' => ['input' => 'caratteristiche', 'type' => 's', 'value' => $features !== '' ? $features : null],
         'image' => ['input' => 'img_url', 'type' => 's', 'value' => admin_validate_url($input['img_url'] ?? null)],
-        'rarity' => ['input' => 'rarita', 'type' => 's', 'value' => trim((string)($input['rarita'] ?? '')) ?: null],
+        'rarity' => ['input' => 'rarità', 'type' => 's', 'value' => trim((string)($input['rarità'] ?? '')) ?: null],
         'audio' => ['input' => 'audio_url', 'type' => 's', 'value' => admin_validate_url($input['audio_url'] ?? null)],
         'category' => ['input' => 'categoria', 'type' => 's', 'value' => trim((string)($input['categoria'] ?? '')) ?: null],
     ];
     foreach ($map as $key => $cfg) {
-        if ($cols[$key]) { $fields[] = admin_qcol($cols[$key]); $placeholders[] = '?'; $types .= 's'; $params[] = $cfg['value']; }
+        if ($cols[$key]) {
+            $fields[] = admin_qcol($cols[$key]);
+            $placeholders[] = '?';
+            $types .= 's';
+            $params[] = $cfg['value'];
+        }
     }
 
     $stmt = $mysqli->prepare('INSERT INTO personaggi (' . implode(', ', $fields) . ') VALUES (' . implode(', ', $placeholders) . ')');
@@ -35,4 +40,6 @@ try {
     $stmt->close();
     admin_log($mysqli, (int)$adminUser['id'], 'create_character', null, ['character_id' => $id, 'name' => $name]);
     admin_ok(['message' => 'Personaggio creato.', 'id' => $id]);
-} catch (Throwable $e) { admin_fail('Errore creazione personaggio.', 500); }
+} catch (Throwable $e) {
+    admin_fail('Errore creazione personaggio.', 500);
+}
