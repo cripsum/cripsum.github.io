@@ -5,13 +5,13 @@ require_once '../includes/functions.php';
 checkBan($mysqli);
 if (!isLoggedIn()) {
     $_SESSION['error_message'] = "mi dispiace, ma la pagina TikTokPedia™ è in manutenzione. riprova più tardi.";
-    header('Location: ../home');
+    header('Location: home');
     exit();
 }
 
 if (!isOwner()) {
     $_SESSION['error_message'] = "mi dispiace, ma la pagina TikTokPedia™ è in manutenzione. riprova più tardi.";
-    header('Location: ../home');
+    header('Location: home');
     exit();
 }
 ?>
