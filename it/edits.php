@@ -377,12 +377,6 @@ $totalEdits = count($edits);
                     </span>
                 </div>
             </div>
-
-            <div class="edits-hero__panel" aria-label="Info pagina">
-                <span>Streamable gallery</span>
-                <strong>Click su una card per guardare.</strong>
-                <p>Gli iframe vengono caricati in modo più leggero.</p>
-            </div>
         </section>
 
         <section class="edits-toolbar fadeup" aria-label="Filtri edits">
@@ -507,10 +501,6 @@ $totalEdits = count($edits);
     </div>
 
     <?php include '../includes/footer.php'; ?>
-
-    <button type="button" class="edits-back-top" id="editsBackTop" aria-label="Torna su">
-        <i class="fas fa-arrow-up"></i>
-    </button>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
