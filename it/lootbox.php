@@ -12,7 +12,16 @@ if (!isLoggedIn()) {
     header('Location: accedi');
     exit();
 }
+
+
+if (!isOwner()) {
+    $_SESSION['error_message'] = "mi dispiace, ma la pagina Lootbox è in manutenzione. riprova più tardi.";
+    header('Location: home');
+    exit();
+}
 checkPermissions($mysqli, 'utente');
+
+
 
 // if (  === 'utente') {
 //     $_SESSION['error_message'] = "la pagina attualmente è in manutenzione, torna più tardi";
@@ -1723,7 +1732,7 @@ require_once '../api/api_personaggi.php';
                 }
             });
         </script>
-        
+
 </body>
 
 </html>
