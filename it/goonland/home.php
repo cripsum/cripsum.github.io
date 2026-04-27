@@ -37,6 +37,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta property="og:title" content="Cripsum™ GoonLand - Home">
     <meta property="og:description" content="GoonLand è una sezione sperimentale rosa del sito: giochi, contenuti e piccole robe interattive.">
@@ -56,7 +57,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
 
     <div class="gl-bg" aria-hidden="true"><span></span><span></span></div>
 
-    
+
     <main class="gl-shell gl-home-shell">
         <section class="gl-hero gl-home-hero gl-reveal">
             <div class="gl-hero-text">
@@ -76,10 +77,6 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
 
             <div class="gl-hero-media gl-home-visual">
                 <img src="/img/raspberry-chan16gb.png" alt="GoonLand visual" loading="eager" data-gl-fallback>
-                <div class="gl-floating-card">
-                    <span>GoonLand</span>
-                    <strong>rosa, assurdo, sperimentale</strong>
-                </div>
             </div>
         </section>
 
@@ -116,7 +113,10 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
 
     <div id="achievement-popup" class="popup">
         <img id="popup-image" src="" alt="Achievement">
-        <div><h3 id="popup-title"></h3><p id="popup-description"></p></div>
+        <div>
+            <h3 id="popup-title"></h3>
+            <p id="popup-description"></p>
+        </div>
     </div>
 
     <button class="gl-top" type="button" data-gl-top aria-label="Torna su"><i class="fas fa-arrow-up"></i></button>
@@ -125,4 +125,5 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="/js/modeChanger.js"></script>
 </body>
+
 </html>
