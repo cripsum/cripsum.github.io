@@ -27,6 +27,7 @@ $ogMeta = cripsum_og_content($mysqli, $contentType);
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <?php cripsum_og_print($ogMeta); ?>
@@ -35,14 +36,15 @@ $ogMeta = cripsum_og_content($mysqli, $contentType);
     <link rel="stylesheet" href="/assets/content-v2/content-v2.css?v=2.0.2-og-previews">
     <script src="/assets/content-v2/content-v2.js?v=2.0.2-og-previews" defer></script>
 </head>
+
 <body class="content-v2-body"
-      data-content-type="<?php echo cv2_h($contentType); ?>"
-      data-csrf="<?php echo cv2_h($csrfToken); ?>"
-      data-logged="<?php echo $isLogged ? '1' : '0'; ?>"
-      data-admin="<?php echo $isAdmin ? '1' : '0'; ?>"
-      data-user-id="<?php echo (int)($currentUser['id'] ?? 0); ?>"
-      data-needs-motivation="<?php echo $needsMotivation ? '1' : '0'; ?>"
-      data-default-sort="<?php echo $contentType === 'rimasto' ? 'top' : 'recent'; ?>">
+    data-content-type="<?php echo cv2_h($contentType); ?>"
+    data-csrf="<?php echo cv2_h($csrfToken); ?>"
+    data-logged="<?php echo $isLogged ? '1' : '0'; ?>"
+    data-admin="<?php echo $isAdmin ? '1' : '0'; ?>"
+    data-user-id="<?php echo (int)($currentUser['id'] ?? 0); ?>"
+    data-needs-motivation="<?php echo $needsMotivation ? '1' : '0'; ?>"
+    data-default-sort="<?php echo $contentType === 'rimasto' ? 'top' : 'recent'; ?>">
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
     <?php include __DIR__ . '/../includes/impostazioni.php'; ?>
 
@@ -214,9 +216,12 @@ $ogMeta = cripsum_og_content($mysqli, $contentType);
 
     <div id="cwToast" class="cw-toast"></div>
 
+    <?php include '../includes/footer.php'; ?>
+
     <script>
         window.__CRIPSUM_BOOTSTRAP_FALLBACK__ = true;
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>
