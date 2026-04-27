@@ -172,7 +172,7 @@ if ($stmt) {
                 <div class="gl-leaderboard-head">
                     <span class="gl-kicker">Classifica</span>
                     <h2>Top 10</h2>
-                    <p>Chi ha cliccato di più.</p>
+                    <p>Chi ha goonato di più.</p>
                 </div>
 
                 <?php if (!empty($topGooners)): ?>
