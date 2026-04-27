@@ -2,389 +2,236 @@
 require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+
 checkBan($mysqli);
 
 if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-    $_SESSION['login_message'] = "Per poter fare 🤑gambling🤑 devi essere loggato";
+    $_SESSION['login_message'] = "Per giocare devi essere loggato.";
 
     header('Location: accedi');
     exit();
 }
 
+$userId = (int)($_SESSION['user_id'] ?? 0);
+$username = $_SESSION['username'] ?? 'Utente';
 ?>
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Gambling</title>
-    <style>
-        .gambling-container {
-            padding: 8rem 1.5rem 4rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .account-bar {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            border: 1px solid #333;
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 3rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .account-info {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .account-label {
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .account-value {
-            font-size: 1.5rem;
-            color: #fff;
-            font-weight: 600;
-        }
-
-        .account-balance {
-            color: #4ade80;
-        }
-
-        .recharge-section {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .recharge-input {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            color: #fff;
-            border-radius: 8px;
-            padding: 0.75rem;
-            font-size: 1rem;
-        }
-
-        .recharge-input:focus {
-            outline: none;
-            border-color: #4ade80;
-            background: #0f0f0f;
-        }
-
-        .recharge-btn {
-            background: #4ade80;
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            padding: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .recharge-btn:hover {
-            background: #22c55e;
-        }
-
-        .error-message {
-            color: #ef4444;
-            margin: 0;
-            font-size: 0.875rem;
-        }
-
-        .slot-machine-container {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            border: 1px solid #333;
-            border-radius: 12px;
-            padding: 3rem 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .slots-wrapper {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            margin-bottom: 2.5rem;
-            padding: 2rem;
-            background: #0f0f0f;
-            border-radius: 12px;
-            border: 1px solid #222;
-        }
-
-        .slot {
-            position: relative;
-        }
-
-        .slot img {
-            width: 180px;
-            height: 180px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 2px solid #333;
-            display: block;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .spin-btn {
-            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
-            color: #000;
-            border: none;
-            padding: 1rem 4rem;
-            font-size: 1.25rem;
-            font-weight: 700;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.2s;
-            box-shadow: 0 4px 15px rgba(74, 222, 128, 0.3);
-        }
-
-        .spin-btn:hover:not(:disabled) {
-            box-shadow: 0 6px 20px rgba(74, 222, 128, 0.4);
-        }
-
-        .spin-btn:active:not(:disabled) {
-            transform: scale(0.98);
-        }
-
-        .spin-btn:disabled {
-            background: #333;
-            color: #666;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        .result-message {
-            margin-top: 2rem;
-            font-size: 1.25rem;
-            font-weight: 600;
-            text-align: center;
-            padding: 1rem;
-            border-radius: 8px;
-        }
-
-        .result-message.success {
-            background: rgba(74, 222, 128, 0.1);
-            color: #4ade80;
-            border: 1px solid rgba(74, 222, 128, 0.3);
-        }
-
-        .result-message.error {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        @media (max-width: 768px) {
-            .gambling-container {
-                padding: 7rem 1rem 3rem;
-            }
-
-            .account-bar {
-                padding: 1.5rem;
-                gap: 1.5rem;
-            }
-
-            .slots-wrapper {
-                gap: 1rem;
-                padding: 1.5rem;
-                flex-wrap: wrap;
-            }
-
-            .slot img {
-                width: 140px;
-                height: 140px;
-            }
-
-            .slot-machine-container {
-                padding: 2rem 1rem;
-            }
-
-            .spin-btn {
-                padding: 0.875rem 3rem;
-                font-size: 1.1rem;
-            }
-
-            .account-value {
-                font-size: 1.25rem;
-            }
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="stylesheet" href="/css/achievement-style.css?v=2.0-popup">
+    <link rel="stylesheet" href="/assets/gambling/gambling.css?v=2.0-arcade">
+    <script src="/assets/gambling/gambling.js?v=2.0-arcade" defer></script>
 </head>
 
-<body>
+<body class="gambling-page">
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
-    <div class="gambling-container testobianco">
+    <div class="gambling-bg" aria-hidden="true">
+        <span class="gambling-orb gambling-orb--one"></span>
+        <span class="gambling-orb gambling-orb--two"></span>
+        <span class="gambling-grid-bg"></span>
+    </div>
+
+    <main
+        class="gambling-shell"
+        data-user-id="<?php echo htmlspecialchars((string)$userId, ENT_QUOTES, 'UTF-8'); ?>"
+        data-username="<?php echo htmlspecialchars($username, ENT_QUOTES, 'UTF-8'); ?>"
+    >
         <div id="achievement-popup" class="popup">
-            <img id="popup-image" src="" alt="Achievement" />
+            <img id="popup-image" src="" alt="Achievement">
             <div>
                 <h3 id="popup-title"></h3>
                 <p id="popup-description"></p>
             </div>
         </div>
 
-        <div class="account-bar fadeup">
-            <div class="account-info">
-                <span class="account-label">Utente:</span>
-                <span class="account-value"><?php echo htmlspecialchars($_SESSION["username"]) ?></span>
-            </div>
-            <div class="account-info">
-                <span class="account-label">Saldo:</span>
-                <span class="account-value account-balance">$100</span>
-            </div>
-            <div class="recharge-section">
-                <input type="number" class="form-control recharge-input" placeholder="Importo" min="1" />
-                <button class="btn btn-secondary recharge-btn" onclick="ricaricasaldo()">Ricarica</button>
-                <p class="error-message errorericarica"></p>
-            </div>
-        </div>
+        <section class="gambling-hero gambling-reveal">
+            <div>
+                <span class="gambling-pill">Gioco finto</span>
+                <h1>Gambling Arcade</h1>
+                <p>Slot machine con crediti finti. Nessun soldo reale, nessun pagamento, solo mini-game.</p>
 
-        <div class="slot-machine-container fadeup">
-            <div class="slots-wrapper">
-                <div class="slot">
-                    <img src="../img/cripsumchisiamo.jpg" alt="Slot 1" />
-                </div>
-                <div class="slot">
-                    <img src="../img/barandeep.jpg" alt="Slot 2" />
-                </div>
-                <div class="slot">
-                    <img src="../img/abdul.jpg" alt="Slot 3" />
+                <div class="gambling-actions">
+                    <button class="gambling-btn gambling-btn--soft" type="button" data-open-rules>
+                        <i class="fas fa-circle-info"></i>
+                        <span>Regole</span>
+                    </button>
+
+                    <button class="gambling-btn gambling-btn--soft" type="button" data-reset-session>
+                        <i class="fas fa-rotate-left"></i>
+                        <span>Reset sessione</span>
+                    </button>
                 </div>
             </div>
 
-            <div class="text-center">
-                <button class="btn btn-primary spin-btn" id="spin-btn" onclick="spin()">SPIN!</button>
+            <aside class="gambling-wallet" aria-label="Saldo gioco">
+                <span class="wallet-label">Saldo</span>
+                <strong data-balance>100</strong>
+                <span class="wallet-caption">crediti finti</span>
+
+                <div class="wallet-recharge">
+                    <input type="number" min="1" max="5000" step="1" inputmode="numeric" data-recharge-input placeholder="Importo">
+                    <button type="button" data-recharge-button>Ricarica</button>
+                </div>
+
+                <p class="gambling-inline-error" data-recharge-error></p>
+            </aside>
+        </section>
+
+        <section class="gambling-layout">
+            <div class="slot-card gambling-reveal">
+                <div class="slot-topbar">
+                    <div>
+                        <span class="slot-label">Puntata</span>
+                        <strong data-current-bet>10</strong>
+                    </div>
+
+                    <div class="slot-switches">
+                        <label class="slot-switch">
+                            <input type="checkbox" data-turbo-toggle>
+                            <span>Turbo</span>
+                        </label>
+
+                        <label class="slot-switch">
+                            <input type="checkbox" data-sound-toggle>
+                            <span>Suono</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="bet-row" role="group" aria-label="Scegli puntata">
+                    <button type="button" class="bet-chip is-active" data-bet="10">10</button>
+                    <button type="button" class="bet-chip" data-bet="25">25</button>
+                    <button type="button" class="bet-chip" data-bet="50">50</button>
+                    <button type="button" class="bet-chip" data-bet="100">100</button>
+                </div>
+
+                <div class="slot-machine" data-slot-machine>
+                    <div class="slot-reel">
+                        <img src="/img/slott1.jpg" alt="Slot 1" data-slot-image>
+                    </div>
+                    <div class="slot-reel">
+                        <img src="/img/slott2.jpg" alt="Slot 2" data-slot-image>
+                    </div>
+                    <div class="slot-reel">
+                        <img src="/img/slott3.jpg" alt="Slot 3" data-slot-image>
+                    </div>
+                </div>
+
+                <div class="spin-controls">
+                    <button class="spin-btn" type="button" data-spin-button>
+                        <i class="fas fa-play"></i>
+                        <span>SPIN</span>
+                    </button>
+
+                    <button class="auto-spin-btn" type="button" data-auto-spin-button>
+                        <i class="fas fa-forward"></i>
+                        <span>Auto x10</span>
+                    </button>
+                </div>
+
+                <div class="result-box" data-result-box>
+                    <span class="result-kicker">Pronto</span>
+                    <strong data-result-title>Fai partire la slot</strong>
+                    <p data-result-text>Scegli la puntata e prova lo spin.</p>
+                </div>
             </div>
-            <p class="error-message text-center erroresoldi"></p>
-            <p id="risultato"></p>
+
+            <aside class="gambling-side">
+                <section class="stat-card gambling-reveal">
+                    <h2>Sessione</h2>
+
+                    <div class="stats-grid">
+                        <div>
+                            <span>Spin</span>
+                            <strong data-stat="spins">0</strong>
+                        </div>
+                        <div>
+                            <span>Vinti</span>
+                            <strong data-stat="won">0</strong>
+                        </div>
+                        <div>
+                            <span>Persi</span>
+                            <strong data-stat="lost">0</strong>
+                        </div>
+                        <div>
+                            <span>Best win</span>
+                            <strong data-stat="best">0</strong>
+                        </div>
+                        <div>
+                            <span>Jackpot</span>
+                            <strong data-stat="jackpots">0</strong>
+                        </div>
+                        <div>
+                            <span>Profitto</span>
+                            <strong data-stat="profit">0</strong>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="payout-card gambling-reveal">
+                    <h2>Payout</h2>
+
+                    <div class="payout-row">
+                        <span>3 uguali</span>
+                        <strong>x20</strong>
+                    </div>
+                    <div class="payout-row">
+                        <span>2 uguali</span>
+                        <strong>x2</strong>
+                    </div>
+                    <div class="payout-row">
+                        <span>Tre 7</span>
+                        <strong>x35</strong>
+                    </div>
+                    <div class="payout-row">
+                        <span>Tre 9</span>
+                        <strong>x50</strong>
+                    </div>
+                </section>
+
+                <section class="history-card gambling-reveal">
+                    <div class="history-head">
+                        <h2>Ultime giocate</h2>
+                        <button type="button" data-clear-history>pulisci</button>
+                    </div>
+
+                    <div class="history-list" data-history-list>
+                        <p class="history-empty">Nessuna giocata per ora.</p>
+                    </div>
+                </section>
+            </aside>
+        </section>
+    </main>
+
+    <div class="gambling-modal" data-rules-modal hidden>
+        <div class="gambling-modal__panel" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+            <button class="gambling-modal__close" type="button" data-close-rules aria-label="Chiudi">
+                <i class="fas fa-xmark"></i>
+            </button>
+
+            <span class="gambling-pill">Regole</span>
+            <h2 id="rulesTitle">Come funziona</h2>
+            <p>È un mini-gioco con crediti finti. Il saldo resta nel browser tramite localStorage e può essere resettato.</p>
+
+            <ul>
+                <li>Ogni spin scala la puntata scelta.</li>
+                <li>Con 2 simboli uguali vinci x2.</li>
+                <li>Con 3 simboli uguali vinci x20.</li>
+                <li>Tre 7 e tre 9 valgono di più.</li>
+                <li>Auto-spin fa massimo 10 spin e si ferma se il saldo non basta.</li>
+            </ul>
         </div>
     </div>
 
     <?php include '../includes/footer.php'; ?>
-    <script src="../js/unlockAchievement-it.js"></script>
-    <script>
-        let saldoMonitorInterval = null;
 
-        function ricaricasaldo() {
-            const errorElement = document.querySelector(".errorericarica");
-            const inputElement = document.querySelector(".recharge-input");
-            const balanceElement = document.querySelector(".account-balance");
-
-            errorElement.textContent = "";
-            const inputMoney = inputElement.value;
-
-            if (!inputMoney || inputMoney === "e" || inputMoney <= 0) {
-                errorElement.textContent = "Inserisci un importo valido";
-                return;
-            }
-
-            let currentMoney = parseInt(balanceElement.textContent.substring(1));
-            const newMoney = currentMoney + parseInt(inputMoney);
-            balanceElement.textContent = "$" + newMoney;
-            monitorSaldo();
-            inputElement.value = "";
-        }
-
-        function spin() {
-            const spinBtn = document.getElementById("spin-btn");
-            const balanceElement = document.querySelector(".account-balance");
-            const resultElement = document.getElementById("risultato");
-            const errorElement = document.querySelector(".erroresoldi");
-
-            let money = parseInt(balanceElement.textContent.substring(1));
-
-            if (money < 10) {
-                errorElement.textContent = "Saldo insufficiente! Servono almeno $10";
-                return;
-            }
-
-            money -= 10;
-            balanceElement.textContent = "$" + money;
-            monitorSaldo();
-
-            spinBtn.disabled = true;
-            spinBtn.textContent = "SPINNING...";
-            resultElement.textContent = "";
-            resultElement.className = "";
-            errorElement.textContent = "";
-
-            const slots = document.querySelectorAll(".slot img");
-            let randomIndexes = [];
-
-            const startTime = Date.now();
-            const interval = setInterval(() => {
-                randomIndexes = Array.from({
-                    length: 3
-                }, () => Math.floor(Math.random() * 9) + 1);
-                slots.forEach((slot, i) => {
-                    slot.src = `../img/slott${randomIndexes[i]}.jpg`;
-                });
-
-                if (Date.now() - startTime >= 2000) {
-                    clearInterval(interval);
-
-                    if (randomIndexes[0] === randomIndexes[1] && randomIndexes[1] === randomIndexes[2]) {
-                        resultElement.textContent = "JACKPOT! HAI VINTO $1000!";
-                        resultElement.className = "result-message success";
-                        money += 1000;
-                        balanceElement.textContent = "$" + money;
-                        unlockAchievement(3);
-                    } else {
-                        resultElement.textContent = "Hai perso scemo! Riprova!";
-                        resultElement.className = "result-message error";
-                    }
-
-                    spinBtn.disabled = false;
-                    spinBtn.textContent = "SPIN!";
-                }
-            }, 100);
-        }
-
-        function monitorSaldo() {
-            if (saldoMonitorInterval) return;
-
-            const startTime = Date.now();
-            saldoMonitorInterval = setInterval(() => {
-                const money = parseInt(document.querySelector(".account-balance").textContent.substring(1));
-
-                if (money < 10) {
-                    unlockAchievement(11);
-                    clearInterval(saldoMonitorInterval);
-                    saldoMonitorInterval = null;
-                }
-
-                if (Date.now() - startTime >= 60000) {
-                    clearInterval(saldoMonitorInterval);
-                    saldoMonitorInterval = null;
-                }
-            }, 1000);
-        }
-
-        document.querySelector(".recharge-input").addEventListener("keypress", (e) => {
-            if (e.key === "Enter") ricaricasaldo();
-        });
-    </script>
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-        crossorigin="anonymous"></script>
-    
+    <script src="/js/unlockAchievement-it.js?v=2.0-popup"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
-
 </html>

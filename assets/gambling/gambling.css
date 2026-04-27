@@ -1,0 +1,809 @@
+:root {
+    --gambling-bg: #05070d;
+    --gambling-bg-2: #0a0e1a;
+    --gambling-card: rgba(10, 14, 27, .78);
+    --gambling-card-strong: rgba(8, 11, 22, .94);
+    --gambling-border: rgba(255, 255, 255, .12);
+    --gambling-text: #f7f8ff;
+    --gambling-muted: #aab3c8;
+    --gambling-muted-2: #778199;
+    --gambling-blue: #2f6bff;
+    --gambling-purple: #8b5cf6;
+    --gambling-green: #34d399;
+    --gambling-red: #fb7185;
+    --gambling-gold: #fbbf24;
+}
+
+body.gambling-page {
+    min-height: 100vh;
+    margin: 0;
+    color: var(--gambling-text);
+    background:
+        radial-gradient(circle at 8% 6%, rgba(47, 107, 255, .25), transparent 30rem),
+        radial-gradient(circle at 92% 18%, rgba(139, 92, 246, .18), transparent 28rem),
+        linear-gradient(135deg, var(--gambling-bg), var(--gambling-bg-2));
+    background-attachment: fixed;
+    overflow-x: hidden;
+}
+
+.gambling-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -5;
+    overflow: hidden;
+    background: #02040a;
+}
+
+.gambling-orb,
+.gambling-grid-bg {
+    position: absolute;
+    pointer-events: none;
+}
+
+.gambling-orb {
+    width: 31rem;
+    height: 31rem;
+    border-radius: 999px;
+    filter: blur(78px);
+    opacity: .35;
+    animation: gamblingFloat 10s ease-in-out infinite alternate;
+}
+
+.gambling-orb--one {
+    top: 7%;
+    left: -10rem;
+    background: rgba(47, 107, 255, .62);
+}
+
+.gambling-orb--two {
+    right: -10rem;
+    bottom: 8%;
+    background: rgba(251, 191, 36, .34);
+    animation-delay: -3s;
+}
+
+.gambling-grid-bg {
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, .026) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .026) 1px, transparent 1px);
+    background-size: 76px 76px;
+    mask-image: linear-gradient(to bottom, transparent, black 18%, transparent 92%);
+    opacity: .32;
+}
+
+@keyframes gamblingFloat {
+    from { transform: translate3d(0, 0, 0) scale(1); }
+    to { transform: translate3d(28px, -22px, 0) scale(1.06); }
+}
+
+.gambling-shell {
+    width: min(1220px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 7.2rem 0 3.5rem;
+}
+
+.gambling-hero,
+.slot-card,
+.stat-card,
+.payout-card,
+.history-card,
+.gambling-modal__panel {
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .025)),
+        var(--gambling-card);
+    border: 1px solid var(--gambling-border);
+    border-radius: 30px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .36);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.gambling-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 330px;
+    gap: 1rem;
+    align-items: stretch;
+    padding: clamp(1rem, 3vw, 2rem);
+    margin-bottom: 1rem;
+}
+
+.gambling-pill {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    min-height: 2rem;
+    padding: .36rem .72rem;
+    border: 1px solid rgba(251, 191, 36, .34);
+    border-radius: 999px;
+    color: #fde68a;
+    background: rgba(251, 191, 36, .1);
+    font-size: .72rem;
+    font-weight: 950;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.gambling-hero h1 {
+    max-width: 760px;
+    margin: .75rem 0 .45rem;
+    color: var(--gambling-text);
+    font-size: clamp(2.6rem, 7vw, 5.7rem);
+    line-height: .9;
+    letter-spacing: -.075em;
+}
+
+.gambling-hero p,
+.result-box p,
+.history-empty,
+.gambling-modal p,
+.gambling-modal li {
+    margin: 0;
+    color: var(--gambling-muted);
+    line-height: 1.55;
+}
+
+.gambling-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .65rem;
+    margin-top: 1rem;
+}
+
+.gambling-btn,
+.spin-btn,
+.auto-spin-btn,
+.wallet-recharge button,
+.history-head button,
+.bet-chip {
+    border: 0;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.gambling-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    min-height: 3rem;
+    padding: .78rem 1.05rem;
+    border: 1px solid var(--gambling-border);
+    border-radius: 999px;
+    color: var(--gambling-text);
+    background: rgba(255, 255, 255, .055);
+    font-weight: 900;
+    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.gambling-btn:hover {
+    transform: translateY(-2px);
+    border-color: rgba(251, 191, 36, .42);
+    background: rgba(251, 191, 36, .12);
+}
+
+.gambling-wallet {
+    display: grid;
+    align-content: center;
+    gap: .55rem;
+    padding: 1rem;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 24px;
+    background: rgba(255,255,255,.045);
+}
+
+.wallet-label,
+.slot-label {
+    color: var(--gambling-muted-2);
+    font-size: .76rem;
+    font-weight: 950;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.gambling-wallet strong {
+    color: var(--gambling-green);
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    line-height: 1;
+    letter-spacing: -.055em;
+}
+
+.wallet-caption {
+    color: var(--gambling-muted);
+    font-size: .9rem;
+}
+
+.wallet-recharge {
+    display: flex;
+    gap: .5rem;
+    margin-top: .4rem;
+}
+
+.wallet-recharge input {
+    min-width: 0;
+    width: 100%;
+    min-height: 2.75rem;
+    border: 1px solid var(--gambling-border);
+    border-radius: 16px;
+    color: var(--gambling-text);
+    background: rgba(255,255,255,.055);
+    padding: .7rem .85rem;
+    outline: none;
+}
+
+.wallet-recharge input:focus {
+    border-color: rgba(52, 211, 153, .46);
+    box-shadow: 0 0 0 4px rgba(52, 211, 153, .1);
+}
+
+.wallet-recharge button {
+    min-height: 2.75rem;
+    padding: .7rem .85rem;
+    border-radius: 16px;
+    color: #04140c;
+    background: var(--gambling-green);
+    font-weight: 950;
+}
+
+.gambling-inline-error {
+    min-height: 1.2rem;
+    margin: 0;
+    color: var(--gambling-red);
+    font-size: .82rem;
+}
+
+.gambling-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 1rem;
+    align-items: start;
+}
+
+.slot-card,
+.stat-card,
+.payout-card,
+.history-card {
+    padding: 1rem;
+}
+
+.slot-topbar,
+.history-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: .85rem;
+}
+
+.slot-topbar strong {
+    display: block;
+    color: var(--gambling-gold);
+    font-size: 1.55rem;
+    line-height: 1;
+}
+
+.slot-switches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    justify-content: flex-end;
+}
+
+.slot-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    min-height: 2rem;
+    padding: .36rem .6rem;
+    border: 1px solid var(--gambling-border);
+    border-radius: 999px;
+    color: var(--gambling-muted);
+    background: rgba(255,255,255,.045);
+    font-size: .82rem;
+    font-weight: 850;
+}
+
+.slot-switch input {
+    accent-color: var(--gambling-gold);
+}
+
+.bet-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: .55rem;
+    margin-bottom: 1rem;
+}
+
+.bet-chip {
+    min-height: 2.7rem;
+    border: 1px solid var(--gambling-border);
+    border-radius: 16px;
+    color: var(--gambling-text);
+    background: rgba(255,255,255,.055);
+    font-weight: 950;
+    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.bet-chip:hover {
+    transform: translateY(-2px);
+    border-color: rgba(251, 191, 36, .42);
+    background: rgba(251, 191, 36, .1);
+}
+
+.bet-chip.is-active {
+    border-color: rgba(251, 191, 36, .56);
+    background: linear-gradient(135deg, rgba(251, 191, 36, .2), rgba(47, 107, 255, .12));
+    box-shadow: 0 0 24px rgba(251, 191, 36, .12);
+}
+
+.slot-machine {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .9rem;
+    padding: clamp(.8rem, 2vw, 1.25rem);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 28px;
+    background:
+        radial-gradient(circle at 50% 0%, rgba(251, 191, 36, .12), transparent 36%),
+        rgba(0,0,0,.34);
+    overflow: hidden;
+}
+
+.slot-machine::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent);
+    transform: translateX(-120%);
+    pointer-events: none;
+}
+
+.slot-machine.is-spinning::before {
+    animation: slotScan 650ms linear infinite;
+}
+
+@keyframes slotScan {
+    to { transform: translateX(120%); }
+}
+
+.slot-reel {
+    position: relative;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 24px;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.02)),
+        rgba(0,0,0,.32);
+    box-shadow: inset 0 0 26px rgba(0,0,0,.28);
+    overflow: hidden;
+}
+
+.slot-reel img {
+    width: min(82%, 170px);
+    height: min(82%, 170px);
+    object-fit: cover;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,.14);
+    box-shadow: 0 12px 30px rgba(0,0,0,.28);
+    transition: transform 180ms ease, filter 180ms ease;
+}
+
+.slot-reel.is-spinning img {
+    animation: reelSpin 120ms linear infinite;
+    filter: blur(1px) saturate(1.4);
+}
+
+@keyframes reelSpin {
+    from { transform: translateY(-6px) scale(.97); }
+    to { transform: translateY(6px) scale(1.03); }
+}
+
+.slot-machine.is-win {
+    animation: winPulse 800ms ease 2;
+}
+
+.slot-machine.is-jackpot {
+    animation: jackpotPulse 980ms ease 3;
+}
+
+.slot-machine.is-loss {
+    animation: lossShake 280ms ease 1;
+}
+
+@keyframes winPulse {
+    50% { box-shadow: 0 0 54px rgba(52, 211, 153, .26); border-color: rgba(52, 211, 153, .42); }
+}
+
+@keyframes jackpotPulse {
+    50% { box-shadow: 0 0 80px rgba(251, 191, 36, .42), 0 0 50px rgba(47, 107, 255, .22); border-color: rgba(251, 191, 36, .66); }
+}
+
+@keyframes lossShake {
+    20% { transform: translateX(-4px); }
+    40% { transform: translateX(4px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(3px); }
+}
+
+.spin-controls {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: .65rem;
+    margin-top: 1rem;
+}
+
+.spin-btn {
+    min-height: 3.3rem;
+    border-radius: 999px;
+    color: #111827;
+    background: linear-gradient(135deg, var(--gambling-gold), #f97316);
+    font-weight: 1000;
+    font-size: 1.05rem;
+    box-shadow: 0 14px 36px rgba(251, 191, 36, .22);
+    transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+}
+
+.spin-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 44px rgba(251, 191, 36, .3);
+}
+
+.spin-btn:active:not(:disabled) {
+    transform: translateY(0) scale(.98);
+}
+
+.auto-spin-btn {
+    min-height: 3.3rem;
+    padding: .85rem 1rem;
+    border: 1px solid var(--gambling-border);
+    border-radius: 999px;
+    color: var(--gambling-text);
+    background: rgba(255,255,255,.055);
+    font-weight: 900;
+}
+
+.spin-btn:disabled,
+.auto-spin-btn:disabled,
+.bet-chip:disabled,
+.wallet-recharge button:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+.result-box {
+    margin-top: 1rem;
+    padding: .9rem;
+    border: 1px solid var(--gambling-border);
+    border-radius: 22px;
+    background: rgba(255,255,255,.045);
+}
+
+.result-kicker {
+    color: var(--gambling-muted-2);
+    font-size: .74rem;
+    font-weight: 950;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.result-box strong {
+    display: block;
+    margin: .25rem 0;
+    color: var(--gambling-text);
+    font-size: 1.15rem;
+    letter-spacing: -.03em;
+}
+
+.result-box.is-win {
+    border-color: rgba(52, 211, 153, .34);
+    background: rgba(52, 211, 153, .08);
+}
+
+.result-box.is-jackpot {
+    border-color: rgba(251, 191, 36, .42);
+    background: rgba(251, 191, 36, .1);
+}
+
+.result-box.is-loss {
+    border-color: rgba(251, 113, 133, .3);
+    background: rgba(251, 113, 133, .08);
+}
+
+.gambling-side {
+    display: grid;
+    gap: 1rem;
+}
+
+.stat-card h2,
+.payout-card h2,
+.history-card h2,
+.gambling-modal h2 {
+    margin: 0 0 .85rem;
+    color: var(--gambling-text);
+    font-size: 1.25rem;
+    letter-spacing: -.04em;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: .55rem;
+}
+
+.stats-grid div {
+    padding: .75rem;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 18px;
+    background: rgba(255,255,255,.045);
+}
+
+.stats-grid span {
+    display: block;
+    color: var(--gambling-muted-2);
+    font-size: .72rem;
+    font-weight: 950;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.stats-grid strong {
+    display: block;
+    margin-top: .25rem;
+    color: var(--gambling-text);
+    font-size: 1.1rem;
+}
+
+.payout-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .65rem 0;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    color: var(--gambling-muted);
+}
+
+.payout-row:last-child {
+    border-bottom: 0;
+}
+
+.payout-row strong {
+    color: var(--gambling-gold);
+}
+
+.history-head {
+    margin-bottom: .45rem;
+}
+
+.history-head button {
+    border-radius: 999px;
+    color: var(--gambling-muted);
+    background: rgba(255,255,255,.055);
+    padding: .35rem .65rem;
+    font-weight: 850;
+}
+
+.history-list {
+    display: grid;
+    gap: .45rem;
+    max-height: 280px;
+    overflow: auto;
+    padding-right: .2rem;
+}
+
+.history-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: .5rem;
+    padding: .65rem;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 16px;
+    background: rgba(255,255,255,.04);
+}
+
+.history-item strong {
+    color: var(--gambling-text);
+    font-size: .9rem;
+}
+
+.history-item span {
+    color: var(--gambling-muted-2);
+    font-size: .78rem;
+}
+
+.history-item em {
+    color: var(--gambling-muted);
+    font-style: normal;
+    font-weight: 900;
+}
+
+.history-item.is-win em {
+    color: var(--gambling-green);
+}
+
+.history-item.is-jackpot em {
+    color: var(--gambling-gold);
+}
+
+.history-item.is-loss em {
+    color: var(--gambling-red);
+}
+
+.gambling-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: rgba(0,0,0,.62);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.gambling-modal[hidden] {
+    display: none;
+}
+
+.gambling-modal__panel {
+    position: relative;
+    width: min(560px, 100%);
+    padding: 1.25rem;
+}
+
+.gambling-modal__close {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    display: grid;
+    place-items: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border: 1px solid var(--gambling-border);
+    border-radius: 999px;
+    color: var(--gambling-text);
+    background: rgba(255,255,255,.055);
+    cursor: pointer;
+}
+
+.gambling-modal ul {
+    margin: 1rem 0 0;
+    padding-left: 1.2rem;
+}
+
+.gambling-modal li {
+    margin: .4rem 0;
+}
+
+.gambling-confetti {
+    position: fixed;
+    z-index: 99999;
+    top: -16px;
+    width: 8px;
+    height: 14px;
+    border-radius: 3px;
+    pointer-events: none;
+    animation: confettiFall 1100ms linear forwards;
+}
+
+@keyframes confettiFall {
+    to {
+        transform: translate3d(var(--x), calc(100vh + 60px), 0) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+.gambling-reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 420ms ease, transform 420ms ease;
+}
+
+.gambling-reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (max-width: 980px) {
+    .gambling-hero,
+    .gambling-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .gambling-wallet {
+        order: -1;
+    }
+}
+
+@media (max-width: 680px) {
+    body.gambling-page {
+        background-attachment: scroll;
+    }
+
+    .gambling-shell {
+        width: 90%;
+        padding-top: 5.7rem;
+        padding-bottom: 2.4rem;
+    }
+
+    .gambling-hero,
+    .slot-card,
+    .stat-card,
+    .payout-card,
+    .history-card {
+        border-radius: 22px;
+    }
+
+    .gambling-hero h1 {
+        font-size: clamp(2.25rem, 12vw, 3.7rem);
+    }
+
+    .wallet-recharge,
+    .spin-controls {
+        grid-template-columns: 1fr;
+        display: grid;
+    }
+
+    .slot-topbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .slot-switches {
+        justify-content: flex-start;
+        width: 100%;
+    }
+
+    .bet-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .slot-machine {
+        gap: .5rem;
+        padding: .65rem;
+        border-radius: 22px;
+    }
+
+    .slot-reel {
+        border-radius: 18px;
+    }
+
+    .slot-reel img {
+        width: 82%;
+        height: 82%;
+        border-radius: 15px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 380px) {
+    .gambling-shell {
+        width: 92%;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+    }
+
+    .gambling-reveal {
+        opacity: 1;
+        transform: none;
+    }
+}
