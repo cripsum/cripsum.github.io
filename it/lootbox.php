@@ -28,7 +28,7 @@ require_once '../api/api_personaggi.php';
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <link rel="stylesheet" href="/css/lootbox.css?v=8-cinematic-fullscreen" />
+    <link rel="stylesheet" href="/css/lootbox.css?v=8.0.4-bugfix-only" />
     <title>Cripsum™ - lootbox</title>
 </head>
 
@@ -698,8 +698,10 @@ require_once '../api/api_personaggi.php';
 
                     document.getElementById("contenuto").innerHTML = `
                         <div class="lootbox-character-reveal">
+                            <div class="lootbox-prize-wrap lootbox-reward-frame">
+                                <img src="/img/${safeImg}" alt="${safeName}" class="premio" onerror="this.onerror=null;this.src='/img/Susremaster.png';" draggable="false" />
+                            </div>
                             <p id="nomePersonaggio" class="lootbox-character-name">${safeName}</p>
-                            <img src="/img/${safeImg}" alt="${safeName}" class="premio" onerror="this.onerror=null;this.src='/img/Susremaster.png';" draggable="false" />
                         </div>
                     `;
 
@@ -735,22 +737,25 @@ require_once '../api/api_personaggi.php';
                         messaggioRarita.innerText = "COM'É POSSIBILE? HAI PULLATO UN PERSONAGGIO SPECIALE!";
 
                         bagliore.style.position = "fixed";
-                        bagliore.style.width = "100vw";
-                        bagliore.style.height = "100vh";
-                        bagliore.style.zIndex = "-1";
+                        bagliore.style.width = "max(165vw, 165vh)";
+                        bagliore.style.height = "max(165vw, 165vh)";
+                        bagliore.style.zIndex = "1";
 
-                        bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
-                        bagliore.style.backgroundSize = "300% 100%";
-                        bagliore.style.animation = "rainbowBackground 6s linear infinite";
+                        bagliore.style.background = "linear-gradient(90deg, #ff004c 0%, #ff7a00 7%, #fff300 14%, #35ff00 21%, #00ffd5 28%, #0077ff 35%, #7a00ff 42%, #ff00d4 49%, #ff004c 50%, #ff7a00 57%, #fff300 64%, #35ff00 71%, #00ffd5 78%, #0077ff 85%, #7a00ff 92%, #ff00d4 99%, #ff004c 100%)";
+                        bagliore.style.backgroundSize = "200% 100%";
+                        bagliore.style.borderRadius = "50%";
+                        bagliore.style.opacity = "0.72";
+                        bagliore.style.mixBlendMode = "screen";
+                        bagliore.style.animation = "specialRainbowPan 8s linear infinite";
                     } else if (rarita === "segreto") {
 
                         secretPulled = true;
                         startIntroAnimation(pull.nome);
                         messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
                         bagliore.style.position = "fixed";
-                        bagliore.style.width = "100vw";
-                        bagliore.style.height = "100vh";
-                        bagliore.style.zIndex = "-1";
+                        bagliore.style.width = "max(165vw, 165vh)";
+                        bagliore.style.height = "max(165vw, 165vh)";
+                        bagliore.style.zIndex = "1";
 
                     } else if (rarita === "theone") {
 
@@ -758,9 +763,9 @@ require_once '../api/api_personaggi.php';
                         startTheOneAnimation(pull.nome);
                         messaggioRarita.innerText = "INCREDBILE! HAI PULLATO IL PERSONAGGIO PIÙ RARO DI TUTTI!!!";
                         bagliore.style.position = "fixed";
-                        bagliore.style.width = "100vw";
-                        bagliore.style.height = "100vh";
-                        bagliore.style.zIndex = "-1";
+                        bagliore.style.width = "max(165vw, 165vh)";
+                        bagliore.style.height = "max(165vw, 165vh)";
+                        bagliore.style.zIndex = "1";
 
                     }
 
@@ -794,8 +799,10 @@ require_once '../api/api_personaggi.php';
 
                     document.getElementById("contenuto").innerHTML = `
                         <div class="lootbox-character-reveal">
+                            <div class="lootbox-prize-wrap lootbox-reward-frame">
+                                <img src="/img/${safeImg}" alt="${safeName}" class="premio" onerror="this.onerror=null;this.src='/img/Susremaster.png';" draggable="false" />
+                            </div>
                             <p id="nomePersonaggio" class="lootbox-character-name">${safeName}</p>
-                            <img src="/img/${safeImg}" alt="${safeName}" class="premio" onerror="this.onerror=null;this.src='/img/Susremaster.png';" draggable="false" />
                         </div>
                     `;
 
@@ -831,21 +838,24 @@ require_once '../api/api_personaggi.php';
                         messaggioRarita.innerText = "COM'É POSSIBILE? HAI PULLATO UN PERSONAGGIO SPECIALE!";
 
                         bagliore.style.position = "fixed";
-                        bagliore.style.width = "100vw";
-                        bagliore.style.height = "100vh";
-                        bagliore.style.zIndex = "-1";
+                        bagliore.style.width = "max(165vw, 165vh)";
+                        bagliore.style.height = "max(165vw, 165vh)";
+                        bagliore.style.zIndex = "1";
 
-                        bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
-                        bagliore.style.backgroundSize = "300% 100%";
-                        bagliore.style.animation = "rainbowBackground 6s linear infinite";
+                        bagliore.style.background = "linear-gradient(90deg, #ff004c 0%, #ff7a00 7%, #fff300 14%, #35ff00 21%, #00ffd5 28%, #0077ff 35%, #7a00ff 42%, #ff00d4 49%, #ff004c 50%, #ff7a00 57%, #fff300 64%, #35ff00 71%, #00ffd5 78%, #0077ff 85%, #7a00ff 92%, #ff00d4 99%, #ff004c 100%)";
+                        bagliore.style.backgroundSize = "200% 100%";
+                        bagliore.style.borderRadius = "50%";
+                        bagliore.style.opacity = "0.72";
+                        bagliore.style.mixBlendMode = "screen";
+                        bagliore.style.animation = "specialRainbowPan 8s linear infinite";
                     } else if (rarita === "segreto") {
                         startIntroAnimation(pull.nome);
 
                         messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
                         bagliore.style.position = "fixed";
-                        bagliore.style.width = "100vw";
-                        bagliore.style.height = "100vh";
-                        bagliore.style.zIndex = "-1";
+                        bagliore.style.width = "max(165vw, 165vh)";
+                        bagliore.style.height = "max(165vw, 165vh)";
+                        bagliore.style.zIndex = "1";
 
                     } else if (rarita === "theone") {
 
@@ -853,9 +863,9 @@ require_once '../api/api_personaggi.php';
                         startTheOneAnimation(pull.nome);
                         messaggioRarita.innerText = "INCREDBILE! HAI PULLATO IL PERSONAGGIO PIÙ RARO DI TUTTI!!!";
                         bagliore.style.position = "fixed";
-                        bagliore.style.width = "100vw";
-                        bagliore.style.height = "100vh";
-                        bagliore.style.zIndex = "-1";
+                        bagliore.style.width = "max(165vw, 165vh)";
+                        bagliore.style.height = "max(165vw, 165vh)";
+                        bagliore.style.zIndex = "1";
 
                     }
                     document.getElementById("suonoCassa").innerHTML = `
@@ -1026,8 +1036,17 @@ require_once '../api/api_personaggi.php';
                 audio.currentTime = 0;
                 audio.play().catch(() => {});
 
-                cassa.src = "../img/cassa_aperta.png";
-                cassa.classList.add("aperta");
+                cassa.classList.remove("aperta", "dissolvi", "is-opening-chest");
+                void cassa.offsetWidth;
+                cassa.classList.add("is-opening-chest");
+
+                setTimeout(() => {
+                    cassa.src = "../img/cassa_aperta.png";
+                }, 620);
+
+                setTimeout(() => {
+                    cassa.classList.add("aperta");
+                }, 2920);
 
                 setTimeout(() => {
                     setLootboxState("is-revealed");
@@ -1047,45 +1066,28 @@ require_once '../api/api_personaggi.php';
             }
 
             function testoNuovo() {
-                let newLabel = document.createElement("span");
-                newLabel.classList.add("new-label");
-                newLabel.innerText = "NEW!";
-                contenuto.appendChild(newLabel);
-                let dynamicMargin = -20;
-                let topMargin = 0;
-                const nameElement = newLabel.parentElement.querySelector('#nomePersonaggio');
-                const nameLength = nameElement.innerText.length;
+                document.querySelectorAll(".new-label").forEach((label) => label.remove());
 
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        nameElement.offsetHeight;
+                const image = contenuto.querySelector(".premio");
+                if (!image) return;
 
-                        const computedStyle = window.getComputedStyle(nameElement);
-                        const lineHeight = parseFloat(computedStyle.lineHeight) || parseFloat(computedStyle.fontSize) * 1.2;
-                        const actualHeight = nameElement.offsetHeight;
-                        const isMultiline = actualHeight > lineHeight * 1.1;
+                let prizeWrap =
+                    image.closest(".lootbox-prize-wrap") ||
+                    image.closest(".lootbox-reward-frame");
 
-                        if (nameLength > 25) {
-                            dynamicMargin = 50;
-                            topMargin = isMultiline ? 30 : 0;
-                        } else if (nameLength > 20) {
-                            dynamicMargin = 30;
-                            topMargin = isMultiline ? 30 : 0;
-                        } else if (nameLength > 15) {
-                            dynamicMargin = 10;
-                            topMargin = isMultiline ? 30 : 0;
-                        } else if (nameLength > 10) {
-                            dynamicMargin = -10;
-                            topMargin = isMultiline ? 30 : 0;
-                        } else {
-                            dynamicMargin = -20;
-                            topMargin = isMultiline ? 30 : 0;
-                        }
+                if (!prizeWrap) {
+                    prizeWrap = document.createElement("div");
+                    prizeWrap.className = "lootbox-prize-wrap lootbox-reward-frame";
+                    image.parentNode.insertBefore(prizeWrap, image);
+                    prizeWrap.appendChild(image);
+                }
 
-                        newLabel.style.marginRight = dynamicMargin + 'px';
-                        newLabel.style.marginTop = topMargin + 'px';
-                    });
-                });
+                prizeWrap.classList.add("lootbox-prize-wrap", "lootbox-reward-frame");
+
+                const newLabel = document.createElement("span");
+                newLabel.className = "new-label";
+                newLabel.textContent = "NEW!";
+                prizeWrap.appendChild(newLabel);
             }
 
             function controlloApriVeloce() {
