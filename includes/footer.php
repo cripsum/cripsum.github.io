@@ -17,7 +17,7 @@ $footerYear = date('Y');
             </a>
 
             <p class="footer-description">
-                Profili, chat, lootbox, meme e pagine varie. Tutto nello stesso casino ordinato.
+                Profili, chat, lootbox, meme e minchiate. Tutto nello stesso sito.
             </p>
         </div>
 
