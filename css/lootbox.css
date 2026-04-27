@@ -1801,3 +1801,126 @@ body.lootbox-page.is-fast-open #cassa.dissolvi {
     visibility: hidden !important;
     pointer-events: none !important;
 }
+
+
+/* V8.0.6 — fix skip + animazione cassa più smooth/dinamica */
+
+/* L'animazione di apertura deve vincere sulle vecchie regole, ma NON sulla dissolvenza. */
+body.lootbox-page #cassa.is-opening-chest:not(.dissolvi),
+body.lootbox-page.is-opening #cassa.is-opening-chest:not(.dissolvi) {
+    animation: chestDynamicOpenV806 2.08s cubic-bezier(.16, .9, .18, 1) forwards !important;
+    will-change: transform, filter, opacity;
+    pointer-events: auto;
+}
+
+/* Più veloce, più viva, senza pausa ferma. */
+@keyframes chestDynamicOpenV806 {
+    0% {
+        transform: translateY(0) scale(1) rotate(0deg);
+        filter:
+            drop-shadow(0 28px 42px rgba(0, 0, 0, .55))
+            drop-shadow(0 0 18px rgba(255,255,255,.08));
+    }
+    10% {
+        transform: translateY(-10px) scale(1.025) rotate(-2.4deg);
+    }
+    20% {
+        transform: translateY(-2px) scale(1.045) rotate(2.1deg);
+    }
+    32% {
+        transform: translateY(-14px) scale(1.07) rotate(-1.55deg);
+        filter:
+            drop-shadow(0 34px 50px rgba(0,0,0,.62))
+            drop-shadow(0 0 36px var(--lootbox-rarity-glow));
+    }
+    45% {
+        transform: translateY(-4px) scale(1.075) rotate(1.15deg);
+    }
+    58% {
+        transform: translateY(-18px) scale(1.11) rotate(-.6deg);
+        filter:
+            drop-shadow(0 42px 60px rgba(0,0,0,.68))
+            drop-shadow(0 0 64px var(--lootbox-rarity-glow));
+    }
+    72% {
+        transform: translateY(-4px) scale(1.08) rotate(.35deg);
+    }
+    86% {
+        transform: translateY(8px) scale(1.05) rotate(0deg);
+        filter:
+            drop-shadow(0 38px 58px rgba(0,0,0,.66))
+            drop-shadow(0 0 78px var(--lootbox-rarity-glow));
+    }
+    100% {
+        transform: translateY(12px) scale(1.03) rotate(0deg);
+        filter:
+            drop-shadow(0 36px 56px rgba(0,0,0,.64))
+            drop-shadow(0 0 82px var(--lootbox-rarity-glow));
+    }
+}
+
+/* Stato finale identico all'ultimo frame: niente scatto prima del reveal. */
+body.lootbox-page #cassa.aperta {
+    transform: translateY(12px) scale(1.03) rotate(0deg) !important;
+}
+
+/* Se viene fatto skip, o parte il reveal, la dissolvenza deve vincere sempre. */
+body.lootbox-page #cassa.dissolvi,
+body.lootbox-page #cassa.is-opening-chest.dissolvi,
+body.lootbox-page.is-opening #cassa.is-opening-chest.dissolvi,
+body.lootbox-page #cassa.aperta.dissolvi {
+    animation: chestSkipFadeV806 .52s cubic-bezier(.16, 1, .3, 1) forwards !important;
+    pointer-events: none !important;
+}
+
+@keyframes chestSkipFadeV806 {
+    0% {
+        opacity: 1;
+        transform: translateY(12px) scale(1.03) rotate(0deg);
+        filter:
+            blur(0)
+            brightness(1.16)
+            drop-shadow(0 0 62px var(--lootbox-rarity-glow));
+    }
+    45% {
+        opacity: .76;
+        transform: translateY(2px) scale(1.12) rotate(0deg);
+        filter:
+            blur(1px)
+            brightness(1.75)
+            saturate(1.35)
+            drop-shadow(0 0 92px var(--lootbox-rarity-glow));
+    }
+    100% {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(30px) scale(.74) rotate(0deg);
+        filter:
+            blur(10px)
+            brightness(2)
+            saturate(1.4)
+            drop-shadow(0 0 100px var(--lootbox-rarity-glow));
+    }
+}
+
+/* Fallback: quando il reveal è visibile, la cassa non deve restare sopra. */
+body.lootbox-page.is-revealed #cassa,
+body.lootbox-page.is-fast-open #cassa {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+/* Skip più reattivo: il reveal non deve aspettare animazioni della cassa. */
+body.lootbox-page.is-fast-open #contenuto,
+body.lootbox-page.is-fast-open #messaggio,
+body.lootbox-page.is-fast-open #divApriAncora {
+    transition-duration: .34s !important;
+}
+
+@media (max-width: 620px) {
+    body.lootbox-page #cassa.is-opening-chest:not(.dissolvi),
+    body.lootbox-page.is-opening #cassa.is-opening-chest:not(.dissolvi) {
+        animation-duration: 1.92s !important;
+    }
+}

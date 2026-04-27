@@ -22,7 +22,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <link rel="stylesheet" href="/css/lootbox.css?v=8.0.5-chest-hide" />
+    <link rel="stylesheet" href="/css/lootbox.css?v=8.0.6-skip-chest-smooth" />
     <title>Cripsum™ - Animazione personaggio</title>
 </head>
 
@@ -284,23 +284,23 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
             setTimeout(() => {
                 cassa.src = "../img/cassa_aperta.png";
-            }, 620);
+            }, 420);
 
             setTimeout(() => {
                 cassa.classList.add("aperta");
-            }, 2920);
+            }, 1700);
 
             setTimeout(() => {
                 setLootboxState("is-revealed");
                 contenuto.classList.add("salto");
                 messaggio.classList.add("salto");
                 cassa.classList.add("dissolvi");
-            }, 3000);
+            }, 2100);
 
             setTimeout(() => {
                 divApriAncora.classList.remove("nascosto");
                 divApriAncora.classList.add("salto");
-            }, 4000);
+            }, 3100);
 
             //audio.onended = () => {
             //    setTimeout(refresh, 500);
