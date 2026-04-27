@@ -18,15 +18,15 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <link rel="stylesheet" href="/css/lootbox.css?v=7" />
-    <title>Cripsum™ - lootbox</title>
+    <link rel="stylesheet" href="/css/lootbox.css?v=8-cinematic-fullscreen" />
+    <title>Cripsum™ - Animazione personaggio</title>
 </head>
 
-<body class="">
+<body class="lootbox-page">
     <div class="stars" id="stars"></div>
 
     <!-- TO DO
@@ -34,11 +34,11 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
            bloccare lo scorrimento della pagina quando il pop up è aperto (aggiungere classe overflow-hidden al body)  
         -->
 
-    <div style="max-width: 1520px; margin: auto; padding-top: 5rem" class="testobianco" id="paginaintera">
+    <div class="testobianco lootbox-stage" id="paginaintera">
 
         <div class="container">
 
-            <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein" />
+            <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein lootbox-chest" draggable="false" />
 
             <div id="baglioreWrapper">
                 <div class="bagliore" id="bagliore"></div>
@@ -47,14 +47,14 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
             <div id="contenuto"></div>
 
             <div id="messaggio" class="nascosto">
-                <h1 style="margin-top: 100px; font-size: 25px" id="messaggioRarita" class="non-selezionabile"></h1>
+                <h1 id="messaggioRarita" class="non-selezionabile lootbox-rarity-message"></h1>
                 <a onclick="refresh()" id="apriAncora" class="linkbianco"></a>
             </div>
 
             <div id="divApriAncora" class="nascosto">
-                <div class="button-container mt-4" style="text-align: center; max-width: 95%; margin: auto">
-                    <a class="btn btn-secondary bottone mt-2" onclick="refresh()" style="cursor: pointer" href="?id_personaggio=<?php echo urlencode($idPersonaggio); ?>">Ripeti l'animazione</a>
-                    <a class="btn btn-secondary bottone mt-2" href="inventario" style="cursor: pointer">Torna all'inventario</a>
+                <div class="button-container lootbox-actions mt-4">
+                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" onclick="refresh()" href="?id_personaggio=<?php echo urlencode($idPersonaggio); ?>">Ripeti animazione</a>
+                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" href="inventario">Inventario</a>
                 </div>
             </div>
 
@@ -64,10 +64,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
         <audio id="suonoCassa"></audio>
     </div>
 
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="../js/characters.js?v=4"></script>
     <script src="../js/unlockAchievement-it.js"></script>
     <script>
@@ -84,6 +81,66 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
         const apriInventario = document.getElementById("apriInventario");
         const divApriAncora = document.getElementById("divApriAncora");
         const wrapper = document.getElementById("bagliore-wrapper");
+        let isProcessing = false;
+
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        function safeImageFile(value) {
+            const cleaned = String(value || "Susremaster.png").replace(/[<>"']/g, "").trim();
+            return cleaned || "Susremaster.png";
+        }
+
+        function normalizeRarityClass(rarity) {
+            return String(rarity || "comune")
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/[\s_-]+/g, "");
+        }
+
+        function applyLootboxRarityVisual(rarity) {
+            const normalized = normalizeRarityClass(rarity);
+            const rarityClasses = [
+                "lootbox-rarity-comune",
+                "lootbox-rarity-raro",
+                "lootbox-rarity-epico",
+                "lootbox-rarity-leggendario",
+                "lootbox-rarity-speciale",
+                "lootbox-rarity-segreto",
+                "lootbox-rarity-theone"
+            ];
+
+            document.body.classList.remove(...rarityClasses);
+            document.body.classList.add(`lootbox-rarity-${normalized}`);
+
+            const colors = {
+                comune: "#d1d5db",
+                raro: "#38bdf8",
+                epico: "#c084fc",
+                leggendario: "#fbbf24",
+                speciale: "#ffffff",
+                segreto: "#a855f7",
+                theone: "#38bdf8"
+            };
+
+            document.documentElement.style.setProperty("--lootbox-particle-color", colors[normalized] || "#ffffff");
+        }
+
+        function setLootboxState(state) {
+            document.body.classList.remove("is-opening", "is-revealed", "is-fast-open");
+            if (state) {
+                document.body.classList.add(state);
+            }
+        }
+
 
         function createStars() {
             const starsContainer = document.getElementById('stars');
@@ -134,10 +191,17 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
             try {
                 const pull = await get_character_from_id(idPersonaggio);
 
+                const safeName = escapeHtml(pull.nome || "Personaggio");
+                const safeImg = safeImageFile(pull.img_url);
+
                 document.getElementById("contenuto").innerHTML = `
-                        <p style="top 10px; font-size: 20px; max-width: 600px; text-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);" id="nomePersonaggio">${pull.nome}</p>
-                        <img src="/img/${pull.img_url}" alt="Premio" class="premio" />
+                        <div class="lootbox-character-reveal">
+                            <p id="nomePersonaggio" class="lootbox-character-name">${safeName}</p>
+                            <img src="/img/${safeImg}" alt="${safeName}" class="premio" onerror="this.onerror=null;this.src='/img/Susremaster.png';" draggable="false" />
+                        </div>
                     `;
+
+                applyLootboxRarityVisual(pull.rarità);
 
                 if (pull.rarità === "comune") {
                     messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
@@ -165,7 +229,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
                     bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
                     bagliore.style.backgroundSize = "300% 100%";
-                    bagliore.style.animation = "rainbowBackground 6s linear infinite";
+                    bagliore.style.animation = "";
                 } else if (pull.rarità === "segreto") {
 
                     startIntroAnimation(pull.nome);
@@ -201,6 +265,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
         }
 
         async function apriNormale() {
+            setLootboxState("is-opening");
             cassa.onclick = null;
 
             generaParticelle();
@@ -209,12 +274,13 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
             bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
 
             audio.currentTime = 0;
-            audio.play();
+            audio.play().catch(() => {});
 
             cassa.src = "../img/cassa_aperta.png";
             cassa.classList.add("aperta");
 
             setTimeout(() => {
+                setLootboxState("is-revealed");
                 contenuto.classList.add("salto");
                 messaggio.classList.add("salto");
                 cassa.classList.add("dissolvi");
@@ -283,7 +349,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
             for (let i = 0; i < 100; i++) {
                 const particella = document.createElement("div");
-                particella.classList.add("particella");
+                particella.classList.add("particella", "particella--spark");
 
                 particella.style.left = `${centerX}px`;
                 particella.style.top = `${centerY}px`;
@@ -295,6 +361,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
                 particella.style.setProperty("--x", `${x}px`);
                 particella.style.setProperty("--y", `${y}px`);
+                particella.style.setProperty("--dur", `${1100 + Math.random() * 900}ms`);
 
                 container.appendChild(particella);
 
@@ -597,7 +664,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
         document.addEventListener('DOMContentLoaded', async function() {
             setTimeout(async () => {
-                await riscattaPersonaggio(<?php echo $idPersonaggio ?>);
+                await riscattaPersonaggio(<?php echo json_encode((int)$idPersonaggio); ?>);
                 testoNuovo();
             }, 200);
             setTimeout(() => {
