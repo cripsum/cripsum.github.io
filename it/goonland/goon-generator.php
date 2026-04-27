@@ -73,8 +73,8 @@ if ($stmt) {
     <?php include '../../includes/head-import.php'; ?>
     <title>GoonLand™ - Generator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/goonland.css?v=2.0">
-    <script src="/js/goonland.js?v=2.0" defer></script>
+    <link rel="stylesheet" href="/css/goonland.css?v=2.1-home-dropdown">
+    <script src="/js/goonland.js?v=2.1-home-dropdown" defer></script>
 </head>
 
 <body class="goonland-page" data-goonland-page="generator">
@@ -115,16 +115,45 @@ if ($stmt) {
                 </div>
 
                 <div class="gl-controls">
-                    <label class="gl-select-field" for="contentType">
+                    <div class="gl-select-field gl-custom-select" data-gl-custom-select>
                         <span>Tipo contenuto</span>
-                        <select id="contentType">
+
+                        <select id="contentType" class="gl-native-select" aria-label="Tipo contenuto">
                             <option value="sfw/waifu">Waifu - SFW</option>
                             <option value="nsfw/waifu">Waifu - 18+</option>
                             <option value="nsfw/neko">Neko - 18+</option>
                             <option value="nsfw/trap">Trap - 18+</option>
                             <option value="nsfw/blowjob">BJ - 18+</option>
                         </select>
-                    </label>
+
+                        <button class="gl-select-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="gl-select-current">Waifu - SFW</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+
+                        <div class="gl-select-menu" role="listbox" aria-label="Scegli tipo contenuto">
+                            <button type="button" role="option" data-value="sfw/waifu" class="is-active">
+                                <strong>Waifu</strong>
+                                <span>SFW</span>
+                            </button>
+                            <button type="button" role="option" data-value="nsfw/waifu">
+                                <strong>Waifu</strong>
+                                <span>18+</span>
+                            </button>
+                            <button type="button" role="option" data-value="nsfw/neko">
+                                <strong>Neko</strong>
+                                <span>18+</span>
+                            </button>
+                            <button type="button" role="option" data-value="nsfw/trap">
+                                <strong>Trap</strong>
+                                <span>18+</span>
+                            </button>
+                            <button type="button" role="option" data-value="nsfw/blowjob">
+                                <strong>BJ</strong>
+                                <span>18+</span>
+                            </button>
+                        </div>
+                    </div>
 
                     <div class="gl-generator-buttons">
                         <button class="gl-btn gl-btn-main" id="generateBtn" type="button" onclick="generateImage()">
