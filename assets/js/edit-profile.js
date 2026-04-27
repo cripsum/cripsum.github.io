@@ -213,11 +213,16 @@
         document.documentElement.style.setProperty('--accent-2', secondaryColorInput ? secondaryColorInput.value : accentInput.value);
         document.documentElement.style.setProperty('--profile-card-color', cardColorInput ? cardColorInput.value : 'var(--card)');
         document.documentElement.style.setProperty('--profile-text-color', textColorInput ? textColorInput.value : 'var(--text)');
+        document.documentElement.style.setProperty('--profile-ring', ringColorInput ? ringColorInput.value : accentInput.value);
         document.body.dataset.accent = accentInput.value;
         document.body.dataset.profileLinkStyle = linkStyleInput ? linkStyleInput.value : 'glass';
         document.body.dataset.profileButtonShape = buttonShapeInput ? buttonShapeInput.value : 'pill';
         document.body.dataset.theme = themeInput.value === 'auto' ? 'dark' : themeInput.value;
         document.body.dataset.profileEffect = profileEffectInput ? profileEffectInput.value : 'none';
+        const previewCard = document.querySelector('.profile-edit-preview');
+        if (previewCard && profileEffectInput) {
+            previewCard.dataset.previewEffect = profileEffectInput.value;
+        }
         const wrap = $('#previewAvatarWrap');
         if (wrap) {
             const style = ringStyleInput ? ringStyleInput.value : 'spin';

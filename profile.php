@@ -141,9 +141,9 @@ $musicTitle = $profile ? trim((string)($profile['profile_music_title'] ?? '')) :
 $musicArtist = $profile ? trim((string)($profile['profile_music_artist'] ?? '')) : '';
 $showAudioPlayer = $profile ? ((int)($profile['profile_show_audio_player'] ?? 1) === 1) : false;
 $hasMusic = $hasUploadedMusic || ($musicExternalUrl !== '' && profile_is_safe_url($musicExternalUrl, true));
-$profileEffect = $profile ? profile_allowed_value((string)($profile['profile_effect'] ?? 'none'), ['none', 'cursor_glow', 'soft_particles', 'scanlines', 'ambient'], 'none') : 'none';
+$profileEffect = $profile ? profile_allowed_value((string)($profile['profile_effect'] ?? 'none'), ['none', 'cursor_glow', 'soft_particles', 'scanlines', 'ambient', 'aurora', 'gradient_waves', 'stars', 'spotlight', 'digital_noise', 'glass_rain'], 'none') : 'none';
 $avatarRingEnabled = $profile ? ((int)($profile['avatar_ring_enabled'] ?? 1) === 1) : true;
-$avatarRingStyle = $profile ? profile_allowed_value((string)($profile['avatar_ring_style'] ?? 'spin'), ['spin', 'pulse', 'orbit', 'glow', 'none'], 'spin') : 'spin';
+$avatarRingStyle = $profile ? profile_allowed_value((string)($profile['avatar_ring_style'] ?? 'spin'), ['spin', 'pulse', 'orbit', 'glow', 'dual', 'rainbow', 'halo', 'neon', 'spark', 'glitch', 'none'], 'spin') : 'spin';
 $avatarRingColor = $profile ? profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent) : $accent;
 $backgroundUrl = $profile && !empty($profile['profile_banner_type']) ? '/includes/get_profile_banner.php?id=' . (int)$profile['id'] : null;
 $backgroundType = $profile && !empty($profile['profile_banner_type']) ? (string)$profile['profile_banner_type'] : 'video/mp4';
@@ -202,8 +202,8 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=2.9.2-audio-autoplay">
-    <script src="/assets/js/profile.js?v=2.9.2-audio-autoplay" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=3.0-custom-effects">
+    <script src="/assets/js/profile.js?v=3.0-custom-effects" defer></script>
 </head>
 
 <body
@@ -407,8 +407,19 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                             <?php profile_render_section_heading('fas fa-cubes', 'Progetti'); ?>
                             <div class="bio-project-grid">
                                 <?php foreach ($visibleProjects as $project): ?>
-                                    <a class="bio-project-card <?php echo !empty($project['is_featured']) ? 'is-pinned' : ''; ?>" href="<?php echo profile_h($project['url'] ?: '#'); ?>" <?php echo $project['url'] ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
-                                        <span class="bio-project-card__icon"><i class="fas fa-layer-group"></i></span>
+                                    <?php
+                                    $projectImageUrl = trim((string)($project['image_url'] ?? ''));
+                                    $hasProjectImage = $projectImageUrl !== '' && profile_is_safe_url($projectImageUrl, false);
+                                    ?>
+                                    <a class="bio-project-card <?php echo !empty($project['is_featured']) ? 'is-pinned' : ''; ?> <?php echo $hasProjectImage ? 'has-media' : ''; ?>" href="<?php echo profile_h($project['url'] ?: '#'); ?>" <?php echo $project['url'] ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
+                                        <?php if ($hasProjectImage): ?>
+                                            <span class="profile-card-media profile-project-media">
+                                                <img src="<?php echo profile_h($projectImageUrl); ?>" alt="<?php echo profile_h($project['title']); ?>" loading="lazy" onerror="this.parentElement.classList.add('is-broken'); this.remove();">
+                                                <span class="profile-card-media__fallback"><i class="fas fa-image"></i></span>
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="bio-project-card__icon"><i class="fas fa-layer-group"></i></span>
+                                        <?php endif; ?>
                                         <strong><?php echo profile_h($project['title']); ?></strong>
                                         <?php if (!empty($project['description'])): ?><p><?php echo profile_h($project['description']); ?></p><?php endif; ?>
                                         <small><?php echo profile_h($project['tech_stack'] ?: profile_status_label($project['status'])); ?></small>
@@ -449,9 +460,20 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                             <?php profile_render_section_heading('fas fa-play-circle', 'Edit e contenuti'); ?>
                             <div class="bio-preview-grid">
                                 <?php foreach ($visibleContents as $content): ?>
-                                    <a class="bio-preview-card <?php echo !empty($content['is_featured']) ? 'is-pinned' : ''; ?>" href="<?php echo profile_h($content['url'] ?: '#'); ?>" <?php echo $content['url'] ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
+                                    <?php
+                                    $contentThumbUrl = trim((string)($content['thumbnail_url'] ?? ''));
+                                    $hasContentThumb = $contentThumbUrl !== '' && profile_is_safe_url($contentThumbUrl, false);
+                                    ?>
+                                    <a class="bio-preview-card <?php echo !empty($content['is_featured']) ? 'is-pinned' : ''; ?> <?php echo $hasContentThumb ? 'has-media' : ''; ?>" href="<?php echo profile_h($content['url'] ?: '#'); ?>" <?php echo $content['url'] ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
+                                        <?php if ($hasContentThumb): ?>
+                                            <span class="profile-card-media profile-content-media">
+                                                <img src="<?php echo profile_h($contentThumbUrl); ?>" alt="<?php echo profile_h($content['title']); ?>" loading="lazy" onerror="this.parentElement.classList.add('is-broken'); this.remove();">
+                                                <span class="profile-card-media__fallback"><i class="fas fa-play"></i></span>
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="bio-preview-card__icon"><i class="fas fa-play"></i></span>
+                                        <?php endif; ?>
                                         <span class="bio-preview-card__label"><?php echo profile_h($content['content_type']); ?></span>
-                                        <span class="bio-preview-card__icon"><i class="fas fa-play"></i></span>
                                         <strong><?php echo profile_h($content['title']); ?></strong>
                                         <?php if (!empty($content['description'])): ?><p><?php echo profile_h($content['description']); ?></p><?php endif; ?>
                                     </a>

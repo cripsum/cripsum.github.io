@@ -69,12 +69,12 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/includes/head-import.php'; ?>
     <title>Cripsum™ - Modifica profilo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=2.9.1-custom-titles">
-    <script src="/assets/js/profile.js?v=2.9.1-custom-titles" defer></script>
-    <script src="/assets/js/edit-profile.js?v=2.9.1-custom-titles" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=3.0-custom-effects">
+    <script src="/assets/js/profile.js?v=3.0-custom-effects" defer></script>
+    <script src="/assets/js/edit-profile.js?v=3.0-custom-effects" defer></script>
 </head>
 
-<body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" style="--accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColor ?: 'var(--card)'); ?>; --profile-text-color: <?php echo profile_h($textColor ?: 'var(--text)'); ?>;">
+<body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" style="--profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColor ?: 'var(--card)'); ?>; --profile-text-color: <?php echo profile_h($textColor ?: 'var(--text)'); ?>;">
     <?php
     if (file_exists(__DIR__ . '/includes/navbar-bio.php')) {
         include __DIR__ . '/includes/navbar-bio.php';
@@ -287,12 +287,40 @@ function profile_json_script(string $id, array $data): void
                     </div>
                     <div class="profile-field-grid three">
                         <label class="profile-field"><span>Effetto pagina</span><select name="profile_effect" id="profileEffectInput">
-                                <?php foreach (['none' => 'Nessuno', 'cursor_glow' => 'Mouse glow', 'soft_particles' => 'Particles leggere', 'scanlines' => 'Scanlines', 'ambient' => 'Ambient glow'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_effect'] ?? 'none') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?>
+                                <?php foreach ([
+                                    'none' => 'Nessuno',
+                                    'cursor_glow' => 'Mouse glow',
+                                    'soft_particles' => 'Particelle soft',
+                                    'scanlines' => 'Scanlines soft',
+                                    'ambient' => 'Ambient glow',
+                                    'aurora' => 'Aurora',
+                                    'gradient_waves' => 'Onde gradient',
+                                    'stars' => 'Stelle leggere',
+                                    'spotlight' => 'Spotlight mouse',
+                                    'digital_noise' => 'Digital noise',
+                                    'glass_rain' => 'Glass rain'
+                                ] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_effect'] ?? 'none') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?>
                             </select></label>
                         <label class="profile-field"><span>Effetto anello PFP</span><select name="avatar_ring_style" id="ringStyleInput">
-                                <?php foreach (['spin' => 'Rotazione', 'pulse' => 'Pulse', 'orbit' => 'Orbit', 'glow' => 'Glow', 'none' => 'Nessuno'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['avatar_ring_style'] ?? 'spin') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?>
+                                <?php foreach ([
+                                    'spin' => 'Rotazione',
+                                    'pulse' => 'Pulse',
+                                    'orbit' => 'Orbit',
+                                    'glow' => 'Glow',
+                                    'dual' => 'Doppio giro',
+                                    'rainbow' => 'Arcobaleno',
+                                    'halo' => 'Halo soft',
+                                    'neon' => 'Neon',
+                                    'spark' => 'Spark',
+                                    'glitch' => 'Glitch leggero',
+                                    'none' => 'Nessuno'
+                                ] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['avatar_ring_style'] ?? 'spin') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?>
                             </select></label>
                         <label class="profile-field"><span>Colore anello PFP</span><input type="color" name="avatar_ring_color" id="ringColorInput" value="<?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>"></label>
+                    </div>
+                    <div class="profile-effect-hint">
+                        <span><i class="fas fa-wand-magic-sparkles"></i> Gli effetti sono solo estetici e leggeri.</span>
+                        <span><i class="fas fa-circle"></i> Il colore dell’anello ora viene applicato anche nel profilo pubblico.</span>
                     </div>
                     <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="avatar_ring_enabled" value="0"><input type="checkbox" name="avatar_ring_enabled" id="ringEnabledInput" value="1" <?php echo (int)($profile['avatar_ring_enabled'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-circle-notch"></i>Mostra anello intorno alla foto profilo</span></label>
                 </div>
