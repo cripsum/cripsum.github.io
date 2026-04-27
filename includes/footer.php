@@ -1,97 +1,65 @@
 <?php
 $footerLang = isset($lang) && is_string($lang) && $lang !== '' ? $lang : 'it';
 $footerYear = date('Y');
-
-$footerLinks = [
-    ['href' => "/{$footerLang}/home", 'label' => 'Home'],
-    ['href' => "/{$footerLang}/bio", 'label' => 'Bio'],
-    ['href' => "/{$footerLang}/global-chat", 'label' => 'Chat Globale'],
-    ['href' => "/{$footerLang}/shitpost", 'label' => 'Shitpost'],
-    ['href' => "/{$footerLang}/lootbox", 'label' => 'Lootbox'],
-];
-
-$footerLegalLinks = [
-    ['href' => "/{$footerLang}/privacy", 'label' => 'Privacy'],
-    ['href' => "/{$footerLang}/tos", 'label' => 'Termini'],
-    ['href' => "/{$footerLang}/supporto", 'label' => 'Supporto'],
-    ['href' => "/{$footerLang}/chat-policy", 'label' => 'Regole chat'],
-];
-
-$footerSocialLinks = [
-    ['href' => 'https://www.tiktok.com/@cripsum', 'label' => 'TikTok', 'icon' => 'fab fa-tiktok'],
-    ['href' => 'https://www.instagram.com/cripsum/', 'label' => 'Instagram', 'icon' => 'fab fa-instagram'],
-    ['href' => 'https://discord.gg/XdheJHVURw', 'label' => 'Discord', 'icon' => 'fab fa-discord'],
-    ['href' => 'https://t.me/cripsum', 'label' => 'Telegram', 'icon' => 'fab fa-telegram'],
-];
 ?>
 
-<link rel="stylesheet" href="/assets/global/footer.css?v=2.1-neutral">
+<link rel="stylesheet" href="/assets/global/footer.css?v=2.2-classic">
 
-<footer class="cripsum-footer" id="siteFooter">
-    <div class="cripsum-footer__glow" aria-hidden="true"></div>
-
-    <div class="cripsum-footer__inner">
-        <section class="cripsum-footer__brand">
-            <a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/home" class="cripsum-footer__logo" aria-label="Cripsum home">
-                <span class="cripsum-footer__mark">C</span>
+<footer class="modern-footer fadeup" id="siteFooter">
+    <div class="footer-content">
+        <div class="footer-section footer-brand-section">
+            <a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/home" class="footer-brand" aria-label="Cripsum home">
+                <img src="/img/amongus.jpg" alt="Cripsum™" class="footer-logo" loading="lazy">
                 <span>
-                    <strong>Cripsum™</strong>
-                    <small>Cripsum</small>
+                    <strong class="footer-title">Cripsum™</strong>
+                    <small>Il sito da fichi</small>
                 </span>
             </a>
 
-            <p>Un angolo del sito per profili, chat, lootbox, meme e roba varia.</p>
-        </section>
+            <p class="footer-description">
+                Profili, chat, lootbox, meme e pagine varie. Tutto nello stesso casino ordinato.
+            </p>
+        </div>
 
-        <nav class="cripsum-footer__section" aria-label="Link principali">
-            <h2>Sito</h2>
-            <ul>
-                <?php foreach ($footerLinks as $item): ?>
-                    <li>
-                        <a href="<?= htmlspecialchars($item['href'], ENT_QUOTES, 'UTF-8') ?>">
-                            <?= htmlspecialchars($item['label'], ENT_QUOTES, 'UTF-8') ?>
-                        </a>
-                    </li>
-                <?php endforeach; ?>
+        <div class="footer-section">
+            <h6 class="footer-subtitle">Link utili</h6>
+            <ul class="footer-links">
+                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/privacy" class="footer-link">Privacy</a></li>
+                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/tos" class="footer-link">Termini</a></li>
+                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/supporto" class="footer-link">Supporto</a></li>
+                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/chat-policy" class="footer-link">Regolamento chat</a></li>
             </ul>
-        </nav>
+        </div>
 
-        <nav class="cripsum-footer__section" aria-label="Link legali e supporto">
-            <h2>Info</h2>
-            <ul>
-                <?php foreach ($footerLegalLinks as $item): ?>
-                    <li>
-                        <a href="<?= htmlspecialchars($item['href'], ENT_QUOTES, 'UTF-8') ?>">
-                            <?= htmlspecialchars($item['label'], ENT_QUOTES, 'UTF-8') ?>
-                        </a>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        </nav>
-
-        <section class="cripsum-footer__section">
-            <h2>Social</h2>
-            <div class="cripsum-footer__socials" aria-label="Social Cripsum">
-                <?php foreach ($footerSocialLinks as $item): ?>
-                    <a href="<?= htmlspecialchars($item['href'], ENT_QUOTES, 'UTF-8') ?>"
-                       target="_blank"
-                       rel="noopener"
-                       aria-label="<?= htmlspecialchars($item['label'], ENT_QUOTES, 'UTF-8') ?>"
-                       title="<?= htmlspecialchars($item['label'], ENT_QUOTES, 'UTF-8') ?>">
-                        <i class="<?= htmlspecialchars($item['icon'], ENT_QUOTES, 'UTF-8') ?>"></i>
-                    </a>
-                <?php endforeach; ?>
+        <div class="footer-section">
+            <h6 class="footer-subtitle">Social</h6>
+            <div class="footer-social" aria-label="Social Cripsum">
+                <a href="https://www.tiktok.com/@cripsum" class="footer-social-link" title="TikTok" aria-label="TikTok" target="_blank" rel="noopener">
+                    <i class="fab fa-tiktok"></i>
+                </a>
+                <a href="https://www.instagram.com/cripsum/" class="footer-social-link" title="Instagram" aria-label="Instagram" target="_blank" rel="noopener">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="https://discord.gg/XdheJHVURw" class="footer-social-link" title="Discord" aria-label="Discord" target="_blank" rel="noopener">
+                    <i class="fab fa-discord"></i>
+                </a>
+                <a href="https://t.me/cripsum" class="footer-social-link" title="Telegram" aria-label="Telegram" target="_blank" rel="noopener">
+                    <i class="fab fa-telegram"></i>
+                </a>
             </div>
-        </section>
+
+            <button type="button" class="footer-top-button" data-footer-back-top>
+                <i class="fas fa-arrow-up"></i>
+                <span>Torna su</span>
+            </button>
+        </div>
     </div>
 
-    <div class="cripsum-footer__bottom">
-        <p>© 2021-<?= htmlspecialchars($footerYear, ENT_QUOTES, 'UTF-8') ?> Cripsum™. Tutti i diritti riservati.</p>
-
-        <button type="button" class="cripsum-footer__top" data-cripsum-back-top aria-label="Torna su">
-            <i class="fas fa-arrow-up"></i>
-        </button>
+    <div class="footer-bottom">
+        <p class="footer-copyright">
+            © 2021-<?= htmlspecialchars($footerYear, ENT_QUOTES, 'UTF-8') ?> Cripsum™. Tutti i diritti riservati.
+        </p>
     </div>
 </footer>
 
-<script src="/assets/global/footer.js?v=2.1-neutral" defer></script>
+<script src="/assets/global/footer.js?v=2.2-classic" defer></script>

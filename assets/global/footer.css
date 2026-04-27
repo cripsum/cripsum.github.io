@@ -1,259 +1,332 @@
-:root {
-    --cripsum-footer-bg: rgba(5, 7, 13, .82);
-    --cripsum-footer-card: rgba(255, 255, 255, .055);
-    --cripsum-footer-border: rgba(255, 255, 255, .12);
-    --cripsum-footer-text: #f7f8ff;
-    --cripsum-footer-muted: #aab3c8;
-    --cripsum-footer-blue: #2f6bff;
-    --cripsum-footer-purple: #8b5cf6;
-}
+/* Footer V2.2 Classic - mantiene l'idea del vecchio footer, ma più curato */
 
-.cripsum-footer,
-.cripsum-footer * {
+.modern-footer {
+    position: relative;
+    width: min(1240px, calc(100% - 40px));
+    margin: 4rem auto 1.4rem;
+    padding: 2.1rem 0 1.2rem;
+    overflow: hidden;
+    color: #fff;
+    background:
+        radial-gradient(circle at 10% 0%, rgba(47, 107, 255, .22), transparent 34%),
+        radial-gradient(circle at 90% 20%, rgba(139, 92, 246, .16), transparent 34%),
+        linear-gradient(135deg, rgba(26, 26, 26, .96), rgba(13, 15, 24, .98));
+    border: 1px solid rgba(255, 255, 255, .13);
+    border-radius: 28px;
+    box-shadow: 0 -4px 18px rgba(255, 255, 255, .04), 0 24px 70px rgba(0, 0, 0, .42);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
     box-sizing: border-box;
 }
 
-.cripsum-footer {
-    position: relative;
-    width: min(1180px, calc(100% - 32px));
-    margin: 3rem auto 1.1rem;
-    padding: 1rem;
-    overflow: hidden;
-    color: var(--cripsum-footer-text);
-    background:
-        linear-gradient(145deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .025)),
-        var(--cripsum-footer-bg);
-    border: 1px solid var(--cripsum-footer-border);
-    border-radius: 30px;
-    box-shadow: 0 24px 70px rgba(0, 0, 0, .34);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-}
-
-.cripsum-footer__glow {
+.modern-footer::before {
+    content: "";
     position: absolute;
-    inset: auto auto -9rem -8rem;
-    width: 24rem;
-    height: 24rem;
-    border-radius: 999px;
-    background: radial-gradient(circle, rgba(47, 107, 255, .26), transparent 62%);
-    filter: blur(30px);
+    inset: 0;
     pointer-events: none;
+    background:
+        linear-gradient(rgba(255, 255, 255, .024) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .024) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: linear-gradient(to bottom, black, transparent 88%);
+    opacity: .75;
 }
 
-.cripsum-footer__inner {
+.modern-footer *,
+.modern-footer *::before,
+.modern-footer *::after {
+    box-sizing: border-box;
+}
+
+.footer-content {
     position: relative;
     z-index: 1;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 2rem;
     display: grid;
-    grid-template-columns: minmax(240px, 1.7fr) 1fr 1fr 1fr;
-    gap: 1rem;
+    grid-template-columns: minmax(320px, 2fr) minmax(190px, 1fr) minmax(220px, .9fr);
+    gap: 2.2rem;
     align-items: start;
 }
 
-.cripsum-footer__brand,
-.cripsum-footer__section {
+.footer-section {
     min-width: 0;
-    padding: .9rem;
-    border: 1px solid rgba(255, 255, 255, .08);
-    border-radius: 22px;
-    background: rgba(255, 255, 255, .035);
 }
 
-.cripsum-footer__logo {
+.footer-brand-section {
+    padding-right: 1rem;
+}
+
+.footer-brand {
     display: inline-flex;
     align-items: center;
-    gap: .75rem;
-    color: var(--cripsum-footer-text);
+    gap: .9rem;
+    color: #fff;
     text-decoration: none;
 }
 
-.cripsum-footer__mark {
-    display: grid;
-    place-items: center;
-    width: 2.7rem;
-    height: 2.7rem;
+.footer-logo {
+    width: 58px;
+    height: 58px;
+    object-fit: cover;
     border-radius: 16px;
-    color: #fff;
-    background: linear-gradient(135deg, var(--cripsum-footer-blue), var(--cripsum-footer-purple));
-    box-shadow: 0 0 24px rgba(47, 107, 255, .22);
-    font-weight: 950;
+    border: 1px solid rgba(255, 255, 255, .2);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, .34), 0 0 22px rgba(255, 255, 255, .09);
+    transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
 }
 
-.cripsum-footer__logo strong {
+.footer-brand:hover .footer-logo {
+    transform: translateY(-2px) scale(1.04);
+    border-color: rgba(255, 255, 255, .38);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, .42), 0 0 28px rgba(255, 255, 255, .16);
+}
+
+.footer-title {
     display: block;
-    color: var(--cripsum-footer-text);
-    font-size: 1.1rem;
-    letter-spacing: -.035em;
-}
-
-.cripsum-footer__logo small {
-    display: block;
-    color: #9bb7ff;
-    font-size: .72rem;
-    font-weight: 900;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-}
-
-.cripsum-footer__brand p {
-    max-width: 25rem;
-    margin: .8rem 0 0;
-    color: var(--cripsum-footer-muted);
-    font-size: .92rem;
-    line-height: 1.55;
-}
-
-.cripsum-footer__section h2 {
-    margin: 0 0 .65rem;
-    color: var(--cripsum-footer-text);
-    font-size: .78rem;
-    font-weight: 950;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-}
-
-.cripsum-footer__section ul {
-    display: grid;
-    gap: .35rem;
     margin: 0;
-    padding: 0;
-    list-style: none;
+    color: #fff;
+    font-size: clamp(1.55rem, 3vw, 2rem);
+    font-weight: 950;
+    line-height: 1;
+    letter-spacing: -.055em;
+    text-shadow: 0 2px 18px rgba(0, 0, 0, .35);
 }
 
-.cripsum-footer__section a {
+.footer-brand small {
+    display: block;
+    margin-top: .28rem;
+    color: rgba(255, 255, 255, .62);
+    font-size: .83rem;
+    font-weight: 850;
+    letter-spacing: .02em;
+}
+
+.footer-subtitle {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    margin: .15rem 0 1rem;
+    padding-bottom: .55rem;
+    color: #fff;
+    font-size: .92rem;
+    font-weight: 950;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(255, 255, 255, .18);
+}
+
+.footer-description {
+    max-width: 34rem;
+    margin: 1rem 0 0;
+    color: rgba(255, 255, 255, .72);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.footer-links {
+    display: grid;
+    gap: .45rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links li {
+    margin: 0;
+}
+
+.footer-link {
     display: inline-flex;
     align-items: center;
     width: fit-content;
-    min-height: 2rem;
-    padding: .3rem .48rem;
+    min-height: 2.25rem;
+    padding: .35rem .55rem;
     border-radius: 12px;
-    color: var(--cripsum-footer-muted);
+    color: rgba(255, 255, 255, .72);
     text-decoration: none;
-    font-size: .92rem;
-    font-weight: 760;
-    transition: color 180ms ease, background 180ms ease, transform 180ms ease;
+    font-size: .96rem;
+    font-weight: 780;
+    transition: transform .2s ease, color .2s ease, background .2s ease;
 }
 
-.cripsum-footer__section a:hover {
+.footer-link:hover {
     color: #fff;
-    background: rgba(47, 107, 255, .14);
-    transform: translateX(3px);
+    background: rgba(255, 255, 255, .085);
+    transform: translateX(5px);
+    text-decoration: none;
 }
 
-.cripsum-footer__socials {
+.footer-social {
     display: flex;
     flex-wrap: wrap;
-    gap: .45rem;
+    gap: .72rem;
+    align-items: center;
 }
 
-.cripsum-footer__socials a {
-    display: grid;
+.footer-social-link {
+    display: inline-grid;
     place-items: center;
-    width: 2.55rem;
-    height: 2.55rem;
-    padding: 0;
-    border: 1px solid rgba(255, 255, 255, .12);
+    width: 46px;
+    height: 46px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, .14);
+    color: #fff;
+    background: rgba(255, 255, 255, .07);
+    text-decoration: none;
+    font-size: 1.16rem;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, .22);
+    transition: transform .22s ease, background .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+
+.footer-social-link:hover {
+    color: #fff;
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, .13);
+    border-color: rgba(255, 255, 255, .3);
+    box-shadow: 0 16px 34px rgba(0, 0, 0, .34), 0 0 20px rgba(255, 255, 255, .08);
+}
+
+.footer-top-button {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    margin-top: 1rem;
+    min-height: 2.65rem;
+    padding: .65rem .9rem;
+    border: 1px solid rgba(255, 255, 255, .14);
     border-radius: 999px;
-    color: var(--cripsum-footer-text);
-    background: var(--cripsum-footer-card);
-    font-size: 1rem;
-    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+    color: rgba(255, 255, 255, .86);
+    background: rgba(255, 255, 255, .065);
+    font-weight: 850;
+    cursor: pointer;
+    transition: transform .2s ease, background .2s ease, border-color .2s ease;
 }
 
-.cripsum-footer__socials a:hover {
-    transform: translateY(-3px);
-    border-color: rgba(47, 107, 255, .42);
-    background: rgba(47, 107, 255, .14);
-    box-shadow: 0 10px 28px rgba(47, 107, 255, .18);
+.footer-top-button:hover {
+    transform: translateY(-2px);
+    color: #fff;
+    background: rgba(255, 255, 255, .12);
+    border-color: rgba(255, 255, 255, .28);
 }
 
-.cripsum-footer__bottom {
+.footer-bottom {
     position: relative;
     z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-top: .9rem;
-    padding: .85rem .9rem 0;
-    border-top: 1px solid rgba(255, 255, 255, .09);
+    max-width: 1180px;
+    margin: 2rem auto 0;
+    padding: 1.15rem 2rem 0;
+    border-top: 1px solid rgba(255, 255, 255, .12);
+    text-align: center;
 }
 
-.cripsum-footer__bottom p {
+.footer-copyright {
     margin: 0;
-    color: rgba(247, 248, 255, .58);
-    font-size: .86rem;
-    line-height: 1.4;
+    color: rgba(255, 255, 255, .56);
+    font-size: .92rem;
+    line-height: 1.45;
 }
 
-.cripsum-footer__top {
-    display: grid;
-    place-items: center;
-    flex: 0 0 auto;
-    width: 2.6rem;
-    height: 2.6rem;
-    border: 1px solid rgba(255, 255, 255, .12);
-    border-radius: 999px;
-    color: var(--cripsum-footer-text);
-    background: rgba(255, 255, 255, .055);
-    cursor: pointer;
-    transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
-}
-
-.cripsum-footer__top:hover {
-    transform: translateY(-2px);
-    border-color: rgba(47, 107, 255, .42);
-    background: rgba(47, 107, 255, .14);
-}
-
-@media (max-width: 960px) {
-    .cripsum-footer__inner {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .cripsum-footer__brand {
-        grid-column: 1 / -1;
-    }
-}
-
-@media (max-width: 620px) {
-    .cripsum-footer {
-        width: 90%;
-        margin-top: 2rem;
-        padding: .75rem;
+@media (max-width: 900px) {
+    .modern-footer {
+        width: min(92%, 680px);
+        margin-top: 3rem;
+        padding: 1.4rem 0 1rem;
         border-radius: 24px;
     }
 
-    .cripsum-footer__inner {
+    .footer-content {
         grid-template-columns: 1fr;
-        gap: .65rem;
+        gap: 1.35rem;
+        padding: 0 1.25rem;
+        text-align: left;
     }
 
-    .cripsum-footer__brand,
-    .cripsum-footer__section {
-        padding: .8rem;
-        border-radius: 18px;
+    .footer-brand-section {
+        padding-right: 0;
     }
 
-    .cripsum-footer__section ul {
+    .footer-brand {
+        align-items: center;
+    }
+
+    .footer-description {
+        max-width: none;
+        font-size: .95rem;
+    }
+
+    .footer-subtitle {
+        margin-bottom: .75rem;
+    }
+
+    .footer-links {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .4rem .65rem;
     }
 
-    .cripsum-footer__section a {
+    .footer-link {
         width: 100%;
     }
 
-    .cripsum-footer__bottom {
-        align-items: flex-start;
+    .footer-social {
+        gap: .55rem;
+    }
+
+    .footer-social-link {
+        width: 44px;
+        height: 44px;
+    }
+
+    .footer-top-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .footer-bottom {
+        margin-top: 1.35rem;
+        padding: 1rem 1.25rem 0;
+        text-align: left;
     }
 }
 
-@media (max-width: 380px) {
-    .cripsum-footer {
-        width: 92%;
+@media (max-width: 480px) {
+    .modern-footer {
+        width: 90%;
+        margin-top: 2.2rem;
+        border-radius: 22px;
     }
 
-    .cripsum-footer__section ul {
+    .footer-content {
+        padding: 0 1rem;
+        gap: 1.15rem;
+    }
+
+    .footer-logo {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+    }
+
+    .footer-title {
+        font-size: 1.48rem;
+    }
+
+    .footer-brand small {
+        font-size: .78rem;
+    }
+
+    .footer-links {
         grid-template-columns: 1fr;
+    }
+
+    .footer-social-link {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+    }
+
+    .footer-bottom {
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
 }
