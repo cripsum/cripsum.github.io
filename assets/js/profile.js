@@ -346,41 +346,61 @@
         const layer = document.querySelector('.profile-effects-layer');
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        const needsPointer = ['cursor_glow', 'spotlight'].includes(effect);
-        if (needsPointer) {
+        if (!layer) return;
+
+        layer.dataset.effect = effect;
+        layer.querySelectorAll('.profile-effect-dot').forEach((dot) => dot.remove());
+
+        if (effect === 'none' || reduceMotion) return;
+
+        if (['cursor_glow', 'spotlight'].includes(effect)) {
+            let raf = 0;
+            let nextX = window.innerWidth / 2;
+            let nextY = window.innerHeight / 2;
+
+            const paintCursor = () => {
+                raf = 0;
+                document.documentElement.style.setProperty('--cursor-x', `${nextX}px`);
+                document.documentElement.style.setProperty('--cursor-y', `${nextY}px`);
+            };
+
             window.addEventListener('pointermove', (event) => {
-                document.documentElement.style.setProperty('--cursor-x', `${event.clientX}px`);
-                document.documentElement.style.setProperty('--cursor-y', `${event.clientY}px`);
+                nextX = event.clientX;
+                nextY = event.clientY;
+                if (!raf) raf = window.requestAnimationFrame(paintCursor);
             }, { passive: true });
         }
 
-        if (!layer || reduceMotion) return;
-
-        layer.querySelectorAll('.profile-effect-dot').forEach((dot) => dot.remove());
-
         const particleMap = {
-            soft_particles: 18,
-            stars: 34,
-            digital_noise: 44,
-            glass_rain: 24,
-            aurora: 10,
-            gradient_waves: 12
+            soft_particles: 34,
+            stars: 76,
+            digital_noise: 70,
+            glass_rain: 42,
+            aurora: 22,
+            gradient_waves: 26,
+            ambient: 16,
+            scanlines: 0,
+            cursor_glow: 0,
+            spotlight: 0
         };
 
         const amount = particleMap[effect] || 0;
         if (!amount) return;
 
         const fragment = document.createDocumentFragment();
+
         for (let i = 0; i < amount; i += 1) {
             const dot = document.createElement('span');
             dot.className = `profile-effect-dot profile-effect-dot--${effect}`;
             dot.style.setProperty('--x', `${Math.random() * 100}%`);
             dot.style.setProperty('--y', `${Math.random() * 100}%`);
-            dot.style.setProperty('--s', `${0.55 + Math.random() * 1.45}`);
-            dot.style.setProperty('--d', `${Math.random() * -12}s`);
-            dot.style.setProperty('--t', `${7 + Math.random() * 11}s`);
+            dot.style.setProperty('--s', `${0.75 + Math.random() * 2.25}`);
+            dot.style.setProperty('--d', `${Math.random() * -14}s`);
+            dot.style.setProperty('--t', `${6 + Math.random() * 13}s`);
+            dot.style.setProperty('--o', `${0.28 + Math.random() * 0.56}`);
             fragment.appendChild(dot);
         }
+
         layer.appendChild(fragment);
     };
 
