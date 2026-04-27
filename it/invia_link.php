@@ -4,69 +4,76 @@ require_once '../config/database.php';
 $messaggio = "Se l'email è registrata, riceverai un link per reimpostare la password.";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'];
+    $email = trim($_POST['email'] ?? '');
 
-    $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $stmt->store_result();
-
-    if ($stmt->num_rows > 0) {
-        $token = bin2hex(random_bytes(32));
-        $scadenza = date("Y-m-d H:i:s", strtotime('+1 hour'));
-
-        $stmt = $mysqli->prepare("UPDATE utenti SET reset_token = ?, token_scadenza = ? WHERE email = ?");
-        $stmt->bind_param("sss", $token, $scadenza, $email);
+    if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE email = ?");
+        $stmt->bind_param("s", $email);
         $stmt->execute();
+        $stmt->store_result();
 
-        $link = "https://cripsum.com/it/reset_password.php?token=$token";
-        $subject = "Reimposta la tua password";
-        $message = "Clicca il link per reimpostare la tua password:\n$link\n\nIl link scade tra 1 ora.";
-        $headers = "From: no-reply@cripsum.com";
+        if ($stmt->num_rows > 0) {
+            $token = bin2hex(random_bytes(32));
+            $scadenza = date("Y-m-d H:i:s", strtotime('+1 hour'));
 
-        mail($email, $subject, $message, $headers);
+            $stmt = $mysqli->prepare("UPDATE utenti SET reset_token = ?, token_scadenza = ? WHERE email = ?");
+            $stmt->bind_param("sss", $token, $scadenza, $email);
+            $stmt->execute();
+
+            $link = "https://cripsum.com/it/reset_password.php?token=$token";
+            $subject = "Reimposta la tua password";
+            $message = "Clicca il link per reimpostare la tua password:\n$link\n\nIl link scade tra 1 ora.";
+            $headers = "From: no-reply@cripsum.com";
+
+            mail($email, $subject, $message, $headers);
+        }
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
     <?php include '../includes/head-import.php'; ?>
     <meta charset="UTF-8">
     <title>Cripsum™ - Link inviato</title>
-    <style>
-        body {
-            background: #0e0e0e;
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .box {
-            background: #1a1a1a;
-            padding: 30px;
-            border: 1px solid #ffffff22;
-            border-radius: 12px;
-            box-shadow: 0 0 10px #ffffff11;
-            text-align: center;
-            width: 100%;
-            max-width: 400px;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="stylesheet" href="/assets/forms/forms.css?v=1.0-unified">
+    <script src="/assets/forms/forms.js?v=1.0-unified" defer></script>
 </head>
-<body>
+
+<body class="form-page">
     <?php include '../includes/navbar-morta.php'; ?>
-    <div class="box">
-    <div class="alert alert-info fadeup" role="alert">
-        <i class="bi bi-info-circle-fill me-2"></i>
-        <?php echo htmlspecialchars($messaggio); ?>
-    </div>
-    <a class="nav-link" href="accedi"><i class="fas fa-arrow-left"></i> Torna al login</a>
+
+    <div class="form-bg" aria-hidden="true">
+        <span class="form-orb form-orb--one"></span>
+        <span class="form-orb form-orb--two"></span>
+        <span class="form-grid-bg"></span>
     </div>
 
+    <main class="form-shell form-shell--narrow">
+        <section class="form-card form-reveal">
+            <div class="confirm-icon">
+                <i class="fas fa-envelope"></i>
+            </div>
+
+            <div class="form-card__header" style="text-align:center;">
+                <span class="form-pill">Reset</span>
+                <h1>Controlla la mail</h1>
+                <p><?php echo htmlspecialchars($messaggio, ENT_QUOTES, 'UTF-8'); ?></p>
+            </div>
+
+            <div class="form-alert form-alert--info">
+                <i class="fas fa-circle-info"></i>
+                <span><?php echo htmlspecialchars($messaggio, ENT_QUOTES, 'UTF-8'); ?></span>
+            </div>
+
+            <div class="form-actions form-actions--center">
+                <a class="form-btn form-btn--primary" href="accedi">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Torna al login</span>
+                </a>
+            </div>
+        </section>
+    </main>
 </body>
 </html>
