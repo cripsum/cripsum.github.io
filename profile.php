@@ -202,8 +202,8 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=3.0-custom-effects">
-    <script src="/assets/js/profile.js?v=3.0-custom-effects" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=3.0.1-glow-color-fix">
+    <script src="/assets/js/profile.js?v=3.0.1-glow-color-fix" defer></script>
 </head>
 
 <body
@@ -245,7 +245,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                     <?php endif; ?>
                 </div>
 
-                <div class="bio-avatar-wrap profile-smart-avatar ring-style-<?php echo profile_h($avatarRingStyle); ?> <?php echo (!$avatarRingEnabled || $avatarRingStyle === 'none') ? 'ring-disabled' : ''; ?>">
+                <div class="bio-avatar-wrap profile-smart-avatar ring-style-<?php echo profile_h($avatarRingStyle); ?> <?php echo (!$avatarRingEnabled || $avatarRingStyle === 'none') ? 'ring-disabled' : ''; ?>" style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>;">
                     <?php if ($avatarRingEnabled && $avatarRingStyle !== 'none'): ?><div class="bio-avatar-ring"></div><?php endif; ?>
                     <img class="bio-avatar" src="<?php echo profile_h(profile_avatar_url($profile, 256)); ?>" alt="Avatar di <?php echo profile_h($profile['username']); ?>" loading="eager" data-richpresence-pfp>
                 </div>

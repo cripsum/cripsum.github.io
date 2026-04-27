@@ -2476,9 +2476,8 @@ body[data-profile-effect="scanlines"] .profile-effects-layer::before {
     to { background-position: 180px -180px, -140px 140px; }
 }
 
-.bio-avatar-wrap {
-    --profile-ring: var(--accent);
-}
+/* V3.0.1: non sovrascrivere --profile-ring qui.
+   Il colore viene ereditato dal body o messo inline sul wrapper avatar. */
 
 .bio-avatar-ring {
     background: conic-gradient(from 90deg, transparent, var(--profile-ring), #8b5cf6, transparent 72%);
@@ -3996,9 +3995,8 @@ body[data-profile-button-shape="sharp"] .bio-icon-button {
 }
 
 /* Ring color fix */
-.bio-avatar-wrap {
-    --profile-ring: var(--profile-ring, var(--accent));
-}
+/* V3.0.1: fix glow colore.
+   Evita self-reference di --profile-ring, che impediva al colore salvato di applicarsi. */
 
 .bio-avatar-ring {
     background: conic-gradient(from 90deg, transparent, var(--profile-ring, var(--accent)), var(--accent-2, #8b5cf6), transparent 72%) !important;
@@ -4366,4 +4364,106 @@ body[data-profile-effect="glass_rain"] .profile-effects-layer::before {
     .bio-avatar-ring {
         animation: none !important;
     }
+}
+
+
+/* V3.0.1 - fix definitivo colore glow/anello PFP */
+.public-profile-body .profile-smart-avatar {
+    --profile-ring-active: var(--profile-ring, var(--accent));
+}
+
+.public-profile-body .profile-smart-avatar .bio-avatar-ring,
+.profile-editor-shell .profile-preview-avatar-ring .bio-avatar-ring {
+    background: conic-gradient(
+        from 90deg,
+        transparent,
+        var(--profile-ring-active, var(--profile-ring, var(--accent))),
+        var(--accent-2, #8b5cf6),
+        transparent 72%
+    ) !important;
+    box-shadow:
+        0 0 34px color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 46%, transparent);
+}
+
+.public-profile-body .ring-style-glow .bio-avatar-ring,
+.profile-editor-shell .ring-style-glow .bio-avatar-ring {
+    background: var(--profile-ring-active, var(--profile-ring, var(--accent))) !important;
+    box-shadow:
+        0 0 28px color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 72%, transparent),
+        0 0 58px color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 38%, transparent) !important;
+}
+
+.public-profile-body .ring-style-pulse .bio-avatar-ring,
+.profile-editor-shell .ring-style-pulse .bio-avatar-ring {
+    background: radial-gradient(
+        circle,
+        color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 58%, transparent),
+        transparent 68%
+    ) !important;
+}
+
+.public-profile-body .ring-style-orbit .bio-avatar-ring,
+.profile-editor-shell .ring-style-orbit .bio-avatar-ring {
+    background:
+        radial-gradient(circle at 50% 0%, var(--profile-ring-active, var(--profile-ring, var(--accent))) 0 8px, transparent 9px),
+        conic-gradient(from 90deg, transparent, var(--profile-ring-active, var(--profile-ring, var(--accent))), transparent 62%) !important;
+}
+
+.public-profile-body .ring-style-dual .bio-avatar-ring,
+.profile-editor-shell .ring-style-dual .bio-avatar-ring {
+    background:
+        conic-gradient(
+            from 0deg,
+            transparent 0 20%,
+            var(--profile-ring-active, var(--profile-ring, var(--accent))) 32%,
+            transparent 44% 58%,
+            var(--accent-2, #8b5cf6) 70%,
+            transparent 82%
+        ) !important;
+}
+
+.public-profile-body .ring-style-halo .bio-avatar-ring,
+.profile-editor-shell .ring-style-halo .bio-avatar-ring {
+    background: radial-gradient(
+        circle,
+        color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 46%, transparent),
+        transparent 64%
+    ) !important;
+}
+
+.public-profile-body .ring-style-neon .bio-avatar-ring,
+.profile-editor-shell .ring-style-neon .bio-avatar-ring {
+    background: transparent !important;
+    border-color: var(--profile-ring-active, var(--profile-ring, var(--accent))) !important;
+    box-shadow:
+        0 0 18px var(--profile-ring-active, var(--profile-ring, var(--accent))),
+        inset 0 0 18px color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 42%, transparent) !important;
+}
+
+.public-profile-body .ring-style-spark .bio-avatar-ring,
+.profile-editor-shell .ring-style-spark .bio-avatar-ring {
+    background:
+        radial-gradient(circle at 50% 0%, #fff 0 4px, transparent 5px),
+        radial-gradient(circle at 86% 35%, var(--profile-ring-active, var(--profile-ring, var(--accent))) 0 5px, transparent 6px),
+        radial-gradient(circle at 17% 72%, var(--accent-2, #8b5cf6) 0 4px, transparent 5px),
+        conic-gradient(from 90deg, transparent, color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 72%, transparent), transparent 70%) !important;
+}
+
+.public-profile-body .ring-style-glitch .bio-avatar-ring,
+.profile-editor-shell .ring-style-glitch .bio-avatar-ring {
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0 18%,
+            var(--profile-ring-active, var(--profile-ring, var(--accent))) 18% 28%,
+            transparent 28% 42%,
+            var(--accent-2, #8b5cf6) 42% 52%,
+            transparent 52%
+        ),
+        conic-gradient(from 90deg, transparent, var(--profile-ring-active, var(--profile-ring, var(--accent))), transparent 65%) !important;
+}
+
+/* Preview: il JS mette --profile-ring sul wrapper, qui lo usiamo come active */
+.profile-editor-shell .profile-preview-avatar-ring {
+    --profile-ring-active: var(--profile-ring, var(--accent));
 }
