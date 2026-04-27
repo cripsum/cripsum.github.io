@@ -7,18 +7,18 @@ checkBan($mysqli);
 
 $download = [
     'title' => 'Fortnite Hacks',
-    'kicker' => 'Pagina ironica',
-    'description' => 'Una pagina troll del sito. Non sono cheat reali e non promette hack funzionanti.',
+    'kicker' => 'Undetectable',
+    'description' => 'Scarica le hack più fiche di fortnite',
     'image' => '/img/fortnitehack.jpg',
-    'image_alt' => 'Immagine ironica Fortnite hacks',
+    'image_alt' => 'Immagine Fortnite hacks',
     'href' => '/random%20stuff/itfortnitehacks.txt',
     'download_name' => 'fortnite hacks method tutorial.txt',
     'button' => 'Scarica il file',
-    'note' => 'È una pagina joke. Non scaricare o usare cheat veri: rovinano il gioco e possono essere pericolosi.',
+    'note' => 'fra allora la mod ti permette di avere vbucks infiniti',
     'back_href' => '/it/download.php',
     'meta' => [
         ['label' => 'Tipo', 'value' => 'File TXT'],
-        ['label' => 'Tema', 'value' => 'Joke / troll'],
+        ['label' => 'Tema', 'value' => 'Hacks'],
         ['label' => 'Piattaforma', 'value' => 'Browser'],
     ],
 ];

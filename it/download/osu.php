@@ -8,7 +8,7 @@ checkBan($mysqli);
 $download = [
     'title' => 'osu!',
     'kicker' => 'Download',
-    'description' => 'Scarica osu! dal repository ufficiale. Un rhythm game veloce, preciso e molto punitivo.',
+    'description' => 'Osu, il rhythm game per finocchi',
     'image' => '/img/osu.jpg',
     'image_alt' => 'Immagine osu!',
     'href' => 'https://github.com/ppy/osu/releases/latest/download/install.exe',

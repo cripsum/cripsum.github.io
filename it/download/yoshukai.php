@@ -8,7 +8,7 @@ checkBan($mysqli);
 $download = [
     'title' => 'Corso di Yoshukai',
     'kicker' => 'Download',
-    'description' => 'Una pagina semplice per scaricare il file del corso. Tono leggero, file diretto.',
+    'description' => 'impara l\'arte marziale del Yoshukai con questo corso completo in PDF. Dalle basi alle tecniche avanzate, questo corso ti guiderà passo dopo passo attraverso i principi fondamentali del Yoshukai, migliorando la tua forza, agilità e disciplina. Scarica ora e inizia il tuo viaggio marziale!',
     'image' => '/img/chinese-essay-2.jpg',
     'image_alt' => 'Immagine corso Yoshukai',
     'href' => '/random%20stuff/yoshukai.pdf',
@@ -25,6 +25,7 @@ $download = [
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ - <?php echo htmlspecialchars($download['title'], ENT_QUOTES, 'UTF-8'); ?></title>
@@ -51,8 +52,7 @@ $download = [
                     src="<?php echo htmlspecialchars($download['image'], ENT_QUOTES, 'UTF-8'); ?>"
                     alt="<?php echo htmlspecialchars($download['image_alt'], ENT_QUOTES, 'UTF-8'); ?>"
                     loading="lazy"
-                    data-download-image
-                >
+                    data-download-image>
 
                 <div class="download-cover-glow" aria-hidden="true"></div>
             </div>
@@ -91,11 +91,10 @@ $download = [
                         class="download-main-btn"
                         href="<?php echo htmlspecialchars($download['href'], ENT_QUOTES, 'UTF-8'); ?>"
                         <?php if (!empty($download['download_name'])): ?>
-                            download="<?php echo htmlspecialchars($download['download_name'], ENT_QUOTES, 'UTF-8'); ?>"
+                        download="<?php echo htmlspecialchars($download['download_name'], ENT_QUOTES, 'UTF-8'); ?>"
                         <?php endif; ?>
                         data-download-link
-                        data-download-title="<?php echo htmlspecialchars($download['title'], ENT_QUOTES, 'UTF-8'); ?>"
-                    >
+                        data-download-title="<?php echo htmlspecialchars($download['title'], ENT_QUOTES, 'UTF-8'); ?>">
                         <i class="fas fa-download"></i>
                         <span><?php echo htmlspecialchars($download['button'], ENT_QUOTES, 'UTF-8'); ?></span>
                     </a>
@@ -139,4 +138,5 @@ $download = [
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>
