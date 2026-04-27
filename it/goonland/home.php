@@ -47,8 +47,8 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
     <?php include '../../includes/head-import.php'; ?>
     <title>GoonLand™ - Home</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/goonland.css?v=2.1-home-dropdown">
-    <script src="/js/goonland.js?v=2.1-home-dropdown" defer></script>
+    <link rel="stylesheet" href="/css/goonland.css?v=2.2-dropdown-footer">
+    <script src="/js/goonland.js?v=2.2-dropdown-footer" defer></script>
 </head>
 
 <body class="goonland-page" data-goonland-page="home">
@@ -77,6 +77,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
 
             <div class="gl-hero-media gl-home-visual">
                 <img src="/img/raspberry-chan16gb.png" alt="GoonLand visual" loading="eager" data-gl-fallback>
+
             </div>
         </section>
 

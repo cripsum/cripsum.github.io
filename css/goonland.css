@@ -309,3 +309,137 @@ body.goonland-page select option {
         pointer-events: auto;
     }
 }
+
+
+/* GoonLand V2.2 - dropdown sopra footer + footer rosa */
+
+/* Il dropdown custom deve stare sopra footer, card e altri layer */
+.goonland-page .gl-generator-layout,
+.goonland-page .gl-generator,
+.goonland-page .gl-controls,
+.goonland-page .gl-custom-select {
+    overflow: visible !important;
+}
+
+.goonland-page .gl-generator {
+    position: relative;
+    z-index: 30;
+}
+
+.goonland-page .gl-leaderboard {
+    position: relative;
+    z-index: 5;
+}
+
+.goonland-page .gl-custom-select {
+    z-index: 10050 !important;
+}
+
+.goonland-page .gl-custom-select.is-open {
+    z-index: 10080 !important;
+}
+
+.goonland-page .gl-select-menu {
+    z-index: 10090 !important;
+}
+
+/* Su mobile resta nel flusso, ma non finisce nascosto sotto al footer */
+@media (max-width: 680px) {
+    .goonland-page .gl-custom-select.is-open {
+        margin-bottom: .75rem;
+    }
+
+    .goonland-page .gl-select-menu {
+        position: relative !important;
+        z-index: 10090 !important;
+    }
+}
+
+/* Footer a tema rosa solo nelle pagine GoonLand */
+body.goonland-page footer,
+body.goonland-page .footer,
+body.goonland-page .site-footer,
+body.goonland-page #footer {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid rgba(255, 45, 141, .22) !important;
+    background:
+        radial-gradient(circle at 12% 0%, rgba(255, 45, 141, .20), transparent 34%),
+        radial-gradient(circle at 86% 30%, rgba(155, 92, 255, .16), transparent 32%),
+        linear-gradient(145deg, rgba(255,255,255,.055), rgba(255,255,255,.018)),
+        rgba(8, 2, 12, .96) !important;
+    box-shadow:
+        0 -18px 60px rgba(0, 0, 0, .38),
+        0 -1px 0 rgba(255, 255, 255, .05) inset !important;
+    color: var(--gl-muted) !important;
+}
+
+body.goonland-page footer *,
+body.goonland-page .footer *,
+body.goonland-page .site-footer *,
+body.goonland-page #footer * {
+    border-color: rgba(255, 45, 141, .16);
+}
+
+body.goonland-page footer a,
+body.goonland-page .footer a,
+body.goonland-page .site-footer a,
+body.goonland-page #footer a {
+    color: rgba(255, 247, 251, .88) !important;
+    text-decoration-color: rgba(255, 45, 141, .35);
+    transition: color .18s ease, background .18s ease, border-color .18s ease, transform .18s ease;
+}
+
+body.goonland-page footer a:hover,
+body.goonland-page .footer a:hover,
+body.goonland-page .site-footer a:hover,
+body.goonland-page #footer a:hover {
+    color: #fff !important;
+    text-decoration-color: var(--gl-hot);
+}
+
+/* Bottoni/link social nel footer, se presenti */
+body.goonland-page footer .social a,
+body.goonland-page footer .social-link,
+body.goonland-page footer .footer-social a,
+body.goonland-page .site-footer .social a,
+body.goonland-page .site-footer .social-link,
+body.goonland-page .site-footer .footer-social a {
+    border: 1px solid rgba(255, 45, 141, .22) !important;
+    background: rgba(255, 45, 141, .08) !important;
+    color: var(--gl-soft) !important;
+}
+
+body.goonland-page footer .social a:hover,
+body.goonland-page footer .social-link:hover,
+body.goonland-page footer .footer-social a:hover,
+body.goonland-page .site-footer .social a:hover,
+body.goonland-page .site-footer .social-link:hover,
+body.goonland-page .site-footer .footer-social a:hover {
+    border-color: rgba(255, 45, 141, .46) !important;
+    background: rgba(255, 45, 141, .16) !important;
+    box-shadow: 0 0 24px rgba(255, 45, 141, .16);
+}
+
+/* Testi piccoli/copyright */
+body.goonland-page footer small,
+body.goonland-page footer p,
+body.goonland-page .footer small,
+body.goonland-page .footer p,
+body.goonland-page .site-footer small,
+body.goonland-page .site-footer p {
+    color: var(--gl-muted) !important;
+}
+
+/* Se il footer ha logo/nome sito */
+body.goonland-page footer strong,
+body.goonland-page footer h2,
+body.goonland-page footer h3,
+body.goonland-page .footer strong,
+body.goonland-page .footer h2,
+body.goonland-page .footer h3,
+body.goonland-page .site-footer strong,
+body.goonland-page .site-footer h2,
+body.goonland-page .site-footer h3 {
+    color: #fff !important;
+}
