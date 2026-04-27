@@ -9,13 +9,13 @@ $download = [
     'title' => 'osu!',
     'kicker' => 'Download',
     'description' => 'Scarica osu! dal repository ufficiale. Un rhythm game veloce, preciso e molto punitivo.',
-    'image' => '../../img/osu.jpg',
+    'image' => '/img/osu.jpg',
     'image_alt' => 'Immagine osu!',
     'href' => 'https://github.com/ppy/osu/releases/latest/download/install.exe',
     'download_name' => '',
     'button' => 'Scarica osu!',
     'note' => 'Link esterno verso il download ufficiale da GitHub.',
-    'back_href' => '../download',
+    'back_href' => '/it/download.php',
     'meta' => [
         ['label' => 'Tipo', 'value' => 'Installer EXE'],
         ['label' => 'Piattaforma', 'value' => 'Windows'],
@@ -29,8 +29,8 @@ $download = [
     <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ - <?php echo htmlspecialchars($download['title'], ENT_QUOTES, 'UTF-8'); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/download-single.css?v=2-download-single">
-    <script src="/js/download-single.js?v=2-download-single" defer></script>
+    <link rel="stylesheet" href="/css/download-single.css?v=2.1-buttons-fix">
+    <script src="/js/download-single.js?v=2.1-buttons-fix" defer></script>
 </head>
 
 <body class="download-page">

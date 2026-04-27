@@ -489,3 +489,39 @@ body.download-page .dropdown-menu button:focus {
         transition-duration: .01ms !important;
     }
 }
+
+
+/* V2.1 - fix click bottoni download/copia/torna */
+
+/* Le decorazioni non devono mai intercettare click */
+.download-bg,
+.download-bg *,
+.download-cover-glow {
+    pointer-events: none !important;
+}
+
+/* Il contenuto e i bottoni devono stare sopra ogni layer decorativo */
+.download-card,
+.download-content,
+.download-actions {
+    position: relative;
+    z-index: 10;
+}
+
+.download-actions {
+    pointer-events: auto;
+}
+
+.download-main-btn,
+.download-secondary-btn {
+    position: relative;
+    z-index: 20;
+    pointer-events: auto !important;
+    user-select: none;
+}
+
+/* Non bloccare il link durante il feedback visivo */
+.download-main-btn.is-loading {
+    opacity: .78;
+    pointer-events: auto !important;
+}

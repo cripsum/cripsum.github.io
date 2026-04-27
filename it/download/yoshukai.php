@@ -9,13 +9,13 @@ $download = [
     'title' => 'Corso di Yoshukai',
     'kicker' => 'Download',
     'description' => 'Una pagina semplice per scaricare il file del corso. Tono leggero, file diretto.',
-    'image' => '../../img/chinese-essay-2.jpg',
+    'image' => '/img/chinese-essay-2.jpg',
     'image_alt' => 'Immagine corso Yoshukai',
-    'href' => '../../random stuff/yoshukai.pdf',
+    'href' => '/random%20stuff/yoshukai.pdf',
     'download_name' => 'corso-Yoshukai.pdf',
     'button' => 'Scarica il corso',
     'note' => 'Il file è un PDF statico. Aprilo con un lettore PDF normale.',
-    'back_href' => '../download',
+    'back_href' => '/it/download.php',
     'meta' => [
         ['label' => 'Tipo', 'value' => 'PDF'],
         ['label' => 'Piattaforma', 'value' => 'Qualsiasi'],
@@ -29,8 +29,8 @@ $download = [
     <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ - <?php echo htmlspecialchars($download['title'], ENT_QUOTES, 'UTF-8'); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/download-single.css?v=2-download-single">
-    <script src="/js/download-single.js?v=2-download-single" defer></script>
+    <link rel="stylesheet" href="/css/download-single.css?v=2.1-buttons-fix">
+    <script src="/js/download-single.js?v=2.1-buttons-fix" defer></script>
 </head>
 
 <body class="download-page">
