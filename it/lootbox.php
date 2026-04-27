@@ -28,7 +28,7 @@ require_once '../api/api_personaggi.php';
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <link rel="stylesheet" href="/css/lootbox.css?v=8-cinematic-fullscreen" />
+    <link rel="stylesheet" href="/css/lootbox.css?v=9" />
     <title>Cripsum™ - lootbox</title>
 </head>
 
@@ -1639,7 +1639,7 @@ require_once '../api/api_personaggi.php';
                 }
             });
         </script>
-        
+
 </body>
 
 </html>
