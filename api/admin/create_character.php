@@ -18,9 +18,9 @@ try {
     $map = [
         'description' => ['input' => 'descrizione', 'type' => 's', 'value' => $description !== '' ? $description : null],
         'features' => ['input' => 'caratteristiche', 'type' => 's', 'value' => $features !== '' ? $features : null],
-        'image' => ['input' => 'img_url', 'type' => 's', 'value' => admin_validate_url($input['img_url'] ?? null)],
+        'image' => ['input' => 'img_url', 'type' => 's', 'value' => trim((string)$input['img_url'] ?? null)],
         'rarity' => ['input' => 'rarità', 'type' => 's', 'value' => trim((string)($input['rarità'] ?? '')) ?: null],
-        'audio' => ['input' => 'audio_url', 'type' => 's', 'value' => admin_validate_url($input['audio_url'] ?? null)],
+        'audio' => ['input' => 'audio_url', 'type' => 's', 'value' => trim((string)$input['audio_url'] ?? null)],
         'category' => ['input' => 'categoria', 'type' => 's', 'value' => trim((string)($input['categoria'] ?? '')) ?: null],
     ];
     foreach ($map as $key => $cfg) {
