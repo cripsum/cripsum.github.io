@@ -28,7 +28,7 @@ require_once '../api/api_personaggi.php';
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <link rel="stylesheet" href="/css/lootbox.css?v=8.0.6-skip-chest-smooth" />
+    <link rel="stylesheet" href="/css/lootbox.css?v=8.0.7-lb-settings" />
     <title>Cripsum™ - lootbox</title>
 </head>
 
@@ -151,87 +151,158 @@ require_once '../api/api_personaggi.php';
                 </div>
             </div>
 
-            <div class="modal fade" id="impostazioniModal" tabindex="-1" aria-labelledby="impostazioniModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content bgimpostazioni">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="disclaimerModalLabel">⚙️ Impostazioni & Probabilità</h5>
-                        </div>
-                        <div class="col-md-6 d-flex text-center" style="text-align: center; padding-top: 20px; padding-bottom: 20px; margin: auto;">
-                            <div style="color: white; font-size: 14px; margin: auto;">
-                                <h6 style="color: white; margin-bottom: 10px;">🎮 Comandi:</h6>
-                                <div>Click: apri cassa</div>
-                                <div>Double click: skippa animazione</div>
-                                <div>Space: apri velocemente</div>
-                                <div>Enter: apri un'altra cassa</div>
+            <div class="modal fade lootbox-settings-modal" id="impostazioniModal" tabindex="-1" aria-labelledby="impostazioniModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable lootbox-settings-dialog">
+                    <div class="modal-content bgimpostazioni lootbox-settings-content">
+                        <div class="modal-header lootbox-settings-header">
+                            <div>
+                                <span class="lootbox-modal-kicker">Lootbox</span>
+                                <h5 class="modal-title" id="impostazioniModalLabel">Impostazioni</h5>
+                                <p>Comandi, probabilità e funzioni rapide.</p>
                             </div>
-                        </div>
-                        <div class="col-md-6 d-flex text-center" style="text-align: center; padding-top: 20px; padding-bottom: 20px; margin: auto;">
-                            <div style="color: white; font-size: 14px; margin: auto;">
-                                <h6 style="color: white; margin-bottom: 10px;">🎲 Probabilità Rarità:</h6>
-                                <div>Comune: 47%</div>
-                                <div>Raro: 27%</div>
-                                <div>Epico: 12%</div>
-                                <div>Leggendario: 8%</div>
-                                <div>Speciale: 0.9%</div>
-                                <div>???: 0.1%</div>
-                            </div>
+
+                            <button type="button" class="lootbox-modal-close" data-bs-dismiss="modal" aria-label="Chiudi">
+                                <i class="fas fa-xmark"></i>
+                            </button>
                         </div>
 
-                        <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
-                            <div id="admin-cheats">
-                                <h4>🎮 Cheats (Admin Only)</h4>
-                                <div class="modal-body">
-                                    <div class="col-md-6 d-flex" style="text-align: center">
-                                        <div class="form-check mb-3 mb-md-0" style="text-align: center">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="RimuoviAnime" />
-                                            <label class="form-check-label" for="RimuoviAnime">Rimuovi Anime</label>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6 d-flex" style="text-align: center">
-                                        <div class="form-check mb-3 mb-md-0" style="text-align: center">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloSpeciali" />
-                                            <label class="form-check-label" for="SoloSpeciali">Solo Speciali</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 d-flex" style="text-align: center">
-                                        <div class="form-check mb-3 mb-md-0" style="text-align: center">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloSegreti" />
-                                            <label class="form-check-label" for="SoloSegreti">Solo Segreti</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 d-flex" style="text-align: center">
-                                        <div class="form-check mb-3 mb-md-0" style="text-align: center">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloPoppy" />
-                                            <label class="form-check-label" for="SoloPoppy">Meow</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 d-flex" style="text-align: center">
-                                        <div class="form-check mb-3 mb-md-0" style="text-align: center">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloComuni" />
-                                            <label class="form-check-label" for="SoloComuni">Solo Comuni</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 d-flex" style="text-align: center">
-                                        <div class="form-check mb-3 mb-md-0" style="text-align: center">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloTheOne" />
-                                            <label class="form-check-label" for="SoloTheOne">Solo The One</label>
-                                        </div>
+                        <div class="modal-body lootbox-settings-body">
+                            <section class="lootbox-settings-section">
+                                <div class="lootbox-section-head">
+                                    <i class="fas fa-keyboard"></i>
+                                    <div>
+                                        <h6>Comandi</h6>
+                                        <p>Scorciatoie rapide durante la pull.</p>
                                     </div>
                                 </div>
-                            </div>
-                        <?php endif; ?>
 
-                        <div data-mdb-input-init class="form-outline mb-4">
-                            <label class="form-label" for="registerName">🔐 Codice Segreto</label>
-                            <input type="text" id="codiceSegreto" class="form-control" />
-                            <br />
-                            <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="riscattaCodice()">Riscatta codice</button>
+                                <div class="lootbox-command-grid">
+                                    <div class="lootbox-command-item">
+                                        <span>Click</span>
+                                        <strong>Apri cassa</strong>
+                                    </div>
+                                    <div class="lootbox-command-item">
+                                        <span>Doppio click</span>
+                                        <strong>Skip animazione</strong>
+                                    </div>
+                                    <div class="lootbox-command-item">
+                                        <span>Space</span>
+                                        <strong>Apri veloce</strong>
+                                    </div>
+                                    <div class="lootbox-command-item">
+                                        <span>Enter</span>
+                                        <strong>Apri ancora</strong>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="lootbox-settings-section">
+                                <div class="lootbox-section-head">
+                                    <i class="fas fa-dice"></i>
+                                    <div>
+                                        <h6>Probabilità</h6>
+                                        <p>Le percentuali restano quelle originali.</p>
+                                    </div>
+                                </div>
+
+                                <div class="lootbox-rates-list">
+                                    <div class="lootbox-rate-row rate-common">
+                                        <span>Comune</span>
+                                        <strong>47%</strong>
+                                    </div>
+                                    <div class="lootbox-rate-row rate-rare">
+                                        <span>Raro</span>
+                                        <strong>27%</strong>
+                                    </div>
+                                    <div class="lootbox-rate-row rate-epic">
+                                        <span>Epico</span>
+                                        <strong>12%</strong>
+                                    </div>
+                                    <div class="lootbox-rate-row rate-legendary">
+                                        <span>Leggendario</span>
+                                        <strong>8%</strong>
+                                    </div>
+                                    <div class="lootbox-rate-row rate-special">
+                                        <span>Speciale</span>
+                                        <strong>0.9%</strong>
+                                    </div>
+                                    <div class="lootbox-rate-row rate-secret">
+                                        <span>???</span>
+                                        <strong>0.1%</strong>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
+                                <section id="admin-cheats" class="lootbox-settings-section lootbox-admin-section">
+                                    <div class="lootbox-section-head">
+                                        <i class="fas fa-wand-magic-sparkles"></i>
+                                        <div>
+                                            <h6>Admin cheats</h6>
+                                            <p>Filtri di test. Non cambiano la UI pubblica.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="lootbox-toggle-grid">
+                                        <label class="lootbox-toggle-pill" for="RimuoviAnime">
+                                            <input class="form-check-input checco" type="checkbox" value="" id="RimuoviAnime" />
+                                            <span>Rimuovi Anime</span>
+                                        </label>
+
+                                        <label class="lootbox-toggle-pill" for="SoloSpeciali">
+                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloSpeciali" />
+                                            <span>Solo Speciali</span>
+                                        </label>
+
+                                        <label class="lootbox-toggle-pill" for="SoloSegreti">
+                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloSegreti" />
+                                            <span>Solo Segreti</span>
+                                        </label>
+
+                                        <label class="lootbox-toggle-pill" for="SoloPoppy">
+                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloPoppy" />
+                                            <span>Meow</span>
+                                        </label>
+
+                                        <label class="lootbox-toggle-pill" for="SoloComuni">
+                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloComuni" />
+                                            <span>Solo Comuni</span>
+                                        </label>
+
+                                        <label class="lootbox-toggle-pill" for="SoloTheOne">
+                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloTheOne" />
+                                            <span>Solo The One</span>
+                                        </label>
+                                    </div>
+                                </section>
+                            <?php endif; ?>
+
+                            <section class="lootbox-settings-section lootbox-code-section">
+                                <div class="lootbox-section-head">
+                                    <i class="fas fa-lock"></i>
+                                    <div>
+                                        <h6>Codice segreto</h6>
+                                        <p>Inserisci un codice valido, se ne hai uno.</p>
+                                    </div>
+                                </div>
+
+                                <div class="lootbox-secret-row">
+                                    <label class="visually-hidden" for="codiceSegreto">Codice Segreto</label>
+                                    <input type="text" id="codiceSegreto" class="form-control" placeholder="Codice segreto" />
+                                    <button type="button" class="btn btn-secondary bottone lootbox-modal-btn" data-bs-dismiss="modal" onclick="riscattaCodice()">
+                                        Riscatta
+                                    </button>
+                                </div>
+                            </section>
                         </div>
 
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="salvaPreferenze()">Salva Preferenze</button>
+                        <div class="modal-footer lootbox-settings-footer">
+                            <button type="button" class="btn btn-secondary bottone lootbox-modal-btn lootbox-modal-btn--ghost" data-bs-dismiss="modal">
+                                Chiudi
+                            </button>
+                            <button type="button" class="btn btn-secondary bottone lootbox-modal-btn lootbox-modal-btn--primary" data-bs-dismiss="modal" onclick="salvaPreferenze()">
+                                Salva preferenze
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -242,26 +313,33 @@ require_once '../api/api_personaggi.php';
 
         <audio id="suonoCassa"></audio>
         <div class="leaderboard-wrapper" id="leaderboard-wrapper" style="display: none;">
-            <div class="leaderboard-box">
-                <h3 class="testobianco">🏆 Classifica</h3>
-                <h6 class="testobianco">filtra per:</h6>
+            <div class="leaderboard-box lootbox-leaderboard-box">
+                <div class="leaderboard-head">
+                    <div>
+                        <span class="leaderboard-kicker">Classifica</span>
+                        <h3 class="testobianco">Top Lootbox</h3>
+                        <p>Le prime posizioni del momento.</p>
+                    </div>
 
-                <div class="leaderboard-buttons">
+                    <button class="leaderboard-close" type="button" onclick="toggleLeaderboard()" aria-label="Chiudi classifica">
+                        <i class="fas fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="leaderboard-buttons" role="group" aria-label="Filtro classifica">
                     <button class="btn btn-secondary bottone leaderboard-btn active" onclick="switchLeaderboard('casse_aperte')" id="btn-casse">
-                        Numero di casse aperte
+                        <i class="fas fa-box-open"></i>
+                        <span>Casse aperte</span>
                     </button>
                     <button class="btn btn-secondary bottone leaderboard-btn" onclick="switchLeaderboard('personaggi_sbloccati')" id="btn-personaggi">
-                        Personaggi trovati
+                        <i class="fas fa-layer-group"></i>
+                        <span>Personaggi</span>
                     </button>
                 </div>
 
-                <div id="leaderboard-data">
+                <div id="leaderboard-data" class="leaderboard-data">
                     <div class="loading-text testobianco">Caricamento...</div>
                 </div>
-
-                <button class="btn btn-secondary bottone mt-3" onclick="toggleLeaderboard()">
-                    Chiudi Classifica
-                </button>
             </div>
         </div>
         <div id="achievement-popup" class="popup">
@@ -1574,7 +1652,7 @@ require_once '../api/api_personaggi.php';
             async function loadLeaderboard(type) {
                 const dataDiv = document.getElementById('leaderboard-data');
 
-                dataDiv.innerHTML = '<div class="loading-text testobianco">Caricamento...</div>';
+                dataDiv.innerHTML = '<div class="loading-text testobianco"><i class="fas fa-circle-notch fa-spin"></i><span>Caricamento...</span></div>';
 
                 try {
                     const response = await fetch(`https://cripsum.com/api/get_leaderboard?type=${type}`);
@@ -1583,11 +1661,11 @@ require_once '../api/api_personaggi.php';
                     if (data.status === 'success' && data.data.length > 0) {
                         displayLeaderboard(data.data, type);
                     } else {
-                        dataDiv.innerHTML = '<div class="loading-text testobianco">Nessun dato disponibile</div>';
+                        dataDiv.innerHTML = '<div class="loading-text testobianco"><i class="fas fa-ranking-star"></i><span>Nessun dato disponibile</span></div>';
                     }
                 } catch (error) {
                     console.error('Errore leaderboard:', error);
-                    dataDiv.innerHTML = '<div class="loading-text testobianco" style="color: #ff6b6b;">Errore di connessione</div>';
+                    dataDiv.innerHTML = '<div class="loading-text testobianco is-error"><i class="fas fa-triangle-exclamation"></i><span>Errore di connessione</span></div>';
                 }
             }
 
@@ -1604,11 +1682,18 @@ require_once '../api/api_personaggi.php';
                         item.position === 2 ? '🥈 ' :
                         item.position === 3 ? '🥉 ' : '';
 
+                    const safePosition = escapeHtml(item.position);
+                    const safeUsername = escapeHtml(item.username);
+                    const safeValue = escapeHtml(item.value);
+
                     return `
                         <div class="leaderboard-entry ${rankClass}">
-                            <span class="entry-position testobianco">${medal}${item.position}</span>
-                            <span class="entry-username testobianco">${item.username}</span>
-                            <span class="entry-value">${item.value}</span>
+                            <span class="entry-position testobianco">${medal}${safePosition}</span>
+                            <span class="entry-user-wrap">
+                                <span class="entry-username testobianco">${safeUsername}</span>
+                                <small>${escapeHtml(valueLabel)}</small>
+                            </span>
+                            <span class="entry-value">${safeValue}</span>
                         </div>
                     `;
                 }).join('');
