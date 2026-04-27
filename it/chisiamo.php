@@ -284,6 +284,22 @@ checkBan($mysqli);
                         </div>
                     </div>
                 </div>
+
+                <div class="team-member">
+                    <div class="member-content">
+                        <div class="member-image">
+                            <img src="../img/rupert.jpg" alt="rupert" />
+                        </div>
+                        <div class="member-info">
+                            <h3 class="member-name">
+                                <a href="https://cripsum.com/u/fln_papera">FLN_papera</a>
+                            </h3>
+                            <p class="member-description">
+                                Yuzuha è solo sua, è IL RUPERT
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
