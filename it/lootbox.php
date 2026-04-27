@@ -28,7 +28,7 @@ require_once '../api/api_personaggi.php';
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <link rel="stylesheet" href="/css/lootbox.css?v=8.0.1-new-special-fix" />
+    <link rel="stylesheet" href="/css/lootbox.css?v=8.0.2-new-chest-smooth" />
     <title>Cripsum™ - lootbox</title>
 </head>
 
@@ -698,8 +698,10 @@ require_once '../api/api_personaggi.php';
 
                     document.getElementById("contenuto").innerHTML = `
                         <div class="lootbox-character-reveal">
+                            <div class="lootbox-reward-frame">
+                                <img src="/img/${safeImg}" alt="${safeName}" class="premio" onerror="this.onerror=null;this.src='/img/Susremaster.png';" draggable="false" />
+                            </div>
                             <p id="nomePersonaggio" class="lootbox-character-name">${safeName}</p>
-                            <img src="/img/${safeImg}" alt="${safeName}" class="premio" onerror="this.onerror=null;this.src='/img/Susremaster.png';" draggable="false" />
                         </div>
                     `;
 
@@ -797,8 +799,10 @@ require_once '../api/api_personaggi.php';
 
                     document.getElementById("contenuto").innerHTML = `
                         <div class="lootbox-character-reveal">
+                            <div class="lootbox-reward-frame">
+                                <img src="/img/${safeImg}" alt="${safeName}" class="premio" onerror="this.onerror=null;this.src='/img/Susremaster.png';" draggable="false" />
+                            </div>
                             <p id="nomePersonaggio" class="lootbox-character-name">${safeName}</p>
-                            <img src="/img/${safeImg}" alt="${safeName}" class="premio" onerror="this.onerror=null;this.src='/img/Susremaster.png';" draggable="false" />
                         </div>
                     `;
 
@@ -1058,9 +1062,12 @@ require_once '../api/api_personaggi.php';
                     existingLabel.remove();
                 }
 
-                const target = contenuto.querySelector(".lootbox-character-reveal") || contenuto;
-                const newLabel = document.createElement("span");
+                const target =
+                    contenuto.querySelector(".lootbox-reward-frame") ||
+                    contenuto.querySelector(".lootbox-character-reveal") ||
+                    contenuto;
 
+                const newLabel = document.createElement("span");
                 newLabel.classList.add("new-label");
                 newLabel.innerText = "NEW!";
                 target.appendChild(newLabel);

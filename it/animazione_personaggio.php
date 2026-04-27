@@ -22,7 +22,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <link rel="stylesheet" href="/css/lootbox.css?v=8.0.1-new-special-fix" />
+    <link rel="stylesheet" href="/css/lootbox.css?v=8.0.2-new-chest-smooth" />
     <title>Cripsum™ - Animazione personaggio</title>
 </head>
 
@@ -196,8 +196,10 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
                 document.getElementById("contenuto").innerHTML = `
                         <div class="lootbox-character-reveal">
+                            <div class="lootbox-reward-frame">
+                                <img src="/img/${safeImg}" alt="${safeName}" class="premio" onerror="this.onerror=null;this.src='/img/Susremaster.png';" draggable="false" />
+                            </div>
                             <p id="nomePersonaggio" class="lootbox-character-name">${safeName}</p>
-                            <img src="/img/${safeImg}" alt="${safeName}" class="premio" onerror="this.onerror=null;this.src='/img/Susremaster.png';" draggable="false" />
                         </div>
                     `;
 

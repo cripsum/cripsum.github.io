@@ -1180,3 +1180,183 @@ body.lootbox-rarity-speciale .lootbox-rarity-message {
         padding: .28rem .56rem;
     }
 }
+
+
+/* V8.0.2 - NEW agganciato alla foto + apertura cassa più smooth */
+
+/* Wrapper reale della foto: la targhetta NEW si posiziona qui */
+.lootbox-reward-frame {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    width: fit-content;
+    height: fit-content;
+    margin: 0 auto;
+}
+
+.lootbox-reward-frame .premio {
+    display: block;
+}
+
+/* Override definitivo della targhetta NEW */
+.lootbox-reward-frame .new-label,
+.new-label {
+    position: absolute !important;
+    top: clamp(.45rem, 1.6vw, .85rem) !important;
+    right: clamp(.45rem, 1.6vw, .85rem) !important;
+    left: auto !important;
+    margin: 0 !important;
+    z-index: 45 !important;
+    transform: rotate(12deg) scale(.96) !important;
+    transform-origin: center;
+    background: linear-gradient(135deg, #ff2d55, #ff8a00) !important;
+    color: #fff !important;
+    font-size: clamp(.78rem, 2vw, 1.05rem) !important;
+    font-weight: 950 !important;
+    padding: .34rem .68rem !important;
+    border-radius: 999px !important;
+    box-shadow:
+        0 0 24px rgba(255, 45, 85, .42),
+        0 10px 24px rgba(0, 0, 0, .32) !important;
+    pointer-events: none !important;
+    animation: newPulseOnImage 1s infinite alternate ease-in-out !important;
+}
+
+@keyframes newPulseOnImage {
+    0% {
+        transform: rotate(12deg) scale(.92);
+    }
+    100% {
+        transform: rotate(12deg) scale(1.08);
+    }
+}
+
+/* Cassa: niente pausa ferma e niente scatto verso il basso prima del reveal */
+body.is-opening #cassa {
+    animation: chestOpenContinuousV802 3.05s cubic-bezier(.18, .86, .18, 1) forwards !important;
+    will-change: transform, filter, opacity;
+}
+
+#cassa.aperta {
+    transform: translateY(18px) scale(1.025) rotate(0deg) !important;
+    transition:
+        transform 1.2s cubic-bezier(.16, 1, .3, 1),
+        opacity .85s ease,
+        filter .85s ease !important;
+}
+
+#cassa.dissolvi {
+    animation: chestFadeRewardV802 1.05s cubic-bezier(.16, 1, .3, 1) forwards !important;
+}
+
+@keyframes chestOpenContinuousV802 {
+    0% {
+        transform: translateY(0) scale(1) rotate(0deg);
+        filter:
+            drop-shadow(0 28px 42px rgba(0, 0, 0, .55))
+            drop-shadow(0 0 18px rgba(255,255,255,.08));
+    }
+    10% {
+        transform: translateY(-8px) scale(1.025) rotate(-1.5deg);
+    }
+    20% {
+        transform: translateY(-2px) scale(1.04) rotate(1.35deg);
+    }
+    34% {
+        transform: translateY(-12px) scale(1.06) rotate(-.85deg);
+        filter:
+            drop-shadow(0 34px 50px rgba(0,0,0,.6))
+            drop-shadow(0 0 34px var(--lootbox-rarity-glow));
+    }
+    48% {
+        transform: translateY(-5px) scale(1.05) rotate(.75deg);
+    }
+    62% {
+        transform: translateY(-16px) scale(1.085) rotate(-.35deg);
+        filter:
+            drop-shadow(0 40px 58px rgba(0,0,0,.66))
+            drop-shadow(0 0 54px var(--lootbox-rarity-glow));
+    }
+    76% {
+        transform: translateY(-4px) scale(1.055) rotate(.25deg);
+    }
+    88% {
+        transform: translateY(10px) scale(1.035) rotate(0deg);
+        filter:
+            drop-shadow(0 38px 58px rgba(0,0,0,.66))
+            drop-shadow(0 0 68px var(--lootbox-rarity-glow));
+    }
+    100% {
+        transform: translateY(18px) scale(1.025) rotate(0deg);
+        filter:
+            drop-shadow(0 36px 56px rgba(0,0,0,.64))
+            drop-shadow(0 0 78px var(--lootbox-rarity-glow));
+    }
+}
+
+@keyframes chestFadeRewardV802 {
+    0% {
+        opacity: 1;
+        transform: translateY(18px) scale(1.025) rotate(0deg);
+        filter:
+            blur(0)
+            brightness(1.12)
+            drop-shadow(0 0 58px var(--lootbox-rarity-glow));
+    }
+    42% {
+        opacity: .92;
+        transform: translateY(8px) scale(1.09) rotate(0deg);
+        filter:
+            blur(1px)
+            brightness(1.55)
+            saturate(1.28)
+            drop-shadow(0 0 86px var(--lootbox-rarity-glow));
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(38px) scale(.74) rotate(0deg);
+        filter:
+            blur(10px)
+            brightness(2)
+            saturate(1.4)
+            drop-shadow(0 0 100px var(--lootbox-rarity-glow));
+    }
+}
+
+/* Speciale: mantiene arcobaleno completo */
+body.lootbox-rarity-speciale .bagliore {
+    width: max(165vw, 165vh) !important;
+    height: max(165vw, 165vh) !important;
+    background:
+        radial-gradient(circle, rgba(255,255,255,.18) 0%, rgba(255,255,255,.08) 18%, transparent 42%),
+        conic-gradient(from 0deg,
+            #ff004c,
+            #ff7a00,
+            #fff300,
+            #35ff00,
+            #00ffd5,
+            #0077ff,
+            #7a00ff,
+            #ff00d4,
+            #ff004c
+        ) !important;
+    background-size: 100% 100% !important;
+    border-radius: 50% !important;
+    opacity: .72 !important;
+    mix-blend-mode: screen;
+    animation: specialRainbowSpin 8s linear infinite !important;
+}
+
+@media (max-width: 620px) {
+    .lootbox-reward-frame .new-label,
+    .new-label {
+        top: .38rem !important;
+        right: .38rem !important;
+        font-size: .75rem !important;
+        padding: .27rem .52rem !important;
+    }
+
+    body.is-opening #cassa {
+        animation-duration: 2.85s !important;
+    }
+}
