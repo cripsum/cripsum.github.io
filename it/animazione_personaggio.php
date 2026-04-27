@@ -22,7 +22,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <link rel="stylesheet" href="/css/lootbox.css?v=8.0.4-bugfix-only" />
+    <link rel="stylesheet" href="/css/lootbox.css?v=8.0.5-chest-hide" />
     <title>Cripsum™ - Animazione personaggio</title>
 </head>
 

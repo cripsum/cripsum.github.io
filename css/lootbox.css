@@ -1751,3 +1751,53 @@ body.lootbox-page #cassa.aperta {
         animation: none !important;
     }
 }
+
+
+/* V8.0.5 — fix cassa che resta visibile durante il reveal
+   Bug: .is-opening-chest aveva animation !important e sovrascriveva .dissolvi.
+   Fix: quando ci sono entrambe le classi, vince sempre la dissolvenza. */
+
+body.lootbox-page #cassa.is-opening-chest.dissolvi,
+body.lootbox-page.is-opening #cassa.is-opening-chest.dissolvi,
+body.lootbox-page #cassa.aperta.dissolvi {
+    animation: chestFadeRewardV805 1.05s cubic-bezier(.16, 1, .3, 1) forwards !important;
+    pointer-events: none !important;
+}
+
+@keyframes chestFadeRewardV805 {
+    0% {
+        opacity: 1;
+        transform: translateY(18px) scale(1.025) rotate(0deg);
+        filter:
+            blur(0)
+            brightness(1.12)
+            drop-shadow(0 0 58px var(--lootbox-rarity-glow));
+    }
+    45% {
+        opacity: .86;
+        transform: translateY(8px) scale(1.09) rotate(0deg);
+        filter:
+            blur(1px)
+            brightness(1.65)
+            saturate(1.3)
+            drop-shadow(0 0 86px var(--lootbox-rarity-glow));
+    }
+    100% {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(38px) scale(.72) rotate(0deg);
+        filter:
+            blur(10px)
+            brightness(2)
+            saturate(1.4)
+            drop-shadow(0 0 100px var(--lootbox-rarity-glow));
+    }
+}
+
+/* Fallback extra: finita la fase reveal, la cassa non deve restare sopra al personaggio. */
+body.lootbox-page.is-revealed #cassa.dissolvi,
+body.lootbox-page.is-fast-open #cassa.dissolvi {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
