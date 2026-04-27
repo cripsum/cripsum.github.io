@@ -28,7 +28,7 @@ require_once '../api/api_personaggi.php';
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <link rel="stylesheet" href="/css/lootbox.css?v=8.1-smooth-reveal" />
+    <link rel="stylesheet" href="/css/lootbox.css?v=8-cinematic-fullscreen" />
     <title>Cripsum™ - lootbox</title>
 </head>
 
@@ -145,15 +145,9 @@ require_once '../api/api_personaggi.php';
 
             <div id="divApriAncora" class="nascosto">
                 <div class="button-container lootbox-actions mt-4">
-                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2 lootbox-action-btn--primary" onclick="refresh()">
-                        <i class="fas fa-box-open"></i><span>Apri ancora</span>
-                    </a>
-                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" href="inventario">
-                        <i class="fas fa-layer-group"></i><span>Inventario</span>
-                    </a>
-                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" onclick="toggleLeaderboard()">
-                        <i class="fas fa-trophy"></i><span>Classifica</span>
-                    </a>
+                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" onclick="refresh()">Apri cassa</a>
+                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" href="inventario">Inventario</a>
+                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" onclick="toggleLeaderboard()">Classifiche</a>
                 </div>
             </div>
 
@@ -249,30 +243,25 @@ require_once '../api/api_personaggi.php';
         <audio id="suonoCassa"></audio>
         <div class="leaderboard-wrapper" id="leaderboard-wrapper" style="display: none;">
             <div class="leaderboard-box">
-                <div class="leaderboard-head">
-                    <div>
-                        <span class="leaderboard-kicker">Classifiche</span>
-                        <h3 class="testobianco">Top Lootbox</h3>
-                        <p>Guarda chi sta grindando di più.</p>
-                    </div>
+                <h3 class="testobianco">🏆 Classifica</h3>
+                <h6 class="testobianco">filtra per:</h6>
 
-                    <button class="leaderboard-close" type="button" onclick="toggleLeaderboard()" aria-label="Chiudi classifica">
-                        <i class="fas fa-xmark"></i>
-                    </button>
-                </div>
-
-                <div class="leaderboard-buttons" role="group" aria-label="Filtro classifica">
+                <div class="leaderboard-buttons">
                     <button class="btn btn-secondary bottone leaderboard-btn active" onclick="switchLeaderboard('casse_aperte')" id="btn-casse">
-                        <i class="fas fa-box-open"></i><span>Casse aperte</span>
+                        Numero di casse aperte
                     </button>
                     <button class="btn btn-secondary bottone leaderboard-btn" onclick="switchLeaderboard('personaggi_sbloccati')" id="btn-personaggi">
-                        <i class="fas fa-users"></i><span>Personaggi</span>
+                        Personaggi trovati
                     </button>
                 </div>
 
                 <div id="leaderboard-data">
                     <div class="loading-text testobianco">Caricamento...</div>
                 </div>
+
+                <button class="btn btn-secondary bottone mt-3" onclick="toggleLeaderboard()">
+                    Chiudi Classifica
+                </button>
             </div>
         </div>
         <div id="achievement-popup" class="popup">
@@ -686,7 +675,7 @@ require_once '../api/api_personaggi.php';
             }
 
             function setLootboxState(state) {
-                document.body.classList.remove("is-opening", "is-reveal-imminent", "is-revealed", "is-fast-open");
+                document.body.classList.remove("is-opening", "is-revealed", "is-fast-open");
                 if (state) {
                     document.body.classList.add(state);
                 }
@@ -725,52 +714,52 @@ require_once '../api/api_personaggi.php';
                     setComuniDiFila(rarita);
 
                     if (rarita === "comune") {
-                        messaggioRarita.innerText = "Comune. Non è il colpo della vita, ma almeno entra in collezione.";
+                        messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
                         bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
                     } else if (rarita === "leggendario") {
-                        messaggioRarita.innerText = "Leggendario. Questa pull pesa davvero.";
+                        messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
                         bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
                     } else if (rarita === "epico") {
-                        messaggioRarita.innerText = "Epico. Ok, qui la cassa ha iniziato a cucinare.";
+                        messaggioRarita.innerText = "hai pullato un personaggio epico, tanta roba, ma poteva andare meglio";
                         bagliore.style.background = "radial-gradient(circle, rgba(195, 0, 235, 1) 0%, rgba(0, 0, 255, 0) 70%)";
                     } else if (rarita === "raro") {
                         if (pull.nome === "JOB APPLICATION") {
                             messaggioRarita.innerText = "BOO! DID I SCARE YOU? I'M A JOB APPLICATION! GET A JOB NOW!";
                         } else {
-                            messaggioRarita.innerText = "Raro. Buono dai, questa è già più interessante.";
+                            messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
                         }
                         bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
                     } else if (rarita === "speciale") {
 
                         specialPulled = true;
-                        messaggioRarita.innerText = "Speciale. Questa non doveva uscire così facilmente.";
+                        messaggioRarita.innerText = "COM'É POSSIBILE? HAI PULLATO UN PERSONAGGIO SPECIALE!";
 
                         bagliore.style.position = "fixed";
-                        bagliore.style.width = "max(160vw, 160vh)";
-                        bagliore.style.height = "max(160vw, 160vh)";
+                        bagliore.style.width = "100vw";
+                        bagliore.style.height = "100vh";
                         bagliore.style.zIndex = "-1";
 
-                        bagliore.style.background = "conic-gradient(from 0deg, #ff004c, #ff7a00, #fff300, #35ff00, #00ffd5, #0077ff, #7a00ff, #ff00d4, #ff004c)";
-                        bagliore.style.backgroundSize = "100% 100%";
-                        bagliore.style.animation = "specialRainbowSpin 8s linear infinite";
+                        bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
+                        bagliore.style.backgroundSize = "300% 100%";
+                        bagliore.style.animation = "rainbowBackground 6s linear infinite";
                     } else if (rarita === "segreto") {
 
                         secretPulled = true;
                         startIntroAnimation(pull.nome);
-                        messaggioRarita.innerText = "Segreto. Questa pull ha un’aura diversa.";
+                        messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
                         bagliore.style.position = "fixed";
-                        bagliore.style.width = "max(160vw, 160vh)";
-                        bagliore.style.height = "max(160vw, 160vh)";
+                        bagliore.style.width = "100vw";
+                        bagliore.style.height = "100vh";
                         bagliore.style.zIndex = "-1";
 
                     } else if (rarita === "theone") {
 
                         theOnePulled = true;
                         startTheOneAnimation(pull.nome);
-                        messaggioRarita.innerText = "The One. Hai trovato il pezzo più raro.";
+                        messaggioRarita.innerText = "INCREDBILE! HAI PULLATO IL PERSONAGGIO PIÙ RARO DI TUTTI!!!";
                         bagliore.style.position = "fixed";
-                        bagliore.style.width = "max(160vw, 160vh)";
-                        bagliore.style.height = "max(160vw, 160vh)";
+                        bagliore.style.width = "100vw";
+                        bagliore.style.height = "100vh";
                         bagliore.style.zIndex = "-1";
 
                     }
@@ -823,49 +812,49 @@ require_once '../api/api_personaggi.php';
                     setComuniDiFila(rarita);
 
                     if (rarita === "comune") {
-                        messaggioRarita.innerText = "Comune. Non è il colpo della vita, ma almeno entra in collezione.";
+                        messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
                         bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
                     } else if (rarita === "leggendario") {
-                        messaggioRarita.innerText = "Leggendario. Questa pull pesa davvero.";
+                        messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
                         bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
                     } else if (rarita === "epico") {
-                        messaggioRarita.innerText = "Epico. Ok, qui la cassa ha iniziato a cucinare.";
+                        messaggioRarita.innerText = "hai pullato un personaggio epico, tanta roba, ma poteva andare meglio";
                         bagliore.style.background = "radial-gradient(circle, rgba(195, 0, 235, 1) 0%, rgba(0, 0, 255, 0) 70%)";
                     } else if (rarita === "raro") {
                         if (pull.nome === "JOB APPLICATION") {
                             messaggioRarita.innerText = "BOO! DID I SCARE YOU? I'M A JOB APPLICATION! GET A JOB NOW!";
                         } else {
-                            messaggioRarita.innerText = "Raro. Buono dai, questa è già più interessante.";
+                            messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
                         }
                         bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
                     } else if (rarita === "speciale") {
-                        messaggioRarita.innerText = "Speciale. Questa non doveva uscire così facilmente.";
+                        messaggioRarita.innerText = "COM'É POSSIBILE? HAI PULLATO UN PERSONAGGIO SPECIALE!";
 
                         bagliore.style.position = "fixed";
-                        bagliore.style.width = "max(160vw, 160vh)";
-                        bagliore.style.height = "max(160vw, 160vh)";
+                        bagliore.style.width = "100vw";
+                        bagliore.style.height = "100vh";
                         bagliore.style.zIndex = "-1";
 
-                        bagliore.style.background = "conic-gradient(from 0deg, #ff004c, #ff7a00, #fff300, #35ff00, #00ffd5, #0077ff, #7a00ff, #ff00d4, #ff004c)";
-                        bagliore.style.backgroundSize = "100% 100%";
-                        bagliore.style.animation = "specialRainbowSpin 8s linear infinite";
+                        bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
+                        bagliore.style.backgroundSize = "300% 100%";
+                        bagliore.style.animation = "rainbowBackground 6s linear infinite";
                     } else if (rarita === "segreto") {
                         startIntroAnimation(pull.nome);
 
-                        messaggioRarita.innerText = "Segreto. Questa pull ha un’aura diversa.";
+                        messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
                         bagliore.style.position = "fixed";
-                        bagliore.style.width = "max(160vw, 160vh)";
-                        bagliore.style.height = "max(160vw, 160vh)";
+                        bagliore.style.width = "100vw";
+                        bagliore.style.height = "100vh";
                         bagliore.style.zIndex = "-1";
 
                     } else if (rarita === "theone") {
 
                         theOnePulled = true;
                         startTheOneAnimation(pull.nome);
-                        messaggioRarita.innerText = "The One. Hai trovato il pezzo più raro.";
+                        messaggioRarita.innerText = "INCREDBILE! HAI PULLATO IL PERSONAGGIO PIÙ RARO DI TUTTI!!!";
                         bagliore.style.position = "fixed";
-                        bagliore.style.width = "max(160vw, 160vh)";
-                        bagliore.style.height = "max(160vw, 160vh)";
+                        bagliore.style.width = "100vw";
+                        bagliore.style.height = "100vh";
                         bagliore.style.zIndex = "-1";
 
                     }
@@ -1041,20 +1030,16 @@ require_once '../api/api_personaggi.php';
                 cassa.classList.add("aperta");
 
                 setTimeout(() => {
-                    document.body.classList.add("is-reveal-imminent");
-                }, 2100);
-
-                setTimeout(() => {
                     setLootboxState("is-revealed");
                     contenuto.classList.add("salto");
                     messaggio.classList.add("salto");
                     cassa.classList.add("dissolvi");
-                }, 2850);
+                }, 3000);
 
                 setTimeout(() => {
                     divApriAncora.classList.remove("nascosto");
                     divApriAncora.classList.add("salto");
-                }, 3800);
+                }, 4000);
 
                 //audio.onended = () => {
                 //    setTimeout(refresh, 500);
@@ -1622,9 +1607,9 @@ require_once '../api/api_personaggi.php';
 
                     return `
                         <div class="leaderboard-entry ${rankClass}">
-                            <span class="entry-position testobianco">${medal}${escapeHtml(item.position)}</span>
-                            <span class="entry-username testobianco">${escapeHtml(item.username)}</span>
-                            <span class="entry-value">${escapeHtml(item.value)} ${escapeHtml(valueLabel)}</span>
+                            <span class="entry-position testobianco">${medal}${item.position}</span>
+                            <span class="entry-username testobianco">${item.username}</span>
+                            <span class="entry-value">${item.value}</span>
                         </div>
                     `;
                 }).join('');
