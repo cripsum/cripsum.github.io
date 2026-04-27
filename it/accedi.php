@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </button>
 
                     <div class="auth-links">
-                        <a href="forgot-password">Password dimenticata?</a>
+                        <a href="password-dimenticata">Password dimenticata?</a>
                         <a href="registrati">Crea account</a>
                     </div>
                 </form>
