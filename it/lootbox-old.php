@@ -24,15 +24,15 @@ require_once '../api/api_personaggi.php';
 
 ?>
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <link rel="stylesheet" href="/css/lootbox.css?v=8-cinematic-fullscreen" />
+    <link rel="stylesheet" href="/css/lootbox.css?v=7" />
     <title>Cripsum™ - lootbox</title>
 </head>
 
-<body class="lootbox-page">
+<body class="">
     <?php include '../includes/navbar-lootbox.php'; ?>
     <div class="stars" id="stars"></div>
 
@@ -41,7 +41,7 @@ require_once '../api/api_personaggi.php';
            bloccare lo scorrimento della pagina quando il pop up è aperto (aggiungere classe overflow-hidden al body)  
         -->
 
-    <div class="testobianco lootbox-stage" id="paginaintera">
+    <div style="max-width: 1520px; margin: auto; padding-top: 5rem" class="testobianco" id="paginaintera">
         <div
             id="popup-overlay"
             style="
@@ -130,7 +130,7 @@ require_once '../api/api_personaggi.php';
         </script>
         <div class="container">
 
-            <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein lootbox-chest" draggable="false" aria-label="Apri cassa" ondblclick="handleDoubleClick()" onclick="pullaPersonaggio(); apriNormale()" />
+            <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein" ondblclick="handleDoubleClick()" onclick="pullaPersonaggio(); apriNormale()" />
 
             <div id="baglioreWrapper">
                 <div class="bagliore" id="bagliore"></div>
@@ -139,15 +139,15 @@ require_once '../api/api_personaggi.php';
             <div id="contenuto"></div>
 
             <div id="messaggio" class="nascosto">
-                <h1 id="messaggioRarita" class="non-selezionabile lootbox-rarity-message"></h1>
+                <h1 style="margin-top: 100px; font-size: 25px" id="messaggioRarita" class="non-selezionabile"></h1>
                 <a onclick="refresh()" id="apriAncora" class="linkbianco"></a>
             </div>
 
             <div id="divApriAncora" class="nascosto">
-                <div class="button-container lootbox-actions mt-4">
-                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" onclick="refresh()">Apri cassa</a>
-                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" href="inventario">Inventario</a>
-                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" onclick="toggleLeaderboard()">Classifiche</a>
+                <div class="button-container mt-4" style="text-align: center; max-width: 95%; margin: auto">
+                    <a class="btn btn-secondary bottone mt-2" onclick="refresh()" style="cursor: pointer">Apri cassa</a>
+                    <a class="btn btn-secondary bottone mt-2" href="inventario" style="cursor: pointer">Apri l'inventario</a><br>
+                    <a class="btn btn-secondary bottone mt-2" onclick="toggleLeaderboard()" style="cursor: pointer">Visualizza Classifiche</a>
                 </div>
             </div>
 
@@ -264,7 +264,7 @@ require_once '../api/api_personaggi.php';
                 </button>
             </div>
         </div>
-        <div id="achievement-popup" class="popup">
+        <div id="achievement-popup" class="popup" style="max-height: 100px">
             <img id="popup-image" src="" alt="Achievement" />
             <div>
                 <h3 id="popup-title"></h3>
@@ -279,7 +279,10 @@ require_once '../api/api_personaggi.php';
                 <li class="list-inline-item"><a href="it/supporto" class="linkbianco">Supporto</a></li>
             </ul>
         </footer>-->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"></script>
         <script src="../js/unlockAchievement-it.js"></script>
         <script>
             const cassa = document.getElementById("cassa");
@@ -623,65 +626,6 @@ require_once '../api/api_personaggi.php';
                 return await getRandomPull();
             }
 
-
-            function escapeHtml(value) {
-                return String(value ?? "")
-                    .replaceAll("&", "&amp;")
-                    .replaceAll("<", "&lt;")
-                    .replaceAll(">", "&gt;")
-                    .replaceAll('"', "&quot;")
-                    .replaceAll("'", "&#039;");
-            }
-
-            function safeImageFile(value) {
-                const cleaned = String(value || "Susremaster.png").replace(/[<>"']/g, "").trim();
-                return cleaned || "Susremaster.png";
-            }
-
-            function normalizeRarityClass(rarity) {
-                return String(rarity || "comune")
-                    .toLowerCase()
-                    .normalize("NFD")
-                    .replace(/[\u0300-\u036f]/g, "")
-                    .replace(/[\s_-]+/g, "");
-            }
-
-            function applyLootboxRarityVisual(rarity) {
-                const normalized = normalizeRarityClass(rarity);
-                const rarityClasses = [
-                    "lootbox-rarity-comune",
-                    "lootbox-rarity-raro",
-                    "lootbox-rarity-epico",
-                    "lootbox-rarity-leggendario",
-                    "lootbox-rarity-speciale",
-                    "lootbox-rarity-segreto",
-                    "lootbox-rarity-theone"
-                ];
-
-                document.body.classList.remove(...rarityClasses);
-                document.body.classList.add(`lootbox-rarity-${normalized}`);
-
-                const colors = {
-                    comune: "#d1d5db",
-                    raro: "#38bdf8",
-                    epico: "#c084fc",
-                    leggendario: "#fbbf24",
-                    speciale: "#ffffff",
-                    segreto: "#a855f7",
-                    theone: "#38bdf8"
-                };
-
-                document.documentElement.style.setProperty("--lootbox-particle-color", colors[normalized] || "#ffffff");
-            }
-
-            function setLootboxState(state) {
-                document.body.classList.remove("is-opening", "is-revealed", "is-fast-open");
-                if (state) {
-                    document.body.classList.add(state);
-                }
-            }
-
-
             async function pullaPersonaggio() {
 
                 if (isProcessing) {
@@ -693,14 +637,9 @@ require_once '../api/api_personaggi.php';
                 try {
                     const pull = await filtroPull();
 
-                    const safeName = escapeHtml(pull.nome || "Personaggio");
-                    const safeImg = safeImageFile(pull.img_url);
-
                     document.getElementById("contenuto").innerHTML = `
-                        <div class="lootbox-character-reveal">
-                            <p id="nomePersonaggio" class="lootbox-character-name">${safeName}</p>
-                            <img src="/img/${safeImg}" alt="${safeName}" class="premio" onerror="this.onerror=null;this.src='/img/Susremaster.png';" draggable="false" />
-                        </div>
+                        <p style="top 10px; font-size: 20px; max-width: 600px; text-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);" id="nomePersonaggio">${pull.nome}</p>
+                        <img src="/img/${pull.img_url}" alt="Premio" class="premio" />
                     `;
 
                     await addToInventory(pull);
@@ -710,7 +649,6 @@ require_once '../api/api_personaggi.php';
                     }
 
                     const rarita = pull.rarità;
-                    applyLootboxRarityVisual(rarita);
                     setComuniDiFila(rarita);
 
                     if (rarita === "comune") {
@@ -789,14 +727,9 @@ require_once '../api/api_personaggi.php';
                 try {
                     const pull = await getCharacter(nomePersonaggio);
 
-                    const safeName = escapeHtml(pull.nome || "Personaggio");
-                    const safeImg = safeImageFile(pull.img_url);
-
                     document.getElementById("contenuto").innerHTML = `
-                        <div class="lootbox-character-reveal">
-                            <p id="nomePersonaggio" class="lootbox-character-name">${safeName}</p>
-                            <img src="/img/${safeImg}" alt="${safeName}" class="premio" onerror="this.onerror=null;this.src='/img/Susremaster.png';" draggable="false" />
-                        </div>
+                        <p style="top 10px; font-size: 20px; max-width: 600px; text-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);" id="nomePersonaggio">${pull.nome}</p>
+                        <img src="/img/${pull.img_url}" alt="Premio" class="premio" />
                     `;
 
                     await addToInventory(pull);
@@ -808,7 +741,6 @@ require_once '../api/api_personaggi.php';
                     }
 
                     const rarita = pull.rarità;
-                    applyLootboxRarityVisual(rarita);
                     setComuniDiFila(rarita);
 
                     if (rarita === "comune") {
@@ -902,7 +834,7 @@ require_once '../api/api_personaggi.php';
                                         bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
 
                                         audio.currentTime = 0;
-                                        audio.play().catch(() => {});
+                                        audio.play();
 
                                         generaParticelle();
                                         apriCassa();
@@ -1014,7 +946,6 @@ require_once '../api/api_personaggi.php';
                     return;
                 }
                 isopening = true;
-                setLootboxState("is-opening");
                 cassa.onclick = null;
                 await apriCassa();
 
@@ -1024,13 +955,12 @@ require_once '../api/api_personaggi.php';
                 bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
 
                 audio.currentTime = 0;
-                audio.play().catch(() => {});
+                audio.play();
 
                 cassa.src = "../img/cassa_aperta.png";
                 cassa.classList.add("aperta");
 
                 setTimeout(() => {
-                    setLootboxState("is-revealed");
                     contenuto.classList.add("salto");
                     messaggio.classList.add("salto");
                     cassa.classList.add("dissolvi");
@@ -1118,7 +1048,6 @@ require_once '../api/api_personaggi.php';
             }
 
             function apriVeloce() {
-                setLootboxState("is-fast-open");
                 contenuto.classList.add("salto");
                 messaggio.classList.add("salto");
                 cassa.classList.add("dissolvi");
@@ -1143,7 +1072,7 @@ require_once '../api/api_personaggi.php';
 
                 for (let i = 0; i < 100; i++) {
                     const particella = document.createElement("div");
-                    particella.classList.add("particella", "particella--spark");
+                    particella.classList.add("particella");
 
                     particella.style.left = `${centerX}px`;
                     particella.style.top = `${centerY}px`;
@@ -1155,7 +1084,6 @@ require_once '../api/api_personaggi.php';
 
                     particella.style.setProperty("--x", `${x}px`);
                     particella.style.setProperty("--y", `${y}px`);
-                    particella.style.setProperty("--dur", `${1100 + Math.random() * 900}ms`);
 
                     container.appendChild(particella);
 
