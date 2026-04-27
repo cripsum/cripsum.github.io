@@ -22,7 +22,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <link rel="stylesheet" href="/css/lootbox.css?v=8.0.3-new-chest-animation" />
+    <link rel="stylesheet" href="/css/lootbox.css?v=8-cinematic-fullscreen" />
     <title>Cripsum™ - Animazione personaggio</title>
 </head>
 
@@ -196,10 +196,8 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
                 document.getElementById("contenuto").innerHTML = `
                         <div class="lootbox-character-reveal">
-                            <div class="lootbox-reward-frame">
-                                <img src="/img/${safeImg}" alt="${safeName}" class="premio" onerror="this.onerror=null;this.src='/img/Susremaster.png';" draggable="false" />
-                            </div>
                             <p id="nomePersonaggio" class="lootbox-character-name">${safeName}</p>
+                            <img src="/img/${safeImg}" alt="${safeName}" class="premio" onerror="this.onerror=null;this.src='/img/Susremaster.png';" draggable="false" />
                         </div>
                     `;
 
@@ -227,7 +225,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                     bagliore.style.position = "fixed";
                     bagliore.style.width = "100vw";
                     bagliore.style.height = "100vh";
-                    bagliore.style.zIndex = "1";
+                    bagliore.style.zIndex = "-1";
 
                     bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
                     bagliore.style.backgroundSize = "300% 100%";
@@ -239,7 +237,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                     bagliore.style.position = "fixed";
                     bagliore.style.width = "100vw";
                     bagliore.style.height = "100vh";
-                    bagliore.style.zIndex = "1";
+                    bagliore.style.zIndex = "-1";
 
                 } else if (pull.rarità === "theone") {
 
@@ -248,7 +246,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                     bagliore.style.position = "fixed";
                     bagliore.style.width = "100vw";
                     bagliore.style.height = "100vh";
-                    bagliore.style.zIndex = "1";
+                    bagliore.style.zIndex = "-1";
 
                 }
 
@@ -278,15 +276,8 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
             audio.currentTime = 0;
             audio.play().catch(() => {});
 
-            cassa.classList.add("is-opening-chest");
-
-            setTimeout(() => {
-                cassa.src = "../img/cassa_aperta.png";
-            }, 520);
-
-            setTimeout(() => {
-                cassa.classList.add("aperta");
-            }, 2550);
+            cassa.src = "../img/cassa_aperta.png";
+            cassa.classList.add("aperta");
 
             setTimeout(() => {
                 setLootboxState("is-revealed");
@@ -306,30 +297,49 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
         }
 
         function testoNuovo() {
-                document.querySelectorAll(".new-label").forEach((label) => label.remove());
+            let newLabel = document.createElement("span");
+            newLabel.classList.add("new-label");
+            newLabel.innerText = "NEW!";
+            contenuto.appendChild(newLabel);
+            let dynamicMargin = -20;
+            let topMargin = 0;
+            const nameElement = newLabel.parentElement.querySelector('#nomePersonaggio');
+            const nameLength = nameElement.innerText.length;
 
-                const rewardFrame =
-                    contenuto.querySelector(".lootbox-reward-frame") ||
-                    (() => {
-                        const image = contenuto.querySelector(".premio");
-                        if (!image) return null;
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    nameElement.offsetHeight;
+                    
+                    const computedStyle = window.getComputedStyle(nameElement);
+                    const lineHeight = parseFloat(computedStyle.lineHeight) || parseFloat(computedStyle.fontSize) * 1.2;
+                    const actualHeight = nameElement.offsetHeight;
+                    const isMultiline = actualHeight > lineHeight * 1.1; 
+                    
+                    if (nameLength > 25) {
+                        dynamicMargin = 50;
+                        topMargin = isMultiline ? 30 : 0;
+                    } else if (nameLength > 20) {
+                        dynamicMargin = 30;
+                        topMargin = isMultiline ? 30 : 0;
+                    } else if (nameLength > 15) {
+                        dynamicMargin = 10;
+                        topMargin = isMultiline ? 30 : 0;
+                    } else if (nameLength > 10) {
+                        dynamicMargin = -10;
+                        topMargin = isMultiline ? 30 : 0;
+                    } else {
+                        dynamicMargin = -20;
+                        topMargin = isMultiline ? 30 : 0;
+                    }
 
-                        const frame = document.createElement("div");
-                        frame.className = "lootbox-reward-frame";
-                        image.parentNode.insertBefore(frame, image);
-                        frame.appendChild(image);
-                        return frame;
-                    })();
+                    newLabel.style.marginRight = dynamicMargin + 'px';
+                    newLabel.style.marginTop = topMargin + 'px';
+                });
+            });
+        }
 
-                if (!rewardFrame) return;
 
-                const newLabel = document.createElement("span");
-                newLabel.className = "new-label";
-                newLabel.innerText = "NEW!";
-                rewardFrame.appendChild(newLabel);
-            }
-
-            function generaParticelle() {
+        function generaParticelle() {
             const container = document.getElementById("particelle");
             const cassa = document.getElementById("cassa");
             const rect = cassa.getBoundingClientRect();
