@@ -22,7 +22,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <link rel="stylesheet" href="/css/lootbox.css?v=8-cinematic-fullscreen" />
+    <link rel="stylesheet" href="/css/lootbox.css?v=8.0.1-new-special-fix" />
     <title>Cripsum™ - Animazione personaggio</title>
 </head>
 
@@ -225,7 +225,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                     bagliore.style.position = "fixed";
                     bagliore.style.width = "100vw";
                     bagliore.style.height = "100vh";
-                    bagliore.style.zIndex = "-1";
+                    bagliore.style.zIndex = "1";
 
                     bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
                     bagliore.style.backgroundSize = "300% 100%";
@@ -237,7 +237,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                     bagliore.style.position = "fixed";
                     bagliore.style.width = "100vw";
                     bagliore.style.height = "100vh";
-                    bagliore.style.zIndex = "-1";
+                    bagliore.style.zIndex = "1";
 
                 } else if (pull.rarità === "theone") {
 
@@ -246,7 +246,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                     bagliore.style.position = "fixed";
                     bagliore.style.width = "100vw";
                     bagliore.style.height = "100vh";
-                    bagliore.style.zIndex = "-1";
+                    bagliore.style.zIndex = "1";
 
                 }
 
