@@ -1,8 +1,6 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
 ini_set('log_errors', 1);
-error_reporting(1);
+error_reporting(E_ALL);
 
 require_once '../../config/session_init.php';
 require_once '../../config/database.php';
@@ -10,14 +8,13 @@ require_once '../../includes/functions.php';
 checkBan($mysqli);
 
 $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
-
 $bot = preg_match('/(facebookexternalhit|Facebot|Discordbot|Twitterbot|TelegramBot|WhatsApp)/i', $ua);
 
 if ($bot) {
     echo '
     <html><head>
       <meta property="og:title" content="Cripsum™ GoonLand - Home">
-      <meta property="og:description" content="Goonland è un progetto ideato da Zakator e Cripsum: uno spazio digitale unico nel suo genere, nato dalla volontà di creare un ambiente che fosse al tempo stesso provocatorio, giocoso e visivamente coinvolgente.">
+      <meta property="og:description" content="GoonLand è una sezione sperimentale rosa del sito: giochi, contenuti e piccole robe interattive.">
       <meta property="og:image" content="https://cripsum.com/img/raspberry-chan16gb.png">
       <meta property="og:url" content="https://cripsum.com/it/goonland/home">
       <meta property="og:type" content="website">
@@ -25,11 +22,9 @@ if ($bot) {
     exit;
 }
 
-
 if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
     $_SESSION['login_message'] = "Per accedere a GoonLand devi essere loggato";
-
     header('Location: ../accedi');
     exit();
 }
@@ -39,77 +34,103 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
     header('Location: ../home');
     exit();
 }
-
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="it">
 <head>
     <meta property="og:title" content="Cripsum™ GoonLand - Home">
-    <meta property="og:description" content="Goonland è un progetto ideato da Zakator e Cripsum: uno spazio digitale unico nel suo genere, nato dalla volontà di creare un ambiente che fosse al tempo stesso provocatorio, giocoso e visivamente coinvolgente.">
+    <meta property="og:description" content="GoonLand è una sezione sperimentale rosa del sito: giochi, contenuti e piccole robe interattive.">
     <meta property="og:image" content="https://cripsum.com/img/raspberry-chan16gb.png">
     <meta property="og:url" content="https://cripsum.com/it/goonland/home">
     <meta property="og:type" content="website">
     <?php include '../../includes/head-import.php'; ?>
-
-    <link rel="stylesheet" href="/css/style-goonland.css?v=7" />
     <title>GoonLand™ - Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="stylesheet" href="/css/goonland.css?v=2.0">
+    <script src="/js/goonland.js?v=2.0" defer></script>
 </head>
 
-<body>
+<body class="goonland-page" data-goonland-page="home">
     <?php include '../../includes/navbar-goonland.php'; ?>
     <?php include '../../includes/impostazioni.php'; ?>
-    <script>
-        unlockAchievement(15);
-    </script>
-    <div class="goonland-container" style="padding-top: 7rem; padding-bottom: 4rem;">
-        <div class="title fadeup">
-            <h1 style="font-weight:bolder;">Welcome to Goonland!</h1>
-        </div>
-        <div class="p1 fadeup">
-            <h3 style="font-weight:bold;">Cos'è Goonland?</h3>
-            <img class="img" src="/img/raspberry-chan16gb.png" alt="" />
-            <p>
-                Goonland è un progetto ideato da Zakator e Cripsum: uno spazio digitale unico nel suo genere, nato dalla volontà di creare un ambiente che fosse al tempo stesso provocatorio, giocoso e visivamente coinvolgente. Non si tratta solo di un sito, ma di un piccolo universo costruito per intrattenere, far riflettere e talvolta confondere in modo creativo e fuori dagli schemi.
-            </p>
-            <p>
-                All'interno di Goonland troverai una raccolta di giochi interattivi, esperienze sperimentali e contenuti a tema, tutti sviluppati per incarnare l'estetica visionaria e spesso surreale del progetto. Ogni elemento del sito è pensato per immergere l'utente in un viaggio digitale dove nulla è davvero come sembra, e dove l'ironia si mescola con una sottile critica alla cultura dell'intrattenimento online.
-            </p>
-        </div>
-        <hr class="goonhr fadeuphr" />
-        <div class="p2 fadeup">
-            <h3 style="font-weight:bold;">Cos'è il gooning?</h3>
-            <img class="img2" src="/img/raspberry-chan8gb.png" alt="" />
-            <p>
-                Il termine "gooning" affonda le sue radici negli angoli più oscuri e assurdi di Internet, dove è nato per descrivere uno stato mentale ipnotico, quasi trance, indotto dalla ripetizione ossessiva di stimoli sensoriali, come immagini, suoni o contenuti digitali. È una condizione in cui l'attenzione viene completamente risucchiata, portando a un'esperienza psicologica intensa e stranamente appagante.
-            </p>
-            <p>
-                In chiave ironica e satirica, Goonland prende il concetto di gooning e lo trasforma in una metafora dell’era digitale: un invito a lasciarsi assorbire — consapevolmente — dall’assurdo, dall’eccesso, dalla bellezza distorta di un flusso continuo di contenuti. È un modo per rappresentare il caos creativo del web e la nostra relazione con la tecnologia, l’intrattenimento e la perdita del tempo.
-            </p>
-        </div>
-        <hr class="goonhr fadeuphr" />
-        <div class="p3 fadeup">
-            <h3 style="font-weight:bold;">Vi auguriamo tanto gooning!</h3>
-            <p>
-                Che tu sia un veterano della rete, cresciuto a pane e culture digitali underground, oppure un esploratore curioso alla ricerca di nuovi territori dell’assurdo, Goonland ti dà il benvenuto. Qui puoi perderti, ritrovarti o semplicemente lasciarti trasportare da un’esperienza fuori dal comune. Mettiti comodo, dimentica le regole per un po’ e preparati a entrare in un mondo che non chiede di essere compreso, ma semplicemente vissuto. Buon gooning!
-            </p>
-        </div>
-    </div>
+
+    <div class="gl-bg" aria-hidden="true"><span></span><span></span></div>
+
+    <main class="gl-shell">
+        <section class="gl-hero gl-reveal">
+            <div class="gl-hero-text">
+                <span class="gl-kicker"><i class="fas fa-heart"></i> GoonLand</span>
+                <h1>Welcome to GoonLand</h1>
+                <p>Una zona rosa, strana e sperimentale dentro cripsum.com. Qui finiscono mini-giochi, idee assurde e robe che non starebbero bene altrove.</p>
+
+                <div class="gl-actions">
+                    <a class="gl-btn gl-btn-main" href="/it/goonland/goon-generator">
+                        <i class="fas fa-wand-magic-sparkles"></i> Apri il generator
+                    </a>
+                    <a class="gl-btn gl-btn-ghost" href="/it/home">
+                        <i class="fas fa-arrow-left"></i> Torna al sito
+                    </a>
+                </div>
+            </div>
+
+            <div class="gl-hero-media">
+                <img src="/img/raspberry-chan16gb.png" alt="GoonLand visual" loading="eager" data-gl-fallback>
+                <div class="gl-floating-card">
+                    <span>Mood</span>
+                    <strong>rosa, caotico, sperimentale</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="gl-section gl-reveal">
+            <div class="gl-section-head">
+                <span class="gl-kicker">Cos’è</span>
+                <h2>Una mini-area del sito fatta per esperimenti.</h2>
+                <p>Stesso tono ironico, ma con una grafica più ordinata e leggibile.</p>
+            </div>
+
+            <div class="gl-card-grid">
+                <article class="gl-card">
+                    <i class="fas fa-dice"></i>
+                    <h3>Esperienze</h3>
+                    <p>Interazioni, generatori e pagine leggere da usare subito.</p>
+                </article>
+                <article class="gl-card">
+                    <i class="fas fa-eye"></i>
+                    <h3>Estetica</h3>
+                    <p>Rosa, fucsia, glow e uno stile surreale ma pulito.</p>
+                </article>
+                <article class="gl-card">
+                    <i class="fas fa-bolt"></i>
+                    <h3>Caos controllato</h3>
+                    <p>Resta strano e personale, ma senza diventare illeggibile.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="gl-split gl-reveal">
+            <article class="gl-copy">
+                <span class="gl-kicker">Idea</span>
+                <h2>Non una dashboard. Una stanza a parte.</h2>
+                <p>GoonLand non deve spiegare troppo. Deve essere una zona separata del sito, con una sua identità e una sua vibe.</p>
+            </article>
+            <article class="gl-copy gl-copy-accent">
+                <span class="gl-kicker">Nota</span>
+                <h2>Accesso regolato dalle impostazioni.</h2>
+                <p>Se i contenuti NSFW sono disattivati nel profilo, questa sezione resta bloccata.</p>
+            </article>
+        </section>
+    </main>
 
     <div id="achievement-popup" class="popup">
-        <img id="popup-image" src="" alt="Achievement" />
-        <div>
-            <h3 id="popup-title"></h3>
-            <p id="popup-description"></p>
-        </div>
+        <img id="popup-image" src="" alt="Achievement">
+        <div><h3 id="popup-title"></h3><p id="popup-description"></p></div>
     </div>
+
+    <button class="gl-top" type="button" data-gl-top aria-label="Torna su"><i class="fas fa-arrow-up"></i></button>
+
     <?php include '../../includes/footer.php'; ?>
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="/js/modeChanger.js"></script>
 </body>
-
 </html>
