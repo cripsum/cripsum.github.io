@@ -2,138 +2,179 @@
 require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+
 checkBan($mysqli);
 ?>
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="it">
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <title>Cripsum™ - checkout</title>
+    <meta charset="UTF-8">
+    <title>Cripsum™ - Checkout</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="stylesheet" href="/assets/forms/forms.css?v=1.0-unified">
+    <script src="/assets/forms/forms.js?v=1.0-unified" defer></script>
 </head>
 
-<body>
+<body class="form-page">
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
-    <div style="max-width: 1920px; margin: auto; padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
-        <div class="containerCheckout">
-            <div class="py-5 text-center">
-                <h2 class="fs-1 fadeup" style="font-weight: bold">Checkout</h2>
-            </div>
-            <div class="order-md-1">
-                <h4 class="mb-3 fadeup">Indirizzo di pagamento</h4>
-                <div class="row">
-                    <div class="col-md-6 mb-3 fadeup">
-                        <label for="firstName">Nome</label>
-                        <input type="text" class="form-control" id="firstName" placeholder="" value="" required="" />
-                        <div class="invalid-feedback">è richiesto un nome valido.</div>
-                    </div>
-                    <div class="col-md-6 mb-3 fadeup">
-                        <label for="lastName">Cognome</label>
-                        <input type="text" class="form-control" id="lastName" placeholder="" value="" required="" />
-                        <div class="invalid-feedback">è richiesto un cognome valido.</div>
-                    </div>
-                </div>
-                <div class="mb-3 fadeup">
-                    <label for="username">Username</label>
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" id="username" placeholder="Username" aria-label="Username" required="" aria-describedby="basic-addon1">
-                    </div>
-                    <div class="invalid-feedback" style="width: 100%">è richiesto l'username.</div>
-                </div>
-            </div>
-            <div class="mb-3 fadeup">
-                <label for="email">Email <span class="">(opzionale)</span></label>
-                <input type="email" class="form-control" id="email" placeholder="email@esempio.com" />
-                <div class="invalid-feedback">Inserisci una email per ricevere tutti gli aggiornamenti sulla spedizione.</div>
-            </div>
-            <div class="mb-3 fadeup">
-                <label for="address">Indirizzo</label>
-                <input type="text" class="form-control" id="address" placeholder="via esempio, 1234" required="" />
-                <div class="invalid-feedback">Inserisci il tuo indirizzo di spedizione.</div>
-            </div>
-            <div class="mb-3 fadeup">
-                <label for="address2">Indirizzo 2 <span class="">(Opzionale)</span></label>
-                <input type="text" class="form-control" id="address2" placeholder="Appartamento o stanza" />
-            </div>
-            <div class="row">
-                <div class="col-md-5 mb-3 fadeup">
-                    <label for="country">Stato</label>
-                    <input type="text" class="form-control" id="address2" placeholder="" />
-                    <div class="invalid-feedback">Insersci uno stato valido.</div>
-                </div>
-                <div class="col-md-4 mb-3 fadeup">
-                    <label for="state">Regione</label>
-                    <input type="text" class="form-control" id="zip" placeholder="" required="" />
-                    <div class="invalid-feedback">Inserisci una regione valida.</div>
-                </div>
-                <div class="col-md-3 mb-3 fadeup">
-                    <label for="zip">Codice postale</label>
-                    <input type="text" class="form-control" id="zip" placeholder="" required="" />
-                    <div class="invalid-feedback">è rischiesto il codice postale.</div>
-                </div>
-            </div>
-            <hr class="mb-4 fadeuphr" />
-            <div class="custom-control custom-checkbox fadeup">
-                <input type="checkbox" class="" id="same-address" />
-                <label class="form-check-label" for="same-address">l'indirizzo di spedizione è uguale all'indirizzo di pagamento</label>
-            </div>
-            <div class="custom-control custom-checkbox fadeup">
-                <input type="checkbox" class="" id="save-info" />
-                <label class="form-check-label" for="save-info">Ricorda le informazioni per i prossimi acquisti</label>
-            </div>
-            <hr class="mb-4 fadeuphr" />
-            <h4 class="mb-3 fadeup">Pagamento</h4>
-            <div class="d-block my-3 fadeup">
-                <div class="custom-control custom-radio">
-                    <input id="credit" name="paymentMethod" type="radio" class="" checked="" required="" />
-                    <label class="form-check-label" for="credit">Carta di credito</label>
-                </div>
-                <div class="custom-control custom-radio">
-                    <input id="debit" name="paymentMethod" type="radio" class="" required="" />
-                    <label class="form-check-label" for="debit">Carta di debito</label>
-                </div>
-                <div class="custom-control custom-radio">
-                    <input id="paypal" name="paymentMethod" type="radio" class="" required="" />
-                    <label class="form-check-label" for="paypal">PayPal</label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6 mb-3 fadeup">
-                    <label for="cc-name">Nome sulla carta</label>
-                    <input type="text" class="form-control" id="cc-name" placeholder="" required="" />
-                    <div class="invalid-feedback">è richiesto il nome sulla carta</div>
-                </div>
-                <div class="col-md-6 mb-3 fadeup">
-                    <label for="cc-number">Numero della carta</label>
-                    <input type="text" class="form-control" id="cc-number" placeholder="" required="" />
-                    <div class="invalid-feedback">è richiesto il numero della carta</div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3 mb-3 fadeup">
-                    <label for="cc-expiration">Scadenza</label>
-                    <input type="text" class="form-control" id="cc-expiration" placeholder="" required="" />
-                    <div class="invalid-feedback">è richiesta la data di scadenza</div>
-                </div>
-                <div class="col-md-3 mb-3 fadeup">
-                    <label for="cc-cvv">CVV</label>
-                    <input type="text" class="form-control" id="cc-cvv" placeholder="" required="" />
-                    <div class="invalid-feedback">codice di sicurezza richiesto</div>
-                </div>
-            </div>
-            <hr class="mb-4 fadeuphr" />
-            <a href="confirm"><button class="btn btn-secondary bottone2 btn-lg btn-block fadeup" style="width: 100%; margin: auto;">Invia e paga</button></a>
-        </div>
-    </div>
-    </div>
-    <?php include '../includes/footer.php'; ?>
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-        crossorigin="anonymous"></script>
-    
-</body>
 
+    <div class="form-bg" aria-hidden="true">
+        <span class="form-orb form-orb--one"></span>
+        <span class="form-orb form-orb--two"></span>
+        <span class="form-grid-bg"></span>
+    </div>
+
+
+    <main class="form-shell form-shell--checkout">
+        <section class="form-card form-reveal">
+            <div class="form-card__header">
+                <span class="form-pill">Shop</span>
+                <h1>Checkout</h1>
+                <p>Completa i dati richiesti per proseguire.</p>
+            </div>
+
+            <div class="checkout-layout">
+                <div class="form-panel">
+                    <form id="checkoutForm" data-form-loading>
+                        <div class="form-section">
+                            <h2>Contatti</h2>
+
+                            <div class="form-grid form-grid--2">
+                                <label class="form-field">
+                                    <span>Nome</span>
+                                    <input type="text" id="firstName" autocomplete="given-name" required>
+                                </label>
+
+                                <label class="form-field">
+                                    <span>Cognome</span>
+                                    <input type="text" id="lastName" autocomplete="family-name" required>
+                                </label>
+                            </div>
+
+                            <label class="form-field">
+                                <span>Username</span>
+                                <input type="text" id="username" placeholder="Username" required>
+                            </label>
+
+                            <label class="form-field">
+                                <span>Email <small>(opzionale)</small></span>
+                                <input type="email" id="email" placeholder="email@esempio.com" autocomplete="email">
+                            </label>
+                        </div>
+
+                        <div class="form-section">
+                            <h2>Indirizzo</h2>
+
+                            <label class="form-field">
+                                <span>Indirizzo</span>
+                                <input type="text" id="address" placeholder="Via esempio, 123" autocomplete="street-address" required>
+                            </label>
+
+                            <label class="form-field">
+                                <span>Indirizzo 2 <small>(opzionale)</small></span>
+                                <input type="text" id="address2" placeholder="Appartamento, scala, interno">
+                            </label>
+
+                            <div class="form-grid form-grid--3">
+                                <label class="form-field">
+                                    <span>Stato</span>
+                                    <input type="text" id="country" autocomplete="country-name" required>
+                                </label>
+
+                                <label class="form-field">
+                                    <span>Regione</span>
+                                    <input type="text" id="state" autocomplete="address-level1" required>
+                                </label>
+
+                                <label class="form-field">
+                                    <span>CAP</span>
+                                    <input type="text" id="zip" autocomplete="postal-code" required>
+                                </label>
+                            </div>
+
+                            <label class="form-check">
+                                <input type="checkbox" id="same-address">
+                                <span>Indirizzo di spedizione uguale a quello di pagamento</span>
+                            </label>
+
+                            <label class="form-check">
+                                <input type="checkbox" id="save-info">
+                                <span>Ricorda le informazioni per i prossimi acquisti</span>
+                            </label>
+                        </div>
+
+                        <div class="form-section">
+                            <h2>Pagamento</h2>
+
+                            <label class="form-radio">
+                                <input id="credit" name="paymentMethod" type="radio" checked required>
+                                <span>Carta di credito</span>
+                            </label>
+
+                            <label class="form-radio">
+                                <input id="debit" name="paymentMethod" type="radio" required>
+                                <span>Carta di debito</span>
+                            </label>
+
+                            <label class="form-radio">
+                                <input id="paypal" name="paymentMethod" type="radio" required>
+                                <span>PayPal</span>
+                            </label>
+
+                            <div class="form-grid form-grid--2">
+                                <label class="form-field">
+                                    <span>Nome sulla carta</span>
+                                    <input type="text" id="cc-name" autocomplete="cc-name" required>
+                                </label>
+
+                                <label class="form-field">
+                                    <span>Numero carta</span>
+                                    <input type="text" id="cc-number" inputmode="numeric" autocomplete="cc-number" required>
+                                </label>
+                            </div>
+
+                            <div class="form-grid form-grid--2">
+                                <label class="form-field">
+                                    <span>Scadenza</span>
+                                    <input type="text" id="cc-expiration" placeholder="MM/AA" autocomplete="cc-exp" required>
+                                </label>
+
+                                <label class="form-field">
+                                    <span>CVV</span>
+                                    <input type="text" id="cc-cvv" inputmode="numeric" autocomplete="cc-csc" required>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <a href="confirm" class="form-btn form-btn--primary form-btn--wide">
+                                <i class="fas fa-lock"></i>
+                                <span>Continua</span>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <aside class="form-panel checkout-summary">
+                    <h2>Riepilogo</h2>
+                    <div class="summary-line">
+                        <span>Ordine</span>
+                        <strong>Cripsum™</strong>
+                    </div>
+                    <div class="summary-line">
+                        <span>Stato</span>
+                        <strong>In attesa</strong>
+                    </div>
+                    <p class="form-muted" style="margin-top:1rem;">Controlla i dati prima di continuare.</p>
+                </aside>
+            </div>
+        </section>
+    </main>
+
+    <?php include '../includes/footer.php'; ?>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+</body>
 </html>

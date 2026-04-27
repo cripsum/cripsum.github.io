@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!empty($result['ok'])) {
             if (!empty($result['used_backup'])) {
-                $_SESSION['login_message'] = 'Accesso completato con codice backup. Ricorda che quel codice ora non vale più.';
+                $_SESSION['login_message'] = 'Accesso completato con codice backup. Quel codice ora non vale più.';
             }
 
             header('Location: ' . ($result['redirect'] ?? 'home'));
@@ -49,45 +49,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Verifica 2FA</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/auth/auth.css?v=1.0-2fa">
-    <script src="/assets/auth/auth.js?v=1.0-2fa" defer></script>
+    <link rel="stylesheet" href="/assets/forms/forms.css?v=1.0-unified">
+    <script src="/assets/forms/forms.js?v=1.0-unified" defer></script>
 </head>
 
-<body class="auth-page">
+<body class="form-page">
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
-    <main class="auth-shell auth-shell--narrow">
-        <section class="auth-card auth-card--single auth-reveal">
-            <div class="auth-card__form">
-                <span class="auth-pill">2FA</span>
+
+    <div class="form-bg" aria-hidden="true">
+        <span class="form-orb form-orb--one"></span>
+        <span class="form-orb form-orb--two"></span>
+        <span class="form-grid-bg"></span>
+    </div>
+
+
+    <main class="form-shell form-shell--narrow">
+        <section class="form-card form-reveal">
+            <div class="form-card__header">
+                <span class="form-pill">2FA</span>
                 <h1>Verifica accesso</h1>
-                <p class="auth-muted">Inserisci il codice dell’app autenticatore o un backup code.</p>
+                <p>Inserisci il codice dell’app autenticatore o un backup code.</p>
+            </div>
 
-                <?php if ($error): ?>
-                    <div class="auth-alert auth-alert--error">
-                        <i class="fas fa-triangle-exclamation"></i>
-                        <span><?php echo auth_h($error); ?></span>
-                    </div>
-                <?php endif; ?>
+            <?php if ($error): ?>
+                <div class="form-alert form-alert--error">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    <span><?php echo auth_h($error); ?></span>
+                </div>
+            <?php endif; ?>
 
-                <form method="POST" class="auth-form" data-auth-form>
-                    <?php echo csrf_field(); ?>
+            <form method="POST" data-form-loading>
+                <?php echo csrf_field(); ?>
 
-                    <label class="auth-field">
-                        <span>Codice 2FA</span>
-                        <input class="auth-code-input" type="text" name="twofa_code" inputmode="numeric" autocomplete="one-time-code" placeholder="123456" required autofocus>
-                    </label>
+                <label class="form-field">
+                    <span>Codice 2FA</span>
+                    <input type="text" name="twofa_code" inputmode="numeric" autocomplete="one-time-code" placeholder="123456" required autofocus>
+                </label>
 
-                    <button class="auth-btn auth-btn--primary" type="submit" data-submit-text="Verifica">
+                <div class="form-actions">
+                    <button class="form-btn form-btn--primary form-btn--wide" type="submit" data-loading-text="Verifica...">
+                        <i class="fas fa-shield-halved"></i>
                         <span>Verifica</span>
                     </button>
+                </div>
 
-                    <div class="auth-links">
-                        <a href="accedi">Torna al login</a>
-                    </div>
-                </form>
-            </div>
+                <div class="form-links">
+                    <a href="accedi">Torna al login</a>
+                </div>
+            </form>
         </section>
     </main>
 

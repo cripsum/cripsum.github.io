@@ -13,12 +13,12 @@ if (isset($_GET['token'])) {
         $user = verifyEmail($mysqli, $token);
 
         if ($user) {
-            $message = "Email verificata con successo! Ora puoi accedere al tuo account.";
+            $message = "Email verificata con successo. Ora puoi accedere.";
             $messageType = 'success';
 
             sendWelcomeEmail($user['email'], $user['username']);
         } else {
-            $message = "Token di verifica non valido o già utilizzato.";
+            $message = "Token non valido o già usato.";
             $messageType = 'error';
         }
     } else {
@@ -35,10 +35,10 @@ if ($_POST && isset($_POST['resend_email'])) {
 
     if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
         if (resendVerificationEmail($mysqli, $email)) {
-            $message = "Email di verifica reinviata con successo!";
+            $message = "Email di verifica reinviata.";
             $messageType = 'success';
         } else {
-            $message = "Errore nell'invio dell'email o email già verificata.";
+            $message = "Email già verificata o invio non riuscito.";
             $messageType = 'error';
         }
     } else {
@@ -47,76 +47,76 @@ if ($_POST && isset($_POST['resend_email'])) {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Verifica Email</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="stylesheet" href="/assets/forms/forms.css?v=1.0-unified">
+    <script src="/assets/forms/forms.js?v=1.0-unified" defer></script>
 </head>
 
-<body>
+<body class="form-page">
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
 
-    <div style="max-width: 1920px; margin: auto; padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-8 col-lg-6">
-                    <div class="text-center mt-5">
-                        <div class="fadeup">
-                            <h1 class="fs-1 mb-4" style="font-weight: bold">Verifica Email</h1>
 
-                            <?php if ($messageType === 'success'): ?>
-                                <div class="alert alert-success" role="alert">
-                                    <i class="bi bi-check-circle-fill me-2"></i>
-                                    <?php echo htmlspecialchars($message); ?>
-                                </div>
-                                <div class="mt-4">
-                                    <a href="accedi" class="btn btn-secondary bottone">
-                                        <span class="testobianco">Accedi ora</span>
-                                    </a>
-                                </div>
-                            <?php else: ?>
-                                <div class="alert alert-danger" role="alert">
-                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                                    <?php echo htmlspecialchars($message); ?>
-                                </div>
-
-                                <div class="mt-4">
-                                    <h4>Non hai ricevuto l'email di verifica?</h4>
-                                    <p class="text-muted">Inserisci la tua email per ricevere un nuovo link di verifica:</p>
-
-                                    <form method="POST" action="" class="mt-3">
-                                        <div class="mb-3">
-                                            <label for="email" class="form-label">Email</label>
-                                            <input type="email" id="email" name="email" class="form-control" required>
-                                        </div>
-                                        <button type="submit" name="resend_email" class="btn btn-secondary bottone">
-                                            <span class="testobianco">Reinvia Email</span>
-                                        </button>
-                                    </form>
-                                </div>
-                            <?php endif; ?>
-
-                            <div class="mt-4">
-                                <a href="registrati" class="linkbianco">Torna alla registrazione</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
+    <div class="form-bg" aria-hidden="true">
+        <span class="form-orb form-orb--one"></span>
+        <span class="form-orb form-orb--two"></span>
+        <span class="form-grid-bg"></span>
     </div>
-    <?php include '../includes/footer.php'; ?>
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-        crossorigin="anonymous"></script>
-    
-</body>
 
+
+    <main class="form-shell form-shell--narrow">
+        <section class="form-card form-reveal">
+            <div class="confirm-icon">
+                <i class="fas <?php echo $messageType === 'success' ? 'fa-check' : 'fa-triangle-exclamation'; ?>"></i>
+            </div>
+
+            <div class="form-card__header" style="text-align:center;">
+                <span class="form-pill">Email</span>
+                <h1>Verifica email</h1>
+                <p><?php echo htmlspecialchars($message, ENT_QUOTES, 'UTF-8'); ?></p>
+            </div>
+
+            <div class="form-alert <?php echo $messageType === 'success' ? 'form-alert--success' : 'form-alert--error'; ?>">
+                <i class="fas <?php echo $messageType === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'; ?>"></i>
+                <span><?php echo htmlspecialchars($message, ENT_QUOTES, 'UTF-8'); ?></span>
+            </div>
+
+            <?php if ($messageType === 'success'): ?>
+                <div class="form-actions form-actions--center">
+                    <a href="accedi" class="form-btn form-btn--primary">
+                        <i class="fas fa-right-to-bracket"></i>
+                        <span>Accedi ora</span>
+                    </a>
+                </div>
+            <?php else: ?>
+                <form method="POST" action="" data-form-loading>
+                    <label class="form-field">
+                        <span>Reinvia verifica</span>
+                        <input type="email" id="email" name="email" placeholder="email@esempio.com" required>
+                        <small>Inserisci la tua email per ricevere un nuovo link.</small>
+                    </label>
+
+                    <div class="form-actions">
+                        <button type="submit" name="resend_email" class="form-btn form-btn--primary form-btn--wide" data-loading-text="Invio...">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Reinvia email</span>
+                        </button>
+                    </div>
+                </form>
+            <?php endif; ?>
+
+            <div class="form-links">
+                <a href="registrati">Torna alla registrazione</a>
+            </div>
+        </section>
+    </main>
+
+    <?php include '../includes/footer.php'; ?>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+</body>
 </html>

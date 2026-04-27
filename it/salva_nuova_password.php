@@ -5,6 +5,7 @@ require_once '../includes/functions.php';
 $token = $_POST['token'] ?? '';
 $nuova_password = $_POST['nuova_password'] ?? '';
 $messaggio = '';
+$success = false;
 
 if ($token && $nuova_password) {
     $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE reset_token = ? AND token_scadenza > NOW()");
@@ -21,6 +22,7 @@ if ($token && $nuova_password) {
         $stmt->execute();
 
         $messaggio = "Password aggiornata con successo.";
+        $success = true;
     } else {
         $messaggio = "Token non valido o scaduto.";
     }
@@ -29,46 +31,46 @@ if ($token && $nuova_password) {
 }
 ?>
 <!DOCTYPE html>
-<html>
-
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Esito reset</title>
-    <style>
-        body {
-            background: #0e0e0e;
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .box {
-            background: #1a1a1a;
-            padding: 30px;
-            border: 1px solid #ffffff22;
-            border-radius: 12px;
-            box-shadow: 0 0 10px #ffffff11;
-            text-align: center;
-            max-width: 400px;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="stylesheet" href="/assets/forms/forms.css?v=1.0-unified">
+    <script src="/assets/forms/forms.js?v=1.0-unified" defer></script>
 </head>
 
-<body>
+<body class="form-page">
     <?php include '../includes/navbar-morta.php'; ?>
-    <div class="box">
-        <div class="alert alert-info fadeup" role="alert">
-            <i class="bi bi-info-circle-fill me-2"></i>
-            <?php echo htmlspecialchars($messaggio); ?>
-        </div>
-        <a class="nav-link" href="accedi"><i class="fas fa-arrow-left"></i> Torna al login</a>
+
+
+    <div class="form-bg" aria-hidden="true">
+        <span class="form-orb form-orb--one"></span>
+        <span class="form-orb form-orb--two"></span>
+        <span class="form-grid-bg"></span>
     </div>
 
 
-</body>
+    <main class="form-shell form-shell--narrow">
+        <section class="form-card form-reveal">
+            <div class="confirm-icon">
+                <i class="fas <?php echo $success ? 'fa-check' : 'fa-triangle-exclamation'; ?>"></i>
+            </div>
 
+            <div class="form-card__header" style="text-align:center;">
+                <span class="form-pill"><?php echo $success ? 'Fatto' : 'Attenzione'; ?></span>
+                <h1>Reset password</h1>
+                <p><?php echo htmlspecialchars($messaggio, ENT_QUOTES, 'UTF-8'); ?></p>
+            </div>
+
+            <div class="form-actions form-actions--center">
+                <a class="form-btn form-btn--primary" href="accedi">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Torna al login</span>
+                </a>
+            </div>
+        </section>
+    </main>
+</body>
 </html>
