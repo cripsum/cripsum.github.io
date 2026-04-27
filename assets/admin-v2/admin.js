@@ -442,7 +442,7 @@
         <form id="characterForm" class="admin-form-grid">
             ${item.id ? `<input type="hidden" name="id" value="${Number(item.id)}">` : ''}
             <div class="admin-field"><label>Nome</label><input name="nome" value="${escapeHtml(item.nome || '')}" required maxlength="80"></div>
-            <div class="admin-field"><label>Rarità</label><input name="rarita" value="${escapeHtml(item.rarita || '')}" placeholder="comune, raro, epico..."></div>
+            <div class="admin-field"><label>Rarità</label><input name="rarità" value="${escapeHtml(item.rarità || '')}" placeholder="comune, raro, epico..."></div>
             <div class="admin-field"><label>Categoria</label><input name="categoria" value="${escapeHtml(item.categoria || '')}" placeholder="anime, poppy..."></div>
             <div class="admin-field"><label>Immagine URL</label><input name="img_url" value="${escapeHtml(item.img_url || '')}" placeholder="https://..."></div>
             <div class="admin-field admin-field--full"><label>Audio URL</label><input name="audio_url" value="${escapeHtml(item.audio_url || '')}" placeholder="https://..."></div>
