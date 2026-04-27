@@ -125,7 +125,7 @@ $download = [
 
             <article class="download-info-card">
                 <h2>Nota</h2>
-                <p>Il download resta statico. Nessun account extra, nessun pagamento, nessun sistema nascosto.</p>
+                <p>Il download partirà automaticamente dopo aver cliccato il tasto download.</p>
             </article>
         </section>
     </main>

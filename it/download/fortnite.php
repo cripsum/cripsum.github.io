@@ -14,7 +14,7 @@ $download = [
     'href' => '/random%20stuff/itfortnitehacks.txt',
     'download_name' => 'fortnite hacks method tutorial.txt',
     'button' => 'Scarica il file',
-    'note' => 'fra allora la mod ti permette di avere vbucks infiniti',
+    'note' => 'Vbucks infiniti, aimbot, wallhack e la skin di TUNG TUNG TUNG SAHUR gratis',
     'back_href' => '/it/download.php',
     'meta' => [
         ['label' => 'Tipo', 'value' => 'File TXT'],
@@ -25,6 +25,7 @@ $download = [
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ - <?php echo htmlspecialchars($download['title'], ENT_QUOTES, 'UTF-8'); ?></title>
@@ -51,8 +52,7 @@ $download = [
                     src="<?php echo htmlspecialchars($download['image'], ENT_QUOTES, 'UTF-8'); ?>"
                     alt="<?php echo htmlspecialchars($download['image_alt'], ENT_QUOTES, 'UTF-8'); ?>"
                     loading="lazy"
-                    data-download-image
-                >
+                    data-download-image>
 
                 <div class="download-cover-glow" aria-hidden="true"></div>
             </div>
@@ -91,11 +91,10 @@ $download = [
                         class="download-main-btn"
                         href="<?php echo htmlspecialchars($download['href'], ENT_QUOTES, 'UTF-8'); ?>"
                         <?php if (!empty($download['download_name'])): ?>
-                            download="<?php echo htmlspecialchars($download['download_name'], ENT_QUOTES, 'UTF-8'); ?>"
+                        download="<?php echo htmlspecialchars($download['download_name'], ENT_QUOTES, 'UTF-8'); ?>"
                         <?php endif; ?>
                         data-download-link
-                        data-download-title="<?php echo htmlspecialchars($download['title'], ENT_QUOTES, 'UTF-8'); ?>"
-                    >
+                        data-download-title="<?php echo htmlspecialchars($download['title'], ENT_QUOTES, 'UTF-8'); ?>">
                         <i class="fas fa-download"></i>
                         <span><?php echo htmlspecialchars($download['button'], ENT_QUOTES, 'UTF-8'); ?></span>
                     </a>
@@ -125,7 +124,7 @@ $download = [
 
             <article class="download-info-card">
                 <h2>Nota</h2>
-                <p>Il download resta statico. Nessun account extra, nessun pagamento, nessun sistema nascosto.</p>
+                <p>Il download partirà automaticamente dopo aver cliccato il tasto download.</p>
             </article>
         </section>
     </main>
@@ -139,4 +138,5 @@ $download = [
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>
