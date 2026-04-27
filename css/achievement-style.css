@@ -1,37 +1,297 @@
-.popup {
+:root {
+    --ach-popup-blue: #2f6bff;
+    --ach-popup-purple: #8b5cf6;
+    --ach-popup-gold: #fbbf24;
+    --ach-popup-green: #34d399;
+    --ach-popup-red: #fb7185;
+    --ach-popup-text: #f7f8ff;
+    --ach-popup-muted: #aab3c8;
+    --ach-popup-border: rgba(255, 255, 255, .14);
+    --ach-popup-bg: rgba(7, 10, 22, .92);
+}
+
+@keyframes achPopupIn {
+    0% {
+        opacity: 0;
+        transform: translate3d(28px, -10px, 0) scale(.96);
+        filter: blur(6px);
+    }
+    100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+        filter: blur(0);
+    }
+}
+
+@keyframes achPopupOut {
+    0% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+        filter: blur(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translate3d(28px, -10px, 0) scale(.96);
+        filter: blur(6px);
+    }
+}
+
+@keyframes achPopupShine {
+    0% {
+        transform: translateX(-120%) rotate(12deg);
+    }
+    70%, 100% {
+        transform: translateX(220%) rotate(12deg);
+    }
+}
+
+@keyframes achPopupPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 rgba(251, 191, 36, 0);
+    }
+    50% {
+        box-shadow: 0 0 34px rgba(251, 191, 36, .22);
+    }
+}
+
+/* Compatibilità con il vecchio markup: #achievement-popup.popup */
+.popup,
+.achievement-popup {
     position: fixed;
-    top: 110px;
-    right: 30px;
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(64, 64, 64, 0.1));
-    border: 0px solid rgba(255, 255, 255, 0);
-    box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
-    color: white;
-    padding: 15px;
-    display: flex;
+    top: max(96px, env(safe-area-inset-top, 0px) + 86px);
+    right: max(18px, env(safe-area-inset-right, 0px) + 18px);
+    z-index: 100000;
+    width: min(420px, calc(100vw - 28px));
+    min-height: 112px;
+    display: grid;
+    grid-template-columns: 78px minmax(0, 1fr) auto;
+    gap: .85rem;
     align-items: center;
-    border-radius: 10px;
+    padding: .85rem;
+    color: var(--ach-popup-text);
+    background:
+        radial-gradient(circle at 13% 18%, rgba(251, 191, 36, .22), transparent 28%),
+        linear-gradient(145deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .035)),
+        var(--ach-popup-bg);
+    border: 1px solid var(--ach-popup-border);
+    border-radius: 24px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .44), 0 0 44px rgba(47, 107, 255, .15);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
     opacity: 0;
-    transform: translateX(100%);
-    transition: opacity 0.5s, transform 0.5s;
+    pointer-events: none;
+    transform: translate3d(28px, -10px, 0) scale(.96);
+    overflow: hidden;
 }
 
-.popup img {
-    width: 75px;
-    height: 75px;
-    margin-right: 10px;
+.popup::before,
+.achievement-popup::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+    width: 36%;
+    transform: translateX(-120%) rotate(12deg);
 }
 
-.popup.show {
-    opacity: 1;
-    transform: translateX(0);
+.popup.show,
+.achievement-popup.show,
+.popup.is-showing,
+.achievement-popup.is-showing {
+    pointer-events: auto;
+    animation: achPopupIn 380ms cubic-bezier(.2, .85, .2, 1) forwards, achPopupPulse 1500ms ease-in-out 260ms 1;
 }
 
-@media only screen and (max-width: 768px) {
-    .popup {
-        top: 100px;
-        right: 20px;
-        max-width: 70%;
+.popup.show::before,
+.achievement-popup.show::before,
+.popup.is-showing::before,
+.achievement-popup.is-showing::before {
+    animation: achPopupShine 1600ms ease-out 240ms 1;
+}
+
+.popup.is-hiding,
+.achievement-popup.is-hiding {
+    pointer-events: none;
+    animation: achPopupOut 260ms ease forwards;
+}
+
+.popup img,
+.achievement-popup__image,
+#popup-image {
+    width: 74px;
+    height: 74px;
+    min-width: 74px;
+    object-fit: cover;
+    margin: 0;
+    border-radius: 20px;
+    border: 1px solid rgba(251, 191, 36, .32);
+    background:
+        radial-gradient(circle at 50% 10%, rgba(251, 191, 36, .2), transparent 60%),
+        rgba(255,255,255,.055);
+    box-shadow: 0 0 26px rgba(251, 191, 36, .18);
+}
+
+.achievement-popup__content,
+.popup > div {
+    min-width: 0;
+}
+
+.achievement-popup__kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    min-height: 1.55rem;
+    padding: .18rem .48rem;
+    border: 1px solid rgba(251, 191, 36, .28);
+    border-radius: 999px;
+    color: #fde68a;
+    background: rgba(251, 191, 36, .1);
+    font-size: .68rem;
+    font-weight: 950;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.popup h3,
+.achievement-popup__title,
+#popup-title {
+    margin: .35rem 0 .15rem;
+    color: var(--ach-popup-text);
+    font-size: 1.02rem;
+    line-height: 1.1;
+    letter-spacing: -.03em;
+    font-weight: 950;
+}
+
+.popup p,
+.achievement-popup__description,
+#popup-description {
+    margin: 0;
+    color: var(--ach-popup-muted);
+    font-size: .84rem;
+    line-height: 1.35;
+    font-weight: 650;
+}
+
+.achievement-popup__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+    margin-top: .45rem;
+}
+
+.achievement-popup__meta span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.55rem;
+    padding: .2rem .46rem;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 999px;
+    color: rgba(247,248,255,.86);
+    background: rgba(255,255,255,.055);
+    font-size: .68rem;
+    font-weight: 850;
+}
+
+.achievement-popup__close {
+    align-self: start;
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 999px;
+    color: rgba(247,248,255,.72);
+    background: rgba(255,255,255,.055);
+    cursor: pointer;
+    transition: color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.achievement-popup__close:hover {
+    color: #fff;
+    background: rgba(251, 191, 36, .13);
+    transform: scale(1.05);
+}
+
+.achievement-popup__bar {
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    bottom: .5rem;
+    height: 3px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255,255,255,.1);
+}
+
+.achievement-popup__bar span {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--ach-popup-gold), var(--ach-popup-blue), var(--ach-popup-purple));
+    transform-origin: left center;
+    animation: achPopupProgress var(--ach-popup-duration, 4200ms) linear forwards;
+}
+
+@keyframes achPopupProgress {
+    from { transform: scaleX(1); }
+    to { transform: scaleX(0); }
+}
+
+@media (max-width: 620px) {
+    .popup,
+    .achievement-popup {
+        top: auto;
+        right: max(12px, env(safe-area-inset-right, 0px) + 12px);
+        left: max(12px, env(safe-area-inset-left, 0px) + 12px);
+        bottom: max(14px, env(safe-area-inset-bottom, 0px) + 14px);
+        width: auto;
+        grid-template-columns: 64px minmax(0, 1fr) auto;
+        gap: .68rem;
+        padding: .75rem;
+        border-radius: 20px;
+    }
+
+    .popup img,
+    .achievement-popup__image,
+    #popup-image {
+        width: 62px;
+        height: 62px;
+        min-width: 62px;
+        border-radius: 17px;
+    }
+
+    .popup h3,
+    .achievement-popup__title,
+    #popup-title {
+        font-size: .95rem;
+    }
+
+    .popup p,
+    .achievement-popup__description,
+    #popup-description {
+        font-size: .78rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .popup,
+    .achievement-popup,
+    .popup::before,
+    .achievement-popup::before,
+    .achievement-popup__bar span {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .popup.show,
+    .achievement-popup.show,
+    .popup.is-showing,
+    .achievement-popup.is-showing {
+        opacity: 1;
+        transform: none;
     }
 }
