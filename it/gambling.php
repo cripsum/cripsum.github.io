@@ -52,9 +52,9 @@ $username = $_SESSION['username'] ?? 'Utente';
 
         <section class="gambling-hero gambling-reveal">
             <div>
-                <span class="gambling-pill">Gioco finto</span>
+                <span class="gambling-pill">Gambling</span>
                 <h1>Gambling Arcade</h1>
-                <p>Slot machine con crediti finti. Nessun soldo reale, nessun pagamento, solo mini-game.</p>
+                <p>Alimenta la tua gambling addiction in questo giochino da fichi</p>
 
                 <div class="gambling-actions">
                     <button class="gambling-btn gambling-btn--soft" type="button" data-open-rules>
@@ -72,7 +72,7 @@ $username = $_SESSION['username'] ?? 'Utente';
             <aside class="gambling-wallet" aria-label="Saldo gioco">
                 <span class="wallet-label">Saldo</span>
                 <strong data-balance>100</strong>
-                <span class="wallet-caption">crediti finti</span>
+                <span class="wallet-caption">crediti</span>
 
                 <div class="wallet-recharge">
                     <input type="number" min="1" max="5000" step="1" inputmode="numeric" data-recharge-input placeholder="Importo">
@@ -217,7 +217,7 @@ $username = $_SESSION['username'] ?? 'Utente';
 
             <span class="gambling-pill">Regole</span>
             <h2 id="rulesTitle">Come funziona</h2>
-            <p>È un mini-gioco con crediti finti. Il saldo resta nel browser tramite localStorage e può essere resettato.</p>
+            <p>È un mini-gioco con crediti finti. Il saldo resta nel browser e può essere resettato.</p>
 
             <ul>
                 <li>Ogni spin scala la puntata scelta.</li>
