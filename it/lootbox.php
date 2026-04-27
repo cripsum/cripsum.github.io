@@ -12,13 +12,6 @@ if (!isLoggedIn()) {
     header('Location: accedi');
     exit();
 }
-
-
-if (!isOwner()) {
-    $_SESSION['error_message'] = "mi dispiace, ma la pagina Lootbox è in manutenzione. riprova più tardi.";
-    header('Location: home');
-    exit();
-}
 checkPermissions($mysqli, 'utente');
 
 
