@@ -1049,3 +1049,560 @@ body.lootbox-page .popup {
         transition-duration: .01ms !important;
     }
 }
+
+
+/* V8.1 - smooth opening, full rainbow speciale, buttons/menu/leaderboard polish */
+
+/* Navbar / menu alto */
+body.lootbox-page .navbar,
+body.lootbox-page .navbar-lootbox,
+body.lootbox-page .navbarlootbox,
+body.lootbox-page .navbarutenti {
+    position: fixed !important;
+    top: max(.75rem, env(safe-area-inset-top, 0px)) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: min(1180px, calc(100% - 24px)) !important;
+    z-index: 10020 !important;
+    border: 1px solid rgba(255,255,255,.13) !important;
+    border-radius: 22px !important;
+    background:
+        linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.03)),
+        rgba(6, 8, 17, .74) !important;
+    box-shadow: 0 18px 54px rgba(0,0,0,.34), 0 0 32px rgba(47,107,255,.12) !important;
+    backdrop-filter: blur(18px) !important;
+    -webkit-backdrop-filter: blur(18px) !important;
+    padding: .45rem .65rem !important;
+}
+
+body.lootbox-page .navbar .navbar-brand,
+body.lootbox-page .navbar a {
+    color: rgba(255,255,255,.88) !important;
+}
+
+body.lootbox-page .navbar .nav-link,
+body.lootbox-page .navbar button,
+body.lootbox-page .navbar .btn {
+    border-radius: 999px !important;
+}
+
+body.lootbox-page .navbar .nav-link:hover,
+body.lootbox-page .navbar button:hover,
+body.lootbox-page .navbar .btn:hover {
+    background: rgba(255,255,255,.09) !important;
+    color: #fff !important;
+}
+
+body.lootbox-page .navbar-toggler {
+    border: 1px solid rgba(255,255,255,.16) !important;
+    border-radius: 15px !important;
+    background: rgba(255,255,255,.07) !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+
+body.lootbox-page .dropdown-menu {
+    padding: .5rem !important;
+    border: 1px solid rgba(255,255,255,.14) !important;
+    border-radius: 18px !important;
+    background: rgba(7, 10, 22, .96) !important;
+    box-shadow: 0 22px 60px rgba(0,0,0,.46) !important;
+    backdrop-filter: blur(18px) !important;
+    -webkit-backdrop-filter: blur(18px) !important;
+    overflow: hidden;
+}
+
+body.lootbox-page .dropdown-item,
+body.lootbox-page .dropdown-menu a {
+    color: rgba(255,255,255,.9) !important;
+    border-radius: 12px !important;
+}
+
+body.lootbox-page .dropdown-item:hover,
+body.lootbox-page .dropdown-menu a:hover {
+    color: #fff !important;
+    background: rgba(47,107,255,.18) !important;
+}
+
+/* Opening più smooth */
+body.is-opening::before {
+    opacity: .98;
+    filter: saturate(1.15) brightness(1.1);
+}
+
+body.is-reveal-imminent::before {
+    opacity: 1;
+    filter: saturate(1.35) brightness(1.25);
+}
+
+body.is-reveal-imminent .bagliore {
+    transform: translate(-50%, -50%) scale(1.95) !important;
+    opacity: .92 !important;
+    filter: blur(7px) brightness(1.35) saturate(1.3);
+}
+
+#cassa {
+    will-change: transform, opacity, filter;
+}
+
+body.is-opening #cassa {
+    animation: chestSmoothOpen 2.8s cubic-bezier(.22, .9, .18, 1) forwards !important;
+}
+
+@keyframes chestSmoothOpen {
+    0% {
+        transform: translateY(0) scale(1) rotate(0);
+        filter:
+            drop-shadow(0 28px 42px rgba(0, 0, 0, .55))
+            drop-shadow(0 0 20px rgba(255, 255, 255, .08));
+    }
+    14% {
+        transform: translateY(-10px) scale(1.035) rotate(-1.4deg);
+    }
+    28% {
+        transform: translateY(-4px) scale(1.055) rotate(1.4deg);
+    }
+    44% {
+        transform: translateY(-14px) scale(1.08) rotate(-.6deg);
+        filter:
+            drop-shadow(0 36px 52px rgba(0, 0, 0, .62))
+            drop-shadow(0 0 38px var(--lootbox-rarity-glow));
+    }
+    62% {
+        transform: translateY(-6px) scale(1.05) rotate(.45deg);
+    }
+    78% {
+        transform: translateY(-22px) scale(1.12) rotate(0deg);
+        filter:
+            drop-shadow(0 42px 62px rgba(0,0,0,.68))
+            drop-shadow(0 0 62px var(--lootbox-rarity-glow));
+    }
+    100% {
+        transform: translateY(8px) scale(1.02) rotate(0deg);
+        filter:
+            drop-shadow(0 38px 58px rgba(0,0,0,.64))
+            drop-shadow(0 0 74px var(--lootbox-rarity-glow));
+    }
+}
+
+#cassa.aperta {
+    transform: translateY(16px) scale(1.02);
+    transition: transform 1.35s cubic-bezier(.16, 1, .3, 1), opacity .95s ease, filter .95s ease;
+}
+
+#cassa.dissolvi {
+    animation: chestFadeIntoReward 1.05s cubic-bezier(.16, 1, .3, 1) forwards !important;
+}
+
+@keyframes chestFadeIntoReward {
+    0% {
+        opacity: 1;
+        transform: translateY(16px) scale(1.02);
+        filter: blur(0) brightness(1.1);
+    }
+    45% {
+        opacity: .9;
+        transform: translateY(0) scale(1.12);
+        filter: blur(1px) brightness(1.65) saturate(1.35);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(54px) scale(.72);
+        filter: blur(10px) brightness(2);
+    }
+}
+
+/* Entrata personaggio più fluida */
+#contenuto {
+    transform: scale(.92) translateY(34px);
+    opacity: 0;
+    filter: blur(18px) brightness(1.25);
+    transition:
+        transform 1.15s cubic-bezier(.16, 1, .3, 1),
+        opacity 1.05s ease,
+        filter 1.05s ease;
+    will-change: transform, opacity, filter;
+}
+
+#contenuto.salto {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+    filter: blur(0) brightness(1);
+}
+
+#contenuto.salto .lootbox-character-reveal {
+    animation: rewardGroupLift 1.1s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+@keyframes rewardGroupLift {
+    0% {
+        transform: translateY(32px) scale(.96);
+        opacity: 0;
+    }
+    55% {
+        transform: translateY(-10px) scale(1.025);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+#contenuto.salto img {
+    animation: characterRevealSmooth 1.12s cubic-bezier(.16, 1, .3, 1) both !important;
+}
+
+@keyframes characterRevealSmooth {
+    0% {
+        transform: translateY(48px) scale(.72) rotate(-2deg);
+        opacity: 0;
+        filter: blur(18px) brightness(2) saturate(1.4);
+    }
+    36% {
+        opacity: 1;
+        filter: blur(4px) brightness(1.7) saturate(1.22);
+    }
+    62% {
+        transform: translateY(-12px) scale(1.055) rotate(.7deg);
+        filter: blur(0) brightness(1.13) saturate(1.08);
+    }
+    100% {
+        transform: translateY(0) scale(1) rotate(0);
+        opacity: 1;
+        filter: blur(0) brightness(1) saturate(1);
+    }
+}
+
+.lootbox-character-name {
+    opacity: 0;
+    transform: translateY(18px) scale(.96);
+}
+
+#contenuto.salto .lootbox-character-name {
+    animation: rewardNameIn .78s cubic-bezier(.16, 1, .3, 1) .28s both;
+}
+
+@keyframes rewardNameIn {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+#messaggio {
+    transform: translateX(-50%) translateY(22px) scale(.97);
+    transition: transform .85s cubic-bezier(.16, 1, .3, 1), opacity .85s ease, filter .85s ease;
+    filter: blur(8px);
+}
+
+#messaggio.salto {
+    transform: translateX(-50%) translateY(0) scale(1);
+    opacity: 1;
+    filter: blur(0);
+}
+
+#divApriAncora {
+    transition: transform .88s cubic-bezier(.16, 1, .3, 1), opacity .88s ease;
+}
+
+/* Arcobaleno speciale davvero completo */
+@keyframes specialRainbowSpin {
+    0% {
+        transform: translate(-50%, -50%) scale(1.05) rotate(0deg);
+        filter: blur(8px) saturate(1.55) brightness(1.12);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.12) rotate(180deg);
+        filter: blur(9px) saturate(1.75) brightness(1.22);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.05) rotate(360deg);
+        filter: blur(8px) saturate(1.55) brightness(1.12);
+    }
+}
+
+@keyframes rainbowBackground {
+    0% {
+        background-position: 0% 50%;
+        filter: saturate(1.45) brightness(1.1);
+    }
+    100% {
+        background-position: 200% 50%;
+        filter: saturate(1.45) brightness(1.1);
+    }
+}
+
+body.lootbox-rarity-speciale .bagliore {
+    width: max(160vw, 160vh) !important;
+    height: max(160vw, 160vh) !important;
+    background:
+        radial-gradient(circle, rgba(255,255,255,.18) 0%, rgba(255,255,255,.08) 18%, transparent 42%),
+        conic-gradient(from 0deg,
+            #ff004c,
+            #ff7a00,
+            #fff300,
+            #35ff00,
+            #00ffd5,
+            #0077ff,
+            #7a00ff,
+            #ff00d4,
+            #ff004c
+        ) !important;
+    background-size: 100% 100% !important;
+    animation: specialRainbowSpin 8s linear infinite !important;
+    opacity: .7 !important;
+    mix-blend-mode: screen;
+}
+
+body.lootbox-rarity-speciale .lootbox-rarity-message {
+    border-color: rgba(255,255,255,.22);
+    background:
+        linear-gradient(rgba(0,0,0,.48), rgba(0,0,0,.48)) padding-box,
+        conic-gradient(from 0deg, #ff004c, #ff7a00, #fff300, #35ff00, #00ffd5, #0077ff, #7a00ff, #ff00d4, #ff004c) border-box;
+    border: 1px solid transparent;
+    box-shadow: 0 0 42px rgba(255,255,255,.16);
+}
+
+/* Bottoni più belli */
+.lootbox-actions {
+    padding: .45rem;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 999px;
+    background: rgba(4, 6, 13, .36);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 16px 46px rgba(0,0,0,.28);
+}
+
+.lootbox-action-btn,
+body.lootbox-page .bottone,
+body.lootbox-page .btn.btn-secondary.bottone {
+    gap: .5rem;
+    min-height: 3rem;
+    padding: .74rem 1.05rem !important;
+    border-color: rgba(255,255,255,.14) !important;
+    background:
+        linear-gradient(145deg, rgba(255,255,255,.12), rgba(255,255,255,.045)) !important;
+}
+
+.lootbox-action-btn i {
+    opacity: .9;
+}
+
+.lootbox-action-btn--primary {
+    color: #05070d !important;
+    border-color: transparent !important;
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--lootbox-rarity-color), #fff 24%), #fff) !important;
+    box-shadow: 0 16px 40px var(--lootbox-rarity-glow);
+}
+
+.lootbox-action-btn--primary:hover {
+    color: #05070d !important;
+    background:
+        linear-gradient(135deg, #fff, color-mix(in srgb, var(--lootbox-rarity-color), #fff 12%)) !important;
+}
+
+/* Classifica più premium */
+.leaderboard-box {
+    width: min(95vw, 680px);
+    padding: 1.15rem;
+    border-radius: 32px;
+}
+
+.leaderboard-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    text-align: left;
+    margin-bottom: 1rem;
+}
+
+.leaderboard-kicker {
+    display: inline-flex;
+    width: fit-content;
+    min-height: 1.7rem;
+    align-items: center;
+    padding: .22rem .55rem;
+    border: 1px solid rgba(251, 191, 36, .28);
+    border-radius: 999px;
+    color: #fde68a;
+    background: rgba(251, 191, 36, .1);
+    font-size: .68rem;
+    font-weight: 950;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.leaderboard-head h3 {
+    margin: .45rem 0 .2rem;
+}
+
+.leaderboard-head p {
+    margin: 0;
+    color: var(--lootbox-muted);
+    font-size: .92rem;
+}
+
+.leaderboard-close {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 2.45rem;
+    height: 2.45rem;
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 999px;
+    color: rgba(255,255,255,.84);
+    background: rgba(255,255,255,.07);
+    cursor: pointer;
+    transition: transform .18s ease, background .18s ease, border-color .18s ease;
+}
+
+.leaderboard-close:hover {
+    transform: scale(1.05);
+    color: #fff;
+    border-color: rgba(251,191,36,.42);
+    background: rgba(251,191,36,.13);
+}
+
+.leaderboard-buttons {
+    padding: .45rem;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 999px;
+    background: rgba(255,255,255,.045);
+}
+
+.leaderboard-btn {
+    gap: .45rem;
+    min-height: 2.85rem;
+}
+
+.leaderboard-entry {
+    position: relative;
+    overflow: hidden;
+    padding: .82rem .85rem;
+    border-radius: 20px;
+    background:
+        linear-gradient(145deg, rgba(255,255,255,.085), rgba(255,255,255,.035));
+    transition: transform .18s ease, border-color .18s ease, background .18s ease;
+}
+
+.leaderboard-entry:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255,255,255,.18);
+    background:
+        linear-gradient(145deg, rgba(255,255,255,.12), rgba(255,255,255,.05));
+}
+
+.leaderboard-entry.gold {
+    background:
+        radial-gradient(circle at 0% 50%, rgba(255,215,0,.18), transparent 42%),
+        linear-gradient(145deg, rgba(255,255,255,.1), rgba(255,255,255,.04));
+}
+
+.leaderboard-entry.silver {
+    background:
+        radial-gradient(circle at 0% 50%, rgba(192,192,192,.16), transparent 42%),
+        linear-gradient(145deg, rgba(255,255,255,.1), rgba(255,255,255,.04));
+}
+
+.leaderboard-entry.bronze {
+    background:
+        radial-gradient(circle at 0% 50%, rgba(205,127,50,.16), transparent 42%),
+        linear-gradient(145deg, rgba(255,255,255,.1), rgba(255,255,255,.04));
+}
+
+.entry-value {
+    padding: .25rem .48rem;
+    border-radius: 999px;
+    color: #05070d;
+    background: #ffd700;
+    font-size: .82rem;
+}
+
+/* Modal impostazioni più ordinato */
+body.lootbox-page .modal-content.bgimpostazioni {
+    border-radius: 32px;
+}
+
+body.lootbox-page .modal-header {
+    padding: 1rem 1.1rem;
+    background: rgba(255,255,255,.04);
+}
+
+body.lootbox-page .modal-content.bgimpostazioni > .col-md-6 {
+    display: block !important;
+    width: 100%;
+    max-width: 100%;
+    padding: .85rem 1rem !important;
+    margin: 0 !important;
+    text-align: left !important;
+}
+
+body.lootbox-page .modal-content.bgimpostazioni > .col-md-6 > div {
+    width: 100%;
+    margin: 0 !important;
+    padding: .85rem;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 20px;
+    background: rgba(255,255,255,.045);
+}
+
+body.lootbox-page .modal-content.bgimpostazioni h6 {
+    color: #fff !important;
+    font-weight: 950;
+    letter-spacing: -.02em;
+}
+
+body.lootbox-page .modal-footer {
+    padding: 1rem;
+    background: rgba(255,255,255,.035);
+}
+
+/* Mobile polish */
+@media (max-width: 620px) {
+    body.lootbox-page .navbar,
+    body.lootbox-page .navbar-lootbox,
+    body.lootbox-page .navbarlootbox,
+    body.lootbox-page .navbarutenti {
+        width: 92% !important;
+        border-radius: 18px !important;
+        padding: .38rem .5rem !important;
+    }
+
+    .lootbox-actions {
+        border-radius: 24px;
+        padding: .5rem;
+    }
+
+    .leaderboard-head {
+        align-items: stretch;
+    }
+
+    .leaderboard-buttons {
+        border-radius: 24px;
+    }
+
+    .leaderboard-btn {
+        width: 100%;
+    }
+
+    .leaderboard-entry {
+        grid-template-columns: 52px minmax(0, 1fr);
+    }
+
+    .entry-value {
+        grid-column: 2;
+        width: fit-content;
+    }
+
+    #contenuto {
+        transform: scale(.96) translateY(24px);
+    }
+
+    #contenuto.salto img {
+        animation-duration: .95s !important;
+    }
+}
