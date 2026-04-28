@@ -241,14 +241,35 @@ require_once '../api/api_personaggi.php';
                                         <i class="fas fa-wand-magic-sparkles"></i>
                                         <div>
                                             <h6>Admin cheats</h6>
-                                            <p>Filtri di test. Non cambiano la UI pubblica.</p>
+                                            <p>sucate.</p>
                                         </div>
                                     </div>
 
                                     <div class="lootbox-toggle-grid">
-                                        <label class="lootbox-toggle-pill" for="RimuoviAnime">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="RimuoviAnime" />
-                                            <span>Rimuovi Anime</span>
+
+                                        <label class="lootbox-toggle-pill" for="SoloPoppy">
+                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloPoppy" />
+                                            <span>Meow</span>
+                                        </label>
+
+                                        <label class="lootbox-toggle-pill" for="SoloComuni">
+                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloComuni" />
+                                            <span>Solo Comuni</span>
+                                        </label>
+
+                                        <label class="lootbox-toggle-pill" for="SoloRari">
+                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloRari" />
+                                            <span>Solo Rari</span>
+                                        </label>
+
+                                        <label class="lootbox-toggle-pill" for="SoloEpici">
+                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloEpici" />
+                                            <span>Solo Epici</span>
+                                        </label>
+
+                                        <label class="lootbox-toggle-pill" for="SoloLeggendari">
+                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloLeggendari" />
+                                            <span>Solo Leggendari</span>
                                         </label>
 
                                         <label class="lootbox-toggle-pill" for="SoloSpeciali">
@@ -259,16 +280,6 @@ require_once '../api/api_personaggi.php';
                                         <label class="lootbox-toggle-pill" for="SoloSegreti">
                                             <input class="form-check-input checco" type="checkbox" value="" id="SoloSegreti" />
                                             <span>Solo Segreti</span>
-                                        </label>
-
-                                        <label class="lootbox-toggle-pill" for="SoloPoppy">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloPoppy" />
-                                            <span>Meow</span>
-                                        </label>
-
-                                        <label class="lootbox-toggle-pill" for="SoloComuni">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloComuni" />
-                                            <span>Solo Comuni</span>
                                         </label>
 
                                         <label class="lootbox-toggle-pill" for="SoloTheOne">
@@ -377,9 +388,11 @@ require_once '../api/api_personaggi.php';
             const wrapper = document.getElementById("bagliore-wrapper");
 
             const soloSpecialiCheckbox = document.getElementById("SoloSpeciali");
-            const rimuoviAnimeCheckbox = document.getElementById("RimuoviAnime");
             const soloPoppyCheckbox = document.getElementById("SoloPoppy");
             const soloTheOneCheckbox = document.getElementById("SoloTheOne");
+            const soloEpiciCheckbox = document.getElementById("SoloEpici");
+            const soloLeggendariCheckbox = document.getElementById("SoloLeggendari");
+            const soloRariCheckbox = document.getElementById("SoloRari");
 
             const codiceSegreto = document.getElementById("codiceSegreto");
 
@@ -636,6 +649,36 @@ require_once '../api/api_personaggi.php';
                             segreto: 0,
                             theone: 100,
                         });
+                    } else if (preferences.SoloEpici === true) {
+                        return (rarityProbabilities = {
+                            comune: 0,
+                            raro: 0,
+                            epico: 100,
+                            leggendario: 0,
+                            speciale: 0,
+                            segreto: 0,
+                            theone: 0,
+                        });
+                    } else if (preferences.SoloLeggendari === true) {
+                        return (rarityProbabilities = {
+                            comune: 0,
+                            raro: 0,
+                            epico: 0,
+                            leggendario: 100,
+                            speciale: 0,
+                            segreto: 0,
+                            theone: 0,
+                        });
+                    } else if (preferences.SoloRari === true) {
+                        return (rarityProbabilities = {
+                            comune: 0,
+                            raro: 100,
+                            epico: 0,
+                            leggendario: 0,
+                            speciale: 0,
+                            segreto: 0,
+                            theone: 0,
+                        });
                     } else {
                         return (rarityProbabilities = {
                             comune: 51,
@@ -691,14 +734,14 @@ require_once '../api/api_personaggi.php';
                             }
                         }
                     }
-                    if (preferences.RimuoviAnime === true) {
-                        while (true) {
-                            const pull = await getRandomPull();
-                            if (pull.categoria !== "anime") {
-                                return pull;
-                            }
-                        }
-                    }
+                    // if (preferences.RimuoviAnime === true) {
+                    //     while (true) {
+                    //         const pull = await getRandomPull();
+                    //         if (pull.categoria !== "anime") {
+                    //             return pull;
+                    //         }
+                    //     }
+                    // }
                 }
                 return await getRandomPull();
             }
@@ -1063,6 +1106,15 @@ require_once '../api/api_personaggi.php';
                     }
                     let pullRiscattata = await getCharacter("CRIPSUM");
                     await riscattaPersonaggio("CRIPSUM");
+                    apriNormale();
+                } else if (codiceSegreto.value === "peak") {
+                    const inventory = await getInventory();
+                    if (inventory.find((p) => p.nome === "MAOMAO")) {
+                        alert("il Codice è già riscattato o Maomao è già nel tuo inventario!");
+                        return;
+                    }
+                    let pullRiscattata = await getCharacter("MAOMAO");
+                    await riscattaPersonaggio("MAOMAO");
                     apriNormale();
                 } else {
                     alert("Codice non valido, skill issue!");
