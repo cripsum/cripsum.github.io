@@ -132,7 +132,7 @@ require_once '../api/api_personaggi.php';
         </script>
         <div class="container">
 
-            <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein lootbox-chest" draggable="false" aria-label="Apri cassa" ondblclick="handleDoubleClick()" onclick="pullaPersonaggio(); apriNormale()" />
+            <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein lootbox-chest" draggable="false" aria-label="Apri cassa" ondblclick="handleDoubleClick(event)" onclick="handleChestClick(event)" />
 
             <div id="baglioreWrapper">
                 <div class="bagliore" id="bagliore"></div>
@@ -406,6 +406,54 @@ require_once '../api/api_personaggi.php';
             var specialPulled = false;
             var nuovoPersonaggio = false;
             var isopening = false;
+
+            const lootboxState = {
+                phase: "idle",
+                isPullLocked: false,
+                canSkip: false,
+                isNewCharacter: false,
+                isRareLocked: false
+            };
+
+            function resetPullRuntimeState() {
+                theOnePulled = false;
+                secretPulled = false;
+                specialPulled = false;
+                nuovoPersonaggio = false;
+
+                lootboxState.phase = "idle";
+                lootboxState.isPullLocked = false;
+                lootboxState.canSkip = false;
+                lootboxState.isNewCharacter = false;
+                lootboxState.isRareLocked = false;
+            }
+
+            function lockPull(phase = "pulling") {
+                lootboxState.phase = phase;
+                lootboxState.isPullLocked = true;
+                lootboxState.canSkip = false;
+            }
+
+            function syncLootboxStateFromPull() {
+                lootboxState.isNewCharacter = nuovoPersonaggio === true;
+                lootboxState.isRareLocked = theOnePulled === true || secretPulled === true || specialPulled === true;
+                lootboxState.canSkip = !lootboxState.isNewCharacter && !lootboxState.isRareLocked;
+            }
+
+            function isPullBusy() {
+                return lootboxState.isPullLocked || lootboxState.phase !== "idle" || isProcessing === true || isopening === true;
+            }
+
+            function canUseFastOpen() {
+                return lootboxState.canSkip === true &&
+                    lootboxState.isNewCharacter !== true &&
+                    lootboxState.isRareLocked !== true &&
+                    nuovoPersonaggio !== true &&
+                    theOnePulled !== true &&
+                    secretPulled !== true &&
+                    specialPulled !== true &&
+                    (lootboxState.phase === "opening" || lootboxState.phase === "animating");
+            }
             //|| {
             //    comune: 45,
             //    raro: 25,
@@ -807,8 +855,8 @@ require_once '../api/api_personaggi.php';
 
             async function pullaPersonaggio() {
 
-                if (isProcessing) {
-                    return;
+                if (isProcessing || (lootboxState.isPullLocked === true && lootboxState.phase !== "pulling")) {
+                    return null;
                 }
 
                 isProcessing = true;
@@ -896,9 +944,13 @@ require_once '../api/api_personaggi.php';
                         <source src="/audio/${pull.audio_url}" type="audio/mpeg" id="suono" />
                     `;
 
+                    syncLootboxStateFromPull();
+                    return pull;
+
                 } catch (error) {
                     console.error('Errore nel pull del personaggio:', error);
                     messaggioRarita.innerText = "Errore durante l'apertura della cassa. Riprova.";
+                    return null;
                 } finally {
                     setTimeout(() => {
                         isProcessing = false;
@@ -1005,87 +1057,104 @@ require_once '../api/api_personaggi.php';
                 }
             }
 
+            async function startLootboxPull(openMode = "normal") {
+                if (isPullBusy()) {
+                    return false;
+                }
+
+                resetPullRuntimeState();
+                lockPull("pulling");
+
+                const pull = await pullaPersonaggio();
+
+                if (!pull) {
+                    resetPullRuntimeState();
+                    return false;
+                }
+
+                syncLootboxStateFromPull();
+                lootboxState.phase = "opening";
+
+                if (openMode === "fast" && lootboxState.canSkip === true) {
+                    await apriRapidaDaTastiera();
+                } else {
+                    await apriNormale();
+                }
+
+                return true;
+            }
+
+            function handleChestClick(evt) {
+                const clickEvent = evt || window.event;
+
+                if (clickEvent && typeof clickEvent.preventDefault === "function") {
+                    clickEvent.preventDefault();
+                }
+
+                startLootboxPull("normal");
+            }
+
+            async function apriRapidaDaTastiera() {
+                if (lootboxState.isNewCharacter === true || lootboxState.isRareLocked === true || nuovoPersonaggio === true) {
+                    await apriNormale();
+                    return;
+                }
+
+                lootboxState.phase = "opening";
+                lootboxState.canSkip = false;
+                setLootboxState("is-fast-open");
+
+                cassa.onclick = null;
+                cassa.style.pointerEvents = "none";
+
+                bagliore.style.opacity = 0.6;
+                bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
+
+                if (typeof audio.load === "function") {
+                    audio.load();
+                }
+
+                audio.currentTime = 0;
+                audio.play().catch(() => {});
+
+                generaParticelle();
+                await apriCassa();
+                apriVeloce(true);
+            }
+
             document.addEventListener("DOMContentLoaded", function() {
                 document.addEventListener("keydown", function(event) {
-                    if (event.code === "Space") {
-                        event.preventDefault();
-
-                        if (!cassa.classList.contains("aperta")) {
-                            if (!contenuto.classList.contains("salto")) {
-                                pullaPersonaggio().then(() => {
-                                    if (theOnePulled === true) {
-                                        event.preventDefault();
-                                        apriNormale();
-                                        isopening = true;
-                                    } else if (secretPulled === true) {
-                                        event.preventDefault();
-                                        apriNormale();
-                                        isopening = true;
-                                    } else if (specialPulled === true) {
-                                        event.preventDefault();
-                                        apriNormale();
-                                        isopening = true;
-                                    } else if (nuovoPersonaggio === true) {
-                                        event.preventDefault();
-                                        apriNormale();
-                                        isopening = true;
-                                    } else {
-                                        event.preventDefault();
-                                        bagliore.style.opacity = 0.6;
-                                        bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
-
-                                        audio.currentTime = 0;
-                                        audio.play().catch(() => {});
-
-                                        generaParticelle();
-                                        apriCassa();
-                                        apriVeloce();
-                                    }
-                                });
-                            }
-                        } else {
-                            if (theOnePulled === true) {
-                                event.preventDefault();
-                                apriNormale();
-                                isopening = true;
-                            } else if (secretPulled === true) {
-                                event.preventDefault();
-                                apriNormale();
-                                isopening = true;
-                            } else if (specialPulled === true) {
-                                event.preventDefault();
-                                apriNormale();
-                                isopening = true;
-                            } else if (nuovoPersonaggio === true) {
-                                event.preventDefault();
-                                apriNormale();
-                                isopening = true;
-                            } else {
-                                event.preventDefault();
-                                apriVeloce();
-                            }
-                        }
-
+                    if (event.code !== "Space") {
+                        return;
                     }
+
+                    event.preventDefault();
+
+                    if (event.repeat || isPullBusy()) {
+                        return;
+                    }
+
+                    startLootboxPull("fast");
                 });
 
                 document.addEventListener("keydown", function(event) {
-                    if (event.code === "Enter") {
-                        if (theOnePulled === true) {
-
-                        } else if (secretPulled === true) {
-
-                        } else if (specialPulled === true) {
-
-                        } else if (nuovoPersonaggio === true) {
-
-                        } else {
-                            event.preventDefault();
-                            refresh();
-                        }
+                    if (event.code !== "Enter") {
+                        return;
                     }
+
+                    if (lootboxState.phase !== "revealed") {
+                        return;
+                    }
+
+                    if (lootboxState.isNewCharacter === true || lootboxState.isRareLocked === true) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    refresh();
                 });
             });
+
 
 
             async function riscattaCodice() {
@@ -1155,7 +1224,12 @@ require_once '../api/api_personaggi.php';
                 if (isopening) {
                     return;
                 }
+
                 isopening = true;
+                syncLootboxStateFromPull();
+                lootboxState.phase = "opening";
+                lootboxState.canSkip = lootboxState.isNewCharacter !== true && lootboxState.isRareLocked !== true;
+
                 setLootboxState("is-opening");
                 cassa.onclick = null;
                 await apriCassa();
@@ -1164,6 +1238,10 @@ require_once '../api/api_personaggi.php';
 
                 bagliore.style.opacity = 0.6;
                 bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
+
+                if (typeof audio.load === "function") {
+                    audio.load();
+                }
 
                 audio.currentTime = 0;
                 audio.play().catch(() => {});
@@ -1177,10 +1255,13 @@ require_once '../api/api_personaggi.php';
                 }, 420);
 
                 setTimeout(() => {
+                    lootboxState.phase = "animating";
                     cassa.classList.add("aperta");
                 }, 1700);
 
                 setTimeout(() => {
+                    lootboxState.phase = "revealed";
+                    lootboxState.canSkip = false;
                     setLootboxState("is-revealed");
                     contenuto.classList.add("salto");
                     messaggio.classList.add("salto");
@@ -1196,6 +1277,7 @@ require_once '../api/api_personaggi.php';
                 //    setTimeout(refresh, 500);
                 //};
             }
+
 
             function testoNuovo() {
                 document.querySelectorAll(".new-label").forEach((label) => label.remove());
@@ -1229,25 +1311,34 @@ require_once '../api/api_personaggi.php';
                     clickEvent.preventDefault();
                 }
 
-                if (theOnePulled === true || secretPulled === true || specialPulled === true || nuovoPersonaggio === true) {
+                if (!canUseFastOpen()) {
                     return;
                 }
 
-                apriVeloce();
+                apriVeloce(true);
             }
 
             function handleDoubleClick(evt) {
-                const canSkip =
-                    cassa.classList.contains("aperta") ||
-                    cassa.classList.contains("is-opening-chest") ||
-                    document.body.classList.contains("is-opening");
+                const clickEvent = evt || window.event;
 
-                if (canSkip) {
-                    controlloApriVeloce(evt);
+                if (clickEvent && typeof clickEvent.preventDefault === "function") {
+                    clickEvent.preventDefault();
                 }
+
+                if (!canUseFastOpen()) {
+                    return;
+                }
+
+                controlloApriVeloce(clickEvent);
             }
 
-            function apriVeloce() {
+            function apriVeloce(force = false) {
+                if (force !== true && !canUseFastOpen()) {
+                    return;
+                }
+
+                lootboxState.phase = "revealed";
+                lootboxState.canSkip = false;
                 setLootboxState("is-fast-open");
                 contenuto.classList.add("salto");
                 messaggio.classList.add("salto");
@@ -1263,6 +1354,7 @@ require_once '../api/api_personaggi.php';
                 //    setTimeout(refresh, 500);
                 //};
             }
+
 
             function generaParticelle() {
                 const container = document.getElementById("particelle");
