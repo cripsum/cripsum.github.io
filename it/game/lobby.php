@@ -134,17 +134,19 @@ if (!isLoggedIn()) {
                         <p class="game-hint">Carico classifica...</p>
                     </div>
 
-                    <section class="game-panel game-reveal" id="liveMatchesPanel">
-                        <div class="game-panel-head compact">
-                            <div><span class="game-kicker">Spectate</span>
-                                <h2>Partite live</h2>
-                            </div>
-                            <button class="game-btn game-btn-soft" type="button" data-action="load-live">Aggiorna</button>
+
+                </section>
+
+                <section class="game-panel game-reveal" id="liveMatchesPanel">
+                    <div class="game-panel-head compact">
+                        <div><span class="game-kicker">Spectate</span>
+                            <h2>Partite live</h2>
                         </div>
-                        <div class="game-live-list" id="liveMatchesList">
-                            <p class="game-hint">Carico partite live...</p>
-                        </div>
-                    </section>
+                        <button class="game-btn game-btn-soft" type="button" data-action="load-live">Aggiorna</button>
+                    </div>
+                    <div class="game-live-list" id="liveMatchesList">
+                        <p class="game-hint">Carico partite live...</p>
+                    </div>
                 </section>
             </aside>
         </section>
