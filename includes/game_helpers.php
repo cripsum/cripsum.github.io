@@ -240,6 +240,64 @@ function gd_chat_messages(mysqli $m, int $mid): array {
     return array_reverse($out);
 }
 
+
+function gd_spectator_count(mysqli $m, int $mid): int {
+    if (!gd_has_col($m, 'game_spectators', 'match_id')) {
+        return 0;
+    }
+
+    $st = $m->prepare('SELECT COUNT(*) total FROM game_spectators WHERE match_id = ?');
+    if (!$st) {
+        return 0;
+    }
+
+    $st->bind_param('i', $mid);
+    $st->execute();
+    $row = $st->get_result()->fetch_assoc();
+    $st->close();
+
+    return (int)($row['total'] ?? 0);
+}
+
+function gd_reactions(mysqli $m, int $mid): array {
+    $out = [];
+
+    if (!gd_has_col($m, 'game_match_reactions', 'reaction')) {
+        return $out;
+    }
+
+    $st = $m->prepare('
+        SELECT r.id, r.user_id, r.reaction, r.created_at, u.username
+        FROM game_match_reactions r
+        LEFT JOIN utenti u ON u.id = r.user_id
+        WHERE r.match_id = ?
+        ORDER BY r.id DESC
+        LIMIT 18
+    ');
+
+    if (!$st) {
+        return $out;
+    }
+
+    $st->bind_param('i', $mid);
+    $st->execute();
+    $res = $st->get_result();
+
+    while ($row = $res->fetch_assoc()) {
+        $out[] = [
+            'id' => (int)$row['id'],
+            'user_id' => (int)$row['user_id'],
+            'username' => $row['username'] ?: 'Spettatore',
+            'reaction' => (string)$row['reaction'],
+            'created_at' => (string)$row['created_at'],
+        ];
+    }
+
+    $st->close();
+
+    return array_reverse($out);
+}
+
 function gd_state(mysqli $m, array $match, int $viewer): array {
     $mid = (int)$match['id'];
     $cards = gd_cards($m, $mid);
@@ -260,7 +318,7 @@ function gd_state(mysqli $m, array $match, int $viewer): array {
         $rankedResult['viewer_rank_after'] = gd_rank_from_rating((int)$rankedResult['viewer_rating_after']);
         $rankedResult['opponent_rank_after'] = gd_rank_from_rating((int)$rankedResult['opponent_rating_after']);
     }
-    return ['id'=>$mid,'room_code'=>$match['room_code'],'status'=>$match['status'],'mode'=>$match['mode'],'player1_id'=>(int)$match['player1_id'],'player2_id'=>$match['player2_id']?(int)$match['player2_id']:null,'players'=>['player1'=>$p1,'player2'=>$p2],'player1_ready'=>(int)$match['player1_ready'],'player2_ready'=>(int)$match['player2_ready'],'current_turn_user_id'=>$match['current_turn_user_id']?(int)$match['current_turn_user_id']:null,'winner_id'=>$match['winner_id']?(int)$match['winner_id']:null,'loser_id'=>$match['loser_id']?(int)$match['loser_id']:null,'turn_number'=>(int)$match['turn_number'],'viewer_id'=>$viewer,'viewer_role'=>gd_is_player($match,$viewer)?'player':'spectator','cards'=>$cards,'actions'=>array_reverse($actions),'chat'=>gd_chat_messages($m,$mid),'ranked_result'=>$rankedResult];
+    return ['id'=>$mid,'room_code'=>$match['room_code'],'status'=>$match['status'],'mode'=>$match['mode'],'player1_id'=>(int)$match['player1_id'],'player2_id'=>$match['player2_id']?(int)$match['player2_id']:null,'players'=>['player1'=>$p1,'player2'=>$p2],'player1_ready'=>(int)$match['player1_ready'],'player2_ready'=>(int)$match['player2_ready'],'current_turn_user_id'=>$match['current_turn_user_id']?(int)$match['current_turn_user_id']:null,'winner_id'=>$match['winner_id']?(int)$match['winner_id']:null,'loser_id'=>$match['loser_id']?(int)$match['loser_id']:null,'turn_number'=>(int)$match['turn_number'],'viewer_id'=>$viewer,'viewer_role'=>gd_is_player($match,$viewer)?'player':'spectator','cards'=>$cards,'actions'=>array_reverse($actions),'chat'=>gd_chat_messages($m,$mid),'reactions'=>gd_reactions($m,$mid),'spectator_count'=>gd_spectator_count($m,$mid),'ranked_result'=>$rankedResult];
 }
 function gd_start_if_ready(mysqli $m, int $mid): void {
     $match = gd_match($m, $mid); if (!$match) return;

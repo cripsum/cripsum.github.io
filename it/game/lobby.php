@@ -19,8 +19,8 @@ if (!isLoggedIn()) {
     <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ Duel - Lobby</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/css/game.css?v=1.3-private-chat">
-    <script src="/assets/js/game.js?v=1.3-private-chat" defer></script>
+    <link rel="stylesheet" href="/assets/css/game.css?v=1.4-spectator-reactions">
+    <script src="/assets/js/game.js?v=1.4-spectator-reactions" defer></script>
 </head>
 
 <body class="game-page" data-page="duel-lobby">
@@ -98,7 +98,7 @@ if (!isLoggedIn()) {
                     <div class="game-rule-list">
                         <article><i class="fas fa-users"></i><strong> Team da 3</strong><span> - Usi solo personaggi che hai nell’inventario.</span></article>
                         <article><i class="fas fa-hand-fist"></i><strong> Attacco</strong><span> - Fa danno base e ti dà +1 energia.</span></article>
-                        <article><i class="fas fa-wand-magic-sparkles"></i><strong> Speciale</strong><span> - Fa più danno, ma costa energia. Ha un cooldown.</span></article>
+                        <article><i class="fas fa-wand-magic-sparkles"></i><strong> Speciale</strong><span> - Fa più danno, ma costa energia e ha un cooldown.</span></article>
                         <article><i class="fas fa-shield"></i><strong> Difesa</strong><span> - Riduce il prossimo danno e recupera energia.</span></article>
                         <article><i class="fas fa-battery-full"></i><strong> Carica</strong><span> - Recupera energia se vuoi preparare la speciale.</span></article>
                         <article><i class="fas fa-repeat"></i><strong> Cambio</strong><span> - Clicca una tua carta sotto per cambiarla. Consuma un turno.</span></article>
@@ -113,13 +113,13 @@ if (!isLoggedIn()) {
                             <h2>Categorie</h2>
                         </div>
                     </div>
-                    <div class="game-rank-ladder game-rank-ladder-v13">
-                        <span data-rank="bronzo"><strong>Bronzo</strong><small>0-999</small></span>
-                        <span data-rank="argento"><strong>Argento</strong><small>1000-1199</small></span>
-                        <span data-rank="oro"><strong>Oro</strong><small>1200-1399</small></span>
-                        <span data-rank="diamante"><strong>Diamante</strong><small>1400-1599</small></span>
-                        <span data-rank="campione"><strong>Campione</strong><small>1600-1899</small></span>
-                        <span data-rank="leggenda"><strong>Leggenda</strong><small>1900+</small></span>
+                    <div class="game-rank-ladder game-rank-ladder-v14">
+                        <span data-rank="bronzo"><i class="fas fa-shield"></i><strong>Bronzo</strong><small>0-999</small></span>
+                        <span data-rank="argento"><i class="fas fa-medal"></i><strong>Argento</strong><small>1000-1199</small></span>
+                        <span data-rank="oro"><i class="fas fa-crown"></i><strong>Oro</strong><small>1200-1399</small></span>
+                        <span data-rank="diamante"><i class="fas fa-gem"></i><strong>Diamante</strong><small>1400-1599</small></span>
+                        <span data-rank="campione"><i class="fas fa-trophy"></i><strong>Campione</strong><small>1600-1899</small></span>
+                        <span data-rank="leggenda"><i class="fas fa-dragon"></i><strong>Leggenda</strong><small>1900+</small></span>
                     </div>
                 </section>
 
@@ -133,6 +133,18 @@ if (!isLoggedIn()) {
                     <div class="game-ranking" id="rankingList">
                         <p class="game-hint">Carico classifica...</p>
                     </div>
+
+                    <section class="game-panel game-reveal" id="liveMatchesPanel">
+                        <div class="game-panel-head compact">
+                            <div><span class="game-kicker">Spectate</span>
+                                <h2>Partite live</h2>
+                            </div>
+                            <button class="game-btn game-btn-soft" type="button" data-action="load-live">Aggiorna</button>
+                        </div>
+                        <div class="game-live-list" id="liveMatchesList">
+                            <p class="game-hint">Carico partite live...</p>
+                        </div>
+                    </section>
                 </section>
             </aside>
         </section>

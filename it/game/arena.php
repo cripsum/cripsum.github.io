@@ -20,8 +20,8 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
     <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ Duel - Game</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/css/game.css?v=1.3-private-chat">
-    <script src="/assets/js/game.js?v=1.3-private-chat" defer></script>
+    <link rel="stylesheet" href="/assets/css/game.css?v=1.4-spectator-reactions">
+    <script src="/assets/js/game.js?v=1.4-spectator-reactions" defer></script>
 </head>
 <body class="game-page" data-page="duel-arena" data-match-id="<?php echo htmlspecialchars((string)$matchId, ENT_QUOTES, 'UTF-8'); ?>">
     <?php include '../../includes/navbar.php'; ?>
@@ -31,7 +31,10 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
     <main class="game-shell game-arena-shell">
         <section class="game-compact-top">
             <a class="game-btn game-btn-ghost" href="/it/game/lobby.php"><i class="fas fa-arrow-left"></i> Lobby</a>
-            <div class="game-room-pill">Room: <strong id="arenaRoomCode">---</strong></div>
+            <div class="game-top-pills">
+                <div class="game-room-pill">Room: <strong id="arenaRoomCode">---</strong></div>
+                <div class="game-spectator-pill" id="spectatorPill" hidden><i class="fas fa-eye"></i><strong id="spectatorCount">0</strong></div>
+            </div>
         </section>
 
         <section class="game-panel game-waiting-panel" id="waitingPanel" hidden>
@@ -62,7 +65,10 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
             <div class="game-fx" id="gameFx" aria-hidden="true"><span></span></div>
             <div class="game-arena-head">
                 <div><span class="game-kicker" id="matchStatus">Partita</span><h2 id="turnLabel">Attesa...</h2></div>
-                <div class="game-turn-mini" id="turnCoach"><i class="fas fa-lightbulb"></i><span>Segui i glow sulle carte per capire cosa succede.</span></div>
+            </div>
+            <div class="game-spectator-mode" id="spectatorMode" hidden>
+                <i class="fas fa-eye"></i>
+                <span>Stai guardando questa partita. Puoi leggere la chat e mandare reazioni, ma non puoi giocare o scrivere.</span>
             </div>
             <div class="game-board">
                 <div class="game-side game-side-opponent"><h3 id="opponentName">Avversario</h3><div class="game-active-card" id="opponentActive"></div><div class="game-team-row" id="opponentTeam"></div></div>
@@ -87,6 +93,16 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
                     <div class="game-chat-messages" id="chatMessages">
                         <p class="game-hint">Scrivi all’avversario durante la partita.</p>
                     </div>
+
+                    <div class="game-reactions" id="reactionPanel" hidden>
+                        <button type="button" data-reaction="🔥">🔥</button>
+                        <button type="button" data-reaction="💀">💀</button>
+                        <button type="button" data-reaction="👏">👏</button>
+                        <button type="button" data-reaction="😳">😳</button>
+                        <button type="button" data-reaction="⚡">⚡</button>
+                        <button type="button" data-reaction="👀">👀</button>
+                    </div>
+
                     <form class="game-chat-form" id="chatForm">
                         <input id="chatInput" maxlength="220" placeholder="Messaggio...">
                         <button class="game-btn game-btn-main" type="submit">Invia</button>

@@ -1069,3 +1069,237 @@ body.game-page .dropdown-menu button:focus { color: #fff !important; background:
         grid-template-columns: 1fr;
     }
 }
+
+
+/* Cripsum Duel V1.4 - rank icons, spectate, reactions */
+
+.game-rank-ladder-v14 {
+    display: grid;
+    gap: .55rem;
+}
+
+.game-rank-ladder-v14 span {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: .65rem;
+    padding: .65rem .75rem;
+    border: 1px solid var(--game-border);
+    border-radius: 18px;
+    background: rgba(255,255,255,.045);
+}
+
+.game-rank-ladder-v14 i {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--game-accent), var(--game-accent2));
+}
+
+.game-rank-ladder-v14 strong {
+    color: #fff;
+    font-weight: 950;
+}
+
+.game-rank-ladder-v14 small {
+    color: var(--game-muted2);
+    font-weight: 850;
+}
+
+.game-rank-ladder-v14 [data-rank="bronzo"] i { background: linear-gradient(135deg, #92400e, #d97706); }
+.game-rank-ladder-v14 [data-rank="argento"] i { background: linear-gradient(135deg, #64748b, #cbd5e1); color: #07111f; }
+.game-rank-ladder-v14 [data-rank="oro"] i { background: linear-gradient(135deg, #f59e0b, #fde68a); color: #1f1300; }
+.game-rank-ladder-v14 [data-rank="diamante"] i { background: linear-gradient(135deg, #06b6d4, #a5f3fc); color: #06111f; }
+.game-rank-ladder-v14 [data-rank="campione"] i { background: linear-gradient(135deg, #7c3aed, #c4b5fd); }
+.game-rank-ladder-v14 [data-rank="leggenda"] i { background: linear-gradient(135deg, #ef4444, #f59e0b, #7c3aed); }
+
+.game-rank-meta small {
+    display: none !important;
+}
+
+.game-live-list {
+    display: grid;
+    gap: .55rem;
+}
+
+.game-live-row {
+    display: flex;
+    justify-content: space-between;
+    gap: .75rem;
+    align-items: center;
+    padding: .72rem;
+    border: 1px solid var(--game-border);
+    border-radius: 18px;
+    color: var(--game-text);
+    background: rgba(255,255,255,.045);
+    text-decoration: none;
+    transition: transform .18s ease, border-color .18s ease, background .18s ease;
+}
+
+.game-live-row:hover {
+    color: #fff;
+    transform: translateY(-2px);
+    border-color: rgba(6, 182, 212, .35);
+    background: rgba(6, 182, 212, .08);
+}
+
+.game-live-row strong {
+    display: block;
+    color: #fff;
+    font-weight: 950;
+    line-height: 1.2;
+}
+
+.game-live-row span {
+    display: block;
+    margin-top: .15rem;
+    color: var(--game-muted);
+    font-size: .88rem;
+}
+
+.game-live-row em {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    color: var(--game-muted);
+    font-style: normal;
+    font-weight: 950;
+}
+
+.game-top-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .55rem;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.game-spectator-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    min-height: 2.5rem;
+    padding: .55rem .75rem;
+    border: 1px solid rgba(6, 182, 212, .28);
+    border-radius: 999px;
+    color: #dff9ff;
+    background: rgba(6, 182, 212, .10);
+    font-weight: 950;
+}
+
+.game-spectator-pill[hidden] {
+    display: none !important;
+}
+
+.game-spectator-pill.is-pulse {
+    animation: spectatorPulse .7s ease;
+}
+
+@keyframes spectatorPulse {
+    0%, 100% { transform: scale(1); }
+    45% { transform: scale(1.08); box-shadow: 0 0 28px rgba(6,182,212,.20); }
+}
+
+.game-spectator-mode {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    margin-bottom: .85rem;
+    padding: .75rem .85rem;
+    border: 1px solid rgba(6, 182, 212, .24);
+    border-radius: 18px;
+    color: var(--game-muted);
+    background: rgba(6, 182, 212, .075);
+}
+
+.game-spectator-mode i {
+    color: var(--game-blue);
+}
+
+.game-spectator-mode[hidden] {
+    display: none !important;
+}
+
+.game-reactions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+    padding-top: .35rem;
+}
+
+.game-reactions[hidden] {
+    display: none !important;
+}
+
+.game-reactions button {
+    display: grid;
+    place-items: center;
+    width: 2.65rem;
+    height: 2.65rem;
+    border: 1px solid var(--game-border);
+    border-radius: 999px;
+    background: rgba(255,255,255,.055);
+    font-size: 1.15rem;
+    cursor: pointer;
+    transition: transform .18s ease, background .18s ease, border-color .18s ease;
+}
+
+.game-reactions button:hover {
+    transform: translateY(-2px) scale(1.04);
+    border-color: rgba(6,182,212,.35);
+    background: rgba(6,182,212,.10);
+}
+
+.game-reaction-float {
+    position: absolute;
+    top: 48%;
+    z-index: 70;
+    display: grid;
+    justify-items: center;
+    gap: .15rem;
+    pointer-events: none;
+    animation: reactionFloat 1.65s ease forwards;
+}
+
+.game-reaction-float span {
+    display: grid;
+    place-items: center;
+    width: 3.2rem;
+    height: 3.2rem;
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 999px;
+    background: rgba(7, 11, 21, .78);
+    box-shadow: 0 18px 48px rgba(0,0,0,.36);
+    font-size: 1.55rem;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.game-reaction-float small {
+    padding: .18rem .45rem;
+    border-radius: 999px;
+    color: var(--game-muted);
+    background: rgba(7, 11, 21, .72);
+    font-weight: 850;
+}
+
+@keyframes reactionFloat {
+    0% { opacity: 0; transform: translateY(20px) scale(.88); }
+    16% { opacity: 1; transform: translateY(0) scale(1); }
+    78% { opacity: 1; transform: translateY(-36px) scale(1.03); }
+    100% { opacity: 0; transform: translateY(-58px) scale(.96); }
+}
+
+@media (max-width: 680px) {
+    .game-top-pills {
+        justify-content: flex-start;
+    }
+
+    .game-live-row {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}

@@ -160,4 +160,130 @@ function gd_api_send_chat(mysqli $mysqli): void {
 }
 
 function gd_api_active_match(mysqli $mysqli): void { $uid=gd_require_login(); $q=$mysqli->prepare("SELECT id,room_code,status,mode FROM game_matches WHERE (player1_id=? OR player2_id=?) AND status IN ('waiting','team_select','active') ORDER BY updated_at DESC LIMIT 1"); $q->bind_param('ii',$uid,$uid); $q->execute(); $m=$q->get_result()->fetch_assoc(); $q->close(); gd_ok(['match'=>$m ?: null]); }
+
+function gd_api_live_matches(mysqli $mysqli): void {
+    $uid = gd_require_login();
+
+    $sql = "
+        SELECT 
+            m.id,
+            m.room_code,
+            m.mode,
+            m.status,
+            m.turn_number,
+            m.player1_id,
+            m.player2_id,
+            u1.username AS player1_username,
+            u2.username AS player2_username,
+            (
+                SELECT COUNT(*) 
+                FROM game_spectators s 
+                WHERE s.match_id = m.id
+            ) AS spectator_count
+        FROM game_matches m
+        LEFT JOIN utenti u1 ON u1.id = m.player1_id
+        LEFT JOIN utenti u2 ON u2.id = m.player2_id
+        WHERE m.status IN ('team_select', 'active')
+          AND m.spectator_allowed = 1
+          AND m.player1_id <> ?
+          AND (m.player2_id IS NULL OR m.player2_id <> ?)
+        ORDER BY m.updated_at DESC
+        LIMIT 12
+    ";
+
+    $st = $mysqli->prepare($sql);
+    if (!$st) {
+        gd_fail('Query partite live non valida.', 500);
+    }
+
+    $st->bind_param('ii', $uid, $uid);
+    $st->execute();
+    $res = $st->get_result();
+    $matches = [];
+
+    while ($row = $res->fetch_assoc()) {
+        $matches[] = [
+            'id' => (int)$row['id'],
+            'room_code' => $row['room_code'],
+            'mode' => $row['mode'],
+            'status' => $row['status'],
+            'turn_number' => (int)$row['turn_number'],
+            'player1' => $row['player1_username'] ?: 'Player 1',
+            'player2' => $row['player2_username'] ?: 'In attesa',
+            'spectator_count' => (int)$row['spectator_count'],
+        ];
+    }
+
+    $st->close();
+
+    gd_ok(['matches' => $matches]);
+}
+
+function gd_api_send_reaction(mysqli $mysqli): void {
+    $uid = gd_require_login();
+    $input = gd_input();
+
+    $mid = (int)($input['match_id'] ?? 0);
+    $reaction = trim((string)($input['reaction'] ?? ''));
+
+    $allowed = ['🔥', '💀', '👏', '😳', '⚡', '👀'];
+
+    if (!in_array($reaction, $allowed, true)) {
+        gd_fail('Reazione non valida.');
+    }
+
+    $match = gd_match($mysqli, $mid);
+    if (!$match) {
+        gd_fail('Partita non trovata.', 404);
+    }
+
+    if ((int)$match['spectator_allowed'] !== 1) {
+        gd_fail('Spectator non disponibile.', 403);
+    }
+
+    if (gd_is_player($match, $uid)) {
+        gd_fail('Le reazioni sono solo per gli spettatori.');
+    }
+
+    if (!in_array($match['status'], ['team_select', 'active', 'finished'], true)) {
+        gd_fail('Non puoi reagire a questa partita.');
+    }
+
+    $ins = $mysqli->prepare('INSERT IGNORE INTO game_spectators (match_id, user_id) VALUES (?, ?)');
+    if ($ins) {
+        $ins->bind_param('ii', $mid, $uid);
+        $ins->execute();
+        $ins->close();
+    }
+
+    $st = $mysqli->prepare('
+        SELECT COUNT(*) total
+        FROM game_match_reactions
+        WHERE match_id = ?
+          AND user_id = ?
+          AND created_at >= DATE_SUB(NOW(), INTERVAL 5 SECOND)
+    ');
+    if ($st) {
+        $st->bind_param('ii', $mid, $uid);
+        $st->execute();
+        $recent = (int)($st->get_result()->fetch_assoc()['total'] ?? 0);
+        $st->close();
+
+        if ($recent >= 3) {
+            gd_fail('Aspetta un attimo prima di reagire ancora.');
+        }
+    }
+
+    $st = $mysqli->prepare('INSERT INTO game_match_reactions (match_id, user_id, reaction) VALUES (?, ?, ?)');
+    if (!$st) {
+        gd_fail('Query reazione non valida.', 500);
+    }
+
+    $st->bind_param('iis', $mid, $uid, $reaction);
+    $st->execute();
+    $st->close();
+
+    gd_ok(['message' => 'Reazione inviata.']);
+}
+
 function gd_api_profile_summary(mysqli $mysqli): void { $uid=gd_require_login(); $u=gd_user_public($mysqli,$uid); $inv=gd_inventory_count($mysqli,$uid); gd_ok(['profile'=>['user'=>$u,'inventory'=>$inv]]); }
