@@ -54,6 +54,7 @@ if ($isLoggedIn) {
                     <ul class="dropdown-menu animate slideIn">
                         <li><a class="dropdown-item " href="/<?= $lang ?>/gambling">Gambling</a></li>
                         <li><a class="dropdown-item " href="/<?= $lang ?>/lootbox">Lootbox</a></li>
+                        <li><a class="dropdown-item " href="/<?= $lang ?>/game/">Duelli</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown dropdownutenti">
