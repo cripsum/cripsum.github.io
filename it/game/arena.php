@@ -20,8 +20,8 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
     <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ Duel - Game</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/css/game.css?v=1.2-split-ranked">
-    <script src="/assets/js/game.js?v=1.2-split-ranked" defer></script>
+    <link rel="stylesheet" href="/assets/css/game.css?v=1.3-private-chat">
+    <script src="/assets/js/game.js?v=1.3-private-chat" defer></script>
 </head>
 <body class="game-page" data-page="duel-arena" data-match-id="<?php echo htmlspecialchars((string)$matchId, ENT_QUOTES, 'UTF-8'); ?>">
     <?php include '../../includes/navbar.php'; ?>
@@ -34,9 +34,15 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
             <div class="game-room-pill">Room: <strong id="arenaRoomCode">---</strong></div>
         </section>
 
-        <section class="game-panel" id="waitingPanel" hidden>
+        <section class="game-panel game-waiting-panel" id="waitingPanel" hidden>
             <div class="game-panel-head"><div><span class="game-kicker">Attesa</span><h2>In attesa dell’avversario</h2></div></div>
-            <p class="game-hint">Condividi il codice stanza. Quando entra un player potrai scegliere il team.</p>
+            <div class="game-waiting-box">
+                <div class="game-matchmaking-orb is-large"><span></span><span></span><span></span></div>
+                <div>
+                    <strong>Matchmaking attivo</strong>
+                    <p class="game-hint">Condividi codice e password se è una stanza privata. Appena entra un player scegli il team.</p>
+                </div>
+            </div>
             <div class="game-actions"><button class="game-btn game-btn-ghost" data-action="forfeit" type="button">Annulla stanza</button></div>
         </section>
 
@@ -70,7 +76,23 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
                 <button class="game-move game-move-charge" data-battle-action="charge" type="button"><i class="fas fa-battery-full"></i><strong>Carica</strong><span>Recupera +2 energia</span></button>
             </div>
             <div class="game-sub-actions"><span><i class="fas fa-repeat"></i> Per cambiare carta clicca una tua carta sotto.</span><button class="game-btn game-btn-ghost" data-action="forfeit" type="button">Abbandona</button></div>
-            <div class="game-log-wrap"><div class="game-log-title">Log turno</div><div class="game-log" id="battleLog"></div></div>
+            <div class="game-arena-bottom">
+                <div class="game-log-wrap">
+                    <div class="game-log-title">Log turno</div>
+                    <div class="game-log" id="battleLog"></div>
+                </div>
+
+                <div class="game-chat-wrap">
+                    <div class="game-log-title">Chat partita</div>
+                    <div class="game-chat-messages" id="chatMessages">
+                        <p class="game-hint">Scrivi all’avversario durante la partita.</p>
+                    </div>
+                    <form class="game-chat-form" id="chatForm">
+                        <input id="chatInput" maxlength="220" placeholder="Messaggio...">
+                        <button class="game-btn game-btn-main" type="submit">Invia</button>
+                    </form>
+                </div>
+            </div>
         </section>
     </main>
 

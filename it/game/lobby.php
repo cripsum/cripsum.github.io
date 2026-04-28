@@ -19,8 +19,8 @@ if (!isLoggedIn()) {
     <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ Duel - Lobby</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/css/game.css?v=1.2-split-ranked">
-    <script src="/assets/js/game.js?v=1.2-split-ranked" defer></script>
+    <link rel="stylesheet" href="/assets/css/game.css?v=1.3-private-chat">
+    <script src="/assets/js/game.js?v=1.3-private-chat" defer></script>
 </head>
 
 <body class="game-page" data-page="duel-lobby">
@@ -53,7 +53,6 @@ if (!isLoggedIn()) {
                             <span class="game-kicker">Start</span>
                             <h2>Inizia una partita</h2>
                         </div>
-                        <button class="game-btn game-btn-soft" data-action="active-match" type="button"><i class="fas fa-rotate-right"></i> Riprendi</button>
                     </div>
                     <div class="game-action-grid">
                         <button class="game-mode-card" data-action="find-match" data-mode="casual" type="button">
@@ -62,13 +61,31 @@ if (!isLoggedIn()) {
                         <button class="game-mode-card" data-action="find-match" data-mode="ranked" type="button">
                             <i class="fas fa-ranking-star"></i><strong>Ranked</strong><span>Vinci o perdi punti. Sali di categoria.</span>
                         </button>
-                        <button class="game-mode-card" data-action="create-private" type="button">
-                            <i class="fas fa-user-group"></i><strong>Privata</strong><span>Crea una stanza con codice.</span>
+                    </div>
+
+                    <div class="game-private-box">
+                        <div>
+                            <strong>Stanza privata</strong>
+                            <span>Crea una stanza con codice e password.</span>
+                        </div>
+                        <input id="privatePasswordInput" type="password" maxlength="64" placeholder="Password stanza">
+                        <button class="game-btn game-btn-special" data-action="create-private" type="button">
+                            <i class="fas fa-lock"></i> Crea privata
                         </button>
                     </div>
-                    <div class="game-join-row">
+
+                    <div class="game-join-row game-join-row-v13">
                         <input id="roomCodeInput" maxlength="16" placeholder="Codice stanza privata">
+                        <input id="joinPasswordInput" type="password" maxlength="64" placeholder="Password">
                         <button class="game-btn game-btn-main" data-action="join-code" type="button">Entra</button>
+                    </div>
+
+                    <div class="game-matchmaking-wait" id="matchmakingWait" hidden>
+                        <div class="game-matchmaking-orb"><span></span><span></span><span></span></div>
+                        <div>
+                            <strong>Cerco avversario...</strong>
+                            <p>Sto preparando la stanza. Se nessuno entra subito, finirai in attesa.</p>
+                        </div>
                     </div>
                 </section>
 
@@ -96,8 +113,13 @@ if (!isLoggedIn()) {
                             <h2>Categorie</h2>
                         </div>
                     </div>
-                    <div class="game-rank-ladder">
-                        <span data-rank="bronzo">Bronzo</span><span data-rank="argento">Argento</span><span data-rank="oro">Oro</span><span data-rank="diamante">Diamante</span><span data-rank="campione">Campione</span><span data-rank="leggenda">Leggenda</span>
+                    <div class="game-rank-ladder game-rank-ladder-v13">
+                        <span data-rank="bronzo"><strong>Bronzo</strong><small>0-999</small></span>
+                        <span data-rank="argento"><strong>Argento</strong><small>1000-1199</small></span>
+                        <span data-rank="oro"><strong>Oro</strong><small>1200-1399</small></span>
+                        <span data-rank="diamante"><strong>Diamante</strong><small>1400-1599</small></span>
+                        <span data-rank="campione"><strong>Campione</strong><small>1600-1899</small></span>
+                        <span data-rank="leggenda"><strong>Leggenda</strong><small>1900+</small></span>
                     </div>
                 </section>
 

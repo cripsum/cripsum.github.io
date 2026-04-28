@@ -64,12 +64,12 @@ function gd_rarity_key(?string $r): string {
     return $map[$v] ?? 'comune';
 }
 function gd_rank_from_rating(int $rating): array {
-    if ($rating >= 1900) return ['key'=>'leggenda','label'=>'Leggenda','next'=>null,'min'=>1900];
-    if ($rating >= 1600) return ['key'=>'campione','label'=>'Campione','next'=>1900,'min'=>1600];
-    if ($rating >= 1400) return ['key'=>'diamante','label'=>'Diamante','next'=>1600,'min'=>1400];
-    if ($rating >= 1200) return ['key'=>'oro','label'=>'Oro','next'=>1400,'min'=>1200];
-    if ($rating >= 1000) return ['key'=>'argento','label'=>'Argento','next'=>1200,'min'=>1000];
-    return ['key'=>'bronzo','label'=>'Bronzo','next'=>1000,'min'=>0];
+    if ($rating >= 1900) return ['key'=>'leggenda','label'=>'Leggenda','next'=>null,'min'=>1900,'max'=>null,'range'=>'1900+'];
+    if ($rating >= 1600) return ['key'=>'campione','label'=>'Campione','next'=>1900,'min'=>1600,'max'=>1899,'range'=>'1600-1899'];
+    if ($rating >= 1400) return ['key'=>'diamante','label'=>'Diamante','next'=>1600,'min'=>1400,'max'=>1599,'range'=>'1400-1599'];
+    if ($rating >= 1200) return ['key'=>'oro','label'=>'Oro','next'=>1400,'min'=>1200,'max'=>1399,'range'=>'1200-1399'];
+    if ($rating >= 1000) return ['key'=>'argento','label'=>'Argento','next'=>1200,'min'=>1000,'max'=>1199,'range'=>'1000-1199'];
+    return ['key'=>'bronzo','label'=>'Bronzo','next'=>1000,'min'=>0,'max'=>999,'range'=>'0-999'];
 }
 function gd_base_stats(string $rarity): array {
     $s = [
@@ -201,6 +201,45 @@ function gd_user_public(mysqli $m, int $uid): array {
     $rating = (int)($stats['rating'] ?? 1000);
     return ['id'=>$uid,'username'=>$username,'pfp_url'=>'/includes/get_pfp.php?id='.$uid,'rating'=>$rating,'rank'=>gd_rank_from_rating($rating),'wins'=>(int)($stats['wins']??0),'losses'=>(int)($stats['losses']??0),'season_points'=>(int)($stats['season_points']??0),'best_streak'=>(int)($stats['best_streak']??0),'games_played'=>(int)($stats['games_played']??0)];
 }
+
+function gd_chat_messages(mysqli $m, int $mid): array {
+    $out = [];
+    if (!gd_has_col($m, 'game_match_chat', 'message')) {
+        return $out;
+    }
+
+    $st = $m->prepare('
+        SELECT c.id, c.match_id, c.user_id, c.message, c.created_at, u.username
+        FROM game_match_chat c
+        LEFT JOIN utenti u ON u.id = c.user_id
+        WHERE c.match_id = ?
+        ORDER BY c.id DESC
+        LIMIT 40
+    ');
+
+    if (!$st) {
+        return $out;
+    }
+
+    $st->bind_param('i', $mid);
+    $st->execute();
+    $res = $st->get_result();
+
+    while ($r = $res->fetch_assoc()) {
+        $out[] = [
+            'id' => (int)$r['id'],
+            'user_id' => (int)$r['user_id'],
+            'username' => $r['username'] ?: 'Utente',
+            'message' => (string)$r['message'],
+            'created_at' => (string)$r['created_at'],
+        ];
+    }
+
+    $st->close();
+
+    return array_reverse($out);
+}
+
 function gd_state(mysqli $m, array $match, int $viewer): array {
     $mid = (int)$match['id'];
     $cards = gd_cards($m, $mid);
@@ -221,7 +260,7 @@ function gd_state(mysqli $m, array $match, int $viewer): array {
         $rankedResult['viewer_rank_after'] = gd_rank_from_rating((int)$rankedResult['viewer_rating_after']);
         $rankedResult['opponent_rank_after'] = gd_rank_from_rating((int)$rankedResult['opponent_rating_after']);
     }
-    return ['id'=>$mid,'room_code'=>$match['room_code'],'status'=>$match['status'],'mode'=>$match['mode'],'player1_id'=>(int)$match['player1_id'],'player2_id'=>$match['player2_id']?(int)$match['player2_id']:null,'players'=>['player1'=>$p1,'player2'=>$p2],'player1_ready'=>(int)$match['player1_ready'],'player2_ready'=>(int)$match['player2_ready'],'current_turn_user_id'=>$match['current_turn_user_id']?(int)$match['current_turn_user_id']:null,'winner_id'=>$match['winner_id']?(int)$match['winner_id']:null,'loser_id'=>$match['loser_id']?(int)$match['loser_id']:null,'turn_number'=>(int)$match['turn_number'],'viewer_id'=>$viewer,'viewer_role'=>gd_is_player($match,$viewer)?'player':'spectator','cards'=>$cards,'actions'=>array_reverse($actions),'ranked_result'=>$rankedResult];
+    return ['id'=>$mid,'room_code'=>$match['room_code'],'status'=>$match['status'],'mode'=>$match['mode'],'player1_id'=>(int)$match['player1_id'],'player2_id'=>$match['player2_id']?(int)$match['player2_id']:null,'players'=>['player1'=>$p1,'player2'=>$p2],'player1_ready'=>(int)$match['player1_ready'],'player2_ready'=>(int)$match['player2_ready'],'current_turn_user_id'=>$match['current_turn_user_id']?(int)$match['current_turn_user_id']:null,'winner_id'=>$match['winner_id']?(int)$match['winner_id']:null,'loser_id'=>$match['loser_id']?(int)$match['loser_id']:null,'turn_number'=>(int)$match['turn_number'],'viewer_id'=>$viewer,'viewer_role'=>gd_is_player($match,$viewer)?'player':'spectator','cards'=>$cards,'actions'=>array_reverse($actions),'chat'=>gd_chat_messages($m,$mid),'ranked_result'=>$rankedResult];
 }
 function gd_start_if_ready(mysqli $m, int $mid): void {
     $match = gd_match($m, $mid); if (!$match) return;

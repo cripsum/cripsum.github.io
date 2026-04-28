@@ -709,3 +709,363 @@ body.game-page .dropdown-menu button:focus { color: #fff !important; background:
 .game-ranking .game-rank-row{grid-template-columns:3rem minmax(0,1fr) auto}.game-rank-row .game-rank-meta{display:flex;align-items:center;gap:.45rem;justify-content:flex-end;flex-wrap:wrap}.game-rank-row .game-rank-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:980px){.game-lobby-grid{grid-template-columns:1fr}.game-profile-card{min-width:0}.game-compact-top{align-items:stretch;flex-direction:column}.game-ranked-feedback{grid-template-columns:1fr}}
 @media(max-width:680px){.game-lobby-shell,.game-arena-shell{width:90%}.game-profile-stats{grid-template-columns:1fr}.game-turn-mini{border-radius:18px}.game-rank-row{grid-template-columns:2.2rem minmax(0,1fr)}}
+
+
+/* Cripsum Duel V1.3 - private password, matchmaking, chat, rank ranges */
+
+.game-rank-ladder-v13 {
+    display: grid;
+    gap: .55rem;
+}
+
+.game-rank-ladder-v13 span {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .75rem;
+    padding: .62rem .7rem;
+}
+
+.game-rank-ladder-v13 strong {
+    color: #fff;
+    font-weight: 950;
+}
+
+.game-rank-ladder-v13 small,
+.game-rank-meta small {
+    color: var(--game-muted2);
+    font-weight: 850;
+}
+
+.game-private-box {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(180px, 260px) auto;
+    gap: .65rem;
+    align-items: center;
+    margin-top: .8rem;
+    padding: .75rem;
+    border: 1px solid var(--game-border);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, .045);
+}
+
+.game-private-box strong {
+    display: block;
+    color: #fff;
+    font-weight: 950;
+}
+
+.game-private-box span {
+    display: block;
+    color: var(--game-muted);
+    font-size: .9rem;
+}
+
+.game-private-box input,
+.game-join-row-v13 input {
+    min-height: 3rem;
+    padding: .75rem .95rem;
+    border: 1px solid var(--game-border);
+    border-radius: 999px;
+    color: var(--game-text);
+    background: rgba(255,255,255,.055);
+    outline: none;
+    font: inherit;
+}
+
+.game-private-box input:focus,
+.game-join-row-v13 input:focus {
+    border-color: rgba(6, 182, 212, .45);
+    box-shadow: 0 0 0 4px rgba(6, 182, 212, .1);
+}
+
+.game-join-row-v13 {
+    margin-top: .75rem;
+}
+
+.game-matchmaking-wait,
+.game-waiting-box {
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+    padding: .85rem;
+    margin-top: .85rem;
+    border: 1px solid rgba(6, 182, 212, .24);
+    border-radius: 22px;
+    background: rgba(6, 182, 212, .075);
+}
+
+.game-matchmaking-wait[hidden] {
+    display: none !important;
+}
+
+.game-matchmaking-wait strong,
+.game-waiting-box strong {
+    color: #fff;
+    font-weight: 950;
+}
+
+.game-matchmaking-wait p,
+.game-waiting-box p {
+    margin: .2rem 0 0;
+}
+
+.game-matchmaking-orb {
+    position: relative;
+    width: 3rem;
+    height: 3rem;
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+}
+
+.game-matchmaking-orb.is-large {
+    width: 4.2rem;
+    height: 4.2rem;
+}
+
+.game-matchmaking-orb span {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    border: 2px solid rgba(6, 182, 212, .42);
+    animation: duelPulseSearch 1.4s ease-out infinite;
+}
+
+.game-matchmaking-orb span:nth-child(2) {
+    animation-delay: .24s;
+    border-color: rgba(124, 58, 237, .42);
+}
+
+.game-matchmaking-orb span:nth-child(3) {
+    animation-delay: .48s;
+    border-color: rgba(255,255,255,.28);
+}
+
+@keyframes duelPulseSearch {
+    0% { transform: scale(.3); opacity: 1; }
+    100% { transform: scale(1.15); opacity: 0; }
+}
+
+.game-arena-bottom {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.game-chat-wrap {
+    display: grid;
+    grid-template-rows: auto minmax(160px, 240px) auto;
+    gap: .55rem;
+    padding: .75rem;
+    border: 1px solid var(--game-border);
+    border-radius: 20px;
+    background: rgba(0,0,0,.16);
+}
+
+.game-chat-messages {
+    display: grid;
+    align-content: start;
+    gap: .45rem;
+    overflow: auto;
+    padding-right: .2rem;
+}
+
+.game-chat-msg {
+    display: grid;
+    gap: .16rem;
+    max-width: 88%;
+    justify-self: start;
+    padding: .55rem .65rem;
+    border: 1px solid var(--game-border);
+    border-radius: 16px 16px 16px 6px;
+    background: rgba(255,255,255,.055);
+}
+
+.game-chat-msg.is-mine {
+    justify-self: end;
+    border-radius: 16px 16px 6px 16px;
+    border-color: rgba(6, 182, 212, .25);
+    background: rgba(6, 182, 212, .10);
+}
+
+.game-chat-msg strong {
+    color: #fff;
+    font-size: .76rem;
+    font-weight: 950;
+}
+
+.game-chat-msg span {
+    color: var(--game-muted);
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.game-chat-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: .5rem;
+}
+
+.game-chat-form input {
+    min-height: 2.85rem;
+    padding: .7rem .85rem;
+    border: 1px solid var(--game-border);
+    border-radius: 999px;
+    color: var(--game-text);
+    background: rgba(255,255,255,.055);
+    outline: none;
+    font: inherit;
+}
+
+.game-chat-form input:focus {
+    border-color: rgba(6, 182, 212, .45);
+    box-shadow: 0 0 0 4px rgba(6, 182, 212, .10);
+}
+
+.game-action-banner {
+    position: fixed;
+    left: 50%;
+    top: calc(5.5rem + env(safe-area-inset-top, 0px));
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: .78rem 1rem;
+    border: 1px solid rgba(255,255,255,.16);
+    border-radius: 999px;
+    background:
+        linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.04)),
+        rgba(7, 11, 21, .92);
+    box-shadow: 0 20px 60px rgba(0,0,0,.42);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transform: translateX(-50%) translateY(-10px);
+    opacity: 0;
+    animation: duelActionBanner 1.25s ease forwards;
+}
+
+.game-action-banner.is-mine {
+    border-color: rgba(6, 182, 212, .28);
+}
+
+.game-action-banner.is-enemy {
+    border-color: rgba(239, 68, 68, .32);
+}
+
+.game-action-banner strong {
+    color: #fff;
+    font-weight: 950;
+}
+
+.game-action-banner span {
+    color: var(--game-muted);
+    font-weight: 850;
+}
+
+@keyframes duelActionBanner {
+    0% { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(.98); }
+    18% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    82% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-8px) scale(.98); }
+}
+
+/* feedback più evidente anche su mosse avversarie */
+.game-active-card.fx-attack,
+.game-mini-card.fx-attack {
+    animation: duelFxAttack .7s ease;
+}
+
+.game-active-card.fx-special,
+.game-mini-card.fx-special {
+    animation: duelFxSpecial .9s ease;
+}
+
+.game-active-card.fx-hit,
+.game-mini-card.fx-hit {
+    animation: duelFxHit .75s ease;
+}
+
+.game-active-card.fx-defend,
+.game-mini-card.fx-defend {
+    animation: duelFxDefend .9s ease;
+}
+
+.game-active-card.fx-charge,
+.game-mini-card.fx-charge {
+    animation: duelFxCharge .9s ease;
+}
+
+.game-active-card.fx-switch,
+.game-mini-card.fx-switch {
+    animation: duelFxSwitch .75s ease;
+}
+
+@keyframes duelFxAttack {
+    0%,100% { transform: translateX(0); }
+    28% { transform: translateX(10px) scale(1.02); box-shadow: 0 0 34px rgba(6,182,212,.22); }
+    55% { transform: translateX(-4px); }
+}
+
+@keyframes duelFxSpecial {
+    0%,100% { transform: scale(1); filter: brightness(1); }
+    42% { transform: scale(1.045); filter: brightness(1.25) saturate(1.2); box-shadow: 0 0 46px rgba(124,58,237,.38); }
+}
+
+@keyframes duelFxHit {
+    0%,100% { transform: translateX(0); filter: brightness(1); }
+    18% { transform: translateX(-10px); filter: brightness(1.35); box-shadow: 0 0 38px rgba(239,68,68,.32); }
+    38% { transform: translateX(8px); }
+    58% { transform: translateX(-4px); }
+}
+
+@keyframes duelFxDefend {
+    0%,100% { box-shadow: none; }
+    45% { box-shadow: 0 0 0 5px rgba(34,197,94,.16), 0 0 38px rgba(34,197,94,.22); }
+}
+
+@keyframes duelFxCharge {
+    0%,100% { box-shadow: none; }
+    45% { box-shadow: 0 0 0 5px rgba(56,189,248,.14), 0 0 42px rgba(56,189,248,.26); }
+}
+
+@keyframes duelFxSwitch {
+    0% { opacity: .45; transform: scale(.96); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@media (max-width: 920px) {
+    .game-private-box,
+    .game-arena-bottom {
+        grid-template-columns: 1fr;
+    }
+
+    .game-chat-wrap {
+        grid-template-rows: auto minmax(130px, 210px) auto;
+    }
+}
+
+@media (max-width: 680px) {
+    .game-private-box,
+    .game-matchmaking-wait,
+    .game-waiting-box {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .game-private-box {
+        display: flex;
+    }
+
+    .game-private-box input,
+    .game-private-box .game-btn,
+    .game-join-row-v13 input,
+    .game-join-row-v13 .game-btn {
+        width: 100%;
+    }
+
+    .game-chat-form {
+        grid-template-columns: 1fr;
+    }
+}

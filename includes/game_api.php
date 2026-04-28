@@ -2,9 +2,35 @@
 declare(strict_types=1);
 
 function gd_api_create_match(mysqli $mysqli): void {
-    $uid=gd_require_login(); $in=gd_input(); $mode=gd_mode((string)($in['mode']??'casual')); $code=gd_room_code();
-    $q=$mysqli->prepare("INSERT INTO game_matches (room_code,status,mode,player1_id,spectator_allowed) VALUES (?,'waiting',?,?,1)");
-    if(!$q) gd_fail('Non riesco a creare la partita.',500); $q->bind_param('ssi',$code,$mode,$uid); $q->execute(); $id=$q->insert_id; $q->close(); gd_ok(['match_id'=>$id,'room_code'=>$code]);
+    $uid = gd_require_login();
+    $in = gd_input();
+    $mode = gd_mode((string)($in['mode'] ?? 'casual'));
+    $code = gd_room_code();
+
+    $passwordHash = null;
+    if ($mode === 'private') {
+        $password = trim((string)($in['password'] ?? ''));
+        if (mb_strlen($password) < 3 || mb_strlen($password) > 64) {
+            gd_fail('Per una stanza privata serve una password da 3 a 64 caratteri.');
+        }
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+    }
+
+    if (gd_has_col($mysqli, 'game_matches', 'private_password_hash')) {
+        $q = $mysqli->prepare("INSERT INTO game_matches (room_code, private_password_hash, status, mode, player1_id, spectator_allowed) VALUES (?, ?, 'waiting', ?, ?, 1)");
+        if (!$q) gd_fail('Non riesco a creare la partita.', 500);
+        $q->bind_param('sssi', $code, $passwordHash, $mode, $uid);
+    } else {
+        $q = $mysqli->prepare("INSERT INTO game_matches (room_code, status, mode, player1_id, spectator_allowed) VALUES (?, 'waiting', ?, ?, 1)");
+        if (!$q) gd_fail('Non riesco a creare la partita.', 500);
+        $q->bind_param('ssi', $code, $mode, $uid);
+    }
+
+    $q->execute();
+    $id = $q->insert_id;
+    $q->close();
+
+    gd_ok(['match_id' => $id, 'room_code' => $code]);
 }
 function gd_api_find_match(mysqli $mysqli): void {
     $uid=gd_require_login(); $mode=gd_mode((string)(gd_input()['mode']??'casual')); $mysqli->begin_transaction();
@@ -14,9 +40,63 @@ function gd_api_find_match(mysqli $mysqli): void {
     } catch(Throwable $e){ $mysqli->rollback(); error_log('gd_find_match: '.$e->getMessage()); gd_fail('Matchmaking fallito.',500); }
 }
 function gd_api_join_match(mysqli $mysqli): void {
-    $uid=gd_require_login(); $code=strtoupper(trim((string)(gd_input()['room_code']??''))); if(!preg_match('/^[A-Z0-9_-]{1,16}$/',$code)) gd_fail('Codice stanza non valido.'); $mysqli->begin_transaction();
-    try { $q=$mysqli->prepare('SELECT * FROM game_matches WHERE room_code=? LIMIT 1 FOR UPDATE'); $q->bind_param('s',$code); $q->execute(); $match=$q->get_result()->fetch_assoc(); $q->close(); if(!$match) gd_fail('Partita non trovata.',404); if((int)$match['player1_id']===$uid){$mysqli->commit(); gd_ok(['match_id'=>(int)$match['id'],'room_code'=>$code]);} if($match['status']!=='waiting'||!empty($match['player2_id'])) gd_fail('Stanza non disponibile.'); $mid=(int)$match['id']; $u=$mysqli->prepare("UPDATE game_matches SET player2_id=?,status='team_select',updated_at=NOW() WHERE id=?"); $u->bind_param('ii',$uid,$mid); $u->execute(); $u->close(); $mysqli->commit(); gd_ok(['match_id'=>$mid,'room_code'=>$code]); }
-    catch(Throwable $e){ $mysqli->rollback(); if(http_response_code()!==200) exit; error_log('gd_join: '.$e->getMessage()); gd_fail('Join fallito.',500); }
+    $uid = gd_require_login();
+    $input = gd_input();
+
+    $code = strtoupper(trim((string)($input['room_code'] ?? '')));
+    if (!preg_match('/^[A-Z0-9_-]{1,16}$/', $code)) {
+        gd_fail('Codice stanza non valido.');
+    }
+
+    $mysqli->begin_transaction();
+
+    try {
+        $q = $mysqli->prepare('SELECT * FROM game_matches WHERE room_code=? LIMIT 1 FOR UPDATE');
+        if (!$q) throw new Exception('prepare');
+        $q->bind_param('s', $code);
+        $q->execute();
+        $match = $q->get_result()->fetch_assoc();
+        $q->close();
+
+        if (!$match) {
+            throw new RuntimeException('Partita non trovata.');
+        }
+
+        if ((int)$match['player1_id'] === $uid) {
+            $mysqli->commit();
+            gd_ok(['match_id' => (int)$match['id'], 'room_code' => $code]);
+        }
+
+        if ($match['status'] !== 'waiting' || !empty($match['player2_id'])) {
+            throw new RuntimeException('Stanza non disponibile.');
+        }
+
+        if (($match['mode'] ?? '') === 'private' && gd_has_col($mysqli, 'game_matches', 'private_password_hash')) {
+            $password = (string)($input['password'] ?? '');
+            $hash = (string)($match['private_password_hash'] ?? '');
+
+            if ($hash !== '' && !password_verify($password, $hash)) {
+                throw new RuntimeException('Password stanza errata.');
+            }
+        }
+
+        $mid = (int)$match['id'];
+        $u = $mysqli->prepare("UPDATE game_matches SET player2_id=?, status='team_select', updated_at=NOW() WHERE id=?");
+        if (!$u) throw new Exception('update');
+        $u->bind_param('ii', $uid, $mid);
+        $u->execute();
+        $u->close();
+
+        $mysqli->commit();
+        gd_ok(['match_id' => $mid, 'room_code' => $code]);
+    } catch (RuntimeException $e) {
+        $mysqli->rollback();
+        gd_fail($e->getMessage());
+    } catch (Throwable $e) {
+        $mysqli->rollback();
+        error_log('gd_join: '.$e->getMessage());
+        gd_fail('Join fallito.', 500);
+    }
 }
 function gd_api_inventory(mysqli $mysqli): void {
     $uid=gd_require_login(); $c=gd_char_cols($mysqli); $i=gd_inv_cols($mysqli); if(!$c['id']||!$c['name']||!$i['user']||!$i['character']) gd_fail('Schema inventario non compatibile.',500);
@@ -43,5 +123,41 @@ function gd_api_action(mysqli $mysqli): void {
 }
 function gd_api_forfeit(mysqli $mysqli): void { $uid=gd_require_login(); $mid=(int)(gd_input()['match_id']??0); $match=gd_require_match($mysqli,$mid,$uid); if(in_array($match['status'],['finished','cancelled'],true)) gd_fail('Partita già conclusa.'); $opp=(int)$match['player1_id']===$uid?(int)$match['player2_id']:(int)$match['player1_id']; if($opp>0){gd_log($mysqli,$mid,$uid,(int)$match['turn_number'],'forfeit',null,null,0,'Abbandona la partita.'); gd_finish($mysqli,$match,$opp,$uid);} else {$q=$mysqli->prepare("UPDATE game_matches SET status='cancelled',finished_at=NOW() WHERE id=?");$q->bind_param('i',$mid);$q->execute();$q->close();} gd_ok(['message'=>'Partita abbandonata.']); }
 function gd_api_ranking(mysqli $mysqli): void { gd_require_login(); $q=$mysqli->prepare('SELECT s.*, u.username FROM game_player_stats s INNER JOIN utenti u ON u.id=s.user_id ORDER BY s.rating DESC, s.wins DESC LIMIT 50'); if(!$q) gd_fail('Query ranking non valida.',500); $q->execute(); $res=$q->get_result(); $out=[]; while($r=$res->fetch_assoc()){ $rating=(int)$r['rating']; $out[]=['username'=>$r['username'],'wins'=>(int)$r['wins'],'losses'=>(int)$r['losses'],'rating'=>$rating,'rank'=>gd_rank_from_rating($rating),'season_points'=>(int)$r['season_points'],'best_streak'=>(int)$r['best_streak']];} $q->close(); gd_ok(['ranking'=>$out]); }
+
+function gd_api_send_chat(mysqli $mysqli): void {
+    $uid = gd_require_login();
+    $input = gd_input();
+
+    $mid = (int)($input['match_id'] ?? 0);
+    $message = trim((string)($input['message'] ?? ''));
+
+    if ($message === '') {
+        gd_fail('Scrivi un messaggio.');
+    }
+
+    if (mb_strlen($message) > 220) {
+        gd_fail('Messaggio troppo lungo.');
+    }
+
+    $match = gd_require_match($mysqli, $mid, $uid);
+
+    if (in_array($match['status'], ['cancelled'], true)) {
+        gd_fail('Chat non disponibile.');
+    }
+
+    $message = preg_replace('/\s+/', ' ', $message);
+
+    $stmt = $mysqli->prepare('INSERT INTO game_match_chat (match_id, user_id, message) VALUES (?, ?, ?)');
+    if (!$stmt) {
+        gd_fail('Query chat non valida.', 500);
+    }
+
+    $stmt->bind_param('iis', $mid, $uid, $message);
+    $stmt->execute();
+    $stmt->close();
+
+    gd_ok(['message' => 'Messaggio inviato.']);
+}
+
 function gd_api_active_match(mysqli $mysqli): void { $uid=gd_require_login(); $q=$mysqli->prepare("SELECT id,room_code,status,mode FROM game_matches WHERE (player1_id=? OR player2_id=?) AND status IN ('waiting','team_select','active') ORDER BY updated_at DESC LIMIT 1"); $q->bind_param('ii',$uid,$uid); $q->execute(); $m=$q->get_result()->fetch_assoc(); $q->close(); gd_ok(['match'=>$m ?: null]); }
 function gd_api_profile_summary(mysqli $mysqli): void { $uid=gd_require_login(); $u=gd_user_public($mysqli,$uid); $inv=gd_inventory_count($mysqli,$uid); gd_ok(['profile'=>['user'=>$u,'inventory'=>$inv]]); }
