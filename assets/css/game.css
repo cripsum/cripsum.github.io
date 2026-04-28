@@ -1303,3 +1303,15 @@ body.game-page .dropdown-menu button:focus { color: #fff !important; background:
         flex-direction: column;
     }
 }
+
+
+/* Cripsum Duel V1.5 - offline bot */
+.game-mode-card-bot {
+    border-color: rgba(34, 197, 94, .26);
+    background: linear-gradient(145deg, rgba(34, 197, 94, .085), rgba(255,255,255,.045));
+}
+.game-mode-card-bot:hover {
+    border-color: rgba(34, 197, 94, .48);
+    background: rgba(34, 197, 94, .10);
+}
+.game-mode-card-bot i { color: var(--game-green); }

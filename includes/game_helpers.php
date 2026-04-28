@@ -56,7 +56,29 @@ function gd_inv_cols(mysqli $m): array {
     ];
 }
 function gd_room_code(): string { return strtoupper(substr(bin2hex(random_bytes(4)), 0, 8)); }
-function gd_mode(string $mode): string { return in_array($mode, ['casual','ranked','private'], true) ? $mode : 'casual'; }
+function gd_mode(string $mode): string { return in_array($mode, ['casual','ranked','private','bot'], true) ? $mode : 'casual'; }
+function gd_bot_id(): int { return 0; }
+function gd_is_bot_match(array $match): bool { return (string)($match['mode'] ?? '') === 'bot'; }
+function gd_bot_public(): array {
+    return [
+        'id' => gd_bot_id(),
+        'username' => 'Cripsum Bot',
+        'pfp_url' => '/img/Susremaster.png',
+        'rating' => 1000,
+        'rank' => gd_rank_from_rating(1000),
+        'wins' => 0,
+        'losses' => 0,
+        'season_points' => 0,
+        'best_streak' => 0,
+        'games_played' => 0,
+    ];
+}
+function gd_opponent_id(array $match, int $uid): int {
+    if (gd_is_bot_match($match)) {
+        return ((int)$match['player1_id'] === $uid) ? gd_bot_id() : (int)$match['player1_id'];
+    }
+    return ((int)$match['player1_id'] === $uid) ? (int)$match['player2_id'] : (int)$match['player1_id'];
+}
 function gd_rarity_key(?string $r): string {
     $v = strtolower(trim((string)$r));
     $v = str_replace(['à','á',' ','-'], ['a','a','','_'], $v);
@@ -194,6 +216,7 @@ function gd_finish(mysqli $m, array $match, int $winner, int $loser): void {
     $st->execute(); $st->close();
 }
 function gd_user_public(mysqli $m, int $uid): array {
+    if ($uid === gd_bot_id()) return gd_bot_public();
     $username = 'Utente';
     $q = $m->prepare('SELECT username FROM utenti WHERE id=? LIMIT 1');
     if ($q) { $q->bind_param('i',$uid); $q->execute(); $row=$q->get_result()->fetch_assoc(); $q->close(); if($row && !empty($row['username'])) $username=$row['username']; }
@@ -304,8 +327,9 @@ function gd_state(mysqli $m, array $match, int $viewer): array {
     $st = $m->prepare('SELECT a.*, u.username FROM game_match_actions a LEFT JOIN utenti u ON u.id=a.user_id WHERE a.match_id=? ORDER BY a.id DESC LIMIT 24');
     $actions = [];
     if ($st) { $st->bind_param('i',$mid); $st->execute(); $res=$st->get_result(); while($r=$res->fetch_assoc()) $actions[]=$r; $st->close(); }
+    $isBot = gd_is_bot_match($match);
     $p1 = gd_user_public($m, (int)$match['player1_id']);
-    $p2 = !empty($match['player2_id']) ? gd_user_public($m, (int)$match['player2_id']) : null;
+    $p2 = $isBot ? gd_bot_public() : (!empty($match['player2_id']) ? gd_user_public($m, (int)$match['player2_id']) : null);
     $rankedResult = null;
     if ($match['status'] === 'finished' && $match['mode'] === 'ranked') {
         $isWinner = (int)$match['winner_id'] === $viewer;
@@ -318,10 +342,192 @@ function gd_state(mysqli $m, array $match, int $viewer): array {
         $rankedResult['viewer_rank_after'] = gd_rank_from_rating((int)$rankedResult['viewer_rating_after']);
         $rankedResult['opponent_rank_after'] = gd_rank_from_rating((int)$rankedResult['opponent_rating_after']);
     }
-    return ['id'=>$mid,'room_code'=>$match['room_code'],'status'=>$match['status'],'mode'=>$match['mode'],'player1_id'=>(int)$match['player1_id'],'player2_id'=>$match['player2_id']?(int)$match['player2_id']:null,'players'=>['player1'=>$p1,'player2'=>$p2],'player1_ready'=>(int)$match['player1_ready'],'player2_ready'=>(int)$match['player2_ready'],'current_turn_user_id'=>$match['current_turn_user_id']?(int)$match['current_turn_user_id']:null,'winner_id'=>$match['winner_id']?(int)$match['winner_id']:null,'loser_id'=>$match['loser_id']?(int)$match['loser_id']:null,'turn_number'=>(int)$match['turn_number'],'viewer_id'=>$viewer,'viewer_role'=>gd_is_player($match,$viewer)?'player':'spectator','cards'=>$cards,'actions'=>array_reverse($actions),'chat'=>gd_chat_messages($m,$mid),'reactions'=>gd_reactions($m,$mid),'spectator_count'=>gd_spectator_count($m,$mid),'ranked_result'=>$rankedResult];
+    return ['id'=>$mid,'room_code'=>$match['room_code'],'status'=>$match['status'],'mode'=>$match['mode'],'player1_id'=>(int)$match['player1_id'],'player2_id'=>$isBot?gd_bot_id():($match['player2_id']?(int)$match['player2_id']:null),'players'=>['player1'=>$p1,'player2'=>$p2],'player1_ready'=>(int)$match['player1_ready'],'player2_ready'=>$isBot?1:(int)$match['player2_ready'],'current_turn_user_id'=>$match['current_turn_user_id']!==null?(int)$match['current_turn_user_id']:null,'winner_id'=>$match['winner_id']!==null?(int)$match['winner_id']:null,'loser_id'=>$match['loser_id']!==null?(int)$match['loser_id']:null,'turn_number'=>(int)$match['turn_number'],'viewer_id'=>$viewer,'viewer_role'=>gd_is_player($match,$viewer)?'player':'spectator','cards'=>$cards,'actions'=>array_reverse($actions),'chat'=>gd_chat_messages($m,$mid),'reactions'=>gd_reactions($m,$mid),'spectator_count'=>$isBot?0:gd_spectator_count($m,$mid),'ranked_result'=>$rankedResult];
 }
+function gd_insert_team_cards(mysqli $m, int $mid, int $uid, array $team): void {
+    $ins = $m->prepare('INSERT INTO game_match_cards (match_id,user_id,personaggio_id,slot_index,current_hp,max_hp,attack,defense,speed,energy,max_energy,special_name,special_cost,special_cooldown_max,special_cooldown,is_active) VALUES (?,?,?,?,?,?,?,?,?,1,?,?,?,?,0,?)');
+    if (!$ins) throw new Exception($m->error);
+    foreach ($team as $idx => $pid) {
+        $pid = (int)$pid;
+        $s = gd_stats($m, $pid);
+        $slot = $idx + 1;
+        $active = $idx === 0 ? 1 : 0;
+        $hp = (int)$s['hp'];
+        $atk = (int)$s['attack'];
+        $def = (int)$s['defense'];
+        $spd = (int)$s['speed'];
+        $en = (int)$s['max_energy'];
+        $name = (string)$s['special_name'];
+        $cost = (int)$s['special_cost'];
+        $cd = (int)$s['special_cooldown'];
+        $ins->bind_param('iiiiiiiiiisiii', $mid, $uid, $pid, $slot, $hp, $hp, $atk, $def, $spd, $en, $name, $cost, $cd, $active);
+        $ins->execute();
+    }
+    $ins->close();
+}
+function gd_random_bot_team(mysqli $m, array $fallback = []): array {
+    $c = gd_char_cols($m);
+    if (!$c['id']) return array_slice(array_values(array_unique(array_map('intval', $fallback))), 0, 3);
+    $sql = 'SELECT '.gd_qcol($c['id']).' id FROM personaggi ORDER BY RAND() LIMIT 3';
+    $res = $m->query($sql);
+    $team = [];
+    if ($res) while ($r = $res->fetch_assoc()) $team[] = (int)$r['id'];
+    $team = array_values(array_unique($team));
+    if (count($team) < 3 && count($fallback) >= 3) $team = array_slice(array_values(array_unique(array_map('intval', $fallback))), 0, 3);
+    if (count($team) !== 3) gd_fail('Non ci sono abbastanza personaggi per creare il bot.', 500);
+    return $team;
+}
+function gd_prepare_bot_team(mysqli $m, int $mid, array $fallback = []): void {
+    $bot = gd_bot_id();
+    $q = $m->prepare('DELETE FROM game_match_cards WHERE match_id=? AND user_id=?');
+    $q->bind_param('ii', $mid, $bot);
+    $q->execute();
+    $q->close();
+    $team = gd_random_bot_team($m, $fallback);
+    gd_insert_team_cards($m, $mid, $bot, $team);
+}
+function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, int $target = 0): array {
+    if (!in_array($act, ['basic_attack','special_attack','defend','charge','switch'], true)) gd_fail('Azione non valida.');
+    $mid = (int)$match['id'];
+    $turn = (int)$match['turn_number'];
+    $opp = gd_opponent_id($match, $uid);
+    $actor = gd_active($m, $mid, $uid);
+    if (!$actor) gd_fail('Nessuna carta attiva.');
+    $actorId = (int)$actor['id'];
+    $dmg = 0;
+    $msg = '';
+    if ($act === 'switch') {
+        $q = $m->prepare('SELECT * FROM game_match_cards WHERE id=? AND match_id=? AND user_id=? AND is_ko=0 LIMIT 1');
+        $q->bind_param('iii', $target, $mid, $uid);
+        $q->execute();
+        $new = $q->get_result()->fetch_assoc();
+        $q->close();
+        if (!$new) gd_fail('Cambio non valido.');
+        gd_set_active($m, $mid, $uid, (int)$new['id']);
+        $actorId = (int)$new['id'];
+        $msg = $uid === gd_bot_id() ? 'Il bot cambia carta.' : 'Cambio carta.';
+    } elseif ($act === 'defend') {
+        $en = min((int)$actor['max_energy'], (int)$actor['energy'] + 1);
+        $q = $m->prepare('UPDATE game_match_cards SET is_defending=1, energy=? WHERE id=?');
+        $q->bind_param('ii', $en, $actorId);
+        $q->execute();
+        $q->close();
+        $msg = $uid === gd_bot_id() ? 'Il bot si difende.' : 'Difesa attiva.';
+    } elseif ($act === 'charge') {
+        $en = min((int)$actor['max_energy'], (int)$actor['energy'] + 2);
+        $q = $m->prepare('UPDATE game_match_cards SET energy=? WHERE id=?');
+        $q->bind_param('ii', $en, $actorId);
+        $q->execute();
+        $q->close();
+        $msg = $uid === gd_bot_id() ? 'Il bot carica energia.' : 'Carica energia.';
+    } else {
+        $t = null;
+        if ($target > 0) {
+            $q = $m->prepare('SELECT * FROM game_match_cards WHERE id=? AND match_id=? AND user_id=? AND is_ko=0 LIMIT 1');
+            $q->bind_param('iii', $target, $mid, $opp);
+            $q->execute();
+            $t = $q->get_result()->fetch_assoc();
+            $q->close();
+        }
+        if (!$t) $t = gd_active($m, $mid, $opp);
+        if (!$t) gd_fail('Target non valido.');
+        $target = (int)$t['id'];
+        if ($act === 'basic_attack') {
+            $dmg = max(5, (int)round((int)$actor['attack'] - ((int)$t['defense'] * .45)));
+            $en = min((int)$actor['max_energy'], (int)$actor['energy'] + 1);
+            $q = $m->prepare('UPDATE game_match_cards SET energy=? WHERE id=?');
+            $q->bind_param('ii', $en, $actorId);
+            $q->execute();
+            $q->close();
+            $msg = $uid === gd_bot_id() ? 'Il bot attacca.' : 'Attacco base.';
+        } else {
+            if ((int)$actor['energy'] < (int)$actor['special_cost']) gd_fail('Energia insufficiente.');
+            if ((int)$actor['special_cooldown'] > 0) gd_fail('Speciale in cooldown.');
+            $dmg = max(10, (int)round(((int)$actor['attack'] * 1.65) - ((int)$t['defense'] * .35)));
+            $en = max(0, (int)$actor['energy'] - (int)$actor['special_cost']);
+            $cd = max(1, (int)$actor['special_cooldown_max']);
+            $q = $m->prepare('UPDATE game_match_cards SET energy=?, special_cooldown=? WHERE id=?');
+            $q->bind_param('iii', $en, $cd, $actorId);
+            $q->execute();
+            $q->close();
+            $msg = $uid === gd_bot_id() ? 'Il bot usa la speciale.' : (string)$actor['special_name'];
+        }
+        if ((int)$t['is_defending'] === 1) $dmg = max(2, (int)floor($dmg * .6));
+        $hp = max(0, (int)$t['current_hp'] - $dmg);
+        $ko = $hp <= 0 ? 1 : 0;
+        $q = $m->prepare('UPDATE game_match_cards SET current_hp=?, is_ko=?, is_active=IF(?=1,0,is_active), is_defending=0 WHERE id=?');
+        $q->bind_param('iiii', $hp, $ko, $ko, $target);
+        $q->execute();
+        $q->close();
+        if ($ko) {
+            $n = gd_first_alive($m, $mid, $opp);
+            if ($n) gd_set_active($m, $mid, $opp, (int)$n['id']);
+        }
+    }
+    if ($act !== 'special_attack') {
+        $q = $m->prepare('UPDATE game_match_cards SET special_cooldown=GREATEST(0,special_cooldown-1) WHERE match_id=? AND user_id=? AND special_cooldown>0');
+        $q->bind_param('ii', $mid, $uid);
+        $q->execute();
+        $q->close();
+    }
+    gd_log($m, $mid, $uid, $turn, $act, $actorId, $target ?: null, $dmg, $msg);
+    if (gd_alive_count($m, $mid, $opp) <= 0) {
+        gd_finish($m, $match, $uid, $opp);
+        return ['finished' => true, 'winner' => $uid, 'loser' => $opp];
+    }
+    return ['finished' => false, 'winner' => null, 'loser' => null];
+}
+function gd_choose_bot_action(mysqli $m, int $mid): array {
+    $bot = gd_bot_id();
+    $active = gd_active($m, $mid, $bot);
+    if (!$active) {
+        $first = gd_first_alive($m, $mid, $bot);
+        if ($first) return ['switch', (int)$first['id']];
+        return ['basic_attack', 0];
+    }
+    $hpPct = ((int)$active['max_hp'] > 0) ? ((int)$active['current_hp'] / (int)$active['max_hp']) : 1;
+    if ($hpPct < .28) {
+        $q = $m->prepare('SELECT id,current_hp FROM game_match_cards WHERE match_id=? AND user_id=? AND is_ko=0 AND id<>? ORDER BY current_hp DESC LIMIT 1');
+        if ($q) {
+            $aid = (int)$active['id'];
+            $q->bind_param('iii', $mid, $bot, $aid);
+            $q->execute();
+            $swap = $q->get_result()->fetch_assoc();
+            $q->close();
+            if ($swap && random_int(1, 100) <= 45) return ['switch', (int)$swap['id']];
+        }
+    }
+    if ((int)$active['energy'] >= (int)$active['special_cost'] && (int)$active['special_cooldown'] <= 0 && random_int(1, 100) <= 45) return ['special_attack', 0];
+    if ((int)$active['energy'] < (int)$active['special_cost'] && random_int(1, 100) <= 28) return ['charge', 0];
+    if ($hpPct < .45 && random_int(1, 100) <= 25) return ['defend', 0];
+    return ['basic_attack', 0];
+}
+function gd_bot_take_turn(mysqli $m, array $match): array {
+    if (!gd_is_bot_match($match) || (int)($match['current_turn_user_id'] ?? -1) !== gd_bot_id()) return ['acted' => false, 'finished' => false];
+    [$act, $target] = gd_choose_bot_action($m, (int)$match['id']);
+    $result = gd_apply_battle_action($m, $match, gd_bot_id(), $act, (int)$target);
+    if (!empty($result['finished'])) return ['acted' => true, 'finished' => true];
+    $next = (int)$match['player1_id'];
+    $mid = (int)$match['id'];
+    $q = $m->prepare('UPDATE game_matches SET current_turn_user_id=?, turn_number=turn_number+1, updated_at=NOW() WHERE id=?');
+    $q->bind_param('ii', $next, $mid);
+    $q->execute();
+    $q->close();
+    return ['acted' => true, 'finished' => false];
+}
+
 function gd_start_if_ready(mysqli $m, int $mid): void {
     $match = gd_match($m, $mid); if (!$match) return;
+    if (gd_is_bot_match($match)) {
+        if ((int)$match['player1_ready'] !== 1) return;
+        $p1 = (int)$match['player1_id'];
+        $bot = gd_bot_id();
+        foreach ([$p1, $bot] as $p) { if (!gd_active($m,$mid,$p)) { $c=gd_first_alive($m,$mid,$p); if($c) gd_set_active($m,$mid,$p,(int)$c['id']); } }
+        $st = $m->prepare("UPDATE game_matches SET status='active', player2_ready=1, current_turn_user_id=player1_id, started_at=IFNULL(started_at,NOW()), updated_at=NOW() WHERE id=? AND status IN ('waiting','team_select')");
+        $st->bind_param('i',$mid); $st->execute(); $st->close();
+        gd_log($m,$mid,0,0,'system',null,null,0,'La partita offline contro il bot è iniziata.');
+        return;
+    }
     if ((int)$match['player1_ready'] !== 1 || (int)$match['player2_ready'] !== 1 || empty($match['player2_id'])) return;
     $p1 = (int)$match['player1_id']; $p2 = (int)$match['player2_id'];
     foreach ([$p1,$p2] as $p) { if (!gd_active($m,$mid,$p)) { $c=gd_first_alive($m,$mid,$p); if($c) gd_set_active($m,$mid,$p,(int)$c['id']); } }
