@@ -14,6 +14,7 @@ if (!isLoggedIn()) {
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ Duel - Lobby</title>
@@ -21,6 +22,7 @@ if (!isLoggedIn()) {
     <link rel="stylesheet" href="/assets/css/game.css?v=1.2-split-ranked">
     <script src="/assets/js/game.js?v=1.2-split-ranked" defer></script>
 </head>
+
 <body class="game-page" data-page="duel-lobby">
     <?php include '../../includes/navbar.php'; ?>
     <?php include '../../includes/impostazioni.php'; ?>
@@ -72,15 +74,17 @@ if (!isLoggedIn()) {
 
                 <section class="game-panel game-rules game-reveal" id="rulesPanel">
                     <div class="game-panel-head compact">
-                        <div><span class="game-kicker">Regole</span><h2>Come funziona</h2></div>
+                        <div><span class="game-kicker">Regole</span>
+                            <h2>Come funziona</h2>
+                        </div>
                     </div>
                     <div class="game-rule-list">
-                        <article><i class="fas fa-users"></i><strong>Team da 3</strong><span>Usi solo personaggi che hai nell’inventario.</span></article>
-                        <article><i class="fas fa-hand-fist"></i><strong>Attacco</strong><span>Fa danno base e ti dà +1 energia.</span></article>
-                        <article><i class="fas fa-wand-magic-sparkles"></i><strong>Speciale</strong><span>Fa più danno, ma costa energia e ha cooldown.</span></article>
-                        <article><i class="fas fa-shield"></i><strong>Difesa</strong><span>Riduce il prossimo danno e recupera energia.</span></article>
-                        <article><i class="fas fa-battery-full"></i><strong>Carica</strong><span>Recupera energia se vuoi preparare la speciale.</span></article>
-                        <article><i class="fas fa-repeat"></i><strong>Cambio</strong><span>Clicca una tua carta sotto per cambiarla. Consuma turno.</span></article>
+                        <article><i class="fas fa-users"></i><strong> Team da 3</strong><span> - Usi solo personaggi che hai nell’inventario.</span></article>
+                        <article><i class="fas fa-hand-fist"></i><strong> Attacco</strong><span> - Fa danno base e ti dà +1 energia.</span></article>
+                        <article><i class="fas fa-wand-magic-sparkles"></i><strong> Speciale</strong><span> - Fa più danno, ma costa energia. Ha un cooldown.</span></article>
+                        <article><i class="fas fa-shield"></i><strong> Difesa</strong><span> - Riduce il prossimo danno e recupera energia.</span></article>
+                        <article><i class="fas fa-battery-full"></i><strong> Carica</strong><span> - Recupera energia se vuoi preparare la speciale.</span></article>
+                        <article><i class="fas fa-repeat"></i><strong> Cambio</strong><span> - Clicca una tua carta sotto per cambiarla. Consuma un turno.</span></article>
                     </div>
                 </section>
             </div>
@@ -88,7 +92,9 @@ if (!isLoggedIn()) {
             <aside class="game-side-col">
                 <section class="game-panel game-reveal">
                     <div class="game-panel-head compact">
-                        <div><span class="game-kicker">Rank</span><h2>Categorie</h2></div>
+                        <div><span class="game-kicker">Rank</span>
+                            <h2>Categorie</h2>
+                        </div>
                     </div>
                     <div class="game-rank-ladder">
                         <span data-rank="bronzo">Bronzo</span><span data-rank="argento">Argento</span><span data-rank="oro">Oro</span><span data-rank="diamante">Diamante</span><span data-rank="campione">Campione</span><span data-rank="leggenda">Leggenda</span>
@@ -97,10 +103,14 @@ if (!isLoggedIn()) {
 
                 <section class="game-panel game-reveal" id="rankingPanel">
                     <div class="game-panel-head compact">
-                        <div><span class="game-kicker">Ranking</span><h2>Classifica</h2></div>
+                        <div><span class="game-kicker">Ranking</span>
+                            <h2>Classifica</h2>
+                        </div>
                         <button class="game-btn game-btn-soft" type="button" data-action="load-ranking">Aggiorna</button>
                     </div>
-                    <div class="game-ranking" id="rankingList"><p class="game-hint">Carico classifica...</p></div>
+                    <div class="game-ranking" id="rankingList">
+                        <p class="game-hint">Carico classifica...</p>
+                    </div>
                 </section>
             </aside>
         </section>
@@ -110,4 +120,5 @@ if (!isLoggedIn()) {
     <?php include '../../includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>
