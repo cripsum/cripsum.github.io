@@ -16,13 +16,15 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ Duel - Game</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/css/game.css?v=1.4-spectator-reactions">
-    <script src="/assets/js/game.js?v=1.4-spectator-reactions" defer></script>
+    <link rel="stylesheet" href="/assets/css/game.css?v=1.5-spectator-fix">
+    <script src="/assets/js/game.js?v=1.5-spectator-fix" defer></script>
 </head>
+
 <body class="game-page" data-page="duel-arena" data-match-id="<?php echo htmlspecialchars((string)$matchId, ENT_QUOTES, 'UTF-8'); ?>">
     <?php include '../../includes/navbar.php'; ?>
     <?php include '../../includes/impostazioni.php'; ?>
@@ -38,7 +40,11 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
         </section>
 
         <section class="game-panel game-waiting-panel" id="waitingPanel" hidden>
-            <div class="game-panel-head"><div><span class="game-kicker">Attesa</span><h2>In attesa dell’avversario</h2></div></div>
+            <div class="game-panel-head">
+                <div><span class="game-kicker">Attesa</span>
+                    <h2>In attesa dell’avversario</h2>
+                </div>
+            </div>
             <div class="game-waiting-box">
                 <div class="game-matchmaking-orb is-large"><span></span><span></span><span></span></div>
                 <div>
@@ -51,7 +57,9 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
 
         <section class="game-panel" id="teamPanel" hidden>
             <div class="game-panel-head">
-                <div><span class="game-kicker">Team</span><h2>Scegli 3 personaggi</h2></div>
+                <div><span class="game-kicker">Team</span>
+                    <h2>Scegli 3 personaggi</h2>
+                </div>
                 <div class="game-room-pill">Room: <strong id="roomCodeLabel">---</strong></div>
             </div>
             <div class="game-guide"><i class="fas fa-circle-info"></i><span>Seleziona 3 carte. La prima sarà quella attiva all’inizio.</span></div>
@@ -64,16 +72,26 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
         <section class="game-arena" id="arenaPanel" hidden>
             <div class="game-fx" id="gameFx" aria-hidden="true"><span></span></div>
             <div class="game-arena-head">
-                <div><span class="game-kicker" id="matchStatus">Partita</span><h2 id="turnLabel">Attesa...</h2></div>
+                <div><span class="game-kicker" id="matchStatus">Partita</span>
+                    <h2 id="turnLabel">Attesa...</h2>
+                </div>
             </div>
             <div class="game-spectator-mode" id="spectatorMode" hidden>
                 <i class="fas fa-eye"></i>
                 <span>Stai guardando questa partita. Puoi leggere la chat e mandare reazioni, ma non puoi giocare o scrivere.</span>
             </div>
             <div class="game-board">
-                <div class="game-side game-side-opponent"><h3 id="opponentName">Avversario</h3><div class="game-active-card" id="opponentActive"></div><div class="game-team-row" id="opponentTeam"></div></div>
+                <div class="game-side game-side-opponent">
+                    <h3 id="opponentName">Avversario</h3>
+                    <div class="game-active-card" id="opponentActive"></div>
+                    <div class="game-team-row" id="opponentTeam"></div>
+                </div>
                 <div class="game-vs"><span>VS</span></div>
-                <div class="game-side game-side-player"><h3>Tu</h3><div class="game-active-card" id="playerActive"></div><div class="game-team-row" id="playerTeam"></div></div>
+                <div class="game-side game-side-player">
+                    <h3>Tu</h3>
+                    <div class="game-active-card" id="playerActive"></div>
+                    <div class="game-team-row" id="playerTeam"></div>
+                </div>
             </div>
             <div class="game-action-bar" id="actionBar" aria-label="Azioni battaglia">
                 <button class="game-move game-move-attack" data-battle-action="basic_attack" type="button"><i class="fas fa-hand-fist"></i><strong>Attacco</strong><span>Danno base · +1 energia</span></button>
@@ -126,4 +144,5 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
     <?php include '../../includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>

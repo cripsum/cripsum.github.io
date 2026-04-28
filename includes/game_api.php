@@ -108,7 +108,32 @@ function gd_api_select_team(mysqli $mysqli): void {
     $uid=gd_require_login(); $in=gd_input(); $mid=(int)($in['match_id']??0); $team=array_values(array_unique(array_map('intval',$in['team']??[]))); if(count($team)!==3) gd_fail('Scegli 3 personaggi diversi.'); $match=gd_require_match($mysqli,$mid,$uid); if(!in_array($match['status'],['waiting','team_select'],true)) gd_fail('Non puoi cambiare team ora.'); if(empty($match['player2_id'])) gd_fail('Aspetta un avversario.'); foreach($team as $pid) if(!gd_owns($mysqli,$uid,$pid)) gd_fail('Hai scelto un personaggio non posseduto.');
     $mysqli->begin_transaction(); try { $q=$mysqli->prepare('DELETE FROM game_match_cards WHERE match_id=? AND user_id=?'); $q->bind_param('ii',$mid,$uid); $q->execute(); $q->close(); $ins=$mysqli->prepare('INSERT INTO game_match_cards (match_id,user_id,personaggio_id,slot_index,current_hp,max_hp,attack,defense,speed,energy,max_energy,special_name,special_cost,special_cooldown_max,special_cooldown,is_active) VALUES (?,?,?,?,?,?,?,?,?,1,?,?,?,?,0,?)'); if(!$ins) throw new Exception($mysqli->error); foreach($team as $idx=>$pid){$s=gd_stats($mysqli,$pid);$slot=$idx+1;$active=$idx===0?1:0;$hp=(int)$s['hp'];$atk=(int)$s['attack'];$def=(int)$s['defense'];$spd=(int)$s['speed'];$en=(int)$s['max_energy'];$name=(string)$s['special_name'];$cost=(int)$s['special_cost'];$cd=(int)$s['special_cooldown'];$ins->bind_param('iiiiiiiiiisiii',$mid,$uid,$pid,$slot,$hp,$hp,$atk,$def,$spd,$en,$name,$cost,$cd,$active);$ins->execute();} $ins->close(); $col=((int)$match['player1_id']===$uid)?'player1_ready':'player2_ready'; $q=$mysqli->prepare("UPDATE game_matches SET $col=1,status='team_select',updated_at=NOW() WHERE id=?"); $q->bind_param('i',$mid); $q->execute(); $q->close(); $mysqli->commit(); gd_start_if_ready($mysqli,$mid); gd_ok(['message'=>'Team scelto.']); } catch(Throwable $e){$mysqli->rollback();error_log('gd_select_team: '.$e->getMessage());gd_fail('Selezione team fallita.',500);} 
 }
-function gd_api_state(mysqli $mysqli): void { $uid=gd_require_login(); $mid=(int)(gd_input()['match_id'] ?? $_GET['match_id'] ?? 0); $match=gd_match($mysqli,$mid); if(!$match) gd_fail('Partita non trovata.',404); if(!gd_is_player($match,$uid) && (int)$match['spectator_allowed']!==1) gd_fail('Non puoi vedere questa partita.',403); gd_ok(['match'=>gd_state($mysqli,$match,$uid)]); }
+function gd_api_state(mysqli $mysqli): void {
+    $uid = gd_require_login();
+    $mid = (int)(gd_input()['match_id'] ?? $_GET['match_id'] ?? 0);
+
+    $match = gd_match($mysqli, $mid);
+    if (!$match) {
+        gd_fail('Partita non trovata.', 404);
+    }
+
+    $isPlayer = gd_is_player($match, $uid);
+
+    if (!$isPlayer && (int)$match['spectator_allowed'] !== 1) {
+        gd_fail('Non puoi vedere questa partita.', 403);
+    }
+
+    if (!$isPlayer && in_array($match['status'], ['team_select', 'active', 'finished'], true) && gd_has_col($mysqli, 'game_spectators', 'match_id')) {
+        $sp = $mysqli->prepare('INSERT IGNORE INTO game_spectators (match_id, user_id) VALUES (?, ?)');
+        if ($sp) {
+            $sp->bind_param('ii', $mid, $uid);
+            $sp->execute();
+            $sp->close();
+        }
+    }
+
+    gd_ok(['match' => gd_state($mysqli, $match, $uid)]);
+}
 function gd_api_action(mysqli $mysqli): void {
     $uid=gd_require_login(); $in=gd_input(); $mid=(int)($in['match_id']??0); $act=(string)($in['action']??''); $target=(int)($in['target_card_id']??0); if(!in_array($act,['basic_attack','special_attack','defend','charge','switch'],true)) gd_fail('Azione non valida.');
     $mysqli->begin_transaction(); try { $st=$mysqli->prepare('SELECT * FROM game_matches WHERE id=? LIMIT 1 FOR UPDATE'); $st->bind_param('i',$mid); $st->execute(); $match=$st->get_result()->fetch_assoc(); $st->close(); if(!$match) gd_fail('Partita non trovata.',404); if(!gd_is_player($match,$uid)) gd_fail('Non fai parte della partita.',403); if($match['status']!=='active') gd_fail('Partita non attiva.'); if((int)$match['current_turn_user_id']!==$uid) gd_fail('Non è il tuo turno.'); $turn=(int)$match['turn_number']; $opp=(int)$match['player1_id']===$uid?(int)$match['player2_id']:(int)$match['player1_id']; $actor=gd_active($mysqli,$mid,$uid); if(!$actor) gd_fail('Nessuna carta attiva.'); $actorId=(int)$actor['id']; $dmg=0; $msg='';
@@ -183,10 +208,13 @@ function gd_api_live_matches(mysqli $mysqli): void {
         FROM game_matches m
         LEFT JOIN utenti u1 ON u1.id = m.player1_id
         LEFT JOIN utenti u2 ON u2.id = m.player2_id
-        WHERE m.status IN ('team_select', 'active')
+        WHERE m.status = 'active'
           AND m.spectator_allowed = 1
+          AND m.player2_id IS NOT NULL
+          AND m.winner_id IS NULL
+          AND m.finished_at IS NULL
           AND m.player1_id <> ?
-          AND (m.player2_id IS NULL OR m.player2_id <> ?)
+          AND m.player2_id <> ?
         ORDER BY m.updated_at DESC
         LIMIT 12
     ";
@@ -209,7 +237,7 @@ function gd_api_live_matches(mysqli $mysqli): void {
             'status' => $row['status'],
             'turn_number' => (int)$row['turn_number'],
             'player1' => $row['player1_username'] ?: 'Player 1',
-            'player2' => $row['player2_username'] ?: 'In attesa',
+            'player2' => $row['player2_username'] ?: 'Player 2',
             'spectator_count' => (int)$row['spectator_count'],
         ];
     }
