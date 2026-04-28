@@ -1,7 +1,7 @@
 (() => {
     'use strict';
-    if (window.__cripsumDuelV15) return;
-    window.__cripsumDuelV15 = true;
+    if (window.__cripsumDuelV14) return;
+    window.__cripsumDuelV14 = true;
 
     const page = document.body?.dataset.page || '';
     const state = { matchId: Number(document.body?.dataset.matchId || 0) || null, roomCode:null, inventory:[], selectedTeam:[], match:null, poll:null, lastActionId:0, resultShown:false, lastChatId:0, lastReactionId:0 };
@@ -33,7 +33,7 @@
 
         try {
             const d = await api('/api/game/live_matches.php', {}, 'GET');
-            const rows = (d.matches || []).filter(m => m.status === 'active' && m.id);
+            const rows = d.matches || [];
 
             if (!rows.length) {
                 wrap.innerHTML = '<p class="game-hint">Nessuna partita live da guardare.</p>';
@@ -68,16 +68,10 @@
     function startPolling(){stopPolling(); pollState(true); state.poll=setInterval(()=>{if(!document.hidden)pollState(false)},1500)}
     function stopPolling(){if(state.poll)clearInterval(state.poll); state.poll=null;}
     async function pollState(first=false){if(!state.matchId)return; try{const d=await api('/api/game/get_match_state.php',{match_id:state.matchId},'GET'); const oldLast=state.lastActionId; state.match=d.match; renderMatch(first); const actions=state.match.actions||[]; const newest=actions.length?Number(actions[actions.length-1].id):0; if(!first && newest>oldLast){actions.filter(a=>Number(a.id)>oldLast).forEach((a,i)=>setTimeout(()=>animateAction(a),i*220));} state.lastActionId=Math.max(oldLast,newest);}catch(e){showToast(e.message)}}
-    function myId(){return state.match?.viewer_id}
-    function isSpectator(){return state.match?.viewer_role === 'spectator'}
-    function leftId(){const m=state.match; return !m?null:(isSpectator()?m.player1_id:enemyId())}
-    function rightId(){const m=state.match; return !m?null:(isSpectator()?m.player2_id:myId())}
-    function playerById(uid){const m=state.match;if(!m)return null; if(Number(uid)===Number(m.player1_id))return m.players?.player1; if(Number(uid)===Number(m.player2_id))return m.players?.player2; return null}
-    function enemyId(){const m=state.match; return !m?null:(m.player1_id===myId()?m.player2_id:m.player1_id)}
-    function cardsOf(uid){return (state.match?.cards||[]).filter(c=>Number(c.user_id)===Number(uid))}
-    function activeOf(uid){return cardsOf(uid).find(c=>Number(c.is_active)&&!Number(c.is_ko))||cardsOf(uid).find(c=>!Number(c.is_ko))}
+    function myId(){return state.match?.viewer_id} function enemyId(){const m=state.match; return !m?null:(m.player1_id===myId()?m.player2_id:m.player1_id)} function cardsOf(uid){return (state.match?.cards||[]).filter(c=>Number(c.user_id)===Number(uid))} function activeOf(uid){return cardsOf(uid).find(c=>Number(c.is_active)&&!Number(c.is_ko))||cardsOf(uid).find(c=>!Number(c.is_ko))}
     function pct(c,m){return Math.max(0,Math.min(100,Math.round((Number(c)/Number(m))*100)||0))}
-    function renderMatch(first=false){const m=state.match;if(!m)return; $('#arenaRoomCode') && ($('#arenaRoomCode').textContent=m.room_code); $('#roomCodeLabel') && ($('#roomCodeLabel').textContent=m.room_code); if(m.status==='waiting'){showOnly('#waitingPanel');return} if(m.status==='team_select'){showOnly('#teamPanel'); if(!state.inventory.length)loadInventory(); return} showOnly('#arenaPanel'); const oppPlayer=m.player1_id===myId()?m.players.player2:m.players.player1; if($('#opponentName'))$('#opponentName').textContent=oppPlayer?.username||'Avversario'; const myTurn=Number(m.current_turn_user_id)===Number(myId()); $('#matchStatus').textContent=m.status==='finished'?'Conclusa':`${m.mode==='ranked'?'Ranked':'Partita'} · Turno ${m.turn_number}`; $('#turnLabel').textContent=m.status==='finished'?(Number(m.winner_id)===Number(myId())?'Hai vinto':'Hai perso'):(myTurn?'È il tuo turno':'Turno avversario'); renderActive('#playerActive',activeOf(myId())); renderActive('#opponentActive',activeOf(enemyId())); renderTeam('#playerTeam',cardsOf(myId()),true); renderTeam('#opponentTeam',cardsOf(enemyId()),false); renderLog(m.actions||[]); renderChat(m.chat||[]); renderReactions(m.reactions||[]); renderSpectators(); const specBox = $('#spectatorMode');
+    function renderMatch(first=false){const m=state.match;if(!m)return; $('#arenaRoomCode') && ($('#arenaRoomCode').textContent=m.room_code); $('#roomCodeLabel') && ($('#roomCodeLabel').textContent=m.room_code); if(m.status==='waiting'){showOnly('#waitingPanel');return} if(m.status==='team_select'){showOnly('#teamPanel'); if(!state.inventory.length)loadInventory(); return} showOnly('#arenaPanel'); const oppPlayer=m.player1_id===myId()?m.players.player2:m.players.player1; if($('#opponentName'))$('#opponentName').textContent=oppPlayer?.username||'Avversario'; const myTurn=Number(m.current_turn_user_id)===Number(myId()); $('#matchStatus').textContent=m.status==='finished'?'Conclusa':`${m.mode==='ranked'?'Ranked':'Partita'} · Turno ${m.turn_number}`; $('#turnLabel').textContent=m.status==='finished'?(Number(m.winner_id)===Number(myId())?'Hai vinto':'Hai perso'):(myTurn?'È il tuo turno':'Turno avversario'); renderActive('#playerActive',activeOf(myId())); renderActive('#opponentActive',activeOf(enemyId())); renderTeam('#playerTeam',cardsOf(myId()),true); renderTeam('#opponentTeam',cardsOf(enemyId()),false); renderLog(m.actions||[]); renderChat(m.chat||[]); renderReactions(m.reactions||[]); renderSpectators(); const spectator = m.viewer_role === 'spectator';
+        const specBox = $('#spectatorMode');
         if (specBox) specBox.hidden = !spectator;
         const reactionPanel = $('#reactionPanel');
         if (reactionPanel) reactionPanel.hidden = !spectator;

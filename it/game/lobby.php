@@ -19,8 +19,8 @@ if (!isLoggedIn()) {
     <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ Duel - Lobby</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/css/game.css?v=1.5-spectator-fix">
-    <script src="/assets/js/game.js?v=1.5-spectator-fix" defer></script>
+    <link rel="stylesheet" href="/assets/css/game.css?v=1.4-spectator-reactions">
+    <script src="/assets/js/game.js?v=1.4-spectator-reactions" defer></script>
 </head>
 
 <body class="game-page" data-page="duel-lobby">
@@ -98,10 +98,10 @@ if (!isLoggedIn()) {
                     <div class="game-rule-list">
                         <article><i class="fas fa-users"></i><strong> Team da 3</strong><span> - Usi solo personaggi che hai nell’inventario.</span></article>
                         <article><i class="fas fa-hand-fist"></i><strong> Attacco</strong><span> - Fa danno base e ti dà +1 energia.</span></article>
-                        <article><i class="fas fa-wand-magic-sparkles"></i><strong> Speciale</strong><span> - Fa più danno, ma costa energia e ha un cooldown.</span></article>
+                        <article><i class="fas fa-wand-magic-sparkles"></i><strong> Speciale</strong><span> - Fa più danno, ma costa energia e ha cooldown.</span></article>
                         <article><i class="fas fa-shield"></i><strong> Difesa</strong><span> - Riduce il prossimo danno e recupera energia.</span></article>
                         <article><i class="fas fa-battery-full"></i><strong> Carica</strong><span> - Recupera energia se vuoi preparare la speciale.</span></article>
-                        <article><i class="fas fa-repeat"></i><strong> Cambio</strong><span> - Clicca una tua carta sotto per cambiarla. Consuma un turno.</span></article>
+                        <article><i class="fas fa-repeat"></i><strong> Cambio</strong><span> - Clicca una tua carta sotto per cambiarla. Consuma turno.</span></article>
                     </div>
                 </section>
             </div>
@@ -136,7 +136,6 @@ if (!isLoggedIn()) {
 
 
                 </section>
-
                 <section class="game-panel game-reveal" id="liveMatchesPanel">
                     <div class="game-panel-head compact">
                         <div><span class="game-kicker">Spectate</span>
