@@ -17,8 +17,9 @@ RewriteRule ^it/u/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]
 # Vecchio /user/username, se vuoi mantenerlo compatibile
 RewriteRule ^user/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]
 
-RewriteRule ^it/game/?$ /it/game/index.php [L,QSA]
-RewriteRule ^it/game/room/([A-Za-z0-9_-]+)/?$ /it/game/index.php?room=$1 [L,QSA]
+RewriteRule ^it/game/?$ /it/game/lobby.php [L,QSA]
+RewriteRule ^it/game/lobby/?$ /it/game/lobby.php [L,QSA]
+RewriteRule ^it/game/arena/([0-9]+)/?$ /it/game/arena.php?match_id=$1 [L,QSA]
 
 
 RewriteCond %{REQUEST_FILENAME}.html -f

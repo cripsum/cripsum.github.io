@@ -32,9 +32,10 @@ function gd_cols(mysqli $mysqli, string $table): array {
     $safe = preg_replace('/[^a-zA-Z0-9_]/', '', $table);
     $res = $mysqli->query("SHOW COLUMNS FROM `$safe`");
     $cols = [];
-    if ($res) while ($r = $res->fetch_assoc()) $cols[] = $r['Field'];
+    if ($res) while ($r = $res->fetch_assoc()) $cols[] = (string)$r['Field'];
     return $cache[$table] = $cols;
 }
+function gd_has_col(mysqli $m, string $table, string $col): bool { return in_array($col, gd_cols($m, $table), true); }
 function gd_first(array $cols, array $names): ?string { foreach ($names as $n) if (in_array($n, $cols, true)) return $n; return null; }
 function gd_char_cols(mysqli $m): array {
     $c = gd_cols($m, 'personaggi');
@@ -61,6 +62,14 @@ function gd_rarity_key(?string $r): string {
     $v = str_replace(['à','á',' ','-'], ['a','a','','_'], $v);
     $map = ['comune'=>'comune','raro'=>'raro','epico'=>'epico','leggendario'=>'leggendario','mitico'=>'leggendario','speciale'=>'speciale','segreto'=>'segreto','theone'=>'theone','the_one'=>'theone'];
     return $map[$v] ?? 'comune';
+}
+function gd_rank_from_rating(int $rating): array {
+    if ($rating >= 1900) return ['key'=>'leggenda','label'=>'Leggenda','next'=>null,'min'=>1900];
+    if ($rating >= 1600) return ['key'=>'campione','label'=>'Campione','next'=>1900,'min'=>1600];
+    if ($rating >= 1400) return ['key'=>'diamante','label'=>'Diamante','next'=>1600,'min'=>1400];
+    if ($rating >= 1200) return ['key'=>'oro','label'=>'Oro','next'=>1400,'min'=>1200];
+    if ($rating >= 1000) return ['key'=>'argento','label'=>'Argento','next'=>1200,'min'=>1000];
+    return ['key'=>'bronzo','label'=>'Bronzo','next'=>1000,'min'=>0];
 }
 function gd_base_stats(string $rarity): array {
     $s = [
@@ -144,15 +153,53 @@ function gd_log(mysqli $m, int $mid, int $uid, int $turn, string $type, ?int $ac
     $st = $m->prepare('INSERT INTO game_match_actions (match_id,user_id,turn_number,action_type,actor_card_id,target_card_id,damage,message) VALUES (?,?,?,?,?,?,?,?)');
     if ($st) { $st->bind_param('iiisiiis',$mid,$uid,$turn,$type,$actor,$target,$dmg,$msg); $st->execute(); $st->close(); }
 }
+function gd_ensure_stats_row(mysqli $m, int $uid): array {
+    $q = $m->prepare('INSERT IGNORE INTO game_player_stats (user_id) VALUES (?)');
+    if ($q) { $q->bind_param('i',$uid); $q->execute(); $q->close(); }
+    $q = $m->prepare('SELECT * FROM game_player_stats WHERE user_id=? LIMIT 1');
+    $q->bind_param('i',$uid); $q->execute(); $row = $q->get_result()->fetch_assoc(); $q->close();
+    if (!$row) $row = ['rating'=>1000,'wins'=>0,'losses'=>0,'season_points'=>0,'current_streak'=>0,'best_streak'=>0,'games_played'=>0];
+    return $row;
+}
+function gd_rating_delta(int $winnerRating, int $loserRating): array {
+    $expected = 1 / (1 + pow(10, ($loserRating - $winnerRating) / 400));
+    $win = (int)round(18 + (1 - $expected) * 22);
+    $win = max(18, min(40, $win));
+    $loss = -max(12, min(32, (int)round($win * 0.72)));
+    return [$win, $loss];
+}
 function gd_finish(mysqli $m, array $match, int $winner, int $loser): void {
     $mid = (int)$match['id'];
-    $st = $m->prepare("UPDATE game_matches SET status='finished', winner_id=?, loser_id=?, finished_at=NOW(), updated_at=NOW() WHERE id=?");
-    $st->bind_param('iii',$winner,$loser,$mid); $st->execute(); $st->close();
+    $wDelta = 0; $lDelta = 0; $wAfter = null; $lAfter = null;
     if ($match['mode'] === 'ranked') {
-        foreach ([$winner,$loser] as $u) { $q=$m->prepare('INSERT IGNORE INTO game_player_stats (user_id) VALUES (?)'); $q->bind_param('i',$u); $q->execute(); $q->close(); }
-        $q=$m->prepare('UPDATE game_player_stats SET wins=wins+1,games_played=games_played+1,rating=rating+25,season_points=season_points+30,current_streak=current_streak+1,best_streak=GREATEST(best_streak,current_streak+1) WHERE user_id=?'); $q->bind_param('i',$winner); $q->execute(); $q->close();
-        $q=$m->prepare('UPDATE game_player_stats SET losses=losses+1,games_played=games_played+1,rating=GREATEST(100,rating-18),current_streak=0 WHERE user_id=?'); $q->bind_param('i',$loser); $q->execute(); $q->close();
+        $ws = gd_ensure_stats_row($m, $winner);
+        $ls = gd_ensure_stats_row($m, $loser);
+        $wr = (int)($ws['rating'] ?? 1000);
+        $lr = (int)($ls['rating'] ?? 1000);
+        [$wDelta, $lDelta] = gd_rating_delta($wr, $lr);
+        $wAfter = $wr + $wDelta;
+        $lAfter = max(100, $lr + $lDelta);
+        $q=$m->prepare('UPDATE game_player_stats SET wins=wins+1,games_played=games_played+1,rating=?,season_points=season_points+?,current_streak=current_streak+1,best_streak=GREATEST(best_streak,current_streak+1) WHERE user_id=?');
+        $q->bind_param('iii',$wAfter,$wDelta,$winner); $q->execute(); $q->close();
+        $q=$m->prepare('UPDATE game_player_stats SET losses=losses+1,games_played=games_played+1,rating=?,current_streak=0 WHERE user_id=?');
+        $q->bind_param('ii',$lAfter,$loser); $q->execute(); $q->close();
     }
+    if (gd_has_col($m, 'game_matches', 'winner_rating_delta')) {
+        $st = $m->prepare("UPDATE game_matches SET status='finished', winner_id=?, loser_id=?, winner_rating_delta=?, loser_rating_delta=?, winner_rating_after=?, loser_rating_after=?, finished_at=NOW(), updated_at=NOW() WHERE id=?");
+        $st->bind_param('iiiiiii',$winner,$loser,$wDelta,$lDelta,$wAfter,$lAfter,$mid);
+    } else {
+        $st = $m->prepare("UPDATE game_matches SET status='finished', winner_id=?, loser_id=?, finished_at=NOW(), updated_at=NOW() WHERE id=?");
+        $st->bind_param('iii',$winner,$loser,$mid);
+    }
+    $st->execute(); $st->close();
+}
+function gd_user_public(mysqli $m, int $uid): array {
+    $username = 'Utente';
+    $q = $m->prepare('SELECT username FROM utenti WHERE id=? LIMIT 1');
+    if ($q) { $q->bind_param('i',$uid); $q->execute(); $row=$q->get_result()->fetch_assoc(); $q->close(); if($row && !empty($row['username'])) $username=$row['username']; }
+    $stats = gd_ensure_stats_row($m, $uid);
+    $rating = (int)($stats['rating'] ?? 1000);
+    return ['id'=>$uid,'username'=>$username,'pfp_url'=>'/includes/get_pfp.php?id='.$uid,'rating'=>$rating,'rank'=>gd_rank_from_rating($rating),'wins'=>(int)($stats['wins']??0),'losses'=>(int)($stats['losses']??0),'season_points'=>(int)($stats['season_points']??0),'best_streak'=>(int)($stats['best_streak']??0),'games_played'=>(int)($stats['games_played']??0)];
 }
 function gd_state(mysqli $m, array $match, int $viewer): array {
     $mid = (int)$match['id'];
@@ -160,7 +207,21 @@ function gd_state(mysqli $m, array $match, int $viewer): array {
     $st = $m->prepare('SELECT a.*, u.username FROM game_match_actions a LEFT JOIN utenti u ON u.id=a.user_id WHERE a.match_id=? ORDER BY a.id DESC LIMIT 24');
     $actions = [];
     if ($st) { $st->bind_param('i',$mid); $st->execute(); $res=$st->get_result(); while($r=$res->fetch_assoc()) $actions[]=$r; $st->close(); }
-    return ['id'=>$mid,'room_code'=>$match['room_code'],'status'=>$match['status'],'mode'=>$match['mode'],'player1_id'=>(int)$match['player1_id'],'player2_id'=>$match['player2_id']?(int)$match['player2_id']:null,'player1_ready'=>(int)$match['player1_ready'],'player2_ready'=>(int)$match['player2_ready'],'current_turn_user_id'=>$match['current_turn_user_id']?(int)$match['current_turn_user_id']:null,'winner_id'=>$match['winner_id']?(int)$match['winner_id']:null,'turn_number'=>(int)$match['turn_number'],'viewer_id'=>$viewer,'viewer_role'=>gd_is_player($match,$viewer)?'player':'spectator','cards'=>$cards,'actions'=>array_reverse($actions)];
+    $p1 = gd_user_public($m, (int)$match['player1_id']);
+    $p2 = !empty($match['player2_id']) ? gd_user_public($m, (int)$match['player2_id']) : null;
+    $rankedResult = null;
+    if ($match['status'] === 'finished' && $match['mode'] === 'ranked') {
+        $isWinner = (int)$match['winner_id'] === $viewer;
+        $rankedResult = [
+            'viewer_delta' => $isWinner ? (int)($match['winner_rating_delta'] ?? 0) : (int)($match['loser_rating_delta'] ?? 0),
+            'opponent_delta' => $isWinner ? (int)($match['loser_rating_delta'] ?? 0) : (int)($match['winner_rating_delta'] ?? 0),
+            'viewer_rating_after' => $isWinner ? (int)($match['winner_rating_after'] ?? 0) : (int)($match['loser_rating_after'] ?? 0),
+            'opponent_rating_after' => $isWinner ? (int)($match['loser_rating_after'] ?? 0) : (int)($match['winner_rating_after'] ?? 0),
+        ];
+        $rankedResult['viewer_rank_after'] = gd_rank_from_rating((int)$rankedResult['viewer_rating_after']);
+        $rankedResult['opponent_rank_after'] = gd_rank_from_rating((int)$rankedResult['opponent_rating_after']);
+    }
+    return ['id'=>$mid,'room_code'=>$match['room_code'],'status'=>$match['status'],'mode'=>$match['mode'],'player1_id'=>(int)$match['player1_id'],'player2_id'=>$match['player2_id']?(int)$match['player2_id']:null,'players'=>['player1'=>$p1,'player2'=>$p2],'player1_ready'=>(int)$match['player1_ready'],'player2_ready'=>(int)$match['player2_ready'],'current_turn_user_id'=>$match['current_turn_user_id']?(int)$match['current_turn_user_id']:null,'winner_id'=>$match['winner_id']?(int)$match['winner_id']:null,'loser_id'=>$match['loser_id']?(int)$match['loser_id']:null,'turn_number'=>(int)$match['turn_number'],'viewer_id'=>$viewer,'viewer_role'=>gd_is_player($match,$viewer)?'player':'spectator','cards'=>$cards,'actions'=>array_reverse($actions),'ranked_result'=>$rankedResult];
 }
 function gd_start_if_ready(mysqli $m, int $mid): void {
     $match = gd_match($m, $mid); if (!$match) return;
@@ -171,3 +232,13 @@ function gd_start_if_ready(mysqli $m, int $mid): void {
     $st->bind_param('i',$mid); $st->execute(); $st->close();
     gd_log($m,$mid,0,0,'system',null,null,0,'La partita è iniziata.');
 }
+function gd_inventory_count(mysqli $m, int $uid): array {
+    $i = gd_inv_cols($m);
+    if (!$i['user'] || !$i['character']) return ['unique'=>0,'total'=>0];
+    $qty = $i['qty'] ? 'SUM('.gd_qcol($i['qty']).')' : 'COUNT(*)';
+    $sql = 'SELECT COUNT(DISTINCT '.gd_qcol($i['character']).') u, '.$qty.' t FROM utenti_personaggi WHERE '.gd_qcol($i['user']).'=?';
+    $st = $m->prepare($sql); if(!$st) return ['unique'=>0,'total'=>0];
+    $st->bind_param('i',$uid); $st->execute(); $r=$st->get_result()->fetch_assoc(); $st->close();
+    return ['unique'=>(int)($r['u']??0),'total'=>(int)($r['t']??0)];
+}
+
