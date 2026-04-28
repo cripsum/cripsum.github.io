@@ -10,7 +10,7 @@ $edits = [
         'id' => 29,
         'order' => 0,
         'category' => 'influencer',
-        'streamable' => 'https://streamable.com/e/934apl?',
+        'streamable' => 'https://streamable.com/e/nq7psh?',
         'badge' => 'Latest',
         'icon' => 'fas fa-star character-icon',
         'title_html' => 'Danil Showman',
@@ -340,6 +340,7 @@ $totalEdits = count($edits);
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Edits</title>
@@ -433,8 +434,7 @@ $totalEdits = count($edits);
                         data-category="<?php echo $category; ?>"
                         data-title="<?php echo $titleText; ?>"
                         data-music="<?php echo $music; ?>"
-                        onclick="playVideo(this, <?php echo $editId; ?>)"
-                    >
+                        onclick="playVideo(this, <?php echo $editId; ?>)">
                         <?php if ($badge !== ''): ?>
                             <div class="edit-badge edit-badge--<?php echo htmlspecialchars($badgeClass, ENT_QUOTES, 'UTF-8'); ?>">
                                 <?php echo htmlspecialchars($badge, ENT_QUOTES, 'UTF-8'); ?>
@@ -505,4 +505,5 @@ $totalEdits = count($edits);
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>
