@@ -62,7 +62,7 @@ if (!isLoggedIn()) {
                             <i class="fas fa-ranking-star"></i><strong>Ranked</strong><span>Vinci o perdi punti. Sali di categoria.</span>
                         </button>
                         <button class="game-mode-card game-mode-card-bot" data-action="create-bot" type="button">
-                            <i class="fas fa-robot"></i><strong>Offline vs Bot</strong><span>Gioca subito contro il bot, senza aspettare.</span>
+                            <i class="fas fa-robot"></i><strong>Offline vs Bot</strong><span>Gioca offline contro la cpu</span>
                         </button>
                     </div>
 
