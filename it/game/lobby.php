@@ -99,12 +99,12 @@ if (!isLoggedIn()) {
                         </div>
                     </div>
                     <div class="game-rule-list">
-                        <article><i class="fas fa-users"></i><strong>- Team da 3</strong><span> - Usi solo personaggi che hai nell’inventario.</span></article>
-                        <article><i class="fas fa-hand-fist"></i><strong>- Attacco</strong><span> - Fa danno base e ti dà +1 energia.</span></article>
-                        <article><i class="fas fa-wand-magic-sparkles"></i><strong>- Speciale</strong><span> - Fa più danno, ma costa energia e ha un cooldown.</span></article>
-                        <article><i class="fas fa-shield"></i><strong>- Difesa</strong><span> - Riduce il prossimo danno e recupera energia.</span></article>
-                        <article><i class="fas fa-battery-full"></i><strong>- Carica</strong><span> - Recupera energia se vuoi preparare la mossa speciale.</span></article>
-                        <article><i class="fas fa-repeat"></i><strong>- Cambio</strong><span> - Clicca una tua carta sotto per cambiarla. Consuma un turno.</span></article>
+                        <article><i class="fas fa-users"></i><strong> Team da 3</strong><span> - Usi solo personaggi che hai nell’inventario.</span></article>
+                        <article><i class="fas fa-hand-fist"></i><strong> Attacco</strong><span> - Fa danno base e ti dà +1 energia.</span></article>
+                        <article><i class="fas fa-wand-magic-sparkles"></i><strong> Speciale</strong><span> - Fa più danno, ma costa energia e ha un cooldown.</span></article>
+                        <article><i class="fas fa-shield"></i><strong> Difesa</strong><span> - Riduce il prossimo danno e recupera energia.</span></article>
+                        <article><i class="fas fa-battery-full"></i><strong> Carica</strong><span> - Recupera energia se vuoi preparare la mossa speciale.</span></article>
+                        <article><i class="fas fa-repeat"></i><strong> Cambio</strong><span> - Clicca una tua carta sotto per cambiarla. Consuma un turno.</span></article>
                     </div>
                 </section>
             </div>
