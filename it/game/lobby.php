@@ -19,8 +19,8 @@ if (!isLoggedIn()) {
     <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ Duel - Lobby</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/css/game.css?v=1.5-offline-bot">
-    <script src="/assets/js/game.js?v=1.5-offline-bot" defer></script>
+    <link rel="stylesheet" href="/assets/css/game.css?v=1.6-rank-spectator">
+    <script src="/assets/js/game.js?v=1.6-rank-spectator" defer></script>
 </head>
 
 <body class="game-page" data-page="duel-lobby">
@@ -62,7 +62,7 @@ if (!isLoggedIn()) {
                             <i class="fas fa-ranking-star"></i><strong>Ranked</strong><span>Vinci o perdi punti. Sali di categoria.</span>
                         </button>
                         <button class="game-mode-card game-mode-card-bot" data-action="create-bot" type="button">
-                            <i class="fas fa-robot"></i><strong>Offline vs Bot</strong><span>Gioca offline contro la cpu</span>
+                            <i class="fas fa-robot"></i><strong>Offline vs Bot</strong><span>Gioca subito contro il bot, senza aspettare.</span>
                         </button>
                     </div>
 
@@ -99,12 +99,12 @@ if (!isLoggedIn()) {
                         </div>
                     </div>
                     <div class="game-rule-list">
-                        <article><i class="fas fa-users"></i><strong> Team da 3</strong><span> - Usi solo personaggi che hai nell’inventario.</span></article>
-                        <article><i class="fas fa-hand-fist"></i><strong> Attacco</strong><span> - Fa danno base e ti dà +1 di energia.</span></article>
-                        <article><i class="fas fa-wand-magic-sparkles"></i><strong> Speciale</strong><span> - Fa più danno, ma costa energia e ha un cooldown.</span></article>
-                        <article><i class="fas fa-shield"></i><strong> Difesa</strong><span> - Riduce il prossimo danno e recupera energia.</span></article>
-                        <article><i class="fas fa-battery-full"></i><strong> Carica</strong><span> - Recupera l'energia se vuoi preparare la speciale.</span></article>
-                        <article><i class="fas fa-repeat"></i><strong> Cambio</strong><span> - Clicca una tua carta sotto per cambiarla. Consuma un turno.</span></article>
+                        <article><i class="fas fa-users"></i><strong>- Team da 3</strong><span> - Usi solo personaggi che hai nell’inventario.</span></article>
+                        <article><i class="fas fa-hand-fist"></i><strong>- Attacco</strong><span> - Fa danno base e ti dà +1 energia.</span></article>
+                        <article><i class="fas fa-wand-magic-sparkles"></i><strong>- Speciale</strong><span> - Fa più danno, ma costa energia e ha un cooldown.</span></article>
+                        <article><i class="fas fa-shield"></i><strong>- Difesa</strong><span> - Riduce il prossimo danno e recupera energia.</span></article>
+                        <article><i class="fas fa-battery-full"></i><strong>- Carica</strong><span> - Recupera energia se vuoi preparare la mossa speciale.</span></article>
+                        <article><i class="fas fa-repeat"></i><strong>- Cambio</strong><span> - Clicca una tua carta sotto per cambiarla. Consuma un turno.</span></article>
                     </div>
                 </section>
             </div>

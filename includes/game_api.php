@@ -193,7 +193,7 @@ function gd_api_select_team(mysqli $mysqli): void {
         gd_fail('Selezione team fallita.',500);
     }
 }
-function gd_api_state(mysqli $mysqli): void { $uid=gd_require_login(); $mid=(int)(gd_input()['match_id'] ?? $_GET['match_id'] ?? 0); $match=gd_match($mysqli,$mid); if(!$match) gd_fail('Partita non trovata.',404); if(!gd_is_player($match,$uid) && (int)$match['spectator_allowed']!==1) gd_fail('Non puoi vedere questa partita.',403); gd_ok(['match'=>gd_state($mysqli,$match,$uid)]); }
+function gd_api_state(mysqli $mysqli): void { $uid=gd_require_login(); $mid=(int)(gd_input()['match_id'] ?? $_GET['match_id'] ?? 0); $match=gd_match($mysqli,$mid); if(!$match) gd_fail('Partita non trovata.',404); $spectator=!gd_is_player($match,$uid); if($spectator && ((int)$match['spectator_allowed']!==1 || (string)$match['mode']==='bot')) gd_fail('Non puoi vedere questa partita.',403); if($spectator && !in_array((string)$match['status'], ['active','finished'], true)) gd_fail('Questa partita non è live.',403); if($spectator) gd_touch_spectator($mysqli,$mid,$uid); gd_ok(['match'=>gd_state($mysqli,$match,$uid)]); }
 function gd_api_action(mysqli $mysqli): void {
     $uid = gd_require_login();
     $in = gd_input();
@@ -319,8 +319,9 @@ function gd_api_live_matches(mysqli $mysqli): void {
         FROM game_matches m
         LEFT JOIN utenti u1 ON u1.id = m.player1_id
         LEFT JOIN utenti u2 ON u2.id = m.player2_id
-        WHERE m.status IN ('team_select', 'active')
+        WHERE m.status = 'active'
           AND m.mode <> 'bot'
+          AND m.player2_id IS NOT NULL
           AND m.spectator_allowed = 1
           AND m.player1_id <> ?
           AND (m.player2_id IS NULL OR m.player2_id <> ?)

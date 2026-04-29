@@ -264,12 +264,50 @@ function gd_chat_messages(mysqli $m, int $mid): array {
 }
 
 
+function gd_spectator_seen_col(mysqli $m): ?string {
+    $cols = gd_cols($m, 'game_spectators');
+    return gd_first($cols, ['last_seen_at', 'last_seen', 'updated_at']);
+}
+
+function gd_touch_spectator(mysqli $m, int $mid, int $uid): void {
+    if (!gd_has_col($m, 'game_spectators', 'match_id') || !gd_has_col($m, 'game_spectators', 'user_id')) {
+        return;
+    }
+
+    $seenCol = gd_spectator_seen_col($m);
+    if ($seenCol) {
+        $qc = gd_qcol($seenCol);
+        $sql = "INSERT INTO game_spectators (match_id, user_id, {$qc}) VALUES (?, ?, NOW()) ON DUPLICATE KEY UPDATE {$qc}=NOW()";
+        $st = $m->prepare($sql);
+        if ($st) {
+            $st->bind_param('ii', $mid, $uid);
+            $st->execute();
+            $st->close();
+        }
+        return;
+    }
+
+    $st = $m->prepare('INSERT IGNORE INTO game_spectators (match_id, user_id) VALUES (?, ?)');
+    if ($st) {
+        $st->bind_param('ii', $mid, $uid);
+        $st->execute();
+        $st->close();
+    }
+}
+
 function gd_spectator_count(mysqli $m, int $mid): int {
     if (!gd_has_col($m, 'game_spectators', 'match_id')) {
         return 0;
     }
 
-    $st = $m->prepare('SELECT COUNT(*) total FROM game_spectators WHERE match_id = ?');
+    $seenCol = gd_spectator_seen_col($m);
+    if ($seenCol) {
+        $qc = gd_qcol($seenCol);
+        $st = $m->prepare("SELECT COUNT(*) total FROM game_spectators WHERE match_id = ? AND {$qc} >= DATE_SUB(NOW(), INTERVAL 35 SECOND)");
+    } else {
+        $st = $m->prepare('SELECT COUNT(*) total FROM game_spectators WHERE match_id = ?');
+    }
+
     if (!$st) {
         return 0;
     }

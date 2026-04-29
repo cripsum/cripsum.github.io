@@ -1,7 +1,7 @@
 (() => {
     'use strict';
-    if (window.__cripsumDuelV15) return;
-    window.__cripsumDuelV15 = true;
+    if (window.__cripsumDuelV16) return;
+    window.__cripsumDuelV16 = true;
 
     const page = document.body?.dataset.page || '';
     const state = { matchId: Number(document.body?.dataset.matchId || 0) || null, roomCode:null, inventory:[], selectedTeam:[], match:null, poll:null, lastActionId:0, resultShown:false, lastChatId:0, lastReactionId:0 };
@@ -21,12 +21,14 @@
     async function api(path,payload={},method='POST'){const opts={method,headers:{'Content-Type':'application/json'},credentials:'same-origin'}; if(method!=='GET')opts.body=JSON.stringify(payload); const url=method==='GET'?`${path}?${new URLSearchParams(payload)}`:path; const r=await fetch(url,opts); const txt=await r.text(); let data; try{data=JSON.parse(txt)}catch{throw new Error(txt||'Risposta non valida')} if(!r.ok||!data.success)throw new Error(data.message||'Errore richiesta'); return data;}
     function img(src){if(!src)return'/img/Susremaster.png'; if(/^https?:\/\//i.test(src)||src.startsWith('/'))return src; return `/img/${src}`;}
     function cardImg(src,alt){return `<img src="${esc(img(src))}" alt="${esc(alt)}" onerror="this.onerror=null;this.src='/img/Susremaster.png';">`;}
-    function rankBadge(rank){if(!rank)return'';return `<span class="game-rank-badge" data-rank="${esc(rank.key)}">${esc(rank.label)}</span>`}
+    function rankIcon(rank){const key=typeof rank==='string'?rank:(rank?.key||''); const icons={bronzo:'fa-shield',argento:'fa-medal',oro:'fa-crown',diamante:'fa-gem',campione:'fa-trophy',leggenda:'fa-dragon'}; return icons[key]||'fa-shield';}
+    function rankBadge(rank){if(!rank)return'';return `<span class="game-rank-badge" data-rank="${esc(rank.key)}"><i class="fas ${rankIcon(rank)}"></i>${esc(rank.label)}</span>`}
+    function playerTitle(player,fallback='Player'){return `${esc(player?.username||fallback)} ${rankBadge(player?.rank)}`;}
     function goArena(matchId){window.location.href=`/it/game/arena.php?match_id=${encodeURIComponent(matchId)}`;}
     function modeLabel(mode){return mode==='ranked'?'Ranked':mode==='bot'?'Offline vs Bot':'Partita';}
 
-    async function loadProfile(){const box=$('#profileSummary'); if(!box)return; try{const d=await api('/api/game/profile_summary.php',{},'GET'); const u=d.profile.user, inv=d.profile.inventory; box.innerHTML=`<div class="game-profile-top"><img src="${esc(u.pfp_url)}" alt="${esc(u.username)}" onerror="this.src='/img/Susremaster.png'"><div><strong>${esc(u.username)}</strong>${rankBadge(u.rank)}</div></div><div class="game-profile-stats"><div><b>${u.rating}</b><small>Punti ranked</small></div><div><b>${inv.unique}</b><small>Personaggi</small></div><div><b>${u.wins}/${u.losses}</b><small>W/L</small></div></div>`}catch(e){box.innerHTML='<p class="game-hint">Profilo non caricato.</p>'}}
-    async function loadRanking(){const wrap=$('#rankingList'); if(!wrap)return; try{const d=await api('/api/game/get_ranking.php',{},'GET'); const rows=d.ranking||[]; if(!rows.length){wrap.innerHTML='<p class="game-hint">Classifica vuota.</p>';return} wrap.innerHTML=rows.map((r,i)=>`<div class="game-rank-row"><strong>#${i+1}</strong><span class="game-rank-name">${esc(r.username)}</span><span class="game-rank-meta">${rankBadge(r.rank)} <b>${r.rating}</b></span></div>`).join('')}catch(e){wrap.innerHTML='<p class="game-hint">Classifica non caricata.</p>';}}
+    async function loadProfile(){const box=$('#profileSummary'); if(!box)return; try{const d=await api('/api/game/profile_summary.php',{},'GET'); const u=d.profile.user, inv=d.profile.inventory; box.innerHTML=`<div class="game-profile-top"><img src="${esc(u.pfp_url)}" alt="${esc(u.username)}" onerror="this.src='/img/Susremaster.png'"><div><strong>${esc(u.username)} ${rankBadge(u.rank)}</strong></div></div><div class="game-profile-stats"><div><b>${u.rating}</b><small>Punti ranked</small></div><div><b>${inv.unique}</b><small>Personaggi</small></div><div><b>${u.wins}/${u.losses}</b><small>W/L</small></div></div>`}catch(e){box.innerHTML='<p class="game-hint">Profilo non caricato.</p>'}}
+    async function loadRanking(){const wrap=$('#rankingList'); if(!wrap)return; try{const d=await api('/api/game/get_ranking.php',{},'GET'); const rows=d.ranking||[]; if(!rows.length){wrap.innerHTML='<p class="game-hint">Classifica vuota.</p>';return} wrap.innerHTML=rows.map((r,i)=>`<div class="game-rank-row"><strong>#${i+1}</strong><span class="game-rank-name">${rankBadge(r.rank)} ${esc(r.username)}</span><span class="game-rank-meta"><b>${r.rating}</b></span></div>`).join('')}catch(e){wrap.innerHTML='<p class="game-hint">Classifica non caricata.</p>';}}
     
     async function loadLiveMatches(){
         const wrap = $('#liveMatchesList');
@@ -70,9 +72,45 @@
     function startPolling(){stopPolling(); pollState(true); state.poll=setInterval(()=>{if(!document.hidden)pollState(false)},1500)}
     function stopPolling(){if(state.poll)clearInterval(state.poll); state.poll=null;}
     async function pollState(first=false){if(!state.matchId)return; try{const d=await api('/api/game/get_match_state.php',{match_id:state.matchId},'GET'); const oldLast=state.lastActionId; state.match=d.match; renderMatch(first); const actions=state.match.actions||[]; const newest=actions.length?Number(actions[actions.length-1].id):0; if(!first && newest>oldLast){actions.filter(a=>Number(a.id)>oldLast).forEach((a,i)=>setTimeout(()=>animateAction(a),i*220));} state.lastActionId=Math.max(oldLast,newest);}catch(e){showToast(e.message)}}
-    function myId(){return state.match?.viewer_id} function enemyId(){const m=state.match; return !m?null:(m.player1_id===myId()?m.player2_id:m.player1_id)} function cardsOf(uid){return (state.match?.cards||[]).filter(c=>Number(c.user_id)===Number(uid))} function activeOf(uid){return cardsOf(uid).find(c=>Number(c.is_active)&&!Number(c.is_ko))||cardsOf(uid).find(c=>!Number(c.is_ko))}
+    function myId(){return state.match?.viewer_id}
+    function isSpectator(){return state.match?.viewer_role === 'spectator'}
+    function playerById(uid){const m=state.match;if(!m||uid===null||uid===undefined)return null; if(Number(m.player1_id)===Number(uid))return m.players?.player1||null; if(Number(m.player2_id)===Number(uid))return m.players?.player2||null; return null;}
+    function enemyId(){const m=state.match; return !m?null:(Number(m.player1_id)===Number(myId())?m.player2_id:m.player1_id)}
+    function battleSides(){const m=state.match;if(!m)return {leftUid:null,rightUid:null,leftPlayer:null,rightPlayer:null}; const spectator=isSpectator(); const leftUid=spectator?m.player1_id:enemyId(); const rightUid=spectator?m.player2_id:myId(); return {leftUid,rightUid,leftPlayer:playerById(leftUid),rightPlayer:playerById(rightUid)};}
+    function cardsOf(uid){return (state.match?.cards||[]).filter(c=>Number(c.user_id)===Number(uid))}
+    function activeOf(uid){return cardsOf(uid).find(c=>Number(c.is_active)&&!Number(c.is_ko))||cardsOf(uid).find(c=>!Number(c.is_ko))}
     function pct(c,m){return Math.max(0,Math.min(100,Math.round((Number(c)/Number(m))*100)||0))}
-    function renderMatch(first=false){const m=state.match;if(!m)return; $('#arenaRoomCode') && ($('#arenaRoomCode').textContent=m.room_code); $('#roomCodeLabel') && ($('#roomCodeLabel').textContent=m.room_code); if(m.status==='waiting'){showOnly('#waitingPanel');return} if(m.status==='team_select'){showOnly('#teamPanel'); if(!state.inventory.length)loadInventory(); return} showOnly('#arenaPanel'); const oppPlayer=m.player1_id===myId()?m.players.player2:m.players.player1; if($('#opponentName'))$('#opponentName').textContent=oppPlayer?.username||'Avversario'; const myTurn=Number(m.current_turn_user_id)===Number(myId()); $('#matchStatus').textContent=m.status==='finished'?'Conclusa':`${modeLabel(m.mode)} · Turno ${m.turn_number}`; $('#turnLabel').textContent=m.status==='finished'?(Number(m.winner_id)===Number(myId())?'Hai vinto':'Hai perso'):(myTurn?'È il tuo turno':(m.mode==='bot'?'Turno bot':'Turno avversario')); renderActive('#playerActive',activeOf(myId())); renderActive('#opponentActive',activeOf(enemyId())); renderTeam('#playerTeam',cardsOf(myId()),true); renderTeam('#opponentTeam',cardsOf(enemyId()),false); renderLog(m.actions||[]); renderChat(m.chat||[]); renderReactions(m.reactions||[]); renderSpectators(); const spectator = m.viewer_role === 'spectator';
+    function renderMatch(first=false){
+        const m=state.match;
+        if(!m)return;
+        $('#arenaRoomCode') && ($('#arenaRoomCode').textContent=m.room_code);
+        $('#roomCodeLabel') && ($('#roomCodeLabel').textContent=m.room_code);
+        if(m.status==='waiting'){showOnly('#waitingPanel');return}
+        if(m.status==='team_select'){showOnly('#teamPanel'); if(!state.inventory.length)loadInventory(); return}
+
+        showOnly('#arenaPanel');
+        const spectator = isSpectator();
+        const sides = battleSides();
+        const myTurn = Number(m.current_turn_user_id)===Number(myId());
+        const turnPlayer = playerById(m.current_turn_user_id);
+
+        if($('#opponentName')) $('#opponentName').innerHTML = playerTitle(sides.leftPlayer,'Player 1');
+        if($('#playerName')) $('#playerName').innerHTML = playerTitle(sides.rightPlayer, spectator ? 'Player 2' : 'Tu');
+
+        $('#matchStatus').textContent=m.status==='finished'?'Conclusa':`${modeLabel(m.mode)} · Turno ${m.turn_number}`;
+        $('#turnLabel').textContent=m.status==='finished'
+            ? (spectator ? 'Partita conclusa' : (Number(m.winner_id)===Number(myId())?'Hai vinto':'Hai perso'))
+            : (spectator ? `Turno di ${turnPlayer?.username || 'Player'}` : (myTurn?'È il tuo turno':(m.mode==='bot'?'Turno bot':'Turno avversario')));
+
+        renderActive('#playerActive',activeOf(sides.rightUid));
+        renderActive('#opponentActive',activeOf(sides.leftUid));
+        renderTeam('#playerTeam',cardsOf(sides.rightUid),!spectator && Number(sides.rightUid)===Number(myId()));
+        renderTeam('#opponentTeam',cardsOf(sides.leftUid),false);
+        renderLog(m.actions||[]);
+        renderChat(m.chat||[]);
+        renderReactions(m.reactions||[]);
+        renderSpectators();
+
         const specBox = $('#spectatorMode');
         if (specBox) specBox.hidden = !spectator;
         const reactionPanel = $('#reactionPanel');
@@ -80,7 +118,8 @@
         const chatForm = $('#chatForm');
         if (chatForm) chatForm.hidden = spectator;
         $$('[data-battle-action]').forEach(b=>b.disabled=spectator||!myTurn||m.status!=='active');
-        if(m.status==='finished' && !spectator)showResult();}
+        if(m.status==='finished' && !spectator)showResult();
+    }
     function renderActive(sel,card){const el=$(sel); if(!el)return; if(!card){el.innerHTML='<p class="game-hint">Nessuna carta.</p>';return} const ch=card.character||{}; el.dataset.cardId=card.id; el.innerHTML=`${cardImg(ch.img_url,ch.nome)}<div class="game-active-name"><strong>${esc(ch.nome||'Carta')}</strong><span>${esc(ch.rarita||'comune')}</span></div><div class="game-hpbar"><span style="--value:${pct(card.current_hp,card.max_hp)}%"></span></div><small>HP ${card.current_hp}/${card.max_hp}</small><div class="game-energybar"><span style="--value:${pct(card.energy,card.max_energy)}%"></span></div><small>Energia ${card.energy}/${card.max_energy} · CD ${card.special_cooldown}</small><div class="game-card-stats"><span>ATK ${card.attack}</span><span>DEF ${card.defense}</span><span>SPD ${card.speed}</span><span>${Number(card.is_defending)?'Difesa':'Pronto'}</span></div>`}
     function renderTeam(sel,cards,mine){const el=$(sel); if(!el)return; el.innerHTML=cards.map(c=>{const ch=c.character||{};return `<button class="game-mini-card ${Number(c.is_active)?'is-active':''} ${Number(c.is_ko)?'is-ko':''}" data-card-id="${c.id}" type="button" ${mine&&!Number(c.is_ko)?'':'disabled'}>${cardImg(ch.img_url,ch.nome)}<strong>${esc(ch.nome||'Carta')}</strong><small>${c.current_hp}/${c.max_hp} HP</small></button>`}).join(''); if(mine && state.match?.viewer_role !== 'spectator')$$('.game-mini-card',el).forEach(btn=>btn.addEventListener('click',()=>submitBattle('switch',Number(btn.dataset.cardId))))}
     function renderLog(actions){const log=$('#battleLog'); if(!log)return; if(!actions.length){log.innerHTML='<p class="game-hint">Il log apparirà qui.</p>';return} log.innerHTML=actions.map(a=>`<div class="game-log-row"><strong>T${a.turn_number}</strong> ${esc(a.message)} ${Number(a.damage)>0?`· ${a.damage} danni`:''}</div>`).join(''); log.scrollTop=log.scrollHeight;}
@@ -194,9 +233,11 @@
         if (old) old.remove();
 
         const mine = Number(a.user_id) === Number(myId());
+        const actorPlayer = playerById(a.user_id);
+        const actorName = mine ? 'Tu' : (actorPlayer?.username || (Number(a.user_id)===0 ? 'Bot' : 'Player'));
         const banner = document.createElement('div');
         banner.className = `game-action-banner ${mine ? 'is-mine' : 'is-enemy'}`;
-        banner.innerHTML = `<strong>${mine ? 'Tu' : 'Avversario'}</strong><span>${esc(label)}${Number(a.damage)>0 ? ` · ${Number(a.damage)} danni` : ''}</span>`;
+        banner.innerHTML = `<strong>${esc(actorName)}</strong><span>${esc(label)}${Number(a.damage)>0 ? ` · ${Number(a.damage)} danni` : ''}</span>`;
         arena.appendChild(banner);
 
         setTimeout(() => banner.remove(), 1300);
