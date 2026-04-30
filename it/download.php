@@ -20,6 +20,7 @@ $downloads = [
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Download</title>
@@ -28,6 +29,7 @@ $downloads = [
     <link rel="stylesheet" href="/assets/shop/shop.css?v=2.3-hard-click-fix">
     <script src="/assets/shop/shop.js?v=2.3-hard-click-fix" defer></script>
 </head>
+
 <body class="shop-page shop-theme-download" data-shop-page="download" data-favorites="0">
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
@@ -66,10 +68,28 @@ $downloads = [
                     <button type="button" class="shop-filter" data-category="soon">Coming soon</button>
                 </div>
 
-                <select class="shop-select" data-shop-sort aria-label="Ordina download">
-                    <option value="default">Ordine originale</option>
-                    <option value="name-asc">Nome A-Z</option>
-                </select>
+                <div class="shop-custom-select" data-shop-custom-select>
+                    <select class="shop-select shop-native-select" data-shop-sort aria-label="Ordina download" tabindex="-1" aria-hidden="true">
+                        <option value="default">Ordine originale</option>
+                        <option value="name-asc">Nome A-Z</option>
+                    </select>
+
+                    <button type="button" class="shop-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="shop-select-current">Ordine originale</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+
+                    <div class="shop-select-menu" role="listbox" aria-label="Ordina download">
+                        <button type="button" data-value="default">
+                            <strong>Ordine originale</strong>
+                            <span>Base</span>
+                        </button>
+                        <button type="button" data-value="name-asc">
+                            <strong>Nome A-Z</strong>
+                            <span>A-Z</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="shop-grid shop-grid--downloads" data-shop-grid>
@@ -155,4 +175,5 @@ $downloads = [
     <?php include '../includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>

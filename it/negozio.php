@@ -23,6 +23,7 @@ $products = [
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Negozio</title>
@@ -31,6 +32,7 @@ $products = [
     <link rel="stylesheet" href="/assets/shop/shop.css?v=2.3-hard-click-fix">
     <script src="/assets/shop/shop.js?v=2.3-hard-click-fix" defer></script>
 </head>
+
 <body class="shop-page shop-theme-store" data-shop-page="negozio" data-favorites="1">
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
@@ -63,12 +65,38 @@ $products = [
                     <button type="button" class="shop-filter" data-category="meme">Meme</button>
                 </div>
 
-                <select class="shop-select" data-shop-sort aria-label="Ordina prodotti">
-                    <option value="default">Ordine originale</option>
-                    <option value="name-asc">Nome A-Z</option>
-                    <option value="price-asc">Prezzo crescente</option>
-                    <option value="price-desc">Prezzo decrescente</option>
-                </select>
+                <div class="shop-custom-select" data-shop-custom-select>
+                    <select class="shop-select shop-native-select" data-shop-sort aria-label="Ordina prodotti" tabindex="-1" aria-hidden="true">
+                        <option value="default">Ordine originale</option>
+                        <option value="name-asc">Nome A-Z</option>
+                        <option value="price-asc">Prezzo crescente</option>
+                        <option value="price-desc">Prezzo decrescente</option>
+                    </select>
+
+                    <button type="button" class="shop-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="shop-select-current">Ordine originale</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+
+                    <div class="shop-select-menu" role="listbox" aria-label="Ordina prodotti">
+                        <button type="button" data-value="default">
+                            <strong>Ordine originale</strong>
+                            <span>Base</span>
+                        </button>
+                        <button type="button" data-value="name-asc">
+                            <strong>Nome A-Z</strong>
+                            <span>A-Z</span>
+                        </button>
+                        <button type="button" data-value="price-asc">
+                            <strong>Prezzo crescente</strong>
+                            <span>€ ↑</span>
+                        </button>
+                        <button type="button" data-value="price-desc">
+                            <strong>Prezzo decrescente</strong>
+                            <span>€ ↓</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="shop-grid" data-shop-grid>
@@ -113,7 +141,7 @@ $products = [
             </div>
         </section>
 
-                <section class="shop-faq shop-reveal">
+        <section class="shop-faq shop-reveal">
             <h2>Domande frequenti (FAQ)</h2>
             <details>
                 <summary>Come fate ad avere prodotti che ancora non esistono in commercio?</summary>
@@ -144,4 +172,5 @@ $products = [
     <?php include '../includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>

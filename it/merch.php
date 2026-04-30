@@ -26,6 +26,7 @@ $products = [
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Merch</title>
@@ -34,6 +35,7 @@ $products = [
     <link rel="stylesheet" href="/assets/shop/shop.css?v=2.3-hard-click-fix">
     <script src="/assets/shop/shop.js?v=2.3-hard-click-fix" defer></script>
 </head>
+
 <body class="shop-page shop-theme-merch" data-shop-page="merch" data-favorites="1">
     <?php include '../includes/navbar.php'; ?>
     <?php include '../includes/impostazioni.php'; ?>
@@ -68,12 +70,38 @@ $products = [
                     <button type="button" class="shop-filter" data-category="altro">Altro</button>
                 </div>
 
-                <select class="shop-select" data-shop-sort aria-label="Ordina prodotti">
-                    <option value="default">Ordine originale</option>
-                    <option value="name-asc">Nome A-Z</option>
-                    <option value="price-asc">Prezzo crescente</option>
-                    <option value="price-desc">Prezzo decrescente</option>
-                </select>
+                <div class="shop-custom-select" data-shop-custom-select>
+                    <select class="shop-select shop-native-select" data-shop-sort aria-label="Ordina prodotti" tabindex="-1" aria-hidden="true">
+                        <option value="default">Ordine originale</option>
+                        <option value="name-asc">Nome A-Z</option>
+                        <option value="price-asc">Prezzo crescente</option>
+                        <option value="price-desc">Prezzo decrescente</option>
+                    </select>
+
+                    <button type="button" class="shop-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="shop-select-current">Ordine originale</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+
+                    <div class="shop-select-menu" role="listbox" aria-label="Ordina prodotti">
+                        <button type="button" data-value="default">
+                            <strong>Ordine originale</strong>
+                            <span>Base</span>
+                        </button>
+                        <button type="button" data-value="name-asc">
+                            <strong>Nome A-Z</strong>
+                            <span>A-Z</span>
+                        </button>
+                        <button type="button" data-value="price-asc">
+                            <strong>Prezzo crescente</strong>
+                            <span>€ ↑</span>
+                        </button>
+                        <button type="button" data-value="price-desc">
+                            <strong>Prezzo decrescente</strong>
+                            <span>€ ↓</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="shop-grid" data-shop-grid>
@@ -129,14 +157,14 @@ $products = [
                 <summary>Quando uscirà il secondo drop del merch di Simone Tussi?</summary>
                 <p>Non abbiamo ancora una data ufficiale, ma ti consigliamo di seguire i nostri canali social per rimanere aggiornato sulle novità! (mai)</p>
             </details>
-           <details>
+            <details>
                 <summary>Come vengono prodotti i capi?</summary>
                 <p>Il nostro merch è prodotto in 100% poliestere, garantendo discomfort e non-durabilità. Ogni pezzo è realizzato con cura da un ragazzino filippino per offrire il massimo stile e resistenza.</p>
-           </details>
-           <details>
-               <summary>Quali metodi di pagamento accettate?</summary>
-               <p>Accettiamo pagamento in natura.</p>
-           </details>
+            </details>
+            <details>
+                <summary>Quali metodi di pagamento accettate?</summary>
+                <p>Accettiamo pagamento in natura.</p>
+            </details>
         </section>
     </main>
 
@@ -154,4 +182,5 @@ $products = [
     <?php include '../includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>
