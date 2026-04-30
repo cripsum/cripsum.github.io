@@ -10,7 +10,7 @@ try {
     }
 
     $page = max(1, (int)($_GET['page'] ?? 1));
-    $limit = min(24, max(6, (int)($_GET['limit'] ?? 12)));
+    $limit = min(24, max(6, (int)($_GET['limit'] ?? 24)));
     $offset = ($page - 1) * $limit;
     $q = trim((string)($_GET['q'] ?? ''));
     $sort = (string)($_GET['sort'] ?? 'recent');
@@ -41,8 +41,8 @@ try {
 
     if ($isAdmin) {
         if ($status === 'pending') $where[] = "p.$approved = 0";
-        elseif ($status === 'all') {}
-        else $where[] = "p.$approved = 1";
+        elseif ($status === 'all') {
+        } else $where[] = "p.$approved = 1";
     } else {
         $where[] = "p.$approved = 1";
     }
