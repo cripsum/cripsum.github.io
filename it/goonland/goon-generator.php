@@ -69,6 +69,7 @@ if ($stmt) {
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../../includes/head-import.php'; ?>
     <title>GoonLand™ - Generator</title>
@@ -203,7 +204,10 @@ if ($stmt) {
 
     <div id="achievement-popup" class="popup">
         <img id="popup-image" src="" alt="Achievement">
-        <div><h3 id="popup-title"></h3><p id="popup-description"></p></div>
+        <div>
+            <h3 id="popup-title"></h3>
+            <p id="popup-description"></p>
+        </div>
     </div>
 
     <button class="gl-top" type="button" data-gl-top aria-label="Torna su"><i class="fas fa-arrow-up"></i></button>
@@ -213,4 +217,5 @@ if ($stmt) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="/js/modeChanger.js"></script>
 </body>
+
 </html>

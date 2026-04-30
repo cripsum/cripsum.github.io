@@ -85,12 +85,38 @@ $ogMeta = cripsum_og_content($mysqli, $contentType);
             </label>
 
             <div class="cw-filters">
-                <select id="cwSortSelect" class="cw-select">
-                    <option value="recent">Recenti</option>
-                    <option value="top">Più votati</option>
-                    <option value="comments">Più commentati</option>
-                    <option value="views">Più visti</option>
-                </select>
+                <div class="cw-custom-select" data-cw-custom-select>
+                    <select id="cwSortSelect" class="cw-select cw-native-select" tabindex="-1" aria-hidden="true">
+                        <option value="recent" <?php echo $contentType !== 'rimasto' ? 'selected' : ''; ?>>Recenti</option>
+                        <option value="top" <?php echo $contentType === 'rimasto' ? 'selected' : ''; ?>>Più votati</option>
+                        <option value="comments">Più commentati</option>
+                        <option value="views">Più visti</option>
+                    </select>
+
+                    <button type="button" class="cw-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="cw-select-current"><?php echo $contentType === 'rimasto' ? 'Più votati' : 'Recenti'; ?></span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+
+                    <div class="cw-select-menu" role="listbox" aria-label="Ordina post">
+                        <button type="button" data-value="recent">
+                            <strong>Recenti</strong>
+                            <span>New</span>
+                        </button>
+                        <button type="button" data-value="top">
+                            <strong>Più votati</strong>
+                            <span>Top</span>
+                        </button>
+                        <button type="button" data-value="comments">
+                            <strong>Più commentati</strong>
+                            <span>Com</span>
+                        </button>
+                        <button type="button" data-value="views">
+                            <strong>Più visti</strong>
+                            <span>View</span>
+                        </button>
+                    </div>
+                </div>
 
                 <?php if ($isLogged): ?>
                     <button type="button" class="cw-filter-btn" id="cwSavedFilter">
@@ -100,11 +126,33 @@ $ogMeta = cripsum_og_content($mysqli, $contentType);
                 <?php endif; ?>
 
                 <?php if ($isAdmin): ?>
-                    <select id="cwStatusSelect" class="cw-select">
-                        <option value="approved">Approvati</option>
-                        <option value="pending">In attesa</option>
-                        <option value="all">Tutti</option>
-                    </select>
+                    <div class="cw-custom-select" data-cw-custom-select>
+                        <select id="cwStatusSelect" class="cw-select cw-native-select" tabindex="-1" aria-hidden="true">
+                            <option value="approved" selected>Approvati</option>
+                            <option value="pending">In attesa</option>
+                            <option value="all">Tutti</option>
+                        </select>
+
+                        <button type="button" class="cw-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="cw-select-current">Approvati</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+
+                        <div class="cw-select-menu" role="listbox" aria-label="Stato post">
+                            <button type="button" data-value="approved">
+                                <strong>Approvati</strong>
+                                <span>OK</span>
+                            </button>
+                            <button type="button" data-value="pending">
+                                <strong>In attesa</strong>
+                                <span>Wait</span>
+                            </button>
+                            <button type="button" data-value="all">
+                                <strong>Tutti</strong>
+                                <span>All</span>
+                            </button>
+                        </div>
+                    </div>
                 <?php endif; ?>
             </div>
         </section>
