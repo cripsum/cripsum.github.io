@@ -304,7 +304,7 @@ checkBan($mysqli);
                 <div class="team-member">
                     <div class="member-content">
                         <div class="member-image">
-                            <img src="../img/sossioh.jpg" alt="Sossioh" />
+                            <img src="../img/sossioh.png" alt="Sossioh" />
                         </div>
                         <div class="member-info">
                             <h3 class="member-name">
