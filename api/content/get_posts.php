@@ -10,7 +10,13 @@ try {
     }
 
     $page = max(1, (int)($_GET['page'] ?? 1));
-    $limit = min(24, max(6, (int)($_GET['limit'] ?? 12)));
+    $rawLimit = strtolower(trim((string)($_GET['limit'] ?? 'all')));
+
+    if ($rawLimit === 'all' || $rawLimit === '0') {
+        $limit = 250;
+    } else {
+        $limit = min(250, max(1, (int)$rawLimit));
+    }
     $offset = ($page - 1) * $limit;
     $q = trim((string)($_GET['q'] ?? ''));
     $sort = (string)($_GET['sort'] ?? 'recent');
