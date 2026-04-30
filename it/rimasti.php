@@ -101,19 +101,19 @@ $ogMeta = cripsum_og_content($mysqli, $contentType);
                     <div class="cw-select-menu" role="listbox" aria-label="Ordina post">
                         <button type="button" data-value="recent">
                             <strong>Recenti</strong>
-                            <span>New</span>
+
                         </button>
                         <button type="button" data-value="top">
                             <strong>Più votati</strong>
-                            <span>Top</span>
+
                         </button>
                         <button type="button" data-value="comments">
                             <strong>Più commentati</strong>
-                            <span>Com</span>
+
                         </button>
                         <button type="button" data-value="views">
                             <strong>Più visti</strong>
-                            <span>View</span>
+
                         </button>
                     </div>
                 </div>
