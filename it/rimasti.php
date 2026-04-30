@@ -3,6 +3,7 @@ require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/content_v2_helpers.php';
+require_once __DIR__ . '/../includes/cripsum_og.php';
 
 if (isset($mysqli) && $mysqli instanceof mysqli) {
     @$mysqli->set_charset('utf8mb4');
@@ -22,24 +23,28 @@ $pageTitle = 'Top Rimasti';
 $pageSubtitle = 'I post più votati dalla community.';
 $uploadTitle = 'Nuovo rimasto';
 $needsMotivation = true;
+$ogMeta = cripsum_og_content($mysqli, $contentType);
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
+    <?php cripsum_og_print($ogMeta); ?>
     <title>Cripsum™ - <?php echo cv2_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/content-v2/content-v2.css?v=2.0.1-ui-fix">
-    <script src="/assets/content-v2/content-v2.js?v=2.0.1-ui-fix" defer></script>
+    <link rel="stylesheet" href="/assets/content-v2/content-v2.css?v=2.0.2-og-previews">
+    <script src="/assets/content-v2/content-v2.js?v=2.0.2-og-previews" defer></script>
 </head>
+
 <body class="content-v2-body"
-      data-content-type="<?php echo cv2_h($contentType); ?>"
-      data-csrf="<?php echo cv2_h($csrfToken); ?>"
-      data-logged="<?php echo $isLogged ? '1' : '0'; ?>"
-      data-admin="<?php echo $isAdmin ? '1' : '0'; ?>"
-      data-user-id="<?php echo (int)($currentUser['id'] ?? 0); ?>"
-      data-needs-motivation="<?php echo $needsMotivation ? '1' : '0'; ?>"
-      data-default-sort="<?php echo $contentType === 'rimasto' ? 'top' : 'recent'; ?>">
+    data-content-type="<?php echo cv2_h($contentType); ?>"
+    data-csrf="<?php echo cv2_h($csrfToken); ?>"
+    data-logged="<?php echo $isLogged ? '1' : '0'; ?>"
+    data-admin="<?php echo $isAdmin ? '1' : '0'; ?>"
+    data-user-id="<?php echo (int)($currentUser['id'] ?? 0); ?>"
+    data-needs-motivation="<?php echo $needsMotivation ? '1' : '0'; ?>"
+    data-default-sort="<?php echo $contentType === 'rimasto' ? 'top' : 'recent'; ?>">
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
     <?php include __DIR__ . '/../includes/impostazioni.php'; ?>
 
@@ -52,7 +57,6 @@ $needsMotivation = true;
     <main class="cw-shell">
         <header class="cw-hero">
             <div class="cw-hero__text">
-                <span class="cw-kicker">GoonLand</span>
                 <h1><?php echo cv2_h($pageTitle); ?></h1>
                 <p><?php echo cv2_h($pageSubtitle); ?></p>
             </div>
@@ -212,9 +216,12 @@ $needsMotivation = true;
 
     <div id="cwToast" class="cw-toast"></div>
 
+    <?php include '../includes/footer.php'; ?>
+
     <script>
         window.__CRIPSUM_BOOTSTRAP_FALLBACK__ = true;
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>

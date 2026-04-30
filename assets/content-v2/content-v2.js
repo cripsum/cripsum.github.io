@@ -221,7 +221,7 @@
             const params = new URLSearchParams({
                 type,
                 page: state.page,
-                limit: 12,
+                limit: 100,
                 sort: state.sort,
                 q: state.q,
                 status: state.status,
