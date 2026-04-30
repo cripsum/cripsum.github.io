@@ -10,7 +10,7 @@ try {
     }
 
     $page = max(1, (int)($_GET['page'] ?? 1));
-    $limit = min(24, max(6, (int)($_GET['limit'] ?? 24)));
+    $limit = min(24, max(6, (int)($_GET['limit'] ?? 12)));
     $offset = ($page - 1) * $limit;
     $q = trim((string)($_GET['q'] ?? ''));
     $sort = (string)($_GET['sort'] ?? 'recent');
