@@ -26,8 +26,8 @@ $downloads = [
     <title>Cripsum™ - Download</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="Download statici di Cripsum™.">
-    <link rel="stylesheet" href="/assets/shop/shop.css?v=2.3-hard-click-fix">
-    <script src="/assets/shop/shop.js?v=2.3-hard-click-fix" defer></script>
+    <link rel="stylesheet" href="/assets/shop/shop.css?v=2.4">
+    <script src="/assets/shop/shop.js?v=2.4" defer></script>
 </head>
 
 <body class="shop-page shop-theme-download" data-shop-page="download" data-favorites="0">
