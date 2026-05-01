@@ -392,4 +392,123 @@
             state.filter = 'all';
         }
     });
+
+    if (window.__editsCustomSelectLoaded) return;
+    window.__editsCustomSelectLoaded = true;
+
+    const closeAllEditsSelects = (except = null) => {
+        document.querySelectorAll('[data-edits-custom-select].is-open').forEach((wrap) => {
+            if (except && wrap === except) return;
+
+            wrap.classList.remove('is-open');
+            wrap.querySelector('.edits-select-trigger')?.setAttribute('aria-expanded', 'false');
+        });
+    };
+
+    const syncEditsSelect = (wrap, emit = false) => {
+        const select = wrap.querySelector('select');
+        const current = wrap.querySelector('.edits-select-current');
+        const options = Array.from(wrap.querySelectorAll('.edits-select-menu [data-value]'));
+
+        if (!select || !current || !options.length) return;
+
+        const realOption =
+            Array.from(select.options).find((option) => option.value === select.value) ||
+            select.options[0];
+
+        if (!realOption) return;
+
+        select.value = realOption.value;
+        current.textContent = realOption.textContent.trim();
+
+        options.forEach((button) => {
+            const active = button.dataset.value === realOption.value;
+            button.classList.toggle('is-active', active);
+            button.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+
+        if (emit) {
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    };
+
+    const refreshEditsCustomSelects = () => {
+        document.querySelectorAll('[data-edits-custom-select]').forEach((wrap) => {
+            syncEditsSelect(wrap, false);
+        });
+    };
+
+    const initEditsCustomSelects = () => {
+        document.querySelectorAll('[data-edits-custom-select]').forEach((wrap) => {
+            if (wrap.dataset.bound === '1') return;
+            wrap.dataset.bound = '1';
+
+            const select = wrap.querySelector('select');
+            const trigger = wrap.querySelector('.edits-select-trigger');
+            const options = Array.from(wrap.querySelectorAll('.edits-select-menu [data-value]'));
+
+            if (!select || !trigger || !options.length) return;
+
+            trigger.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                closeAllEditsSelects(wrap);
+
+                const isOpen = wrap.classList.toggle('is-open');
+                trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            });
+
+            options.forEach((button) => {
+                button.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    select.value = button.dataset.value;
+                    syncEditsSelect(wrap, true);
+
+                    wrap.classList.remove('is-open');
+                    trigger.setAttribute('aria-expanded', 'false');
+                });
+            });
+
+            select.addEventListener('change', () => {
+                syncEditsSelect(wrap, false);
+            });
+
+            syncEditsSelect(wrap, false);
+        });
+    };
+
+    document.addEventListener('click', () => {
+        closeAllEditsSelects();
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeAllEditsSelects();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initEditsCustomSelects();
+
+        document.querySelector('#editReset')?.addEventListener('click', () => {
+            setTimeout(refreshEditsCustomSelects, 0);
+        });
+
+        setTimeout(refreshEditsCustomSelects, 0);
+        setTimeout(refreshEditsCustomSelects, 100);
+    });
+
+    if (document.readyState !== 'loading') {
+        initEditsCustomSelects();
+
+        document.querySelector('#editReset')?.addEventListener('click', () => {
+            setTimeout(refreshEditsCustomSelects, 0);
+        });
+
+        setTimeout(refreshEditsCustomSelects, 0);
+        setTimeout(refreshEditsCustomSelects, 100);
+    }
 })();

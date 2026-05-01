@@ -345,8 +345,8 @@ $totalEdits = count($edits);
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Edits</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/edits.css?v=3.2-sticky-dropdown-fix">
-    <script src="/js/edits.js?v=3.2-sticky-dropdown-fix" defer></script>
+    <link rel="stylesheet" href="/css/edits.css?v=3.3">
+    <script src="/js/edits.js?v=3.3" defer></script>
 </head>
 
 <body class="edits-page">
@@ -386,7 +386,7 @@ $totalEdits = count($edits);
                 <input type="search" id="editSearch" placeholder="Cerca per nome o musica..." autocomplete="off">
             </div>
 
-            <div class="filter-container" role="group" aria-label="Categorie">
+            <div class="filter-container" role="group" aria-label="Categorie" style="margin-top: 10px;">
                 <?php foreach ($categories as $key => $label): ?>
                     <button type="button" class="filter-btn <?php echo $key === 'all' ? 'active' : ''; ?>" data-filter="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
                         <?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?>
@@ -397,11 +397,35 @@ $totalEdits = count($edits);
             <div class="edits-toolbar__bottom">
                 <label class="edits-sort">
                     <span>Ordina</span>
-                    <select id="editSort">
-                        <option value="recent">Recenti</option>
-                        <option value="name">Nome</option>
-                        <option value="category">Categoria</option>
-                    </select>
+                    <div class="edits-custom-select" data-edits-custom-select>
+                        <select id="editSort" class="edits-native-select" aria-label="Ordina edit" tabindex="-1" aria-hidden="true">
+                            <option value="recent">Ordine originale</option>
+                            <option value="name">Nome</option>
+                            <option value="category">Categoria</option>
+                        </select>
+
+                        <button type="button" class="edits-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="edits-select-current">Ordine originale</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+
+                        <div class="edits-select-menu" role="listbox" aria-label="Ordina edit">
+                            <button type="button" data-value="recent">
+                                <strong>Ordine originale</strong>
+                                <span>Base</span>
+                            </button>
+
+                            <button type="button" data-value="name">
+                                <strong>Nome</strong>
+                                <span>A-Z</span>
+                            </button>
+
+                            <button type="button" data-value="category">
+                                <strong>Categoria</strong>
+                                <span>Cat</span>
+                            </button>
+                        </div>
+                    </div>
                 </label>
 
                 <div class="edits-result-count" id="editResultCount">
