@@ -29,6 +29,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Achievement</title>
@@ -42,8 +43,8 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <meta property="og:url" content="<?php echo achievement_h($ogUrl); ?>">
     <meta name="twitter:card" content="summary_large_image">
 
-    <link rel="stylesheet" href="/assets/achievements/achievements.css?v=2.0-ui">
-    <script src="/assets/achievements/achievements.js?v=2.0-ui" defer></script>
+    <link rel="stylesheet" href="/assets/achievements/achievements.css?v=2.1">
+    <script src="/assets/achievements/achievements.js?v=2.1" defer></script>
 </head>
 
 <body class="ach-page">
@@ -92,14 +93,48 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                 <button type="button" class="ach-chip" data-status-filter="locked">Bloccati</button>
             </div>
 
-            <select id="achievementSort" class="ach-select" aria-label="Ordina achievement">
-                <option value="default">Ordine originale</option>
-                <option value="name">Nome</option>
-                <option value="points-desc">Più punti</option>
-                <option value="points-asc">Meno punti</option>
-                <option value="unlocked-first">Sbloccati prima</option>
-                <option value="locked-first">Bloccati prima</option>
-            </select>
+            <div class="ach-custom-select" data-ach-custom-select>
+                <select id="achievementSort" class="ach-select ach-native-select" aria-label="Ordina achievement" tabindex="-1" aria-hidden="true">
+                    <option value="default">Ordine originale</option>
+                    <option value="name">Nome</option>
+                    <option value="points-desc">Più punti</option>
+                    <option value="points-asc">Meno punti</option>
+                    <option value="unlocked-first">Sbloccati prima</option>
+                    <option value="locked-first">Bloccati prima</option>
+                </select>
+
+                <button type="button" class="ach-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="ach-select-current">Ordine originale</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+
+                <div class="ach-select-menu" role="listbox" aria-label="Ordina achievement">
+                    <button type="button" data-value="default">
+                        <strong>Ordine originale</strong>
+                        <span>Base</span>
+                    </button>
+                    <button type="button" data-value="name">
+                        <strong>Nome</strong>
+                        <span>A-Z</span>
+                    </button>
+                    <button type="button" data-value="points-desc">
+                        <strong>Più punti</strong>
+                        <span>Pts ↓</span>
+                    </button>
+                    <button type="button" data-value="points-asc">
+                        <strong>Meno punti</strong>
+                        <span>Pts ↑</span>
+                    </button>
+                    <button type="button" data-value="unlocked-first">
+                        <strong>Sbloccati prima</strong>
+                        <span>OK</span>
+                    </button>
+                    <button type="button" data-value="locked-first">
+                        <strong>Bloccati prima</strong>
+                        <span>Lock</span>
+                    </button>
+                </div>
+            </div>
         </section>
 
         <section class="ach-stats ach-reveal">
@@ -163,4 +198,5 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>
