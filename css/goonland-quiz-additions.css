@@ -298,3 +298,92 @@
         border-radius: 20px;
     }
 }
+
+/* GoonLand V2.4 - Quiz share + Open Graph card */
+.gl-shared-result,
+.gl-share-box {
+    border: 1px solid var(--gl-border);
+    background: radial-gradient(circle at 12% 0%, rgba(255, 45, 141, 0.18), transparent 36%), linear-gradient(145deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.028)), var(--gl-card);
+    box-shadow: 0 24px 72px rgba(0, 0, 0, 0.38);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.gl-shared-result {
+    margin-top: 1rem;
+    padding: clamp(1rem, 2.4vw, 1.35rem);
+    border-radius: 34px;
+}
+
+.gl-shared-result h2 {
+    max-width: 850px;
+    margin: 0.7rem 0 0.5rem;
+    color: var(--gl-text);
+    font-size: clamp(1.75rem, 4vw, 3.1rem);
+    line-height: 1;
+    letter-spacing: -0.06em;
+}
+
+.gl-shared-result p {
+    max-width: 740px;
+    margin: 0;
+    color: var(--gl-muted);
+    line-height: 1.6;
+}
+
+.gl-share-box {
+    display: grid;
+    gap: 0.45rem;
+    margin-top: 1rem;
+    padding: 0.75rem;
+    border-radius: 20px;
+}
+
+.gl-share-box[hidden] {
+    display: none !important;
+}
+
+.gl-share-box > span {
+    color: var(--gl-muted2);
+    font-size: 0.72rem;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.gl-share-box button {
+    display: grid;
+    gap: 0.25rem;
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid rgba(255, 45, 141, 0.28);
+    border-radius: 16px;
+    color: var(--gl-text);
+    background: rgba(255, 45, 141, 0.09);
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.gl-share-box button:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 45, 141, 0.48);
+    background: rgba(255, 45, 141, 0.14);
+}
+
+.gl-share-box strong {
+    color: #fff;
+    font-weight: 950;
+}
+
+.gl-share-box small {
+    color: var(--gl-muted);
+    overflow-wrap: anywhere;
+    line-height: 1.35;
+}
+
+@media (max-width: 680px) {
+    .gl-shared-result {
+        border-radius: 22px;
+    }
+}

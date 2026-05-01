@@ -295,6 +295,52 @@
         };
     }
 
+    function buildShareUrl(profile) {
+        const url = new URL(window.location.href);
+        url.search = "";
+        url.hash = "";
+        url.searchParams.set("result", profile?.key || "sweet");
+        if (profile?.match) {
+            url.searchParams.set("match", String(profile.match));
+        }
+        return url.toString();
+    }
+
+    function getShareText(profile) {
+        return `Il mio tipo anime ideale su GoonLand è: ${profile?.title || "misterioso"}`;
+    }
+
+    function updateShareBox(profile) {
+        const box = $("#glShareBox");
+        const text = $("#glShareText");
+        const urlText = $("#glShareUrlText");
+        const urlButton = $("#glShareUrlButton");
+
+        if (!box || !profile) return;
+
+        const shareText = getShareText(profile);
+        const shareUrl = buildShareUrl(profile);
+
+        box.hidden = false;
+        if (text) text.textContent = shareText;
+        if (urlText) urlText.textContent = shareUrl;
+
+        if (urlButton && !urlButton.dataset.boundCopy) {
+            urlButton.dataset.boundCopy = "1";
+            urlButton.addEventListener("click", async () => {
+                const currentProfile = lastProfile || profile;
+                const finalText = `${getShareText(currentProfile)}\n${buildShareUrl(currentProfile)}`;
+
+                try {
+                    await navigator.clipboard.writeText(finalText);
+                    showToast("Link copiato");
+                } catch {
+                    showToast("Copia non riuscita");
+                }
+            });
+        }
+    }
+
     async function fetchResult(profile) {
         if (isLoading) return;
         isLoading = true;
@@ -377,6 +423,8 @@
     }
 
     function renderResultData(data) {
+        updateShareBox(lastProfile);
+
         const title = $("#glResultTitle");
         const desc = $("#glResultDescription");
         const tags = $("#glResultTags");
@@ -481,7 +529,9 @@
                 answers = {};
                 lastProfile = null;
                 const result = $("#glQuizResult");
+                const shareBox = $("#glShareBox");
                 if (result) result.hidden = true;
+                if (shareBox) shareBox.hidden = true;
                 renderQuestion();
                 const quiz = $("#glAnimeQuiz");
                 if (quiz) quiz.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -497,16 +547,45 @@
 
         if (shareBtn) {
             shareBtn.addEventListener("click", async () => {
-                const text = `La mia waifu ideale su GoonLand è: ${lastProfile?.title || "misterioso"}`;
+                const profile = lastProfile || getProfile();
+                const text = `${getShareText(profile)}
+${buildShareUrl(profile)}`;
 
                 try {
+                    if (navigator.share) {
+                        await navigator.share({
+                            title: getShareText(profile),
+                            text: getShareText(profile),
+                            url: buildShareUrl(profile),
+                        });
+                        return;
+                    }
+
                     await navigator.clipboard.writeText(text);
-                    showToast("Risultato copiato");
+                    showToast("Link copiato");
                 } catch {
-                    showToast(text);
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        showToast("Link copiato");
+                    } catch {
+                        showToast("Copia non riuscita");
+                    }
                 }
             });
         }
+
+        document.querySelectorAll("[data-copy-current-url]").forEach((button) => {
+            if (button.dataset.boundCopy) return;
+            button.dataset.boundCopy = "1";
+            button.addEventListener("click", async () => {
+                try {
+                    await navigator.clipboard.writeText(window.location.href);
+                    showToast("Link copiato");
+                } catch {
+                    showToast("Copia non riuscita");
+                }
+            });
+        });
 
         renderQuestion();
     }
