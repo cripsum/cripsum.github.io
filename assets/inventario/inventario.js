@@ -647,4 +647,123 @@
         initModal();
         loadInventory();
     });
+
+    if (window.__invCustomSelectLoaded) return;
+    window.__invCustomSelectLoaded = true;
+
+    const refreshInvCustomSelects = () => {
+        document.querySelectorAll('[data-inv-custom-select]').forEach((wrap) => {
+            const select = wrap.querySelector('select');
+            const current = wrap.querySelector('.inv-select-current');
+            const options = Array.from(wrap.querySelectorAll('.inv-select-menu [data-value]'));
+
+            if (!select || !current || !options.length) return;
+
+            const realOption =
+                Array.from(select.options).find((option) => option.value === select.value) ||
+                select.options[0];
+
+            if (!realOption) return;
+
+            current.textContent = realOption.textContent.trim();
+
+            options.forEach((button) => {
+                const active = button.dataset.value === realOption.value;
+                button.classList.toggle('is-active', active);
+                button.setAttribute('aria-selected', active ? 'true' : 'false');
+            });
+        });
+    };
+
+    const initInvCustomSelect = () => {
+        document.querySelectorAll('[data-inv-custom-select]').forEach((wrap) => {
+            if (wrap.dataset.bound === '1') return;
+            wrap.dataset.bound = '1';
+
+            const select = wrap.querySelector('select');
+            const trigger = wrap.querySelector('.inv-select-trigger');
+            const current = wrap.querySelector('.inv-select-current');
+            const options = Array.from(wrap.querySelectorAll('.inv-select-menu [data-value]'));
+
+            if (!select || !trigger || !current || !options.length) return;
+
+            const sync = (value, emit = false) => {
+                const realOption =
+                    Array.from(select.options).find((option) => option.value === value) ||
+                    select.options[0];
+
+                if (!realOption) return;
+
+                select.value = realOption.value;
+                current.textContent = realOption.textContent.trim();
+
+                options.forEach((button) => {
+                    const active = button.dataset.value === realOption.value;
+                    button.classList.toggle('is-active', active);
+                    button.setAttribute('aria-selected', active ? 'true' : 'false');
+                });
+
+                if (emit) {
+                    select.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            };
+
+            trigger.addEventListener('click', (event) => {
+                event.stopPropagation();
+
+                document.querySelectorAll('[data-inv-custom-select].is-open').forEach((other) => {
+                    if (other === wrap) return;
+
+                    other.classList.remove('is-open');
+                    other.querySelector('.inv-select-trigger')?.setAttribute('aria-expanded', 'false');
+                });
+
+                const isOpen = wrap.classList.toggle('is-open');
+                trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            });
+
+            options.forEach((button) => {
+                button.addEventListener('click', (event) => {
+                    event.stopPropagation();
+
+                    sync(button.dataset.value, true);
+
+                    wrap.classList.remove('is-open');
+                    trigger.setAttribute('aria-expanded', 'false');
+                });
+            });
+
+            select.addEventListener('change', () => {
+                sync(select.value, false);
+            });
+
+            sync(select.value || options[0].dataset.value, false);
+        });
+
+        document.addEventListener('click', () => {
+            document.querySelectorAll('[data-inv-custom-select].is-open').forEach((wrap) => {
+                wrap.classList.remove('is-open');
+                wrap.querySelector('.inv-select-trigger')?.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape') return;
+
+            document.querySelectorAll('[data-inv-custom-select].is-open').forEach((wrap) => {
+                wrap.classList.remove('is-open');
+                wrap.querySelector('.inv-select-trigger')?.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        document.querySelector('#resetInventoryFilters')?.addEventListener('click', () => {
+            window.setTimeout(refreshInvCustomSelects, 0);
+        });
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initInvCustomSelect, { once: true });
+    } else {
+        initInvCustomSelect();
+    }
 })();

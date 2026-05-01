@@ -27,6 +27,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Inventario</title>
@@ -40,8 +41,8 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <meta property="og:url" content="<?php echo inventario_h($ogUrl); ?>">
     <meta name="twitter:card" content="summary_large_image">
 
-    <link rel="stylesheet" href="/assets/inventario/inventario.css?v=2.7-seamless-rarity-anim">
-    <script src="/assets/inventario/inventario.js?v=2.7-seamless-rarity-anim" defer></script>
+    <link rel="stylesheet" href="/assets/inventario/inventario.css?v=2.8">
+    <script src="/assets/inventario/inventario.js?v=2.8" defer></script>
 </head>
 
 <body class="inv-page">
@@ -92,31 +93,78 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                 <input type="search" id="inventorySearch" placeholder="Cerca personaggi..." autocomplete="off">
             </label>
 
-            <select id="rarityFilter" class="inv-select" aria-label="Filtra per rarità">
-                <option value="all">Tutte le rarità</option>
-                <option value="comune">Comune</option>
-                <option value="raro">Raro</option>
-                <option value="epico">Epico</option>
-                <option value="leggendario">Leggendario</option>
-                <option value="speciale">Speciale</option>
-                <option value="segreto">Segreto</option>
-                <option value="theone">The One</option>
-            </select>
+            <div class="inv-custom-select" data-inv-custom-select>
+                <select id="rarityFilter" class="inv-select inv-native-select" aria-label="Filtra per rarità" tabindex="-1" aria-hidden="true">
+                    <option value="all">Tutte le rarità</option>
+                    <option value="comune">Comune</option>
+                    <option value="raro">Raro</option>
+                    <option value="epico">Epico</option>
+                    <option value="leggendario">Leggendario</option>
+                    <option value="speciale">Speciale</option>
+                    <option value="segreto">Segreto</option>
+                    <option value="theone">The One</option>
+                </select>
 
-            <select id="statusFilter" class="inv-select" aria-label="Filtra per stato">
-                <option value="all">Tutti</option>
-                <option value="owned">Posseduti</option>
-                <option value="missing">Mancanti</option>
-                <option value="duplicates">Duplicati</option>
-            </select>
+                <button type="button" class="inv-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="inv-select-current">Tutte le rarità</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
 
-            <select id="inventorySort" class="inv-select" aria-label="Ordina inventario">
-                <option value="default">Ordine originale</option>
-                <option value="name">Nome</option>
-                <option value="rarity">Rarità</option>
-                <option value="quantity-desc">Più quantità</option>
-                <option value="quantity-asc">Meno quantità</option>
-            </select>
+                <div class="inv-select-menu" role="listbox" aria-label="Filtra per rarità">
+                    <button type="button" data-value="all"><strong>Tutte le rarità</strong><span>All</span></button>
+                    <button type="button" data-value="comune"><strong>Comune</strong><span>Com</span></button>
+                    <button type="button" data-value="raro"><strong>Raro</strong><span>Rar</span></button>
+                    <button type="button" data-value="epico"><strong>Epico</strong><span>Epi</span></button>
+                    <button type="button" data-value="leggendario"><strong>Leggendario</strong><span>Leg</span></button>
+                    <button type="button" data-value="speciale"><strong>Speciale</strong><span>Spe</span></button>
+                    <button type="button" data-value="segreto"><strong>Segreto</strong><span>Sec</span></button>
+                    <button type="button" data-value="theone"><strong>The One</strong><span>One</span></button>
+                </div>
+            </div>
+
+            <div class="inv-custom-select" data-inv-custom-select>
+                <select id="statusFilter" class="inv-select inv-native-select" aria-label="Filtra per stato" tabindex="-1" aria-hidden="true">
+                    <option value="all">Tutti</option>
+                    <option value="owned">Posseduti</option>
+                    <option value="missing">Mancanti</option>
+                    <option value="duplicates">Duplicati</option>
+                </select>
+
+                <button type="button" class="inv-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="inv-select-current">Tutti</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+
+                <div class="inv-select-menu" role="listbox" aria-label="Filtra per stato">
+                    <button type="button" data-value="all"><strong>Tutti</strong></button>
+                    <button type="button" data-value="owned"><strong>Posseduti</strong></button>
+                    <button type="button" data-value="missing"><strong>Mancanti</strong></button>
+                    <button type="button" data-value="duplicates"><strong>Duplicati</strong></button>
+                </div>
+            </div>
+
+            <div class="inv-custom-select" data-inv-custom-select>
+                <select id="inventorySort" class="inv-select inv-native-select" aria-label="Ordina inventario" tabindex="-1" aria-hidden="true">
+                    <option value="default">Ordine originale</option>
+                    <option value="name">Nome</option>
+                    <option value="rarity">Rarità</option>
+                    <option value="quantity-desc">Più quantità</option>
+                    <option value="quantity-asc">Meno quantità</option>
+                </select>
+
+                <button type="button" class="inv-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="inv-select-current">Ordine originale</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+
+                <div class="inv-select-menu" role="listbox" aria-label="Ordina inventario">
+                    <button type="button" data-value="default"><strong>Ordine originale</strong></button>
+                    <button type="button" data-value="name"><strong>Nome</strong><span>A-Z</span></button>
+                    <button type="button" data-value="rarity"><strong>Rarità</strong></button>
+                    <button type="button" data-value="quantity-desc"><strong>Più quantità</strong><span>x ↓</span></button>
+                    <button type="button" data-value="quantity-asc"><strong>Meno quantità</strong><span>x ↑</span></button>
+                </div>
+            </div>
 
             <button type="button" class="inv-btn inv-btn--soft" id="resetInventoryFilters">
                 <i class="fas fa-rotate-left"></i>
@@ -168,4 +216,5 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>
