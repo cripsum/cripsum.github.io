@@ -134,6 +134,17 @@
         }
     }
 
+    async function readJsonResponse(response) {
+        const text = await response.text();
+
+        try {
+            return JSON.parse(text);
+        } catch {
+            const clean = text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+            throw new Error(clean ? clean.slice(0, 160) : `Risposta non valida HTTP ${response.status}`);
+        }
+    }
+
     async function loadNextCard() {
         if (isLoading) return;
         isLoading = true;
@@ -166,12 +177,15 @@
 
         try {
             const response = await fetch(`${window.location.pathname}?sop_api=1&mode=${encodeURIComponent(currentMode)}&_=${Date.now()}`, {
-                cache: "no-store"
+                cache: "no-store",
+                headers: { "Accept": "application/json" }
             });
-            const data = await response.json();
 
-            if (!response.ok || !data.ok) {
-                throw new Error(data.error || "Errore nel caricamento");
+            const data = await readJsonResponse(response);
+
+            if (!data.ok) {
+                console.warn("[GoonLand SmashPass debug]", data.debug || null);
+                throw new Error(data.error || `Errore HTTP ${response.status}`);
             }
 
             currentCard = data.data || null;
@@ -196,7 +210,8 @@
         }
     }
 
-    function vote(type) {
+    
+function vote(type) {
         if (isLoading || !currentCard) return;
 
         const stats = getStats(currentMode);

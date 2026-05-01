@@ -92,23 +92,15 @@ function sopRandomRating(bool $nsfw): string
     return random_int(0, 1) === 0 ? 'questionable' : 'explicit';
 }
 
-function sopBuildDanbooruUrl(array $config): string
+function sopBuildDanbooruUrls(array $config): array
 {
     $rating = sopRandomRating((bool)$config['nsfw']);
-    $tags = array_merge($config['tags'], [
+
+    $baseTags = array_merge($config['tags'], [
         'rating:' . $rating,
-        'solo',
-        '-animated',
-        '-video',
-        '-sound',
-        '-comic',
-        '-greyscale',
-        '-monochrome',
-        '-3boys',
-        '-3girls',
-        '-multiple_boys',
-        '-multiple_girls',
-        '-multiple_views',
+    ]);
+
+    $strictBlocklist = [
         '-loli',
         '-shota',
         '-child',
@@ -118,16 +110,36 @@ function sopBuildDanbooruUrl(array $config): string
         '-feral',
         '-bestiality',
         '-gore',
-        '-vore'
-    ]);
-
-    $params = [
-        'limit' => 50,
-        'page' => random_int(1, 200),
-        'tags' => implode(' ', $tags),
+        '-vore',
     ];
 
-    return 'https://danbooru.donmai.us/posts.json?' . http_build_query($params);
+    $qualityFilters = [
+        '-animated',
+        '-video',
+        '-sound',
+        '-comic',
+        '-multiple_views',
+    ];
+
+    $attempts = [
+        array_merge($baseTags, $strictBlocklist, $qualityFilters),
+        array_merge($baseTags, $strictBlocklist),
+        $baseTags,
+    ];
+
+    $urls = [];
+
+    foreach ($attempts as $tags) {
+        $params = [
+            'limit' => 30,
+            'random' => 'true',
+            'tags' => implode(' ', $tags),
+        ];
+
+        $urls[] = 'https://danbooru.donmai.us/posts.json?' . http_build_query($params);
+    }
+
+    return $urls;
 }
 
 function sopPickPost(array $posts): ?array
@@ -139,8 +151,38 @@ function sopPickPost(array $posts): ?array
 
         $fileUrl = $post['file_url'] ?? '';
         $fileExt = strtolower((string)($post['file_ext'] ?? ''));
+        $allTags = ' ' . strtolower(
+            (string)($post['tag_string'] ?? '') . ' ' .
+            (string)($post['tag_string_general'] ?? '') . ' ' .
+            (string)($post['tag_string_character'] ?? '')
+        ) . ' ';
+
         if (!is_string($fileUrl) || $fileUrl === '') continue;
         if (!in_array($fileExt, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true)) continue;
+
+        $blockedNeedles = [
+            ' loli ',
+            ' shota ',
+            ' child ',
+            ' toddler ',
+            ' young ',
+            ' cub ',
+            ' feral ',
+            ' bestiality ',
+            ' guro ',
+            ' gore ',
+            ' vore ',
+        ];
+
+        $blocked = false;
+        foreach ($blockedNeedles as $needle) {
+            if (str_contains($allTags, $needle)) {
+                $blocked = true;
+                break;
+            }
+        }
+
+        if ($blocked) continue;
 
         $valid[] = $post;
     }
@@ -152,43 +194,59 @@ function sopPickPost(array $posts): ?array
     return $valid[array_rand($valid)];
 }
 
-function sopFetchDanbooru(array $config): ?array
+function sopFetchDanbooru(array $config, ?array &$debug = null): ?array
 {
-    $url = sopBuildDanbooruUrl($config);
-    $response = sopHttpGet($url, 18);
-
-    if (!$response['ok']) {
-        error_log('[GoonLand SmashPass] Danbooru failed: URL ' . $url);
-        error_log('[GoonLand SmashPass] Danbooru failed: HTTP ' . $response['status'] . ' ' . $response['error']);
-        return null;
-    }
-
-    $data = json_decode($response['body'], true);
-    if (!is_array($data)) {
-        return null;
-    }
-
-    $post = sopPickPost($data);
-    if (!$post) {
-        return null;
-    }
-
-    $characterTags = trim((string)($post['tag_string_character'] ?? ''));
-    $copyrightTags = trim((string)($post['tag_string_copyright'] ?? ''));
-    $artistTags = trim((string)($post['tag_string_artist'] ?? ''));
-    $generalTags = trim((string)($post['tag_string_general'] ?? ''));
-
-    return [
-        'image' => (string)$post['file_url'],
-        'preview' => (string)($post['preview_file_url'] ?? ''),
-        'postUrl' => 'https://danbooru.donmai.us/posts/' . (int)$post['id'],
-        'source' => (string)($post['source'] ?? ''),
-        'rating' => (string)($post['rating'] ?? 'safe'),
-        'characterTags' => $characterTags !== '' ? preg_split('/\s+/', $characterTags) : [],
-        'copyrightTags' => $copyrightTags !== '' ? preg_split('/\s+/', $copyrightTags) : [],
-        'artistTags' => $artistTags !== '' ? preg_split('/\s+/', $artistTags) : [],
-        'generalTags' => $generalTags !== '' ? array_slice(preg_split('/\s+/', $generalTags), 0, 12) : [],
+    $debug = [
+        'attempts' => [],
     ];
+
+    foreach (sopBuildDanbooruUrls($config) as $url) {
+        $response = sopHttpGet($url, 12);
+
+        $debug['attempts'][] = [
+            'url' => $url,
+            'status' => $response['status'],
+            'ok' => $response['ok'],
+            'error' => $response['error'],
+            'body_start' => mb_substr($response['body'], 0, 180),
+        ];
+
+        if (!$response['ok']) {
+            error_log('[GoonLand SmashPass] Danbooru failed: URL ' . $url);
+            error_log('[GoonLand SmashPass] Danbooru failed: HTTP ' . $response['status'] . ' ' . $response['error']);
+            continue;
+        }
+
+        $data = json_decode($response['body'], true);
+        if (!is_array($data)) {
+            error_log('[GoonLand SmashPass] Danbooru JSON invalid: ' . mb_substr($response['body'], 0, 300));
+            continue;
+        }
+
+        $post = sopPickPost($data);
+        if (!$post) {
+            continue;
+        }
+
+        $characterTags = trim((string)($post['tag_string_character'] ?? ''));
+        $copyrightTags = trim((string)($post['tag_string_copyright'] ?? ''));
+        $artistTags = trim((string)($post['tag_string_artist'] ?? ''));
+        $generalTags = trim((string)($post['tag_string_general'] ?? ''));
+
+        return [
+            'image' => (string)$post['file_url'],
+            'preview' => (string)($post['preview_file_url'] ?? ''),
+            'postUrl' => 'https://danbooru.donmai.us/posts/' . (int)$post['id'],
+            'source' => (string)($post['source'] ?? ''),
+            'rating' => (string)($post['rating'] ?? 'safe'),
+            'characterTags' => $characterTags !== '' ? preg_split('/\s+/', $characterTags) : [],
+            'copyrightTags' => $copyrightTags !== '' ? preg_split('/\s+/', $copyrightTags) : [],
+            'artistTags' => $artistTags !== '' ? preg_split('/\s+/', $artistTags) : [],
+            'generalTags' => $generalTags !== '' ? array_slice(preg_split('/\s+/', $generalTags), 0, 12) : [],
+        ];
+    }
+
+    return null;
 }
 
 if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
@@ -225,10 +283,15 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
         sopJson(['ok' => false, 'error' => 'Abilita i contenuti NSFW nel profilo per usare questa modalità'], 403);
     }
 
-    $result = sopFetchDanbooru($modes[$mode]);
+    $debug = [];
+    $result = sopFetchDanbooru($modes[$mode], $debug);
 
     if (!$result) {
-        sopJson(['ok' => false, 'error' => 'Impossibile recuperare un personaggio adesso'], 502);
+        sopJson([
+            'ok' => false,
+            'error' => 'Impossibile recuperare un personaggio adesso',
+            'debug' => $debug,
+        ], 200);
     }
 
     sopJson([
@@ -245,10 +308,10 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
     <?php include '../../includes/head-import.php'; ?>
     <title>GoonLand™ - Smash or Pass</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/goonland.css?v=2.5-smash-pass">
-    <link rel="stylesheet" href="/css/goonland-smash-pass.css?v=2.5-smash-pass">
-    <script src="/js/goonland.js?v=2.5-smash-pass" defer></script>
-    <script src="/js/goonland-smash-pass.js?v=2.5-smash-pass" defer></script>
+    <link rel="stylesheet" href="/css/goonland.css?v=2.5-smash-pass-fix1">
+    <link rel="stylesheet" href="/css/goonland-smash-pass.css?v=2.5-smash-pass-fix1">
+    <script src="/js/goonland.js?v=2.5-smash-pass-fix1" defer></script>
+    <script src="/js/goonland-smash-pass.js?v=2.5-smash-pass-fix1" defer></script>
 </head>
 <body class="goonland-page" data-goonland-page="smash-pass">
     <?php include '../../includes/navbar-goonland.php'; ?>
