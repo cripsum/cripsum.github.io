@@ -386,7 +386,7 @@ $totalEdits = count($edits);
                 <input type="search" id="editSearch" placeholder="Cerca per nome o musica..." autocomplete="off">
             </div>
 
-            <div class="filter-container" role="group" aria-label="Categorie" style="margin-top: 10px;">
+            <div class="filter-container" role="group" aria-label="Categorie">
                 <?php foreach ($categories as $key => $label): ?>
                     <button type="button" class="filter-btn <?php echo $key === 'all' ? 'active' : ''; ?>" data-filter="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
                         <?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?>
