@@ -341,4 +341,206 @@
             button.textContent = 'Salva profilo';
         }
     });
+
+    if (window.__profileCustomSelectLoaded) return;
+    window.__profileCustomSelectLoaded = true;
+
+    const shortLabel = (text) => {
+        const clean = String(text || '').trim();
+
+        const map = {
+            'Nessuno': 'No',
+            'Scuro': 'Dark',
+            'Chiaro': 'Light',
+            'Auto': 'Auto',
+            'Standard': 'Std',
+            'Compatto': 'Mini',
+            'Showcase': 'Show',
+            'Glass': 'Glass',
+            'Pieno': 'Full',
+            'Outline': 'Line',
+            'Neon': 'Neon',
+            'Pill': 'Pill',
+            'Rounded': 'Round',
+            'Squadrato': 'Sharp',
+            'Pubblico': 'Pub',
+            'Solo utenti loggati': 'Login',
+            'Privato': 'Priv',
+            'Rotazione': 'Spin',
+            'Arcobaleno': 'RGB',
+            'Glitch leggero': 'Glitch',
+            'Mouse glow': 'Glow',
+            'Particelle soft': 'Soft',
+            'Scanlines soft': 'Scan',
+            'Ambient glow': 'Glow',
+            'Onde gradient': 'Wave',
+            'Stelle leggere': 'Stars',
+            'Spotlight mouse': 'Spot',
+            'Digital noise': 'Noise',
+            'Glass rain': 'Rain'
+        };
+
+        if (map[clean]) return map[clean];
+        if (clean.length <= 6) return clean;
+
+        return clean.slice(0, 5);
+    };
+
+    const closeAllProfileSelects = (except = null) => {
+        document.querySelectorAll('[data-profile-custom-select].is-open').forEach((wrap) => {
+            if (except && wrap === except) return;
+
+            wrap.classList.remove('is-open');
+            wrap.querySelector('.profile-select-trigger')?.setAttribute('aria-expanded', 'false');
+        });
+    };
+
+    const syncProfileSelect = (wrap, emit = false) => {
+        const select = wrap.querySelector('select');
+        const current = wrap.querySelector('.profile-select-current');
+        const buttons = Array.from(wrap.querySelectorAll('.profile-select-menu [data-value]'));
+
+        if (!select || !current) return;
+
+        const selected = select.options[select.selectedIndex] || select.options[0];
+        if (!selected) return;
+
+        current.textContent = selected.textContent.trim();
+
+        buttons.forEach((button) => {
+            const active = button.dataset.value === selected.value;
+            button.classList.toggle('is-active', active);
+            button.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+
+        if (emit) {
+            select.dispatchEvent(new Event('input', { bubbles: true }));
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    };
+
+    const buildProfileSelect = (select) => {
+        if (!select || select.dataset.profileCustomBuilt === '1') return;
+        if (select.closest('[data-profile-custom-select]')) return;
+
+        select.dataset.profileCustomBuilt = '1';
+        select.classList.add('profile-native-select');
+
+        const wrap = document.createElement('div');
+        wrap.className = 'profile-custom-select';
+        wrap.dataset.profileCustomSelect = '1';
+
+        const trigger = document.createElement('button');
+        trigger.type = 'button';
+        trigger.className = 'profile-select-trigger';
+        trigger.setAttribute('aria-haspopup', 'listbox');
+        trigger.setAttribute('aria-expanded', 'false');
+        trigger.innerHTML = `
+            <span class="profile-select-current"></span>
+            <i class="fas fa-chevron-down"></i>
+        `;
+
+        const menu = document.createElement('div');
+        menu.className = 'profile-select-menu';
+        menu.setAttribute('role', 'listbox');
+
+        Array.from(select.options).forEach((option) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.dataset.value = option.value;
+            button.setAttribute('role', 'option');
+            button.innerHTML = `
+                <strong>${option.textContent.trim()}</strong>
+                <span>${shortLabel(option.textContent)}</span>
+            `;
+
+            button.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                select.value = option.value;
+                syncProfileSelect(wrap, true);
+
+                wrap.classList.remove('is-open');
+                trigger.setAttribute('aria-expanded', 'false');
+            });
+
+            menu.appendChild(button);
+        });
+
+        select.parentNode.insertBefore(wrap, select);
+        wrap.appendChild(select);
+        wrap.appendChild(trigger);
+        wrap.appendChild(menu);
+
+        trigger.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            closeAllProfileSelects(wrap);
+
+            const isOpen = wrap.classList.toggle('is-open');
+            trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+
+        select.addEventListener('change', () => syncProfileSelect(wrap, false));
+        select.addEventListener('input', () => syncProfileSelect(wrap, false));
+
+        syncProfileSelect(wrap, false);
+    };
+
+    const initProfileCustomSelects = (root = document) => {
+        root.querySelectorAll('.profile-editor-shell .profile-field select, .profile-editor-shell .profile-row-grid select').forEach(buildProfileSelect);
+    };
+
+    const refreshProfileCustomSelects = () => {
+        document.querySelectorAll('[data-profile-custom-select]').forEach((wrap) => {
+            syncProfileSelect(wrap, false);
+        });
+    };
+
+    const startProfileSelectObserver = () => {
+        const form = document.getElementById('profileEditForm');
+        if (!form || !('MutationObserver' in window)) return;
+
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                mutation.addedNodes.forEach((node) => {
+                    if (!(node instanceof HTMLElement)) return;
+                    initProfileCustomSelects(node);
+                });
+            });
+        });
+
+        observer.observe(form, {
+            childList: true,
+            subtree: true
+        });
+    };
+
+    document.addEventListener('click', () => {
+        closeAllProfileSelects();
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeAllProfileSelects();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initProfileCustomSelects();
+        startProfileSelectObserver();
+
+        setTimeout(refreshProfileCustomSelects, 0);
+        setTimeout(refreshProfileCustomSelects, 100);
+    });
+
+    if (document.readyState !== 'loading') {
+        initProfileCustomSelects();
+        startProfileSelectObserver();
+
+        setTimeout(refreshProfileCustomSelects, 0);
+        setTimeout(refreshProfileCustomSelects, 100);
+    }
 })();
