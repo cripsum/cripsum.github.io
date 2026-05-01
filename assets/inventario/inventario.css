@@ -1986,6 +1986,29 @@ body.inv-page.no-rarity-animations .rarity-section.rarity-theone::before {
     text-align: center;
 }
 
+.inv-shell,
+.inv-controls {
+    overflow: visible !important;
+}
+
+.inv-controls {
+    position: relative !important;
+    z-index: 6000 !important;
+}
+
+.inv-stats,
+.inv-visible-count,
+.inventory-grid,
+.rarity-section,
+.character-card {
+    position: relative;
+    z-index: 1;
+}
+
+.character-card:hover {
+    z-index: 2;
+}
+
 @media (max-width: 1080px) {
     .inv-custom-select {
         min-width: 0;
