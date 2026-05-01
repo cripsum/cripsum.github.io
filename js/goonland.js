@@ -147,89 +147,37 @@
         tick();
     }
 
-    function getContentConfig(contentType){
-        const map = {
-            "sfw/waifu": {
-                waifuPicsPath: "sfw/waifu",
-                waifuImTags: ["waifu"],
-                isNsfw: false
-            },
-            "nsfw/waifu": {
-                waifuPicsPath: "nsfw/waifu",
-                waifuImTags: ["waifu"],
-                isNsfw: true
-            },
-            "nsfw/neko": {
-                waifuPicsPath: "nsfw/neko",
-                waifuImTags: ["neko"],
-                isNsfw: true
-            },
-            "nsfw/trap": {
-                waifuPicsPath: "nsfw/trap",
-                waifuImTags: ["trap"],
-                isNsfw: true
-            },
-            "nsfw/blowjob": {
-                waifuPicsPath: "nsfw/blowjob",
-                waifuImTags: ["blowjob"],
-                isNsfw: true
+    async function resolveImageUrl(contentType){
+        const endpoint = new URL(window.location.href);
+        endpoint.search = "";
+        endpoint.searchParams.set("generate_image", "1");
+        endpoint.searchParams.set("contentType", contentType);
+        endpoint.searchParams.set("_", Date.now().toString());
+
+        const response = await fetch(endpoint.toString(), {
+            cache: "no-store",
+            credentials: "same-origin",
+            headers: {
+                "Accept": "application/json"
             }
-        };
-
-        return map[contentType] || map["sfw/waifu"];
-    }
-
-    async function fetchFromWaifuPics(config){
-        const response = await fetch(`https://api.waifu.pics/${config.waifuPicsPath}`, {
-            cache: "no-store"
         });
 
-        if(!response.ok) throw new Error(`waifu.pics HTTP ${response.status}`);
+        let data = null;
+        try {
+            data = await response.json();
+        } catch {
+            data = null;
+        }
 
-        const data = await response.json();
-        if(!data || typeof data.url !== "string" || !data.url.trim()) {
-            throw new Error("waifu.pics URL immagine mancante");
+        if (!response.ok) {
+            throw new Error(data?.error || `Proxy immagini HTTP ${response.status}`);
+        }
+
+        if (!data || typeof data.url !== "string" || !data.url.trim()) {
+            throw new Error("URL immagine mancante");
         }
 
         return data.url;
-    }
-
-    async function fetchFromWaifuIm(config){
-        const url = new URL("https://api.waifu.im/search");
-        url.searchParams.set("is_nsfw", config.isNsfw ? "true" : "false");
-        url.searchParams.set("many", "false");
-        url.searchParams.set("gif", "false");
-        url.searchParams.set("order_by", "RANDOM");
-
-        (config.waifuImTags || []).forEach((tag) => {
-            url.searchParams.append("included_tags", tag);
-        });
-
-        const response = await fetch(url.toString(), {
-            cache: "no-store"
-        });
-
-        if(!response.ok) throw new Error(`waifu.im HTTP ${response.status}`);
-
-        const data = await response.json();
-        const firstImage = Array.isArray(data?.images) ? data.images[0] : null;
-        const imageUrl = firstImage?.url || firstImage?.preview_url || "";
-
-        if(!imageUrl) throw new Error("waifu.im URL immagine mancante");
-
-        return imageUrl;
-    }
-
-    async function resolveImageUrl(contentType){
-        const config = getContentConfig(contentType);
-
-        try {
-            return await fetchFromWaifuPics(config);
-        } catch (waifuPicsError) {
-            console.warn("[GoonLand] waifu.pics fallita, provo waifu.im:", waifuPicsError);
-        }
-
-        return await fetchFromWaifuIm(config);
     }
 
     window.generateImage = async function(){
@@ -262,43 +210,41 @@
         try {
             const imageUrl = await resolveImageUrl(contentType);
 
-            const preload = new Image();
-            preload.onload = async () => {
-                const displayImg = document.createElement("img");
-                displayImg.src = imageUrl;
-                displayImg.className = "generated-image";
-                displayImg.alt = "Immagine generata da GoonLand";
-                displayImg.loading = "eager";
-                container.appendChild(displayImg);
-                requestAnimationFrame(() => displayImg.classList.add("is-visible"));
+            await new Promise((resolve, reject) => {
+                const preload = new Image();
+                preload.onload = resolve;
+                preload.onerror = () => reject(new Error("Errore nel caricamento immagine"));
+                preload.src = imageUrl;
+            });
 
-                currentImageUrl = imageUrl;
-                if(downloadBtn) downloadBtn.hidden = false;
-                if(spinner) spinner.style.display = "none";
-                isLoading = false;
-                setStatus("Generata");
+            const displayImg = document.createElement("img");
+            displayImg.src = imageUrl;
+            displayImg.className = "generated-image";
+            displayImg.alt = "Immagine generata da GoonLand";
+            displayImg.loading = "eager";
+            container.appendChild(displayImg);
+            requestAnimationFrame(() => displayImg.classList.add("is-visible"));
 
-                try {
-                    await fetch("/api/incrementa_counter_goon", { cache: "no-store" });
-                    const clickResponse = await fetch("/api/get_clickgoon", { cache: "no-store" });
-                    if(clickResponse.ok){
-                        const clickData = await clickResponse.json();
-                        const click = Number(clickData.total || 0);
-                        if(click === 100) safeUnlockAchievement(19);
-                    }
-                } catch(err){
-                    console.warn("[GoonLand] Counter non aggiornato:", err);
+            currentImageUrl = imageUrl;
+            if(downloadBtn) downloadBtn.hidden = false;
+            if(spinner) spinner.style.display = "none";
+            isLoading = false;
+            setStatus("Generata");
+
+            try {
+                await fetch("/api/incrementa_counter_goon", { cache: "no-store" });
+                const clickResponse = await fetch("/api/get_clickgoon", { cache: "no-store" });
+                if(clickResponse.ok){
+                    const clickData = await clickResponse.json();
+                    const click = Number(clickData.total || 0);
+                    if(click === 100) safeUnlockAchievement(19);
                 }
+            } catch(err){
+                console.warn("[GoonLand] Counter non aggiornato:", err);
+            }
 
-                showToast("Immagine generata");
-                startCooldown();
-            };
-
-            preload.onerror = () => {
-                throw new Error("Errore nel caricamento immagine");
-            };
-
-            preload.src = imageUrl;
+            showToast("Immagine generata");
+            startCooldown();
         } catch(error){
             console.error("[GoonLand] Errore:", error);
             if(spinner) spinner.style.display = "none";

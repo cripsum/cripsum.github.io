@@ -20,6 +20,182 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
     exit();
 }
 
+function goonJsonResponse(array $data, int $status = 200): void
+{
+    http_response_code($status);
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    echo json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+function goonHttpGet(string $url, int $timeout = 10): array
+{
+    if (function_exists('curl_init')) {
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_CONNECTTIMEOUT => $timeout,
+            CURLOPT_TIMEOUT => $timeout,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_HTTPHEADER => [
+                'Accept: application/json',
+                'User-Agent: cripsum-goonland/1.0'
+            ],
+        ]);
+
+        $body = curl_exec($ch);
+        $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        return [
+            'ok' => $body !== false && $status >= 200 && $status < 300,
+            'status' => $status,
+            'body' => $body === false ? '' : (string)$body,
+            'error' => $error,
+        ];
+    }
+
+    $context = stream_context_create([
+        'http' => [
+            'method' => 'GET',
+            'timeout' => $timeout,
+            'header' => "Accept: application/json\r\nUser-Agent: cripsum-goonland/1.0\r\n",
+        ],
+    ]);
+
+    $body = @file_get_contents($url, false, $context);
+    $status = 0;
+
+    if (isset($http_response_header) && is_array($http_response_header)) {
+        foreach ($http_response_header as $header) {
+            if (preg_match('/^HTTP\/\S+\s+(\d+)/', $header, $matches)) {
+                $status = (int)$matches[1];
+                break;
+            }
+        }
+    }
+
+    return [
+        'ok' => $body !== false && $status >= 200 && $status < 300,
+        'status' => $status,
+        'body' => $body === false ? '' : (string)$body,
+        'error' => $body === false ? 'file_get_contents failed' : '',
+    ];
+}
+
+function goonBuildWaifuImUrl(array $tags, bool $isNsfw): string
+{
+    $parts = [];
+
+    foreach ($tags as $tag) {
+        $parts[] = 'IncludedTags=' . rawurlencode($tag);
+    }
+
+    $parts[] = 'IsNsfw=' . ($isNsfw ? 'True' : 'False');
+    $parts[] = 'OrderBy=RANDOM';
+    $parts[] = 'Gif=False';
+
+    return 'https://api.waifu.im/images?' . implode('&', $parts);
+}
+
+function goonFetchWaifuPics(string $path): ?string
+{
+    $url = 'https://api.waifu.pics/' . ltrim($path, '/');
+    $response = goonHttpGet($url);
+
+    if (!$response['ok']) {
+        error_log('[GoonLand] waifu.pics failed: HTTP ' . $response['status'] . ' ' . $response['error']);
+        return null;
+    }
+
+    $data = json_decode($response['body'], true);
+    $imageUrl = $data['url'] ?? '';
+
+    return is_string($imageUrl) && $imageUrl !== '' ? $imageUrl : null;
+}
+
+function goonFetchWaifuIm(array $tags, bool $isNsfw): ?string
+{
+    $url = goonBuildWaifuImUrl($tags, $isNsfw);
+    $response = goonHttpGet($url);
+
+    if (!$response['ok']) {
+        error_log('[GoonLand] waifu.im failed: HTTP ' . $response['status'] . ' ' . $response['error']);
+        return null;
+    }
+
+    $data = json_decode($response['body'], true);
+    $image = $data['images'][0] ?? null;
+
+    if (!is_array($image)) {
+        return null;
+    }
+
+    $imageUrl = $image['url'] ?? $image['preview_url'] ?? '';
+
+    return is_string($imageUrl) && $imageUrl !== '' ? $imageUrl : null;
+}
+
+if (isset($_GET['generate_image']) && $_GET['generate_image'] === '1') {
+    $contentType = trim((string)($_GET['contentType'] ?? 'sfw/waifu'));
+
+    $types = [
+        'sfw/waifu' => [
+            'waifuPics' => 'sfw/waifu',
+            'waifuImTags' => ['waifu'],
+            'isNsfw' => false,
+        ],
+        'nsfw/waifu' => [
+            'waifuPics' => 'nsfw/waifu',
+            'waifuImTags' => ['waifu'],
+            'isNsfw' => true,
+        ],
+        'nsfw/neko' => [
+            'waifuPics' => 'nsfw/neko',
+            'waifuImTags' => ['ero'],
+            'isNsfw' => true,
+        ],
+        'nsfw/trap' => [
+            'waifuPics' => 'nsfw/trap',
+            'waifuImTags' => ['ero'],
+            'isNsfw' => true,
+        ],
+        'nsfw/blowjob' => [
+            'waifuPics' => 'nsfw/blowjob',
+            'waifuImTags' => ['oral'],
+            'isNsfw' => true,
+        ],
+    ];
+
+    if (!isset($types[$contentType])) {
+        goonJsonResponse(['ok' => false, 'error' => 'Tipo contenuto non valido'], 400);
+    }
+
+    $config = $types[$contentType];
+
+    $imageUrl = goonFetchWaifuPics($config['waifuPics']);
+    $source = 'waifu.pics';
+
+    if (!$imageUrl) {
+        $imageUrl = goonFetchWaifuIm($config['waifuImTags'], (bool)$config['isNsfw']);
+        $source = 'waifu.im';
+    }
+
+    if (!$imageUrl) {
+        goonJsonResponse(['ok' => false, 'error' => 'Nessuna API immagini ha risposto'], 502);
+    }
+
+    goonJsonResponse([
+        'ok' => true,
+        'url' => $imageUrl,
+        'source' => $source,
+    ]);
+}
+
 if (isset($_GET['download_image']) && $_GET['download_image'] === '1' && isset($_GET['url'])) {
     $url = trim((string)$_GET['url']);
     $parsed = parse_url($url);
@@ -83,8 +259,8 @@ if ($stmt) {
     <?php include '../../includes/head-import.php'; ?>
     <title>GoonLand™ - Generator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/goonland.css?v=2.2-waifuim-fix1">
-    <script src="/js/goonland.js?v=2.2-waifuim-fix1" defer></script>
+    <link rel="stylesheet" href="/css/goonland.css?v=2.2-api-proxy-fix1">
+    <script src="/js/goonland.js?v=2.2-api-proxy-fix1" defer></script>
 </head>
 
 <body class="goonland-page" data-goonland-page="generator">
