@@ -92,14 +92,15 @@ function goonBuildWaifuImUrl(array $tags, bool $isNsfw): string
     $parts = [];
 
     foreach ($tags as $tag) {
-        $parts[] = 'IncludedTags=' . rawurlencode($tag);
+        $parts[] = 'included_tags=' . rawurlencode($tag);
     }
 
-    $parts[] = 'IsNsfw=' . ($isNsfw ? 'True' : 'False');
-    $parts[] = 'OrderBy=RANDOM';
-    $parts[] = 'Gif=False';
+    $parts[] = 'is_nsfw=' . ($isNsfw ? 'true' : 'false');
+    $parts[] = 'gif=false';
+    $parts[] = 'many=false';
+    $parts[] = 'order_by=RANDOM';
 
-    return 'https://api.waifu.im/images?' . implode('&', $parts);
+    return 'https://api.waifu.im/search?' . implode('&', $parts);
 }
 
 function goonFetchWaifuPics(string $path): ?string
