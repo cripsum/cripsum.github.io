@@ -141,11 +141,12 @@ require_once '../api/api_personaggi.php';
             <div id="contenuto"></div>
 
             <div id="messaggio" class="nascosto">
-                <h1 id="messaggioRarita" class="non-selezionabile lootbox-rarity-message"></h1>
+
                 <a onclick="refresh()" id="apriAncora" class="linkbianco"></a>
             </div>
 
             <div id="divApriAncora" class="nascosto">
+                <h1 id="messaggioRarita" class="non-selezionabile lootbox-rarity-message"></h1>
                 <div class="button-container lootbox-actions mt-4">
                     <a class="btn btn-secondary bottone lootbox-action-btn mt-2" onclick="refresh()">Apri cassa</a>
                     <a class="btn btn-secondary bottone lootbox-action-btn mt-2" href="inventario">Inventario</a>
