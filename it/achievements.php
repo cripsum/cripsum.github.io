@@ -43,7 +43,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <meta property="og:url" content="<?php echo achievement_h($ogUrl); ?>">
     <meta name="twitter:card" content="summary_large_image">
 
-    <link rel="stylesheet" href="/assets/achievements/achievements.css?v=2.1">
+    <link rel="stylesheet" href="/assets/achievements/achievements.css?v=2.2">
     <script src="/assets/achievements/achievements.js?v=2.1" defer></script>
 </head>
 
