@@ -13,8 +13,8 @@ $bot = preg_match('/(facebookexternalhit|Facebot|Discordbot|Twitterbot|TelegramB
 if ($bot) {
     echo '
     <html><head>
-      <meta property="og:title" content="Cripsum™ GoonLand - Anime Girl Quiz">
-      <meta property="og:description" content="Rispondi a 10 domande e trova la tua ragazza anime ideale.">
+      <meta property="og:title" content="Cripsum™ GoonLand - Waifu Quiz">
+      <meta property="og:description" content="Rispondi a 10 domande e trova la tua waifu ideale.">
       <meta property="og:image" content="https://cripsum.com/img/raspberry-chan16gb.png">
       <meta property="og:url" content="https://cripsum.com/it/goonland/anime-girl-quiz">
       <meta property="og:type" content="website">
@@ -134,7 +134,7 @@ function gl_build_quiz_tags(array $answers): array
         'fantasy' => ['demon_girl', 'elf', 'horns'],
 
         'tall' => ['tall_female', 'standing'],
-        'short_adult' => ['short_female', 'adult'],
+        'short_adult' => ['short_female', 'loli'],
         'curvy' => ['curvy', 'large_breasts'],
         'athletic' => ['athletic', 'toned'],
 
@@ -199,13 +199,11 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
     }
 
     $blockedTags = [
-        'loli',
         'shota',
         'child',
         'children',
         'toddler',
         'baby',
-        'young',
         'younger',
         'underage',
         'preteen',
@@ -342,7 +340,7 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
 <html lang="it">
 
 <head>
-    <meta property="og:title" content="Cripsum™ GoonLand - Anime Girl Quiz">
+    <meta property="og:title" content="Cripsum™ GoonLand - Waifu Quiz">
     <meta property="og:description" content="Rispondi a 10 domande e trova la tua ragazza anime ideale.">
     <meta property="og:image" content="https://cripsum.com/img/raspberry-chan16gb.png">
     <meta property="og:url" content="https://cripsum.com/it/goonland/anime-girl-quiz">
@@ -365,9 +363,9 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
     <main class="gl-shell gl-quiz-shell">
         <section class="gl-hero gl-hero-small gl-reveal">
             <div class="gl-hero-text">
-                <span class="gl-kicker"><i class="fas fa-heart-pulse"></i> Anime Girl Quiz</span>
+                <span class="gl-kicker"><i class="fas fa-heart-pulse"></i>Waifu Quiz</span>
                 <h1>Trova la tua ragazza anime ideale</h1>
-                <p>10 domande veloci. Rispondi, ottieni un tipo ideale e una reference presa da Danbooru.</p>
+                <p>10 domande. Rispondi e scopri qual è la tua waifu ideale</p>
                 <div class="gl-actions">
                     <a class="gl-btn gl-btn-main" href="#glAnimeQuiz"><i class="fas fa-play"></i> Inizia quiz</a>
                     <a class="gl-btn gl-btn-ghost" href="/it/goonland/home"><i class="fas fa-arrow-left"></i> Home GoonLand</a>
@@ -402,8 +400,8 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
                 <div class="gl-lore-card gl-lore-card--accent">
                     <span class="gl-kicker">Come funziona</span>
                     <h2>Risposte → tag → risultato.</h2>
-                    <p>Ogni risposta aggiunge punti a un archetipo e crea una ricerca su Danbooru.</p>
-                    <p>La modalità NSFW resta adult-only. I tag problematici sui minorenni restano bloccati.</p>
+                    <p>Rispondi con totale sincerità, e lascia fare a noi.</p>
+                    <p>Il nostro sistema è impeccabile, troverai sicuramente la waifu che fa per te</p>
                 </div>
             </aside>
         </section>

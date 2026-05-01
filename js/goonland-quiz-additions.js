@@ -79,7 +79,7 @@
             hint: "Aspetto fisico, senza girarci troppo intorno.",
             answers: [
                 { value: "tall", label: "Alta", desc: "Presenza forte, aura da boss.", icon: "fa-up-long", scores: { dommy: 1, elegant: 1 } },
-                { value: "short_adult", label: "Bassa/minuta ma adulta", desc: "Piccola, ma non child-coded.", icon: "fa-down-long", scores: { cute: 1, sweet: 1 } },
+                { value: "short_adult", label: "Bassa/minuta", desc: "Piccola, ma non una bambina", icon: "fa-down-long", scores: { cute: 1, sweet: 1 } },
                 { value: "curvy", label: "Curvy", desc: "Forme evidenti, energia più spicy.", icon: "fa-heart", scores: { dommy: 1, tease: 1 } },
                 { value: "athletic", label: "Atletica", desc: "Fisico asciutto e deciso.", icon: "fa-dumbbell", scores: { elegant: 1, dominant: 1 } },
             ],
@@ -101,7 +101,7 @@
             hint: "Ultimo tocco visivo prima dell’intensità.",
             answers: [
                 { value: "uniform", label: "Uniforme", desc: "Ordinata, pulita, controllata.", icon: "fa-user-tie", scores: { elegant: 1, cold: 1 } },
-                { value: "dress", label: "Vestito elegante", desc: "Raffinata e pericolosamente composta.", icon: "fa-gem", scores: { elegant: 2 } },
+                { value: "dress", label: "Vestito elegante", desc: "Raffinata e composta.", icon: "fa-gem", scores: { elegant: 2 } },
                 { value: "dark_outfit", label: "Outfit dark", desc: "Nero, gotico, mood pesante.", icon: "fa-moon", scores: { goth: 2 } },
                 { value: "provocative", label: "Outfit provocante", desc: "Meno sottile, più diretto.", icon: "fa-fire-flame-curved", scores: { tease: 2, dommy: 1 } },
             ],
@@ -130,7 +130,7 @@
         },
         yandere: {
             title: "Obsessive Yandere",
-            desc: "Ti piacciono le red flag con gli occhi grandi. Scelta rischiosa, ma molto anime.",
+            desc: "Ti piacciono le red flag con gli occhi grandi. Scelta rischiosa.",
         },
         dommy: {
             title: "Goth Dommy Mommy",
@@ -399,7 +399,7 @@
 
         if (meta) {
             const artists = (data.artistTags || []).join(", ") || "non indicato";
-            const postLink = data.postUrl ? `<a href="${escapeAttr(data.postUrl)}" target="_blank" rel="noopener noreferrer">Apri post Danbooru</a>` : "non disponibile";
+            const postLink = data.postUrl ? `<a href="${escapeAttr(data.postUrl)}" target="_blank" rel="noopener noreferrer">Apri post su Danbooru</a>` : "non disponibile";
             const sourceLink = data.source ? `<a href="${escapeAttr(data.source)}" target="_blank" rel="noopener noreferrer">Fonte originale</a>` : "non disponibile";
 
             meta.innerHTML = `
@@ -497,7 +497,7 @@
 
         if (shareBtn) {
             shareBtn.addEventListener("click", async () => {
-                const text = `Il mio tipo anime ideale su GoonLand è: ${lastProfile?.title || "misterioso"}`;
+                const text = `La mia waifu ideale su GoonLand è: ${lastProfile?.title || "misterioso"}`;
 
                 try {
                     await navigator.clipboard.writeText(text);
