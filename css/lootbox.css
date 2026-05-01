@@ -2288,3 +2288,114 @@ body.lootbox-page .loading-text.is-error {
         padding: 0.8rem;
     }
 }
+
+/* FIX MOBILE - divApriAncora non si sovrappone alla lootbox */
+@media (max-width: 620px) {
+    /* lascia spazio sotto al personaggio/nome per il pannello in basso */
+    #contenuto {
+        padding: 4.6rem 0.75rem calc(12.5rem + env(safe-area-inset-bottom)) 0.75rem !important;
+        place-items: center !important;
+    }
+
+    .lootbox-character-reveal {
+        gap: 0.65rem !important;
+        transform: translateY(-1.1rem);
+    }
+
+    #contenuto img,
+    .premio {
+        width: min(33svh, 64vw, 260px) !important;
+        height: min(33svh, 64vw, 260px) !important;
+        min-width: 155px !important;
+        min-height: 155px !important;
+        border-radius: 22px !important;
+    }
+
+    #nomePersonaggio,
+    .lootbox-character-name {
+        max-width: 92vw !important;
+        font-size: clamp(1.15rem, 7.4vw, 2.15rem) !important;
+        line-height: 1 !important;
+        padding: 0.5rem 0.7rem !important;
+    }
+
+    #divApriAncora {
+        width: min(94vw, 430px) !important;
+        bottom: max(0.65rem, env(safe-area-inset-bottom)) !important;
+        padding: 0.65rem !important;
+        border-radius: 24px !important;
+        background: rgba(5, 7, 15, 0.72);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 18px 55px rgba(0, 0, 0, 0.45), 0 0 28px var(--lootbox-rarity-glow);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+    }
+
+    #messaggioRarita,
+    .lootbox-rarity-message {
+        width: 100% !important;
+        max-width: 100% !important;
+        font-size: clamp(0.76rem, 3.35vw, 0.95rem) !important;
+        line-height: 1.22 !important;
+        padding: 0.58rem 0.68rem !important;
+        border-radius: 18px !important;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    #divApriAncora .lootbox-actions {
+        margin-top: 0.55rem !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr 1fr !important;
+        gap: 0.45rem !important;
+    }
+
+    #divApriAncora .lootbox-action-btn,
+    #divApriAncora .bottone {
+        width: 100% !important;
+        min-height: 2.35rem !important;
+        padding: 0.55rem 0.35rem !important;
+        font-size: 0.78rem !important;
+        border-radius: 15px !important;
+        margin-top: 0 !important;
+        white-space: nowrap;
+    }
+}
+
+/* telefoni molto bassi tipo landscape o schermi piccoli */
+@media (max-width: 620px) and (max-height: 720px) {
+    #contenuto {
+        padding-bottom: calc(10.5rem + env(safe-area-inset-bottom)) !important;
+    }
+
+    .lootbox-character-reveal {
+        transform: translateY(-1.6rem);
+    }
+
+    #contenuto img,
+    .premio {
+        width: min(29svh, 58vw, 220px) !important;
+        height: min(29svh, 58vw, 220px) !important;
+        min-width: 135px !important;
+        min-height: 135px !important;
+    }
+
+    #messaggioRarita,
+    .lootbox-rarity-message {
+        -webkit-line-clamp: 2;
+        font-size: 0.74rem !important;
+        padding: 0.5rem 0.6rem !important;
+    }
+
+    #divApriAncora {
+        padding: 0.55rem !important;
+    }
+
+    #divApriAncora .lootbox-action-btn,
+    #divApriAncora .bottone {
+        min-height: 2.15rem !important;
+        font-size: 0.72rem !important;
+    }
+}
