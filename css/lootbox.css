@@ -2289,11 +2289,11 @@ body.lootbox-page .loading-text.is-error {
     }
 }
 
-/* FIX MOBILE - divApriAncora non si sovrappone alla lootbox */
 @media (max-width: 620px) {
-    /* lascia spazio sotto al personaggio/nome per il pannello in basso */
+
     #contenuto {
-        padding: 4.6rem 0.75rem calc(12.5rem + env(safe-area-inset-bottom)) 0.75rem !important;
+        /* padding: 4.6rem 0.75rem calc(12.5rem + env(safe-area-inset-bottom)) 0.75rem !important; */
+        padding: 4.6rem 0.75rem 10px 0.75rem !important;
         place-items: center !important;
     }
 
@@ -2367,7 +2367,8 @@ body.lootbox-page .loading-text.is-error {
 /* telefoni molto bassi tipo landscape o schermi piccoli */
 @media (max-width: 620px) and (max-height: 720px) {
     #contenuto {
-        padding-bottom: calc(2.5rem + env(safe-area-inset-bottom)) !important;
+        /* padding-bottom: calc(14.5rem + env(safe-area-inset-bottom)) !important; */
+        padding-bottom: 10px !important;
     }
 
     .lootbox-character-reveal {
