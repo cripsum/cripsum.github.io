@@ -111,7 +111,6 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                 <div class="ach-select-menu" role="listbox" aria-label="Ordina achievement">
                     <button type="button" data-value="default">
                         <strong>Ordine originale</strong>
-                        <span>Base</span>
                     </button>
                     <button type="button" data-value="name">
                         <strong>Nome</strong>
@@ -127,11 +126,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                     </button>
                     <button type="button" data-value="unlocked-first">
                         <strong>Sbloccati prima</strong>
-                        <span>OK</span>
                     </button>
                     <button type="button" data-value="locked-first">
                         <strong>Bloccati prima</strong>
-                        <span>Lock</span>
                     </button>
                 </div>
             </div>
