@@ -16,7 +16,7 @@ function gl_quiz_profiles(): array
             'desc' => 'Ti piace una ragazza dolce, calma e presente. Poco casino, tanta comfort zone.',
         ],
         'tsundere' => [
-            'title' => 'Tsundere Bully',
+            'title' => 'Tsundere',
             'desc' => 'Ti attira quella che fa la cattiva, ma poi si tradisce al primo blush.',
         ],
         'yandere' => [
@@ -83,10 +83,10 @@ $sharedMatch = isset($_GET['match']) ? max(1, min(99, (int)$_GET['match'])) : 0;
 
 $baseQuizUrl = 'https://cripsum.com/it/goonland/anime-girl-quiz';
 $ogUrl = $baseQuizUrl;
-$ogTitle = 'Cripsum™ GoonLand - Anime Girl Quiz';
-$ogDescription = 'Rispondi a 10 domande e trova la tua ragazza anime ideale.';
+$ogTitle = 'Cripsum™ GoonLand - Waifu Quiz';
+$ogDescription = 'Rispondi a 10 domande e trova la tua waifu ideale.';
 $ogImage = 'https://cripsum.com/img/raspberry-chan16gb.png';
-$pageTitle = 'GoonLand™ - Anime Girl Quiz';
+$pageTitle = 'GoonLand™ - Waifu Quiz';
 
 if ($sharedProfile) {
     $query = ['result' => $sharedResultKey];
@@ -95,9 +95,9 @@ if ($sharedProfile) {
     }
 
     $ogUrl = $baseQuizUrl . '?' . http_build_query($query);
-    $ogTitle = 'Il mio tipo anime ideale su GoonLand è: ' . $sharedProfile['title'];
+    $ogTitle = 'La mia waifu ideale su GoonLand è: ' . $sharedProfile['title'];
     $ogDescription = $sharedProfile['desc'] . ($sharedMatch > 0 ? ' Match ' . $sharedMatch . '%.' : '');
-    $pageTitle = $sharedProfile['title'] . ' - GoonLand™ Anime Girl Quiz';
+    $pageTitle = $sharedProfile['title'] . ' - GoonLand™ Waifu Quiz';
 }
 
 $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
@@ -297,13 +297,11 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
     }
 
     $blockedTags = [
-        'loli',
         'shota',
         'child',
         'children',
         'toddler',
         'baby',
-        'young',
         'younger',
         'underage',
         'preteen',
@@ -468,9 +466,9 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
     <main class="gl-shell gl-quiz-shell">
         <section class="gl-hero gl-hero-small gl-reveal">
             <div class="gl-hero-text">
-                <span class="gl-kicker"><i class="fas fa-heart-pulse"></i> Anime Girl Quiz</span>
+                <span class="gl-kicker"><i class="fas fa-heart-pulse"></i> Waifu Quiz</span>
                 <h1>Trova la tua ragazza anime ideale</h1>
-                <p>10 domande veloci. Rispondi, ottieni un tipo ideale e una reference presa da Danbooru.</p>
+                <p>10 domande veloci. Rispondi e scopri qual è la waifu perfetta per te</p>
                 <div class="gl-actions">
                     <a class="gl-btn gl-btn-main" href="#glAnimeQuiz"><i class="fas fa-play"></i> Inizia quiz</a>
                     <a class="gl-btn gl-btn-ghost" href="/it/goonland/home"><i class="fas fa-arrow-left"></i> Home GoonLand</a>
@@ -517,8 +515,7 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
                 <div class="gl-lore-card gl-lore-card--accent">
                     <span class="gl-kicker">Come funziona</span>
                     <h2>Risposte → tag → risultato.</h2>
-                    <p>Ogni risposta aggiunge punti a un archetipo e crea una ricerca su Danbooru.</p>
-                    <p>La modalità NSFW resta adult-only. I tag problematici sui minorenni restano bloccati.</p>
+                    <p>Rispondi alle domande e affidati a noi, il nostro sistema troverà la waifu perfetta per te</p>
                 </div>
             </aside>
         </section>
