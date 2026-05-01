@@ -14,7 +14,7 @@ $downloads = [
     ['id' => 'yoshukai', 'name' => 'Corso Yoshukai', 'image' => '../img/chinese-essay-2.jpg', 'alt' => 'Corso Yoshukai', 'description' => 'Gratis ancora per poco.', 'status' => 'available', 'badge' => 'Gratis', 'link' => 'download/yoshukai'],
     ['id' => 'fortnite', 'name' => 'Fortnite Hacks', 'image' => '../img/fortnitehack.jpg', 'alt' => 'Fortnite Hacks', 'description' => 'ez win.', 'status' => 'available', 'badge' => 'Download', 'link' => 'download/fortnite'],
     ['id' => 'osu', 'name' => 'Osu!', 'image' => '../img/osu.jpg', 'alt' => 'Osu!', 'description' => 'hossu - il gioco ritmico per scemotti.', 'status' => 'available', 'badge' => 'Game', 'link' => 'download/osu'],
-    ['id' => 'soon-1', 'name' => 'Coming Soon', 'image' => '../img/comingsoon.jpg', 'alt' => 'Coming Soon', 'description' => 'Prossimamente.', 'status' => 'soon', 'badge' => 'Coming soon', 'link' => ''],
+    ['id' => 'vanzakart', 'name' => 'VanzaKart Launcher', 'image' => '../img/vklogo.png', 'alt' => 'VanzaKart Launcher', 'description' => 'Scarica il launcher di VanzaKart per giocare alla mod di Mario Kart Wii più fica di sempre', 'status' => 'available', 'badge' => 'Esterno', 'link' => 'https://web.sitodaking.it/'],
     ['id' => 'soon-2', 'name' => 'Coming Soon', 'image' => '../img/comingsoon.jpg', 'alt' => 'Coming Soon', 'description' => 'Prossimamente.', 'status' => 'soon', 'badge' => 'Coming soon', 'link' => ''],
 ];
 ?>
