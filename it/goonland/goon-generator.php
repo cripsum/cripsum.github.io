@@ -92,15 +92,20 @@ function goonBuildWaifuImUrl(array $tags, bool $isNsfw): string
     $parts = [];
 
     foreach ($tags as $tag) {
-        $parts[] = 'included_tags=' . rawurlencode($tag);
+        $tag = trim((string)$tag);
+        if ($tag === '') {
+            continue;
+        }
+
+        $parts[] = 'IncludedTags=' . rawurlencode($tag);
     }
 
-    $parts[] = 'is_nsfw=' . ($isNsfw ? 'true' : 'false');
-    $parts[] = 'gif=false';
-    $parts[] = 'many=false';
-    $parts[] = 'order_by=RANDOM';
+    // Waifu.im usa questi nomi parametro: IncludedTags, IsNsfw e PageSize.
+    // IsNsfw accetta False, True oppure All.
+    $parts[] = 'IsNsfw=' . ($isNsfw ? 'True' : 'False');
+    $parts[] = 'PageSize=1';
 
-    return 'https://api.waifu.im/search?' . implode('&', $parts);
+    return 'https://api.waifu.im/images?' . implode('&', $parts);
 }
 
 function goonFetchWaifuPics(string $path): ?string
@@ -130,9 +135,13 @@ function goonFetchWaifuIm(array $tags, bool $isNsfw): ?string
     }
 
     $data = json_decode($response['body'], true);
-    $image = $data['images'][0] ?? null;
+
+    // La nuova API di Waifu.im ritorna le immagini in "items".
+    // Tengo anche "images" come fallback, nel caso cambi ancora o arrivi da wrapper vecchi.
+    $image = $data['items'][0] ?? $data['images'][0] ?? null;
 
     if (!is_array($image)) {
+        error_log('[GoonLand] waifu.im response senza items/images: ' . substr($response['body'], 0, 500));
         return null;
     }
 
@@ -260,8 +269,8 @@ if ($stmt) {
     <?php include '../../includes/head-import.php'; ?>
     <title>GoonLand™ - Generator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/goonland.css?v=2.2-api-proxy-fix1">
-    <script src="/js/goonland.js?v=2.2-api-proxy-fix1" defer></script>
+    <link rel="stylesheet" href="/css/goonland.css?v=2.2-api-proxy-fix2">
+    <script src="/js/goonland.js?v=2.2-api-proxy-fix2" defer></script>
 </head>
 
 <body class="goonland-page" data-goonland-page="generator">
