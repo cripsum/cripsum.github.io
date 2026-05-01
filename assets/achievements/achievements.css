@@ -1093,6 +1093,40 @@ body.ach-page .dropdown-menu button:hover {
     overflow: visible;
 }
 
+.ach-shell,
+.ach-controls {
+    overflow: visible !important;
+}
+
+.ach-controls {
+    position: relative !important;
+    z-index: 5000 !important;
+}
+
+.ach-custom-select {
+    position: relative !important;
+    z-index: 5100 !important;
+}
+
+.ach-custom-select.is-open {
+    z-index: 5200 !important;
+}
+
+.ach-select-menu {
+    z-index: 5300 !important;
+}
+
+.ach-stats,
+.ach-grid,
+.ach-card {
+    position: relative;
+    z-index: 1;
+}
+
+.ach-card:hover {
+    z-index: 2;
+}
+
 @media (max-width: 1050px) {
     .ach-custom-select {
         width: 100%;
@@ -1117,5 +1151,14 @@ body.ach-page .dropdown-menu button:hover {
         max-height: 22rem;
         padding: 0.45rem;
         pointer-events: auto;
+    }
+
+    .ach-custom-select.is-open {
+        margin-bottom: 0.75rem;
+    }
+
+    .ach-select-menu {
+        position: relative !important;
+        z-index: 5300 !important;
     }
 }
