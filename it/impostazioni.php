@@ -228,7 +228,7 @@ if ($twofaSetupSecret) {
                         <span>Password attuale</span>
                         <div class="auth-password">
                             <input type="password" name="current_password" autocomplete="current-password" data-password-input>
-                            <button type="button" data-toggle-password aria-label="Mostra password" style="margin-top: -5px;">
+                            <button type="button" data-toggle-password aria-label="Mostra password" style="margin-top: -20px;">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
@@ -239,7 +239,7 @@ if ($twofaSetupSecret) {
                         <span>Nuova password</span>
                         <div class="auth-password">
                             <input type="password" name="password" autocomplete="new-password" minlength="8" data-password-input>
-                            <button type="button" data-toggle-password aria-label="Mostra password" style="margin-top: -5px;">
+                            <button type="button" data-toggle-password aria-label="Mostra password" style="margin-top: -20px;">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
