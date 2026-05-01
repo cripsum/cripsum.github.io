@@ -308,10 +308,10 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
     <?php include '../../includes/head-import.php'; ?>
     <title>GoonLand™ - Smash or Pass</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/goonland.css?v=2.5-smash-pass-fix1">
-    <link rel="stylesheet" href="/css/goonland-smash-pass.css?v=2.5-smash-pass-fix1">
-    <script src="/js/goonland.js?v=2.5-smash-pass-fix1" defer></script>
-    <script src="/js/goonland-smash-pass.js?v=2.5-smash-pass-fix1" defer></script>
+    <link rel="stylesheet" href="/css/goonland.css?v=2.6-smash-swipe">
+    <link rel="stylesheet" href="/css/goonland-smash-pass.css?v=2.6-smash-swipe">
+    <script src="/js/goonland.js?v=2.6-smash-swipe" defer></script>
+    <script src="/js/goonland-smash-pass.js?v=2.6-smash-swipe" defer></script>
 </head>
 <body class="goonland-page" data-goonland-page="smash-pass">
     <?php include '../../includes/navbar-goonland.php'; ?>
@@ -342,14 +342,39 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
                 </div>
 
                 <div class="gl-sp-controls">
-                    <div class="gl-select-field">
+                    <div class="gl-select-field gl-custom-select gl-sp-mode-select" data-gl-custom-select>
                         <span>Tipo</span>
-                        <select id="smashPassMode" aria-label="Modalità Smash or Pass">
+
+                        <select id="smashPassMode" class="gl-native-select" aria-label="Modalità Smash or Pass">
                             <option value="waifu_sfw">Waifu - SFW</option>
                             <option value="waifu_nsfw" <?php echo $userAllowsNsfw ? '' : 'disabled'; ?>>Waifu - NSFW</option>
                             <option value="husbando_sfw">Husbando - SFW</option>
                             <option value="husbando_nsfw" <?php echo $userAllowsNsfw ? '' : 'disabled'; ?>>Husbando - NSFW</option>
                         </select>
+
+                        <button class="gl-select-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="gl-select-current">Waifu - SFW</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+
+                        <div class="gl-select-menu" role="listbox" aria-label="Scegli modalità">
+                            <button type="button" role="option" data-value="waifu_sfw" class="is-active">
+                                <strong>Waifu</strong>
+                                <span>SFW</span>
+                            </button>
+                            <button type="button" role="option" data-value="waifu_nsfw" <?php echo $userAllowsNsfw ? '' : 'disabled aria-disabled="true"'; ?>>
+                                <strong>Waifu</strong>
+                                <span>18+</span>
+                            </button>
+                            <button type="button" role="option" data-value="husbando_sfw">
+                                <strong>Husbando</strong>
+                                <span>SFW</span>
+                            </button>
+                            <button type="button" role="option" data-value="husbando_nsfw" <?php echo $userAllowsNsfw ? '' : 'disabled aria-disabled="true"'; ?>>
+                                <strong>Husbando</strong>
+                                <span>18+</span>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="gl-sp-mini-actions">
@@ -358,7 +383,10 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
                 </div>
 
                 <div class="gl-sp-card" id="smashPassCard">
-                    <div class="gl-sp-image-wrap">
+                    <div class="gl-sp-image-wrap" id="smashPassSwipeArea">
+                        <div class="gl-sp-decision gl-sp-decision-pass" aria-hidden="true"><i class="fas fa-xmark"></i> PASS</div>
+                        <div class="gl-sp-decision gl-sp-decision-smash" aria-hidden="true"><i class="fas fa-fire"></i> SMASH</div>
+                        <div class="gl-sp-swipe-hint" aria-hidden="true"><i class="fas fa-hand-pointer"></i> Swipe destra/sinistra</div>
                         <div class="gl-placeholder gl-sp-placeholder" id="smashPassPlaceholder">
                             <i class="fas fa-heart-crack"></i>
                             <strong>Nessun personaggio ancora</strong>
@@ -420,7 +448,7 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
 
                 <div class="gl-copy gl-sp-help">
                     <h2>Come funziona</h2>
-                    <p>Ogni volta ti esce un personaggio random. Puoi usare anche i tasti freccia: sinistra = pass, destra = smash.</p>
+                    <p>Ogni volta ti esce un personaggio random. Puoi cliccare, usare le frecce o swipare direttamente sulla foto.</p>
                     <p>Le statistiche vengono salvate nel browser. Se cambi modalità, i contatori restano separati.</p>
                     <?php if (!$userAllowsNsfw): ?>
                         <p><strong>Nota:</strong> hai i contenuti NSFW disattivati nel profilo, quindi qui vedi solo le modalità safe.</p>

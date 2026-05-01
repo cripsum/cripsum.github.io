@@ -7,8 +7,11 @@
     const $ = (selector, root = document) => root.querySelector(selector);
 
     let isLoading = false;
+    let isVoting = false;
     let currentMode = "waifu_sfw";
     let currentCard = null;
+    let pointerStart = null;
+    let rafId = 0;
 
     function showToast(message) {
         const toast = $("#goonlandToast");
@@ -77,6 +80,30 @@
             .replaceAll("'", "&#039;");
     }
 
+    function resetCardMotion() {
+        const card = $("#smashPassCard");
+        const area = $("#smashPassSwipeArea");
+        if (!card) return;
+
+        card.classList.remove("is-dragging", "is-resetting", "is-throw-smash", "is-throw-pass", "is-loading-next");
+        card.style.transform = "";
+        card.style.setProperty("--sp-smash-alpha", "0");
+        card.style.setProperty("--sp-pass-alpha", "0");
+        if (area) area.classList.remove("is-touching");
+    }
+
+    function setButtonsDisabled(disabled) {
+        const modeSelect = $("#smashPassMode");
+        const smashBtn = $("#spSmashBtn");
+        const passBtn = $("#spPassBtn");
+        const nextBtn = $("#spNextBtn");
+
+        if (modeSelect) modeSelect.disabled = disabled;
+        if (smashBtn) smashBtn.disabled = disabled;
+        if (passBtn) passBtn.disabled = disabled;
+        if (nextBtn) nextBtn.disabled = disabled;
+    }
+
     function renderCard(data, modeLabel) {
         const image = $("#smashPassImage");
         const placeholder = $("#smashPassPlaceholder");
@@ -110,8 +137,8 @@
 
         if (links) {
             const items = [];
-            if (data.postUrl) items.push(`<a href="${escapeHtml(data.postUrl)}" target="_blank" rel="noopener noreferrer">Apri post</a>`);
-            if (data.source) items.push(`<a href="${escapeHtml(data.source)}" target="_blank" rel="noopener noreferrer">Fonte</a>`);
+            if (data.postUrl) items.push(`<a href="${escapeHtml(data.postUrl)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-arrow-up-right-from-square"></i> Apri post</a>`);
+            if (data.source) items.push(`<a href="${escapeHtml(data.source)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-link"></i> Fonte</a>`);
             links.innerHTML = items.join("");
         }
 
@@ -122,6 +149,7 @@
                 image.hidden = false;
                 image.classList.add("is-visible");
                 if (placeholder) placeholder.style.display = "none";
+                resetCardMotion();
             };
             preload.onerror = () => {
                 if (placeholder) {
@@ -148,14 +176,15 @@
     async function loadNextCard() {
         if (isLoading) return;
         isLoading = true;
+        currentCard = null;
 
         const image = $("#smashPassImage");
         const spinner = $("#smashPassSpinner");
         const placeholder = $("#smashPassPlaceholder");
-        const modeSelect = $("#smashPassMode");
-        const smashBtn = $("#spSmashBtn");
-        const passBtn = $("#spPassBtn");
-        const nextBtn = $("#spNextBtn");
+        const card = $("#smashPassCard");
+
+        resetCardMotion();
+        if (card) card.classList.add("is-loading-next");
 
         if (image) {
             image.hidden = true;
@@ -169,10 +198,7 @@
         }
 
         if (spinner) spinner.style.display = "block";
-        if (modeSelect) modeSelect.disabled = true;
-        if (smashBtn) smashBtn.disabled = true;
-        if (passBtn) passBtn.disabled = true;
-        if (nextBtn) nextBtn.disabled = true;
+        setButtonsDisabled(true);
         setStatus("Caricamento");
 
         try {
@@ -203,16 +229,45 @@
         } finally {
             isLoading = false;
             if (spinner) spinner.style.display = "none";
-            if (modeSelect) modeSelect.disabled = false;
-            if (smashBtn) smashBtn.disabled = false;
-            if (passBtn) passBtn.disabled = false;
-            if (nextBtn) nextBtn.disabled = false;
+            if (card) card.classList.remove("is-loading-next");
+            setButtonsDisabled(false);
         }
     }
 
-    
-function vote(type) {
-        if (isLoading || !currentCard) return;
+    function animateDecision(type) {
+        return new Promise((resolve) => {
+            const card = $("#smashPassCard");
+            if (!card) {
+                resolve();
+                return;
+            }
+
+            card.classList.remove("is-dragging", "is-resetting", "is-throw-smash", "is-throw-pass");
+            card.style.transform = "";
+            card.style.setProperty("--sp-smash-alpha", type === "smash" ? "1" : "0");
+            card.style.setProperty("--sp-pass-alpha", type === "pass" ? "1" : "0");
+
+            requestAnimationFrame(() => {
+                card.classList.add(type === "smash" ? "is-throw-smash" : "is-throw-pass");
+            });
+
+            window.setTimeout(() => {
+                resetCardMotion();
+                resolve();
+            }, 430);
+        });
+    }
+
+    async function vote(type, withAnimation = true) {
+        if (isLoading || isVoting) return;
+
+        if (!currentCard) {
+            loadNextCard();
+            return;
+        }
+
+        isVoting = true;
+        setButtonsDisabled(true);
 
         const stats = getStats(currentMode);
         if (type === "smash") {
@@ -224,7 +279,116 @@ function vote(type) {
         saveStats(currentMode, stats);
         updateStatsUi();
         showToast(type === "smash" ? "Smash" : "Pass");
-        loadNextCard();
+
+        if (withAnimation) {
+            await animateDecision(type);
+        }
+
+        isVoting = false;
+        await loadNextCard();
+    }
+
+    function applyDrag(dx, dy) {
+        const card = $("#smashPassCard");
+        if (!card) return;
+
+        const width = Math.max(1, window.innerWidth);
+        const limitedX = Math.max(-width * 0.48, Math.min(width * 0.48, dx));
+        const rotate = limitedX / 18;
+        const lift = Math.min(18, Math.abs(limitedX) / 18);
+        const smashAlpha = Math.max(0, Math.min(1, limitedX / 130));
+        const passAlpha = Math.max(0, Math.min(1, -limitedX / 130));
+
+        card.style.transform = `translate3d(${limitedX}px, ${Math.max(-22, Math.min(22, dy * 0.08)) - lift}px, 0) rotate(${rotate}deg)`;
+        card.style.setProperty("--sp-smash-alpha", String(smashAlpha));
+        card.style.setProperty("--sp-pass-alpha", String(passAlpha));
+    }
+
+    function resetDrag() {
+        const card = $("#smashPassCard");
+        if (!card) return;
+
+        card.classList.remove("is-dragging");
+        card.classList.add("is-resetting");
+        card.style.transform = "translate3d(0, 0, 0) rotate(0deg)";
+        card.style.setProperty("--sp-smash-alpha", "0");
+        card.style.setProperty("--sp-pass-alpha", "0");
+
+        window.setTimeout(() => {
+            card.classList.remove("is-resetting");
+            card.style.transform = "";
+        }, 220);
+    }
+
+    function initSwipe() {
+        const area = $("#smashPassSwipeArea");
+        const card = $("#smashPassCard");
+        if (!area || !card) return;
+
+        area.addEventListener("pointerdown", (event) => {
+            if (isLoading || isVoting || !currentCard) return;
+            if (event.pointerType === "mouse" && event.button !== 0) return;
+
+            pointerStart = {
+                id: event.pointerId,
+                x: event.clientX,
+                y: event.clientY,
+                dx: 0,
+                dy: 0,
+                locked: false,
+            };
+
+            area.classList.add("is-touching");
+            card.classList.add("is-dragging");
+            card.classList.remove("is-resetting");
+            area.setPointerCapture?.(event.pointerId);
+        }, { passive: true });
+
+        area.addEventListener("pointermove", (event) => {
+            if (!pointerStart || pointerStart.id !== event.pointerId) return;
+
+            const dx = event.clientX - pointerStart.x;
+            const dy = event.clientY - pointerStart.y;
+            pointerStart.dx = dx;
+            pointerStart.dy = dy;
+
+            if (!pointerStart.locked && Math.abs(dx) + Math.abs(dy) > 10) {
+                pointerStart.locked = Math.abs(dx) > Math.abs(dy) * 0.8;
+            }
+
+            if (!pointerStart.locked) return;
+            event.preventDefault();
+
+            cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(() => applyDrag(dx, dy));
+        }, { passive: false });
+
+        const endDrag = (event) => {
+            if (!pointerStart || pointerStart.id !== event.pointerId) return;
+
+            const { dx, dy, locked } = pointerStart;
+            pointerStart = null;
+            area.classList.remove("is-touching");
+            area.releasePointerCapture?.(event.pointerId);
+
+            const threshold = Math.min(130, Math.max(86, area.clientWidth * 0.24));
+            const fastEnough = Math.abs(dx) > threshold && Math.abs(dx) > Math.abs(dy) * 0.75;
+
+            if (locked && fastEnough) {
+                vote(dx > 0 ? "smash" : "pass", true);
+            } else {
+                resetDrag();
+            }
+        };
+
+        area.addEventListener("pointerup", endDrag, { passive: true });
+        area.addEventListener("pointercancel", endDrag, { passive: true });
+        area.addEventListener("lostpointercapture", () => {
+            if (!pointerStart) return;
+            pointerStart = null;
+            area.classList.remove("is-touching");
+            resetDrag();
+        });
     }
 
     function initSmashPass() {
@@ -244,26 +408,27 @@ function vote(type) {
             });
         }
 
-        if (smashBtn) smashBtn.addEventListener("click", () => vote("smash"));
-        if (passBtn) passBtn.addEventListener("click", () => vote("pass"));
+        if (smashBtn) smashBtn.addEventListener("click", () => vote("smash", true));
+        if (passBtn) passBtn.addEventListener("click", () => vote("pass", true));
         if (nextBtn) nextBtn.addEventListener("click", loadNextCard);
 
         document.addEventListener("keydown", (event) => {
             if (document.body.dataset.goonlandPage !== "smash-pass") return;
-            if (event.target && /input|textarea|select/i.test(event.target.tagName)) return;
+            if (event.target && /input|textarea|select|button/i.test(event.target.tagName)) return;
 
             if (event.key === "ArrowLeft") {
                 event.preventDefault();
-                vote("pass");
+                vote("pass", true);
             } else if (event.key === "ArrowRight") {
                 event.preventDefault();
-                vote("smash");
+                vote("smash", true);
             } else if (event.key === " ") {
                 event.preventDefault();
                 loadNextCard();
             }
         });
 
+        initSwipe();
         updateStatsUi();
         loadNextCard();
     }
