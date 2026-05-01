@@ -30,7 +30,7 @@ require_once '../api/api_personaggi.php';
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <link rel="stylesheet" href="/css/lootbox.css?v=8.1" />
+    <link rel="stylesheet" href="/css/lootbox.css?v=8.2" />
     <title>Cripsum™ - lootbox</title>
 </head>
 
