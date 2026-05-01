@@ -2367,7 +2367,7 @@ body.lootbox-page .loading-text.is-error {
 /* telefoni molto bassi tipo landscape o schermi piccoli */
 @media (max-width: 620px) and (max-height: 720px) {
     #contenuto {
-        padding-bottom: calc(10.5rem + env(safe-area-inset-bottom)) !important;
+        padding-bottom: calc(2.5rem + env(safe-area-inset-bottom)) !important;
     }
 
     .lootbox-character-reveal {
