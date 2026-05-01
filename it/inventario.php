@@ -111,14 +111,14 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                 </button>
 
                 <div class="inv-select-menu" role="listbox" aria-label="Filtra per rarità">
-                    <button type="button" data-value="all"><strong>Tutte le rarità</strong><span>All</span></button>
-                    <button type="button" data-value="comune"><strong>Comune</strong><span>Com</span></button>
-                    <button type="button" data-value="raro"><strong>Raro</strong><span>Rar</span></button>
-                    <button type="button" data-value="epico"><strong>Epico</strong><span>Epi</span></button>
-                    <button type="button" data-value="leggendario"><strong>Leggendario</strong><span>Leg</span></button>
-                    <button type="button" data-value="speciale"><strong>Speciale</strong><span>Spe</span></button>
-                    <button type="button" data-value="segreto"><strong>Segreto</strong><span>Sec</span></button>
-                    <button type="button" data-value="theone"><strong>The One</strong><span>One</span></button>
+                    <button type="button" data-value="all"><strong>Tutte le rarità</strong></button>
+                    <button type="button" data-value="comune"><strong>Comune</strong></button>
+                    <button type="button" data-value="raro"><strong>Raro</strong></button>
+                    <button type="button" data-value="epico"><strong>Epico</strong></button>
+                    <button type="button" data-value="leggendario"><strong>Leggendario</strong></button>
+                    <button type="button" data-value="speciale"><strong>Speciale</strong></button>
+                    <button type="button" data-value="segreto"><strong>Segreto</strong></button>
+                    <button type="button" data-value="theone"><strong>The One</strong></button>
                 </div>
             </div>
 
