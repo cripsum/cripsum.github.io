@@ -199,10 +199,29 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
     }
 
     $blockedTags = [
-        'loli', 'shota', 'child', 'children', 'toddler', 'baby', 'young', 'younger', 'underage', 'preteen',
-        'kindergarten', 'kindergarten_uniform', 'elementary_schooler', 'elementary_school_uniform',
-        'middle_schooler', 'middle_school_uniform', 'aged_down', 'age_regression',
-        'guro', 'gore', 'vore', 'bestiality', 'zoophilia'
+        'loli',
+        'shota',
+        'child',
+        'children',
+        'toddler',
+        'baby',
+        'young',
+        'younger',
+        'underage',
+        'preteen',
+        'kindergarten',
+        'kindergarten_uniform',
+        'elementary_schooler',
+        'elementary_school_uniform',
+        'middle_schooler',
+        'middle_school_uniform',
+        'aged_down',
+        'age_regression',
+        'guro',
+        'gore',
+        'vore',
+        'bestiality',
+        'zoophilia'
     ];
 
     $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
@@ -332,7 +351,9 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
     <title>GoonLand™ - Anime Girl Quiz</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/css/goonland.css?v=2.3-anime-quiz">
+    <link rel="stylesheet" href="/css/goonland-quiz-additions.css?v=2.3-anime-quiz">
     <script src="/js/goonland.js?v=2.3-anime-quiz" defer></script>
+    <script src="/js/goonland-quiz-additions.js?v=2.3-anime-quiz" defer></script>
 </head>
 
 <body class="goonland-page" data-goonland-page="anime-quiz">
