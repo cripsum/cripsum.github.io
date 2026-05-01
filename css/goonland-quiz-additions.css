@@ -1,0 +1,300 @@
+/* GoonLand V2.3 - Anime Girl Quiz */
+.gl-quiz-shell {
+    width: min(1120px, calc(100% - 32px));
+}
+
+.gl-quiz-layout,
+.gl-result-grid {
+    display: grid;
+    gap: 1rem;
+    align-items: start;
+}
+
+.gl-quiz-layout {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    margin-top: 1rem;
+}
+
+.gl-quiz-card,
+.gl-quiz-side,
+.gl-result {
+    border: 1px solid var(--gl-border);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.026)), var(--gl-card);
+    box-shadow: 0 24px 72px rgba(0, 0, 0, 0.38);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.gl-quiz-card,
+.gl-result {
+    padding: clamp(1rem, 2.4vw, 1.35rem);
+    border-radius: 34px;
+}
+
+.gl-quiz-side {
+    border-radius: 34px;
+}
+
+.gl-quiz-top,
+.gl-result-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.gl-quiz-progress {
+    height: 0.7rem;
+    margin: 1rem 0 1.1rem;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.gl-quiz-progress span {
+    display: block;
+    width: 0%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(135deg, var(--gl-pink), var(--gl-purple));
+    box-shadow: 0 0 24px rgba(255, 45, 141, 0.42);
+    transition: width 0.22s ease;
+}
+
+.gl-question-wrap h2,
+.gl-result-head h2 {
+    margin: 0;
+    color: var(--gl-text);
+    font-size: clamp(1.8rem, 4vw, 3.15rem);
+    line-height: 0.98;
+    letter-spacing: -0.06em;
+}
+
+.gl-question-wrap p,
+.gl-result-head p,
+.gl-result-panel p,
+.gl-result-meta {
+    color: var(--gl-muted);
+    line-height: 1.6;
+}
+
+.gl-question-wrap p {
+    max-width: 760px;
+    margin: 0.6rem 0 0;
+}
+
+.gl-answer-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.gl-answer-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: center;
+    min-height: 5rem;
+    padding: 0.85rem;
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    border-radius: 22px;
+    color: var(--gl-text);
+    background: rgba(255, 255, 255, 0.045);
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.gl-answer-card:hover,
+.gl-answer-card.is-selected {
+    transform: translateY(-2px);
+    border-color: rgba(255, 45, 141, 0.42);
+    background: rgba(255, 45, 141, 0.11);
+    box-shadow: 0 18px 46px rgba(0, 0, 0, 0.25), 0 0 28px rgba(255, 45, 141, 0.12);
+}
+
+.gl-answer-icon {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 18px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--gl-pink), var(--gl-purple));
+    box-shadow: 0 16px 38px rgba(255, 45, 141, 0.22);
+}
+
+.gl-answer-card strong {
+    display: block;
+    color: #fff;
+    font-weight: 950;
+}
+
+.gl-answer-card span:not(.gl-answer-icon) {
+    display: block;
+    margin-top: 0.18rem;
+    color: var(--gl-muted2);
+    font-size: 0.9rem;
+    line-height: 1.35;
+}
+
+.gl-quiz-nav,
+.gl-result-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 1rem;
+}
+
+.gl-result {
+    margin-top: 1rem;
+}
+
+.gl-result[hidden] {
+    display: none !important;
+}
+
+.gl-result-grid {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    margin-top: 1rem;
+}
+
+.gl-result-media {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: min(70svh, 680px);
+    overflow: hidden;
+    border: 1px solid var(--gl-border);
+    border-radius: 28px;
+    background: radial-gradient(circle at 50% 12%, rgba(255, 45, 141, 0.24), transparent 42%), rgba(0, 0, 0, 0.24);
+}
+
+.gl-result-image {
+    display: block;
+    width: 100%;
+    max-height: min(70svh, 680px);
+    object-fit: contain;
+    border-radius: 26px;
+    opacity: 0;
+    transform: scale(0.985);
+    transition: opacity 0.26s ease, transform 0.26s ease;
+}
+
+.gl-result-image.is-visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.gl-result-panel {
+    padding: 1rem;
+    border: 1px solid var(--gl-border);
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.045);
+}
+
+.gl-result-panel h3 {
+    margin: 0 0 0.7rem;
+    color: #fff;
+    font-weight: 950;
+}
+
+.gl-chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.gl-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 2rem;
+    padding: 0.35rem 0.62rem;
+    border: 1px solid rgba(255, 45, 141, 0.25);
+    border-radius: 999px;
+    color: var(--gl-soft);
+    background: rgba(255, 45, 141, 0.1);
+    font-size: 0.82rem;
+    font-weight: 900;
+}
+
+.gl-result-meta {
+    display: grid;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gl-meta-row {
+    display: grid;
+    gap: 0.12rem;
+}
+
+.gl-meta-row strong {
+    color: #fff;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+}
+
+.gl-meta-row a {
+    color: var(--gl-soft);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+.gl-meta-row a:hover {
+    color: #fff;
+}
+
+@media (max-width: 980px) {
+    .gl-quiz-layout,
+    .gl-result-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 680px) {
+    .gl-quiz-shell {
+        width: 90%;
+    }
+
+    .gl-quiz-card,
+    .gl-result,
+    .gl-quiz-side {
+        border-radius: 22px;
+    }
+
+    .gl-quiz-top,
+    .gl-result-head {
+        display: grid;
+    }
+
+    .gl-answer-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .gl-answer-card {
+        min-height: 4.5rem;
+    }
+
+    .gl-quiz-nav .gl-btn,
+    .gl-result-actions .gl-btn {
+        flex: 1 1 100%;
+    }
+
+    .gl-result-media {
+        min-height: 430px;
+        border-radius: 22px;
+    }
+
+    .gl-result-image {
+        max-height: 430px;
+        border-radius: 20px;
+    }
+}
