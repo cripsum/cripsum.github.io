@@ -10,8 +10,17 @@
     let isVoting = false;
     let currentMode = "waifu_sfw";
     let currentCard = null;
-    let pointerStart = null;
-    let rafId = 0;
+    let pointerState = null;
+    let dragFrame = 0;
+    let nextDrag = { dx: 0, dy: 0 };
+
+    const MOTION = {
+        throwDuration: 320,
+        resetDuration: 210,
+        enterDuration: 260,
+        maxRotate: 14,
+        swipeLimit: 0.46,
+    };
 
     function showToast(message) {
         const toast = $("#goonlandToast");
@@ -26,7 +35,7 @@
         window.__goonSmashPassToast = setTimeout(() => {
             toast.classList.remove("is-visible");
             setTimeout(() => { toast.hidden = true; }, 180);
-        }, 2200);
+        }, 1900);
     }
 
     function setStatus(message) {
@@ -80,28 +89,57 @@
             .replaceAll("'", "&#039;");
     }
 
-    function resetCardMotion() {
-        const card = $("#smashPassCard");
-        const area = $("#smashPassSwipeArea");
-        if (!card) return;
-
-        card.classList.remove("is-dragging", "is-resetting", "is-throw-smash", "is-throw-pass", "is-loading-next");
-        card.style.transform = "";
-        card.style.setProperty("--sp-smash-alpha", "0");
-        card.style.setProperty("--sp-pass-alpha", "0");
-        if (area) area.classList.remove("is-touching");
+    function niceTag(value) {
+        return String(value || "").replaceAll("_", " ").trim();
     }
 
     function setButtonsDisabled(disabled) {
-        const modeSelect = $("#smashPassMode");
-        const smashBtn = $("#spSmashBtn");
-        const passBtn = $("#spPassBtn");
-        const nextBtn = $("#spNextBtn");
+        ["#spPassBtn", "#spSmashBtn", "#spNextBtn"].forEach((selector) => {
+            const btn = $(selector);
+            if (btn) btn.disabled = disabled;
+        });
 
-        if (modeSelect) modeSelect.disabled = disabled;
-        if (smashBtn) smashBtn.disabled = disabled;
-        if (passBtn) passBtn.disabled = disabled;
-        if (nextBtn) nextBtn.disabled = disabled;
+        const nativeSelect = $("#smashPassMode");
+        const trigger = $(".gl-sp-mode-select .gl-select-trigger");
+        if (nativeSelect) nativeSelect.disabled = disabled;
+        if (trigger) trigger.disabled = disabled;
+    }
+
+    function setDecisionAlphas(smashAlpha = 0, passAlpha = 0) {
+        const card = $("#smashPassCard");
+        if (!card) return;
+        card.style.setProperty("--sp-smash-alpha", String(Math.max(0, Math.min(1, smashAlpha))));
+        card.style.setProperty("--sp-pass-alpha", String(Math.max(0, Math.min(1, passAlpha))));
+    }
+
+    function resetCardMotion() {
+        const card = $("#smashPassCard");
+        if (!card) return;
+
+        card.getAnimations().forEach((animation) => animation.cancel());
+        card.classList.remove("is-dragging", "is-resetting", "is-throw-smash", "is-throw-pass", "is-loading-next", "is-entering");
+        card.style.transform = "";
+        card.style.opacity = "";
+        setDecisionAlphas(0, 0);
+    }
+
+    function animateCardEnter() {
+        const card = $("#smashPassCard");
+        if (!card || !card.animate) return;
+
+        card.classList.add("is-entering");
+        card.animate([
+            { transform: "translate3d(0, 18px, 0) scale(0.975)", opacity: 0.01, filter: "blur(8px)" },
+            { transform: "translate3d(0, 0, 0) scale(1)", opacity: 1, filter: "blur(0)" }
+        ], {
+            duration: MOTION.enterDuration,
+            easing: "cubic-bezier(.16, 1, .3, 1)",
+            fill: "both"
+        }).finished.finally(() => {
+            card.classList.remove("is-entering");
+            card.style.opacity = "";
+            card.style.transform = "";
+        }).catch(() => {});
     }
 
     function renderCard(data, modeLabel) {
@@ -119,9 +157,9 @@
         const artists = (data.artistTags || []).filter(Boolean);
         const generals = (data.generalTags || []).filter(Boolean).slice(0, 8);
 
-        const niceTitle = characters.length ? characters.slice(0, 2).join(", ").replaceAll("_", " ") : "Personaggio random";
-        const niceSeries = copyrights.length ? copyrights.slice(0, 2).join(", ").replaceAll("_", " ") : "Serie non indicata";
-        const niceArtists = artists.length ? artists.slice(0, 2).join(", ").replaceAll("_", " ") : "Artista non indicato";
+        const niceTitle = characters.length ? characters.slice(0, 2).map(niceTag).join(", ") : "Personaggio random";
+        const niceSeries = copyrights.length ? copyrights.slice(0, 2).map(niceTag).join(", ") : "Serie non indicata";
+        const niceArtists = artists.length ? artists.slice(0, 2).map(niceTag).join(", ") : "Artista non indicato";
 
         if (modeBadge) modeBadge.textContent = modeLabel || "Modalità";
         if (title) title.textContent = niceTitle;
@@ -131,35 +169,35 @@
         if (tags) {
             const allTags = [...characters, ...copyrights, ...generals].slice(0, 10);
             tags.innerHTML = allTags.length
-                ? allTags.map((tag) => `<span class="gl-chip">#${escapeHtml(tag.replaceAll("_", " "))}</span>`).join("")
+                ? allTags.map((tag) => `<span class="gl-chip">#${escapeHtml(niceTag(tag))}</span>`).join("")
                 : '<span class="gl-chip">#random</span>';
         }
 
         if (links) {
             const items = [];
-            if (data.postUrl) items.push(`<a href="${escapeHtml(data.postUrl)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-arrow-up-right-from-square"></i> Apri post</a>`);
+            if (data.postUrl) items.push(`<a href="${escapeHtml(data.postUrl)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-up-right-from-square"></i> Apri post</a>`);
             if (data.source) items.push(`<a href="${escapeHtml(data.source)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-link"></i> Fonte</a>`);
             links.innerHTML = items.join("");
         }
 
-        if (image && data.image) {
-            const preload = new Image();
-            preload.onload = () => {
-                image.src = data.image;
-                image.hidden = false;
-                image.classList.add("is-visible");
-                if (placeholder) placeholder.style.display = "none";
-                resetCardMotion();
-            };
-            preload.onerror = () => {
-                if (placeholder) {
-                    placeholder.style.display = "grid";
-                    placeholder.innerHTML = '<i class="fas fa-triangle-exclamation"></i><strong>Immagine non caricata</strong><span>Riprova con un altro roll.</span>';
-                }
-                image.hidden = true;
-            };
-            preload.src = data.image;
-        }
+        if (!image || !data.image) return;
+
+        const preload = new Image();
+        preload.onload = () => {
+            image.src = data.image;
+            image.hidden = false;
+            image.classList.add("is-visible");
+            if (placeholder) placeholder.style.display = "none";
+            animateCardEnter();
+        };
+        preload.onerror = () => {
+            if (placeholder) {
+                placeholder.style.display = "grid";
+                placeholder.innerHTML = '<i class="fas fa-triangle-exclamation"></i><strong>Immagine non caricata</strong><span>Riprova con un altro roll.</span>';
+            }
+            image.hidden = true;
+        };
+        preload.src = data.image;
     }
 
     async function readJsonResponse(response) {
@@ -174,7 +212,7 @@
     }
 
     async function loadNextCard() {
-        if (isLoading) return;
+        if (isLoading || isVoting) return;
         isLoading = true;
         currentCard = null;
 
@@ -234,6 +272,11 @@
         }
     }
 
+    function getCurrentTransform() {
+        const card = $("#smashPassCard");
+        return card?.style.transform || "translate3d(0, 0, 0) rotate(0deg)";
+    }
+
     function animateDecision(type) {
         return new Promise((resolve) => {
             const card = $("#smashPassCard");
@@ -242,19 +285,34 @@
                 return;
             }
 
-            card.classList.remove("is-dragging", "is-resetting", "is-throw-smash", "is-throw-pass");
-            card.style.transform = "";
-            card.style.setProperty("--sp-smash-alpha", type === "smash" ? "1" : "0");
-            card.style.setProperty("--sp-pass-alpha", type === "pass" ? "1" : "0");
+            const direction = type === "smash" ? 1 : -1;
+            const start = getCurrentTransform();
+            const endX = direction * Math.min(window.innerWidth * 1.22, 980);
+            const endRotate = direction * 24;
+            const midX = direction * 42;
+            const midRotate = direction * 5;
 
-            requestAnimationFrame(() => {
-                card.classList.add(type === "smash" ? "is-throw-smash" : "is-throw-pass");
+            card.getAnimations().forEach((animation) => animation.cancel());
+            card.classList.remove("is-dragging", "is-resetting");
+            setDecisionAlphas(type === "smash" ? 1 : 0, type === "pass" ? 1 : 0);
+
+            const animation = card.animate([
+                { transform: start, opacity: 1, offset: 0 },
+                { transform: `translate3d(${midX}px, -10px, 0) rotate(${midRotate}deg) scale(1.006)`, opacity: 1, offset: 0.28 },
+                { transform: `translate3d(${endX}px, -86px, 0) rotate(${endRotate}deg) scale(0.985)`, opacity: 0.08, offset: 1 }
+            ], {
+                duration: MOTION.throwDuration,
+                easing: "cubic-bezier(.2, .9, .24, 1)",
+                fill: "both"
             });
 
-            window.setTimeout(() => {
+            animation.finished.finally(() => {
                 resetCardMotion();
                 resolve();
-            }, 430);
+            }).catch(() => {
+                resetCardMotion();
+                resolve();
+            });
         });
     }
 
@@ -288,20 +346,32 @@
         await loadNextCard();
     }
 
-    function applyDrag(dx, dy) {
+    function applyDragNow(dx, dy) {
         const card = $("#smashPassCard");
         if (!card) return;
 
         const width = Math.max(1, window.innerWidth);
-        const limitedX = Math.max(-width * 0.48, Math.min(width * 0.48, dx));
-        const rotate = limitedX / 18;
-        const lift = Math.min(18, Math.abs(limitedX) / 18);
-        const smashAlpha = Math.max(0, Math.min(1, limitedX / 130));
-        const passAlpha = Math.max(0, Math.min(1, -limitedX / 130));
+        const limitedX = Math.max(-width * MOTION.swipeLimit, Math.min(width * MOTION.swipeLimit, dx));
+        const vertical = Math.max(-26, Math.min(26, dy * 0.08));
+        const rotate = Math.max(-MOTION.maxRotate, Math.min(MOTION.maxRotate, limitedX / 16));
+        const lift = Math.min(20, Math.abs(limitedX) / 17);
+        const smashAlpha = Math.max(0, Math.min(1, limitedX / 120));
+        const passAlpha = Math.max(0, Math.min(1, -limitedX / 120));
+        const scale = 1 + Math.min(0.012, Math.abs(limitedX) / 26000);
 
-        card.style.transform = `translate3d(${limitedX}px, ${Math.max(-22, Math.min(22, dy * 0.08)) - lift}px, 0) rotate(${rotate}deg)`;
-        card.style.setProperty("--sp-smash-alpha", String(smashAlpha));
-        card.style.setProperty("--sp-pass-alpha", String(passAlpha));
+        card.style.transform = `translate3d(${limitedX}px, ${vertical - lift}px, 0) rotate(${rotate}deg) scale(${scale})`;
+        setDecisionAlphas(smashAlpha, passAlpha);
+    }
+
+    function scheduleDrag(dx, dy) {
+        nextDrag.dx = dx;
+        nextDrag.dy = dy;
+
+        if (dragFrame) return;
+        dragFrame = requestAnimationFrame(() => {
+            dragFrame = 0;
+            applyDragNow(nextDrag.dx, nextDrag.dy);
+        });
     }
 
     function resetDrag() {
@@ -310,14 +380,25 @@
 
         card.classList.remove("is-dragging");
         card.classList.add("is-resetting");
-        card.style.transform = "translate3d(0, 0, 0) rotate(0deg)";
-        card.style.setProperty("--sp-smash-alpha", "0");
-        card.style.setProperty("--sp-pass-alpha", "0");
 
-        window.setTimeout(() => {
+        const start = card.style.transform || "translate3d(0, 0, 0) rotate(0deg) scale(1)";
+        const animation = card.animate([
+            { transform: start, opacity: 1 },
+            { transform: "translate3d(0, 0, 0) rotate(0deg) scale(1)", opacity: 1 }
+        ], {
+            duration: MOTION.resetDuration,
+            easing: "cubic-bezier(.18, .9, .2, 1)",
+            fill: "both"
+        });
+
+        setDecisionAlphas(0, 0);
+        animation.finished.finally(() => {
             card.classList.remove("is-resetting");
             card.style.transform = "";
-        }, 220);
+        }).catch(() => {
+            card.classList.remove("is-resetting");
+            card.style.transform = "";
+        });
     }
 
     function initSwipe() {
@@ -329,7 +410,9 @@
             if (isLoading || isVoting || !currentCard) return;
             if (event.pointerType === "mouse" && event.button !== 0) return;
 
-            pointerStart = {
+            card.getAnimations().forEach((animation) => animation.cancel());
+
+            pointerState = {
                 id: event.pointerId,
                 x: event.clientX,
                 y: event.clientY,
@@ -345,34 +428,32 @@
         }, { passive: true });
 
         area.addEventListener("pointermove", (event) => {
-            if (!pointerStart || pointerStart.id !== event.pointerId) return;
+            if (!pointerState || pointerState.id !== event.pointerId) return;
 
-            const dx = event.clientX - pointerStart.x;
-            const dy = event.clientY - pointerStart.y;
-            pointerStart.dx = dx;
-            pointerStart.dy = dy;
+            const dx = event.clientX - pointerState.x;
+            const dy = event.clientY - pointerState.y;
+            pointerState.dx = dx;
+            pointerState.dy = dy;
 
-            if (!pointerStart.locked && Math.abs(dx) + Math.abs(dy) > 10) {
-                pointerStart.locked = Math.abs(dx) > Math.abs(dy) * 0.8;
+            if (!pointerState.locked && Math.abs(dx) + Math.abs(dy) > 8) {
+                pointerState.locked = Math.abs(dx) > Math.abs(dy) * 0.75;
             }
 
-            if (!pointerStart.locked) return;
+            if (!pointerState.locked) return;
             event.preventDefault();
-
-            cancelAnimationFrame(rafId);
-            rafId = requestAnimationFrame(() => applyDrag(dx, dy));
+            scheduleDrag(dx, dy);
         }, { passive: false });
 
         const endDrag = (event) => {
-            if (!pointerStart || pointerStart.id !== event.pointerId) return;
+            if (!pointerState || pointerState.id !== event.pointerId) return;
 
-            const { dx, dy, locked } = pointerStart;
-            pointerStart = null;
+            const { dx, dy, locked } = pointerState;
+            pointerState = null;
             area.classList.remove("is-touching");
             area.releasePointerCapture?.(event.pointerId);
 
-            const threshold = Math.min(130, Math.max(86, area.clientWidth * 0.24));
-            const fastEnough = Math.abs(dx) > threshold && Math.abs(dx) > Math.abs(dy) * 0.75;
+            const threshold = Math.min(128, Math.max(78, area.clientWidth * 0.22));
+            const fastEnough = Math.abs(dx) > threshold && Math.abs(dx) > Math.abs(dy) * 0.72;
 
             if (locked && fastEnough) {
                 vote(dx > 0 ? "smash" : "pass", true);
@@ -384,8 +465,8 @@
         area.addEventListener("pointerup", endDrag, { passive: true });
         area.addEventListener("pointercancel", endDrag, { passive: true });
         area.addEventListener("lostpointercapture", () => {
-            if (!pointerStart) return;
-            pointerStart = null;
+            if (!pointerState) return;
+            pointerState = null;
             area.classList.remove("is-touching");
             resetDrag();
         });

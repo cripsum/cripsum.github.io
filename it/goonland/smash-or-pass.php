@@ -161,11 +161,8 @@ function sopPickPost(array $posts): ?array
         if (!in_array($fileExt, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true)) continue;
 
         $blockedNeedles = [
-            ' loli ',
-            ' shota ',
             ' child ',
             ' toddler ',
-            ' young ',
             ' cub ',
             ' feral ',
             ' bestiality ',
@@ -308,10 +305,10 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
     <?php include '../../includes/head-import.php'; ?>
     <title>GoonLand™ - Smash or Pass</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/goonland.css?v=2.6-smash-swipe">
-    <link rel="stylesheet" href="/css/goonland-smash-pass.css?v=2.6-smash-swipe">
-    <script src="/js/goonland.js?v=2.6-smash-swipe" defer></script>
-    <script src="/js/goonland-smash-pass.js?v=2.6-smash-swipe" defer></script>
+    <link rel="stylesheet" href="/css/goonland.css?v=2.7-smash-polish">
+    <link rel="stylesheet" href="/css/goonland-smash-pass.css?v=2.7-smash-polish">
+    <script src="/js/goonland.js?v=2.7-smash-polish" defer></script>
+    <script src="/js/goonland-smash-pass.js?v=2.7-smash-polish" defer></script>
 </head>
 <body class="goonland-page" data-goonland-page="smash-pass">
     <?php include '../../includes/navbar-goonland.php'; ?>
