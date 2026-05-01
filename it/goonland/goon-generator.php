@@ -22,8 +22,17 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
 
 if (isset($_GET['download_image']) && $_GET['download_image'] === '1' && isset($_GET['url'])) {
     $url = trim((string)$_GET['url']);
+    $parsed = parse_url($url);
 
-    if (strpos($url, 'https://i.waifu.pics/') !== 0) {
+    $scheme = strtolower((string)($parsed['scheme'] ?? ''));
+    $host = strtolower((string)($parsed['host'] ?? ''));
+
+    $isAllowedHost = (
+        preg_match('/(^|\.)waifu\.pics$/i', $host) ||
+        preg_match('/(^|\.)waifu\.im$/i', $host)
+    );
+
+    if ($scheme !== 'https' || !$isAllowedHost) {
         http_response_code(403);
         exit('URL non valido');
     }
@@ -74,8 +83,8 @@ if ($stmt) {
     <?php include '../../includes/head-import.php'; ?>
     <title>GoonLand™ - Generator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/goonland.css?v=2.2-dropdown-footer">
-    <script src="/js/goonland.js?v=2.2-dropdown-footer" defer></script>
+    <link rel="stylesheet" href="/css/goonland.css?v=2.2-waifuim-fix1">
+    <script src="/js/goonland.js?v=2.2-waifuim-fix1" defer></script>
 </head>
 
 <body class="goonland-page" data-goonland-page="generator">
