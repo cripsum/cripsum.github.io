@@ -43,6 +43,7 @@ if ($isLoggedIn) {
                 <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/home">Home Page</a></li>
                 <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/goon-generator">Goon Generator</a></li>
                 <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/anime-girl-quiz">Waifu Quiz</a></li>
+                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/smash-or-pass">Smash or Pass</a></li>
                 <li class="nav-item"><a class="nav-link" href="">Coming Soon...</a></li>
                 <!--<li class="nav-item"><a class="nav-link" href="">Coming Soon...</a></li>
                 <li class="nav-item"><a class="nav-link" href="">Coming Soon...</a></li>-->

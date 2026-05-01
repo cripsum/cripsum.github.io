@@ -72,6 +72,9 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
                     <a class="gl-btn gl-btn-main" href="/it/goonland/anime-girl-quiz">
                         <i class="fas fa-heart-pulse"></i> Anime Girl Quiz
                     </a>
+                    <a class="gl-btn gl-btn-main" href="/it/goonland/smash-or-pass">
+                        <i class="fas fa-fire"></i> Smash or Pass
+                    </a>
                     <a class="gl-btn gl-btn-ghost" href="/it/home">
                         <i class="fas fa-arrow-left"></i> Torna al sito
                     </a>
