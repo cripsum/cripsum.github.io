@@ -29,13 +29,6 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 <!DOCTYPE html>
 <html lang="it">
 
-<script type="text/javascript" src="https://cdn.weglot.com/weglot.min.js"></script>
-<script>
-    Weglot.initialize({
-        api_key: 'wg_72caa6b9d495a082f0bbb39c3a5c2bd80'
-    });
-</script>
-
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title data-i18n="meta.title">Cripsum™</title>
