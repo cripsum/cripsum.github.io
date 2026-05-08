@@ -682,7 +682,7 @@ select {
 
 /*social link*/
 
-.social-icons-modern {
+/* .social-icons-modern {
     padding: 20px 0;
 }
 
@@ -757,7 +757,7 @@ select {
 
 .social-link-modern.telegram:hover {
     background: linear-gradient(135deg, #0088cc, #229ed9);
-}
+} */
 
 @media (max-width: 768px) {
     .social-link-modern {
