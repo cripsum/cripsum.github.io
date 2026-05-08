@@ -131,7 +131,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                 <div>
                     <h2>Cosa puoi fare su Cripsum™</h2>
                 </div>
-                <p>Una preview delle pagine principali.</p>
+                <!-- <p>Una preview delle pagine principali.</p> -->
             </div>
 
             <div class="home-slider" id="homeSlider">
