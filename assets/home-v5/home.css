@@ -628,7 +628,7 @@ body.home-v5-body {
     text-decoration: none;
 }
 
-.social-icon-wrapper {
+/* .social-icon-wrapper {
     position: relative;
     display: grid;
     place-items: center;
@@ -688,7 +688,7 @@ body.home-v5-body {
 
 .social-link-modern.telegram .social-icon-wrapper::before {
     background: linear-gradient(135deg, #2aabee, #1676a8);
-}
+} */
 
 /* Extra */
 .home-chaos {
@@ -1122,7 +1122,7 @@ body.home-v5-body .dropdown-divider {
     text-decoration: none;
 }
 
-.social-icon-wrapper {
+/* .social-icon-wrapper {
     position: relative;
     display: grid;
     place-items: center;
@@ -1186,7 +1186,7 @@ body.home-v5-body .dropdown-divider {
 
 .social-link-modern.telegram .social-icon-wrapper::before {
     background: linear-gradient(135deg, #2aabee, #1676a8);
-}
+} */
 
 /* Immagini: meno "riquadro dentro riquadro" */
 .home-slide__media {
