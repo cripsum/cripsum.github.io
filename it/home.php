@@ -23,7 +23,7 @@ $profileUrl = ($isLoggedIn && $currentUsername)
     ? '/u/' . rawurlencode(strtolower((string)$currentUsername))
     : 'accedi';
 
-$ogDescription = 'Homepage di Cripsum™. Edit, meme, lootbox, profili e GoonLand.';
+$ogDescription = 'Homepage di Cripsum™. Edit, meme, lootbox, profili e tanto gooning.';
 $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it/home'), '#');
 ?>
 <!DOCTYPE html>

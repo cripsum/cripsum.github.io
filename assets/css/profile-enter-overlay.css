@@ -1,0 +1,225 @@
+/* ============================================================
+   Cripsum™ — Profile Enter Overlay
+   /assets/css/profile-enter-overlay.css
+   Incluso in profile.php solo se hasMusic && !showAudioPlayer
+   ============================================================ */
+
+/* ── Overlay wrapper ──────────────────────────────────────── */
+.profile-enter-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    /* Safe areas iPhone */
+    padding:
+        env(safe-area-inset-top, 0px)
+        env(safe-area-inset-right, 0px)
+        env(safe-area-inset-bottom, 0px)
+        env(safe-area-inset-left, 0px);
+    /* Fade-in all'apertura */
+    animation: enterOverlayIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: opacity;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* ── Blur layer (backdrop blur sul profilo sotto) ─────────── */
+.profile-enter-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(24px) saturate(1.1);
+    -webkit-backdrop-filter: blur(24px) saturate(1.1);
+    /* Fallback per browser senza backdrop-filter */
+    background: rgba(4, 6, 16, 0.72);
+    z-index: 0;
+}
+
+/* ── Dark scrim ───────────────────────────────────────────── */
+.profile-enter-overlay::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 70% 60% at 50% 50%, rgba(var(--accent-rgb, 15, 91, 255), 0.06), transparent),
+        linear-gradient(180deg, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.52) 100%);
+    z-index: 0;
+}
+
+/* ── Contenuto centrale ───────────────────────────────────── */
+.profile-enter-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.4rem;
+    text-align: center;
+    pointer-events: none;
+}
+
+/* ── Testo principale ─────────────────────────────────────── */
+.profile-enter-text {
+    margin: 0;
+    font-size: clamp(1.15rem, 3.5vw, 1.6rem);
+    font-weight: 300;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(247, 248, 255, 0.82);
+    text-shadow:
+        0 0 40px rgba(var(--accent-rgb, 15, 91, 255), 0.55),
+        0 0 80px rgba(var(--accent-rgb, 15, 91, 255), 0.22),
+        0 2px 12px rgba(0, 0, 0, 0.6);
+    animation: enterTextFloat 3.2s ease-in-out infinite alternate;
+    will-change: transform, opacity;
+}
+
+/* Lineetta decorativa sotto il testo */
+.profile-enter-text::after {
+    content: '';
+    display: block;
+    width: 2rem;
+    height: 1px;
+    margin: 1.1rem auto 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(var(--accent-rgb, 15, 91, 255), 0.7),
+        transparent
+    );
+    animation: enterLineGrow 0.9s 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Hint "tap / click" piccolo sotto ─────────────────────── */
+.profile-enter-hint {
+    font-size: 0.68rem;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(247, 248, 255, 0.28);
+    animation: enterFadeUp 1.1s 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Stato: dismissing (fade-out) ─────────────────────────── */
+.profile-enter-overlay.is-leaving {
+    animation: enterOverlayOut 0.55s cubic-bezier(0.4, 0, 1, 1) both;
+    pointer-events: none;
+}
+
+.profile-enter-overlay.is-leaving::before {
+    /* Riduzione del blur durante il fade-out */
+    backdrop-filter: blur(8px) saturate(1.0);
+    -webkit-backdrop-filter: blur(8px) saturate(1.0);
+    transition: backdrop-filter 0.55s ease;
+}
+
+.profile-enter-overlay.is-leaving .profile-enter-text {
+    animation: none;
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* ── Keyframes ────────────────────────────────────────────── */
+@keyframes enterOverlayIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes enterOverlayOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes enterTextFloat {
+    from {
+        transform: translateY(0px);
+        opacity: 0.82;
+    }
+    to {
+        transform: translateY(-5px);
+        opacity: 1;
+    }
+}
+
+@keyframes enterLineGrow {
+    from {
+        width: 0;
+        opacity: 0;
+    }
+    to {
+        width: 2rem;
+        opacity: 1;
+    }
+}
+
+@keyframes enterFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ── Tema chiaro ──────────────────────────────────────────── */
+body[data-theme="light"] .profile-enter-overlay::before {
+    background: rgba(230, 235, 255, 0.65);
+}
+
+body[data-theme="light"] .profile-enter-text {
+    color: rgba(17, 24, 39, 0.78);
+    text-shadow:
+        0 0 40px rgba(var(--accent-rgb, 15, 91, 255), 0.4),
+        0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+body[data-theme="light"] .profile-enter-hint {
+    color: rgba(17, 24, 39, 0.35);
+}
+
+/* ── Riduzione movimento (accessibilità) ──────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    .profile-enter-overlay {
+        animation: none;
+        opacity: 1;
+    }
+    .profile-enter-text {
+        animation: none;
+    }
+    .profile-enter-text::after {
+        animation: none;
+        width: 2rem;
+        opacity: 1;
+    }
+    .profile-enter-hint {
+        animation: none;
+        opacity: 1;
+    }
+    .profile-enter-overlay.is-leaving {
+        animation: none;
+        transition: opacity 0.2s ease;
+        opacity: 0;
+    }
+}
+
+/* ── Mobile ───────────────────────────────────────────────── */
+@media (max-width: 480px) {
+    .profile-enter-text {
+        letter-spacing: 0.16em;
+    }
+}

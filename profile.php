@@ -141,6 +141,11 @@ $musicTitle = $profile ? trim((string)($profile['profile_music_title'] ?? '')) :
 $musicArtist = $profile ? trim((string)($profile['profile_music_artist'] ?? '')) : '';
 $showAudioPlayer = $profile ? ((int)($profile['profile_show_audio_player'] ?? 1) === 1) : false;
 $hasMusic = $hasUploadedMusic || ($musicExternalUrl !== '' && profile_is_safe_url($musicExternalUrl, true));
+$enterText = '';
+if ($profile && !$showAudioPlayer && $hasMusic) {
+    $raw = trim((string)($profile['profile_enter_text'] ?? ''));
+    $enterText = ($raw !== '') ? profile_clean_text($raw, 80) : 'Click Anywhere :]';
+}
 $profileEffect = $profile ? profile_allowed_value((string)($profile['profile_effect'] ?? 'none'), ['none', 'cursor_glow', 'soft_particles', 'scanlines', 'ambient', 'aurora', 'gradient_waves', 'stars', 'spotlight', 'digital_noise', 'glass_rain'], 'none') : 'none';
 $avatarRingEnabled = $profile ? ((int)($profile['avatar_ring_enabled'] ?? 1) === 1) : true;
 $avatarRingStyle = $profile ? profile_allowed_value((string)($profile['avatar_ring_style'] ?? 'spin'), ['spin', 'pulse', 'orbit', 'glow', 'dual', 'rainbow', 'halo', 'neon', 'spark', 'glitch', 'none'], 'spin') : 'spin';
@@ -203,7 +208,13 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
     <link rel="stylesheet" href="/assets/css/profile.css?v=3.0.2-effects-db-fix">
+    <?php if ($hasMusic && !$showAudioPlayer): ?>
+        <link rel="stylesheet" href="/assets/css/profile-enter-overlay.css?v=1.0.0">
+    <?php endif; ?>
     <script src="/assets/js/profile.js?v=3.0.2-effects-db-fix" defer></script>
+    <?php if ($hasMusic && !$showAudioPlayer): ?>
+        <script src="/assets/js/profile-enter-overlay.js?v=1.0.0" defer></script>
+    <?php endif; ?>
 </head>
 
 <body
@@ -223,6 +234,20 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     ?>
 
     <?php profile_render_background($profile, $backgroundUrl, $backgroundType); ?>
+    <?php if ($hasMusic && !$showAudioPlayer && $enterText !== ''): ?>
+        <div
+            class="profile-enter-overlay"
+            id="profileEnterOverlay"
+            role="button"
+            tabindex="0"
+            aria-label="Entra nel profilo"
+            aria-modal="true">
+            <div class="profile-enter-content">
+                <p class="profile-enter-text"><?php echo profile_h($enterText); ?></p>
+                <span class="profile-enter-hint">tap anywhere</span>
+            </div>
+        </div>
+    <?php endif; ?>
     <div class="profile-effects-layer" aria-hidden="true"></div>
 
     <?php if ($isNotFound): ?>

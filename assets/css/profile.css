@@ -4704,3 +4704,7 @@ body[data-theme="light"] .profile-select-menu {
         overflow: auto;
     }
 }
+
+body.profile-enter-active {
+    overflow: hidden;
+}
