@@ -71,7 +71,6 @@ $showContents = profile_bool_from_post('profile_show_contents', true);
 $showBadges = profile_bool_from_post('profile_show_badges', true);
 $showActivity = profile_bool_from_post('profile_show_activity', true);
 $showDiscord = profile_bool_from_post('profile_show_discord', true);
-$profile_enter_text = profile_clean_text($_POST['profile_enter_text'] ?? '', 80);
 
 if (!profile_is_valid_username($username)) {
     profile_json_response(['ok' => false, 'message' => 'Username non valido. Usa 3-20 caratteri, lettere, numeri o underscore.'], 422);
@@ -141,10 +140,10 @@ $contentRows = array_slice(profile_decode_rows('contents_json'), 0, 8);
 $blockRows = array_slice(profile_decode_rows('blocks_json'), 0, 10);
 $badgeRows = array_slice(profile_decode_rows('badges_json'), 0, 8);
 
-$allowedPlatforms = ['tiktok', 'instagram', 'youtube', 'twitch', 'github', 'discord', 'telegram', 'x', 'twitter', 'spotify', 'soundcloud', 'steam', 'reddit', 'pinterest', 'snapchat', 'facebook', 'linkedin', 'paypal', 'patreon', 'kick', 'bluesky', 'threads', 'behance', 'dribbble', 'website', 'email', 'other'];
-$allowedStatuses = ['active', 'paused', 'finished', 'idea'];
-$allowedContentTypes = ['edit', 'video', 'game', 'post', 'other'];
-$allowedBlockTypes = ['text', 'image', 'gif', 'video'];
+$allowedPlatforms = ['tiktok','instagram','youtube','twitch','github','discord','telegram','x','twitter','spotify','soundcloud','steam','reddit','pinterest','snapchat','facebook','linkedin','paypal','patreon','kick','bluesky','threads','behance','dribbble','website','email','other'];
+$allowedStatuses = ['active','paused','finished','idea'];
+$allowedContentTypes = ['edit','video','game','post','other'];
+$allowedBlockTypes = ['text','image','gif','video'];
 
 try {
     $mysqli->begin_transaction();
@@ -153,12 +152,12 @@ try {
         UPDATE utenti
         SET username = ?, display_name = ?, bio = ?, accent_color = ?, profile_secondary_color = ?, profile_card_color = ?, profile_text_color = ?, profile_link_style = ?, profile_button_shape = ?, profile_theme = ?, profile_layout = ?, profile_visibility = ?, discord_id = ?, discord_use_avatar = ?, discord_use_display_name = ?, profile_status = ?,
             profile_music_url = ?, profile_music_title = ?, profile_music_artist = ?, profile_effect = ?, avatar_ring_style = ?, avatar_ring_color = ?,
-            profile_show_stats = ?, profile_show_socials = ?, profile_show_links = ?, profile_show_projects = ?, profile_show_contents = ?, profile_show_badges = ?, profile_show_activity = ?, profile_show_discord = ?, profile_show_audio_player = ?, avatar_ring_enabled = ?, profile_enter_text = ?,
+            profile_show_stats = ?, profile_show_socials = ?, profile_show_links = ?, profile_show_projects = ?, profile_show_contents = ?, profile_show_badges = ?, profile_show_activity = ?, profile_show_discord = ?, profile_show_audio_player = ?, avatar_ring_enabled = ?,
             profile_updated_at = NOW()
         WHERE id = ?
     ");
     $stmt->bind_param(
-        'sssssssssssssiisssssssiiiiiiiiiiis',
+        'sssssssssssssiisssssssiiiiiiiiiii',
         $username,
         $displayNameDb,
         $bioDb,
@@ -191,8 +190,7 @@ try {
         $showDiscord,
         $showAudioPlayer,
         $avatarRingEnabled,
-        $targetUserId,
-        $profile_enter_text
+        $targetUserId
     );
     if (!$stmt->execute()) throw new RuntimeException('Errore salvataggio profilo.');
     $stmt->close();

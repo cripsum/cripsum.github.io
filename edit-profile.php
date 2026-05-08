@@ -231,17 +231,6 @@ function profile_json_script(string $id, array $data): void
                         <label class="profile-field"><span>Titolo canzone</span><input type="text" name="profile_music_title" id="musicTitleInput" maxlength="80" value="<?php echo profile_h($profile['profile_music_title'] ?? ''); ?>" placeholder="Nome canzone"></label>
                         <label class="profile-field"><span>Artista / nota</span><input type="text" name="profile_music_artist" id="musicArtistInput" maxlength="80" value="<?php echo profile_h($profile['profile_music_artist'] ?? ''); ?>" placeholder="Artista o fonte"></label>
                         <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_show_audio_player" value="0"><input type="checkbox" name="profile_show_audio_player" value="1" <?php echo (int)($profile['profile_show_audio_player'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-sliders"></i>Mostra player</span></label>
-                        <label class="profile-field profile-field--enter-text" id="enterTextFieldWrap">
-                            <span>Testo schermata di ingresso</span>
-                            <input
-                                type="text"
-                                name="profile_enter_text"
-                                id="enterTextInput"
-                                maxlength="80"
-                                value="<?php echo profile_h($profile['profile_enter_text'] ?? ''); ?>"
-                                placeholder="Click Anywhere :]">
-                            <small>Appare solo quando il player è nascosto. Lascia vuoto per quello di default.</small>
-                        </label>
                         <?php if (!empty($profile['profile_music_mime'])): ?>
                             <label class="profile-toggle-card profile-inline-toggle"><input type="checkbox" name="remove_profile_music_upload" value="1"><span><i class="fas fa-trash"></i>Rimuovi MP3 caricato</span></label>
                         <?php endif; ?>
