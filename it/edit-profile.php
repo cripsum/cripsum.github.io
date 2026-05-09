@@ -49,7 +49,7 @@ $displayName = profile_display_name($profile);
 $discordConnected = !empty($profile['discord_id']) && !empty($profile['discord_username']);
 $discordAvatarUrl = $discordConnected ? profile_discord_avatar_url((string)$profile['discord_id'], $profile['discord_avatar'] ?? null, 128) : null;
 $discordDisplayName = trim((string)($profile['discord_global_name'] ?? '')) ?: trim((string)($profile['discord_username'] ?? ''));
-$connectDiscordUrl = '/auth/discord_connect.php' . (profile_is_staff() && $targetUserId !== $currentUserId ? '?target_user_id=' . (int)$targetUserId : '');
+$connectDiscordUrl = '../auth/discord_connect.php' . (profile_is_staff() && $targetUserId !== $currentUserId ? '?target_user_id=' . (int)$targetUserId : '');
 $backgroundUrl = !empty($profile['profile_banner_type']) ? '../includes/get_profile_banner.php?id=' . (int)$profile['id'] : '../vid/Shorekeeper Wallpaper 4K Loop.mp4';
 $backgroundType = !empty($profile['profile_banner_type']) ? (string)$profile['profile_banner_type'] : 'video/mp4';
 $backgroundIsVideo = str_starts_with($backgroundType, 'video/');
@@ -128,7 +128,7 @@ function profile_json_script(string $id, array $data): void
             </div>
         </header>
 
-        <form id="profileEditForm" class="profile-edit-grid" method="post" enctype="multipart/form-data" action="/api/update_profile.php">
+        <form id="profileEditForm" class="profile-edit-grid" method="post" enctype="multipart/form-data" action="../api/update_profile.php">
             <input type="hidden" name="csrf_token" value="<?php echo profile_h($csrf); ?>">
             <input type="hidden" name="target_user_id" value="<?php echo (int)$targetUserId; ?>">
             <input type="hidden" name="socials_json" id="socialsJson">
