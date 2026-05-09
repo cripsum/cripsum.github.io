@@ -241,7 +241,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                         <span class="bio-pill"><i class="fas fa-signal"></i><?php echo profile_h($customStatus); ?></span>
                     <?php endif; ?>
                     <?php if ($canEdit): ?>
-                        <a class="bio-small-button" href="/edit-profile.php<?php echo profile_is_staff() && !$isOwnProfile ? '?user_id=' . (int)$profile['id'] : ''; ?>" aria-label="Modifica"><i class="fas fa-pen"></i></a>
+                        <a class="bio-small-button" href="/it/edit-profile<?php echo profile_is_staff() && !$isOwnProfile ? '?user_id=' . (int)$profile['id'] : ''; ?>" aria-label="Modifica"><i class="fas fa-pen"></i></a>
                     <?php endif; ?>
                 </div>
 
@@ -300,7 +300,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                     <div class="profile-owner-nudge">
                         <i class="fas fa-plus"></i>
                         <span>Aggiungi link, badge o contenuti per riempire la bio.</span>
-                        <a href="/edit-profile.php">Modifica</a>
+                        <a href="/it/edit-profile">Modifica</a>
                     </div>
                 <?php endif; ?>
 
