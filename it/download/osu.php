@@ -35,7 +35,7 @@ $download = [
 
 <body class="download-page">
     <?php include '../../includes/navbar.php'; ?>
-    <?php include '../../includes/impostazioni.php'; ?>
+    
 
     <div class="download-bg" aria-hidden="true">
         <span class="download-orb download-orb--one"></span>

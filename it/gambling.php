@@ -29,7 +29,7 @@ $username = $_SESSION['username'] ?? 'Utente';
 
 <body class="gambling-page">
     <?php include '../includes/navbar.php'; ?>
-    <?php include '../includes/impostazioni.php'; ?>
+    
 
     <div class="gambling-bg" aria-hidden="true">
         <span class="gambling-orb gambling-orb--one"></span>

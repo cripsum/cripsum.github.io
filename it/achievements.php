@@ -49,7 +49,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
 <body class="ach-page">
     <?php include '../includes/navbar.php'; ?>
-    <?php include '../includes/impostazioni.php'; ?>
+    
 
     <div class="ach-bg" aria-hidden="true">
         <span class="ach-orb ach-orb--one"></span>

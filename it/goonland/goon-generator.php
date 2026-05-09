@@ -275,7 +275,7 @@ if ($stmt) {
 
 <body class="goonland-page" data-goonland-page="generator">
     <?php include '../../includes/navbar-goonland.php'; ?>
-    <?php include '../../includes/impostazioni.php'; ?>
+    
 
     <div class="gl-bg" aria-hidden="true"><span></span><span></span></div>
 

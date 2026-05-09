@@ -35,7 +35,7 @@ $products = [
 
 <body class="shop-page shop-theme-store" data-shop-page="negozio" data-favorites="1">
     <?php include '../includes/navbar.php'; ?>
-    <?php include '../includes/impostazioni.php'; ?>
+    
 
     <main class="shop-shell">
         <section class="shop-hero shop-reveal">

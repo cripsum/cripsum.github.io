@@ -32,7 +32,7 @@ $downloads = [
 
 <body class="shop-page shop-theme-download" data-shop-page="download" data-favorites="0">
     <?php include '../includes/navbar.php'; ?>
-    <?php include '../includes/impostazioni.php'; ?>
+    
 
     <main class="shop-shell">
         <section class="shop-hero shop-reveal">

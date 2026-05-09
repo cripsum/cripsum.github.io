@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body class="auth-page">
     <?php include '../includes/navbar.php'; ?>
-    <?php include '../includes/impostazioni.php'; ?>
+    
 
     <main class="auth-shell">
         <section class="auth-card auth-reveal">

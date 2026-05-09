@@ -20,7 +20,7 @@ $lastUpdated = 'Aprile 2026';
 
 <body class="static-page">
     <?php include '../includes/navbar.php'; ?>
-    <?php include '../includes/impostazioni.php'; ?>
+    
 
 
     <div class="static-bg" aria-hidden="true">

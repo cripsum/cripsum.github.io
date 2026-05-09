@@ -459,7 +459,7 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
 
 <body class="goonland-page" data-goonland-page="anime-quiz">
     <?php include '../../includes/navbar-goonland.php'; ?>
-    <?php include '../../includes/impostazioni.php'; ?>
+    
 
     <div class="gl-bg" aria-hidden="true"><span></span><span></span></div>
 

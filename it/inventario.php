@@ -47,7 +47,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
 <body class="inv-page">
     <?php include '../includes/navbar.php'; ?>
-    <?php include '../includes/impostazioni.php'; ?>
+     
 
     <div class="inv-bg" aria-hidden="true">
         <span class="inv-orb inv-orb--one"></span>

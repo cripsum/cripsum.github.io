@@ -32,7 +32,7 @@ unset($_SESSION['result_candidatura']);
 
 <body class="form-page">
     <?php include '../includes/navbar.php'; ?>
-    <?php include '../includes/impostazioni.php'; ?>
+    
 
 
     <div class="form-bg" aria-hidden="true">

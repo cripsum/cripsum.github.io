@@ -177,7 +177,7 @@ if ($twofaSetupSecret) {
 
 <body class="auth-page settings-page">
     <?php include '../includes/navbar.php'; ?>
-    <?php include '../includes/impostazioni.php'; ?>
+    
 
     <main class="settings-shell">
         <header class="settings-hero auth-reveal">

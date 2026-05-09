@@ -25,7 +25,7 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
 </head>
 <body class="game-page" data-page="duel-arena" data-match-id="<?php echo htmlspecialchars((string)$matchId, ENT_QUOTES, 'UTF-8'); ?>">
     <?php include '../../includes/navbar.php'; ?>
-    <?php include '../../includes/impostazioni.php'; ?>
+    
     <div class="game-bg" aria-hidden="true"><span></span><span></span></div>
 
     <main class="game-shell game-arena-shell">

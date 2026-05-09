@@ -25,7 +25,7 @@ if (!isLoggedIn()) {
 
 <body class="game-page" data-page="duel-lobby">
     <?php include '../../includes/navbar.php'; ?>
-    <?php include '../../includes/impostazioni.php'; ?>
+    
     <div class="game-bg" aria-hidden="true"><span></span><span></span></div>
 
     <main class="game-shell game-lobby-shell">

@@ -53,7 +53,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
 
 <body class="goonland-page" data-goonland-page="home">
     <?php include '../../includes/navbar-goonland.php'; ?>
-    <?php include '../../includes/impostazioni.php'; ?>
+    
 
     <div class="gl-bg" aria-hidden="true"><span></span><span></span></div>
 

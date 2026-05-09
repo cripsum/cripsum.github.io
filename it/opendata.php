@@ -112,7 +112,7 @@ checkBan($mysqli);
 
 <body class="">
   <?php include '../includes/navbar.php'; ?>
-  <?php include '../includes/impostazioni.php'; ?>
+  
   <!-- TO DO
            bloccare lo scorrimento della pagina quando il menu della navbar è aperto (aggiungere classe overflow-hidden al body) 
            bloccare lo scorrimento della pagina quando il pop up è aperto (aggiungere classe overflow-hidden al body)  

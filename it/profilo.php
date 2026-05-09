@@ -123,7 +123,7 @@ $stmt->close();
 <body>
 
     <?php include '../includes/navbar.php'; ?>
-    <?php include '../includes/impostazioni.php'; ?>
+    
 
     <div class="container my-5 paginainterachisiamo testobianco" style="padding-top: 5rem; padding-bottom: 4rem;">
         <div class="row mb-4 fadeup">

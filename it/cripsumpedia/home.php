@@ -324,7 +324,7 @@ if (!isOwner()) {
 
 <body class="">
     <?php include '../../includes/navbar.php'; ?>
-    <?php include '../../includes/impostazioni.php'; ?>
+    
 
     <div class="main-content">
         <div class="page-header">

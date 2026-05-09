@@ -43,7 +43,7 @@ checkBan($mysqli);
 
 <body>
     <?php include '../includes/navbar.php'; ?>
-    <?php include '../includes/impostazioni.php'; ?>
+    
 
     <div class="main-container fadeup" style="padding-top: 7rem">
         <section class="chisiamo-section" style="border-radius: 20px;">

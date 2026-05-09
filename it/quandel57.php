@@ -14,7 +14,7 @@ checkBan($mysqli);
 
 <body>
     <?php include '../includes/navbar.php'; ?>
-    <?php include '../includes/impostazioni.php'; ?>
+    
 
     <div style="max-width: 600px; margin: auto; padding-top: 7rem; padding-bottom: 4rem;" class="testobianco">
         <div id="carouselExampleIndicators" class="carousel slide carosellone fadeup">

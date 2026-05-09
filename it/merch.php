@@ -38,7 +38,7 @@ $products = [
 
 <body class="shop-page shop-theme-merch" data-shop-page="merch" data-favorites="1">
     <?php include '../includes/navbar.php'; ?>
-    <?php include '../includes/impostazioni.php'; ?>
+    
 
     <main class="shop-shell">
         <section class="shop-hero shop-reveal">

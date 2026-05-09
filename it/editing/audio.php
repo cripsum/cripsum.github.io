@@ -31,7 +31,7 @@ if (!isOwner()) {
 
 <body>
     <?php include '../../includes/navbar.php'; ?>
-    <?php include '../../includes/impostazioni.php'; ?>
+    
 
     <div class="page-section">
         <div class="container-fluid py-5">

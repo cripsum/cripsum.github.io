@@ -312,7 +312,7 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
 </head>
 <body class="goonland-page" data-goonland-page="smash-pass">
     <?php include '../../includes/navbar-goonland.php'; ?>
-    <?php include '../../includes/impostazioni.php'; ?>
+    
 
     <div class="gl-bg" aria-hidden="true"><span></span><span></span></div>
 

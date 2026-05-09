@@ -351,7 +351,7 @@ $totalEdits = count($edits);
 
 <body class="edits-page">
     <?php include '../includes/navbar.php'; ?>
-    <?php include '../includes/impostazioni.php'; ?>
+    
 
     <div class="edits-bg" aria-hidden="true">
         <span class="edits-orb edits-orb--one"></span>
