@@ -1,15 +1,15 @@
 <?php
-require_once __DIR__ . '/config/session_init.php';
-require_once __DIR__ . '/config/database.php';
-require_once __DIR__ . '/includes/functions.php';
-require_once __DIR__ . '/includes/profile_helpers.php';
+require_once __DIR__ . '/../config/session_init.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/profile_helpers.php';
 
 checkBan($mysqli);
 
 if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
     $_SESSION['login_message'] = 'Per modificare il profilo devi essere loggato';
-    header('Location: /it/accedi');
+    header('Location: accedi');
     exit;
 }
 
@@ -50,7 +50,7 @@ $discordConnected = !empty($profile['discord_id']) && !empty($profile['discord_u
 $discordAvatarUrl = $discordConnected ? profile_discord_avatar_url((string)$profile['discord_id'], $profile['discord_avatar'] ?? null, 128) : null;
 $discordDisplayName = trim((string)($profile['discord_global_name'] ?? '')) ?: trim((string)($profile['discord_username'] ?? ''));
 $connectDiscordUrl = '/auth/discord_connect.php' . (profile_is_staff() && $targetUserId !== $currentUserId ? '?target_user_id=' . (int)$targetUserId : '');
-$backgroundUrl = !empty($profile['profile_banner_type']) ? '/includes/get_profile_banner.php?id=' . (int)$profile['id'] : '/vid/Shorekeeper Wallpaper 4K Loop.mp4';
+$backgroundUrl = !empty($profile['profile_banner_type']) ? '../includes/get_profile_banner.php?id=' . (int)$profile['id'] : '../vid/Shorekeeper Wallpaper 4K Loop.mp4';
 $backgroundType = !empty($profile['profile_banner_type']) ? (string)$profile['profile_banner_type'] : 'video/mp4';
 $backgroundIsVideo = str_starts_with($backgroundType, 'video/');
 $backgroundIsImage = str_starts_with($backgroundType, 'image/');
@@ -66,7 +66,7 @@ function profile_json_script(string $id, array $data): void
 <html lang="it">
 
 <head>
-    <?php include __DIR__ . '/includes/head-import.php'; ?>
+    <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Modifica profilo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/assets/css/profile.css?v=3.0.3">
@@ -76,16 +76,16 @@ function profile_json_script(string $id, array $data): void
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" style="--profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColor ?: 'var(--card)'); ?>; --profile-text-color: <?php echo profile_h($textColor ?: 'var(--text)'); ?>;">
     <?php
-    if (file_exists(__DIR__ . '/includes/navbar-bio.php')) {
-        include __DIR__ . '/includes/navbar-bio.php';
+    if (file_exists(__DIR__ . '/../includes/navbar-bio.php')) {
+        include __DIR__ . '/../includes/navbar-bio.php';
     } else {
-        include __DIR__ . '/includes/navbar.php';
+        include __DIR__ . '/../includes/navbar.php';
     }
-    if (file_exists(__DIR__ . '/includes/impostazioni.php')) include __DIR__ . '/includes/impostazioni.php';
+    if (file_exists(__DIR__ . '/../includes/impostazioni.php')) include __DIR__ . '/../includes/impostazioni.php';
     ?>
 
     <?php if ($discordConnected): ?>
-        <form id="disconnectDiscordForm" method="post" action="/auth/discord_disconnect.php" class="profile-hidden-form">
+        <form id="disconnectDiscordForm" method="post" action="../auth/discord_disconnect.php" class="profile-hidden-form">
             <input type="hidden" name="csrf_token" value="<?php echo profile_h($csrf); ?>">
             <input type="hidden" name="target_user_id" value="<?php echo (int)$targetUserId; ?>">
         </form>
@@ -400,7 +400,7 @@ function profile_json_script(string $id, array $data): void
     <?php profile_json_script('initialContentsData', $contents); ?>
     <?php profile_json_script('initialBlocksData', $blocks); ?>
 
-    <?php if (file_exists(__DIR__ . '/includes/footer.php')) include __DIR__ . '/includes/footer.php'; ?>
+    <?php if (file_exists(__DIR__ . '/../includes/footer.php')) include __DIR__ . '/../includes/footer.php'; ?>
 </body>
 
 </html>
