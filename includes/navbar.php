@@ -115,7 +115,6 @@ if ($isLoggedIn) {
         window.addEventListener('load', function() {
             var script = document.createElement('script');
             script.src = '/js/richpresence.js';
-            script.setAttribute('nonce', '<?php echo isset($cspNonce) ? htmlspecialchars($cspNonce) : ""; ?>');
             document.head.appendChild(script);
         });
     </script>

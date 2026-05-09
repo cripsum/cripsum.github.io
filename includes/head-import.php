@@ -7,7 +7,13 @@
             }
             gtag("js", new Date());
 
-            gtag("config", "G-T0CTM2SBJJ");
+            gtag("config", "G-T0CTM2SBJJ", {
+                'allow_google_signals': false,
+                'allow_ad_personalization_signals': false,
+                'content_security_policy': {
+                    'script-src': "'self' https://www.googletagmanager.com 'unsafe-eval'"
+                }
+            });
         </script>
         <script>
             fetch('/api/update_activity.php');
