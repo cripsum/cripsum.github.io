@@ -40,7 +40,7 @@ if ($isLoggedIn) {
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/home"><i class="fas fa-home me-2"></i>Home page</a></li>
                 <li class="nav-item dropdown dropdownutenti">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fas fa-meme me-2"></i>Memes</a>
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fas fa-image me-2"></i>Memes</a>
                     <ul class="dropdown-menu animate slideIn">
                         <li><a class="dropdown-item" href="/<?= $lang ?>/shitpost"><i class="fas fa-image me-2"></i>Shitpost</a></li>
                         <li><a class="dropdown-item" href="/<?= $lang ?>/tiktokpedia"><i class="fas fa-video me-2"></i>TikTokPedia</a></li>
@@ -71,7 +71,7 @@ if ($isLoggedIn) {
                         <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/chisiamo"><i class="fas fa-info-circle me-2"></i>Chi siamo</a></li>
                     </ul>
                 </li>
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/edits"><i class="fas fa-edit me-2"></i>Edits</a></li>
+                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/edits"><i class="fas fa-video me-2"></i>Edits</a></li>
                 <div class="navbar-search-wrapper" id="navbarSearch">
                     <div class="navbar-search-group">
                         <i class="fas fa-search navbar-search-icon"></i>
