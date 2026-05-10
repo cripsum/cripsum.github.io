@@ -43,7 +43,7 @@ if ($isLoggedIn) {
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fas fa-image me-2"></i>Memes</a>
                     <ul class="dropdown-menu animate slideIn">
                         <li><a class="dropdown-item" href="/<?= $lang ?>/shitpost"><i class="fas fa-fire me-2"></i>Shitpost</a></li>
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/tiktokpedia"><i class="fas fa-tiktok me-2"></i>TikTokPedia</a></li>
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/tiktokpedia"><i class="fas fa-brands fa-tiktok me-2"></i>TikTokPedia</a></li>
                         <li><a class="dropdown-item" href="/<?= $lang ?>/rimasti"><i class="fas fa-star me-2"></i>Top rimasti</a></li>
                         <li><a class="dropdown-item" href="/<?= $lang ?>/cripsumpedia/home"><i class="fas fa-book me-2"></i>CripsumPedia</a></li>
                     </ul>
