@@ -42,7 +42,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <audio id="globalMusic" loop>
+        <!-- <audio id="globalMusic" loop>
             <source src="../audio/sahur.mp3" type="audio/mpeg">
         </audio>
 
@@ -87,4 +87,4 @@
             audio.addEventListener("play", () => {
                 localStorage.setItem("musicPlaying", "true");
             });
-        </script>
+        </script> -->
