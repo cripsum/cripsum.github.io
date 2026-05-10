@@ -49,7 +49,7 @@
         <script>
             const audio = document.getElementById("globalMusic");
 
-            audio.volume = 0.3;
+            audio.volume = 0.2;
 
             const savedTime = localStorage.getItem("musicTime");
             const wasPlaying = localStorage.getItem("musicPlaying");
