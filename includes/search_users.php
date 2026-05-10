@@ -1,4 +1,5 @@
 <?php
+
 /**
  * search_users.php
  * Endpoint AJAX per la ricerca utenti in tempo reale.
@@ -9,7 +10,7 @@
  */
 
 session_start();
-require_once __DIR__ . '/../config/db.php'; // Adatta il path alla tua connessione $mysqli
+require_once __DIR__ . '/../config/database.php'; // Adatta il path alla tua connessione $mysqli
 
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
