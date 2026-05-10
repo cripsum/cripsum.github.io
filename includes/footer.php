@@ -24,10 +24,10 @@ $footerYear = date('Y');
         <div class="footer-section">
             <h6 class="footer-subtitle">Link utili</h6>
             <ul class="footer-links">
-                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/privacy" class="footer-link"><i class="fas fa-shield-alt"></i> Privacy</a></li>
-                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/tos" class="footer-link"><i class="fas fa-file-contract"></i> Termini</a></li>
-                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/supporto" class="footer-link"><i class="fas fa-headset"></i> Supporto</a></li>
-                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/chat-policy" class="footer-link"><i class="fas fa-comments"></i> Regolamento chat</a></li>
+                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/privacy" class="footer-link"><i class="fas fa-shield-alt" style="margin-right: 4px;"></i>Privacy</a></li>
+                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/tos" class="footer-link"><i class="fas fa-file-contract" style="margin-right: 4px;"></i>Termini</a></li>
+                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/supporto" class="footer-link"><i class="fas fa-headset" style="margin-right: 4px;"></i>Supporto</a></li>
+                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/chat-policy" class="footer-link"><i class="fas fa-comments" style="margin-right: 4px;"></i>Regolamento chat</a></li>
             </ul>
         </div>
 
