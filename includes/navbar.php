@@ -42,7 +42,7 @@ if ($isLoggedIn) {
                 <li class="nav-item dropdown dropdownutenti">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fas fa-image me-2"></i>Memes</a>
                     <ul class="dropdown-menu animate slideIn">
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/shitpost"><i class="fas fa-image me-2"></i>Shitpost</a></li>
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/shitpost"><i class="fas fa-fire me-2"></i>Shitpost</a></li>
                         <li><a class="dropdown-item" href="/<?= $lang ?>/tiktokpedia"><i class="fas fa-video me-2"></i>TikTokPedia</a></li>
                         <li><a class="dropdown-item" href="/<?= $lang ?>/rimasti"><i class="fas fa-star me-2"></i>Top rimasti</a></li>
                         <li><a class="dropdown-item" href="/<?= $lang ?>/cripsumpedia/home"><i class="fas fa-book me-2"></i>CripsumPedia</a></li>
@@ -68,7 +68,7 @@ if ($isLoggedIn) {
                     <ul class="dropdown-menu animate slideIn">
                         <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/download"><i class="fas fa-download me-2"></i>Downloads</a></li>
                         <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/donazioni"><i class="fas fa-heart me-2"></i>Donazioni</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/chisiamo"><i class="fas fa-info-circle me-2"></i>Chi siamo</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/chisiamo"><i class="fas fa-users me-2"></i>Chi siamo</a></li>
                     </ul>
                 </li>
                 <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/edits"><i class="fas fa-video me-2"></i>Edits</a></li>
