@@ -48,6 +48,7 @@ if ($isLoggedIn) {
                 <!--<li class="nav-item"><a class="nav-link" href="">Coming Soon...</a></li>
                 <li class="nav-item"><a class="nav-link" href="">Coming Soon...</a></li>-->
             </ul>
+            
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 <?php if (!$isLoggedIn): ?>
