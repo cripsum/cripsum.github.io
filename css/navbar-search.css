@@ -1,0 +1,262 @@
+/* ============================================================
+   navbar-search.css
+   Barra di ricerca utenti nella navbar — tema glassmorphism dark
+   Da includere dopo style-dark.css
+   ============================================================ */
+
+/* ── Wrapper ─────────────────────────────────────────────── */
+.navbar-search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin: 0 8px;
+}
+
+/* ── Input group ─────────────────────────────────────────── */
+.navbar-search-group {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 10px;
+    padding: 0 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 190px;
+}
+
+.navbar-search-group:focus-within {
+    background: rgba(255, 255, 255, 0.13);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.07);
+    width: 230px;
+}
+
+.navbar-search-icon {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    pointer-events: none;
+    transition: color 0.3s ease;
+}
+
+.navbar-search-group:focus-within .navbar-search-icon {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.navbar-search-input {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-size: 0.875rem;
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    padding: 7px 8px !important;
+    width: 100%;
+    caret-color: rgba(255, 255, 255, 0.8);
+}
+
+.navbar-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+/* Clear button */
+.navbar-search-clear {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.75rem;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color 0.2s ease;
+    display: none;
+}
+
+.navbar-search-clear:hover {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* ── Dropdown risultati ───────────────────────────────────── */
+.navbar-search-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    right: 0;
+    min-width: 260px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background: linear-gradient(135deg, rgba(30, 30, 30, 0.97), rgba(18, 18, 18, 0.99));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    z-index: 9999;
+    overflow: hidden;
+
+    /* Animazione apertura */
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar-search-dropdown.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+}
+
+/* ── Singolo risultato ────────────────────────────────────── */
+.search-result-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.88);
+    transition: background 0.2s ease, color 0.2s ease;
+    border-radius: 0;
+}
+
+.search-result-item:first-child {
+    border-radius: 14px 14px 0 0;
+}
+
+.search-result-item:last-child {
+    border-radius: 0 0 14px 14px;
+}
+
+.search-result-item:only-child {
+    border-radius: 14px;
+}
+
+.search-result-item:hover,
+.search-result-item.focused {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.search-result-item + .search-result-item {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Avatar */
+.search-result-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Info utente */
+.search-result-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.search-result-username {
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Badge ruolo */
+.search-result-role {
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.55;
+}
+
+.search-result-role.owner  { color: #ffd700; opacity: 0.9; }
+.search-result-role.admin  { color: #ff6b6b; opacity: 0.9; }
+.search-result-role.utente { color: rgba(255,255,255,0.45); }
+
+/* Freccia ↗ a destra */
+.search-result-arrow {
+    margin-left: auto;
+    font-size: 0.7rem;
+    opacity: 0;
+    color: rgba(255, 255, 255, 0.5);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    flex-shrink: 0;
+}
+
+.search-result-item:hover .search-result-arrow,
+.search-result-item.focused .search-result-arrow {
+    opacity: 1;
+    transform: translate(2px, -2px);
+}
+
+/* ── Stati speciali ───────────────────────────────────────── */
+.search-status-msg {
+    padding: 14px 16px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-align: center;
+    font-style: italic;
+}
+
+/* Spinner loading */
+.search-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 16px;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.82rem;
+}
+
+.search-spinner::before {
+    content: "";
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-top-color: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ── Mobile — dentro il menu collapse ────────────────────── */
+@media (max-width: 1199.98px) {
+    /* In mobile la search sta nell'area collapse, full width */
+    .navbar-search-wrapper {
+        width: 100%;
+        margin: 8px 0 4px;
+        padding: 0 4px;
+    }
+
+    .navbar-search-group {
+        width: 100% !important;
+    }
+
+    .navbar-search-group:focus-within {
+        width: 100% !important;
+    }
+
+    .navbar-search-dropdown {
+        left: 0;
+        right: 0;
+        min-width: unset;
+        width: 100%;
+        /* Su mobile cade sotto nel flusso normale */
+        position: relative;
+        top: 6px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        border-radius: 12px;
+    }
+}

@@ -69,6 +69,31 @@ if ($isLoggedIn) {
                 <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/edits">Edits</a></li>
             </ul>
 
+            <!-- ══ SEARCH BAR ══════════════════════════════════════════ -->
+            <div class="navbar-search-wrapper" id="navbarSearch">
+                <div class="navbar-search-group">
+                    <i class="fas fa-search navbar-search-icon"></i>
+                    <input
+                        type="text"
+                        class="navbar-search-input"
+                        id="navbarSearchInput"
+                        placeholder="Cerca utente…"
+                        autocomplete="off"
+                        spellcheck="false"
+                        maxlength="30"
+                        aria-label="Cerca utente"
+                        aria-autocomplete="list"
+                        aria-controls="navbarSearchDropdown"
+                        aria-expanded="false"
+                    />
+                    <button class="navbar-search-clear" id="navbarSearchClear" tabindex="-1" aria-label="Cancella ricerca">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="navbar-search-dropdown" id="navbarSearchDropdown" role="listbox"></div>
+            </div>
+            <!-- ════════════════════════════════════════════════════════ -->
+
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 <?php if (!$isLoggedIn): ?>
                     <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/accedi">Accedi</a></li>
@@ -102,14 +127,9 @@ if ($isLoggedIn) {
                 <?php endif; ?>
             </ul>
         </div>
-
-        <!-- <div class="btn-group ms-auto me-3 linguanuova">
-            <button type="button" class="btn impostazioni-toggler" data-bs-toggle="modal" data-bs-target="#impostazioniModal">
-                <img src="/img/settings-icon.svg" alt="Impostazioni" style="width: 25px" class="imgbianca impostazioni-toggler-icobn" />
-            </button>
-        </div> -->
     </div>
 </nav>
+
 <?php if ($richpresence === 1): ?>
     <script>
         window.addEventListener('load', function() {
@@ -127,3 +147,224 @@ if ($isLoggedIn) {
         }
     </script>
 <?php endif; ?>
+
+<!-- ══ SEARCH SCRIPT ═══════════════════════════════════════════════════ -->
+<script>
+(function () {
+    'use strict';
+
+    const SEARCH_ENDPOINT = '/includes/search_users.php';
+    const DEBOUNCE_MS     = 280;
+    const MIN_CHARS       = 2;
+
+    const input    = document.getElementById('navbarSearchInput');
+    const dropdown = document.getElementById('navbarSearchDropdown');
+    const clearBtn = document.getElementById('navbarSearchClear');
+
+    if (!input || !dropdown) return;
+
+    let debounceTimer = null;
+    let currentQuery  = '';
+    let focusedIndex  = -1;
+    let currentLang   = '<?= $lang ?>';
+
+    /* ── helpers ─────────────────────────────────────────── */
+    function showDropdown(html) {
+        dropdown.innerHTML = html;
+        dropdown.classList.add('visible');
+        input.setAttribute('aria-expanded', 'true');
+    }
+
+    function hideDropdown() {
+        dropdown.classList.remove('visible');
+        input.setAttribute('aria-expanded', 'false');
+        focusedIndex = -1;
+        // Piccolo delay prima di svuotare così l'animazione out è visibile
+        setTimeout(() => {
+            if (!dropdown.classList.contains('visible')) dropdown.innerHTML = '';
+        }, 200);
+    }
+
+    function getRoleBadge(ruolo) {
+        const map = { owner: 'Owner', admin: 'Admin', utente: 'Utente' };
+        return map[ruolo] ?? ruolo;
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>"']/g, c => ({
+            '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+        })[c]);
+    }
+
+    /* ── highlight del testo cercato ─────────────────────── */
+    function highlight(text, query) {
+        if (!query) return escapeHtml(text);
+        const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp('(' + escaped + ')', 'gi');
+        return escapeHtml(text).replace(re, '<mark style="background:rgba(255,255,255,0.25);color:#fff;border-radius:3px;padding:0 2px">$1</mark>');
+    }
+
+    /* ── render risultati ────────────────────────────────── */
+    function renderResults(users, query) {
+        if (!users.length) {
+            showDropdown('<div class="search-status-msg">Nessun utente trovato</div>');
+            return;
+        }
+
+        const html = users.map((u, i) => `
+            <a href="/u/${encodeURIComponent(u.username)}"
+               class="search-result-item"
+               role="option"
+               data-index="${i}"
+               tabindex="-1">
+                <img src="${escapeHtml(u.pfp)}"
+                     alt="${escapeHtml(u.username)}"
+                     class="search-result-avatar"
+                     loading="lazy"
+                     onerror="this.src='/img/default_pfp.png'">
+                <div class="search-result-info">
+                    <span class="search-result-username">${highlight(u.username, query)}</span>
+                    <span class="search-result-role ${escapeHtml(u.ruolo)}">${getRoleBadge(u.ruolo)}</span>
+                </div>
+                <i class="fas fa-arrow-up-right-from-square search-result-arrow"></i>
+            </a>
+        `).join('');
+
+        showDropdown(html);
+    }
+
+    /* ── fetch utenti ────────────────────────────────────── */
+    async function fetchUsers(query) {
+        showDropdown('<div class="search-spinner">Ricerca in corso…</div>');
+
+        try {
+            const res = await fetch(
+                `${SEARCH_ENDPOINT}?q=${encodeURIComponent(query)}`,
+                {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    signal: AbortSignal.timeout(5000),
+                }
+            );
+
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+
+            // Se nel frattempo l'utente ha digitato altro, ignora
+            if (input.value.trim() !== query) return;
+
+            if (data.error) {
+                showDropdown(`<div class="search-status-msg">${escapeHtml(data.error)}</div>`);
+                return;
+            }
+
+            renderResults(data, query);
+        } catch (err) {
+            if (err.name === 'AbortError') return;
+            showDropdown('<div class="search-status-msg">Errore nella ricerca, riprova</div>');
+        }
+    }
+
+    /* ── navigazione tastiera ────────────────────────────── */
+    function getItems() {
+        return [...dropdown.querySelectorAll('.search-result-item')];
+    }
+
+    function setFocus(index) {
+        const items = getItems();
+        items.forEach(el => el.classList.remove('focused'));
+        if (index >= 0 && index < items.length) {
+            items[index].classList.add('focused');
+            items[index].scrollIntoView({ block: 'nearest' });
+            focusedIndex = index;
+        } else {
+            focusedIndex = -1;
+        }
+    }
+
+    /* ── eventi input ────────────────────────────────────── */
+    input.addEventListener('input', () => {
+        const q = input.value.trim();
+
+        // mostra/nascondi clear button
+        clearBtn.style.display = q.length ? 'block' : 'none';
+
+        clearTimeout(debounceTimer);
+
+        if (q.length < MIN_CHARS) {
+            hideDropdown();
+            currentQuery = '';
+            return;
+        }
+
+        if (q === currentQuery) return;
+        currentQuery = q;
+
+        debounceTimer = setTimeout(() => fetchUsers(q), DEBOUNCE_MS);
+    });
+
+    input.addEventListener('keydown', (e) => {
+        const items = getItems();
+
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                setFocus(Math.min(focusedIndex + 1, items.length - 1));
+                break;
+
+            case 'ArrowUp':
+                e.preventDefault();
+                setFocus(Math.max(focusedIndex - 1, -1));
+                if (focusedIndex === -1) input.focus();
+                break;
+
+            case 'Enter':
+                e.preventDefault();
+                if (focusedIndex >= 0 && items[focusedIndex]) {
+                    items[focusedIndex].click();
+                } else if (currentQuery.length >= MIN_CHARS) {
+                    // Fallback: vai alla pagina di ricerca se esiste
+                    window.location.href = `/${currentLang}/cerca?q=${encodeURIComponent(currentQuery)}`;
+                }
+                break;
+
+            case 'Escape':
+                hideDropdown();
+                input.blur();
+                break;
+
+            case 'Tab':
+                hideDropdown();
+                break;
+        }
+    });
+
+    input.addEventListener('focus', () => {
+        if (input.value.trim().length >= MIN_CHARS) {
+            fetchUsers(input.value.trim());
+        }
+    });
+
+    /* ── clear button ────────────────────────────────────── */
+    clearBtn.addEventListener('click', () => {
+        input.value = '';
+        clearBtn.style.display = 'none';
+        currentQuery = '';
+        hideDropdown();
+        input.focus();
+    });
+
+    /* ── click fuori → chiudi ────────────────────────────── */
+    document.addEventListener('click', (e) => {
+        if (!document.getElementById('navbarSearch').contains(e.target)) {
+            hideDropdown();
+        }
+    });
+
+    /* ── click su risultato → rimuove focus dal input ────── */
+    dropdown.addEventListener('click', () => {
+        setTimeout(hideDropdown, 120);
+    });
+
+})();
+</script>
+<!-- ════════════════════════════════════════════════════════════════════ -->
