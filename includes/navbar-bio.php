@@ -73,27 +73,27 @@ if ($isLoggedIn) {
                     </ul>
                 </li>
                 <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/edits">Edits</a></li>
-        </div>
-        <div class="navbar-search-wrapper" id="navbarSearch">
-            <div class="navbar-search-group">
-                <i class="fas fa-search navbar-search-icon"></i>
-                <input
-                    type="text"
-                    class="navbar-search-input"
-                    id="navbarSearchInput"
-                    placeholder="Cerca utente…"
-                    autocomplete="off"
-                    spellcheck="false"
-                    maxlength="30"
-                    aria-label="Cerca utente"
-                    aria-autocomplete="list"
-                    aria-controls="navbarSearchDropdown"
-                    aria-expanded="false" />
-                <button class="navbar-search-clear" id="navbarSearchClear" tabindex="-1" aria-label="Cancella ricerca">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="navbar-search-dropdown" id="navbarSearchDropdown" role="listbox"></div>
+                <div class="navbar-search-wrapper" id="navbarSearch">
+                    <div class="navbar-search-group">
+                        <i class="fas fa-search navbar-search-icon"></i>
+                        <input
+                            type="text"
+                            class="navbar-search-input"
+                            id="navbarSearchInput"
+                            placeholder="Cerca utente…"
+                            autocomplete="off"
+                            spellcheck="false"
+                            maxlength="30"
+                            aria-label="Cerca utente"
+                            aria-autocomplete="list"
+                            aria-controls="navbarSearchDropdown"
+                            aria-expanded="false" />
+                        <button class="navbar-search-clear" id="navbarSearchClear" tabindex="-1" aria-label="Cancella ricerca">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="navbar-search-dropdown" id="navbarSearchDropdown" role="listbox"></div>
+                </div>
         </div>
 
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
