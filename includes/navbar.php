@@ -72,7 +72,7 @@ if ($isLoggedIn) {
                     </ul>
                 </li>
                 <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/edits"><i class="fas fa-video me-2"></i>Edits</a></li>
-                <div class="navbar-search-wrapper" id="navbarSearch">
+                <div class="navbar-search-wrapper" id="navbarSearch" style="margin-left: 5px;">
                     <div class="navbar-search-group">
                         <i class="fas fa-search navbar-search-icon"></i>
                         <input

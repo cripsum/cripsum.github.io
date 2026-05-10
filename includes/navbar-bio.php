@@ -73,7 +73,7 @@ if ($isLoggedIn) {
                     </ul>
                 </li>
                 <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/edits"><i class="fas fa-video me-2"></i>Edits</a></li>
-                <div class="navbar-search-wrapper" id="navbarSearch">
+                <div class="navbar-search-wrapper" id="navbarSearch" style="margin-left: 5px;">
                     <div class="navbar-search-group">
                         <i class="fas fa-search navbar-search-icon"></i>
                         <input
@@ -98,8 +98,8 @@ if ($isLoggedIn) {
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 <?php if (!$isLoggedIn): ?>
-                    <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/accedi">Accedi</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/registrati">Registrati</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/accedi"><i class="fas fa-sign-in-alt"></i> Accedi</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/registrati"><i class="fas fa-user-plus"></i> Registrati</a></li>
                 <?php else: ?>
                     <li class="nav-item dropdown dropdownutenti">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">

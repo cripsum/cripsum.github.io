@@ -40,20 +40,20 @@ if ($isLoggedIn) {
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/home"><i class="fas fa-arrow-left"></i> Torna a Cripsum™</a></li>
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/home">Home Page</a></li>
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/goon-generator">Goon Generator</a></li>
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/anime-girl-quiz">Waifu Quiz</a></li>
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/smash-or-pass">Smash or Pass</a></li>
-                <li class="nav-item"><a class="nav-link" href="">Coming Soon...</a></li>
+                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/home"><i class="fas fa-home"></i> Home Page</a></li>
+                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/goon-generator"><i class="fas fa-cogs"></i> Goon Generator</a></li>
+                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/anime-girl-quiz"><i class="fas fa-question-circle"></i> Waifu Quiz</a></li>
+                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/smash-or-pass"><i class="fas fa-heart"></i> Smash or Pass</a></li>
+                <li class="nav-item"><a class="nav-link" href=""><i class="fas fa-clock"></i> Coming Soon...</a></li>
                 <!--<li class="nav-item"><a class="nav-link" href="">Coming Soon...</a></li>
                 <li class="nav-item"><a class="nav-link" href="">Coming Soon...</a></li>-->
             </ul>
-            
+
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 <?php if (!$isLoggedIn): ?>
-                    <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/accedi">Accedi</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/registrati">Registrati</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/accedi"><i class="fas fa-sign-in-alt"></i> Accedi</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/registrati"><i class="fas fa-user-plus"></i> Registrati</a></li>
                 <?php else: ?>
                     <li class="nav-item dropdown dropdownutenti">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
