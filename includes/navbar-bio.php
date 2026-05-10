@@ -64,66 +64,71 @@ if ($isLoggedIn) {
                         <li><a class="dropdown-item" href="/<?= $lang ?>/merch">Merch</a></li>
                     </ul>
                 </li>
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/download">Downloads</a></li>
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/donazioni">Donazioni</a></li>
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/chisiamo">Chi siamo</a></li>
+                <li class="nav-item dropdown dropdownutenti">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Altro</a>
+                    <ul class="dropdown-menu animate slideIn">
+                        <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/download">Downloads</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/donazioni">Donazioni</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/chisiamo">Chi siamo</a></li>
+                    </ul>
+                </li>
                 <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/edits">Edits</a></li>
-            </ul>
-            <div class="navbar-search-wrapper" id="navbarSearch">
-                <div class="navbar-search-group">
-                    <i class="fas fa-search navbar-search-icon"></i>
-                    <input
-                        type="text"
-                        class="navbar-search-input"
-                        id="navbarSearchInput"
-                        placeholder="Cerca utente…"
-                        autocomplete="off"
-                        spellcheck="false"
-                        maxlength="30"
-                        aria-label="Cerca utente"
-                        aria-autocomplete="list"
-                        aria-controls="navbarSearchDropdown"
-                        aria-expanded="false" />
-                    <button class="navbar-search-clear" id="navbarSearchClear" tabindex="-1" aria-label="Cancella ricerca">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="navbar-search-dropdown" id="navbarSearchDropdown" role="listbox"></div>
-            </div>
-
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                <?php if (!$isLoggedIn): ?>
-                    <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/accedi">Accedi</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/registrati">Registrati</a></li>
-                <?php else: ?>
-                    <li class="nav-item dropdown dropdownutenti">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
-                            <img src="<?php echo htmlspecialchars($profilePic); ?>&t=<?php echo time(); ?>" alt="Profilo"
-                                class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;">
-                            <span><?php echo htmlspecialchars($username); ?></span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end animate slideIn">
-                            <li><a class="dropdown-item" href="/u/<?php echo htmlspecialchars($username); ?>"><i class="fas fa-user me-2"></i>Il mio profilo</a></li>
-                            <li><a class="dropdown-item" href="/<?= $lang ?>/impostazioni"><i class="fas fa-cog me-2"></i>Impostazioni</a></li>
-                            <li><a class="dropdown-item" href="/<?= $lang ?>/achievements"><i class="fas fa-trophy me-2"></i>Achievements</a></li>
-                            <li><a class="dropdown-item" href="/<?= $lang ?>/inventario"><i class="fas fa-box me-2"></i>Inventario</a></li>
-                            <!--<li><a class="dropdown-item" href="/<?= $lang ?>/ordini"><i class="fas fa-shopping-bag me-2"></i>I miei ordini</a></li>-->
-                            <li><a class="dropdown-item" href="/<?= $lang ?>/global-chat"><i class="fas fa-envelope me-2"></i>Chat Globale</a></li>
-                            <?php if ($nsfw === 1): ?>
-                                <li><a class="dropdown-item" href="/<?= $lang ?>/goonland/home"><i class="fas fa-eye-slash me-2"></i>GoonLand</a></li>
-                            <?php endif; ?>
-                            <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
-                                <li><a class="dropdown-item" href="/<?= $lang ?>/admin"><i class="fas fa-shield-alt me-2"></i>Pannello Admin</a></li>
-                            <?php endif; ?>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item text-danger" href="https://cripsum.com/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
-                        </ul>
-                    </li>
-                <?php endif; ?>
-            </ul>
         </div>
+        <div class="navbar-search-wrapper" id="navbarSearch">
+            <div class="navbar-search-group">
+                <i class="fas fa-search navbar-search-icon"></i>
+                <input
+                    type="text"
+                    class="navbar-search-input"
+                    id="navbarSearchInput"
+                    placeholder="Cerca utente…"
+                    autocomplete="off"
+                    spellcheck="false"
+                    maxlength="30"
+                    aria-label="Cerca utente"
+                    aria-autocomplete="list"
+                    aria-controls="navbarSearchDropdown"
+                    aria-expanded="false" />
+                <button class="navbar-search-clear" id="navbarSearchClear" tabindex="-1" aria-label="Cancella ricerca">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="navbar-search-dropdown" id="navbarSearchDropdown" role="listbox"></div>
+        </div>
+
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <?php if (!$isLoggedIn): ?>
+                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/accedi">Accedi</a></li>
+                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/registrati">Registrati</a></li>
+            <?php else: ?>
+                <li class="nav-item dropdown dropdownutenti">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                        <img src="<?php echo htmlspecialchars($profilePic); ?>&t=<?php echo time(); ?>" alt="Profilo"
+                            class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;">
+                        <span><?php echo htmlspecialchars($username); ?></span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end animate slideIn">
+                        <li><a class="dropdown-item" href="/u/<?php echo htmlspecialchars($username); ?>"><i class="fas fa-user me-2"></i>Il mio profilo</a></li>
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/impostazioni"><i class="fas fa-cog me-2"></i>Impostazioni</a></li>
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/achievements"><i class="fas fa-trophy me-2"></i>Achievements</a></li>
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/inventario"><i class="fas fa-box me-2"></i>Inventario</a></li>
+                        <!--<li><a class="dropdown-item" href="/<?= $lang ?>/ordini"><i class="fas fa-shopping-bag me-2"></i>I miei ordini</a></li>-->
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/global-chat"><i class="fas fa-envelope me-2"></i>Chat Globale</a></li>
+                        <?php if ($nsfw === 1): ?>
+                            <li><a class="dropdown-item" href="/<?= $lang ?>/goonland/home"><i class="fas fa-eye-slash me-2"></i>GoonLand</a></li>
+                        <?php endif; ?>
+                        <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
+                            <li><a class="dropdown-item" href="/<?= $lang ?>/admin"><i class="fas fa-shield-alt me-2"></i>Pannello Admin</a></li>
+                        <?php endif; ?>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item text-danger" href="https://cripsum.com/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </li>
+            <?php endif; ?>
+        </ul>
+    </div>
     </div>
 </nav>
 <?php if ($richpresence === 1): ?>

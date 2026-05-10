@@ -63,9 +63,14 @@ if ($isLoggedIn) {
                         <li><a class="dropdown-item" href="/<?= $lang ?>/merch">Merch</a></li>
                     </ul>
                 </li>
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/download">Downloads</a></li>
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/donazioni">Donazioni</a></li>
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/chisiamo">Chi siamo</a></li>
+                <li class="nav-item dropdown dropdownutenti">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Altro</a>
+                    <ul class="dropdown-menu animate slideIn">
+                        <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/download">Downloads</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/donazioni">Donazioni</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/chisiamo">Chi siamo</a></li>
+                    </ul>
+                </li>
                 <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/edits">Edits</a></li>
             </ul>
             <div class="navbar-search-wrapper" id="navbarSearch">
