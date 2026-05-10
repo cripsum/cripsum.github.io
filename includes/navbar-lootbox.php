@@ -39,40 +39,40 @@ if ($isLoggedIn) {
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/home">Home page</a></li>
+                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/home"><i class="fas fa-home me-2"></i>Home page</a></li>
                 <li class="nav-item dropdown dropdownutenti">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Memes</a>
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fas fa-image me-2"></i>Memes</a>
                     <ul class="dropdown-menu animate slideIn">
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/shitpost">Shitpost</a></li>
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/tiktokpedia">TikTokPedia</a></li>
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/rimasti">Top rimasti</a></li>
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/cripsumpedia/home">CripsumPedia</a></li>
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/shitpost"><i class="fas fa-fire me-2"></i>Shitpost</a></li>
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/tiktokpedia"><i class="fas fa-brands fa-tiktok me-2"></i>TikTokPedia</a></li>
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/rimasti"><i class="fas fa-star me-2"></i>Top rimasti</a></li>
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/cripsumpedia/home"><i class="fas fa-book me-2"></i>CripsumPedia</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown dropdownutenti">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Giochi</a>
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fas fa-gamepad me-2"></i>Giochi</a>
                     <ul class="dropdown-menu animate slideIn">
-                        <li><a class="dropdown-item " href="/<?= $lang ?>/gambling">Gambling</a></li>
-                        <li><a class="dropdown-item " href="/<?= $lang ?>/lootbox">Lootbox</a></li>
-                        <li><a class="dropdown-item " href="/<?= $lang ?>/game/">Duelli</a></li>
+                        <li><a class="dropdown-item " href="/<?= $lang ?>/gambling"><i class="fas fa-dice me-2"></i>Gambling</a></li>
+                        <li><a class="dropdown-item " href="/<?= $lang ?>/lootbox"><i class="fas fa-box-open me-2"></i>Lootbox</a></li>
+                        <li><a class="dropdown-item " href="/<?= $lang ?>/game/"><i class="fas fa-gamepad me-2"></i>Duelli</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown dropdownutenti">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Shop</a>
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fas fa-shopping-cart me-2"></i>Shop</a>
                     <ul class="dropdown-menu animate slideIn">
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/negozio">Negozio</a></li>
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/merch">Merch</a></li>
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/negozio"><i class="fas fa-store me-2"></i>Negozio</a></li>
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/merch"><i class="fas fa-tshirt me-2"></i>Merch</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown dropdownutenti">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Altro</a>
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-h me-2"></i>Altro</a>
                     <ul class="dropdown-menu animate slideIn">
-                        <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/download">Downloads</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/donazioni">Donazioni</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/chisiamo">Chi siamo</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/download"><i class="fas fa-download me-2"></i>Downloads</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/donazioni"><i class="fas fa-heart me-2"></i>Donazioni</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/chisiamo"><i class="fas fa-users me-2"></i>Chi siamo</a></li>
                     </ul>
                 </li>
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/edits">Edits</a></li>
+                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/edits"><i class="fas fa-video me-2"></i>Edits</a></li>
                 <div class="navbar-search-wrapper" id="navbarSearch">
                     <div class="navbar-search-group">
                         <i class="fas fa-search navbar-search-icon"></i>
