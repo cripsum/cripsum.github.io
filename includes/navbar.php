@@ -93,8 +93,7 @@ if ($isLoggedIn) {
                             aria-label="Cerca utente"
                             aria-autocomplete="list"
                             aria-controls="navbarSearchDropdown"
-                            aria-expanded="false"
-                        />
+                            aria-expanded="false" />
                         <button class="navbar-search-clear" id="navbarSearchClear" tabindex="-1" aria-label="Cancella">
                             <i class="fas fa-times"></i>
                         </button>
@@ -126,7 +125,9 @@ if ($isLoggedIn) {
                             <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
                                 <li><a class="dropdown-item" href="/<?= $lang ?>/admin"><i class="fas fa-shield-alt me-2"></i>Pannello Admin</a></li>
                             <?php endif; ?>
-                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <li><a class="dropdown-item text-danger" href="https://cripsum.com/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                         </ul>
                     </li>
@@ -139,7 +140,7 @@ if ($isLoggedIn) {
 
 <?php if ($richpresence === 1): ?>
     <script>
-        window.addEventListener('load', function () {
+        window.addEventListener('load', function() {
             var script = document.createElement('script');
             script.src = '/js/richpresence.js';
             document.head.appendChild(script);
@@ -157,80 +158,90 @@ if ($isLoggedIn) {
 
 <!-- ══ NAVBAR SEARCH SCRIPT ════════════════════════════════════════════ -->
 <script>
-(function () {
-    'use strict';
+    (function() {
+        'use strict';
 
-    const ENDPOINT    = '/includes/search_users.php';
-    const DEBOUNCE_MS = 280;
-    const MIN_CHARS   = 2;
-    const LANG        = '<?= $lang ?>';
+        const ENDPOINT = '/includes/search_users.php';
+        const DEBOUNCE_MS = 280;
+        const MIN_CHARS = 2;
+        const LANG = '<?= $lang ?>';
 
-    const input    = document.getElementById('navbarSearchInput');
-    const dropdown = document.getElementById('navbarSearchDropdown');
-    const clearBtn = document.getElementById('navbarSearchClear');
-    const wrapper  = document.getElementById('navbarSearchItem');
+        const input = document.getElementById('navbarSearchInput');
+        const dropdown = document.getElementById('navbarSearchDropdown');
+        const clearBtn = document.getElementById('navbarSearchClear');
+        const wrapper = document.getElementById('navbarSearchItem');
 
-    if (!input || !dropdown) return;
+        if (!input || !dropdown) return;
 
-    let debounceTimer = null;
-    let currentQuery  = '';
-    let focusedIndex  = -1;
-    let isMobile      = () => window.innerWidth < 1200;
+        let debounceTimer = null;
+        let currentQuery = '';
+        let focusedIndex = -1;
+        let isMobile = () => window.innerWidth < 1200;
 
-    /* ── helpers ─────────────────────────────────────────── */
+        /* ── helpers ─────────────────────────────────────────── */
 
-    function showDropdown(html) {
-        dropdown.innerHTML = html;
-        dropdown.classList.add('visible');
-        input.setAttribute('aria-expanded', 'true');
-    }
-
-    function hideDropdown() {
-        // su mobile: rimuovi subito (display:none)
-        // su desktop: anima via CSS, poi svuota
-        dropdown.classList.remove('visible');
-        input.setAttribute('aria-expanded', 'false');
-        focusedIndex = -1;
-        if (isMobile()) {
-            dropdown.innerHTML = '';
-        } else {
-            setTimeout(() => {
-                if (!dropdown.classList.contains('visible')) dropdown.innerHTML = '';
-            }, 200);
+        function showDropdown(html) {
+            dropdown.innerHTML = html;
+            dropdown.classList.add('visible');
+            input.setAttribute('aria-expanded', 'true');
         }
-    }
 
-    function escHtml(s) {
-        return s.replace(/[&<>"']/g, c =>
-            ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]
-        );
-    }
+        function hideDropdown() {
+            // su mobile: rimuovi subito (display:none)
+            // su desktop: anima via CSS, poi svuota
+            dropdown.classList.remove('visible');
+            input.setAttribute('aria-expanded', 'false');
+            focusedIndex = -1;
+            if (isMobile()) {
+                dropdown.innerHTML = '';
+            } else {
+                setTimeout(() => {
+                    if (!dropdown.classList.contains('visible')) dropdown.innerHTML = '';
+                }, 200);
+            }
+        }
 
-    function highlight(text, q) {
-        if (!q) return escHtml(text);
-        const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
-        return escHtml(text).replace(re,
-            '<mark style="background:rgba(255,255,255,.22);color:#fff;border-radius:3px;padding:0 2px">$1</mark>'
-        );
-    }
-
-    function roleLabel(r) {
-        return { owner: 'Owner', admin: 'Admin', utente: 'Utente' }[r] ?? r;
-    }
-
-    /* ── render ──────────────────────────────────────────── */
-
-    function renderResults(users, query) {
-        if (!users.length) {
-            showDropdown(
-                '<div class="search-status-msg">' +
-                '<i class="fas fa-user-slash"></i> Nessun utente trovato</div>'
+        function escHtml(s) {
+            return s.replace(/[&<>"']/g, c =>
+                ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                })[c]
             );
-            return;
         }
 
-        const items = users.map((u, i) =>
-            `<a href="/u/${encodeURIComponent(u.username)}"
+        function highlight(text, q) {
+            if (!q) return escHtml(text);
+            const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+            return escHtml(text).replace(re,
+                '<mark style="background:rgba(255,255,255,.22);color:#fff;border-radius:3px;padding:0 2px">$1</mark>'
+            );
+        }
+
+        function roleLabel(r) {
+            return {
+                owner: 'Owner',
+                admin: 'Admin',
+                utente: 'Utente'
+            } [r] ?? r;
+        }
+
+        /* ── render ──────────────────────────────────────────── */
+
+        function renderResults(users, query) {
+            if (!users.length) {
+                showDropdown(
+                    '<div class="search-status-msg">' +
+                    '<i class="fas fa-user-slash"></i> Nessun utente trovato</div>'
+                );
+                return;
+            }
+
+            const items = users.map((u, i) =>
+                `<a href="/u/${encodeURIComponent(u.username)}"
                 class="search-result-item"
                 role="option"
                 data-index="${i}"
@@ -246,114 +257,130 @@ if ($isLoggedIn) {
                 </div>
                 <i class="fas fa-arrow-up-right-from-square search-result-arrow"></i>
             </a>`
-        ).join('');
+            ).join('');
 
-        showDropdown(
-            '<div class="search-dropdown-header">Utenti</div>' + items
-        );
-    }
-
-    /* ── fetch ───────────────────────────────────────────── */
-
-    async function fetchUsers(query) {
-        showDropdown('<div class="search-spinner">Ricerca in corso…</div>');
-        try {
-            const res = await fetch(
-                `${ENDPOINT}?q=${encodeURIComponent(query)}`,
-                { headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                  signal: AbortSignal.timeout(5000) }
+            showDropdown(
+                '<div class="search-dropdown-header">Utenti</div>' + items
             );
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            const data = await res.json();
-            if (input.value.trim() !== query) return; // risposta scaduta
-            if (data.error) {
-                showDropdown(`<div class="search-status-msg"><i class="fas fa-exclamation-circle"></i> ${escHtml(data.error)}</div>`);
+        }
+
+        /* ── fetch ───────────────────────────────────────────── */
+
+        async function fetchUsers(query) {
+            showDropdown('<div class="search-spinner">Ricerca in corso…</div>');
+            try {
+                const res = await fetch(
+                    `${ENDPOINT}?q=${encodeURIComponent(query)}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        signal: AbortSignal.timeout(5000)
+                    }
+                );
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                if (input.value.trim() !== query) return; // risposta scaduta
+                if (data.error) {
+                    showDropdown(`<div class="search-status-msg"><i class="fas fa-exclamation-circle"></i> ${escHtml(data.error)}</div>`);
+                    return;
+                }
+                renderResults(data, query);
+            } catch (err) {
+                if (err.name === 'AbortError' || err.name === 'TimeoutError') return;
+                showDropdown('<div class="search-status-msg"><i class="fas fa-wifi"></i> Errore di connessione</div>');
+            }
+        }
+
+        /* ── navigazione tastiera ────────────────────────────── */
+
+        function getItems() {
+            return [...dropdown.querySelectorAll('.search-result-item')];
+        }
+
+        function setFocus(idx) {
+            const items = getItems();
+            items.forEach(el => el.classList.remove('focused'));
+            if (idx >= 0 && idx < items.length) {
+                items[idx].classList.add('focused');
+                items[idx].scrollIntoView({
+                    block: 'nearest'
+                });
+                focusedIndex = idx;
+            } else {
+                focusedIndex = -1;
+            }
+        }
+
+        /* ── eventi ──────────────────────────────────────────── */
+
+        input.addEventListener('input', () => {
+            const q = input.value.trim();
+            clearBtn.style.display = q.length ? 'block' : 'none';
+            clearTimeout(debounceTimer);
+            if (q.length < MIN_CHARS) {
+                hideDropdown();
+                currentQuery = '';
                 return;
             }
-            renderResults(data, query);
-        } catch (err) {
-            if (err.name === 'AbortError' || err.name === 'TimeoutError') return;
-            showDropdown('<div class="search-status-msg"><i class="fas fa-wifi"></i> Errore di connessione</div>');
-        }
-    }
+            if (q === currentQuery) return;
+            currentQuery = q;
+            debounceTimer = setTimeout(() => fetchUsers(q), DEBOUNCE_MS);
+        });
 
-    /* ── navigazione tastiera ────────────────────────────── */
-
-    function getItems() { return [...dropdown.querySelectorAll('.search-result-item')]; }
-
-    function setFocus(idx) {
-        const items = getItems();
-        items.forEach(el => el.classList.remove('focused'));
-        if (idx >= 0 && idx < items.length) {
-            items[idx].classList.add('focused');
-            items[idx].scrollIntoView({ block: 'nearest' });
-            focusedIndex = idx;
-        } else {
-            focusedIndex = -1;
-        }
-    }
-
-    /* ── eventi ──────────────────────────────────────────── */
-
-    input.addEventListener('input', () => {
-        const q = input.value.trim();
-        clearBtn.style.display = q.length ? 'block' : 'none';
-        clearTimeout(debounceTimer);
-        if (q.length < MIN_CHARS) { hideDropdown(); currentQuery = ''; return; }
-        if (q === currentQuery) return;
-        currentQuery = q;
-        debounceTimer = setTimeout(() => fetchUsers(q), DEBOUNCE_MS);
-    });
-
-    input.addEventListener('keydown', e => {
-        const items = getItems();
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            setFocus(Math.min(focusedIndex + 1, items.length - 1));
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            const next = focusedIndex - 1;
-            if (next < 0) { setFocus(-1); input.focus(); }
-            else setFocus(next);
-        } else if (e.key === 'Enter') {
-            e.preventDefault();
-            if (focusedIndex >= 0 && items[focusedIndex]) {
-                items[focusedIndex].click();
-            } else if (currentQuery.length >= MIN_CHARS) {
-                window.location.href = `/${LANG}/cerca?q=${encodeURIComponent(currentQuery)}`;
+        input.addEventListener('keydown', e => {
+            const items = getItems();
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setFocus(Math.min(focusedIndex + 1, items.length - 1));
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                const next = focusedIndex - 1;
+                if (next < 0) {
+                    setFocus(-1);
+                    input.focus();
+                } else setFocus(next);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (focusedIndex >= 0 && items[focusedIndex]) {
+                    items[focusedIndex].click();
+                } else if (currentQuery.length >= MIN_CHARS) {
+                    window.location.href = `/${LANG}/cerca?q=${encodeURIComponent(currentQuery)}`;
+                }
+            } else if (e.key === 'Escape') {
+                hideDropdown();
+                input.blur();
+            } else if (e.key === 'Tab') {
+                hideDropdown();
             }
-        } else if (e.key === 'Escape') {
-            hideDropdown(); input.blur();
-        } else if (e.key === 'Tab') {
+        });
+
+        input.addEventListener('focus', () => {
+            if (input.value.trim().length >= MIN_CHARS) fetchUsers(input.value.trim());
+        });
+
+        clearBtn.addEventListener('click', () => {
+            input.value = '';
+            clearBtn.style.display = 'none';
+            currentQuery = '';
             hideDropdown();
+            input.focus();
+        });
+
+        dropdown.addEventListener('click', () => {
+            setTimeout(hideDropdown, 100);
+        });
+
+        /* click fuori → chiudi (solo desktop; su mobile il collapse gestisce) */
+        document.addEventListener('click', e => {
+            if (!wrapper.contains(e.target)) hideDropdown();
+        });
+
+        /* chiudi quando Bootstrap chiude il collapse mobile */
+        const navCollapse = document.getElementById('navbarSupportedContent');
+        if (navCollapse) {
+            navCollapse.addEventListener('hide.bs.collapse', () => hideDropdown());
         }
-    });
 
-    input.addEventListener('focus', () => {
-        if (input.value.trim().length >= MIN_CHARS) fetchUsers(input.value.trim());
-    });
-
-    clearBtn.addEventListener('click', () => {
-        input.value = '';
-        clearBtn.style.display = 'none';
-        currentQuery = '';
-        hideDropdown();
-        input.focus();
-    });
-
-    dropdown.addEventListener('click', () => { setTimeout(hideDropdown, 100); });
-
-    /* click fuori → chiudi (solo desktop; su mobile il collapse gestisce) */
-    document.addEventListener('click', e => {
-        if (!wrapper.contains(e.target)) hideDropdown();
-    });
-
-    /* chiudi quando Bootstrap chiude il collapse mobile */
-    const navCollapse = document.getElementById('navbarSupportedContent');
-    if (navCollapse) {
-        navCollapse.addEventListener('hide.bs.collapse', () => hideDropdown());
-    }
-
-})();
+    })();
 </script>
 <!-- ═══════════════════════════════════════════════════════════════════ -->
