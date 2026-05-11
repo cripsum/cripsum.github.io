@@ -67,9 +67,9 @@ if ($isLoggedIn) {
                 <li class="nav-item dropdown dropdownutenti">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-h me-2"></i>Altro</a>
                     <ul class="dropdown-menu animate slideIn">
-                        <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/download"><i class="fas fa-download me-2"></i>Downloads</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/donazioni"><i class="fas fa-heart me-2"></i>Donazioni</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/chisiamo"><i class="fas fa-users me-2"></i>Chi siamo</a></li>
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/download"><i class="fas fa-download me-2"></i>Downloads</a></li>
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/donazioni"><i class="fas fa-heart me-2"></i>Donazioni</a></li>
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/chisiamo"><i class="fas fa-users me-2"></i>Chi siamo</a></li>
                     </ul>
                 </li>
                 <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/edits"><i class="fas fa-video me-2"></i>Edits</a></li>
