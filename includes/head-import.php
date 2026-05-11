@@ -43,49 +43,49 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <<audio id="globalMusic" loop>
+        <!-- <audio id="globalMusic" loop>
             <source src="../audio/sahur.mp3" type="audio/mpeg">
-            </audio>
+        </audio>
 
-            <script>
-                const audio = document.getElementById("globalMusic");
+        <script>
+            const audio = document.getElementById("globalMusic");
 
-                audio.volume = 0.2;
+            audio.volume = 0.2;
 
-                const savedTime = localStorage.getItem("musicTime");
-                const wasPlaying = localStorage.getItem("musicPlaying");
+            const savedTime = localStorage.getItem("musicTime");
+            const wasPlaying = localStorage.getItem("musicPlaying");
 
-                if (savedTime !== null) {
-                    audio.currentTime = parseFloat(savedTime);
-                }
+            if (savedTime !== null) {
+                audio.currentTime = parseFloat(savedTime);
+            }
 
-                function startMusic() {
-                    audio.play().then(() => {
-                        localStorage.setItem("musicPlaying", "true");
-                    }).catch(() => {});
-                }
+            function startMusic() {
+                audio.play().then(() => {
+                    localStorage.setItem("musicPlaying", "true");
+                }).catch(() => {});
+            }
 
-                if (wasPlaying === "true") {
+            if (wasPlaying === "true") {
+                startMusic();
+            }
+
+            document.addEventListener("click", () => {
+                if (audio.paused) {
                     startMusic();
                 }
+            }, {
+                once: true
+            });
 
-                document.addEventListener("click", () => {
-                    if (audio.paused) {
-                        startMusic();
-                    }
-                }, {
-                    once: true
-                });
+            setInterval(() => {
+                localStorage.setItem("musicTime", audio.currentTime);
+            }, 500);
 
-                setInterval(() => {
-                    localStorage.setItem("musicTime", audio.currentTime);
-                }, 500);
+            audio.addEventListener("pause", () => {
+                localStorage.setItem("musicPlaying", "false");
+            });
 
-                audio.addEventListener("pause", () => {
-                    localStorage.setItem("musicPlaying", "false");
-                });
-
-                audio.addEventListener("play", () => {
-                    localStorage.setItem("musicPlaying", "true");
-                });
-            </script>
+            audio.addEventListener("play", () => {
+                localStorage.setItem("musicPlaying", "true");
+            });
+        </script> -->
