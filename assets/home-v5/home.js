@@ -6,6 +6,13 @@
 
     const slides = [
         {
+            media: '../img/profili.png',
+            title: 'Profili custom!',
+            description: 'Personalizza il tuo profilo creando una bio o un portfolio clean.',
+            buttonText: 'Modifica il tuo profilo',
+            link: '../profile'
+        },
+        {
             media: '../img/jay-quadrato.png',
             title: 'Ciao! Sono Jay!',
             description: 'Vuoi imparare l’arte dello Spinjitzu?',
