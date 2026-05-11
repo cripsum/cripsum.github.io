@@ -538,6 +538,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     </div>
 
     <div class="bio-toast" id="bioToast" role="status" aria-live="polite"></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
 
 </html>
