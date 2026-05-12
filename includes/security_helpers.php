@@ -375,6 +375,17 @@ function auth_start_password_login(mysqli $mysqli, string $identifier, string $p
 
     $user = auth_get_user_by_identifier($mysqli, $identifier);
 
+    if ($user && empty($user['password'])) {
+        // Registriamo comunque il tentativo fallito per non bypassare il rate limit
+        auth_record_login_attempt($mysqli, $user['id'] ?? null, $identifier, false, 'login_failed_google_only');
+        auth_session_rate_fail($identifier, 'login_failed');
+
+        return [
+            'ok' => false,
+            'message' => 'Questo account è stato creato tramite Google e non ha una password. Utilizza "Accedi con Google" per continuare.'
+        ];
+    }
+
     if (!$user || !password_verify($password, $user['password'])) {
         auth_record_login_attempt($mysqli, $user['id'] ?? null, $identifier, false, 'login_failed');
         auth_session_rate_fail($identifier, 'login_failed');
