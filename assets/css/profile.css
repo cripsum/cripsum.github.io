@@ -2918,7 +2918,7 @@ body.profile-modal-open {
     background: rgba(var(--accent-rgb), 0.12) !important;
 }
 
-.bio-v2-body .navbar-search-result::before {
+.bio-v2-body .navbar-search-dropdown::before {
     background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb), 0.55) 40%, rgba(35, 25, 58, 0.45) 60%, transparent) !important;
 }
 
