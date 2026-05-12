@@ -234,7 +234,6 @@ if ($isLoggedIn) {
         let focusedIndex = -1;
         let currentLang = '<?= $lang ?>';
 
-        /* ── helpers ─────────────────────────────────────────── */
         function showDropdown(html) {
             dropdown.innerHTML = html;
             dropdown.classList.add('visible');
@@ -245,7 +244,7 @@ if ($isLoggedIn) {
             dropdown.classList.remove('visible');
             input.setAttribute('aria-expanded', 'false');
             focusedIndex = -1;
-            // Piccolo delay prima di svuotare così l'animazione out è visibile
+
             setTimeout(() => {
                 if (!dropdown.classList.contains('visible')) dropdown.innerHTML = '';
             }, 200);
@@ -270,7 +269,6 @@ if ($isLoggedIn) {
             })[c]);
         }
 
-        /* ── highlight del testo cercato ─────────────────────── */
         function highlight(text, query) {
             if (!query) return escapeHtml(text);
             const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -278,7 +276,6 @@ if ($isLoggedIn) {
             return escapeHtml(text).replace(re, '<mark style="background:rgba(255,255,255,0.25);color:#fff;border-radius:3px;padding:0 2px">$1</mark>');
         }
 
-        /* ── render risultati ────────────────────────────────── */
         function renderResults(users, query) {
             if (!users.length) {
                 showDropdown('<div class="search-status-msg">Nessun utente trovato</div>');
@@ -307,7 +304,6 @@ if ($isLoggedIn) {
             showDropdown(html);
         }
 
-        /* ── fetch utenti ────────────────────────────────────── */
         async function fetchUsers(query) {
             showDropdown('<div class="search-spinner">Ricerca in corso…</div>');
 
@@ -324,7 +320,6 @@ if ($isLoggedIn) {
                 if (!res.ok) throw new Error('HTTP ' + res.status);
                 const data = await res.json();
 
-                // Se nel frattempo l'utente ha digitato altro, ignora
                 if (input.value.trim() !== query) return;
 
                 if (data.error) {
@@ -339,7 +334,6 @@ if ($isLoggedIn) {
             }
         }
 
-        /* ── navigazione tastiera ────────────────────────────── */
         function getItems() {
             return [...dropdown.querySelectorAll('.search-result-item')];
         }
@@ -358,11 +352,9 @@ if ($isLoggedIn) {
             }
         }
 
-        /* ── eventi input ────────────────────────────────────── */
         input.addEventListener('input', () => {
             const q = input.value.trim();
 
-            // mostra/nascondi clear button
             clearBtn.style.display = q.length ? 'block' : 'none';
 
             clearTimeout(debounceTimer);
@@ -399,7 +391,6 @@ if ($isLoggedIn) {
                     if (focusedIndex >= 0 && items[focusedIndex]) {
                         items[focusedIndex].click();
                     } else if (currentQuery.length >= MIN_CHARS) {
-                        // Fallback: vai alla pagina di ricerca se esiste
                         window.location.href = `/${currentLang}/cerca?q=${encodeURIComponent(currentQuery)}`;
                     }
                     break;
@@ -421,7 +412,6 @@ if ($isLoggedIn) {
             }
         });
 
-        /* ── clear button ────────────────────────────────────── */
         clearBtn.addEventListener('click', () => {
             input.value = '';
             clearBtn.style.display = 'none';
@@ -430,14 +420,12 @@ if ($isLoggedIn) {
             input.focus();
         });
 
-        /* ── click fuori → chiudi ────────────────────────────── */
         document.addEventListener('click', (e) => {
             if (!document.getElementById('navbarSearch').contains(e.target)) {
                 hideDropdown();
             }
         });
-
-        /* ── click su risultato → rimuove focus dal input ────── */
+        
         dropdown.addEventListener('click', () => {
             setTimeout(hideDropdown, 120);
         });

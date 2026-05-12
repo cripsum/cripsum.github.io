@@ -7,6 +7,11 @@ $lang = explode('/', trim($uri, '/'))[0];
 if (!in_array($lang, ['it', 'en'])) {
     $lang = 'it';
 }
+// Language switcher: swap /it/ ↔ /en/ in the current URL
+$altLang   = ($lang === 'it') ? 'en' : 'it';
+$altLabel  = ($lang === 'it') ? 'EN' : 'IT';
+$curLabel  = strtoupper($lang);
+$switchUrl = preg_replace('#^/' . $lang . '(/|$)#', '/' . $altLang . '$1', $uri);
 
 if ($isLoggedIn) {
     $username = $_SESSION['username'] ?? 'Utente';
@@ -98,6 +103,17 @@ if ($isLoggedIn) {
 
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <!-- ══ LANGUAGE SWITCH ══ -->
+                <li class="nav-item d-flex align-items-center me-2">
+                    <a href="<?= htmlspecialchars($switchUrl) ?>"
+                        class="lang-switch"
+                        aria-label="Switch language to <?= $altLabel ?>"
+                        title="Switch to <?= $altLabel ?>">
+                        <span class="lang-switch__cur"><?= $curLabel ?></span>
+                        <span class="lang-switch__sep">·</span>
+                        <span class="lang-switch__alt"><?= $altLabel ?></span>
+                    </a>
+                </li>
                 <?php if (!$isLoggedIn): ?>
                     <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/accedi"><i class="fas fa-sign-in-alt"></i> Accedi</a></li>
                     <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/registrati"><i class="fas fa-user-plus"></i> Registrati</a></li>
