@@ -513,7 +513,7 @@ function checkPermissions($mysqli, $requiredRole)
 
     if ($rolesHierarchy[$currentUserRole] < $rolesHierarchy[$requiredRole]) {
         header('HTTP/1.1 403 Forbidden');
-        echo 'Accesso negato. Non hai i permessi necessari per accedere a questa pagina.';
+        echo 'Accesso negato. Non hai i permessi necessari per accedere a questa pagina. (skill issue)';
         exit();
     }
 }
