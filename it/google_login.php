@@ -1,6 +1,6 @@
 <?php
 // google_login.php
-require_once 'google_config.php';
+require_once '../auth/google_config.php';
 
 $oauthUrl = "https://accounts.google.com/o/oauth2/auth?" . http_build_query([
     'client_id' => GOOGLE_CLIENT_ID,
