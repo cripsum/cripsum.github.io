@@ -50,7 +50,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="it">
 
 <head>
-    <title>Imposta Password</title>
+    <?php include '../includes/head-import.php'; ?>
+    <title>Cripsum™ - Imposta password</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="stylesheet" href="/assets/auth/auth.css?v=1.0-2fa">
+    <script src="/assets/auth/auth.js?v=1.0-2fa" defer></script>
 </head>
 
 <body class="auth-page">
