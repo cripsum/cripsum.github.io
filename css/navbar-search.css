@@ -243,30 +243,35 @@
 
 /* ── Mobile — dentro il menu collapse ────────────────────── */
 @media (max-width: 1199.98px) {
-    /* In mobile la search sta nell'area collapse, full width */
     .navbar-search-wrapper {
+        position: relative; /* fondamentale come ancora per il dropdown */
         width: 100%;
         margin: 8px 0 4px;
         padding: 0 4px;
     }
 
-    .navbar-search-group {
-        width: 100% !important;
-    }
-
+    .navbar-search-group,
     .navbar-search-group:focus-within {
         width: 100% !important;
     }
 
     .navbar-search-dropdown {
+        /* Torna absolute: NON entra nel flusso, non gonfia la navbar */
+        position: absolute;
+        top: calc(100% + 6px);
         left: 0;
         right: 0;
-        min-width: unset;
         width: 100%;
-        /* Su mobile cade sotto nel flusso normale */
-        position: relative;
-        top: 6px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        min-width: unset;
+
+        /* Altezza massima + scroll interno: non dilaga mai */
+        max-height: 260px;
+        overflow-y: auto;
+
+        /* Stile */
+        z-index: 9999;
         border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     }
 }
+                                                                                                                                                             

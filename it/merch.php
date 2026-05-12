@@ -48,7 +48,6 @@ $products = [
                 <p>Il merch simonetussi.ph. il fotografo e psicologo più fico di sempre.</p>
                 <div class="shop-hero__actions">
                     <a class="shop-btn shop-btn--primary" href="#prodotti">Guarda prodotti</a>
-                    <button class="shop-btn shop-btn--ghost" type="button" data-show-favorites>Preferiti</button>
                 </div>
             </div>
             <div class="shop-hero__emoji" aria-hidden="true">🤑🐦📸</div>

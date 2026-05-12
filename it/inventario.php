@@ -147,7 +147,6 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                 <select id="inventorySort" class="inv-select inv-native-select" aria-label="Ordina inventario" tabindex="-1" aria-hidden="true">
                     <option value="default">Ordine originale</option>
                     <option value="name">Nome</option>
-                    <option value="rarity">Rarità</option>
                     <option value="quantity-desc">Più quantità</option>
                     <option value="quantity-asc">Meno quantità</option>
                 </select>
