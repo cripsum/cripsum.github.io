@@ -883,12 +883,12 @@ body.edits-page .edits-sort select option {
 
 .edits-custom-select {
     position: relative;
-    z-index: 6000;
+    z-index: 10;
     width: 100%;
 }
 
 .edits-custom-select.is-open {
-    z-index: 6200;
+    z-index: 20;
 }
 
 .edits-native-select {
@@ -940,7 +940,7 @@ body.edits-page .edits-sort select option {
     left: 0;
     right: 0;
     top: calc(100% + 0.5rem);
-    z-index: 6300;
+    z-index: 50;
     display: grid;
     gap: 0.35rem;
     padding: 0.45rem;
@@ -1013,7 +1013,7 @@ body.edits-page .edits-sort select option {
 }
 
 .edits-toolbar {
-    z-index: 6000 !important;
+    z-index: 900 !important;
 }
 
 .edits-grid,
@@ -1048,16 +1048,4 @@ body.edits-page .edits-sort select option {
         padding: 0.45rem;
         pointer-events: auto;
     }
-}
-
-body.content-v2-body .dropdown-menu {
-    padding: 0.45rem;
-    border: 1px solid rgba(255, 255, 255, 0.14) !important;
-    border-radius: 18px !important;
-    background: rgba(7, 10, 22, 0.96) !important;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    overflow: hidden;
-    z-index: 99999;
 }
