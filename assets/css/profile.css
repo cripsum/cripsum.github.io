@@ -2919,7 +2919,7 @@ body.profile-modal-open {
 }
 
 .bio-v2-body .navbar-search-dropdown::before {
-    background: rgba(var(--accent-rgb), 0.78) !important;
+    background: rgba(var(--accent-rgb), 0) !important;
 }
 
 body[data-theme="light"].bio-v2-body .dropdown-menu,
