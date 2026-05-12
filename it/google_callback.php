@@ -43,7 +43,7 @@ $google_id = $googleUser['id'];
 $email = strtolower(trim($googleUser['email']));
 $name = $googleUser['name'] ?? explode('@', $email)[0];
 
-$stmt = $mysqli->prepare("SELECT id, username, password, google_id FROM utenti WHERE email = ?");
+$stmt = $mysqli->prepare("SELECT id, username, password, google_id, profile_pic, ruolo, nsfw, richpresence FROM utenti WHERE email = ?");
 $stmt->bind_param("s", $email);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -88,10 +88,6 @@ if ($row = $result->fetch_assoc()) {
     $_SESSION['username'] = $username;
     $_SESSION['email'] = $email;
     $_SESSION['needs_password'] = true;
-    $_SESSION['profile_pic'] = $row['profile_pic'] ?? '../img/abdul.jpg';
-    $_SESSION['ruolo'] = $row['ruolo'] ?? 'utente';
-    $_SESSION['nsfw'] = (int)($row['nsfw'] ?? 0);
-    $_SESSION['richpresence'] = (int)($row['richpresence'] ?? 0);
 }
 
 $redirect = $_SESSION['redirect_after_login'] ?? 'home';
