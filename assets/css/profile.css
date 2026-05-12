@@ -2875,7 +2875,7 @@ body.profile-modal-open {
 }
 
 .bio-v2-body .dropdown-menu,
-.bio-v2-body .dropdownutenti .dropdown-menu, {
+.bio-v2-body .dropdownutenti .dropdown-menu {
     z-index: 16000 !important;
     color: var(--text) !important;
     background: rgba(8, 12, 24, 0.96) !important;
@@ -2887,7 +2887,7 @@ body.profile-modal-open {
 .bio-v2-body .dropdown-item,
 .bio-v2-body .dropdown-menu a,
 .bio-v2-body .dropdown-menu button,
-.bio-v2-body .navbar-search-input {
+.bio-v2-body .navbar-search-group {
     color: var(--text) !important;
 }
 
@@ -2896,11 +2896,15 @@ body.profile-modal-open {
 .bio-v2-body .dropdown-menu a:hover,
 .bio-v2-body .dropdown-menu a:focus,
 .bio-v2-body .dropdown-menu button:hover,
-.bio-v2-body .dropdown-menu button:focus,
-.bio-v2-body .navbar-search-input:hover,
-.bio-v2-body .navbar-search-input:focus {
+.bio-v2-body .dropdown-menu button:focus {
     color: var(--text) !important;
     background: rgba(var(--accent-rgb), 0.16) !important;
+}
+
+.bio-v2-body .navbar-search-group:hover,
+.bio-v2-body .navbar-search-group:focus-within {
+    background: rgba(var(--accent-rgb), 0.12) !important;
+    border-color: rgba(var(--accent-rgb), 0.32) !important;
 }
 
 body[data-theme="light"].bio-v2-body .dropdown-menu,
