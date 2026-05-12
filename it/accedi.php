@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <button class="auth-btn auth-btn--primary" type="submit" data-submit-text="Accedi">
                         <span>Accedi</span>
                     </button>
-                    <a href="google_login.php" class="auth-btn" style="background-color: white; color: black; text-decoration: none; text-align: center; display: flex; justify-content: center; align-items: center; gap: 10px;">
+                    <a href="../auth/google_login.php" class="auth-btn" style="background-color: white; color: black; text-decoration: none; text-align: center; display: flex; justify-content: center; align-items: center; gap: 10px;">
                         <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" width="20" height="20">
                         <span>Accedi con Google</span>
                     </a>
