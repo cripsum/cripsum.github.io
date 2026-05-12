@@ -58,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body class="auth-page">
+    <?php include '../includes/navbar.php'; ?>
     <main class="auth-shell">
         <section class="auth-card">
             <div class="auth-card__form">
