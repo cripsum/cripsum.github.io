@@ -7,11 +7,6 @@ $lang = explode('/', trim($uri, '/'))[0];
 if (!in_array($lang, ['it', 'en'])) {
     $lang = 'it';
 }
-// Language switcher: swap /it/ ↔ /en/ in the current URL
-$altLang   = ($lang === 'it') ? 'en' : 'it';
-$altLabel  = ($lang === 'it') ? 'EN' : 'IT';
-$curLabel  = strtoupper($lang);
-$switchUrl = preg_replace('#^/' . $lang . '(/|$)#', '/' . $altLang . '$1', $uri);
 
 if ($isLoggedIn) {
     $username = $_SESSION['username'] ?? 'Utente';
@@ -102,17 +97,6 @@ if ($isLoggedIn) {
             </ul>
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                <!-- ══ LANGUAGE SWITCH ══ -->
-                <li class="nav-item d-flex align-items-center me-2">
-                    <a href="<?= htmlspecialchars($switchUrl) ?>"
-                        class="lang-switch"
-                        aria-label="Switch language to <?= $altLabel ?>"
-                        title="Switch to <?= $altLabel ?>">
-                        <span class="lang-switch__cur"><?= $curLabel ?></span>
-                        <span class="lang-switch__sep">·</span>
-                        <span class="lang-switch__alt"><?= $altLabel ?></span>
-                    </a>
-                </li>
                 <?php if (!$isLoggedIn): ?>
                     <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/accedi"><i class="fas fa-sign-in-alt"></i> Accedi</a></li>
                     <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/registrati"><i class="fas fa-user-plus"></i> Registrati</a></li>
@@ -173,49 +157,6 @@ if ($isLoggedIn) {
     </script>
 
 <?php endif; ?>
-<style>
-    .lang-switch {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        padding: 4px 10px;
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        border-radius: 20px;
-        text-decoration: none;
-        font-size: .78rem;
-        font-weight: 600;
-        letter-spacing: .06em;
-        color: rgba(255, 255, 255, 0.55);
-        transition: border-color .2s, color .2s, background .2s;
-        white-space: nowrap;
-    }
-
-    .lang-switch:hover {
-        border-color: rgba(255, 255, 255, 0.45);
-        color: #fff;
-        background: rgba(255, 255, 255, 0.07);
-    }
-
-    .lang-switch__cur {
-        color: #fff;
-        font-weight: 700;
-    }
-
-    .lang-switch__sep {
-        color: rgba(255, 255, 255, 0.25);
-        font-weight: 400;
-    }
-
-    .lang-switch__alt {
-        /* colore già ereditato dal parent */
-    }
-
-    @media (max-width: 1199.98px) {
-        .lang-switch {
-            margin: 6px 0 2px 0;
-        }
-    }
-</style>
 <script>
     (function() {
         'use strict';
