@@ -267,11 +267,63 @@ body.auth-page {
     background: rgba(251, 113, 133, .12);
 }
 
+/* ── Google button ──────────────────────────────────── */
+.auth-btn--google {
+    width: 100%;
+    border-color: rgba(255, 255, 255, .18);
+    background: rgba(255, 255, 255, .07);
+    color: var(--auth-text);
+    font-size: .95rem;
+}
+
+.auth-btn--google:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, .32);
+    background: rgba(255, 255, 255, .11);
+    color: #fff;
+}
+
+.auth-google-icon {
+    width: 1.2rem;
+    height: 1.2rem;
+    flex-shrink: 0;
+}
+
+/* ── Divider "oppure" ──────────────────────────────── */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin: .25rem 0 -.1rem;
+    color: var(--auth-muted-2);
+    font-size: .8rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--auth-border);
+}
+/* ───────────────────────────────────────────────────── */
+
 .auth-btn:hover {
     transform: translateY(-2px);
     color: #fff;
     border-color: rgba(var(--auth-accent-rgb), .48);
     background: rgba(var(--auth-accent-rgb), .13);
+}
+
+/* Overrides specifici che non devono essere sovrascritti dal selettore generico */
+.auth-btn--primary:hover {
+    border-color: transparent;
+    background: linear-gradient(135deg, rgba(var(--auth-accent-rgb), 1), rgba(139, 92, 246, 1));
+}
+
+.auth-btn--google:hover {
+    border-color: rgba(255, 255, 255, .32);
+    background: rgba(255, 255, 255, .11);
 }
 
 .auth-btn.is-loading {
