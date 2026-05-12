@@ -1049,3 +1049,15 @@ body.edits-page .edits-sort select option {
         pointer-events: auto;
     }
 }
+
+body.content-v2-body .dropdown-menu {
+    padding: 0.45rem;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-radius: 18px !important;
+    background: rgba(7, 10, 22, 0.96) !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    overflow: hidden;
+    z-index: 99999;
+}
