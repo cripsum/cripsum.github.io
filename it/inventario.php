@@ -159,7 +159,6 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                 <div class="inv-select-menu" role="listbox" aria-label="Ordina inventario">
                     <button type="button" data-value="default"><strong>Ordine originale</strong></button>
                     <button type="button" data-value="name"><strong>Nome</strong><span>A-Z</span></button>
-                    <button type="button" data-value="rarity"><strong>Rarità</strong></button>
                     <button type="button" data-value="quantity-desc"><strong>Più quantità</strong><span>x ↓</span></button>
                     <button type="button" data-value="quantity-asc"><strong>Meno quantità</strong><span>x ↑</span></button>
                 </div>
