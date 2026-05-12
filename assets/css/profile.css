@@ -2896,8 +2896,7 @@ body.profile-modal-open {
 .bio-v2-body .dropdown-menu a:hover,
 .bio-v2-body .dropdown-menu a:focus,
 .bio-v2-body .dropdown-menu button:hover,
-.bio-v2-body .dropdown-menu button:focus,
-.bio-v2-body .navbar-search-input:focus-within {
+.bio-v2-body .dropdown-menu button:focus {
     color: var(--text) !important;
     background: rgba(var(--accent-rgb), 0.16) !important;
 }
@@ -2906,11 +2905,12 @@ body.profile-modal-open {
 .bio-v2-body .navbar-search-group:focus-within {
     background: rgba(var(--accent-rgb), 0.12) !important;
     border-color: rgba(var(--accent-rgb), 0.32) !important;
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.12);
 }
 
 .bio-v2-body .navbar-search-group:focus-within .navbar-search-icon,
 .bio-v2-body .search-result-arrow {
-    color: var(--text) !important;
+    color: rgba(var(--accent-rgb), 0.9) !important;
 }
 
 .bio-v2-body .search-result-item:hover,
