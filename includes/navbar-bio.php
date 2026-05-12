@@ -173,6 +173,49 @@ if ($isLoggedIn) {
     </script>
 
 <?php endif; ?>
+<style>
+    .lang-switch {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 20px;
+        text-decoration: none;
+        font-size: .78rem;
+        font-weight: 600;
+        letter-spacing: .06em;
+        color: rgba(255, 255, 255, 0.55);
+        transition: border-color .2s, color .2s, background .2s;
+        white-space: nowrap;
+    }
+
+    .lang-switch:hover {
+        border-color: rgba(255, 255, 255, 0.45);
+        color: #fff;
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .lang-switch__cur {
+        color: #fff;
+        font-weight: 700;
+    }
+
+    .lang-switch__sep {
+        color: rgba(255, 255, 255, 0.25);
+        font-weight: 400;
+    }
+
+    .lang-switch__alt {
+        /* colore già ereditato dal parent */
+    }
+
+    @media (max-width: 1199.98px) {
+        .lang-switch {
+            margin: 6px 0 2px 0;
+        }
+    }
+</style>
 <script>
     (function() {
         'use strict';
