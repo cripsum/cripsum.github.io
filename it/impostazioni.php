@@ -204,7 +204,7 @@ if ($twofaSetupSecret) {
         <?php endif; ?>
 
         <?php if (empty($currentUser['password'])): ?>
-            <div class="auth-alert" style="background: rgba(255, 193, 7, 0.15); border: 1px solid #ffc107; color: #ffc107; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 15px;">
+            <div class="auth-alert auth-reveal" style="background: rgba(255, 193, 7, 0.15); border: 1px solid #ffc107; color: #ffc107; padding: 1rem; border-radius: 20px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 15px;">
                 <i class="fas fa-key"></i>
                 <span style="flex-grow: 1;">Imposta una password per accedere anche senza Google OAuth.</span>
                 <a href="imposta_password.php" class="auth-btn" style="background: #ffc107; color: #000; width: auto; padding: 5px 15px;">Configura</a>
