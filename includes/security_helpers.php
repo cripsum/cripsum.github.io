@@ -376,7 +376,6 @@ function auth_start_password_login(mysqli $mysqli, string $identifier, string $p
     $user = auth_get_user_by_identifier($mysqli, $identifier);
 
     if ($user && empty($user['password'])) {
-        // Registriamo comunque il tentativo fallito per non bypassare il rate limit
         auth_record_login_attempt($mysqli, $user['id'] ?? null, $identifier, false, 'login_failed_google_only');
         auth_session_rate_fail($identifier, 'login_failed');
 

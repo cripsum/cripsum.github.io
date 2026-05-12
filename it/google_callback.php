@@ -58,6 +58,10 @@ if ($row = $result->fetch_assoc()) {
     $_SESSION['user_id'] = $row['id'];
     $_SESSION['username'] = $row['username'];
     $_SESSION['email'] = $email;
+    $_SESSION['profile_pic'] = $row['profile_pic'] ?? '../img/abdul.jpg';
+    $_SESSION['ruolo'] = $row['ruolo'] ?? 'utente';
+    $_SESSION['nsfw'] = (int)($row['nsfw'] ?? 0);
+    $_SESSION['richpresence'] = (int)($row['richpresence'] ?? 0);
 
     if (empty($row['password'])) {
         $_SESSION['needs_password'] = true;
@@ -84,6 +88,10 @@ if ($row = $result->fetch_assoc()) {
     $_SESSION['username'] = $username;
     $_SESSION['email'] = $email;
     $_SESSION['needs_password'] = true;
+    $_SESSION['profile_pic'] = $row['profile_pic'] ?? '../img/abdul.jpg';
+    $_SESSION['ruolo'] = $row['ruolo'] ?? 'utente';
+    $_SESSION['nsfw'] = (int)($row['nsfw'] ?? 0);
+    $_SESSION['richpresence'] = (int)($row['richpresence'] ?? 0);
 }
 
 $redirect = $_SESSION['redirect_after_login'] ?? 'home';
