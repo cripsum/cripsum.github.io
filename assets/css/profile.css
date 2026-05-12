@@ -2919,7 +2919,7 @@ body.profile-modal-open {
 }
 
 .bio-v2-body .navbar-search-result::before {
-    background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb), 0.55) 40%, rgba(35, 25, 58, 0.45) 60%, transparent);
+    background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb), 0.55) 40%, rgba(35, 25, 58, 0.45) 60%, transparent) !important;
 }
 
 body[data-theme="light"].bio-v2-body .dropdown-menu,
