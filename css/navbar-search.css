@@ -1,8 +1,23 @@
 /* ============================================================
-   navbar-search.css
-   Barra di ricerca utenti nella navbar — tema glassmorphism dark
-   Da includere dopo style-dark.css
+   navbar-search.css  — v2.0
+   In tema con lo stile glassmorphism dark di Cripsum
    ============================================================ */
+
+/* ── Variabili locali (in sync con home.css / chat-v2.css) ── */
+:root {
+    --ns-accent: #2f6bff;
+    --ns-accent-rgb: 47, 107, 255;
+    --ns-purple: #8b5cf6;
+    --ns-bg: rgba(8, 11, 22, 0.97);
+    --ns-card: rgba(9, 13, 25, 0.82);
+    --ns-border: rgba(255, 255, 255, 0.11);
+    --ns-border-hl: rgba(var(--ns-accent-rgb), 0.46);
+    --ns-text: #f7f8ff;
+    --ns-muted: #aab3c8;
+    --ns-muted-2: #778199;
+    --ns-radius: 18px;
+    --ns-shadow: 0 24px 64px rgba(0, 0, 0, 0.52), 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
 
 /* ── Wrapper ─────────────────────────────────────────────── */
 .navbar-search-wrapper {
@@ -16,67 +31,72 @@
 .navbar-search-group {
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 10px;
-    padding: 0 12px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    width: 220px;
+    gap: 0;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid var(--ns-border);
+    border-radius: 12px;
+    padding: 0 10px;
+    width: 210px;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .navbar-search-group:focus-within {
-    background: rgba(255, 255, 255, 0.13);
-    border-color: rgba(255, 255, 255, 0.3);
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.07);
-    width: 260px;
+    width: 255px;
+    background: rgba(var(--ns-accent-rgb), 0.07);
+    border-color: rgba(var(--ns-accent-rgb), 0.4);
+    box-shadow: 0 0 0 3px rgba(var(--ns-accent-rgb), 0.12);
 }
 
+/* Icona ricerca */
 .navbar-search-icon {
-    color: rgba(255, 255, 255, 0.45);
-    font-size: 0.8rem;
+    color: var(--ns-muted-2);
+    font-size: 0.78rem;
     flex-shrink: 0;
     pointer-events: none;
-    transition: color 0.3s ease;
+    transition: color 0.25s ease;
 }
 
 .navbar-search-group:focus-within .navbar-search-icon {
-    color: rgba(255, 255, 255, 0.75);
+    color: rgba(var(--ns-accent-rgb), 0.9);
 }
 
+/* Input */
 .navbar-search-input {
     background: transparent !important;
     border: none !important;
     outline: none !important;
     box-shadow: none !important;
-    color: rgba(255, 255, 255, 0.9) !important;
-    font-size: 0.875rem;
+    color: var(--ns-text) !important;
+    font-size: 0.855rem;
     font-family: "Poppins", sans-serif;
-    font-weight: 400;
+    font-weight: 500;
     padding: 7px 8px !important;
     width: 100%;
-    caret-color: rgba(255, 255, 255, 0.8);
+    caret-color: rgba(var(--ns-accent-rgb), 0.9);
 }
 
 .navbar-search-input::placeholder {
-    color: rgba(255, 255, 255, 0.35);
+    color: var(--ns-muted-2);
+    font-weight: 400;
 }
 
 /* Clear button */
 .navbar-search-clear {
     background: none;
     border: none;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--ns-muted-2);
     cursor: pointer;
     padding: 0;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     line-height: 1;
     flex-shrink: 0;
-    transition: color 0.2s ease;
+    transition: color 0.2s ease, transform 0.2s ease;
     display: none;
 }
 
 .navbar-search-clear:hover {
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--ns-text);
+    transform: scale(1.15);
 }
 
 /* ── Dropdown risultati ───────────────────────────────────── */
@@ -85,21 +105,27 @@
     top: calc(100% + 10px);
     left: 0;
     right: 0;
-    min-width: 260px;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    background: linear-gradient(135deg, rgba(30, 30, 30, 0.97), rgba(18, 18, 18, 0.99));
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 14px;
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    min-width: 270px;
+
+    /* Glassmorphism in tema col sito */
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.022)), var(--ns-bg);
+
+    border: 1px solid var(--ns-border);
+    border-radius: var(--ns-radius);
+    box-shadow: var(--ns-shadow);
     z-index: 9999;
     overflow: hidden;
 
+    /* Bordo superiore accent */
+    border-top: 1px solid rgba(var(--ns-accent-rgb), 0.32);
+
     /* Animazione apertura */
     opacity: 0;
-    transform: translateY(-6px) scale(0.98);
+    transform: translateY(-8px) scale(0.97);
     pointer-events: none;
-    transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.34, 1.26, 0.64, 1);
 }
 
 .navbar-search-dropdown.visible {
@@ -108,48 +134,61 @@
     pointer-events: all;
 }
 
+/* Sottile decorazione glow in alto */
+.navbar-search-dropdown::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 15%;
+    right: 15%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(var(--ns-accent-rgb), 0.55) 40%, rgba(139, 92, 246, 0.45) 60%, transparent);
+    pointer-events: none;
+}
+
 /* ── Singolo risultato ────────────────────────────────────── */
 .search-result-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 14px;
+    gap: 10px;
+    padding: 9px 12px;
     text-decoration: none;
-    color: rgba(255, 255, 255, 0.88);
-    transition: background 0.2s ease, color 0.2s ease;
-    border-radius: 0;
+    color: var(--ns-text);
+    transition: background 0.18s ease;
+    position: relative;
 }
 
-.search-result-item:first-child {
-    border-radius: 14px 14px 0 0;
-}
-
-.search-result-item:last-child {
-    border-radius: 0 0 14px 14px;
-}
-
-.search-result-item:only-child {
-    border-radius: 14px;
+/* Separatore tra voci */
+.search-result-item + .search-result-item::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 1px;
+    background: var(--ns-border);
 }
 
 .search-result-item:hover,
 .search-result-item.focused {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
+    background: rgba(var(--ns-accent-rgb), 0.09);
 }
 
-.search-result-item + .search-result-item {
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-/* Avatar */
+/* Avatar con ring accent su hover */
 .search-result-avatar {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid var(--ns-border);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-result-item:hover .search-result-avatar,
+.search-result-item.focused .search-result-avatar {
+    border-color: rgba(var(--ns-accent-rgb), 0.55);
+    box-shadow: 0 0 0 3px rgba(var(--ns-accent-rgb), 0.14);
 }
 
 /* Info utente */
@@ -158,45 +197,70 @@
     flex-direction: column;
     gap: 2px;
     min-width: 0;
+    flex: 1;
 }
 
 .search-result-username {
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: 0.865rem;
+    font-weight: 700;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    color: var(--ns-text);
+    letter-spacing: -0.01em;
 }
 
-/* Badge ruolo */
+/* Highlight della query nell'username */
+.search-result-username mark {
+    background: rgba(var(--ns-accent-rgb), 0.28);
+    color: #a5c4ff;
+    border-radius: 3px;
+    padding: 0 2px;
+}
+
+/* Badge ruolo — stile pill in tema */
 .search-result-role {
-    font-size: 0.7rem;
-    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 0.1rem 0.45rem;
+    border: 1px solid var(--ns-border);
+    border-radius: 999px;
+    font-size: 0.62rem;
+    font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    opacity: 0.55;
+    letter-spacing: 0.07em;
+    color: var(--ns-muted-2);
+    background: rgba(255, 255, 255, 0.045);
 }
 
 .search-result-role.owner {
-    color: #ffd700;
-    opacity: 0.9;
-}
-.search-result-role.admin {
-    color: #ff6b6b;
-    opacity: 0.9;
-}
-.search-result-role.utente {
-    color: rgba(255, 255, 255, 0.45);
+    color: #fbbf24;
+    border-color: rgba(251, 191, 36, 0.3);
+    background: rgba(251, 191, 36, 0.08);
 }
 
-/* Freccia ↗ a destra */
+.search-result-role.admin {
+    color: #7dd3fc;
+    border-color: rgba(125, 211, 252, 0.3);
+    background: rgba(125, 211, 252, 0.08);
+}
+
+.search-result-role.utente {
+    color: var(--ns-muted-2);
+    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* Freccia ↗ — appare su hover */
 .search-result-arrow {
     margin-left: auto;
-    font-size: 0.7rem;
-    opacity: 0;
-    color: rgba(255, 255, 255, 0.5);
-    transition: opacity 0.15s ease, transform 0.15s ease;
     flex-shrink: 0;
+    font-size: 0.68rem;
+    opacity: 0;
+    color: rgba(var(--ns-accent-rgb), 0.75);
+    transform: translate(0, 2px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
 .search-result-item:hover .search-result-arrow,
@@ -207,9 +271,9 @@
 
 /* ── Stati speciali ───────────────────────────────────────── */
 .search-status-msg {
-    padding: 14px 16px;
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.4);
+    padding: 16px;
+    font-size: 0.84rem;
+    color: var(--ns-muted);
     text-align: center;
     font-style: italic;
 }
@@ -219,9 +283,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 14px 16px;
-    color: rgba(255, 255, 255, 0.45);
+    gap: 10px;
+    padding: 16px;
+    color: var(--ns-muted);
     font-size: 0.82rem;
 }
 
@@ -229,13 +293,14 @@
     content: "";
     width: 14px;
     height: 14px;
-    border: 2px solid rgba(255, 255, 255, 0.15);
-    border-top-color: rgba(255, 255, 255, 0.6);
+    border: 2px solid rgba(var(--ns-accent-rgb), 0.2);
+    border-top-color: rgba(var(--ns-accent-rgb), 0.85);
     border-radius: 50%;
-    animation: spin 0.7s linear infinite;
+    animation: ns-spin 0.65s linear infinite;
+    flex-shrink: 0;
 }
 
-@keyframes spin {
+@keyframes ns-spin {
     to {
         transform: rotate(360deg);
     }
@@ -244,7 +309,7 @@
 /* ── Mobile — dentro il menu collapse ────────────────────── */
 @media (max-width: 1199.98px) {
     .navbar-search-wrapper {
-        position: relative; /* fondamentale come ancora per il dropdown */
+        position: relative; /* ancora per il dropdown */
         width: 100%;
         margin: 8px 0 4px;
         padding: 0 4px;
@@ -256,7 +321,7 @@
     }
 
     .navbar-search-dropdown {
-        /* Torna absolute: NON entra nel flusso, non gonfia la navbar */
+        /* Rimane absolute: non entra nel flusso, non gonfia la navbar */
         position: absolute;
         top: calc(100% + 6px);
         left: 0;
@@ -264,14 +329,12 @@
         width: 100%;
         min-width: unset;
 
-        /* Altezza massima + scroll interno: non dilaga mai */
+        /* Altezza max + scroll: non dilaga mai */
         max-height: 260px;
         overflow-y: auto;
 
-        /* Stile */
         z-index: 9999;
-        border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        border-radius: 14px;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
     }
 }
-                                                                                                                                                             
