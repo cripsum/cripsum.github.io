@@ -96,7 +96,7 @@ if ($row = $result->fetch_assoc()) {
 }
 
 // Redirect post-login
-$redirect = $_SESSION['redirect_after_login'] ?? 'home';
+$redirect = $_SESSION['redirect_after_login'] ?? '../it/home';
 unset($_SESSION['redirect_after_login']);
 header('Location: ' . $redirect);
 exit();
