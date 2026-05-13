@@ -6,13 +6,13 @@ require_once '../includes/functions.php';
 checkBan($mysqli);
 
 if (!isLoggedIn()) {
-    $_SESSION['error_message'] = "mi dispiace, ma la pagina TikTokPedia™ è in manutenzione. riprova più tardi.";
+    $_SESSION['error_message'] = "I'm sorry, but the TikTokPedia™ page is under maintenance. Please try again later.";
     header('Location: home');
     exit();
 }
 
 if (!isOwner()) {
-    $_SESSION['error_message'] = "mi dispiace, ma la pagina TikTokPedia™ è in manutenzione. riprova più tardi.";
+    $_SESSION['error_message'] = "I'm sorry, but the TikTokPedia™ page is under maintenance. Please try again later.";
     header('Location: home');
     exit();
 }
@@ -63,7 +63,7 @@ function tp_h($value): string
 
 <body class="tiktokpedia-page">
     <?php include '../includes/navbar.php'; ?>
-    
+
 
     <div class="tp-bg" aria-hidden="true">
         <span></span>
@@ -77,12 +77,12 @@ function tp_h($value): string
                 <h1>TikTokpedia</h1>
 
                 <p>
-                    Una piccola wiki/raccolta con profili, riferimenti e robe legate al lato TikTok del sito.
+                    A small wiki and collection featuring profiles, references, and everything related to the TikTok side of the site.
                 </p>
             </div>
 
             <div class="tp-hero-card">
-                <span>Voci presenti</span>
+                <span>Total entries</span>
                 <strong><?php echo count($voices); ?></strong>
             </div>
         </section>
@@ -90,11 +90,11 @@ function tp_h($value): string
         <section class="tp-toolbar tp-reveal" aria-label="Filtri TikTokpedia">
             <div class="tp-search">
                 <i class="fas fa-search"></i>
-                <input type="search" id="tpSearch" placeholder="Cerca voce, descrizione o tag..." autocomplete="off">
+                <input type="search" id="tpSearch" placeholder="Search for a voice, description, or tag..." autocomplete="off">
             </div>
 
             <div class="tp-filters" role="group" aria-label="Filtra per tag">
-                <button type="button" class="tp-filter is-active" data-filter="all">Tutti</button>
+                <button type="button" class="tp-filter is-active" data-filter="all">All</button>
                 <?php foreach ($tags as $tag): ?>
                     <button type="button" class="tp-filter" data-filter="<?php echo tp_h($tag); ?>">
                         <?php echo tp_h($tag); ?>
@@ -103,7 +103,7 @@ function tp_h($value): string
             </div>
 
             <div class="tp-toolbar-bottom">
-                <span id="tpResultCount"><?php echo count($voices); ?> voci</span>
+                <span id="tpResultCount"><?php echo count($voices); ?> entries</span>
                 <button type="button" class="tp-reset" id="tpReset">Reset</button>
             </div>
         </section>
@@ -146,7 +146,7 @@ function tp_h($value): string
 
                             <button class="tp-btn tp-btn-ghost" type="button" data-copy-link>
                                 <i class="fas fa-link"></i>
-                                Copia link
+                                Copy link
                             </button>
                         </div>
                     </div>
@@ -156,13 +156,13 @@ function tp_h($value): string
 
         <section class="tp-empty" id="tpEmpty" hidden>
             <i class="fas fa-magnifying-glass"></i>
-            <strong>Nessuna voce trovata</strong>
-            <p>Prova a cambiare ricerca o filtro.</p>
+            <strong>No entries found</strong>
+            <p>Try changing the search or filter.</p>
         </section>
 
         <section class="tp-note tp-reveal">
             <i class="fas fa-circle-info"></i>
-            <p>Altre voci arriveranno quando ci saranno contenuti veri da aggiungere.</p>
+            <p>More entries will be added when there is real content to include.</p>
         </section>
     </main>
 
@@ -172,7 +172,7 @@ function tp_h($value): string
 
     <div class="tp-toast" id="tpToast" hidden>
         <i class="fas fa-check"></i>
-        <span>Link copiato</span>
+        <span>Link copied</span>
     </div>
 
     <?php include '../includes/footer-en.php'; ?>

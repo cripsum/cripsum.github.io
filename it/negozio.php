@@ -35,7 +35,7 @@ $products = [
 
 <body class="shop-page shop-theme-store" data-shop-page="negozio" data-favorites="1">
     <?php include '../includes/navbar.php'; ?>
-    
+
 
     <main class="shop-shell">
         <section class="shop-hero shop-reveal">
@@ -114,9 +114,6 @@ $products = [
                         <div class="shop-card__media">
                             <img src="<?php echo shop_h($product['image']); ?>" alt="<?php echo shop_h($product['alt']); ?>" loading="lazy">
                             <span class="shop-badge"><?php echo shop_h($product['badge']); ?></span>
-                            <button type="button" class="shop-fav" data-favorite-toggle aria-label="Salva preferito">
-                                <i class="far fa-heart"></i>
-                            </button>
                         </div>
                         <div class="shop-card__body">
                             <h2><?php echo shop_h($product['name']); ?></h2>

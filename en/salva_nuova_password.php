@@ -21,21 +21,22 @@ if ($token && $nuova_password) {
         $stmt->bind_param("si", $hash, $id);
         $stmt->execute();
 
-        $messaggio = "Password aggiornata con successo.";
+        $messaggio = "Password updated successfully.";
         $success = true;
     } else {
-        $messaggio = "Token non valido o scaduto.";
+        $messaggio = "Invalid or expired token.";
     }
 } else {
-    $messaggio = "Richiesta non valida.";
+    $messaggio = "Invalid request.";
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <?php include '../includes/head-import.php'; ?>
-    <title>Cripsum™ - Esito reset</title>
+    <title>Cripsum™ - Reset Result</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/assets/forms/forms.css?v=1.0-unified">
     <script src="/assets/forms/forms.js?v=1.0-unified" defer></script>
@@ -59,7 +60,7 @@ if ($token && $nuova_password) {
             </div>
 
             <div class="form-card__header" style="text-align:center;">
-                <span class="form-pill"><?php echo $success ? 'Fatto' : 'Attenzione'; ?></span>
+                <span class="form-pill"><?php echo $success ? 'Done' : 'Attention'; ?></span>
                 <h1>Reset password</h1>
                 <p><?php echo htmlspecialchars($messaggio, ENT_QUOTES, 'UTF-8'); ?></p>
             </div>
@@ -67,10 +68,11 @@ if ($token && $nuova_password) {
             <div class="form-actions form-actions--center">
                 <a class="form-btn form-btn--primary" href="accedi">
                     <i class="fas fa-arrow-left"></i>
-                    <span>Torna al login</span>
+                    <span>Back to login</span>
                 </a>
             </div>
         </section>
     </main>
 </body>
+
 </html>

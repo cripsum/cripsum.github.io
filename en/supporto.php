@@ -9,9 +9,10 @@ $username = $_SESSION['username'] ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <title>Cripsum™ - Supporto</title>
+    <title>Cripsum™ - Help & Support</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/assets/static/static.css?v=1.0-static">
@@ -21,7 +22,7 @@ $username = $_SESSION['username'] ?? '';
 
 <body class="static-page">
     <?php include '../includes/navbar.php'; ?>
-    
+
 
 
     <div class="static-bg" aria-hidden="true">
@@ -34,27 +35,27 @@ $username = $_SESSION['username'] ?? '';
     <main class="static-shell">
         <section class="static-hero static-hero--split static-reveal">
             <div>
-                <span class="static-pill">Supporto</span>
-                <h1>Serve aiuto?</h1>
-                <p>Qui trovi contatti e risposte rapide ai problemi più comuni.</p>
+                <span class="static-pill">Support</span>
+                <h1>Need help?</h1>
+                <p>Find contact info and quick answers to the most common issues here.</p>
 
                 <?php if ($isLogged): ?>
                     <div class="static-alert static-alert--success" style="margin-top:1rem;">
                         <i class="fas fa-user-check"></i>
-                        <p>Stai scrivendo come <strong><?php echo htmlspecialchars($username, ENT_QUOTES, 'UTF-8'); ?></strong>. Se segnali un problema, includi anche il tuo username.</p>
+                        <p>You are writing as <strong><?php echo htmlspecialchars($username, ENT_QUOTES, 'UTF-8'); ?></strong>. If you report an issue, please include your username.</p>
                     </div>
                 <?php endif; ?>
             </div>
 
             <aside class="static-hero__side">
-                <span class="static-chip"><i class="fas fa-clock"></i> Risposta non immediata</span>
-                <p>Scrivi in modo chiaro. Aiuta a risolvere prima.</p>
+                <span class="static-chip"><i class="fas fa-clock"></i> Response is not immediate</span>
+                <p>Write clearly. It helps us resolve things faster.</p>
             </aside>
         </section>
 
         <section class="static-grid static-grid--2" style="margin-top:1rem;">
             <article class="static-contact-card static-reveal">
-                <h2>Contatti</h2>
+                <h2>Contacts</h2>
                 <div class="static-grid">
                     <a href="mailto:sburra@cripsum.com" class="static-contact-link">
                         <i class="fas fa-envelope"></i>
@@ -76,49 +77,50 @@ $username = $_SESSION['username'] ?? '';
             </article>
 
             <article class="static-card static-reveal">
-                <h2>Prima di scrivere</h2>
+                <h2>Before writing</h2>
                 <ul>
-                    <li>Spiega cosa stavi facendo.</li>
-                    <li>Allega uno screenshot se serve.</li>
-                    <li>Scrivi browser, dispositivo e pagina coinvolta.</li>
-                    <li>Se hai un account, indica lo username.</li>
+                    <li>Explain what you were doing.</li>
+                    <li>Attach a screenshot if needed.</li>
+                    <li>Mention your browser, device, and the page involved.</li>
+                    <li>If you have an account, include your username.</li>
                 </ul>
             </article>
         </section>
 
         <section class="static-faq static-reveal" id="supportFaq" style="margin-top:1rem;">
-            <h2>Domande rapide</h2>
+            <h2>Quick FAQ</h2>
 
             <label class="static-faq-search">
                 <i class="fas fa-search"></i>
-                <input type="search" placeholder="Cerca nelle FAQ..." data-static-faq-search="#supportFaq">
+                <input type="search" placeholder="Search the FAQ..." data-static-faq-search="#supportFaq">
             </label>
 
             <details class="static-faq-item">
-                <summary>Non riesco ad accedere</summary>
-                <p>Prova il recupero password. Se non ricevi email, controlla spam o scrivi al supporto.</p>
+                <summary>I can't log in</summary>
+                <p>Try password recovery. If you don't receive an email, check your spam folder or contact support.</p>
             </details>
 
             <details class="static-faq-item">
-                <summary>La lootbox non salva qualcosa</summary>
-                <p>Controlla di essere loggato. Poi prova refresh e verifica che la sessione non sia scaduta.</p>
+                <summary>The lootbox isn't saving something</summary>
+                <p>Make sure you are logged in. Then try refreshing and check if your session has expired.</p>
             </details>
 
             <details class="static-faq-item">
-                <summary>Vedo un bug grafico</summary>
-                <p>Fai refresh forzato e svuota la cache. Se resta, manda screenshot e nome pagina.</p>
+                <summary>I see a visual bug</summary>
+                <p>Do a hard refresh and clear your cache. If it persists, send a screenshot and the page name.</p>
             </details>
 
             <details class="static-faq-item">
-                <summary>Come segnalo un utente?</summary>
-                <p>Usa gli strumenti presenti nella pagina, se disponibili. Altrimenti scrivi al supporto con username e motivo.</p>
+                <summary>How do I report a user?</summary>
+                <p>Use the on-page reporting tools, if available. Otherwise, contact support with their username and reason.</p>
             </details>
 
-            <p class="static-empty" data-static-faq-empty>Nessun risultato trovato.</p>
+            <p class="static-empty" data-static-faq-empty>No results found.</p>
         </section>
     </main>
 
     <?php include '../includes/footer-en.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>

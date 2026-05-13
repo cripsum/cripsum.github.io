@@ -54,30 +54,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $acceptTerms = isset($_POST['acceptTerms']);
 
     if (!csrf_validate($_POST['csrf_token'] ?? null)) {
-        $error = 'Sessione scaduta. Riprova.';
+        $error = 'Session expired. Please try again.';
     } elseif (auth_rate_limited($mysqli, $email ?: $username, 'register_failed', 5, 30)) {
-        $error = 'Troppi tentativi. Riprova tra qualche minuto.';
+        $error = 'Too many attempts. Please try again in a few minutes.';
     } elseif ($username === '' || $email === '' || $password === '' || $repeatPassword === '') {
-        $error = 'Compila tutti i campi.';
+        $error = 'Please fill in all fields.';
     } elseif (!$acceptTerms) {
-        $error = 'Devi accettare i termini.';
+        $error = 'You must accept the terms.';
     } elseif (!auth_is_valid_username($username)) {
-        $error = 'Username non valido. Usa 3-20 caratteri, lettere, numeri e underscore.';
+        $error = 'Invalid username. Use 3-20 characters, letters, numbers, and underscores.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = 'Email non valida.';
+        $error = 'Invalid email address.';
     } elseif ($password !== $repeatPassword) {
-        $error = 'Le password non coincidono.';
+        $error = 'Passwords do not match.';
     } elseif (strlen($password) < 8) {
-        $error = 'La password deve avere almeno 8 caratteri.';
+        $error = 'Password must be at least 8 characters long.';
     } elseif (!auth_recaptcha_verify()) {
-        $error = 'Verifica reCAPTCHA non riuscita.';
+        $error = 'reCAPTCHA verification failed.';
     } else {
         $result = registerUser($mysqli, $username, $email, $password);
 
         if ($result === true) {
-            $success = 'Account creato. Controlla la tua email per verificare l’account.';
+            $success = 'Account created. Check your email to verify your account.';
         } else {
-            $error = is_string($result) ? $result : 'Registrazione non riuscita.';
+            $error = is_string($result) ? $result : 'Registration failed.';
             auth_record_login_attempt($mysqli, null, $email ?: $username, false, 'register_failed');
             auth_session_rate_fail($email ?: $username, 'register_failed');
         }
@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <title>Cripsum™ - Registrati</title>
+    <title>Cripsum™ - Sign up</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <link rel="stylesheet" href="/assets/auth/auth.css?v=1.0-2fa">
@@ -104,8 +104,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <section class="auth-card auth-reveal">
             <div class="auth-card__side">
                 <span class="auth-pill">Cripsum™</span>
-                <h1>Crea account</h1>
-                <p>Unisciti alla community di Cripsum™ e accedi a tantissimi contenuti.</p>
+                <h1>Create account</h1>
+                <p>Join the Cripsum™ community and get access to tons of content.</p>
             </div>
 
             <div class="auth-card__form">
@@ -140,17 +140,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <span>Password</span>
                         <div class="auth-password">
                             <input type="password" name="password" autocomplete="new-password" required minlength="8" data-password-input>
-                            <button type="button" data-toggle-password aria-label="Mostra password" style="margin-top: -18px;">
+                            <button type="button" data-toggle-password aria-label="Show password" style="margin-top: -18px;">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
                     </label>
 
                     <label class="auth-field">
-                        <span>Ripeti password</span>
+                        <span>Repeat password</span>
                         <div class="auth-password">
                             <input type="password" name="repeatPassword" autocomplete="new-password" required minlength="8" data-password-input>
-                            <button type="button" data-toggle-password aria-label="Mostra password" style="margin-top: -18px;">
+                            <button type="button" data-toggle-password aria-label="Show password" style="margin-top: -18px;">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
@@ -158,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <label class="auth-check">
                         <input type="checkbox" name="acceptTerms" required <?php echo isset($_POST['acceptTerms']) ? 'checked' : ''; ?>>
-                        <span>Accetto termini e privacy.</span>
+                        <span>I accept the terms and privacy policy.</span>
                     </label>
 
                     <div class="auth-recaptcha">
@@ -166,16 +166,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
 
                     <button class="auth-btn auth-btn--primary" type="submit" data-submit-text="Registrati">
-                        <span>Registrati</span>
+                        <span>Sign up</span>
                     </button>
-                    <div style="text-align: center; margin: 15px 0; color: var(--auth-muted);">oppure</div>
+                    <div style="text-align: center; margin: 15px 0; color: var(--auth-muted);">or</div>
                     <a href="google_login" class="auth-btn" style="background-color: white; color: black; text-decoration: none; text-align: center; display: flex; justify-content: center; align-items: center; gap: 10px;">
                         <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" width="20" height="20">
-                        <span>Accedi con Google</span>
+                        <span>Sign in with Google</span>
                     </a>
 
                     <div class="auth-links">
-                        <a href="accedi">Hai già un account?</a>
+                        <a href="accedi">Already have an account?</a>
                     </div>
                 </form>
             </div>

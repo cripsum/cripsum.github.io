@@ -20,8 +20,8 @@ $csrfToken = cv2_csrf_token();
 
 $contentType = 'shitpost';
 $pageTitle = 'Shitpost';
-$pageSubtitle = 'Meme, GIF e post della community.';
-$uploadTitle = 'Nuovo shitpost';
+$pageSubtitle = 'Meme, GIF and community posts.';
+$uploadTitle = 'New shitpost';
 $needsMotivation = false;
 $ogMeta = cripsum_og_content($mysqli, $contentType);
 ?>
@@ -69,7 +69,7 @@ $ogMeta = cripsum_og_content($mysqli, $contentType);
                 <?php else: ?>
                     <a class="cw-btn cw-btn--primary" href="/it/accedi">
                         <i class="fas fa-right-to-bracket"></i>
-                        <span>Accedi per pubblicare</span>
+                        <span>Log in to post</span>
                     </a>
                 <?php endif; ?>
             </div>
@@ -78,8 +78,8 @@ $ogMeta = cripsum_og_content($mysqli, $contentType);
         <section class="cw-toolbar">
             <label class="cw-search">
                 <i class="fas fa-search"></i>
-                <input type="search" id="cwSearchInput" placeholder="Cerca nel feed">
-                <button type="button" class="cw-search-clear" id="cwClearSearch" aria-label="Pulisci ricerca">
+                <input type="search" id="cwSearchInput" placeholder="Search the feed">
+                <button type="button" class="cw-search-clear" id="cwClearSearch" aria-label="Clear search">
                     <i class="fas fa-xmark"></i>
                 </button>
             </label>
@@ -87,31 +87,31 @@ $ogMeta = cripsum_og_content($mysqli, $contentType);
             <div class="cw-filters">
                 <div class="cw-custom-select" data-cw-custom-select>
                     <select id="cwSortSelect" class="cw-select cw-native-select" tabindex="-1" aria-hidden="true">
-                        <option value="recent" <?php echo $contentType !== 'rimasto' ? 'selected' : ''; ?>>Recenti</option>
-                        <option value="top" <?php echo $contentType === 'rimasto' ? 'selected' : ''; ?>>Più votati</option>
-                        <option value="comments">Più commentati</option>
-                        <option value="views">Più visti</option>
+                        <option value="recent" <?php echo $contentType !== 'rimasto' ? 'selected' : ''; ?>>Recent</option>
+                        <option value="top" <?php echo $contentType === 'rimasto' ? 'selected' : ''; ?>>Most voted</option>
+                        <option value="comments">Most commented</option>
+                        <option value="views">Most viewed</option>
                     </select>
 
                     <button type="button" class="cw-select-trigger" aria-haspopup="listbox" aria-expanded="false">
-                        <span class="cw-select-current"><?php echo $contentType === 'rimasto' ? 'Più votati' : 'Recenti'; ?></span>
+                        <span class="cw-select-current"><?php echo $contentType === 'rimasto' ? 'Most voted' : 'Recent'; ?></span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
 
                     <div class="cw-select-menu" role="listbox" aria-label="Ordina post">
                         <button type="button" data-value="recent">
-                            <strong>Recenti</strong>
+                            <strong>Recent</strong>
                         </button>
                         <button type="button" data-value="top">
-                            <strong>Più votati</strong>
+                            <strong>Most voted</strong>
 
                         </button>
                         <button type="button" data-value="comments">
-                            <strong>Più commentati</strong>
+                            <strong>Most commented</strong>
 
                         </button>
                         <button type="button" data-value="views">
-                            <strong>Più visti</strong>
+                            <strong>Most viewed</strong>
 
                         </button>
                     </div>
@@ -120,34 +120,34 @@ $ogMeta = cripsum_og_content($mysqli, $contentType);
                 <?php if ($isLogged): ?>
                     <button type="button" class="cw-filter-btn" id="cwSavedFilter">
                         <i class="fas fa-bookmark"></i>
-                        <span>Salvati</span>
+                        <span>Saved</span>
                     </button>
                 <?php endif; ?>
 
                 <?php if ($isAdmin): ?>
                     <div class="cw-custom-select" data-cw-custom-select>
                         <select id="cwStatusSelect" class="cw-select cw-native-select" tabindex="-1" aria-hidden="true">
-                            <option value="approved" selected>Approvati</option>
-                            <option value="pending">In attesa</option>
-                            <option value="all">Tutti</option>
+                            <option value="approved" selected>Approved</option>
+                            <option value="pending">Pending</option>
+                            <option value="all">All</option>
                         </select>
 
                         <button type="button" class="cw-select-trigger" aria-haspopup="listbox" aria-expanded="false">
-                            <span class="cw-select-current">Approvati</span>
+                            <span class="cw-select-current">Approved</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
 
-                        <div class="cw-select-menu" role="listbox" aria-label="Stato post">
+                        <div class="cw-select-menu" role="listbox" aria-label="Post status">
                             <button type="button" data-value="approved">
-                                <strong>Approvati</strong>
+                                <strong>Approved</strong>
                                 <span>OK</span>
                             </button>
                             <button type="button" data-value="pending">
-                                <strong>In attesa</strong>
+                                <strong>Pending</strong>
                                 <span>Wait</span>
                             </button>
                             <button type="button" data-value="all">
-                                <strong>Tutti</strong>
+                                <strong>All</strong>
                                 <span>All</span>
                             </button>
                         </div>
@@ -162,10 +162,10 @@ $ogMeta = cripsum_og_content($mysqli, $contentType);
 
         <div id="cwEmpty" class="cw-empty" hidden>
             <i class="fas fa-face-grin-squint"></i>
-            <strong>Nessun post da mostrare</strong>
-            <span>Quando ci sarà qualcosa di approvato, apparirà qui.</span>
+            <strong>No posts to display</strong>
+            <span>When there is something approved, it will appear here.</span>
             <?php if ($isLogged): ?>
-                <button type="button" class="cw-btn cw-btn--primary js-open-create">Pubblica ora</button>
+                <button type="button" class="cw-btn cw-btn--primary js-open-create">Post now</button>
             <?php endif; ?>
         </div>
 
@@ -175,7 +175,7 @@ $ogMeta = cripsum_og_content($mysqli, $contentType);
 
         <button type="button" id="cwLoadMore" class="cw-btn cw-btn--ghost" hidden>
             <i class="fas fa-chevron-down"></i>
-            <span>Carica altro</span>
+            <span>Load more</span>
         </button>
     </main>
 
@@ -184,37 +184,37 @@ $ogMeta = cripsum_og_content($mysqli, $contentType);
             <div class="cw-modal__head">
                 <div>
                     <strong id="cwCreateTitle"><?php echo cv2_h($uploadTitle); ?></strong>
-                    <span>Se serve, verrà controllato prima di apparire.</span>
+                    <span>The post will be reviewed before appearing.</span>
                 </div>
-                <button type="button" class="cw-icon-btn js-close-modal" aria-label="Chiudi"><i class="fas fa-xmark"></i></button>
+                <button type="button" class="cw-icon-btn js-close-modal" aria-label="Close"><i class="fas fa-xmark"></i></button>
             </div>
 
             <form id="cwCreateForm" class="cw-form">
                 <div class="cw-field">
-                    <label>Titolo</label>
-                    <input name="titolo" maxlength="120" required placeholder="Titolo breve">
+                    <label>Title</label>
+                    <input name="titolo" maxlength="120" required placeholder="Short title">
                 </div>
 
                 <div class="cw-field">
-                    <label>Descrizione</label>
-                    <textarea name="descrizione" maxlength="2000" rows="4" placeholder="Contesto breve"></textarea>
+                    <label>Description</label>
+                    <textarea name="descrizione" maxlength="2000" rows="4" placeholder="Brief context"></textarea>
                 </div>
 
                 <?php if ($needsMotivation): ?>
                     <div class="cw-field">
-                        <label>Motivazione</label>
-                        <textarea name="motivazione" maxlength="2000" rows="3" placeholder="Perché merita di stare qui?"></textarea>
+                        <label>Reason</label>
+                        <textarea name="motivazione" maxlength="2000" rows="3" placeholder="Why does it deserve to be here?"></textarea>
                     </div>
                 <?php endif; ?>
 
                 <div class="cw-form-grid">
                     <div class="cw-field">
                         <label>Tag</label>
-                        <input name="tag" maxlength="40" placeholder="es. meme, gaming">
+                        <input name="tag" maxlength="40" placeholder="e.g. meme, gaming">
                     </div>
                     <label class="cw-check">
                         <input type="checkbox" name="is_spoiler" value="1">
-                        <span>Segna come spoiler</span>
+                        <span>Mark as spoiler</span>
                     </label>
                 </div>
 
@@ -222,16 +222,16 @@ $ogMeta = cripsum_og_content($mysqli, $contentType);
                     <input type="file" name="media" id="cwMediaInput" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm" required>
                     <div id="cwPreview" class="cw-preview">
                         <i class="fas fa-cloud-arrow-up"></i>
-                        <strong>Carica immagine, GIF o video breve</strong>
-                        <span>Immagini/GIF max 8MB, video max 20MB.</span>
+                        <strong>Upload image, GIF or short video</strong>
+                        <span>Images/GIF max 8MB, video max 20MB.</span>
                     </div>
                 </div>
 
                 <div class="cw-modal__footer">
-                    <button type="button" class="cw-btn cw-btn--ghost js-close-modal">Annulla</button>
+                    <button type="button" class="cw-btn cw-btn--ghost js-close-modal">Cancel</button>
                     <button type="submit" class="cw-btn cw-btn--primary">
                         <i class="fas fa-paper-plane"></i>
-                        <span>Invia</span>
+                        <span>Send</span>
                     </button>
                 </div>
             </form>
@@ -242,10 +242,10 @@ $ogMeta = cripsum_og_content($mysqli, $contentType);
         <div class="cw-modal__panel" role="dialog" aria-modal="true">
             <div class="cw-modal__head">
                 <div>
-                    <strong id="cwTextTitle">Modifica</strong>
-                    <span>Puoi modificare solo testo e tag.</span>
+                    <strong id="cwTextTitle">Edit</strong>
+                    <span>You can only edit text and tags.</span>
                 </div>
-                <button type="button" class="cw-icon-btn js-close-text-modal" aria-label="Chiudi"><i class="fas fa-xmark"></i></button>
+                <button type="button" class="cw-icon-btn js-close-text-modal" aria-label="Close"><i class="fas fa-xmark"></i></button>
             </div>
             <form id="cwTextForm" class="cw-form"></form>
         </div>
@@ -254,7 +254,7 @@ $ogMeta = cripsum_og_content($mysqli, $contentType);
 
     <div id="cwPostModal" class="cw-modal cw-post-modal" aria-hidden="true">
         <div class="cw-modal__panel cw-post-modal__panel" role="dialog" aria-modal="true">
-            <button type="button" class="cw-icon-btn cw-post-modal__close js-close-post-modal" aria-label="Chiudi">
+            <button type="button" class="cw-icon-btn cw-post-modal__close js-close-post-modal" aria-label="Close">
                 <i class="fas fa-xmark"></i>
             </button>
             <div id="cwPostModalBody"></div>

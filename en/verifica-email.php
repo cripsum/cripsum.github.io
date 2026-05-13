@@ -13,20 +13,20 @@ if (isset($_GET['token'])) {
         $user = verifyEmail($mysqli, $token);
 
         if ($user) {
-            $message = "Email verificata con successo. Ora puoi accedere.";
+            $message = "Thank you for verifying your email! Your account is now active. You can log in and start using Cripsum™.";
             $messageType = 'success';
 
             sendWelcomeEmail($user['email'], $user['username']);
         } else {
-            $message = "Token non valido o già usato.";
+            $message = "Invalid token or already used.";
             $messageType = 'error';
         }
     } else {
-        $message = "Token di verifica mancante.";
+        $message = "Missing verification token.";
         $messageType = 'error';
     }
 } else {
-    $message = "Token di verifica mancante.";
+    $message = "Missing verification token.";
     $messageType = 'error';
 }
 
@@ -35,14 +35,14 @@ if ($_POST && isset($_POST['resend_email'])) {
 
     if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
         if (resendVerificationEmail($mysqli, $email)) {
-            $message = "Email di verifica reinviata.";
+            $message = "Verification email resent.";
             $messageType = 'success';
         } else {
-            $message = "Email già verificata o invio non riuscito.";
+            $message = "Email already verified or resend failed.";
             $messageType = 'error';
         }
     } else {
-        $message = "Email non valida.";
+        $message = "Invalid email.";
         $messageType = 'error';
     }
 }
@@ -51,7 +51,7 @@ if ($_POST && isset($_POST['resend_email'])) {
 <html lang="en">
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <title>Cripsum™ - Verifica Email</title>
+    <title>Cripsum™ - Email Verification</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/assets/forms/forms.css?v=1.0-unified">
     <script src="/assets/forms/forms.js?v=1.0-unified" defer></script>
@@ -77,7 +77,7 @@ if ($_POST && isset($_POST['resend_email'])) {
 
             <div class="form-card__header" style="text-align:center;">
                 <span class="form-pill">Email</span>
-                <h1>Verifica email</h1>
+                <h1>Email Verification</h1>
                 <p><?php echo htmlspecialchars($message, ENT_QUOTES, 'UTF-8'); ?></p>
             </div>
 
@@ -90,28 +90,28 @@ if ($_POST && isset($_POST['resend_email'])) {
                 <div class="form-actions form-actions--center">
                     <a href="accedi" class="form-btn form-btn--primary">
                         <i class="fas fa-right-to-bracket"></i>
-                        <span>Accedi ora</span>
+                        <span>Log in now</span>
                     </a>
                 </div>
             <?php else: ?>
                 <form method="POST" action="" data-form-loading>
                     <label class="form-field">
-                        <span>Reinvia verifica</span>
-                        <input type="email" id="email" name="email" placeholder="email@esempio.com" required>
-                        <small>Inserisci la tua email per ricevere un nuovo link.</small>
+                        <span>Resend Verification</span>
+                        <input type="email" id="email" name="email" placeholder="email@example.com" required>
+                        <small>Enter your email to receive a new link.</small>
                     </label>
 
                     <div class="form-actions">
-                        <button type="submit" name="resend_email" class="form-btn form-btn--primary form-btn--wide" data-loading-text="Invio...">
+                        <button type="submit" name="resend_email" class="form-btn form-btn--primary form-btn--wide" data-loading-text="Sending...">
                             <i class="fas fa-paper-plane"></i>
-                            <span>Reinvia email</span>
+                            <span>Resend Email</span>
                         </button>
                     </div>
                 </form>
             <?php endif; ?>
 
             <div class="form-links">
-                <a href="registrati">Torna alla registrazione</a>
+                <a href="registrati">Back to registration</a>
             </div>
         </section>
     </main>
