@@ -12,7 +12,7 @@ $footerYear = date('Y');
                 <img src="/img/amongus.jpg" alt="Cripsum™" class="footer-logo" loading="lazy">
                 <span>
                     <strong class="footer-title">Cripsum™</strong>
-                    <small>Il sito da fichi</small>
+                    <small>The best site ever</small>
                 </span>
             </a>
 
