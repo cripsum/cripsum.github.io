@@ -1,40 +1,24 @@
+<?php
+require_once '../config/session_init.php';
+require_once '../config/database.php';
+require_once '../includes/functions.php';
+
+checkBan($mysqli);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-T0CTM2SBJJ');
-    </script>
+    <?php include '../includes/head-import.php'; ?>
     <meta charset="UTF-8">
-    <title>Cripsum™ - Merch checkout</title>
+    <title>Cripsum™ - Checkout</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="icon" href="../img/Susremaster.png" type="image/png">
-    <link rel="shortcut icon" href="../img/Susremaster.png" type="image/png">
-    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/style-dark.css">
-    <link rel="stylesheet" href="../css/animations.css">
     <link rel="stylesheet" href="/assets/forms/forms.css?v=1.0-unified">
     <script src="/assets/forms/forms.js?v=1.0-unified" defer></script>
 </head>
 
 <body class="form-page">
-    <nav class="navbarutenti navbar navbar-expand-xl">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="home">
-                <img src="../img/amongus.jpg" height="40" style="border-radius: 8px" class="d-inline-block align-middle" alt="Cripsum">
-                <span class="align-middle ms-3 fw-bold" style="color: white">Cripsum™</span>
-            </a>
-            <div class="ms-auto d-flex gap-2">
-                <a class="nav-link" href="merch">Merch</a>
-                <a class="nav-link" href="home">Home</a>
-            </div>
-        </div>
-    </nav>
+    <?php include '../includes/navbar.php'; ?>
+    
 
 
     <div class="form-bg" aria-hidden="true">
@@ -47,16 +31,16 @@
     <main class="form-shell form-shell--checkout">
         <section class="form-card form-reveal">
             <div class="form-card__header">
-                <span class="form-pill">Merch</span>
+                <span class="form-pill">Shop</span>
                 <h1>Checkout</h1>
-                <p>Completa i dati per continuare con l’ordine.</p>
+                <p>Completa i dati richiesti per proseguire.</p>
             </div>
 
             <div class="checkout-layout">
                 <div class="form-panel">
                     <form id="checkoutForm" data-form-loading>
                         <div class="form-section">
-                            <h2>Dati personali</h2>
+                            <h2>Contatti</h2>
 
                             <div class="form-grid form-grid--2">
                                 <label class="form-field">
@@ -110,6 +94,16 @@
                                     <input type="text" id="zip" autocomplete="postal-code" required>
                                 </label>
                             </div>
+
+                            <label class="form-check">
+                                <input type="checkbox" id="same-address">
+                                <span>Indirizzo di spedizione uguale a quello di pagamento</span>
+                            </label>
+
+                            <label class="form-check">
+                                <input type="checkbox" id="save-info">
+                                <span>Ricorda le informazioni per i prossimi acquisti</span>
+                            </label>
                         </div>
 
                         <div class="form-section">
@@ -156,9 +150,9 @@
                         </div>
 
                         <div class="form-actions">
-                            <a href="merch-confirm" class="form-btn form-btn--primary form-btn--wide">
+                            <a href="confirm" class="form-btn form-btn--primary form-btn--wide">
                                 <i class="fas fa-lock"></i>
-                                <span>Invia e paga</span>
+                                <span>Continua</span>
                             </a>
                         </div>
                     </form>
@@ -167,26 +161,20 @@
                 <aside class="form-panel checkout-summary">
                     <h2>Riepilogo</h2>
                     <div class="summary-line">
-                        <span>Prodotto</span>
-                        <strong>Merch</strong>
+                        <span>Ordine</span>
+                        <strong>Cripsum™</strong>
                     </div>
                     <div class="summary-line">
                         <span>Stato</span>
-                        <strong>Da confermare</strong>
+                        <strong>In attesa</strong>
                     </div>
-                    <p class="form-muted" style="margin-top:1rem;">Controlla bene i dati prima di continuare.</p>
+                    <p class="form-muted" style="margin-top:1rem;">Controlla i dati prima di continuare.</p>
                 </aside>
             </div>
         </section>
     </main>
 
-    <footer class="my-5 pt-5 text-muted text-center text-small fadeup">
-        <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. Tutti i diritti riservati.</p>
-        <ul class="list-inline">
-            <li class="list-inline-item"><a href="privacy" class="linkbianco">Privacy</a></li>
-            <li class="list-inline-item"><a href="tos" class="linkbianco">Termini</a></li>
-            <li class="list-inline-item"><a href="supporto" class="linkbianco">Supporto</a></li>
-        </ul>
-    </footer>
+    <?php include '../includes/footer.php'; ?>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
 </html>

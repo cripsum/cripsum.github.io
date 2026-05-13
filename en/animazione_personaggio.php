@@ -1,0 +1,748 @@
+<?php
+require_once '../config/session_init.php';
+require_once '../config/database.php';
+require_once '../includes/functions.php';
+checkBan($mysqli);
+
+
+// if (!isLoggedIn()) {
+//     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
+//     $_SESSION['login_message'] = "Per accedere alle lootbox devi essere loggato";
+
+//     header('Location: accedi');
+//     exit();
+// }
+require_once '../api/api_personaggi.php';
+
+$idPersonaggio = $_GET['id_personaggio'] ?? 0;
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <?php include '../includes/head-import.php'; ?>
+    <link rel="stylesheet" href="/css/lootbox.css?v=8.0.6-skip-chest-smooth" />
+    <title>Cripsum™ - Animazione personaggio</title>
+</head>
+
+<body class="lootbox-page">
+    <div class="stars" id="stars"></div>
+
+    <!-- TO DO
+           bloccare lo scorrimento della pagina quando il menu della navbar è aperto (aggiungere classe overflow-hidden al body) 
+           bloccare lo scorrimento della pagina quando il pop up è aperto (aggiungere classe overflow-hidden al body)  
+        -->
+
+    <div class="testobianco lootbox-stage" id="paginaintera">
+
+        <div class="container">
+
+            <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein lootbox-chest" draggable="false" />
+
+            <div id="baglioreWrapper">
+                <div class="bagliore" id="bagliore"></div>
+            </div>
+
+            <div id="contenuto"></div>
+
+            <div id="messaggio" class="nascosto">
+                <h1 id="messaggioRarita" class="non-selezionabile lootbox-rarity-message"></h1>
+                <a onclick="refresh()" id="apriAncora" class="linkbianco"></a>
+            </div>
+
+            <div id="divApriAncora" class="nascosto">
+                <div class="button-container lootbox-actions mt-4">
+                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" onclick="refresh()" href="?id_personaggio=<?php echo urlencode($idPersonaggio); ?>">Ripeti animazione</a>
+                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" href="inventario">Inventario</a>
+                </div>
+            </div>
+
+            <div id="particelle"></div>
+        </div>
+
+        <audio id="suonoCassa"></audio>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="../js/characters.js?v=4"></script>
+    <script src="../js/unlockAchievement-it.js"></script>
+    <script>
+        const cassa = document.getElementById("cassa");
+        const nomePersonaggio = document.getElementById("nomePersonaggio");
+        const messaggioRarita = document.getElementById("messaggioRarita");
+        const audio = document.getElementById("suonoCassa");
+        const bagliore = document.getElementById("bagliore");
+        const messaggio = document.getElementById("messaggio");
+        const contenuto = document.getElementById("contenuto");
+        const particelleContainer = document.getElementById("particelle");
+        const paginaintera = document.getElementById("paginaintera");
+        const apriAncora = document.getElementById("apriAncora");
+        const apriInventario = document.getElementById("apriInventario");
+        const divApriAncora = document.getElementById("divApriAncora");
+        const wrapper = document.getElementById("bagliore-wrapper");
+        let isProcessing = false;
+
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        function safeImageFile(value) {
+            const cleaned = String(value || "Susremaster.png").replace(/[<>"']/g, "").trim();
+            return cleaned || "Susremaster.png";
+        }
+
+        function normalizeRarityClass(rarity) {
+            return String(rarity || "comune")
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/[\s_-]+/g, "");
+        }
+
+        function applyLootboxRarityVisual(rarity) {
+            const normalized = normalizeRarityClass(rarity);
+            const rarityClasses = [
+                "lootbox-rarity-comune",
+                "lootbox-rarity-raro",
+                "lootbox-rarity-epico",
+                "lootbox-rarity-leggendario",
+                "lootbox-rarity-speciale",
+                "lootbox-rarity-segreto",
+                "lootbox-rarity-theone"
+            ];
+
+            document.body.classList.remove(...rarityClasses);
+            document.body.classList.add(`lootbox-rarity-${normalized}`);
+
+            const colors = {
+                comune: "#d1d5db",
+                raro: "#38bdf8",
+                epico: "#c084fc",
+                leggendario: "#fbbf24",
+                speciale: "#ffffff",
+                segreto: "#a855f7",
+                theone: "#38bdf8"
+            };
+
+            document.documentElement.style.setProperty("--lootbox-particle-color", colors[normalized] || "#ffffff");
+        }
+
+        function setLootboxState(state) {
+            document.body.classList.remove("is-opening", "is-revealed", "is-fast-open");
+            if (state) {
+                document.body.classList.add(state);
+            }
+        }
+
+
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 4 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        async function getInventory() {
+            const response = await fetch('https://cripsum.com/api/api_get_inventario');
+            const data = await response.json();
+
+            localStorage.setItem("inventory", JSON.stringify(data));
+            return data;
+        }
+
+        async function getAllCharacters() {
+            const response = await fetch('https://cripsum.com/api/get_all_characters');
+            const data = await response.json();
+            return data;
+        }
+
+        async function getCharacterNumber() {
+            const response = await fetch('https://cripsum.com/api/api_get_characters_num');
+            const data = await response.json();
+            return data;
+        }
+
+        async function get_character_from_id(id) {
+            const response = await fetch('https://cripsum.com/api/get_character_from_id?id=' + encodeURIComponent(id));
+            const data = await response.json();
+            return data;
+        }
+
+        async function get_character_from_nome(nomePersonaggio) {
+            const response = await fetch('https://cripsum.com/api/get_character_from_nome?nomePersonaggio=' + encodeURIComponent(nomePersonaggio));
+            const data = await response.json();
+            return data;
+        }
+
+        async function riscattaPersonaggio(idPersonaggio) {
+
+            try {
+                const pull = await get_character_from_id(idPersonaggio);
+
+                const safeName = escapeHtml(pull.nome || "Personaggio");
+                const safeImg = safeImageFile(pull.img_url);
+
+                document.getElementById("contenuto").innerHTML = `
+                        <div class="lootbox-character-reveal">
+                            <div class="lootbox-prize-wrap lootbox-reward-frame">
+                                <img src="/img/${safeImg}" alt="${safeName}" class="premio" onerror="this.onerror=null;this.src='/img/Susremaster.png';" draggable="false" />
+                            </div>
+                            <p id="nomePersonaggio" class="lootbox-character-name">${safeName}</p>
+                        </div>
+                    `;
+
+                applyLootboxRarityVisual(pull.rarità);
+
+                if (pull.rarità === "comune") {
+                    messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
+                    bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
+                } else if (pull.rarità === "leggendario") {
+                    messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
+                    bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+                } else if (pull.rarità === "epico") {
+                    messaggioRarita.innerText = "hai pullato un personaggio epico, tanta roba, ma poteva andare meglio";
+                    bagliore.style.background = "radial-gradient(circle, rgba(195, 0, 235, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+                } else if (pull.rarità === "raro") {
+                    if (pull.nome === "JOB APPLICATION") {
+                        messaggioRarita.innerText = "BOO! DID I SCARE YOU? I'M A JOB APPLICATION! GET A JOB NOW!";
+                    } else {
+                        messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
+                    }
+                    bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+                } else if (pull.rarità === "speciale") {
+                    messaggioRarita.innerText = "COM'É POSSIBILE? HAI PULLATO UN PERSONAGGIO SPECIALE!";
+
+                    bagliore.style.position = "fixed";
+                    bagliore.style.width = "100vw";
+                    bagliore.style.height = "100vh";
+                    bagliore.style.zIndex = "1";
+
+                    bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
+                    bagliore.style.backgroundSize = "300% 100%";
+                    bagliore.style.animation = "";
+                } else if (pull.rarità === "segreto") {
+
+                    startIntroAnimation(pull.nome);
+                    messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
+                    bagliore.style.position = "fixed";
+                    bagliore.style.width = "100vw";
+                    bagliore.style.height = "100vh";
+                    bagliore.style.zIndex = "1";
+
+                } else if (pull.rarità === "theone") {
+
+                    startTheOneAnimation(pull.nome);
+                    messaggioRarita.innerText = "INCREDBILE! HAI PULLATO IL PERSONAGGIO PIÙ RARO DI TUTTI!!!";
+                    bagliore.style.position = "fixed";
+                    bagliore.style.width = "100vw";
+                    bagliore.style.height = "100vh";
+                    bagliore.style.zIndex = "1";
+
+                }
+
+                document.getElementById("suonoCassa").innerHTML = `
+                        <source src="/audio/${pull.audio_url}" type="audio/mpeg" id="suono" />
+                    `;
+
+            } catch (error) {
+                console.error('Errore nel pull del personaggio:', error);
+                messaggioRarita.innerText = "Errore durante l'apertura della cassa. Riprova.";
+            } finally {
+                setTimeout(() => {
+                    isProcessing = false;
+                }, 1000);
+            }
+        }
+
+        async function apriNormale() {
+            setLootboxState("is-opening");
+            cassa.onclick = null;
+
+            generaParticelle();
+
+            bagliore.style.opacity = 0.6;
+            bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
+
+            audio.currentTime = 0;
+            audio.play().catch(() => {});
+
+            cassa.classList.remove("aperta", "dissolvi", "is-opening-chest");
+            void cassa.offsetWidth;
+            cassa.classList.add("is-opening-chest");
+
+            setTimeout(() => {
+                cassa.src = "../img/cassa_aperta.png";
+            }, 420);
+
+            setTimeout(() => {
+                cassa.classList.add("aperta");
+            }, 1700);
+
+            setTimeout(() => {
+                setLootboxState("is-revealed");
+                contenuto.classList.add("salto");
+                messaggio.classList.add("salto");
+                cassa.classList.add("dissolvi");
+            }, 2100);
+
+            setTimeout(() => {
+                divApriAncora.classList.remove("nascosto");
+                divApriAncora.classList.add("salto");
+            }, 3100);
+
+            //audio.onended = () => {
+            //    setTimeout(refresh, 500);
+            //};
+        }
+
+        function testoNuovo() {
+                document.querySelectorAll(".new-label").forEach((label) => label.remove());
+
+                const image = contenuto.querySelector(".premio");
+                if (!image) return;
+
+                let prizeWrap =
+                    image.closest(".lootbox-prize-wrap") ||
+                    image.closest(".lootbox-reward-frame");
+
+                if (!prizeWrap) {
+                    prizeWrap = document.createElement("div");
+                    prizeWrap.className = "lootbox-prize-wrap lootbox-reward-frame";
+                    image.parentNode.insertBefore(prizeWrap, image);
+                    prizeWrap.appendChild(image);
+                }
+
+                prizeWrap.classList.add("lootbox-prize-wrap", "lootbox-reward-frame");
+
+                const newLabel = document.createElement("span");
+                newLabel.className = "new-label";
+                newLabel.textContent = "NEW!";
+                prizeWrap.appendChild(newLabel);
+            }
+
+            function generaParticelle() {
+            const container = document.getElementById("particelle");
+            const cassa = document.getElementById("cassa");
+            const rect = cassa.getBoundingClientRect();
+
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            for (let i = 0; i < 100; i++) {
+                const particella = document.createElement("div");
+                particella.classList.add("particella", "particella--spark");
+
+                particella.style.left = `${centerX}px`;
+                particella.style.top = `${centerY}px`;
+
+                const angle = Math.random() * 2 * Math.PI;
+                const distance = Math.random() * 200 + 50;
+                const x = Math.cos(angle) * distance;
+                const y = Math.sin(angle) * distance;
+
+                particella.style.setProperty("--x", `${x}px`);
+                particella.style.setProperty("--y", `${y}px`);
+                particella.style.setProperty("--dur", `${1100 + Math.random() * 900}ms`);
+
+                container.appendChild(particella);
+
+                setTimeout(() => particella.remove(), 2000);
+            }
+        }
+
+        function refresh() {
+            location.reload();
+        }
+
+
+        function startIntroAnimation(nome_personaggio) {
+
+            const introOverlay = document.createElement('div');
+            introOverlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100vh;
+                    background: #000;
+                    z-index: 10000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    overflow: hidden;
+                    opacity: 0;
+                    transition: opacity 0.8s ease-in-out;
+                `;
+
+            const purpleContainer = document.createElement('div');
+            purpleContainer.style.cssText = `
+                    position: relative;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    opacity: 0;
+                    transform: scale(0.8);
+                    transition: opacity 1s ease-out 0.3s, transform 1s ease-out 0.3s;
+                `;
+
+            const purpleCircle = document.createElement('div');
+            purpleCircle.style.cssText = `
+                    width: 300px;
+                    height: 300px;
+                    border-radius: 50%;
+                    background: radial-gradient(circle, rgba(147, 0, 211, 1) 0%, rgba(75, 0, 130, 0.9) 30%, rgba(138, 43, 226, 0.7) 60%, transparent 100%);
+                    animation: epicPulse 2s ease-in-out infinite;
+                    box-shadow: 0 0 50px rgba(147, 0, 211, 0.8), 0 0 100px rgba(75, 0, 130, 0.6), inset 0 0 30px rgba(138, 43, 226, 0.4);
+                    filter: brightness(1.2) saturate(1.3);
+                    opacity: 0;
+                    transform: scale(0.5);
+                    animation-delay: 0.8s;
+                    transition: opacity 0.8s ease-out 0.8s, transform 0.8s ease-out 0.8s;
+                `;
+
+            for (let ring = 0; ring < 3; ring++) {
+                const energyRing = document.createElement('div');
+                energyRing.style.cssText = `
+                        position: absolute;
+                        width: ${250 + ring * 80}px;
+                        height: ${250 + ring * 80}px;
+                        border-radius: 50%;
+                        border: 2px solid rgba(147, 0, 211, ${0.6 - ring * 0.2});
+                        animation: expandingRing 3s ease-out infinite ${ring * 0.5}s;
+                        left: 50%;
+                        top: 50%;
+                        transform: translate(-50%, -50%);
+                        opacity: 0;
+                        transition: opacity 0.6s ease-out ${1.2 + ring * 0.2}s;
+                    `;
+                purpleContainer.appendChild(energyRing);
+            }
+
+            for (let i = 0; i < 8; i++) {
+                const lightning = document.createElement('div');
+                lightning.style.cssText = `
+                        position: absolute;
+                        width: 2px;
+                        height: ${100 + Math.random() * 60}px;
+                        background: linear-gradient(to bottom, 
+                            rgba(255, 255, 255, 1) 0%,
+                            rgba(147, 0, 211, 0.9) 20%,
+                            rgba(138, 43, 226, 0.7) 60%,
+                            transparent 100%
+                        );
+                        left: 50%;
+                        top: 50%;
+                        transform-origin: 50% 100%;
+                        transform: translate(-50%, -50%) rotate(${i * 45}deg);
+                        box-shadow: 0 0 8px rgba(255, 255, 255, 0.8), 0 0 16px rgba(147, 0, 211, 0.6);
+                        border-radius: 1px;
+                        opacity: 0;
+                        animation: cleanLightning 1.5s ease-in-out ${1.2 + i * 0.1}s infinite;
+                    `;
+                purpleContainer.appendChild(lightning);
+            }
+
+            for (let p = 0; p < 12; p++) {
+                const particle = document.createElement('div');
+                particle.style.cssText = `
+                        position: absolute;
+                        width: ${3 + Math.random() * 4}px;
+                        height: ${3 + Math.random() * 4}px;
+                        border-radius: 50%;
+                        background: radial-gradient(circle, rgba(255, 255, 255, 0.9), rgba(147, 0, 211, 0.8));
+                        left: ${35 + Math.random() * 30}%;
+                        top: ${35 + Math.random() * 30}%;
+                        box-shadow: 0 0 6px rgba(147, 0, 211, 0.8);
+                        opacity: 0;
+                        animation: floatingParticles 3s ease-in-out infinite ${Math.random() * 2 + 1.5}s;
+                    `;
+                purpleContainer.appendChild(particle);
+            }
+
+            const enhancedStyle = document.createElement('style');
+            enhancedStyle.textContent = `
+                    @keyframes epicPulse {
+                        0%, 100% { 
+                            transform: scale(1); 
+                            opacity: 0.8; 
+                            filter: brightness(1.2) saturate(1.3);
+                        }
+                        50% { 
+                            transform: scale(1.1); 
+                            opacity: 1; 
+                            filter: brightness(1.5) saturate(1.6);
+                        }
+                    }
+                    @keyframes expandingRing {
+                        0% { 
+                            transform: translate(-50%, -50%) scale(0.5); 
+                            opacity: 0.6; 
+                        }
+                        100% { 
+                            transform: translate(-50%, -50%) scale(2); 
+                            opacity: 0; 
+                        }
+                    }
+                    @keyframes cleanLightning {
+                        0% { 
+                            opacity: 0; 
+                            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scaleY(0);
+                        }
+                        20% { 
+                            opacity: 0.8; 
+                            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scaleY(0.7);
+                        }
+                        40% { 
+                            opacity: 1; 
+                            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scaleY(1);
+                        }
+                        60% { 
+                            opacity: 0.6; 
+                            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scaleY(0.8);
+                        }
+                        100% { 
+                            opacity: 0; 
+                            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scaleY(0.3);
+                        }
+                    }
+                    @keyframes floatingParticles {
+                        0%, 100% { 
+                            transform: translateY(0px) scale(1); 
+                            opacity: 0.6; 
+                        }
+                        25% { 
+                            transform: translateY(-15px) scale(1.1); 
+                            opacity: 0.9; 
+                        }
+                        50% { 
+                            transform: translateY(-25px) scale(1.2); 
+                            opacity: 1; 
+                        }
+                        75% { 
+                            transform: translateY(-10px) scale(0.9); 
+                            opacity: 0.7; 
+                        }
+                    }
+                `;
+            document.head.appendChild(enhancedStyle);
+
+            const mysteriousText = document.createElement('div');
+            mysteriousText.style.cssText = `
+                    position: absolute;
+                    color:rgb(255, 255, 255);
+                    font-size: 10rem;
+                    font-weight: bold;
+                    text-shadow: 0 0 20px #9932cc, 0 0 40px #4b0082;
+                    opacity: 0;
+                    transform: scale(0.3);
+                    transition: opacity 1s ease-out 1s, transform 1s ease-out 2.5s;
+                `;
+            mysteriousText.textContent = 'オーラシグマゴド';
+
+            const style = document.createElement('style');
+            style.textContent = `
+                    @keyframes textReveal {
+                        0% { opacity: 0; transform: scale(0.5); }
+                        50% { opacity: 1; transform: scale(1.2); }
+                        100% { opacity: 1; transform: scale(1); }
+                    }
+                    @keyframes fadeOut {
+                        to { opacity: 0; transform: scale(0.9); }
+                    }
+                `;
+
+            document.head.appendChild(style);
+            purpleContainer.appendChild(purpleCircle);
+            purpleContainer.appendChild(mysteriousText);
+            introOverlay.appendChild(purpleContainer);
+            document.body.appendChild(introOverlay);
+
+            setTimeout(() => {
+                introOverlay.style.opacity = '1';
+                purpleContainer.style.opacity = '1';
+                purpleContainer.style.transform = 'scale(1)';
+
+                setTimeout(() => {
+                    purpleCircle.style.opacity = '1';
+                    purpleCircle.style.transform = 'scale(1)';
+                }, 300);
+
+                const rings = purpleContainer.querySelectorAll('div[style*="border:"]');
+                rings.forEach((ring, index) => {
+                    setTimeout(() => {
+                        ring.style.opacity = '1';
+                    }, 800 + index * 200);
+                });
+
+                const lightnings = purpleContainer.querySelectorAll('div[style*="linear-gradient(to bottom"]');
+                lightnings.forEach((lightning, index) => {
+                    setTimeout(() => {
+                        lightning.style.opacity = '1';
+                    }, 1200 + index * 50);
+                });
+
+                setTimeout(() => {
+                    mysteriousText.style.opacity = '1';
+                    mysteriousText.style.transform = 'scale(1)';
+                    createStars();
+                }, 1000);
+
+                const particles = purpleContainer.querySelectorAll('div[style*="radial-gradient(circle, #ff00ff"]');
+                particles.forEach((particle, index) => {
+                    setTimeout(() => {
+                        particle.style.opacity = '1';
+                    }, 1500 + Math.random() * 500);
+                });
+
+
+                bagliore.style.background = "radial-gradient(circle, rgba(147, 0, 211, 1) 0%, rgba(75, 0, 130, 0.8) 30%, rgba(138, 43, 226, 0.6) 60%, rgba(148, 0, 211, 0) 100%)";
+                bagliore.style.animation = "secretGlowRotate 8s ease-in-out infinite";
+                bagliore.style.boxShadow = "0 0 100px rgba(147, 0, 211, 0.8), 0 0 200px rgba(75, 0, 130, 0.6), inset 0 0 50px rgba(138, 43, 226, 0.4)";
+                bagliore.style.borderRadius = "50%";
+                bagliore.style.width = "150vw";
+                bagliore.style.height = "150vw";
+
+                const secretStyleSheet = document.createElement('style');
+                secretStyleSheet.textContent = `
+                            @keyframes secretGlowRotate {
+                                0% { 
+                                    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+                                    filter: brightness(1) saturate(1);
+                                }
+                                25% { 
+                                    transform: translate(-50%, -50%) scale(1.2) rotate(90deg);
+                                    filter: brightness(1.3) saturate(1.5);
+                                }
+                                50% { 
+                                    transform: translate(-50%, -50%) scale(1) rotate(180deg);
+                                    filter: brightness(1) saturate(1);
+                                }
+                                75% { 
+                                    transform: translate(-50%, -50%) scale(1.2) rotate(270deg);
+                                    filter: brightness(1.3) saturate(1.5);
+                                }
+                                100% { 
+                                    transform: translate(-50%, -50%) scale(1) rotate(360deg);
+                                    filter: brightness(1) saturate(1);
+                                }
+                            }
+                        `;
+                document.head.appendChild(secretStyleSheet);
+
+            }, 100);
+
+            setTimeout(() => {
+                introOverlay.style.animation = 'fadeOut 1.2s ease-out forwards';
+                setTimeout(() => {
+                    document.body.removeChild(introOverlay);
+                    document.head.removeChild(style);
+                    document.head.removeChild(enhancedStyle);
+                }, 1200);
+            }, 4000);
+        }
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            setTimeout(async () => {
+                await riscattaPersonaggio(<?php echo json_encode((int)$idPersonaggio); ?>);
+                testoNuovo();
+            }, 200);
+            setTimeout(() => {
+                apriNormale();
+            }, 500);
+        });
+
+        function startTheOneAnimation(nome_personaggio) {
+            const introOverlay = document.createElement('div');
+            introOverlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100vh;
+                    background: #000;
+                    z-index: 10000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    overflow: hidden;
+                    opacity: 0;
+                    transition: opacity 0.8s ease-in-out, z-index 0s ease-in-out 2s;
+                `;
+
+            const videoContainer = document.createElement('div');
+            videoContainer.style.cssText = `
+                    position: relative;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    opacity: 0;
+                    transform: scale(1.1);
+                    transition: opacity 1s ease-out, transform 1s ease-out;
+                `;
+
+            const video = document.createElement('video');
+            video.style.cssText = `
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    filter: brightness(1.2) contrast(1.1);
+                    transition: filter 2s ease-in-out;
+                `;
+            video.src = '../vid/shorekeeperpull.mp4';
+            video.autoplay = true;
+            video.muted = false;
+            video.loop = false;
+
+            videoContainer.appendChild(video);
+            introOverlay.appendChild(videoContainer);
+            document.body.appendChild(introOverlay);
+
+            setTimeout(() => {
+                introOverlay.style.opacity = '1';
+            }, 100);
+
+            setTimeout(() => {
+                videoContainer.style.opacity = '1';
+                videoContainer.style.transform = 'scale(1)';
+                video.play();
+            }, 800);
+
+            bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+
+            setTimeout(() => {
+                introOverlay.style.transition = 'opacity 2s ease-in-out, z-index 0s ease-in-out 2s';
+                introOverlay.style.opacity = '0.3';
+                video.style.filter = 'brightness(0.7) contrast(0.9) blur(1px)';
+
+                setTimeout(() => {
+                    introOverlay.style.zIndex = '-1';
+                    introOverlay.style.transition = 'opacity 0.8s ease-in-out';
+                }, 2000);
+            }, 15000);
+
+            video.addEventListener('ended', () => {
+                video.loop = true;
+                video.play();
+            });
+        }
+    </script>
+    
+</body>
+
+</html>

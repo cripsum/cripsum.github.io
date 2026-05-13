@@ -5,7 +5,7 @@ require_once '../includes/functions.php';
 checkBan($mysqli);
 ?>
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 
 <head>
     <?php include '../includes/head-import.php'; ?>
