@@ -39,10 +39,10 @@
     };
 
     const platformOptions = ['tiktok', 'instagram', 'youtube', 'twitch', 'github', 'discord', 'telegram', 'x', 'spotify', 'soundcloud', 'steam', 'reddit', 'pinterest', 'snapchat', 'facebook', 'linkedin', 'paypal', 'patreon', 'kick', 'bluesky', 'threads', 'behance', 'dribbble', 'website', 'email', 'other'];
-    const projectStatuses = [['active', 'Active'], ['paused', 'Paused'], ['finished', 'Finished'], ['idea', 'Idea']];
-    const contentTypes = [['edit', 'Edit'], ['video', 'Video'], ['game', 'Game'], ['post', 'Post'], ['other', 'Other']];
-    const blockTypes = [['text', 'Text'], ['image', 'Image'], ['gif', 'GIF'], ['video', 'Video']];
-    const linkButtonStyles = [['card', 'Card'], ['compact', 'Compact'], ['icon', 'Icon only']];
+    const projectStatuses = [['active', 'Attivo'], ['paused', 'In pausa'], ['finished', 'Finito'], ['idea', 'Idea']];
+    const contentTypes = [['edit', 'Edit'], ['video', 'Video'], ['game', 'Gioco'], ['post', 'Post'], ['other', 'Altro']];
+    const blockTypes = [['text', 'Testo'], ['image', 'Immagine'], ['gif', 'GIF'], ['video', 'Video']];
+    const linkButtonStyles = [['card', 'Card'], ['compact', 'Compatto'], ['icon', 'Solo icona']];
 
     function options(list, selected) {
         return list.map((item) => {
@@ -63,69 +63,69 @@
                 <div class="profile-row-grid">
                     <label>Platform<select data-field="platform">${options(platformOptions, data.platform || 'website')}</select></label>
                     <label>Label<input data-field="label" maxlength="40" value="${escapeAttr(data.label || '')}" placeholder="TikTok"></label>
-                    <label>Username<input data-field="display_username" maxlength="60" value="${escapeAttr(data.display_username || '')}" placeholder="@username / name"></label>
+                    <label>Username da mostrare<input data-field="display_username" maxlength="60" value="${escapeAttr(data.display_username || '')}" placeholder="@username / nome"></label>
                     <label class="profile-row-grid full">URL<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://..."></label>
-                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visible</label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visibile</label>
                 </div>`;
         }
 
         if (type === 'links') {
             body = `
                 <div class="profile-row-grid">
-                    <label>Title<input data-field="title" maxlength="60" value="${escapeAttr(data.title || '')}" placeholder="Portfolio"></label>
-                    <label>FontAwesome Icon<input data-field="icon" maxlength="40" value="${escapeAttr(data.icon || 'fas fa-link')}" placeholder="fab fa-spotify"></label>
-                    <label>Button Type<select data-field="button_style">${options(linkButtonStyles, data.button_style || 'card')}</select></label>
-                    <label class="profile-row-grid full">Description<input data-field="description" maxlength="160" value="${escapeAttr(data.description || '')}" placeholder="A short phrase"></label>
+                    <label>Titolo<input data-field="title" maxlength="60" value="${escapeAttr(data.title || '')}" placeholder="Portfolio"></label>
+                    <label>Icona FontAwesome<input data-field="icon" maxlength="40" value="${escapeAttr(data.icon || 'fas fa-link')}" placeholder="fab fa-spotify"></label>
+                    <label>Tipo tasto<select data-field="button_style">${options(linkButtonStyles, data.button_style || 'card')}</select></label>
+                    <label class="profile-row-grid full">Descrizione<input data-field="description" maxlength="160" value="${escapeAttr(data.description || '')}" placeholder="Una frase breve"></label>
                     <label class="profile-row-grid full">URL<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://..."></label>
-                    <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> Featured</label>
-                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visible</label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> In evidenza</label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visibile</label>
                 </div>`;
         }
 
         if (type === 'projects') {
             body = `
                 <div class="profile-row-grid">
-                    <label>Title<input data-field="title" maxlength="70" value="${escapeAttr(data.title || '')}" placeholder="Project name"></label>
-                    <label>Status<select data-field="status">${options(projectStatuses, data.status || 'active')}</select></label>
-                    <label class="profile-row-grid full">Description<textarea data-field="description" maxlength="260" placeholder="What does this project do?">${escapeAttr(data.description || '')}</textarea></label>
+                    <label>Titolo<input data-field="title" maxlength="70" value="${escapeAttr(data.title || '')}" placeholder="Nome progetto"></label>
+                    <label>Stato<select data-field="status">${options(projectStatuses, data.status || 'active')}</select></label>
+                    <label class="profile-row-grid full">Descrizione<textarea data-field="description" maxlength="260" placeholder="Cosa fa questo progetto">${escapeAttr(data.description || '')}</textarea></label>
                     <label>URL<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://..."></label>
-                    <label>Image URL<input data-field="image_url" value="${escapeAttr(data.image_url || '')}" placeholder="https://..."></label>
+                    <label>Immagine URL<input data-field="image_url" value="${escapeAttr(data.image_url || '')}" placeholder="https://..."></label>
                     <label class="profile-row-grid full">Tech stack<input data-field="tech_stack" maxlength="160" value="${escapeAttr(data.tech_stack || '')}" placeholder="PHP, JS, MySQL"></label>
-                    <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> Featured</label>
-                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visible</label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> In evidenza</label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visibile</label>
                 </div>`;
         }
 
         if (type === 'contents') {
             body = `
                 <div class="profile-row-grid">
-                    <label>Type<select data-field="content_type">${options(contentTypes, data.content_type || 'edit')}</select></label>
-                    <label>Title<input data-field="title" maxlength="70" value="${escapeAttr(data.title || '')}" placeholder="Content title"></label>
-                    <label class="profile-row-grid full">Description<textarea data-field="description" maxlength="220" placeholder="Short description">${escapeAttr(data.description || '')}</textarea></label>
+                    <label>Tipo<select data-field="content_type">${options(contentTypes, data.content_type || 'edit')}</select></label>
+                    <label>Titolo<input data-field="title" maxlength="70" value="${escapeAttr(data.title || '')}" placeholder="Titolo contenuto"></label>
+                    <label class="profile-row-grid full">Descrizione<textarea data-field="description" maxlength="220" placeholder="Descrizione breve">${escapeAttr(data.description || '')}</textarea></label>
                     <label>URL<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://..."></label>
                     <label>Thumbnail URL<input data-field="thumbnail_url" value="${escapeAttr(data.thumbnail_url || '')}" placeholder="https://..."></label>
-                    <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> Featured</label>
-                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visible</label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> In evidenza</label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visibile</label>
                 </div>`;
         }
 
         if (type === 'blocks') {
             body = `
                 <div class="profile-row-grid">
-                    <label>Type<select data-field="block_type">${options(blockTypes, data.block_type || 'text')}</select></label>
-                    <label>Title<input data-field="title" maxlength="80" value="${escapeAttr(data.title || '')}" placeholder="Post title"></label>
-                    <label class="profile-row-grid full">Text<textarea data-field="body" maxlength="700" placeholder="Short text, note, description or quote">${escapeAttr(data.body || '')}</textarea></label>
-                    <label>Media URL<input data-field="media_url" value="${escapeAttr(data.media_url || '')}" placeholder="https://... image/gif/video"></label>
+                    <label>Tipo<select data-field="block_type">${options(blockTypes, data.block_type || 'text')}</select></label>
+                    <label>Titolo<input data-field="title" maxlength="80" value="${escapeAttr(data.title || '')}" placeholder="Titolo del post"></label>
+                    <label class="profile-row-grid full">Testo<textarea data-field="body" maxlength="700" placeholder="Testo breve, nota, descrizione o quote">${escapeAttr(data.body || '')}</textarea></label>
+                    <label>Media URL<input data-field="media_url" value="${escapeAttr(data.media_url || '')}" placeholder="https://... immagine/gif/video"></label>
                     <label>Media type<select data-field="media_type">${options(blockTypes, data.media_type || data.block_type || 'image')}</select></label>
                     <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> Pin</label>
-                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visible</label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visibile</label>
                 </div>`;
         }
 
         row.innerHTML = `
             <div class="profile-row-head">
-                <strong>${type === 'socials' ? 'Social' : type === 'links' ? 'Link' : type === 'projects' ? 'Project' : type === 'blocks' ? 'Block' : 'Content'}</strong>
-                <button type="button" class="profile-remove-row">Remove</button>
+                <strong>${type === 'socials' ? 'Social' : type === 'links' ? 'Link' : type === 'projects' ? 'Progetto' : type === 'blocks' ? 'Blocco' : 'Contenuto'}</strong>
+                <button type="button" class="profile-remove-row">Rimuovi</button>
             </div>
             ${body}`;
 
@@ -272,14 +272,14 @@
             media.src = url;
             media.alt = '';
         } else {
-            window.profileToast('File format not supported. Use an image or video.');
+            window.profileToast('Formato sfondo non supportato.');
             URL.revokeObjectURL(url);
             return;
         }
 
         media.className = 'bio-background__media';
         background.prepend(media);
-        window.profileToast('Background preview updated.');
+        window.profileToast('Anteprima sfondo aggiornata.');
     }
 
     function previewMusicFile(input) {
@@ -287,12 +287,12 @@
         if (!file) return;
         const isMp3 = file.type === 'audio/mpeg' || file.name.toLowerCase().endsWith('.mp3');
         if (!isMp3) {
-            window.profileToast('Use only MP3 files.');
+            window.profileToast('Usa solo file MP3.');
             input.value = '';
             return;
         }
         if (file.size > 12 * 1024 * 1024) {
-            window.profileToast('MP3 too heavy. Max 12MB.');
+            window.profileToast('MP3 troppo pesante. Max 12MB.');
             input.value = '';
             return;
         }
@@ -300,7 +300,7 @@
         if (title && !title.value.trim()) {
             title.value = file.name.replace(/\.mp3$/i, '');
         }
-        window.profileToast('MP3 selected. Save to apply.');
+        window.profileToast('MP3 selezionato. Salva per applicarlo.');
     }
 
     avatarInput.addEventListener('change', () => previewAvatarFile(avatarInput, $('#previewAvatar')));
@@ -319,7 +319,7 @@
 
         const button = $('#saveProfileButton');
         button.disabled = true;
-        button.textContent = 'Saving...';
+        button.textContent = 'Salvataggio...';
 
         try {
             const response = await fetch(form.action, {
@@ -329,16 +329,16 @@
                 headers: { 'Accept': 'application/json' },
             });
             const data = await response.json();
-            if (!response.ok || !data.ok) throw new Error(data.message || 'Error saving.');
-            window.profileToast(data.message || 'Profile saved successfully.');
+            if (!response.ok || !data.ok) throw new Error(data.message || 'Errore salvataggio.');
+            window.profileToast(data.message || 'Profilo salvato.');
             setTimeout(() => {
                 window.location.href = data.profile_url || '/profile.php';
             }, 650);
         } catch (error) {
-            window.profileToast(error.message || 'Error saving.');
+            window.profileToast(error.message || 'Errore salvataggio.');
         } finally {
             button.disabled = false;
-            button.textContent = 'Save Profile';
+            button.textContent = 'Salva profilo';
         }
     });
 
