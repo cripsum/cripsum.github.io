@@ -116,6 +116,10 @@ $products = [
                         data-image="<?php echo shop_h($product['image']); ?>"
                         data-link="<?php echo shop_h($product['link']); ?>"
                         data-badge="<?php echo shop_h($product['badge']); ?>">
+                        <div class="shop-card__media">
+                            <img src="<?php echo shop_h($product['image']); ?>" alt="<?php echo shop_h($product['alt']); ?>" loading="lazy">
+                            <span class="shop-badge"><?php echo shop_h($product['badge']); ?></span>
+                        </div>
                         <div class="shop-card__body">
                             <div>
                                 <h2><?php echo shop_h($product['name']); ?></h2>
