@@ -13,7 +13,7 @@ $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrf_validate($_POST['csrf_token'] ?? null)) {
-        $error = 'Sessione scaduta. Riprova.';
+        $error = 'Session expired. Please try again.';
     } else {
         $emailOrUsername = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
 
-        $error = $result['message'] ?? 'Accesso non riuscito.';
+        $error = $result['message'] ?? 'Login failed.';
     }
 }
 ?>
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <title>Cripsum™ - Accedi</title>
+    <title>Cripsum™ - Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/assets/auth/auth.css?v=1.0-2">
     <script src="/assets/auth/auth.js?v=1.0-2" defer></script>
@@ -55,8 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <section class="auth-card auth-reveal">
             <div class="auth-card__side">
                 <span class="auth-pill">Cripsum™</span>
-                <h1>Accedi</h1>
-                <p>Entra nel tuo account e torna alle tue robe.</p>
+                <h1>Login</h1>
+                <p>Login to your Cripsum™ account</p>
             </div>
 
             <div class="auth-card__form">
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <span><?php echo auth_h($error); ?></span>
 
                         <?php if (stripos($error, 'verificare') !== false): ?>
-                            <a href="verifica-email">Reinvia email</a>
+                            <a href="verifica-email">Resend email</a>
                         <?php endif; ?>
                     </div>
                 <?php endif; ?>
@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php echo csrf_field(); ?>
 
                     <label class="auth-field">
-                        <span>Email o username</span>
+                        <span>Email or username</span>
                         <input type="text" name="email" autocomplete="username" required value="<?php echo auth_h($_POST['email'] ?? ''); ?>">
                     </label>
 
@@ -91,26 +91,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <span>Password</span>
                         <div class="auth-password">
                             <input type="password" name="password" autocomplete="current-password" required data-password-input>
-                            <button type="button" data-toggle-password aria-label="Mostra password" style="margin-top: -18px;">
+                            <button type="button" data-toggle-password aria-label="Show password" style="margin-top: -18px;">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
                     </label>
 
                     <button class="auth-btn auth-btn--primary" type="submit" data-submit-text="Accedi">
-                        <span>Accedi</span>
+                        <span>Login</span>
                     </button>
-                    <div style="text-align: center; margin: 15px 0; color: var(--auth-muted);">oppure</div>
+                    <div style="text-align: center; margin: 15px 0; color: var(--auth-muted);">or</div>
                     <a href="google_login" class="auth-btn" style="background-color: white; color: black; text-decoration: none; text-align: center; display: flex; justify-content: center; align-items: center; gap: 10px;">
                         <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" width="20" height="20">
-                        <span>Accedi con Google</span>
+                        <span>Login with Google</span>
                     </a>
 
 
 
                     <div class="auth-links">
-                        <a href="password-dimenticata">Password dimenticata?</a>
-                        <a href="registrati">Crea account</a>
+                        <a href="password-dimenticata">Forgot password?</a>
+                        <a href="registrati">Create account</a>
                     </div>
                 </form>
             </div>
