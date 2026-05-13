@@ -203,7 +203,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
     <link rel="stylesheet" href="/assets/css/profile.css?v=3.0.11">
-    <script src="/assets/js/profile.js?v=3.0.2-effects-db-fix" defer></script>
+    <script src="/assets/js/profile.js?v=3.0.3" defer></script>
 </head>
 
 <body
