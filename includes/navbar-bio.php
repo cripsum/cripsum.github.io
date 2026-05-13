@@ -5,7 +5,7 @@ $uri = $_SERVER['REQUEST_URI'];
 $lang = explode('/', trim($uri, '/'))[0];
 
 if (!in_array($lang, ['it', 'en'])) {
-    $lang = 'it';
+    $lang = 'en';
 }
 
 $t = [
@@ -157,16 +157,6 @@ if ($isLoggedIn) {
             </ul>
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                <li class="nav-item d-flex align-items-center me-2">
-                    <a href="<?= htmlspecialchars($switchUrl) ?>"
-                        class="lang-switch"
-                        aria-label="Switch language to <?= $altLabel ?>"
-                        title="Switch to <?= $altLabel ?>">
-                        <span class="lang-switch__cur"><?= $curLabel ?></span>
-                        <span class="lang-switch__sep">·</span>
-                        <span class="lang-switch__alt"><?= $altLabel ?></span>
-                    </a>
-                </li>
                 <?php if (!$isLoggedIn): ?>
                     <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/accedi"><i class="fas fa-sign-in-alt me-2"></i><?= $t['login'] ?></a></li>
                     <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/registrati"><i class="fas fa-user-plus me-2"></i><?= $t['register'] ?></a></li>
