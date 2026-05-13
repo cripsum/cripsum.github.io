@@ -1,7 +1,7 @@
 <?php
 require_once '../config/database.php';
 
-$messaggio = "Se l'email è registrata, riceverai un link per reimpostare la password.";
+$messaggio = "If the email is registered, you will receive a link to reset your password.";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
@@ -20,9 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bind_param("sss", $token, $scadenza, $email);
             $stmt->execute();
 
-            $link = "https://cripsum.com/it/reset_password.php?token=$token";
-            $subject = "Reimposta la tua password";
-            $message = "Clicca il link per reimpostare la tua password:\n$link\n\nIl link scade tra 1 ora.";
+            $link = "https://cripsum.com/en/reset_password.php?token=$token";
+            $subject = "Password Reset Request";
+            $message = "Please click the link below to reset your password:\n$link\n\nThis link will expire in 1 hour.";
             $headers = "From: no-reply@cripsum.com";
 
             mail($email, $subject, $message, $headers);
@@ -32,10 +32,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <meta charset="UTF-8">
-    <title>Cripsum™ - Link inviato</title>
+    <title>Cripsum™ - Reset your password</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/assets/forms/forms.css?v=1.0-unified">
     <script src="/assets/forms/forms.js?v=1.0-unified" defer></script>
@@ -58,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="form-card__header" style="text-align:center;">
                 <span class="form-pill">Reset</span>
-                <h1>Controlla la mail</h1>
+                <h1>Check your email</h1>
                 <p><?php echo htmlspecialchars($messaggio, ENT_QUOTES, 'UTF-8'); ?></p>
             </div>
 
@@ -70,10 +71,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="form-actions form-actions--center">
                 <a class="form-btn form-btn--primary" href="accedi">
                     <i class="fas fa-arrow-left"></i>
-                    <span>Torna al login</span>
+                    <span>Back to login</span>
                 </a>
             </div>
         </section>
     </main>
 </body>
+
 </html>

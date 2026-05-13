@@ -351,7 +351,7 @@ $totalEdits = count($edits);
 
 <body class="edits-page">
     <?php include '../includes/navbar.php'; ?>
-    
+
 
     <div class="edits-bg" aria-hidden="true">
         <span class="edits-orb edits-orb--one"></span>
@@ -364,7 +364,7 @@ $totalEdits = count($edits);
             <div class="edits-hero__text">
                 <span class="edits-pill">Edit gallery</span>
                 <h1>My Latest Edits</h1>
-                <p>Una raccolta dei miei edit. Filtra, cerca e apri quello che vuoi vedere.</p>
+                <p>A collection of my edits. Filter, search, and open what you want to see.</p>
 
                 <div class="edits-hero__actions">
                     <a href="https://tiktok.com/@cripsum" class="tiktok-link" target="_blank" rel="noopener">
@@ -399,29 +399,29 @@ $totalEdits = count($edits);
                     <span>Ordina</span>
                     <div class="edits-custom-select" data-edits-custom-select>
                         <select id="editSort" class="edits-native-select" aria-label="Ordina edit" tabindex="-1" aria-hidden="true">
-                            <option value="recent">Ordine originale</option>
-                            <option value="name">Nome</option>
-                            <option value="category">Categoria</option>
+                            <option value="recent">Original order</option>
+                            <option value="name">Name</option>
+                            <option value="category">Category</option>
                         </select>
 
                         <button type="button" class="edits-select-trigger" aria-haspopup="listbox" aria-expanded="false">
-                            <span class="edits-select-current">Ordine originale</span>
+                            <span class="edits-select-current">Original order</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
 
                         <div class="edits-select-menu" role="listbox" aria-label="Ordina edit">
                             <button type="button" data-value="recent">
-                                <strong>Ordine originale</strong>
+                                <strong>Original order</strong>
                                 <span>Base</span>
                             </button>
 
                             <button type="button" data-value="name">
-                                <strong>Nome</strong>
+                                <strong>Name</strong>
                                 <span>A-Z</span>
                             </button>
 
                             <button type="button" data-value="category">
-                                <strong>Categoria</strong>
+                                <strong>Category</strong>
                                 <span>Cat</span>
                             </button>
                         </div>
@@ -429,7 +429,7 @@ $totalEdits = count($edits);
                 </label>
 
                 <div class="edits-result-count" id="editResultCount">
-                    <?php echo (int)$totalEdits; ?> edit mostrati
+                    <?php echo (int)$totalEdits; ?> edits displayed
                 </div>
 
                 <button type="button" class="edits-reset" id="editReset">
@@ -508,8 +508,8 @@ $totalEdits = count($edits);
 
             <div class="edits-empty" id="editsEmpty" hidden>
                 <i class="fas fa-video-slash"></i>
-                <strong>Nessun edit trovato</strong>
-                <p>Prova a cambiare filtro o ricerca.</p>
+                <strong>No edits found</strong>
+                <p>Try changing the filter or search.</p>
             </div>
         </section>
     </main>

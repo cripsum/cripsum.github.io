@@ -7,7 +7,7 @@ checkBan($mysqli);
 
 if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-    $_SESSION['login_message'] = "Per giocare devi essere loggato.";
+    $_SESSION['login_message'] = "You must be logged in to play.";
 
     header('Location: accedi');
     exit();
@@ -18,6 +18,7 @@ $username = $_SESSION['username'] ?? 'Utente';
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Gambling</title>
@@ -29,7 +30,7 @@ $username = $_SESSION['username'] ?? 'Utente';
 
 <body class="gambling-page">
     <?php include '../includes/navbar.php'; ?>
-    
+
 
     <div class="gambling-bg" aria-hidden="true">
         <span class="gambling-orb gambling-orb--one"></span>
@@ -40,8 +41,7 @@ $username = $_SESSION['username'] ?? 'Utente';
     <main
         class="gambling-shell"
         data-user-id="<?php echo htmlspecialchars((string)$userId, ENT_QUOTES, 'UTF-8'); ?>"
-        data-username="<?php echo htmlspecialchars($username, ENT_QUOTES, 'UTF-8'); ?>"
-    >
+        data-username="<?php echo htmlspecialchars($username, ENT_QUOTES, 'UTF-8'); ?>">
         <div id="achievement-popup" class="popup">
             <img id="popup-image" src="" alt="Achievement">
             <div>
@@ -54,29 +54,29 @@ $username = $_SESSION['username'] ?? 'Utente';
             <div>
                 <span class="gambling-pill">Gambling</span>
                 <h1>Gambling Arcade</h1>
-                <p>Alimenta la tua gambling addiction in questo giochino da fichi</p>
+                <p>Feed your gambling addiction in this cool little game</p>
 
                 <div class="gambling-actions">
                     <button class="gambling-btn gambling-btn--soft" type="button" data-open-rules>
                         <i class="fas fa-circle-info"></i>
-                        <span>Regole</span>
+                        <span>Rules</span>
                     </button>
 
                     <button class="gambling-btn gambling-btn--soft" type="button" data-reset-session>
                         <i class="fas fa-rotate-left"></i>
-                        <span>Reset sessione</span>
+                        <span>Reset session</span>
                     </button>
                 </div>
             </div>
 
-            <aside class="gambling-wallet" aria-label="Saldo gioco">
-                <span class="wallet-label">Saldo</span>
+            <aside class="gambling-wallet" aria-label="Game balance">
+                <span class="wallet-label">Balance</span>
                 <strong data-balance>100</strong>
-                <span class="wallet-caption">crediti</span>
+                <span class="wallet-caption">credits</span>
 
                 <div class="wallet-recharge">
-                    <input type="number" min="1" max="5000" step="1" inputmode="numeric" data-recharge-input placeholder="Importo">
-                    <button type="button" data-recharge-button>Ricarica</button>
+                    <input type="number" min="1" max="5000" step="1" inputmode="numeric" data-recharge-input placeholder="Amount">
+                    <button type="button" data-recharge-button>Recharge</button>
                 </div>
 
                 <p class="gambling-inline-error" data-recharge-error></p>
@@ -87,7 +87,7 @@ $username = $_SESSION['username'] ?? 'Utente';
             <div class="slot-card gambling-reveal">
                 <div class="slot-topbar">
                     <div>
-                        <span class="slot-label">Puntata</span>
+                        <span class="slot-label">Bet</span>
                         <strong data-current-bet>10</strong>
                     </div>
 
@@ -99,12 +99,12 @@ $username = $_SESSION['username'] ?? 'Utente';
 
                         <label class="slot-switch">
                             <input type="checkbox" data-sound-toggle>
-                            <span>Suono</span>
+                            <span>Sound</span>
                         </label>
                     </div>
                 </div>
 
-                <div class="bet-row" role="group" aria-label="Scegli puntata">
+                <div class="bet-row" role="group" aria-label="Choose bet">
                     <button type="button" class="bet-chip is-active" data-bet="10">10</button>
                     <button type="button" class="bet-chip" data-bet="25">25</button>
                     <button type="button" class="bet-chip" data-bet="50">50</button>
@@ -136,15 +136,15 @@ $username = $_SESSION['username'] ?? 'Utente';
                 </div>
 
                 <div class="result-box" data-result-box>
-                    <span class="result-kicker">Pronto</span>
-                    <strong data-result-title>Fai partire la slot</strong>
-                    <p data-result-text>Scegli la puntata e prova lo spin.</p>
+                    <span class="result-kicker">Ready</span>
+                    <strong data-result-title>Start the slot</strong>
+                    <p data-result-text>Choose your bet and try a spin.</p>
                 </div>
             </div>
 
             <aside class="gambling-side">
                 <section class="stat-card gambling-reveal">
-                    <h2>Sessione</h2>
+                    <h2>Session</h2>
 
                     <div class="stats-grid">
                         <div>
@@ -152,11 +152,11 @@ $username = $_SESSION['username'] ?? 'Utente';
                             <strong data-stat="spins">0</strong>
                         </div>
                         <div>
-                            <span>Vinti</span>
+                            <span>Won</span>
                             <strong data-stat="won">0</strong>
                         </div>
                         <div>
-                            <span>Persi</span>
+                            <span>Lost</span>
                             <strong data-stat="lost">0</strong>
                         </div>
                         <div>
@@ -168,7 +168,7 @@ $username = $_SESSION['username'] ?? 'Utente';
                             <strong data-stat="jackpots">0</strong>
                         </div>
                         <div>
-                            <span>Profitto</span>
+                            <span>Profit</span>
                             <strong data-stat="profit">0</strong>
                         </div>
                     </div>
@@ -178,31 +178,31 @@ $username = $_SESSION['username'] ?? 'Utente';
                     <h2>Payout</h2>
 
                     <div class="payout-row">
-                        <span>3 uguali</span>
+                        <span>3 of a kind</span>
                         <strong>x20</strong>
                     </div>
                     <div class="payout-row">
-                        <span>2 uguali</span>
+                        <span>2 of a kind</span>
                         <strong>x2</strong>
                     </div>
                     <div class="payout-row">
-                        <span>Tre 7</span>
+                        <span>Three 7s</span>
                         <strong>x35</strong>
                     </div>
                     <div class="payout-row">
-                        <span>Tre 9</span>
+                        <span>Three 9s</span>
                         <strong>x50</strong>
                     </div>
                 </section>
 
                 <section class="history-card gambling-reveal">
                     <div class="history-head">
-                        <h2>Ultime giocate</h2>
-                        <button type="button" data-clear-history>pulisci</button>
+                        <h2>Plays history</h2>
+                        <button type="button" data-clear-history>Clear</button>
                     </div>
 
                     <div class="history-list" data-history-list>
-                        <p class="history-empty">Nessuna giocata per ora.</p>
+                        <p class="history-empty">No plays yet.</p>
                     </div>
                 </section>
             </aside>
@@ -215,16 +215,16 @@ $username = $_SESSION['username'] ?? 'Utente';
                 <i class="fas fa-xmark"></i>
             </button>
 
-            <span class="gambling-pill">Regole</span>
-            <h2 id="rulesTitle">Come funziona</h2>
-            <p>È un mini-gioco con crediti finti. Il saldo resta nel browser e può essere resettato.</p>
+            <span class="gambling-pill">Rules</span>
+            <h2 id="rulesTitle">How it works</h2>
+            <p>It's a mini-game with fake credits. The balance remains in the browser and can be reset.</p>
 
             <ul>
-                <li>Ogni spin scala la puntata scelta.</li>
-                <li>Con 2 simboli uguali vinci x2.</li>
-                <li>Con 3 simboli uguali vinci x20.</li>
-                <li>Tre 7 e tre 9 valgono di più.</li>
-                <li>Auto-spin fa massimo 10 spin e si ferma se il saldo non basta.</li>
+                <li>Each spin scales the chosen bet.</li>
+                <li>With 2 identical symbols you win x2.</li>
+                <li>With 3 identical symbols you win x20.</li>
+                <li>Three 7s and three 9s are worth more.</li>
+                <li>Auto-spin does a maximum of 10 spins and stops if the balance is not enough.</li>
             </ul>
         </div>
     </div>
@@ -234,4 +234,5 @@ $username = $_SESSION['username'] ?? 'Utente';
     <script src="/js/unlockAchievement-it.js?v=2.0-popup"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>

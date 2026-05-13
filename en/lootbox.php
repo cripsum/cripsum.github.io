@@ -7,7 +7,7 @@ checkBan($mysqli);
 
 if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-    $_SESSION['login_message'] = "Per accedere alle lootbox devi essere loggato";
+    $_SESSION['login_message'] = "You must be logged in to access lootboxes.";
 
     header('Location: accedi');
     exit();
@@ -78,7 +78,7 @@ require_once '../api/api_personaggi.php';
                         transition: opacity 0.5s ease, transform 0.5s ease;
                     ">
                 <button style="position: absolute; top: 0px; right: 5px; background-color: transparent; border: none; cursor: pointer" onclick="closePopup()">
-                    <span class="close_div tastobianco" style="font-size: 20px; color: rgb(255, 255, 255)">&times;<span class="linkbianco" style="font-size: small; position: relative; top: -3px; left: 3px">chiudi</span></span>
+                    <span class="close_div tastobianco" style="font-size: 20px; color: rgb(255, 255, 255)">&times;<span class="linkbianco" style="font-size: small; position: relative; top: -3px; left: 3px">close</span></span>
                 </button>
                 <div id="banner-content"></div>
             </div>
@@ -88,12 +88,12 @@ require_once '../api/api_personaggi.php';
             function getRandomBanner() {
                 const banners = [
                     `<div class="bannerino">
-            <h2 style="color: rgb(255, 255, 255); padding-top: 11px">Ti offriamo un cookie! 🍪</h2>
-            <p style="color: rgb(255, 255, 255);">Questo sito utilizza i cookie per salvare i tuoi dati. Se li disattivi, alcune funzioni come le impostazioni e l'inventario potrebbero non funzionare correttamente.</p>
-            <p style="color: rgb(255, 255, 255);">Buon divertimento!</p>
-            <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="closePopup()">Prendi i miei dati 😆</button>
+                        <h2 style="color: rgb(255, 255, 255); padding-top: 11px">Have a cookie! 🍪</h2>
+                        <p style="color: rgb(255, 255, 255);">This site uses cookies to save your data. If you disable them, some features like settings and inventory might not work correctly.</p>
+                        <p style="color: rgb(255, 255, 255);">Have fun!</p>
+                        <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="closePopup()">Take my data 😆</button>
 
-        </div>`,
+                    </div>`,
                 ];
                 return banners[Math.floor(Math.random() * banners.length)];
             }
@@ -148,9 +148,9 @@ require_once '../api/api_personaggi.php';
             <div id="divApriAncora" class="nascosto">
                 <h1 id="messaggioRarita" class="non-selezionabile lootbox-rarity-message"></h1>
                 <div class="button-container lootbox-actions mt-4">
-                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" onclick="refresh()">Apri cassa</a>
-                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" href="inventario">Inventario</a>
-                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" onclick="toggleLeaderboard()">Classifiche</a>
+                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" onclick="refresh()">Open Chest</a>
+                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" href="inventario">Inventory</a>
+                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" onclick="toggleLeaderboard()">Leaderboard</a>
                 </div>
             </div>
 
@@ -160,8 +160,8 @@ require_once '../api/api_personaggi.php';
                         <div class="modal-header lootbox-settings-header">
                             <div>
                                 <span class="lootbox-modal-kicker">Lootbox</span>
-                                <h5 class="modal-title" id="impostazioniModalLabel">Impostazioni</h5>
-                                <p>Comandi, probabilità e funzioni rapide.</p>
+                                <h5 class="modal-title" id="impostazioniModalLabel">Settings</h5>
+                                <p>Controls, Drop rates, and shortcuts.</p>
                             </div>
 
                             <button type="button" class="lootbox-modal-close" data-bs-dismiss="modal" aria-label="Chiudi">
@@ -174,27 +174,27 @@ require_once '../api/api_personaggi.php';
                                 <div class="lootbox-section-head">
                                     <i class="fas fa-keyboard"></i>
                                     <div>
-                                        <h6>Comandi</h6>
-                                        <p>Scorciatoie rapide durante la pull.</p>
+                                        <h6>Controls</h6>
+                                        <p>Quick shortcuts during a pull.</p>
                                     </div>
                                 </div>
 
                                 <div class="lootbox-command-grid">
                                     <div class="lootbox-command-item">
                                         <span>Click</span>
-                                        <strong>Apri cassa</strong>
+                                        <strong>Open box</strong>
                                     </div>
                                     <div class="lootbox-command-item">
-                                        <span>Doppio click</span>
-                                        <strong>Skip animazione</strong>
+                                        <span>Double click</span>
+                                        <strong>Skip animation</strong>
                                     </div>
                                     <div class="lootbox-command-item">
                                         <span>Space</span>
-                                        <strong>Apri veloce</strong>
+                                        <strong>Quick open</strong>
                                     </div>
                                     <div class="lootbox-command-item">
                                         <span>Enter</span>
-                                        <strong>Apri ancora</strong>
+                                        <strong>Open again</strong>
                                     </div>
                                 </div>
                             </section>
@@ -203,30 +203,29 @@ require_once '../api/api_personaggi.php';
                                 <div class="lootbox-section-head">
                                     <i class="fas fa-dice"></i>
                                     <div>
-                                        <h6>Probabilità</h6>
-                                        <p>Le percentuali restano quelle originali.</p>
+                                        <h6>Drop rates</h6>
                                     </div>
                                 </div>
 
                                 <div class="lootbox-rates-list">
                                     <div class="lootbox-rate-row rate-common">
-                                        <span>Comune</span>
+                                        <span>Common</span>
                                         <strong>47%</strong>
                                     </div>
                                     <div class="lootbox-rate-row rate-rare">
-                                        <span>Raro</span>
+                                        <span>Rare</span>
                                         <strong>27%</strong>
                                     </div>
                                     <div class="lootbox-rate-row rate-epic">
-                                        <span>Epico</span>
+                                        <span>Epic</span>
                                         <strong>12%</strong>
                                     </div>
                                     <div class="lootbox-rate-row rate-legendary">
-                                        <span>Leggendario</span>
+                                        <span>Legendary</span>
                                         <strong>8%</strong>
                                     </div>
                                     <div class="lootbox-rate-row rate-special">
-                                        <span>Speciale</span>
+                                        <span>Special</span>
                                         <strong>0.9%</strong>
                                     </div>
                                     <div class="lootbox-rate-row rate-secret">
@@ -255,37 +254,37 @@ require_once '../api/api_personaggi.php';
 
                                         <label class="lootbox-toggle-pill" for="SoloComuni">
                                             <input class="form-check-input checco" type="checkbox" value="" id="SoloComuni" />
-                                            <span>Solo Comuni</span>
+                                            <span>Commons Only</span>
                                         </label>
 
                                         <label class="lootbox-toggle-pill" for="SoloRari">
                                             <input class="form-check-input checco" type="checkbox" value="" id="SoloRari" />
-                                            <span>Solo Rari</span>
+                                            <span>Rares Only</span>
                                         </label>
 
                                         <label class="lootbox-toggle-pill" for="SoloEpici">
                                             <input class="form-check-input checco" type="checkbox" value="" id="SoloEpici" />
-                                            <span>Solo Epici</span>
+                                            <span>Epics Only</span>
                                         </label>
 
                                         <label class="lootbox-toggle-pill" for="SoloLeggendari">
                                             <input class="form-check-input checco" type="checkbox" value="" id="SoloLeggendari" />
-                                            <span>Solo Leggendari</span>
+                                            <span>Legendaries Only</span>
                                         </label>
 
                                         <label class="lootbox-toggle-pill" for="SoloSpeciali">
                                             <input class="form-check-input checco" type="checkbox" value="" id="SoloSpeciali" />
-                                            <span>Solo Speciali</span>
+                                            <span>Specials Only</span>
                                         </label>
 
                                         <label class="lootbox-toggle-pill" for="SoloSegreti">
                                             <input class="form-check-input checco" type="checkbox" value="" id="SoloSegreti" />
-                                            <span>Solo Segreti</span>
+                                            <span>Secrets Only</span>
                                         </label>
 
                                         <label class="lootbox-toggle-pill" for="SoloTheOne">
                                             <input class="form-check-input checco" type="checkbox" value="" id="SoloTheOne" />
-                                            <span>Solo The One</span>
+                                            <span>The One Only</span>
                                         </label>
                                     </div>
                                 </section>
@@ -295,16 +294,16 @@ require_once '../api/api_personaggi.php';
                                 <div class="lootbox-section-head">
                                     <i class="fas fa-lock"></i>
                                     <div>
-                                        <h6>Codice segreto</h6>
-                                        <p>Inserisci un codice valido, se ne hai uno.</p>
+                                        <h6>Redeem code</h6>
+                                        <p>Enter a valid code, if you have one.</p>
                                     </div>
                                 </div>
 
                                 <div class="lootbox-secret-row">
-                                    <label class="visually-hidden" for="codiceSegreto">Codice Segreto</label>
-                                    <input type="text" id="codiceSegreto" class="form-control" placeholder="Codice segreto" />
+                                    <label class="visually-hidden" for="codiceSegreto">Redeem code</label>
+                                    <input type="text" id="codiceSegreto" class="form-control" placeholder="Redeem code" />
                                     <button type="button" class="btn btn-secondary bottone lootbox-modal-btn" data-bs-dismiss="modal" onclick="riscattaCodice()">
-                                        Riscatta
+                                        Redeem
                                     </button>
                                 </div>
                             </section>
@@ -312,10 +311,10 @@ require_once '../api/api_personaggi.php';
 
                         <div class="modal-footer lootbox-settings-footer">
                             <button type="button" class="btn btn-secondary bottone lootbox-modal-btn lootbox-modal-btn--ghost" data-bs-dismiss="modal">
-                                Chiudi
+                                Close
                             </button>
                             <button type="button" class="btn btn-secondary bottone lootbox-modal-btn lootbox-modal-btn--primary" data-bs-dismiss="modal" onclick="salvaPreferenze()">
-                                Salva preferenze
+                                Save
                             </button>
                         </div>
                     </div>
@@ -330,29 +329,29 @@ require_once '../api/api_personaggi.php';
             <div class="leaderboard-box lootbox-leaderboard-box">
                 <div class="leaderboard-head">
                     <div>
-                        <span class="leaderboard-kicker">Classifica</span>
+                        <span class="leaderboard-kicker">Leaderboard</span>
                         <h3 class="testobianco">Top Lootbox</h3>
-                        <p>Le prime posizioni del momento.</p>
+                        <p>Current top rankings.</p>
                     </div>
 
-                    <button class="leaderboard-close" type="button" onclick="toggleLeaderboard()" aria-label="Chiudi classifica">
+                    <button class="leaderboard-close" type="button" onclick="toggleLeaderboard()" aria-label="Close leaderboard">
                         <i class="fas fa-xmark"></i>
                     </button>
                 </div>
 
-                <div class="leaderboard-buttons" role="group" aria-label="Filtro classifica">
+                <div class="leaderboard-buttons" role="group" aria-label="Leaderboard filters">
                     <button class="btn btn-secondary bottone leaderboard-btn active" onclick="switchLeaderboard('casse_aperte')" id="btn-casse">
                         <i class="fas fa-box-open"></i>
-                        <span>Casse aperte</span>
+                        <span>Opened Boxes</span>
                     </button>
                     <button class="btn btn-secondary bottone leaderboard-btn" onclick="switchLeaderboard('personaggi_sbloccati')" id="btn-personaggi">
                         <i class="fas fa-layer-group"></i>
-                        <span>Personaggi</span>
+                        <span>Unlocked Characters</span>
                     </button>
                 </div>
 
                 <div id="leaderboard-data" class="leaderboard-data">
-                    <div class="loading-text testobianco">Caricamento...</div>
+                    <div class="loading-text testobianco">Loading...</div>
                 </div>
             </div>
         </div>
@@ -888,25 +887,25 @@ require_once '../api/api_personaggi.php';
                     setComuniDiFila(rarita);
 
                     if (rarita === "comune") {
-                        messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
+                        messaggioRarita.innerText = "Nice one bro, you pulled a common character, skill issue xd";
                         bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
                     } else if (rarita === "leggendario") {
-                        messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
+                        messaggioRarita.innerText = "So lucky! You pulled a legendary character!";
                         bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
                     } else if (rarita === "epico") {
-                        messaggioRarita.innerText = "hai pullato un personaggio epico, tanta roba, ma poteva andare meglio";
+                        messaggioRarita.innerText = "You pulled an epic character, not bad, but it could've been better.";
                         bagliore.style.background = "radial-gradient(circle, rgba(195, 0, 235, 1) 0%, rgba(0, 0, 255, 0) 70%)";
                     } else if (rarita === "raro") {
                         if (pull.nome === "JOB APPLICATION") {
                             messaggioRarita.innerText = "BOO! DID I SCARE YOU? I'M A JOB APPLICATION! GET A JOB NOW!";
                         } else {
-                            messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
+                            messaggioRarita.innerText = "Good job, you pulled a rare character!";
                         }
                         bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
                     } else if (rarita === "speciale") {
 
                         specialPulled = true;
-                        messaggioRarita.innerText = "COM'É POSSIBILE? HAI PULLATO UN PERSONAGGIO SPECIALE!";
+                        messaggioRarita.innerText = "HOW IS THIS POSSIBLE? YOU PULLED A SPECIAL CHARACTER!";
 
                         bagliore.style.position = "fixed";
                         bagliore.style.width = "max(165vw, 165vh)";
@@ -923,7 +922,7 @@ require_once '../api/api_personaggi.php';
 
                         secretPulled = true;
                         startIntroAnimation(pull.nome);
-                        messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
+                        messaggioRarita.innerText = "WHAT? YOU PULLED A SECRET CHARACTER? aura.";
                         bagliore.style.position = "fixed";
                         bagliore.style.width = "max(165vw, 165vh)";
                         bagliore.style.height = "max(165vw, 165vh)";
@@ -933,7 +932,7 @@ require_once '../api/api_personaggi.php';
 
                         theOnePulled = true;
                         startTheOneAnimation(pull.nome);
-                        messaggioRarita.innerText = "INCREDBILE! HAI PULLATO IL PERSONAGGIO PIÙ RARO DI TUTTI!!!";
+                        messaggioRarita.innerText = "INCREDIBLE! YOU PULLED THE RAREST CHARACTER OF ALL!!!";
                         bagliore.style.position = "fixed";
                         bagliore.style.width = "max(165vw, 165vh)";
                         bagliore.style.height = "max(165vw, 165vh)";
@@ -950,7 +949,7 @@ require_once '../api/api_personaggi.php';
 
                 } catch (error) {
                     console.error('Errore nel pull del personaggio:', error);
-                    messaggioRarita.innerText = "Errore durante l'apertura della cassa. Riprova.";
+                    messaggioRarita.innerText = "Error occurred while pulling character.";
                     return null;
                 } finally {
                     setTimeout(() => {
@@ -995,24 +994,23 @@ require_once '../api/api_personaggi.php';
                     setComuniDiFila(rarita);
 
                     if (rarita === "comune") {
-                        messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
+                        messaggioRarita.innerText = "Nice one bro, you pulled a common character, skill issue xd";
                         bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
                     } else if (rarita === "leggendario") {
-                        messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
+                        messaggioRarita.innerText = "So lucky! You pulled a legendary character!";
                         bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
                     } else if (rarita === "epico") {
-                        messaggioRarita.innerText = "hai pullato un personaggio epico, tanta roba, ma poteva andare meglio";
+                        messaggioRarita.innerText = "You pulled an epic character, not bad, but it could've been better.";
                         bagliore.style.background = "radial-gradient(circle, rgba(195, 0, 235, 1) 0%, rgba(0, 0, 255, 0) 70%)";
                     } else if (rarita === "raro") {
                         if (pull.nome === "JOB APPLICATION") {
                             messaggioRarita.innerText = "BOO! DID I SCARE YOU? I'M A JOB APPLICATION! GET A JOB NOW!";
                         } else {
-                            messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
+                            messaggioRarita.innerText = "Good job, you pulled a rare character!";
                         }
                         bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
                     } else if (rarita === "speciale") {
-                        messaggioRarita.innerText = "COM'É POSSIBILE? HAI PULLATO UN PERSONAGGIO SPECIALE!";
-
+                        messaggioRarita.innerText = "HOW IS THIS POSSIBLE? YOU PULLED A SPECIAL CHARACTER!";
                         bagliore.style.position = "fixed";
                         bagliore.style.width = "max(165vw, 165vh)";
                         bagliore.style.height = "max(165vw, 165vh)";
@@ -1027,7 +1025,7 @@ require_once '../api/api_personaggi.php';
                     } else if (rarita === "segreto") {
                         startIntroAnimation(pull.nome);
 
-                        messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
+                        messaggioRarita.innerText = "WHAT? YOU PULLED A SECRET CHARACTER? aura.";
                         bagliore.style.position = "fixed";
                         bagliore.style.width = "max(165vw, 165vh)";
                         bagliore.style.height = "max(165vw, 165vh)";
@@ -1037,7 +1035,7 @@ require_once '../api/api_personaggi.php';
 
                         theOnePulled = true;
                         startTheOneAnimation(pull.nome);
-                        messaggioRarita.innerText = "INCREDBILE! HAI PULLATO IL PERSONAGGIO PIÙ RARO DI TUTTI!!!";
+                        messaggioRarita.innerText = "INCREDIBLE! YOU PULLED THE RAREST CHARACTER OF ALL!!!";
                         bagliore.style.position = "fixed";
                         bagliore.style.width = "max(165vw, 165vh)";
                         bagliore.style.height = "max(165vw, 165vh)";
@@ -1162,7 +1160,7 @@ require_once '../api/api_personaggi.php';
                 if (codiceSegreto.value === "signortoki") {
                     const inventory = await getInventory();
                     if (inventory.find((p) => p.nome === "TOKI")) {
-                        alert("il Codice è già riscattato o Toki è già nel tuo inventario!");
+                        alert("The code has already been redeemed or Toki is already in your inventory!");
                         return;
                     }
                     let pullRiscattata = await getCharacter("TOKI");
@@ -1171,7 +1169,7 @@ require_once '../api/api_personaggi.php';
                 } else if (codiceSegreto.value === "cripsum") {
                     const inventory = await getInventory();
                     if (inventory.find((p) => p.nome === "CRIPSUM")) {
-                        alert("il Codice è già riscattato o Cripsum è già nel tuo inventario!");
+                        alert("The code has already been redeemed or Cripsum is already in your inventory!");
                         return;
                     }
                     let pullRiscattata = await getCharacter("CRIPSUM");
@@ -1180,14 +1178,14 @@ require_once '../api/api_personaggi.php';
                 } else if (codiceSegreto.value === "peak") {
                     const inventory = await getInventory();
                     if (inventory.find((p) => p.nome === "MAOMAO")) {
-                        alert("il Codice è già riscattato o Maomao è già nel tuo inventario!");
+                        alert("The code has already been redeemed or Maomao is already in your inventory!");
                         return;
                     }
                     let pullRiscattata = await getCharacter("MAOMAO");
                     await riscattaPersonaggio("MAOMAO");
                     apriNormale();
                 } else {
-                    alert("Codice non valido, skill issue!");
+                    alert("Invalid code, skill issue!");
                 }
             }
 
@@ -1799,7 +1797,7 @@ require_once '../api/api_personaggi.php';
             async function loadLeaderboard(type) {
                 const dataDiv = document.getElementById('leaderboard-data');
 
-                dataDiv.innerHTML = '<div class="loading-text testobianco"><i class="fas fa-circle-notch fa-spin"></i><span>Caricamento...</span></div>';
+                dataDiv.innerHTML = '<div class="loading-text testobianco"><i class="fas fa-circle-notch fa-spin"></i><span>Loading...</span></div>';
 
                 try {
                     const response = await fetch(`https://cripsum.com/api/get_leaderboard?type=${type}`);
@@ -1808,11 +1806,11 @@ require_once '../api/api_personaggi.php';
                     if (data.status === 'success' && data.data.length > 0) {
                         displayLeaderboard(data.data, type);
                     } else {
-                        dataDiv.innerHTML = '<div class="loading-text testobianco"><i class="fas fa-ranking-star"></i><span>Nessun dato disponibile</span></div>';
+                        dataDiv.innerHTML = '<div class="loading-text testobianco"><i class="fas fa-ranking-star"></i><span>No data available</span></div>';
                     }
                 } catch (error) {
                     console.error('Errore leaderboard:', error);
-                    dataDiv.innerHTML = '<div class="loading-text testobianco is-error"><i class="fas fa-triangle-exclamation"></i><span>Errore di connessione</span></div>';
+                    dataDiv.innerHTML = '<div class="loading-text testobianco is-error"><i class="fas fa-triangle-exclamation"></i><span>Connection error</span></div>';
                 }
             }
 

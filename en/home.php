@@ -23,8 +23,8 @@ $profileUrl = ($isLoggedIn && $currentUsername)
     ? '/u/' . rawurlencode(strtolower((string)$currentUsername))
     : 'accedi';
 
-$ogDescription = 'Homepage di Cripsum™. Edit, meme, lootbox, profili e tanto gooning.';
-$ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it/home'), '#');
+$ogDescription = 'Cripsum™ Homepage. Edits, memes, lootboxes, profiles, and plenty of gooning.';
+$ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en/home'), '#');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -71,30 +71,30 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
         <section class="home-hero home-reveal">
             <div class="home-hero__copy">
                 <span class="home-pill">Cripsum™</span>
-                <h1>Benvenuto/a nel sito migliore del Congo.</h1>
-                <p>Editing, meme, lootbox, profili, achievements, post della community e tanti segreti, cosa aspetti a unirti?</p>
-                <p class="home-question">Hai più di 25 anni e possiedi un PC?</p>
+                <h1>Welcome to the best site in the Congo.</h1>
+                <p>Editing, memes, lootboxes, profiles, achievements, community posts and many secrets. What are you waiting for? Join us!</p>
+                <p class="home-question">Are you over 25 and own a PC?</p>
 
                 <div class="home-actions">
                     <?php if ($isLoggedIn && $currentUsername): ?>
                         <a class="home-btn home-btn--primary" href="<?php echo home_h($profileUrl); ?>">
                             <i class="fas fa-user"></i>
-                            <span>Vai al profilo</span>
+                            <span>Go to profile</span>
                         </a>
                     <?php else: ?>
                         <a class="home-btn home-btn--primary" href="registrati">
                             <i class="fas fa-user-plus"></i>
-                            <span>Registrati</span>
+                            <span>Sign up</span>
                         </a>
                         <a class="home-btn home-btn--ghost" href="accedi">
                             <i class="fas fa-right-to-bracket"></i>
-                            <span>Accedi</span>
+                            <span>Login</span>
                         </a>
                     <?php endif; ?>
 
                     <a class="home-btn home-btn--ghost" href="#featuredContent">
                         <i class="fas fa-layer-group"></i>
-                        <span>Contenuti</span>
+                        <span>Contents</span>
                     </a>
 
                     <button class="home-btn home-btn--plain" type="button" data-bs-toggle="modal" data-bs-target="#disclaimerModal">
@@ -113,22 +113,22 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
         <section class="home-mood home-reveal" aria-label="Mood del sito">
             <article class="home-mood-item">
                 <img src="../img/felicita.jpg" alt="Felicità" loading="lazy">
-                <span>Felicità</span>
+                <span>Happiness</span>
             </article>
             <article class="home-mood-item">
                 <img src="../img/tristezza.jpg" alt="Tristezza" loading="lazy">
-                <span>Tristezza</span>
+                <span>Sadness</span>
             </article>
             <article class="home-mood-item">
                 <img src="../img/stupore.jpg" alt="Stupore" loading="lazy">
-                <span>Stupore</span>
+                <span>Amazement</span>
             </article>
         </section>
 
         <section id="featuredContent" class="home-feature home-reveal">
             <div class="home-section-head">
                 <div>
-                    <h2>Cosa puoi fare su Cripsum™</h2>
+                    <h2>What you can do on Cripsum™</h2>
                 </div>
                 <!-- <p>Una preview delle pagine principali.</p> -->
             </div>
@@ -150,7 +150,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
         <section class="home-social-section home-reveal">
             <div class="home-section-head home-section-head--center">
-                <h2>Seguimi sui social</h2>
+                <h2>My socials</h2>
             </div>
 
             <div class="social-icons-modern">
@@ -188,7 +188,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                 rel="noopener"
                 onclick="if (typeof unlockAchievement === 'function') unlockAchievement(10);">
                 <i class="fas fa-gift"></i>
-                <span>Clicca qui per V-bucks gratis!!!!</span>
+                <span>Grab your free V-bucks here!!!!</span>
             </a>
         </section>
 
@@ -196,13 +196,13 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
             <section class="home-account home-reveal">
                 <div>
                     <span class="home-kicker">Account</span>
-                    <h2>Hai un account Cripsum™?</h2>
-                    <p>Con l’account usi profilo, chat, lootbox e achievement.</p>
+                    <h2>Got a Cripsum™ account?</h2>
+                    <p>Your account unlocks your profile, chat, lootboxes, and achievements.</p>
                 </div>
 
                 <div class="home-account__actions">
-                    <a href="accedi" class="home-btn home-btn--ghost">Accedi</a>
-                    <a href="registrati" class="home-btn home-btn--primary">Registrati</a>
+                    <a href="accedi" class="home-btn home-btn--ghost">Log in</a>
+                    <a href="registrati" class="home-btn home-btn--primary">Sign up</a>
                 </div>
             </section>
         <?php endif; ?>
@@ -213,22 +213,22 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
             <div class="modal-content home-modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="disclaimerModalLabel">Disclaimer</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Cripsum™ è un sito personale fatto per intrattenere. Alcune pagine usano meme, ironia e riferimenti interni.</p>
+                    <p>Cripsum™ is a personal project made for fun. Expect plenty of memes, irony, and inside jokes throughout the site.</p>
                     <ul>
-                        <li>Non prendere tutto come contenuto serio.</li>
-                        <li>Shop e checkout, se presenti, sono simulati.</li>
-                        <li>Le donazioni sono reali: dona solo se vuoi davvero farlo.</li>
+                        <li>Don't take everything here seriously.</li>
+                        <li>Any shops or checkouts you see are just for show (simulated).</li>
+                        <li>Donations are the real deal: only donate if you actually want to support the project.</li>
                     </ul>
                     <p class="home-muted">
-                        Parte del codice è pubblico su
+                        Some of the code is public on
                         <a href="https://github.com/cripsum/cripsum.github.io" target="_blank" rel="noopener">GitHub</a>.
                     </p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="home-btn home-btn--ghost" data-bs-dismiss="modal">Chiudi</button>
+                    <button type="button" class="home-btn home-btn--ghost" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>

@@ -3,9 +3,9 @@ require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
-if(!isLoggedIn()) {
+if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-    $_SESSION['login_message'] = "Per poter mandare la tua candidatura devi avere un account Cripsum™";
+    $_SESSION['login_message'] = "A Cripsum™ account is required to submit your application.";
     header('Location: accedi');
     exit();
 }
@@ -28,7 +28,7 @@ $pfp_uploaded = false;
 if (isset($_FILES['pfp_chisiamo']) && $_FILES['pfp_chisiamo']['error'] === UPLOAD_ERR_OK && $_FILES['pfp_chisiamo']['size'] > 0) {
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     $mime_type = $finfo->file($_FILES['pfp_chisiamo']['tmp_name']);
-    
+
     $allowed_types = ['image/jpeg', 'image/png', 'image/webp'];
     if (in_array($mime_type, $allowed_types)) {
         $pfp_chisiamo = file_get_contents($_FILES['pfp_chisiamo']['tmp_name']);
@@ -82,7 +82,7 @@ if ($pfp_uploaded) {
             $filename .= '.jpg';
             break;
     }
-    
+
     $email_message .= "--{$boundary}\r\n";
     $email_message .= "Content-Type: {$mime_type}; name=\"{$filename}\"\r\n";
     $email_message .= "Content-Transfer-Encoding: base64\r\n";
@@ -92,7 +92,7 @@ if ($pfp_uploaded) {
 
 $email_message .= "--{$boundary}--\r\n";
 
-if(mail($to, $subject, $email_message, $headers)) {
+if (mail($to, $subject, $email_message, $headers)) {
     $_SESSION['result_candidatura'] = "Candidatura inviata con successo!";
 } else {
     $_SESSION['result_candidatura'] = "Errore nell'invio della candidatura.";
@@ -100,4 +100,3 @@ if(mail($to, $subject, $email_message, $headers)) {
 
 header('Location: ' . $_SERVER['HTTP_REFERER']);
 exit();
-?>
