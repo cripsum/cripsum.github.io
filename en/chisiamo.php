@@ -334,7 +334,7 @@ checkBan($mysqli);
 
     <?php include '../includes/scroll_indicator.php'; ?>
 
-    <?php include '../includes/footer.php'; ?>
+    <?php include '../includes/footer-en.php'; ?>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {

@@ -264,7 +264,7 @@ $ogMeta = cripsum_og_content($mysqli, $contentType);
 
     <div id="cwToast" class="cw-toast"></div>
 
-    <?php include '../includes/footer.php'; ?>
+    <?php include '../includes/footer-en.php'; ?>
 
     <script>
         window.__CRIPSUM_BOOTSTRAP_FALLBACK__ = true;

@@ -6,9 +6,10 @@ checkBan($mysqli);
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <title>Cripsum™ - Linee guida chat</title>
+    <title>Cripsum™ - Chat Policy</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/assets/static/static.css?v=1.0-static">
@@ -18,7 +19,7 @@ checkBan($mysqli);
 
 <body class="static-page">
     <?php include '../includes/navbar.php'; ?>
-    
+
 
 
     <div class="static-bg" aria-hidden="true">
@@ -31,61 +32,62 @@ checkBan($mysqli);
     <main class="static-shell">
         <section class="static-hero static-hero--split static-reveal">
             <div>
-                <span class="static-pill">Chat Globale</span>
-                <h1>Linee guida</h1>
-                <p>Regole semplici per tenere la chat leggibile e usabile da tutti.</p>
+                <span class="static-pill">Global Chat</span>
+                <h1>Chat Policy</h1>
+                <p>Simple rules to keep the chat readable and usable for everyone.</p>
                 <div class="static-actions">
                     <a href="global-chat" class="static-btn static-btn--primary">
                         <i class="fas fa-comments"></i>
-                        <span>Torna alla chat</span>
+                        <span>Back to chat</span>
                     </a>
                     <a href="supporto" class="static-btn">
                         <i class="fas fa-life-ring"></i>
-                        <span>Supporto</span>
+                        <span>Support</span>
                     </a>
                 </div>
             </div>
 
             <aside class="static-hero__side">
-                <span class="static-chip"><i class="fas fa-shield-halved"></i> Moderazione attiva</span>
-                <p>Violazioni gravi o ripetute possono portare a mute o ban.</p>
+                <span class="static-chip"><i class="fas fa-shield-halved"></i> Active moderation</span>
+                <p>Serious or repeated violations may result in mutes or bans.</p>
             </aside>
         </section>
 
         <section class="static-grid static-grid--2" style="margin-top:1rem;">
             <article class="static-card static-reveal">
-                <h2>Rispetta tutti</h2>
-                <p>Niente insulti, minacce o linguaggio offensivo.</p>
+                <h2>Respect everyone</h2>
+                <p>No insults, threats, or offensive language.</p>
             </article>
 
             <article class="static-card static-reveal">
-                <h2>Niente spam</h2>
-                <p>Evita messaggi ripetuti, pubblicità e link messi a caso.</p>
+                <h2>No spam</h2>
+                <p>Avoid repeated messages, advertisements, and random links.</p>
             </article>
 
             <article class="static-card static-reveal">
-                <h2>Contenuti adatti</h2>
-                <p>Non inviare contenuti violenti, sessuali, illegali o chiaramente fuori contesto.</p>
+                <h2>Appropriate content</h2>
+                <p>Do not send violent, sexual, illegal, or clearly out-of-context content.</p>
             </article>
 
             <article class="static-card static-reveal">
-                <h2>Non impersonare</h2>
-                <p>Non fingere di essere un altro utente, un admin o un moderatore.</p>
+                <h2>No impersonation</h2>
+                <p>Do not pretend to be another user, an admin, or a moderator.</p>
             </article>
 
             <article class="static-card static-reveal">
-                <h2>Usa buon senso</h2>
-                <p>Non serve essere perfetti. Basta non rovinare la chat agli altri.</p>
+                <h2>Use common sense</h2>
+                <p>You don't have to be perfect. Just don't ruin the chat for others.</p>
             </article>
 
             <article class="static-card static-reveal">
-                <h2>Segui i moderatori</h2>
-                <p>Le indicazioni dello staff vanno rispettate.</p>
+                <h2>Follow the moderators</h2>
+                <p>The staff's instructions must be followed.</p>
             </article>
         </section>
     </main>
 
-    <?php include '../includes/footer.php'; ?>
+    <?php include '../includes/footer-en.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>

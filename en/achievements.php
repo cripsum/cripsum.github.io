@@ -191,7 +191,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <div id="achievementToast" class="ach-toast" role="status" aria-live="polite"></div>
 
     <?php include '../includes/scroll_indicator.php'; ?>
-    <?php include '../includes/footer.php'; ?>
+    <?php include '../includes/footer-en.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>

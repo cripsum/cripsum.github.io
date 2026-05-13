@@ -128,7 +128,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
 
     <button class="gl-top" type="button" data-gl-top aria-label="Torna su"><i class="fas fa-arrow-up"></i></button>
 
-    <?php include '../../includes/footer.php'; ?>
+    <?php include '../../includes/footer-en.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="/js/modeChanger.js"></script>
 </body>

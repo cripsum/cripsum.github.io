@@ -223,7 +223,7 @@ $stmt->close();
             <p id="popup-description"></p>
         </div>
     </div>
-    <?php include '../includes/footer.php'; ?>
+    <?php include '../includes/footer-en.php'; ?>
 
     <script>
         function searchUser() {

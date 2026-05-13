@@ -400,7 +400,7 @@ function profile_json_script(string $id, array $data): void
     <?php profile_json_script('initialContentsData', $contents); ?>
     <?php profile_json_script('initialBlocksData', $blocks); ?>
 
-    <?php if (file_exists(__DIR__ . '/../includes/footer.php')) include __DIR__ . '/../includes/footer.php'; ?>
+    <?php if (file_exists(__DIR__ . '/../includes/footer-en.php')) include __DIR__ . '/../includes/footer-en.php'; ?>
 </body>
 
 </html>

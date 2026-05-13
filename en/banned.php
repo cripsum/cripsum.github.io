@@ -59,9 +59,10 @@ if (!isset($_COOKIE['banned']) || $_COOKIE['banned'] == '0') {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <title>Cripsum™ - Account sospeso</title>
+    <title>Cripsum™ - Account banned</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/assets/static/static.css?v=1.0-static">
@@ -85,21 +86,22 @@ if (!isset($_COOKIE['banned']) || $_COOKIE['banned'] == '0') {
             </div>
 
             <span class="static-pill">Account</span>
-            <h1>Account sospeso</h1>
-            <p>Il tuo account è stato sospeso per violazione dei termini o delle regole del sito.</p>
+            <h1>Account banned</h1>
+            <p>Your account has been banned for violating the terms or rules of the site.</p>
 
             <div class="static-alert static-alert--danger" style="margin-top:1rem; text-align:left;">
                 <i class="fas fa-circle-exclamation"></i>
-                <p>Se pensi sia un errore, contatta il supporto e includi username, email dell’account e una descrizione chiara.</p>
+                <p>If you think this is an error, please contact support and include your username, account email, and a clear description.</p>
             </div>
 
             <div class="static-actions" style="justify-content:center;">
                 <a href="mailto:support@cripsum.com" class="static-btn static-btn--primary">
                     <i class="fas fa-envelope"></i>
-                    <span>Contatta supporto</span>
+                    <span>Contact support</span>
                 </a>
             </div>
         </section>
     </main>
 </body>
+
 </html>

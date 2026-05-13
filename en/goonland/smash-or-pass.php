@@ -458,7 +458,7 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
     <button class="gl-top" type="button" data-gl-top aria-label="Torna su"><i class="fas fa-arrow-up"></i></button>
     <div class="gl-toast" id="goonlandToast" hidden><i class="fas fa-check"></i><span>Fatto</span></div>
 
-    <?php include '../../includes/footer.php'; ?>
+    <?php include '../../includes/footer-en.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="/js/modeChanger.js"></script>
 </body>

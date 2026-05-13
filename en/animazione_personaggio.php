@@ -23,7 +23,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 <head>
     <?php include '../includes/head-import.php'; ?>
     <link rel="stylesheet" href="/css/lootbox.css?v=8.0.6-skip-chest-smooth" />
-    <title>Cripsum™ - Animazione personaggio</title>
+    <title>Cripsum™ - Character animation</title>
 </head>
 
 <body class="lootbox-page">
@@ -53,8 +53,8 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
 
             <div id="divApriAncora" class="nascosto">
                 <div class="button-container lootbox-actions mt-4">
-                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" onclick="refresh()" href="?id_personaggio=<?php echo urlencode($idPersonaggio); ?>">Ripeti animazione</a>
-                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" href="inventario">Inventario</a>
+                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" onclick="refresh()" href="?id_personaggio=<?php echo urlencode($idPersonaggio); ?>">Repeat animation</a>
+                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" href="inventario">Inventory</a>
                 </div>
             </div>
 
@@ -308,31 +308,31 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
         }
 
         function testoNuovo() {
-                document.querySelectorAll(".new-label").forEach((label) => label.remove());
+            document.querySelectorAll(".new-label").forEach((label) => label.remove());
 
-                const image = contenuto.querySelector(".premio");
-                if (!image) return;
+            const image = contenuto.querySelector(".premio");
+            if (!image) return;
 
-                let prizeWrap =
-                    image.closest(".lootbox-prize-wrap") ||
-                    image.closest(".lootbox-reward-frame");
+            let prizeWrap =
+                image.closest(".lootbox-prize-wrap") ||
+                image.closest(".lootbox-reward-frame");
 
-                if (!prizeWrap) {
-                    prizeWrap = document.createElement("div");
-                    prizeWrap.className = "lootbox-prize-wrap lootbox-reward-frame";
-                    image.parentNode.insertBefore(prizeWrap, image);
-                    prizeWrap.appendChild(image);
-                }
-
-                prizeWrap.classList.add("lootbox-prize-wrap", "lootbox-reward-frame");
-
-                const newLabel = document.createElement("span");
-                newLabel.className = "new-label";
-                newLabel.textContent = "NEW!";
-                prizeWrap.appendChild(newLabel);
+            if (!prizeWrap) {
+                prizeWrap = document.createElement("div");
+                prizeWrap.className = "lootbox-prize-wrap lootbox-reward-frame";
+                image.parentNode.insertBefore(prizeWrap, image);
+                prizeWrap.appendChild(image);
             }
 
-            function generaParticelle() {
+            prizeWrap.classList.add("lootbox-prize-wrap", "lootbox-reward-frame");
+
+            const newLabel = document.createElement("span");
+            newLabel.className = "new-label";
+            newLabel.textContent = "NEW!";
+            prizeWrap.appendChild(newLabel);
+        }
+
+        function generaParticelle() {
             const container = document.getElementById("particelle");
             const cassa = document.getElementById("cassa");
             const rect = cassa.getBoundingClientRect();
@@ -742,7 +742,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
             });
         }
     </script>
-    
+
 </body>
 
 </html>

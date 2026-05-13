@@ -57,7 +57,7 @@ checkBan($mysqli);
             </div>
         </div>
     </div>
-    <?php include '../includes/footer.php'; ?>
+    <?php include '../includes/footer-en.php'; ?>
     <embed src="../audio/screaminginpublicrestrooms.mp3" loop="true" autostart="true" width="2" height="0" />
     <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
