@@ -10,18 +10,18 @@ function shop_h($value): string
 }
 
 $products = [
-    ['id' => 'tshirt-big-logo', 'name' => 'T-Shirt simonetussi.ph', 'variant' => 'Big logo', 'price' => 19.99, 'image' => '../img/magliag.jpg', 'alt' => 'T-Shirt big logo', 'description' => 'Logo grande per massima visibilità.', 'category' => 'maglie', 'badge' => 'Drop', 'link' => 'merch-checkout'],
-    ['id' => 'tshirt-small-logo', 'name' => 'T-Shirt simonetussi.ph', 'variant' => 'Small logo', 'price' => 19.99, 'image' => '../img/magliap.jpg', 'alt' => 'T-Shirt small logo', 'description' => 'Logo piccolo per chi ama la discrezione.', 'category' => 'maglie', 'badge' => 'Minimal', 'link' => 'merch-checkout'],
-    ['id' => 'felpa-big-logo', 'name' => 'Felpa simonetussi.ph', 'variant' => 'Big logo', 'price' => 39.99, 'image' => '../img/felpag.jpg', 'alt' => 'Felpa big logo', 'description' => 'Calda e comoda, con logo grande.', 'category' => 'felpe', 'badge' => 'Premium', 'link' => 'merch-checkout'],
-    ['id' => 'felpa-small-logo', 'name' => 'Felpa simonetussi.ph', 'variant' => 'Small logo', 'price' => 39.99, 'image' => '../img/felpap.jpg', 'alt' => 'Felpa small logo', 'description' => 'Stile più pulito, sempre riconoscibile.', 'category' => 'felpe', 'badge' => 'Clean', 'link' => 'merch-checkout'],
-    ['id' => 'pantaloncini', 'name' => 'Pantaloncini simonetussi.ph', 'variant' => '', 'price' => 23.99, 'image' => '../img/pantaloncini.jpg', 'alt' => 'Pantaloncini', 'description' => 'Comodi per estate e sport.', 'category' => 'abbigliamento', 'badge' => 'Summer', 'link' => 'merch-checkout'],
-    ['id' => 'calzini', 'name' => 'Calzini simonetussi.ph', 'variant' => '', 'price' => 5.99, 'image' => '../img/calze.jpg', 'alt' => 'Calzini', 'description' => 'Anche i piedi meritano stile.', 'category' => 'accessori', 'badge' => 'Cheap', 'link' => 'merch-checkout'],
-    ['id' => 'boxer', 'name' => 'Boxer simonetussi.ph', 'variant' => '', 'price' => 149.99, 'image' => '../img/boxers.jpg', 'alt' => 'Boxer', 'description' => 'Lusso estremo per veri intenditori.', 'category' => 'abbigliamento', 'badge' => 'Luxury', 'link' => 'merch-checkout'],
-    ['id' => 'slip', 'name' => 'Slip simonetussi.ph', 'variant' => '', 'price' => 249.99, 'image' => '../img/mutandinesexi.jpg', 'alt' => 'Slip', 'description' => 'Edizione limitata, pezzo da collezione.', 'category' => 'abbigliamento', 'badge' => 'Limited', 'link' => 'merch-checkout'],
-    ['id' => 'cappellino', 'name' => 'Cappellino simonetussi.ph', 'variant' => '', 'price' => 7.99, 'image' => '../img/cappellino.jpg', 'alt' => 'Cappellino', 'description' => 'Protezione solare con stile.', 'category' => 'accessori', 'badge' => 'Classic', 'link' => 'merch-checkout'],
-    ['id' => 'occhiali-sole', 'name' => 'Occhiali da sole simonetussi.ph', 'variant' => '', 'price' => 8.99, 'image' => '../img/occhialis.jpg', 'alt' => 'Occhiali da sole', 'description' => 'Look da vero influencer.', 'category' => 'accessori', 'badge' => 'Drip', 'link' => 'merch-checkout'],
-    ['id' => 'occhiali-vista', 'name' => 'Occhiali da vista simonetussi.ph', 'variant' => '', 'price' => 35.99, 'image' => '../img/occhialiv.jpg', 'alt' => 'Occhiali da vista', 'description' => 'Vedi meglio il mondo col logo.', 'category' => 'accessori', 'badge' => 'Vision', 'link' => 'merch-checkout'],
-    ['id' => 'tostapane', 'name' => 'Tostapane simonetussi.ph', 'variant' => '', 'price' => 79.99, 'image' => '../img/tostapane.jpg', 'alt' => 'Tostapane', 'description' => 'Toasta il pane con stile.', 'category' => 'altro', 'badge' => 'Peak', 'link' => 'merch-checkout'],
+    ['id' => 'tshirt-big-logo', 'name' => 'simonetussi.ph T-Shirt', 'variant' => 'Big logo', 'price' => 19.99, 'image' => '../img/magliag.jpg', 'alt' => 'T-Shirt big logo', 'description' => 'Big logo for maximum visibility.', 'category' => 'shirts', 'badge' => 'Drop', 'link' => 'merch-checkout'],
+    ['id' => 'tshirt-small-logo', 'name' => 'simonetussi.ph T-Shirt', 'variant' => 'Small logo', 'price' => 19.99, 'image' => '../img/magliap.jpg', 'alt' => 'T-Shirt small logo', 'description' => 'Small logo for a subtle look.', 'category' => 'shirts', 'badge' => 'Minimal', 'link' => 'merch-checkout'],
+    ['id' => 'felpa-big-logo', 'name' => 'simonetussi.ph Hoodie', 'variant' => 'Big logo', 'price' => 39.99, 'image' => '../img/felpag.jpg', 'alt' => 'Hoodie big logo', 'description' => 'Warm and comfortable, with a big logo.', 'category' => 'hoodies', 'badge' => 'Premium', 'link' => 'merch-checkout'],
+    ['id' => 'felpa-small-logo', 'name' => 'simonetussi.ph Hoodie', 'variant' => 'Small logo', 'price' => 39.99, 'image' => '../img/felpap.jpg', 'alt' => 'Hoodie small logo', 'description' => 'Cleaner style, still recognizable.', 'category' => 'hoodies', 'badge' => 'Clean', 'link' => 'merch-checkout'],
+    ['id' => 'pantaloncini', 'name' => 'simonetussi.ph Shorts', 'variant' => '', 'price' => 23.99, 'image' => '../img/pantaloncini.jpg', 'alt' => 'Shorts', 'description' => 'Comfortable for summer and sports.', 'category' => 'apparel', 'badge' => 'Summer', 'link' => 'merch-checkout'],
+    ['id' => 'calzini', 'name' => 'simonetussi.ph Socks', 'variant' => '', 'price' => 5.99, 'image' => '../img/calze.jpg', 'alt' => 'Socks', 'description' => 'Even your feet deserve style.', 'category' => 'accessories', 'badge' => 'Cheap', 'link' => 'merch-checkout'],
+    ['id' => 'boxer', 'name' => 'simonetussi.ph Boxers', 'variant' => '', 'price' => 149.99, 'image' => '../img/boxers.jpg', 'alt' => 'Boxers', 'description' => 'Extreme luxury for true connoisseurs.', 'category' => 'apparel', 'badge' => 'Luxury', 'link' => 'merch-checkout'],
+    ['id' => 'slip', 'name' => 'simonetussi.ph Briefs', 'variant' => '', 'price' => 249.99, 'image' => '../img/mutandinesexi.jpg', 'alt' => 'Briefs', 'description' => 'Limited edition, collector\'s item.', 'category' => 'apparel', 'badge' => 'Limited', 'link' => 'merch-checkout'],
+    ['id' => 'cappellino', 'name' => 'simonetussi.ph Cap', 'variant' => '', 'price' => 7.99, 'image' => '../img/cappellino.jpg', 'alt' => 'Cap', 'description' => 'Sun protection with style.', 'category' => 'accessories', 'badge' => 'Classic', 'link' => 'merch-checkout'],
+    ['id' => 'occhiali-sole', 'name' => 'simonetussi.ph Sunglasses', 'variant' => '', 'price' => 8.99, 'image' => '../img/occhialis.jpg', 'alt' => 'Sunglasses', 'description' => 'True influencer look.', 'category' => 'accessories', 'badge' => 'Drip', 'link' => 'merch-checkout'],
+    ['id' => 'occhiali-vista', 'name' => 'simonetussi.ph Glasses', 'variant' => '', 'price' => 35.99, 'image' => '../img/occhialiv.jpg', 'alt' => 'Glasses', 'description' => 'See the world better with the logo.', 'category' => 'accessories', 'badge' => 'Vision', 'link' => 'merch-checkout'],
+    ['id' => 'tostapane', 'name' => 'simonetussi.ph Toaster', 'variant' => '', 'price' => 79.99, 'image' => '../img/tostapane.jpg', 'alt' => 'Toaster', 'description' => 'Toast your bread with style.', 'category' => 'other', 'badge' => 'Peak', 'link' => 'merch-checkout'],
 ];
 ?>
 <!DOCTYPE html>
@@ -38,16 +38,16 @@ $products = [
 
 <body class="shop-page shop-theme-merch" data-shop-page="merch" data-favorites="1">
     <?php include '../includes/navbar.php'; ?>
-    
+
 
     <main class="shop-shell">
         <section class="shop-hero shop-reveal">
             <div class="shop-hero__content">
                 <span class="shop-kicker">Merch drop</span>
                 <h1>NEW MERCH OUT NOW</h1>
-                <p>Il merch simonetussi.ph. il fotografo e psicologo più fico di sempre.</p>
+                <p>The simonetussi.ph merch. The coolest photographer and psychologist ever.</p>
                 <div class="shop-hero__actions">
-                    <a class="shop-btn shop-btn--primary" href="#prodotti">Guarda prodotti</a>
+                    <a class="shop-btn shop-btn--primary" href="#prodotti">View Products</a>
                 </div>
             </div>
             <div class="shop-hero__emoji" aria-hidden="true">🤑🐦📸</div>
@@ -57,46 +57,46 @@ $products = [
             <div class="shop-toolbar">
                 <label class="shop-search">
                     <i class="fas fa-search"></i>
-                    <input type="search" data-shop-search placeholder="Cerca prodotto">
+                    <input type="search" data-shop-search placeholder="Search products..." aria-label="Search products">
                 </label>
 
-                <div class="shop-filters" aria-label="Filtri merch">
-                    <button type="button" class="shop-filter is-active" data-category="all">Tutti</button>
-                    <button type="button" class="shop-filter" data-category="maglie">Maglie</button>
-                    <button type="button" class="shop-filter" data-category="felpe">Felpe</button>
-                    <button type="button" class="shop-filter" data-category="accessori">Accessori</button>
-                    <button type="button" class="shop-filter" data-category="abbigliamento">Abbigliamento</button>
-                    <button type="button" class="shop-filter" data-category="altro">Altro</button>
+                <div class="shop-filters" aria-label="Merch filters">
+                    <button type="button" class="shop-filter is-active" data-category="all">All</button>
+                    <button type="button" class="shop-filter" data-category="maglie">T-Shirts</button>
+                    <button type="button" class="shop-filter" data-category="felpe">Hoodies</button>
+                    <button type="button" class="shop-filter" data-category="accessori">Accessories</button>
+                    <button type="button" class="shop-filter" data-category="abbigliamento">Clothing</button>
+                    <button type="button" class="shop-filter" data-category="altro">Other</button>
                 </div>
 
                 <div class="shop-custom-select" data-shop-custom-select>
-                    <select class="shop-select shop-native-select" data-shop-sort aria-label="Ordina prodotti" tabindex="-1" aria-hidden="true">
-                        <option value="default">Ordine originale</option>
-                        <option value="name-asc">Nome A-Z</option>
-                        <option value="price-asc">Prezzo crescente</option>
-                        <option value="price-desc">Prezzo decrescente</option>
+                    <select class="shop-select shop-native-select" data-shop-sort aria-label="Sort products" tabindex="-1" aria-hidden="true">
+                        <option value="default">Original Order</option>
+                        <option value="name-asc">Name A-Z</option>
+                        <option value="price-asc">Price Low to High</option>
+                        <option value="price-desc">Price High to Low</option>
                     </select>
 
                     <button type="button" class="shop-select-trigger" aria-haspopup="listbox" aria-expanded="false">
-                        <span class="shop-select-current">Ordine originale</span>
+                        <span class="shop-select-current">Original Order</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
 
-                    <div class="shop-select-menu" role="listbox" aria-label="Ordina prodotti">
+                    <div class="shop-select-menu" role="listbox" aria-label="Sort products options">
                         <button type="button" data-value="default">
-                            <strong>Ordine originale</strong>
+                            <strong>Original Order</strong>
                             <span>Base</span>
                         </button>
                         <button type="button" data-value="name-asc">
-                            <strong>Nome A-Z</strong>
+                            <strong>Name A-Z</strong>
                             <span>A-Z</span>
                         </button>
                         <button type="button" data-value="price-asc">
-                            <strong>Prezzo crescente</strong>
+                            <strong>Price Low to High</strong>
                             <span>€ ↑</span>
                         </button>
                         <button type="button" data-value="price-desc">
-                            <strong>Prezzo decrescente</strong>
+                            <strong>Price High to Low</strong>
                             <span>€ ↓</span>
                         </button>
                     </div>
@@ -135,7 +135,7 @@ $products = [
                                 <strong><?php echo number_format((float)$product['price'], 2, ',', '.'); ?>€</strong>
                                 <div class="shop-card__actions">
                                     <button type="button" class="shop-icon-btn" data-open-detail title="Dettagli"><i class="fas fa-eye"></i></button>
-                                    <a class="shop-btn shop-btn--small" href="<?php echo shop_h($product['link']); ?>">Acquista</a>
+                                    <a class="shop-btn shop-btn--small" href="<?php echo shop_h($product['link']); ?>">Buy Now</a>
                                 </div>
                             </div>
                         </div>
@@ -145,32 +145,32 @@ $products = [
 
             <div class="shop-empty" data-shop-empty hidden>
                 <i class="fas fa-box-open"></i>
-                <strong>Nessun prodotto trovato</strong>
-                <span>Prova a cambiare ricerca o filtro.</span>
+                <strong>No products found</strong>
+                <span>Try changing your search or filter.</span>
             </div>
         </section>
 
         <section class="shop-faq shop-reveal">
-            <h2>Domande frequenti (FAQ)</h2>
+            <h2>Frequently Asked Questions (FAQ)</h2>
             <details>
-                <summary>Quando uscirà il secondo drop del merch di Simone Tussi?</summary>
-                <p>Non abbiamo ancora una data ufficiale, ma ti consigliamo di seguire i nostri canali social per rimanere aggiornato sulle novità! (mai)</p>
+                <summary>When will the second drop of Simone Tussi's merch come out?</summary>
+                <p>We don't have an official date yet, but we recommend following our social media channels to stay updated on the latest news! (never)</p>
             </details>
             <details>
-                <summary>Come vengono prodotti i capi?</summary>
-                <p>Il nostro merch è prodotto in 100% poliestere, garantendo discomfort e non-durabilità. Ogni pezzo è realizzato con cura da un ragazzino filippino per offrire il massimo stile e resistenza.</p>
+                <summary>How are the clothes made?</summary>
+                <p>Our merch is made of 100% polyester, guaranteeing discomfort and lack of durability. Each piece is carefully crafted by a Filipino kid to offer maximum style and resistance.</p>
             </details>
             <details>
-                <summary>Quali metodi di pagamento accettate?</summary>
-                <p>Accettiamo pagamento in natura.</p>
+                <summary>What payment methods do you accept?</summary>
+                <p>We accept payment in kind.</p>
             </details>
         </section>
     </main>
 
     <div class="shop-modal" data-shop-modal hidden>
         <div class="shop-modal__backdrop" data-close-modal></div>
-        <article class="shop-modal__panel" role="dialog" aria-modal="true" aria-label="Dettaglio prodotto">
-            <button type="button" class="shop-modal__close" data-close-modal aria-label="Chiudi"><i class="fas fa-xmark"></i></button>
+        <article class="shop-modal__panel" role="dialog" aria-modal="true" aria-label="Product Detail">
+            <button type="button" class="shop-modal__close" data-close-modal aria-label="Close"><i class="fas fa-xmark"></i></button>
             <div class="shop-modal__content" data-modal-content></div>
         </article>
     </div>
