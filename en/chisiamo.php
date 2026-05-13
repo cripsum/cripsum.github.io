@@ -9,7 +9,7 @@ checkBan($mysqli);
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <title>Cripsum™ - Chi siamo</title>
+    <title>Cripsum™ - About us</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/assets/chisiamo/chisiamo-colors.css?v=2.2-original-cards-colors">
     <style>
@@ -43,13 +43,13 @@ checkBan($mysqli);
 
 <body>
     <?php include '../includes/navbar.php'; ?>
-    
+
 
     <div class="main-container fadeup" style="padding-top: 7rem">
         <section class="chisiamo-section" style="border-radius: 20px;">
-            <h1 class="chisiamo-title">Il Nostro Team di Sviluppo</h1>
+            <h1 class="chisiamo-title">Our Development Team</h1>
             <p class="chisiamo-subtitle">
-                Vuoi far parte del nostro team di sviluppo? Manda una e-mail allegando immagine, nome e descrizione, e se vuoi, un username o un link social per i crediti.
+                Want to be part of our development team? Send an email with your image, name, and description, and if you want, a username or social link for credits.
             </p>
         </section>
 
@@ -65,7 +65,7 @@ checkBan($mysqli);
                                 <a href="../user/cripsum">cripsum</a>
                             </h3>
                             <p class="member-description">
-                                L'imperatore del Congo, è un editor fallito che continua a sognare in grande.
+                                The emperor of Congo, he's a failed editor who keeps dreaming big.
                             </p>
                         </div>
                     </div>
@@ -81,8 +81,8 @@ checkBan($mysqli);
                                 <a href="../user/simonetussi">simonetussi.ph</a>
                             </h3>
                             <p class="member-description">
-                                Seguite tutti simonetussi.ph su <a href="https://instagram.com/simonetussi.ph">Instagram</a> e
-                                <a href="https://tiktok.com/@simonetussi.ph">TikTok</a> per degli scatti fantastici.
+                                Follow simonetussi.ph on <a href="https://instagram.com/simonetussi.ph">Instagram</a> and
+                                <a href="https://tiktok.com/@simonetussi.ph">TikTok</a> for amazing shots.
                             </p>
                         </div>
                     </div>
@@ -96,8 +96,8 @@ checkBan($mysqli);
                         <div class="member-info">
                             <h3 class="member-name">danebidev</h3>
                             <p class="member-description">
-                                Game developer sempre in risparmio energetico.<br>
-                                <strong>JavaScript >> Java</strong> - questa è la sua filosofia di vita.
+                                Game developer always in energy-saving mode.<br>
+                                <strong>JavaScript >> Java</strong> - this is his life philosophy.
                             </p>
                         </div>
                     </div>
@@ -112,7 +112,7 @@ checkBan($mysqli);
                             <h3 class="member-name">Ray</h3>
                             <p class="member-description">
                                 <strong>Broke/Broken/Broker</strong><br>
-                                Un trader che mangia cani e beve birra fino a stare male. Vive la vita al limite.
+                                A trader who eats dogs and drinks beer until he feels sick. Lives life on the edge.
                             </p>
                         </div>
                     </div>
@@ -126,7 +126,7 @@ checkBan($mysqli);
                         <div class="member-info">
                             <h3 class="member-name">Barandeep</h3>
                             <p class="member-description">
-                                Xenon il gigante indiano, è il project manager che tiene tutto sotto controllo con la sua presenza imponente.
+                                Xenon the Indian giant, is the project manager who keeps everything under control with his imposing presence.
                             </p>
                         </div>
                     </div>
@@ -141,7 +141,7 @@ checkBan($mysqli);
                             <h3 class="member-name">Scammarpreet</h3>
                             <p class="member-description">
                                 <strong>Money grabber • Scammer • Guru • Doxer</strong><br>
-                                Gambler professionista che sa come far girare i soldi.
+                                Professional gambler who knows how to make money work.
                             </p>
                         </div>
                     </div>
@@ -157,7 +157,7 @@ checkBan($mysqli);
                                 <a href="../user/tsundere_nyan">Tsundere Nyan</a>
                             </h3>
                             <p class="member-description">
-                                <strong>Cantarella</strong> è solo sua e <strong>Cipher</strong> l'ha già ingravidata, è un grande amante dei gacha e del gooning. Si è aggiudicato il primo posto in <a href="goonland/goon-generator">Goonland</a>
+                                <strong>Cantarella</strong> is only his and has already impregnated <strong>Cipher</strong>, he is a huge fan of gacha and gooning. He won first place in <a href="goonland/goon-generator">Goonland</a>
                             </p>
                         </div>
                     </div>
@@ -171,8 +171,8 @@ checkBan($mysqli);
                         <div class="member-info">
                             <h3 class="member-name">Cossu</h3>
                             <p class="member-description">
-                                <strong>Lontrone spermatozoico</strong> (ama le lontre)<br>
-                                Ama le frittate con la banana e ha gusti culinari... particolari.
+                                <strong>Spermatozoic Big Otter</strong> (loves otters)<br>
+                                He loves banana omelettes and has... peculiar culinary tastes.
                             </p>
                         </div>
                     </div>
@@ -188,7 +188,7 @@ checkBan($mysqli);
                                 <a href="../user/zakator">Zakator</a>
                             </h3>
                             <p class="member-description">
-                                Grande ascoltatore di musica anime e phonk, è un hackerino fallito che non si arrende mai.
+                                A big listener of anime and phonk music, he is a failed little hacker who never gives up.
                             </p>
                         </div>
                     </div>
@@ -204,8 +204,8 @@ checkBan($mysqli);
                                 <a href="../user/salsina">Xalx Andrea</a>
                             </h3>
                             <p class="member-description">
-                                Il player + tossico di tutto <strong>Yokai Watch</strong><br>
-                                Boh è anoressico ma almeno sa giocare.
+                                The most toxic player in all of <strong>Yokai Watch</strong><br>
+                                idk, he's anorexic but at least he knows how to play.
                             </p>
                         </div>
                     </div>
@@ -219,7 +219,7 @@ checkBan($mysqli);
                         <div class="member-info">
                             <h3 class="member-name">Mabbon</h3>
                             <p class="member-description">
-                                Un ragazzo sfruttato e sottopagato. Forse perché è ne-... meglio non finire la frase.
+                                An exploited and underpaid guy. Maybe because he's bla-... better not finish the sentence.
                             </p>
                         </div>
                     </div>
@@ -233,7 +233,7 @@ checkBan($mysqli);
                         <div class="member-info">
                             <h3 class="member-name">LolloLaPulce</h3>
                             <p class="member-description">
-                                Addetto alla depressione e grande giocatore di Minecraft. Costruisce mentre piange.
+                                In charge of depression and a huge Minecraft player. Builds while crying.
                             </p>
                         </div>
                     </div>
@@ -247,7 +247,7 @@ checkBan($mysqli);
                         <div class="member-info">
                             <h3 class="member-name">Zazzo</h3>
                             <p class="member-description">
-                                Scarso in culo in tutti i videogiochi, ma tifa la MAGGICA ROMA
+                                He's ass at all video games, but supports the MAGGICA ROMA
                             </p>
                         </div>
                     </div>
@@ -263,7 +263,7 @@ checkBan($mysqli);
                                 <a href="https://www.tiktok.com/@nauz_aep">Nauz</a>
                             </h3>
                             <p class="member-description">
-                                il più fico (e terrone)
+                                the coolest (and terrone)
                             </p>
                         </div>
                     </div>
@@ -279,7 +279,7 @@ checkBan($mysqli);
                                 <a href="https://e-z.bio/lexus">Lexus</a>
                             </h3>
                             <p class="member-description">
-                                Sono fico (ti prego cripsum accettami ti giuro che se mi accetti sei più fico di me)
+                                I'm cool (please Cripsum accept me I swear if you accept me you're cooler than me)
                             </p>
                         </div>
                     </div>
@@ -295,7 +295,7 @@ checkBan($mysqli);
                                 <a href="https://cripsum.com/u/fln_papera">FLN_papera</a>
                             </h3>
                             <p class="member-description">
-                                Yuzuha è solo sua, è IL RUPERT
+                                Yuzuha is only his, he is THE RUPERT
                             </p>
                         </div>
                     </div>
@@ -320,14 +320,14 @@ checkBan($mysqli);
         </section>
 
         <section class="join-team-section">
-            <h2 class="join-title">Unisciti al Team!</h2>
+            <h2 class="join-title">Join the Team!</h2>
             <p class="join-description">
-                Hai quello che serve per far parte della squadra più king del web?
-                Mandaci la tua candidatura e diventa parte della squadra + da king del secolo!
+                Do you have what it takes to be part of the coolest squad on the web?
+                Send us your application and become part of the coolest squad of the century!
             </p>
             <a href="candidatura-chisiamo" class="join-email">
                 <i class="fas fa-envelope me-2"></i>
-                clicca qui per inviare la tua candidatura
+                click here to send your application
             </a>
         </section>
     </div>

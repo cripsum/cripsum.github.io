@@ -61,7 +61,7 @@ checkBan($mysqli);
 
             <article class="static-card static-reveal">
                 <h2>No spam</h2>
-                <p>Avoid repeated messages, advertisements, and random links.</p>
+                <p>Avoid repeated messages, advertising, and random links.</p>
             </article>
 
             <article class="static-card static-reveal">
@@ -81,7 +81,7 @@ checkBan($mysqli);
 
             <article class="static-card static-reveal">
                 <h2>Follow the moderators</h2>
-                <p>The staff's instructions must be followed.</p>
+                <p>Staff instructions must be followed.</p>
             </article>
         </section>
     </main>

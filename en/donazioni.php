@@ -9,9 +9,10 @@ $username = $_SESSION['username'] ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <title>Cripsum™ - Donazioni</title>
+    <title>Cripsum™ - Donations</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/assets/static/static.css?v=1.0-static">
@@ -21,7 +22,7 @@ $username = $_SESSION['username'] ?? '';
 
 <body class="static-page">
     <?php include '../includes/navbar.php'; ?>
-    
+
 
 
     <div class="static-bg" aria-hidden="true">
@@ -34,31 +35,31 @@ $username = $_SESSION['username'] ?? '';
     <main class="static-shell">
         <section class="static-hero static-hero--split static-reveal">
             <div>
-                <span class="static-pill">Donazioni</span>
-                <h1>Supporta Cripsum™</h1>
-                <p>Le donazioni aiutano a mantenere il sito online e a portare avanti nuove funzioni. Sono completamente opzionali.</p>
+                <span class="static-pill">Donations</span>
+                <h1>Support Cripsum™</h1>
+                <p>Donations help keep the site online and bring new features. They are completely optional.</p>
 
                 <?php if ($isLogged): ?>
                     <div class="static-meta">
-                        <span class="static-chip"><i class="fas fa-user"></i> Grazie, <?php echo htmlspecialchars($username, ENT_QUOTES, 'UTF-8'); ?></span>
+                        <span class="static-chip"><i class="fas fa-user"></i> Thank you, <?php echo htmlspecialchars($username, ENT_QUOTES, 'UTF-8'); ?></span>
                     </div>
                 <?php endif; ?>
 
                 <div class="static-actions">
                     <a href="https://www.buymeacoffee.com/cripsum" target="_blank" rel="noopener" class="static-btn static-btn--primary" onclick="unlockAchievement(4)">
                         <i class="fas fa-heart"></i>
-                        <span>Dona su BuyMeACoffee</span>
+                        <span>Donate on BuyMeACoffee</span>
                     </a>
                     <a href="supporto" class="static-btn">
                         <i class="fas fa-circle-question"></i>
-                        <span>Domande?</span>
+                        <span>Questions?</span>
                     </a>
                 </div>
             </div>
 
             <aside class="static-hero__side">
-                <span class="static-chip"><i class="fas fa-mug-hot"></i> Opzionale</span>
-                <p>Il sito resta utilizzabile anche senza donare.</p>
+                <span class="static-chip"><i class="fas fa-mug-hot"></i> Optional</span>
+                <p>The site remains usable even without donating.</p>
 
                 <div class="static-donation-button">
                     <a href="https://www.buymeacoffee.com/cripsum" target="_blank" rel="noopener" onclick="unlockAchievement(4)">
@@ -73,36 +74,36 @@ $username = $_SESSION['username'] ?? '';
         <section class="static-grid static-grid--3" style="margin-top:1rem;">
             <article class="static-card static-reveal">
                 <h2>Server</h2>
-                <p>Aiuta a coprire hosting, dominio e servizi usati dal sito.</p>
+                <p>Helps cover hosting, domain, and services used by the site.</p>
             </article>
 
             <article class="static-card static-reveal">
-                <h2>Tempo</h2>
-                <p>Il sito richiede manutenzione, fix e nuove idee.</p>
+                <h2>Time</h2>
+                <p>The site requires maintenance, fixes, and new ideas.</p>
             </article>
 
             <article class="static-card static-reveal">
-                <h2>Libero</h2>
-                <p>Non è obbligatorio. È solo un modo per dare supporto.</p>
+                <h2>Free</h2>
+                <p>It is not mandatory. It is just a way to give support.</p>
             </article>
         </section>
 
         <section class="static-faq static-reveal" id="donationFaq" style="margin-top:1rem;">
-            <h2>FAQ donazioni</h2>
+            <h2>FAQ donations</h2>
 
             <details class="static-faq-item">
-                <summary>Devo donare per usare il sito?</summary>
-                <p>No. La donazione è facoltativa.</p>
+                <summary>Do I have to donate to use the site?</summary>
+                <p>No. Donation is optional.</p>
             </details>
 
             <details class="static-faq-item">
-                <summary>Le donazioni sono rimborsabili?</summary>
-                <p>Dipende dalla piattaforma usata per donare. Controlla le condizioni di BuyMeACoffee.</p>
+                <summary>Are donations refundable?</summary>
+                <p>It depends on the platform used to donate. Check the terms of BuyMeACoffee.</p>
             </details>
 
             <details class="static-faq-item">
-                <summary>Ricevo qualcosa in cambio?</summary>
-                <p>Non è un acquisto. È un supporto al progetto. Eventuali badge o bonus vengono gestiti separatamente, solo se esistono davvero.</p>
+                <summary>Do I receive anything in return?</summary>
+                <p>It is not a purchase. It is support for the project. Any badges or bonuses are managed separately.</p>
             </details>
         </section>
     </main>
@@ -119,4 +120,5 @@ $username = $_SESSION['username'] ?? '';
     <script src="../js/unlockAchievement-it.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>

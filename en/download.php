@@ -10,12 +10,12 @@ function shop_h($value): string
 }
 
 $downloads = [
-    ['id' => 'spinjitzu', 'name' => 'Tutorial Spinjitzu', 'image' => '../img/jayquadrato.png', 'alt' => 'Tutorial Spinjitzu', 'description' => 'Impara la famosa mossa di Ninjago.', 'status' => 'available', 'badge' => 'Esterno', 'link' => 'https://payhip.com/b/m0kaT'],
-    ['id' => 'yoshukai', 'name' => 'Corso Yoshukai', 'image' => '../img/chinese-essay-2.jpg', 'alt' => 'Corso Yoshukai', 'description' => 'Gratis ancora per poco.', 'status' => 'available', 'badge' => 'Gratis', 'link' => 'download/yoshukai'],
+    ['id' => 'spinjitzu', 'name' => 'Spinjitzu Tutorial', 'image' => '../img/jayquadrato.png', 'alt' => 'Spinjitzu Tutorial', 'description' => 'Learn the famous Ninjago move.', 'status' => 'available', 'badge' => 'External', 'link' => 'https://payhip.com/b/m0kaT'],
+    ['id' => 'yoshukai', 'name' => 'Yoshukai Course', 'image' => '../img/chinese-essay-2.jpg', 'alt' => 'Yoshukai Course', 'description' => 'Free for a limited time.', 'status' => 'available', 'badge' => 'Free', 'link' => 'download/yoshukai'],
     ['id' => 'fortnite', 'name' => 'Fortnite Hacks', 'image' => '../img/fortnitehack.jpg', 'alt' => 'Fortnite Hacks', 'description' => 'ez win.', 'status' => 'available', 'badge' => 'Download', 'link' => 'download/fortnite'],
-    ['id' => 'osu', 'name' => 'Osu!', 'image' => '../img/osu.jpg', 'alt' => 'Osu!', 'description' => 'hossu - il gioco ritmico per scemotti.', 'status' => 'available', 'badge' => 'Game', 'link' => 'download/osu'],
-    ['id' => 'vanzakart', 'name' => 'VanzaKart Launcher', 'image' => '../img/vklogo.png', 'alt' => 'VanzaKart Launcher', 'description' => 'Scarica il launcher di VanzaKart per giocare alla mod di Mario Kart Wii più fica di sempre', 'status' => 'available', 'badge' => 'Esterno', 'link' => 'https://web.sitodaking.it/'],
-    ['id' => 'soon-2', 'name' => 'Coming Soon', 'image' => '../img/comingsoon.jpg', 'alt' => 'Coming Soon', 'description' => 'Prossimamente.', 'status' => 'soon', 'badge' => 'Coming soon', 'link' => ''],
+    ['id' => 'osu', 'name' => 'Osu!', 'image' => '../img/osu.jpg', 'alt' => 'Osu!', 'description' => 'hossu - the rhythm game for dummies.', 'status' => 'available', 'badge' => 'Game', 'link' => 'download/osu'],
+    ['id' => 'vanzakart', 'name' => 'VanzaKart Launcher', 'image' => '../img/vklogo.png', 'alt' => 'VanzaKart Launcher', 'description' => 'Download the VanzaKart launcher to play the coolest Mario Kart Wii mod ever', 'status' => 'available', 'badge' => 'External', 'link' => 'https://web.sitodaking.it/'],
+    ['id' => 'soon-2', 'name' => 'Coming Soon', 'image' => '../img/comingsoon.jpg', 'alt' => 'Coming Soon', 'description' => 'Coming Soon', 'status' => 'soon', 'badge' => 'Coming soon', 'link' => ''],
 ];
 ?>
 <!DOCTYPE html>
@@ -25,23 +25,23 @@ $downloads = [
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Download</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="Download statici di Cripsum™.">
+    <meta name="description" content="Cripsum™ Download Center.">
     <link rel="stylesheet" href="/assets/shop/shop.css?v=2.4">
     <script src="/assets/shop/shop.js?v=2.4" defer></script>
 </head>
 
 <body class="shop-page shop-theme-download" data-shop-page="download" data-favorites="0">
     <?php include '../includes/navbar.php'; ?>
-    
+
 
     <main class="shop-shell">
         <section class="shop-hero shop-reveal">
             <div class="shop-hero__content">
                 <span class="shop-kicker">Download</span>
                 <h1>Download Center</h1>
-                <p>suca e scarica</p>
+                <p>Download and enjoy</p>
                 <div class="shop-hero__actions">
-                    <a class="shop-btn shop-btn--primary" href="#download-list">Vai ai download</a>
+                    <a class="shop-btn shop-btn--primary" href="#download-list">Go to downloads</a>
                     <a class="shop-btn shop-btn--ghost" href="https://discord.gg/XdheJHVURw" target="_blank" rel="noopener">Discord</a>
                 </div>
             </div>
@@ -50,8 +50,8 @@ $downloads = [
         <section class="shop-note shop-reveal">
             <i class="fas fa-circle-info"></i>
             <div>
-                <strong>Prima di scaricare</strong>
-                <span>Alcuni link portano a pagine interne, altri a siti esterni. In ogni caso lo staff di Cripsum™ assicura che i download siano sempre sicuri.</span>
+                <strong>Before downloading</strong>
+                <span>Some links lead to internal pages, others to external sites. In any case, the Cripsum™ staff ensures that downloads are always safe.</span>
             </div>
         </section>
 
@@ -59,33 +59,33 @@ $downloads = [
             <div class="shop-toolbar">
                 <label class="shop-search">
                     <i class="fas fa-search"></i>
-                    <input type="search" data-shop-search placeholder="Cerca download">
+                    <input type="search" data-shop-search placeholder="Search downloads">
                 </label>
 
                 <div class="shop-filters" aria-label="Filtri download">
-                    <button type="button" class="shop-filter is-active" data-category="all">Tutti</button>
-                    <button type="button" class="shop-filter" data-category="available">Disponibili</button>
+                    <button type="button" class="shop-filter is-active" data-category="all">All</button>
+                    <button type="button" class="shop-filter" data-category="available">Available</button>
                     <button type="button" class="shop-filter" data-category="soon">Coming soon</button>
                 </div>
 
                 <div class="shop-custom-select" data-shop-custom-select>
-                    <select class="shop-select shop-native-select" data-shop-sort aria-label="Ordina download" tabindex="-1" aria-hidden="true">
-                        <option value="default">Ordine originale</option>
-                        <option value="name-asc">Nome A-Z</option>
+                    <select class="shop-select shop-native-select" data-shop-sort aria-label="Sort downloads" tabindex="-1" aria-hidden="true">
+                        <option value="default">Original order</option>
+                        <option value="name-asc">Name A-Z</option>
                     </select>
 
                     <button type="button" class="shop-select-trigger" aria-haspopup="listbox" aria-expanded="false">
-                        <span class="shop-select-current">Ordine originale</span>
+                        <span class="shop-select-current">Original order</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
 
-                    <div class="shop-select-menu" role="listbox" aria-label="Ordina download">
+                    <div class="shop-select-menu" role="listbox" aria-label="Sort downloads options">
                         <button type="button" data-value="default">
-                            <strong>Ordine originale</strong>
+                            <strong>Original order</strong>
                             <span>Base</span>
                         </button>
                         <button type="button" data-value="name-asc">
-                            <strong>Nome A-Z</strong>
+                            <strong>Name A-Z</strong>
                             <span>A-Z</span>
                         </button>
                     </div>
@@ -113,14 +113,14 @@ $downloads = [
                             <h2><?php echo shop_h($item['name']); ?></h2>
                             <p><?php echo shop_h($item['description']); ?></p>
                             <div class="shop-card__footer">
-                                <strong><?php echo $item['status'] === 'soon' ? 'Non disponibile' : 'Disponibile'; ?></strong>
+                                <strong><?php echo $item['status'] === 'soon' ? 'Not available' : 'Available'; ?></strong>
                                 <div class="shop-card__actions">
-                                    <button type="button" class="shop-icon-btn" data-open-detail title="Dettagli"><i class="fas fa-eye"></i></button>
+                                    <button type="button" class="shop-icon-btn" data-open-detail title="Details"><i class="fas fa-eye"></i></button>
                                     <?php if ($item['status'] === 'available'): ?>
-                                        <button type="button" class="shop-icon-btn" data-copy-link title="Copia link"><i class="fas fa-link"></i></button>
-                                        <a class="shop-btn shop-btn--small" href="<?php echo shop_h($item['link']); ?>">Scarica</a>
+                                        <button type="button" class="shop-icon-btn" data-copy-link title="Copy link"><i class="fas fa-link"></i></button>
+                                        <a class="shop-btn shop-btn--small" href="<?php echo shop_h($item['link']); ?>">Download</a>
                                     <?php else: ?>
-                                        <span class="shop-btn shop-btn--small is-disabled">Presto</span>
+                                        <span class="shop-btn shop-btn--small is-disabled">Coming soon</span>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -131,40 +131,40 @@ $downloads = [
 
             <div class="shop-empty" data-shop-empty hidden>
                 <i class="fas fa-folder-open"></i>
-                <strong>Nessun download trovato</strong>
-                <span>Prova a cambiare filtro o ricerca.</span>
+                <strong>No downloads found</strong>
+                <span>Try changing the filter or search.</span>
             </div>
         </section>
 
         <section class="shop-faq shop-reveal">
-            <h2>Domande frequenti (FAQ)</h2>
+            <h2>Frequently Asked Questions (FAQ)</h2>
             <details>
-                <summary>Come funzionano i download?</summary>
-                <p>boh tipo clicchi e ti scarica fra non lo so tipo</p>
+                <summary>How do downloads work?</summary>
+                <p>I don't know, you click and it downloads, I guess.</p>
             </details>
             <details>
-                <summary>Serve un account?</summary>
+                <summary>Do I need an account?</summary>
                 <p>No.</p>
             </details>
             <details>
-                <summary>I download sono sicuri?</summary>
-                <p>Sì, lo staff di Cripsum™ verifica che tutti i download siano sicuri e privi di malware.</p>
+                <summary>Are downloads safe?</summary>
+                <p>Yes, the Cripsum™ staff verifies that all downloads are safe and free of malware.</p>
             </details>
             <details>
-                <summary>Perché alcuni download non sono disponibili?</summary>
-                <p>I contenuti contrassegnati come "Coming soon" saranno disponibili prossimamente. Torna a visitarci per novità!</p>
+                <summary>Why are some downloads not available?</summary>
+                <p>Content marked as "Coming soon" will be available in the future. Check back for updates!</p>
             </details>
             <details>
-                <summary>Posso suggerire nuovi contenuti da scaricare?</summary>
-                <p>Certo! Unisciti al nostro <a href="https://discord.gg/XdheJHVURw" target="_blank" rel="noopener">server Discord</a> e facci sapere cosa vorresti vedere.</p>
+                <summary>Can I suggest new content to download?</summary>
+                <p>Sure! Join our <a href="https://discord.gg/XdheJHVURw" target="_blank" rel="noopener">Discord server</a> and let us know what you'd like to see.</p>
             </details>
         </section>
     </main>
 
     <div class="shop-modal" data-shop-modal hidden>
         <div class="shop-modal__backdrop" data-close-modal></div>
-        <article class="shop-modal__panel" role="dialog" aria-modal="true" aria-label="Dettaglio download">
-            <button type="button" class="shop-modal__close" data-close-modal aria-label="Chiudi"><i class="fas fa-xmark"></i></button>
+        <article class="shop-modal__panel" role="dialog" aria-modal="true" aria-label="Download details">
+            <button type="button" class="shop-modal__close" data-close-modal aria-label="Close"><i class="fas fa-xmark"></i></button>
             <div class="shop-modal__content" data-modal-content></div>
         </article>
     </div>
