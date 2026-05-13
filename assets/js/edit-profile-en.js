@@ -1,0 +1,546 @@
+(function () {
+    const form = document.getElementById('profileEditForm');
+    if (!form) return;
+
+    const $ = (selector, parent = document) => parent.querySelector(selector);
+    const $$ = (selector, parent = document) => Array.from(parent.querySelectorAll(selector));
+
+    function readJson(id) {
+        const node = document.getElementById(id);
+        if (!node) return [];
+        try {
+            return JSON.parse(node.textContent || '[]');
+        } catch (_) {
+            return [];
+        }
+    }
+
+    function hexToRgbLocal(hex) {
+        const clean = String(hex || '').replace('#', '').trim();
+        if (!/^[0-9a-fA-F]{6}$/.test(clean)) return '15, 91, 255';
+        const value = parseInt(clean, 16);
+        return `${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}`;
+    }
+
+    function escapeAttr(value) {
+        return String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function boolAttr(value) {
+        return Number(value) === 1 || value === true ? 'checked' : '';
+    }
+
+    const repeaters = {
+        socials: $('#socialsRepeater'),
+        links: $('#linksRepeater'),
+        projects: $('#projectsRepeater'),
+        contents: $('#contentsRepeater'),
+        blocks: $('#blocksRepeater'),
+    };
+
+    const platformOptions = ['tiktok', 'instagram', 'youtube', 'twitch', 'github', 'discord', 'telegram', 'x', 'spotify', 'soundcloud', 'steam', 'reddit', 'pinterest', 'snapchat', 'facebook', 'linkedin', 'paypal', 'patreon', 'kick', 'bluesky', 'threads', 'behance', 'dribbble', 'website', 'email', 'other'];
+    const projectStatuses = [['active', 'Active'], ['paused', 'Paused'], ['finished', 'Finished'], ['idea', 'Idea']];
+    const contentTypes = [['edit', 'Edit'], ['video', 'Video'], ['game', 'Game'], ['post', 'Post'], ['other', 'Other']];
+    const blockTypes = [['text', 'Text'], ['image', 'Image'], ['gif', 'GIF'], ['video', 'Video']];
+    const linkButtonStyles = [['card', 'Card'], ['compact', 'Compact'], ['icon', 'Icon only']];
+
+    function options(list, selected) {
+        return list.map((item) => {
+            const value = Array.isArray(item) ? item[0] : item;
+            const label = Array.isArray(item) ? item[1] : item;
+            return `<option value="${escapeAttr(value)}" ${String(selected || '') === String(value) ? 'selected' : ''}>${escapeAttr(label)}</option>`;
+        }).join('');
+    }
+
+    function makeRow(type, data = {}) {
+        const row = document.createElement('div');
+        row.className = 'profile-row-card';
+        row.dataset.rowType = type;
+
+        let body = '';
+        if (type === 'socials') {
+            body = `
+                <div class="profile-row-grid">
+                    <label>Platform<select data-field="platform">${options(platformOptions, data.platform || 'website')}</select></label>
+                    <label>Label<input data-field="label" maxlength="40" value="${escapeAttr(data.label || '')}" placeholder="TikTok"></label>
+                    <label>Username<input data-field="display_username" maxlength="60" value="${escapeAttr(data.display_username || '')}" placeholder="@username / name"></label>
+                    <label class="profile-row-grid full">URL<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://..."></label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visible</label>
+                </div>`;
+        }
+
+        if (type === 'links') {
+            body = `
+                <div class="profile-row-grid">
+                    <label>Title<input data-field="title" maxlength="60" value="${escapeAttr(data.title || '')}" placeholder="Portfolio"></label>
+                    <label>FontAwesome Icon<input data-field="icon" maxlength="40" value="${escapeAttr(data.icon || 'fas fa-link')}" placeholder="fab fa-spotify"></label>
+                    <label>Button Type<select data-field="button_style">${options(linkButtonStyles, data.button_style || 'card')}</select></label>
+                    <label class="profile-row-grid full">Description<input data-field="description" maxlength="160" value="${escapeAttr(data.description || '')}" placeholder="A short phrase"></label>
+                    <label class="profile-row-grid full">URL<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://..."></label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> Featured</label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visible</label>
+                </div>`;
+        }
+
+        if (type === 'projects') {
+            body = `
+                <div class="profile-row-grid">
+                    <label>Title<input data-field="title" maxlength="70" value="${escapeAttr(data.title || '')}" placeholder="Project name"></label>
+                    <label>Status<select data-field="status">${options(projectStatuses, data.status || 'active')}</select></label>
+                    <label class="profile-row-grid full">Description<textarea data-field="description" maxlength="260" placeholder="What does this project do?">${escapeAttr(data.description || '')}</textarea></label>
+                    <label>URL<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://..."></label>
+                    <label>Image URL<input data-field="image_url" value="${escapeAttr(data.image_url || '')}" placeholder="https://..."></label>
+                    <label class="profile-row-grid full">Tech stack<input data-field="tech_stack" maxlength="160" value="${escapeAttr(data.tech_stack || '')}" placeholder="PHP, JS, MySQL"></label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> Featured</label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visible</label>
+                </div>`;
+        }
+
+        if (type === 'contents') {
+            body = `
+                <div class="profile-row-grid">
+                    <label>Type<select data-field="content_type">${options(contentTypes, data.content_type || 'edit')}</select></label>
+                    <label>Title<input data-field="title" maxlength="70" value="${escapeAttr(data.title || '')}" placeholder="Content title"></label>
+                    <label class="profile-row-grid full">Description<textarea data-field="description" maxlength="220" placeholder="Short description">${escapeAttr(data.description || '')}</textarea></label>
+                    <label>URL<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://..."></label>
+                    <label>Thumbnail URL<input data-field="thumbnail_url" value="${escapeAttr(data.thumbnail_url || '')}" placeholder="https://..."></label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> Featured</label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visible</label>
+                </div>`;
+        }
+
+        if (type === 'blocks') {
+            body = `
+                <div class="profile-row-grid">
+                    <label>Type<select data-field="block_type">${options(blockTypes, data.block_type || 'text')}</select></label>
+                    <label>Title<input data-field="title" maxlength="80" value="${escapeAttr(data.title || '')}" placeholder="Post title"></label>
+                    <label class="profile-row-grid full">Text<textarea data-field="body" maxlength="700" placeholder="Short text, note, description or quote">${escapeAttr(data.body || '')}</textarea></label>
+                    <label>Media URL<input data-field="media_url" value="${escapeAttr(data.media_url || '')}" placeholder="https://... image/gif/video"></label>
+                    <label>Media type<select data-field="media_type">${options(blockTypes, data.media_type || data.block_type || 'image')}</select></label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> Pin</label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visible</label>
+                </div>`;
+        }
+
+        row.innerHTML = `
+            <div class="profile-row-head">
+                <strong>${type === 'socials' ? 'Social' : type === 'links' ? 'Link' : type === 'projects' ? 'Project' : type === 'blocks' ? 'Block' : 'Content'}</strong>
+                <button type="button" class="profile-remove-row">Remove</button>
+            </div>
+            ${body}`;
+
+        $('.profile-remove-row', row).addEventListener('click', () => row.remove());
+        return row;
+    }
+
+    function addRow(type, data = {}) {
+        if (!repeaters[type]) return;
+        repeaters[type].appendChild(makeRow(type, data));
+    }
+
+    readJson('initialSocialsData').forEach((item) => addRow('socials', item));
+    readJson('initialLinksData').forEach((item) => addRow('links', item));
+    readJson('initialProjectsData').forEach((item) => addRow('projects', item));
+    readJson('initialContentsData').forEach((item) => addRow('contents', item));
+    readJson('initialBlocksData').forEach((item) => addRow('blocks', item));
+
+    Object.entries(repeaters).forEach(([type, node]) => {
+        if (node && node.children.length === 0) addRow(type, {});
+    });
+
+    $$('[data-add-row]').forEach((button) => {
+        button.addEventListener('click', () => addRow(button.dataset.addRow, {}));
+    });
+
+    $$('[data-edit-tab]').forEach((tab) => {
+        tab.addEventListener('click', () => {
+            const target = tab.dataset.editTab;
+            $$('[data-edit-tab]').forEach((item) => item.classList.toggle('is-active', item === tab));
+            $$('[data-edit-section]').forEach((section) => section.classList.toggle('is-active', section.dataset.editSection === target));
+        });
+    });
+
+    function collectRows(type) {
+        return $$('.profile-row-card', repeaters[type]).map((row) => {
+            const obj = {};
+            $$('[data-field]', row).forEach((input) => {
+                const key = input.dataset.field;
+                obj[key] = input.type === 'checkbox' ? input.checked : input.value.trim();
+            });
+            return obj;
+        }).filter((obj) => Object.values(obj).some((value) => value !== '' && value !== false));
+    }
+
+    function collectBadges() {
+        return $$('#badgePicker input[type="checkbox"]:checked').slice(0, 8).map((input) => Number(input.value));
+    }
+
+    const displayNameInput = $('#displayNameInput');
+    const usernameInput = $('#usernameInput');
+    const bioInput = $('#bioInput');
+    const statusInput = $('#statusInput');
+    const bioCounter = $('#bioCounter');
+    const accentInput = $('#accentInput');
+    const secondaryColorInput = $('#secondaryColorInput');
+    const cardColorInput = $('#cardColorInput');
+    const textColorInput = $('#textColorInput');
+    const linkStyleInput = $('#linkStyleInput');
+    const buttonShapeInput = $('#buttonShapeInput');
+    const themeInput = $('#themeInput');
+    const avatarInput = $('#avatarInput');
+    const bannerInput = $('#bannerInput');
+    const musicFileInput = $('#musicFileInput');
+    const profileEffectInput = $('#profileEffectInput');
+    const ringEnabledInput = $('#ringEnabledInput');
+    const ringStyleInput = $('#ringStyleInput');
+    const ringColorInput = $('#ringColorInput');
+    const discordUseNameInput = $('#discordUseNameInput');
+    const discordUseAvatarInput = $('#discordUseAvatarInput');
+
+    function updatePreview() {
+        const name = displayNameInput.value.trim() || usernameInput.value.trim() || 'Utente';
+        $('#previewName').textContent = name;
+        $('#previewUsername').textContent = '@' + (usernameInput.value.trim() || 'username');
+        $('#previewBio').textContent = bioInput.value.trim() || 'La tua bio apparirà qui.';
+        const statusBadge = $('#previewStatusBadge');
+        if (statusBadge) {
+            const status = statusInput && statusInput.value.trim() ? statusInput.value.trim() : 'Stato';
+            statusBadge.innerHTML = `<i class="fas fa-signal"></i>${escapeAttr(status)}`;
+        }        bioCounter.textContent = bioInput.value.length;
+        document.documentElement.style.setProperty('--accent', accentInput.value);
+        document.documentElement.style.setProperty('--accent-rgb', hexToRgbLocal(accentInput.value));
+        document.documentElement.style.setProperty('--profile-accent', accentInput.value);
+        document.documentElement.style.setProperty('--accent-2', secondaryColorInput ? secondaryColorInput.value : accentInput.value);
+        document.documentElement.style.setProperty('--profile-card-color', cardColorInput ? cardColorInput.value : 'var(--card)');
+        document.documentElement.style.setProperty('--profile-text-color', textColorInput ? textColorInput.value : 'var(--text)');
+        document.documentElement.style.setProperty('--profile-ring', ringColorInput ? ringColorInput.value : accentInput.value);
+        document.body.dataset.accent = accentInput.value;
+        document.body.dataset.profileLinkStyle = linkStyleInput ? linkStyleInput.value : 'glass';
+        document.body.dataset.profileButtonShape = buttonShapeInput ? buttonShapeInput.value : 'pill';
+        document.body.dataset.theme = themeInput.value === 'auto' ? 'dark' : themeInput.value;
+        document.body.dataset.profileEffect = profileEffectInput ? profileEffectInput.value : 'none';
+        const previewCard = document.querySelector('.profile-edit-preview');
+        if (previewCard && profileEffectInput) {
+            previewCard.dataset.previewEffect = profileEffectInput.value;
+        }
+        const wrap = $('#previewAvatarWrap');
+        if (wrap) {
+            const style = ringStyleInput ? ringStyleInput.value : 'spin';
+            const enabled = ringEnabledInput ? ringEnabledInput.checked : true;
+            wrap.className = `bio-avatar-wrap profile-preview-avatar-ring ring-style-${style} ${(!enabled || style === 'none') ? 'ring-disabled' : ''}`;
+            wrap.style.setProperty('--profile-ring', ringColorInput ? ringColorInput.value : accentInput.value);
+        }
+    }
+
+    [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput].filter(Boolean).forEach((input) => {
+        input.addEventListener('input', updatePreview);
+        input.addEventListener('change', updatePreview);
+    });
+    updatePreview();
+
+    function previewAvatarFile(input, target) {
+        const file = input.files && input.files[0];
+        if (!file || !file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = () => { target.src = reader.result; };
+        reader.readAsDataURL(file);
+    }
+
+    function previewBackgroundFile(input) {
+        const file = input.files && input.files[0];
+        if (!file) return;
+
+        const background = document.querySelector('.bio-background');
+        if (!background) return;
+
+        const url = URL.createObjectURL(file);
+        background.querySelectorAll('.bio-background__media, video').forEach((node) => node.remove());
+
+        let media;
+        if (file.type.startsWith('video/')) {
+            media = document.createElement('video');
+            media.autoplay = true;
+            media.muted = true;
+            media.loop = true;
+            media.playsInline = true;
+            const source = document.createElement('source');
+            source.src = url;
+            source.type = file.type;
+            media.appendChild(source);
+        } else if (file.type.startsWith('image/')) {
+            media = document.createElement('img');
+            media.src = url;
+            media.alt = '';
+        } else {
+            window.profileToast('File format not supported. Use an image or video.');
+            URL.revokeObjectURL(url);
+            return;
+        }
+
+        media.className = 'bio-background__media';
+        background.prepend(media);
+        window.profileToast('Background preview updated.');
+    }
+
+    function previewMusicFile(input) {
+        const file = input.files && input.files[0];
+        if (!file) return;
+        const isMp3 = file.type === 'audio/mpeg' || file.name.toLowerCase().endsWith('.mp3');
+        if (!isMp3) {
+            window.profileToast('Use only MP3 files.');
+            input.value = '';
+            return;
+        }
+        if (file.size > 12 * 1024 * 1024) {
+            window.profileToast('MP3 too heavy. Max 12MB.');
+            input.value = '';
+            return;
+        }
+        const title = $('#musicTitleInput');
+        if (title && !title.value.trim()) {
+            title.value = file.name.replace(/\.mp3$/i, '');
+        }
+        window.profileToast('MP3 selected. Save to apply.');
+    }
+
+    avatarInput.addEventListener('change', () => previewAvatarFile(avatarInput, $('#previewAvatar')));
+    bannerInput.addEventListener('change', () => previewBackgroundFile(bannerInput));
+    if (musicFileInput) musicFileInput.addEventListener('change', () => previewMusicFile(musicFileInput));
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        $('#socialsJson').value = JSON.stringify(collectRows('socials'));
+        $('#linksJson').value = JSON.stringify(collectRows('links'));
+        $('#projectsJson').value = JSON.stringify(collectRows('projects'));
+        $('#contentsJson').value = JSON.stringify(collectRows('contents'));
+        $('#blocksJson').value = JSON.stringify(collectRows('blocks'));
+        $('#badgesJson').value = JSON.stringify(collectBadges());
+
+        const button = $('#saveProfileButton');
+        button.disabled = true;
+        button.textContent = 'Saving...';
+
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                credentials: 'same-origin',
+                headers: { 'Accept': 'application/json' },
+            });
+            const data = await response.json();
+            if (!response.ok || !data.ok) throw new Error(data.message || 'Error saving.');
+            window.profileToast(data.message || 'Profile saved successfully.');
+            setTimeout(() => {
+                window.location.href = data.profile_url || '/profile.php';
+            }, 650);
+        } catch (error) {
+            window.profileToast(error.message || 'Error saving.');
+        } finally {
+            button.disabled = false;
+            button.textContent = 'Save Profile';
+        }
+    });
+
+    if (window.__profileCustomSelectLoaded) return;
+    window.__profileCustomSelectLoaded = true;
+
+    const shortLabel = (text) => {
+        const clean = String(text || '').trim();
+
+        const map = {
+            'Nessuno': 'No',
+            'Scuro': 'Dark',
+            'Chiaro': 'Light',
+            'Auto': 'Auto',
+            'Standard': 'Std',
+            'Compatto': 'Mini',
+            'Showcase': 'Show',
+            'Glass': 'Glass',
+            'Pieno': 'Full',
+            'Outline': 'Line',
+            'Neon': 'Neon',
+            'Pill': 'Pill',
+            'Rounded': 'Round',
+            'Squadrato': 'Sharp',
+            'Pubblico': 'Pub',
+            'Solo utenti loggati': 'Login',
+            'Privato': 'Priv',
+            'Rotazione': 'Spin',
+            'Arcobaleno': 'RGB',
+            'Glitch leggero': 'Glitch',
+            'Mouse glow': 'Glow',
+            'Particelle soft': 'Soft',
+            'Scanlines soft': 'Scan',
+            'Ambient glow': 'Glow',
+            'Onde gradient': 'Wave',
+            'Stelle leggere': 'Stars',
+            'Spotlight mouse': 'Spot',
+            'Digital noise': 'Noise',
+            'Glass rain': 'Rain'
+        };
+
+        if (map[clean]) return map[clean];
+        if (clean.length <= 6) return clean;
+
+        return clean.slice(0, 5);
+    };
+
+    const closeAllProfileSelects = (except = null) => {
+        document.querySelectorAll('[data-profile-custom-select].is-open').forEach((wrap) => {
+            if (except && wrap === except) return;
+
+            wrap.classList.remove('is-open');
+            wrap.querySelector('.profile-select-trigger')?.setAttribute('aria-expanded', 'false');
+        });
+    };
+
+    const syncProfileSelect = (wrap, emit = false) => {
+        const select = wrap.querySelector('select');
+        const current = wrap.querySelector('.profile-select-current');
+        const buttons = Array.from(wrap.querySelectorAll('.profile-select-menu [data-value]'));
+
+        if (!select || !current) return;
+
+        const selected = select.options[select.selectedIndex] || select.options[0];
+        if (!selected) return;
+
+        current.textContent = selected.textContent.trim();
+
+        buttons.forEach((button) => {
+            const active = button.dataset.value === selected.value;
+            button.classList.toggle('is-active', active);
+            button.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+
+        if (emit) {
+            select.dispatchEvent(new Event('input', { bubbles: true }));
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    };
+
+    const buildProfileSelect = (select) => {
+        if (!select || select.dataset.profileCustomBuilt === '1') return;
+        if (select.closest('[data-profile-custom-select]')) return;
+
+        select.dataset.profileCustomBuilt = '1';
+        select.classList.add('profile-native-select');
+
+        const wrap = document.createElement('div');
+        wrap.className = 'profile-custom-select';
+        wrap.dataset.profileCustomSelect = '1';
+
+        const trigger = document.createElement('button');
+        trigger.type = 'button';
+        trigger.className = 'profile-select-trigger';
+        trigger.setAttribute('aria-haspopup', 'listbox');
+        trigger.setAttribute('aria-expanded', 'false');
+        trigger.innerHTML = `
+            <span class="profile-select-current"></span>
+            <i class="fas fa-chevron-down"></i>
+        `;
+
+        const menu = document.createElement('div');
+        menu.className = 'profile-select-menu';
+        menu.setAttribute('role', 'listbox');
+
+        Array.from(select.options).forEach((option) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.dataset.value = option.value;
+            button.setAttribute('role', 'option');
+            button.innerHTML = `
+                <strong>${option.textContent.trim()}</strong>
+                <span>${shortLabel(option.textContent)}</span>
+            `;
+
+            button.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                select.value = option.value;
+                syncProfileSelect(wrap, true);
+
+                wrap.classList.remove('is-open');
+                trigger.setAttribute('aria-expanded', 'false');
+            });
+
+            menu.appendChild(button);
+        });
+
+        select.parentNode.insertBefore(wrap, select);
+        wrap.appendChild(select);
+        wrap.appendChild(trigger);
+        wrap.appendChild(menu);
+
+        trigger.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            closeAllProfileSelects(wrap);
+
+            const isOpen = wrap.classList.toggle('is-open');
+            trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+
+        select.addEventListener('change', () => syncProfileSelect(wrap, false));
+        select.addEventListener('input', () => syncProfileSelect(wrap, false));
+
+        syncProfileSelect(wrap, false);
+    };
+
+    const initProfileCustomSelects = (root = document) => {
+        root.querySelectorAll('.profile-editor-shell .profile-field select, .profile-editor-shell .profile-row-grid select').forEach(buildProfileSelect);
+    };
+
+    const refreshProfileCustomSelects = () => {
+        document.querySelectorAll('[data-profile-custom-select]').forEach((wrap) => {
+            syncProfileSelect(wrap, false);
+        });
+    };
+
+    const startProfileSelectObserver = () => {
+        const form = document.getElementById('profileEditForm');
+        if (!form || !('MutationObserver' in window)) return;
+
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                mutation.addedNodes.forEach((node) => {
+                    if (!(node instanceof HTMLElement)) return;
+                    initProfileCustomSelects(node);
+                });
+            });
+        });
+
+        observer.observe(form, {
+            childList: true,
+            subtree: true
+        });
+    };
+
+    document.addEventListener('click', () => {
+        closeAllProfileSelects();
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeAllProfileSelects();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initProfileCustomSelects();
+        startProfileSelectObserver();
+
+        setTimeout(refreshProfileCustomSelects, 0);
+        setTimeout(refreshProfileCustomSelects, 100);
+    });
+
+    if (document.readyState !== 'loading') {
+        initProfileCustomSelects();
+        startProfileSelectObserver();
+
+        setTimeout(refreshProfileCustomSelects, 0);
+        setTimeout(refreshProfileCustomSelects, 100);
+    }
+})();
