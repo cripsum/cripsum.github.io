@@ -1,10 +1,3 @@
-<?php
-require_once '../config/session_init.php';
-require_once '../config/database.php';
-require_once '../includes/functions.php';
-
-checkBan($mysqli);
-?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -21,18 +14,16 @@ checkBan($mysqli);
     <?php include '../includes/navbar.php'; ?>
 
 
-
     <div class="form-bg" aria-hidden="true">
         <span class="form-orb form-orb--one"></span>
         <span class="form-orb form-orb--two"></span>
         <span class="form-grid-bg"></span>
     </div>
 
-
     <main class="form-shell form-shell--checkout">
         <section class="form-card form-reveal">
             <div class="form-card__header">
-                <span class="form-pill">Shop</span>
+                <span class="form-pill">Merch</span>
                 <h1>Checkout</h1>
                 <p>Enter your details to continue with your order.</p>
             </div>
@@ -46,23 +37,23 @@ checkBan($mysqli);
                             <div class="form-grid form-grid--2">
                                 <label class="form-field">
                                     <span>Name</span>
-                                    <input type="text" id="firstName" autocomplete="given-name" required>
+                                    <input type="text" id="firstName" autocomplete="given-name" required />
                                 </label>
 
                                 <label class="form-field">
                                     <span>Surname</span>
-                                    <input type="text" id="lastName" autocomplete="family-name" required>
+                                    <input type="text" id="lastName" autocomplete="family-name" required />
                                 </label>
                             </div>
 
                             <label class="form-field">
                                 <span>Username</span>
-                                <input type="text" id="username" placeholder="Username" required>
+                                <input type="text" id="username" placeholder="Username" required />
                             </label>
 
                             <label class="form-field">
                                 <span>Email <small>(optional)</small></span>
-                                <input type="email" id="email" placeholder="email@example.com" autocomplete="email">
+                                <input type="email" id="email" placeholder="email@example.com" autocomplete="email" />
                             </label>
                         </div>
 
@@ -71,38 +62,38 @@ checkBan($mysqli);
 
                             <label class="form-field">
                                 <span>Address</span>
-                                <input type="text" id="address" placeholder="123 Example St" autocomplete="street-address" required>
+                                <input type="text" id="address" placeholder="123 Example St" autocomplete="street-address" required />
                             </label>
 
                             <label class="form-field">
                                 <span>Address 2 <small>(optional)</small></span>
-                                <input type="text" id="address2" placeholder="Apartment, suite, unit, building, floor, etc.">
+                                <input type="text" id="address2" placeholder="Apartment, suite, unit, building, floor, etc." />
                             </label>
 
                             <div class="form-grid form-grid--3">
                                 <label class="form-field">
                                     <span>Country</span>
-                                    <input type="text" id="country" autocomplete="country-name" required>
+                                    <input type="text" id="country" autocomplete="country-name" required />
                                 </label>
 
                                 <label class="form-field">
                                     <span>State</span>
-                                    <input type="text" id="state" autocomplete="address-level1" required>
+                                    <input type="text" id="state" autocomplete="address-level1" required />
                                 </label>
 
                                 <label class="form-field">
                                     <span>ZIP</span>
-                                    <input type="text" id="zip" autocomplete="postal-code" required>
+                                    <input type="text" id="zip" autocomplete="postal-code" required />
                                 </label>
                             </div>
 
                             <label class="form-check">
-                                <input type="checkbox" id="same-address">
+                                <input type="checkbox" id="same-address" />
                                 <span>Shipping address is the same as billing</span>
                             </label>
 
                             <label class="form-check">
-                                <input type="checkbox" id="save-info">
+                                <input type="checkbox" id="save-info" />
                                 <span>Remember information for next time</span>
                             </label>
                         </div>
@@ -111,41 +102,41 @@ checkBan($mysqli);
                             <h2>Payment</h2>
 
                             <label class="form-radio">
-                                <input id="credit" name="paymentMethod" type="radio" checked required>
+                                <input id="credit" name="paymentMethod" type="radio" checked required />
                                 <span>Credit Card</span>
                             </label>
 
                             <label class="form-radio">
-                                <input id="debit" name="paymentMethod" type="radio" required>
+                                <input id="debit" name="paymentMethod" type="radio" required />
                                 <span>Debit Card</span>
                             </label>
 
                             <label class="form-radio">
-                                <input id="paypal" name="paymentMethod" type="radio" required>
+                                <input id="paypal" name="paymentMethod" type="radio" required />
                                 <span>PayPal</span>
                             </label>
 
                             <div class="form-grid form-grid--2">
                                 <label class="form-field">
                                     <span>Name on Card</span>
-                                    <input type="text" id="cc-name" autocomplete="cc-name" required>
+                                    <input type="text" id="cc-name" autocomplete="cc-name" required />
                                 </label>
 
                                 <label class="form-field">
                                     <span>Card Number</span>
-                                    <input type="text" id="cc-number" inputmode="numeric" autocomplete="cc-number" required>
+                                    <input type="text" id="cc-number" inputmode="numeric" autocomplete="cc-number" required />
                                 </label>
                             </div>
 
                             <div class="form-grid form-grid--2">
                                 <label class="form-field">
                                     <span>Expiration Date</span>
-                                    <input type="text" id="cc-expiration" placeholder="MM/YY" autocomplete="cc-exp" required>
+                                    <input type="text" id="cc-expiration" placeholder="MM/YY" autocomplete="cc-exp" required />
                                 </label>
 
                                 <label class="form-field">
                                     <span>CVV</span>
-                                    <input type="text" id="cc-cvv" inputmode="numeric" autocomplete="cc-csc" required>
+                                    <input type="text" id="cc-cvv" inputmode="numeric" autocomplete="cc-csc" required />
                                 </label>
                             </div>
                         </div>
@@ -163,13 +154,13 @@ checkBan($mysqli);
                     <h2>Summary</h2>
                     <div class="summary-line">
                         <span>Order</span>
-                        <strong>Cripsum™</strong>
+                        <strong>Merch</strong>
                     </div>
                     <div class="summary-line">
                         <span>Status</span>
                         <strong>Pending</strong>
                     </div>
-                    <p class="form-muted" style="margin-top:1rem;">Check your details before continuing.</p>
+                    <p class="form-muted" style="margin-top: 1rem">Check your details before continuing.</p>
                 </aside>
             </div>
         </section>
