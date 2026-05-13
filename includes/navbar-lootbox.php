@@ -7,6 +7,62 @@ $lang = explode('/', trim($uri, '/'))[0];
 if (!in_array($lang, ['it', 'en'])) {
     $lang = 'it';
 }
+
+$t = [
+    'it' => [
+        'memes'        => 'Memes',
+        'top_rimasti'  => 'Top rimasti',
+        'games'        => 'Giochi',
+        'duels'        => 'Duelli',
+        'shop'         => 'Shop',
+        'store'        => 'Negozio',
+        'other'        => 'Altro',
+        'donations'    => 'Donazioni',
+        'about'        => 'Chi siamo',
+        'login'        => 'Accedi',
+        'register'     => 'Registrati',
+        'my_profile'   => 'Il mio profilo',
+        'settings'     => 'Impostazioni',
+        'inventory'    => 'Inventario',
+        'global_chat'  => 'Chat Globale',
+        'admin_panel'  => 'Pannello Admin',
+        'search_ph'    => 'Cerca utente…',
+        'search_lbl'   => 'Cerca utente',
+        'search_clear' => 'Cancella ricerca',
+        'no_results'   => 'Nessun utente trovato',
+        'searching'    => 'Ricerca in corso…',
+        'search_err'   => 'Errore nella ricerca, riprova',
+        'user_badge'   => 'Utente',
+        'my_profile_alt' => 'Profilo',
+    ],
+    'en' => [
+        'memes'        => 'Memes',
+        'top_rimasti'  => 'Top memes',
+        'games'        => 'Games',
+        'duels'        => 'Duels',
+        'shop'         => 'Shop',
+        'store'        => 'Store',
+        'other'        => 'More',
+        'donations'    => 'Donate',
+        'about'        => 'About us',
+        'login'        => 'Log in',
+        'register'     => 'Sign up',
+        'my_profile'   => 'My profile',
+        'settings'     => 'Settings',
+        'inventory'    => 'Inventory',
+        'global_chat'  => 'Global Chat',
+        'admin_panel'  => 'Admin Panel',
+        'search_ph'    => 'Search user…',
+        'search_lbl'   => 'Search user',
+        'search_clear' => 'Clear search',
+        'no_results'   => 'No users found',
+        'searching'    => 'Searching…',
+        'search_err'   => 'Search error, try again',
+        'user_badge'   => 'User',
+        'my_profile_alt' => 'Profile',
+    ],
+][$lang];
+
 // Language switcher: swap /it/ ↔ /en/ in the current URL
 $altLang   = ($lang === 'it') ? 'en' : 'it';
 $altLabel  = ($lang === 'it') ? 'EN' : 'IT';
@@ -46,35 +102,35 @@ if ($isLoggedIn) {
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/home"><i class="fas fa-home me-2"></i>Home page</a></li>
                 <li class="nav-item dropdown dropdownutenti">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fas fa-image me-2"></i>Memes</a>
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fas fa-image me-2"></i><?= $t['memes'] ?></a>
                     <ul class="dropdown-menu animate slideIn">
                         <li><a class="dropdown-item" href="/<?= $lang ?>/shitpost"><i class="fas fa-fire me-2"></i>Shitpost</a></li>
                         <li><a class="dropdown-item" href="/<?= $lang ?>/tiktokpedia"><i class="fas fa-brands fa-tiktok me-2"></i>TikTokPedia</a></li>
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/rimasti"><i class="fas fa-star me-2"></i>Top rimasti</a></li>
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/rimasti"><i class="fas fa-star me-2"></i><?= $t['top_rimasti'] ?></a></li>
                         <li><a class="dropdown-item" href="/<?= $lang ?>/cripsumpedia/home"><i class="fas fa-book me-2"></i>CripsumPedia</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown dropdownutenti">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fas fa-gamepad me-2"></i>Giochi</a>
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fas fa-gamepad me-2"></i><?= $t['games'] ?></a>
                     <ul class="dropdown-menu animate slideIn">
                         <li><a class="dropdown-item " href="/<?= $lang ?>/gambling"><i class="fas fa-dice me-2"></i>Gambling</a></li>
                         <li><a class="dropdown-item " href="/<?= $lang ?>/lootbox"><i class="fas fa-box-open me-2"></i>Lootbox</a></li>
-                        <li><a class="dropdown-item " href="/<?= $lang ?>/game/"><i class="fas fa-gamepad me-2"></i>Duelli</a></li>
+                        <li><a class="dropdown-item " href="/<?= $lang ?>/game/"><i class="fas fa-gamepad me-2"></i><?= $t['duels'] ?></a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown dropdownutenti">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fas fa-shopping-cart me-2"></i>Shop</a>
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fas fa-shopping-cart me-2"></i><?= $t['shop'] ?></a>
                     <ul class="dropdown-menu animate slideIn">
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/negozio"><i class="fas fa-store me-2"></i>Negozio</a></li>
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/negozio"><i class="fas fa-store me-2"></i><?= $t['store'] ?></a></li>
                         <li><a class="dropdown-item" href="/<?= $lang ?>/merch"><i class="fas fa-tshirt me-2"></i>Merch</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown dropdownutenti">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-h me-2"></i>Altro</a>
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-h me-2"></i><?= $t['other'] ?></a>
                     <ul class="dropdown-menu animate slideIn">
                         <li><a class="dropdown-item" href="/<?= $lang ?>/download"><i class="fas fa-download me-2"></i>Downloads</a></li>
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/donazioni"><i class="fas fa-heart me-2"></i>Donazioni</a></li>
-                        <li><a class="dropdown-item" href="/<?= $lang ?>/chisiamo"><i class="fas fa-users me-2"></i>Chi siamo</a></li>
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/donazioni"><i class="fas fa-heart me-2"></i><?= $t['donations'] ?></a></li>
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/chisiamo"><i class="fas fa-users me-2"></i><?= $t['about'] ?></a></li>
                     </ul>
                 </li>
                 <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/edits"><i class="fas fa-video me-2"></i>Edits</a></li>
@@ -85,15 +141,15 @@ if ($isLoggedIn) {
                             type="text"
                             class="navbar-search-input"
                             id="navbarSearchInput"
-                            placeholder="Cerca utente…"
+                            placeholder="<?= $t['search_ph'] ?>"
                             autocomplete="off"
                             spellcheck="false"
                             maxlength="30"
-                            aria-label="Cerca utente"
+                            aria-label="<?= $t['search_lbl'] ?>"
                             aria-autocomplete="list"
                             aria-controls="navbarSearchDropdown"
                             aria-expanded="false" />
-                        <button class="navbar-search-clear" id="navbarSearchClear" tabindex="-1" aria-label="Cancella ricerca">
+                        <button class="navbar-search-clear" id="navbarSearchClear" tabindex="-1" aria-label="<?= $t['search_clear'] ?>">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -103,7 +159,6 @@ if ($isLoggedIn) {
 
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                <!-- ══ LANGUAGE SWITCH ══ -->
                 <li class="nav-item d-flex align-items-center me-2">
                     <a href="<?= htmlspecialchars($switchUrl) ?>"
                         class="lang-switch"
@@ -115,27 +170,26 @@ if ($isLoggedIn) {
                     </a>
                 </li>
                 <?php if (!$isLoggedIn): ?>
-                    <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/accedi"><i class="fas fa-sign-in-alt"></i> Accedi</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/registrati"><i class="fas fa-user-plus"></i> Registrati</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/accedi"><i class="fas fa-sign-in-alt me-2"></i> <?= $t['login'] ?></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/registrati"><i class="fas fa-user-plus me-2"></i> <?= $t['register'] ?></a></li>
                 <?php else: ?>
                     <li class="nav-item dropdown dropdownutenti">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
-                            <img src="<?php echo htmlspecialchars($profilePic); ?>&t=<?php echo time(); ?>" alt="Profilo"
+                            <img src="<?php echo htmlspecialchars($profilePic); ?>&t=<?php echo time(); ?>" alt="<?= $t['my_profile_alt'] ?>"
                                 class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;">
                             <span><?php echo htmlspecialchars($username); ?></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end animate slideIn">
-                            <li><a class="dropdown-item" href="/u/<?php echo htmlspecialchars($username); ?>"><i class="fas fa-user me-2"></i>Il mio profilo</a></li>
-                            <li><a class="dropdown-item" href="/<?= $lang ?>/impostazioni"><i class="fas fa-cog me-2"></i>Impostazioni</a></li>
+                            <li><a class="dropdown-item" href="/u/<?php echo htmlspecialchars($username); ?>"><i class="fas fa-user me-2"></i><?= $t['my_profile'] ?></a></li>
+                            <li><a class="dropdown-item" href="/<?= $lang ?>/impostazioni"><i class="fas fa-cog me-2"></i><?= $t['settings'] ?></a></li>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/achievements"><i class="fas fa-trophy me-2"></i>Achievements</a></li>
-                            <li><a class="dropdown-item" href="/<?= $lang ?>/inventario"><i class="fas fa-box me-2"></i>Inventario</a></li>
-                            <!--<li><a class="dropdown-item" href="/<?= $lang ?>/ordini"><i class="fas fa-shopping-bag me-2"></i>I miei ordini</a></li>-->
-                            <li><a class="dropdown-item" href="/<?= $lang ?>/global-chat"><i class="fas fa-envelope me-2"></i>Chat Globale</a></li>
+                            <li><a class="dropdown-item" href="/<?= $lang ?>/inventario"><i class="fas fa-box me-2"></i><?= $t['inventory'] ?></a></li>
+                            <li><a class="dropdown-item" href="/<?= $lang ?>/global-chat"><i class="fas fa-envelope me-2"></i><?= $t['global_chat'] ?></a></li>
                             <?php if ($nsfw === 1): ?>
                                 <li><a class="dropdown-item" href="/<?= $lang ?>/goonland/home"><i class="fas fa-eye-slash me-2"></i>GoonLand</a></li>
                             <?php endif; ?>
                             <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
-                                <li><a class="dropdown-item" href="/<?= $lang ?>/admin"><i class="fas fa-shield-alt me-2"></i>Pannello Admin</a></li>
+                                <li><a class="dropdown-item" href="/<?= $lang ?>/admin"><i class="fas fa-shield-alt me-2"></i><?= $t['admin_panel'] ?></a></li>
                             <?php endif; ?>
                             <li>
                                 <hr class="dropdown-divider">
@@ -230,6 +284,10 @@ if ($isLoggedIn) {
         const SEARCH_ENDPOINT = '/includes/search_users.php';
         const DEBOUNCE_MS = 280;
         const MIN_CHARS = 2;
+        const MSG_NO_RESULTS = '<?= addslashes($t['no_results']) ?>';
+        const MSG_SEARCHING = '<?= addslashes($t['searching']) ?>';
+        const MSG_ERROR = '<?= addslashes($t['search_err']) ?>';
+        const BADGE_USER = '<?= addslashes($t['user_badge']) ?>';
 
         const input = document.getElementById('navbarSearchInput');
         const dropdown = document.getElementById('navbarSearchDropdown');
@@ -263,7 +321,7 @@ if ($isLoggedIn) {
             const map = {
                 owner: 'Owner',
                 admin: 'Admin',
-                utente: 'Utente'
+                utente: BADGE_USER
             };
             return map[ruolo] ?? ruolo;
         }
@@ -289,7 +347,7 @@ if ($isLoggedIn) {
         /* ── render risultati ────────────────────────────────── */
         function renderResults(users, query) {
             if (!users.length) {
-                showDropdown('<div class="search-status-msg">Nessun utente trovato</div>');
+                showDropdown(`<div class="search-status-msg">${MSG_NO_RESULTS}</div>`);
                 return;
             }
 
@@ -317,7 +375,7 @@ if ($isLoggedIn) {
 
         /* ── fetch utenti ────────────────────────────────────── */
         async function fetchUsers(query) {
-            showDropdown('<div class="search-spinner">Ricerca in corso…</div>');
+            showDropdown(`<div class="search-spinner">${MSG_SEARCHING}</div>`);
 
             try {
                 const res = await fetch(
@@ -343,7 +401,7 @@ if ($isLoggedIn) {
                 renderResults(data, query);
             } catch (err) {
                 if (err.name === 'AbortError') return;
-                showDropdown('<div class="search-status-msg">Errore nella ricerca, riprova</div>');
+                showDropdown(`<div class="search-status-msg">${MSG_ERROR}</div>`);
             }
         }
 
