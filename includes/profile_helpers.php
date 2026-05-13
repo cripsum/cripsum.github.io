@@ -536,26 +536,26 @@ function profile_handle_image_upload(array $file, int $maxBytes): array
     }
 
     if (($file['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
-        return ['has_file' => true, 'error' => 'Upload non riuscito.'];
+        return ['has_file' => true, 'error' => 'Upload failed.'];
     }
 
     if (($file['size'] ?? 0) <= 0 || $file['size'] > $maxBytes) {
-        return ['has_file' => true, 'error' => 'Immagine troppo pesante.'];
+        return ['has_file' => true, 'error' => 'The file is too large.'];
     }
 
     $tmp = $file['tmp_name'] ?? '';
     if (!is_uploaded_file($tmp)) {
-        return ['has_file' => true, 'error' => 'File non valido.'];
+        return ['has_file' => true, 'error' => 'Invalid file.'];
     }
 
     $info = @getimagesize($tmp);
     if (!$info || empty($info['mime'])) {
-        return ['has_file' => true, 'error' => 'Il file non è una immagine valida.'];
+        return ['has_file' => true, 'error' => 'The file is not a valid image.'];
     }
 
     $allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
     if (!in_array($info['mime'], $allowed, true)) {
-        return ['has_file' => true, 'error' => 'Formato non supportato. Usa JPG, PNG, WEBP o GIF.'];
+        return ['has_file' => true, 'error' => 'Unsupported format. Use JPG, PNG, WEBP, or GIF.'];
     }
 
     return [

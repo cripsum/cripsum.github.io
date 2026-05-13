@@ -226,14 +226,14 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     <div class="profile-effects-layer" aria-hidden="true"></div>
 
     <?php if ($isNotFound): ?>
-        <?php profile_state_page('404', 'Profilo non trovato', 'Questo utente non esiste o ha cambiato username.', 'Home', '/it/home'); ?>
+        <?php profile_state_page('404', 'Profile Not Found', 'This user does not exist or has changed their username.', 'Home', '/en/home'); ?>
     <?php elseif ($isPrivateBlocked): ?>
-        <?php profile_state_page('Privato', 'Profilo privato', '@' . $profile['username'] . ' non mostra questo profilo.', 'Home', '/it/home'); ?>
+        <?php profile_state_page('Private', 'Private Profile', '@' . $profile['username'] . ' is not showing this profile.', 'Home', '/en/home'); ?>
     <?php elseif ($isLoginBlocked): ?>
-        <?php profile_state_page('Login', 'Accesso richiesto', 'Questo profilo è visibile solo agli utenti registrati.', 'Accedi', '/it/accedi'); ?>
+        <?php profile_state_page('Login', 'Login Required', 'This profile is only visible to registered users.', 'Log In', '/en/login'); ?>
     <?php else: ?>
         <main class="bio-page profile-smart-page <?php echo !$hasRightContent ? 'profile-smart-page--single' : ''; ?>" id="bioPage">
-            <section class="bio-hero bio-card profile-smart-hero js-tilt-card js-reveal" aria-label="Profilo pubblico">
+            <section class="bio-hero bio-card profile-smart-hero js-tilt-card js-reveal" aria-label="Public Profile">
                 <div class="profile-hero-actions-top">
                     <?php if ($isOnline): ?>
                         <span class="bio-pill bio-pill--live"><span class="bio-dot"></span>online</span>
@@ -259,7 +259,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                 </div>
 
                 <?php if ($visibleBadges): ?>
-                    <div class="profile-mini-badges" aria-label="Badge in evidenza">
+                    <div class="profile-mini-badges" aria-label="Badge">
                         <?php foreach (array_slice($visibleBadges, 0, 4) as $badge): ?>
                             <?php $badgeImage = !empty($badge['img_url']) ? '/img/' . ltrim((string)$badge['img_url'], '/') : null; ?>
                             <span class="profile-mini-badge" title="<?php echo profile_h($badge['nome']); ?>">
@@ -299,16 +299,16 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                 <?php if (!$hasAnyPublicContent && $isOwnProfile): ?>
                     <div class="profile-owner-nudge">
                         <i class="fas fa-plus"></i>
-                        <span>Aggiungi link, badge o contenuti per riempire la bio.</span>
-                        <a href="/it/edit-profile">Modifica</a>
+                        <span>Add links, badges, or content to fill out the bio.</span>
+                        <a href="/en/edit-profile">Edit</a>
                     </div>
                 <?php endif; ?>
 
-                <div class="bio-actions profile-smart-actions" aria-label="Azioni profilo">
-                    <button class="bio-button bio-button--primary js-copy-profile" type="button"><i class="fas fa-link"></i>Copia</button>
+                <div class="bio-actions profile-smart-actions" aria-label="Profile Actions">
+                    <button class="bio-button bio-button--primary js-copy-profile" type="button"><i class="fas fa-link"></i>Copy</button>
                     <button class="bio-button js-share-profile" type="button"><i class="fas fa-share-nodes"></i>Share</button>
                     <button class="bio-icon-button js-open-qr" type="button" aria-label="QR code"><i class="fas fa-qrcode"></i></button>
-                    <button class="bio-icon-button js-theme-toggle" type="button" aria-label="Tema"><i class="fas fa-moon"></i></button>
+                    <button class="bio-icon-button js-theme-toggle" type="button" aria-label="Theme"><i class="fas fa-moon"></i></button>
                 </div>
 
                 <?php if ($hasMusic && $showAudioPlayer): ?>
@@ -317,14 +317,14 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                         <div class="bio-audio__header">
                             <div>
                                 <small>Audio</small>
-                                <strong><i class="fas fa-music"></i><?php echo profile_h($musicTitle ?: 'Canzone profilo'); ?></strong>
+                                <strong><i class="fas fa-music"></i><?php echo profile_h($musicTitle ?: 'Profile Song'); ?></strong>
                                 <?php if ($musicArtist): ?><span><?php echo profile_h($musicArtist); ?></span><?php endif; ?>
                             </div>
-                            <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pausa"><i id="profileAudioIcon" class="fas fa-play"></i></button>
+                            <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i id="profileAudioIcon" class="fas fa-play"></i></button>
                         </div>
                         <div class="bio-audio__progress">
                             <span id="profileAudioCurrent">0:00</span>
-                            <input id="profileAudioProgress" type="range" min="0" max="100" step="0.1" value="0" aria-label="Avanzamento audio">
+                            <input id="profileAudioProgress" type="range" min="0" max="100" step="0.1" value="0" aria-label="Audio progress">
                             <span id="profileAudioTotal">0:00</span>
                         </div>
                         <div class="bio-audio__bottom">
@@ -357,7 +357,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                             <a class="profile-spotlight-link" href="<?php echo profile_h($spotlight['url'] ?: '#'); ?>" <?php echo $spotlight['url'] ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
                                 <span class="profile-spotlight-icon"><i class="<?php echo profile_h($spotlight['icon']); ?>"></i></span>
                                 <span class="profile-spotlight-content">
-                                    <small><?php echo profile_h($spotlight['type']); ?> in evidenza</small>
+                                    <small><?php echo profile_h($spotlight['type']); ?> Featured</small>
                                     <strong><?php echo profile_h($spotlight['title']); ?></strong>
                                     <?php if ($spotlight['description']): ?><em><?php echo profile_h($spotlight['description']); ?></em><?php endif; ?>
                                     <?php if ($spotlight['meta']): ?><span><?php echo profile_h($spotlight['meta']); ?></span><?php endif; ?>
@@ -404,7 +404,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
 
                     <?php if ($visibleProjects): ?>
                         <section class="bio-card bio-details profile-clean-section js-reveal">
-                            <?php profile_render_section_heading('fas fa-cubes', 'Progetti'); ?>
+                            <?php profile_render_section_heading('fas fa-cubes', 'Projects'); ?>
                             <div class="bio-project-grid">
                                 <?php foreach ($visibleProjects as $project): ?>
                                     <?php
@@ -457,7 +457,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
 
                     <?php if ($visibleContents): ?>
                         <section class="bio-card bio-details profile-clean-section js-reveal">
-                            <?php profile_render_section_heading('fas fa-play-circle', 'Edit e contenuti'); ?>
+                            <?php profile_render_section_heading('fas fa-play-circle', 'Content'); ?>
                             <div class="bio-preview-grid">
                                 <?php foreach ($visibleContents as $content): ?>
                                     <?php
@@ -510,7 +510,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
 
                     <?php if ($visibleActivity): ?>
                         <section class="bio-card bio-about js-reveal">
-                            <?php profile_render_section_heading('fas fa-clock', 'Attività'); ?>
+                            <?php profile_render_section_heading('fas fa-clock', 'Activity'); ?>
                             <div class="profile-activity-strip">
                                 <?php foreach (array_slice($visibleActivity, 0, 5) as $item): ?>
                                     <a class="profile-activity-pill" href="<?php echo !empty($item['url']) ? profile_h($item['url']) : '#'; ?>" <?php echo !empty($item['url']) ? 'target="_blank" rel="noopener noreferrer"' : 'aria-disabled="true"'; ?>>
@@ -529,11 +529,11 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
 
     <div class="profile-qr-modal" id="profileQrModal" aria-hidden="true">
         <div class="profile-qr-backdrop js-close-qr"></div>
-        <section class="bio-card profile-qr-card" role="dialog" aria-modal="true" aria-label="QR profilo">
-            <button class="bio-small-button js-close-qr" type="button" aria-label="Chiudi"><i class="fas fa-xmark"></i></button>
-            <strong>QR profilo</strong>
-            <img class="profile-qr-image" alt="QR code del profilo" src="/api/profile_qr.php?url=<?php echo rawurlencode($profileUrl); ?>" data-qr-src="/api/profile_qr.php?url=<?php echo rawurlencode($profileUrl); ?>">
-            <button class="bio-button bio-button--primary js-copy-profile" type="button"><i class="fas fa-link"></i>Copia link</button>
+        <section class="bio-card profile-qr-card" role="dialog" aria-modal="true" aria-label="QR Profile">
+            <button class="bio-small-button js-close-qr" type="button" aria-label="Close"><i class="fas fa-xmark"></i></button>
+            <strong>QR Profile</strong>
+            <img class="profile-qr-image" alt="QR code of the profile" src="/api/profile_qr.php?url=<?php echo rawurlencode($profileUrl); ?>" data-qr-src="/api/profile_qr.php?url=<?php echo rawurlencode($profileUrl); ?>">
+            <button class="bio-button bio-button--primary js-copy-profile" type="button"><i class="fas fa-link"></i>Copy link</button>
         </section>
     </div>
 

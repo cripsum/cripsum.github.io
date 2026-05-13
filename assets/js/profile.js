@@ -80,7 +80,7 @@
             button.addEventListener('click', async () => {
                 const text = button.dataset.copyProfile || body.dataset.profileUrl || window.location.href;
                 const ok = await copyText(text);
-                showToast(ok ? 'Link profilo copiato.' : 'Non sono riuscito a copiare il link.');
+                showToast(ok ? 'Profile link copied.' : 'Failed to copy link.');
             });
         });
 
@@ -88,7 +88,7 @@
             button.addEventListener('click', async () => {
                 const shareData = {
                     title: button.dataset.title || document.title || 'Cripsum profile',
-                    text: 'Profilo pubblico su cripsum.com',
+                    text: 'Public profile on cripsum.com',
                     url: button.dataset.url || body.dataset.profileUrl || window.location.href
                 };
                 if (navigator.share) {
@@ -97,11 +97,11 @@
                         return;
                     } catch (error) {
                         if (error.name === 'AbortError') return;
-                        console.error('Errore share:', error);
+                        console.error('Share error:', error);
                     }
                 }
                 const ok = await copyText(shareData.url);
-                showToast(ok ? 'Share non disponibile: link copiato.' : 'Share non disponibile.');
+                showToast(ok ? 'Share not available: link copied.' : 'Share not available.');
             });
         });
 
@@ -109,7 +109,7 @@
             button.addEventListener('click', () => {
                 const nextTheme = body.dataset.theme === 'light' ? 'dark' : 'light';
                 setTheme(nextTheme, true);
-                showToast(nextTheme === 'light' ? 'Tema chiaro attivo.' : 'Tema scuro attivo.');
+                showToast(nextTheme === 'light' ? 'Light theme activated.' : 'Dark theme activated.');
             });
         });
     };
@@ -212,7 +212,7 @@
             initActivityCarousel();
             updateActivityTimestamps();
         } catch (error) {
-            console.error('Errore aggiornamento Discord:', error);
+            console.error('Discord update error:', error);
         }
     };
 
@@ -301,9 +301,9 @@
             if (audio.paused) {
                 try {
                     await audio.play();
-                    showToast('Audio avviato.');
+                    showToast('Audio started.');
                 } catch (error) {
-                    showToast('Il browser ha bloccato l’audio. Clicca di nuovo.');
+                    showToast('The browser blocked the audio. Click again.');
                 }
             } else {
                 audio.pause();
@@ -526,7 +526,7 @@
                 await audio.play();
                 return true;
             } catch (error) {
-                if (showMessage) showProfileToast('Tocca la pagina per avviare l’audio.');
+                if (showMessage) showProfileToast('Tap anywhere to enable audio.');
                 return false;
             }
         };
@@ -541,7 +541,7 @@
                 const ok = await tryPlay(false);
                 if (ok) {
                     cleanup();
-                    showProfileToast('Audio profilo avviato.');
+                    showProfileToast('Profile audio started.');
                 } else {
                     armed = true;
                 }
