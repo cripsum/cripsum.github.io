@@ -13,59 +13,59 @@ function gl_quiz_profiles(): array
     return [
         'sweet' => [
             'title' => 'Sweet Waifu',
-            'desc' => 'Ti piace una ragazza dolce, calma e presente. Poco casino, tanta comfort zone.',
+            'desc' => 'You like a sweet, calm, and present girl. Less drama, pure comfort zone.',
         ],
         'tsundere' => [
             'title' => 'Tsundere',
-            'desc' => 'Ti attira quella che fa la cattiva, ma poi si tradisce al primo blush.',
+            'desc' => 'You’re attracted to the one who acts tough, but gives herself away at the first blush.',
         ],
         'yandere' => [
             'title' => 'Obsessive Yandere',
-            'desc' => 'Ti piacciono le red flag con gli occhi grandi. Scelta rischiosa.',
+            'desc' => 'You like red flags with big eyes. A risky choice.',
         ],
         'dommy' => [
             'title' => 'Goth Dommy Mommy',
-            'desc' => 'Ti piace una ragazza sicura, dominante e con abbastanza aura da farti stare zitto.',
+            'desc' => 'You like a confident, dominant girl with enough aura to keep you quiet.',
         ],
         'goth' => [
             'title' => 'Dark Gothic Queen',
-            'desc' => 'Nero, mistero e sguardo freddo. La tua rovina, ma con estetica.',
+            'desc' => 'Black, mystery, and a cold stare. Your ruin, but with aesthetic.',
         ],
         'gyaru' => [
             'title' => 'Gyaru Teaser',
-            'desc' => 'Vuoi energia forte, teasing continuo e zero paura di esagerare.',
+            'desc' => 'You want high energy, constant teasing, and zero fear of overdoing it.',
         ],
         'maid' => [
             'title' => 'Shy Maid',
-            'desc' => 'Classica, cute e un po’ servizievole. Una scelta pulita, ma sempre efficace.',
+            'desc' => 'Classic, cute, and a bit dutiful. A simple choice, but always effective.',
         ],
         'fantasy' => [
             'title' => 'Demon Fantasy Girl',
-            'desc' => 'Vuoi qualcosa di meno normale. Corna, magia, problemi e tanta presenza.',
+            'desc' => 'You want something less normal. Horns, magic, problems, and a lot of presence.',
         ],
         'elegant' => [
             'title' => 'Elegant Mommy',
-            'desc' => 'Ti piace una ragazza composta, curata e superiore senza nemmeno provarci.',
+            'desc' => 'You like a composed, polished girl who is superior without even trying.',
         ],
         'chaotic' => [
             'title' => 'Chaotic Gremlin Girl',
-            'desc' => 'La pace non ti interessa. Vuoi una che trasformi ogni giorno in un evento strano.',
+            'desc' => 'Peace is not your priority. You want someone who turns every day into a weird event.',
         ],
         'cold' => [
             'title' => 'Cold Black-Haired Queen',
-            'desc' => 'Fredda, distante, difficile da leggere. Ti ignora e funziona comunque.',
+            'desc' => 'Cold, distant, hard to read. She ignores you and it still works.',
         ],
         'cute' => [
             'title' => 'Cute Soft Girl',
-            'desc' => 'Ti piace la vibe tenera, leggera e piena di piccoli segnali affettuosi.',
+            'desc' => 'You like the soft, light vibe, full of small affectionate signals.',
         ],
         'tease' => [
             'title' => 'Flirty Teaser',
-            'desc' => 'Ti piace essere provocato. Non troppo caos, ma abbastanza da perdere lucidità.',
+            'desc' => 'You enjoy being provoked. Not too much chaos, but enough to lose your focus.',
         ],
         'dominant' => [
             'title' => 'Confident Boss Girl',
-            'desc' => 'Vuoi una ragazza decisa, diretta e con più controllo di te.',
+            'desc' => 'You want a girl who is decisive, direct, and has more control than you.',
         ],
     ];
 }
@@ -84,7 +84,7 @@ $sharedMatch = isset($_GET['match']) ? max(1, min(99, (int)$_GET['match'])) : 0;
 $baseQuizUrl = 'https://cripsum.com/it/goonland/anime-girl-quiz';
 $ogUrl = $baseQuizUrl;
 $ogTitle = 'Cripsum™ GoonLand - Waifu Quiz';
-$ogDescription = 'Rispondi a 10 domande e trova la tua waifu ideale.';
+$ogDescription = 'Answer 10 questions and find your ideal waifu.';
 $ogImage = 'https://cripsum.com/img/raspberry-chan16gb.png';
 $pageTitle = 'GoonLand™ - Waifu Quiz';
 
@@ -95,7 +95,7 @@ if ($sharedProfile) {
     }
 
     $ogUrl = $baseQuizUrl . '?' . http_build_query($query);
-    $ogTitle = 'La mia waifu ideale su GoonLand è: ' . $sharedProfile['title'];
+    $ogTitle = 'My ideal waifu is: ' . $sharedProfile['title'];
     $ogDescription = $sharedProfile['desc'] . ($sharedMatch > 0 ? ' Match ' . $sharedMatch . '%.' : '');
     $pageTitle = $sharedProfile['title'] . ' - GoonLand™ Waifu Quiz';
 }
@@ -104,7 +104,7 @@ $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $bot = preg_match('/(facebookexternalhit|Facebot|Discordbot|Twitterbot|TelegramBot|WhatsApp)/i', $ua);
 
 if ($bot) {
-    echo '<!DOCTYPE html><html lang="it"><head>' .
+    echo '<!DOCTYPE html><html lang="en"><head>' .
         '<meta charset="UTF-8">' .
         '<title>' . gl_safe_html($pageTitle) . '</title>' .
         '<meta property="og:title" content="' . gl_safe_html($ogTitle) . '">' .
@@ -122,13 +122,13 @@ if ($bot) {
 
 if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-    $_SESSION['login_message'] = "Per accedere a GoonLand devi essere loggato";
+    $_SESSION['login_message'] = "You need to be logged in to access GoonLand";
     header('Location: ../accedi');
     exit();
 }
 
 if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
-    $_SESSION['error_message'] = "Per accedere a GoonLand devi abilitare i contenuti NSFW nelle impostazioni del tuo profilo";
+    $_SESSION['error_message'] = "You need to enable NSFW content in your profile settings to access GoonLand";
     header('Location: ../home');
     exit();
 }
@@ -283,7 +283,7 @@ function gl_build_quiz_tags(array $answers): array
 
 if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        gl_json_response(['ok' => false, 'message' => 'Metodo non valido'], 405);
+        gl_json_response(['ok' => false, 'message' => 'Invalid method'], 405);
     }
 
     $input = json_decode(file_get_contents('php://input'), true);
@@ -292,7 +292,7 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
     $requiredKeys = ['type', 'control', 'personality', 'vibe', 'relationship', 'style', 'body', 'hair', 'outfit', 'intensity'];
     foreach ($requiredKeys as $key) {
         if (!isset($answers[$key]) || !is_string($answers[$key])) {
-            gl_json_response(['ok' => false, 'message' => 'Quiz incompleto'], 422);
+            gl_json_response(['ok' => false, 'message' => 'Incomplete quiz'], 422);
         }
     }
 
@@ -402,7 +402,7 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
     if (empty($bestPosts)) {
         gl_json_response([
             'ok' => false,
-            'message' => 'Nessun risultato trovato. Riprova o scegli risposte meno specifiche.'
+            'message' => 'No suitable image found. Try retaking the quiz for a different result.',
         ], 404);
     }
 
@@ -459,7 +459,7 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
 
 <body class="goonland-page" data-goonland-page="anime-quiz">
     <?php include '../../includes/navbar-goonland.php'; ?>
-    
+
 
     <div class="gl-bg" aria-hidden="true"><span></span><span></span></div>
 
@@ -467,10 +467,10 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
         <section class="gl-hero gl-hero-small gl-reveal">
             <div class="gl-hero-text">
                 <span class="gl-kicker"><i class="fas fa-heart-pulse"></i> Waifu Quiz</span>
-                <h1>Trova la tua ragazza anime ideale</h1>
-                <p>10 domande veloci. Rispondi e scopri qual è la waifu perfetta per te</p>
+                <h1>Find Your Ideal Anime Girl</h1>
+                <p>10 quick questions. Answer and discover your perfect waifu</p>
                 <div class="gl-actions">
-                    <a class="gl-btn gl-btn-main" href="#glAnimeQuiz"><i class="fas fa-play"></i> Inizia quiz</a>
+                    <a class="gl-btn gl-btn-main" href="#glAnimeQuiz"><i class="fas fa-play"></i> Start Quiz</a>
                     <a class="gl-btn gl-btn-ghost" href="/it/goonland/home"><i class="fas fa-arrow-left"></i> Home GoonLand</a>
                 </div>
             </div>
@@ -478,12 +478,12 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
 
         <?php if ($sharedProfile): ?>
             <section class="gl-shared-result gl-reveal">
-                <span class="gl-kicker"><i class="fas fa-share-nodes"></i> Risultato condiviso</span>
+                <span class="gl-kicker"><i class="fas fa-share-nodes"></i> Shared Result</span>
                 <h2><?php echo gl_safe_html($ogTitle); ?></h2>
                 <p><?php echo gl_safe_html($ogDescription); ?></p>
                 <div class="gl-actions">
-                    <a class="gl-btn gl-btn-main" href="#glAnimeQuiz"><i class="fas fa-play"></i> Fai anche tu il quiz</a>
-                    <button class="gl-btn gl-btn-ghost" type="button" data-copy-current-url><i class="fas fa-link"></i> Copia link</button>
+                    <a class="gl-btn gl-btn-main" href="#glAnimeQuiz"><i class="fas fa-play"></i> Take the quiz</a>
+                    <button class="gl-btn gl-btn-ghost" type="button" data-copy-current-url><i class="fas fa-link"></i> Copy link</button>
                 </div>
             </section>
         <?php endif; ?>
@@ -491,8 +491,8 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
         <section class="gl-quiz-layout gl-reveal" id="glAnimeQuiz">
             <div class="gl-quiz-card" id="glQuizBox">
                 <div class="gl-quiz-top">
-                    <span class="gl-kicker" id="glQuizStep">Domanda 1 / 10</span>
-                    <span class="gl-status" id="glQuizStatus">Pronto</span>
+                    <span class="gl-kicker" id="glQuizStep">Question 1 / 10</span>
+                    <span class="gl-status" id="glQuizStatus">Ready</span>
                 </div>
 
                 <div class="gl-quiz-progress" aria-hidden="true">
@@ -500,22 +500,22 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
                 </div>
 
                 <div class="gl-question-wrap">
-                    <h2 id="glQuizQuestion">Caricamento...</h2>
+                    <h2 id="glQuizQuestion">Loading...</h2>
                     <p id="glQuizHint"></p>
                     <div class="gl-answer-grid" id="glAnswerGrid"></div>
                 </div>
 
                 <div class="gl-quiz-nav">
-                    <button class="gl-btn gl-btn-ghost" type="button" id="glQuizBack"><i class="fas fa-arrow-left"></i> Indietro</button>
-                    <button class="gl-btn gl-btn-main" type="button" id="glQuizNext"><i class="fas fa-arrow-right"></i> Avanti</button>
+                    <button class="gl-btn gl-btn-ghost" type="button" id="glQuizBack"><i class="fas fa-arrow-left"></i> Back</button>
+                    <button class="gl-btn gl-btn-main" type="button" id="glQuizNext"><i class="fas fa-arrow-right"></i> Next</button>
                 </div>
             </div>
 
             <aside class="gl-quiz-side">
                 <div class="gl-lore-card gl-lore-card--accent">
-                    <span class="gl-kicker">Come funziona</span>
-                    <h2>Risposte → tag → risultato.</h2>
-                    <p>Rispondi alle domande e affidati a noi, il nostro sistema troverà la waifu perfetta per te</p>
+                    <span class="gl-kicker">How it works</span>
+                    <h2>Answers → tags → result.</h2>
+                    <p>Answer the questions and trust us, our system will find the perfect waifu for you</p>
                 </div>
             </aside>
         </section>
@@ -523,8 +523,8 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
         <section class="gl-result gl-reveal" id="glQuizResult" hidden>
             <div class="gl-result-head">
                 <div>
-                    <span class="gl-kicker"><i class="fas fa-star"></i> Risultato</span>
-                    <h2 id="glResultTitle">Il tuo tipo ideale</h2>
+                    <span class="gl-kicker"><i class="fas fa-star"></i> Result</span>
+                    <h2 id="glResultTitle">Your Ideal Type</h2>
                     <p id="glResultDescription"></p>
                 </div>
                 <span class="gl-status" id="glResultMatch">Match 0%</span>
@@ -534,8 +534,8 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
                 <div class="gl-result-media" id="glResultMedia">
                     <div class="gl-placeholder" id="glResultPlaceholder">
                         <i class="fas fa-circle-notch fa-spin"></i>
-                        <strong>Sto cercando la reference</strong>
-                        <span>Ci mette un attimo.</span>
+                        <strong>Searching for reference</strong>
+                        <span>It takes a moment.</span>
                     </div>
                     <img id="glResultImage" class="gl-result-image" alt="Risultato anime girl" hidden>
                 </div>
@@ -547,17 +547,17 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
                     <div class="gl-result-meta" id="glResultMeta"></div>
 
                     <div class="gl-share-box" id="glShareBox" hidden>
-                        <span>Link condivisibile</span>
-                        <button type="button" id="glShareUrlButton" title="Copia link condivisibile">
-                            <strong id="glShareText">Il mio tipo anime ideale su GoonLand è:</strong>
+                        <span>Shareable link</span>
+                        <button type="button" id="glShareUrlButton" title="Copy shareable link">
+                            <strong id="glShareText">My ideal anime type on GoonLand is:</strong>
                             <small id="glShareUrlText"></small>
                         </button>
                     </div>
 
                     <div class="gl-result-actions">
-                        <button class="gl-btn gl-btn-main" type="button" id="glQuizReroll"><i class="fas fa-shuffle"></i> Reroll immagine</button>
-                        <button class="gl-btn gl-btn-ghost" type="button" id="glQuizRestart"><i class="fas fa-rotate-left"></i> Rifai quiz</button>
-                        <button class="gl-icon-btn" type="button" id="glQuizShare" aria-label="Copia risultato"><i class="fas fa-share-nodes"></i></button>
+                        <button class="gl-btn gl-btn-main" type="button" id="glQuizReroll"><i class="fas fa-shuffle"></i> Reroll image</button>
+                        <button class="gl-btn gl-btn-ghost" type="button" id="glQuizRestart"><i class="fas fa-rotate-left"></i> Retake quiz</button>
+                        <button class="gl-icon-btn" type="button" id="glQuizShare" aria-label="Copy result"><i class="fas fa-share-nodes"></i></button>
                     </div>
                 </div>
             </div>
@@ -573,7 +573,7 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
     </div>
 
     <button class="gl-top" type="button" data-gl-top aria-label="Torna su"><i class="fas fa-arrow-up"></i></button>
-    <div class="gl-toast" id="goonlandToast" hidden><i class="fas fa-check"></i><span>Fatto</span></div>
+    <div class="gl-toast" id="goonlandToast" hidden><i class="fas fa-check"></i><span>Done</span></div>
 
     <?php include '../../includes/footer-en.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>

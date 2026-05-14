@@ -9,13 +9,13 @@ checkBan($mysqli);
 
 if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-    $_SESSION['login_message'] = "Per accedere a GoonLand devi essere loggato";
+    $_SESSION['login_message'] = "You need to be logged in to access GoonLand";
     header('Location: ../accedi');
     exit();
 }
 
 if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
-    $_SESSION['error_message'] = "Per accedere a GoonLand devi abilitare i contenuti NSFW nelle impostazioni del tuo profilo";
+    $_SESSION['error_message'] = "You need to enable NSFW content in your profile settings to access GoonLand";
     header('Location: ../home');
     exit();
 }
@@ -182,7 +182,7 @@ if (isset($_GET['generate_image']) && $_GET['generate_image'] === '1') {
     ];
 
     if (!isset($types[$contentType])) {
-        goonJsonResponse(['ok' => false, 'error' => 'Tipo contenuto non valido'], 400);
+        goonJsonResponse(['ok' => false, 'error' => 'Invalid content type'], 400);
     }
 
     $config = $types[$contentType];
@@ -196,7 +196,7 @@ if (isset($_GET['generate_image']) && $_GET['generate_image'] === '1') {
     }
 
     if (!$imageUrl) {
-        goonJsonResponse(['ok' => false, 'error' => 'Nessuna API immagini ha risposto'], 502);
+        goonJsonResponse(['ok' => false, 'error' => 'No image API responded'], 502);
     }
 
     goonJsonResponse([
@@ -220,13 +220,13 @@ if (isset($_GET['download_image']) && $_GET['download_image'] === '1' && isset($
 
     if ($scheme !== 'https' || !$isAllowedHost) {
         http_response_code(403);
-        exit('URL non valido');
+        exit('Invalid URL');
     }
 
     $imageData = @file_get_contents($url);
     if ($imageData === false) {
         http_response_code(404);
-        exit('Immagine non trovata');
+        exit('Image not found');
     }
 
     $finfo = new finfo(FILEINFO_MIME_TYPE);
@@ -235,7 +235,7 @@ if (isset($_GET['download_image']) && $_GET['download_image'] === '1' && isset($
 
     if (!in_array($mimeType, $allowedMime, true)) {
         http_response_code(415);
-        exit('Formato non valido');
+        exit('Invalid format');
     }
 
     $extension = explode('/', $mimeType)[1] ?? 'jpg';
@@ -275,7 +275,7 @@ if ($stmt) {
 
 <body class="goonland-page" data-goonland-page="generator">
     <?php include '../../includes/navbar-goonland.php'; ?>
-    
+
 
     <div class="gl-bg" aria-hidden="true"><span></span><span></span></div>
 
@@ -284,7 +284,7 @@ if ($stmt) {
             <div class="gl-hero-text">
                 <span class="gl-kicker"><i class="fas fa-wand-magic-sparkles"></i> Generator</span>
                 <h1>Goon Generator</h1>
-                <p>Genera una foto, scaricala se vuoi e scala la classifica. Stessa funzione, interfaccia più pulita.</p>
+                <p>Generate an image, download your favorites, and climb the leaderboard.</p>
                 <div class="gl-actions">
                     <a class="gl-btn gl-btn-ghost" href="/it/goonland/home"><i class="fas fa-arrow-left"></i> Home GoonLand</a>
                 </div>
@@ -296,25 +296,25 @@ if ($stmt) {
                 <div class="gl-generator-head">
                     <div>
                         <span class="gl-kicker">Output</span>
-                        <h2>Generatore immagini</h2>
+                        <h2>Image Generator</h2>
                     </div>
-                    <span class="gl-status" id="generatorStatus">Pronto</span>
+                    <span class="gl-status" id="generatorStatus">Ready</span>
                 </div>
 
                 <div class="gl-image-stage" id="imageContainer">
                     <div class="gl-placeholder">
                         <i class="fas fa-image"></i>
-                        <strong>Nessuna immagine ancora</strong>
-                        <span>Clicca il tasto rosa per generare la prima foto.</span>
+                        <strong>No image yet</strong>
+                        <span>Click the pink button to generate the first photo.</span>
                     </div>
                     <div class="gl-spinner" id="loadingSpinner" aria-hidden="true"></div>
                 </div>
 
                 <div class="gl-controls">
                     <div class="gl-select-field gl-custom-select" data-gl-custom-select>
-                        <span>Tipo contenuto</span>
+                        <span>Content Type</span>
 
-                        <select id="contentType" class="gl-native-select" aria-label="Tipo contenuto">
+                        <select id="contentType" class="gl-native-select" aria-label="Content Type">
                             <option value="sfw/waifu">Waifu - SFW</option>
                             <option value="nsfw/waifu">Waifu - 18+</option>
                             <option value="nsfw/neko">Neko - 18+</option>
@@ -353,9 +353,9 @@ if ($stmt) {
 
                     <div class="gl-generator-buttons">
                         <button class="gl-btn gl-btn-main" id="generateBtn" type="button" onclick="generateImage()">
-                            <i class="fas fa-shuffle"></i> Genera nuova foto
+                            <i class="fas fa-shuffle"></i> Generate New Photo
                         </button>
-                        <button class="gl-icon-btn" id="downloadBtn" type="button" onclick="downloadImage()" aria-label="Scarica immagine" hidden>
+                        <button class="gl-icon-btn" id="downloadBtn" type="button" onclick="downloadImage()" aria-label="Download Image" hidden>
                             <i class="fas fa-download"></i>
                         </button>
                     </div>
@@ -366,9 +366,9 @@ if ($stmt) {
 
             <aside class="gl-leaderboard gl-reveal">
                 <div class="gl-leaderboard-head">
-                    <span class="gl-kicker">Classifica</span>
+                    <span class="gl-kicker">Leaderboard</span>
                     <h2>Top 10</h2>
-                    <p>Chi ha goonato di più.</p>
+                    <p>Who has gooned the most.</p>
                 </div>
 
                 <?php if (!empty($topGooners)): ?>
@@ -389,8 +389,8 @@ if ($stmt) {
                 <?php else: ?>
                     <div class="gl-empty">
                         <i class="fas fa-ranking-star"></i>
-                        <strong>Nessun dato disponibile</strong>
-                        <span>La classifica apparirà dopo i primi click.</span>
+                        <strong>No data available</strong>
+                        <span>The leaderboard will appear after the first clicks.</span>
                     </div>
                 <?php endif; ?>
             </aside>
@@ -405,8 +405,8 @@ if ($stmt) {
         </div>
     </div>
 
-    <button class="gl-top" type="button" data-gl-top aria-label="Torna su"><i class="fas fa-arrow-up"></i></button>
-    <div class="gl-toast" id="goonlandToast" hidden><i class="fas fa-check"></i><span>Fatto</span></div>
+    <button class="gl-top" type="button" data-gl-top aria-label="Back to top"><i class="fas fa-arrow-up"></i></button>
+    <div class="gl-toast" id="goonlandToast" hidden><i class="fas fa-check"></i><span>Done</span></div>
 
     <?php include '../../includes/footer-en.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>

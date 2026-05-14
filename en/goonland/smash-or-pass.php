@@ -9,7 +9,7 @@ checkBan($mysqli);
 
 if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-    $_SESSION['login_message'] = "Per accedere a GoonLand devi essere loggato";
+    $_SESSION['login_message'] = "You need to be logged in to access GoonLand";
     header('Location: ../accedi');
     exit();
 }
@@ -101,10 +101,6 @@ function sopBuildDanbooruUrls(array $config): array
     ]);
 
     $strictBlocklist = [
-        '-loli',
-        '-shota',
-        '-child',
-        '-young',
         '-toddler',
         '-cub',
         '-feral',
@@ -153,17 +149,14 @@ function sopPickPost(array $posts): ?array
         $fileExt = strtolower((string)($post['file_ext'] ?? ''));
         $allTags = ' ' . strtolower(
             (string)($post['tag_string'] ?? '') . ' ' .
-            (string)($post['tag_string_general'] ?? '') . ' ' .
-            (string)($post['tag_string_character'] ?? '')
+                (string)($post['tag_string_general'] ?? '') . ' ' .
+                (string)($post['tag_string_character'] ?? '')
         ) . ' ';
 
         if (!is_string($fileUrl) || $fileUrl === '') continue;
         if (!in_array($fileExt, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true)) continue;
 
         $blockedNeedles = [
-            ' child ',
-            ' toddler ',
-            ' cub ',
             ' feral ',
             ' bestiality ',
             ' guro ',
@@ -273,11 +266,11 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
     ];
 
     if (!isset($modes[$mode])) {
-        sopJson(['ok' => false, 'error' => 'Modalità non valida'], 400);
+        sopJson(['ok' => false, 'error' => 'Invalid mode'], 400);
     }
 
     if ($modes[$mode]['nsfw'] && !$userAllowsNsfw) {
-        sopJson(['ok' => false, 'error' => 'Abilita i contenuti NSFW nel profilo per usare questa modalità'], 403);
+        sopJson(['ok' => false, 'error' => 'Enable NSFW content in your profile to use this mode'], 403);
     }
 
     $debug = [];
@@ -286,7 +279,7 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
     if (!$result) {
         sopJson([
             'ok' => false,
-            'error' => 'Impossibile recuperare un personaggio adesso',
+            'error' => 'Unable to retrieve a character right now, please try again.',
             'debug' => $debug,
         ], 200);
     }
@@ -301,6 +294,7 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../../includes/head-import.php'; ?>
     <title>GoonLand™ - Smash or Pass</title>
@@ -310,9 +304,10 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
     <script src="/js/goonland.js?v=2.7-smash-polish" defer></script>
     <script src="/js/goonland-smash-pass.js?v=2.7-smash-polish" defer></script>
 </head>
+
 <body class="goonland-page" data-goonland-page="smash-pass">
     <?php include '../../includes/navbar-goonland.php'; ?>
-    
+
 
     <div class="gl-bg" aria-hidden="true"><span></span><span></span></div>
 
@@ -321,7 +316,7 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
             <div class="gl-hero-text">
                 <span class="gl-kicker"><i class="fas fa-fire"></i> Smash or Pass</span>
                 <h1>Smash or Pass</h1>
-                <p>Ti esce un personaggio random. Tu decidi. Smash o pass. Puoi scegliere tra waifu e husbando, sia safe che 18+.</p>
+                <p>Get a random character and make your choice: Smash or Pass. Available for waifus and husbandos, including SFW and NSFW modes.</p>
                 <div class="gl-actions">
                     <a class="gl-btn gl-btn-ghost" href="/it/goonland/home"><i class="fas fa-arrow-left"></i> Home GoonLand</a>
                 </div>
@@ -332,17 +327,17 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
             <div class="gl-sp-main gl-generator">
                 <div class="gl-generator-head">
                     <div>
-                        <span class="gl-kicker">Modalità</span>
-                        <h2>Gioca</h2>
+                        <span class="gl-kicker">Mode</span>
+                        <h2>Play</h2>
                     </div>
-                    <span class="gl-status" id="smashPassStatus">Pronto</span>
+                    <span class="gl-status" id="smashPassStatus">Ready</span>
                 </div>
 
                 <div class="gl-sp-controls">
                     <div class="gl-select-field gl-custom-select gl-sp-mode-select" data-gl-custom-select>
-                        <span>Tipo</span>
+                        <span>Type</span>
 
-                        <select id="smashPassMode" class="gl-native-select" aria-label="Modalità Smash or Pass">
+                        <select id="smashPassMode" class="gl-native-select" aria-label="Smash or Pass mode">
                             <option value="waifu_sfw">Waifu - SFW</option>
                             <option value="waifu_nsfw" <?php echo $userAllowsNsfw ? '' : 'disabled'; ?>>Waifu - NSFW</option>
                             <option value="husbando_sfw">Husbando - SFW</option>
@@ -375,7 +370,7 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
                     </div>
 
                     <div class="gl-sp-mini-actions">
-                        <button class="gl-btn gl-btn-ghost" type="button" id="spNextBtn"><i class="fas fa-rotate"></i> Prossimo</button>
+                        <button class="gl-btn gl-btn-ghost" type="button" id="spNextBtn"><i class="fas fa-rotate"></i> Next</button>
                     </div>
                 </div>
 
@@ -383,26 +378,26 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
                     <div class="gl-sp-image-wrap" id="smashPassSwipeArea">
                         <div class="gl-sp-decision gl-sp-decision-pass" aria-hidden="true"><i class="fas fa-xmark"></i> PASS</div>
                         <div class="gl-sp-decision gl-sp-decision-smash" aria-hidden="true"><i class="fas fa-fire"></i> SMASH</div>
-                        <div class="gl-sp-swipe-hint" aria-hidden="true"><i class="fas fa-hand-pointer"></i> Swipe destra/sinistra</div>
+                        <div class="gl-sp-swipe-hint" aria-hidden="true"><i class="fas fa-hand-pointer"></i> Swipe right/left</div>
                         <div class="gl-placeholder gl-sp-placeholder" id="smashPassPlaceholder">
                             <i class="fas fa-heart-crack"></i>
-                            <strong>Nessun personaggio ancora</strong>
-                            <span>Clicca smash, pass o prossimo per iniziare.</span>
+                            <strong>No character yet</strong>
+                            <span>Click smash, pass or next to start.</span>
                         </div>
                         <div class="gl-spinner" id="smashPassSpinner" aria-hidden="true"></div>
-                        <img id="smashPassImage" class="generated-image gl-sp-image" alt="Personaggio Smash or Pass" hidden>
+                        <img id="smashPassImage" class="generated-image gl-sp-image" alt="Smash or Pass character" hidden>
                     </div>
 
                     <div class="gl-sp-content">
                         <div class="gl-sp-headline">
                             <div>
                                 <span class="gl-kicker" id="smashPassModeLabel">Waifu SFW</span>
-                                <h3 id="smashPassTitle">In attesa del primo roll</h3>
+                                <h3 id="smashPassTitle">Waiting for the first roll</h3>
                             </div>
                             <span class="gl-sp-rating" id="smashPassRating">-</span>
                         </div>
 
-                        <p class="gl-sp-subtitle" id="smashPassSubtitle">Quando arriva la prima immagine, qui vedrai personaggio, serie e artista.</p>
+                        <p class="gl-sp-subtitle" id="smashPassSubtitle">When the first image arrives, you will see character, series and artist here.</p>
 
                         <div class="gl-sp-tags" id="smashPassTags"></div>
 
@@ -419,14 +414,14 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
             <aside class="gl-sp-side gl-leaderboard">
                 <div class="gl-leaderboard-head">
                     <div>
-                        <span class="gl-kicker">Statistiche</span>
-                        <h2>I tuoi numeri</h2>
+                        <span class="gl-kicker">Stats</span>
+                        <h2>Your Numbers</h2>
                     </div>
                 </div>
 
                 <div class="gl-sp-stats">
                     <div class="gl-sp-stat">
-                        <span>Totale</span>
+                        <span>Total</span>
                         <strong id="spTotalCount">0</strong>
                     </div>
                     <div class="gl-sp-stat is-smash">
@@ -444,11 +439,11 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
                 </div>
 
                 <div class="gl-copy gl-sp-help">
-                    <h2>Come funziona</h2>
-                    <p>Ogni volta ti esce un personaggio random. Puoi cliccare, usare le frecce o swipare direttamente sulla foto.</p>
-                    <p>Le statistiche vengono salvate nel browser. Se cambi modalità, i contatori restano separati.</p>
+                    <h2>How it works</h2>
+                    <p>A random character appears each time. You can click, use the arrow keys, or swipe directly on the photo.</p>
+                    <p>Stats are saved in your browser. If you switch modes, the counters remain separate.</p>
                     <?php if (!$userAllowsNsfw): ?>
-                        <p><strong>Nota:</strong> hai i contenuti NSFW disattivati nel profilo, quindi qui vedi solo le modalità safe.</p>
+                        <p><strong>Note:</strong> You have NSFW content disabled in your profile, so only SFW modes are available here.</p>
                     <?php endif; ?>
                 </div>
             </aside>
@@ -456,10 +451,11 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
     </main>
 
     <button class="gl-top" type="button" data-gl-top aria-label="Torna su"><i class="fas fa-arrow-up"></i></button>
-    <div class="gl-toast" id="goonlandToast" hidden><i class="fas fa-check"></i><span>Fatto</span></div>
+    <div class="gl-toast" id="goonlandToast" hidden><i class="fas fa-check"></i><span>Done</span></div>
 
     <?php include '../../includes/footer-en.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="/js/modeChanger.js"></script>
 </body>
+
 </html>
