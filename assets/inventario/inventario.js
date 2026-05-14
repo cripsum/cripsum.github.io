@@ -1,6 +1,53 @@
 (() => {
     'use strict';
 
+    const lang = location.pathname.split('/').find(s => s === 'it' || s === 'en') || 'it';
+
+    const t = {
+        it: {
+            date_locale:        'it-IT',
+            rarity: {
+                comune:         'Comune',
+                raro:           'Raro',
+                epico:          'Epico',
+                leggendario:    'Leggendario',
+                speciale:       'Speciale',
+                segreto:        'Segreto',
+                theone:         'THE ONE'
+            },
+            unknown:            '???',
+            not_found:          'Non trovato',
+            found_on:           (date) => `Trovato il ${date}`,
+            open_character:     (name) => `Apri ${name}`,
+            no_description:     'Nessuna descrizione disponibile.',
+            traits_title:       'Tratti distintivi',
+            no_traits:          'Nessun tratto specificato.',
+            view_animation:     'Visualizza animazione',
+            results:            (n) => `${n} ${n === 1 ? 'risultato' : 'risultati'}`
+        },
+        en: {
+            date_locale:        'en-GB',
+            rarity: {
+                comune:         'Common',
+                raro:           'Rare',
+                epico:          'Epic',
+                leggendario:    'Legendary',
+                speciale:       'Special',
+                segreto:        'Secret',
+                theone:         'THE ONE'
+            },
+            unknown:            '???',
+            not_found:          'Not found',
+            found_on:           (date) => `Found on ${date}`,
+            open_character:     (name) => `Open ${name}`,
+            no_description:     'No description available.',
+            traits_title:       'Distinctive traits',
+            no_traits:          'No traits specified.',
+            view_animation:     'View animation',
+            results:            (n) => `${n} ${n === 1 ? 'result' : 'results'}`
+        }
+    }[lang];
+
     const $ = (selector, root = document) => root.querySelector(selector);
     const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
@@ -12,16 +59,6 @@
     };
 
     const rarityOrder = ['comune', 'raro', 'epico', 'leggendario', 'speciale', 'segreto', 'theone'];
-
-    const rarityLabels = {
-        comune: 'Comune',
-        raro: 'Raro',
-        epico: 'Epico',
-        leggendario: 'Leggendario',
-        speciale: 'Speciale',
-        segreto: 'Segreto',
-        theone: 'THE ONE'
-    };
 
     const state = {
         inventory: [],
@@ -64,7 +101,21 @@
 
     const getId = (item) => toInt(getField(item, ['id', 'personaggio_id', 'character_id'], 0));
 
-    const getName = (item) => String(getField(item, ['nome', 'name'], ''));
+    // Aggiunto il controllo per la lingua inglese nei campi nome, descrizione e caratteristiche
+    const getName = (item) => String(
+        (lang === 'en' && getField(item, ['nome_en', 'name_en'])) || 
+        getField(item, ['nome', 'name'], '')
+    );
+
+    const getDescription = (item) => String(
+        (lang === 'en' && getField(item, ['descrizione_en', 'description_en'])) || 
+        getField(item, ['descrizione', 'description'], '')
+    );
+
+    const getTraits = (item) => String(
+        (lang === 'en' && getField(item, ['caratteristiche_en', 'traits_en'])) || 
+        getField(item, ['caratteristiche', 'traits'], '')
+    );
 
     const normalizeRarityValue = (value) => {
         const rarity = normalize(value)
@@ -94,10 +145,6 @@
 
     const getCategory = (item) => String(getField(item, ['categoria', 'category'], ''));
 
-    const getDescription = (item) => String(getField(item, ['descrizione', 'description'], ''));
-
-    const getTraits = (item) => String(getField(item, ['caratteristiche', 'traits'], ''));
-
     const getDate = (item) => String(getField(item, ['data', 'created_at', 'ottenuto_il'], ''));
 
     const resolveImage = (image, owned) => {
@@ -118,10 +165,10 @@
         if (Number.isNaN(date.getTime())) return '';
 
         if (!withTime) {
-            return date.toLocaleDateString('it-IT');
+            return date.toLocaleDateString(t.date_locale);
         }
 
-        return `${date.toLocaleDateString('it-IT')} · ${date.toLocaleTimeString('it-IT', {
+        return `${date.toLocaleDateString(t.date_locale)} · ${date.toLocaleTimeString(t.date_locale, {
             hour: '2-digit',
             minute: '2-digit'
         })}`;
@@ -296,7 +343,7 @@
 
         return `
             <div class="rarity-title">
-                <strong>${escapeHtml(rarityLabels[rarity] || rarity)}</strong>
+                <strong>${escapeHtml(t.rarity[rarity] || rarity)}</strong>
                 <span>${found} / ${total}</span>
             </div>
         `;
@@ -304,16 +351,16 @@
 
     const renderCard = (entry) => {
         const isDuplicate = entry.quantity > 1;
-        const rarityLabel = rarityLabels[entry.rarity] || entry.rarity;
+        const rarityLabel = t.rarity[entry.rarity] || entry.rarity;
         const image = resolveImage(entry.image, entry.owned);
         const date = entry.owned ? formatDate(entry.date) : '';
-        const displayName = entry.owned ? entry.name : '???';
+        const displayName = entry.owned ? entry.name : t.unknown;
 
         return `
             <article class="character-card rarity-${escapeHtml(entry.rarity)} ${entry.owned ? 'is-owned' : 'is-missing'}"
                      data-character-id="${entry.id}"
                      ${entry.owned ? 'tabindex="0" role="button"' : ''}
-                     aria-label="${entry.owned ? `Apri ${escapeHtml(entry.name)}` : 'Personaggio non trovato'}">
+                     aria-label="${entry.owned ? escapeHtml(t.open_character(entry.name)) : t.not_found}">
                 <div class="character-image-wrap">
                     <img src="${escapeHtml(image)}"
                          class="character-image"
@@ -335,7 +382,7 @@
                     </div>
 
                     <span class="character-date">
-                        ${entry.owned && date ? `Trovato il ${escapeHtml(date)}` : 'Non trovato'}
+                        ${entry.owned && date ? escapeHtml(t.found_on(date)) : t.not_found}
                     </span>
                 </div>
             </article>
@@ -373,7 +420,7 @@
         empty.hidden = renderedCount !== 0;
 
         if (visibleCount) {
-            visibleCount.textContent = `${renderedCount} ${renderedCount === 1 ? 'risultato' : 'risultati'}`;
+            visibleCount.textContent = t.results(renderedCount);
         }
 
         $$('.character-card.is-owned', container).forEach((card, index) => {
@@ -405,7 +452,7 @@
         const content = $('#characterModalContent');
         if (!modal || !content) return;
 
-        const rarityLabel = rarityLabels[entry.rarity] || entry.rarity;
+        const rarityLabel = t.rarity[entry.rarity] || entry.rarity;
         const image = resolveImage(entry.image, true);
         const traits = entry.traits
             ? entry.traits.split(';').map((trait) => trait.trim()).filter(Boolean)
@@ -444,17 +491,17 @@
                         ` : ''}
                     </div>
 
-                    <p>${escapeHtml(entry.description || 'Nessuna descrizione disponibile.')}</p>
+                    <p>${escapeHtml(entry.description || t.no_description)}</p>
 
                     <div class="modal-character__traits">
-                        <strong>Tratti distintivi</strong><br>
-                        ${traits.length ? traits.map((trait) => `- ${escapeHtml(trait)}`).join('<br>') : 'Nessun tratto specificato.'}
+                        <strong>${t.traits_title}</strong><br>
+                        ${traits.length ? traits.map((trait) => `- ${escapeHtml(trait)}`).join('<br>') : t.no_traits}
                     </div>
 
                     <div class="modal-character__actions">
                         <a class="inv-btn inv-btn--primary" href="animazione_personaggio?id_personaggio=${encodeURIComponent(entry.id)}">
                             <i class="fas fa-wand-magic-sparkles"></i>
-                            <span>Visualizza animazione</span>
+                            <span>${t.view_animation}</span>
                         </a>
                     </div>
                 </div>

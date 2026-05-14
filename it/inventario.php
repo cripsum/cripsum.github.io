@@ -42,12 +42,12 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <meta name="twitter:card" content="summary_large_image">
 
     <link rel="stylesheet" href="/assets/inventario/inventario.css?v=2.9.1">
-    <script src="/assets/inventario/inventario.js?v=2.9.1" defer></script>
+    <script src="/assets/inventario/inventario.js?v=3.0.0" defer></script>
 </head>
 
 <body class="inv-page">
     <?php include '../includes/navbar.php'; ?>
-     
+
 
     <div class="inv-bg" aria-hidden="true">
         <span class="inv-orb inv-orb--one"></span>
