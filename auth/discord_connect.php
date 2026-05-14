@@ -9,14 +9,14 @@ checkBan($mysqli);
 
 if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = '/edit-profile.php';
-    $_SESSION['login_message'] = 'Per collegare Discord devi essere loggato';
-    header('Location: /it/accedi');
+    $_SESSION['login_message'] = 'To connect your Discord account, you need to be logged in.';
+    header('Location: /en/accedi');
     exit;
 }
 
 if (CRIPSUM_DISCORD_CLIENT_ID === 'INSERISCI_CLIENT_ID' || CRIPSUM_DISCORD_CLIENT_SECRET === 'INSERISCI_CLIENT_SECRET') {
     http_response_code(500);
-    exit('Discord OAuth non configurato. Imposta client id e secret.');
+    exit('Discord OAuth not configured. Set client id and secret.');
 }
 
 $currentUserId = (int)$_SESSION['user_id'];
@@ -24,7 +24,7 @@ $targetUserId = isset($_GET['target_user_id']) && profile_is_staff() ? (int)$_GE
 
 if (!profile_can_edit($targetUserId)) {
     http_response_code(403);
-    exit('Accesso negato.');
+    exit('Access denied.');
 }
 
 $state = bin2hex(random_bytes(32));

@@ -8,7 +8,7 @@ require_once __DIR__ . '/../config/discord_oauth.php';
 checkBan($mysqli);
 
 if (!isLoggedIn()) {
-    header('Location: /it/accedi');
+    header('Location: /en/accedi');
     exit;
 }
 
@@ -20,14 +20,14 @@ $targetUserId = (int)($_SESSION['discord_oauth_target_user_id'] ?? $_SESSION['us
 unset($_SESSION['discord_oauth_state'], $_SESSION['discord_oauth_target_user_id']);
 
 if ($code === '' || $state === '' || !hash_equals((string)$savedState, $state)) {
-    $_SESSION['profile_flash_error'] = 'Login Discord non valido o scaduto.';
+    $_SESSION['profile_flash_error'] = 'Invalid Discord OAuth state.';
     header('Location: /edit-profile.php');
     exit;
 }
 
 if (!profile_can_edit($targetUserId)) {
     http_response_code(403);
-    exit('Accesso negato.');
+    exit('Access denied.');
 }
 
 function cripsum_discord_request(string $url, array $options = []): array
@@ -47,11 +47,11 @@ function cripsum_discord_request(string $url, array $options = []): array
     curl_close($ch);
 
     if ($body === false || $status < 200 || $status >= 300) {
-        throw new RuntimeException($error ?: 'Richiesta Discord fallita.');
+        throw new RuntimeException($error ?: 'Discord request failed.');
     }
 
     $json = json_decode((string)$body, true);
-    if (!is_array($json)) throw new RuntimeException('Risposta Discord non valida.');
+    if (!is_array($json)) throw new RuntimeException('Invalid Discord response.');
     return $json;
 }
 
@@ -69,7 +69,7 @@ try {
     ]);
 
     $accessToken = (string)($token['access_token'] ?? '');
-    if ($accessToken === '') throw new RuntimeException('Token Discord mancante.');
+    if ($accessToken === '') throw new RuntimeException('Missing Discord token.');
 
     $user = cripsum_discord_request('https://discord.com/api/v10/users/@me', [
         CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . $accessToken],
@@ -77,7 +77,7 @@ try {
 
     $discordId = trim((string)($user['id'] ?? ''));
     if (!profile_is_valid_discord_id($discordId) || $discordId === '') {
-        throw new RuntimeException('ID Discord non valido.');
+        throw new RuntimeException('Invalid Discord ID.');
     }
 
     $discordUsername = profile_clean_text((string)($user['username'] ?? ''), 64);
@@ -86,11 +86,11 @@ try {
 
     $stmt = $mysqli->prepare("\n        UPDATE utenti\n        SET discord_id = ?,\n            discord_username = ?,\n            discord_global_name = ?,\n            discord_avatar = ?,\n            discord_connected_at = NOW(),\n            profile_updated_at = NOW()\n        WHERE id = ?\n    ");
     $stmt->bind_param('ssssi', $discordId, $discordUsername, $discordGlobalName, $discordAvatar, $targetUserId);
-    if (!$stmt->execute()) throw new RuntimeException('Non sono riuscito a salvare Discord.');
+    if (!$stmt->execute()) throw new RuntimeException('Failed to save Discord information.');
     $stmt->close();
 
-    profile_record_activity($mysqli, $targetUserId, 'discord', 'Ha collegato Discord');
-    $_SESSION['profile_flash_success'] = 'Discord collegato.';
+    profile_record_activity($mysqli, $targetUserId, 'discord', 'Connected Discord');
+    $_SESSION['profile_flash_success'] = 'Discord connected.';
 } catch (Throwable $e) {
     $_SESSION['profile_flash_error'] = $e->getMessage();
 }

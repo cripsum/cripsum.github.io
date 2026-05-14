@@ -7,27 +7,27 @@ require_once __DIR__ . '/../includes/profile_helpers.php';
 checkBan($mysqli);
 
 if (!isLoggedIn()) {
-    profile_json_response(['ok' => false, 'message' => 'Devi essere loggato.'], 401);
+    profile_json_response(['ok' => false, 'message' => 'You must be logged in.'], 401);
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    profile_json_response(['ok' => false, 'message' => 'Metodo non valido.'], 405);
+    profile_json_response(['ok' => false, 'message' => 'Invalid method.'], 405);
 }
 
 if (!profile_validate_csrf($_POST['csrf_token'] ?? null)) {
-    profile_json_response(['ok' => false, 'message' => 'Sessione scaduta. Ricarica la pagina.'], 403);
+    profile_json_response(['ok' => false, 'message' => 'Session expired. Please reload the page.'], 403);
 }
 
 $currentUserId = (int)$_SESSION['user_id'];
 $targetUserId = isset($_POST['target_user_id']) && profile_is_staff() ? (int)$_POST['target_user_id'] : $currentUserId;
 
 if (!profile_can_edit($targetUserId)) {
-    profile_json_response(['ok' => false, 'message' => 'Non puoi modificare questo profilo.'], 403);
+    profile_json_response(['ok' => false, 'message' => 'You cannot edit this profile.'], 403);
 }
 
 $profile = profile_get_edit_profile($mysqli, $targetUserId);
 if (!$profile) {
-    profile_json_response(['ok' => false, 'message' => 'Profilo non trovato.'], 404);
+    profile_json_response(['ok' => false, 'message' => 'Profile not found.'], 404);
 }
 
 $username = trim((string)($_POST['username'] ?? ''));
@@ -73,15 +73,15 @@ $showActivity = profile_bool_from_post('profile_show_activity', true);
 $showDiscord = profile_bool_from_post('profile_show_discord', true);
 
 if (!profile_is_valid_username($username)) {
-    profile_json_response(['ok' => false, 'message' => 'Username non valido. Usa 3-20 caratteri, lettere, numeri o underscore.'], 422);
+    profile_json_response(['ok' => false, 'message' => 'Invalid username. Use 3-20 characters, letters, numbers, or underscores.'], 422);
 }
 
 if (mb_strlen($bio, 'UTF-8') > 280) {
-    profile_json_response(['ok' => false, 'message' => 'Bio troppo lunga.'], 422);
+    profile_json_response(['ok' => false, 'message' => 'Bio too long.'], 422);
 }
 
 if (!profile_is_valid_discord_id($discordId)) {
-    profile_json_response(['ok' => false, 'message' => 'ID Discord non valido. Deve contenere solo numeri.'], 422);
+    profile_json_response(['ok' => false, 'message' => 'Invalid Discord ID. Must contain only numbers.'], 422);
 }
 
 $hasConnectedDiscord = !empty($profile['discord_username']) && $discordIdDb !== null && $discordIdDb === (string)($profile['discord_id'] ?? '');
@@ -91,7 +91,7 @@ if (!$hasConnectedDiscord) {
 }
 
 if (!profile_is_safe_url($musicUrl, false)) {
-    profile_json_response(['ok' => false, 'message' => 'URL canzone non valido.'], 422);
+    profile_json_response(['ok' => false, 'message' => 'Invalid music URL.'], 422);
 }
 
 $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE LOWER(username) = LOWER(?) AND id != ? LIMIT 1");
@@ -100,7 +100,7 @@ $stmt->execute();
 $exists = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 if ($exists) {
-    profile_json_response(['ok' => false, 'message' => 'Username già in uso.'], 409);
+    profile_json_response(['ok' => false, 'message' => 'Username already in use.'], 409);
 }
 
 $avatarUpload = profile_handle_image_upload($_FILES['avatar'] ?? ['error' => UPLOAD_ERR_NO_FILE], 2 * 1024 * 1024);
@@ -110,12 +110,12 @@ if (!empty($avatarUpload['error'])) {
 
 $bannerUpload = profile_handle_background_upload($_FILES['banner'] ?? ['error' => UPLOAD_ERR_NO_FILE], 12 * 1024 * 1024);
 if (!empty($bannerUpload['error'])) {
-    profile_json_response(['ok' => false, 'message' => 'Sfondo profilo: ' . $bannerUpload['error']], 422);
+    profile_json_response(['ok' => false, 'message' => 'Profile background: ' . $bannerUpload['error']], 422);
 }
 
 $musicUpload = profile_handle_audio_upload($_FILES['profile_music_file'] ?? ['error' => UPLOAD_ERR_NO_FILE], 12 * 1024 * 1024);
 if (!empty($musicUpload['error'])) {
-    profile_json_response(['ok' => false, 'message' => 'Audio profilo: ' . $musicUpload['error']], 422);
+    profile_json_response(['ok' => false, 'message' => 'Profile audio: ' . $musicUpload['error']], 422);
 }
 $removeMusicUpload = !empty($_POST['remove_profile_music_upload']);
 $avatarChanged = !empty($avatarUpload['has_file']);
@@ -192,7 +192,7 @@ try {
         $avatarRingEnabled,
         $targetUserId
     );
-    if (!$stmt->execute()) throw new RuntimeException('Errore salvataggio profilo.');
+    if (!$stmt->execute()) throw new RuntimeException('Error updating profile.');
     $stmt->close();
 
     if (!empty($avatarUpload['has_file']) && isset($avatarUpload['blob'], $avatarUpload['mime'])) {
@@ -200,13 +200,13 @@ try {
         $null = null;
         $stmt->bind_param('bsi', $null, $avatarUpload['mime'], $targetUserId);
         $stmt->send_long_data(0, $avatarUpload['blob']);
-        if (!$stmt->execute()) throw new RuntimeException('Errore salvataggio avatar.');
+        if (!$stmt->execute()) throw new RuntimeException('Error saving avatar.');
         $stmt->close();
 
         if (function_exists('profile_unlock_achievement')) {
             profile_unlock_achievement($mysqli, $targetUserId, 2);
         }
-        profile_record_activity($mysqli, $targetUserId, 'profile_update', 'Ha aggiornato la foto profilo');
+        profile_record_activity($mysqli, $targetUserId, 'profile_update', 'Updated profile picture');
     }
 
     if (!empty($bannerUpload['has_file']) && isset($bannerUpload['blob'], $bannerUpload['mime'])) {
@@ -214,7 +214,7 @@ try {
         $null = null;
         $stmt->bind_param('bsi', $null, $bannerUpload['mime'], $targetUserId);
         $stmt->send_long_data(0, $bannerUpload['blob']);
-        if (!$stmt->execute()) throw new RuntimeException('Errore salvataggio sfondo profilo.');
+        if (!$stmt->execute()) throw new RuntimeException('Error saving profile background.');
         $stmt->close();
     }
 
@@ -223,12 +223,12 @@ try {
         $null = null;
         $stmt->bind_param('bsi', $null, $musicUpload['mime'], $targetUserId);
         $stmt->send_long_data(0, $musicUpload['blob']);
-        if (!$stmt->execute()) throw new RuntimeException('Errore salvataggio MP3.');
+        if (!$stmt->execute()) throw new RuntimeException('Error saving MP3.');
         $stmt->close();
     } elseif ($removeMusicUpload || $musicUrlDb) {
         $stmt = $mysqli->prepare("UPDATE utenti SET profile_music_blob = NULL, profile_music_mime = NULL WHERE id = ?");
         $stmt->bind_param('i', $targetUserId);
-        if (!$stmt->execute()) throw new RuntimeException('Errore rimozione MP3.');
+        if (!$stmt->execute()) throw new RuntimeException('Error removing MP3.');
         $stmt->close();
     }
 
@@ -247,9 +247,9 @@ try {
         $url = trim((string)($row['url'] ?? ''));
         $visible = !empty($row['is_visible']) ? 1 : 0;
         if ($url === '') continue;
-        if (!profile_is_safe_url($url, true)) throw new RuntimeException('URL social non valido: ' . $label);
+        if (!profile_is_safe_url($url, true)) throw new RuntimeException('Invalid social URL: ' . $label);
         $insertSocial->bind_param('issssii', $targetUserId, $platform, $label, $displayUsernameDb, $url, $i, $visible);
-        if (!$insertSocial->execute()) throw new RuntimeException('Errore salvataggio social.');
+        if (!$insertSocial->execute()) throw new RuntimeException('Error saving social.');
     }
     $insertSocial->close();
 
@@ -268,10 +268,10 @@ try {
         $featured = !empty($row['is_featured']) ? 1 : 0;
         $visible = !empty($row['is_visible']) ? 1 : 0;
         if ($title === '' && $url === '') continue;
-        if ($title === '') throw new RuntimeException('Un link non ha titolo.');
-        if (!profile_is_safe_url($url, true)) throw new RuntimeException('URL link non valido: ' . $title);
+        if ($title === '') throw new RuntimeException('A link must have a title.');
+        if (!profile_is_safe_url($url, true)) throw new RuntimeException('Invalid link URL: ' . $title);
         $insertLink->bind_param('isssssiii', $targetUserId, $title, $description, $url, $icon, $buttonStyle, $featured, $visible, $i);
-        if (!$insertLink->execute()) throw new RuntimeException('Errore salvataggio link.');
+        if (!$insertLink->execute()) throw new RuntimeException('Error saving link.');
     }
     $insertLink->close();
 
@@ -291,10 +291,10 @@ try {
         $featured = !empty($row['is_featured']) ? 1 : 0;
         $visible = !empty($row['is_visible']) ? 1 : 0;
         if ($title === '') continue;
-        if (!profile_is_safe_url($url, false)) throw new RuntimeException('URL progetto non valido: ' . $title);
-        if (!profile_is_safe_url($imageUrl, false)) throw new RuntimeException('Immagine progetto non valida: ' . $title);
+        if (!profile_is_safe_url($url, false)) throw new RuntimeException('Invalid project URL: ' . $title);
+        if (!profile_is_safe_url($imageUrl, false)) throw new RuntimeException('Invalid project image: ' . $title);
         $insertProject->bind_param('issssssiii', $targetUserId, $title, $description, $url, $imageUrl, $techStack, $status, $featured, $visible, $i);
-        if (!$insertProject->execute()) throw new RuntimeException('Errore salvataggio progetto.');
+        if (!$insertProject->execute()) throw new RuntimeException('Error saving project.');
     }
     $insertProject->close();
 
@@ -313,10 +313,10 @@ try {
         $featured = !empty($row['is_featured']) ? 1 : 0;
         $visible = !empty($row['is_visible']) ? 1 : 0;
         if ($title === '') continue;
-        if (!profile_is_safe_url($url, false)) throw new RuntimeException('URL contenuto non valido: ' . $title);
-        if (!profile_is_safe_url($thumb, false)) throw new RuntimeException('Thumbnail non valida: ' . $title);
+        if (!profile_is_safe_url($url, false)) throw new RuntimeException('Invalid content URL: ' . $title);
+        if (!profile_is_safe_url($thumb, false)) throw new RuntimeException('Invalid thumbnail: ' . $title);
         $insertContent->bind_param('isssssiii', $targetUserId, $type, $title, $description, $url, $thumb, $featured, $visible, $i);
-        if (!$insertContent->execute()) throw new RuntimeException('Errore salvataggio contenuto.');
+        if (!$insertContent->execute()) throw new RuntimeException('Error saving content.');
     }
     $insertContent->close();
 
@@ -338,7 +338,7 @@ try {
 
         if ($title === '' && $body === '' && $mediaUrl === '') continue;
         if ($type !== 'text' && !profile_is_safe_url($mediaUrl, true)) {
-            throw new RuntimeException('URL media non valido nel blocco custom.');
+            throw new RuntimeException('Invalid media URL in custom block.');
         }
         if ($type === 'text') {
             $mediaUrl = null;
@@ -346,12 +346,12 @@ try {
         }
 
         $insertBlock->bind_param('isssssiii', $targetUserId, $type, $title, $body, $mediaUrl, $mediaType, $featured, $visible, $i);
-        if (!$insertBlock->execute()) throw new RuntimeException('Errore salvataggio blocchi custom.');
+        if (!$insertBlock->execute()) throw new RuntimeException('Error saving custom blocks.');
     }
     $insertBlock->close();
 
     if ($musicUrlDb || !empty($musicUpload['has_file'])) {
-        profile_record_activity($mysqli, $targetUserId, 'music', 'Ha aggiornato la canzone del profilo', $musicUrlDb ?: null);
+        profile_record_activity($mysqli, $targetUserId, 'music', 'Updated profile song', $musicUrlDb ?: null);
     }
 
     $stmt = $mysqli->prepare("DELETE FROM utenti_profile_badges WHERE utente_id = ?");
@@ -370,11 +370,11 @@ try {
         $badgeId = (int)$badgeId;
         if ($badgeId <= 0) continue;
         $insertBadge->bind_param('iiii', $targetUserId, $i, $targetUserId, $badgeId);
-        if (!$insertBadge->execute()) throw new RuntimeException('Errore salvataggio badge.');
+        if (!$insertBadge->execute()) throw new RuntimeException('Error saving badge.');
     }
     $insertBadge->close();
 
-    profile_record_activity($mysqli, $targetUserId, 'profile_update', 'Ha aggiornato il profilo');
+    profile_record_activity($mysqli, $targetUserId, 'profile_update', 'Updated profile');
 
     $mysqli->commit();
 
@@ -384,7 +384,7 @@ try {
 
     profile_json_response([
         'ok' => true,
-        'message' => 'Profilo salvato.',
+        'message' => 'Profile saved.',
         'profile_url' => '/u/' . rawurlencode(strtolower($username)),
     ]);
 } catch (Throwable $e) {
