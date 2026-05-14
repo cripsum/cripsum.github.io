@@ -1,6 +1,23 @@
 (() => {
     'use strict';
 
+    const lang = location.pathname.split('/').find(s => s === 'it' || s === 'en') || 'it';
+
+    const t = {
+        it: {
+            download_started:   'Download avviato',
+            starting_download:  'Avvio download...',
+            link_copied:        'Link copiato negli appunti',
+            copy_failed:        'Impossibile copiare il link',
+        },
+        en: {
+            download_started:   'Download started',
+            starting_download:  'Starting download...',
+            link_copied:        'Link copied to clipboard',
+            copy_failed:        'Unable to copy link',
+        },
+    }[lang];
+
     if (window.__cripsumDownloadSingleLoaded) return;
     window.__cripsumDownloadSingleLoaded = true;
 
@@ -72,10 +89,10 @@
                 downloadLink.classList.add('is-loading');
 
                 if (label) {
-                    label.textContent = 'Starting download...';
+                    label.textContent = t.starting_download;
                 }
 
-                showToast('Download started');
+                showToast(t.download_started);
 
                 window.setTimeout(() => {
                     downloadLink.classList.remove('is-loading');
@@ -94,10 +111,10 @@
 
                 try {
                     await copyToClipboard(getDownloadUrl(downloadLink));
-                    showToast('Link copied to clipboard');
+                    showToast(t.link_copied);
                 } catch (err) {
                     console.warn('[Download] Copy link failed:', err);
-                    showToast('Unable to copy link');
+                    showToast(t.copy_failed);
                 }
             });
         }

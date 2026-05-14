@@ -1,6 +1,40 @@
-
 (() => {
     'use strict';
+
+    const lang = location.pathname.split('/').find(s => s === 'it' || s === 'en') || 'it';
+
+    const t = {
+        it: {
+            not_available:     'Non disponibile.',
+            removed_favorite:  'Rimosso dai preferiti.',
+            saved_favorite:    'Salvato nei preferiti.',
+            link_copied:       'Link copiato.',
+            copy_failed:       'Non sono riuscito a copiare.',
+            show_favorites:    'Mostro solo i preferiti.',
+            show_all:          'Mostro tutti i prodotti.',
+            product_fallback:  'Prodotto',
+            open_label:        (name) => `Apri ${name}`,
+            download:          'Scarica',
+            buy:               'Acquista',
+            not_available_btn: 'Non disponibile',
+            copy_link:         'Copia link',
+        },
+        en: {
+            not_available:     'Not available.',
+            removed_favorite:  'Removed from favorites.',
+            saved_favorite:    'Saved to favorites.',
+            link_copied:       'Link copied.',
+            copy_failed:       'Could not copy the link.',
+            show_favorites:    'Showing favorites only.',
+            show_all:          'Showing all products.',
+            product_fallback:  'Product',
+            open_label:        (name) => `Open ${name}`,
+            download:          'Download',
+            buy:               'Buy now',
+            not_available_btn: 'Not available',
+            copy_link:         'Copy link',
+        },
+    }[lang];
 
     const $ = (selector, root = document) => root.querySelector(selector);
     const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -41,7 +75,7 @@
     const formatPrice = (value) => {
         const number = Number(value || 0);
         if (!number) return '';
-        return number.toLocaleString('it-IT', {
+        return number.toLocaleString(lang === 'en' ? 'en-GB' : 'it-IT', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         }) + '€';
@@ -100,7 +134,7 @@
 
         const link = normalizeTargetUrl(card.dataset.link || '');
         if (!link) {
-            showToast('Non disponibile.');
+            showToast(t.not_available);
             return;
         }
 
@@ -191,7 +225,7 @@
         setFavorites(next);
         applyFavoritesVisual();
         applyFilters();
-        showToast(saved ? 'Rimosso dai preferiti.' : 'Salvato nei preferiti.');
+        showToast(saved ? t.removed_favorite : t.saved_favorite);
     };
 
     const productUrl = (card) => {
@@ -205,7 +239,7 @@
 
         if (!modal || !content || !card) return;
 
-        const name = card.dataset.name || 'Prodotto';
+        const name = card.dataset.name || t.product_fallback;
         const description = card.dataset.description || '';
         const image = card.dataset.image || '';
         const link = normalizeTargetUrl(card.dataset.link || '');
@@ -229,12 +263,12 @@
                     <div class="shop-modal-actions">
                         ${isAvailable ? `
                             <a class="shop-btn shop-btn--primary" href="${escapeHtml(link)}">
-                                ${isDownload ? 'Scarica' : 'Acquista'}
+                                ${isDownload ? t.download : t.buy}
                             </a>
-                        ` : `<span class="shop-btn is-disabled">Non disponibile</span>`}
+                        ` : `<span class="shop-btn is-disabled">${t.not_available_btn}</span>`}
 
                         <button type="button" class="shop-btn shop-btn--ghost" data-copy-current>
-                            Copia link
+                            ${t.copy_link}
                         </button>
                     </div>
                 </div>
@@ -243,7 +277,7 @@
 
         $('[data-copy-current]', content)?.addEventListener('click', async () => {
             const ok = await copyText(productUrl(card));
-            showToast(ok ? 'Link copiato.' : 'Non sono riuscito a copiare.');
+            showToast(ok ? t.link_copied : t.copy_failed);
         });
 
         modal.hidden = false;
@@ -284,7 +318,7 @@
             });
 
             applyFilters();
-            showToast(favoritesOnly ? 'Mostro solo i preferiti.' : 'Mostro tutti i prodotti.');
+            showToast(favoritesOnly ? t.show_favorites : t.show_all);
         });
     };
 
@@ -295,7 +329,7 @@
             if (link) {
                 card.setAttribute('tabindex', '0');
                 card.setAttribute('role', 'link');
-                card.setAttribute('aria-label', `Apri ${card.dataset.name || 'prodotto'}`);
+                card.setAttribute('aria-label', t.open_label(card.dataset.name || t.product_fallback));
             }
 
             card.addEventListener('click', (event) => {
@@ -333,7 +367,7 @@
                     : productUrl(card);
 
                 const ok = await copyText(absolute);
-                showToast(ok ? 'Link copiato.' : 'Non sono riuscito a copiare.');
+                showToast(ok ? t.link_copied : t.copy_failed);
             });
 
             $$('.shop-card__actions a[href]', card).forEach((anchor) => {
@@ -343,7 +377,7 @@
                     const href = anchor.getAttribute('href') || '';
                     if (!href || href === '#') {
                         event.preventDefault();
-                        showToast('Non disponibile.');
+                        showToast(t.not_available);
                     }
                 });
             });

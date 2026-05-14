@@ -1,74 +1,149 @@
 (() => {
     'use strict';
 
+    const lang = location.pathname.split('/').find(s => s === 'it' || s === 'en') || 'it';
+
+    const t = {
+        it: { open_slide: (title) => `Apri ${title}` },
+        en: { open_slide: (title) => `Open ${title}` },
+    }[lang];
+
+    const slideData = {
+        it: [
+            {
+                media: '../img/profili.png',
+                title: 'Profili custom!',
+                description: 'Personalizza il tuo profilo creando una bio o un portfolio clean.',
+                buttonText: 'Modifica il tuo profilo',
+                link: '../profile'
+            },
+            {
+                media: '../img/jay-quadrato.png',
+                title: 'Ciao! Sono Jay!',
+                description: 'Vuoi imparare l\u2019arte dello Spinjitzu?',
+                buttonText: 'Acquista il videocorso',
+                link: 'https://payhip.com/b/m0kaT'
+            },
+            {
+                media: '../img/chinese-essay-2.jpg',
+                title: 'Hey! Mi chiamo \u512a\u5e0c!',
+                description: 'Vuoi imparare l\u2019arte dello Yoshukai?',
+                buttonText: 'Scarica la guida',
+                link: 'download/yoshukai'
+            },
+            {
+                media: '../img/segone4.png',
+                title: 'Achievements',
+                description: 'Sblocca gli achievement del sito e guarda i tuoi progressi.',
+                buttonText: 'Vedi achievement',
+                link: 'achievements'
+            },
+            {
+                media: '../img/waguri.jpeg',
+                title: 'Lootbox',
+                description: 'Apri lootbox e aggiungi personaggi alla tua collezione.',
+                buttonText: 'Apri lootbox',
+                link: 'lootbox'
+            },
+            {
+                media: '../img/pfp choso2 cc.png',
+                title: 'I miei Edit',
+                description: 'Guarda gli ultimi edit e video caricati sul sito.',
+                buttonText: 'Guarda gli edit',
+                link: 'edits'
+            },
+            {
+                media: '../img/mentone.jpg',
+                title: 'GoonLand',
+                description: 'La parte più interna e strana del sito.',
+                buttonText: 'Entra',
+                link: 'goonland/home'
+            },
+            {
+                media: '../img/abdul.jpg',
+                title: 'Chat Globale',
+                description: 'Chatta con gli altri utenti del sito.',
+                buttonText: 'Apri chat',
+                link: 'global-chat'
+            },
+            {
+                media: '../img/dukedennis.jpg',
+                title: 'Downloads',
+                description: 'Scarica contenuti, file e robe del sito.',
+                buttonText: 'Vai ai download',
+                link: 'download'
+            }
+        ],
+        en: [
+            {
+                media: '../img/profili.png',
+                title: 'Custom profiles!',
+                description: 'Customise your profile by creating a clean bio or portfolio.',
+                buttonText: 'Edit your profile',
+                link: '../profile'
+            },
+            {
+                media: '../img/jay-quadrato.png',
+                title: 'Hi! I\'m Jay!',
+                description: 'Want to learn the art of Spinjitzu?',
+                buttonText: 'Buy the video course',
+                link: 'https://payhip.com/b/m0kaT'
+            },
+            {
+                media: '../img/chinese-essay-2.jpg',
+                title: 'Hey! My name is \u512a\u5e0c!',
+                description: 'Want to learn the art of Yoshukai?',
+                buttonText: 'Download the guide',
+                link: 'download/yoshukai'
+            },
+            {
+                media: '../img/segone4.png',
+                title: 'Achievements',
+                description: 'Unlock site achievements and track your progress.',
+                buttonText: 'View achievements',
+                link: 'achievements'
+            },
+            {
+                media: '../img/waguri.jpeg',
+                title: 'Lootbox',
+                description: 'Open lootboxes and add characters to your collection.',
+                buttonText: 'Open lootbox',
+                link: 'lootbox'
+            },
+            {
+                media: '../img/pfp choso2 cc.png',
+                title: 'My Edits',
+                description: 'Watch the latest edits and videos uploaded to the site.',
+                buttonText: 'Watch edits',
+                link: 'edits'
+            },
+            {
+                media: '../img/mentone.jpg',
+                title: 'GoonLand',
+                description: 'The most internal and "special" part of the site.',
+                buttonText: 'Enter',
+                link: 'goonland/home'
+            },
+            {
+                media: '../img/abdul.jpg',
+                title: 'Global Chat',
+                description: 'Chat with other users on the site.',
+                buttonText: 'Open chat',
+                link: 'global-chat'
+            },
+            {
+                media: '../img/dukedennis.jpg',
+                title: 'Downloads',
+                description: 'Download content, files and stuff from the site.',
+                buttonText: 'Go to downloads',
+                link: 'download'
+            }
+        ],
+    };
+
+    const slides = slideData[lang];
     const $ = (selector, root = document) => root.querySelector(selector);
     const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
-
-    const slides = [
-        {
-            media: '../img/profili.png',
-            title: 'Profili custom!',
-            description: 'Personalizza il tuo profilo creando una bio o un portfolio clean.',
-            buttonText: 'Modifica il tuo profilo',
-            link: '../profile'
-        },
-        {
-            media: '../img/jay-quadrato.png',
-            title: 'Ciao! Sono Jay!',
-            description: 'Vuoi imparare l’arte dello Spinjitzu?',
-            buttonText: 'Acquista il videocorso',
-            link: 'https://payhip.com/b/m0kaT'
-        },
-        {
-            media: '../img/chinese-essay-2.jpg',
-            title: 'Hey! Mi chiamo 優希!',
-            description: 'Vuoi imparare l’arte dello Yoshukai?',
-            buttonText: 'Scarica la guida',
-            link: 'download/yoshukai'
-        },
-        {
-            media: '../img/segone4.png',
-            title: 'Achievements',
-            description: 'Sblocca gli achievement del sito e guarda i tuoi progressi.',
-            buttonText: 'Vedi achievement',
-            link: 'achievements'
-        },
-        {
-            media: '../img/waguri.jpeg',
-            title: 'Lootbox',
-            description: 'Apri lootbox e aggiungi personaggi alla tua collezione.',
-            buttonText: 'Apri lootbox',
-            link: 'lootbox'
-        },
-        {
-            media: '../img/pfp choso2 cc.png',
-            title: 'I miei Edit',
-            description: 'Guarda gli ultimi edit e video caricati sul sito.',
-            buttonText: 'Guarda gli edit',
-            link: 'edits'
-        },
-        {
-            media: '../img/mentone.jpg',
-            title: 'GoonLand',
-            description: 'La parte più interna e strana del sito.',
-            buttonText: 'Entra',
-            link: 'goonland/home'
-        },
-        {
-            media: '../img/abdul.jpg',
-            title: 'Chat Globale',
-            description: 'Chatta con gli altri utenti del sito.',
-            buttonText: 'Apri chat',
-            link: 'global-chat'
-        },
-        {
-            media: '../img/dukedennis.jpg',
-            title: 'Downloads',
-            description: 'Scarica contenuti, file e robe del sito.',
-            buttonText: 'Vai ai download',
-            link: 'download'
-        }
-    ];
 
     let index = Math.floor(Math.random() * slides.length);
     let autoTimer = null;
@@ -91,7 +166,7 @@
         if (!tabs) return;
 
         tabs.innerHTML = slides.map((slide, slideIndex) => `
-            <button type="button" class="home-tab ${slideIndex === index ? 'is-active' : ''}" data-slide="${slideIndex}" aria-label="Apri ${escapeHtml(cleanTitle(slide.title))}">
+            <button type="button" class="home-tab ${slideIndex === index ? 'is-active' : ''}" data-slide="${slideIndex}" aria-label="${escapeHtml(t.open_slide(cleanTitle(slide.title)))}">
                 <img src="${escapeHtml(slide.media)}" alt="" loading="lazy">
                 <span>${escapeHtml(cleanTitle(slide.title))}</span>
             </button>
@@ -290,7 +365,7 @@
             try {
                 window.bootstrap.Dropdown.getOrCreateInstance(toggle);
             } catch {
-                // fallback già attivo
+                // fallback already active
             }
         });
     };

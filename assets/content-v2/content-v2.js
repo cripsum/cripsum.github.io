@@ -1,8 +1,113 @@
 (() => {
     'use strict';
 
-    const body = document.body;
-    const type = body.dataset.contentType || 'shitpost';
+    const lang = location.pathname.split('/').find(s => s === 'it' || s === 'en') || 'it';
+
+    const t = {
+        it: {
+            // date locale
+            date_locale:         'it-IT',
+            // card / modal
+            open_post:           'Apri post',
+            show_spoiler:        'Mostra spoiler',
+            no_title:            'Senza titolo',
+            user_fallback:       'utente',
+            pending:             'In attesa',
+            save:                'Salva',
+            report:              'Segnala',
+            edit:                'Modifica',
+            delete:              'Elimina',
+            hide:                'Nascondi',
+            approve:             'Approva',
+            // stats
+            stat_votes:          'Voti',
+            stat_likes:          'Like',
+            stat_comments:       'Commenti',
+            stat_views:          'Visite',
+            // toasts
+            must_login:          'Devi accedere.',
+            post_saved:          'Post salvato.',
+            post_unsaved:        'Post rimosso dai salvati.',
+            link_copied:         'Link copiato.',
+            copy_failed:         'Non sono riuscito a copiare.',
+            report_sent:         'Segnalazione inviata.',
+            post_deleted:        'Post eliminato.',
+            post_approved:       'Post approvato.',
+            post_hidden:         'Post nascosto.',
+            post_submitted:      'Post inviato. Sarà visibile dopo approvazione.',
+            post_updated:        'Post aggiornato.',
+            comment_deleted:     'Commento eliminato.',
+            upload_error:        'Errore upload',
+            load_error:          'Errore caricamento',
+            // comments
+            no_comments:         'Nessun commento',
+            comment_placeholder: 'Scrivi un commento',
+            // confirm dialogs
+            confirm_delete_post: 'Eliminare questo post?',
+            confirm_delete_comment: 'Eliminare commento?',
+            // report prompt
+            report_prompt:       'Motivo segnalazione',
+            // edit form
+            field_title:         'Titolo',
+            field_description:   'Descrizione',
+            field_motivation:    'Motivazione',
+            field_tag:           'Tag',
+            field_spoiler:       'Spoiler',
+            btn_cancel:          'Annulla',
+            btn_save:            'Salva',
+            // upload preview
+            upload_hint:         'Carica immagine, GIF o video breve',
+            upload_limits:       'Immagini/GIF max 8MB, video max 20MB.',
+        },
+        en: {
+            date_locale:         'en-GB',
+            open_post:           'Open post',
+            show_spoiler:        'Show spoiler',
+            no_title:            'Untitled',
+            user_fallback:       'user',
+            pending:             'Pending',
+            save:                'Save',
+            report:              'Report',
+            edit:                'Edit',
+            delete:              'Delete',
+            hide:                'Hide',
+            approve:             'Approve',
+            stat_votes:          'Votes',
+            stat_likes:          'Likes',
+            stat_comments:       'Comments',
+            stat_views:          'Views',
+            must_login:          'You must be logged in.',
+            post_saved:          'Post saved.',
+            post_unsaved:        'Post removed from saved.',
+            link_copied:         'Link copied.',
+            copy_failed:         'Could not copy the link.',
+            report_sent:         'Report submitted.',
+            post_deleted:        'Post deleted.',
+            post_approved:       'Post approved.',
+            post_hidden:         'Post hidden.',
+            post_submitted:      'Post submitted. It will be visible after approval.',
+            post_updated:        'Post updated.',
+            comment_deleted:     'Comment deleted.',
+            upload_error:        'Upload error',
+            load_error:          'Loading error',
+            no_comments:         'No comments',
+            comment_placeholder: 'Write a comment',
+            confirm_delete_post: 'Delete this post?',
+            confirm_delete_comment: 'Delete comment?',
+            report_prompt:       'Reason for report',
+            field_title:         'Title',
+            field_description:   'Description',
+            field_motivation:    'Motivation',
+            field_tag:           'Tag',
+            field_spoiler:       'Spoiler',
+            btn_cancel:          'Cancel',
+            btn_save:            'Save',
+            upload_hint:         'Upload image, GIF or short video',
+            upload_limits:       'Images/GIFs max 8MB, videos max 20MB.',
+        },
+    }[lang];
+
+    const body = document.body;    const type = body.dataset.contentType || 'shitpost';
     const csrf = body.dataset.csrf || '';
     const isLogged = body.dataset.logged === '1';
     const isAdmin = body.dataset.admin === '1';
@@ -45,7 +150,7 @@
         if (!value) return '';
         const date = new Date(String(value).replace(' ', 'T'));
         if (Number.isNaN(date.getTime())) return String(value);
-        return date.toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+        return date.toLocaleString(t.date_locale, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
     };
 
     const showToast = (message, isError = false) => {
@@ -126,9 +231,9 @@
 
         return `
             <article class="cw-post ${isSpoiler ? 'is-spoiler' : ''}" data-post-id="${Number(post.id)}" data-approved="${approved ? '1' : '0'}">
-                <button type="button" class="cw-post__media-wrap cw-post__media-button" data-open-post="${Number(post.id)}" aria-label="Apri post">
+                <button type="button" class="cw-post__media-wrap cw-post__media-button" data-open-post="${Number(post.id)}" aria-label="${t.open_post}">
                     ${mediaHtml(post)}
-                    ${isSpoiler ? `<button type="button" class="cw-spoiler-cover" data-reveal-spoiler="${Number(post.id)}"><span class="cw-btn cw-btn--ghost"><i class="fas fa-eye"></i> Mostra spoiler</span></button>` : ''}
+                    ${isSpoiler ? `<button type="button" class="cw-spoiler-cover" data-reveal-spoiler="${Number(post.id)}"><span class="cw-btn cw-btn--ghost"><i class="fas fa-eye"></i> ${t.show_spoiler}</span></button>` : ''}
                 </button>
 
                 <div class="cw-card-body">
@@ -136,20 +241,20 @@
                         <a class="cw-user" href="/u/${encodeURIComponent(post.username || '')}">
                             <img class="cw-avatar" src="/includes/get_pfp.php?id=${Number(post.id_utente)}" alt="">
                             <span>
-                                <strong>${escapeHtml(post.username || 'utente')}</strong>
+                                <strong>${escapeHtml(post.username || t.user_fallback)}</strong>
                                 <span>${formatDate(post.data_creazione)}</span>
                             </span>
                         </a>
                         ${post.ruolo && post.ruolo !== 'utente' ? `<span class="cw-badge">${escapeHtml(post.ruolo)}</span>` : ''}
                     </div>
 
-                    <button type="button" class="cw-title cw-title-button" data-open-post="${Number(post.id)}">${escapeHtml(post.titolo || 'Senza titolo')}</button>
+                    <button type="button" class="cw-title cw-title-button" data-open-post="${Number(post.id)}">${escapeHtml(post.titolo || t.no_title)}</button>
                     ${hasDesc ? `<p class="cw-description">${escapeHtml(post.descrizione)}</p>` : ''}
                     ${hasExtra ? `<p class="cw-extra">${escapeHtml(post.extra_text)}</p>` : ''}
 
                     <div class="cw-meta-row">
                         ${tag ? `<span class="cw-meta-pill"><i class="fas fa-tag"></i>${escapeHtml(tag)}</span>` : ''}
-                        ${approved ? '' : `<span class="cw-meta-pill"><i class="fas fa-clock"></i>In attesa</span>`}
+                        ${approved ? '' : `<span class="cw-meta-pill"><i class="fas fa-clock"></i>${t.pending}</span>`}
                         <span class="cw-meta-pill"><i class="fas fa-eye"></i>${compactNumber(post.views || 0)}</span>
                     </div>
 
@@ -161,7 +266,7 @@
                             <i class="fas fa-comment"></i> <span>${compactNumber(post.comments_count || 0)}</span>
                         </button>
                         <button type="button" class="cw-action ${post.user_saved ? 'is-active' : ''}" data-action="save" data-id="${Number(post.id)}">
-                            <i class="fas fa-bookmark"></i> <span>Salva</span>
+                            <i class="fas fa-bookmark"></i> <span>${t.save}</span>
                         </button>
                         <button type="button" class="cw-action" data-action="share" data-url="${escapeHtml(url)}">
                             <i class="fas fa-share-nodes"></i> <span>Share</span>
@@ -169,10 +274,10 @@
                     </div>
 
                     <div class="cw-admin-actions">
-                        <button type="button" class="cw-btn cw-btn--ghost" data-action="report" data-id="${Number(post.id)}"><i class="fas fa-flag"></i> Segnala</button>
-                        ${canManage ? `<button type="button" class="cw-btn cw-btn--ghost" data-action="edit" data-id="${Number(post.id)}"><i class="fas fa-pen"></i> Modifica</button>` : ''}
-                        ${canManage ? `<button type="button" class="cw-btn cw-btn--danger" data-action="delete" data-id="${Number(post.id)}"><i class="fas fa-trash"></i> Elimina</button>` : ''}
-                        ${isAdmin ? `<button type="button" class="cw-btn cw-btn--ghost" data-action="approve" data-approved="${approved ? '0' : '1'}" data-id="${Number(post.id)}"><i class="fas ${approved ? 'fa-xmark' : 'fa-check'}"></i> ${approved ? 'Nascondi' : 'Approva'}</button>` : ''}
+                        <button type="button" class="cw-btn cw-btn--ghost" data-action="report" data-id="${Number(post.id)}"><i class="fas fa-flag"></i> ${t.report}</button>
+                        ${canManage ? `<button type="button" class="cw-btn cw-btn--ghost" data-action="edit" data-id="${Number(post.id)}"><i class="fas fa-pen"></i> ${t.edit}</button>` : ''}
+                        ${canManage ? `<button type="button" class="cw-btn cw-btn--danger" data-action="delete" data-id="${Number(post.id)}"><i class="fas fa-trash"></i> ${t.delete}</button>` : ''}
+                        ${isAdmin ? `<button type="button" class="cw-btn cw-btn--ghost" data-action="approve" data-approved="${approved ? '0' : '1'}" data-id="${Number(post.id)}"><i class="fas ${approved ? 'fa-xmark' : 'fa-check'}"></i> ${approved ? t.hide : t.approve}</button>` : ''}
                     </div>
 
                     <div class="cw-comments" id="comments-${Number(post.id)}" hidden></div>
@@ -188,9 +293,9 @@
         const stats = data.stats || {};
         box.innerHTML = [
             ['fas fa-layer-group', stats.total || 0, 'Post'],
-            ['fas fa-fire', stats.reactions || 0, type === 'rimasto' ? 'Voti' : 'Like'],
-            ['fas fa-comments', stats.comments || 0, 'Commenti'],
-            ['fas fa-eye', stats.views || 0, 'Visite'],
+            ['fas fa-fire', stats.reactions || 0, type === 'rimasto' ? t.stat_votes : t.stat_likes],
+            ['fas fa-comments', stats.comments || 0, t.stat_comments],
+            ['fas fa-eye', stats.views || 0, t.stat_views],
         ].map(([icon, value, label]) => `<span class="cw-meta-pill"><i class="${icon}"></i><b>${compactNumber(value)}</b>${label}</span>`).join('');
         box.hidden = false;
     };
@@ -242,7 +347,7 @@
             render(false);
         } catch (error) {
             showToast(error.message, true);
-            $('#cwFeed').innerHTML = `<div class="cw-empty"><i class="fas fa-triangle-exclamation"></i><strong>Errore caricamento</strong><span>${escapeHtml(error.message)}</span></div>`;
+            $('#cwFeed').innerHTML = `<div class="cw-empty"><i class="fas fa-triangle-exclamation"></i><strong>${t.load_error}</strong><span>${escapeHtml(error.message)}</span></div>`;
         } finally {
             state.loading = false;
             $('#cwLoader').style.display = 'none';
@@ -355,14 +460,14 @@
                         <a class="cw-user" href="/u/${encodeURIComponent(post.username || '')}">
                             <img class="cw-avatar" src="/includes/get_pfp.php?id=${Number(post.id_utente)}" alt="">
                             <span>
-                                <strong>${escapeHtml(post.username || 'utente')}</strong>
+                                <strong>${escapeHtml(post.username || t.user_fallback)}</strong>
                                 <span>${formatDate(post.data_creazione)}</span>
                             </span>
                         </a>
                         ${post.ruolo && post.ruolo !== 'utente' ? `<span class="cw-badge">${escapeHtml(post.ruolo)}</span>` : ''}
                     </div>
 
-                    <h2 class="cw-title">${escapeHtml(post.titolo || 'Senza titolo')}</h2>
+                    <h2 class="cw-title">${escapeHtml(post.titolo || t.no_title)}</h2>
                     ${hasDesc ? `<p class="cw-description">${escapeHtml(post.descrizione)}</p>` : ''}
                     ${hasExtra ? `<p class="cw-extra">${escapeHtml(post.extra_text)}</p>` : ''}
 
@@ -378,7 +483,7 @@
                             <i class="fas fa-fire"></i> <span>${compactNumber(post.score || 0)}</span>
                         </button>
                         <button type="button" class="cw-action ${post.user_saved ? 'is-active' : ''}" data-action="save" data-id="${Number(post.id)}">
-                            <i class="fas fa-bookmark"></i> <span>Salva</span>
+                            <i class="fas fa-bookmark"></i> <span>${t.save}</span>
                         </button>
                         <button type="button" class="cw-action" data-action="share" data-url="${escapeHtml(url)}">
                             <i class="fas fa-share-nodes"></i> <span>Share</span>
@@ -408,7 +513,7 @@
 
     const requireLogin = () => {
         if (isLogged) return true;
-        showToast('Devi accedere.', true);
+        showToast(t.must_login, true);
         return false;
     };
 
@@ -446,7 +551,7 @@
                 body: JSON.stringify({ type, id }),
             });
             btn.classList.toggle('is-active', data.active);
-            showToast(data.active ? 'Post salvato.' : 'Post rimosso dai salvati.');
+            showToast(data.active ? t.post_saved : t.post_unsaved);
         } catch (error) {
             showToast(error.message, true);
         }
@@ -463,13 +568,13 @@
         }
 
         const ok = await copyText(url);
-        showToast(ok ? 'Link copiato.' : 'Non sono riuscito a copiare.');
+        showToast(ok ? t.link_copied : t.copy_failed);
     };
 
     const reportPost = async (id) => {
         if (!requireLogin()) return;
 
-        const reason = prompt('Motivo segnalazione');
+        const reason = prompt(t.report_prompt);
         if (!reason) return;
 
         try {
@@ -478,7 +583,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ type, id, reason }),
             });
-            showToast('Segnalazione inviata.');
+            showToast(t.report_sent);
         } catch (error) {
             showToast(error.message, true);
         }
@@ -494,27 +599,27 @@
         form.innerHTML = `
             <input type="hidden" name="id" value="${Number(post.id)}">
             <div class="cw-field">
-                <label>Titolo</label>
+                <label>${t.field_title}</label>
                 <input name="titolo" maxlength="120" required value="${escapeHtml(post.titolo || '')}">
             </div>
             <div class="cw-field">
-                <label>Descrizione</label>
+                <label>${t.field_description}</label>
                 <textarea name="descrizione" maxlength="2000" rows="4">${escapeHtml(post.descrizione || '')}</textarea>
             </div>
-            ${needsMotivation ? `<div class="cw-field"><label>Motivazione</label><textarea name="motivazione" maxlength="2000" rows="3">${escapeHtml(post.extra_text || '')}</textarea></div>` : ''}
+            ${needsMotivation ? `<div class="cw-field"><label>${t.field_motivation}</label><textarea name="motivazione" maxlength="2000" rows="3">${escapeHtml(post.extra_text || '')}</textarea></div>` : ''}
             <div class="cw-form-grid">
                 <div class="cw-field">
-                    <label>Tag</label>
+                    <label>${t.field_tag}</label>
                     <input name="tag" maxlength="40" value="${escapeHtml(post.tag || '')}">
                 </div>
                 <label class="cw-check">
                     <input type="checkbox" name="is_spoiler" value="1" ${Number(post.is_spoiler || 0) === 1 ? 'checked' : ''}>
-                    <span>Spoiler</span>
+                    <span>${t.field_spoiler}</span>
                 </label>
             </div>
             <div class="cw-modal__footer">
-                <button type="button" class="cw-btn cw-btn--ghost js-close-text-modal">Annulla</button>
-                <button type="submit" class="cw-btn cw-btn--primary">Salva</button>
+                <button type="button" class="cw-btn cw-btn--ghost js-close-text-modal">${t.btn_cancel}</button>
+                <button type="submit" class="cw-btn cw-btn--primary">${t.btn_save}</button>
             </div>
         `;
 
@@ -531,7 +636,7 @@
     };
 
     const deletePost = async (id) => {
-        if (!confirm('Eliminare questo post?')) return;
+        if (!confirm(t.confirm_delete_post)) return;
 
         try {
             await api('delete_post.php', {
@@ -539,7 +644,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ type, id }),
             });
-            showToast('Post eliminato.');
+            showToast(t.post_deleted);
             reload();
         } catch (error) {
             showToast(error.message, true);
@@ -553,7 +658,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ type, id, approved }),
             });
-            showToast(approved ? 'Post approvato.' : 'Post nascosto.');
+            showToast(approved ? t.post_approved : t.post_hidden);
             reload();
         } catch (error) {
             showToast(error.message, true);
@@ -590,17 +695,17 @@
                         <div class="cw-comment">
                             <img class="cw-avatar" src="/includes/get_pfp.php?id=${Number(comment.id_utente)}" alt="">
                             <div class="cw-comment__body">
-                                <strong>${escapeHtml(comment.username || 'utente')}</strong>
+                                <strong>${escapeHtml(comment.username || t.user_fallback)}</strong>
                                 <small>${formatDate(comment.created_at)}</small>
                                 <span>${escapeHtml(comment.commento || '')}</span>
                             </div>
                             ${isAdmin || Number(comment.id_utente) === currentUserId ? `<button type="button" class="cw-icon-btn cw-icon-btn--danger" data-delete-comment="${Number(comment.id)}" data-post-id="${Number(id)}"><i class="fas fa-trash"></i></button>` : ''}
                         </div>
-                    `).join('') : `<div class="cw-meta-pill"><i class="fas fa-comment"></i>Nessun commento</div>`}
+                    `).join('') : `<div class="cw-meta-pill"><i class="fas fa-comment"></i>${t.no_comments}</div>`}
                 </div>
                 ${isLogged ? `
                     <form class="cw-comment-form" data-comment-form="${Number(id)}">
-                        <input name="commento" maxlength="500" placeholder="Scrivi un commento">
+                        <input name="commento" maxlength="500" placeholder="${t.comment_placeholder}">
                         <button class="cw-icon-btn" type="submit"><i class="fas fa-paper-plane"></i></button>
                     </form>` : ''}
             `;
@@ -634,7 +739,7 @@
     };
 
     const deleteComment = async (commentId, postId) => {
-        if (!confirm('Eliminare commento?')) return;
+        if (!confirm(t.confirm_delete_comment)) return;
 
         try {
             await api('delete_comment.php', {
@@ -643,7 +748,7 @@
                 body: JSON.stringify({ type, comment_id: commentId }),
             });
             await loadComments(postId);
-            showToast('Commento eliminato.');
+            showToast(t.comment_deleted);
         } catch (error) {
             showToast(error.message, true);
         }
@@ -685,7 +790,7 @@
         modal.classList.remove('is-open');
         modal.setAttribute('aria-hidden', 'true');
         $('#cwCreateForm')?.reset();
-        $('#cwPreview').innerHTML = `<i class="fas fa-cloud-arrow-up"></i><strong>Carica immagine, GIF o video breve</strong><span>Immagini/GIF max 8MB, video max 20MB.</span>`;
+        $('#cwPreview').innerHTML = `<i class="fas fa-cloud-arrow-up"></i><strong>${t.upload_hint}</strong><span>${t.upload_limits}</span>`;
     };
 
     const initCreate = () => {
@@ -736,12 +841,12 @@
                     body: data,
                 }).then(async (response) => {
                     const payload = await response.json();
-                    if (!response.ok || payload.ok === false) throw new Error(payload.message || 'Errore upload');
+                    if (!response.ok || payload.ok === false) throw new Error(payload.message || t.upload_error);
                     return payload;
                 });
 
                 closeCreateModal();
-                showToast('Post inviato. Sarà visibile dopo approvazione.');
+                showToast(t.post_submitted);
                 reload();
             } catch (error) {
                 showToast(error.message, true);
@@ -764,7 +869,7 @@
                     body: JSON.stringify(payload),
                 });
                 closeTextModal();
-                showToast('Post aggiornato.');
+                showToast(t.post_updated);
                 reload();
             } catch (error) {
                 showToast(error.message, true);

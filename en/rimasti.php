@@ -34,7 +34,7 @@ $ogMeta = cripsum_og_content($mysqli, $contentType);
     <title>Cripsum™ - <?php echo cv2_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/assets/content-v2/content-v2.css?v=2.0.4">
-    <script src="/assets/content-v2/content-v2.js?v=2.0.4" defer></script>
+    <script src="/assets/content-v2/content-v2.js?v=2.0.5" defer></script>
 </head>
 
 <body class="content-v2-body"

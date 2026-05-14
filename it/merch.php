@@ -33,7 +33,7 @@ $products = [
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="Merch statico di Cripsum™ / simonetussi.ph.">
     <link rel="stylesheet" href="/assets/shop/shop.css?v=2.4">
-    <script src="/assets/shop/shop.js?v=2.4" defer></script>
+    <script src="/assets/shop/shop.js?v=2.5" defer></script>
 </head>
 
 <body class="shop-page shop-theme-merch" data-shop-page="merch" data-favorites="1">

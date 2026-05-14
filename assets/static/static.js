@@ -1,6 +1,19 @@
 (() => {
     'use strict';
 
+    const lang = location.pathname.split('/').find(s => s === 'it' || s === 'en') || 'it';
+
+    const t = {
+        it: {
+            link_copied:  'Link copiato.',
+            copy_failed:  'Non sono riuscito a copiare.',
+        },
+        en: {
+            link_copied:  'Link copied.',
+            copy_failed:  'Could not copy the link.',
+        },
+    }[lang];
+
     const $ = (selector, root = document) => root.querySelector(selector);
     const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
@@ -72,9 +85,9 @@
 
                 try {
                     await navigator.clipboard.writeText(url);
-                    showToast('Link copiato.');
+                    showToast(t.link_copied);
                 } catch {
-                    showToast('Non sono riuscito a copiare.');
+                    showToast(t.copy_failed);
                 }
             });
         });

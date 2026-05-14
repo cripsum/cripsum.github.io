@@ -31,7 +31,7 @@ $download = [
     <title>Cripsum™ - <?php echo htmlspecialchars($download['title'], ENT_QUOTES, 'UTF-8'); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/css/download-single.css?v=2.1-buttons-fix">
-    <script src="/js/download-single.js?v=2.2" defer></script>
+    <script src="/js/download-single.js?v=2.3" defer></script>
 </head>
 
 <body class="download-page">
