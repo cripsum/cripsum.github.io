@@ -318,7 +318,7 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
                 <h1>Smash or Pass</h1>
                 <p>Get a random character and make your choice: Smash or Pass. Available for waifus and husbandos, including SFW and NSFW modes.</p>
                 <div class="gl-actions">
-                    <a class="gl-btn gl-btn-ghost" href="/it/goonland/home"><i class="fas fa-arrow-left"></i> Home GoonLand</a>
+                    <a class="gl-btn gl-btn-ghost" href="home"><i class="fas fa-arrow-left"></i> Home GoonLand</a>
                 </div>
             </div>
         </section>

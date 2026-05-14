@@ -471,7 +471,7 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
                 <p>10 quick questions. Answer and discover your perfect waifu</p>
                 <div class="gl-actions">
                     <a class="gl-btn gl-btn-main" href="#glAnimeQuiz"><i class="fas fa-play"></i> Start Quiz</a>
-                    <a class="gl-btn gl-btn-ghost" href="/it/goonland/home"><i class="fas fa-arrow-left"></i> Home GoonLand</a>
+                    <a class="gl-btn gl-btn-ghost" href="home"><i class="fas fa-arrow-left"></i> Home GoonLand</a>
                 </div>
             </div>
         </section>

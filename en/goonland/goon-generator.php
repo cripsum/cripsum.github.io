@@ -286,7 +286,7 @@ if ($stmt) {
                 <h1>Goon Generator</h1>
                 <p>Generate an image, download your favorites, and climb the leaderboard.</p>
                 <div class="gl-actions">
-                    <a class="gl-btn gl-btn-ghost" href="/it/goonland/home"><i class="fas fa-arrow-left"></i> Home GoonLand</a>
+                    <a class="gl-btn gl-btn-ghost" href="home"><i class="fas fa-arrow-left"></i> Home GoonLand</a>
                 </div>
             </div>
         </section>
