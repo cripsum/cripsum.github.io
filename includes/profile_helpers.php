@@ -477,7 +477,7 @@ function profile_recent_activity(mysqli $mysqli, int $userId): array
         $stmt->close();
     }
 
-    $stmt = $mysqli->prepare("SELECT 'project' AS activity_type, CONCAT('Progetto: ', title) AS label, url, COALESCE(updated_at, created_at) AS created_at FROM utenti_projects WHERE utente_id = ? AND is_visible = 1 ORDER BY COALESCE(updated_at, created_at) DESC LIMIT 3");
+    $stmt = $mysqli->prepare("SELECT 'project' AS activity_type, CONCAT('Project: ', title) AS label, url, COALESCE(updated_at, created_at) AS created_at FROM utenti_projects WHERE utente_id = ? AND is_visible = 1 ORDER BY COALESCE(updated_at, created_at) DESC LIMIT 3");
     if ($stmt) {
         $stmt->bind_param('i', $userId);
         $stmt->execute();
@@ -485,7 +485,7 @@ function profile_recent_activity(mysqli $mysqli, int $userId): array
         $stmt->close();
     }
 
-    $stmt = $mysqli->prepare("SELECT 'content' AS activity_type, CONCAT('Contenuto: ', title) AS label, url, COALESCE(updated_at, created_at) AS created_at FROM utenti_contents WHERE utente_id = ? AND is_visible = 1 ORDER BY COALESCE(updated_at, created_at) DESC LIMIT 3");
+    $stmt = $mysqli->prepare("SELECT 'content' AS activity_type, CONCAT('Content: ', title) AS label, url, COALESCE(updated_at, created_at) AS created_at FROM utenti_contents WHERE utente_id = ? AND is_visible = 1 ORDER BY COALESCE(updated_at, created_at) DESC LIMIT 3");
     if ($stmt) {
         $stmt->bind_param('i', $userId);
         $stmt->execute();
@@ -493,7 +493,7 @@ function profile_recent_activity(mysqli $mysqli, int $userId): array
         $stmt->close();
     }
 
-    if ($stmt = $mysqli->prepare("SELECT 'media' AS activity_type, CONCAT('Blocco ', block_type) AS label, NULL AS url, created_at FROM utenti_profile_blocks WHERE utente_id = ? AND is_visible = 1 ORDER BY created_at DESC LIMIT 3")) {
+    if ($stmt = $mysqli->prepare("SELECT 'media' AS activity_type, CONCAT(block_type, ' section') AS label, NULL AS url, created_at FROM utenti_profile_blocks WHERE utente_id = ? AND is_visible = 1 ORDER BY created_at DESC LIMIT 3")) {
         $stmt->bind_param('i', $userId);
         $stmt->execute();
         $items = array_merge($items, $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?: []);
