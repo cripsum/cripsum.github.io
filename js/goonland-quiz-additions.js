@@ -647,11 +647,11 @@
     function initAnimeQuiz() {
         if (document.body.dataset.goonlandPage !== "anime-quiz") return;
 
-        const backBtn = $("#glQuizBack");
-        const nextBtn = $("#glQuizNext");
-        const restartBtn = $("#glQuizRestart");
-        const rerollBtn = $("#glQuizReroll");
-        const shareBtn = $("#glQuizShare");
+        const backBtn = $("#glQuizBack")[0];
+        const nextBtn = $("#glQuizNext")[0];
+        const restartBtn = $("#glQuizRestart")[0];
+        const rerollBtn = $("#glQuizReroll")[0];
+        const shareBtn = $("#glQuizShare")[0];
 
         if (backBtn) {
             backBtn.addEventListener("click", () => {
