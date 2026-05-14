@@ -173,8 +173,8 @@
         const popup = ensurePopup();
         const image = document.getElementById('popup-image');
 
-        setText('popup-title', achievement.nome);
-        setText('popup-description', achievement.descrizione);
+        setText('popup-title', achievement.nome_en ?? achievement.nome);
+        setText('popup-description', achievement.descrizione_en ?? achievement.descrizione);
         setOptionalBadge('popup-points', achievement.punti !== null && achievement.punti !== undefined ? `${achievement.punti} punti` : '');
         setOptionalBadge('popup-rarity', achievement.rarita);
 

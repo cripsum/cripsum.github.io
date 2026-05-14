@@ -8,10 +8,10 @@
 
         $t = [
             'it' => [
-                'achievement'        => 'unlockAchievement-it.js?v=2',
+                'achievement'        => 'unlockAchievement-it.js?v=2.1',
             ],
             'en' => [
-                'achievement'        => 'unlockAchievement-en.js?v=2',
+                'achievement'        => 'unlockAchievement-en.js?v=2.1',
             ],
         ][$lang];
 
