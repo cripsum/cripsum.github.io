@@ -15,7 +15,7 @@
         if (!toast) return;
 
         const text = toast.querySelector('span');
-        if (text) text.textContent = message || 'Download avviato';
+        if (text) text.textContent = message || 'Download started';
 
         toast.hidden = false;
         requestAnimationFrame(() => toast.classList.add('is-visible'));
@@ -72,10 +72,10 @@
                 downloadLink.classList.add('is-loading');
 
                 if (label) {
-                    label.textContent = 'Avvio download...';
+                    label.textContent = 'Starting download...';
                 }
 
-                showToast('Download avviato');
+                showToast('Download started');
 
                 window.setTimeout(() => {
                     downloadLink.classList.remove('is-loading');
@@ -94,19 +94,13 @@
 
                 try {
                     await copyToClipboard(getDownloadUrl(downloadLink));
-                    showToast('Link copiato');
+                    showToast('Link copied to clipboard');
                 } catch (err) {
-                    console.warn('[Download] Copia link fallita:', err);
-                    showToast('Non riesco a copiare il link');
+                    console.warn('[Download] Copy link failed:', err);
+                    showToast('Unable to copy link');
                 }
             });
         }
-
-        document.querySelectorAll('a.download-secondary-btn[href]').forEach((link) => {
-            link.addEventListener('click', () => {
-                showToast('Apro la pagina download');
-            });
-        });
 
         if (image) {
             image.addEventListener('error', () => {
