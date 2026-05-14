@@ -14,7 +14,7 @@ if ($bot) {
     echo '
     <html><head>
       <meta property="og:title" content="Cripsum™ GoonLand - Home">
-      <meta property="og:description" content="GoonLand è una sezione sperimentale rosa del sito: giochi, contenuti e piccole robe interattive.">
+      <meta property="og:description" content="GoonLand è una sezione di Cripsum dove puoi goonare™ a volontà">
       <meta property="og:image" content="https://cripsum.com/img/raspberry-chan16gb.png">
       <meta property="og:url" content="https://cripsum.com/it/goonland/home">
       <meta property="og:type" content="website">
@@ -40,7 +40,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
 
 <head>
     <meta property="og:title" content="Cripsum™ GoonLand - Home">
-    <meta property="og:description" content="GoonLand è una sezione sperimentale rosa del sito: giochi, contenuti e piccole robe interattive.">
+    <meta property="og:description" content="GoonLand è una sezione di Cripsum dove puoi goonare™ a volontà">
     <meta property="og:image" content="https://cripsum.com/img/raspberry-chan16gb.png">
     <meta property="og:url" content="https://cripsum.com/it/goonland/home">
     <meta property="og:type" content="website">
@@ -53,7 +53,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
 
 <body class="goonland-page" data-goonland-page="home">
     <?php include '../../includes/navbar-goonland.php'; ?>
-    
+
 
     <div class="gl-bg" aria-hidden="true"><span></span><span></span></div>
 
