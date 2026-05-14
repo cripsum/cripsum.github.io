@@ -653,16 +653,16 @@
         const rerollBtn = $("#glQuizReroll");
         const shareBtn = $("#glQuizShare");
 
-        if (backBtn.length) { // Check if the element actually exists in the DOM
-            backBtn.on("click", () => {
+        if (backBtn) {
+            backBtn.addEventListener("click", () => {
                 if (currentIndex <= 0) return;
                 currentIndex--;
                 renderQuestion();
             });
         }
 
-        if (nextBtn.length) {
-            nextBtn.on("click", () => {
+        if (nextBtn) {
+            nextBtn.addEventListener("click", () => {
                 const question = questions[currentIndex];
                 if (!answers[question.id]) {
                     showToast(t.toast_answer);
@@ -678,8 +678,8 @@
             });
         }
 
-        if (restartBtn.length) {
-            restartBtn.on("click", () => {
+        if (restartBtn) {
+            restartBtn.addEventListener("click", () => {
                 currentIndex = 0;
                 answers = {};
                 lastProfile = null;
@@ -693,15 +693,15 @@
             });
         }
 
-        if (rerollBtn.length) {
-            rerollBtn.on("click", () => {
+        if (rerollBtn) {
+            rerollBtn.addEventListener("click", () => {
                 if (!lastProfile) lastProfile = getProfile();
                 fetchResult(lastProfile);
             });
         }
 
-        if (shareBtn.length) {
-            shareBtn.on("click", async () => {
+        if (shareBtn) {
+            shareBtn.addEventListener("click", async () => {
                 const profile = lastProfile || getProfile();
                 const text = `${getShareText(profile)}
 ${buildShareUrl(profile)}`;
