@@ -18,7 +18,7 @@ $isLogged = (bool)$currentUser;
 $isAdmin = cv2_is_admin($currentUser);
 $csrfToken = cv2_csrf_token();
 
-$contentType = 'braindead';
+$contentType = 'rimasto';
 $pageTitle = 'Top Braindeads';
 $pageSubtitle = 'The community\'s most upvoted posts.';
 $uploadTitle = 'Add a Braindead';
