@@ -54,8 +54,8 @@
         <script src="/js/animations.js"></script>
         <script src="/js/controlloLingua-it.js?v=2"></script>
         <script src="/js/controlloTema.js"></script>
+        <script src="/js/impostazioni.js?v=2"></script>
         <script src="/js/<?php echo $t['achievement']; ?>"></script>
-        <script src="/js/unlockAchievement-it.js?v=2"></script>
         <script src="/js/achievements-globali.js?v=4"></script>
         <!-- <script src="/js/nomePagina.js"></script> -->
 
