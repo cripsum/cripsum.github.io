@@ -37,7 +37,7 @@ $t = [
     ],
     'en' => [
         'memes'        => 'Memes',
-        'top_rimasti'  => 'Top memes',
+        'top_rimasti'  => 'Top braindeads',
         'games'        => 'Games',
         'duels'        => 'Duels',
         'shop'         => 'Shop',
@@ -159,14 +159,14 @@ if ($isLoggedIn) {
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 <li class="nav-item d-flex align-items-center me-2">
                     <?php if (preg_match('#^/(it|en)/edit-profile\b#', $uri)): ?>
-                    <a href="<?= htmlspecialchars($switchUrl) ?>"
-                        class="lang-switch"
-                        aria-label="Switch language to <?= $altLabel ?>"
-                        title="Switch to <?= $altLabel ?>">
-                        <span class="lang-switch__cur"><?= $curLabel ?></span>
-                        <span class="lang-switch__sep">·</span>
-                        <span class="lang-switch__alt"><?= $altLabel ?></span>
-                    </a>
+                        <a href="<?= htmlspecialchars($switchUrl) ?>"
+                            class="lang-switch"
+                            aria-label="Switch language to <?= $altLabel ?>"
+                            title="Switch to <?= $altLabel ?>">
+                            <span class="lang-switch__cur"><?= $curLabel ?></span>
+                            <span class="lang-switch__sep">·</span>
+                            <span class="lang-switch__alt"><?= $altLabel ?></span>
+                        </a>
                     <?php endif; ?>
                 </li>
                 <?php if (!$isLoggedIn): ?>

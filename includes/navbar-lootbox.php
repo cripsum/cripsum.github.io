@@ -37,7 +37,7 @@ $t = [
     ],
     'en' => [
         'memes'        => 'Memes',
-        'top_rimasti'  => 'Top memes',
+        'top_rimasti'  => 'Top braindeads',
         'games'        => 'Games',
         'duels'        => 'Duels',
         'shop'         => 'Shop',
