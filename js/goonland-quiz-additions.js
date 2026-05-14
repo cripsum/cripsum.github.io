@@ -362,7 +362,7 @@
     function renderQuestion() {
         const question = questions[currentIndex];
         const step = $("#glQuizStep");
-        const progress = $("#glQuizProgress")[0];
+        const progress = $("#glQuizProgress");
         const title = $("#glQuizQuestion");
         const hint = $("#glQuizHint");
         const grid = $("#glAnswerGrid");
@@ -372,9 +372,7 @@
         if (!question || !grid || !title || !hint) return;
 
         if (step) step.textContent = t.question_step(currentIndex + 1, questions.length);
-        if (progress) {
-            progress.style.width = `${((currentIndex + 1) / questions.length) * 100}%`;
-        }
+        if (progress) progress.style.width = `${((currentIndex + 1) / questions.length) * 100}%`;
 
         title.textContent = question.title;
         hint.textContent = question.hint;
@@ -649,11 +647,11 @@
     function initAnimeQuiz() {
         if (document.body.dataset.goonlandPage !== "anime-quiz") return;
 
-        const backBtn = $("#glQuizBack")[0];
-        const nextBtn = $("#glQuizNext")[0];
-        const restartBtn = $("#glQuizRestart")[0];
-        const rerollBtn = $("#glQuizReroll")[0];
-        const shareBtn = $("#glQuizShare")[0];
+        const backBtn = $("#glQuizBack");
+        const nextBtn = $("#glQuizNext");
+        const restartBtn = $("#glQuizRestart");
+        const rerollBtn = $("#glQuizReroll");
+        const shareBtn = $("#glQuizShare");
 
         if (backBtn) {
             backBtn.addEventListener("click", () => {
