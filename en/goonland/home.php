@@ -48,7 +48,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
     <title>GoonLand™ - Home</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/css/goonland.css?v=2.2-dropdown-footer">
-    <script src="/js/goonland.js?v=2.2-dropdown-footer" defer></script>
+    <script src="/js/goonland.js?v=2.3" defer></script>
 </head>
 
 <body class="goonland-page" data-goonland-page="home">
@@ -66,16 +66,16 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
                 <p>A project designed by Zakator and Cripsum: a provocative, playful, and visually immersive digital space.</p>
 
                 <div class="gl-actions">
-                    <a class="gl-btn gl-btn-main" href="/it/goonland/goon-generator">
+                    <a class="gl-btn gl-btn-main" href="goon-generator">
                         <i class="fas fa-wand-magic-sparkles"></i> Goon Generator
                     </a>
-                    <a class="gl-btn gl-btn-main" href="/it/goonland/anime-girl-quiz">
+                    <a class="gl-btn gl-btn-main" href="anime-girl-quiz">
                         <i class="fas fa-heart-pulse"></i> Anime Girl Quiz
                     </a>
-                    <a class="gl-btn gl-btn-main" href="/it/goonland/smash-or-pass">
+                    <a class="gl-btn gl-btn-main" href="smash-or-pass">
                         <i class="fas fa-fire"></i> Smash or Pass
                     </a>
-                    <a class="gl-btn gl-btn-ghost" href="/it/home">
+                    <a class="gl-btn gl-btn-ghost" href="../home">
                         <i class="fas fa-arrow-left"></i> Back to main site
                     </a>
                 </div>

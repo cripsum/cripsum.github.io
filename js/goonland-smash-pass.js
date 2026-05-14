@@ -1,6 +1,45 @@
 ;(() => {
     "use strict";
 
+    const lang = location.pathname.split("/").find(s => s === "it" || s === "en") || "it";
+
+    const t = {
+        it: {
+            random_char:    "Personaggio random",
+            no_series:      "Serie non indicata",
+            no_artist:      "Artista non indicato",
+            mode_label:     "Modalità",
+            open_post:      "Apri post",
+            source:         "Fonte",
+            img_failed:     "Immagine non caricata",
+            img_retry:      "Riprova con un altro roll.",
+            loading_text:   "Caricamento...",
+            loading_sub:    "Sto cercando il prossimo personaggio.",
+            status_loading: "Caricamento",
+            status_ready:   "Pronto",
+            status_error:   "Errore",
+            err_retry:      "Riprova",
+            err_http:       (status) => `Risposta non valida HTTP ${status}`,
+        },
+        en: {
+            random_char:    "Random character",
+            no_series:      "Series unknown",
+            no_artist:      "Artist unknown",
+            mode_label:     "Mode",
+            open_post:      "Open post",
+            source:         "Source",
+            img_failed:     "Image failed to load",
+            img_retry:      "Try another roll.",
+            loading_text:   "Loading...",
+            loading_sub:    "Looking for the next character.",
+            status_loading: "Loading",
+            status_ready:   "Ready",
+            status_error:   "Error",
+            err_retry:      "Try again",
+            err_http:       (status) => `Invalid response HTTP ${status}`,
+        },
+    }[lang];
+
     if (window.__goonlandSmashPassLoaded) return;
     window.__goonlandSmashPassLoaded = true;
 
@@ -157,11 +196,11 @@
         const artists = (data.artistTags || []).filter(Boolean);
         const generals = (data.generalTags || []).filter(Boolean).slice(0, 8);
 
-        const niceTitle = characters.length ? characters.slice(0, 2).map(niceTag).join(", ") : "Personaggio random";
-        const niceSeries = copyrights.length ? copyrights.slice(0, 2).map(niceTag).join(", ") : "Serie non indicata";
-        const niceArtists = artists.length ? artists.slice(0, 2).map(niceTag).join(", ") : "Artista non indicato";
+        const niceTitle = characters.length ? characters.slice(0, 2).map(niceTag).join(", ") : t.random_char;
+        const niceSeries = copyrights.length ? copyrights.slice(0, 2).map(niceTag).join(", ") : t.no_series;
+        const niceArtists = artists.length ? artists.slice(0, 2).map(niceTag).join(", ") : t.no_artist;
 
-        if (modeBadge) modeBadge.textContent = modeLabel || "Modalità";
+        if (modeBadge) modeBadge.textContent = modeLabel || t.mode_label;
         if (title) title.textContent = niceTitle;
         if (subtitle) subtitle.textContent = `${niceSeries} · ${niceArtists}`;
         if (rating) rating.textContent = String(data.rating || "-").toUpperCase();
@@ -175,8 +214,8 @@
 
         if (links) {
             const items = [];
-            if (data.postUrl) items.push(`<a href="${escapeHtml(data.postUrl)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-up-right-from-square"></i> Apri post</a>`);
-            if (data.source) items.push(`<a href="${escapeHtml(data.source)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-link"></i> Fonte</a>`);
+            if (data.postUrl) items.push(`<a href="${escapeHtml(data.postUrl)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-up-right-from-square"></i> ${t.open_post}</a>`);
+            if (data.source) items.push(`<a href="${escapeHtml(data.source)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-link"></i> ${t.source}</a>`);
             links.innerHTML = items.join("");
         }
 
@@ -193,7 +232,7 @@
         preload.onerror = () => {
             if (placeholder) {
                 placeholder.style.display = "grid";
-                placeholder.innerHTML = '<i class="fas fa-triangle-exclamation"></i><strong>Immagine non caricata</strong><span>Riprova con un altro roll.</span>';
+                placeholder.innerHTML = `<i class="fas fa-triangle-exclamation"></i><strong>${t.img_failed}</strong><span>${t.img_retry}</span>`;
             }
             image.hidden = true;
         };
@@ -207,7 +246,7 @@
             return JSON.parse(text);
         } catch {
             const clean = text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
-            throw new Error(clean ? clean.slice(0, 160) : `Risposta non valida HTTP ${response.status}`);
+            throw new Error(clean ? clean.slice(0, 160) : t.err_http(response.status));
         }
     }
 
@@ -232,12 +271,12 @@
 
         if (placeholder) {
             placeholder.style.display = "grid";
-            placeholder.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i><strong>Caricamento...</strong><span>Sto cercando il prossimo personaggio.</span>';
+            placeholder.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i><strong>${t.loading_text}</strong><span>${t.loading_sub}</span>`;
         }
 
         if (spinner) spinner.style.display = "block";
         setButtonsDisabled(true);
-        setStatus("Caricamento");
+        setStatus(t.status_loading);
 
         try {
             const response = await fetch(`${window.location.pathname}?sop_api=1&mode=${encodeURIComponent(currentMode)}&_=${Date.now()}`, {
@@ -249,21 +288,21 @@
 
             if (!data.ok) {
                 console.warn("[GoonLand SmashPass debug]", data.debug || null);
-                throw new Error(data.error || `Errore HTTP ${response.status}`);
+                throw new Error(data.error || t.err_http(response.status));
             }
 
             currentCard = data.data || null;
             renderCard(data.data, data.modeLabel);
-            setStatus("Pronto");
+            setStatus(t.status_ready);
         } catch (error) {
             console.error("[GoonLand SmashPass]", error);
             currentCard = null;
             if (placeholder) {
                 placeholder.style.display = "grid";
-                placeholder.innerHTML = `<i class="fas fa-triangle-exclamation"></i><strong>Errore</strong><span>${escapeHtml(error.message || "Riprova")}</span>`;
+                placeholder.innerHTML = `<i class="fas fa-triangle-exclamation"></i><strong>${t.status_error}</strong><span>${escapeHtml(error.message || t.err_retry)}</span>`;
             }
-            showToast(error.message || "Errore");
-            setStatus("Errore");
+            showToast(error.message || t.err_retry);
+            setStatus(t.status_error);
         } finally {
             isLoading = false;
             if (spinner) spinner.style.display = "none";

@@ -270,7 +270,7 @@ if ($stmt) {
     <title>GoonLand™ - Generator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/css/goonland.css?v=2.2-api-proxy-fix2">
-    <script src="/js/goonland.js?v=2.2-api-proxy-fix2" defer></script>
+    <script src="/js/goonland.js?v=2.3" defer></script>
 </head>
 
 <body class="goonland-page" data-goonland-page="generator">

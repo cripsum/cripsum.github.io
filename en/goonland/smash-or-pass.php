@@ -301,8 +301,8 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/css/goonland.css?v=2.7-smash-polish">
     <link rel="stylesheet" href="/css/goonland-smash-pass.css?v=2.7-smash-polish">
-    <script src="/js/goonland.js?v=2.7-smash-polish" defer></script>
-    <script src="/js/goonland-smash-pass.js?v=2.7-smash-polish" defer></script>
+    <script src="/js/goonland.js?v=2.8" defer></script>
+    <script src="/js/goonland-smash-pass.js?v=2.8" defer></script>
 </head>
 
 <body class="goonland-page" data-goonland-page="smash-pass">

@@ -1,7 +1,86 @@
 (() => {
     'use strict';
 
-    if (window.__cripsumGamblingV2Loaded) return;
+    const lang = location.pathname.split('/').find(s => s === 'it' || s === 'en') || 'it';
+
+    const t = {
+        it: {
+            symbol:             (n) => `Simbolo ${n}`,
+            // spin button
+            spinning:           'SPINNING...',
+            spin:               'SPIN',
+            // result kickers
+            kicker_result:      'Risultato',
+            kicker_blocked:     'Bloccato',
+            kicker_spin:        'Spin',
+            kicker_jackpot:     'Jackpot',
+            kicker_win:         'Win',
+            kicker_loss:        'Loss',
+            kicker_recharge:    'Ricarica',
+            kicker_reset:       'Reset',
+            kicker_warning:     'Avviso',
+            // evaluateResult titles
+            no_win:             'Niente win',
+            mini_win:           'Mini win',
+            // spinOnce
+            low_balance:        'Saldo insufficiente',
+            low_balance_text:   (bet) => `Ti servono almeno ${bet} crediti per questa puntata.`,
+            spinning_title:     'Slot in movimento',
+            spinning_text:      'Aspetta il risultato...',
+            win_text:           (multi, win) => `Hai preso x${multi}. Vincita: ${win} crediti.`,
+            loss_title:         'Ritenta',
+            loss_text:          (bet) => `Hai perso ${bet} crediti.`,
+            // recharge
+            recharge_invalid:   'Inserisci un importo valido.',
+            recharge_max:       (max) => `Massimo ${max} crediti per ricarica.`,
+            recharge_title:     'Saldo aggiornato',
+            recharge_text:      (n) => `Hai aggiunto ${n} crediti finti.`,
+            // reset
+            reset_confirm:      'Vuoi resettare saldo, statistiche e storico della sessione?',
+            reset_title:        'Sessione resettata',
+            reset_text:         'Saldo riportato a 100 crediti.',
+            // history
+            history_empty:      'Nessuna giocata per ora.',
+            bet_label:          (n) => `puntata ${n}`,
+            // init low balance
+            init_low_title:     'Saldo basso',
+            init_low_text:      'Puoi ricaricare crediti finti quando vuoi.',
+        },
+        en: {
+            symbol:             (n) => `Symbol ${n}`,
+            spinning:           'SPINNING...',
+            spin:               'SPIN',
+            kicker_result:      'Result',
+            kicker_blocked:     'Blocked',
+            kicker_spin:        'Spin',
+            kicker_jackpot:     'Jackpot',
+            kicker_win:         'Win',
+            kicker_loss:        'Loss',
+            kicker_recharge:    'Top-up',
+            kicker_reset:       'Reset',
+            kicker_warning:     'Notice',
+            no_win:             'No win',
+            mini_win:           'Mini win',
+            low_balance:        'Insufficient balance',
+            low_balance_text:   (bet) => `You need at least ${bet} credits for this bet.`,
+            spinning_title:     'Reels spinning',
+            spinning_text:      'Wait for the result...',
+            win_text:           (multi, win) => `You got x${multi}. Winnings: ${win} credits.`,
+            loss_title:         'Try again',
+            loss_text:          (bet) => `You lost ${bet} credits.`,
+            recharge_invalid:   'Enter a valid amount.',
+            recharge_max:       (max) => `Maximum ${max} credits per top-up.`,
+            recharge_title:     'Balance updated',
+            recharge_text:      (n) => `You added ${n} fake credits.`,
+            reset_confirm:      'Reset balance, stats and session history?',
+            reset_title:        'Session reset',
+            reset_text:         'Balance restored to 100 credits.',
+            history_empty:      'No spins yet.',
+            bet_label:          (n) => `bet ${n}`,
+            init_low_title:     'Low balance',
+            init_low_text:      'You can top up fake credits any time.',
+        },
+    }[lang];
     window.__cripsumGamblingV2Loaded = true;
 
     const ROOT = document.querySelector('.gambling-shell');
@@ -19,7 +98,7 @@
     const SYMBOLS = Array.from({ length: 9 }, (_, index) => ({
         id: index + 1,
         src: `/img/slott${index + 1}.jpg`,
-        label: `Simbolo ${index + 1}`
+        label: t.symbol(index + 1)
     }));
 
     const $ = (selector, root = document) => root.querySelector(selector);
@@ -164,7 +243,7 @@
         if (!elements.historyList) return;
 
         if (!state.history.length) {
-            elements.historyList.innerHTML = '<p class="history-empty">Nessuna giocata per ora.</p>';
+            elements.historyList.innerHTML = '<p class="history-empty">' + t.history_empty + '</p>';
             return;
         }
 
@@ -172,7 +251,7 @@
             <div class="history-item ${item.type}">
                 <div>
                     <strong>${escapeHtml(item.title)}</strong>
-                    <span>${escapeHtml(item.symbols)} · puntata ${item.bet}</span>
+                    <span>${escapeHtml(item.symbols)} · ${t.bet_label(item.bet)}</span>
                 </div>
                 <em>${item.win > 0 ? `+${item.win}` : `-${item.bet}`}</em>
             </div>
@@ -203,7 +282,7 @@
 
         if (elements.spinButton) {
             elements.spinButton.disabled = disabled || balanceTooLow;
-            elements.spinButton.querySelector('span').textContent = state.spinning ? 'SPINNING...' : 'SPIN';
+            elements.spinButton.querySelector('span').textContent = state.spinning ? t.spinning : t.spin;
         }
 
         if (elements.autoSpinButton) {
@@ -220,7 +299,7 @@
         }
     }
 
-    function setResult(type, title, text, kicker = 'Risultato') {
+    function setResult(type, title, text, kicker = t.kicker_result) {
         if (!elements.resultBox) return;
 
         elements.resultBox.classList.remove('is-win', 'is-loss', 'is-jackpot');
@@ -262,7 +341,7 @@
         const allSame = maxCount === 3;
         const twoSame = maxCount === 2;
         let multiplier = 0;
-        let title = 'Niente win';
+        let title = t.no_win;
         let type = 'loss';
 
         if (allSame && ids[0] === 9) {
@@ -279,7 +358,7 @@
             type = 'jackpot';
         } else if (twoSame) {
             multiplier = 2;
-            title = 'Mini win';
+            title = t.mini_win;
             type = 'win';
         }
 
@@ -383,7 +462,7 @@
         const bet = state.bet;
 
         if (state.balance < bet) {
-            setResult('loss', 'Saldo insufficiente', `Ti servono almeno ${bet} crediti per questa puntata.`, 'Bloccato');
+            setResult('loss', t.low_balance, t.low_balance_text(bet), t.kicker_blocked);
             playSound('loss');
             return false;
         }
@@ -393,7 +472,7 @@
 
         updateBalance();
         updateControls();
-        setResult('', 'Slot in movimento', 'Aspetta il risultato...', 'Spin');
+        setResult('', t.spinning_title, t.spinning_text, t.kicker_spin);
 
         elements.slotMachine?.classList.remove('is-win', 'is-loss', 'is-jackpot');
         elements.slotMachine?.classList.add('is-spinning');
@@ -425,14 +504,11 @@
         elements.slotMachine?.classList.add(`is-${result.type}`);
 
         if (result.win > 0) {
-            const text = result.type === 'jackpot'
-                ? `Hai preso x${result.multiplier}. Vincita: ${result.win} crediti.`
-                : `Hai preso x${result.multiplier}. Vincita: ${result.win} crediti.`;
-
-            setResult(result.type, result.title, text, result.type === 'jackpot' ? 'Jackpot' : 'Win');
+            const text = t.win_text(result.multiplier, result.win);
+            setResult(result.type, result.title, text, result.type === 'jackpot' ? t.kicker_jackpot : t.kicker_win);
             playSound(result.type);
         } else {
-            setResult('loss', 'Ritenta', `Hai perso ${bet} crediti.`, 'Loss');
+            setResult('loss', t.loss_title, t.loss_text(bet), t.kicker_loss);
             playSound('loss');
         }
 
@@ -478,12 +554,12 @@
         const value = clampNumber(elements.rechargeInput.value, 0, MAX_RECHARGE);
 
         if (!value || value <= 0) {
-            if (elements.rechargeError) elements.rechargeError.textContent = 'Inserisci un importo valido.';
+            if (elements.rechargeError) elements.rechargeError.textContent = t.recharge_invalid;
             return;
         }
 
         if (value > MAX_RECHARGE) {
-            if (elements.rechargeError) elements.rechargeError.textContent = `Massimo ${MAX_RECHARGE} crediti per ricarica.`;
+            if (elements.rechargeError) elements.rechargeError.textContent = t.recharge_max(MAX_RECHARGE);
             return;
         }
 
@@ -491,13 +567,13 @@
         elements.rechargeInput.value = '';
         if (elements.rechargeError) elements.rechargeError.textContent = '';
 
-        setResult('', 'Saldo aggiornato', `Hai aggiunto ${value} crediti finti.`, 'Ricarica');
+        setResult('', t.recharge_title, t.recharge_text(value), t.kicker_recharge);
         saveState();
         renderAll();
     }
 
     function resetSession() {
-        const confirmed = window.confirm('Vuoi resettare saldo, statistiche e storico della sessione?');
+        const confirmed = window.confirm(t.reset_confirm);
         if (!confirmed) return;
 
         state.balance = INITIAL_BALANCE;
@@ -509,7 +585,7 @@
 
         saveState();
         renderAll();
-        setResult('', 'Sessione resettata', 'Saldo riportato a 100 crediti.', 'Reset');
+        setResult('', t.reset_title, t.reset_text, t.kicker_reset);
         setSlotImages([SYMBOLS[0], SYMBOLS[1], SYMBOLS[2]]);
     }
 
@@ -618,7 +694,7 @@
         setSlotImages([SYMBOLS[0], SYMBOLS[1], SYMBOLS[2]]);
 
         if (state.balance < 10) {
-            setResult('loss', 'Saldo basso', 'Puoi ricaricare crediti finti quando vuoi.', 'Avviso');
+            setResult('loss', t.init_low_title, t.init_low_text, t.kicker_warning);
         }
     }
 
