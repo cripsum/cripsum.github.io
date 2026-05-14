@@ -31,14 +31,14 @@ $products = [
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Merch</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="Merch statico di Cripsum™ / simonetussi.ph.">
+    <meta name="description" content="Merch di Simonetussi.ph. il fotografo e psicologo più fico di sempre.">
     <link rel="stylesheet" href="/assets/shop/shop.css?v=2.4">
     <script src="/assets/shop/shop.js?v=2.5" defer></script>
 </head>
 
 <body class="shop-page shop-theme-merch" data-shop-page="merch" data-favorites="1">
     <?php include '../includes/navbar.php'; ?>
-    
+
 
     <main class="shop-shell">
         <section class="shop-hero shop-reveal">

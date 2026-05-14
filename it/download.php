@@ -25,14 +25,14 @@ $downloads = [
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Download</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="Download statici di Cripsum™.">
+    <meta name="description" content="Download di Cripsum™. Scarica contenuti esclusivi e tanto altro.">
     <link rel="stylesheet" href="/assets/shop/shop.css?v=2.4">
     <script src="/assets/shop/shop.js?v=2.5" defer></script>
 </head>
 
 <body class="shop-page shop-theme-download" data-shop-page="download" data-favorites="0">
     <?php include '../includes/navbar.php'; ?>
-    
+
 
     <main class="shop-shell">
         <section class="shop-hero shop-reveal">
