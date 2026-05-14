@@ -4,6 +4,9 @@
     if (window.__goonlandAnimeQuizLoaded) return;
     window.__goonlandAnimeQuizLoaded = true;
 
+    // FIX 1: Definito l'helper $ per restituire un elemento DOM nativo (Vanilla JS) e bypassare jQuery
+    const $ = (selector) => document.querySelector(selector);
+
     const lang = location.pathname.split("/").find(s => s === "it" || s === "en") || "it";
 
     const t = {
@@ -535,20 +538,21 @@
 
             await loadImage(data.image);
             renderResultData(data);
-            setStatus(t.status_completed);
-            showToast(t.toast_result_found);
+            
+            // FIX 2: Usate le chiavi corrette dell'oggetto t
+            setStatus(t.status_done); 
+            showToast(t.toast_found);
         } catch (error) {
             console.error("[GoonLand Quiz]", error);
             if (placeholder) {
                 placeholder.style.display = "grid";
                 placeholder.innerHTML = `
                     <i class="fas fa-triangle-exclamation"></i>
-                    <strong>${t.no_results}</strong>
-                    <span>${error.message || t.retry_answers}</span>
+                    <strong>${t.no_result}</strong> <span>${error.message || t.retry_answers}</span>
                 `;
             }
             setStatus(t.status_error);
-            showToast(t.toast_no_results);
+            showToast(t.toast_not_found); // FIX 4: Corretto da t.toast_no_results a t.toast_not_found
         } finally {
             isLoading = false;
         }
@@ -703,8 +707,7 @@
         if (shareBtn) {
             shareBtn.addEventListener("click", async () => {
                 const profile = lastProfile || getProfile();
-                const text = `${getShareText(profile)}
-${buildShareUrl(profile)}`;
+                const text = `${getShareText(profile)}\n${buildShareUrl(profile)}`;
 
                 try {
                     if (navigator.share) {

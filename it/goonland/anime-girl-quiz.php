@@ -454,7 +454,7 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
     <link rel="stylesheet" href="/css/goonland-quiz-additions.css?v=2.4-share-og-fix1">
 
     <script src="/js/goonland.js?v=2.5" defer></script>
-    <script src="/js/goonland-quiz-additions.js?v=2.0.1" defer></script>
+    <script src="/js/goonland-quiz-additions.js?v=2.0.2" defer></script>
 </head>
 
 <body class="goonland-page" data-goonland-page="anime-quiz">
