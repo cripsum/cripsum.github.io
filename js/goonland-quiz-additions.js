@@ -362,7 +362,7 @@
     function renderQuestion() {
         const question = questions[currentIndex];
         const step = $("#glQuizStep");
-        const progress = $("#glQuizProgress");
+        const progress = $("#glQuizProgress")[0];
         const title = $("#glQuizQuestion");
         const hint = $("#glQuizHint");
         const grid = $("#glAnswerGrid");
@@ -372,7 +372,9 @@
         if (!question || !grid || !title || !hint) return;
 
         if (step) step.textContent = t.question_step(currentIndex + 1, questions.length);
-        if (progress) progress.style.width = `${((currentIndex + 1) / questions.length) * 100}%`;
+        if (progress) {
+            progress.style.width = `${((currentIndex + 1) / questions.length) * 100}%`;
+        }
 
         title.textContent = question.title;
         hint.textContent = question.hint;
