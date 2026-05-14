@@ -71,7 +71,7 @@ function profile_json_script(string $id, array $data): void
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/assets/css/profile.css?v=3.0.3">
     <script src="/assets/js/profile.js?v=3.0.3" defer></script>
-    <script src="/assets/js/edit-profile-en.js?v=3.0.3" defer></script>
+    <script src="/assets/js/edit-profile-en.js?v=3.0.4" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" style="--profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColor ?: 'var(--card)'); ?>; --profile-text-color: <?php echo profile_h($textColor ?: 'var(--text)'); ?>;">
@@ -272,9 +272,9 @@ function profile_json_script(string $id, array $data): void
 
                 <div class="profile-edit-section" data-edit-section="custom">
                     <div class="bio-section-heading">
-                        <div><span><i class="fas fa-wand-magic-sparkles"></i> Custom blocks</span>
+                        <div><span><i class="fas fa-wand-magic-sparkles"></i> Custom section</span>
                             <p>Texts, images, GIFs or videos.</p>
-                        </div><button type="button" class="bio-button" data-add-row="blocks">+ Block</button>
+                        </div><button type="button" class="bio-button" data-add-row="blocks">+ Section</button>
                     </div>
                     <div class="profile-repeater" id="blocksRepeater"></div>
                 </div>
