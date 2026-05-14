@@ -402,7 +402,7 @@ function profile_activity_icon(string $type): string
 function profile_list_visible_badges(mysqli $mysqli, int $userId): array
 {
     $stmt = $mysqli->prepare("
-        SELECT a.id, a.nome, a.descrizione, a.img_url, a.punti, upb.sort_order
+        SELECT a.id, a.nome_en, a.descrizione_en, a.img_url, a.punti, upb.sort_order
         FROM utenti_profile_badges upb
         INNER JOIN achievement a ON a.id = upb.achievement_id
         INNER JOIN utenti_achievement ua ON ua.achievement_id = a.id AND ua.utente_id = upb.utente_id
@@ -420,7 +420,7 @@ function profile_list_visible_badges(mysqli $mysqli, int $userId): array
 function profile_list_unlocked_badges(mysqli $mysqli, int $userId): array
 {
     $stmt = $mysqli->prepare("
-        SELECT a.id, a.nome, a.descrizione, a.img_url, a.punti,
+        SELECT a.id, a.nome_en, a.descrizione_en, a.img_url, a.punti,
                CASE WHEN upb.id IS NULL THEN 0 ELSE 1 END AS selected
         FROM utenti_achievement ua
         INNER JOIN achievement a ON a.id = ua.achievement_id
@@ -469,7 +469,7 @@ function profile_recent_activity(mysqli $mysqli, int $userId): array
         $stmt->close();
     }
 
-    $stmt = $mysqli->prepare("SELECT 'badge' AS activity_type, CONCAT('Badge: ', a.nome) AS label, NULL AS url, ua.data AS created_at FROM utenti_achievement ua INNER JOIN achievement a ON a.id = ua.achievement_id WHERE ua.utente_id = ? ORDER BY ua.data DESC LIMIT 4");
+    $stmt = $mysqli->prepare("SELECT 'badge' AS activity_type, CONCAT('Badge: ', a.nome_en) AS label, NULL AS url, ua.data AS created_at FROM utenti_achievement ua INNER JOIN achievement a ON a.id = ua.achievement_id WHERE ua.utente_id = ? ORDER BY ua.data DESC LIMIT 4");
     if ($stmt) {
         $stmt->bind_param('i', $userId);
         $stmt->execute();
