@@ -8,23 +8,23 @@ checkBan($mysqli);
 $download = [
     'title' => 'Fortnite Hacks',
     'kicker' => 'Undetectable',
-    'description' => 'Scarica le hack più fiche di fortnite',
+    'description' => 'Download the sickest Fortnite hacks',
     'image' => '/img/fortnitehack.jpg',
-    'image_alt' => 'Immagine Fortnite hacks',
+    'image_alt' => 'Fortnite hacks image',
     'href' => '/random%20stuff/itfortnitehacks.txt',
     'download_name' => 'fortnite hacks method tutorial.txt',
-    'button' => 'Scarica il file',
-    'note' => 'Vbucks infiniti, aimbot, wallhack e la skin di TUNG TUNG TUNG SAHUR gratis',
-    'back_href' => '/it/download.php',
+    'button' => 'Download the file',
+    'note' => 'Infinite V-bucks, aimbot, wallhack, and the TUNG TUNG TUNG SAHUR skin for free',
+    'back_href' => '/en/download.php',
     'meta' => [
-        ['label' => 'Tipo', 'value' => 'File TXT'],
-        ['label' => 'Tema', 'value' => 'Hacks'],
-        ['label' => 'Piattaforma', 'value' => 'Browser'],
+        ['label' => 'Type', 'value' => 'TXT File'],
+        ['label' => 'Theme', 'value' => 'Hacks'],
+        ['label' => 'Platform', 'value' => 'Browser'],
     ],
 ];
 ?>
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 
 <head>
     <?php include '../../includes/head-import.php'; ?>
@@ -36,7 +36,7 @@ $download = [
 
 <body class="download-page">
     <?php include '../../includes/navbar.php'; ?>
-    
+
 
     <div class="download-bg" aria-hidden="true">
         <span class="download-orb download-orb--one"></span>
@@ -101,12 +101,12 @@ $download = [
 
                     <button class="download-secondary-btn" type="button" data-copy-download>
                         <i class="fas fa-link"></i>
-                        <span>Copia link</span>
+                        <span>Copy link</span>
                     </button>
 
                     <a class="download-secondary-btn" href="<?php echo htmlspecialchars($download['back_href'], ENT_QUOTES, 'UTF-8'); ?>">
                         <i class="fas fa-arrow-left"></i>
-                        <span>Torna ai download</span>
+                        <span>Back to downloads</span>
                     </a>
                 </div>
             </div>
@@ -114,24 +114,24 @@ $download = [
 
         <section class="download-info-grid fadeup">
             <article class="download-info-card">
-                <h2>Prima di scaricare</h2>
+                <h2>Before downloading</h2>
                 <ol>
-                    <li>Clicca il pulsante download.</li>
-                    <li>Salva il file dove preferisci.</li>
-                    <li>Ricorda: è roba ironica, non un cheat reale.</li>
+                    <li>Click the download button.</li>
+                    <li>Save the file wherever you like.</li>
+                    <li>Remember: this is purely ironic, not an actual cheat.</li>
                 </ol>
             </article>
 
             <article class="download-info-card">
-                <h2>Nota</h2>
-                <p>Il download partirà automaticamente dopo aver cliccato il tasto download.</p>
+                <h2>Note</h2>
+                <p>The download will start automatically after clicking the download button.</p>
             </article>
         </section>
     </main>
 
     <div class="download-toast" data-download-toast hidden>
         <i class="fas fa-check"></i>
-        <span>Download avviato</span>
+        <span>Download started</span>
     </div>
 
     <?php include '../../includes/footer-en.php'; ?>

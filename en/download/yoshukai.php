@@ -6,25 +6,25 @@ require_once '../../includes/functions.php';
 checkBan($mysqli);
 
 $download = [
-    'title' => 'Corso di Yoshukai',
+    'title' => 'Yoshukai Course',
     'kicker' => 'Download',
-    'description' => 'impara l\'arte marziale del Yoshukai con questo corso completo in PDF. Dalle basi alle tecniche avanzate, questo corso ti guiderà passo dopo passo attraverso i principi fondamentali del Yoshukai, migliorando la tua forza, agilità e disciplina. Scarica ora e inizia il tuo viaggio marziale!',
+    'description' => 'Learn the martial art of Yoshukai with this comprehensive PDF course. From basics to advanced techniques, this course will guide you step-by-step through the fundamental principles of Yoshukai, improving your strength, agility, and discipline. Download now and start your martial arts journey!',
     'image' => '/img/chinese-essay-2.jpg',
-    'image_alt' => 'Immagine corso Yoshukai',
+    'image_alt' => 'Yoshukai course image',
     'href' => '/random%20stuff/yoshukai.pdf',
-    'download_name' => 'corso-Yoshukai.pdf',
-    'button' => 'Scarica il corso',
-    'note' => 'Il file è un PDF statico. Aprilo con un lettore PDF normale.',
-    'back_href' => '/it/download.php',
+    'download_name' => 'Yoshukai-course.pdf',
+    'button' => 'Download the course',
+    'note' => 'The file is just a PDF. Open it with any standard PDF reader.',
+    'back_href' => '/en/download.php',
     'meta' => [
-        ['label' => 'Tipo', 'value' => 'PDF'],
-        ['label' => 'Piattaforma', 'value' => 'Qualsiasi'],
-        ['label' => 'Download', 'value' => 'Diretto'],
+        ['label' => 'Type', 'value' => 'PDF'],
+        ['label' => 'Platform', 'value' => 'Any'],
+        ['label' => 'Download', 'value' => 'Direct'],
     ],
 ];
 ?>
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 
 <head>
     <?php include '../../includes/head-import.php'; ?>
@@ -36,7 +36,7 @@ $download = [
 
 <body class="download-page">
     <?php include '../../includes/navbar.php'; ?>
-    
+
 
     <div class="download-bg" aria-hidden="true">
         <span class="download-orb download-orb--one"></span>
@@ -101,12 +101,12 @@ $download = [
 
                     <button class="download-secondary-btn" type="button" data-copy-download>
                         <i class="fas fa-link"></i>
-                        <span>Copia link</span>
+                        <span>Copy link</span>
                     </button>
 
                     <a class="download-secondary-btn" href="<?php echo htmlspecialchars($download['back_href'], ENT_QUOTES, 'UTF-8'); ?>">
                         <i class="fas fa-arrow-left"></i>
-                        <span>Torna ai download</span>
+                        <span>Back to downloads</span>
                     </a>
                 </div>
             </div>
@@ -114,24 +114,24 @@ $download = [
 
         <section class="download-info-grid fadeup">
             <article class="download-info-card">
-                <h2>Prima di scaricare</h2>
+                <h2>Before downloading</h2>
                 <ol>
-                    <li>Clicca il pulsante download.</li>
-                    <li>Apri il PDF scaricato.</li>
-                    <li>Se il browser lo apre direttamente, usa “Salva con nome”.</li>
+                    <li>Click the download button.</li>
+                    <li>Open the downloaded PDF.</li>
+                    <li>If your browser opens it directly, use “Save as”.</li>
                 </ol>
             </article>
 
             <article class="download-info-card">
-                <h2>Nota</h2>
-                <p>Il download partirà automaticamente dopo aver cliccato il tasto download.</p>
+                <h2>Note</h2>
+                <p>The download will start automatically after clicking the download button.</p>
             </article>
         </section>
     </main>
 
     <div class="download-toast" data-download-toast hidden>
         <i class="fas fa-check"></i>
-        <span>Download avviato</span>
+        <span>Download started</span>
     </div>
 
     <?php include '../../includes/footer-en.php'; ?>

@@ -8,23 +8,24 @@ checkBan($mysqli);
 $download = [
     'title' => 'osu!',
     'kicker' => 'Download',
-    'description' => 'Osu, il rhythm game per finocchi',
+    'description' => 'osu!, the rhythm game for fags',
     'image' => '/img/osu.jpg',
-    'image_alt' => 'Immagine osu!',
+    'image_alt' => 'osu! image',
     'href' => 'https://github.com/ppy/osu/releases/latest/download/install.exe',
     'download_name' => '',
-    'button' => 'Scarica osu!',
-    'note' => 'Link esterno verso il download ufficiale da GitHub.',
-    'back_href' => '/it/download.php',
+    'button' => 'Download osu!',
+    'note' => 'External link to the official GitHub download.',
+    'back_href' => '/en/download.php',
     'meta' => [
-        ['label' => 'Tipo', 'value' => 'Installer EXE'],
-        ['label' => 'Piattaforma', 'value' => 'Windows'],
-        ['label' => 'Fonte', 'value' => 'GitHub ufficiale'],
+        ['label' => 'Type', 'value' => 'EXE Installer'],
+        ['label' => 'Platform', 'value' => 'Windows'],
+        ['label' => 'Source', 'value' => 'Official GitHub'],
     ],
 ];
 ?>
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
+
 <head>
     <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ - <?php echo htmlspecialchars($download['title'], ENT_QUOTES, 'UTF-8'); ?></title>
@@ -35,7 +36,7 @@ $download = [
 
 <body class="download-page">
     <?php include '../../includes/navbar.php'; ?>
-    
+
 
     <div class="download-bg" aria-hidden="true">
         <span class="download-orb download-orb--one"></span>
@@ -51,8 +52,7 @@ $download = [
                     src="<?php echo htmlspecialchars($download['image'], ENT_QUOTES, 'UTF-8'); ?>"
                     alt="<?php echo htmlspecialchars($download['image_alt'], ENT_QUOTES, 'UTF-8'); ?>"
                     loading="lazy"
-                    data-download-image
-                >
+                    data-download-image>
 
                 <div class="download-cover-glow" aria-hidden="true"></div>
             </div>
@@ -91,23 +91,22 @@ $download = [
                         class="download-main-btn"
                         href="<?php echo htmlspecialchars($download['href'], ENT_QUOTES, 'UTF-8'); ?>"
                         <?php if (!empty($download['download_name'])): ?>
-                            download="<?php echo htmlspecialchars($download['download_name'], ENT_QUOTES, 'UTF-8'); ?>"
+                        download="<?php echo htmlspecialchars($download['download_name'], ENT_QUOTES, 'UTF-8'); ?>"
                         <?php endif; ?>
                         data-download-link
-                        data-download-title="<?php echo htmlspecialchars($download['title'], ENT_QUOTES, 'UTF-8'); ?>"
-                    >
+                        data-download-title="<?php echo htmlspecialchars($download['title'], ENT_QUOTES, 'UTF-8'); ?>">
                         <i class="fas fa-download"></i>
                         <span><?php echo htmlspecialchars($download['button'], ENT_QUOTES, 'UTF-8'); ?></span>
                     </a>
 
                     <button class="download-secondary-btn" type="button" data-copy-download>
                         <i class="fas fa-link"></i>
-                        <span>Copia link</span>
+                        <span>Copy link</span>
                     </button>
 
                     <a class="download-secondary-btn" href="<?php echo htmlspecialchars($download['back_href'], ENT_QUOTES, 'UTF-8'); ?>">
                         <i class="fas fa-arrow-left"></i>
-                        <span>Torna ai download</span>
+                        <span>Back to downloads</span>
                     </a>
                 </div>
             </div>
@@ -115,28 +114,29 @@ $download = [
 
         <section class="download-info-grid fadeup">
             <article class="download-info-card">
-                <h2>Prima di scaricare</h2>
+                <h2>Before downloading</h2>
                 <ol>
-                    <li>Clicca il pulsante download.</li>
-                    <li>Apri l’installer scaricato.</li>
-                    <li>Segui la procedura di installazione.</li>
+                    <li>Click the download button.</li>
+                    <li>Open the downloaded installer.</li>
+                    <li>Follow the installation instructions.</li>
                 </ol>
             </article>
 
             <article class="download-info-card">
-                <h2>Nota</h2>
-                <p>Il download partirà automaticamente dopo aver cliccato il tasto download.</p>
+                <h2>Note</h2>
+                <p>The download will start automatically after clicking the download button.</p>
             </article>
         </section>
     </main>
 
     <div class="download-toast" data-download-toast hidden>
         <i class="fas fa-check"></i>
-        <span>Download avviato</span>
+        <span>Download started</span>
     </div>
 
     <?php include '../../includes/footer-en.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>
