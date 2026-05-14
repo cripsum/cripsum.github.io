@@ -165,19 +165,19 @@ function profile_clean_text(?string $value, int $max): string
 
 function profile_time_ago(?string $datetime): string
 {
-    if (!$datetime) return 'mai';
+    if (!$datetime) return 'unknown';
     try {
         $date = new DateTime($datetime, new DateTimeZone('UTC'));
         $date->setTimezone(new DateTimeZone('Europe/Rome'));
         $now = new DateTime('now', new DateTimeZone('Europe/Rome'));
         $diff = $now->getTimestamp() - $date->getTimestamp();
-        if ($diff < 60) return 'ora';
-        if ($diff < 3600) return floor($diff / 60) . ' min fa';
-        if ($diff < 86400) return floor($diff / 3600) . ' ore fa';
-        if ($diff < 604800) return floor($diff / 86400) . ' giorni fa';
+        if ($diff < 60) return 'now';
+        if ($diff < 3600) return floor($diff / 60) . ' min ago';
+        if ($diff < 86400) return floor($diff / 3600) . ' hours ago';
+        if ($diff < 604800) return floor($diff / 86400) . ' days ago';
         return $date->format('d/m/Y');
     } catch (Throwable $e) {
-        return 'sconosciuto';
+        return 'unknown';
     }
 }
 
