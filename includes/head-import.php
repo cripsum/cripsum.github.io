@@ -1,3 +1,22 @@
+        <?php
+        $uri = $_SERVER['REQUEST_URI'];
+        $lang = explode('/', trim($uri, '/'))[0];
+
+        if (!in_array($lang, ['it', 'en'])) {
+            $lang = 'it';
+        }
+
+        $t = [
+            'it' => [
+                'achievement'        => 'unlockAchievement-it.jsv=2',
+            ],
+            'en' => [
+                'achievement'        => 'unlockAchievement-en.jsv=2',
+            ],
+        ][$lang];
+
+        ?>
+
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
         <script>
             window.dataLayer = window.dataLayer || [];
@@ -35,7 +54,7 @@
         <script src="/js/animations.js"></script>
         <script src="/js/controlloLingua-it.js?v=2"></script>
         <script src="/js/controlloTema.js"></script>
-        <script src="/js/impostazioni.js?v=2"></script>
+        <script src="/js/<?php echo $t['achievement']; ?>"></script>
         <script src="/js/unlockAchievement-it.js?v=2"></script>
         <script src="/js/achievements-globali.js?v=4"></script>
         <!-- <script src="/js/nomePagina.js"></script> -->
