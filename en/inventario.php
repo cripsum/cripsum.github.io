@@ -11,7 +11,7 @@ checkBan($mysqli);
 
 if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-    $_SESSION['login_message'] = "Per accedere all'inventario devi essere loggato";
+    $_SESSION['login_message'] = "You must be logged in to view your inventory.";
 
     header('Location: accedi');
     exit();
@@ -22,7 +22,7 @@ function inventario_h($value): string
     return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
-$ogDescription = 'Il tuo inventario personaggi su Cripsum™.';
+$ogDescription = 'Your Character inventory on Cripsum™.';
 $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it/inventario'), '#');
 ?>
 <!DOCTYPE html>
@@ -30,12 +30,12 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <title>Cripsum™ - Inventario</title>
+    <title>Cripsum™ - Inventory</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="<?php echo inventario_h($ogDescription); ?>">
     <meta property="og:site_name" content="Cripsum™">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Inventario Personaggi - Cripsum™">
+    <meta property="og:title" content="Character Inventory - Cripsum™">
     <meta property="og:description" content="<?php echo inventario_h($ogDescription); ?>">
     <meta property="og:image" content="https://cripsum.com/img/waguri.jpeg">
     <meta property="og:url" content="<?php echo inventario_h($ogUrl); ?>">
@@ -47,7 +47,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
 <body class="inv-page">
     <?php include '../includes/navbar.php'; ?>
-     
+
 
     <div class="inv-bg" aria-hidden="true">
         <span class="inv-orb inv-orb--one"></span>
@@ -58,109 +58,109 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <main class="inv-shell">
         <section class="inv-hero inv-reveal">
             <div class="inv-hero__copy">
-                <h1>Inventario</h1>
-                <p>I personaggi trovati nelle lootbox, ordinati per rarità.</p>
+                <h1>Inventory</h1>
+                <p>Characters found in loot boxes, sorted by rarity.</p>
             </div>
 
             <a href="lootbox" class="inv-btn inv-btn--primary">
                 <i class="fas fa-box-open"></i>
-                <span>Torna alla lootbox</span>
+                <span>Return to Loot Box</span>
             </a>
         </section>
 
-        <section class="inv-stats inv-reveal" aria-label="Statistiche inventario">
+        <section class="inv-stats inv-reveal" aria-label="Inventory Statistics">
             <article>
                 <strong id="casseAperteNumber">0</strong>
-                <span>Casse aperte</span>
+                <span>Opened Boxes</span>
             </article>
             <article>
                 <strong id="foundCharacters">0</strong>
-                <span>Personaggi trovati</span>
+                <span>Found Characters</span>
             </article>
             <article>
                 <strong id="totalCharactersNum">0</strong>
-                <span>Personaggi totali</span>
+                <span>Total Characters</span>
             </article>
             <article>
                 <strong id="completionRate">0%</strong>
-                <span>Completamento</span>
+                <span>Completion Rate</span>
             </article>
         </section>
 
         <section class="inv-controls inv-reveal">
             <label class="inv-search">
                 <i class="fas fa-search"></i>
-                <input type="search" id="inventorySearch" placeholder="Cerca personaggi..." autocomplete="off">
+                <input type="search" id="inventorySearch" placeholder="Search characters..." autocomplete="off">
             </label>
 
             <div class="inv-custom-select" data-inv-custom-select>
                 <select id="rarityFilter" class="inv-select inv-native-select" aria-label="Filtra per rarità" tabindex="-1" aria-hidden="true">
-                    <option value="all">Tutte le rarità</option>
-                    <option value="comune">Comune</option>
-                    <option value="raro">Raro</option>
-                    <option value="epico">Epico</option>
-                    <option value="leggendario">Leggendario</option>
-                    <option value="speciale">Speciale</option>
-                    <option value="segreto">Segreto</option>
+                    <option value="all">All Rarities</option>
+                    <option value="comune">Common</option>
+                    <option value="raro">Rare</option>
+                    <option value="epico">Epic</option>
+                    <option value="leggendario">Legendary</option>
+                    <option value="speciale">Special</option>
+                    <option value="segreto">Secret</option>
                     <option value="theone">The One</option>
                 </select>
 
                 <button type="button" class="inv-select-trigger" aria-haspopup="listbox" aria-expanded="false">
-                    <span class="inv-select-current">Tutte le rarità</span>
+                    <span class="inv-select-current">All Rarities</span>
                     <i class="fas fa-chevron-down"></i>
                 </button>
 
                 <div class="inv-select-menu" role="listbox" aria-label="Filtra per rarità">
-                    <button type="button" data-value="all"><strong>Tutte le rarità</strong></button>
-                    <button type="button" data-value="comune"><strong>Comune</strong></button>
-                    <button type="button" data-value="raro"><strong>Raro</strong></button>
-                    <button type="button" data-value="epico"><strong>Epico</strong></button>
-                    <button type="button" data-value="leggendario"><strong>Leggendario</strong></button>
-                    <button type="button" data-value="speciale"><strong>Speciale</strong></button>
-                    <button type="button" data-value="segreto"><strong>Segreto</strong></button>
+                    <button type="button" data-value="all"><strong>All Rarities</strong></button>
+                    <button type="button" data-value="comune"><strong>Common</strong></button>
+                    <button type="button" data-value="raro"><strong>Rare</strong></button>
+                    <button type="button" data-value="epico"><strong>Epic</strong></button>
+                    <button type="button" data-value="leggendario"><strong>Legendary</strong></button>
+                    <button type="button" data-value="speciale"><strong>Special</strong></button>
+                    <button type="button" data-value="segreto"><strong>Secret</strong></button>
                     <button type="button" data-value="theone"><strong>The One</strong></button>
                 </div>
             </div>
 
             <div class="inv-custom-select" data-inv-custom-select>
                 <select id="statusFilter" class="inv-select inv-native-select" aria-label="Filtra per stato" tabindex="-1" aria-hidden="true">
-                    <option value="all">Tutti</option>
-                    <option value="owned">Posseduti</option>
-                    <option value="missing">Mancanti</option>
-                    <option value="duplicates">Duplicati</option>
+                    <option value="all">All</option>
+                    <option value="owned">Owned</option>
+                    <option value="missing">Missing</option>
+                    <option value="duplicates">Duplicates</option>
                 </select>
 
                 <button type="button" class="inv-select-trigger" aria-haspopup="listbox" aria-expanded="false">
-                    <span class="inv-select-current">Tutti</span>
+                    <span class="inv-select-current">All</span>
                     <i class="fas fa-chevron-down"></i>
                 </button>
 
                 <div class="inv-select-menu" role="listbox" aria-label="Filtra per stato">
-                    <button type="button" data-value="all"><strong>Tutti</strong></button>
-                    <button type="button" data-value="owned"><strong>Posseduti</strong></button>
-                    <button type="button" data-value="missing"><strong>Mancanti</strong></button>
-                    <button type="button" data-value="duplicates"><strong>Duplicati</strong></button>
+                    <button type="button" data-value="all"><strong>All</strong></button>
+                    <button type="button" data-value="owned"><strong>Owned</strong></button>
+                    <button type="button" data-value="missing"><strong>Missing</strong></button>
+                    <button type="button" data-value="duplicates"><strong>Duplicates</strong></button>
                 </div>
             </div>
 
             <div class="inv-custom-select" data-inv-custom-select>
                 <select id="inventorySort" class="inv-select inv-native-select" aria-label="Ordina inventario" tabindex="-1" aria-hidden="true">
-                    <option value="default">Ordine originale</option>
-                    <option value="name">Nome</option>
-                    <option value="quantity-desc">Più quantità</option>
-                    <option value="quantity-asc">Meno quantità</option>
+                    <option value="default">Original order</option>
+                    <option value="name">Name</option>
+                    <option value="quantity-desc">Most quantity</option>
+                    <option value="quantity-asc">Least quantity</option>
                 </select>
 
                 <button type="button" class="inv-select-trigger" aria-haspopup="listbox" aria-expanded="false">
-                    <span class="inv-select-current">Ordine originale</span>
+                    <span class="inv-select-current">Original order</span>
                     <i class="fas fa-chevron-down"></i>
                 </button>
 
                 <div class="inv-select-menu" role="listbox" aria-label="Ordina inventario">
-                    <button type="button" data-value="default"><strong>Ordine originale</strong></button>
-                    <button type="button" data-value="name"><strong>Nome</strong><span>A-Z</span></button>
-                    <button type="button" data-value="quantity-desc"><strong>Più quantità</strong><span>x ↓</span></button>
-                    <button type="button" data-value="quantity-asc"><strong>Meno quantità</strong><span>x ↑</span></button>
+                    <button type="button" data-value="default"><strong>Original order</strong></button>
+                    <button type="button" data-value="name"><strong>Name</strong><span>A-Z</span></button>
+                    <button type="button" data-value="quantity-desc"><strong>Most quantity</strong><span>x ↓</span></button>
+                    <button type="button" data-value="quantity-asc"><strong>Least quantity</strong><span>x ↑</span></button>
                 </div>
             </div>
 
@@ -171,7 +171,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
         </section>
 
         <section class="inv-visible-count inv-reveal">
-            <span id="visibleCount">0 risultati</span>
+            <span id="visibleCount">0 results</span>
         </section>
 
         <section id="inventoryLoading" class="inv-loading" aria-live="polite">
@@ -180,19 +180,19 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                 <span></span>
                 <span></span>
             </div>
-            <p>Caricamento inventario...</p>
+            <p>Loading inventory...</p>
         </section>
 
         <section id="inventoryError" class="inv-empty" hidden>
             <i class="fas fa-triangle-exclamation"></i>
-            <strong>Non riesco a caricare l’inventario</strong>
-            <span>Riprova tra poco.</span>
+            <strong>Unable to load inventory</strong>
+            <span>Please try again later.</span>
         </section>
 
         <section id="inventoryEmpty" class="inv-empty" hidden>
             <i class="fas fa-magnifying-glass"></i>
-            <strong>Nessun personaggio trovato</strong>
-            <span>Cambia ricerca o filtri.</span>
+            <strong>No characters found</strong>
+            <span>Change search or filters.</span>
         </section>
 
         <section id="inventario" class="inventory-grid" hidden></section>
@@ -201,7 +201,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <div class="inv-modal" id="characterModal" hidden>
         <div class="inv-modal__backdrop" data-close-character-modal></div>
         <article class="inv-modal__panel" role="dialog" aria-modal="true" aria-labelledby="characterModalTitle">
-            <button type="button" class="inv-modal__close" data-close-character-modal aria-label="Chiudi">
+            <button type="button" class="inv-modal__close" data-close-character-modal aria-label="Close">
                 <i class="fas fa-xmark"></i>
             </button>
 
