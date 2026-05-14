@@ -44,12 +44,12 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <meta name="twitter:card" content="summary_large_image">
 
     <link rel="stylesheet" href="/assets/achievements/achievements.css?v=2.3">
-    <script src="/assets/achievements/achievements.js?v=2.1" defer></script>
+    <script src="/assets/achievements/achievements.js?v=2.2" defer></script>
 </head>
 
 <body class="ach-page">
     <?php include '../includes/navbar.php'; ?>
-    
+
 
     <div class="ach-bg" aria-hidden="true">
         <span class="ach-orb ach-orb--one"></span>

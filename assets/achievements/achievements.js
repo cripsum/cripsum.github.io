@@ -1,8 +1,73 @@
 (() => {
     'use strict';
 
-    const $ = (selector, root = document) => root.querySelector(selector);
-    const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+    const lang = location.pathname.split('/').find(s => s === 'it' || s === 'en') || 'it';
+
+    const t = {
+        it: {
+            date_locale:        'it-IT',
+            unlocked:           'Sbloccato',
+            locked:             'Bloccato',
+            no_description:     'Nessuna descrizione.',
+            open_achievement:   (name) => `Apri ${name}`,
+            points:             (n) => `${n} punti`,
+            progress:           'Progresso',
+            copy_link:          'Copia link',
+            link_copied:        'Link copiato.',
+            copy_failed:        'Non sono riuscito a copiare.',
+            completion_text:    (u, t) => `${u} su ${t} achievement completati`,
+            completed:          'Completato',
+            // progress display strings
+            visit_now:          'Visita ora',
+            visit_at_3:         'Visita alle 3:00',
+            change_pfp:         'Cambia pfp',
+            donate:             'Fai una donazione',
+            watch_edits:        'Guarda gli edit',
+            buy_tussi:          'Compra qualcosa nello shop di Tussi',
+            win_match:          'Vinci una partita',
+            redeem_vbucks:      'Riscatta V-Bucks gratis',
+            go_broke:           'Rimani senza soldi',
+            open_lootbox:       'Apri la tua prima lootbox',
+            explore_goonland:   'Esplora GoonLand',
+            boxes:              (n, max) => `${n}/${max} casse`,
+            consecutive:        (n) => `${n}/10 comuni consecutivi`,
+            characters:         (n, max) => `${n}/${max} personaggi`,
+            clicks:             (n) => `${n}/100 click`,
+            days:               (n, max) => `${n}/${max} giorni`,
+        },
+        en: {
+            date_locale:        'en-GB',
+            unlocked:           'Unlocked',
+            locked:             'Locked',
+            no_description:     'No description.',
+            open_achievement:   (name) => `Open ${name}`,
+            points:             (n) => `${n} pts`,
+            progress:           'Progress',
+            copy_link:          'Copy link',
+            link_copied:        'Link copied.',
+            copy_failed:        'Could not copy the link.',
+            completion_text:    (u, total) => `${u} of ${total} achievements completed`,
+            completed:          'Completed',
+            visit_now:          'Visit now',
+            visit_at_3:         'Visit at 3:00',
+            change_pfp:         'Change your profile picture',
+            donate:             'Make a donation',
+            watch_edits:        'Watch the edits',
+            buy_tussi:          'Buy something in Tussi\'s shop',
+            win_match:          'Win a match',
+            redeem_vbucks:      'Redeem free V-Bucks',
+            go_broke:           'Run out of money',
+            open_lootbox:       'Open your first lootbox',
+            explore_goonland:   'Explore GoonLand',
+            boxes:              (n, max) => `${n}/${max} boxes`,
+            consecutive:        (n) => `${n}/10 consecutive days`,
+            characters:         (n, max) => `${n}/${max} characters`,
+            clicks:             (n) => `${n}/100 clicks`,
+            days:               (n, max) => `${n}/${max} days`,
+        },
+    }[lang];
+
+    const $ = (selector, root = document) => root.querySelector(selector);    const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
     const state = {
         all: [],
@@ -91,7 +156,7 @@
         const date = new Date(value);
         if (Number.isNaN(date.getTime())) return '';
 
-        return `${date.toLocaleDateString('it-IT')} · ${date.toLocaleTimeString('it-IT', {
+        return `${date.toLocaleDateString(t.date_locale)} · ${date.toLocaleTimeString(t.date_locale, {
             hour: '2-digit',
             minute: '2-digit'
         })}`;
@@ -109,8 +174,14 @@
 
     const normalizeAchievement = (achievement) => ({
         id: toInt(achievement.id),
-        nome: String(achievement.nome || achievement.name || `Achievement #${achievement.id || '?'}`),
-        descrizione: String(achievement.descrizione || achievement.description || ''),
+        nome: String(
+            (lang === 'en' && achievement.nome_en) ||
+            achievement.nome || achievement.name || `Achievement #${achievement.id || '?'}`
+        ),
+        descrizione: String(
+            (lang === 'en' && achievement.descrizione_en) ||
+            achievement.descrizione || achievement.description || ''
+        ),
         punti: toInt(achievement.punti || achievement.points || 0),
         img_url: String(achievement.img_url || achievement.img || ''),
         categoria: String(achievement.categoria || achievement.category || 'generale')
@@ -231,7 +302,7 @@
         return {
             current: unlocked ? 1 : 0,
             target: 1,
-            display: unlocked ? 'Completato' : label
+            display: unlocked ? t.completed : label
         };
     };
 
@@ -269,52 +340,52 @@
                 const isRightTime = now.getHours() === 3;
 
                 return isRightTime
-                    ? { current: 1, target: 1, display: 'Visita ora' }
-                    : { current: 0, target: 1, display: 'Visita alle 3:00' };
+                    ? { current: 1, target: 1, display: t.visit_now }
+                    : { current: 0, target: 1, display: t.visit_at_3 };
             }
 
             case 2:
-                return completedProgress(2, 'Cambia pfp');
+                return completedProgress(2, t.change_pfp);
 
             case 4:
-                return completedProgress(4, 'Fai una donazione');
+                return completedProgress(4, t.donate);
 
             case 6:
-                return completedProgress(6, 'Guarda gli edit');
+                return completedProgress(6, t.watch_edits);
 
             case 7:
-                return completedProgress(7, 'Compra qualcosa nello shop di Tussi');
+                return completedProgress(7, t.buy_tussi);
 
             case 3:
-                return completedProgress(3, 'Vinci una partita');
+                return completedProgress(3, t.win_match);
 
             case 10:
-                return completedProgress(10, 'Riscatta V-Bucks gratis');
+                return completedProgress(10, t.redeem_vbucks);
 
             case 11:
-                return completedProgress(11, 'Rimani senza soldi');
+                return completedProgress(11, t.go_broke);
 
             case 5:
-                return completedProgress(5, 'Apri la tua prima lootbox');
+                return completedProgress(5, t.open_lootbox);
 
             case 8: {
                 const casseAperte = state.serverData.casseAperte || 0;
                 return {
                     current: Math.min(casseAperte, 100),
                     target: 100,
-                    display: `${casseAperte}/100 casse`
+                    display: t.boxes(casseAperte, 100)
                 };
             }
 
             case 15:
-                return completedProgress(15, 'Esplora GoonLand');
+                return completedProgress(15, t.explore_goonland);
 
             case 16: {
                 const casseAperte = state.serverData.casseAperte || 0;
                 return {
                     current: Math.min(casseAperte, 500),
                     target: 500,
-                    display: `${casseAperte}/500 casse`
+                    display: t.boxes(casseAperte, 500)
                 };
             }
 
@@ -325,7 +396,7 @@
                 return {
                     current: unlocked ? 10 : Math.min(comuniDiFila, 10),
                     target: 10,
-                    display: unlocked ? 'Completato' : `${comuniDiFila}/10 comuni consecutivi`
+                    display: unlocked ? t.completed : t.consecutive(comuniDiFila)
                 };
             }
 
@@ -336,7 +407,7 @@
                 return {
                     current: Math.min(personaggiCount, totalCharacters),
                     target: totalCharacters,
-                    display: `${personaggiCount}/${totalCharacters} personaggi`
+                    display: t.characters(personaggiCount, totalCharacters)
                 };
             }
 
@@ -347,7 +418,7 @@
                 return {
                     current: unlocked ? 100 : Math.min(clickGoon, 100),
                     target: 100,
-                    display: unlocked ? 'Completato' : `${clickGoon}/100 click`
+                    display: unlocked ? t.completed : t.clicks(clickGoon)
                 };
             }
 
@@ -357,7 +428,7 @@
                 return {
                     current: daysVisitedGoon,
                     target: 10,
-                    display: `${daysVisitedGoon}/10 giorni`
+                    display: t.days(daysVisitedGoon, 10)
                 };
             }
 
@@ -442,7 +513,7 @@
         $('#statPoints').textContent = String(points);
 
         $('#completionPercentage').textContent = `${percentage}%`;
-        $('#completionText').textContent = `${unlocked} su ${total} achievement completati`;
+        $('#completionText').textContent = t.completion_text(unlocked, total);
 
         const circle = $('#completionCircle');
         if (circle) {
@@ -455,12 +526,12 @@
 
     const renderAchievementCard = (achievement) => {
         const isUnlocked = achievement.isUnlocked;
-        const statusText = isUnlocked ? 'Sbloccato' : 'Bloccato';
+        const statusText = isUnlocked ? t.unlocked : t.locked;
         const date = isUnlocked ? formatDate(achievement.unlocked?.data) : '';
         const progress = achievement.progress;
         const percent = progressPercent(progress);
         const title = isUnlocked ? achievement.nome : '???';
-        const description = achievement.descrizione || 'Nessuna descrizione.';
+        const description = achievement.descrizione || t.no_description;
         const image = resolveImage(achievement.img_url);
 
         return `
@@ -468,7 +539,7 @@
                      data-achievement-id="${achievement.id}"
                      tabindex="0"
                      role="button"
-                     aria-label="Apri ${escapeHtml(achievement.nome)}">
+                     aria-label="${escapeHtml(t.open_achievement(achievement.nome))}">
                 <div class="ach-card__top">
                     <div class="ach-icon">
                         <img src="${escapeHtml(image)}"
@@ -491,7 +562,7 @@
                 <div class="ach-card__meta">
                     <span class="ach-badge ach-badge--points">
                         <i class="fas fa-star"></i>
-                        ${achievement.punti} punti
+                        ${t.points(achievement.punti)}
                     </span>
 
                     ${date ? `
@@ -505,7 +576,7 @@
                 ${!isUnlocked && progress ? `
                     <div class="ach-card__progress">
                         <div class="ach-progress-head">
-                            <span>Progresso</span>
+                            <span>${t.progress}</span>
                             <strong>${escapeHtml(progress.display || `${progress.current}/${progress.target}`)}</strong>
                         </div>
                         <div class="ach-progress-bar">
@@ -571,16 +642,16 @@
                 <div>
                     <span class="ach-status ${isUnlocked ? 'ach-status--unlocked' : 'ach-status--locked'}">
                         ${isUnlocked ? '<i class="fas fa-check"></i>' : '<i class="fas fa-lock"></i>'}
-                        ${isUnlocked ? 'Sbloccato' : 'Bloccato'}
+                        ${isUnlocked ? t.unlocked : t.locked}
                     </span>
 
                     <h2 id="achievementModalTitle">${escapeHtml(isUnlocked ? achievement.nome : '???')}</h2>
-                    <p>${escapeHtml(achievement.descrizione || 'Nessuna descrizione.')}</p>
+                    <p>${escapeHtml(achievement.descrizione || t.no_description)}</p>
 
                     <div class="ach-card__meta" style="padding: 1rem 0 0;">
                         <span class="ach-badge ach-badge--points">
                             <i class="fas fa-star"></i>
-                            ${achievement.punti} punti
+                            ${t.points(achievement.punti)}
                         </span>
 
                         ${date ? `
@@ -594,7 +665,7 @@
                     ${!isUnlocked && progress ? `
                         <div class="ach-card__progress" style="margin-top: 1rem; border-radius: 18px; border: 1px solid rgba(255,255,255,.08);">
                             <div class="ach-progress-head">
-                                <span>Progresso</span>
+                                <span>${t.progress}</span>
                                 <strong>${escapeHtml(progress.display || `${progress.current}/${progress.target}`)}</strong>
                             </div>
                             <div class="ach-progress-bar">
@@ -606,7 +677,7 @@
                     <div class="ach-modal-actions">
                         <button type="button" class="ach-btn" id="copyAchievementLink">
                             <i class="fas fa-link"></i>
-                            Copia link
+                            ${t.copy_link}
                         </button>
                     </div>
                 </div>
