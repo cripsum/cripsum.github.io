@@ -187,10 +187,10 @@ if ($featuredContents) {
 
 $stats = [];
 if ($profile) {
-    if ((int)$profile['profile_views'] > 0) $stats[] = ['icon' => 'fas fa-eye', 'value' => profile_compact_number($profile['profile_views']), 'label' => 'Visite'];
-    if ((int)$profile['num_achievement'] > 0) $stats[] = ['icon' => 'fas fa-trophy', 'value' => profile_compact_number($profile['num_achievement']), 'label' => 'Badge'];
-    if ((int)$profile['num_personaggi'] > 0) $stats[] = ['icon' => 'fas fa-user-astronaut', 'value' => profile_compact_number($profile['num_personaggi']), 'label' => 'Personaggi'];
-    if ((int)$profile['total_personaggi'] > 0) $stats[] = ['icon' => 'fas fa-dice-d20', 'value' => profile_compact_number($profile['total_personaggi']), 'label' => 'Pull'];
+    if ((int)$profile['profile_views'] > 0) $stats[] = ['icon' => 'fas fa-eye', 'value' => profile_compact_number($profile['profile_views']), 'label' => 'Views'];
+    if ((int)$profile['num_achievement'] > 0) $stats[] = ['icon' => 'fas fa-trophy', 'value' => profile_compact_number($profile['num_achievement']), 'label' => 'Badges'];
+    if ((int)$profile['num_personaggi'] > 0) $stats[] = ['icon' => 'fas fa-user-astronaut', 'value' => profile_compact_number($profile['num_personaggi']), 'label' => 'Characters'];
+    if ((int)$profile['total_personaggi'] > 0) $stats[] = ['icon' => 'fas fa-dice-d20', 'value' => profile_compact_number($profile['total_personaggi']), 'label' => 'Pulls'];
 }
 $ogMeta = cripsum_og_profile($mysqli, $profile);
 ?>
@@ -202,8 +202,8 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=3.0.11">
-    <script src="/assets/js/profile.js?v=3.0.3" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=3.0.4">
+    <script src="/assets/js/profile.js?v=3.0.4" defer></script>
 </head>
 
 <body
