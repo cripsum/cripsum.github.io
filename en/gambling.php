@@ -25,7 +25,7 @@ $username = $_SESSION['username'] ?? 'Utente';
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/css/achievement-style.css?v=2.0-popup">
     <link rel="stylesheet" href="/assets/gambling/gambling.css?v=2.0-arcade">
-    <script src="/assets/gambling/gambling.js?v=2.0-arcade" defer></script>
+    <script src="/assets/gambling/gambling.js?v=2.1" defer></script>
 </head>
 
 <body class="gambling-page">
