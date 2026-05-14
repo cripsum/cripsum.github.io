@@ -341,7 +341,7 @@ function profile_json_script(string $id, array $data): void
                                 <label class="profile-badge-choice">
                                     <input type="checkbox" value="<?php echo (int)$badge['id']; ?>" <?php echo (int)$badge['selected'] === 1 ? 'checked' : ''; ?>>
                                     <?php if (!empty($badge['img_url'])): ?><img src="/img/<?php echo profile_h($badge['img_url']); ?>" alt=""><?php else: ?><span>✦</span><?php endif; ?>
-                                    <strong><?php echo profile_h($badge['nome']); ?></strong>
+                                    <strong><?php echo profile_h($badge['nome_en']); ?></strong>
                                 </label>
                             <?php endforeach; ?>
                         </div>

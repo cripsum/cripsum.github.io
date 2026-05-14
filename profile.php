@@ -262,7 +262,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                     <div class="profile-mini-badges" aria-label="Badge">
                         <?php foreach (array_slice($visibleBadges, 0, 4) as $badge): ?>
                             <?php $badgeImage = !empty($badge['img_url']) ? '/img/' . ltrim((string)$badge['img_url'], '/') : null; ?>
-                            <span class="profile-mini-badge" title="<?php echo profile_h($badge['nome']); ?>">
+                            <span class="profile-mini-badge" title="<?php echo profile_h($badge['nome_en']); ?>">
                                 <?php if ($badgeImage): ?><img src="<?php echo profile_h($badgeImage); ?>" alt="" loading="lazy"><?php else: ?><i class="fas fa-medal"></i><?php endif; ?>
                             </span>
                         <?php endforeach; ?>
@@ -497,8 +497,8 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                                             <?php if ($achievementImage): ?><img src="<?php echo profile_h($achievementImage); ?>" alt="" loading="lazy"><?php else: ?><i class="fas fa-medal"></i><?php endif; ?>
                                         </div>
                                         <div class="profile-badge-info">
-                                            <strong><?php echo profile_h($badge['nome']); ?></strong>
-                                            <?php if (!empty($badge['descrizione'])): ?><p><?php echo profile_h($badge['descrizione']); ?></p><?php endif; ?>
+                                            <strong><?php echo profile_h($badge['nome_en']); ?></strong>
+                                            <?php if (!empty($badge['descrizione_en'])): ?><p><?php echo profile_h($badge['descrizione_en']); ?></p><?php endif; ?>
                                             <small><?php echo profile_h($rarity['label']); ?><?php echo (int)($badge['punti'] ?? 0) > 0 ? ' · ' . (int)$badge['punti'] . ' punti' : ''; ?></small>
                                         </div>
                                     </article>
