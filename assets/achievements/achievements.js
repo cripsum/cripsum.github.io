@@ -687,7 +687,7 @@
         $('#copyAchievementLink')?.addEventListener('click', async () => {
             const url = `${location.origin}${location.pathname}#achievement-${achievement.id}`;
             const ok = await copyText(url);
-            showToast(ok ? 'Link copiato.' : 'Non sono riuscito a copiare.');
+            showToast(ok ? t.link_copied : t.link_copy_failed);
         });
 
         modal.hidden = false;
