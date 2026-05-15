@@ -32,8 +32,8 @@ require_once '../api/api_personaggi.php';
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <link rel="stylesheet" href="/css/lootbox.css?v=8.2" />
-    <link rel="stylesheet" href="/assets/lootbox-v2/gacha.css?v=2.0" />
+    <link rel="stylesheet" href="/css/lootbox.css?v=8.3" />
+    <link rel="stylesheet" href="/assets/lootbox-v2/gacha.css?v=2.1" />
     <title>Cripsum™ - lootbox</title>
 </head>
 
@@ -199,202 +199,202 @@ require_once '../api/api_personaggi.php';
 
             <div class="container gacha-chest-zone">
 
-            <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein lootbox-chest" draggable="false" aria-label="Apri cassa" ondblclick="handleDoubleClick(event)" onclick="handleChestClick(event)" />
+                <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein lootbox-chest" draggable="false" aria-label="Apri cassa" ondblclick="handleDoubleClick(event)" onclick="handleChestClick(event)" />
 
-            <div id="baglioreWrapper">
-                <div class="bagliore" id="bagliore"></div>
-            </div>
-
-            <div id="contenuto"></div>
-
-            <div id="messaggio" class="nascosto">
-
-                <a onclick="refresh()" id="apriAncora" class="linkbianco"></a>
-            </div>
-
-            <div id="divApriAncora" class="nascosto">
-                <h1 id="messaggioRarita" class="non-selezionabile lootbox-rarity-message"></h1>
-                <div class="button-container lootbox-actions mt-4">
-                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" onclick="refresh()">Apri cassa</a>
-                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" href="inventario">Inventario</a>
-                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" onclick="toggleLeaderboard()">Classifiche</a>
+                <div id="baglioreWrapper">
+                    <div class="bagliore" id="bagliore"></div>
                 </div>
-            </div>
 
-            <div class="modal fade lootbox-settings-modal" id="impostazioniModal" tabindex="-1" aria-labelledby="impostazioniModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable lootbox-settings-dialog">
-                    <div class="modal-content bgimpostazioni lootbox-settings-content">
-                        <div class="modal-header lootbox-settings-header">
-                            <div>
-                                <span class="lootbox-modal-kicker">Lootbox</span>
-                                <h5 class="modal-title" id="impostazioniModalLabel">Impostazioni</h5>
-                                <p>Comandi, probabilità e funzioni rapide.</p>
+                <div id="contenuto"></div>
+
+                <div id="messaggio" class="nascosto">
+
+                    <a onclick="refresh()" id="apriAncora" class="linkbianco"></a>
+                </div>
+
+                <div id="divApriAncora" class="nascosto">
+                    <h1 id="messaggioRarita" class="non-selezionabile lootbox-rarity-message"></h1>
+                    <div class="button-container lootbox-actions mt-4">
+                        <a class="btn btn-secondary bottone lootbox-action-btn mt-2" onclick="refresh()">Apri cassa</a>
+                        <a class="btn btn-secondary bottone lootbox-action-btn mt-2" href="inventario">Inventario</a>
+                        <a class="btn btn-secondary bottone lootbox-action-btn mt-2" onclick="toggleLeaderboard()">Classifiche</a>
+                    </div>
+                </div>
+
+                <div class="modal fade lootbox-settings-modal" id="impostazioniModal" tabindex="-1" aria-labelledby="impostazioniModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable lootbox-settings-dialog">
+                        <div class="modal-content bgimpostazioni lootbox-settings-content">
+                            <div class="modal-header lootbox-settings-header">
+                                <div>
+                                    <span class="lootbox-modal-kicker">Lootbox</span>
+                                    <h5 class="modal-title" id="impostazioniModalLabel">Impostazioni</h5>
+                                    <p>Comandi, probabilità e funzioni rapide.</p>
+                                </div>
+
+                                <button type="button" class="lootbox-modal-close" data-bs-dismiss="modal" aria-label="Chiudi">
+                                    <i class="fas fa-xmark"></i>
+                                </button>
                             </div>
 
-                            <button type="button" class="lootbox-modal-close" data-bs-dismiss="modal" aria-label="Chiudi">
-                                <i class="fas fa-xmark"></i>
-                            </button>
-                        </div>
-
-                        <div class="modal-body lootbox-settings-body">
-                            <section class="lootbox-settings-section">
-                                <div class="lootbox-section-head">
-                                    <i class="fas fa-keyboard"></i>
-                                    <div>
-                                        <h6>Comandi</h6>
-                                        <p>Scorciatoie rapide durante la pull.</p>
-                                    </div>
-                                </div>
-
-                                <div class="lootbox-command-grid">
-                                    <div class="lootbox-command-item">
-                                        <span>Click</span>
-                                        <strong>Apri cassa</strong>
-                                    </div>
-                                    <div class="lootbox-command-item">
-                                        <span>Doppio click</span>
-                                        <strong>Skip animazione</strong>
-                                    </div>
-                                    <div class="lootbox-command-item">
-                                        <span>Space</span>
-                                        <strong>Apri veloce</strong>
-                                    </div>
-                                    <div class="lootbox-command-item">
-                                        <span>Enter</span>
-                                        <strong>Apri ancora</strong>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <section class="lootbox-settings-section">
-                                <div class="lootbox-section-head">
-                                    <i class="fas fa-dice"></i>
-                                    <div>
-                                        <h6>Probabilità</h6>
-                                        <p>Le percentuali restano quelle originali.</p>
-                                    </div>
-                                </div>
-
-                                <div class="lootbox-rates-list">
-                                    <div class="lootbox-rate-row rate-common">
-                                        <span>Comune</span>
-                                        <strong>51%</strong>
-                                    </div>
-                                    <div class="lootbox-rate-row rate-rare">
-                                        <span>Raro</span>
-                                        <strong>28%</strong>
-                                    </div>
-                                    <div class="lootbox-rate-row rate-epic">
-                                        <span>Epico</span>
-                                        <strong>13%</strong>
-                                    </div>
-                                    <div class="lootbox-rate-row rate-legendary">
-                                        <span>Leggendario</span>
-                                        <strong>5.99%</strong>
-                                    </div>
-                                    <div class="lootbox-rate-row rate-special">
-                                        <span>Speciale</span>
-                                        <strong>1.8%</strong>
-                                    </div>
-                                    <div class="lootbox-rate-row rate-secret">
-                                        <span>Segreto</span>
-                                        <strong>0.2%</strong>
-                                    </div>
-                                    <div class="lootbox-rate-row rate-secret">
-                                        <span>The One</span>
-                                        <strong>0.01%</strong>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
-                                <section id="admin-cheats" class="lootbox-settings-section lootbox-admin-section">
+                            <div class="modal-body lootbox-settings-body">
+                                <section class="lootbox-settings-section">
                                     <div class="lootbox-section-head">
-                                        <i class="fas fa-wand-magic-sparkles"></i>
+                                        <i class="fas fa-keyboard"></i>
                                         <div>
-                                            <h6>Admin cheats</h6>
-                                            <p>sucate.</p>
+                                            <h6>Comandi</h6>
+                                            <p>Scorciatoie rapide durante la pull.</p>
                                         </div>
                                     </div>
 
-                                    <div class="lootbox-toggle-grid">
-
-                                        <label class="lootbox-toggle-pill" for="SoloPoppy">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloPoppy" />
-                                            <span>Meow</span>
-                                        </label>
-
-                                        <label class="lootbox-toggle-pill" for="SoloComuni">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloComuni" />
-                                            <span>Solo Comuni</span>
-                                        </label>
-
-                                        <label class="lootbox-toggle-pill" for="SoloRari">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloRari" />
-                                            <span>Solo Rari</span>
-                                        </label>
-
-                                        <label class="lootbox-toggle-pill" for="SoloEpici">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloEpici" />
-                                            <span>Solo Epici</span>
-                                        </label>
-
-                                        <label class="lootbox-toggle-pill" for="SoloLeggendari">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloLeggendari" />
-                                            <span>Solo Leggendari</span>
-                                        </label>
-
-                                        <label class="lootbox-toggle-pill" for="SoloSpeciali">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloSpeciali" />
-                                            <span>Solo Speciali</span>
-                                        </label>
-
-                                        <label class="lootbox-toggle-pill" for="SoloSegreti">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloSegreti" />
-                                            <span>Solo Segreti</span>
-                                        </label>
-
-                                        <label class="lootbox-toggle-pill" for="SoloTheOne">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloTheOne" />
-                                            <span>Solo The One</span>
-                                        </label>
+                                    <div class="lootbox-command-grid">
+                                        <div class="lootbox-command-item">
+                                            <span>Click</span>
+                                            <strong>Apri cassa</strong>
+                                        </div>
+                                        <div class="lootbox-command-item">
+                                            <span>Doppio click</span>
+                                            <strong>Skip animazione</strong>
+                                        </div>
+                                        <div class="lootbox-command-item">
+                                            <span>Space</span>
+                                            <strong>Apri veloce</strong>
+                                        </div>
+                                        <div class="lootbox-command-item">
+                                            <span>Enter</span>
+                                            <strong>Apri ancora</strong>
+                                        </div>
                                     </div>
                                 </section>
-                            <?php endif; ?>
 
-                            <section class="lootbox-settings-section lootbox-code-section">
-                                <div class="lootbox-section-head">
-                                    <i class="fas fa-lock"></i>
-                                    <div>
-                                        <h6>Codice segreto</h6>
-                                        <p>Inserisci un codice valido, se ne hai uno.</p>
+                                <section class="lootbox-settings-section">
+                                    <div class="lootbox-section-head">
+                                        <i class="fas fa-dice"></i>
+                                        <div>
+                                            <h6>Probabilità</h6>
+                                            <p>Le percentuali restano quelle originali.</p>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="lootbox-secret-row">
-                                    <label class="visually-hidden" for="codiceSegreto">Codice Segreto</label>
-                                    <input type="text" id="codiceSegreto" class="form-control" placeholder="Codice segreto" />
-                                    <button type="button" class="btn btn-secondary bottone lootbox-modal-btn" data-bs-dismiss="modal" onclick="riscattaCodice()">
-                                        Riscatta
-                                    </button>
-                                </div>
-                            </section>
-                        </div>
+                                    <div class="lootbox-rates-list">
+                                        <div class="lootbox-rate-row rate-common">
+                                            <span>Comune</span>
+                                            <strong>51%</strong>
+                                        </div>
+                                        <div class="lootbox-rate-row rate-rare">
+                                            <span>Raro</span>
+                                            <strong>28%</strong>
+                                        </div>
+                                        <div class="lootbox-rate-row rate-epic">
+                                            <span>Epico</span>
+                                            <strong>13%</strong>
+                                        </div>
+                                        <div class="lootbox-rate-row rate-legendary">
+                                            <span>Leggendario</span>
+                                            <strong>5.99%</strong>
+                                        </div>
+                                        <div class="lootbox-rate-row rate-special">
+                                            <span>Speciale</span>
+                                            <strong>1.8%</strong>
+                                        </div>
+                                        <div class="lootbox-rate-row rate-secret">
+                                            <span>Segreto</span>
+                                            <strong>0.2%</strong>
+                                        </div>
+                                        <div class="lootbox-rate-row rate-secret">
+                                            <span>The One</span>
+                                            <strong>0.01%</strong>
+                                        </div>
+                                    </div>
+                                </section>
 
-                        <div class="modal-footer lootbox-settings-footer">
-                            <button type="button" class="btn btn-secondary bottone lootbox-modal-btn lootbox-modal-btn--ghost" data-bs-dismiss="modal">
-                                Chiudi
-                            </button>
-                            <button type="button" class="btn btn-secondary bottone lootbox-modal-btn lootbox-modal-btn--primary" data-bs-dismiss="modal" onclick="salvaPreferenze()">
-                                Salva preferenze
-                            </button>
+                                <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
+                                    <section id="admin-cheats" class="lootbox-settings-section lootbox-admin-section">
+                                        <div class="lootbox-section-head">
+                                            <i class="fas fa-wand-magic-sparkles"></i>
+                                            <div>
+                                                <h6>Admin cheats</h6>
+                                                <p>sucate.</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="lootbox-toggle-grid">
+
+                                            <label class="lootbox-toggle-pill" for="SoloPoppy">
+                                                <input class="form-check-input checco" type="checkbox" value="" id="SoloPoppy" />
+                                                <span>Meow</span>
+                                            </label>
+
+                                            <label class="lootbox-toggle-pill" for="SoloComuni">
+                                                <input class="form-check-input checco" type="checkbox" value="" id="SoloComuni" />
+                                                <span>Solo Comuni</span>
+                                            </label>
+
+                                            <label class="lootbox-toggle-pill" for="SoloRari">
+                                                <input class="form-check-input checco" type="checkbox" value="" id="SoloRari" />
+                                                <span>Solo Rari</span>
+                                            </label>
+
+                                            <label class="lootbox-toggle-pill" for="SoloEpici">
+                                                <input class="form-check-input checco" type="checkbox" value="" id="SoloEpici" />
+                                                <span>Solo Epici</span>
+                                            </label>
+
+                                            <label class="lootbox-toggle-pill" for="SoloLeggendari">
+                                                <input class="form-check-input checco" type="checkbox" value="" id="SoloLeggendari" />
+                                                <span>Solo Leggendari</span>
+                                            </label>
+
+                                            <label class="lootbox-toggle-pill" for="SoloSpeciali">
+                                                <input class="form-check-input checco" type="checkbox" value="" id="SoloSpeciali" />
+                                                <span>Solo Speciali</span>
+                                            </label>
+
+                                            <label class="lootbox-toggle-pill" for="SoloSegreti">
+                                                <input class="form-check-input checco" type="checkbox" value="" id="SoloSegreti" />
+                                                <span>Solo Segreti</span>
+                                            </label>
+
+                                            <label class="lootbox-toggle-pill" for="SoloTheOne">
+                                                <input class="form-check-input checco" type="checkbox" value="" id="SoloTheOne" />
+                                                <span>Solo The One</span>
+                                            </label>
+                                        </div>
+                                    </section>
+                                <?php endif; ?>
+
+                                <section class="lootbox-settings-section lootbox-code-section">
+                                    <div class="lootbox-section-head">
+                                        <i class="fas fa-lock"></i>
+                                        <div>
+                                            <h6>Codice segreto</h6>
+                                            <p>Inserisci un codice valido, se ne hai uno.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="lootbox-secret-row">
+                                        <label class="visually-hidden" for="codiceSegreto">Codice Segreto</label>
+                                        <input type="text" id="codiceSegreto" class="form-control" placeholder="Codice segreto" />
+                                        <button type="button" class="btn btn-secondary bottone lootbox-modal-btn" data-bs-dismiss="modal" onclick="riscattaCodice()">
+                                            Riscatta
+                                        </button>
+                                    </div>
+                                </section>
+                            </div>
+
+                            <div class="modal-footer lootbox-settings-footer">
+                                <button type="button" class="btn btn-secondary bottone lootbox-modal-btn lootbox-modal-btn--ghost" data-bs-dismiss="modal">
+                                    Chiudi
+                                </button>
+                                <button type="button" class="btn btn-secondary bottone lootbox-modal-btn lootbox-modal-btn--primary" data-bs-dismiss="modal" onclick="salvaPreferenze()">
+                                    Salva preferenze
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div id="particelle"></div>
-        </div>
+                <div id="particelle"></div>
+            </div>
 
         </div>
 
