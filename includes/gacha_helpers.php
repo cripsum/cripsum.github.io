@@ -479,6 +479,11 @@ function gacha_normalize_rarity(?string $rarity): string
     return $rarity ?: 'comune';
 }
 
+function gacha_rarity_sql_expr(string $field): string
+{
+    return "REPLACE(REPLACE(REPLACE(REPLACE(LOWER($field), 'à', 'a'), ' ', ''), '_', ''), '-', '')";
+}
+
 function gacha_is_high_rarity(string $rarity): bool
 {
     return in_array(gacha_normalize_rarity($rarity), ['segreto', 'theone'], true);
@@ -504,13 +509,13 @@ function gacha_select_random_character(mysqli $mysqli, array $options = []): ?ar
     $params = [];
 
     if (!empty($options['rarity'])) {
-        $where[] = 'LOWER(' . gacha_qfield('p', $cols['rarity']) . ') = ?';
+        $where[] = gacha_rarity_sql_expr(gacha_qfield('p', $cols['rarity'])) . ' = ?';
         $types .= 's';
         $params[] = gacha_normalize_rarity($options['rarity']);
     }
 
     if (!empty($options['high_only'])) {
-        $where[] = 'LOWER(' . gacha_qfield('p', $cols['rarity']) . ") IN ('segreto', 'theone')";
+        $where[] = gacha_rarity_sql_expr(gacha_qfield('p', $cols['rarity'])) . " IN ('segreto', 'theone')";
     }
 
     if (!empty($options['standard_only'])) {
@@ -626,4 +631,3 @@ function gacha_add_character_to_inventory(mysqli $mysqli, int $userId, int $char
 
     return $wasNew;
 }
-

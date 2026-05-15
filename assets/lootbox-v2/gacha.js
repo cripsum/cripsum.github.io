@@ -65,6 +65,32 @@
         return normalizeRarity(character?.rarita || character?.rarità) === "theone" ? "/vid/shorekeeperpull.mp4" : "";
     }
 
+    function characterAudio(character) {
+        return mediaUrl(character?.audio_url || "", "/audio");
+    }
+
+    function playCharacterAudio(character) {
+        const src = characterAudio(character);
+        const audio = $("#suonoCassa");
+        if (!src || !audio) return;
+
+        audio.pause();
+        audio.src = src;
+        audio.currentTime = 0;
+        audio.volume = 1;
+        audio.muted = false;
+        audio.play().catch(() => {});
+    }
+
+    function stopCharacterAudio() {
+        const audio = $("#suonoCassa");
+        if (!audio) return;
+
+        audio.pause();
+        audio.removeAttribute("src");
+        audio.load?.();
+    }
+
     async function api(path, options = {}) {
         const response = await fetch(path, {
             credentials: "same-origin",
@@ -212,7 +238,8 @@
     }
 
     function debugPullParams() {
-        if (typeof getCookie !== "function") return {};
+        const debugEnabled = window.gachaV2Debug === true || new URLSearchParams(window.location.search).get("gacha_debug") === "1";
+        if (!debugEnabled || typeof getCookie !== "function") return {};
 
         const preferences = getCookie("preferences") || {};
         const rarityMap = [
@@ -259,6 +286,7 @@
             overlay.classList.remove("is-open");
             resetOverlay();
             document.body.classList.remove("gacha-overlay-open", "overflow-hidden");
+            stopCharacterAudio();
         }, 240);
     }
 
@@ -269,6 +297,7 @@
 
         state.isPulling = true;
         renderAction();
+        stopCharacterAudio();
         resetOverlay();
         openOverlay();
 
@@ -292,6 +321,7 @@
             if (typeof setLastCharacterFound === "function") setLastCharacterFound(character?.nome || "");
             if (typeof getInventory === "function") getInventory().catch(() => {});
             if (typeof apriCassa === "function") apriCassa().catch(() => {});
+            playCharacterAudio(character);
 
             await showReveal(payload);
             render();
@@ -333,7 +363,7 @@
             const video = document.createElement("video");
             video.src = src;
             video.autoplay = true;
-            video.muted = true;
+            video.muted = false;
             video.playsInline = true;
             video.setAttribute("playsinline", "");
             video.preload = "auto";
@@ -352,7 +382,10 @@
 
             stage.innerHTML = "";
             stage.appendChild(video);
-            video.play().catch(() => setTimeout(finish, 900));
+            video.play().catch(() => {
+                video.muted = true;
+                video.play().catch(() => setTimeout(finish, 900));
+            });
             setTimeout(finish, 18000);
         });
     }
@@ -421,6 +454,7 @@
             if (typeof applyLootboxRarityVisual === "function") applyLootboxRarityVisual(rarity);
             if (typeof setLastCharacterFound === "function") setLastCharacterFound(character?.nome || "");
             if (typeof getInventory === "function") getInventory().catch(() => {});
+            playCharacterAudio(character);
             await showReveal(payload);
             render();
         } catch (error) {
@@ -440,6 +474,24 @@
         $("#gacha-close-overlay")?.addEventListener("click", closeOverlay);
         $("#gacha-pull-again")?.addEventListener("click", () => startPull(state.activeBanner));
 
+        const settingsModal = $("#impostazioniModal");
+        settingsModal?.addEventListener("show.bs.modal", () => {
+            const overlay = $("#gacha-overlay");
+            overlay?.classList.remove("is-visible", "is-open");
+            resetOverlay();
+            document.body.classList.remove("gacha-overlay-open", "overflow-hidden");
+            state.isPulling = false;
+            stopCharacterAudio();
+            renderAction();
+        });
+
+        settingsModal?.addEventListener("hidden.bs.modal", () => {
+            if (!$("#gacha-overlay")?.classList.contains("is-open")) {
+                document.body.classList.remove("gacha-overlay-open", "overflow-hidden");
+                document.body.style.overflow = "auto";
+            }
+        });
+
         const chest = $("#cassa");
         if (chest) {
             chest.onclick = (event) => {
@@ -456,6 +508,10 @@
             "keydown",
             (event) => {
                 if (event.repeat) return;
+                const modalOpen = document.body.classList.contains("modal-open") || $("#impostazioniModal")?.classList.contains("show");
+                const focusedControl = document.activeElement?.closest?.("input, textarea, select, button, [contenteditable='true']");
+                if (modalOpen || focusedControl) return;
+
                 if (event.code === "Space") {
                     event.preventDefault();
                     startPull(state.activeBanner);

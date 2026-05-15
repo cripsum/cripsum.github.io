@@ -2,6 +2,14 @@ body.lootbox-page.gacha-overlay-open {
     overflow: hidden !important;
 }
 
+body.lootbox-page .modal.lootbox-settings-modal {
+    z-index: 12050 !important;
+}
+
+body.lootbox-page .modal-backdrop {
+    z-index: 12040 !important;
+}
+
 body.lootbox-page .lootbox-stage {
     width: min(1560px, 100%);
     place-items: center;
@@ -628,4 +636,3 @@ body.lootbox-page .container.gacha-chest-zone {
         width: min(38svh, 72vw, 280px);
     }
 }
-
