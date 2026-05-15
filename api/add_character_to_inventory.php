@@ -1,4 +1,4 @@
-<?php  
+<?php
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 
@@ -22,15 +22,6 @@ $roleStmt->bind_param("i", $user_id);
 $roleStmt->execute();
 $role = $roleStmt->get_result()->fetch_assoc()['ruolo'] ?? 'utente';
 $roleStmt->close();
-
-if (!in_array($role, ['admin', 'owner'], true)) {
-    http_response_code(403);
-    echo json_encode([
-        'status' => 'error',
-        'message' => 'Endpoint legacy disattivato: usa api_gacha_pull.'
-    ]);
-    exit;
-}
 
 $character_id = (int)($_GET['character_id'] ?? 0);
 if ($character_id <= 0) {
@@ -59,5 +50,3 @@ if ($stmt->execute()) {
 
 $stmt->close();
 echo json_encode($response);
-
-?>
