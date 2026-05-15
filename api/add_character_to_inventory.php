@@ -6,9 +6,44 @@ session_start();
 $user_id = $_SESSION['user_id'] ?? 0;
 date_default_timezone_set('Europe/Rome');
 
+header('Content-Type: application/json');
+
+if (!$user_id) {
+    http_response_code(401);
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Devi essere loggato.'
+    ]);
+    exit;
+}
+
+$roleStmt = $mysqli->prepare("SELECT ruolo FROM utenti WHERE id = ? LIMIT 1");
+$roleStmt->bind_param("i", $user_id);
+$roleStmt->execute();
+$role = $roleStmt->get_result()->fetch_assoc()['ruolo'] ?? 'utente';
+$roleStmt->close();
+
+if (!in_array($role, ['admin', 'owner'], true)) {
+    http_response_code(403);
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Endpoint legacy disattivato: usa api_gacha_pull.'
+    ]);
+    exit;
+}
+
+$character_id = (int)($_GET['character_id'] ?? 0);
+if ($character_id <= 0) {
+    http_response_code(400);
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Personaggio non valido.'
+    ]);
+    exit;
+}
 
 $stmt = $mysqli->prepare("INSERT INTO utenti_personaggi (utente_id, personaggio_id, data, quantità) VALUES (?, ?, NOW(), 1) ON DUPLICATE KEY UPDATE quantità = quantità + 1");
-$stmt->bind_param("ii", $user_id, $_GET['character_id']);
+$stmt->bind_param("ii", $user_id, $character_id);
 
 if ($stmt->execute()) {
     $response = [
@@ -23,7 +58,6 @@ if ($stmt->execute()) {
 }
 
 $stmt->close();
-header('Content-Type: application/json');
 echo json_encode($response);
 
 ?>

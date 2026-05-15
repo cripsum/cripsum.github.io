@@ -14,6 +14,8 @@ if (!isLoggedIn()) {
 }
 checkPermissions($mysqli, 'utente');
 
+$ruolo = $_SESSION['ruolo'] ?? 'utente';
+
 
 
 // if (  === 'utente') {
@@ -31,6 +33,7 @@ require_once '../api/api_personaggi.php';
 <head>
     <?php include '../includes/head-import.php'; ?>
     <link rel="stylesheet" href="/css/lootbox.css?v=8.2" />
+    <link rel="stylesheet" href="/assets/lootbox-v2/gacha.css?v=2.0" />
     <title>Cripsum™ - lootbox</title>
 </head>
 
@@ -130,7 +133,71 @@ require_once '../api/api_personaggi.php';
                 setTimeout(showPopup, 700);
             };
         </script>
-        <div class="container">
+        <div class="gacha-spa-shell" id="gacha-shell">
+            <section class="gacha-control-panel" aria-label="Selezione banner gacha">
+                <div class="gacha-tabs" role="tablist" aria-label="Banner">
+                    <button type="button" class="gacha-tab is-active" data-banner="standard" role="tab">
+                        <i class="fas fa-box-open"></i>
+                        <span>Standard</span>
+                    </button>
+                    <button type="button" class="gacha-tab" data-banner="evento" role="tab">
+                        <i class="fas fa-star"></i>
+                        <span>Evento</span>
+                    </button>
+                </div>
+
+                <article class="gacha-banner-card" id="gacha-banner-card" style="--gacha-banner-image: url('/img/cassa.png')">
+                    <div class="gacha-banner-content">
+                        <span class="gacha-kicker" id="gacha-banner-kicker">
+                            <i class="fas fa-box-open"></i>
+                            <span>Standard</span>
+                        </span>
+                        <h1 class="gacha-banner-title" id="gacha-banner-title">Banner Standard</h1>
+                        <p class="gacha-banner-description" id="gacha-banner-description">Pool permanente con personaggi base e pity a 80 pull.</p>
+                        <div class="gacha-rateup-panel" id="gacha-rateup-panel" aria-live="polite"></div>
+                    </div>
+                </article>
+
+                <div class="gacha-actions">
+                    <div class="gacha-hud" aria-live="polite">
+                        <div class="gacha-stat">
+                            <span>Punti</span>
+                            <strong id="gacha-points-value">0</strong>
+                            <small>Saldo attuale</small>
+                        </div>
+                        <div class="gacha-stat">
+                            <span>Pity</span>
+                            <strong id="gacha-pity-value">0/80</strong>
+                            <small id="gacha-pity-label">Standard</small>
+                        </div>
+                    </div>
+
+                    <div class="gacha-schema-warning" id="gacha-schema-warning"></div>
+
+                    <button type="button" class="gacha-open-button" id="gacha-open-button">
+                        <i class="fas fa-box-open"></i>
+                        <span id="gacha-open-label">Apri 1x</span>
+                        <small id="gacha-open-cost">Gratis</small>
+                    </button>
+
+                    <div class="gacha-secondary-actions">
+                        <button type="button" class="gacha-icon-button" data-bs-toggle="modal" data-bs-target="#impostazioniModal" title="Impostazioni">
+                            <i class="fas fa-gear"></i>
+                            <span>Opzioni</span>
+                        </button>
+                        <a class="gacha-icon-button" href="inventario" title="Inventario">
+                            <i class="fas fa-layer-group"></i>
+                            <span>Inventario</span>
+                        </a>
+                        <button type="button" class="gacha-icon-button" onclick="toggleLeaderboard()" title="Classifiche">
+                            <i class="fas fa-ranking-star"></i>
+                            <span>Rank</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <div class="container gacha-chest-zone">
 
             <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein lootbox-chest" draggable="false" aria-label="Apri cassa" ondblclick="handleDoubleClick(event)" onclick="handleChestClick(event)" />
 
@@ -211,27 +278,31 @@ require_once '../api/api_personaggi.php';
                                 <div class="lootbox-rates-list">
                                     <div class="lootbox-rate-row rate-common">
                                         <span>Comune</span>
-                                        <strong>47%</strong>
+                                        <strong>51%</strong>
                                     </div>
                                     <div class="lootbox-rate-row rate-rare">
                                         <span>Raro</span>
-                                        <strong>27%</strong>
+                                        <strong>28%</strong>
                                     </div>
                                     <div class="lootbox-rate-row rate-epic">
                                         <span>Epico</span>
-                                        <strong>12%</strong>
+                                        <strong>13%</strong>
                                     </div>
                                     <div class="lootbox-rate-row rate-legendary">
                                         <span>Leggendario</span>
-                                        <strong>8%</strong>
+                                        <strong>5.99%</strong>
                                     </div>
                                     <div class="lootbox-rate-row rate-special">
                                         <span>Speciale</span>
-                                        <strong>0.9%</strong>
+                                        <strong>1.8%</strong>
                                     </div>
                                     <div class="lootbox-rate-row rate-secret">
-                                        <span>???</span>
-                                        <strong>0.1%</strong>
+                                        <span>Segreto</span>
+                                        <strong>0.2%</strong>
+                                    </div>
+                                    <div class="lootbox-rate-row rate-secret">
+                                        <span>The One</span>
+                                        <strong>0.01%</strong>
                                     </div>
                                 </div>
                             </section>
@@ -323,6 +394,33 @@ require_once '../api/api_personaggi.php';
             </div>
 
             <div id="particelle"></div>
+        </div>
+
+        </div>
+
+        <div class="gacha-overlay" id="gacha-overlay" aria-hidden="true">
+            <div class="gacha-overlay-video" id="gacha-overlay-video"></div>
+
+            <div class="gacha-loader" id="gacha-loader" aria-live="polite">
+                <div class="gacha-loader-core">
+                    <img src="/img/cassa.png" alt="" draggable="false">
+                </div>
+                <strong id="gacha-loader-text">Apertura</strong>
+            </div>
+
+            <div class="gacha-result" id="gacha-result"></div>
+            <div class="gacha-overlay-error" id="gacha-overlay-error"></div>
+
+            <div class="gacha-overlay-actions" id="gacha-overlay-actions">
+                <button type="button" class="gacha-overlay-button" id="gacha-close-overlay">
+                    <i class="fas fa-xmark"></i>
+                    <span>Chiudi</span>
+                </button>
+                <button type="button" class="gacha-overlay-button gacha-overlay-button--primary" id="gacha-pull-again">
+                    <i class="fas fa-rotate-right"></i>
+                    <span>Apri di nuovo</span>
+                </button>
+            </div>
         </div>
 
         <audio id="suonoCassa"></audio>
@@ -1787,7 +1885,7 @@ require_once '../api/api_personaggi.php';
                 if (leaderboardVisible) {
                     wrapper.style.display = 'none';
                     leaderboardVisible = false;
-                    document.body.style.overflow = 'hidden';
+                    document.body.style.overflow = document.body.classList.contains('gacha-overlay-open') ? 'hidden' : 'auto';
                 } else {
                     wrapper.style.display = 'flex';
                     leaderboardVisible = true;
@@ -1870,6 +1968,7 @@ require_once '../api/api_personaggi.php';
                 }
             });
         </script>
+        <script src="/assets/lootbox-v2/gacha.js?v=2.0"></script>
 
 </body>
 
