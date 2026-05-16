@@ -11,7 +11,7 @@ if (!isLoggedIn()) {
     header('Location: accedi');
     exit();
 }
-checkPermissions($mysqli, 'utente');
+checkPermissions($mysqli, 'admin');
 
 
 $ruolo = $_SESSION['ruolo'] ?? 'utente';
@@ -101,7 +101,6 @@ define('PITY_EVENTO_SOFT',   65);
 </head>
 
 <body class="lootbox-page" data-ruolo="<?= htmlspecialchars($ruolo, ENT_QUOTES) ?>">
-
 
 
     <div class="stars" id="stars"></div>
