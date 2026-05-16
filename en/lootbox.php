@@ -628,7 +628,7 @@ define('PITY_EVENTO_SOFT',   65);
 ════════════════════════════════════════════════════════ -->
     <!-- FIX 12 — Bottom bar (leaderboard + link) -->
     <div class="gacha-bottom-bar" id="gacha-bottom-bar">
-        <button class="gacha-bottom-btn gacha-leaderboard-btn" onclick="toggleLeaderboard()">
+        <button class="gacha-bottom-btn gacha-leaderboard-btn" id="tasto-apri-classifica">
             <i class="fas fa-trophy"></i> Classifica
         </button>
         <a href="inventario" class="gacha-bottom-btn">
@@ -678,7 +678,6 @@ define('PITY_EVENTO_SOFT',   65);
     <script src="../js/gacha.js?v=1.2.1"></script>
 
     <script>
-
         function openCurrentHistory() {
             const bannerId = window.GACHA_INIT?.activeBannerId ?? 'standard';
             const label = bannerId === 'standard' ? 'Banner Standard' :
@@ -690,6 +689,17 @@ define('PITY_EVENTO_SOFT',   65);
 
         let currentLeaderboardType = 'casse_aperte';
         let leaderboardVisible = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const tastoClassifica = document.getElementById('tasto-apri-classifica');
+
+            if (tastoClassifica) {
+                tastoClassifica.addEventListener('click', (e) => {
+                    e.preventDefault(); // Previene eventuali "rimbalzi" o refresh della pagina
+                    toggleLeaderboard();
+                });
+            }
+        });
 
         function toggleLeaderboard() {
             const wrapper = document.getElementById('leaderboard-wrapper');
@@ -735,7 +745,7 @@ define('PITY_EVENTO_SOFT',   65);
             loadLeaderboard(type);
         }
 
-        // document.getElementById('leaderboard-close-btn').addEventListener('click', toggleLeaderboard);
+        document.getElementById('leaderboard-close-btn').addEventListener('click', toggleLeaderboard);
         document.addEventListener('click', e => {
             if (leaderboardVisible && e.target.id === 'leaderboard-wrapper') toggleLeaderboard();
         });
