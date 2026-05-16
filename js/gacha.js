@@ -84,7 +84,7 @@
      INIT
   ══════════════════════════════════════════════════════ */
   function init() {
-    fixTabsOffset();           // FIX 1
+    // fixTabsOffset();           FIX 1
     createStars($('stars'), 100);
     createStars(overlayStars, 60);
     initTabs();                // FIX 9

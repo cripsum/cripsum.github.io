@@ -675,11 +675,10 @@ define('PITY_EVENTO_SOFT',   65);
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="../js/unlockAchievement-it.js"></script>
     <script src="../js/gacha-effects.js?v=1.2"></script>
-    <script src="../js/gacha.js?v=1.2"></script>
+    <script src="../js/gacha.js?v=1.2.1"></script>
 
     <script>
-        // ── Leaderboard (identica all'originale) ──────────────────────────
-        // FIX 11 — Apri cronologia del banner corrente
+
         function openCurrentHistory() {
             const bannerId = window.GACHA_INIT?.activeBannerId ?? 'standard';
             const label = bannerId === 'standard' ? 'Banner Standard' :
@@ -737,9 +736,9 @@ define('PITY_EVENTO_SOFT',   65);
         }
 
         document.getElementById('leaderboard-close-btn').addEventListener('click', toggleLeaderboard);
-        document.addEventListener('click', e => {
-            if (leaderboardVisible && e.target.id === 'leaderboard-wrapper') toggleLeaderboard();
-        });
+        // document.addEventListener('click', e => {
+        //     if (leaderboardVisible && e.target.id === 'leaderboard-wrapper') toggleLeaderboard();
+        // });
 
         // ── Codice segreto (compatibile originale) ────────────────────────
         async function riscattaCodice() {
@@ -749,6 +748,7 @@ define('PITY_EVENTO_SOFT',   65);
                 'signortoki': 'TOKI',
                 'cripsum': 'CRIPSUM',
                 'peak': 'MAOMAO',
+                'triplat': 'TRIPLA T',
             };
             if (!map[codice]) {
                 window.GachaUI?.showToast('Codice non valido, skill issue!', 'error');
