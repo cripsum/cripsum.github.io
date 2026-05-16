@@ -673,7 +673,7 @@ window.GACHA_INIT = <?= json_encode([
         'rateup_nome'=> $b['rateup_nome'],
         'rateup_img' => $b['rateup_img_url'],
     ], $bannersEvento)
-, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES] ) ?>;
 // Tracking banner attivo per cronologia
 window.GACHA_INIT.activeBannerId = 'standard';
 document.querySelectorAll('.gacha-tab[data-banner-id]').forEach(tab => {
