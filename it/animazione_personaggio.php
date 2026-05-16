@@ -248,7 +248,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                         bagliore.style.position = "fixed";
                         bagliore.style.width = "max(165vw, 165vh)";
                         bagliore.style.height = "max(165vw, 165vh)";
-                        bagliore.style.zIndex = "0";
+                        bagliore.style.zIndex = "1";
                     }
 
                 } else if (pull.rarità === "theone") {
@@ -711,8 +711,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
-                    filter: brightness(1.2) contrast(1.1);
-                    transition: filter 2s ease-in-out;
+
                 `;
             video.src = '../vid/shorekeeperpull.mp4';
             video.autoplay = true;
@@ -788,8 +787,6 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
-                    filter: brightness(1.2) contrast(1.1);
-                    transition: filter 2s ease-in-out;
                 `;
             video.src = '../vid/tunggodgacha.mp4';
             video.autoplay = true;
