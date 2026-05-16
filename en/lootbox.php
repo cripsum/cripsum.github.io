@@ -690,14 +690,13 @@ define('PITY_EVENTO_SOFT',   65);
         let currentLeaderboardType = 'casse_aperte';
         let leaderboardVisible = false;
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const tastoClassifica = document.getElementById('tasto-apri-classifica');
+        document.addEventListener('click', function(e) {
+            // Controlla se il click è avvenuto sul bottone (o sull'icona della coppa al suo interno)
+            const btn = e.target.closest('#tasto-apri-classifica') || e.target.closest('.gacha-leaderboard-btn');
 
-            if (tastoClassifica) {
-                tastoClassifica.addEventListener('click', (e) => {
-                    e.preventDefault(); // Previene eventuali "rimbalzi" o refresh della pagina
-                    toggleLeaderboard();
-                });
+            if (btn) {
+                e.preventDefault();
+                toggleLeaderboard();
             }
         });
 
