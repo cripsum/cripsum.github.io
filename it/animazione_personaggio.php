@@ -232,14 +232,24 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                     bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
                     bagliore.style.backgroundSize = "300% 100%";
                     bagliore.style.animation = "";
-                } else if (pull.rarità === "segreto") {
+                } else if (rarita === "segreto") {
 
-                    startIntroAnimation(pull.nome);
-                    messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
-                    bagliore.style.position = "fixed";
-                    bagliore.style.width = "100vw";
-                    bagliore.style.height = "100vh";
-                    bagliore.style.zIndex = "1";
+                    secretPulled = true;
+                    if (pull.nome === "TUNG GOD") {
+                        startTungAnimation(pull.nome);
+                        messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
+                        bagliore.style.position = "fixed";
+                        bagliore.style.width = "max(165vw, 165vh)";
+                        bagliore.style.height = "max(165vw, 165vh)";
+                        bagliore.style.zIndex = "1";
+                    } else {
+                        startIntroAnimation(pull.nome);
+                        messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
+                        bagliore.style.position = "fixed";
+                        bagliore.style.width = "max(165vw, 165vh)";
+                        bagliore.style.height = "max(165vw, 165vh)";
+                        bagliore.style.zIndex = "1";
+                    }
 
                 } else if (pull.rarità === "theone") {
 
@@ -308,31 +318,31 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
         }
 
         function testoNuovo() {
-                document.querySelectorAll(".new-label").forEach((label) => label.remove());
+            document.querySelectorAll(".new-label").forEach((label) => label.remove());
 
-                const image = contenuto.querySelector(".premio");
-                if (!image) return;
+            const image = contenuto.querySelector(".premio");
+            if (!image) return;
 
-                let prizeWrap =
-                    image.closest(".lootbox-prize-wrap") ||
-                    image.closest(".lootbox-reward-frame");
+            let prizeWrap =
+                image.closest(".lootbox-prize-wrap") ||
+                image.closest(".lootbox-reward-frame");
 
-                if (!prizeWrap) {
-                    prizeWrap = document.createElement("div");
-                    prizeWrap.className = "lootbox-prize-wrap lootbox-reward-frame";
-                    image.parentNode.insertBefore(prizeWrap, image);
-                    prizeWrap.appendChild(image);
-                }
-
-                prizeWrap.classList.add("lootbox-prize-wrap", "lootbox-reward-frame");
-
-                const newLabel = document.createElement("span");
-                newLabel.className = "new-label";
-                newLabel.textContent = "NEW!";
-                prizeWrap.appendChild(newLabel);
+            if (!prizeWrap) {
+                prizeWrap = document.createElement("div");
+                prizeWrap.className = "lootbox-prize-wrap lootbox-reward-frame";
+                image.parentNode.insertBefore(prizeWrap, image);
+                prizeWrap.appendChild(image);
             }
 
-            function generaParticelle() {
+            prizeWrap.classList.add("lootbox-prize-wrap", "lootbox-reward-frame");
+
+            const newLabel = document.createElement("span");
+            newLabel.className = "new-label";
+            newLabel.textContent = "NEW!";
+            prizeWrap.appendChild(newLabel);
+        }
+
+        function generaParticelle() {
             const container = document.getElementById("particelle");
             const cassa = document.getElementById("cassa");
             const rect = cassa.getBoundingClientRect();
@@ -741,8 +751,85 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                 video.play();
             });
         }
+
+        function startTungAnimation(nome_personaggio) {
+            const introOverlay = document.createElement('div');
+            introOverlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100vh;
+                    background: #000;
+                    z-index: 10000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    overflow: hidden;
+                    opacity: 0;
+                    transition: opacity 0.8s ease-in-out, z-index 0s ease-in-out 2s;
+                `;
+
+            const videoContainer = document.createElement('div');
+            videoContainer.style.cssText = `
+                    position: relative;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    opacity: 0;
+                    transform: scale(1.1);
+                    transition: opacity 1s ease-out, transform 1s ease-out;
+                `;
+
+            const video = document.createElement('video');
+            video.style.cssText = `
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    filter: brightness(1.2) contrast(1.1);
+                    transition: filter 2s ease-in-out;
+                `;
+            video.src = '../vid/tunggodgacha.mp4';
+            video.autoplay = true;
+            video.muted = false;
+            video.loop = false;
+
+            videoContainer.appendChild(video);
+            introOverlay.appendChild(videoContainer);
+            document.body.appendChild(introOverlay);
+
+            setTimeout(() => {
+                introOverlay.style.opacity = '1';
+            }, 100);
+
+            setTimeout(() => {
+                videoContainer.style.opacity = '1';
+                videoContainer.style.transform = 'scale(1)';
+                video.play();
+            }, 800);
+
+            bagliore.style.background = "radial-gradient(circle, rgb(88, 6, 121) 0%, rgba(132, 0, 255, 0) 70%)";
+
+            setTimeout(() => {
+                introOverlay.style.transition = 'opacity 2s ease-in-out, z-index 0s ease-in-out 2s';
+                introOverlay.style.opacity = '0.3';
+                video.style.filter = 'brightness(0.7) contrast(0.9) blur(1px)';
+
+                setTimeout(() => {
+                    introOverlay.style.zIndex = '-1';
+                    introOverlay.style.transition = 'opacity 0.8s ease-in-out';
+                }, 2000);
+            }, 15000);
+
+            video.addEventListener('ended', () => {
+                video.loop = true;
+                video.play();
+            });
+        }
     </script>
-    
+
 </body>
 
 </html>
