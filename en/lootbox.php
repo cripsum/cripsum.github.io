@@ -1,5 +1,4 @@
 <?php
-ini_set('log_errors', 1);
 require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
@@ -48,8 +47,9 @@ $stmtBanners = $mysqli->prepare(
 );
 $stmtBanners->bind_param('ss', $nowDt, $nowDt);
 $stmtBanners->execute();
+$bannersResult = $stmtBanners->get_result();
 $bannersEvento = [];
-while ($row = $stmtBanners->get_result()->fetch_assoc()) {
+while ($row = $bannersResult->fetch_assoc()) {
     $bannersEvento[] = $row;
 }
 $stmtBanners->close();
