@@ -95,21 +95,21 @@ if ($quantity < 1 || $quantity > 1) {
 }
 
 // ── Rate limit anti-spam (sessione) ──────────────────────────────────────────
-$now = microtime(true);
-if (isset($_SESSION['gacha_last_pull_ts'])) {
-    $elapsed = ($now - (float) $_SESSION['gacha_last_pull_ts']) * 1000; // ms
-    if ($elapsed < PULL_RATE_LIMIT_MS) {
-        http_response_code(429);
-        echo json_encode([
-            'status'  => 'error',
-            'message' => 'Aspetta un momento prima di pullare ancora!',
-            'code'    => 'RATE_LIMIT',
-            'wait_ms' => (int) ceil(PULL_RATE_LIMIT_MS - $elapsed),
-        ]);
-        exit();
-    }
-}
-$_SESSION['gacha_last_pull_ts'] = $now;
+// $now = microtime(true);
+// if (isset($_SESSION['gacha_last_pull_ts'])) {
+//     $elapsed = ($now - (float) $_SESSION['gacha_last_pull_ts']) * 1000; // ms
+//     if ($elapsed < PULL_RATE_LIMIT_MS) {
+//         http_response_code(429);
+//         echo json_encode([
+//             'status'  => 'error',
+//             'message' => 'Aspetta un momento prima di pullare ancora!',
+//             'code'    => 'RATE_LIMIT',
+//             'wait_ms' => (int) ceil(PULL_RATE_LIMIT_MS - $elapsed),
+//         ]);
+//         exit();
+//     }
+// }
+// $_SESSION['gacha_last_pull_ts'] = $now;
 
 // ════════════════════════════════════════════════════════════════════════════
 // IDENTIFICA BANNER
