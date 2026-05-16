@@ -496,17 +496,6 @@ try {
     $stmtHistory->execute();
     $stmtHistory->close();
 
-    // ── [10] Aggiorna casse_aperte (campo esistente per compatibilità leaderboard) ──
-    $stmtCasse = $mysqli->prepare(
-        'UPDATE utenti SET casse_aperte = COALESCE(casse_aperte, 0) + 1 WHERE id = ?'
-    );
-    // Se il campo casse_aperte non esiste, ignoriamo silenziosamente
-    if ($stmtCasse) {
-        $stmtCasse->bind_param('i', $userId);
-        $stmtCasse->execute();
-        $stmtCasse->close();
-    }
-
     // ── COMMIT ────────────────────────────────────────────────────────────────
     $mysqli->commit();
 
