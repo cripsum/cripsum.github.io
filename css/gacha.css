@@ -1738,3 +1738,320 @@ body.lootbox-page {
         font-size: 0.74rem;
     }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   FIX v3 — Layout, Speciale, Multi pull, Apertura rapida
+   ════════════════════════════════════════════════════════════════ */
+
+/* FIX 5/6/7 — Layout senza spazi vuoti, riempie l'intera viewport */
+html,
+body {
+    height: 100%;
+}
+
+body.lootbox-page {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 0 !important;
+    margin: 0;
+}
+
+/* Nascondi definitivamente tab e bottom bar obsoleti */
+.gacha-tabs,
+.gacha-bottom-bar {
+    display: none !important;
+}
+
+/* Layout: riempie tutto lo spazio sotto la navbar */
+.gacha-layout {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    background: #080810;
+}
+
+.gacha-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.gacha-banner-view {
+    flex: 1;
+    min-height: 0;
+}
+
+/* Sidebar: usa height reale, niente vuoti */
+.gacha-sidebar {
+    position: sticky;
+    align-self: flex-start;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Il body riempie tutto senza padding aggiuntivo */
+.gacha-layout,
+.gacha-main,
+.gacha-sidebar {
+    min-height: calc(100dvh - 56px); /* fallback; JS sovrascrive */
+}
+
+/* FIX 6 — Mobile: sidebar fissa in basso, nessuna sovrapposizione */
+@media (max-width: 767px) {
+    body.lootbox-page {
+        min-height: 100dvh;
+    }
+
+    .gacha-layout {
+        flex-direction: column;
+        min-height: auto;
+    }
+
+    .gacha-main {
+        min-height: 0;
+        /* Spazio per sidebar mobile fissa in basso */
+        padding-bottom: 148px;
+    }
+
+    .gacha-banner-view {
+        min-height: calc(100dvh - 148px);
+    }
+
+    /* Sidebar fissa in basso, z-index sopra tutto */
+    .gacha-sidebar {
+        position: fixed !important;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: auto !important;
+        width: 100% !important;
+        height: 148px !important;
+        min-height: 0 !important;
+        max-height: 148px;
+        background: rgba(6, 6, 16, 0.97);
+        backdrop-filter: blur(20px);
+        border-top: 1px solid rgba(255, 255, 255, 0.09);
+        overflow: hidden;
+        z-index: 150;
+    }
+}
+
+/* ── Pull row (1x + 10x affiancati) ────────────────────────── */
+.gacha-pull-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    max-width: 520px;
+}
+
+.gacha-pull-btn--multi {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(255, 255, 255, 0.04));
+    border-color: rgba(251, 191, 36, 0.5);
+    box-shadow: 0 0 14px rgba(251, 191, 36, 0.2);
+}
+.gacha-pull-btn--multi:hover:not(:disabled) {
+    box-shadow: 0 0 28px rgba(251, 191, 36, 0.4);
+    border-color: #fbbf24;
+}
+
+.gacha-pull-hint {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.3);
+    margin: 4px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.gacha-pull-hint kbd {
+    display: inline-block;
+    padding: 1px 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    font-size: 0.68rem;
+    font-family: monospace;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+/* ── FIX 3: Speciale — Rainbow wave fullscreen ───────────────── */
+@keyframes gfxRainbowWave {
+    0% {
+        background-position: 0% 50%;
+        opacity: 0.55;
+    }
+    50% {
+        background-position: 100% 50%;
+        opacity: 0.75;
+    }
+    100% {
+        background-position: 0% 50%;
+        opacity: 0.55;
+    }
+}
+@keyframes gfxRainbowStreak {
+    0% {
+        transform: translateX(-120%) skewX(-12deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    85% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(120%) skewX(-12deg);
+        opacity: 0;
+    }
+}
+@keyframes gfxRainbowFade {
+    0%,
+    100% {
+        opacity: 0;
+    }
+    15%,
+    85% {
+        opacity: 1;
+    }
+}
+
+/* ── FIX 1: Card sopra video (card-over-video) ───────────────── */
+#card-over-video .gacha-card {
+    /* Effetto vetro sull'overlay video */
+    background: rgba(10, 10, 20, 0.4);
+    backdrop-filter: blur(6px);
+}
+#card-over-video .gacha-overlay-actions {
+    max-width: 320px;
+    width: 100%;
+}
+
+/* ── #4 Multi — Summary screen ──────────────────────────────── */
+.gacha-phase--summary {
+    position: absolute;
+    inset: 0;
+    z-index: 8;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 20px 16px calc(20px + var(--safe-bot, 0px));
+    background: rgba(5, 5, 14, 0.96);
+    backdrop-filter: blur(10px);
+}
+
+.gms-inner {
+    width: 100%;
+    max-width: 760px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+}
+
+.gms-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #fff;
+    text-align: center;
+    margin: 0;
+    letter-spacing: 0.04em;
+}
+
+.gms-cards {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    width: 100%;
+}
+
+@media (max-width: 600px) {
+    .gms-cards {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+    }
+}
+@media (max-width: 380px) {
+    .gms-cards {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 5px;
+    }
+}
+
+.gms-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 6px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    transition: transform 0.2s;
+}
+.gms-card:hover {
+    transform: translateY(-3px);
+}
+
+.gms-card-img {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3/4;
+    border-radius: 7px;
+    overflow: hidden;
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+}
+.gms-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+}
+.gms-new {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    padding: 2px 5px;
+    background: #22c55e;
+    border-radius: 4px;
+    font-size: 0.55rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.gms-rarity {
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0;
+    text-align: center;
+}
+.gms-name {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.75);
+    margin: 0;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.gms-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 420px;
+    width: 100%;
+}
+.gms-actions .gacha-btn {
+    flex: 1;
+    min-width: 130px;
+}

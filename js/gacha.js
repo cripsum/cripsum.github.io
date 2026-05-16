@@ -1,7 +1,12 @@
 /**
- * gacha.js — GoonLand Gacha System v2.0
- * Fix: navbar offset tab, audio stop, video segreto/theone solo nero+video,
- *      audio anticipato, animazioni rarità, card UI, skip, cronologia, leaderboard.
+ * gacha.js — GoonLand Gacha System v3.0
+ *
+ * Fix v3:
+ *  1. Video segreto/theone: card appare dopo 12s con video come sfondo
+ *  2. Apertura veloce con F (fast pull): skip animazione, no skip su nuovi/speciali/segreti/theone
+ *  3. Speciale: animazione arcobaleno fullscreen (rimossa scritta, no cerchio)
+ *  4. Multi pull 10x con skip intelligente e resoconto finale
+ *  5-7. Gestite nel CSS (navbar offset, layout, spazio vuoto)
  */
 
 'use strict';
@@ -12,12 +17,10 @@
      CONFIG
   ══════════════════════════════════════════════════════ */
   const API_PULL = '/api/api_gacha_pull';
+  const VIDEO_CARD_DELAY_MS = 12000; // ms dopo cui card appare sopra video (#1)
 
-  // Rarità con video custom (fade nero → video, nessun effetto, nessun audio separato)
   const RARITY_VIDEO   = new Set(['segreto', 'theone']);
-  // Rarità non skippabili mai
-  const RARITY_NO_SKIP = new Set(['segreto', 'theone', 'speciale']);
-  // Rarità con effetti premium (solo queste, NON segreto/theone)
+  const RARITY_NO_SKIP = new Set(['segreto', 'theone', 'speciale']); // non skippabili con F
   const RARITY_EFFECTS = new Set(['leggendario', 'speciale', 'epico', 'raro']);
 
   const RARITY_COLORS = {
@@ -33,6 +36,7 @@
     activeBannerId:   'standard',
     activeBannerType: 'standard',
     isPulling:        false,
+    isFastPull:       false,  // #2: modalità apertura veloce
     overlayOpen:      false,
     soldi:            window.GACHA_INIT?.soldi        ?? 0,
     pityStandard:     window.GACHA_INIT?.pityStandard ?? 0,
@@ -41,6 +45,12 @@
     adminForceRarity: null,
     canSkip:          false,
     skipTimeout:      null,
+    // Multi pull #4
+    isMulti:          false,
+    multiResults:     [],
+    multiTotal:       0,
+    multiCurrent:     0,
+    multiSkipping:    false,
   };
 
   /* ══════════════════════════════════════════════════════
@@ -57,6 +67,7 @@
   const phaseOpening   = $('phase-opening');
   const phaseVideo     = $('phase-video');
   const phaseCard      = $('phase-card');
+  const phaseMulti     = $('phase-multi'); // #4
 
   const videoEl        = $('gacha-video');
   const videoUnmuteBtn = $('video-unmute-btn');
@@ -73,56 +84,65 @@
   const cardName       = $('card-name');
 
   const btnPullAgain   = $('btn-pull-again');
+  const btnPull10      = $('btn-pull-10');   // #4
   const btnClose       = $('btn-close-overlay');
   const btnInventory   = $('btn-go-inventory');
 
   const audioEl        = $('gacha-audio');
   const toastEl        = $('gacha-toast');
-  const tabsContainer  = null; // sostituito da sidebar cards
 
   /* ══════════════════════════════════════════════════════
      INIT
   ══════════════════════════════════════════════════════ */
   function init() {
-    fixTabsOffset();           // FIX 1
+    fixLayout();
     createStars($('stars'), 100);
     createStars(overlayStars, 60);
-    initTabs();                // FIX 9
+    initSidebarCards();
     initPullButtons();
     initOverlayButtons();
-    initSkipButton();          // FIX 10
+    initSkipButton();
     initKeyboard();
     initAdminCheats();
     initTimers();
     initSettingsBtn();
-    initLeaderboard();         // FIX 12
-    injectHistoryModal();      // FIX 11
+    initLeaderboard();
+    injectHistoryModal();
+    injectMultiModal(); // #4
   }
 
   /* ════════════════════════════════════════════════════
-     FIX 1 — TABS OFFSET SOTTO NAVBAR
+     FIX 5/6/7 — LAYOUT: navbar offset + spazio vuoto
   ════════════════════════════════════════════════════ */
-  function fixTabsOffset() {
-    // Trova la navbar e setta il top della sidebar sticky
-    const nav = document.querySelector(
-      'nav.navbar, header.navbar, #navbar, .navbar, nav[class*="nav"]'
-    );
+  function fixLayout() {
+    const nav = document.querySelector('nav.navbar, header.navbar, #navbar, .navbar');
     const sidebar = document.getElementById('gacha-sidebar');
+    const layout  = document.getElementById('gacha-layout');
+
     if (!nav) return;
 
     const apply = () => {
       const h = nav.getBoundingClientRect().height;
       if (h <= 0) return;
-      // Sidebar desktop sticky top
-      if (sidebar) sidebar.style.top = h + 'px';
-      // Banner view altezza
-      document.querySelectorAll('.gacha-banner-view').forEach(v => {
-        v.style.minHeight = `calc(100dvh - ${h}px)`;
+
+      // Sidebar sticky top
+      if (sidebar) {
+        sidebar.style.top    = h + 'px';
+        sidebar.style.height = `calc(100dvh - ${h}px)`;
+      }
+
+      // Layout e banner views
+      const vhMinusNav = `calc(100dvh - ${h}px)`;
+      if (layout) layout.style.minHeight = vhMinusNav;
+
+      $$('.gacha-banner-view').forEach(v => {
+        v.style.minHeight = vhMinusNav;
       });
-      // Layout min-height
-      const layout = document.getElementById('gacha-layout');
-      if (layout) layout.style.minHeight = `calc(100dvh - ${h}px)`;
+
+      // FIX 5/7: nessun padding-bottom residuo, layout riempie tutto
+      document.body.style.paddingBottom = '0';
     };
+
     apply();
     window.addEventListener('resize', apply, { passive: true });
     if (window.ResizeObserver) new ResizeObserver(apply).observe(nav);
@@ -144,12 +164,10 @@
   }
 
   /* ════════════════════════════════════════════════════
-     SIDEBAR CARD CLICK → switch banner
+     SIDEBAR CARDS
   ════════════════════════════════════════════════════ */
-  function initTabs() {
-    // Ascolta click su tutti i riquadri sidebar
-    const sidebarEl = document.getElementById('gsb-banners');
-    sidebarEl?.addEventListener('click', e => {
+  function initSidebarCards() {
+    document.getElementById('gsb-banners')?.addEventListener('click', e => {
       const card = e.target.closest('.gsb-card[data-banner-id]');
       if (!card || state.isPulling) return;
       switchBanner(card.dataset.bannerId, card.dataset.bannerType);
@@ -158,42 +176,25 @@
 
   function switchBanner(bannerId, bannerType) {
     if (state.activeBannerId === bannerId) return;
-
-    // Aggiorna stato card sidebar
-    $$('.gsb-card[data-banner-id]').forEach(c => {
-      c.classList.remove('is-active');
-      c.setAttribute('aria-pressed', 'false');
-    });
+    $$('.gsb-card').forEach(c => { c.classList.remove('is-active'); c.setAttribute('aria-pressed','false'); });
     const activeCard = document.querySelector(`.gsb-card[data-banner-id="${bannerId}"]`);
     if (activeCard) {
       activeCard.classList.add('is-active');
-      activeCard.setAttribute('aria-pressed', 'true');
-      // Scroll in vista su mobile
-      activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-
-      // Propaga colore accent dalla card al CSS var del banner
-      const accentColor = bannerType === 'standard' ? '#9ca3af' : '#38bdf8';
-      document.documentElement.style.setProperty('--banner-accent', accentColor);
+      activeCard.setAttribute('aria-pressed','true');
+      activeCard.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
     }
-
-    // Nascondi vecchia view
-    const oldView = $(`banner-view-${state.activeBannerId}`);
-    if (oldView) oldView.style.display = 'none';
-
-    // Mostra nuova view con fade
-    const newView = $(`banner-view-${bannerId}`);
-    if (newView) {
-      newView.style.cssText = 'display:flex;opacity:0;flex:1;';
+    $(`banner-view-${state.activeBannerId}`)?.style && ($(`banner-view-${state.activeBannerId}`).style.display = 'none');
+    const nv = $(`banner-view-${bannerId}`);
+    if (nv) {
+      nv.style.cssText = 'display:flex;opacity:0;flex:1;';
       requestAnimationFrame(() => {
-        newView.style.transition = 'opacity .35s ease';
-        newView.style.opacity = '1';
-        setTimeout(() => newView.style.transition = '', 370);
+        nv.style.transition = 'opacity .35s ease';
+        nv.style.opacity = '1';
+        setTimeout(() => nv.style.transition = '', 370);
       });
     }
-
     state.activeBannerId   = bannerId;
     state.activeBannerType = bannerType ?? 'standard';
-    // Aggiorna tracking cronologia
     if (window.GACHA_INIT) window.GACHA_INIT.activeBannerId = bannerId;
   }
 
@@ -204,21 +205,30 @@
     $$('.gacha-pull-btn[data-banner-id]').forEach(btn => {
       btn.addEventListener('click', () => {
         if (state.isPulling) return;
+        state.isFastPull = false;
         startPull(btn.dataset.bannerId);
+      });
+    });
+    // #4 — Multi pull
+    $$('.gacha-pull-10-btn[data-banner-id]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (state.isPulling) return;
+        startMultiPull(btn.dataset.bannerId);
       });
     });
   }
 
   /* ════════════════════════════════════════════════════
-     PULL FLOW
+     SINGLE PULL
   ════════════════════════════════════════════════════ */
-  async function startPull(bannerId) {
+  async function startPull(bannerId, fastMode = false) {
     if (state.isPulling) return;
-    state.isPulling = true;
+    state.isPulling  = true;
+    state.isFastPull = fastMode;
 
-    stopAudio();         // FIX 2 — ferma audio precedente
+    stopAudio();
     lockScroll();
-    openOverlay();
+    if (!state.overlayOpen) openOverlay();
     showPhase('opening');
     setRarityOnOverlay('comune');
     hideSkipBtn();
@@ -247,17 +257,14 @@
       window._lastPullData = data;
 
       const rarity = normalizeRarity(data.personaggio.rarità);
-
-      // FIX 4 — Audio parte SUBITO dopo il fetch, prima del reveal
-      // Segreto/TheOne: nessun audio separato, c'è il video con audio
-      if (!RARITY_VIDEO.has(rarity)) {
-        playAudio(data.personaggio.audio_url);
-      }
-
-      // FIX 10 — Skip abilitato se personaggio già noto e rarità skippabile
       state.canSkip = !data.is_new && !RARITY_NO_SKIP.has(rarity);
 
-      await delay(900);
+      if (!RARITY_VIDEO.has(rarity)) playAudio(data.personaggio.audio_url);
+
+      // #2 — Fast pull: se la rarità è skippabile salta animazione orb
+      const orbWait = (state.isFastPull && state.canSkip) ? 0 : 900;
+      if (orbWait > 0) await delay(orbWait);
+
       await revealPull(data);
       updateBannerUI();
       triggerAchievements(data);
@@ -272,57 +279,303 @@
   }
 
   /* ════════════════════════════════════════════════════
-     REVEAL
+     #4 — MULTI PULL (10x)
+  ════════════════════════════════════════════════════ */
+  async function startMultiPull(bannerId) {
+    if (state.isPulling) return;
+
+    // Reset stato multi
+    state.isMulti       = true;
+    state.multiResults  = [];
+    state.multiTotal    = 10;
+    state.multiCurrent  = 0;
+    state.multiSkipping = false;
+
+    stopAudio();
+    lockScroll();
+    openOverlay();
+    setRarityOnOverlay('comune');
+
+    const updateCounter = () => {
+      const el = $('multi-counter');
+      if (el) el.textContent = `${state.multiCurrent} / ${state.multiTotal}`;
+    };
+
+    for (let i = 0; i < state.multiTotal; i++) {
+      state.multiCurrent = i + 1;
+      updateCounter();
+      state.isPulling = true;
+
+      const payload = { banner_id: bannerId, quantity: 1 };
+      if (state.adminForceRarity) payload.force_rarity = state.adminForceRarity;
+
+      try {
+        showPhase('opening');
+        setRarityOnOverlay('comune');
+
+        const resp = await fetch(API_PULL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          credentials: 'same-origin',
+        });
+        if (!resp.ok) throw new Error(`Errore ${resp.status}`);
+        const data = await resp.json();
+        if (data.status !== 'success') throw new Error(data.message);
+
+        state.soldi        = data.soldi_rimasti ?? state.soldi;
+        state.pityStandard = data.pity_standard ?? state.pityStandard;
+        state.pityEvento   = data.pity_evento   ?? state.pityEvento;
+        state.garantito    = data.garantito     ?? state.garantito;
+        state.multiResults.push(data);
+
+        const rarity    = normalizeRarity(data.personaggio.rarità);
+        const isSpecial = RARITY_NO_SKIP.has(rarity);
+        const isNew     = data.is_new;
+
+        // Deve mostrare l'animazione se: personaggio nuovo OPPURE rarità non skippabile
+        const showAnim = isNew || isSpecial;
+
+        state.canSkip = !showAnim;
+
+        if (!RARITY_VIDEO.has(rarity)) playAudio(data.personaggio.audio_url);
+
+        if (!showAnim && state.multiSkipping) {
+          // Saltiamo completamente questa pull
+          await delay(200);
+        } else {
+          // Mostra animazione
+          state.multiSkipping = false;
+          if (showAnim) {
+            // Orb animazione normale
+            await delay(900);
+          }
+          await revealPull(data);
+
+          // Aspetta input utente per continuare (skip o 'Prossima')
+          await waitForMultiContinue(i < state.multiTotal - 1);
+          stopAudio();
+        }
+
+      } catch(err) {
+        console.error('[Gacha] Multi pull error at', i, err);
+        showToast(err.message ?? 'Errore. Pull interrotta.', 'error');
+        break;
+      } finally {
+        state.isPulling = false;
+      }
+    }
+
+    // Mostra resoconto finale
+    state.isMulti   = false;
+    state.isPulling = false;
+    updateBannerUI();
+    showMultiSummary(state.multiResults);
+  }
+
+  // Attende che l'utente prema "Prossima" o "Salta resto"
+  function waitForMultiContinue(hasMore) {
+    return new Promise(resolve => {
+      const btnNext = $('btn-multi-next');
+      const btnSkipRest = $('btn-multi-skip');
+
+      if (btnNext) {
+        btnNext.style.display = hasMore ? '' : 'none';
+        btnNext.textContent = hasMore ? `Prossima (${state.multiCurrent}/${state.multiTotal})` : 'Continua';
+      }
+      if (btnSkipRest) btnSkipRest.style.display = hasMore ? '' : 'none';
+
+      const onNext = () => {
+        cleanup();
+        resolve();
+      };
+      const onSkip = () => {
+        state.multiSkipping = true;
+        cleanup();
+        resolve();
+      };
+
+      function cleanup() {
+        btnNext?.removeEventListener('click', onNext);
+        btnSkipRest?.removeEventListener('click', onSkip);
+      }
+
+      btnNext?.addEventListener('click', onNext, { once: true });
+      btnSkipRest?.addEventListener('click', onSkip, { once: true });
+
+      // Keyboard: Enter = prossima, S = salta resto
+      const onKey = e => {
+        if (e.code === 'Enter') { document.removeEventListener('keydown', onKey); onNext(); }
+        if (e.code === 'KeyS')  { document.removeEventListener('keydown', onKey); onSkip(); }
+      };
+      document.addEventListener('keydown', onKey);
+    });
+  }
+
+  /* ── Inject multi pull extra HTML nel overlay ── */
+  function injectMultiModal() {
+    // Aggiungi pulsanti extra alla phase-card per la multi
+    const actions = $('overlay-actions');
+    if (!actions) return;
+
+    // Pulsante "Prossima pull" (multi)
+    const btnNext = document.createElement('button');
+    btnNext.id = 'btn-multi-next';
+    btnNext.className = 'gacha-btn gacha-btn--primary';
+    btnNext.style.display = 'none';
+    btnNext.innerHTML = '<i class="fas fa-forward"></i> Prossima';
+    actions.insertBefore(btnNext, actions.firstChild);
+
+    // Pulsante "Salta resto" (multi)
+    const btnSkip = document.createElement('button');
+    btnSkip.id = 'btn-multi-skip';
+    btnSkip.className = 'gacha-btn gacha-btn--ghost';
+    btnSkip.style.display = 'none';
+    btnSkip.innerHTML = '<i class="fas fa-forward-fast"></i> Salta resto [S]';
+    actions.insertBefore(btnSkip, btnNext.nextSibling);
+
+    // Counter
+    const counter = document.createElement('div');
+    counter.id = 'multi-counter';
+    counter.style.cssText = 'position:absolute;top:14px;right:18px;font-size:.75rem;color:rgba(255,255,255,.35);font-weight:600;z-index:20;';
+    overlay.appendChild(counter);
+
+    // Durante pull normali nascondi i bottoni multi
+    const hideMultiBtns = () => {
+      btnNext.style.display = 'none';
+      btnSkip.style.display = 'none';
+      counter.style.display = 'none';
+    };
+    btnClose?.addEventListener('click', hideMultiBtns);
+    btnPullAgain?.addEventListener('click', hideMultiBtns);
+  }
+
+  /* ── Resoconto multi ── */
+  function showMultiSummary(results) {
+    const RARITY_C = {
+      comune:'#9ca3af',raro:'#38bdf8',epico:'#c084fc',
+      leggendario:'#fbbf24',speciale:'#fff',segreto:'#a855f7',theone:'#60a5fa'
+    };
+
+    // Nascondi tutto e mostra summary
+    phaseOpening.style.display = 'none';
+    phaseVideo.style.display   = 'none';
+    phaseCard.style.display    = 'none';
+
+    // Crea phase summary se non esiste
+    let summary = $('phase-summary');
+    if (!summary) {
+      summary = document.createElement('div');
+      summary.id = 'phase-summary';
+      summary.className = 'gacha-phase gacha-phase--summary';
+      overlay.appendChild(summary);
+    }
+    summary.style.display = 'flex';
+
+    const countByRarity = {};
+    results.forEach(r => {
+      const ra = normalizeRarity(r.personaggio.rarità);
+      countByRarity[ra] = (countByRarity[ra] ?? 0) + 1;
+    });
+
+    const cards = results.map(r => {
+      const p  = r.personaggio;
+      const ra = normalizeRarity(p.rarità);
+      const c  = RARITY_C[ra] ?? '#fff';
+      const isNew = r.is_new;
+      return `
+        <div class="gms-card" style="border-color:${c}20;box-shadow:0 0 12px ${c}22">
+          <div class="gms-card-img" style="border-color:${c}60">
+            <img src="${p.img_url ? '/img/'+p.img_url : '/img/cassa.png'}" alt="${escapeHtml(p.nome)}"
+                 onerror="this.src='/img/cassa.png'">
+            ${isNew ? '<span class="gms-new">NEW</span>' : ''}
+          </div>
+          <p class="gms-rarity" style="color:${c}">${escapeHtml(p.rarità)}</p>
+          <p class="gms-name">${escapeHtml(p.nome)}</p>
+        </div>`;
+    }).join('');
+
+    summary.innerHTML = `
+      <div class="gms-inner">
+        <h2 class="gms-title">Risultati Pull</h2>
+        <div class="gms-cards">${cards}</div>
+        <div class="gms-actions">
+          <button class="gacha-btn gacha-btn--primary" id="btn-multi-again">
+            <i class="fas fa-rotate-right"></i> Multi ancora
+          </button>
+          <button class="gacha-btn gacha-btn--ghost" id="btn-summary-close">
+            <i class="fas fa-xmark"></i> Chiudi
+          </button>
+          <a href="/inventario" class="gacha-btn gacha-btn--ghost">
+            <i class="fas fa-layer-group"></i> Inventario
+          </a>
+        </div>
+      </div>`;
+
+    $('btn-summary-close')?.addEventListener('click', () => {
+      summary.style.display = 'none';
+      closeOverlay();
+    });
+    $('btn-multi-again')?.addEventListener('click', () => {
+      summary.style.display = 'none';
+      startMultiPull(state.activeBannerId);
+    });
+  }
+
+  /* ════════════════════════════════════════════════════
+     REVEAL PRINCIPALE
   ════════════════════════════════════════════════════ */
   async function revealPull(data) {
-    const p      = data.personaggio;
-    const rarity = normalizeRarity(p.rarità);
+    const p       = data.personaggio;
+    const rarity  = normalizeRarity(p.rarità);
     const hasVideo = p.video_url && RARITY_VIDEO.has(rarity);
 
     setRarityOnOverlay(rarity);
 
     if (hasVideo) {
-      // FIX 3 — Segreto/TheOne: SOLO fade nero → video. Zero effetti.
       await fadeToBlackThenVideo(p.video_url, data);
     } else {
-      // Effetti per le altre rarità premium
-      if (window.GachaEffects && RARITY_EFFECTS.has(rarity)) {
+      if (window.GachaEffects && RARITY_EFFECTS.has(rarity) && !state.isFastPull) {
         await GachaEffects.play(rarity);
       }
       await showCard(data);
     }
   }
 
-  /* ── FIX 3 — Fade nero → video ──────────────────────── */
+  /* ════════════════════════════════════════════════════
+     #1 — VIDEO + CARD OVERLAY DOPO 12s
+  ════════════════════════════════════════════════════ */
   async function fadeToBlackThenVideo(videoUrl, data) {
-    // Crea velo nero sull'overlay
     const velo = document.createElement('div');
-    velo.style.cssText = `
-      position:absolute;inset:0;background:#000;z-index:30;
-      opacity:0;transition:opacity .8s ease;pointer-events:none;
-    `;
+    velo.style.cssText = 'position:absolute;inset:0;background:#000;z-index:30;opacity:0;transition:opacity .8s ease;pointer-events:none;';
     overlay.appendChild(velo);
     await delay(20);
     velo.style.opacity = '1';
     await delay(850);
 
     showPhase('video');
-
-    // Fade via velo (dissolvenza da nero a video)
     velo.style.opacity = '0';
     setTimeout(() => velo.remove(), 800);
 
-    await playRevealVideo(videoUrl, data);
+    await playRevealVideoWithEarlyCard(videoUrl, data);
   }
 
-  /* ── Video reveal ────────────────────────────────────── */
-  async function playRevealVideo(videoUrl, data) {
+  async function playRevealVideoWithEarlyCard(videoUrl, data) {
     videoEl.src    = videoUrl.startsWith('/') ? videoUrl : `/vid/${videoUrl}`;
-    videoEl.muted  = false;  // FIX 3 — audio video attivo da subito
+    videoEl.muted  = false;
     videoEl.volume = 1;
     videoEl.load();
+    videoUnmuteBtn.style.display = 'none';
 
-    videoUnmuteBtn.style.display = 'none'; // FIX 3 — no hint unmute
+    let cardShown = false;
+
+    // #1 — Mostra la card dopo VIDEO_CARD_DELAY_MS con video ancora in play come sfondo
+    const cardTimer = setTimeout(async () => {
+      if (!cardShown) {
+        cardShown = true;
+        await showCardOverVideo(data);
+      }
+    }, VIDEO_CARD_DELAY_MS);
 
     return new Promise(resolve => {
       let resolved = false;
@@ -330,16 +583,25 @@
         if (resolved) return;
         resolved = true;
         clearTimeout(safeguard);
+        clearTimeout(cardTimer);
         videoEl.removeEventListener('ended', done);
         videoEl.removeEventListener('error', done);
-        videoEl.pause();
-        videoEl.src = '';
-        hideSkipBtn();
-        await showCard(data);
+        // Se il video finisce prima che la card sia apparsa, mostrala ora
+        if (!cardShown) {
+          cardShown = true;
+          videoEl.pause();
+          videoEl.src = '';
+          hideSkipBtn();
+          await showCard(data);
+        } else {
+          // Card già visibile, video finito — lascia il video (src vuoto silenzioso)
+          videoEl.pause();
+          videoEl.src = '';
+        }
         resolve();
       };
 
-      const safeguard = setTimeout(done, 60000);
+      const safeguard = setTimeout(done, 90000);
       videoEl.addEventListener('ended', done, { once: true });
       videoEl.addEventListener('error', done, { once: true });
 
@@ -351,37 +613,136 @@
     });
   }
 
-  /* ── FIX 6 + FIX 7 — Card: solo nome+rarità, animazione idle ── */
+  // Mostra card in overlay sovrapposta al video (video come sfondo)
+  async function showCardOverVideo(data) {
+    const p      = data.personaggio ?? data;
+    const rarity = normalizeRarity(p.rarità);
+    const color  = RARITY_COLORS[rarity] ?? '#fff';
+
+    cardImg.src = p.img_url ? `/img/${p.img_url}` : '/img/cassa.png';
+    cardImg.alt = escapeHtml(p.nome ?? '');
+    cardName.textContent         = escapeHtml(p.nome ?? '—');
+    cardRarityBar.className      = `gacha-card-rarity-bar rarity-${rarity}`;
+    cardRarityLabel.textContent  = (p.rarità ?? '—').toUpperCase();
+    cardBgGlow.style.background  = `radial-gradient(circle,${color}55 0%,transparent 70%)`;
+
+    cardNewBadge.style.display = data.is_new ? '' : 'none';
+    card50Win.style.display    = 'none';
+    card50Loss.style.display   = 'none';
+    if      (data.vinto_50_50 === 1) card50Win.style.display  = '';
+    else if (data.vinto_50_50 === 0) card50Loss.style.display = '';
+
+    if (btnInventory) btnInventory.style.display = '';
+    spawnParticles(color, rarity);
+
+    // #1 — Mostra card sovrapposta, video resta sotto
+    // Il video continua in background, phase-video resta visibile
+    // La card si sovrappone con position absolute
+    const cardOverlay = document.createElement('div');
+    cardOverlay.id = 'card-over-video';
+    cardOverlay.style.cssText = `
+      position:absolute;inset:0;z-index:15;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:24px;padding:20px 20px calc(20px + var(--safe-bot,0px));
+      opacity:0;transition:opacity .7s ease;
+      background:linear-gradient(to top,rgba(0,0,0,0.75) 0%,transparent 60%);
+    `;
+
+    // Clona card e actions in questo layer
+    const cardClone   = gachaCard.cloneNode(true);
+    const actClone    = $('overlay-actions').cloneNode(true);
+    cardClone.id      = 'gacha-card-video-clone';
+    cardClone.classList.remove('is-revealed','is-idle');
+    cardOverlay.appendChild(cardClone);
+    cardOverlay.appendChild(actClone);
+    phaseVideo.appendChild(cardOverlay);
+
+    // Collega pulsanti clone
+    const cloneClose = cardOverlay.querySelector('#btn-close-overlay');
+    const cloneAgain = cardOverlay.querySelector('#btn-pull-again');
+    const cloneMulti = cardOverlay.querySelectorAll('[id^="btn-multi"]');
+
+    cloneClose?.addEventListener('click', () => {
+      videoEl.pause(); videoEl.src = '';
+      cardOverlay.remove();
+      closeOverlay();
+    });
+    cloneAgain?.addEventListener('click', () => {
+      videoEl.pause(); videoEl.src = '';
+      cardOverlay.remove();
+      state.isFastPull = false;
+      pullAgainFromOverlay();
+    });
+    cloneMulti.forEach(b => b.style.display = 'none');
+
+    // Multi: collega Prossima
+    const cloneNext = cardOverlay.querySelector('#btn-multi-next');
+    const cloneSkip = cardOverlay.querySelector('#btn-multi-skip');
+    if (state.isMulti && cloneNext) {
+      const origNext = $('btn-multi-next');
+      cloneNext.style.display = origNext?.style.display ?? 'none';
+      cloneNext.textContent = origNext?.textContent ?? '';
+      cloneNext.addEventListener('click', () => origNext?.click());
+    }
+    if (state.isMulti && cloneSkip) {
+      const origSkip = $('btn-multi-skip');
+      cloneSkip.style.display = origSkip?.style.display ?? 'none';
+      cloneSkip.addEventListener('click', () => origSkip?.click());
+    }
+
+    await delay(40);
+    cardOverlay.style.opacity = '1';
+    const clone = cardOverlay.querySelector('.gacha-card') ?? cardClone;
+    clone.classList.remove('is-revealed','is-idle');
+    await delay(80);
+    clone.classList.add('is-revealed');
+    await delay(620);
+    clone.classList.add('is-idle');
+  }
+
+  /* ════════════════════════════════════════════════════
+     SHOW CARD (rarità senza video)
+  ════════════════════════════════════════════════════ */
   async function showCard(data) {
     const p      = data.personaggio ?? data;
     const rarity = normalizeRarity(p.rarità);
     const color  = RARITY_COLORS[rarity] ?? '#fff';
 
-    // FIX 6 — Solo nome e rarità, no caratteristiche/descrizione
     cardImg.src = p.img_url ? `/img/${p.img_url}` : '/img/cassa.png';
     cardImg.alt = escapeHtml(p.nome ?? '');
-    cardName.textContent      = escapeHtml(p.nome ?? '—');
-    cardRarityBar.className   = `gacha-card-rarity-bar rarity-${rarity}`;
-    cardRarityLabel.textContent = (p.rarità ?? '—').toUpperCase();
-    cardBgGlow.style.background = `radial-gradient(circle,${color}55 0%,transparent 70%)`;
+    cardName.textContent         = escapeHtml(p.nome ?? '—');
+    cardRarityBar.className      = `gacha-card-rarity-bar rarity-${rarity}`;
+    cardRarityLabel.textContent  = (p.rarità ?? '—').toUpperCase();
+    cardBgGlow.style.background  = `radial-gradient(circle,${color}55 0%,transparent 70%)`;
 
     cardNewBadge.style.display = data.is_new ? '' : 'none';
-    card50Win.style.display  = 'none';
-    card50Loss.style.display = 'none';
+    card50Win.style.display    = 'none';
+    card50Loss.style.display   = 'none';
     if      (data.vinto_50_50 === 1) card50Win.style.display  = '';
     else if (data.vinto_50_50 === 0) card50Loss.style.display = '';
 
-    // FIX 8 — Inventario SEMPRE visibile
     if (btnInventory) btnInventory.style.display = '';
 
-    // FIX 10 — Skip
+    // Multi: mostra/nascondi bottoni giusti
+    const btnNext = $('btn-multi-next');
+    const btnSkip = $('btn-multi-skip');
+    const counter = $('multi-counter');
+    if (state.isMulti) {
+      if (btnPullAgain) btnPullAgain.style.display = 'none';
+      if (counter) counter.style.display = 'block';
+    } else {
+      if (btnPullAgain) btnPullAgain.style.display = '';
+      if (btnNext) btnNext.style.display = 'none';
+      if (btnSkip) btnSkip.style.display = 'none';
+      if (counter) counter.style.display = 'none';
+    }
+
     if (state.canSkip) showSkipBtn();
 
     spawnParticles(color, rarity);
     showPhase('card');
 
-    // FIX 7 — Bounce in poi idle float
-    gachaCard.classList.remove('is-revealed', 'is-idle');
+    gachaCard.classList.remove('is-revealed','is-idle');
     await delay(40);
     gachaCard.classList.add('is-revealed');
     await delay(620);
@@ -397,14 +758,18 @@
   }
 
   function closeOverlay() {
-    stopAudio(); // FIX 2
+    stopAudio();
     overlay.classList.remove('is-visible');
     state.overlayOpen = false;
     hideSkipBtn();
 
+    // Rimuovi card-over-video se esiste
+    $('card-over-video')?.remove();
+    $('phase-summary') && ($('phase-summary').style.display = 'none');
+
     setTimeout(() => {
       setRarityOnOverlay('comune');
-      gachaCard.classList.remove('is-revealed', 'is-idle');
+      gachaCard.classList.remove('is-revealed','is-idle');
       glowBurst.classList.remove('is-rainbow');
       phaseVideo.style.display   = 'none';
       phaseCard.style.display    = 'none';
@@ -414,8 +779,14 @@
       card50Win.style.display  = 'none';
       card50Loss.style.display = 'none';
       cardNewBadge.style.display = 'none';
-      state.canSkip = false;
+      state.canSkip    = false;
+      state.isMulti    = false;
       particlesLayer.innerHTML = '';
+      // Reset multi buttons
+      $('btn-multi-next') && ($('btn-multi-next').style.display = 'none');
+      $('btn-multi-skip') && ($('btn-multi-skip').style.display = 'none');
+      $('multi-counter')  && ($('multi-counter').style.display  = 'none');
+      if (btnPullAgain) btnPullAgain.style.display = '';
     }, 420);
 
     unlockScroll();
@@ -436,19 +807,20 @@
   }
 
   /* ════════════════════════════════════════════════════
-     FIX 10 — SKIP BUTTON
+     SKIP BUTTON
   ════════════════════════════════════════════════════ */
   function initSkipButton() {
-    skipBtn?.addEventListener('click', () => {
-      if (!state.canSkip || state.isPulling) return;
-      if (phaseVideo.style.display !== 'none') {
-        videoEl.pause();
-        videoEl.dispatchEvent(new Event('ended'));
-      } else if (phaseOpening.style.display !== 'none') {
-        // Anche in fase apertura skip → fetch è già in corso, aspetta
-      }
-    });
+    skipBtn?.addEventListener('click', doSkip);
   }
+
+  function doSkip() {
+    if (!state.canSkip || state.isPulling) return;
+    if (phaseVideo.style.display !== 'none') {
+      videoEl.pause();
+      videoEl.dispatchEvent(new Event('ended'));
+    }
+  }
+
   function showSkipBtn() {
     if (!skipBtn) return;
     skipBtn.style.display = 'flex';
@@ -467,12 +839,14 @@
   function initOverlayButtons() {
     btnPullAgain?.addEventListener('click', () => {
       if (state.isPulling) return;
-      stopAudio(); // FIX 2
-      gachaCard.classList.remove('is-revealed', 'is-idle');
+      stopAudio();
+      $('card-over-video')?.remove();
+      gachaCard.classList.remove('is-revealed','is-idle');
       showPhase('opening');
       setRarityOnOverlay('comune');
       hideSkipBtn();
-      setTimeout(() => startPullFromOverlay(), 80);
+      state.isFastPull = false;
+      setTimeout(() => pullAgainFromOverlay(), 80);
     });
 
     btnClose?.addEventListener('click', () => {
@@ -481,10 +855,11 @@
     });
   }
 
-  async function startPullFromOverlay() {
+  async function pullAgainFromOverlay() {
     if (state.isPulling) return;
-    state.isPulling = true;
-    stopAudio(); // FIX 2
+    state.isPulling  = true;
+    state.isFastPull = false;
+    stopAudio();
 
     const payload = { banner_id: state.activeBannerId, quantity: 1 };
     if (state.adminForceRarity) payload.force_rarity = state.adminForceRarity;
@@ -507,7 +882,7 @@
 
       const rarity = normalizeRarity(data.personaggio.rarità);
       state.canSkip = !data.is_new && !RARITY_NO_SKIP.has(rarity);
-      if (!RARITY_VIDEO.has(rarity)) playAudio(data.personaggio.audio_url); // FIX 4
+      if (!RARITY_VIDEO.has(rarity)) playAudio(data.personaggio.audio_url);
 
       await delay(900);
       await revealPull(data);
@@ -523,7 +898,7 @@
   }
 
   /* ════════════════════════════════════════════════════
-     REVEAL ESTERNO (riscattaCodice)
+     GachaUI (per riscattaCodice)
   ════════════════════════════════════════════════════ */
   window.GachaUI = {
     showToast,
@@ -544,10 +919,9 @@
     $$('#user-points-std,.user-points-evt').forEach(el =>
       el.textContent = state.soldi.toLocaleString('it-IT')
     );
-
     const pHS = window.GACHA_INIT?.pityHardStd ?? 90;
     const pSS = window.GACHA_INIT?.pitySoftStd ?? 70;
-    const sf = $('pity-std-fill'), sn = $('pity-std-num'), so = $('pity-std-note');
+    const sf=$('pity-std-fill'), sn=$('pity-std-num'), so=$('pity-std-note');
     if (sf) sf.style.width = Math.min(100, Math.round(state.pityStandard/pHS*100)) + '%';
     if (sn) sn.textContent = `${state.pityStandard} / ${pHS}`;
     if (so) {
@@ -562,60 +936,49 @@
         so.classList.remove('is-active');
       }
     }
-
-    const pHE = window.GACHA_INIT?.pityHardEvt ?? 80;
-    const pSE = window.GACHA_INIT?.pitySoftEvt ?? 65;
-    $$('.pity-evt-fill').forEach(el => el.style.width = Math.min(100, Math.round(state.pityEvento/pHE*100)) + '%');
-    $$('.pity-evt-num').forEach(el => el.textContent = `${state.pityEvento} / ${pHE}`);
-    $$('.pity-evt-note').forEach(el => {
-      el.textContent = state.pityEvento >= pSE
-        ? '✦ Soft pity attivo — probabilità in aumento'
-        : `Garantito segreto in ${pHE - state.pityEvento} pull`;
-      el.classList.toggle('is-active', state.pityEvento >= pSE);
+    const pHE=window.GACHA_INIT?.pityHardEvt??80, pSE=window.GACHA_INIT?.pitySoftEvt??65;
+    $$('.pity-evt-fill').forEach(el=>el.style.width=Math.min(100,Math.round(state.pityEvento/pHE*100))+'%');
+    $$('.pity-evt-num').forEach(el=>el.textContent=`${state.pityEvento} / ${pHE}`);
+    $$('.pity-evt-note').forEach(el=>{
+      el.textContent=state.pityEvento>=pSE?'✦ Soft pity attivo — probabilità in aumento':`Garantito segreto in ${pHE-state.pityEvento} pull`;
+      el.classList.toggle('is-active',state.pityEvento>=pSE);
     });
-
-    $$('[id^="garantito-badge-"]').forEach(el =>
-      el.style.display = state.garantito ? '' : 'none'
-    );
+    $$('[id^="garantito-badge-"]').forEach(el=>el.style.display=state.garantito?'':'none');
   }
 
   /* ════════════════════════════════════════════════════
      PARTICELLE
   ════════════════════════════════════════════════════ */
   function spawnParticles(color, rarity) {
-    const mob   = window.innerWidth < 768;
-    const count = rarity==='theone'?mob?30:70:rarity==='segreto'?mob?25:60:
-                  rarity==='speciale'?mob?20:50:rarity==='leggendario'?mob?15:40:
-                  rarity==='epico'?mob?10:28:mob?6:15;
-    const frag  = document.createDocumentFragment();
-    for (let i = 0; i < count; i++) {
-      const p = document.createElement('div');
-      const sz = 3 + Math.random()*5, ang = Math.random()*Math.PI*2;
-      const d  = 80 + Math.random()*200, dur = 600 + Math.random()*900;
-      p.className = 'gacha-particle';
-      p.style.cssText = `width:${sz}px;height:${sz}px;background:${color};box-shadow:0 0 ${sz*2}px ${color};--px:${Math.cos(ang)*d}px;--py:${Math.sin(ang)*d}px;--dur:${dur}ms;`;
+    const mob=window.innerWidth<768;
+    const count=rarity==='theone'?mob?30:70:rarity==='segreto'?mob?25:60:
+      rarity==='speciale'?mob?20:50:rarity==='leggendario'?mob?15:40:
+      rarity==='epico'?mob?10:28:mob?6:15;
+    const frag=document.createDocumentFragment();
+    for(let i=0;i<count;i++){
+      const p=document.createElement('div'),sz=3+Math.random()*5,ang=Math.random()*Math.PI*2;
+      const d=80+Math.random()*200,dur=600+Math.random()*900;
+      p.className='gacha-particle';
+      p.style.cssText=`width:${sz}px;height:${sz}px;background:${color};box-shadow:0 0 ${sz*2}px ${color};--px:${Math.cos(ang)*d}px;--py:${Math.sin(ang)*d}px;--dur:${dur}ms;`;
       frag.appendChild(p);
-      setTimeout(() => p.remove(), dur + 100);
+      setTimeout(()=>p.remove(),dur+100);
     }
     particlesLayer.appendChild(frag);
   }
 
   /* ════════════════════════════════════════════════════
-     FIX 2 — AUDIO
+     AUDIO
   ════════════════════════════════════════════════════ */
   function stopAudio() {
     if (!audioEl) return;
-    audioEl.pause();
-    audioEl.currentTime = 0;
-    audioEl.src = '';
+    audioEl.pause(); audioEl.currentTime = 0; audioEl.src = '';
   }
   function playAudio(url) {
     if (!url) return;
     stopAudio();
     try {
       audioEl.src = url.startsWith('/') ? url : `/audio/${url}`;
-      audioEl.currentTime = 0;
-      audioEl.volume = 0.8;
+      audioEl.currentTime = 0; audioEl.volume = 0.8;
       audioEl.play().catch(() => {});
     } catch(e) {}
   }
@@ -627,7 +990,7 @@
   function lockScroll() {
     document.body.style.overflow = 'hidden';
     _tl = e => e.preventDefault();
-    document.addEventListener('touchmove', _tl, { passive: false });
+    document.addEventListener('touchmove', _tl, { passive:false });
   }
   function unlockScroll() {
     document.body.style.overflow = '';
@@ -638,7 +1001,7 @@
      TOAST
   ════════════════════════════════════════════════════ */
   let _tt = null;
-  function showToast(msg, type = 'info') {
+  function showToast(msg, type='info') {
     if (!toastEl) return;
     toastEl.textContent = msg;
     toastEl.className = `gacha-toast${type==='error'?' gacha-toast--error':''}`;
@@ -648,15 +1011,29 @@
   }
 
   /* ════════════════════════════════════════════════════
-     KEYBOARD
+     #2 — KEYBOARD (F = fast pull, Space = pull, S = skip)
   ════════════════════════════════════════════════════ */
   function initKeyboard() {
     document.addEventListener('keydown', e => {
       if (e.repeat) return;
-      if (e.code==='Space'  && !state.overlayOpen && !state.isPulling) { e.preventDefault(); startPull(state.activeBannerId); }
-      if (e.code==='Enter'  &&  state.overlayOpen && !state.isPulling) { e.preventDefault(); btnPullAgain?.click(); }
-      if (e.code==='Escape' &&  state.overlayOpen && !state.isPulling) { e.preventDefault(); closeOverlay(); }
-      if (e.code==='KeyS'   &&  state.canSkip)                         { e.preventDefault(); skipBtn?.click(); }
+      // Space = pull normale
+      if (e.code==='Space' && !state.overlayOpen && !state.isPulling) {
+        e.preventDefault(); state.isFastPull=false; startPull(state.activeBannerId);
+      }
+      // F = apertura veloce (skip animazione orb se skippabile)
+      if (e.code==='KeyF' && !state.overlayOpen && !state.isPulling) {
+        e.preventDefault(); startPull(state.activeBannerId, true);
+      }
+      // Enter = pull ancora
+      if (e.code==='Enter' && state.overlayOpen && !state.isPulling) {
+        e.preventDefault(); btnPullAgain?.click();
+      }
+      // Escape = chiudi
+      if (e.code==='Escape' && state.overlayOpen && !state.isPulling) {
+        e.preventDefault(); closeOverlay();
+      }
+      // S = skip
+      if (e.code==='KeyS' && state.canSkip) { e.preventDefault(); doSkip(); }
     });
   }
 
@@ -673,21 +1050,20 @@
   }
 
   /* ════════════════════════════════════════════════════
-     TIMER EVENTO
+     TIMER
   ════════════════════════════════════════════════════ */
   function initTimers() {
     $$('.gacha-timer-digits[data-ends]').forEach(el => {
-      updateTimer(el);
-      setInterval(() => updateTimer(el), 60_000);
+      updateTimer(el); setInterval(() => updateTimer(el), 60_000);
     });
   }
   function updateTimer(el) {
-    const diff = new Date(el.dataset.ends.replace(' ','T')+'Z').getTime() - Date.now();
-    if (diff <= 0) { el.closest('.gacha-timer-wrap')?.remove(); return; }
+    const diff = new Date(el.dataset.ends.replace(' ','T')+'Z').getTime()-Date.now();
+    if(diff<=0){el.closest('.gacha-timer-wrap')?.remove();return;}
     const d=el.querySelector('.t-days'),h=el.querySelector('.t-hours'),m=el.querySelector('.t-mins');
-    if(d) d.textContent = Math.floor(diff/86400000);
-    if(h) h.textContent = String(Math.floor(diff%86400000/3600000)).padStart(2,'0');
-    if(m) m.textContent = String(Math.floor(diff%3600000/60000)).padStart(2,'0');
+    if(d)d.textContent=Math.floor(diff/86400000);
+    if(h)h.textContent=String(Math.floor(diff%86400000/3600000)).padStart(2,'0');
+    if(m)m.textContent=String(Math.floor(diff%3600000/60000)).padStart(2,'0');
   }
 
   /* ════════════════════════════════════════════════════
@@ -695,16 +1071,16 @@
   ════════════════════════════════════════════════════ */
   function initSettingsBtn() {
     $('btn-settings')?.addEventListener('click', () => {
-      const modal = document.getElementById('impostazioniModal');
-      if (modal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(modal).show();
+      const modal=document.getElementById('impostazioniModal');
+      if(modal&&window.bootstrap) bootstrap.Modal.getOrCreateInstance(modal).show();
     });
   }
 
   /* ════════════════════════════════════════════════════
-     FIX 11 — CRONOLOGIA PULL
+     CRONOLOGIA
   ════════════════════════════════════════════════════ */
   function injectHistoryModal() {
-    document.body.insertAdjacentHTML('beforeend', `
+    document.body.insertAdjacentHTML('beforeend',`
     <div class="modal fade" id="gachaHistoryModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content bgimpostazioni lootbox-settings-content">
@@ -729,30 +1105,22 @@
   }
 
   async function openHistoryModal(bannerId, bannerName) {
-    const modal = $('gachaHistoryModal');
-    if (!modal || !window.bootstrap) return;
-    $('gacha-history-banner-label').textContent = bannerName ?? '';
-    $('gacha-history-list').innerHTML = `<div style="text-align:center;color:rgba(255,255,255,.35);padding:40px"><i class="fas fa-circle-notch fa-spin"></i></div>`;
+    const modal=$('gachaHistoryModal');
+    if(!modal||!window.bootstrap)return;
+    $('gacha-history-banner-label').textContent=bannerName??'';
+    $('gacha-history-list').innerHTML='<div style="text-align:center;color:rgba(255,255,255,.35);padding:40px"><i class="fas fa-circle-notch fa-spin"></i></div>';
     bootstrap.Modal.getOrCreateInstance(modal).show();
-
-    try {
-      const resp = await fetch(`/api/api_gacha_history?banner_id=${encodeURIComponent(bannerId)}&limit=60`, { credentials:'same-origin' });
-      const data = await resp.json();
-
-      if (!data.pulls?.length) {
-        $('gacha-history-list').innerHTML = `<div style="text-align:center;color:rgba(255,255,255,.3);padding:48px"><i class="fas fa-scroll" style="font-size:2.4rem;display:block;margin-bottom:14px;opacity:.4"></i>Nessuna pull su questo banner.</div>`;
-        return;
-      }
-
-      const RC = {comune:'#9ca3af',raro:'#38bdf8',epico:'#c084fc',leggendario:'#fbbf24',speciale:'#fff',segreto:'#a855f7',theone:'#60a5fa'};
-      $('gacha-history-list').innerHTML = data.pulls.map(p => {
-        const r  = normalizeRarity(p.rarità);
-        const c  = RC[r] ?? '#fff';
-        const dt = new Date(p.created_at).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
-        const b50 = p.esito_50_50===1 ? `<span style="font-size:.68rem;color:#fbbf24;background:rgba(251,191,36,.12);padding:2px 7px;border-radius:6px">★ Rate-Up</span>`
-                  : p.esito_50_50===0 ? `<span style="font-size:.68rem;color:#f87171;background:rgba(239,68,68,.1);padding:2px 7px;border-radius:6px">→ Garantito</span>` : '';
-        const newBadge = p.is_new ? `<span style="font-size:.68rem;color:#4ade80;background:rgba(74,222,128,.12);padding:2px 7px;border-radius:6px">NEW</span>` : '';
-        return `<div style="display:flex;align-items:center;gap:12px;padding:9px 12px;background:rgba(255,255,255,.03);border-radius:8px;border-left:3px solid ${c};margin-bottom:6px">
+    try{
+      const resp=await fetch(`/api/api_gacha_history?banner_id=${encodeURIComponent(bannerId)}&limit=60`,{credentials:'same-origin'});
+      const data=await resp.json();
+      if(!data.pulls?.length){$('gacha-history-list').innerHTML='<div style="text-align:center;color:rgba(255,255,255,.3);padding:48px">Nessuna pull su questo banner.</div>';return;}
+      const RC={comune:'#9ca3af',raro:'#38bdf8',epico:'#c084fc',leggendario:'#fbbf24',speciale:'#fff',segreto:'#a855f7',theone:'#60a5fa'};
+      $('gacha-history-list').innerHTML=data.pulls.map(p=>{
+        const r=normalizeRarity(p.rarità),c=RC[r]??'#fff';
+        const dt=new Date(p.created_at).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+        const b50=p.esito_50_50===1?`<span style="font-size:.68rem;color:#fbbf24;background:rgba(251,191,36,.12);padding:2px 7px;border-radius:6px">★ Rate-Up</span>`:p.esito_50_50===0?`<span style="font-size:.68rem;color:#f87171;background:rgba(239,68,68,.1);padding:2px 7px;border-radius:6px">→ Garantito</span>`:'';
+        const newBadge=p.is_new?`<span style="font-size:.68rem;color:#4ade80;background:rgba(74,222,128,.12);padding:2px 7px;border-radius:6px">NEW</span>`:'';
+        return`<div style="display:flex;align-items:center;gap:12px;padding:9px 12px;background:rgba(255,255,255,.03);border-radius:8px;border-left:3px solid ${c};margin-bottom:6px">
           <div style="flex:1;min-width:0">
             <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:3px">
               <span style="font-weight:700;color:#fff;font-size:.9rem">${escapeHtml(p.nome??'?')}</span>
@@ -764,24 +1132,19 @@
           <div style="text-align:right;flex-shrink:0;font-size:.72rem;color:rgba(255,255,255,.25)">pity ${p.pity_al_momento}</div>
         </div>`;
       }).join('');
-
-      const seg = data.pulls.filter(p => ['segreto','theone'].includes(normalizeRarity(p.rarità))).length;
-      $('gacha-history-stats').textContent = `${data.total??data.pulls.length} pull totali • ${seg} segreti`;
-    } catch {
-      $('gacha-history-list').innerHTML = `<div style="text-align:center;color:#f87171;padding:32px">Errore caricamento cronologia.</div>`;
-    }
+      const seg=data.pulls.filter(p=>['segreto','theone'].includes(normalizeRarity(p.rarità))).length;
+      $('gacha-history-stats').textContent=`${data.total??data.pulls.length} pull totali • ${seg} segreti`;
+    }catch{$('gacha-history-list').innerHTML='<div style="text-align:center;color:#f87171;padding:32px">Errore caricamento cronologia.</div>';}
   }
 
   window.GachaHistory = { open: openHistoryModal };
 
   /* ════════════════════════════════════════════════════
-     FIX 12 — LEADERBOARD
+     LEADERBOARD
   ════════════════════════════════════════════════════ */
   function initLeaderboard() {
     $$('.gacha-leaderboard-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (typeof toggleLeaderboard === 'function') toggleLeaderboard();
-      });
+      btn.addEventListener('click', () => { if(typeof toggleLeaderboard==='function') toggleLeaderboard(); });
     });
   }
 
@@ -789,37 +1152,34 @@
      ACHIEVEMENTS
   ════════════════════════════════════════════════════ */
   async function triggerAchievements(data) {
-    if (typeof unlockAchievement !== 'function') return;
-    try {
+    if(typeof unlockAchievement!=='function')return;
+    try{
       unlockAchievement(5);
-      const r = await fetch('/api/get_casse_aperte');
-      const d = await r.json();
-      const c = d.total ?? 0;
-      if (c >= 100) unlockAchievement(8);
-      if (c >= 500) unlockAchievement(16);
-    } catch(e) {}
+      const r=await fetch('/api/get_casse_aperte');
+      const d=await r.json();
+      const c=d.total??0;
+      if(c>=100)unlockAchievement(8);
+      if(c>=500)unlockAchievement(16);
+    }catch(e){}
   }
 
   /* ════════════════════════════════════════════════════
      UTILITY
   ════════════════════════════════════════════════════ */
-  function normalizeRarity(r) {
-    return String(r ?? 'comune').toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-      .replace(/[\s_-]+/g,'').trim();
+  function normalizeRarity(r){
+    return String(r??'comune').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[\s_-]+/g,'').trim();
   }
-  function escapeHtml(s) {
-    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+  function escapeHtml(s){
+    return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
   }
-  function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+  function delay(ms){return new Promise(r=>setTimeout(r,ms));}
 
   /* ════════════════════════════════════════════════════
      BOOT
   ════════════════════════════════════════════════════ */
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',init);
+  }else{
     init();
   }
 

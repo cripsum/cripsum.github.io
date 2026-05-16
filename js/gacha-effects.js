@@ -391,54 +391,68 @@
      Rainbow overlay fullscreen, prisma rotante
   ════════════════════════════════════════════════════ */
   async function playSpecialeEffect() {
+    // FIX 3: Rainbow wave fullscreen. Niente cerchio, niente scritta.
     const overlay = makeOverlay(10500, 'transparent');
+    overlay.style.pointerEvents = 'none';
     document.body.appendChild(overlay);
 
-    // Rainbow BG animato
-    const rainbow = document.createElement('div');
-    rainbow.style.cssText = `
-      position:absolute;inset:0;
-      background:linear-gradient(45deg,
-        #ff004c,#ff7a00,#fff300,#35ff00,
-        #00ffd5,#0077ff,#7a00ff,#ff00d4,#ff004c);
-      background-size:400% 400%;
-      opacity:.18;
-      animation:gfxRainbowPan 3s linear infinite;
-    `;
-    overlay.appendChild(rainbow);
+    // BG rainbow pulsante che copre tutto lo schermo
+    const bg = document.createElement('div');
+    bg.style.cssText = [
+      'position:absolute;inset:0;',
+      'background:linear-gradient(135deg,',
+      '#ff004c 0%,#ff7a00 14%,#fff300 28%,',
+      '#35ff00 42%,#00ffd5 57%,#0077ff 71%,',
+      '#7a00ff 85%,#ff00d4 100%);',
+      'background-size:300% 300%;',
+      'opacity:0;',
+      'animation:gfxRainbowWave 3s ease infinite,gfxRainbowFade 3.2s ease forwards;',
+    ].join('');
+    overlay.appendChild(bg);
 
-    // Prisma al centro
-    const prism = document.createElement('div');
-    prism.style.cssText = `
-      position:absolute;left:50%;top:50%;
-      width:${isMobile() ? 140 : 200}px;height:${isMobile() ? 140 : 200}px;
-      border-radius:50%;
-      background:conic-gradient(#ff004c,#ff7a00,#fff300,#35ff00,#00ffd5,#0077ff,#7a00ff,#ff00d4,#ff004c);
-      transform:translate(-50%,-50%);
-      opacity:.6;
-      animation:gfxRotate 3s linear infinite;
-      filter:blur(8px);
-    `;
-    overlay.appendChild(prism);
+    // Streak di luce diagonali (no cerchio, no testo)
+    var streakColors = [
+      'linear-gradient(90deg,transparent,rgba(255,255,255,.85),transparent)',
+      'linear-gradient(90deg,transparent,rgba(255,120,220,.7),rgba(255,255,255,.6),transparent)',
+      'linear-gradient(90deg,transparent,rgba(120,200,255,.7),rgba(255,255,255,.5),transparent)',
+    ];
+    var streakCount = isMobile() ? 2 : 3;
+    for (var i = 0; i < streakCount; i++) {
+      var streak = document.createElement('div');
+      var h = isMobile() ? 60 : 90;
+      var top = 18 + i * (isMobile() ? 30 : 23);
+      streak.style.cssText = [
+        'position:absolute;',
+        'top:' + top + '%;left:0;right:0;',
+        'height:' + h + 'px;',
+        'background:' + streakColors[i % streakColors.length] + ';',
+        'transform:skewY(-4deg);',
+        'animation:gfxRainbowStreak ' + (0.9 + i*0.15) + 's ease ' + (0.08 + i*0.22) + 's forwards;',
+        'pointer-events:none;',
+      ].join('');
+      overlay.appendChild(streak);
+    }
 
-    // Testo SPECIALE
-    const txt = document.createElement('div');
-    txt.textContent = 'SPECIALE!';
-    txt.style.cssText = `
-      position:absolute;
-      font-size:${isMobile() ? '2.5rem' : '4rem'};
-      font-weight:900;
-      color:#fff;
-      text-shadow:0 0 20px #fff,0 0 40px rgba(255,255,255,.5);
-      letter-spacing:.14em;
-      opacity:0;
-      animation:gfxFlickerIn 1.2s ease .3s forwards;
-    `;
-    overlay.appendChild(txt);
+    // Glow ellittico centrale
+    var glow = document.createElement('div');
+    var gw = isMobile() ? 280 : 500, gh = isMobile() ? 200 : 350;
+    glow.style.cssText = [
+      'position:absolute;left:50%;top:50%;',
+      'width:' + gw + 'px;height:' + gh + 'px;',
+      'transform:translate(-50%,-50%);',
+      'background:radial-gradient(ellipse,',
+      'rgba(255,255,255,.35) 0%,rgba(255,120,255,.25) 35%,',
+      'rgba(120,200,255,.15) 65%,transparent 80%);',
+      'filter:blur(' + (isMobile()?20:30) + 'px);',
+      'border-radius:50%;opacity:0;transition:opacity .4s;pointer-events:none;',
+    ].join('');
+    overlay.appendChild(glow);
 
     overlay.style.opacity = '1';
-    await delay(2200);
-    await fadeRemove(overlay, 700);
+    await delay(50);
+    glow.style.opacity = '1';
+    await delay(3200);
+    await fadeRemove(overlay, 600);
   }
 
   /* ════════════════════════════════════════════════════

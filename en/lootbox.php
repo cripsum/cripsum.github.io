@@ -1,7 +1,7 @@
 <?php
-require_once '../config/session_init.php';
-require_once '../config/database.php';
-require_once '../includes/functions.php';
+require_once __DIR__ . '/../config/session_init.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/functions.php';
 checkBan($mysqli);
 
 if (!isLoggedIn()) {
@@ -47,17 +47,17 @@ $stmtBanners = $mysqli->prepare(
 );
 $stmtBanners->bind_param('ss', $nowDt, $nowDt);
 $stmtBanners->execute();
-$bannersResult = $stmtBanners->get_result();
 $bannersEvento = [];
-while ($row = $bannersResult->fetch_assoc()) {
+$resBanners = $stmtBanners->get_result();
+while ($row = $resBanners->fetch_assoc()) {
     $bannersEvento[] = $row;
 }
 $stmtBanners->close();
 
-define('PITY_STANDARD_HARD', 90);
-define('PITY_STANDARD_SOFT', 70);
-define('PITY_EVENTO_HARD',   80);
-define('PITY_EVENTO_SOFT',   65);
+defined('PITY_STANDARD_HARD') || define('PITY_STANDARD_HARD', 90);
+defined('PITY_STANDARD_SOFT') || define('PITY_STANDARD_SOFT', 70);
+defined('PITY_EVENTO_HARD') || define('PITY_EVENTO_HARD',   80);
+defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -96,7 +96,7 @@ define('PITY_EVENTO_SOFT',   65);
                 data-costo="0"
                 aria-label="Banner Standard">
                 <div class="gacha-banner-bg has-img" id="banner-bg-standard"
-                    style="background-image:url('/img/banner_standard_bg.png')"></div>
+                    style="background-image:url('/img/banner_standard_bg.jpg')"></div>
 
                 <div class="gacha-banner-art-wrap" aria-hidden="true">
                     <img src="/img/cassa.png" alt="Cassa" class="gacha-banner-char"
@@ -140,11 +140,19 @@ define('PITY_EVENTO_SOFT',   65);
                         <span class="gacha-cost">• Gratuito</span>
                     </div>
 
-                    <button class="gacha-pull-btn" id="pull-btn-standard"
-                        aria-label="Apri 1x banner standard" data-banner-id="standard">
-                        <i class="fas fa-box-open gacha-pull-btn-icon"></i>
-                        <span>Apri 1×</span>
-                    </button>
+                    <div class="gacha-pull-row">
+                        <button class="gacha-pull-btn" id="pull-btn-standard"
+                            aria-label="Apri 1x banner standard" data-banner-id="standard">
+                            <i class="fas fa-box-open gacha-pull-btn-icon"></i>
+                            <span>Apri 1×</span>
+                        </button>
+                        <button class="gacha-pull-btn gacha-pull-10-btn gacha-pull-btn--multi"
+                            aria-label="Apri 10x banner standard" data-banner-id="standard">
+                            <i class="fas fa-boxes-stacked gacha-pull-btn-icon"></i>
+                            <span>Multi 10×</span>
+                        </button>
+                    </div>
+                    <p class="gacha-pull-hint"><i class="fas fa-bolt"></i> <kbd>F</kbd> apertura rapida &nbsp;|&nbsp; <kbd>Space</kbd> pull normale</p>
                 </div>
             </section>
 
@@ -249,12 +257,21 @@ define('PITY_EVENTO_SOFT',   65);
                             <span class="gacha-cost">• <?= number_format($costo) ?> punti / pull</span>
                         </div>
 
-                        <button class="gacha-pull-btn" id="pull-btn-<?= $bid ?>"
-                            aria-label="Apri 1x <?= $safeName ?>" data-banner-id="<?= $bid ?>">
-                            <i class="fas fa-star gacha-pull-btn-icon"></i>
-                            <span>Apri 1×</span>
-                            <span class="gacha-pull-cost-badge"><?= number_format($costo) ?></span>
-                        </button>
+                        <div class="gacha-pull-row">
+                            <button class="gacha-pull-btn" id="pull-btn-<?= $bid ?>"
+                                aria-label="Apri 1x <?= $safeName ?>" data-banner-id="<?= $bid ?>">
+                                <i class="fas fa-star gacha-pull-btn-icon"></i>
+                                <span>Apri 1×</span>
+                                <span class="gacha-pull-cost-badge"><?= number_format($costo) ?></span>
+                            </button>
+                            <button class="gacha-pull-btn gacha-pull-10-btn gacha-pull-btn--multi"
+                                aria-label="Apri 10x <?= $safeName ?>" data-banner-id="<?= $bid ?>">
+                                <i class="fas fa-boxes-stacked gacha-pull-btn-icon"></i>
+                                <span>Multi 10×</span>
+                                <span class="gacha-pull-cost-badge"><?= number_format($costo * 10) ?></span>
+                            </button>
+                        </div>
+                        <p class="gacha-pull-hint"><i class="fas fa-bolt"></i> <kbd>F</kbd> apertura rapida &nbsp;|&nbsp; <kbd>Space</kbd> pull normale</p>
                     </div>
                 </section>
             <?php endforeach; ?>
@@ -277,7 +294,7 @@ define('PITY_EVENTO_SOFT',   65);
                     data-banner-type="standard"
                     aria-pressed="true"
                     aria-label="Banner Standard">
-                    <div class="gsb-card-bg" style="background-image:url('/img/banner_standard_bg.png')"></div>
+                    <div class="gsb-card-bg" style="background-image:url('/img/banner_standard_bg.jpg')"></div>
                     <div class="gsb-card-overlay"></div>
                     <div class="gsb-card-body">
                         <span class="gsb-card-tag">Standard</span>
@@ -450,10 +467,11 @@ define('PITY_EVENTO_SOFT',   65);
                             </div>
                         </div>
                         <div class="lootbox-command-grid">
-                            <div class="lootbox-command-item"><span>Space</span><strong>Apri pull</strong></div>
+                            <div class="lootbox-command-item"><span>Space</span><strong>Pull normale</strong></div>
+                            <div class="lootbox-command-item"><span>F</span><strong>Apertura rapida</strong></div>
                             <div class="lootbox-command-item"><span>Enter</span><strong>Apri ancora</strong></div>
                             <div class="lootbox-command-item"><span>Esc</span><strong>Chiudi overlay</strong></div>
-                            <div class="lootbox-command-item"><span>S</span><strong>Salta anim.</strong></div>
+                            <div class="lootbox-command-item"><span>S</span><strong>Salta multi</strong></div>
                         </div>
                     </section>
 
@@ -604,15 +622,17 @@ define('PITY_EVENTO_SOFT',   65);
                                 'pitySoftStd' => PITY_STANDARD_SOFT,
                                 'pityHardEvt' => PITY_EVENTO_HARD,
                                 'pitySoftEvt' => PITY_EVENTO_SOFT,
-                                'banners'     => array_map(fn($b) => [
-                                    'id'         => (int)$b['id'],
-                                    'slug'       => $b['slug'],
-                                    'nome'       => $b['nome'],
-                                    'costo'      => (int)$b['costo_punti'],
-                                    'data_fine'  => $b['data_fine'],
-                                    'rateup_nome' => $b['rateup_nome'],
-                                    'rateup_img' => $b['rateup_img_url'],
-                                ], $bannersEvento),
+                                'banners'     => array_map(function ($b) {
+                                    return [
+                                        'id'         => (int)$b['id'],
+                                        'slug'       => $b['slug'],
+                                        'nome'       => $b['nome'],
+                                        'costo'      => (int)$b['costo_punti'],
+                                        'data_fine'  => $b['data_fine'],
+                                        'rateup_nome' => $b['rateup_nome'],
+                                        'rateup_img' => $b['rateup_img_url'],
+                                    ];
+                                }, $bannersEvento),
                             ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 
         // Tracking banner attivo per cronologia
@@ -626,9 +646,9 @@ define('PITY_EVENTO_SOFT',   65);
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         crossorigin="anonymous"></script>
-    <script src="../js/unlockAchievement-it.js"></script>
-    <script src="../js/gacha-effects.js?v=2.0"></script>
-    <script src="../js/gacha.js?v=2.0"></script>
+    <script src="/js/unlockAchievement-it.js"></script>
+    <script src="/js/gacha-effects.js?v=2.0"></script>
+    <script src="/js/gacha.js?v=2.0"></script>
 
     <script>
         // ── Cronologia banner corrente ────────────────────────────────────────
