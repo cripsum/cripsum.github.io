@@ -4,1871 +4,745 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
 
-
 if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-    $_SESSION['login_message'] = "You must be logged in to access lootboxes.";
-
+    $_SESSION['login_message'] = 'Per accedere al sistema gacha devi essere loggato';
     header('Location: accedi');
     exit();
 }
 checkPermissions($mysqli, 'utente');
 
+$ruolo = $_SESSION['ruolo'] ?? 'utente';
+$isAdmin = in_array($ruolo, ['admin', 'owner'], true);
 
+// Carica dati utente per PHP-side render iniziale
+$stmtUser = $mysqli->prepare(
+    'SELECT username, soldi, pity_standard, pity_evento, garantito_evento
+     FROM utenti WHERE id = ? LIMIT 1'
+);
+$stmtUser->bind_param('i', $_SESSION['user_id']);
+$stmtUser->execute();
+$userData = $stmtUser->get_result()->fetch_assoc();
+$stmtUser->close();
 
-// if (  === 'utente') {
-//     $_SESSION['error_message'] = "la pagina attualmente è in manutenzione, torna più tardi";
-//     header('Location: home');
-//     exit();
-// }
+$username       = htmlspecialchars($userData['username'] ?? '', ENT_QUOTES, 'UTF-8');
+$soldi          = (int)($userData['soldi'] ?? 0);
+$pityStandard   = (int)($userData['pity_standard'] ?? 0);
+$pityEvento     = (int)($userData['pity_evento'] ?? 0);
+$garantito      = (int)($userData['garantito_evento'] ?? 0);
 
-require_once '../api/api_personaggi.php';
+// Carica banner evento attivi per render server-side iniziale
+$nowDt = date('Y-m-d H:i:s');
+$stmtBanners = $mysqli->prepare(
+    'SELECT be.id, be.slug, be.nome, be.descrizione, be.id_personaggio_rateup,
+            be.banner_img_url, be.costo_punti, be.data_fine,
+            p.nome AS rateup_nome, p.rarità AS rateup_rarità,
+            p.img_url AS rateup_img_url, p.descrizione AS rateup_desc,
+            p.caratteristiche AS rateup_chars
+     FROM banner_eventi be
+     INNER JOIN personaggi p ON p.id = be.id_personaggio_rateup
+     WHERE be.attivo = 1
+       AND (be.data_inizio IS NULL OR be.data_inizio <= ?)
+       AND (be.data_fine   IS NULL OR be.data_fine   >= ?)
+     ORDER BY be.id ASC'
+);
+$stmtBanners->bind_param('ss', $nowDt, $nowDt);
+$stmtBanners->execute();
+$bannersResult = $stmtBanners->get_result();
+$bannersEvento = [];
+while ($row = $bannersResult->fetch_assoc()) {
+    $bannersEvento[] = $row;
+}
+$stmtBanners->close();
 
+// Pity hard (deve coincidere con api_gacha_pull.php)
+define('PITY_STANDARD_HARD', 90);
+define('PITY_STANDARD_SOFT', 70);
+define('PITY_EVENTO_HARD',   80);
+define('PITY_EVENTO_SOFT',   65);
 ?>
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="it">
 <head>
     <?php include '../includes/head-import.php'; ?>
     <link rel="stylesheet" href="/css/lootbox.css?v=8.2" />
-    <title>Cripsum™ - lootbox</title>
+    <link rel="stylesheet" href="/css/gacha.css?v=1.0" />
+    <meta name="theme-color" content="#080810">
+    <title>Cripsum™ — Gacha</title>
 </head>
+<body class="lootbox-page" data-ruolo="<?= htmlspecialchars($ruolo, ENT_QUOTES) ?>">
 
-<body class="lootbox-page">
-    <?php include '../includes/navbar-lootbox.php'; ?>
-    <div class="stars" id="stars"></div>
+<?php include '../includes/navbar-lootbox.php'; ?>
 
-    <!-- TO DO
-           bloccare lo scorrimento della pagina quando il menu della navbar è aperto (aggiungere classe overflow-hidden al body) 
-           bloccare lo scorrimento della pagina quando il pop up è aperto (aggiungere classe overflow-hidden al body)  
-        -->
+<div class="stars" id="stars"></div>
 
-    <div class="testobianco lootbox-stage" id="paginaintera">
-        <div
-            id="popup-overlay"
-            style="
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0, 0, 0, 0.85);
-                    display: none;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 9999;
-                    opacity: 0;
-                    transition: opacity 0.5s ease;
-                ">
-            <div
-                id="collegamentoedits"
-                class="collegamentoedit ombra fadeup"
-                style="
-                        backdrop-filter: blur(15px);
-                        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(64, 64, 64, 0.1));
-                        box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.5);
-                        padding: 20px;
-                        border: 1px solid rgba(255, 255, 255, 0.5);
-                        border-radius: 10px;
-                        max-width: 80%;
-                        text-align: center;
-                        position: relative;
-                        opacity: 0;
-                        transform: translateY(-20px);
-                        transition: opacity 0.5s ease, transform 0.5s ease;
-                    ">
-                <button style="position: absolute; top: 0px; right: 5px; background-color: transparent; border: none; cursor: pointer" onclick="closePopup()">
-                    <span class="close_div tastobianco" style="font-size: 20px; color: rgb(255, 255, 255)">&times;<span class="linkbianco" style="font-size: small; position: relative; top: -3px; left: 3px">close</span></span>
+<!-- ══════════════════════════════════════════════════════════
+     TABS BANNER
+══════════════════════════════════════════════════════════ -->
+<nav class="gacha-tabs" id="gacha-tabs" role="tablist" aria-label="Banner gacha">
+
+    <!-- Tab Standard -->
+    <button
+        class="gacha-tab is-active"
+        role="tab"
+        aria-selected="true"
+        data-banner-id="standard"
+        data-banner-type="standard"
+        data-tab-accent="#9ca3af"
+        style="--tab-accent:#9ca3af"
+    >
+        <span class="gacha-tab-dot" style="background:#9ca3af;box-shadow:0 0 6px #9ca3af"></span>
+        Standard
+    </button>
+
+    <!-- Tab banner evento (generati da PHP) -->
+    <?php foreach ($bannersEvento as $b):
+        $safeName  = htmlspecialchars($b['nome'], ENT_QUOTES, 'UTF-8');
+        $safeSlug  = htmlspecialchars($b['slug'], ENT_QUOTES, 'UTF-8');
+        $accentCol = '#38bdf8'; // default; il JS sovrascriverà
+    ?>
+    <button
+        class="gacha-tab"
+        role="tab"
+        aria-selected="false"
+        data-banner-id="<?= (int)$b['id'] ?>"
+        data-banner-type="evento"
+        data-banner-slug="<?= $safeSlug ?>"
+        data-tab-accent="<?= $accentCol ?>"
+        style="--tab-accent:<?= $accentCol ?>"
+    >
+        <span class="gacha-tab-dot"></span>
+        <?= $safeName ?>
+    </button>
+    <?php endforeach; ?>
+
+    <!-- Tasto impostazioni -->
+    <button
+        class="gacha-tab gacha-tab--settings"
+        aria-label="Impostazioni"
+        id="btn-settings"
+        title="Impostazioni"
+    >
+        <i class="fas fa-gear"></i>
+    </button>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════
+     BANNER VIEWS (una per ogni banner, swap via JS)
+══════════════════════════════════════════════════════════ -->
+
+<!-- ── Banner Standard ────────────────────────────────────── -->
+<section
+    class="gacha-banner-view"
+    id="banner-view-standard"
+    data-banner-id="standard"
+    data-banner-type="standard"
+    data-pity-hard="<?= PITY_STANDARD_HARD ?>"
+    data-pity-soft="<?= PITY_STANDARD_SOFT ?>"
+    data-costo="0"
+    aria-label="Banner Standard"
+>
+    <div class="gacha-banner-bg" id="banner-bg-standard"></div>
+
+    <!-- Art placeholder standard (nessun rateup) -->
+    <div class="gacha-banner-art-wrap" aria-hidden="true">
+        <img
+            src="/img/cassa.png"
+            alt="Cassa standard"
+            class="gacha-banner-char"
+            id="banner-char-standard"
+            draggable="false"
+        >
+    </div>
+
+    <div class="gacha-banner-info">
+        <div>
+            <span class="gacha-banner-type-badge">✦ SEMPRE DISPONIBILE</span>
+            <h1 class="gacha-banner-title">Banner Standard</h1>
+            <p class="gacha-banner-desc">Il banner classico di GoonLand. Tira per ottenere personaggi di ogni rarità. Gratuito, senza timer.</p>
+        </div>
+
+        <!-- Pity standard -->
+        <div class="gacha-pity-wrap">
+            <div class="gacha-pity-header">
+                <span>Pity Standard</span>
+                <span id="pity-std-num"><?= $pityStandard ?> / <?= PITY_STANDARD_HARD ?></span>
+            </div>
+            <div class="gacha-pity-track">
+                <div
+                    class="gacha-pity-fill"
+                    id="pity-std-fill"
+                    style="width:<?= min(100, round($pityStandard / PITY_STANDARD_HARD * 100)) ?>%"
+                ></div>
+                <div
+                    class="gacha-pity-soft-marker"
+                    style="left:<?= round(PITY_STANDARD_SOFT / PITY_STANDARD_HARD * 100) ?>%"
+                ></div>
+            </div>
+            <p class="gacha-pity-note <?= $pityStandard >= PITY_STANDARD_SOFT ? 'is-active' : '' ?>" id="pity-std-note">
+                <?php if ($pityStandard >= PITY_STANDARD_SOFT): ?>
+                    ✦ Soft pity attivo — probabilità leggendario aumentata
+                <?php elseif ($pityStandard >= PITY_STANDARD_HARD): ?>
+                    ★ Garantito: prossima pull è leggendario!
+                <?php else: ?>
+                    Garantito leggendario in <?= PITY_STANDARD_HARD - $pityStandard ?> pull
+                <?php endif; ?>
+            </p>
+        </div>
+
+        <!-- Economy -->
+        <div class="gacha-economy-row">
+            <span class="gacha-points">
+                <i class="fas fa-coins"></i>
+                <span id="user-points-std"><?= number_format($soldi) ?></span>
+            </span>
+            <span class="gacha-cost">• Gratuito</span>
+        </div>
+
+        <!-- Pull button -->
+        <button
+            class="gacha-pull-btn"
+            id="pull-btn-standard"
+            aria-label="Apri 1x banner standard"
+            data-banner-id="standard"
+        >
+            <i class="fas fa-box-open gacha-pull-btn-icon"></i>
+            <span>Apri 1×</span>
+        </button>
+    </div>
+</section>
+
+<!-- ── Banner Evento (generati da PHP) ────────────────────── -->
+<?php foreach ($bannersEvento as $b):
+    $bid          = (int)$b['id'];
+    $safeName     = htmlspecialchars($b['nome'], ENT_QUOTES, 'UTF-8');
+    $safeDesc     = htmlspecialchars($b['descrizione'] ?? '', ENT_QUOTES, 'UTF-8');
+    $safeRateup   = htmlspecialchars($b['rateup_nome'], ENT_QUOTES, 'UTF-8');
+    $safeRarity   = strtolower(trim($b['rateup_rarità'] ?? ''));
+    $safeRarityIt = htmlspecialchars($b['rateup_rarità'] ?? '', ENT_QUOTES, 'UTF-8');
+    $safeImg      = htmlspecialchars($b['rateup_img_url'] ?? '', ENT_QUOTES, 'UTF-8');
+    $safeDesc2    = htmlspecialchars($b['rateup_desc'] ?? '', ENT_QUOTES, 'UTF-8');
+    $safeChars    = htmlspecialchars($b['rateup_chars'] ?? '', ENT_QUOTES, 'UTF-8');
+    $bgImg        = htmlspecialchars($b['banner_img_url'] ?? '', ENT_QUOTES, 'UTF-8');
+    $costo        = (int)$b['costo_punti'];
+    $dataFine     = $b['data_fine'] ?? null;
+    $canAfford    = $soldi >= $costo;
+?>
+<section
+    class="gacha-banner-view"
+    id="banner-view-<?= $bid ?>"
+    data-banner-id="<?= $bid ?>"
+    data-banner-type="evento"
+    data-pity-hard="<?= PITY_EVENTO_HARD ?>"
+    data-pity-soft="<?= PITY_EVENTO_SOFT ?>"
+    data-costo="<?= $costo ?>"
+    data-data-fine="<?= htmlspecialchars($dataFine ?? '', ENT_QUOTES) ?>"
+    style="display:none"
+    aria-label="Banner <?= $safeName ?>"
+>
+    <div
+        class="gacha-banner-bg <?= $bgImg ? 'has-img' : '' ?>"
+        id="banner-bg-<?= $bid ?>"
+        <?php if ($bgImg): ?>style="background-image:url('/img/<?= $bgImg ?>')"<?php endif; ?>
+    ></div>
+
+    <div class="gacha-banner-art-wrap" aria-hidden="true">
+        <?php if ($safeImg): ?>
+        <img
+            src="/img/<?= $safeImg ?>"
+            alt="<?= $safeRateup ?>"
+            class="gacha-banner-char"
+            draggable="false"
+            onerror="this.src='/img/cassa.png'"
+        >
+        <?php else: ?>
+        <img src="/img/cassa.png" alt="Cassa" class="gacha-banner-char" draggable="false">
+        <?php endif; ?>
+    </div>
+
+    <div class="gacha-banner-info">
+        <div>
+            <span class="gacha-banner-type-badge">✦ BANNER EVENTO</span>
+            <h1 class="gacha-banner-title"><?= $safeName ?></h1>
+            <?php if ($safeDesc): ?>
+            <p class="gacha-banner-desc"><?= $safeDesc ?></p>
+            <?php endif; ?>
+        </div>
+
+        <!-- Rate-up info -->
+        <div class="gacha-rateup-info">
+            <span class="gacha-rateup-label">Rate-Up ✦</span>
+            <p class="gacha-rateup-name"><?= $safeRateup ?></p>
+            <p class="gacha-rateup-rarity rarity-<?= htmlspecialchars($safeRarity) ?>"><?= $safeRarityIt ?></p>
+            <?php if ($safeDesc2): ?>
+            <p class="gacha-rateup-char-desc"><?= $safeDesc2 ?></p>
+            <?php endif; ?>
+        </div>
+
+        <!-- Garantito badge (visibile solo se attivo) -->
+        <?php if ($garantito): ?>
+        <div class="gacha-garantito-badge" id="garantito-badge-<?= $bid ?>">
+            <i class="fas fa-shield-halved"></i>
+            Garantito attivo — prossima rara è il rate-up
+        </div>
+        <?php else: ?>
+        <div class="gacha-garantito-badge" id="garantito-badge-<?= $bid ?>" style="display:none">
+            <i class="fas fa-shield-halved"></i>
+            Garantito attivo — prossima rara è il rate-up
+        </div>
+        <?php endif; ?>
+
+        <!-- Pity evento (condiviso) -->
+        <div class="gacha-pity-wrap">
+            <div class="gacha-pity-header">
+                <span>Pity Evento</span>
+                <span class="pity-evt-num"><?= $pityEvento ?> / <?= PITY_EVENTO_HARD ?></span>
+            </div>
+            <div class="gacha-pity-track">
+                <div
+                    class="gacha-pity-fill pity-evt-fill"
+                    style="width:<?= min(100, round($pityEvento / PITY_EVENTO_HARD * 100)) ?>%"
+                ></div>
+                <div
+                    class="gacha-pity-soft-marker"
+                    style="left:<?= round(PITY_EVENTO_SOFT / PITY_EVENTO_HARD * 100) ?>%"
+                ></div>
+            </div>
+            <p class="gacha-pity-note pity-evt-note <?= $pityEvento >= PITY_EVENTO_SOFT ? 'is-active' : '' ?>">
+                <?php if ($pityEvento >= PITY_EVENTO_SOFT): ?>
+                    ✦ Soft pity attivo — probabilità in aumento
+                <?php else: ?>
+                    Garantito segreto in <?= PITY_EVENTO_HARD - $pityEvento ?> pull
+                <?php endif; ?>
+            </p>
+        </div>
+
+        <!-- Timer -->
+        <?php if ($dataFine): ?>
+        <div class="gacha-timer-wrap">
+            <i class="fas fa-clock"></i>
+            <span>Scade tra</span>
+            <div class="gacha-timer-digits" data-ends="<?= htmlspecialchars($dataFine, ENT_QUOTES) ?>">
+                <div class="gacha-timer-block"><span class="t-days">--</span><small>gg</small></div>
+                <div class="gacha-timer-block"><span class="t-hours">--</span><small>ore</small></div>
+                <div class="gacha-timer-block"><span class="t-mins">--</span><small>min</small></div>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- Economy -->
+        <div class="gacha-economy-row">
+            <span class="gacha-points">
+                <i class="fas fa-coins"></i>
+                <span class="user-points-evt"><?= number_format($soldi) ?></span>
+            </span>
+            <span class="gacha-cost">• <?= number_format($costo) ?> punti / pull</span>
+        </div>
+
+        <!-- Pull button -->
+        <button
+            class="gacha-pull-btn"
+            id="pull-btn-<?= $bid ?>"
+            aria-label="Apri 1x <?= $safeName ?>"
+            data-banner-id="<?= $bid ?>"
+            <?= !$canAfford ? 'data-no-points="true"' : '' ?>
+        >
+            <i class="fas fa-star gacha-pull-btn-icon"></i>
+            <span>Apri 1×</span>
+            <span class="gacha-pull-cost-badge"><?= number_format($costo) ?></span>
+        </button>
+    </div>
+</section>
+<?php endforeach; ?>
+
+<!-- ══════════════════════════════════════════════════════════
+     OVERLAY FULLSCREEN PULL
+     (un'unica istanza, riutilizzata per ogni pull)
+══════════════════════════════════════════════════════════ -->
+<div
+    class="gacha-overlay"
+    id="gacha-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Risultato pull"
+    aria-live="polite"
+>
+    <!-- BG -->
+    <div class="gacha-overlay-bg"></div>
+
+    <!-- Glow burst -->
+    <div class="gacha-glow-burst" id="gacha-glow-burst"></div>
+
+    <!-- Stars decorativi dentro overlay -->
+    <div class="gacha-stars-layer" id="overlay-stars"></div>
+
+    <!-- Particles -->
+    <div class="gacha-particles-layer" id="gacha-particles"></div>
+
+    <!-- Flash bianco per cinematic reveal -->
+    <div class="gacha-flash" id="gacha-flash"></div>
+
+    <!-- FASE 1: ORB animazione apertura -->
+    <div class="gacha-phase gacha-phase--opening" id="phase-opening">
+        <div class="gacha-orb-container">
+            <div class="gacha-orb">
+                <div class="gacha-orb-ring gacha-orb-ring--3"></div>
+                <div class="gacha-orb-ring gacha-orb-ring--2"></div>
+                <div class="gacha-orb-ring gacha-orb-ring--1"></div>
+                <div class="gacha-orb-core" id="orb-core"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FASE 2: Video fullscreen -->
+    <div class="gacha-phase gacha-phase--video" id="phase-video" style="display:none">
+        <video
+            id="gacha-video"
+            autoplay
+            muted
+            playsinline
+            preload="metadata"
+            webkit-playsinline
+        ></video>
+        <button class="gacha-video-unmute" id="video-unmute-btn" style="display:none">
+            <i class="fas fa-volume-xmark"></i> Tap per audio
+        </button>
+    </div>
+
+    <!-- FASE 3: Card reveal -->
+    <div class="gacha-phase gacha-phase--card" id="phase-card" style="display:none">
+
+        <div class="gacha-card" id="gacha-card" aria-live="polite">
+            <div class="gacha-card-bg-glow" id="card-bg-glow"></div>
+
+            <div class="gacha-card-frame" id="card-frame">
+                <div class="gacha-card-img-wrap" id="card-img-wrap">
+                    <img
+                        id="card-img"
+                        src="/img/cassa.png"
+                        alt="Personaggio"
+                        draggable="false"
+                        onerror="this.src='/img/cassa.png'"
+                    >
+                </div>
+                <div class="gacha-card-img-shine"></div>
+                <span class="gacha-card-new-badge" id="card-new-badge" style="display:none">NEW!</span>
+                <span class="gacha-card-50-badge gacha-card-50-badge--win" id="card-50-win" style="display:none">
+                    <i class="fas fa-trophy"></i> Rate-Up Vinto!
+                </span>
+                <span class="gacha-card-50-badge gacha-card-50-badge--loss" id="card-50-loss" style="display:none">
+                    Garantito attivato per la prossima pull
+                </span>
+            </div>
+
+            <div class="gacha-card-details">
+                <div class="gacha-card-rarity-bar" id="card-rarity-bar"></div>
+                <p class="gacha-card-rarity-label" id="card-rarity-label">—</p>
+                <h2 class="gacha-card-name" id="card-name">—</h2>
+                <p class="gacha-card-chars" id="card-chars"></p>
+            </div>
+        </div>
+
+        <!-- Azioni -->
+        <div class="gacha-overlay-actions" id="overlay-actions">
+            <button class="gacha-btn gacha-btn--primary" id="btn-pull-again">
+                <i class="fas fa-rotate-right"></i> Apri ancora
+            </button>
+            <button class="gacha-btn gacha-btn--ghost" id="btn-close-overlay">
+                <i class="fas fa-xmark"></i> Chiudi
+            </button>
+            <a href="/inventario" class="gacha-btn gacha-btn--ghost" id="btn-go-inventory" style="display:none">
+                <i class="fas fa-layer-group"></i> Vedi inventario
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Toast notifiche -->
+<div class="gacha-toast" id="gacha-toast" role="alert" aria-live="assertive"></div>
+
+<!-- Audio -->
+<audio id="gacha-audio" preload="none"></audio>
+
+<!-- ══════════════════════════════════════════════════════════
+     MODAL IMPOSTAZIONI
+══════════════════════════════════════════════════════════ -->
+<div class="modal fade lootbox-settings-modal" id="impostazioniModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable lootbox-settings-dialog">
+        <div class="modal-content bgimpostazioni lootbox-settings-content">
+            <div class="modal-header lootbox-settings-header">
+                <div>
+                    <span class="lootbox-modal-kicker">Gacha</span>
+                    <h5 class="modal-title">Impostazioni</h5>
+                    <p>Probabilità, comandi e funzioni rapide.</p>
+                </div>
+                <button type="button" class="lootbox-modal-close" data-bs-dismiss="modal" aria-label="Chiudi">
+                    <i class="fas fa-xmark"></i>
                 </button>
-                <div id="banner-content"></div>
-            </div>
-        </div>
-
-        <script>
-            function getRandomBanner() {
-                const banners = [
-                    `<div class="bannerino">
-                        <h2 style="color: rgb(255, 255, 255); padding-top: 11px">Have a cookie! 🍪</h2>
-                        <p style="color: rgb(255, 255, 255);">This site uses cookies to save your data. If you disable them, some features like settings and inventory might not work correctly.</p>
-                        <p style="color: rgb(255, 255, 255);">Have fun!</p>
-                        <button type="button" class="btn btn-secondary bottone" data-bs-dismiss="modal" onclick="closePopup()">Take my data 😆</button>
-
-                    </div>`,
-                ];
-                return banners[Math.floor(Math.random() * banners.length)];
-            }
-
-            function showPopup() {
-                if (getCookie("popupSeen")) return;
-
-                const overlay = document.getElementById("popup-overlay");
-                const popup = document.getElementById("collegamentoedits");
-                document.getElementById("banner-content").innerHTML = getRandomBanner();
-                overlay.style.display = "flex";
-                document.body.style.overflow = "hidden";
-                setTimeout(() => {
-                    overlay.style.opacity = "1";
-                    popup.style.opacity = "1";
-                    popup.style.transform = "translateY(0)";
-                }, 10);
-            }
-
-            function closePopup() {
-                const overlay = document.getElementById("popup-overlay");
-                const popup = document.getElementById("collegamentoedits");
-                popup.style.opacity = "0";
-                popup.style.transform = "translateY(-20px)";
-                overlay.style.opacity = "0";
-                document.body.style.overflow = "auto";
-                setTimeout(() => {
-                    overlay.style.display = "none";
-                }, 500);
-                setCookie("popupSeen", true);
-            }
-
-            window.onload = function() {
-                setTimeout(showPopup, 700);
-            };
-        </script>
-        <div class="container">
-
-            <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein lootbox-chest" draggable="false" aria-label="Apri cassa" ondblclick="handleDoubleClick(event)" onclick="handleChestClick(event)" />
-
-            <div id="baglioreWrapper">
-                <div class="bagliore" id="bagliore"></div>
             </div>
 
-            <div id="contenuto"></div>
+            <div class="modal-body lootbox-settings-body">
 
-            <div id="messaggio" class="nascosto">
-
-                <a onclick="refresh()" id="apriAncora" class="linkbianco"></a>
-            </div>
-
-            <div id="divApriAncora" class="nascosto">
-                <h1 id="messaggioRarita" class="non-selezionabile lootbox-rarity-message"></h1>
-                <div class="button-container lootbox-actions mt-4">
-                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" onclick="refresh()">Open Chest</a>
-                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" href="inventario">Inventory</a>
-                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" onclick="toggleLeaderboard()">Leaderboard</a>
-                </div>
-            </div>
-
-            <div class="modal fade lootbox-settings-modal" id="impostazioniModal" tabindex="-1" aria-labelledby="impostazioniModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable lootbox-settings-dialog">
-                    <div class="modal-content bgimpostazioni lootbox-settings-content">
-                        <div class="modal-header lootbox-settings-header">
-                            <div>
-                                <span class="lootbox-modal-kicker">Lootbox</span>
-                                <h5 class="modal-title" id="impostazioniModalLabel">Settings</h5>
-                                <p>Controls, Drop rates, and shortcuts.</p>
-                            </div>
-
-                            <button type="button" class="lootbox-modal-close" data-bs-dismiss="modal" aria-label="Chiudi">
-                                <i class="fas fa-xmark"></i>
-                            </button>
-                        </div>
-
-                        <div class="modal-body lootbox-settings-body">
-                            <section class="lootbox-settings-section">
-                                <div class="lootbox-section-head">
-                                    <i class="fas fa-keyboard"></i>
-                                    <div>
-                                        <h6>Controls</h6>
-                                        <p>Quick shortcuts during a pull.</p>
-                                    </div>
-                                </div>
-
-                                <div class="lootbox-command-grid">
-                                    <div class="lootbox-command-item">
-                                        <span>Click</span>
-                                        <strong>Open box</strong>
-                                    </div>
-                                    <div class="lootbox-command-item">
-                                        <span>Double click</span>
-                                        <strong>Skip animation</strong>
-                                    </div>
-                                    <div class="lootbox-command-item">
-                                        <span>Space</span>
-                                        <strong>Quick open</strong>
-                                    </div>
-                                    <div class="lootbox-command-item">
-                                        <span>Enter</span>
-                                        <strong>Open again</strong>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <section class="lootbox-settings-section">
-                                <div class="lootbox-section-head">
-                                    <i class="fas fa-dice"></i>
-                                    <div>
-                                        <h6>Drop rates</h6>
-                                    </div>
-                                </div>
-
-                                <div class="lootbox-rates-list">
-                                    <div class="lootbox-rate-row rate-common">
-                                        <span>Common</span>
-                                        <strong>47%</strong>
-                                    </div>
-                                    <div class="lootbox-rate-row rate-rare">
-                                        <span>Rare</span>
-                                        <strong>27%</strong>
-                                    </div>
-                                    <div class="lootbox-rate-row rate-epic">
-                                        <span>Epic</span>
-                                        <strong>12%</strong>
-                                    </div>
-                                    <div class="lootbox-rate-row rate-legendary">
-                                        <span>Legendary</span>
-                                        <strong>8%</strong>
-                                    </div>
-                                    <div class="lootbox-rate-row rate-special">
-                                        <span>Special</span>
-                                        <strong>0.9%</strong>
-                                    </div>
-                                    <div class="lootbox-rate-row rate-secret">
-                                        <span>???</span>
-                                        <strong>0.1%</strong>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
-                                <section id="admin-cheats" class="lootbox-settings-section lootbox-admin-section">
-                                    <div class="lootbox-section-head">
-                                        <i class="fas fa-wand-magic-sparkles"></i>
-                                        <div>
-                                            <h6>Admin cheats</h6>
-                                            <p>sucate.</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="lootbox-toggle-grid">
-
-                                        <label class="lootbox-toggle-pill" for="SoloPoppy">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloPoppy" />
-                                            <span>Meow</span>
-                                        </label>
-
-                                        <label class="lootbox-toggle-pill" for="SoloComuni">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloComuni" />
-                                            <span>Commons Only</span>
-                                        </label>
-
-                                        <label class="lootbox-toggle-pill" for="SoloRari">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloRari" />
-                                            <span>Rares Only</span>
-                                        </label>
-
-                                        <label class="lootbox-toggle-pill" for="SoloEpici">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloEpici" />
-                                            <span>Epics Only</span>
-                                        </label>
-
-                                        <label class="lootbox-toggle-pill" for="SoloLeggendari">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloLeggendari" />
-                                            <span>Legendaries Only</span>
-                                        </label>
-
-                                        <label class="lootbox-toggle-pill" for="SoloSpeciali">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloSpeciali" />
-                                            <span>Specials Only</span>
-                                        </label>
-
-                                        <label class="lootbox-toggle-pill" for="SoloSegreti">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloSegreti" />
-                                            <span>Secrets Only</span>
-                                        </label>
-
-                                        <label class="lootbox-toggle-pill" for="SoloTheOne">
-                                            <input class="form-check-input checco" type="checkbox" value="" id="SoloTheOne" />
-                                            <span>The One Only</span>
-                                        </label>
-                                    </div>
-                                </section>
-                            <?php endif; ?>
-
-                            <section class="lootbox-settings-section lootbox-code-section">
-                                <div class="lootbox-section-head">
-                                    <i class="fas fa-lock"></i>
-                                    <div>
-                                        <h6>Redeem code</h6>
-                                        <p>Enter a valid code, if you have one.</p>
-                                    </div>
-                                </div>
-
-                                <div class="lootbox-secret-row">
-                                    <label class="visually-hidden" for="codiceSegreto">Redeem code</label>
-                                    <input type="text" id="codiceSegreto" class="form-control" placeholder="Redeem code" />
-                                    <button type="button" class="btn btn-secondary bottone lootbox-modal-btn" data-bs-dismiss="modal" onclick="riscattaCodice()">
-                                        Redeem
-                                    </button>
-                                </div>
-                            </section>
-                        </div>
-
-                        <div class="modal-footer lootbox-settings-footer">
-                            <button type="button" class="btn btn-secondary bottone lootbox-modal-btn lootbox-modal-btn--ghost" data-bs-dismiss="modal">
-                                Close
-                            </button>
-                            <button type="button" class="btn btn-secondary bottone lootbox-modal-btn lootbox-modal-btn--primary" data-bs-dismiss="modal" onclick="salvaPreferenze()">
-                                Save
-                            </button>
+                <!-- Comandi -->
+                <section class="lootbox-settings-section">
+                    <div class="lootbox-section-head">
+                        <i class="fas fa-keyboard"></i>
+                        <div>
+                            <h6>Comandi</h6>
+                            <p>Scorciatoie rapide durante la pull.</p>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <div id="particelle"></div>
-        </div>
-
-        <audio id="suonoCassa"></audio>
-        <div class="leaderboard-wrapper" id="leaderboard-wrapper" style="display: none;">
-            <div class="leaderboard-box lootbox-leaderboard-box">
-                <div class="leaderboard-head">
-                    <div>
-                        <span class="leaderboard-kicker">Leaderboard</span>
-                        <h3 class="testobianco">Top Lootbox</h3>
-                        <p>Current top rankings.</p>
+                    <div class="lootbox-command-grid">
+                        <div class="lootbox-command-item"><span>Click / Tap</span><strong>Apri pull</strong></div>
+                        <div class="lootbox-command-item"><span>Space</span><strong>Apri pull</strong></div>
+                        <div class="lootbox-command-item"><span>Enter</span><strong>Apri ancora</strong></div>
+                        <div class="lootbox-command-item"><span>Esc</span><strong>Chiudi overlay</strong></div>
                     </div>
+                </section>
 
-                    <button class="leaderboard-close" type="button" onclick="toggleLeaderboard()" aria-label="Close leaderboard">
-                        <i class="fas fa-xmark"></i>
-                    </button>
-                </div>
+                <!-- Probabilità -->
+                <section class="lootbox-settings-section">
+                    <div class="lootbox-section-head">
+                        <i class="fas fa-dice"></i>
+                        <div>
+                            <h6>Probabilità base</h6>
+                            <p>Calcolate server-side. Il pity aumenta la % col tempo.</p>
+                        </div>
+                    </div>
+                    <div class="gacha-rates-grid">
+                        <div class="gacha-rate-row rate-common"><span>Comune</span><strong>51%</strong></div>
+                        <div class="gacha-rate-row rate-rare"><span>Raro</span><strong>28%</strong></div>
+                        <div class="gacha-rate-row rate-epic"><span>Epico</span><strong>13%</strong></div>
+                        <div class="gacha-rate-row rate-legendary"><span>Leggendario</span><strong>5.99%</strong></div>
+                        <div class="gacha-rate-row rate-special"><span>Speciale</span><strong>1.80%</strong></div>
+                        <div class="gacha-rate-row rate-secret"><span>Segreto</span><strong>0.20%</strong></div>
+                        <div class="gacha-rate-row rate-secret"><span>The One</span><strong>0.01%</strong></div>
+                    </div>
+                </section>
 
-                <div class="leaderboard-buttons" role="group" aria-label="Leaderboard filters">
-                    <button class="btn btn-secondary bottone leaderboard-btn active" onclick="switchLeaderboard('casse_aperte')" id="btn-casse">
-                        <i class="fas fa-box-open"></i>
-                        <span>Opened Boxes</span>
-                    </button>
-                    <button class="btn btn-secondary bottone leaderboard-btn" onclick="switchLeaderboard('personaggi_sbloccati')" id="btn-personaggi">
-                        <i class="fas fa-layer-group"></i>
-                        <span>Unlocked Characters</span>
-                    </button>
-                </div>
+                <!-- Sistema pity -->
+                <section class="lootbox-settings-section">
+                    <div class="lootbox-section-head">
+                        <i class="fas fa-chart-line"></i>
+                        <div>
+                            <h6>Sistema Pity</h6>
+                            <p>Il pity evento è condiviso tra tutti i banner evento.</p>
+                        </div>
+                    </div>
+                    <div class="lootbox-command-grid">
+                        <div class="lootbox-command-item"><span>Soft pity std</span><strong>Pull 70</strong></div>
+                        <div class="lootbox-command-item"><span>Hard pity std</span><strong>Pull 90</strong></div>
+                        <div class="lootbox-command-item"><span>Soft pity evt</span><strong>Pull 65</strong></div>
+                        <div class="lootbox-command-item"><span>Hard pity evt</span><strong>Pull 80</strong></div>
+                    </div>
+                </section>
 
-                <div id="leaderboard-data" class="leaderboard-data">
-                    <div class="loading-text testobianco">Loading...</div>
-                </div>
+                <!-- Admin cheats -->
+                <?php if ($isAdmin): ?>
+                <section id="admin-cheats" class="lootbox-settings-section lootbox-admin-section">
+                    <div class="lootbox-section-head">
+                        <i class="fas fa-wand-magic-sparkles"></i>
+                        <div><h6>Admin cheats</h6><p>Force rarità (server-side).</p></div>
+                    </div>
+                    <div class="lootbox-toggle-grid">
+                        <?php
+                        $adminRarities = [
+                            'forza-comune'      => 'Solo Comuni',
+                            'forza-raro'        => 'Solo Rari',
+                            'forza-epico'       => 'Solo Epici',
+                            'forza-leggendario' => 'Solo Leggendari',
+                            'forza-speciale'    => 'Solo Speciali',
+                            'forza-segreto'     => 'Solo Segreti',
+                            'forza-theone'      => 'Solo The One',
+                        ];
+                        foreach ($adminRarities as $id => $label): ?>
+                        <label class="lootbox-toggle-pill" for="<?= $id ?>">
+                            <input class="form-check-input admin-force-rarity" type="checkbox" id="<?= $id ?>" data-rarity="<?= str_replace('forza-', '', $id) ?>" />
+                            <span><?= $label ?></span>
+                        </label>
+                        <?php endforeach; ?>
+                    </div>
+                </section>
+                <?php endif; ?>
+
+                <!-- Codice segreto -->
+                <section class="lootbox-settings-section lootbox-code-section">
+                    <div class="lootbox-section-head">
+                        <i class="fas fa-lock"></i>
+                        <div>
+                            <h6>Codice segreto</h6>
+                            <p>Inserisci un codice valido, se ne hai uno.</p>
+                        </div>
+                    </div>
+                    <div class="lootbox-secret-row">
+                        <label class="visually-hidden" for="codiceSegreto">Codice Segreto</label>
+                        <input type="text" id="codiceSegreto" class="form-control" placeholder="Codice segreto" autocomplete="off" />
+                        <button type="button" class="btn btn-secondary bottone lootbox-modal-btn" data-bs-dismiss="modal" onclick="riscattaCodice()">
+                            Riscatta
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <div class="modal-footer lootbox-settings-footer">
+                <button type="button" class="btn btn-secondary bottone lootbox-modal-btn lootbox-modal-btn--ghost" data-bs-dismiss="modal">
+                    Chiudi
+                </button>
             </div>
         </div>
-        <div id="achievement-popup" class="popup">
-            <img id="popup-image" src="" alt="Achievement" />
+    </div>
+</div>
+
+<!-- Leaderboard (identica all'originale, markup preservato) -->
+<div class="leaderboard-wrapper" id="leaderboard-wrapper" style="display:none">
+    <div class="leaderboard-box lootbox-leaderboard-box">
+        <div class="leaderboard-head">
             <div>
-                <h3 id="popup-title"></h3>
-                <p id="popup-description"></p>
+                <span class="leaderboard-kicker">Classifica</span>
+                <h3 class="testobianco">Top Gacha</h3>
+                <p>Le prime posizioni del momento.</p>
             </div>
+            <button class="leaderboard-close" type="button" id="leaderboard-close-btn" aria-label="Chiudi classifica">
+                <i class="fas fa-xmark"></i>
+            </button>
         </div>
-        <!--<footer class="my-5 pt-5 text-muted text-center text-small fadeup">
-            <p class="mb-1 testobianco">Copyright © 2021-2025 Cripsum™. Tutti i diritti riservati.</p>
-            <ul class="list-inline">
-                <li class="list-inline-item"><a href="it/privacy" class="linkbianco">Privacy</a></li>
-                <li class="list-inline-item"><a href="it/tos" class="linkbianco">Termini</a></li>
-                <li class="list-inline-item"><a href="it/supporto" class="linkbianco">Supporto</a></li>
-            </ul>
-        </footer>-->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-        <script src="../js/unlockAchievement-it.js"></script>
-        <script>
-            const cassa = document.getElementById("cassa");
-            const nomePersonaggio = document.getElementById("nomePersonaggio");
-            const messaggioRarita = document.getElementById("messaggioRarita");
-            const audio = document.getElementById("suonoCassa");
-            const bagliore = document.getElementById("bagliore");
-            const messaggio = document.getElementById("messaggio");
-            const contenuto = document.getElementById("contenuto");
-            const particelleContainer = document.getElementById("particelle");
-            const paginaintera = document.getElementById("paginaintera");
-            const apriAncora = document.getElementById("apriAncora");
-            const apriInventario = document.getElementById("apriInventario");
-            const divApriAncora = document.getElementById("divApriAncora");
-            const wrapper = document.getElementById("bagliore-wrapper");
-
-            const soloSpecialiCheckbox = document.getElementById("SoloSpeciali");
-            const soloPoppyCheckbox = document.getElementById("SoloPoppy");
-            const soloTheOneCheckbox = document.getElementById("SoloTheOne");
-            const soloEpiciCheckbox = document.getElementById("SoloEpici");
-            const soloLeggendariCheckbox = document.getElementById("SoloLeggendari");
-            const soloRariCheckbox = document.getElementById("SoloRari");
-
-            const codiceSegreto = document.getElementById("codiceSegreto");
-
-            var rarityProbabilities = aggiornaRarita();
-            let isProcessing = false;
-
-            var casseAperte;
-            var comuniDiFila;
-            var theOnePulled = false;
-            var secretPulled = false;
-            var specialPulled = false;
-            var nuovoPersonaggio = false;
-            var isopening = false;
-
-            const lootboxState = {
-                phase: "idle",
-                isPullLocked: false,
-                canSkip: false,
-                isNewCharacter: false,
-                isRareLocked: false
-            };
-
-            function resetPullRuntimeState() {
-                theOnePulled = false;
-                secretPulled = false;
-                specialPulled = false;
-                nuovoPersonaggio = false;
-
-                lootboxState.phase = "idle";
-                lootboxState.isPullLocked = false;
-                lootboxState.canSkip = false;
-                lootboxState.isNewCharacter = false;
-                lootboxState.isRareLocked = false;
-            }
-
-            function lockPull(phase = "pulling") {
-                lootboxState.phase = phase;
-                lootboxState.isPullLocked = true;
-                lootboxState.canSkip = false;
-            }
-
-            function syncLootboxStateFromPull() {
-                lootboxState.isNewCharacter = nuovoPersonaggio === true;
-                lootboxState.isRareLocked = theOnePulled === true || secretPulled === true || specialPulled === true;
-                lootboxState.canSkip = !lootboxState.isNewCharacter && !lootboxState.isRareLocked;
-            }
-
-            function isPullBusy() {
-                return lootboxState.isPullLocked || lootboxState.phase !== "idle" || isProcessing === true || isopening === true;
-            }
-
-            function canUseFastOpen() {
-                return lootboxState.canSkip === true &&
-                    lootboxState.isNewCharacter !== true &&
-                    lootboxState.isRareLocked !== true &&
-                    nuovoPersonaggio !== true &&
-                    theOnePulled !== true &&
-                    secretPulled !== true &&
-                    specialPulled !== true &&
-                    (lootboxState.phase === "opening" || lootboxState.phase === "animating");
-            }
-            //|| {
-            //    comune: 45,
-            //    raro: 25,
-            //    epico: 15,
-            //    leggendario: 10,
-            //    mitico: 4,
-            //    speciale: 1,
-            //};
-
-            //TODO aggiungere pagina con la lore dei vari personaggi
-
-            function getRandomRarity() {
-                const totalWeight = Object.values(rarityProbabilities).reduce((sum, weight) => sum + weight, 0);
-                let randomNum = Math.random() * totalWeight;
-
-                for (let [rarity, weight] of Object.entries(rarityProbabilities)) {
-                    if (randomNum < weight) {
-                        return rarity;
-                    }
-                    randomNum -= weight;
-                }
-            }
-
-            function testRandomicity(iterations = 10000) {
-                console.log("🎲 Test randomicità con", iterations, "pull:");
-                console.log("Probabilità teoriche:", rarityProbabilities);
-
-                const results = {};
-                const startTime = performance.now();
-
-                for (let i = 0; i < iterations; i++) {
-                    const rarity = getRandomRarity();
-                    results[rarity] = (results[rarity] || 0) + 1;
-                }
-
-                const endTime = performance.now();
-                console.log(`⏱️ Test completato in ${(endTime - startTime).toFixed(2)}ms`);
-
-                console.log("\n📊 RISULTATI:");
-                for (let [rarity, count] of Object.entries(results)) {
-                    const percentage = ((count / iterations) * 100).toFixed(3);
-                    const expected = rarityProbabilities[rarity];
-                    const difference = Math.abs(percentage - expected).toFixed(3);
-                    const status = difference < 1 ? "✅" : difference < 2 ? "⚠️" : "❌";
-
-                    console.log(`${status} ${rarity}: ${count} (${percentage}%) - Atteso: ${expected}% - Diff: ${difference}%`);
-                }
-
-                return results;
-            }
-
-
-
-            function createStars() {
-                const starsContainer = document.getElementById('stars');
-                for (let i = 0; i < 100; i++) {
-                    const star = document.createElement('div');
-                    star.className = 'star';
-                    star.style.left = Math.random() * 100 + '%';
-                    star.style.top = Math.random() * 100 + '%';
-                    star.style.animationDelay = Math.random() * 4 + 's';
-                    starsContainer.appendChild(star);
-                }
-            }
-
-            function getCookie(name) {
-                const cookies = document.cookie.split("; ");
-                for (let cookie of cookies) {
-                    let [key, value] = cookie.split("=");
-                    if (key === name) return JSON.parse(value);
-                }
-                return null;
-            }
-
-            function setCookie(name, value) {
-                document.cookie = `${name}=${JSON.stringify(value)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
-            }
-
-            /**function addToInventory(character) {
-                let inventory = JSON.parse(localStorage.getItem("inventory")) || [];
-
-                let characterFound = inventory.find((p) => p.name === character.name);
-
-                if (!characterFound) {
-                    inventory.push({ ...character, count: 1 });
-                    testoNuovo();
-                } else {
-                    characterFound.count++;
-                }
-
-                localStorage.setItem("inventory", JSON.stringify(inventory));
-            }
-
-
-
-            function getInventory() {
-                return JSON.parse(localStorage.getItem("inventory")) || [];
-            }*/
-
-            async function addToInventory(character) {
-                const response = await fetch(`https://cripsum.com/api/add_character_to_inventory?character_id=${character.id}`);
-                const data = await response.json();
-
-                if (data.status === 'success') {
-                    let inventory = JSON.parse(localStorage.getItem("inventory")) || [];
-                    let characterFound = inventory.find((p) => p.nome === character.nome);
-
-                    if (!characterFound) {
-                        inventory.push({
-                            ...character,
-                            count: 1
-                        });
-                        testoNuovo();
-                        nuovoPersonaggio = true;
-                    } else {
-                        characterFound.count++;
-                        nuovoPersonaggio = false;
-                    }
-
-                    localStorage.setItem("inventory", JSON.stringify(inventory));
-                } else {
-                    alert(data.message);
-                }
-            }
-
-            async function getInventory() {
-                const response = await fetch('https://cripsum.com/api/api_get_inventario');
-                const data = await response.json();
-
-                localStorage.setItem("inventory", JSON.stringify(data));
-                return data;
-            }
-
-            async function resettaInventario() {
-                if (!confirm("Sei sicuro di voler resettare l'inventario? Tutti i personaggi saranno persi!")) {
-                    return;
-                }
-
-                const response = await fetch('https://cripsum.com/api/delete_inventory', {
-                    method: 'DELETE',
-                });
-
-                const data = await response.json();
-                if (data.status === 'success') {
-                    localStorage.setItem("inventory", JSON.stringify([]));
-                    setCookie("casseAperte", 0);
-                    setCookie("comuniDiFila", 0);
-                    setCookie("preferences", {});
-                    setLastCharacterFound("");
-                    localStorage.clear();
-                    alert("Inventario resettato con successo!");
-                    location.reload();
-                } else {
-                    alert(data.message);
-                }
-            }
-
-            async function getAllCharacters() {
-                const response = await fetch('https://cripsum.com/api/get_all_characters');
-                const data = await response.json();
-                return data;
-            }
-
-            async function getCharacterNumber() {
-                const response = await fetch('https://cripsum.com/api/api_get_characters_num');
-                const data = await response.json();
-                return data;
-            }
-
-            async function getRandomPull() {
-                const allCharacters = await getAllCharacters();
-                const selectedRarity = getRandomRarity();
-                const filteredRarities = allCharacters.filter((item) => item.rarità === selectedRarity);
-                return filteredRarities[Math.floor(Math.random() * filteredRarities.length)];
-            }
-
-            function salvaPreferenze() {
-                const preferences = {};
-                const checkboxes = document.querySelectorAll(".checco");
-                checkboxes.forEach((checkbox) => {
-                    preferences[checkbox.id] = checkbox.checked;
-                });
-                document.cookie = `preferences=${JSON.stringify(preferences)}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
-
-                rarityProbabilities = aggiornaRarita();
-            }
-
-            document.addEventListener("DOMContentLoaded", () => {
-                const preferences = getCookie("preferences");
-
-                if (preferences) {
-                    const checkboxes = document.querySelectorAll(".checco");
-                    checkboxes.forEach((checkbox) => {
-                        checkbox.checked = preferences[checkbox.id];
-                    });
-                }
-                rarityProbabilities = aggiornaRarita();
-            });
-
-            function aggiornaRarita() {
-                const preferences = getCookie("preferences");
-
-                if (preferences) {
-                    if (preferences.SoloSpeciali === true) {
-                        return (rarityProbabilities = {
-                            comune: 0,
-                            raro: 0,
-                            epico: 0,
-                            leggendario: 0,
-                            speciale: 100,
-                            segreto: 0,
-                            theone: 0,
-                        });
-                    } else if (preferences.SoloSegreti === true) {
-                        return (rarityProbabilities = {
-                            comune: 0,
-                            raro: 0,
-                            epico: 0,
-                            leggendario: 0,
-                            speciale: 0,
-                            segreto: 100,
-                            theone: 0,
-                        });
-                    } else if (preferences.SoloComuni === true) {
-                        return (rarityProbabilities = {
-                            comune: 100,
-                            raro: 0,
-                            epico: 0,
-                            leggendario: 0,
-                            speciale: 0,
-                            segreto: 0,
-                            theone: 0,
-                        });
-                    } else if (preferences.SoloTheOne === true) {
-                        return (rarityProbabilities = {
-                            comune: 0,
-                            raro: 0,
-                            epico: 0,
-                            leggendario: 0,
-                            speciale: 0,
-                            segreto: 0,
-                            theone: 100,
-                        });
-                    } else if (preferences.SoloEpici === true) {
-                        return (rarityProbabilities = {
-                            comune: 0,
-                            raro: 0,
-                            epico: 100,
-                            leggendario: 0,
-                            speciale: 0,
-                            segreto: 0,
-                            theone: 0,
-                        });
-                    } else if (preferences.SoloLeggendari === true) {
-                        return (rarityProbabilities = {
-                            comune: 0,
-                            raro: 0,
-                            epico: 0,
-                            leggendario: 100,
-                            speciale: 0,
-                            segreto: 0,
-                            theone: 0,
-                        });
-                    } else if (preferences.SoloRari === true) {
-                        return (rarityProbabilities = {
-                            comune: 0,
-                            raro: 100,
-                            epico: 0,
-                            leggendario: 0,
-                            speciale: 0,
-                            segreto: 0,
-                            theone: 0,
-                        });
-                    } else {
-                        return (rarityProbabilities = {
-                            comune: 51,
-                            raro: 28,
-                            epico: 13,
-                            leggendario: 5.99,
-                            speciale: 1.8,
-                            segreto: 0.2,
-                            theone: 0.01,
-                        });
-                    }
-                }
-                // return (rarityProbabilities = {
-                //     comune: 52,
-                //     raro: 28,
-                //     epico: 13,
-                //     leggendario: 5.995,
-                //     speciale: 0.9,
-                //     segreto: 0.1,
-                //     theone: 0.005,
-                // });
-                return (rarityProbabilities = {
-                    comune: 51,
-                    raro: 28,
-                    epico: 13,
-                    leggendario: 5.99,
-                    speciale: 1.8,
-                    segreto: 0.2,
-                    theone: 0.01,
-                });
-            }
-
-            async function getAllPossiblePulls() {
-                const response = await fetch('https://cripsum.com/api/get_all_characters');
-                const data = await response.json();
-                return data;
-            }
-
-            function getRarità() {
-                rarityProbabilities = aggiornaRarita();
-                return rarityProbabilities;
-            }
-
-            async function filtroPull() {
-                const preferences = getCookie("preferences");
-
-                if (preferences) {
-                    if (preferences.SoloPoppy === true) {
-                        while (true) {
-                            const pull = await getRandomPull();
-                            if (pull.categoria === "poppy") {
-                                return pull;
-                            }
-                        }
-                    }
-                    // if (preferences.RimuoviAnime === true) {
-                    //     while (true) {
-                    //         const pull = await getRandomPull();
-                    //         if (pull.categoria !== "anime") {
-                    //             return pull;
-                    //         }
-                    //     }
-                    // }
-                }
-                return await getRandomPull();
-            }
-
-
-            function escapeHtml(value) {
-                return String(value ?? "")
-                    .replaceAll("&", "&amp;")
-                    .replaceAll("<", "&lt;")
-                    .replaceAll(">", "&gt;")
-                    .replaceAll('"', "&quot;")
-                    .replaceAll("'", "&#039;");
-            }
-
-            function safeImageFile(value) {
-                const cleaned = String(value || "Susremaster.png").replace(/[<>"']/g, "").trim();
-                return cleaned || "Susremaster.png";
-            }
-
-            function normalizeRarityClass(rarity) {
-                return String(rarity || "comune")
-                    .toLowerCase()
-                    .normalize("NFD")
-                    .replace(/[\u0300-\u036f]/g, "")
-                    .replace(/[\s_-]+/g, "");
-            }
-
-            function applyLootboxRarityVisual(rarity) {
-                const normalized = normalizeRarityClass(rarity);
-                const rarityClasses = [
-                    "lootbox-rarity-comune",
-                    "lootbox-rarity-raro",
-                    "lootbox-rarity-epico",
-                    "lootbox-rarity-leggendario",
-                    "lootbox-rarity-speciale",
-                    "lootbox-rarity-segreto",
-                    "lootbox-rarity-theone"
-                ];
-
-                document.body.classList.remove(...rarityClasses);
-                document.body.classList.add(`lootbox-rarity-${normalized}`);
-
-                const colors = {
-                    comune: "#d1d5db",
-                    raro: "#38bdf8",
-                    epico: "#c084fc",
-                    leggendario: "#fbbf24",
-                    speciale: "#ffffff",
-                    segreto: "#a855f7",
-                    theone: "#38bdf8"
-                };
-
-                document.documentElement.style.setProperty("--lootbox-particle-color", colors[normalized] || "#ffffff");
-            }
-
-            function setLootboxState(state) {
-                document.body.classList.remove("is-opening", "is-revealed", "is-fast-open");
-                if (state) {
-                    document.body.classList.add(state);
-                }
-            }
-
-
-            async function pullaPersonaggio() {
-
-                if (isProcessing || (lootboxState.isPullLocked === true && lootboxState.phase !== "pulling")) {
-                    return null;
-                }
-
-                isProcessing = true;
-
-                try {
-                    const pull = await filtroPull();
-
-                    const safeName = escapeHtml(pull.nome || "Personaggio");
-                    const safeImg = safeImageFile(pull.img_url);
-
-                    document.getElementById("contenuto").innerHTML = `
-                        <div class="lootbox-character-reveal">
-                            <div class="lootbox-prize-wrap lootbox-reward-frame">
-                                <img src="/img/${safeImg}" alt="${safeName}" class="premio" onerror="this.onerror=null;this.src='/img/Susremaster.png';" draggable="false" />
-                            </div>
-                            <p id="nomePersonaggio" class="lootbox-character-name">${safeName}</p>
-                        </div>
-                    `;
-
-                    await addToInventory(pull);
-
-                    if (typeof setLastCharacterFound === 'function') {
-                        setLastCharacterFound(pull.nome);
-                    }
-
-                    const rarita = pull.rarità;
-                    applyLootboxRarityVisual(rarita);
-                    setComuniDiFila(rarita);
-
-                    if (rarita === "comune") {
-                        messaggioRarita.innerText = "Nice one bro, you pulled a common character, skill issue xd";
-                        bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
-                    } else if (rarita === "leggendario") {
-                        messaggioRarita.innerText = "So lucky! You pulled a legendary character!";
-                        bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-                    } else if (rarita === "epico") {
-                        messaggioRarita.innerText = "You pulled an epic character, not bad, but it could've been better.";
-                        bagliore.style.background = "radial-gradient(circle, rgba(195, 0, 235, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-                    } else if (rarita === "raro") {
-                        if (pull.nome === "JOB APPLICATION") {
-                            messaggioRarita.innerText = "BOO! DID I SCARE YOU? I'M A JOB APPLICATION! GET A JOB NOW!";
-                        } else {
-                            messaggioRarita.innerText = "Good job, you pulled a rare character!";
-                        }
-                        bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-                    } else if (rarita === "speciale") {
-
-                        specialPulled = true;
-                        messaggioRarita.innerText = "HOW IS THIS POSSIBLE? YOU PULLED A SPECIAL CHARACTER!";
-
-                        bagliore.style.position = "fixed";
-                        bagliore.style.width = "max(165vw, 165vh)";
-                        bagliore.style.height = "max(165vw, 165vh)";
-                        bagliore.style.zIndex = "1";
-
-                        bagliore.style.background = "linear-gradient(90deg, #ff004c 0%, #ff7a00 7%, #fff300 14%, #35ff00 21%, #00ffd5 28%, #0077ff 35%, #7a00ff 42%, #ff00d4 49%, #ff004c 50%, #ff7a00 57%, #fff300 64%, #35ff00 71%, #00ffd5 78%, #0077ff 85%, #7a00ff 92%, #ff00d4 99%, #ff004c 100%)";
-                        bagliore.style.backgroundSize = "200% 100%";
-                        bagliore.style.borderRadius = "50%";
-                        bagliore.style.opacity = "0.72";
-                        bagliore.style.mixBlendMode = "screen";
-                        bagliore.style.animation = "specialRainbowPan 8s linear infinite";
-                    } else if (rarita === "segreto") {
-
-                        secretPulled = true;
-                        startIntroAnimation(pull.nome);
-                        messaggioRarita.innerText = "WHAT? YOU PULLED A SECRET CHARACTER? aura.";
-                        bagliore.style.position = "fixed";
-                        bagliore.style.width = "max(165vw, 165vh)";
-                        bagliore.style.height = "max(165vw, 165vh)";
-                        bagliore.style.zIndex = "1";
-
-                    } else if (rarita === "theone") {
-
-                        theOnePulled = true;
-                        startTheOneAnimation(pull.nome);
-                        messaggioRarita.innerText = "INCREDIBLE! YOU PULLED THE RAREST CHARACTER OF ALL!!!";
-                        bagliore.style.position = "fixed";
-                        bagliore.style.width = "max(165vw, 165vh)";
-                        bagliore.style.height = "max(165vw, 165vh)";
-                        bagliore.style.zIndex = "1";
-
-                    }
-
-                    document.getElementById("suonoCassa").innerHTML = `
-                        <source src="/audio/${pull.audio_url}" type="audio/mpeg" id="suono" />
-                    `;
-
-                    syncLootboxStateFromPull();
-                    return pull;
-
-                } catch (error) {
-                    console.error('Errore nel pull del personaggio:', error);
-                    messaggioRarita.innerText = "Error occurred while pulling character.";
-                    return null;
-                } finally {
-                    setTimeout(() => {
-                        isProcessing = false;
-                    }, 1000);
-                }
-            }
-
-            async function riscattaPersonaggio(nomePersonaggio) {
-
-                if (isProcessing) {
-                    return;
-                }
-
-                isProcessing = true;
-
-                try {
-                    const pull = await getCharacter(nomePersonaggio);
-
-                    const safeName = escapeHtml(pull.nome || "Personaggio");
-                    const safeImg = safeImageFile(pull.img_url);
-
-                    document.getElementById("contenuto").innerHTML = `
-                        <div class="lootbox-character-reveal">
-                            <div class="lootbox-prize-wrap lootbox-reward-frame">
-                                <img src="/img/${safeImg}" alt="${safeName}" class="premio" onerror="this.onerror=null;this.src='/img/Susremaster.png';" draggable="false" />
-                            </div>
-                            <p id="nomePersonaggio" class="lootbox-character-name">${safeName}</p>
-                        </div>
-                    `;
-
-                    await addToInventory(pull);
-
-
-
-                    if (typeof setLastCharacterFound === 'function') {
-                        setLastCharacterFound(pull.nome);
-                    }
-
-                    const rarita = pull.rarità;
-                    applyLootboxRarityVisual(rarita);
-                    setComuniDiFila(rarita);
-
-                    if (rarita === "comune") {
-                        messaggioRarita.innerText = "Nice one bro, you pulled a common character, skill issue xd";
-                        bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
-                    } else if (rarita === "leggendario") {
-                        messaggioRarita.innerText = "So lucky! You pulled a legendary character!";
-                        bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-                    } else if (rarita === "epico") {
-                        messaggioRarita.innerText = "You pulled an epic character, not bad, but it could've been better.";
-                        bagliore.style.background = "radial-gradient(circle, rgba(195, 0, 235, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-                    } else if (rarita === "raro") {
-                        if (pull.nome === "JOB APPLICATION") {
-                            messaggioRarita.innerText = "BOO! DID I SCARE YOU? I'M A JOB APPLICATION! GET A JOB NOW!";
-                        } else {
-                            messaggioRarita.innerText = "Good job, you pulled a rare character!";
-                        }
-                        bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-                    } else if (rarita === "speciale") {
-                        messaggioRarita.innerText = "HOW IS THIS POSSIBLE? YOU PULLED A SPECIAL CHARACTER!";
-                        bagliore.style.position = "fixed";
-                        bagliore.style.width = "max(165vw, 165vh)";
-                        bagliore.style.height = "max(165vw, 165vh)";
-                        bagliore.style.zIndex = "1";
-
-                        bagliore.style.background = "linear-gradient(90deg, #ff004c 0%, #ff7a00 7%, #fff300 14%, #35ff00 21%, #00ffd5 28%, #0077ff 35%, #7a00ff 42%, #ff00d4 49%, #ff004c 50%, #ff7a00 57%, #fff300 64%, #35ff00 71%, #00ffd5 78%, #0077ff 85%, #7a00ff 92%, #ff00d4 99%, #ff004c 100%)";
-                        bagliore.style.backgroundSize = "200% 100%";
-                        bagliore.style.borderRadius = "50%";
-                        bagliore.style.opacity = "0.72";
-                        bagliore.style.mixBlendMode = "screen";
-                        bagliore.style.animation = "specialRainbowPan 8s linear infinite";
-                    } else if (rarita === "segreto") {
-                        startIntroAnimation(pull.nome);
-
-                        messaggioRarita.innerText = "WHAT? YOU PULLED A SECRET CHARACTER? aura.";
-                        bagliore.style.position = "fixed";
-                        bagliore.style.width = "max(165vw, 165vh)";
-                        bagliore.style.height = "max(165vw, 165vh)";
-                        bagliore.style.zIndex = "1";
-
-                    } else if (rarita === "theone") {
-
-                        theOnePulled = true;
-                        startTheOneAnimation(pull.nome);
-                        messaggioRarita.innerText = "INCREDIBLE! YOU PULLED THE RAREST CHARACTER OF ALL!!!";
-                        bagliore.style.position = "fixed";
-                        bagliore.style.width = "max(165vw, 165vh)";
-                        bagliore.style.height = "max(165vw, 165vh)";
-                        bagliore.style.zIndex = "1";
-
-                    }
-                    document.getElementById("suonoCassa").innerHTML = `
-                        <source src="/audio/${pull.audio_url}" type="audio/mpeg" id="suono" />
-                    `;
-
-                } catch (error) {
-                    console.error('Errore nel pull del personaggio:', error);
-                    messaggioRarita.innerText = "Errore durante l'apertura della cassa. Riprova.";
-                } finally {
-                    setTimeout(() => {
-                        isProcessing = false;
-                    }, 1000);
-                }
-            }
-
-            async function startLootboxPull(openMode = "normal") {
-                if (isPullBusy()) {
-                    return false;
-                }
-
-                resetPullRuntimeState();
-                lockPull("pulling");
-
-                const pull = await pullaPersonaggio();
-
-                if (!pull) {
-                    resetPullRuntimeState();
-                    return false;
-                }
-
-                syncLootboxStateFromPull();
-                lootboxState.phase = "opening";
-
-                if (openMode === "fast" && lootboxState.canSkip === true) {
-                    await apriRapidaDaTastiera();
-                } else {
-                    await apriNormale();
-                }
-
-                return true;
-            }
-
-            function handleChestClick(evt) {
-                const clickEvent = evt || window.event;
-
-                if (clickEvent && typeof clickEvent.preventDefault === "function") {
-                    clickEvent.preventDefault();
-                }
-
-                startLootboxPull("normal");
-            }
-
-            async function apriRapidaDaTastiera() {
-                if (lootboxState.isNewCharacter === true || lootboxState.isRareLocked === true || nuovoPersonaggio === true) {
-                    await apriNormale();
-                    return;
-                }
-
-                lootboxState.phase = "opening";
-                lootboxState.canSkip = false;
-                setLootboxState("is-fast-open");
-
-                cassa.onclick = null;
-                cassa.style.pointerEvents = "none";
-
-                bagliore.style.opacity = 0.6;
-                bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
-
-                if (typeof audio.load === "function") {
-                    audio.load();
-                }
-
-                audio.currentTime = 0;
-                audio.play().catch(() => {});
-
-                generaParticelle();
-                await apriCassa();
-                apriVeloce(true);
-            }
-
-            document.addEventListener("DOMContentLoaded", function() {
-                document.addEventListener("keydown", function(event) {
-                    if (event.code !== "Space") {
-                        return;
-                    }
-
-                    event.preventDefault();
-
-                    if (event.repeat || isPullBusy()) {
-                        return;
-                    }
-
-                    startLootboxPull("fast");
-                });
-
-                document.addEventListener("keydown", function(event) {
-                    if (event.code !== "Enter") {
-                        return;
-                    }
-
-                    if (lootboxState.phase !== "revealed") {
-                        return;
-                    }
-
-                    if (lootboxState.isNewCharacter === true || lootboxState.isRareLocked === true) {
-                        return;
-                    }
-
-                    event.preventDefault();
-                    refresh();
-                });
-            });
-
-
-
-            async function riscattaCodice() {
-                if (codiceSegreto.value === "signortoki") {
-                    const inventory = await getInventory();
-                    if (inventory.find((p) => p.nome === "TOKI")) {
-                        alert("The code has already been redeemed or Toki is already in your inventory!");
-                        return;
-                    }
-                    let pullRiscattata = await getCharacter("TOKI");
-                    await riscattaPersonaggio("TOKI");
-                    apriNormale();
-                } else if (codiceSegreto.value === "cripsum") {
-                    const inventory = await getInventory();
-                    if (inventory.find((p) => p.nome === "CRIPSUM")) {
-                        alert("The code has already been redeemed or Cripsum is already in your inventory!");
-                        return;
-                    }
-                    let pullRiscattata = await getCharacter("CRIPSUM");
-                    await riscattaPersonaggio("CRIPSUM");
-                    apriNormale();
-                } else if (codiceSegreto.value === "peak") {
-                    const inventory = await getInventory();
-                    if (inventory.find((p) => p.nome === "MAOMAO")) {
-                        alert("The code has already been redeemed or Maomao is already in your inventory!");
-                        return;
-                    }
-                    let pullRiscattata = await getCharacter("MAOMAO");
-                    await riscattaPersonaggio("MAOMAO");
-                    apriNormale();
-                } else {
-                    alert("Invalid code, skill issue!");
-                }
-            }
-
-            async function getCharacter(nomePersonaggio) {
-                const response = await fetch('https://cripsum.com/api/get_character_from_nome?nomePersonaggio=' + encodeURIComponent(nomePersonaggio));
-                const data = await response.json();
-                return data;
-            }
-
-            async function apriCassa() {
-                const casseAperteResponse = await fetch('https://cripsum.com/api/get_casse_aperte');
-                const casseAperteData = await casseAperteResponse.json();
-                const casseAperte = await casseAperteData.total;
-                const inventory = await getInventory();
-                comuniDiFila = getCookie("comuniDiFila") || 0;
-
-                unlockAchievement(5);
-
-                if (comuniDiFila === 10) {
-                    unlockAchievement(9);
-                }
-
-                if (casseAperte >= 100) {
-                    unlockAchievement(8);
-                }
-                if (casseAperte >= 500) {
-                    unlockAchievement(16);
-                }
-                if (inventory.length === 134) {
-                    unlockAchievement(18);
-                }
-            }
-
-            async function apriNormale() {
-                if (isopening) {
-                    return;
-                }
-
-                isopening = true;
-                syncLootboxStateFromPull();
-                lootboxState.phase = "opening";
-                lootboxState.canSkip = lootboxState.isNewCharacter !== true && lootboxState.isRareLocked !== true;
-
-                setLootboxState("is-opening");
-                cassa.onclick = null;
-                await apriCassa();
-
-                generaParticelle();
-
-                bagliore.style.opacity = 0.6;
-                bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
-
-                if (typeof audio.load === "function") {
-                    audio.load();
-                }
-
-                audio.currentTime = 0;
-                audio.play().catch(() => {});
-
-                cassa.classList.remove("aperta", "dissolvi", "is-opening-chest");
-                void cassa.offsetWidth;
-                cassa.classList.add("is-opening-chest");
-
-                setTimeout(() => {
-                    cassa.src = "../img/cassa_aperta.png";
-                }, 420);
-
-                setTimeout(() => {
-                    lootboxState.phase = "animating";
-                    cassa.classList.add("aperta");
-                }, 1700);
-
-                setTimeout(() => {
-                    lootboxState.phase = "revealed";
-                    lootboxState.canSkip = false;
-                    setLootboxState("is-revealed");
-                    contenuto.classList.add("salto");
-                    messaggio.classList.add("salto");
-                    cassa.classList.add("dissolvi");
-                }, 2100);
-
-                setTimeout(() => {
-                    divApriAncora.classList.remove("nascosto");
-                    divApriAncora.classList.add("salto");
-                }, 3100);
-
-                //audio.onended = () => {
-                //    setTimeout(refresh, 500);
-                //};
-            }
-
-
-            function testoNuovo() {
-                document.querySelectorAll(".new-label").forEach((label) => label.remove());
-
-                const image = contenuto.querySelector(".premio");
-                if (!image) return;
-
-                let prizeWrap =
-                    image.closest(".lootbox-prize-wrap") ||
-                    image.closest(".lootbox-reward-frame");
-
-                if (!prizeWrap) {
-                    prizeWrap = document.createElement("div");
-                    prizeWrap.className = "lootbox-prize-wrap lootbox-reward-frame";
-                    image.parentNode.insertBefore(prizeWrap, image);
-                    prizeWrap.appendChild(image);
-                }
-
-                prizeWrap.classList.add("lootbox-prize-wrap", "lootbox-reward-frame");
-
-                const newLabel = document.createElement("span");
-                newLabel.className = "new-label";
-                newLabel.textContent = "NEW!";
-                prizeWrap.appendChild(newLabel);
-            }
-
-            function controlloApriVeloce(evt) {
-                const clickEvent = evt || window.event;
-
-                if (clickEvent && typeof clickEvent.preventDefault === "function") {
-                    clickEvent.preventDefault();
-                }
-
-                if (!canUseFastOpen()) {
-                    return;
-                }
-
-                apriVeloce(true);
-            }
-
-            function handleDoubleClick(evt) {
-                const clickEvent = evt || window.event;
-
-                if (clickEvent && typeof clickEvent.preventDefault === "function") {
-                    clickEvent.preventDefault();
-                }
-
-                if (!canUseFastOpen()) {
-                    return;
-                }
-
-                controlloApriVeloce(clickEvent);
-            }
-
-            function apriVeloce(force = false) {
-                if (force !== true && !canUseFastOpen()) {
-                    return;
-                }
-
-                lootboxState.phase = "revealed";
-                lootboxState.canSkip = false;
-                setLootboxState("is-fast-open");
-                contenuto.classList.add("salto");
-                messaggio.classList.add("salto");
-                cassa.classList.add("dissolvi");
-
-                divApriAncora.classList.remove("nascosto");
-                divApriAncora.classList.add("salto");
-
-                cassa.onclick = null;
-                cassa.style.pointerEvents = "none";
-
-                //audio.onended = () => {
-                //    setTimeout(refresh, 500);
-                //};
-            }
-
-
-            function generaParticelle() {
-                const container = document.getElementById("particelle");
-                const cassa = document.getElementById("cassa");
-                const rect = cassa.getBoundingClientRect();
-
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-
-                for (let i = 0; i < 100; i++) {
-                    const particella = document.createElement("div");
-                    particella.classList.add("particella", "particella--spark");
-
-                    particella.style.left = `${centerX}px`;
-                    particella.style.top = `${centerY}px`;
-
-                    const angle = Math.random() * 2 * Math.PI;
-                    const distance = Math.random() * 200 + 50;
-                    const x = Math.cos(angle) * distance;
-                    const y = Math.sin(angle) * distance;
-
-                    particella.style.setProperty("--x", `${x}px`);
-                    particella.style.setProperty("--y", `${y}px`);
-                    particella.style.setProperty("--dur", `${1100 + Math.random() * 900}ms`);
-
-                    container.appendChild(particella);
-
-                    setTimeout(() => particella.remove(), 2000);
-                }
-            }
-
-            function refresh() {
-                location.reload();
-            }
-
-            function setComuniDiFila(rarita) {
-                comuniDiFila = getCookie("comuniDiFila") || 0;
-                if (rarita === "comune") {
-                    comuniDiFila++;
-                    setCookie("comuniDiFila", comuniDiFila);
-                } else {
-                    setCookie("comuniDiFila", 0);
-                }
-            }
-
-            function getComuniDiFila(rarita) {
-                tempComuniDiFila = getCookie("comuniDiFila") || 0;
-                if (rarita === "comune") {
-                    tempComuniDiFila++;
-                    setCookie("comuniDiFila", tempComuniDiFila);
-                    return tempComuniDiFila;
-                } else {
-                    setCookie("comuniDiFila", 0);
-                    return tempComuniDiFila;
-                }
-            }
-
-            function startIntroAnimation(nome_personaggio) {
-
-                const introOverlay = document.createElement('div');
-                introOverlay.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100vw;
-                    height: 100vh;
-                    background: #000;
-                    z-index: 10000;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    overflow: hidden;
-                    opacity: 0;
-                    transition: opacity 0.8s ease-in-out;
-                `;
-
-                const purpleContainer = document.createElement('div');
-                purpleContainer.style.cssText = `
-                    position: relative;
-                    width: 100%;
-                    height: 100%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    opacity: 0;
-                    transform: scale(0.8);
-                    transition: opacity 1s ease-out 0.3s, transform 1s ease-out 0.3s;
-                `;
-
-                const purpleCircle = document.createElement('div');
-                purpleCircle.style.cssText = `
-                    width: 300px;
-                    height: 300px;
-                    border-radius: 50%;
-                    background: radial-gradient(circle, rgba(147, 0, 211, 1) 0%, rgba(75, 0, 130, 0.9) 30%, rgba(138, 43, 226, 0.7) 60%, transparent 100%);
-                    animation: epicPulse 2s ease-in-out infinite;
-                    box-shadow: 0 0 50px rgba(147, 0, 211, 0.8), 0 0 100px rgba(75, 0, 130, 0.6), inset 0 0 30px rgba(138, 43, 226, 0.4);
-                    filter: brightness(1.2) saturate(1.3);
-                    opacity: 0;
-                    transform: scale(0.5);
-                    animation-delay: 0.8s;
-                    transition: opacity 0.8s ease-out 0.8s, transform 0.8s ease-out 0.8s;
-                `;
-
-                for (let ring = 0; ring < 3; ring++) {
-                    const energyRing = document.createElement('div');
-                    energyRing.style.cssText = `
-                        position: absolute;
-                        width: ${250 + ring * 80}px;
-                        height: ${250 + ring * 80}px;
-                        border-radius: 50%;
-                        border: 2px solid rgba(147, 0, 211, ${0.6 - ring * 0.2});
-                        animation: expandingRing 3s ease-out infinite ${ring * 0.5}s;
-                        left: 50%;
-                        top: 50%;
-                        transform: translate(-50%, -50%);
-                        opacity: 0;
-                        transition: opacity 0.6s ease-out ${1.2 + ring * 0.2}s;
-                    `;
-                    purpleContainer.appendChild(energyRing);
-                }
-
-                for (let i = 0; i < 8; i++) {
-                    const lightning = document.createElement('div');
-                    lightning.style.cssText = `
-                        position: absolute;
-                        width: 2px;
-                        height: ${100 + Math.random() * 60}px;
-                        background: linear-gradient(to bottom, 
-                            rgba(255, 255, 255, 1) 0%,
-                            rgba(147, 0, 211, 0.9) 20%,
-                            rgba(138, 43, 226, 0.7) 60%,
-                            transparent 100%
-                        );
-                        left: 50%;
-                        top: 50%;
-                        transform-origin: 50% 100%;
-                        transform: translate(-50%, -50%) rotate(${i * 45}deg);
-                        box-shadow: 0 0 8px rgba(255, 255, 255, 0.8), 0 0 16px rgba(147, 0, 211, 0.6);
-                        border-radius: 1px;
-                        opacity: 0;
-                        animation: cleanLightning 1.5s ease-in-out ${1.2 + i * 0.1}s infinite;
-                    `;
-                    purpleContainer.appendChild(lightning);
-                }
-
-                for (let p = 0; p < 12; p++) {
-                    const particle = document.createElement('div');
-                    particle.style.cssText = `
-                        position: absolute;
-                        width: ${3 + Math.random() * 4}px;
-                        height: ${3 + Math.random() * 4}px;
-                        border-radius: 50%;
-                        background: radial-gradient(circle, rgba(255, 255, 255, 0.9), rgba(147, 0, 211, 0.8));
-                        left: ${35 + Math.random() * 30}%;
-                        top: ${35 + Math.random() * 30}%;
-                        box-shadow: 0 0 6px rgba(147, 0, 211, 0.8);
-                        opacity: 0;
-                        animation: floatingParticles 3s ease-in-out infinite ${Math.random() * 2 + 1.5}s;
-                    `;
-                    purpleContainer.appendChild(particle);
-                }
-
-                const enhancedStyle = document.createElement('style');
-                enhancedStyle.textContent = `
-                    @keyframes epicPulse {
-                        0%, 100% { 
-                            transform: scale(1); 
-                            opacity: 0.8; 
-                            filter: brightness(1.2) saturate(1.3);
-                        }
-                        50% { 
-                            transform: scale(1.1); 
-                            opacity: 1; 
-                            filter: brightness(1.5) saturate(1.6);
-                        }
-                    }
-                    @keyframes expandingRing {
-                        0% { 
-                            transform: translate(-50%, -50%) scale(0.5); 
-                            opacity: 0.6; 
-                        }
-                        100% { 
-                            transform: translate(-50%, -50%) scale(2); 
-                            opacity: 0; 
-                        }
-                    }
-                    @keyframes cleanLightning {
-                        0% { 
-                            opacity: 0; 
-                            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scaleY(0);
-                        }
-                        20% { 
-                            opacity: 0.8; 
-                            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scaleY(0.7);
-                        }
-                        40% { 
-                            opacity: 1; 
-                            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scaleY(1);
-                        }
-                        60% { 
-                            opacity: 0.6; 
-                            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scaleY(0.8);
-                        }
-                        100% { 
-                            opacity: 0; 
-                            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scaleY(0.3);
-                        }
-                    }
-                    @keyframes floatingParticles {
-                        0%, 100% { 
-                            transform: translateY(0px) scale(1); 
-                            opacity: 0.6; 
-                        }
-                        25% { 
-                            transform: translateY(-15px) scale(1.1); 
-                            opacity: 0.9; 
-                        }
-                        50% { 
-                            transform: translateY(-25px) scale(1.2); 
-                            opacity: 1; 
-                        }
-                        75% { 
-                            transform: translateY(-10px) scale(0.9); 
-                            opacity: 0.7; 
-                        }
-                    }
-                `;
-                document.head.appendChild(enhancedStyle);
-
-                const mysteriousText = document.createElement('div');
-                mysteriousText.style.cssText = `
-                    position: absolute;
-                    color:rgb(255, 255, 255);
-                    font-size: 10rem;
-                    font-weight: bold;
-                    text-shadow: 0 0 20px #9932cc, 0 0 40px #4b0082;
-                    opacity: 0;
-                    transform: scale(0.3);
-                    transition: opacity 1s ease-out 1s, transform 1s ease-out 2.5s;
-                `;
-                mysteriousText.textContent = 'オーラシグマゴド';
-
-                const style = document.createElement('style');
-                style.textContent = `
-                    @keyframes textReveal {
-                        0% { opacity: 0; transform: scale(0.5); }
-                        50% { opacity: 1; transform: scale(1.2); }
-                        100% { opacity: 1; transform: scale(1); }
-                    }
-                    @keyframes fadeOut {
-                        to { opacity: 0; transform: scale(0.9); }
-                    }
-                `;
-
-                document.head.appendChild(style);
-                purpleContainer.appendChild(purpleCircle);
-                purpleContainer.appendChild(mysteriousText);
-                introOverlay.appendChild(purpleContainer);
-                document.body.appendChild(introOverlay);
-
-                setTimeout(() => {
-                    introOverlay.style.opacity = '1';
-                    purpleContainer.style.opacity = '1';
-                    purpleContainer.style.transform = 'scale(1)';
-
-                    setTimeout(() => {
-                        purpleCircle.style.opacity = '1';
-                        purpleCircle.style.transform = 'scale(1)';
-                    }, 300);
-
-                    const rings = purpleContainer.querySelectorAll('div[style*="border:"]');
-                    rings.forEach((ring, index) => {
-                        setTimeout(() => {
-                            ring.style.opacity = '1';
-                        }, 800 + index * 200);
-                    });
-
-                    const lightnings = purpleContainer.querySelectorAll('div[style*="linear-gradient(to bottom"]');
-                    lightnings.forEach((lightning, index) => {
-                        setTimeout(() => {
-                            lightning.style.opacity = '1';
-                        }, 1200 + index * 50);
-                    });
-
-                    setTimeout(() => {
-                        mysteriousText.style.opacity = '1';
-                        mysteriousText.style.transform = 'scale(1)';
-                        createStars();
-                    }, 1000);
-
-                    const particles = purpleContainer.querySelectorAll('div[style*="radial-gradient(circle, #ff00ff"]');
-                    particles.forEach((particle, index) => {
-                        setTimeout(() => {
-                            particle.style.opacity = '1';
-                        }, 1500 + Math.random() * 500);
-                    });
-
-
-                    bagliore.style.background = "radial-gradient(circle, rgba(147, 0, 211, 1) 0%, rgba(75, 0, 130, 0.8) 30%, rgba(138, 43, 226, 0.6) 60%, rgba(148, 0, 211, 0) 100%)";
-                    bagliore.style.animation = "secretGlowRotate 8s ease-in-out infinite";
-                    bagliore.style.boxShadow = "0 0 100px rgba(147, 0, 211, 0.8), 0 0 200px rgba(75, 0, 130, 0.6), inset 0 0 50px rgba(138, 43, 226, 0.4)";
-                    bagliore.style.borderRadius = "50%";
-                    bagliore.style.width = "150vw";
-                    bagliore.style.height = "150vw";
-
-                    const secretStyleSheet = document.createElement('style');
-                    secretStyleSheet.textContent = `
-                            @keyframes secretGlowRotate {
-                                0% { 
-                                    transform: translate(-50%, -50%) scale(1) rotate(0deg);
-                                    filter: brightness(1) saturate(1);
-                                }
-                                25% { 
-                                    transform: translate(-50%, -50%) scale(1.2) rotate(90deg);
-                                    filter: brightness(1.3) saturate(1.5);
-                                }
-                                50% { 
-                                    transform: translate(-50%, -50%) scale(1) rotate(180deg);
-                                    filter: brightness(1) saturate(1);
-                                }
-                                75% { 
-                                    transform: translate(-50%, -50%) scale(1.2) rotate(270deg);
-                                    filter: brightness(1.3) saturate(1.5);
-                                }
-                                100% { 
-                                    transform: translate(-50%, -50%) scale(1) rotate(360deg);
-                                    filter: brightness(1) saturate(1);
-                                }
-                            }
-                        `;
-                    document.head.appendChild(secretStyleSheet);
-
-                }, 100);
-
-                setTimeout(() => {
-                    introOverlay.style.animation = 'fadeOut 1.2s ease-out forwards';
-                    setTimeout(() => {
-                        document.body.removeChild(introOverlay);
-                        document.head.removeChild(style);
-                        document.head.removeChild(enhancedStyle);
-                    }, 1200);
-                }, 4000);
-            }
-
-            function startTheOneAnimation(nome_personaggio) {
-                const introOverlay = document.createElement('div');
-                introOverlay.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100vw;
-                    height: 100vh;
-                    background: #000;
-                    z-index: 10000;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    overflow: hidden;
-                    opacity: 0;
-                    transition: opacity 0.8s ease-in-out, z-index 0s ease-in-out 2s;
-                `;
-
-                const videoContainer = document.createElement('div');
-                videoContainer.style.cssText = `
-                    position: relative;
-                    width: 100%;
-                    height: 100%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    opacity: 0;
-                    transform: scale(1.1);
-                    transition: opacity 1s ease-out, transform 1s ease-out;
-                `;
-
-                const video = document.createElement('video');
-                video.style.cssText = `
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                    filter: brightness(1.2) contrast(1.1);
-                    transition: filter 2s ease-in-out;
-                `;
-                video.src = '../vid/shorekeeperpull.mp4';
-                video.autoplay = true;
-                video.muted = false;
-                video.loop = false;
-
-                videoContainer.appendChild(video);
-                introOverlay.appendChild(videoContainer);
-                document.body.appendChild(introOverlay);
-
-                setTimeout(() => {
-                    introOverlay.style.opacity = '1';
-                }, 100);
-
-                setTimeout(() => {
-                    videoContainer.style.opacity = '1';
-                    videoContainer.style.transform = 'scale(1)';
-                    video.play();
-                }, 800);
-
-                bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-
-                setTimeout(() => {
-                    introOverlay.style.transition = 'opacity 2s ease-in-out, z-index 0s ease-in-out 2s';
-                    introOverlay.style.opacity = '0.3';
-                    video.style.filter = 'brightness(0.7) contrast(0.9) blur(1px)';
-
-                    setTimeout(() => {
-                        introOverlay.style.zIndex = '-1';
-                        introOverlay.style.transition = 'opacity 0.8s ease-in-out';
-                    }, 2000);
-                }, 15000);
-
-                video.addEventListener('ended', () => {
-                    video.loop = true;
-                    video.play();
-                });
-            }
-
-            let currentLeaderboardType = 'casse_aperte';
-            let leaderboardVisible = false;
-
-            function toggleLeaderboard() {
-                const wrapper = document.getElementById('leaderboard-wrapper');
-
-                if (leaderboardVisible) {
-                    wrapper.style.display = 'none';
-                    leaderboardVisible = false;
-                    document.body.style.overflow = 'hidden';
-                } else {
-                    wrapper.style.display = 'flex';
-                    leaderboardVisible = true;
-                    loadLeaderboard(currentLeaderboardType);
-                    document.body.style.overflow = 'hidden';
-                }
-            }
-
-            async function loadLeaderboard(type) {
-                const dataDiv = document.getElementById('leaderboard-data');
-
-                dataDiv.innerHTML = '<div class="loading-text testobianco"><i class="fas fa-circle-notch fa-spin"></i><span>Loading...</span></div>';
-
-                try {
-                    const response = await fetch(`https://cripsum.com/api/get_leaderboard?type=${type}`);
-                    const data = await response.json();
-
-                    if (data.status === 'success' && data.data.length > 0) {
-                        displayLeaderboard(data.data, type);
-                    } else {
-                        dataDiv.innerHTML = '<div class="loading-text testobianco"><i class="fas fa-ranking-star"></i><span>No data available</span></div>';
-                    }
-                } catch (error) {
-                    console.error('Errore leaderboard:', error);
-                    dataDiv.innerHTML = '<div class="loading-text testobianco is-error"><i class="fas fa-triangle-exclamation"></i><span>Connection error</span></div>';
-                }
-            }
-
-            function displayLeaderboard(leaderboardData, type) {
-                const dataDiv = document.getElementById('leaderboard-data');
-                const valueLabel = type === 'casse_aperte' ? 'casse' : 'personaggi';
-
-                const html = leaderboardData.map(item => {
-                    const rankClass = item.position === 1 ? 'gold' :
-                        item.position === 2 ? 'silver' :
-                        item.position === 3 ? 'bronze' : '';
-
-                    const medal = item.position === 1 ? '🥇 ' :
-                        item.position === 2 ? '🥈 ' :
-                        item.position === 3 ? '🥉 ' : '';
-
-                    const safePosition = escapeHtml(item.position);
-                    const safeUsername = escapeHtml(item.username);
-                    const safeValue = escapeHtml(item.value);
-
-                    return `
-                        <div class="leaderboard-entry ${rankClass}">
-                            <span class="entry-position testobianco">${medal}${safePosition}</span>
-                            <span class="entry-user-wrap">
-                                <span class="entry-username testobianco">${safeUsername}</span>
-                                <small>${escapeHtml(valueLabel)}</small>
-                            </span>
-                            <span class="entry-value">${safeValue}</span>
-                        </div>
-                    `;
-                }).join('');
-
-                dataDiv.innerHTML = html;
-            }
-
-            function switchLeaderboard(type) {
-                currentLeaderboardType = type;
-
-                document.querySelectorAll('.leaderboard-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-
-                if (type === 'casse_aperte') {
-                    document.getElementById('btn-casse').classList.add('active');
-                } else {
-                    document.getElementById('btn-personaggi').classList.add('active');
-                }
-
-                loadLeaderboard(type);
-            }
-
-            document.addEventListener('click', function(e) {
-                if (leaderboardVisible && e.target.id === 'leaderboard-wrapper') {
-                    toggleLeaderboard();
-                }
-            });
-        </script>
+        <div class="leaderboard-buttons" role="group">
+            <button class="btn btn-secondary bottone leaderboard-btn active" id="btn-casse" onclick="switchLeaderboard('casse_aperte')">
+                <i class="fas fa-box-open"></i> <span>Casse aperte</span>
+            </button>
+            <button class="btn btn-secondary bottone leaderboard-btn" id="btn-personaggi" onclick="switchLeaderboard('personaggi_sbloccati')">
+                <i class="fas fa-layer-group"></i> <span>Personaggi</span>
+            </button>
+        </div>
+        <div id="leaderboard-data" class="leaderboard-data">
+            <div class="loading-text testobianco">Caricamento...</div>
+        </div>
+    </div>
+</div>
+
+<!-- Achievement popup (compatibile con sistema esistente) -->
+<div id="achievement-popup" class="popup">
+    <img id="popup-image" src="" alt="Achievement" />
+    <div>
+        <h3 id="popup-title"></h3>
+        <p id="popup-description"></p>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     DATI INIZIALI PHP → JS
+     Passati via JSON inline, sicuri, nessun RNG qui
+════════════════════════════════════════════════════════ -->
+<script>
+window.GACHA_INIT = <?= json_encode([
+    'userId'        => (int)$_SESSION['user_id'],
+    'ruolo'         => $ruolo,
+    'isAdmin'       => $isAdmin,
+    'soldi'         => $soldi,
+    'pityStandard'  => $pityStandard,
+    'pityEvento'    => $pityEvento,
+    'garantito'     => (bool)$garantito,
+    'pityHardStd'   => PITY_STANDARD_HARD,
+    'pitySoftStd'   => PITY_STANDARD_SOFT,
+    'pityHardEvt'   => PITY_EVENTO_HARD,
+    'pitySoftEvt'   => PITY_EVENTO_SOFT,
+    'banners'       => array_map(fn($b) => [
+        'id'         => (int)$b['id'],
+        'slug'       => $b['slug'],
+        'nome'       => $b['nome'],
+        'costo'      => (int)$b['costo_punti'],
+        'data_fine'  => $b['data_fine'],
+        'rateup_nome'=> $b['rateup_nome'],
+        'rateup_img' => $b['rateup_img_url'],
+    ], $bannersEvento),
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script src="../js/unlockAchievement-it.js"></script>
+<script src="../js/gacha-effects.js?v=1.0"></script>
+<script src="../js/gacha.js?v=1.0"></script>
+
+<script>
+// ── Leaderboard (identica all'originale) ──────────────────────────
+let currentLeaderboardType = 'casse_aperte';
+let leaderboardVisible = false;
+
+function toggleLeaderboard() {
+    const wrapper = document.getElementById('leaderboard-wrapper');
+    leaderboardVisible = !leaderboardVisible;
+    wrapper.style.display = leaderboardVisible ? 'flex' : 'none';
+    if (leaderboardVisible) loadLeaderboard(currentLeaderboardType);
+}
+
+async function loadLeaderboard(type) {
+    const dataDiv = document.getElementById('leaderboard-data');
+    dataDiv.innerHTML = '<div class="loading-text testobianco"><i class="fas fa-circle-notch fa-spin"></i><span>Caricamento...</span></div>';
+    try {
+        const r = await fetch(`/api/get_leaderboard?type=${type}`);
+        const d = await r.json();
+        if (d.status === 'success' && d.data.length > 0) {
+            displayLeaderboard(d.data, type);
+        } else {
+            dataDiv.innerHTML = '<div class="loading-text testobianco"><i class="fas fa-ranking-star"></i><span>Nessun dato disponibile</span></div>';
+        }
+    } catch {
+        dataDiv.innerHTML = '<div class="loading-text testobianco is-error"><i class="fas fa-triangle-exclamation"></i><span>Errore di connessione</span></div>';
+    }
+}
+
+function displayLeaderboard(data, type) {
+    const dataDiv = document.getElementById('leaderboard-data');
+    const valueLabel = type === 'casse_aperte' ? 'casse' : 'personaggi';
+    dataDiv.innerHTML = data.map(item => {
+        const rankClass = item.position === 1 ? 'gold' : item.position === 2 ? 'silver' : item.position === 3 ? 'bronze' : '';
+        const medal = item.position === 1 ? '🥇 ' : item.position === 2 ? '🥈 ' : item.position === 3 ? '🥉 ' : '';
+        return `<div class="leaderboard-entry ${rankClass}">
+            <span class="entry-position testobianco">${medal}${item.position}</span>
+            <span class="entry-user-wrap"><span class="entry-username testobianco">${item.username}</span><small>${valueLabel}</small></span>
+            <span class="entry-value">${item.value}</span>
+        </div>`;
+    }).join('');
+}
+
+function switchLeaderboard(type) {
+    currentLeaderboardType = type;
+    document.querySelectorAll('.leaderboard-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(type === 'casse_aperte' ? 'btn-casse' : 'btn-personaggi').classList.add('active');
+    loadLeaderboard(type);
+}
+
+document.getElementById('leaderboard-close-btn').addEventListener('click', toggleLeaderboard);
+document.addEventListener('click', e => { if (leaderboardVisible && e.target.id === 'leaderboard-wrapper') toggleLeaderboard(); });
+
+// ── Codice segreto (compatibile originale) ────────────────────────
+async function riscattaCodice() {
+    const input = document.getElementById('codiceSegreto');
+    const codice = input.value.trim().toLowerCase();
+    const map = {
+        'signortoki': 'TOKI',
+        'cripsum':    'CRIPSUM',
+        'peak':       'MAOMAO',
+    };
+    if (!map[codice]) {
+        window.GachaUI?.showToast('Codice non valido, skill issue!', 'error');
+        return;
+    }
+    try {
+        const r = await fetch(`/api/get_character_from_nome?nomePersonaggio=${encodeURIComponent(map[codice])}`);
+        const pull = await r.json();
+        if (!pull || !pull.id) { window.GachaUI?.showToast('Codice già riscattato o personaggio non trovato!', 'error'); return; }
+        const inv = await fetch('/api/api_get_inventario').then(r2 => r2.json());
+        if (inv.find && inv.find(p => p.nome === pull.nome)) {
+            window.GachaUI?.showToast('Codice già riscattato!', 'error'); return;
+        }
+        await fetch(`/api/add_character_to_inventory?character_id=${pull.id}`);
+        window.GachaUI?.openRevealWithData(pull);
+    } catch(e) {
+        window.GachaUI?.showToast('Errore riscatto. Riprova.', 'error');
+    }
+}
+</script>
 
 </body>
-
 </html>
