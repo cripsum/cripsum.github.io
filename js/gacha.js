@@ -78,13 +78,13 @@
 
   const audioEl        = $('gacha-audio');
   const toastEl        = $('gacha-toast');
-  const tabsContainer  = $('gacha-tabs');
+  const tabsContainer  = null; // sostituito da sidebar cards
 
   /* ══════════════════════════════════════════════════════
      INIT
   ══════════════════════════════════════════════════════ */
   function init() {
-    // fixTabsOffset();           FIX 1
+    fixTabsOffset();           // FIX 1
     createStars($('stars'), 100);
     createStars(overlayStars, 60);
     initTabs();                // FIX 9
@@ -103,15 +103,25 @@
      FIX 1 — TABS OFFSET SOTTO NAVBAR
   ════════════════════════════════════════════════════ */
   function fixTabsOffset() {
-    // Cerca la navbar con vari selettori comuni
+    // Trova la navbar e setta il top della sidebar sticky
     const nav = document.querySelector(
       'nav.navbar, header.navbar, #navbar, .navbar, nav[class*="nav"]'
     );
-    if (!nav || !tabsContainer) return;
+    const sidebar = document.getElementById('gacha-sidebar');
+    if (!nav) return;
 
     const apply = () => {
       const h = nav.getBoundingClientRect().height;
-      if (h > 0) tabsContainer.style.top = h + 'px';
+      if (h <= 0) return;
+      // Sidebar desktop sticky top
+      if (sidebar) sidebar.style.top = h + 'px';
+      // Banner view altezza
+      document.querySelectorAll('.gacha-banner-view').forEach(v => {
+        v.style.minHeight = `calc(100dvh - ${h}px)`;
+      });
+      // Layout min-height
+      const layout = document.getElementById('gacha-layout');
+      if (layout) layout.style.minHeight = `calc(100dvh - ${h}px)`;
     };
     apply();
     window.addEventListener('resize', apply, { passive: true });
@@ -134,40 +144,57 @@
   }
 
   /* ════════════════════════════════════════════════════
-     FIX 9 — TABS
+     SIDEBAR CARD CLICK → switch banner
   ════════════════════════════════════════════════════ */
   function initTabs() {
-    tabsContainer?.addEventListener('click', e => {
-      const tab = e.target.closest('.gacha-tab[data-banner-id]');
-      if (!tab || state.isPulling) return;
-      switchBanner(tab.dataset.bannerId, tab.dataset.bannerType);
+    // Ascolta click su tutti i riquadri sidebar
+    const sidebarEl = document.getElementById('gsb-banners');
+    sidebarEl?.addEventListener('click', e => {
+      const card = e.target.closest('.gsb-card[data-banner-id]');
+      if (!card || state.isPulling) return;
+      switchBanner(card.dataset.bannerId, card.dataset.bannerType);
     });
   }
 
   function switchBanner(bannerId, bannerType) {
     if (state.activeBannerId === bannerId) return;
-    $$('.gacha-tab[data-banner-id]').forEach(t => {
-      t.classList.remove('is-active');
-      t.setAttribute('aria-selected', 'false');
-    });
-    const activeTab = tabsContainer?.querySelector(`[data-banner-id="${bannerId}"]`);
-    activeTab?.classList.add('is-active');
-    activeTab?.setAttribute('aria-selected', 'true');
 
+    // Aggiorna stato card sidebar
+    $$('.gsb-card[data-banner-id]').forEach(c => {
+      c.classList.remove('is-active');
+      c.setAttribute('aria-pressed', 'false');
+    });
+    const activeCard = document.querySelector(`.gsb-card[data-banner-id="${bannerId}"]`);
+    if (activeCard) {
+      activeCard.classList.add('is-active');
+      activeCard.setAttribute('aria-pressed', 'true');
+      // Scroll in vista su mobile
+      activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+      // Propaga colore accent dalla card al CSS var del banner
+      const accentColor = bannerType === 'standard' ? '#9ca3af' : '#38bdf8';
+      document.documentElement.style.setProperty('--banner-accent', accentColor);
+    }
+
+    // Nascondi vecchia view
     const oldView = $(`banner-view-${state.activeBannerId}`);
     if (oldView) oldView.style.display = 'none';
 
+    // Mostra nuova view con fade
     const newView = $(`banner-view-${bannerId}`);
     if (newView) {
-      newView.style.cssText = 'display:flex;opacity:0;';
+      newView.style.cssText = 'display:flex;opacity:0;flex:1;';
       requestAnimationFrame(() => {
         newView.style.transition = 'opacity .35s ease';
         newView.style.opacity = '1';
         setTimeout(() => newView.style.transition = '', 370);
       });
     }
+
     state.activeBannerId   = bannerId;
     state.activeBannerType = bannerType ?? 'standard';
+    // Aggiorna tracking cronologia
+    if (window.GACHA_INIT) window.GACHA_INIT.activeBannerId = bannerId;
   }
 
   /* ════════════════════════════════════════════════════

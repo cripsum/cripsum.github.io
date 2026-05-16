@@ -67,7 +67,7 @@ body.lootbox-page {
 /* ── Gacha Tabs ────────────────────────────────────────────────────────── */
 .gacha-tabs {
     position: sticky;
-    top: 50;
+    top: 0;
     z-index: 200;
     display: flex;
     align-items: center;
@@ -1360,4 +1360,381 @@ body.lootbox-page {
     font-weight: 700;
     color: #fbbf24;
     font-size: 0.95rem;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   LAYOUT v2 — gacha-layout con sidebar destra
+   ════════════════════════════════════════════════════════════════ */
+
+/* Rimuovi vecchi stili tab e bottom-bar */
+.gacha-tabs,
+.gacha-bottom-bar {
+    display: none !important;
+}
+
+/* Wrapper principale */
+.gacha-layout {
+    display: flex;
+    align-items: stretch;
+    min-height: calc(100dvh - 56px); /* 56px = altezza navbar media */
+    position: relative;
+}
+
+/* Area banner (si estende) */
+.gacha-main {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Banner view ora riempe il suo contenitore */
+.gacha-banner-view {
+    flex: 1;
+    min-height: calc(100dvh - 56px);
+}
+
+/* ── SIDEBAR ─────────────────────────────────────────────────── */
+.gacha-sidebar {
+    width: 234px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background: rgba(6, 6, 16, 0.96);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-left: 1px solid rgba(255, 255, 255, 0.06);
+    position: sticky;
+    top: 56px; /* altezza navbar; sovrascritta da JS se diversa */
+    height: calc(100dvh - 56px);
+    overflow: hidden;
+    z-index: 80;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gsb-section-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.3);
+    padding: 16px 14px 8px;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+/* ── Banner cards container ────────────────────────────────────── */
+.gsb-banners {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+.gsb-banners::-webkit-scrollbar {
+    width: 4px;
+}
+.gsb-banners::-webkit-scrollbar-track {
+    background: transparent;
+}
+.gsb-banners::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+}
+
+/* ── Card singola ──────────────────────────────────────────────── */
+.gsb-card {
+    position: relative;
+    width: 100%;
+    height: 90px;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.18s ease;
+    flex-shrink: 0;
+    text-align: left;
+    padding: 0;
+}
+.gsb-card:hover {
+    transform: translateX(-2px);
+    border-color: rgba(255, 255, 255, 0.22);
+}
+.gsb-card:active {
+    transform: scale(0.97);
+}
+
+/* Card image background */
+.gsb-card-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center top;
+    background-color: #1a1a2e;
+    transition: transform 0.4s ease;
+}
+.gsb-card:hover .gsb-card-bg {
+    transform: scale(1.07);
+}
+
+/* Gradient overlay */
+.gsb-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, rgba(6, 6, 20, 0.15) 0%, rgba(6, 6, 20, 0.65) 60%, rgba(6, 6, 20, 0.85) 100%);
+}
+
+/* Body testo */
+.gsb-card-body {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 8px 10px 8px 14px;
+    gap: 1px;
+}
+.gsb-card-tag {
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.45);
+    line-height: 1;
+}
+.gsb-card-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+.gsb-card-rateup {
+    font-size: 0.66rem;
+    color: rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Barra attiva (bordo sinistro colorato) */
+.gsb-card-active-bar {
+    position: absolute;
+    left: 0;
+    top: 18%;
+    bottom: 18%;
+    width: 3px;
+    background: var(--banner-accent, #38bdf8);
+    border-radius: 0 2px 2px 0;
+    opacity: 0;
+    box-shadow: 0 0 10px var(--banner-accent, #38bdf8);
+    transition: opacity 0.25s;
+}
+
+/* Stato attivo */
+.gsb-card.is-active {
+    border-color: var(--banner-accent, #38bdf8);
+    box-shadow: 0 0 0 1px var(--banner-accent, #38bdf8), inset 0 0 20px rgba(255, 255, 255, 0.04);
+}
+.gsb-card.is-active .gsb-card-active-bar {
+    opacity: 1;
+}
+.gsb-card.is-active .gsb-card-tag {
+    color: var(--banner-accent, #38bdf8);
+}
+
+/* ── Azioni ────────────────────────────────────────────────────── */
+.gsb-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 12px 10px calc(12px + var(--safe-bot, 0px));
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+    margin-top: 8px;
+}
+
+.gsb-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 14px;
+    background: rgba(255, 255, 255, 0.045);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    line-height: 1;
+    text-align: left;
+}
+.gsb-action-btn i {
+    font-size: 0.82rem;
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+}
+.gsb-action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.16);
+    color: #fff;
+    transform: translateX(-1px);
+}
+.gsb-action-btn:active {
+    transform: scale(0.97);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MOBILE (≤ 767px) — sidebar diventa bottom strip
+   ════════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+    body.lootbox-page {
+        /* Spazio per sidebar mobile fissa in basso */
+        padding-bottom: 0 !important;
+    }
+
+    .gacha-layout {
+        flex-direction: column;
+        min-height: calc(100dvh - 56px);
+    }
+
+    .gacha-main {
+        /* Lascia spazio al strip in basso */
+        padding-bottom: 140px;
+    }
+
+    .gacha-banner-view {
+        min-height: calc(100dvh - 56px - 140px);
+    }
+
+    /* Sidebar diventa pannello fisso in basso */
+    .gacha-sidebar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: auto;
+        width: 100%;
+        height: auto;
+        max-height: 160px;
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        flex-direction: column;
+        gap: 0;
+        z-index: 150;
+        padding-bottom: var(--safe-bot, 0px);
+        overflow: hidden;
+    }
+
+    /* Nascondi label su mobile */
+    .gsb-section-label {
+        display: none;
+    }
+
+    /* Cards orizzontali scorrevoli */
+    .gsb-banners {
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        padding: 8px 12px 6px;
+        gap: 8px;
+        flex: none;
+    }
+    .gsb-banners::-webkit-scrollbar {
+        display: none;
+    }
+
+    .gsb-card {
+        flex-shrink: 0;
+        width: 110px;
+        height: 62px;
+        border-radius: 10px;
+    }
+    .gsb-card:hover {
+        transform: translateY(-2px);
+    }
+    .gsb-card-body {
+        padding: 5px 7px;
+        gap: 0;
+    }
+    .gsb-card-tag {
+        font-size: 0.55rem;
+    }
+    .gsb-card-name {
+        font-size: 0.72rem;
+    }
+    .gsb-card-rateup {
+        display: none;
+    } /* troppo stretto su mobile */
+    .gsb-card-overlay {
+        background: linear-gradient(to top, rgba(6, 6, 20, 0.85) 0%, rgba(6, 6, 20, 0.3) 100%);
+    }
+    .gsb-card-active-bar {
+        display: none;
+    }
+
+    /* Azioni orizzontali */
+    .gsb-actions {
+        flex-direction: row;
+        padding: 5px 12px calc(6px + var(--safe-bot, 0px));
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        gap: 6px;
+        overflow-x: auto;
+        scrollbar-width: none;
+        margin-top: 0;
+    }
+    .gsb-actions::-webkit-scrollbar {
+        display: none;
+    }
+
+    .gsb-action-btn {
+        flex-shrink: 0;
+        padding: 7px 12px;
+        font-size: 0.72rem;
+        border-radius: 8px;
+        white-space: nowrap;
+        width: auto;
+    }
+    .gsb-action-btn span {
+        display: none;
+    } /* solo icona, aggiunto testo tooltip */
+    .gsb-action-btn i {
+        font-size: 0.9rem;
+        width: auto;
+    }
+
+    /* Banner info panel su mobile: riduzione padding */
+    .gacha-banner-info {
+        padding: 14px 16px calc(14px + var(--safe-bot, 0px));
+    }
+}
+
+/* Tablet intermedio (768–1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .gacha-sidebar {
+        width: 196px;
+    }
+    .gsb-card {
+        height: 78px;
+    }
+    .gsb-card-name {
+        font-size: 0.74rem;
+    }
 }
