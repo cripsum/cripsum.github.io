@@ -595,8 +595,8 @@ define('PITY_EVENTO_SOFT',   65);
                     <h3 class="testobianco">Top Gacha</h3>
                     <p>Le prime posizioni del momento.</p>
                 </div>
-                <button type="button" class="gacha-bottom-btn gacha-leaderboard-btn" onclick="alert('CLICK RICEVUTO!'); toggleLeaderboard();">
-                    <i class="fas fa-trophy"></i> Classifica
+                <button class="leaderboard-close" type="button" id="leaderboard-close-btn" aria-label="Chiudi classifica">
+                    <i class="fas fa-xmark"></i>
                 </button>
             </div>
             <div class="leaderboard-buttons" role="group">
@@ -628,7 +628,7 @@ define('PITY_EVENTO_SOFT',   65);
 ════════════════════════════════════════════════════════ -->
     <!-- FIX 12 — Bottom bar (leaderboard + link) -->
     <div class="gacha-bottom-bar" id="gacha-bottom-bar">
-        <button class="gacha-bottom-btn gacha-leaderboard-btn" id="tasto-apri-classifica">
+        <button type="button" class="gacha-bottom-btn gacha-leaderboard-btn" onclick="alert('CLICK RICEVUTO!'); toggleLeaderboard();">
             <i class="fas fa-trophy"></i> Classifica
         </button>
         <a href="inventario" class="gacha-bottom-btn">
@@ -689,6 +689,16 @@ define('PITY_EVENTO_SOFT',   65);
 
         let currentLeaderboardType = 'casse_aperte';
         let leaderboardVisible = false;
+
+        document.addEventListener('click', function(e) {
+            // Controlla se il click è avvenuto sul bottone (o sull'icona della coppa al suo interno)
+            const btn = e.target.closest('#tasto-apri-classifica') || e.target.closest('.gacha-leaderboard-btn');
+
+            if (btn) {
+                e.preventDefault();
+                toggleLeaderboard();
+            }
+        });
 
         function toggleLeaderboard() {
             const wrapper = document.getElementById('leaderboard-wrapper');
