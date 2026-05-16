@@ -248,7 +248,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                         bagliore.style.position = "fixed";
                         bagliore.style.width = "max(165vw, 165vh)";
                         bagliore.style.height = "max(165vw, 165vh)";
-                        bagliore.style.zIndex = "1";
+                        bagliore.style.zIndex = "0";
                     }
 
                 } else if (pull.rarità === "theone") {
