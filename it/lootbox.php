@@ -922,12 +922,21 @@ require_once '../api/api_personaggi.php';
                     } else if (rarita === "segreto") {
 
                         secretPulled = true;
-                        startIntroAnimation(pull.nome);
-                        messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
-                        bagliore.style.position = "fixed";
-                        bagliore.style.width = "max(165vw, 165vh)";
-                        bagliore.style.height = "max(165vw, 165vh)";
-                        bagliore.style.zIndex = "1";
+                        if (pull.nome === "TUNG GOD") {
+                            startTungAnimation(pull.nome);
+                            messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
+                            bagliore.style.position = "fixed";
+                            bagliore.style.width = "max(165vw, 165vh)";
+                            bagliore.style.height = "max(165vw, 165vh)";
+                            bagliore.style.zIndex = "1";
+                        } else {
+                            startIntroAnimation(pull.nome);
+                            messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
+                            bagliore.style.position = "fixed";
+                            bagliore.style.width = "max(165vw, 165vh)";
+                            bagliore.style.height = "max(165vw, 165vh)";
+                            bagliore.style.zIndex = "1";
+                        }
 
                     } else if (rarita === "theone") {
 
@@ -1025,13 +1034,22 @@ require_once '../api/api_personaggi.php';
                         bagliore.style.mixBlendMode = "screen";
                         bagliore.style.animation = "specialRainbowPan 8s linear infinite";
                     } else if (rarita === "segreto") {
-                        startIntroAnimation(pull.nome);
+                        if (pull.nome === "TUNG GOD") {
+                            startTungAnimation(pull.nome);
+                            messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
+                            bagliore.style.position = "fixed";
+                            bagliore.style.width = "max(165vw, 165vh)";
+                            bagliore.style.height = "max(165vw, 165vh)";
+                            bagliore.style.zIndex = "1";
+                        } else {
+                            startIntroAnimation(pull.nome);
 
-                        messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
-                        bagliore.style.position = "fixed";
-                        bagliore.style.width = "max(165vw, 165vh)";
-                        bagliore.style.height = "max(165vw, 165vh)";
-                        bagliore.style.zIndex = "1";
+                            messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
+                            bagliore.style.position = "fixed";
+                            bagliore.style.width = "max(165vw, 165vh)";
+                            bagliore.style.height = "max(165vw, 165vh)";
+                            bagliore.style.zIndex = "1";
+                        }
 
                     } else if (rarita === "theone") {
 
@@ -1760,6 +1778,83 @@ require_once '../api/api_personaggi.php';
                 }, 800);
 
                 bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+
+                setTimeout(() => {
+                    introOverlay.style.transition = 'opacity 2s ease-in-out, z-index 0s ease-in-out 2s';
+                    introOverlay.style.opacity = '0.3';
+                    video.style.filter = 'brightness(0.7) contrast(0.9) blur(1px)';
+
+                    setTimeout(() => {
+                        introOverlay.style.zIndex = '-1';
+                        introOverlay.style.transition = 'opacity 0.8s ease-in-out';
+                    }, 2000);
+                }, 15000);
+
+                video.addEventListener('ended', () => {
+                    video.loop = true;
+                    video.play();
+                });
+            }
+
+            function startTungAnimation(nome_personaggio) {
+                const introOverlay = document.createElement('div');
+                introOverlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100vh;
+                    background: #000;
+                    z-index: 10000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    overflow: hidden;
+                    opacity: 0;
+                    transition: opacity 0.8s ease-in-out, z-index 0s ease-in-out 2s;
+                `;
+
+                const videoContainer = document.createElement('div');
+                videoContainer.style.cssText = `
+                    position: relative;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    opacity: 0;
+                    transform: scale(1.1);
+                    transition: opacity 1s ease-out, transform 1s ease-out;
+                `;
+
+                const video = document.createElement('video');
+                video.style.cssText = `
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    filter: brightness(1.2) contrast(1.1);
+                    transition: filter 2s ease-in-out;
+                `;
+                video.src = '../vid/shorekeeperpull.mp4';
+                video.autoplay = true;
+                video.muted = false;
+                video.loop = false;
+
+                videoContainer.appendChild(video);
+                introOverlay.appendChild(videoContainer);
+                document.body.appendChild(introOverlay);
+
+                setTimeout(() => {
+                    introOverlay.style.opacity = '1';
+                }, 100);
+
+                setTimeout(() => {
+                    videoContainer.style.opacity = '1';
+                    videoContainer.style.transform = 'scale(1)';
+                    video.play();
+                }, 800);
+
+                bagliore.style.background = "radial-gradient(circle, rgb(88, 6, 121) 0%, rgba(132, 0, 255, 0) 70%)";
 
                 setTimeout(() => {
                     introOverlay.style.transition = 'opacity 2s ease-in-out, z-index 0s ease-in-out 2s';
