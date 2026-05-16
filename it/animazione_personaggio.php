@@ -232,7 +232,7 @@ $idPersonaggio = $_GET['id_personaggio'] ?? 0;
                     bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
                     bagliore.style.backgroundSize = "300% 100%";
                     bagliore.style.animation = "";
-                } else if (rarita === "segreto") {
+                } else if (pull.rarità === "segreto") {
 
                     secretPulled = true;
                     if (pull.nome === "TUNG GOD") {
