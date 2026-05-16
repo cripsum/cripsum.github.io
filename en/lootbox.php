@@ -735,10 +735,10 @@ define('PITY_EVENTO_SOFT',   65);
             loadLeaderboard(type);
         }
 
-        document.getElementById('leaderboard-close-btn').addEventListener('click', toggleLeaderboard);
-        // document.addEventListener('click', e => {
-        //     if (leaderboardVisible && e.target.id === 'leaderboard-wrapper') toggleLeaderboard();
-        // });
+        // document.getElementById('leaderboard-close-btn').addEventListener('click', toggleLeaderboard);
+        document.addEventListener('click', e => {
+            if (leaderboardVisible && e.target.id === 'leaderboard-wrapper') toggleLeaderboard();
+        });
 
         // ── Codice segreto (compatibile originale) ────────────────────────
         async function riscattaCodice() {
