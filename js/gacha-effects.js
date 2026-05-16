@@ -450,41 +450,66 @@
     overlay.style.pointerEvents = 'none';
     document.body.appendChild(overlay);
 
-    // Shimmer dorato
+    // FIX 5 — Shimmer dorato: barra larga e solida che attraversa lo schermo
     const shimmer = document.createElement('div');
     shimmer.style.cssText = `
-      position:absolute;inset:0;
-      background:linear-gradient(120deg,
-        transparent 0%,rgba(251,191,36,.15) 40%,
-        rgba(255,255,255,.08) 50%,transparent 60%);
-      background-size:200% 100%;
-      animation:gfxShimmer 1.4s ease forwards;
+      position:absolute;
+      top:0;bottom:0;
+      width:55%;
+      background:linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(251,191,36,.08) 15%,
+        rgba(255,255,255,.25) 40%,
+        rgba(251,191,36,.45) 50%,
+        rgba(255,255,255,.25) 60%,
+        rgba(251,191,36,.08) 85%,
+        transparent 100%
+      );
+      left:-55%;
+      animation:gfxLegendaryShimmer 1.1s ease forwards;
+      pointer-events:none;
     `;
     overlay.appendChild(shimmer);
 
+    // Glow ovale dorato al centro
+    const glow = document.createElement('div');
+    glow.style.cssText = `
+      position:absolute;left:50%;top:50%;
+      width:${isMobile()?280:420}px;height:${isMobile()?120:180}px;
+      transform:translate(-50%,-50%);
+      background:radial-gradient(ellipse,rgba(251,191,36,.5) 0%,rgba(251,191,36,.2) 40%,transparent 70%);
+      border-radius:50%;
+      filter:blur(${isMobile()?18:28}px);
+      opacity:0;transition:opacity .3s;
+    `;
+    overlay.appendChild(glow);
+
     // Rising gold stars
-    const starCount = isMobile() ? 14 : 28;
+    const starCount = isMobile() ? 16 : 32;
     for (let i = 0; i < starCount; i++) {
       const s = document.createElement('div');
-      const size = 4 + Math.random() * 8;
-      const x    = 10 + Math.random() * 80;
-      const dur  = 600 + Math.random() * 800;
+      const size = 6 + Math.random() * 12;
+      const x    = 5 + Math.random() * 90;
+      const dur  = 700 + Math.random() * 700;
       s.textContent = '★';
       s.style.cssText = `
         position:absolute;
-        left:${x}%;bottom:10%;
+        left:${x}%;bottom:${5+Math.random()*20}%;
         font-size:${size}px;
         color:#fbbf24;
-        text-shadow:0 0 8px #fbbf24,0 0 16px rgba(251,191,36,.6);
-        animation:gfxGoldRise ${dur}ms ease ${Math.random() * 400}ms forwards;
+        text-shadow:0 0 10px #fbbf24,0 0 22px rgba(251,191,36,.7);
+        animation:gfxGoldRise ${dur}ms ease ${Math.random()*300}ms forwards;
         opacity:1;
       `;
       overlay.appendChild(s);
     }
 
     overlay.style.opacity = '1';
-    await delay(1200);
-    await fadeRemove(overlay, 500);
+    await delay(60);
+    glow.style.opacity = '1';
+    await delay(1400);
+    await fadeRemove(overlay, 600);
   }
 
   /* ════════════════════════════════════════════════════
@@ -496,19 +521,43 @@
     overlay.style.pointerEvents = 'none';
     document.body.appendChild(overlay);
 
+    // FIX 5 — Centrato con transform
     const spiral = document.createElement('div');
+    const sz = isMobile() ? 150 : 220;
     spiral.style.cssText = `
-      position:absolute;left:50%;top:50%;
-      width:${isMobile() ? 150 : 220}px;height:${isMobile() ? 150 : 220}px;
+      position:absolute;
+      left:50%;top:50%;
+      width:${sz}px;height:${sz}px;
+      margin-left:${-sz/2}px;margin-top:${-sz/2}px;
       border-radius:50%;
-      border:3px solid rgba(192,132,252,.7);
-      box-shadow:0 0 30px rgba(192,132,252,.5),inset 0 0 30px rgba(192,132,252,.2);
+      border:3px solid rgba(192,132,252,.8);
+      box-shadow:0 0 40px rgba(192,132,252,.6),
+                 0 0 80px rgba(192,132,252,.2),
+                 inset 0 0 30px rgba(192,132,252,.15);
       animation:gfxSpiralIn .9s cubic-bezier(.34,1.56,.64,1) forwards;
     `;
     overlay.appendChild(spiral);
 
+    // Particelle viola
+    for (let i = 0; i < (isMobile()?6:12); i++) {
+      const pt = document.createElement('div');
+      const angle = (i / (isMobile()?6:12)) * Math.PI * 2;
+      const dist  = sz/2 + 20 + Math.random()*40;
+      pt.style.cssText = `
+        position:absolute;left:50%;top:50%;
+        width:5px;height:5px;border-radius:50%;
+        background:#c084fc;
+        box-shadow:0 0 8px #c084fc;
+        margin-left:${Math.cos(angle)*dist-2.5}px;
+        margin-top:${Math.sin(angle)*dist-2.5}px;
+        opacity:0;
+        animation:gfxSpiralIn ${0.6+Math.random()*.4}s ease ${0.2+i*.05}s forwards;
+      `;
+      overlay.appendChild(pt);
+    }
+
     overlay.style.opacity = '1';
-    await delay(1000);
+    await delay(1100);
     await fadeRemove(overlay, 400);
   }
 
@@ -552,13 +601,14 @@
       .trim();
 
     switch (r) {
-      case 'theone':     return playTheOneEffect();
-      case 'segreto':    return playSecretoEffect();
+      // FIX 3: segreto/theone gestiti da gacha.js con fade+video, nessun effetto qui
+      case 'theone':
+      case 'segreto':    return Promise.resolve();
       case 'speciale':   return playSpecialeEffect();
       case 'leggendario':return playLeggendarioEffect();
       case 'epico':      return playEpicoEffect();
       case 'raro':       return playRaroEffect();
-      default:           return Promise.resolve(); // comune: nessun effetto
+      default:           return Promise.resolve();
     }
   }
 

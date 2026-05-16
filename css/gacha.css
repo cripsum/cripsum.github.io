@@ -848,3 +848,140 @@ body.lootbox-page {
   .gacha-banner-title { font-size: 1.3rem; }
   .gacha-tab { padding: 5px 12px; font-size: .75rem; }
 }
+
+/* FIX 7 — Card idle: float leggero + glow pulse dopo comparsa */
+.gacha-card.is-idle {
+  animation: cardIdle 3.5s ease-in-out infinite;
+}
+@keyframes cardIdle {
+  0%,100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-8px) scale(1.01); }
+}
+.gacha-overlay[data-rarity="segreto"] .gacha-card.is-idle .gacha-card-frame {
+  animation: cardIdleGlowSegreto 2.5s ease-in-out infinite;
+}
+@keyframes cardIdleGlowSegreto {
+  0%,100% { box-shadow: 0 0 50px rgba(168,85,247,0.5), 0 0 90px rgba(168,85,247,0.2); }
+  50%      { box-shadow: 0 0 70px rgba(168,85,247,0.8), 0 0 130px rgba(168,85,247,0.4); }
+}
+.gacha-overlay[data-rarity="theone"] .gacha-card.is-idle .gacha-card-frame {
+  animation: cardIdleGlowTheOne 2.5s ease-in-out infinite;
+}
+@keyframes cardIdleGlowTheOne {
+  0%,100% { box-shadow: 0 0 60px rgba(96,165,250,0.5), 0 0 100px rgba(255,255,255,0.1); }
+  50%      { box-shadow: 0 0 90px rgba(96,165,250,0.8), 0 0 150px rgba(255,255,255,0.2); }
+}
+
+/* FIX 10 — Skip button */
+.gacha-skip-btn {
+  position: absolute;
+  bottom: calc(80px + var(--safe-bot));
+  right: 20px;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+  color: rgba(255,255,255,0.65);
+  font-size: .78rem;
+  cursor: pointer;
+  z-index: 50;
+  backdrop-filter: blur(10px);
+  transition: opacity .3s, border-color .2s;
+}
+.gacha-skip-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+
+/* FIX 9 — Tab con thumbnail banner */
+.gacha-tab--banner {
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 14px;
+  min-width: 80px;
+  height: auto;
+  border-radius: 12px;
+}
+.gacha-tab--banner .tab-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  object-position: top center;
+  border: 1px solid rgba(255,255,255,0.1);
+  flex-shrink: 0;
+}
+.gacha-tab--banner .tab-label {
+  font-size: .7rem;
+  text-align: center;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gacha-tabs {
+  height: auto !important;
+  min-height: var(--tab-h);
+  padding: 8px 12px;
+  align-items: stretch;
+}
+
+/* FIX 5 — Leggendario shimmer più solido */
+@keyframes gfxLegendaryShimmer {
+  0%   { opacity:0;  left:-60%; }
+  20%  { opacity:.9; }
+  80%  { opacity:.9; }
+  100% { opacity:0;  left:130%; }
+}
+
+/* FIX 12 — Leaderboard bottom bar */
+.gacha-bottom-bar {
+  position: fixed;
+  bottom: var(--safe-bot, 0);
+  left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(8,8,16,0.85);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.gacha-bottom-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  color: rgba(255,255,255,0.65);
+  font-size: .82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  text-decoration: none;
+}
+.gacha-bottom-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.gacha-bottom-btn i { font-size: .85rem; }
+
+/* Leaderboard modal improvements */
+.leaderboard-entry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  margin-bottom: 6px;
+  border-left: 3px solid transparent;
+}
+.leaderboard-entry.gold   { border-left-color: #fbbf24; }
+.leaderboard-entry.silver { border-left-color: #94a3b8; }
+.leaderboard-entry.bronze { border-left-color: #c97b4b; }
+.leaderboard-entry .entry-position { font-size: 1.1rem; min-width: 32px; }
+.leaderboard-entry .entry-username { font-weight: 700; color: #fff; display:block; }
+.leaderboard-entry .entry-user-wrap small { color: rgba(255,255,255,.35); font-size:.72rem; }
+.leaderboard-entry .entry-value { margin-left: auto; font-weight: 700; color: #fbbf24; font-size: .95rem; }

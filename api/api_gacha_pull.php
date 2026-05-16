@@ -217,14 +217,15 @@ function selectRarity(string $bannerType, int $pity, array $adminOverride = []):
     $weights = BASE_WEIGHTS;
 
     if ($bannerType === 'standard') {
-        // Soft pity: da pull PITY_STANDARD_SOFT la % leggendario sale del 10% per pull
+        // Soft pity: da pull PITY_STANDARD_SOFT la % speciale/segreto aumenta
         if ($pity >= PITY_STANDARD_SOFT) {
-            $bonus = ($pity - PITY_STANDARD_SOFT + 1) * 10.0;
-            $weights['leggendario'] += $bonus;
+            $bonus = ($pity - PITY_STANDARD_SOFT + 1) * 4.0;
+            $weights['speciale'] += $bonus;
+            $weights['segreto']  += $bonus * 0.5;
         }
-        // Hard pity: garantisce leggendario
+        // Hard pity: garantisce speciale (90% speciale, 10% segreto)
         if ($pity >= PITY_STANDARD_HARD) {
-            return 'leggendario';
+            return (mt_rand(1, 10) === 1) ? 'segreto' : 'speciale';
         }
     } elseif ($bannerType === 'evento') {
         // Soft pity: da pull PITY_EVENTO_SOFT la % segreto sale del 6% per pull
@@ -363,8 +364,8 @@ try {
 
     if ($bannerType === 'standard') {
         $pityStandard++;
-        // Reset pity standard se ottenuto leggendario o superiore
-        if (in_array($rarità, ['leggendario', 'speciale', 'segreto', 'theone'], true)) {
+        // Reset pity standard SOLO per speciale/segreto/theone (non leggendario)
+        if (in_array($rarità, ['speciale', 'segreto', 'theone'], true)) {
             $pityStandard = 0;
         }
     } else {
