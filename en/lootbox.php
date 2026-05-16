@@ -156,7 +156,7 @@ define('PITY_EVENTO_SOFT',   65);
             <div>
                 <span class="gacha-banner-type-badge">✦ SEMPRE DISPONIBILE</span>
                 <h1 class="gacha-banner-title">Banner Standard</h1>
-                <p class="gacha-banner-desc">Il banner classico di GoonLand. Tira per ottenere personaggi di ogni rarità. Gratuito, senza timer.</p>
+                <p class="gacha-banner-desc">Il banner classico di Cripsum™ dove puoi ottenere tutti i personaggi originali.</p>
             </div>
 
             <!-- Pity standard -->
