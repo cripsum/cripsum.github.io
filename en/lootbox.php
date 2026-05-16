@@ -628,7 +628,7 @@ define('PITY_EVENTO_SOFT',   65);
 ════════════════════════════════════════════════════════ -->
     <!-- FIX 12 — Bottom bar (leaderboard + link) -->
     <div class="gacha-bottom-bar" id="gacha-bottom-bar">
-        <button type="button" class="gacha-bottom-btn gacha-leaderboard-btn" onclick="alert('CLICK RICEVUTO!'); toggleLeaderboard();">
+        <button type="button" class="gacha-bottom-btn gacha-leaderboard-btn" onclick="toggleLeaderboard();">
             <i class="fas fa-trophy"></i> Classifica
         </button>
         <a href="inventario" class="gacha-bottom-btn">
