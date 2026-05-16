@@ -1835,7 +1835,7 @@ require_once '../api/api_personaggi.php';
                     filter: brightness(1.2) contrast(1.1);
                     transition: filter 2s ease-in-out;
                 `;
-                video.src = '../vid/shorekeeperpull.mp4';
+                video.src = '../vid/tunggodgacha.mp4';
                 video.autoplay = true;
                 video.muted = false;
                 video.loop = false;
