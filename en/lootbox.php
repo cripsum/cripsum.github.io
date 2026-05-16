@@ -3,6 +3,7 @@ require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
+$isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
 
 if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
@@ -11,6 +12,7 @@ if (!isLoggedIn()) {
     exit();
 }
 checkPermissions($mysqli, 'utente');
+
 
 $ruolo = $_SESSION['ruolo'] ?? 'utente';
 $isAdmin = in_array($ruolo, ['admin', 'owner'], true);
@@ -69,12 +71,38 @@ define('PITY_EVENTO_SOFT',   65);
     <link rel="stylesheet" href="/css/lootbox.css?v=8.2" />
     <link rel="stylesheet" href="/css/gacha.css?v=1.0" />
     <meta name="theme-color" content="#080810">
-    <title>Cripsum™ — Gacha</title>
+    <title>Cripsum™ — Lootbox</title>
+    <?php if ($richpresence === 1): ?>
+        <script>
+            window.addEventListener('load', function() {
+                var script = document.createElement('script');
+                script.src = '/js/richpresence.js';
+                document.head.appendChild(script);
+            });
+        </script>
+    <?php endif; ?>
+    <?php if ($isLoggedIn): ?>
+        <script>
+            window.addEventListener('load', function() {
+                var script = document.createElement('script');
+                script.src = '/js/unlockAchievement-it.js?v=2';
+                document.head.appendChild(script);
+            });
+        </script>
+        <script>
+            window.addEventListener('load', function() {
+                var script = document.createElement('script');
+                script.src = '/js/achievements-globali.js?v=3';
+                document.head.appendChild(script);
+            });
+        </script>
+
+    <?php endif; ?>
 </head>
 
 <body class="lootbox-page" data-ruolo="<?= htmlspecialchars($ruolo, ENT_QUOTES) ?>">
 
-    <?php include '../includes/navbar-lootbox.php'; ?>
+
 
     <div class="stars" id="stars"></div>
 
