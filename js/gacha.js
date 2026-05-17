@@ -458,7 +458,8 @@
     videoUnmuteBtn.style.display = 'none';
 
     // FIX 3: nella multi il card timer è 5s (non 12s)
-    const MULTI_VIDEO_CARD_DELAY = 5000;
+    // FIX 3: lascia vedere il video — card appare dopo 30s o al termine
+    const MULTI_VIDEO_CARD_DELAY = 30000;
     let cardShown = false;
 
     const showCardAfterVideo = async () => {
@@ -602,37 +603,58 @@
     summary.style.display = 'flex';
 
     const newCount = results.filter(r => r.is_new).length;
-    const cards = results.map(r => {
+
+    // Calcola top rarity per titolo dinamico
+    const rarityRank = ['theone','segreto','speciale','leggendario','epico','raro','comune'];
+    let topRarity = 'comune';
+    results.forEach(r => {
+      const ra = normalizeRarity(r.personaggio.rarità);
+      if (rarityRank.indexOf(ra) < rarityRank.indexOf(topRarity)) topRarity = ra;
+    });
+    const topColor = RARITY_C[topRarity] ?? '#fff';
+
+    const cards = results.map((r, idx) => {
       const p  = r.personaggio;
       const ra = normalizeRarity(p.rarità);
       const co = RARITY_C[ra] ?? '#fff';
+      const isTop = ['theone','segreto','speciale'].includes(ra);
       return `
-        <div class="gms-card" style="border-color:${co}25">
-          <div class="gms-card-img" style="border-color:${co}55">
-            <img src="${p.img_url ? '/img/'+p.img_url : '/img/cassa.png'}"
-                 alt="${escapeHtml(p.nome)}" onerror="this.src='/img/cassa.png'">
-            ${r.is_new ? '<span class="gms-new">NEW</span>' : ''}
+        <div class="gms-card gms-card--${ra}" style="--rc:${co};animation-delay:${idx * 55}ms">
+          <div class="gms-card-frame">
+            <img class="gms-card-img" src="${p.img_url ? '/img/'+p.img_url : '/img/cassa.png'}"
+                 alt="${escapeHtml(p.nome)}" loading="lazy" onerror="this.src='/img/cassa.png'">
+            <div class="gms-card-shine"></div>
+            ${isTop ? '<div class="gms-card-glow"></div>' : ''}
+            ${r.is_new ? '<span class="gms-badge gms-badge--new">NEW</span>' : ''}
+            ${r.vinto_50_50 === 1 ? '<span class="gms-badge gms-badge--50">★ Rate-Up</span>' : ''}
           </div>
-          <p class="gms-rarity" style="color:${co}">${escapeHtml(p.rarità)}</p>
-          <p class="gms-name">${escapeHtml(p.nome)}</p>
+          <div class="gms-card-info">
+            <span class="gms-card-rarity" style="color:${co}">${escapeHtml(p.rarità.toUpperCase())}</span>
+            <span class="gms-card-name">${escapeHtml(p.nome)}</span>
+          </div>
         </div>`;
     }).join('');
 
     summary.innerHTML = `
       <div class="gms-inner">
         <div class="gms-header">
+          <div class="gms-header-line" style="background:${topColor}"></div>
           <h2 class="gms-title">Riepilogo Multi</h2>
-          ${newCount > 0 ? `<span class="gms-new-count">${newCount} NUOV${newCount===1?'O':'I'}!</span>` : ''}
+          <div class="gms-header-badges">
+            ${newCount > 0 ? `<span class="gms-badge gms-badge--count">${newCount} nuov${newCount===1?'o':'i'}</span>` : ''}
+            ${results.filter(r=>['segreto','theone','speciale'].includes(normalizeRarity(r.personaggio.rarità))).length > 0
+              ? `<span class="gms-badge gms-badge--rare">✦ Raro trovato</span>` : ''}
+          </div>
         </div>
         <div class="gms-cards">${cards}</div>
-        <div class="gms-actions">
-          <button class="gacha-btn gacha-btn--primary" id="btn-multi-again">
+        <div class="gms-footer">
+          <button class="gms-btn gms-btn--primary" id="btn-multi-again">
             <i class="fas fa-rotate-right"></i> Multi ancora
           </button>
-          <button class="gacha-btn gacha-btn--ghost" id="btn-summary-close">
+          <button class="gms-btn gms-btn--ghost" id="btn-summary-close">
             <i class="fas fa-xmark"></i> Chiudi
           </button>
-          <a href="/inventario" class="gacha-btn gacha-btn--ghost">
+          <a href="/inventario" class="gms-btn gms-btn--ghost">
             <i class="fas fa-layer-group"></i> Inventario
           </a>
         </div>
@@ -776,7 +798,7 @@
       display:flex;flex-direction:column;align-items:center;justify-content:center;
       gap:24px;padding:20px 20px calc(20px + var(--safe-bot,0px));
       opacity:0;transition:opacity .7s ease;
-      background:linear-gradient(to top,rgba(0,0,0,0.75) 0%,transparent 60%);
+      background:transparent;
     `;
 
     // Clona card e actions in questo layer

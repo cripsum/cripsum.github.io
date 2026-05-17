@@ -1930,7 +1930,10 @@ body.lootbox-page {
     width: 100%;
 }
 
-/* ── #4 Multi — Summary screen ──────────────────────────────── */
+/* ════════════════════════════════════════════════════════════════
+   MULTI SUMMARY — v3 redesign
+   ════════════════════════════════════════════════════════════════ */
+
 .gacha-phase--summary {
     position: absolute;
     inset: 0;
@@ -1939,29 +1942,110 @@ body.lootbox-page {
     align-items: flex-start;
     justify-content: center;
     overflow-y: auto;
-    padding: 20px 16px calc(20px + var(--safe-bot, 0px));
-    background: rgba(5, 5, 14, 0.96);
-    backdrop-filter: blur(10px);
+    overflow-x: hidden;
+    padding: 24px 20px calc(32px + var(--safe-bot, 0px));
+    background: rgba(4, 4, 12, 0.97);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 }
 
 .gms-inner {
     width: 100%;
-    max-width: 760px;
+    max-width: 720px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
     align-items: center;
 }
 
+/* ── Header ─────────────────────────────────────── */
+.gms-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+}
+
+.gms-header-line {
+    width: 48px;
+    height: 3px;
+    border-radius: 2px;
+    margin-bottom: 2px;
+    box-shadow: 0 0 12px currentColor;
+}
+
 .gms-title {
-    font-size: 1.4rem;
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
     font-weight: 800;
     color: #fff;
-    text-align: center;
     margin: 0;
+    letter-spacing: 0.03em;
+    text-align: center;
+}
+
+.gms-header-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* ── Badges generici ────────────────────────────── */
+.gms-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
     letter-spacing: 0.04em;
 }
 
+.gms-badge--new {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: rgba(34, 197, 94, 0.9);
+    color: #fff;
+    font-size: 0.6rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    z-index: 2;
+    line-height: 1;
+}
+
+.gms-badge--50 {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(251, 191, 36, 0.18);
+    border: 1px solid rgba(251, 191, 36, 0.5);
+    color: #fbbf24;
+    font-size: 0.58rem;
+    padding: 2px 7px;
+    border-radius: 4px;
+    z-index: 2;
+    white-space: nowrap;
+}
+
+.gms-badge--count {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    color: #4ade80;
+}
+
+.gms-badge--rare {
+    background: rgba(168, 85, 247, 0.15);
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    color: #c084fc;
+}
+
+/* ── Cards grid ─────────────────────────────────── */
 .gms-cards {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -1969,110 +2053,219 @@ body.lootbox-page {
     width: 100%;
 }
 
-@media (max-width: 600px) {
-    .gms-cards {
-        grid-template-columns: repeat(5, 1fr);
-        gap: 6px;
+@keyframes gmsCardIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.9);
     }
-}
-@media (max-width: 380px) {
-    .gms-cards {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 5px;
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
     }
 }
 
 .gms-card {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    padding: 8px 6px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
-    transition: transform 0.2s;
-}
-.gms-card:hover {
-    transform: translateY(-3px);
+    gap: 6px;
+    opacity: 0;
+    animation: gmsCardIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    cursor: default;
 }
 
-.gms-card-img {
+.gms-card-frame {
     position: relative;
     width: 100%;
     aspect-ratio: 3/4;
-    border-radius: 7px;
+    border-radius: 10px;
     overflow: hidden;
-    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    border: 1.5px solid rgba(255, 255, 255, 0.09);
+    background: rgba(255, 255, 255, 0.04);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
-.gms-card-img img {
+
+.gms-card:hover .gms-card-frame {
+    transform: translateY(-4px) scale(1.03);
+}
+
+/* Bordo colorato per rarità sul frame */
+.gms-card--raro .gms-card-frame {
+    border-color: rgba(56, 189, 248, 0.45);
+}
+.gms-card--epico .gms-card-frame {
+    border-color: rgba(192, 132, 252, 0.5);
+}
+.gms-card--leggendario .gms-card-frame {
+    border-color: rgba(251, 191, 36, 0.55);
+    box-shadow: 0 0 16px rgba(251, 191, 36, 0.15);
+}
+.gms-card--speciale .gms-card-frame {
+    border-color: rgba(255, 255, 255, 0.65);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.12);
+}
+.gms-card--segreto .gms-card-frame {
+    border-color: rgba(168, 85, 247, 0.65);
+    box-shadow: 0 0 22px rgba(168, 85, 247, 0.2);
+}
+.gms-card--theone .gms-card-frame {
+    border-color: rgba(96, 165, 250, 0.7);
+    box-shadow: 0 0 26px rgba(96, 165, 250, 0.22);
+}
+
+.gms-card-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: top;
-}
-.gms-new {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    padding: 2px 5px;
-    background: #22c55e;
-    border-radius: 4px;
-    font-size: 0.55rem;
-    font-weight: 800;
-    color: #fff;
+    object-position: top center;
+    display: block;
 }
 
-.gms-rarity {
-    font-size: 0.62rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin: 0;
-    text-align: center;
+/* Shine riflesso */
+.gms-card-shine {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, transparent 55%);
+    pointer-events: none;
 }
-.gms-name {
-    font-size: 0.7rem;
+
+/* Glow per rarità top */
+.gms-card-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 80%, var(--rc, rgba(255, 255, 255, 0.15)) 0%, transparent 70%);
+    pointer-events: none;
+    opacity: 0.5;
+    animation: gmsGlowPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes gmsGlowPulse {
+    0%,
+    100% {
+        opacity: 0.35;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* ── Info testuale sotto la card ────────────────── */
+.gms-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: center;
+    padding: 0 2px;
+}
+
+.gms-card-rarity {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+.gms-card-name {
+    font-size: 0.68rem;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.75);
-    margin: 0;
-    text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 100%;
+    line-height: 1.2;
 }
 
-.gms-actions {
+/* ── Footer tasti ───────────────────────────────── */
+.gms-footer {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
     justify-content: center;
-    max-width: 420px;
     width: 100%;
-}
-.gms-actions .gacha-btn {
-    flex: 1;
-    min-width: 130px;
+    max-width: 500px;
 }
 
-/* ── Multi summary header ─────────────────────────────── */
-.gms-header {
-    display: flex;
+.gms-btn {
+    display: inline-flex;
     align-items: center;
-    gap: 12px;
     justify-content: center;
-    flex-wrap: wrap;
+    gap: 7px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: transform 0.16s, opacity 0.16s, box-shadow 0.16s;
+    text-decoration: none;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 110px;
+    max-width: 180px;
 }
-.gms-new-count {
-    display: inline-block;
-    padding: 3px 12px;
-    background: linear-gradient(90deg, rgba(34, 197, 94, 0.25), rgba(16, 185, 129, 0.2));
-    border: 1px solid rgba(34, 197, 94, 0.5);
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 800;
-    color: #4ade80;
-    letter-spacing: 0.06em;
-    text-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+.gms-btn:active {
+    transform: scale(0.95);
+}
+
+.gms-btn--primary {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(56, 189, 248, 0.08));
+    border: 1px solid rgba(56, 189, 248, 0.55);
+    color: #e0f2fe;
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.12);
+}
+.gms-btn--primary:hover {
+    opacity: 0.9;
+    box-shadow: 0 0 26px rgba(56, 189, 248, 0.22);
+    transform: translateY(-1px);
+}
+
+.gms-btn--ghost {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.65);
+}
+.gms-btn--ghost:hover {
+    background: rgba(255, 255, 255, 0.11);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+/* ── Mobile ─────────────────────────────────────── */
+@media (max-width: 520px) {
+    .gms-cards {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+    }
+    .gms-card-name {
+        font-size: 0.58rem;
+    }
+    .gms-card-rarity {
+        font-size: 0.52rem;
+    }
+    .gms-footer {
+        max-width: 100%;
+    }
+    .gms-btn {
+        min-width: 90px;
+        padding: 9px 14px;
+        font-size: 0.76rem;
+    }
+}
+
+@media (max-width: 380px) {
+    .gms-cards {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* ── FIX 2: card-over-video trasparente, no blur ── */
+#card-over-video {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+#card-over-video .gacha-card {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 }
