@@ -202,18 +202,17 @@
      PULL BUTTONS
   ════════════════════════════════════════════════════ */
   function initPullButtons() {
+    // Unico listener per tutti i .gacha-pull-btn
+    // data-pull-qty="10" → multi, altrimenti singola
     $$('.gacha-pull-btn[data-banner-id]').forEach(btn => {
       btn.addEventListener('click', () => {
         if (state.isPulling) return;
-        state.isFastPull = false;
-        startPull(btn.dataset.bannerId);
-      });
-    });
-    // #4 — Multi pull
-    $$('.gacha-pull-10-btn[data-banner-id]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (state.isPulling) return;
-        startMultiPull(btn.dataset.bannerId);
+        if (btn.dataset.pullQty === '10') {
+          startMultiPull(btn.dataset.bannerId);
+        } else {
+          state.isFastPull = false;
+          startPull(btn.dataset.bannerId);
+        }
       });
     });
   }
