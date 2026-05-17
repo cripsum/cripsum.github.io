@@ -51,6 +51,8 @@
     multiSkipping:    false,
     multiAbort:       false,  // FIX 1: salta al resoconto
     _covActions:      null,   // riferimento azioni card-over-video multi
+    videoPlaying:     false,  // true mentre un video segreto/theone è in riproduzione
+    _videoAbortFn:    null,   // funzione per interrompere il video in corso
   };
 
   /* ══════════════════════════════════════════════════════
@@ -983,15 +985,18 @@
     const cloneMulti = cardOverlay.querySelectorAll('[id^="btn-multi"]');
 
     cloneClose?.addEventListener('click', () => {
-      videoEl.pause(); videoEl.src = '';
-      cardOverlay.remove();
+      abortVideo();
       closeOverlay();
     });
     cloneAgain?.addEventListener('click', () => {
-      videoEl.pause(); videoEl.src = '';
-      cardOverlay.remove();
+      abortVideo(); // interrompe il video e rimuove card-over-video
+      gachaCard.classList.remove('is-revealed','is-idle');
+      showPhase('opening');
+      setRarityOnOverlay('comune');
+      hideSkipBtn();
       state.isFastPull = false;
-      pullAgainFromOverlay();
+      if (btnPullAgain) btnPullAgain.style.display = '';
+      setTimeout(() => pullAgainFromOverlay(), 80);
     });
     cloneMulti.forEach(b => b.style.display = 'none');
 
@@ -1118,6 +1123,16 @@
     phaseCard.style.display    = p === 'card'    ? 'flex' : 'none';
   }
 
+  // Interrompe qualsiasi video in corso e pulisce lo stato
+  function abortVideo() {
+    if (state._videoAbortFn) { state._videoAbortFn(); state._videoAbortFn = null; }
+    videoEl.pause();
+    videoEl.src = '';
+    state.videoPlaying = false;
+    $('card-over-video')?.remove();
+    document.getElementById('card-timer-shield')?.remove();
+  }
+
   function setRarityOnOverlay(rarity) {
     overlay.setAttribute('data-rarity', rarity);
     const color = RARITY_COLORS[rarity] ?? '#fff';
@@ -1158,9 +1173,10 @@
   ════════════════════════════════════════════════════ */
   function initOverlayButtons() {
     btnPullAgain?.addEventListener('click', () => {
+      // Questo listener vale solo quando btnPullAgain è visibile (non durante video)
       if (state.isPulling) return;
       stopAudio();
-      $('card-over-video')?.remove();
+      abortVideo(); // cancella eventuale video in corso e pulisce il DOM
       gachaCard.classList.remove('is-revealed','is-idle');
       showPhase('opening');
       setRarityOnOverlay('comune');
@@ -1180,6 +1196,9 @@
     state.isPulling  = true;
     state.isFastPull = false;
     stopAudio();
+    // Assicura che non ci siano residui del video precedente
+    abortVideo();
+    $('card-over-video')?.remove();
 
     const payload = { banner_id: state.activeBannerId, quantity: 1 };
     if (state.adminForceRarity) payload.force_rarity = state.adminForceRarity;
