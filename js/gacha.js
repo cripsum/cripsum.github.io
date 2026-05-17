@@ -45,12 +45,11 @@
     adminForceRarity: null,
     canSkip:          false,
     skipTimeout:      null,
-    // Multi pull #4
+    // Multi pull
     isMulti:          false,
     multiResults:     [],
-    multiTotal:       0,
-    multiCurrent:     0,
     multiSkipping:    false,
+    multiAbort:       false,  // FIX 1: salta al resoconto
   };
 
   /* ══════════════════════════════════════════════════════
@@ -343,8 +342,11 @@
     const total = pulls.length;
 
     for (let i = 0; i < total; i++) {
-      const pullData = pulls[i];
-      const rarity   = normalizeRarity(pullData.personaggio.rarità);
+      // FIX 1: se richiesta skip-to-summary esci subito dal loop
+      if (state.multiAbort) break;
+
+      const pullData  = pulls[i];
+      const rarity    = normalizeRarity(pullData.personaggio.rarità);
       const isSpecial = RARITY_NO_SKIP.has(rarity);
       const isNew     = pullData.is_new;
       const mustShow  = isNew || isSpecial;
@@ -354,41 +356,158 @@
       if (counter) { counter.textContent = `${i+1} / ${total}`; counter.style.display = 'block'; }
 
       if (state.multiSkipping && !mustShow) {
-        // Skip veloce: solo attesa minima
-        await delay(30);
+        // FIX 2: pull normale → skip silenzioso senza animazione
+        await delay(20);
         continue;
       }
 
       state.multiSkipping = false;
 
-      // Audio solo se la pull va mostrata e non ha video
       const hasVideo = pullData.personaggio.video_url && RARITY_VIDEO.has(rarity);
-      if (!hasVideo) playAudio(pullData.personaggio.audio_url);
 
-      // Orb animazione
-      showPhase('opening');
-      setRarityOnOverlay('comune');
-      await delay(800);
+      // FIX 2: per pull normali (non mustShow) mostra card SUBITO senza orb
+      if (!mustShow) {
+        if (!hasVideo) playAudio(pullData.personaggio.audio_url);
+        setRarityOnOverlay(rarity);
+        await showCardInstant(pullData);
+      } else {
+        // Personaggio nuovo o rarità speciale: animazione completa
+        if (!hasVideo) playAudio(pullData.personaggio.audio_url);
+        showPhase('opening');
+        setRarityOnOverlay('comune');
+        await delay(700);
 
-      // Reveal (usa i dati già ricevuti, niente fetch)
-      await revealPull(pullData);
+        if (hasVideo) {
+          // FIX 6: video in multi → approccio semplice senza clone DOM
+          await revealPullMultiVideo(pullData);
+        } else {
+          if (window.GachaEffects && RARITY_EFFECTS.has(rarity)) {
+            await GachaEffects.play(rarity);
+          }
+          setRarityOnOverlay(rarity);
+          await showCard(pullData);
+        }
+      }
 
-      // Aspetta input utente
       const isLast = (i === total - 1);
       await waitForMultiNext(i, total, isLast);
       stopAudio();
     }
 
-    // Counter via, resoconto
     const counter = $('multi-counter');
     if (counter) counter.style.display = 'none';
+    state.multiAbort = false;
     showMultiSummary(pulls);
+  }
+
+  // FIX 2: card istantanea — niente orb, niente bounce, comparsa veloce
+  async function showCardInstant(data) {
+    const p      = data.personaggio ?? data;
+    const rarity = normalizeRarity(p.rarità);
+    const color  = RARITY_COLORS[rarity] ?? '#fff';
+
+    cardImg.src                  = p.img_url ? `/img/${p.img_url}` : '/img/cassa.png';
+    cardImg.alt                  = escapeHtml(p.nome ?? '');
+    cardName.textContent         = escapeHtml(p.nome ?? '—');
+    cardRarityBar.className      = `gacha-card-rarity-bar rarity-${rarity}`;
+    cardRarityLabel.textContent  = (p.rarità ?? '—').toUpperCase();
+    cardBgGlow.style.background  = `radial-gradient(circle,${color}44 0%,transparent 70%)`;
+
+    cardNewBadge.style.display = data.is_new ? '' : 'none';
+    card50Win.style.display    = 'none';
+    card50Loss.style.display   = 'none';
+    if      (data.vinto_50_50 === 1) card50Win.style.display  = '';
+    else if (data.vinto_50_50 === 0) card50Loss.style.display = '';
+
+    if (btnInventory) btnInventory.style.display = '';
+    if (btnPullAgain) btnPullAgain.style.display = 'none';
+
+    spawnParticles(color, rarity);
+    showPhase('card');
+
+    // Animazione veloce: 150ms invece di 620ms
+    gachaCard.classList.remove('is-revealed','is-idle');
+    await delay(20);
+    gachaCard.classList.add('is-revealed');
+    await delay(150);
+    gachaCard.classList.add('is-idle');
+  }
+
+  // FIX 6: video in multi — NO clone DOM, gestione pulita
+  async function revealPullMultiVideo(data) {
+    const p = data.personaggio;
+    setRarityOnOverlay(normalizeRarity(p.rarità));
+
+    // Fade a nero
+    const velo = document.createElement('div');
+    velo.style.cssText = 'position:absolute;inset:0;background:#000;z-index:30;opacity:0;transition:opacity .6s ease;pointer-events:none;';
+    overlay.appendChild(velo);
+    await delay(20);
+    velo.style.opacity = '1';
+    await delay(650);
+
+    showPhase('video');
+    velo.style.opacity = '0';
+    setTimeout(() => velo.remove(), 600);
+
+    // Avvia video
+    videoEl.src    = p.video_url.startsWith('/') ? p.video_url : `/vid/${p.video_url}`;
+    videoEl.muted  = false;
+    videoEl.volume = 1;
+    videoEl.load();
+    videoUnmuteBtn.style.display = 'none';
+
+    // FIX 3: nella multi il card timer è 5s (non 12s)
+    const MULTI_VIDEO_CARD_DELAY = 5000;
+    let cardShown = false;
+
+    const showCardAfterVideo = async () => {
+      if (cardShown) return;
+      cardShown = true;
+      // Ferma video, passa a phase-card
+      videoEl.pause();
+      videoEl.src = '';
+      const color = RARITY_COLORS[normalizeRarity(p.rarità)] ?? '#fff';
+      spawnParticles(color, normalizeRarity(p.rarità));
+      await showCard(data);
+    };
+
+    const cardTimer = setTimeout(showCardAfterVideo, MULTI_VIDEO_CARD_DELAY);
+
+    await new Promise(resolve => {
+      const done = async () => {
+        clearTimeout(cardTimer);
+        clearTimeout(safeguard);
+        videoEl.removeEventListener('ended', done);
+        videoEl.removeEventListener('error', done);
+        await showCardAfterVideo();
+        resolve();
+      };
+      const safeguard = setTimeout(done, 60000);
+      videoEl.addEventListener('ended', done, { once: true });
+      videoEl.addEventListener('error', done, { once: true });
+
+      const pp = videoEl.play();
+      if (pp) pp.catch(() => {
+        videoEl.muted = true;
+        videoEl.play().catch(() => done());
+      });
+
+      // Quando la card appare (cardTimer), la Promise deve risolversi
+      // Attendiamo che showCard sia completata
+      const waitCard = setInterval(() => {
+        if (cardShown && phaseCard.style.display !== 'none') {
+          clearInterval(waitCard);
+          resolve();
+        }
+      }, 100);
+    });
   }
 
   function waitForMultiNext(idx, total, isLast) {
     return new Promise(resolve => {
-      const btnNext = $('btn-multi-next');
-      const btnSkip = $('btn-multi-skip');
+      const btnNext  = $('btn-multi-next');
+      const btnSkip  = $('btn-multi-skip');
 
       if (btnNext) {
         btnNext.style.display = '';
@@ -400,30 +519,36 @@
       if (btnPullAgain) btnPullAgain.style.display = 'none';
 
       let resolved = false;
-      const done = (skip) => {
+      const done = (skip, abort = false) => {
         if (resolved) return;
         resolved = true;
         state.multiSkipping = skip;
+        if (abort) state.multiAbort = true;
         cleanup();
         resolve();
       };
 
-      const onNext = () => done(false);
-      const onSkip = () => done(true);
+      const onNext  = () => done(false);
+      const onSkip  = () => done(true);
+      // FIX 1: chiudi durante multi → salta al resoconto
+      const onClose = () => done(true, true);
 
       function cleanup() {
         btnNext?.removeEventListener('click', onNext);
         btnSkip?.removeEventListener('click', onSkip);
+        btnClose?.removeEventListener('click', onClose);
         document.removeEventListener('keydown', onKey);
       }
 
       const onKey = e => {
-        if (e.code === 'Enter') { e.preventDefault(); done(false); }
+        if (e.code === 'Enter')  { e.preventDefault(); done(false); }
         if (e.code === 'KeyS' && !isLast) { e.preventDefault(); done(true); }
+        if (e.code === 'Escape') { e.preventDefault(); done(true, true); }
       };
 
-      btnNext?.addEventListener('click', onNext, { once: true });
-      btnSkip?.addEventListener('click', onSkip, { once: true });
+      btnNext?.addEventListener('click', onNext,  { once: true });
+      btnSkip?.addEventListener('click', onSkip,  { once: true });
+      btnClose?.addEventListener('click', onClose, { once: true });
       document.addEventListener('keydown', onKey);
     });
   }
