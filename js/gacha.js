@@ -380,12 +380,27 @@
     }).join('');
 
     // Barra glow
+    // FIX 2: speciale → stelle arcobaleno
+    const starsColor = topRarity === 'speciale'
+      ? 'url(#rainbow-grad)'
+      : color;
+
     intro.innerHTML = `
-      <div class="mi-glow" style="background:${color};box-shadow:0 0 60px ${color},0 0 120px ${color}44"></div>
-      <div class="mi-stars">${starsHtml}</div>
-      <div class="mi-label" style="color:${color};text-shadow:0 0 20px ${color}">${label}</div>
-      <div class="mi-sub">${sub}</div>
-      <div class="mi-bar" style="background:linear-gradient(90deg,transparent,${color},transparent)"></div>
+      <svg width="0" height="0" style="position:absolute">
+        <defs>
+          <linearGradient id="rainbow-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stop-color="#ff004c"/>
+            <stop offset="17%"  stop-color="#ff7a00"/>
+            <stop offset="33%"  stop-color="#fff300"/>
+            <stop offset="50%"  stop-color="#35ff00"/>
+            <stop offset="67%"  stop-color="#00ffd5"/>
+            <stop offset="83%"  stop-color="#0077ff"/>
+            <stop offset="100%" stop-color="#7a00ff"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="mi-glow" style="background:${topRarity==='speciale'?'conic-gradient(#ff004c,#ff7a00,#fff300,#35ff00,#00ffd5,#0077ff,#7a00ff,#ff004c)':color};box-shadow:0 0 60px ${color},0 0 120px ${color}44"></div>
+      <div class="mi-stars" data-rarity="${topRarity}">${starsHtml}</div>
     `;
 
     overlay.appendChild(intro);
