@@ -280,144 +280,158 @@
   /* ════════════════════════════════════════════════════
      #4 — MULTI PULL (10x)
   ════════════════════════════════════════════════════ */
+  const API_MULTI = '/api/api_gacha_multi_pull';
+
   async function startMultiPull(bannerId) {
     if (state.isPulling) return;
 
-    // Reset stato multi
     state.isMulti       = true;
     state.multiResults  = [];
-    state.multiTotal    = 10;
-    state.multiCurrent  = 0;
     state.multiSkipping = false;
+    state.isPulling     = true;
 
     stopAudio();
     lockScroll();
     openOverlay();
+    showPhase('opening');
     setRarityOnOverlay('comune');
 
-    const updateCounter = () => {
-      const el = $('multi-counter');
-      if (el) el.textContent = `${state.multiCurrent} / ${state.multiTotal}`;
-    };
+    const payload = { banner_id: bannerId, quantity: 10 };
+    if (state.adminForceRarity) payload.force_rarity = state.adminForceRarity;
 
-    for (let i = 0; i < state.multiTotal; i++) {
-      state.multiCurrent = i + 1;
-      updateCounter();
-      state.isPulling = true;
-
-      const payload = { banner_id: bannerId, quantity: 1 };
-      if (state.adminForceRarity) payload.force_rarity = state.adminForceRarity;
-
-      try {
-        showPhase('opening');
-        setRarityOnOverlay('comune');
-
-        const resp = await fetch(API_PULL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-          credentials: 'same-origin',
-        });
-        if (!resp.ok) throw new Error(`Errore ${resp.status}`);
-        const data = await resp.json();
-        if (data.status !== 'success') throw new Error(data.message);
-
-        state.soldi        = data.soldi_rimasti ?? state.soldi;
-        state.pityStandard = data.pity_standard ?? state.pityStandard;
-        state.pityEvento   = data.pity_evento   ?? state.pityEvento;
-        state.garantito    = data.garantito     ?? state.garantito;
-        state.multiResults.push(data);
-
-        const rarity    = normalizeRarity(data.personaggio.rarità);
-        const isSpecial = RARITY_NO_SKIP.has(rarity);
-        const isNew     = data.is_new;
-
-        // Deve mostrare l'animazione se: personaggio nuovo OPPURE rarità non skippabile
-        const showAnim = isNew || isSpecial;
-
-        state.canSkip = !showAnim;
-
-        if (!RARITY_VIDEO.has(rarity)) playAudio(data.personaggio.audio_url);
-
-        if (!showAnim && state.multiSkipping) {
-          // Saltiamo completamente questa pull
-          await delay(200);
-        } else {
-          // Mostra animazione
-          state.multiSkipping = false;
-          if (showAnim) {
-            // Orb animazione normale
-            await delay(900);
-          }
-          await revealPull(data);
-
-          // Aspetta input utente per continuare (skip o 'Prossima')
-          await waitForMultiContinue(i < state.multiTotal - 1);
-          stopAudio();
-        }
-
-      } catch(err) {
-        console.error('[Gacha] Multi pull error at', i, err);
-        showToast(err.message ?? 'Errore. Pull interrotta.', 'error');
-        break;
-      } finally {
-        state.isPulling = false;
+    try {
+      // UN SOLO FETCH — tutte e 10 le pull calcolate server-side
+      const resp = await fetch(API_MULTI, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        credentials: 'same-origin',
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.message ?? `Errore ${resp.status}`);
       }
+      const data = await resp.json();
+      if (data.status !== 'success') throw new Error(data.message ?? 'Errore sconosciuto');
+
+      // Aggiorna stato globale con i dati finali del server
+      state.soldi        = data.soldi_rimasti ?? state.soldi;
+      state.pityStandard = data.pity_standard ?? state.pityStandard;
+      state.pityEvento   = data.pity_evento   ?? state.pityEvento;
+      state.garantito    = data.garantito     ?? state.garantito;
+      state.multiResults = data.pulls;
+
+      // Mostra le pull una ad una (dati già pronti, niente fetch)
+      await showMultiPulls(data.pulls, bannerId);
+      updateBannerUI();
+
+    } catch(err) {
+      console.error('[Gacha] Multi pull error:', err);
+      state.isMulti   = false;
+      state.isPulling = false;
+      closeOverlay();
+      showToast(err.message ?? 'Errore multi pull. Riprova!', 'error');
+      return;
     }
 
-    // Mostra resoconto finale
     state.isMulti   = false;
     state.isPulling = false;
-    updateBannerUI();
-    showMultiSummary(state.multiResults);
   }
 
-  // Attende che l'utente prema "Prossima" o "Salta resto"
-  function waitForMultiContinue(hasMore) {
+  // Mostra le 10 pull una ad una dai dati già ricevuti
+  async function showMultiPulls(pulls, bannerId) {
+    const total = pulls.length;
+
+    for (let i = 0; i < total; i++) {
+      const pullData = pulls[i];
+      const rarity   = normalizeRarity(pullData.personaggio.rarità);
+      const isSpecial = RARITY_NO_SKIP.has(rarity);
+      const isNew     = pullData.is_new;
+      const mustShow  = isNew || isSpecial;
+
+      // Aggiorna counter
+      const counter = $('multi-counter');
+      if (counter) { counter.textContent = `${i+1} / ${total}`; counter.style.display = 'block'; }
+
+      if (state.multiSkipping && !mustShow) {
+        // Skip veloce: solo attesa minima
+        await delay(30);
+        continue;
+      }
+
+      state.multiSkipping = false;
+
+      // Audio solo se la pull va mostrata e non ha video
+      const hasVideo = pullData.personaggio.video_url && RARITY_VIDEO.has(rarity);
+      if (!hasVideo) playAudio(pullData.personaggio.audio_url);
+
+      // Orb animazione
+      showPhase('opening');
+      setRarityOnOverlay('comune');
+      await delay(800);
+
+      // Reveal (usa i dati già ricevuti, niente fetch)
+      await revealPull(pullData);
+
+      // Aspetta input utente
+      const isLast = (i === total - 1);
+      await waitForMultiNext(i, total, isLast);
+      stopAudio();
+    }
+
+    // Counter via, resoconto
+    const counter = $('multi-counter');
+    if (counter) counter.style.display = 'none';
+    showMultiSummary(pulls);
+  }
+
+  function waitForMultiNext(idx, total, isLast) {
     return new Promise(resolve => {
       const btnNext = $('btn-multi-next');
-      const btnSkipRest = $('btn-multi-skip');
+      const btnSkip = $('btn-multi-skip');
 
       if (btnNext) {
-        btnNext.style.display = hasMore ? '' : 'none';
-        btnNext.textContent = hasMore ? `Prossima (${state.multiCurrent}/${state.multiTotal})` : 'Continua';
+        btnNext.style.display = '';
+        btnNext.innerHTML = isLast
+          ? '<i class="fas fa-flag-checkered"></i> Resoconto'
+          : `<i class="fas fa-forward"></i> Prossima (${idx+1}/${total})`;
       }
-      if (btnSkipRest) btnSkipRest.style.display = hasMore ? '' : 'none';
+      if (btnSkip) btnSkip.style.display = isLast ? 'none' : '';
+      if (btnPullAgain) btnPullAgain.style.display = 'none';
 
-      const onNext = () => {
+      let resolved = false;
+      const done = (skip) => {
+        if (resolved) return;
+        resolved = true;
+        state.multiSkipping = skip;
         cleanup();
         resolve();
       };
-      const onSkip = () => {
-        state.multiSkipping = true;
-        cleanup();
-        resolve();
-      };
+
+      const onNext = () => done(false);
+      const onSkip = () => done(true);
 
       function cleanup() {
         btnNext?.removeEventListener('click', onNext);
-        btnSkipRest?.removeEventListener('click', onSkip);
+        btnSkip?.removeEventListener('click', onSkip);
+        document.removeEventListener('keydown', onKey);
       }
 
-      btnNext?.addEventListener('click', onNext, { once: true });
-      btnSkipRest?.addEventListener('click', onSkip, { once: true });
-
-      // Keyboard: Enter = prossima, S = salta resto
       const onKey = e => {
-        if (e.code === 'Enter') { document.removeEventListener('keydown', onKey); onNext(); }
-        if (e.code === 'KeyS')  { document.removeEventListener('keydown', onKey); onSkip(); }
+        if (e.code === 'Enter') { e.preventDefault(); done(false); }
+        if (e.code === 'KeyS' && !isLast) { e.preventDefault(); done(true); }
       };
+
+      btnNext?.addEventListener('click', onNext, { once: true });
+      btnSkip?.addEventListener('click', onSkip, { once: true });
       document.addEventListener('keydown', onKey);
     });
   }
 
-  /* ── Inject multi pull extra HTML nel overlay ── */
   function injectMultiModal() {
-    // Aggiungi pulsanti extra alla phase-card per la multi
     const actions = $('overlay-actions');
-    if (!actions) return;
+    if (!actions || $('btn-multi-next')) return; // evita duplicati
 
-    // Pulsante "Prossima pull" (multi)
     const btnNext = document.createElement('button');
     btnNext.id = 'btn-multi-next';
     btnNext.className = 'gacha-btn gacha-btn--primary';
@@ -425,43 +439,34 @@
     btnNext.innerHTML = '<i class="fas fa-forward"></i> Prossima';
     actions.insertBefore(btnNext, actions.firstChild);
 
-    // Pulsante "Salta resto" (multi)
     const btnSkip = document.createElement('button');
     btnSkip.id = 'btn-multi-skip';
     btnSkip.className = 'gacha-btn gacha-btn--ghost';
     btnSkip.style.display = 'none';
-    btnSkip.innerHTML = '<i class="fas fa-forward-fast"></i> Salta resto [S]';
+    btnSkip.innerHTML = '<i class="fas fa-forward-fast"></i> Salta [S]';
     actions.insertBefore(btnSkip, btnNext.nextSibling);
 
-    // Counter
     const counter = document.createElement('div');
     counter.id = 'multi-counter';
-    counter.style.cssText = 'position:absolute;top:14px;right:18px;font-size:.75rem;color:rgba(255,255,255,.35);font-weight:600;z-index:20;';
+    counter.style.cssText = 'position:absolute;top:14px;right:18px;font-size:.75rem;color:rgba(255,255,255,.35);font-weight:600;z-index:20;display:none;';
     overlay.appendChild(counter);
-
-    // Durante pull normali nascondi i bottoni multi
-    const hideMultiBtns = () => {
-      btnNext.style.display = 'none';
-      btnSkip.style.display = 'none';
-      counter.style.display = 'none';
-    };
-    btnClose?.addEventListener('click', hideMultiBtns);
-    btnPullAgain?.addEventListener('click', hideMultiBtns);
   }
 
-  /* ── Resoconto multi ── */
   function showMultiSummary(results) {
+    stopAudio(); // nessun audio nel resoconto
+
     const RARITY_C = {
       comune:'#9ca3af',raro:'#38bdf8',epico:'#c084fc',
       leggendario:'#fbbf24',speciale:'#fff',segreto:'#a855f7',theone:'#60a5fa'
     };
 
-    // Nascondi tutto e mostra summary
     phaseOpening.style.display = 'none';
     phaseVideo.style.display   = 'none';
     phaseCard.style.display    = 'none';
+    if ($('btn-multi-next')) $('btn-multi-next').style.display = 'none';
+    if ($('btn-multi-skip')) $('btn-multi-skip').style.display = 'none';
+    if (btnPullAgain) btnPullAgain.style.display = '';
 
-    // Crea phase summary se non esiste
     let summary = $('phase-summary');
     if (!summary) {
       summary = document.createElement('div');
@@ -471,32 +476,29 @@
     }
     summary.style.display = 'flex';
 
-    const countByRarity = {};
-    results.forEach(r => {
-      const ra = normalizeRarity(r.personaggio.rarità);
-      countByRarity[ra] = (countByRarity[ra] ?? 0) + 1;
-    });
-
+    const newCount = results.filter(r => r.is_new).length;
     const cards = results.map(r => {
       const p  = r.personaggio;
       const ra = normalizeRarity(p.rarità);
-      const c  = RARITY_C[ra] ?? '#fff';
-      const isNew = r.is_new;
+      const co = RARITY_C[ra] ?? '#fff';
       return `
-        <div class="gms-card" style="border-color:${c}20;box-shadow:0 0 12px ${c}22">
-          <div class="gms-card-img" style="border-color:${c}60">
-            <img src="${p.img_url ? '/img/'+p.img_url : '/img/cassa.png'}" alt="${escapeHtml(p.nome)}"
-                 onerror="this.src='/img/cassa.png'">
-            ${isNew ? '<span class="gms-new">NEW</span>' : ''}
+        <div class="gms-card" style="border-color:${co}25">
+          <div class="gms-card-img" style="border-color:${co}55">
+            <img src="${p.img_url ? '/img/'+p.img_url : '/img/cassa.png'}"
+                 alt="${escapeHtml(p.nome)}" onerror="this.src='/img/cassa.png'">
+            ${r.is_new ? '<span class="gms-new">NEW</span>' : ''}
           </div>
-          <p class="gms-rarity" style="color:${c}">${escapeHtml(p.rarità)}</p>
+          <p class="gms-rarity" style="color:${co}">${escapeHtml(p.rarità)}</p>
           <p class="gms-name">${escapeHtml(p.nome)}</p>
         </div>`;
     }).join('');
 
     summary.innerHTML = `
       <div class="gms-inner">
-        <h2 class="gms-title">Risultati Pull</h2>
+        <div class="gms-header">
+          <h2 class="gms-title">Riepilogo Multi</h2>
+          ${newCount > 0 ? `<span class="gms-new-count">${newCount} NUOV${newCount===1?'O':'I'}!</span>` : ''}
+        </div>
         <div class="gms-cards">${cards}</div>
         <div class="gms-actions">
           <button class="gacha-btn gacha-btn--primary" id="btn-multi-again">
@@ -513,13 +515,18 @@
 
     $('btn-summary-close')?.addEventListener('click', () => {
       summary.style.display = 'none';
+      state.isMulti       = false;
+      state.multiSkipping = false;
       closeOverlay();
     });
     $('btn-multi-again')?.addEventListener('click', () => {
       summary.style.display = 'none';
+      state.isMulti       = false;
+      state.multiSkipping = false;
       startMultiPull(state.activeBannerId);
     });
   }
+
 
   /* ════════════════════════════════════════════════════
      REVEAL PRINCIPALE
