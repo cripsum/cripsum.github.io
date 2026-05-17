@@ -50,6 +50,7 @@
     multiResults:     [],
     multiSkipping:    false,
     multiAbort:       false,  // FIX 1: salta al resoconto
+    _covActions:      null,   // riferimento azioni card-over-video multi
   };
 
   /* ══════════════════════════════════════════════════════
@@ -320,6 +321,8 @@
       state.garantito    = data.garantito     ?? state.garantito;
       state.multiResults = data.pulls;
 
+      // FIX 4: animazione intro prima delle pull
+      await showMultiIntro(data.pulls);
       // Mostra le pull una ad una (dati già pronti, niente fetch)
       await showMultiPulls(data.pulls, bannerId);
       updateBannerUI();
@@ -335,6 +338,69 @@
 
     state.isMulti   = false;
     state.isPulling = false;
+  }
+
+  // FIX 4: Animazione intro multi — rivela il livello di rarità trovato
+  async function showMultiIntro(pulls) {
+    // Calcola top rarity presente nella multi
+    const rankOrder = ['theone','segreto','speciale','leggendario','epico','raro','comune'];
+    let topRarity = 'comune';
+    for (const r of pulls) {
+      const ra = normalizeRarity(r.personaggio.rarità);
+      if (rankOrder.indexOf(ra) < rankOrder.indexOf(topRarity)) topRarity = ra;
+    }
+
+    // Configura visual in base alla rarità massima
+    const cfg = {
+      theone:     { label:'THE ONE',    color:'#60a5fa', sub:'Un miracolo raro tra i rari', stars:5, duration:3200 },
+      segreto:    { label:'SEGRETO',    color:'#a855f7', sub:'Qualcosa di molto raro...',   stars:5, duration:2800 },
+      speciale:   { label:'SPECIALE',   color:'#ffffff', sub:'Una rarità fuori dal comune', stars:4, duration:2600 },
+      leggendario:{ label:'LEGGENDARIO',color:'#fbbf24', sub:'Grande fortuna!',             stars:4, duration:2400 },
+      epico:      { label:'EPICO',      color:'#c084fc', sub:'Una buona multi!',            stars:3, duration:2200 },
+      raro:       { label:'RARO',       color:'#38bdf8', sub:'Qualcosa di interessante',    stars:2, duration:2000 },
+      comune:     { label:'COMUNE',     color:'#9ca3af', sub:'Niente di speciale...',       stars:1, duration:1800 },
+    };
+    const { label, color, sub, stars, duration } = cfg[topRarity] ?? cfg.comune;
+
+    const intro = document.createElement('div');
+    intro.id = 'multi-intro';
+    intro.style.cssText = [
+      'position:absolute;inset:0;z-index:40;',
+      'display:flex;align-items:center;justify-content:center;',
+      'flex-direction:column;gap:16px;',
+      `background:radial-gradient(ellipse at center,${color}18 0%,#050510 65%);`,
+      'opacity:0;transition:opacity .5s ease;pointer-events:none;',
+    ].join('');
+
+    // Stelle animate
+    const starsHtml = Array.from({length:5}, (_,i) => {
+      const active = i < stars;
+      const delay  = i * 140;
+      return `<span class="mi-star ${active?'mi-star--on':''}" style="animation-delay:${delay}ms">★</span>`;
+    }).join('');
+
+    // Barra glow
+    intro.innerHTML = `
+      <div class="mi-glow" style="background:${color};box-shadow:0 0 60px ${color},0 0 120px ${color}44"></div>
+      <div class="mi-stars">${starsHtml}</div>
+      <div class="mi-label" style="color:${color};text-shadow:0 0 20px ${color}">${label}</div>
+      <div class="mi-sub">${sub}</div>
+      <div class="mi-bar" style="background:linear-gradient(90deg,transparent,${color},transparent)"></div>
+    `;
+
+    overlay.appendChild(intro);
+    showPhase('opening');
+
+    // Fade in
+    await delay(20);
+    intro.style.opacity = '1';
+    await delay(duration);
+
+    // Fade out
+    intro.style.transition = 'opacity .6s ease';
+    intro.style.opacity = '0';
+    await delay(620);
+    intro.remove();
   }
 
   // Mostra le 10 pull una ad una dai dati già ricevuti
@@ -396,6 +462,11 @@
 
     const counter = $('multi-counter');
     if (counter) counter.style.display = 'none';
+    // FIX 2: ripristina bottoni dopo multi
+    if (btnClose)     btnClose.style.display     = '';
+    if (btnInventory) btnInventory.style.display  = '';
+    document.getElementById('card-over-video-multi')?.remove();
+    state._covActions = null;
     state.multiAbort = false;
     showMultiSummary(pulls);
   }
@@ -419,7 +490,8 @@
     if      (data.vinto_50_50 === 1) card50Win.style.display  = '';
     else if (data.vinto_50_50 === 0) card50Loss.style.display = '';
 
-    if (btnInventory) btnInventory.style.display = '';
+    if (btnInventory) btnInventory.style.display = 'none'; // FIX 2: nascosto durante multi
+    if (btnClose)     btnClose.style.display     = 'none'; // FIX 2
     if (btnPullAgain) btnPullAgain.style.display = 'none';
 
     spawnParticles(color, rarity);
@@ -433,7 +505,7 @@
     gachaCard.classList.add('is-idle');
   }
 
-  // FIX 6: video in multi — NO clone DOM, gestione pulita
+  // VIDEO MULTI: come pull singola — video come sfondo, card sovrapposta dopo 12s
   async function revealPullMultiVideo(data) {
     const p = data.personaggio;
     setRarityOnOverlay(normalizeRarity(p.rarità));
@@ -450,59 +522,114 @@
     velo.style.opacity = '0';
     setTimeout(() => velo.remove(), 600);
 
-    // Avvia video
     videoEl.src    = p.video_url.startsWith('/') ? p.video_url : `/vid/${p.video_url}`;
     videoEl.muted  = false;
     videoEl.volume = 1;
     videoEl.load();
     videoUnmuteBtn.style.display = 'none';
 
-    // FIX 3: nella multi il card timer è 5s (non 12s)
-    // FIX 3: lascia vedere il video — card appare dopo 30s o al termine
-    const MULTI_VIDEO_CARD_DELAY = 30000;
+    // FIX 1: dopo 12s la card appare sopra il video (esattamente come pull singola)
+    const MULTI_VIDEO_CARD_DELAY = 12000;
     let cardShown = false;
 
-    const showCardAfterVideo = async () => {
+    const showCardOverVideoMulti = async () => {
       if (cardShown) return;
       cardShown = true;
-      // Ferma video, passa a phase-card
-      videoEl.pause();
-      videoEl.src = '';
-      const color = RARITY_COLORS[normalizeRarity(p.rarità)] ?? '#fff';
-      spawnParticles(color, normalizeRarity(p.rarità));
-      await showCard(data);
+      // NON stoppa il video — lo lascia come sfondo (come pull singola)
+      await showCardOverVideoSimple(data);
     };
 
-    const cardTimer = setTimeout(showCardAfterVideo, MULTI_VIDEO_CARD_DELAY);
+    const cardTimer = setTimeout(showCardOverVideoMulti, MULTI_VIDEO_CARD_DELAY);
 
-    await new Promise(resolve => {
+    return new Promise(resolve => {
+      let resolved = false;
       const done = async () => {
+        if (resolved) return;
+        resolved = true;
         clearTimeout(cardTimer);
         clearTimeout(safeguard);
         videoEl.removeEventListener('ended', done);
         videoEl.removeEventListener('error', done);
-        await showCardAfterVideo();
+        // Se il video finisce prima dei 12s, mostra card subito
+        if (!cardShown) {
+          cardShown = true;
+          videoEl.pause(); videoEl.src = '';
+          await showCard(data);
+        }
         resolve();
       };
-      const safeguard = setTimeout(done, 60000);
+      const safeguard = setTimeout(done, 90000);
       videoEl.addEventListener('ended', done, { once: true });
       videoEl.addEventListener('error', done, { once: true });
 
       const pp = videoEl.play();
-      if (pp) pp.catch(() => {
-        videoEl.muted = true;
-        videoEl.play().catch(() => done());
-      });
+      if (pp) pp.catch(() => { videoEl.muted = true; videoEl.play().catch(() => done()); });
 
-      // Quando la card appare (cardTimer), la Promise deve risolversi
-      // Attendiamo che showCard sia completata
+      // Quando la card-over-video è apparsa, risolvi la Promise
+      // così waitForMultiNext può mostrare i suoi bottoni
       const waitCard = setInterval(() => {
-        if (cardShown && phaseCard.style.display !== 'none') {
-          clearInterval(waitCard);
-          resolve();
-        }
-      }, 100);
+        if (cardShown) { clearInterval(waitCard); resolve(); }
+      }, 80);
     });
+  }
+
+  // Card sovrapposta al video nella multi — SENZA clone DOM, diretta
+  async function showCardOverVideoSimple(data) {
+    const p      = data.personaggio ?? data;
+    const rarity = normalizeRarity(p.rarità);
+    const color  = RARITY_COLORS[rarity] ?? '#fff';
+
+    // Crea layer trasparente sopra il video
+    const cardOverlay = document.createElement('div');
+    cardOverlay.id = 'card-over-video-multi';
+    cardOverlay.style.cssText = [
+      'position:absolute;inset:0;z-index:15;',
+      'display:flex;flex-direction:column;align-items:center;justify-content:center;',
+      'gap:20px;padding:20px 20px calc(20px + var(--safe-bot,0px));',
+      'opacity:0;transition:opacity .7s ease;background:transparent;',
+    ].join('');
+    phaseVideo.appendChild(cardOverlay);
+
+    // Costruisce card compatta inline (non clona il DOM)
+    const imgSrc = p.img_url ? `/img/${p.img_url}` : '/img/cassa.png';
+    cardOverlay.innerHTML = `
+      <div class="gacha-card" id="cov-card">
+        <div class="gacha-card-bg-glow" style="background:radial-gradient(circle,${color}55 0%,transparent 70%)"></div>
+        <div class="gacha-card-frame" style="border-color:${color}88;box-shadow:0 0 40px ${color}44">
+          <div class="gacha-card-img-wrap">
+            <img src="${imgSrc}" alt="${escapeHtml(p.nome)}" draggable="false"
+                 onerror="this.src='/img/cassa.png'"
+                 style="width:100%;height:100%;object-fit:cover;object-position:top">
+          </div>
+          <div class="gacha-card-img-shine"></div>
+          ${data.is_new ? '<span class="gacha-card-new-badge">NEW!</span>' : ''}
+          ${data.vinto_50_50===1 ? '<span class="gacha-card-50-badge gacha-card-50-badge--win"><i class="fas fa-trophy"></i> Rate-Up!</span>' : ''}
+          ${data.vinto_50_50===0 ? '<span class="gacha-card-50-badge gacha-card-50-badge--loss">Garantito attivato</span>' : ''}
+        </div>
+        <div class="gacha-card-details">
+          <div class="gacha-card-rarity-bar rarity-${rarity}"></div>
+          <p class="gacha-card-rarity-label" style="color:${color}">${escapeHtml(p.rarità.toUpperCase())}</p>
+          <h2 class="gacha-card-name">${escapeHtml(p.nome ?? '—')}</h2>
+        </div>
+      </div>
+      <div class="cov-multi-actions" id="cov-actions"></div>
+    `;
+
+    spawnParticles(color, rarity);
+
+    // Mostra con fade
+    await delay(30);
+    cardOverlay.style.opacity = '1';
+    const covCard = cardOverlay.querySelector('#cov-card');
+    covCard?.classList.remove('is-revealed','is-idle');
+    await delay(60);
+    covCard?.classList.add('is-revealed');
+    await delay(620);
+    covCard?.classList.add('is-idle');
+
+    // I bottoni multi (Prossima/Salta) vengono iniettati da waitForMultiNext
+    // dentro #cov-actions — per questo usa una variabile globale di riferimento
+    state._covActions = cardOverlay.querySelector('#cov-actions');
   }
 
   function waitForMultiNext(idx, total, isLast) {
@@ -518,6 +645,28 @@
       }
       if (btnSkip) btnSkip.style.display = isLast ? 'none' : '';
       if (btnPullAgain) btnPullAgain.style.display = 'none';
+      // FIX 2: nascondi chiudi e inventario durante multi
+      if (btnClose)     btnClose.style.display     = 'none';
+      if (btnInventory) btnInventory.style.display  = 'none';
+
+      // Inietta bottoni nel layer card-over-video se presente
+      const covActs = state._covActions;
+      if (covActs) {
+        covActs.innerHTML = '';
+        const nb = document.createElement('button');
+        nb.className = 'gacha-btn gacha-btn--primary';
+        nb.innerHTML = btnNext?.innerHTML ?? 'Prossima';
+        nb.addEventListener('click', () => btnNext?.click(), { once: true });
+        covActs.appendChild(nb);
+        if (!isLast) {
+          const sb = document.createElement('button');
+          sb.className = 'gacha-btn gacha-btn--ghost';
+          sb.innerHTML = '<i class="fas fa-forward-fast"></i> Salta';
+          sb.addEventListener('click', () => btnSkip?.click(), { once: true });
+          covActs.appendChild(sb);
+        }
+        state._covActions = null;
+      }
 
       let resolved = false;
       const done = (skip, abort = false) => {
@@ -525,6 +674,9 @@
         resolved = true;
         state.multiSkipping = skip;
         if (abort) state.multiAbort = true;
+        // Rimuovi card-over-video-multi se presente
+        document.getElementById('card-over-video-multi')?.remove();
+        state._covActions = null;
         cleanup();
         resolve();
       };
