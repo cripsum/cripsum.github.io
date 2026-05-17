@@ -1,4 +1,5 @@
 <?php
+
 /**
  * api_gacha_history.php
  * GET /api/api_gacha_history?banner_id=standard&limit=60
@@ -74,7 +75,7 @@ while ($row = $res->fetch_assoc()) {
         'nome'           => $row['nome'],
         'img_url'        => $row['img_url'],
         'rarità'         => $row['rarità'],
-        'pity_al_momento'=> (int) $row['pity_al_momento'],
+        'pity_al_momento' => (int) $row['pity_al_momento'],
         'esito_50_50'    => $row['esito_50_50'] !== null ? (int) $row['esito_50_50'] : null,
         'is_new'         => (bool) $row['is_new'],
         'created_at'     => $row['created_at'],

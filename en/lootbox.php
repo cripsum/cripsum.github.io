@@ -65,7 +65,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
 <head>
     <?php include '../includes/head-import.php'; ?>
     <link rel="stylesheet" href="/css/lootbox.css?v=8.2">
-    <link rel="stylesheet" href="/css/gacha.css?v=3.0">
+    <link rel="stylesheet" href="/css/gacha.css?v=2.0.5">
     <meta name="theme-color" content="#080810">
     <title>Cripsum™ — Gacha</title>
 </head>
@@ -96,7 +96,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                 data-costo="0"
                 aria-label="Banner Standard">
                 <div class="gacha-banner-bg has-img" id="banner-bg-standard"
-                    style="background-image:url('/img/banner_standard_bg.png')"></div>
+                    style="background-image:url('/img/banner_standard_bg.jpg')"></div>
 
                 <div class="gacha-banner-art-wrap" aria-hidden="true">
                     <img src="/img/cassa.png" alt="Cassa" class="gacha-banner-char"
@@ -146,8 +146,9 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                             <i class="fas fa-box-open gacha-pull-btn-icon"></i>
                             <span>Apri 1×</span>
                         </button>
-                        <button class=" gacha-pull-10-btn gacha-pull-btn--multi"
-                            aria-label="Apri 10x banner standard" data-banner-id="standard">
+                        <button class="gacha-pull-btn gacha-pull-btn--multi"
+                            aria-label="Apri 10x banner standard"
+                            data-banner-id="standard" data-pull-qty="10">
                             <i class="fas fa-boxes-stacked gacha-pull-btn-icon"></i>
                             <span>Multi 10×</span>
                         </button>
@@ -264,8 +265,9 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                                 <span>Apri 1×</span>
                                 <span class="gacha-pull-cost-badge"><?= number_format($costo) ?></span>
                             </button>
-                            <button class=" gacha-pull-10-btn gacha-pull-btn--multi"
-                                aria-label="Apri 10x <?= $safeName ?>" data-banner-id="<?= $bid ?>">
+                            <button class="gacha-pull-btn gacha-pull-btn--multi"
+                                aria-label="Apri 10x <?= $safeName ?>"
+                                data-banner-id="<?= $bid ?>" data-pull-qty="10">
                                 <i class="fas fa-boxes-stacked gacha-pull-btn-icon"></i>
                                 <span>Multi 10×</span>
                                 <span class="gacha-pull-cost-badge"><?= number_format($costo * 10) ?></span>
@@ -294,7 +296,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                     data-banner-type="standard"
                     aria-pressed="true"
                     aria-label="Banner Standard">
-                    <div class="gsb-card-bg" style="background-image:url('/img/banner_standard_bg.png')"></div>
+                    <div class="gsb-card-bg" style="background-image:url('/img/banner_standard_bg.jpg')"></div>
                     <div class="gsb-card-overlay"></div>
                     <div class="gsb-card-body">
                         <span class="gsb-card-tag">Standard</span>
@@ -647,8 +649,8 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         crossorigin="anonymous"></script>
     <script src="/js/unlockAchievement-it.js"></script>
-    <script src="/js/gacha-effects.js?v=3.0.0"></script>
-    <script src="/js/gacha.js?v=3.0.0"></script>
+    <script src="/js/gacha-effects.js?v=2.0.5"></script>
+    <script src="/js/gacha.js?v=2.0.5"></script>
 
     <script>
         // ── Cronologia banner corrente ────────────────────────────────────────

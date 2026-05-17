@@ -1,4 +1,5 @@
 <?php
+
 /**
  * api_gacha_pull.php
  * POST /api/api_gacha_pull
@@ -95,21 +96,21 @@ if ($quantity < 1 || $quantity > 1) {
 }
 
 // ── Rate limit anti-spam (sessione) ──────────────────────────────────────────
-// $now = microtime(true);
-// if (isset($_SESSION['gacha_last_pull_ts'])) {
-//     $elapsed = ($now - (float) $_SESSION['gacha_last_pull_ts']) * 1000; // ms
-//     if ($elapsed < PULL_RATE_LIMIT_MS) {
-//         http_response_code(429);
-//         echo json_encode([
-//             'status'  => 'error',
-//             'message' => 'Aspetta un momento prima di pullare ancora!',
-//             'code'    => 'RATE_LIMIT',
-//             'wait_ms' => (int) ceil(PULL_RATE_LIMIT_MS - $elapsed),
-//         ]);
-//         exit();
-//     }
-// }
-// $_SESSION['gacha_last_pull_ts'] = $now;
+$now = microtime(true);
+if (isset($_SESSION['gacha_last_pull_ts'])) {
+    $elapsed = ($now - (float) $_SESSION['gacha_last_pull_ts']) * 1000; // ms
+    if ($elapsed < PULL_RATE_LIMIT_MS) {
+        http_response_code(429);
+        echo json_encode([
+            'status'  => 'error',
+            'message' => 'Aspetta un momento prima di pullare ancora!',
+            'code'    => 'RATE_LIMIT',
+            'wait_ms' => (int) ceil(PULL_RATE_LIMIT_MS - $elapsed),
+        ]);
+        exit();
+    }
+}
+$_SESSION['gacha_last_pull_ts'] = $now;
 
 // ════════════════════════════════════════════════════════════════════════════
 // IDENTIFICA BANNER
@@ -169,7 +170,8 @@ if ($rawBannerId === 'standard') {
  * Condizione: in_pool_standard = 1 (include sia standard che potenzialmente evento)
  * I personaggi con pool_evento = 1 e in_pool_standard = 0 NON escono dal banner standard.
  */
-function loadStandardPool(mysqli $db): array {
+function loadStandardPool(mysqli $db): array
+{
     $pool = [
         'comune'      => [],
         'raro'        => [],
@@ -208,7 +210,8 @@ $standardPool = loadStandardPool($mysqli);
  * Estrae una rarità con pesi, applicando soft/hard pity.
  * Tutto server-side, nessun JS coinvolto.
  */
-function selectRarity(string $bannerType, int $pity, array $adminOverride = []): string {
+function selectRarity(string $bannerType, int $pity, array $adminOverride = []): string
+{
     // Admin override (debug only, ignorabile in prod)
     if (!empty($adminOverride['forza_rarità'])) {
         return $adminOverride['forza_rarità'];
@@ -261,7 +264,8 @@ function selectRarity(string $bannerType, int $pity, array $adminOverride = []):
  * Sceglie un personaggio casuale da una pool di rarità.
  * Nessun ORDER BY RAND() — shuffle PHP sull'array pre-caricato.
  */
-function pickFromPool(array $poolByRarity, string $rarity): ?array {
+function pickFromPool(array $poolByRarity, string $rarity): ?array
+{
     $candidates = $poolByRarity[$rarity] ?? [];
     if (empty($candidates)) {
         // Fallback alla rarità più bassa disponibile
@@ -282,7 +286,8 @@ function pickFromPool(array $poolByRarity, string $rarity): ?array {
  * Carica un singolo personaggio per ID.
  * Usato per il rateup del banner evento.
  */
-function loadCharacterById(mysqli $db, int $charId): ?array {
+function loadCharacterById(mysqli $db, int $charId): ?array
+{
     $stmt = $db->prepare(
         'SELECT id, nome, `rarità`, img_url, audio_url, video_url, descrizione, caratteristiche
          FROM personaggi
@@ -407,7 +412,6 @@ try {
 
         // Reset pity evento dopo trigger top rarity
         $pityEvento = 0;
-
     } else {
         // Pull normale (standard o evento non-top)
         $personaggio = pickFromPool($standardPool, $rarità);
@@ -480,8 +484,15 @@ try {
         $stmtHistory->bind_param('isisiii', $userId, $bannerId, $personaggioId, $rarità, $pitySnapshot, $vinto50_50Int, $isNewInt);
     } else {
         // bind con null per esito_50_50
-        $stmtHistory->bind_param('isisiis',
-            $userId, $bannerId, $personaggioId, $rarità, $pitySnapshot, $vinto50_50Int, $isNewInt
+        $stmtHistory->bind_param(
+            'isisiis',
+            $userId,
+            $bannerId,
+            $personaggioId,
+            $rarità,
+            $pitySnapshot,
+            $vinto50_50Int,
+            $isNewInt
         );
         // MySQLi non gestisce NULL con bind_param 'i' direttamente, usiamo metodo alternativo
         $stmtHistory->close();
@@ -532,12 +543,11 @@ try {
         'soldi_rimasti'  => $soldiRimasti,
         'tipo_banner'    => $bannerType,
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-
 } catch (RuntimeException $e) {
     $mysqli->rollback();
 
     $code = $e->getCode();
-    $httpCode = match(true) {
+    $httpCode = match (true) {
         $code === 401 => 401,
         $code === 402 => 402,
         $code === 404 => 404,
@@ -550,14 +560,13 @@ try {
     echo json_encode([
         'status'  => 'error',
         'message' => $e->getMessage(),
-        'code'    => match($code) {
+        'code'    => match ($code) {
             401 => 'NOT_LOGGED_IN',
             402 => 'NO_POINTS',
             404 => 'NOT_FOUND',
             default => 'SERVER_ERROR',
         },
     ], JSON_UNESCAPED_UNICODE);
-
 } catch (Throwable $e) {
     $mysqli->rollback();
 
