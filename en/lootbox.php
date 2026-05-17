@@ -67,7 +67,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
     <link rel="stylesheet" href="/css/lootbox.css?v=8.2">
     <link rel="stylesheet" href="/css/gacha.css?v=4">
     <meta name="theme-color" content="#080810">
-    <title>Cripsum™ — Gacha</title>
+    <title>Cripsum™ — Lootbox</title>
 </head>
 
 <body class="lootbox-page" data-ruolo="<?= htmlspecialchars($ruolo, ENT_QUOTES) ?>">
@@ -107,7 +107,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                     <div>
                         <span class="gacha-banner-type-badge">✦ SEMPRE DISPONIBILE</span>
                         <h1 class="gacha-banner-title">Banner Standard</h1>
-                        <p class="gacha-banner-desc">Il banner classico di GoonLand. Tira per ottenere personaggi di ogni rarità. Gratuito, senza timer.</p>
+                        <p class="gacha-banner-desc">Il banner classico di Cripsum™ dove puoi trovare tutti i personaggi originali delle vecchie lootbox</p>
                     </div>
 
                     <div class="gacha-pity-wrap">
@@ -125,9 +125,9 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                             <?php if ($pityStandard >= PITY_STANDARD_HARD): ?>
                                 ★ Garantito: prossima pull è Speciale o Segreto!
                             <?php elseif ($pityStandard >= PITY_STANDARD_SOFT): ?>
-                                ✦ Soft pity — % Speciale/Segreto aumentata
+                                ✦ Soft pity — % Speciale o Segreto aumentata
                             <?php else: ?>
-                                Garantito Speciale/Segreto in <?= PITY_STANDARD_HARD - $pityStandard ?> pull
+                                Garantito Speciale o Segreto in <?= PITY_STANDARD_HARD - $pityStandard ?> pull
                             <?php endif; ?>
                         </p>
                     </div>
