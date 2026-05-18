@@ -44,7 +44,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
     <link rel="preload" as="image" href="../img/amongus.jpg">
     <link rel="stylesheet" href="/assets/home-v5/home.css?v=5.7">
+    <link rel="stylesheet" href="/assetes/news/news-popup.css?v=1.0">
     <script src="/assets/home-v5/home.js?v=5.7" defer></script>
+    <script src="/assets/news/news-popup.js?v=1.0" defer></script>
 
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1527058839538660" crossorigin="anonymous"></script>
 </head>
@@ -92,10 +94,10 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                         </a>
                     <?php endif; ?>
 
-                    <a class="home-btn home-btn--ghost" href="#featuredContent">
+                    <button class="home-btn home-btn--ghost" type="button" onclick="if(window.newsPopup) window.newsPopup.open();">
                         <i class="fas fa-layer-group"></i>
-                        <span>Contenuti</span>
-                    </a>
+                        <span>Novità</span>
+                    </button>
 
                     <button class="home-btn home-btn--plain" type="button" data-bs-toggle="modal" data-bs-target="#disclaimerModal">
                         <i class="fas fa-circle-info"></i>

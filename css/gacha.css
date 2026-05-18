@@ -2466,9 +2466,6 @@ body.lootbox-page {
     }
 }
 
-/* ════════════════════════════════════════════════════════════════
-   FIX 1 — cov-multi-actions: bottoni nella card-over-video multi
-   ════════════════════════════════════════════════════════════════ */
 .cov-multi-actions {
     display: flex;
     gap: 10px;
@@ -2482,7 +2479,6 @@ body.lootbox-page {
     min-width: 110px;
 }
 
-/* FIX 2 — card-over-video trasparente (già presente, rinforziamo) */
 #card-over-video,
 #card-over-video-multi {
     background: transparent !important;
@@ -2496,7 +2492,6 @@ body.lootbox-page {
     -webkit-backdrop-filter: none !important;
 }
 
-/* FIX 2 — Stelle arcobaleno per speciale */
 .mi-stars[data-rarity="speciale"] .mi-star--on {
     background: linear-gradient(90deg, #ff004c, #ff7a00, #fff300, #35ff00, #00ffd5, #0077ff, #7a00ff);
     -webkit-background-clip: text;
