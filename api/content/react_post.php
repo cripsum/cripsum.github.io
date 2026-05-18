@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . '/../../includes/mission_tracker.php';
 
 try {
     cv2_check_csrf();
@@ -55,6 +56,17 @@ try {
 
         $mysqli->commit();
 
+        // ── MISSION TRACKING ─────────────────────────────────────────────
+        // Traccia solo quando il like viene aggiunto, non rimosso.
+        if ($active) {
+            try {
+                trackMissionProgress($mysqli, (int)$user['id'], 'add_like');
+            } catch (Throwable $trackErr) {
+                error_log('[MissionTracking react_post rimasto] ' . $trackErr->getMessage());
+            }
+        }
+        // ── /MISSION TRACKING ────────────────────────────────────────────
+
         cv2_ok(['active' => $active, 'score' => $score]);
     }
 
@@ -86,6 +98,17 @@ try {
     $stmt->execute();
     $score = (int)($stmt->get_result()->fetch_assoc()['total'] ?? 0);
     $stmt->close();
+
+    // ── MISSION TRACKING ─────────────────────────────────────────────
+    // Traccia solo quando il like viene aggiunto, non rimosso.
+    if ($active) {
+        try {
+            trackMissionProgress($mysqli, (int)$user['id'], 'add_like');
+        } catch (Throwable $trackErr) {
+            error_log('[MissionTracking react_post shitpost] ' . $trackErr->getMessage());
+        }
+    }
+    // ── /MISSION TRACKING ────────────────────────────────────────────
 
     cv2_ok(['active' => $active, 'score' => $score]);
 } catch (Throwable $e) {

@@ -22,6 +22,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/mission_tracker.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
@@ -511,6 +512,29 @@ try {
 
     // ── COMMIT ────────────────────────────────────────────────────────────────
     $mysqli->commit();
+
+    // ── MISSION TRACKING ─────────────────────────────────────────────────────
+    // Eseguito DOPO il commit: il tracking non deve mai bloccare la pull.
+    try {
+        // Ogni apertura lootbox conta
+        trackMissionProgress($mysqli, $userId, 'lootbox_open');
+
+        // Rarità rare+ (raro, epico, leggendario, speciale, segreto, theone)
+        $rarityRarePlus = ['raro', 'epico', 'leggendario', 'speciale', 'segreto', 'theone'];
+        if (in_array($rarità, $rarityRarePlus, true)) {
+            trackMissionProgress($mysqli, $userId, 'get_rarity_rare');
+        }
+
+        // Rarità epic+ (epico, leggendario, speciale, segreto, theone)
+        $rarityEpicPlus = ['epico', 'leggendario', 'speciale', 'segreto', 'theone'];
+        if (in_array($rarità, $rarityEpicPlus, true)) {
+            trackMissionProgress($mysqli, $userId, 'get_rarity_epic');
+        }
+    } catch (Throwable $trackErr) {
+        // Il tracking non deve mai rompere la risposta
+        error_log('[MissionTracking gacha_pull] ' . $trackErr->getMessage());
+    }
+    // ── /MISSION TRACKING ────────────────────────────────────────────────────
 
     // ── Leggi soldi aggiornati ────────────────────────────────────────────────
     $stmtSoldi = $mysqli->prepare('SELECT soldi FROM utenti WHERE id = ? LIMIT 1');

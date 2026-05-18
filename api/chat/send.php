@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . '/../../includes/mission_tracker.php';
 
 $user = chat_require_login_json($mysqli);
 $userId = (int)$user['id'];
@@ -124,6 +125,21 @@ if (!$ok) {
 if ($messageId <= 0) {
     chat_json(['ok' => false, 'error' => 'Non sono riuscito a inviare il messaggio.'], 500);
 }
+
+// ── MISSION TRACKING ─────────────────────────────────────────────────────────
+// Eseguito solo se il messaggio è stato salvato correttamente.
+try {
+    trackMissionProgress($mysqli, $userId, 'send_message');
+
+    // Chat globale: traccia separatamente se il file è dentro la cartella /chat/global
+    // oppure se il tuo bootstrap espone un flag $isChatGlobal
+    if (defined('IS_GLOBAL_CHAT') && IS_GLOBAL_CHAT) {
+        trackMissionProgress($mysqli, $userId, 'use_global_chat');
+    }
+} catch (Throwable $trackErr) {
+    error_log('[MissionTracking send.php] ' . $trackErr->getMessage());
+}
+// ── /MISSION TRACKING ────────────────────────────────────────────────────────
 
 $messages = chat_fetch_messages($mysqli, $userId, ['after_id' => $messageId - 1, 'limit' => 1]);
 chat_upsert_typing($mysqli, $userId, false);

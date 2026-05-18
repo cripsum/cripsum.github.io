@@ -14,7 +14,8 @@
         filter: localStorage.getItem(STORAGE_FILTER) || 'all',
         search: '',
         sort: localStorage.getItem(STORAGE_SORT) || 'recent',
-        loadedIframes: new Set()
+        loadedIframes: new Set(),
+        trackedMissions: new Set(), // edit già tracciati per le missioni (questa sessione)
     };
 
     function safeUnlockAchievement(id) {
@@ -354,6 +355,20 @@
 
         if (Number.isFinite(videoId)) {
             markWatched(card, videoId);
+
+            // ── Mission Tracker: view_edit ────────────────────────────────
+            // Conta ogni edit UNA sola volta per sessione.
+            // Fire-and-forget: nessun blocco UI in caso di errore o utente ospite.
+            if (!state.trackedMissions.has(videoId)) {
+                state.trackedMissions.add(videoId);
+                fetch('/api/missions/track_edit_view.php', {
+                    method:      'POST',
+                    credentials: 'same-origin',
+                    headers:     { 'Content-Type': 'application/json' },
+                    body:        JSON.stringify({ edit_id: videoId }),
+                }).catch(() => {});
+            }
+            // ── /Mission Tracker ──────────────────────────────────────────
         }
     };
 

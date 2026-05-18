@@ -1,6 +1,12 @@
 <?php
 session_start();
 $isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+
+if (isLoggedIn()) {
+    trackDailyLogin($mysqli, (int)$_SESSION['user_id']);
+    trackMissionProgress($mysqli, (int)$_SESSION['user_id'], 'view_page');
+}
+
 $uri = $_SERVER['REQUEST_URI'];
 $lang = explode('/', trim($uri, '/'))[0];
 

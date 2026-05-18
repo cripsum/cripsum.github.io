@@ -3,6 +3,7 @@ require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/profile_helpers.php';
+require_once __DIR__ . '/../includes/mission_tracker.php';
 
 checkBan($mysqli);
 
@@ -140,10 +141,10 @@ $contentRows = array_slice(profile_decode_rows('contents_json'), 0, 8);
 $blockRows = array_slice(profile_decode_rows('blocks_json'), 0, 10);
 $badgeRows = array_slice(profile_decode_rows('badges_json'), 0, 8);
 
-$allowedPlatforms = ['tiktok','instagram','youtube','twitch','github','discord','telegram','x','twitter','spotify','soundcloud','steam','reddit','pinterest','snapchat','facebook','linkedin','paypal','patreon','kick','bluesky','threads','behance','dribbble','website','email','other'];
-$allowedStatuses = ['active','paused','finished','idea'];
-$allowedContentTypes = ['edit','video','game','post','other'];
-$allowedBlockTypes = ['text','image','gif','video'];
+$allowedPlatforms = ['tiktok', 'instagram', 'youtube', 'twitch', 'github', 'discord', 'telegram', 'x', 'twitter', 'spotify', 'soundcloud', 'steam', 'reddit', 'pinterest', 'snapchat', 'facebook', 'linkedin', 'paypal', 'patreon', 'kick', 'bluesky', 'threads', 'behance', 'dribbble', 'website', 'email', 'other'];
+$allowedStatuses = ['active', 'paused', 'finished', 'idea'];
+$allowedContentTypes = ['edit', 'video', 'game', 'post', 'other'];
+$allowedBlockTypes = ['text', 'image', 'gif', 'video'];
 
 try {
     $mysqli->begin_transaction();
@@ -377,6 +378,18 @@ try {
     profile_record_activity($mysqli, $targetUserId, 'profile_update', 'Updated profile');
 
     $mysqli->commit();
+
+    // ── MISSION TRACKING ─────────────────────────────────────────────────────
+    // Traccia solo quando l'utente modifica il PROPRIO profilo.
+    // Lo staff che modifica profili altrui non genera progresso missioni.
+    if ($targetUserId === $currentUserId) {
+        try {
+            trackMissionProgress($mysqli, $currentUserId, 'edit_profile');
+        } catch (Throwable $trackErr) {
+            error_log('[MissionTracking update_profile] ' . $trackErr->getMessage());
+        }
+    }
+    // ── /MISSION TRACKING ────────────────────────────────────────────────────
 
     if ($targetUserId === $currentUserId) {
         $_SESSION['username'] = $username;

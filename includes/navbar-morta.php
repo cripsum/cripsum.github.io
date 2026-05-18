@@ -1,11 +1,16 @@
 <?php
 session_start();
 $isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+
+if (isLoggedIn()) {
+    trackDailyLogin($mysqli, (int)$_SESSION['user_id']);
+    trackMissionProgress($mysqli, (int)$_SESSION['user_id'], 'view_page');
+}
 $uri = $_SERVER['REQUEST_URI'];
 $lang = explode('/', trim($uri, '/'))[0];
 
 if (!in_array($lang, ['it', 'en'])) {
-    $lang = 'it'; 
+    $lang = 'it';
 }
 
 if ($isLoggedIn) {
@@ -13,7 +18,7 @@ if ($isLoggedIn) {
     $userId = $_SESSION['user_id'];
     $profilePic = "/includes/get_pfp.php?id=$userId";
     $ruolo = $_SESSION['ruolo'] ?? '';
-    $nsfw = $_SESSION['nsfw'] ?? 0; 
+    $nsfw = $_SESSION['nsfw'] ?? 0;
 }
 ?>
 
@@ -32,8 +37,7 @@ if ($isLoggedIn) {
             aria-controls="navbarSupportedContent"
             aria-expanded="false"
             aria-label="Toggle navigation"
-            style="z-index: 1000"
-        >
+            style="z-index: 1000">
             <span class="navbar-toggler-icon"></span>
         </button>
 

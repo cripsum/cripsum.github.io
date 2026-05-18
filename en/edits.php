@@ -346,7 +346,7 @@ $totalEdits = count($edits);
     <title>Cripsum™ - Edits</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/css/edits.css?v=3.5">
-    <script src="/js/edits.js?v=3.3" defer></script>
+    <script src="/js/edits.js?v=3.4" defer></script>
 </head>
 
 <body class="edits-page">

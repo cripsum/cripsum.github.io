@@ -4,6 +4,7 @@ require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/profile_helpers.php';
 require_once __DIR__ . '/includes/cripsum_og.php';
+require_once __DIR__ . '/includes/mission_tracker.php';
 
 checkBan($mysqli);
 
@@ -41,6 +42,18 @@ if ($profile) {
         $isLoginBlocked = true;
     } else {
         profile_increment_views($mysqli, $profileId);
+
+        // ── MISSION TRACKING ─────────────────────────────────────────────
+        // Traccia solo se: utente loggato + sta vedendo il profilo di un altro.
+        // Non tracciare il proprio profilo (evita farming auto-visita).
+        if ($isLoggedIn && !$isOwnProfile && $currentUserId > 0) {
+            try {
+                trackMissionProgress($mysqli, $currentUserId, 'visit_profile');
+            } catch (Throwable $trackErr) {
+                error_log('[MissionTracking profile.php] ' . $trackErr->getMessage());
+            }
+        }
+        // ── /MISSION TRACKING ────────────────────────────────────────────
         $socials = profile_list_socials($mysqli, $profileId, true);
         $links = profile_list_links($mysqli, $profileId, true);
         $projects = profile_list_projects($mysqli, $profileId, true);
