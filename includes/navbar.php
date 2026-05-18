@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/mission_tracker.php';
 $isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
 
 if (isLoggedIn()) {
