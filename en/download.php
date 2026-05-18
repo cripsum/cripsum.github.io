@@ -179,24 +179,24 @@ $downloads = [
             const _tracked = new Set();
 
             document.addEventListener('click', (e) => {
-                const btn = e.target.closest('a.shop-btn--small:not(.is-disabled)');
+                // Intercetta solo i bottoni "Scarica" disponibili (non "Presto")
+                const btn = e.target.closest('.shop-btn--small:not(.is-disabled)[href]');
                 if (!btn) return;
 
                 const itemId = btn.closest('[data-id]')?.dataset.id || btn.href;
                 if (_tracked.has(itemId)) return;
                 _tracked.add(itemId);
 
-                // sendBeacon sopravvive alla navigazione, fetch no
-                navigator.sendBeacon(
-                    '/api/missions/track_download.php',
-                    new Blob(
-                        [JSON.stringify({
-                            item_id: itemId
-                        })], {
-                            type: 'application/json'
-                        }
-                    )
-                );
+                fetch('../api/missions/track_download.php', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        item_id: itemId
+                    }),
+                }).catch(() => {});
             }, {
                 passive: true
             });
