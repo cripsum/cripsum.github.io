@@ -141,11 +141,11 @@ $download = [
             const _tracked = new Set();
 
             document.addEventListener('click', (e) => {
-                // Intercetta solo i bottoni "Scarica" disponibili (non "Presto")
-                const btn = e.target.closest('.shop-btn--small:not(.is-disabled)[href]');
+                // Intercetta solo il bottone principale di download di questa pagina
+                const btn = e.target.closest('.download-main-btn[href]');
                 if (!btn) return;
 
-                const itemId = btn.closest('[data-id]')?.dataset.id || btn.href;
+                const itemId = btn.dataset.downloadTitle || btn.href;
                 if (_tracked.has(itemId)) return;
                 _tracked.add(itemId);
 

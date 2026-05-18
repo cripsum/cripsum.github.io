@@ -36,7 +36,7 @@ $download = [
 
 <body class="download-page">
     <?php include '../../includes/navbar.php'; ?>
-    
+
 
     <div class="download-bg" aria-hidden="true">
         <span class="download-orb download-orb--one"></span>
@@ -135,6 +135,36 @@ $download = [
     </div>
 
     <?php include '../../includes/footer.php'; ?>
+
+    <script>
+        (() => {
+            const _tracked = new Set();
+
+            document.addEventListener('click', (e) => {
+                // Intercetta solo il bottone principale di download di questa pagina
+                const btn = e.target.closest('.download-main-btn[href]');
+                if (!btn) return;
+
+                const itemId = btn.dataset.downloadTitle || btn.href;
+                if (_tracked.has(itemId)) return;
+                _tracked.add(itemId);
+
+                fetch('/api/missions/track_download.php', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        item_id: itemId
+                    }),
+                }).catch(() => {});
+            }, {
+                passive: true
+            });
+        })();
+    </script>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
