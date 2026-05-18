@@ -557,8 +557,11 @@
     const showCardOverVideoMulti = async () => {
       if (cardShown) return;
       cardShown = true;
-      await showCardOverVideoSimple(data); // aspetta animazione completa (30+60+620ms)
-      cardDoneResolve();                   // ora _covActions è sicuramente settato
+      // Avvia showCardOverVideoSimple ma risolvi cardDone NON appena finisce l'idle
+      // bensì dopo 200ms (card visibile con fade), così i bottoni appaiono subito
+      showCardOverVideoSimple(data).then(() => {}); // fire-and-forget per l'idle
+      await delay(200); // attende che la card sia visibile e _covActions sia settato
+      cardDoneResolve();
     };
 
     const cardTimer = setTimeout(showCardOverVideoMulti, MULTI_VIDEO_CARD_DELAY);
@@ -639,19 +642,21 @@
 
     spawnParticles(color, rarity);
 
-    // Mostra con fade
+    // _covActions settato SUBITO — waitForMultiNext può iniettare i bottoni
+    // non appena la card è visibile (non dopo l'idle di 620ms)
+    state._covActions = cardOverlay.querySelector('#cov-actions');
+
+    // Fade in card
     await delay(30);
     cardOverlay.style.opacity = '1';
     const covCard = cardOverlay.querySelector('#cov-card');
     covCard?.classList.remove('is-revealed','is-idle');
     await delay(60);
     covCard?.classList.add('is-revealed');
-    await delay(620);
+    // FIX 1: i bottoni appaiono subito con la card, non aspettiamo l'idle
+    // (l'idle continua in background ma non blocca la Promise)
+    await delay(80);
     covCard?.classList.add('is-idle');
-
-    // I bottoni multi (Prossima/Salta) vengono iniettati da waitForMultiNext
-    // dentro #cov-actions — per questo usa una variabile globale di riferimento
-    state._covActions = cardOverlay.querySelector('#cov-actions');
   }
 
   function waitForMultiNext(idx, total, isLast) {

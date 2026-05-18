@@ -65,7 +65,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
 <head>
     <?php include '../includes/head-import.php'; ?>
     <link rel="stylesheet" href="/css/lootbox.css?v=8.2">
-    <link rel="stylesheet" href="/css/gacha.css?v=7">
+    <link rel="stylesheet" href="/css/gacha.css?v=8">
     <meta name="theme-color" content="#080810">
     <title>Cripsum™ — Lootbox</title>
 </head>
@@ -650,7 +650,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
         crossorigin="anonymous"></script>
     <script src="/js/unlockAchievement-it.js"></script>
     <script src="/js/gacha-effects.js?v=5"></script>
-    <script src="/js/gacha.js?v=11"></script>
+    <script src="/js/gacha.js?v=12"></script>
 
     <script>
         // ── Cronologia banner corrente ────────────────────────────────────────
