@@ -1619,7 +1619,7 @@ body.lootbox-page {
     }
 
     .gacha-banner-view {
-        min-height: calc(100dvh - 56px - 140px);
+        min-height: 0; /* flex:1 + fixLayout() JS gestisce il sizing corretto */
     }
 
     /* Sidebar diventa pannello fisso in basso */
@@ -1818,7 +1818,7 @@ body.lootbox-page {
     }
 
     .gacha-banner-view {
-        min-height: calc(100dvh - 148px);
+        min-height: 0; /* flex:1 gestisce il sizing; JS sovrascrive con il calcolo corretto */
     }
 
     /* Sidebar fissa in basso, z-index sopra tutto */
@@ -1944,11 +1944,35 @@ body.lootbox-page {
     overflow-y: auto;
     overflow-x: hidden;
     padding: 24px 20px calc(32px + var(--safe-bot, 0px));
-    background: rgba(4, 4, 12, 0.97);
+    /* Background migliorato: stelle + nebula */
+    background: radial-gradient(ellipse at 20% 20%, rgba(56, 189, 248, 0.07) 0%, transparent 45%), radial-gradient(ellipse at 80% 80%, rgba(168, 85, 247, 0.07) 0%, transparent 45%),
+        radial-gradient(ellipse at 50% 50%, rgba(251, 191, 36, 0.04) 0%, transparent 60%), linear-gradient(160deg, #06060f 0%, #0a0a1a 40%, #060610 100%);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+/* Effetto stelle di sfondo nel riepilogo */
+.gacha-phase--summary::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(1px 1px at 15% 25%, rgba(255, 255, 255, 0.6) 0%, transparent 100%), radial-gradient(1px 1px at 35% 60%, rgba(255, 255, 255, 0.4) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 55% 15%, rgba(255, 255, 255, 0.5) 0%, transparent 100%), radial-gradient(1px 1px at 70% 75%, rgba(255, 255, 255, 0.35) 0%, transparent 100%),
+        radial-gradient(1px 1px at 85% 40%, rgba(255, 255, 255, 0.45) 0%, transparent 100%), radial-gradient(1px 1px at 10% 80%, rgba(255, 255, 255, 0.3) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 90% 10%, rgba(255, 255, 255, 0.5) 0%, transparent 100%), radial-gradient(1px 1px at 45% 90%, rgba(255, 255, 255, 0.35) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+    animation: summaryStarsTwinkle 6s ease-in-out infinite alternate;
+}
+@keyframes summaryStarsTwinkle {
+    0% {
+        opacity: 0.4;
+    }
+    100% {
+        opacity: 1;
+    }
 }
 
 .gms-inner {
@@ -1958,6 +1982,8 @@ body.lootbox-page {
     flex-direction: column;
     gap: 24px;
     align-items: center;
+    position: relative;
+    z-index: 1;
 }
 
 /* ── Header ─────────────────────────────────────── */
@@ -1967,6 +1993,25 @@ body.lootbox-page {
     align-items: center;
     gap: 10px;
     position: relative;
+    padding: 16px 24px 18px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+/* Linea decorativa sopra l'header */
+.gms-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--banner-accent, #38bdf8), transparent);
+    border-radius: 1px;
 }
 
 .gms-header-line {
@@ -1975,6 +2020,7 @@ body.lootbox-page {
     border-radius: 2px;
     margin-bottom: 2px;
     box-shadow: 0 0 12px currentColor;
+    display: none; /* sostituita dalla linea ::before */
 }
 
 .gms-title {
@@ -1982,8 +2028,10 @@ body.lootbox-page {
     font-weight: 800;
     color: #fff;
     margin: 0;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.05em;
     text-align: center;
+    text-shadow: 0 0 24px rgba(255, 255, 255, 0.2);
+    text-transform: uppercase;
 }
 
 .gms-header-badges {
@@ -2076,12 +2124,15 @@ body.lootbox-page {
 .gms-card-frame {
     position: relative;
     width: 100%;
-    aspect-ratio: 3/4;
+    /* Dimensione fissa e uniforme: aspect-ratio 3:4 garantisce consistenza */
+    aspect-ratio: 3 / 4;
     border-radius: 10px;
     overflow: hidden;
     border: 1.5px solid rgba(255, 255, 255, 0.09);
     background: rgba(255, 255, 255, 0.04);
     transition: transform 0.22s ease, box-shadow 0.22s ease;
+    /* Assicura che i figli non possano espanderla */
+    flex-shrink: 0;
 }
 
 .gms-card:hover .gms-card-frame {
@@ -2113,6 +2164,8 @@ body.lootbox-page {
 }
 
 .gms-card-img {
+    position: absolute; /* rispetto al frame */
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -2232,23 +2285,31 @@ body.lootbox-page {
 
 /* ── Mobile ─────────────────────────────────────── */
 @media (max-width: 520px) {
+    .gacha-phase--summary {
+        padding: 16px 12px calc(24px + var(--safe-bot, 0px));
+    }
     .gms-cards {
         grid-template-columns: repeat(5, 1fr);
-        gap: 6px;
+        gap: 5px;
     }
     .gms-card-name {
-        font-size: 0.58rem;
+        font-size: 0.55rem;
     }
     .gms-card-rarity {
-        font-size: 0.52rem;
+        font-size: 0.48rem;
     }
     .gms-footer {
         max-width: 100%;
+        gap: 8px;
     }
     .gms-btn {
-        min-width: 90px;
-        padding: 9px 14px;
-        font-size: 0.76rem;
+        min-width: 80px;
+        padding: 9px 12px;
+        font-size: 0.74rem;
+    }
+    .gms-header {
+        padding: 12px 16px 14px;
+        max-width: 100%;
     }
 }
 
@@ -2358,6 +2419,7 @@ body.lootbox-page {
     opacity: 0.45;
     animation: miGlowPulse 1.4s ease-in-out infinite;
     pointer-events: none;
+    z-index: 0; /* sempre dietro le stelle */
 }
 @keyframes miGlowPulse {
     0%,
@@ -2376,15 +2438,17 @@ body.lootbox-page {
     gap: 10px;
     justify-content: center;
     position: relative;
-    z-index: 1;
+    z-index: 2; /* sopra mi-glow */
+    align-items: center;
 }
 
 .mi-star {
     font-size: 2rem;
-    color: rgba(255, 255, 255, 0.15);
-    opacity: 0;
-    transform: scale(0.6);
+    color: rgba(255, 255, 255, 0.18);
+    opacity: 1; /* visibili ma spente */
+    transform: scale(0.85);
     transition: none;
+    display: inline-block;
 }
 .mi-star--on {
     color: #fbbf24;

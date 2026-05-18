@@ -137,8 +137,14 @@
       const vhMinusNav = `calc(100dvh - ${h}px)`;
       if (layout) layout.style.minHeight = vhMinusNav;
 
+      // Su mobile la sidebar è fixed in basso (148px): sottraiamo anche quella
+      const mobileSidebarH = window.innerWidth < 768 ? 148 : 0;
+      const bannerMinH = mobileSidebarH
+        ? `calc(100dvh - ${h}px - ${mobileSidebarH}px)`
+        : vhMinusNav;
+
       $$('.gacha-banner-view').forEach(v => {
-        v.style.minHeight = vhMinusNav;
+        v.style.minHeight = bannerMinH;
       });
 
       // FIX 5/7: nessun padding-bottom residuo, layout riempie tutto
@@ -523,6 +529,8 @@
   }
 
   // VIDEO MULTI: video come sfondo, card sovrapposta dopo 12s (come pull singola)
+  // FIX 1: risolve appena la card diventa visibile (non aspetta fine video)
+  // Il video continua in background; il cleanup avviene in waitForMultiNext
   async function revealPullMultiVideo(data) {
     const p = data.personaggio;
     setRarityOnOverlay(normalizeRarity(p.rarità));
@@ -547,55 +555,48 @@
 
     const MULTI_VIDEO_CARD_DELAY = 12000;
 
-    // cardDoneResolve viene chiamata SOLO quando showCardOverVideoSimple
-    // ha completato tutti i suoi delay — così waitForMultiNext trova _covActions pronto
-    let cardDoneResolve = null;
-    const cardDonePromise = new Promise(r => { cardDoneResolve = r; });
+    return new Promise(resolve => {
+      let resolved  = false;
+      let cardShown = false;
 
-    let cardShown = false;
+      // Risolve la promise e segnala al loop che può proseguire
+      const finish = () => {
+        if (!resolved) { resolved = true; resolve(); }
+      };
 
-    const showCardOverVideoMulti = async () => {
-      if (cardShown) return;
-      cardShown = true;
-      // Avvia showCardOverVideoSimple ma risolvi cardDone NON appena finisce l'idle
-      // bensì dopo 200ms (card visibile con fade), così i bottoni appaiono subito
-      showCardOverVideoSimple(data).then(() => {}); // fire-and-forget per l'idle
-      await delay(200); // attende che la card sia visibile e _covActions sia settato
-      cardDoneResolve();
-    };
+      // Card appare dopo 12s — video continua in background
+      const showCardAtTimer = async () => {
+        if (cardShown) return;
+        cardShown = true;
+        showCardOverVideoSimple(data).then(() => {}); // fire-and-forget idle animation
+        await delay(200); // attendi che _covActions sia settato e card sia visibile
+        finish();         // ← risolve SUBITO, senza aspettare fine video
+      };
 
-    const cardTimer = setTimeout(showCardOverVideoMulti, MULTI_VIDEO_CARD_DELAY);
+      const cardTimer = setTimeout(showCardAtTimer, MULTI_VIDEO_CARD_DELAY);
 
-    // Aspetta: o il video finisce prima dei 12s, oppure la card è stata mostrata
-    await new Promise(resolve => {
-      let resolved = false;
-      const done = async () => {
-        if (resolved) return;
-        resolved = true;
+      const onVideoDone = async () => {
         clearTimeout(cardTimer);
         clearTimeout(safeguard);
-        videoEl.removeEventListener('ended', done);
-        videoEl.removeEventListener('error', done);
+        videoEl.removeEventListener('ended', onVideoDone);
+        videoEl.removeEventListener('error', onVideoDone);
         if (!cardShown) {
-          // Video finito prima dei 12s → mostra card normale (senza video sfondo)
+          // Video finito prima dei 12s → card normale (niente overlay video)
           cardShown = true;
           videoEl.pause(); videoEl.src = '';
           await showCard(data);
-          cardDoneResolve();
         }
-        // Se il cardTimer era già partito, aspetta che showCardOverVideoSimple finisca
-        resolve();
+        // Se cardShown è già true il video era ancora in corso quando la card
+        // è apparsa: il cleanup vero lo fa waitForMultiNext quando l'utente preme.
+        finish();
       };
-      const safeguard = setTimeout(done, 90000);
-      videoEl.addEventListener('ended', done, { once: true });
-      videoEl.addEventListener('error', done, { once: true });
-      const pp = videoEl.play();
-      if (pp) pp.catch(() => { videoEl.muted = true; videoEl.play().catch(() => done()); });
-    });
 
-    // Attendi che showCardOverVideoSimple sia completata (se era in corso)
-    await cardDonePromise;
-    // A questo punto state._covActions è sicuramente settato → waitForMultiNext funziona
+      const safeguard = setTimeout(onVideoDone, 90000);
+      videoEl.addEventListener('ended', onVideoDone, { once: true });
+      videoEl.addEventListener('error', onVideoDone, { once: true });
+      const pp = videoEl.play();
+      if (pp) pp.catch(() => { videoEl.muted = true; videoEl.play().catch(() => onVideoDone()); });
+    });
   }
 
   // Card sovrapposta al video nella multi — SENZA clone DOM, diretta
@@ -701,6 +702,8 @@
         resolved = true;
         state.multiSkipping = skip;
         if (abort) state.multiAbort = true;
+        // Ferma il video se ancora in corso (es. video multi con card sovrapposta)
+        if (videoEl && !videoEl.paused) { videoEl.pause(); videoEl.src = ''; }
         // Rimuovi card-over-video-multi se presente
         document.getElementById('card-over-video-multi')?.remove();
         state._covActions = null;
