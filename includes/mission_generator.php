@@ -294,7 +294,7 @@ function assignMissionsToUser(mysqli $mysqli, int $userId, array $missions, stri
  * @param string $lang   'it' | 'en'
  * @return array
  */
-function getMissionsPageData(mysqli $mysqli, int $userId, string $lang = 'it'): array
+function getMissionsPageData(mysqli $mysqli, int $userId, string $lang): array
 {
     $dailyRaw  = ensureUserMissions($mysqli, $userId, 'daily');
     $weeklyRaw = ensureUserMissions($mysqli, $userId, 'weekly');
