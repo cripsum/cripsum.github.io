@@ -4,745 +4,640 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
 
+// ── Carica dati personaggio dal DB (no fetch JS, no scrittura DB) ──────────
+$idPersonaggio = (int)($_GET['id_personaggio'] ?? 0);
+$charData = null;
 
-// if (!isLoggedIn()) {
-//     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-//     $_SESSION['login_message'] = "Per accedere alle lootbox devi essere loggato";
+if ($idPersonaggio > 0) {
+    $stmt = $mysqli->prepare(
+        'SELECT id, nome, rarità, img_url, video_url, audio_url
+         FROM personaggi WHERE id = ? LIMIT 1'
+    );
+    $stmt->bind_param('i', $idPersonaggio);
+    $stmt->execute();
+    $charData = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+}
 
-//     header('Location: accedi');
-//     exit();
-// }
-require_once '../api/api_personaggi.php';
+// Se il personaggio non esiste mostra errore
+if (!$charData) {
+    $errorMsg = $idPersonaggio > 0
+        ? "Personaggio con ID {$idPersonaggio} non trovato."
+        : "Nessun ID personaggio specificato. Usa ?id_personaggio=X";
+}
 
-$idPersonaggio = $_GET['id_personaggio'] ?? 0;
-
+$charJson = $charData ? json_encode($charData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) : 'null';
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <link rel="stylesheet" href="/css/lootbox.css?v=8.0.6-skip-chest-smooth" />
-    <title>Cripsum™ - Character animation</title>
+    <link rel="stylesheet" href="/css/lootbox.css?v=8.0.6" />
+    <link rel="stylesheet" href="/css/gacha.css?v=3.1" />
+    <title>Cripsum™ – Animazione personaggio</title>
+    <style>
+        /* ── Override: la pagina è solo l'animazione, niente layout gacha ── */
+        body.anim-page {
+            background: #080810;
+            overflow: hidden;
+            margin: 0;
+            min-height: 100dvh;
+        }
+
+        /* Overlay sempre visibile e occupa tutta la viewport */
+        body.anim-page .gacha-overlay {
+            position: fixed;
+            inset: 0;
+            opacity: 1 !important;
+            pointer-events: all !important;
+            display: flex;
+        }
+
+        /* ── Bottoni finali nella fase card ── */
+        #anim-actions {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 320px;
+            margin-top: 4px;
+        }
+
+        #anim-actions.is-visible {
+            display: flex;
+        }
+
+        /* ── Schermata errore ── */
+        #anim-error {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            background: #080810;
+            color: #fff;
+            z-index: 99999;
+            padding: 32px;
+            text-align: center;
+        }
+
+        #anim-error h2 {
+            color: #f87171;
+            margin: 0;
+        }
+
+        #anim-error p {
+            color: rgba(255, 255, 255, .55);
+            margin: 0;
+        }
+
+        #anim-error a {
+            padding: 10px 24px;
+            background: rgba(255, 255, 255, .08);
+            border: 1px solid rgba(255, 255, 255, .18);
+            border-radius: 24px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* ── Tag "ANTEPRIMA" per admin (niente dati pull, solo animazione) ── */
+        #anim-preview-badge {
+            position: fixed;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99998;
+            padding: 3px 12px;
+            background: rgba(251, 191, 36, .15);
+            border: 1px solid rgba(251, 191, 36, .4);
+            border-radius: 20px;
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: #fbbf24;
+            pointer-events: none;
+        }
+
+        /* ── Bottone muto visibile su mobile dopo avvio video ── */
+        .anim-unmute-hint {
+            font-size: .78rem;
+            color: rgba(255, 255, 255, .5);
+            text-align: center;
+            margin-top: 4px;
+        }
+    </style>
 </head>
 
-<body class="lootbox-page">
-    <div class="stars" id="stars"></div>
+<body class="anim-page">
 
-    <!-- TO DO
-           bloccare lo scorrimento della pagina quando il menu della navbar è aperto (aggiungere classe overflow-hidden al body) 
-           bloccare lo scorrimento della pagina quando il pop up è aperto (aggiungere classe overflow-hidden al body)  
-        -->
+    <?php if (!empty($errorMsg)): ?>
+        <!-- ══ ERRORE ══════════════════════════════════════════════════════════ -->
+        <div id="anim-error">
+            <h2><i class="fas fa-circle-exclamation"></i> Personaggio non trovato</h2>
+            <p><?= htmlspecialchars($errorMsg) ?></p>
+            <a href="javascript:history.back()"><i class="fas fa-arrow-left"></i> Torna indietro</a>
+        </div>
 
-    <div class="testobianco lootbox-stage" id="paginaintera">
+    <?php else: ?>
+        <!-- ══ BADGE ANTEPRIMA ═════════════════════════════════════════════════ -->
+        <div id="anim-preview-badge"><i class="fas fa-eye"></i> Preview animation</div>
 
-        <div class="container">
+        <!-- ══ STELLE SFONDO ══════════════════════════════════════════════════ -->
+        <div class="stars" id="stars"></div>
 
-            <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein lootbox-chest" draggable="false" />
+        <!-- ══════════════════════════════════════════════════════════════════
+     OVERLAY GACHA — struttura identica a lootbox.php
+     (gacha.css si aspetta esattamente questi ID e classi)
+══════════════════════════════════════════════════════════════════ -->
+        <div class="gacha-overlay" id="gacha-overlay"
+            role="dialog" aria-modal="true" aria-label="Animazione personaggio">
 
-            <div id="baglioreWrapper">
-                <div class="bagliore" id="bagliore"></div>
-            </div>
+            <div class="gacha-overlay-bg"></div>
+            <div class="gacha-glow-burst" id="gacha-glow-burst"></div>
+            <div class="gacha-stars-layer" id="overlay-stars"></div>
+            <div class="gacha-particles-layer" id="gacha-particles"></div>
+            <div class="gacha-flash" id="gacha-flash"></div>
 
-            <div id="contenuto"></div>
-
-            <div id="messaggio" class="nascosto">
-                <h1 id="messaggioRarita" class="non-selezionabile lootbox-rarity-message"></h1>
-                <a onclick="refresh()" id="apriAncora" class="linkbianco"></a>
-            </div>
-
-            <div id="divApriAncora" class="nascosto">
-                <div class="button-container lootbox-actions mt-4">
-                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" onclick="refresh()" href="?id_personaggio=<?php echo urlencode($idPersonaggio); ?>">Repeat animation</a>
-                    <a class="btn btn-secondary bottone lootbox-action-btn mt-2" href="inventario">Inventory</a>
+            <!-- Fase 1: Orb di caricamento -->
+            <div class="gacha-phase gacha-phase--opening" id="phase-opening">
+                <div class="gacha-orb-container">
+                    <div class="gacha-orb">
+                        <div class="gacha-orb-ring gacha-orb-ring--3"></div>
+                        <div class="gacha-orb-ring gacha-orb-ring--2"></div>
+                        <div class="gacha-orb-ring gacha-orb-ring--1"></div>
+                        <div class="gacha-orb-core" id="orb-core"></div>
+                    </div>
                 </div>
             </div>
 
-            <div id="particelle"></div>
-        </div>
+            <!-- Fase 2: Video (segreto / theone) -->
+            <div class="gacha-phase gacha-phase--video" id="phase-video" style="display:none">
+                <video id="gacha-video" playsinline preload="metadata"
+                    webkit-playsinline></video>
+                <button class="gacha-video-unmute" id="video-unmute-btn" style="display:none">
+                    <i class="fas fa-volume-xmark"></i> Tap per audio
+                </button>
+            </div>
 
-        <audio id="suonoCassa"></audio>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script src="../js/characters.js?v=4"></script>
-    <script src="../js/unlockAchievement-it.js"></script>
-    <script>
-        const cassa = document.getElementById("cassa");
-        const nomePersonaggio = document.getElementById("nomePersonaggio");
-        const messaggioRarita = document.getElementById("messaggioRarita");
-        const audio = document.getElementById("suonoCassa");
-        const bagliore = document.getElementById("bagliore");
-        const messaggio = document.getElementById("messaggio");
-        const contenuto = document.getElementById("contenuto");
-        const particelleContainer = document.getElementById("particelle");
-        const paginaintera = document.getElementById("paginaintera");
-        const apriAncora = document.getElementById("apriAncora");
-        const apriInventario = document.getElementById("apriInventario");
-        const divApriAncora = document.getElementById("divApriAncora");
-        const wrapper = document.getElementById("bagliore-wrapper");
-        let isProcessing = false;
-
-
-        function escapeHtml(value) {
-            return String(value ?? "")
-                .replaceAll("&", "&amp;")
-                .replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll('"', "&quot;")
-                .replaceAll("'", "&#039;");
-        }
-
-        function safeImageFile(value) {
-            const cleaned = String(value || "Susremaster.png").replace(/[<>"']/g, "").trim();
-            return cleaned || "Susremaster.png";
-        }
-
-        function normalizeRarityClass(rarity) {
-            return String(rarity || "comune")
-                .toLowerCase()
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/[\s_-]+/g, "");
-        }
-
-        function applyLootboxRarityVisual(rarity) {
-            const normalized = normalizeRarityClass(rarity);
-            const rarityClasses = [
-                "lootbox-rarity-comune",
-                "lootbox-rarity-raro",
-                "lootbox-rarity-epico",
-                "lootbox-rarity-leggendario",
-                "lootbox-rarity-speciale",
-                "lootbox-rarity-segreto",
-                "lootbox-rarity-theone"
-            ];
-
-            document.body.classList.remove(...rarityClasses);
-            document.body.classList.add(`lootbox-rarity-${normalized}`);
-
-            const colors = {
-                comune: "#d1d5db",
-                raro: "#38bdf8",
-                epico: "#c084fc",
-                leggendario: "#fbbf24",
-                speciale: "#ffffff",
-                segreto: "#a855f7",
-                theone: "#38bdf8"
-            };
-
-            document.documentElement.style.setProperty("--lootbox-particle-color", colors[normalized] || "#ffffff");
-        }
-
-        function setLootboxState(state) {
-            document.body.classList.remove("is-opening", "is-revealed", "is-fast-open");
-            if (state) {
-                document.body.classList.add(state);
-            }
-        }
-
-
-        function createStars() {
-            const starsContainer = document.getElementById('stars');
-            for (let i = 0; i < 100; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.animationDelay = Math.random() * 4 + 's';
-                starsContainer.appendChild(star);
-            }
-        }
-
-        async function getInventory() {
-            const response = await fetch('https://cripsum.com/api/api_get_inventario');
-            const data = await response.json();
-
-            localStorage.setItem("inventory", JSON.stringify(data));
-            return data;
-        }
-
-        async function getAllCharacters() {
-            const response = await fetch('https://cripsum.com/api/get_all_characters');
-            const data = await response.json();
-            return data;
-        }
-
-        async function getCharacterNumber() {
-            const response = await fetch('https://cripsum.com/api/api_get_characters_num');
-            const data = await response.json();
-            return data;
-        }
-
-        async function get_character_from_id(id) {
-            const response = await fetch('https://cripsum.com/api/get_character_from_id?id=' + encodeURIComponent(id));
-            const data = await response.json();
-            return data;
-        }
-
-        async function get_character_from_nome(nomePersonaggio) {
-            const response = await fetch('https://cripsum.com/api/get_character_from_nome?nomePersonaggio=' + encodeURIComponent(nomePersonaggio));
-            const data = await response.json();
-            return data;
-        }
-
-        async function riscattaPersonaggio(idPersonaggio) {
-
-            try {
-                const pull = await get_character_from_id(idPersonaggio);
-
-                const safeName = escapeHtml(pull.nome || "Personaggio");
-                const safeImg = safeImageFile(pull.img_url);
-
-                document.getElementById("contenuto").innerHTML = `
-                        <div class="lootbox-character-reveal">
-                            <div class="lootbox-prize-wrap lootbox-reward-frame">
-                                <img src="/img/${safeImg}" alt="${safeName}" class="premio" onerror="this.onerror=null;this.src='/img/Susremaster.png';" draggable="false" />
-                            </div>
-                            <p id="nomePersonaggio" class="lootbox-character-name">${safeName}</p>
+            <!-- Fase 3: Card reveal -->
+            <div class="gacha-phase gacha-phase--card" id="phase-card" style="display:none">
+                <div class="gacha-card" id="gacha-card">
+                    <div class="gacha-card-bg-glow" id="card-bg-glow"></div>
+                    <div class="gacha-card-frame" id="card-frame">
+                        <div class="gacha-card-img-wrap">
+                            <img id="card-img" src="/img/cassa.png" alt="Personaggio"
+                                draggable="false" onerror="this.src='/img/cassa.png'">
                         </div>
-                    `;
+                        <div class="gacha-card-img-shine"></div>
+                        <!-- Nessun badge NEW/50-50 in modalità anteprima -->
+                        <span class="gacha-card-new-badge" id="card-new-badge" style="display:none">NEW!</span>
+                        <span class="gacha-card-50-badge gacha-card-50-badge--win" id="card-50-win" style="display:none"></span>
+                        <span class="gacha-card-50-badge gacha-card-50-badge--loss" id="card-50-loss" style="display:none"></span>
+                    </div>
+                    <div class="gacha-card-details">
+                        <div class="gacha-card-rarity-bar" id="card-rarity-bar"></div>
+                        <p class="gacha-card-rarity-label" id="card-rarity-label">—</p>
+                        <h2 class="gacha-card-name" id="card-name">—</h2>
+                    </div>
+                </div>
 
-                applyLootboxRarityVisual(pull.rarità);
+                <!-- Azioni post-animazione -->
+                <div id="anim-actions">
+                    <a href="?id_personaggio=<?= $idPersonaggio ?>" class="gacha-btn gacha-btn--primary">
+                        <i class="fas fa-rotate-right"></i> Watch Again
+                    </a>
+                    <a href="/inventario" class="gacha-btn gacha-btn--ghost">
+                        <i class="fas fa-layer-group"></i> Inventory
+                    </a>
+                    <button class="gacha-btn gacha-btn--ghost" onclick="history.back()">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                </div>
+            </div>
 
-                if (pull.rarità === "comune") {
-                    messaggioRarita.innerText = "bravo fra hai pullato un personaggio comune, skill issue xd";
-                    bagliore.style.background = "radial-gradient(circle, rgba(150, 150, 150, 1) 0%, rgba(255, 255, 0, 0) 70%)";
-                } else if (pull.rarità === "leggendario") {
-                    messaggioRarita.innerText = "che fortuna, hai pullato un personaggio leggendario!";
-                    bagliore.style.background = "radial-gradient(circle, rgba(255, 228, 23, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-                } else if (pull.rarità === "epico") {
-                    messaggioRarita.innerText = "hai pullato un personaggio epico, tanta roba, ma poteva andare meglio";
-                    bagliore.style.background = "radial-gradient(circle, rgba(195, 0, 235, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-                } else if (pull.rarità === "raro") {
-                    if (pull.nome === "JOB APPLICATION") {
-                        messaggioRarita.innerText = "BOO! DID I SCARE YOU? I'M A JOB APPLICATION! GET A JOB NOW!";
-                    } else {
-                        messaggioRarita.innerText = "buono dai, hai pullato un personaggio raro!";
-                    }
-                    bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
-                } else if (pull.rarità === "speciale") {
-                    messaggioRarita.innerText = "COM'É POSSIBILE? HAI PULLATO UN PERSONAGGIO SPECIALE!";
+        </div><!-- /gacha-overlay -->
 
-                    bagliore.style.position = "fixed";
-                    bagliore.style.width = "100vw";
-                    bagliore.style.height = "100vh";
-                    bagliore.style.zIndex = "1";
+        <!-- Audio -->
+        <audio id="gacha-audio" preload="none"></audio>
 
-                    bagliore.style.background = "linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00f7ff, #2b65ff, #8000ff, #ff0000)";
-                    bagliore.style.backgroundSize = "300% 100%";
-                    bagliore.style.animation = "";
-                } else if (pull.rarità === "segreto") {
+        <!-- ══════════════════════════════════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════════════════════════════ -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            crossorigin="anonymous"></script>
 
-                    startIntroAnimation(pull.nome);
-                    messaggioRarita.innerText = "COSA? HAI PULLATO UN PERSONAGGIO SEGRETO? aura.";
-                    bagliore.style.position = "fixed";
-                    bagliore.style.width = "100vw";
-                    bagliore.style.height = "100vh";
-                    bagliore.style.zIndex = "1";
+        <!-- gacha-effects.js: GachaEffects (speciale, leggendario, epico, raro) -->
+        <script src="/js/gacha-effects.js?v=3.1"></script>
 
-                } else if (pull.rarità === "theone") {
+        <script>
+            /* ═══════════════════════════════════════════════════════════════════════
+   AnimazionePersonaggio — motore di reveal standalone
+   Replica la logica di revealPull() / showCard() / fadeToBlackThenVideo()
+   di gacha.js senza richiedere l'intero sistema di lootbox.
+   NON esegue fetch al DB, NON salva nulla.
+═══════════════════════════════════════════════════════════════════════ */
 
-                    startTheOneAnimation(pull.nome);
-                    messaggioRarita.innerText = "INCREDBILE! HAI PULLATO IL PERSONAGGIO PIÙ RARO DI TUTTI!!!";
-                    bagliore.style.position = "fixed";
-                    bagliore.style.width = "100vw";
-                    bagliore.style.height = "100vh";
-                    bagliore.style.zIndex = "1";
+            'use strict';
 
+            (function() {
+
+                /* ── Dati personaggio passati server-side ─────────────────────────── */
+                const CHAR = <?= $charJson ?>;
+
+                /* ── Configurazione ────────────────────────────────────────────────── */
+                const RARITY_VIDEO = new Set(['segreto', 'theone']);
+                const RARITY_EFFECTS = new Set(['leggendario', 'speciale', 'epico', 'raro']);
+                const VIDEO_CARD_DELAY_MS = 12000; // card appare sopra il video dopo 12s
+
+                const RARITY_COLORS = {
+                    comune: '#9ca3af',
+                    raro: '#38bdf8',
+                    epico: '#c084fc',
+                    leggendario: '#fbbf24',
+                    speciale: '#ffffff',
+                    segreto: '#a855f7',
+                    theone: '#60a5fa',
+                };
+
+                /* ── DOM refs ─────────────────────────────────────────────────────── */
+                const $ = id => document.getElementById(id);
+
+                const overlay = $('gacha-overlay');
+                const glowBurst = $('gacha-glow-burst');
+                const overlayStars = $('overlay-stars');
+                const particlesLayer = $('gacha-particles');
+
+                const phaseOpening = $('phase-opening');
+                const phaseVideo = $('phase-video');
+                const phaseCard = $('phase-card');
+
+                const videoEl = $('gacha-video');
+                const videoUnmuteBtn = $('video-unmute-btn');
+
+                const gachaCard = $('gacha-card');
+                const cardBgGlow = $('card-bg-glow');
+                const cardImg = $('card-img');
+                const cardRarityBar = $('card-rarity-bar');
+                const cardRarityLabel = $('card-rarity-label');
+                const cardName = $('card-name');
+
+                const animActions = $('anim-actions');
+                const audioEl = $('gacha-audio');
+
+                /* ── Utility ──────────────────────────────────────────────────────── */
+                const delay = ms => new Promise(r => setTimeout(r, ms));
+
+                function normalizeRarity(r) {
+                    return String(r ?? 'comune')
+                        .toLowerCase()
+                        .normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '')
+                        .replace(/[\s_-]+/g, '')
+                        .trim();
                 }
 
-                document.getElementById("suonoCassa").innerHTML = `
-                        <source src="/audio/${pull.audio_url}" type="audio/mpeg" id="suono" />
-                    `;
+                function escapeHtml(s) {
+                    return String(s ?? '')
+                        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+                }
 
-            } catch (error) {
-                console.error('Errore nel pull del personaggio:', error);
-                messaggioRarita.innerText = "Errore durante l'apertura della cassa. Riprova.";
-            } finally {
-                setTimeout(() => {
-                    isProcessing = false;
-                }, 1000);
-            }
-        }
-
-        async function apriNormale() {
-            setLootboxState("is-opening");
-            cassa.onclick = null;
-
-            generaParticelle();
-
-            bagliore.style.opacity = 0.6;
-            bagliore.style.transform = "translate(-50%, -50%) scale(1.5)";
-
-            audio.currentTime = 0;
-            audio.play().catch(() => {});
-
-            cassa.classList.remove("aperta", "dissolvi", "is-opening-chest");
-            void cassa.offsetWidth;
-            cassa.classList.add("is-opening-chest");
-
-            setTimeout(() => {
-                cassa.src = "../img/cassa_aperta.png";
-            }, 420);
-
-            setTimeout(() => {
-                cassa.classList.add("aperta");
-            }, 1700);
-
-            setTimeout(() => {
-                setLootboxState("is-revealed");
-                contenuto.classList.add("salto");
-                messaggio.classList.add("salto");
-                cassa.classList.add("dissolvi");
-            }, 2100);
-
-            setTimeout(() => {
-                divApriAncora.classList.remove("nascosto");
-                divApriAncora.classList.add("salto");
-            }, 3100);
-
-            //audio.onended = () => {
-            //    setTimeout(refresh, 500);
-            //};
-        }
-
-        function testoNuovo() {
-            document.querySelectorAll(".new-label").forEach((label) => label.remove());
-
-            const image = contenuto.querySelector(".premio");
-            if (!image) return;
-
-            let prizeWrap =
-                image.closest(".lootbox-prize-wrap") ||
-                image.closest(".lootbox-reward-frame");
-
-            if (!prizeWrap) {
-                prizeWrap = document.createElement("div");
-                prizeWrap.className = "lootbox-prize-wrap lootbox-reward-frame";
-                image.parentNode.insertBefore(prizeWrap, image);
-                prizeWrap.appendChild(image);
-            }
-
-            prizeWrap.classList.add("lootbox-prize-wrap", "lootbox-reward-frame");
-
-            const newLabel = document.createElement("span");
-            newLabel.className = "new-label";
-            newLabel.textContent = "NEW!";
-            prizeWrap.appendChild(newLabel);
-        }
-
-        function generaParticelle() {
-            const container = document.getElementById("particelle");
-            const cassa = document.getElementById("cassa");
-            const rect = cassa.getBoundingClientRect();
-
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-
-            for (let i = 0; i < 100; i++) {
-                const particella = document.createElement("div");
-                particella.classList.add("particella", "particella--spark");
-
-                particella.style.left = `${centerX}px`;
-                particella.style.top = `${centerY}px`;
-
-                const angle = Math.random() * 2 * Math.PI;
-                const distance = Math.random() * 200 + 50;
-                const x = Math.cos(angle) * distance;
-                const y = Math.sin(angle) * distance;
-
-                particella.style.setProperty("--x", `${x}px`);
-                particella.style.setProperty("--y", `${y}px`);
-                particella.style.setProperty("--dur", `${1100 + Math.random() * 900}ms`);
-
-                container.appendChild(particella);
-
-                setTimeout(() => particella.remove(), 2000);
-            }
-        }
-
-        function refresh() {
-            location.reload();
-        }
-
-
-        function startIntroAnimation(nome_personaggio) {
-
-            const introOverlay = document.createElement('div');
-            introOverlay.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100vw;
-                    height: 100vh;
-                    background: #000;
-                    z-index: 10000;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    overflow: hidden;
-                    opacity: 0;
-                    transition: opacity 0.8s ease-in-out;
-                `;
-
-            const purpleContainer = document.createElement('div');
-            purpleContainer.style.cssText = `
-                    position: relative;
-                    width: 100%;
-                    height: 100%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    opacity: 0;
-                    transform: scale(0.8);
-                    transition: opacity 1s ease-out 0.3s, transform 1s ease-out 0.3s;
-                `;
-
-            const purpleCircle = document.createElement('div');
-            purpleCircle.style.cssText = `
-                    width: 300px;
-                    height: 300px;
-                    border-radius: 50%;
-                    background: radial-gradient(circle, rgba(147, 0, 211, 1) 0%, rgba(75, 0, 130, 0.9) 30%, rgba(138, 43, 226, 0.7) 60%, transparent 100%);
-                    animation: epicPulse 2s ease-in-out infinite;
-                    box-shadow: 0 0 50px rgba(147, 0, 211, 0.8), 0 0 100px rgba(75, 0, 130, 0.6), inset 0 0 30px rgba(138, 43, 226, 0.4);
-                    filter: brightness(1.2) saturate(1.3);
-                    opacity: 0;
-                    transform: scale(0.5);
-                    animation-delay: 0.8s;
-                    transition: opacity 0.8s ease-out 0.8s, transform 0.8s ease-out 0.8s;
-                `;
-
-            for (let ring = 0; ring < 3; ring++) {
-                const energyRing = document.createElement('div');
-                energyRing.style.cssText = `
-                        position: absolute;
-                        width: ${250 + ring * 80}px;
-                        height: ${250 + ring * 80}px;
-                        border-radius: 50%;
-                        border: 2px solid rgba(147, 0, 211, ${0.6 - ring * 0.2});
-                        animation: expandingRing 3s ease-out infinite ${ring * 0.5}s;
-                        left: 50%;
-                        top: 50%;
-                        transform: translate(-50%, -50%);
-                        opacity: 0;
-                        transition: opacity 0.6s ease-out ${1.2 + ring * 0.2}s;
-                    `;
-                purpleContainer.appendChild(energyRing);
-            }
-
-            for (let i = 0; i < 8; i++) {
-                const lightning = document.createElement('div');
-                lightning.style.cssText = `
-                        position: absolute;
-                        width: 2px;
-                        height: ${100 + Math.random() * 60}px;
-                        background: linear-gradient(to bottom, 
-                            rgba(255, 255, 255, 1) 0%,
-                            rgba(147, 0, 211, 0.9) 20%,
-                            rgba(138, 43, 226, 0.7) 60%,
-                            transparent 100%
-                        );
-                        left: 50%;
-                        top: 50%;
-                        transform-origin: 50% 100%;
-                        transform: translate(-50%, -50%) rotate(${i * 45}deg);
-                        box-shadow: 0 0 8px rgba(255, 255, 255, 0.8), 0 0 16px rgba(147, 0, 211, 0.6);
-                        border-radius: 1px;
-                        opacity: 0;
-                        animation: cleanLightning 1.5s ease-in-out ${1.2 + i * 0.1}s infinite;
-                    `;
-                purpleContainer.appendChild(lightning);
-            }
-
-            for (let p = 0; p < 12; p++) {
-                const particle = document.createElement('div');
-                particle.style.cssText = `
-                        position: absolute;
-                        width: ${3 + Math.random() * 4}px;
-                        height: ${3 + Math.random() * 4}px;
-                        border-radius: 50%;
-                        background: radial-gradient(circle, rgba(255, 255, 255, 0.9), rgba(147, 0, 211, 0.8));
-                        left: ${35 + Math.random() * 30}%;
-                        top: ${35 + Math.random() * 30}%;
-                        box-shadow: 0 0 6px rgba(147, 0, 211, 0.8);
-                        opacity: 0;
-                        animation: floatingParticles 3s ease-in-out infinite ${Math.random() * 2 + 1.5}s;
-                    `;
-                purpleContainer.appendChild(particle);
-            }
-
-            const enhancedStyle = document.createElement('style');
-            enhancedStyle.textContent = `
-                    @keyframes epicPulse {
-                        0%, 100% { 
-                            transform: scale(1); 
-                            opacity: 0.8; 
-                            filter: brightness(1.2) saturate(1.3);
-                        }
-                        50% { 
-                            transform: scale(1.1); 
-                            opacity: 1; 
-                            filter: brightness(1.5) saturate(1.6);
-                        }
+                /* ── Stars ────────────────────────────────────────────────────────── */
+                function createStars(container, count) {
+                    if (!container) return;
+                    const frag = document.createDocumentFragment();
+                    for (let i = 0; i < count; i++) {
+                        const s = document.createElement('div');
+                        s.className = 'star';
+                        s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;` +
+                            `animation-delay:${Math.random()*4}s;` +
+                            `animation-duration:${2+Math.random()*3}s;`;
+                        frag.appendChild(s);
                     }
-                    @keyframes expandingRing {
-                        0% { 
-                            transform: translate(-50%, -50%) scale(0.5); 
-                            opacity: 0.6; 
-                        }
-                        100% { 
-                            transform: translate(-50%, -50%) scale(2); 
-                            opacity: 0; 
-                        }
+                    container.appendChild(frag);
+                }
+
+                /* ── Rarity overlay ───────────────────────────────────────────────── */
+                function setRarityOnOverlay(rarity) {
+                    overlay.setAttribute('data-rarity', rarity);
+                    const color = RARITY_COLORS[rarity] ?? '#fff';
+                    overlay.style.setProperty('--banner-accent', color);
+                    overlay.style.setProperty('--banner-accent-glow', color + '55');
+                    glowBurst.classList.toggle('is-rainbow', rarity === 'speciale');
+                }
+
+                /* ── Phase switcher ───────────────────────────────────────────────── */
+                function showPhase(p) {
+                    phaseOpening.style.display = p === 'opening' ? 'flex' : 'none';
+                    phaseVideo.style.display = p === 'video' ? 'flex' : 'none';
+                    phaseCard.style.display = p === 'card' ? 'flex' : 'none';
+                }
+
+                /* ── Particles ────────────────────────────────────────────────────── */
+                function spawnParticles(color, rarity) {
+                    const mob = window.innerWidth < 768;
+                    const counts = {
+                        theone: mob ? 30 : 70,
+                        segreto: mob ? 25 : 60,
+                        speciale: mob ? 20 : 50,
+                        leggendario: mob ? 15 : 40,
+                        epico: mob ? 10 : 28,
+                    };
+                    const count = counts[rarity] ?? (mob ? 6 : 15);
+                    const frag = document.createDocumentFragment();
+                    for (let i = 0; i < count; i++) {
+                        const p = document.createElement('div');
+                        const sz = 3 + Math.random() * 5;
+                        const ang = Math.random() * Math.PI * 2;
+                        const d = 80 + Math.random() * 200;
+                        const dur = 600 + Math.random() * 900;
+                        p.className = 'gacha-particle';
+                        p.style.cssText = `width:${sz}px;height:${sz}px;background:${color};` +
+                            `box-shadow:0 0 ${sz*2}px ${color};` +
+                            `--px:${Math.cos(ang)*d}px;--py:${Math.sin(ang)*d}px;--dur:${dur}ms;`;
+                        frag.appendChild(p);
+                        setTimeout(() => p.remove(), dur + 100);
                     }
-                    @keyframes cleanLightning {
-                        0% { 
-                            opacity: 0; 
-                            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scaleY(0);
+                    particlesLayer.appendChild(frag);
+                }
+
+                /* ── Audio ────────────────────────────────────────────────────────── */
+                function playAudio(url) {
+                    if (!url || !audioEl) return;
+                    audioEl.src = url.startsWith('/') ? url : `/audio/${url}`;
+                    audioEl.currentTime = 0;
+                    audioEl.volume = 0.8;
+                    audioEl.play().catch(() => {});
+                }
+
+                /* ══════════════════════════════════════════════════════════════════
+                   SHOW CARD — identica a gacha.js showCard(), senza i bottoni pull
+                ══════════════════════════════════════════════════════════════════ */
+                async function showCard(charObj) {
+                    const rarity = normalizeRarity(charObj.rarità);
+                    const color = RARITY_COLORS[rarity] ?? '#fff';
+
+                    cardImg.src = charObj.img_url ? `/img/${charObj.img_url}` : '/img/cassa.png';
+                    cardImg.alt = escapeHtml(charObj.nome ?? '');
+                    cardName.textContent = escapeHtml(charObj.nome ?? '—');
+                    cardRarityBar.className = `gacha-card-rarity-bar rarity-${rarity}`;
+                    cardRarityLabel.textContent = (charObj.rarità ?? '—').toUpperCase();
+                    cardBgGlow.style.background = `radial-gradient(circle,${color}55 0%,transparent 70%)`;
+
+                    spawnParticles(color, rarity);
+                    showPhase('card');
+
+                    gachaCard.classList.remove('is-revealed', 'is-idle');
+                    await delay(40);
+                    gachaCard.classList.add('is-revealed');
+                    await delay(620);
+                    gachaCard.classList.add('is-idle');
+
+                    // Mostra azioni dopo che la card è idle
+                    animActions.classList.add('is-visible');
+                }
+
+                /* ══════════════════════════════════════════════════════════════════
+                   CARD OVER VIDEO — card sovrapposta al video in corso
+                   Replica showCardOverVideo() di gacha.js
+                ══════════════════════════════════════════════════════════════════ */
+                async function showCardOverVideo(charObj) {
+                    const rarity = normalizeRarity(charObj.rarità);
+                    const color = RARITY_COLORS[rarity] ?? '#fff';
+                    const imgSrc = charObj.img_url ? `/img/${charObj.img_url}` : '/img/cassa.png';
+
+                    // Layer trasparente sopra il video
+                    const cardOverlay = document.createElement('div');
+                    cardOverlay.id = 'card-over-video-anim';
+                    cardOverlay.style.cssText = [
+                        'position:absolute;inset:0;z-index:15;',
+                        'display:flex;flex-direction:column;align-items:center;justify-content:center;',
+                        'gap:24px;padding:20px 20px calc(20px + var(--safe-bot,0px));',
+                        'opacity:0;transition:opacity .7s ease;background:transparent;',
+                    ].join('');
+
+                    cardOverlay.innerHTML = `
+      <div class="gacha-card" id="cov-card-anim">
+        <div class="gacha-card-bg-glow"
+             style="background:radial-gradient(circle,${color}55 0%,transparent 70%)"></div>
+        <div class="gacha-card-frame"
+             style="border-color:${color}88;box-shadow:0 0 40px ${color}44">
+          <div class="gacha-card-img-wrap">
+            <img src="${imgSrc}" alt="${escapeHtml(charObj.nome)}" draggable="false"
+                 onerror="this.src='/img/cassa.png'"
+                 style="width:100%;height:100%;object-fit:cover;object-position:top">
+          </div>
+          <div class="gacha-card-img-shine"></div>
+        </div>
+        <div class="gacha-card-details">
+          <div class="gacha-card-rarity-bar rarity-${rarity}"></div>
+          <p class="gacha-card-rarity-label" style="color:${color}">
+            ${escapeHtml(charObj.rarità.toUpperCase())}
+          </p>
+          <h2 class="gacha-card-name">${escapeHtml(charObj.nome ?? '—')}</h2>
+        </div>
+      </div>
+      <div id="cov-anim-actions" class="gacha-overlay-actions" style="display:none">
+        <a href="?id_personaggio=<?= $idPersonaggio ?>"
+           class="gacha-btn gacha-btn--primary">
+          <i class="fas fa-rotate-right"></i> Ripeti animazione
+        </a>
+        <a href="/inventario" class="gacha-btn gacha-btn--ghost">
+          <i class="fas fa-layer-group"></i> Inventario
+        </a>
+        <button class="gacha-btn gacha-btn--ghost" onclick="history.back()">
+          <i class="fas fa-arrow-left"></i> Indietro
+        </button>
+      </div>
+    `;
+
+                    phaseVideo.appendChild(cardOverlay);
+                    spawnParticles(color, rarity);
+
+                    await delay(40);
+                    cardOverlay.style.opacity = '1';
+
+                    const covCard = cardOverlay.querySelector('#cov-card-anim');
+                    covCard.classList.remove('is-revealed', 'is-idle');
+                    await delay(80);
+                    covCard.classList.add('is-revealed');
+                    await delay(620);
+                    covCard.classList.add('is-idle');
+
+                    // Mostra azioni
+                    const covActions = cardOverlay.querySelector('#cov-anim-actions');
+                    if (covActions) covActions.style.display = 'flex';
+                }
+
+                /* ══════════════════════════════════════════════════════════════════
+                   VIDEO REVEAL — identico a playRevealVideoWithEarlyCard() di gacha.js
+                   Card appare dopo VIDEO_CARD_DELAY_MS con video ancora in riproduzione.
+                ══════════════════════════════════════════════════════════════════ */
+                async function playVideoReveal(videoUrl, charObj) {
+                    videoEl.src = videoUrl.startsWith('/') ? videoUrl : `/vid/${videoUrl}`;
+                    videoEl.muted = false;
+                    videoEl.volume = 1;
+                    videoEl.load();
+                    videoUnmuteBtn.style.display = 'none';
+
+                    let cardShown = false;
+
+                    // Tap per sbloccare audio su mobile/Safari
+                    const unmuteHandler = () => {
+                        videoEl.muted = false;
+                        videoEl.volume = 1;
+                        videoEl.play().catch(() => {});
+                        videoUnmuteBtn.style.display = 'none';
+                    };
+                    videoUnmuteBtn.addEventListener('click', unmuteHandler, {
+                        once: true
+                    });
+
+                    // Timer: card appare dopo VIDEO_CARD_DELAY_MS
+                    const cardTimer = setTimeout(async () => {
+                        if (!cardShown) {
+                            cardShown = true;
+                            await showCardOverVideo(charObj);
                         }
-                        20% { 
-                            opacity: 0.8; 
-                            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scaleY(0.7);
-                        }
-                        40% { 
-                            opacity: 1; 
-                            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scaleY(1);
-                        }
-                        60% { 
-                            opacity: 0.6; 
-                            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scaleY(0.8);
-                        }
-                        100% { 
-                            opacity: 0; 
-                            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scaleY(0.3);
-                        }
-                    }
-                    @keyframes floatingParticles {
-                        0%, 100% { 
-                            transform: translateY(0px) scale(1); 
-                            opacity: 0.6; 
-                        }
-                        25% { 
-                            transform: translateY(-15px) scale(1.1); 
-                            opacity: 0.9; 
-                        }
-                        50% { 
-                            transform: translateY(-25px) scale(1.2); 
-                            opacity: 1; 
-                        }
-                        75% { 
-                            transform: translateY(-10px) scale(0.9); 
-                            opacity: 0.7; 
-                        }
-                    }
-                `;
-            document.head.appendChild(enhancedStyle);
+                    }, VIDEO_CARD_DELAY_MS);
 
-            const mysteriousText = document.createElement('div');
-            mysteriousText.style.cssText = `
-                    position: absolute;
-                    color:rgb(255, 255, 255);
-                    font-size: 10rem;
-                    font-weight: bold;
-                    text-shadow: 0 0 20px #9932cc, 0 0 40px #4b0082;
-                    opacity: 0;
-                    transform: scale(0.3);
-                    transition: opacity 1s ease-out 1s, transform 1s ease-out 2.5s;
-                `;
-            mysteriousText.textContent = 'オーラシグマゴド';
+                    return new Promise(resolve => {
+                        let resolved = false;
 
-            const style = document.createElement('style');
-            style.textContent = `
-                    @keyframes textReveal {
-                        0% { opacity: 0; transform: scale(0.5); }
-                        50% { opacity: 1; transform: scale(1.2); }
-                        100% { opacity: 1; transform: scale(1); }
-                    }
-                    @keyframes fadeOut {
-                        to { opacity: 0; transform: scale(0.9); }
-                    }
-                `;
+                        const done = async () => {
+                            if (resolved) return;
+                            resolved = true;
+                            clearTimeout(cardTimer);
+                            clearTimeout(safeguard);
+                            videoEl.removeEventListener('ended', done);
+                            videoEl.removeEventListener('error', done);
 
-            document.head.appendChild(style);
-            purpleContainer.appendChild(purpleCircle);
-            purpleContainer.appendChild(mysteriousText);
-            introOverlay.appendChild(purpleContainer);
-            document.body.appendChild(introOverlay);
-
-            setTimeout(() => {
-                introOverlay.style.opacity = '1';
-                purpleContainer.style.opacity = '1';
-                purpleContainer.style.transform = 'scale(1)';
-
-                setTimeout(() => {
-                    purpleCircle.style.opacity = '1';
-                    purpleCircle.style.transform = 'scale(1)';
-                }, 300);
-
-                const rings = purpleContainer.querySelectorAll('div[style*="border:"]');
-                rings.forEach((ring, index) => {
-                    setTimeout(() => {
-                        ring.style.opacity = '1';
-                    }, 800 + index * 200);
-                });
-
-                const lightnings = purpleContainer.querySelectorAll('div[style*="linear-gradient(to bottom"]');
-                lightnings.forEach((lightning, index) => {
-                    setTimeout(() => {
-                        lightning.style.opacity = '1';
-                    }, 1200 + index * 50);
-                });
-
-                setTimeout(() => {
-                    mysteriousText.style.opacity = '1';
-                    mysteriousText.style.transform = 'scale(1)';
-                    createStars();
-                }, 1000);
-
-                const particles = purpleContainer.querySelectorAll('div[style*="radial-gradient(circle, #ff00ff"]');
-                particles.forEach((particle, index) => {
-                    setTimeout(() => {
-                        particle.style.opacity = '1';
-                    }, 1500 + Math.random() * 500);
-                });
-
-
-                bagliore.style.background = "radial-gradient(circle, rgba(147, 0, 211, 1) 0%, rgba(75, 0, 130, 0.8) 30%, rgba(138, 43, 226, 0.6) 60%, rgba(148, 0, 211, 0) 100%)";
-                bagliore.style.animation = "secretGlowRotate 8s ease-in-out infinite";
-                bagliore.style.boxShadow = "0 0 100px rgba(147, 0, 211, 0.8), 0 0 200px rgba(75, 0, 130, 0.6), inset 0 0 50px rgba(138, 43, 226, 0.4)";
-                bagliore.style.borderRadius = "50%";
-                bagliore.style.width = "150vw";
-                bagliore.style.height = "150vw";
-
-                const secretStyleSheet = document.createElement('style');
-                secretStyleSheet.textContent = `
-                            @keyframes secretGlowRotate {
-                                0% { 
-                                    transform: translate(-50%, -50%) scale(1) rotate(0deg);
-                                    filter: brightness(1) saturate(1);
-                                }
-                                25% { 
-                                    transform: translate(-50%, -50%) scale(1.2) rotate(90deg);
-                                    filter: brightness(1.3) saturate(1.5);
-                                }
-                                50% { 
-                                    transform: translate(-50%, -50%) scale(1) rotate(180deg);
-                                    filter: brightness(1) saturate(1);
-                                }
-                                75% { 
-                                    transform: translate(-50%, -50%) scale(1.2) rotate(270deg);
-                                    filter: brightness(1.3) saturate(1.5);
-                                }
-                                100% { 
-                                    transform: translate(-50%, -50%) scale(1) rotate(360deg);
-                                    filter: brightness(1) saturate(1);
-                                }
+                            if (!cardShown) {
+                                // Video finito prima dei 12s: mostra card normale
+                                cardShown = true;
+                                videoEl.pause();
+                                videoEl.src = '';
+                                await showCard(charObj);
+                            } else {
+                                // Card già visibile sopra il video: metti in loop il video (come nel vecchio sistema)
+                                videoEl.loop = true;
+                                videoEl.play().catch(() => {});
                             }
-                        `;
-                document.head.appendChild(secretStyleSheet);
+                            // Nota: la Promise si risolve qui ma il video continua in loop
+                            // sotto la card — comportamento identico al vecchio theone/tung.
+                            resolve();
+                        };
 
-            }, 100);
+                        const safeguard = setTimeout(done, 90000);
+                        videoEl.addEventListener('ended', done, {
+                            once: true
+                        });
+                        videoEl.addEventListener('error', done, {
+                            once: true
+                        });
 
-            setTimeout(() => {
-                introOverlay.style.animation = 'fadeOut 1.2s ease-out forwards';
-                setTimeout(() => {
-                    document.body.removeChild(introOverlay);
-                    document.head.removeChild(style);
-                    document.head.removeChild(enhancedStyle);
-                }, 1200);
-            }, 4000);
-        }
+                        const pp = videoEl.play();
+                        if (pp) {
+                            pp.catch(() => {
+                                // Autoplay bloccato → mostra bottone unmute
+                                videoEl.muted = true;
+                                videoUnmuteBtn.style.display = 'flex';
+                                videoEl.play().catch(() => done());
+                            });
+                        }
+                    });
+                }
 
-        document.addEventListener('DOMContentLoaded', async function() {
-            setTimeout(async () => {
-                await riscattaPersonaggio(<?php echo json_encode((int)$idPersonaggio); ?>);
-                testoNuovo();
-            }, 200);
-            setTimeout(() => {
-                apriNormale();
-            }, 500);
-        });
+                /* ══════════════════════════════════════════════════════════════════
+                   FADE TO BLACK THEN VIDEO
+                   Replica fadeToBlackThenVideo() di gacha.js
+                ══════════════════════════════════════════════════════════════════ */
+                async function fadeToBlackThenVideo(videoUrl, charObj) {
+                    const velo = document.createElement('div');
+                    velo.style.cssText = [
+                        'position:absolute;inset:0;background:#000;',
+                        'z-index:30;opacity:0;pointer-events:none;',
+                        'transition:opacity .8s ease;',
+                    ].join('');
+                    overlay.appendChild(velo);
 
-        function startTheOneAnimation(nome_personaggio) {
-            const introOverlay = document.createElement('div');
-            introOverlay.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100vw;
-                    height: 100vh;
-                    background: #000;
-                    z-index: 10000;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    overflow: hidden;
-                    opacity: 0;
-                    transition: opacity 0.8s ease-in-out, z-index 0s ease-in-out 2s;
-                `;
+                    await delay(20);
+                    velo.style.opacity = '1';
+                    await delay(850);
 
-            const videoContainer = document.createElement('div');
-            videoContainer.style.cssText = `
-                    position: relative;
-                    width: 100%;
-                    height: 100%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    opacity: 0;
-                    transform: scale(1.1);
-                    transition: opacity 1s ease-out, transform 1s ease-out;
-                `;
+                    showPhase('video');
+                    velo.style.opacity = '0';
+                    setTimeout(() => velo.remove(), 800);
 
-            const video = document.createElement('video');
-            video.style.cssText = `
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                    filter: brightness(1.2) contrast(1.1);
-                    transition: filter 2s ease-in-out;
-                `;
-            video.src = '../vid/shorekeeperpull.mp4';
-            video.autoplay = true;
-            video.muted = false;
-            video.loop = false;
+                    await playVideoReveal(videoUrl, charObj);
+                }
 
-            videoContainer.appendChild(video);
-            introOverlay.appendChild(videoContainer);
-            document.body.appendChild(introOverlay);
+                /* ══════════════════════════════════════════════════════════════════
+                   REVEAL PRINCIPALE — adatta revealPull() di gacha.js
+                ══════════════════════════════════════════════════════════════════ */
+                async function revealCharacter(charObj) {
+                    const rarity = normalizeRarity(charObj.rarità);
+                    const hasVideo = charObj.video_url && RARITY_VIDEO.has(rarity);
 
-            setTimeout(() => {
-                introOverlay.style.opacity = '1';
-            }, 100);
+                    setRarityOnOverlay(rarity);
 
-            setTimeout(() => {
-                videoContainer.style.opacity = '1';
-                videoContainer.style.transform = 'scale(1)';
-                video.play();
-            }, 800);
+                    if (hasVideo) {
+                        // segreto/theone con video: fade → video → card sovrapposta dopo 12s
+                        await fadeToBlackThenVideo(charObj.video_url, charObj);
+                    } else {
+                        // Effetto visivo (speciale, leggendario, epico, raro) poi card
+                        if (window.GachaEffects && RARITY_EFFECTS.has(rarity)) {
+                            await GachaEffects.play(rarity);
+                        }
+                        setRarityOnOverlay(rarity); // ri-set dopo effetto (per sicurezza)
+                        await showCard(charObj);
+                    }
+                }
 
-            bagliore.style.background = "radial-gradient(circle, rgba(0, 74, 247, 1) 0%, rgba(0, 0, 255, 0) 70%)";
+                /* ══════════════════════════════════════════════════════════════════
+                   INIT — avvia tutto al DOMContentLoaded
+                ══════════════════════════════════════════════════════════════════ */
+                async function init() {
+                    // Stelle sfondo
+                    createStars(document.getElementById('stars'), 100);
+                    createStars(overlayStars, 60);
 
-            setTimeout(() => {
-                introOverlay.style.transition = 'opacity 2s ease-in-out, z-index 0s ease-in-out 2s';
-                introOverlay.style.opacity = '0.3';
-                video.style.filter = 'brightness(0.7) contrast(0.9) blur(1px)';
+                    // Overlay visibile da subito (CSS lo forza già via .anim-page)
+                    setRarityOnOverlay('comune');
+                    showPhase('opening');
 
-                setTimeout(() => {
-                    introOverlay.style.zIndex = '-1';
-                    introOverlay.style.transition = 'opacity 0.8s ease-in-out';
-                }, 2000);
-            }, 15000);
+                    if (!CHAR) return; // errore già gestito server-side
 
-            video.addEventListener('ended', () => {
-                video.loop = true;
-                video.play();
-            });
-        }
-    </script>
+                    const rarity = normalizeRarity(CHAR.rarità);
 
+                    // Audio: non per video (lo gestisce il video stesso)
+                    if (!RARITY_VIDEO.has(rarity)) {
+                        playAudio(CHAR.audio_url);
+                    }
+
+                    // Orb intro: breve pausa poi via
+                    await delay(900);
+
+                    await revealCharacter(CHAR);
+                }
+
+                // Boot
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', init);
+                } else {
+                    init();
+                }
+
+            })();
+        </script>
+
+    <?php endif; ?>
 </body>
 
 </html>
