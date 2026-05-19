@@ -37,7 +37,7 @@
       intro_raro:         { label:'RARO',       sub:'Qualcosa di interessante' },
       intro_comune:       { label:'COMUNE',     sub:'Niente di speciale...' },
       // Multi navigation buttons
-      btn_summary:        '<i class="fas fa-flag-checkered"></i> Resoconto',
+      btn_summary:        '<i class="fas fa-flag-checkered"></i> Continua',
       btn_next:           (cur, tot) => `<i class="fas fa-forward"></i> Prossima (${cur}/${tot})`,
       btn_next_label:     'Prossima',
       btn_skip_cov:       '<i class="fas fa-forward-fast"></i> Salta',
@@ -48,7 +48,7 @@
       summary_new_one:    (n) => `${n} nuovo`,
       summary_new_many:   (n) => `${n} nuovi`,
       summary_rare:       '✦ Raro trovato',
-      btn_multi_again:    '<i class="fas fa-rotate-right"></i> Multi ancora',
+      btn_multi_again:    '<i class="fas fa-rotate-right"></i> Apri x10',
       btn_close:          '<i class="fas fa-xmark"></i> Chiudi',
       btn_inventory:      '<i class="fas fa-layer-group"></i> Inventario',
       // History modal
@@ -61,8 +61,8 @@
       history_guaranteed: 'Garantito attivato',
       // Pity bar
       pity_hard:          '★ Garantito: prossima pull è Speciale o Segreto!',
-      pity_soft:          '✦ Soft pity — % Speciale/Segreto aumentata',
-      pity_count:         (n) => `Garantito Speciale/Segreto in ${n} pull`,
+      pity_soft:          '✦ Soft pity — % Speciale e Segreto aumentata',
+      pity_count:         (n) => `Garantito Speciale o Segreto in ${n} pull`,
       pity_evt_soft:      '✦ Soft pity attivo — probabilità in aumento',
       pity_evt_count:     (n) => `Garantito segreto in ${n} pull`,
     },
