@@ -167,7 +167,6 @@
 
   const videoEl        = $('gacha-video');
   const videoUnmuteBtn = $('video-unmute-btn');
-  const skipBtn        = $('gacha-skip-btn');
 
   const gachaCard      = $('gacha-card');
   const cardBgGlow     = $('card-bg-glow');
@@ -332,7 +331,6 @@
     if (!state.overlayOpen) openOverlay();
     showPhase('opening');
     setRarityOnOverlay('comune');
-    hideSkipBtn();
 
     const payload = { banner_id: bannerId, quantity: 1 };
     if (state.adminForceRarity) payload.force_rarity = state.adminForceRarity;
@@ -1016,7 +1014,6 @@
           cardShown = true;
           videoEl.pause();
           videoEl.src = '';
-          hideSkipBtn();
           await showCard(data);
         } else {
           // Card già visibile, video finito — lascia il video (src vuoto silenzioso)
@@ -1096,7 +1093,6 @@
       gachaCard.classList.remove('is-revealed','is-idle');
       showPhase('opening');
       setRarityOnOverlay('comune');
-      hideSkipBtn();
       state.isFastPull = false;
       if (btnPullAgain) btnPullAgain.style.display = '';
       setTimeout(() => pullAgainFromOverlay(), 80);
@@ -1165,8 +1161,6 @@
       if (counter) counter.style.display = 'none';
     }
 
-    if (state.canSkip) showSkipBtn();
-
     spawnParticles(color, rarity);
     showPhase('card');
 
@@ -1189,8 +1183,6 @@
     stopAudio();
     overlay.classList.remove('is-visible');
     state.overlayOpen = false;
-    hideSkipBtn();
-
     // Rimuovi card-over-video se esiste
     $('card-over-video')?.remove();
     $('phase-summary') && ($('phase-summary').style.display = 'none');
@@ -1244,31 +1236,12 @@
     glowBurst.classList.toggle('is-rainbow', rarity === 'speciale');
   }
 
-  /* ════════════════════════════════════════════════════
-     SKIP BUTTON
-  ════════════════════════════════════════════════════ */
-  function initSkipButton() {
-    skipBtn?.addEventListener('click', doSkip);
-  }
-
   function doSkip() {
     if (!state.canSkip || state.isPulling) return;
     if (phaseVideo.style.display !== 'none') {
       videoEl.pause();
       videoEl.dispatchEvent(new Event('ended'));
     }
-  }
-
-  function showSkipBtn() {
-    if (!skipBtn) return;
-    skipBtn.style.display = 'flex';
-    clearTimeout(state.skipTimeout);
-    state.skipTimeout = setTimeout(hideSkipBtn, 5000);
-  }
-  function hideSkipBtn() {
-    if (!skipBtn) return;
-    skipBtn.style.display = 'none';
-    clearTimeout(state.skipTimeout);
   }
 
   /* ════════════════════════════════════════════════════
@@ -1283,7 +1256,6 @@
       gachaCard.classList.remove('is-revealed','is-idle');
       showPhase('opening');
       setRarityOnOverlay('comune');
-      hideSkipBtn();
       state.isFastPull = false;
       setTimeout(() => pullAgainFromOverlay(), 80);
     });
