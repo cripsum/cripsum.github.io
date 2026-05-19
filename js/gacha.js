@@ -458,7 +458,7 @@
     const cfg = {
       theone:     { ...t.intro_theone,     color:'#60a5fa', stars:5, duration:3200 },
       segreto:    { ...t.intro_segreto,    color:'#a855f7', stars:5, duration:2800 },
-      speciale:   { ...t.intro_speciale,   color:'#ffffff', stars:4, duration:2600 },
+      speciale:   { ...t.intro_speciale,   color:'#ffffff', stars:5, duration:2600 },
       leggendario:{ ...t.intro_leggendario,color:'#fbbf24', stars:4, duration:2400 },
       epico:      { ...t.intro_epico,      color:'#c084fc', stars:3, duration:2200 },
       raro:       { ...t.intro_raro,       color:'#38bdf8', stars:2, duration:2000 },
