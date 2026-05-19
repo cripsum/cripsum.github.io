@@ -427,11 +427,6 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
             </div>
         </div>
 
-        <!-- Skip button -->
-        <button class="gacha-skip-btn" id="gacha-skip-btn" aria-label="Skip animation">
-            <i class="fas fa-forward-step"></i> Skip [S]
-        </button>
-
     </div><!-- /gacha-overlay -->
 
     <!-- Toast -->
