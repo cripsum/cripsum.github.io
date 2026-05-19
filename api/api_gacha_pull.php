@@ -42,10 +42,10 @@ const BASE_WEIGHTS = [
     'comune'      => 51.00,
     'raro'        => 28.00,
     'epico'       => 13.00,
-    'leggendario' =>  5.99,
+    'leggendario' =>  5.999,
     'speciale'    =>  1.80,
     'segreto'     =>  0.20,
-    'theone'      =>  0.01,
+    'theone'      =>  0.001,
 ];
 
 // Rarità "massime" che triggerano il 50/50 nei banner evento
@@ -221,27 +221,23 @@ function selectRarity(string $bannerType, int $pity, array $adminOverride = []):
     $weights = BASE_WEIGHTS;
 
     if ($bannerType === 'standard') {
-        // Soft pity: da pull PITY_STANDARD_SOFT la % speciale/segreto aumenta
         if ($pity >= PITY_STANDARD_SOFT) {
             $bonus = ($pity - PITY_STANDARD_SOFT + 1) * 4.0;
             $weights['speciale'] += $bonus;
             $weights['segreto']  += $bonus * 0.5;
         }
-        // Hard pity: garantisce speciale (90% speciale, 10% segreto)
         if ($pity >= PITY_STANDARD_HARD) {
             return (mt_rand(1, 10) === 1) ? 'segreto' : 'speciale';
         }
     } elseif ($bannerType === 'evento') {
-        // Soft pity: da pull PITY_EVENTO_SOFT la % segreto sale del 6% per pull
         if ($pity >= PITY_EVENTO_SOFT) {
             $bonus = ($pity - PITY_EVENTO_SOFT + 1) * 6.0;
             $weights['segreto']  += $bonus;
-            $weights['theone']   += $bonus * 0.05;
+            $weights['theone']   += $bonus * 0.005;
         }
-        // Hard pity: garantisce top rarity → 50/50
         if ($pity >= PITY_EVENTO_HARD) {
-            // 90% segreto, 10% theone al hard pity
-            return (mt_rand(1, 10) === 1) ? 'theone' : 'segreto';
+            // 99% segreto, 1% theone al hard pity
+            return (mt_rand(1, 100) === 1) ? 'theone' : 'segreto';
         }
     }
 

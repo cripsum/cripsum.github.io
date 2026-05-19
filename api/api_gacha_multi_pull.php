@@ -38,10 +38,10 @@ defined('BASE_WEIGHTS_M') || define('BASE_WEIGHTS_M', [
     'comune'      => 51.00,
     'raro'        => 28.00,
     'epico'       => 13.00,
-    'leggendario' =>  5.99,
+    'leggendario' =>  5.999,
     'speciale'    =>  1.80,
     'segreto'     =>  0.20,
-    'theone'      =>  0.01,
+    'theone'      =>  0.001,
 ]);
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -174,10 +174,10 @@ function selectRarityM(string $bannerType, int $pity, ?string $forceRarity = nul
         if ($pity >= PITY_EVENTO_SOFT) {
             $bonus = ($pity - PITY_EVENTO_SOFT + 1) * 6.0;
             $weights['segreto'] += $bonus;
-            $weights['theone']  += $bonus * 0.05;
+            $weights['theone']  += $bonus * 0.005;
         }
         if ($pity >= PITY_EVENTO_HARD) {
-            return (mt_rand(1, 10) === 1) ? 'theone' : 'segreto';
+            return (mt_rand(1, 100) === 1) ? 'theone' : 'segreto';
         }
     }
 
