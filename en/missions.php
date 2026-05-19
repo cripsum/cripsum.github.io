@@ -64,7 +64,7 @@ function msn_h(mixed $v): string
     <script>
         window.CRIPSUM_LANG = '<?php echo $lang; ?>';
     </script>
-    <script src="/assets/missions/missions.js?v=1.1" defer></script>
+    <script src="/assets/missions/missions.js?v=1.2" defer></script>
 </head>
 
 <body class="msn-page">
