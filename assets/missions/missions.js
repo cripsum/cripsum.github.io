@@ -15,6 +15,53 @@
     const API_GET = '/api/missions/get.php?lang=' + lang;
     const API_CLAIM = '/api/missions/claim.php';
 
+    const t = {
+        it: {
+            err_unknown:      'Errore sconosciuto',
+            err_claim:        'Claim fallito',
+            empty_title:      'Nessuna missione disponibile',
+            empty_sub:        'Torna domani per nuove missioni.',
+            diff_facile:      'Facile',
+            diff_media:       'Media',
+            diff_difficile:   'Difficile',
+            diff_epica:       'Epica',
+            btn_claimed:      'Riscattata',
+            btn_claim:        'Riscatta!',
+            btn_pending:      'In corso',
+            btn_loading:      '<i class="fas fa-spinner fa-spin"></i> Riscatto...',
+            btn_claim_icon:   '<i class="fas fa-gift"></i> Riscatta!',
+            btn_claimed_icon: '<i class="fas fa-check"></i> Riscattata',
+            aria_claim:       (title) => `Riscatta missione ${title}`,
+            progress:         'Progresso',
+            countdown_reset:  'Aggiornamento...',
+            days_suffix:      'g',
+            toast_done:       'Missione completata!',
+            toast_pts:        (n) => `+${n} punti`,
+        },
+        en: {
+            err_unknown:      'Unknown error',
+            err_claim:        'Claim failed',
+            empty_title:      'No missions available',
+            empty_sub:        'Come back tomorrow for new missions.',
+            diff_facile:      'Easy',
+            diff_media:       'Medium',
+            diff_difficile:   'Hard',
+            diff_epica:       'Epic',
+            btn_claimed:      'Claimed',
+            btn_claim:        'Claim!',
+            btn_pending:      'In progress',
+            btn_loading:      '<i class="fas fa-spinner fa-spin"></i> Claiming...',
+            btn_claim_icon:   '<i class="fas fa-gift"></i> Claim!',
+            btn_claimed_icon: '<i class="fas fa-check"></i> Claimed',
+            aria_claim:       (title) => `Claim mission ${title}`,
+            progress:         'Progress',
+            countdown_reset:  'Updating...',
+            days_suffix:      'd',
+            toast_done:       'Mission completed!',
+            toast_pts:        (n) => `+${n} pts`,
+        },
+    }[lang];
+
     // ─────────────────────────────────────────────────────────
     //  STATE
     // ─────────────────────────────────────────────────────────
@@ -85,7 +132,7 @@
             const json = await res.json();
 
             if (!res.ok || !json.success) {
-                throw new Error(json.error || 'Errore sconosciuto');
+                throw new Error(json.error || t.err_unknown);
             }
 
             state.daily       = json.data.daily.missions  || [];
@@ -129,8 +176,8 @@
             container.innerHTML = `
                 <div class="msn-empty">
                     <i class="fas fa-scroll"></i>
-                    <strong>Nessuna missione disponibile</strong>
-                    <span>Torna domani per nuove missioni.</span>
+                    <strong>${t.empty_title}</strong>
+                    <span>${t.empty_sub}</span>
                 </div>`;
             return;
         }
@@ -145,7 +192,12 @@
         const completed  = parseInt(m.completata) === 1;
         const claimed    = parseInt(m.riscattata) === 1;
         const diff       = m.difficolta || 'facile';
-        const diffLabel  = { facile: 'Facile', media: 'Media', difficile: 'Difficile', epica: 'Epica' }[diff] || diff;
+        const diffLabel  = {
+            facile:    t.diff_facile,
+            media:     t.diff_media,
+            difficile: t.diff_difficile,
+            epica:     t.diff_epica,
+        }[diff] || diff;
         const diffIcon   = { facile: 'fa-seedling', media: 'fa-bolt', difficile: 'fa-skull', epica: 'fa-crown' }[diff] || 'fa-star';
 
         // Stato bottone claim
@@ -153,15 +205,15 @@
         if (claimed) {
             btnClass = 'msn-btn-claim--claimed';
             btnIcon  = 'fa-check';
-            btnText  = 'Riscattata';
+            btnText  = t.btn_claimed;
         } else if (completed) {
             btnClass = 'msn-btn-claim--ready';
             btnIcon  = 'fa-gift';
-            btnText  = 'Riscatta!';
+            btnText  = t.btn_claim;
         } else {
             btnClass = 'msn-btn-claim--pending';
             btnIcon  = 'fa-lock';
-            btnText  = 'In corso';
+            btnText  = t.btn_pending;
         }
 
         // Classi stato card
