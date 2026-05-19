@@ -427,6 +427,11 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
             </div>
         </div>
 
+        <!-- Skip button -->
+        <button class="gacha-skip-btn" id="gacha-skip-btn" aria-label="Salta animazione">
+            <i class="fas fa-forward-step"></i> Salta [S]
+        </button>
+
     </div><!-- /gacha-overlay -->
 
     <!-- Toast -->
@@ -644,7 +649,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
         crossorigin="anonymous"></script>
     <script src="/js/unlockAchievement-it.js"></script>
     <script src="/js/gacha-effects.js?v=5"></script>
-    <script src="/js/gacha.js?v=21"></script>
+    <script src="/js/gacha.js?v=22"></script>
 
     <script>
         // ── Cronologia banner corrente ────────────────────────────────────────

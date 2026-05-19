@@ -42,6 +42,7 @@
       btn_next_label:     'Prossima',
       btn_skip_cov:       '<i class="fas fa-forward-fast"></i> Salta',
       btn_next_inject:    '<i class="fas fa-forward"></i> Prossima',
+      btn_skip_inject:    '<i class="fas fa-forward-fast"></i> Salta [S]',
       // Multi summary
       summary_title:      'Riepilogo Multi',
       summary_new_one:    (n) => `${n} nuovo`,
@@ -85,6 +86,7 @@
       btn_next_label:     'Next',
       btn_skip_cov:       '<i class="fas fa-forward-fast"></i> Skip',
       btn_next_inject:    '<i class="fas fa-forward"></i> Next',
+      btn_skip_inject:    '<i class="fas fa-forward-fast"></i> Skip [S]',
       summary_title:      'Multi Summary',
       summary_new_one:    (n) => `${n} new`,
       summary_new_many:   (n) => `${n} new`,
@@ -840,6 +842,13 @@
     btnNext.style.display = 'none';
     btnNext.innerHTML = t.btn_next_inject;
     actions.insertBefore(btnNext, actions.firstChild);
+
+    const btnSkip = document.createElement('button');
+    btnSkip.id = 'btn-multi-skip';
+    btnSkip.className = 'gacha-btn gacha-btn--ghost';
+    btnSkip.style.display = 'none';
+    btnSkip.innerHTML = t.btn_skip_inject;
+    actions.insertBefore(btnSkip, btnNext.nextSibling);
 
     const counter = document.createElement('div');
     counter.id = 'multi-counter';
