@@ -212,7 +212,7 @@ $charJson = $charData ? json_encode($charData, JSON_HEX_TAG | JSON_HEX_APOS | JS
                     <a href="?id_personaggio=<?= $idPersonaggio ?>" class="gacha-btn gacha-btn--primary">
                         <i class="fas fa-rotate-right"></i> Watch again
                     </a>
-                    <a href="/inventario" class="gacha-btn gacha-btn--ghost">
+                    <a href="inventario" class="gacha-btn gacha-btn--ghost">
                         <i class="fas fa-layer-group"></i> Inventory
                     </a>
                     <button class="gacha-btn gacha-btn--ghost" onclick="history.back()">
@@ -478,7 +478,7 @@ $charJson = $charData ? json_encode($charData, JSON_HEX_TAG | JSON_HEX_APOS | JS
            class="gacha-btn gacha-btn--primary">
           <i class="fas fa-rotate-right"></i> Watch again
         </a>
-        <a href="/inventario" class="gacha-btn gacha-btn--ghost">
+        <a href="inventario" class="gacha-btn gacha-btn--ghost">
           <i class="fas fa-layer-group"></i> Inventory
         </a>
         <button class="gacha-btn gacha-btn--ghost" onclick="history.back()">
