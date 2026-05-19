@@ -644,7 +644,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
         crossorigin="anonymous"></script>
     <script src="/js/unlockAchievement-it.js"></script>
     <script src="/js/gacha-effects.js?v=5"></script>
-    <script src="/js/gacha.js?v=19"></script>
+    <script src="/js/gacha.js?v=20"></script>
 
     <script>
         // ── Cronologia banner corrente ────────────────────────────────────────

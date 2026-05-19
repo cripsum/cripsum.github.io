@@ -196,7 +196,6 @@
     initSidebarCards();
     initPullButtons();
     initOverlayButtons();
-    initSkipButton();
     initKeyboard();
     initAdminCheats();
     initTimers();
