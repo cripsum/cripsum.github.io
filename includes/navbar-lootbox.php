@@ -41,6 +41,7 @@ $t = [
         'search_err'   => 'Errore nella ricerca, riprova',
         'user_badge'   => 'Utente',
         'my_profile_alt' => 'Profilo',
+        'missions'     => 'Missioni',
     ],
     'en' => [
         'memes'        => 'Memes',
@@ -67,6 +68,7 @@ $t = [
         'search_err'   => 'Search error, try again',
         'user_badge'   => 'User',
         'my_profile_alt' => 'Profile',
+        'missions'     => 'Missions',
     ],
 ][$lang];
 
@@ -190,6 +192,7 @@ if ($isLoggedIn) {
                             <li><a class="dropdown-item" href="/u/<?php echo htmlspecialchars($username); ?>"><i class="fas fa-user me-2"></i><?= $t['my_profile'] ?></a></li>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/impostazioni"><i class="fas fa-cog me-2"></i><?= $t['settings'] ?></a></li>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/achievements"><i class="fas fa-trophy me-2"></i>Achievements</a></li>
+                            <li><a class="dropdown-item" href="/<?= $lang ?>/missions"><i class="fas fa-bullseye me-2"></i><?= $t['missions'] ?></a></li>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/inventario"><i class="fas fa-box me-2"></i><?= $t['inventory'] ?></a></li>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/global-chat"><i class="fas fa-envelope me-2"></i><?= $t['global_chat'] ?></a></li>
                             <?php if ($nsfw === 1): ?>

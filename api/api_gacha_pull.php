@@ -519,16 +519,26 @@ try {
         // Ogni apertura lootbox conta
         trackMissionProgress($mysqli, $userId, 'lootbox_open');
 
-        // Rarità rare+ (raro, epico, leggendario, speciale, segreto, theone)
         $rarityRarePlus = ['raro', 'epico', 'leggendario', 'speciale', 'segreto', 'theone'];
         if (in_array($rarità, $rarityRarePlus, true)) {
             trackMissionProgress($mysqli, $userId, 'get_rarity_rare');
         }
 
-        // Rarità epic+ (epico, leggendario, speciale, segreto, theone)
         $rarityEpicPlus = ['epico', 'leggendario', 'speciale', 'segreto', 'theone'];
         if (in_array($rarità, $rarityEpicPlus, true)) {
             trackMissionProgress($mysqli, $userId, 'get_rarity_epic');
+        }
+
+        // Rarità special+ (speciale, segreto, theone)
+        $raritySpecialPlus = ['speciale', 'segreto', 'theone'];
+        if (in_array($rarità, $raritySpecialPlus, true)) {
+            trackMissionProgress($mysqli, $userId, 'get_rarity_special');
+        }
+
+        // Rarità secret+ (segreto, theone)
+        $raritySecretPlus = ['segreto', 'theone'];
+        if (in_array($rarità, $raritySecretPlus, true)) {
+            trackMissionProgress($mysqli, $userId, 'get_rarity_secret');
         }
     } catch (Throwable $trackErr) {
         // Il tracking non deve mai rompere la risposta

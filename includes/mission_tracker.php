@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Cripsum™ — Mission Tracker
  * Funzione centralizzata per aggiornare i progressi delle missioni.
@@ -29,8 +30,10 @@ const MISSION_EVENTS = [
     'edit_profile'      => 'Profilo modificato',
     'view_edit'         => 'Edit visualizzato',
     'download_content'  => 'Contenuto scaricato',
-    'get_rarity_rare'   => 'Rarity: rare ottenuto',
-    'get_rarity_epic'   => 'Rarity: epic ottenuto',
+    'get_rarity_rare'   => 'Rarity: raro ottenuto',
+    'get_rarity_epic'   => 'Rarity: epico ottenuto',
+    'get_rarity_special' => 'Rarity: speciale ottenuto',
+    'get_rarity_secret' => 'Rarity: segreto ottenuto',
     'daily_login'       => 'Login giornaliero',
     'view_page'         => 'Pagina visitata',
 ];
@@ -130,7 +133,8 @@ function trackMissionProgress(mysqli $mysqli, int $userId, string $evento, int $
             );
             $completata = ($nuovoProgresso >= (int)$mission['obiettivo']) ? 1 : 0;
 
-            $updateStmt->bind_param('iiii',
+            $updateStmt->bind_param(
+                'iiii',
                 $nuovoProgresso,
                 $completata,
                 $completata,
@@ -151,7 +155,6 @@ function trackMissionProgress(mysqli $mysqli, int $userId, string $evento, int $
 
         $updateStmt->close();
         $mysqli->commit();
-
     } catch (Exception $e) {
         $mysqli->rollback();
         error_log('[MissionTracker] Errore su evento "' . $evento . '" user ' . $userId . ': ' . $e->getMessage());

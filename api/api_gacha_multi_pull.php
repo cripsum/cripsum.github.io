@@ -396,6 +396,9 @@ try {
     try {
         $rarityRarePlus = ['raro', 'epico', 'leggendario', 'speciale', 'segreto', 'theone'];
         $rarityEpicPlus = ['epico', 'leggendario', 'speciale', 'segreto', 'theone'];
+        $raritySpecialPlus = ['speciale', 'segreto', 'theone'];
+        $raritySecretPlus = ['segreto', 'theone'];
+
 
         foreach ($pulls as $pull) {
             $pullRarity = strtolower(trim($pull['personaggio']['rarità'] ?? ''));
@@ -408,6 +411,12 @@ try {
             }
             if (in_array($pullRarity, $rarityEpicPlus, true)) {
                 trackMissionProgress($mysqli, $userId, 'get_rarity_epic');
+            }
+            if (in_array($pullRarity, $raritySpecialPlus, true)) {
+                trackMissionProgress($mysqli, $userId, 'get_rarity_special');
+            }
+            if (in_array($pullRarity, $raritySecretPlus, true)) {
+                trackMissionProgress($mysqli, $userId, 'get_rarity_secret');
             }
         }
     } catch (Throwable $trackErr) {
