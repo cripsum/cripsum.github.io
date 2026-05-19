@@ -42,7 +42,6 @@
       btn_next_label:     'Prossima',
       btn_skip_cov:       '<i class="fas fa-forward-fast"></i> Salta',
       btn_next_inject:    '<i class="fas fa-forward"></i> Prossima',
-      btn_skip_inject:    '<i class="fas fa-forward-fast"></i> Salta [S]',
       // Multi summary
       summary_title:      'Riepilogo Multi',
       summary_new_one:    (n) => `${n} nuovo`,
@@ -86,7 +85,6 @@
       btn_next_label:     'Next',
       btn_skip_cov:       '<i class="fas fa-forward-fast"></i> Skip',
       btn_next_inject:    '<i class="fas fa-forward"></i> Next',
-      btn_skip_inject:    '<i class="fas fa-forward-fast"></i> Skip [S]',
       summary_title:      'Multi Summary',
       summary_new_one:    (n) => `${n} new`,
       summary_new_many:   (n) => `${n} new`,
