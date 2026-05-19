@@ -402,7 +402,7 @@
 
             case 18: {
                 const personaggiCount = state.serverData.personaggiCount || 0;
-                const totalCharacters = 134;
+                const totalCharacters = 100;
 
                 return {
                     current: Math.min(personaggiCount, totalCharacters),

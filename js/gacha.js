@@ -1649,7 +1649,7 @@
 
       if (hasNew) {
         const inv = await fetch('/api/api_get_inventario').then(r2 => r2.json());
-        if (Array.isArray(inv) && inv.length >= 134) unlockAchievement(18);
+        if (Array.isArray(inv) && inv.length >= 100) unlockAchievement(18);
       }
 
     } catch(e) {}
