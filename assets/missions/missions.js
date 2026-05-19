@@ -10,7 +10,9 @@
     //  CONFIG
     // ─────────────────────────────────────────────────────────
 
-    const API_GET   = '/api/missions/get.php';
+
+    const lang    = window.CRIPSUM_LANG || 'it';
+    const API_GET = '/api/missions/get.php?lang=' + lang;
     const API_CLAIM = '/api/missions/claim.php';
 
     // ─────────────────────────────────────────────────────────

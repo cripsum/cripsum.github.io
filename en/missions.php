@@ -59,7 +59,7 @@ function msn_h(mixed $v): string
     <meta name="twitter:card"       content="summary_large_image">
 
     <link rel="stylesheet" href="/assets/missions/missions.css?v=1.0">
-    <script src="/assets/missions/missions.js?v=1.0" defer></script>
+    <script src="/assets/missions/missions.js?v=1.1" defer></script>
 </head>
 
 <body class="msn-page">
