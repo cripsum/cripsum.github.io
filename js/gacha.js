@@ -14,6 +14,102 @@
 (function () {
 
   /* ══════════════════════════════════════════════════════
+     i18n
+  ══════════════════════════════════════════════════════ */
+  const lang = location.pathname.split('/').find(s => s === 'it' || s === 'en') || 'it';
+
+  const t = {
+    it: {
+      locale:             'it-IT',
+      // API errors
+      err_http:           (s) => `Errore ${s}`,
+      err_unknown:        'Errore sconosciuto',
+      err_pull:           'Errore durante la pull. Riprova!',
+      err_multi:          'Errore multi pull. Riprova!',
+      err_retry:          'Errore. Riprova!',
+      err_history:        'Errore caricamento cronologia.',
+      // Multi intro labels/subs
+      intro_theone:       { label:'THE ONE',    sub:'Un miracolo raro tra i rari' },
+      intro_segreto:      { label:'SEGRETO',    sub:'Qualcosa di molto raro...' },
+      intro_speciale:     { label:'SPECIALE',   sub:'Una rarità fuori dal comune' },
+      intro_leggendario:  { label:'LEGGENDARIO',sub:'Grande fortuna!' },
+      intro_epico:        { label:'EPICO',      sub:'Una buona multi!' },
+      intro_raro:         { label:'RARO',       sub:'Qualcosa di interessante' },
+      intro_comune:       { label:'COMUNE',     sub:'Niente di speciale...' },
+      // Multi navigation buttons
+      btn_summary:        '<i class="fas fa-flag-checkered"></i> Resoconto',
+      btn_next:           (cur, tot) => `<i class="fas fa-forward"></i> Prossima (${cur}/${tot})`,
+      btn_next_label:     'Prossima',
+      btn_skip_cov:       '<i class="fas fa-forward-fast"></i> Salta',
+      btn_next_inject:    '<i class="fas fa-forward"></i> Prossima',
+      btn_skip_inject:    '<i class="fas fa-forward-fast"></i> Salta [S]',
+      // Multi summary
+      summary_title:      'Riepilogo Multi',
+      summary_new_one:    (n) => `${n} nuovo`,
+      summary_new_many:   (n) => `${n} nuovi`,
+      summary_rare:       '✦ Raro trovato',
+      btn_multi_again:    '<i class="fas fa-rotate-right"></i> Multi ancora',
+      btn_close:          '<i class="fas fa-xmark"></i> Chiudi',
+      btn_inventory:      '<i class="fas fa-layer-group"></i> Inventario',
+      // History modal
+      history_kicker:     'Gacha',
+      history_title:      'Cronologia Pull',
+      history_close:      'Chiudi',
+      history_empty:      'Nessuna pull su questo banner.',
+      history_pity:       (n) => `pity ${n}`,
+      history_stats:      (tot, seg) => `${tot} pull totali • ${seg} segreti`,
+      history_guaranteed: 'Garantito attivato',
+      // Pity bar
+      pity_hard:          '★ Garantito: prossima pull è Speciale o Segreto!',
+      pity_soft:          '✦ Soft pity — % Speciale/Segreto aumentata',
+      pity_count:         (n) => `Garantito Speciale/Segreto in ${n} pull`,
+      pity_evt_soft:      '✦ Soft pity attivo — probabilità in aumento',
+      pity_evt_count:     (n) => `Garantito segreto in ${n} pull`,
+    },
+    en: {
+      locale:             'en-GB',
+      err_http:           (s) => `Error ${s}`,
+      err_unknown:        'Unknown error',
+      err_pull:           'Pull error. Try again!',
+      err_multi:          'Multi pull error. Try again!',
+      err_retry:          'Error. Try again!',
+      err_history:        'Could not load history.',
+      intro_theone:       { label:'THE ONE',     sub:'A miracle among miracles' },
+      intro_segreto:      { label:'SECRET',      sub:'Something very rare...' },
+      intro_speciale:     { label:'SPECIAL',     sub:'An uncommon rarity' },
+      intro_leggendario:  { label:'LEGENDARY',   sub:'Great luck!' },
+      intro_epico:        { label:'EPIC',        sub:'A good multi!' },
+      intro_raro:         { label:'RARE',        sub:'Something interesting' },
+      intro_comune:       { label:'COMMON',      sub:'Nothing special...' },
+      btn_summary:        '<i class="fas fa-flag-checkered"></i> Summary',
+      btn_next:           (cur, tot) => `<i class="fas fa-forward"></i> Next (${cur}/${tot})`,
+      btn_next_label:     'Next',
+      btn_skip_cov:       '<i class="fas fa-forward-fast"></i> Skip',
+      btn_next_inject:    '<i class="fas fa-forward"></i> Next',
+      btn_skip_inject:    '<i class="fas fa-forward-fast"></i> Skip [S]',
+      summary_title:      'Multi Summary',
+      summary_new_one:    (n) => `${n} new`,
+      summary_new_many:   (n) => `${n} new`,
+      summary_rare:       '✦ Rare found',
+      btn_multi_again:    '<i class="fas fa-rotate-right"></i> Multi again',
+      btn_close:          '<i class="fas fa-xmark"></i> Close',
+      btn_inventory:      '<i class="fas fa-layer-group"></i> Inventory',
+      history_kicker:     'Gacha',
+      history_title:      'Pull History',
+      history_close:      'Close',
+      history_empty:      'No pulls on this banner yet.',
+      history_pity:       (n) => `pity ${n}`,
+      history_stats:      (tot, seg) => `${tot} total pulls • ${seg} secrets`,
+      history_guaranteed: 'Guaranteed activated',
+      pity_hard:          '★ Guaranteed: next pull is Special or Secret!',
+      pity_soft:          '✦ Soft pity — Special/Secret % increased',
+      pity_count:         (n) => `Guaranteed Special/Secret in ${n} pulls`,
+      pity_evt_soft:      '✦ Soft pity active — probability increasing',
+      pity_evt_count:     (n) => `Guaranteed secret in ${n} pulls`,
+    },
+  }[lang];
+
+  /* ══════════════════════════════════════════════════════
      CONFIG
   ══════════════════════════════════════════════════════ */
   const API_PULL = '/api/api_gacha_pull';
@@ -252,10 +348,10 @@
       });
       if (!resp.ok) {
         const err = await resp.json().catch(() => ({}));
-        throw new Error(err.message ?? `Errore ${resp.status}`);
+        throw new Error(err.message ?? t.err_http(resp.status));
       }
       const data = await resp.json();
-      if (data.status !== 'success') throw new Error(data.message ?? 'Errore sconosciuto');
+      if (data.status !== 'success') throw new Error(data.message ?? t.err_unknown);
 
       state.soldi        = data.soldi_rimasti ?? state.soldi;
       state.pityStandard = data.pity_standard ?? state.pityStandard;
@@ -279,7 +375,7 @@
     } catch(err) {
       console.error('[Gacha] Pull error:', err);
       closeOverlay();
-      showToast(err.message ?? 'Errore durante la pull. Riprova!', 'error');
+      showToast(err.message ?? t.err_pull, 'error');
     } finally {
       state.isPulling = false;
     }
@@ -317,10 +413,10 @@
       });
       if (!resp.ok) {
         const err = await resp.json().catch(() => ({}));
-        throw new Error(err.message ?? `Errore ${resp.status}`);
+        throw new Error(err.message ?? t.err_http(resp.status));
       }
       const data = await resp.json();
-      if (data.status !== 'success') throw new Error(data.message ?? 'Errore sconosciuto');
+      if (data.status !== 'success') throw new Error(data.message ?? t.err_unknown);
 
       // Aggiorna stato globale con i dati finali del server
       state.soldi        = data.soldi_rimasti ?? state.soldi;
@@ -340,7 +436,7 @@
       state.isMulti   = false;
       state.isPulling = false;
       closeOverlay();
-      showToast(err.message ?? 'Errore multi pull. Riprova!', 'error');
+      showToast(err.message ?? t.err_multi, 'error');
       return;
     }
 
@@ -360,13 +456,13 @@
 
     // Configura visual in base alla rarità massima
     const cfg = {
-      theone:     { label:'THE ONE',    color:'#60a5fa', sub:'Un miracolo raro tra i rari', stars:5, duration:3200 },
-      segreto:    { label:'SEGRETO',    color:'#a855f7', sub:'Qualcosa di molto raro...',   stars:5, duration:2800 },
-      speciale:   { label:'SPECIALE',   color:'#ffffff', sub:'Una rarità fuori dal comune', stars:4, duration:2600 },
-      leggendario:{ label:'LEGGENDARIO',color:'#fbbf24', sub:'Grande fortuna!',             stars:4, duration:2400 },
-      epico:      { label:'EPICO',      color:'#c084fc', sub:'Una buona multi!',            stars:3, duration:2200 },
-      raro:       { label:'RARO',       color:'#38bdf8', sub:'Qualcosa di interessante',    stars:2, duration:2000 },
-      comune:     { label:'COMUNE',     color:'#9ca3af', sub:'Niente di speciale...',       stars:1, duration:1800 },
+      theone:     { ...t.intro_theone,     color:'#60a5fa', stars:5, duration:3200 },
+      segreto:    { ...t.intro_segreto,    color:'#a855f7', stars:5, duration:2800 },
+      speciale:   { ...t.intro_speciale,   color:'#ffffff', stars:4, duration:2600 },
+      leggendario:{ ...t.intro_leggendario,color:'#fbbf24', stars:4, duration:2400 },
+      epico:      { ...t.intro_epico,      color:'#c084fc', stars:3, duration:2200 },
+      raro:       { ...t.intro_raro,       color:'#38bdf8', stars:2, duration:2000 },
+      comune:     { ...t.intro_comune,     color:'#9ca3af', stars:1, duration:1800 },
     };
     const { label, color, sub, stars, duration } = cfg[topRarity] ?? cfg.comune;
 
@@ -630,7 +726,7 @@
           <div class="gacha-card-img-shine"></div>
           ${data.is_new ? '<span class="gacha-card-new-badge">NEW!</span>' : ''}
           ${data.vinto_50_50===1 ? '<span class="gacha-card-50-badge gacha-card-50-badge--win"><i class="fas fa-trophy"></i> Rate-Up!</span>' : ''}
-          ${data.vinto_50_50===0 ? '<span class="gacha-card-50-badge gacha-card-50-badge--loss">Garantito attivato</span>' : ''}
+          ${data.vinto_50_50===0 ? `<span class="gacha-card-50-badge gacha-card-50-badge--loss">${t.history_guaranteed}</span>` : ''}
         </div>
         <div class="gacha-card-details">
           <div class="gacha-card-rarity-bar rarity-${rarity}"></div>
@@ -668,8 +764,8 @@
       if (btnNext) {
         btnNext.style.display = '';
         btnNext.innerHTML = isLast
-          ? '<i class="fas fa-flag-checkered"></i> Resoconto'
-          : `<i class="fas fa-forward"></i> Prossima (${idx+1}/${total})`;
+          ? t.btn_summary
+          : t.btn_next(idx+1, total);
       }
       if (btnSkip) btnSkip.style.display = isLast ? 'none' : '';
       if (btnPullAgain) btnPullAgain.style.display = 'none';
@@ -683,13 +779,13 @@
         covActs.innerHTML = '';
         const nb = document.createElement('button');
         nb.className = 'gacha-btn gacha-btn--primary';
-        nb.innerHTML = btnNext?.innerHTML ?? 'Prossima';
+        nb.innerHTML = btnNext?.innerHTML ?? t.btn_next_label;
         nb.addEventListener('click', () => btnNext?.click(), { once: true });
         covActs.appendChild(nb);
         if (!isLast) {
           const sb = document.createElement('button');
           sb.className = 'gacha-btn gacha-btn--ghost';
-          sb.innerHTML = '<i class="fas fa-forward-fast"></i> Salta';
+          sb.innerHTML = t.btn_skip_cov;
           sb.addEventListener('click', () => btnSkip?.click(), { once: true });
           covActs.appendChild(sb);
         }
@@ -744,14 +840,14 @@
     btnNext.id = 'btn-multi-next';
     btnNext.className = 'gacha-btn gacha-btn--primary';
     btnNext.style.display = 'none';
-    btnNext.innerHTML = '<i class="fas fa-forward"></i> Prossima';
+    btnNext.innerHTML = t.btn_next_inject;
     actions.insertBefore(btnNext, actions.firstChild);
 
     const btnSkip = document.createElement('button');
     btnSkip.id = 'btn-multi-skip';
     btnSkip.className = 'gacha-btn gacha-btn--ghost';
     btnSkip.style.display = 'none';
-    btnSkip.innerHTML = '<i class="fas fa-forward-fast"></i> Salta [S]';
+    btnSkip.innerHTML = t.btn_skip_inject;
     actions.insertBefore(btnSkip, btnNext.nextSibling);
 
     const counter = document.createElement('div');
@@ -785,6 +881,9 @@
     summary.style.display = 'flex';
 
     const newCount = results.filter(r => r.is_new).length;
+    const newBadge = newCount > 0
+      ? `<span class="gms-badge gms-badge--count">${newCount === 1 ? t.summary_new_one(newCount) : t.summary_new_many(newCount)}</span>`
+      : '';
 
     // Calcola top rarity per titolo dinamico
     const rarityRank = ['theone','segreto','speciale','leggendario','epico','raro','comune'];
@@ -821,23 +920,23 @@
       <div class="gms-inner">
         <div class="gms-header">
           <div class="gms-header-line" style="background:${topColor}"></div>
-          <h2 class="gms-title">Riepilogo Multi</h2>
+          <h2 class="gms-title">${t.summary_title}</h2>
           <div class="gms-header-badges">
-            ${newCount > 0 ? `<span class="gms-badge gms-badge--count">${newCount} nuov${newCount===1?'o':'i'}</span>` : ''}
+            ${newBadge}
             ${results.filter(r=>['segreto','theone','speciale'].includes(normalizeRarity(r.personaggio.rarità))).length > 0
-              ? `<span class="gms-badge gms-badge--rare">✦ Raro trovato</span>` : ''}
+              ? `<span class="gms-badge gms-badge--rare">${t.summary_rare}</span>` : ''}
           </div>
         </div>
         <div class="gms-cards">${cards}</div>
         <div class="gms-footer">
           <button class="gms-btn gms-btn--primary" id="btn-multi-again">
-            <i class="fas fa-rotate-right"></i> Multi ancora
+            ${t.btn_multi_again}
           </button>
           <button class="gms-btn gms-btn--ghost" id="btn-summary-close">
-            <i class="fas fa-xmark"></i> Chiudi
+            ${t.btn_close}
           </button>
           <a href="inventario" class="gms-btn gms-btn--ghost">
-            <i class="fas fa-layer-group"></i> Inventario
+            ${t.btn_inventory}
           </a>
         </div>
       </div>`;
@@ -1243,7 +1342,7 @@
     } catch(err) {
       console.error('[Gacha] Pull again error:', err);
       closeOverlay();
-      showToast(err.message ?? 'Errore. Riprova!', 'error');
+      showToast(err.message ?? t.err_retry, 'error');
     } finally {
       state.isPulling = false;
     }
@@ -1269,7 +1368,7 @@
   ════════════════════════════════════════════════════ */
   function updateBannerUI() {
     $$('#user-points-std,.user-points-evt').forEach(el =>
-      el.textContent = state.soldi.toLocaleString('it-IT')
+      el.textContent = state.soldi.toLocaleString(t.locale)
     );
     const pHS = window.GACHA_INIT?.pityHardStd ?? 90;
     const pSS = window.GACHA_INIT?.pitySoftStd ?? 70;
@@ -1278,13 +1377,13 @@
     if (sn) sn.textContent = `${state.pityStandard} / ${pHS}`;
     if (so) {
       if (state.pityStandard >= pHS) {
-        so.textContent = '★ Garantito: prossima pull è Speciale o Segreto!';
+        so.textContent = t.pity_hard;
         so.classList.add('is-active');
       } else if (state.pityStandard >= pSS) {
-        so.textContent = '✦ Soft pity — % Speciale/Segreto aumentata';
+        so.textContent = t.pity_soft;
         so.classList.add('is-active');
       } else {
-        so.textContent = `Garantito Speciale/Segreto in ${pHS - state.pityStandard} pull`;
+        so.textContent = t.pity_count(pHS - state.pityStandard);
         so.classList.remove('is-active');
       }
     }
@@ -1292,7 +1391,7 @@
     $$('.pity-evt-fill').forEach(el=>el.style.width=Math.min(100,Math.round(state.pityEvento/pHE*100))+'%');
     $$('.pity-evt-num').forEach(el=>el.textContent=`${state.pityEvento} / ${pHE}`);
     $$('.pity-evt-note').forEach(el=>{
-      el.textContent=state.pityEvento>=pSE?'✦ Soft pity attivo — probabilità in aumento':`Garantito segreto in ${pHE-state.pityEvento} pull`;
+      el.textContent=state.pityEvento>=pSE ? t.pity_evt_soft : t.pity_evt_count(pHE-state.pityEvento);
       el.classList.toggle('is-active',state.pityEvento>=pSE);
     });
     $$('[id^="garantito-badge-"]').forEach(el=>el.style.display=state.garantito?'':'none');
@@ -1438,8 +1537,8 @@
         <div class="modal-content bgimpostazioni lootbox-settings-content">
           <div class="modal-header lootbox-settings-header">
             <div>
-              <span class="lootbox-modal-kicker">Gacha</span>
-              <h5 class="modal-title testobianco">Cronologia Pull</h5>
+              <span class="lootbox-modal-kicker">${t.history_kicker}</span>
+              <h5 class="modal-title testobianco">${t.history_title}</h5>
               <p id="gacha-history-banner-label" style="color:rgba(255,255,255,.45);font-size:.82rem;margin:0"></p>
             </div>
             <button type="button" class="lootbox-modal-close" data-bs-dismiss="modal"><i class="fas fa-xmark"></i></button>
@@ -1449,7 +1548,7 @@
           </div>
           <div class="modal-footer lootbox-settings-footer" style="justify-content:space-between">
             <span id="gacha-history-stats" style="font-size:.8rem;color:rgba(255,255,255,.35)"></span>
-            <button type="button" class="btn btn-secondary bottone lootbox-modal-btn lootbox-modal-btn--ghost" data-bs-dismiss="modal">Chiudi</button>
+            <button type="button" class="btn btn-secondary bottone lootbox-modal-btn lootbox-modal-btn--ghost" data-bs-dismiss="modal">${t.history_close}</button>
           </div>
         </div>
       </div>
@@ -1465,11 +1564,11 @@
     try{
       const resp=await fetch(`/api/api_gacha_history?banner_id=${encodeURIComponent(bannerId)}&limit=60`,{credentials:'same-origin'});
       const data=await resp.json();
-      if(!data.pulls?.length){$('gacha-history-list').innerHTML='<div style="text-align:center;color:rgba(255,255,255,.3);padding:48px">Nessuna pull su questo banner.</div>';return;}
+      if(!data.pulls?.length){$('gacha-history-list').innerHTML=`<div style="text-align:center;color:rgba(255,255,255,.3);padding:48px">${t.history_empty}</div>`;return;}
       const RC={comune:'#9ca3af',raro:'#38bdf8',epico:'#c084fc',leggendario:'#fbbf24',speciale:'#fff',segreto:'#a855f7',theone:'#60a5fa'};
       $('gacha-history-list').innerHTML=data.pulls.map(p=>{
         const r=normalizeRarity(p.rarità),c=RC[r]??'#fff';
-        const dt=new Date(p.created_at).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+        const dt=new Date(p.created_at).toLocaleString(t.locale,{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
         const b50=p.esito_50_50===1?`<span style="font-size:.68rem;color:#fbbf24;background:rgba(251,191,36,.12);padding:2px 7px;border-radius:6px">★ Rate-Up</span>`:p.esito_50_50===0?`<span style="font-size:.68rem;color:#f87171;background:rgba(239,68,68,.1);padding:2px 7px;border-radius:6px">→ Garantito</span>`:'';
         const newBadge=p.is_new?`<span style="font-size:.68rem;color:#4ade80;background:rgba(74,222,128,.12);padding:2px 7px;border-radius:6px">NEW</span>`:'';
         return`<div style="display:flex;align-items:center;gap:12px;padding:9px 12px;background:rgba(255,255,255,.03);border-radius:8px;border-left:3px solid ${c};margin-bottom:6px">
@@ -1481,12 +1580,12 @@
             </div>
             <span style="font-size:.72rem;color:rgba(255,255,255,.28)">${dt}</span>
           </div>
-          <div style="text-align:right;flex-shrink:0;font-size:.72rem;color:rgba(255,255,255,.25)">pity ${p.pity_al_momento}</div>
+          <div style="text-align:right;flex-shrink:0;font-size:.72rem;color:rgba(255,255,255,.25)">${t.history_pity(p.pity_al_momento)}</div>
         </div>`;
       }).join('');
       const seg=data.pulls.filter(p=>['segreto','theone'].includes(normalizeRarity(p.rarità))).length;
-      $('gacha-history-stats').textContent=`${data.total??data.pulls.length} pull totali • ${seg} segreti`;
-    }catch{$('gacha-history-list').innerHTML='<div style="text-align:center;color:#f87171;padding:32px">Errore caricamento cronologia.</div>';}
+      $('gacha-history-stats').textContent=t.history_stats(data.total??data.pulls.length, seg);
+    }catch{$('gacha-history-list').innerHTML=`<div style="text-align:center;color:#f87171;padding:32px">${t.err_history}</div>`;}
   }
 
   window.GachaHistory = { open: openHistoryModal };
