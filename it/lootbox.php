@@ -497,10 +497,10 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                             </div>
                         </div>
                         <div class="lootbox-command-grid">
-                            <div class="lootbox-command-item"><span>Soft pity std</span><strong>Pull 70</strong></div>
-                            <div class="lootbox-command-item"><span>Hard pity std</span><strong>Pull 90</strong></div>
-                            <div class="lootbox-command-item"><span>Soft pity evt</span><strong>Pull 65</strong></div>
-                            <div class="lootbox-command-item"><span>Hard pity evt</span><strong>Pull 80</strong></div>
+                            <div class="lootbox-command-item"><span>Soft pity standard</span><strong>Pull 70</strong></div>
+                            <div class="lootbox-command-item"><span>Hard pity standard</span><strong>Pull 90</strong></div>
+                            <div class="lootbox-command-item"><span>Soft pity evento</span><strong>Pull 65</strong></div>
+                            <div class="lootbox-command-item"><span>Hard pity evento</span><strong>Pull 80</strong></div>
                         </div>
                     </section>
 
