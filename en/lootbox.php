@@ -483,10 +483,9 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                             <div class="gacha-rate-row rate-common"><span>Common</span><strong>51%</strong></div>
                             <div class="gacha-rate-row rate-rare"><span>Rare</span><strong>28%</strong></div>
                             <div class="gacha-rate-row rate-epic"><span>Epic</span><strong>13%</strong></div>
-                            <div class="gacha-rate-row rate-legendary"><span>Legendary</span><strong>5.99%</strong></div>
+                            <div class="gacha-rate-row rate-legendary"><span>Legendary</span><strong>6%</strong></div>
                             <div class="gacha-rate-row rate-special"><span>Special</span><strong>1.80%</strong></div>
-                            <div class="gacha-rate-row rate-secret"><span>Secret</span><strong>0.20%</strong></div>
-                            <div class="gacha-rate-row rate-secret"><span>The One</span><strong>0.01%</strong></div>
+                            <div class="gacha-rate-row rate-secret"><span>???</span><strong>0.20%</strong></div>
                         </div>
                     </section>
 
