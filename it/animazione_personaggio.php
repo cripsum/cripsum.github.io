@@ -250,6 +250,36 @@ $charJson = $charData ? json_encode($charData, JSON_HEX_TAG | JSON_HEX_APOS | JS
                 /* ── Dati personaggio passati server-side ─────────────────────────── */
                 const CHAR = <?= $charJson ?>;
 
+                /* ── Lingua ────────────────────────────────────────────────────────────────── */
+                const lang = location.pathname.split('/').find(s => s === 'it' || s === 'en') || 'it';
+
+                const RARITY_NAMES = {
+                    it: {
+                        comune: 'COMUNE',
+                        raro: 'RARO',
+                        epico: 'EPICO',
+                        leggendario: 'LEGGENDARIO',
+                        speciale: 'SPECIALE',
+                        segreto: 'SEGRETO',
+                        theone: 'THE ONE'
+                    },
+                    en: {
+                        comune: 'COMMON',
+                        raro: 'RARE',
+                        epico: 'EPIC',
+                        leggendario: 'LEGENDARY',
+                        speciale: 'SPECIAL',
+                        segreto: 'SECRET',
+                        theone: 'THE ONE'
+                    },
+                } [lang];
+
+                /** Nome localizzato della rarità per la UI */
+                function rarityLabel(normalizedRarity) {
+                    return RARITY_NAMES[normalizedRarity] ?? normalizedRarity.toUpperCase();
+                }
+
+
                 /* ── Configurazione ────────────────────────────────────────────────── */
                 const RARITY_VIDEO = new Set(['segreto', 'theone']);
                 const RARITY_EFFECTS = new Set(['leggendario', 'speciale', 'epico', 'raro']);
@@ -387,7 +417,7 @@ $charJson = $charData ? json_encode($charData, JSON_HEX_TAG | JSON_HEX_APOS | JS
                     cardImg.alt = escapeHtml(charObj.nome ?? '');
                     cardName.textContent = escapeHtml(charObj.nome ?? '—');
                     cardRarityBar.className = `gacha-card-rarity-bar rarity-${rarity}`;
-                    cardRarityLabel.textContent = (charObj.rarità ?? '—').toUpperCase();
+                    cardRarityLabel.textContent = rarityLabel(normalizeRarity(charObj.rarità ?? ''));
                     cardBgGlow.style.background = `radial-gradient(circle,${color}55 0%,transparent 70%)`;
 
                     spawnParticles(color, rarity);
@@ -438,7 +468,7 @@ $charJson = $charData ? json_encode($charData, JSON_HEX_TAG | JSON_HEX_APOS | JS
         <div class="gacha-card-details">
           <div class="gacha-card-rarity-bar rarity-${rarity}"></div>
           <p class="gacha-card-rarity-label" style="color:${color}">
-            ${escapeHtml(charObj.rarità.toUpperCase())}
+            ${escapeHtml(rarityLabel(normalizeRarity(charObj.rarità)))}
           </p>
           <h2 class="gacha-card-name">${escapeHtml(charObj.nome ?? '—')}</h2>
         </div>

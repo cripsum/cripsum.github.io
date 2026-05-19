@@ -109,6 +109,15 @@
     },
   }[lang];
 
+  /**
+   * Traduce una rarità normalizzata nel nome localizzato per la UI,
+   * riutilizzando le label già presenti in t.intro_*.
+   * Es. 'leggendario' → 'LEGENDARY' (EN) / 'LEGGENDARIO' (IT)
+   */
+  function rarityLabel(r) {
+    return (t['intro_' + r]?.label ?? r).toUpperCase();
+  }
+
   /* ══════════════════════════════════════════════════════
      CONFIG
   ══════════════════════════════════════════════════════ */
@@ -600,7 +609,7 @@
     cardImg.alt                  = escapeHtml(p.nome ?? '');
     cardName.textContent         = escapeHtml(p.nome ?? '—');
     cardRarityBar.className      = `gacha-card-rarity-bar rarity-${rarity}`;
-    cardRarityLabel.textContent  = (p.rarità ?? '—').toUpperCase();
+    cardRarityLabel.textContent  = rarityLabel(normalizeRarity(p.rarità ?? ''));
     cardBgGlow.style.background  = `radial-gradient(circle,${color}44 0%,transparent 70%)`;
 
     cardNewBadge.style.display = data.is_new ? '' : 'none';
@@ -730,7 +739,7 @@
         </div>
         <div class="gacha-card-details">
           <div class="gacha-card-rarity-bar rarity-${rarity}"></div>
-          <p class="gacha-card-rarity-label" style="color:${color}">${escapeHtml(p.rarità.toUpperCase())}</p>
+          <p class="gacha-card-rarity-label" style="color:${color}">${escapeHtml(rarityLabel(normalizeRarity(p.rarità)))}</p>
           <h2 class="gacha-card-name">${escapeHtml(p.nome ?? '—')}</h2>
         </div>
       </div>
@@ -910,7 +919,7 @@
             ${r.vinto_50_50 === 1 ? '<span class="gms-badge gms-badge--50">★ Rate-Up</span>' : ''}
           </div>
           <div class="gms-card-info">
-            <span class="gms-card-rarity" style="color:${co}">${escapeHtml(p.rarità.toUpperCase())}</span>
+            <span class="gms-card-rarity" style="color:${co}">${escapeHtml(rarityLabel(normalizeRarity(p.rarità)))}</span>
             <span class="gms-card-name">${escapeHtml(p.nome)}</span>
           </div>
         </div>`;
@@ -1057,7 +1066,7 @@
     cardImg.alt = escapeHtml(p.nome ?? '');
     cardName.textContent         = escapeHtml(p.nome ?? '—');
     cardRarityBar.className      = `gacha-card-rarity-bar rarity-${rarity}`;
-    cardRarityLabel.textContent  = (p.rarità ?? '—').toUpperCase();
+    cardRarityLabel.textContent  = rarityLabel(normalizeRarity(p.rarità ?? ''));
     cardBgGlow.style.background  = `radial-gradient(circle,${color}55 0%,transparent 70%)`;
 
     cardNewBadge.style.display = data.is_new ? '' : 'none';
@@ -1149,7 +1158,7 @@
     cardImg.alt = escapeHtml(p.nome ?? '');
     cardName.textContent         = escapeHtml(p.nome ?? '—');
     cardRarityBar.className      = `gacha-card-rarity-bar rarity-${rarity}`;
-    cardRarityLabel.textContent  = (p.rarità ?? '—').toUpperCase();
+    cardRarityLabel.textContent  = rarityLabel(normalizeRarity(p.rarità ?? ''));
     cardBgGlow.style.background  = `radial-gradient(circle,${color}55 0%,transparent 70%)`;
 
     cardNewBadge.style.display = data.is_new ? '' : 'none';
@@ -1575,7 +1584,7 @@
           <div style="flex:1;min-width:0">
             <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:3px">
               <span style="font-weight:700;color:#fff;font-size:.9rem">${escapeHtml(p.nome??'?')}</span>
-              <span style="font-size:.7rem;color:${c};text-transform:uppercase;font-weight:600;letter-spacing:.07em">${escapeHtml(p.rarità??'')}</span>
+              <span style="font-size:.7rem;color:${c};text-transform:uppercase;font-weight:600;letter-spacing:.07em">${escapeHtml(rarityLabel(normalizeRarity(p.rarità)))}</span>
               ${b50}${newBadge}
             </div>
             <span style="font-size:.72rem;color:rgba(255,255,255,.28)">${dt}</span>

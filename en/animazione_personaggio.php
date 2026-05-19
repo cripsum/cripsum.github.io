@@ -35,7 +35,7 @@ $charJson = $charData ? json_encode($charData, JSON_HEX_TAG | JSON_HEX_APOS | JS
     <?php include '../includes/head-import.php'; ?>
     <link rel="stylesheet" href="/css/lootbox.css?v=8.0.6" />
     <link rel="stylesheet" href="/css/gacha.css?v=3.1" />
-    <title>Cripsum™ – Animazione personaggio</title>
+    <title>Cripsum™ – Character preview</title>
     <style>
         /* ── Override: la pagina è solo l'animazione, niente layout gacha ── */
         body.anim-page {
@@ -139,9 +139,9 @@ $charJson = $charData ? json_encode($charData, JSON_HEX_TAG | JSON_HEX_APOS | JS
     <?php if (!empty($errorMsg)): ?>
         <!-- ══ ERRORE ══════════════════════════════════════════════════════════ -->
         <div id="anim-error">
-            <h2><i class="fas fa-circle-exclamation"></i> Personaggio non trovato</h2>
+            <h2><i class="fas fa-circle-exclamation"></i> Character not found</h2>
             <p><?= htmlspecialchars($errorMsg) ?></p>
-            <a href="javascript:history.back()"><i class="fas fa-arrow-left"></i> Torna indietro</a>
+            <a href="javascript:history.back()"><i class="fas fa-arrow-left"></i> Go back</a>
         </div>
 
     <?php else: ?>
@@ -181,7 +181,7 @@ $charJson = $charData ? json_encode($charData, JSON_HEX_TAG | JSON_HEX_APOS | JS
                 <video id="gacha-video" playsinline preload="metadata"
                     webkit-playsinline></video>
                 <button class="gacha-video-unmute" id="video-unmute-btn" style="display:none">
-                    <i class="fas fa-volume-xmark"></i> Tap per audio
+                    <i class="fas fa-volume-xmark"></i> Tap for audio
                 </button>
             </div>
 
@@ -191,7 +191,7 @@ $charJson = $charData ? json_encode($charData, JSON_HEX_TAG | JSON_HEX_APOS | JS
                     <div class="gacha-card-bg-glow" id="card-bg-glow"></div>
                     <div class="gacha-card-frame" id="card-frame">
                         <div class="gacha-card-img-wrap">
-                            <img id="card-img" src="/img/cassa.png" alt="Personaggio"
+                            <img id="card-img" src="/img/cassa.png" alt="Character image"
                                 draggable="false" onerror="this.src='/img/cassa.png'">
                         </div>
                         <div class="gacha-card-img-shine"></div>
@@ -210,13 +210,13 @@ $charJson = $charData ? json_encode($charData, JSON_HEX_TAG | JSON_HEX_APOS | JS
                 <!-- Azioni post-animazione -->
                 <div id="anim-actions">
                     <a href="?id_personaggio=<?= $idPersonaggio ?>" class="gacha-btn gacha-btn--primary">
-                        <i class="fas fa-rotate-right"></i> Watch Again
+                        <i class="fas fa-rotate-right"></i> Watch again
                     </a>
                     <a href="/inventario" class="gacha-btn gacha-btn--ghost">
                         <i class="fas fa-layer-group"></i> Inventory
                     </a>
                     <button class="gacha-btn gacha-btn--ghost" onclick="history.back()">
-                        <i class="fas fa-arrow-left"></i> Back
+                        <i class="fas fa-arrow-left"></i> Go back
                     </button>
                 </div>
             </div>
@@ -249,6 +249,36 @@ $charJson = $charData ? json_encode($charData, JSON_HEX_TAG | JSON_HEX_APOS | JS
 
                 /* ── Dati personaggio passati server-side ─────────────────────────── */
                 const CHAR = <?= $charJson ?>;
+
+                /* ── Lingua ────────────────────────────────────────────────────────────────── */
+                const lang = location.pathname.split('/').find(s => s === 'it' || s === 'en') || 'it';
+
+                const RARITY_NAMES = {
+                    it: {
+                        comune: 'COMUNE',
+                        raro: 'RARO',
+                        epico: 'EPICO',
+                        leggendario: 'LEGGENDARIO',
+                        speciale: 'SPECIALE',
+                        segreto: 'SEGRETO',
+                        theone: 'THE ONE'
+                    },
+                    en: {
+                        comune: 'COMMON',
+                        raro: 'RARE',
+                        epico: 'EPIC',
+                        leggendario: 'LEGENDARY',
+                        speciale: 'SPECIAL',
+                        segreto: 'SECRET',
+                        theone: 'THE ONE'
+                    },
+                } [lang];
+
+                /** Nome localizzato della rarità per la UI */
+                function rarityLabel(normalizedRarity) {
+                    return RARITY_NAMES[normalizedRarity] ?? normalizedRarity.toUpperCase();
+                }
+
 
                 /* ── Configurazione ────────────────────────────────────────────────── */
                 const RARITY_VIDEO = new Set(['segreto', 'theone']);
@@ -387,7 +417,7 @@ $charJson = $charData ? json_encode($charData, JSON_HEX_TAG | JSON_HEX_APOS | JS
                     cardImg.alt = escapeHtml(charObj.nome ?? '');
                     cardName.textContent = escapeHtml(charObj.nome ?? '—');
                     cardRarityBar.className = `gacha-card-rarity-bar rarity-${rarity}`;
-                    cardRarityLabel.textContent = (charObj.rarità ?? '—').toUpperCase();
+                    cardRarityLabel.textContent = rarityLabel(normalizeRarity(charObj.rarità ?? ''));
                     cardBgGlow.style.background = `radial-gradient(circle,${color}55 0%,transparent 70%)`;
 
                     spawnParticles(color, rarity);
@@ -438,7 +468,7 @@ $charJson = $charData ? json_encode($charData, JSON_HEX_TAG | JSON_HEX_APOS | JS
         <div class="gacha-card-details">
           <div class="gacha-card-rarity-bar rarity-${rarity}"></div>
           <p class="gacha-card-rarity-label" style="color:${color}">
-            ${escapeHtml(charObj.rarità.toUpperCase())}
+            ${escapeHtml(rarityLabel(normalizeRarity(charObj.rarità)))}
           </p>
           <h2 class="gacha-card-name">${escapeHtml(charObj.nome ?? '—')}</h2>
         </div>
@@ -446,13 +476,13 @@ $charJson = $charData ? json_encode($charData, JSON_HEX_TAG | JSON_HEX_APOS | JS
       <div id="cov-anim-actions" class="gacha-overlay-actions" style="display:none">
         <a href="?id_personaggio=<?= $idPersonaggio ?>"
            class="gacha-btn gacha-btn--primary">
-          <i class="fas fa-rotate-right"></i> Ripeti animazione
+          <i class="fas fa-rotate-right"></i> Watch again
         </a>
         <a href="/inventario" class="gacha-btn gacha-btn--ghost">
-          <i class="fas fa-layer-group"></i> Inventario
+          <i class="fas fa-layer-group"></i> Inventory
         </a>
         <button class="gacha-btn gacha-btn--ghost" onclick="history.back()">
-          <i class="fas fa-arrow-left"></i> Indietro
+          <i class="fas fa-arrow-left"></i> Go back
         </button>
       </div>
     `;
