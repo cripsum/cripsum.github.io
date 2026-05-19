@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Cripsum™ — Pagina Missioni
  * Accessibile su /it/missions e /en/missions
@@ -46,19 +47,23 @@ function msn_h(mixed $v): string
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo $lang; ?>">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ — <?php echo msn_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="<?php echo msn_h($ogDescription); ?>">
-    <meta property="og:site_name"   content="Cripsum™">
-    <meta property="og:type"        content="website">
-    <meta property="og:title"       content="<?php echo msn_h($pageTitle); ?> — Cripsum™">
+    <meta property="og:site_name" content="Cripsum™">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="<?php echo msn_h($pageTitle); ?> — Cripsum™">
     <meta property="og:description" content="<?php echo msn_h($ogDescription); ?>">
-    <meta property="og:url"         content="<?php echo msn_h($ogUrl); ?>">
-    <meta name="twitter:card"       content="summary_large_image">
+    <meta property="og:url" content="<?php echo msn_h($ogUrl); ?>">
+    <meta name="twitter:card" content="summary_large_image">
 
     <link rel="stylesheet" href="/assets/missions/missions.css?v=1.0">
+    <script>
+        window.CRIPSUM_LANG = '<?php echo $lang; ?>';
+    </script>
     <script src="/assets/missions/missions.js?v=1.1" defer></script>
 </head>
 
@@ -147,8 +152,7 @@ function msn_h(mixed $v): string
                 data-msn-tab="daily"
                 role="tab"
                 aria-selected="true"
-                aria-controls="msnDailyPanel"
-            >
+                aria-controls="msnDailyPanel">
                 <i class="fas fa-sun"></i>
                 <?php echo $isEn ? 'Daily' : 'Giornaliere'; ?>
                 <span class="msn-tab__count" id="msnTabDailyCount">5</span>
@@ -160,8 +164,7 @@ function msn_h(mixed $v): string
                 data-msn-tab="weekly"
                 role="tab"
                 aria-selected="false"
-                aria-controls="msnWeeklyPanel"
-            >
+                aria-controls="msnWeeklyPanel">
                 <i class="fas fa-calendar-week"></i>
                 <?php echo $isEn ? 'Weekly' : 'Settimanali'; ?>
                 <span class="msn-tab__count" id="msnTabWeeklyCount">3</span>
@@ -197,8 +200,7 @@ function msn_h(mixed $v): string
                 class="msn-panel is-active"
                 data-msn-panel="daily"
                 role="tabpanel"
-                aria-labelledby="msnTabDaily"
-            >
+                aria-labelledby="msnTabDaily">
                 <div class="msn-panel__header">
                     <h2 class="msn-panel__title">
                         <i class="fas fa-sun"></i>
@@ -221,8 +223,7 @@ function msn_h(mixed $v): string
                 class="msn-panel"
                 data-msn-panel="weekly"
                 role="tabpanel"
-                aria-labelledby="msnTabWeekly"
-            >
+                aria-labelledby="msnTabWeekly">
                 <div class="msn-panel__header">
                     <h2 class="msn-panel__title">
                         <i class="fas fa-calendar-week"></i>
@@ -257,4 +258,5 @@ function msn_h(mixed $v): string
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>
