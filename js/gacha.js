@@ -836,7 +836,7 @@
           <button class="gms-btn gms-btn--ghost" id="btn-summary-close">
             <i class="fas fa-xmark"></i> Chiudi
           </button>
-          <a href="/inventario" class="gms-btn gms-btn--ghost">
+          <a href="inventario" class="gms-btn gms-btn--ghost">
             <i class="fas fa-layer-group"></i> Inventario
           </a>
         </div>

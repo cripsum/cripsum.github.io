@@ -6,7 +6,7 @@ checkBan($mysqli);
 
 if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-    $_SESSION['login_message'] = 'Devi essere loggato per accedere al Gacha';
+    $_SESSION['login_message'] = 'You need to be logged in to access the Lootboxes';
     header('Location: accedi');
     exit();
 }
@@ -105,9 +105,9 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
 
                 <div class="gacha-banner-info">
                     <div>
-                        <span class="gacha-banner-type-badge">✦ SEMPRE DISPONIBILE</span>
+                        <span class="gacha-banner-type-badge">✦ Always Available</span>
                         <h1 class="gacha-banner-title">Banner Standard</h1>
-                        <p class="gacha-banner-desc">Il banner classico di Cripsum™ dove puoi trovare tutti i personaggi originali delle vecchie lootbox</p>
+                        <p class="gacha-banner-desc">The classic Cripsum™ banner where you can find all the original characters from the old lootboxes</p>
                     </div>
 
                     <div class="gacha-pity-wrap">
@@ -123,11 +123,11 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                         </div>
                         <p class="gacha-pity-note <?= $pityStandard >= PITY_STANDARD_SOFT ? 'is-active' : '' ?>" id="pity-std-note">
                             <?php if ($pityStandard >= PITY_STANDARD_HARD): ?>
-                                ★ Garantito: prossima pull è Speciale o Segreto!
+                                ★ Guaranteed: next pull is Special or Secret!
                             <?php elseif ($pityStandard >= PITY_STANDARD_SOFT): ?>
-                                ✦ Soft pity — % Speciale o Segreto aumentata
+                                ✦ Soft pity — % Special or Secret increased
                             <?php else: ?>
-                                Garantito Speciale o Segreto in <?= PITY_STANDARD_HARD - $pityStandard ?> pull
+                                Guaranteed Special or Secret in <?= PITY_STANDARD_HARD - $pityStandard ?> pulls
                             <?php endif; ?>
                         </p>
                     </div>
@@ -137,23 +137,23 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                             <i class="fas fa-coins"></i>
                             <span id="user-points-std"><?= number_format($soldi) ?></span>
                         </span>
-                        <span class="gacha-cost">• Gratuito</span>
+                        <span class="gacha-cost">• Free</span>
                     </div>
 
                     <div class="gacha-pull-row">
                         <button class="gacha-pull-btn" id="pull-btn-standard"
-                            aria-label="Apri 1x banner standard" data-banner-id="standard">
+                            aria-label="Open 1x standard banner" data-banner-id="standard">
                             <i class="fas fa-box-open gacha-pull-btn-icon"></i>
-                            <span>Apri 1×</span>
+                            <span>Open 1×</span>
                         </button>
                         <button class="gacha-pull-btn gacha-pull-btn--multi"
-                            aria-label="Apri 10x banner standard"
+                            aria-label="Open 10x standard banner"
                             data-banner-id="standard" data-pull-qty="10">
                             <i class="fas fa-boxes-stacked gacha-pull-btn-icon"></i>
-                            <span>Multi 10×</span>
+                            <span>Open 10×</span>
                         </button>
                     </div>
-                    <p class="gacha-pull-hint"><i class="fas fa-bolt"></i> <kbd>F</kbd> apertura rapida &nbsp;|&nbsp; <kbd>Space</kbd> pull normale</p>
+                    <p class="gacha-pull-hint"><i class="fas fa-bolt"></i> <kbd>F</kbd> quick open &nbsp;|&nbsp; <kbd>Space</kbd> normal pull</p>
                 </div>
             </section>
 
@@ -196,7 +196,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
 
                     <div class="gacha-banner-info">
                         <div>
-                            <span class="gacha-banner-type-badge">✦ BANNER EVENTO</span>
+                            <span class="gacha-banner-type-badge">✦ LIMITED BANNER</span>
                             <h1 class="gacha-banner-title"><?= $safeName ?></h1>
                             <?php if ($safeDesc): ?>
                                 <p class="gacha-banner-desc"><?= $safeDesc ?></p>
@@ -215,12 +215,12 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                         <div class="gacha-garantito-badge" id="garantito-badge-<?= $bid ?>"
                             <?= !$garantito ? 'style="display:none"' : '' ?>>
                             <i class="fas fa-shield-halved"></i>
-                            Garantito attivo — prossima rara è il rate-up
+                            Guaranteed active — next rare is the rate-up
                         </div>
 
                         <div class="gacha-pity-wrap">
                             <div class="gacha-pity-header">
-                                <span>Pity Evento</span>
+                                <span>Pity Limited</span>
                                 <span class="pity-evt-num"><?= $pityEvento ?> / <?= PITY_EVENTO_HARD ?></span>
                             </div>
                             <div class="gacha-pity-track">
@@ -231,9 +231,9 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                             </div>
                             <p class="gacha-pity-note pity-evt-note <?= $pityEvento >= PITY_EVENTO_SOFT ? 'is-active' : '' ?>">
                                 <?php if ($pityEvento >= PITY_EVENTO_SOFT): ?>
-                                    ✦ Soft pity attivo — probabilità in aumento
+                                    ✦ Soft pity active — rates increasing
                                 <?php else: ?>
-                                    Garantito segreto in <?= PITY_EVENTO_HARD - $pityEvento ?> pull
+                                    Secret guaranteed in <?= PITY_EVENTO_HARD - $pityEvento ?> pull
                                 <?php endif; ?>
                             </p>
                         </div>
@@ -241,11 +241,11 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                         <?php if ($dataFine): ?>
                             <div class="gacha-timer-wrap">
                                 <i class="fas fa-clock"></i>
-                                <span>Scade tra</span>
+                                <span>Remaining time</span>
                                 <div class="gacha-timer-digits" data-ends="<?= htmlspecialchars($dataFine, ENT_QUOTES) ?>">
-                                    <div class="gacha-timer-block"><span class="t-days">--</span><small>gg</small></div>
-                                    <div class="gacha-timer-block"><span class="t-hours">--</span><small>ore</small></div>
-                                    <div class="gacha-timer-block"><span class="t-mins">--</span><small>min</small></div>
+                                    <div class="gacha-timer-block"><span class="t-days">--</span><small>days</small></div>
+                                    <div class="gacha-timer-block"><span class="t-hours">--</span><small>hours</small></div>
+                                    <div class="gacha-timer-block"><span class="t-mins">--</span><small>mins</small></div>
                                 </div>
                             </div>
                         <?php endif; ?>
@@ -255,25 +255,25 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                                 <i class="fas fa-coins"></i>
                                 <span class="user-points-evt"><?= number_format($soldi) ?></span>
                             </span>
-                            <span class="gacha-cost">• <?= number_format($costo) ?> punti / pull</span>
+                            <span class="gacha-cost">• <?= number_format($costo) ?> points / pull</span>
                         </div>
 
                         <div class="gacha-pull-row">
                             <button class="gacha-pull-btn" id="pull-btn-<?= $bid ?>"
-                                aria-label="Apri 1x <?= $safeName ?>" data-banner-id="<?= $bid ?>">
+                                aria-label="Open 1x <?= $safeName ?>" data-banner-id="<?= $bid ?>">
                                 <i class="fas fa-star gacha-pull-btn-icon"></i>
-                                <span>Apri 1×</span>
+                                <span>Open 1×</span>
                                 <span class="gacha-pull-cost-badge"><?= number_format($costo) ?></span>
                             </button>
                             <button class="gacha-pull-btn gacha-pull-btn--multi"
-                                aria-label="Apri 10x <?= $safeName ?>"
+                                aria-label="Open 10x <?= $safeName ?>"
                                 data-banner-id="<?= $bid ?>" data-pull-qty="10">
                                 <i class="fas fa-boxes-stacked gacha-pull-btn-icon"></i>
-                                <span>Multi 10×</span>
+                                <span>Open 10×</span>
                                 <span class="gacha-pull-cost-badge"><?= number_format($costo * 10) ?></span>
                             </button>
                         </div>
-                        <p class="gacha-pull-hint"><i class="fas fa-bolt"></i> <kbd>F</kbd> apertura rapida &nbsp;|&nbsp; <kbd>Space</kbd> pull normale</p>
+                        <p class="gacha-pull-hint"><i class="fas fa-bolt"></i> <kbd>F</kbd> quick open &nbsp;|&nbsp; <kbd>Space</kbd> normal pull</p>
                     </div>
                 </section>
             <?php endforeach; ?>
@@ -300,7 +300,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                     <div class="gsb-card-overlay"></div>
                     <div class="gsb-card-body">
                         <span class="gsb-card-tag">Standard</span>
-                        <span class="gsb-card-name">Banner Standard</span>
+                        <span class="gsb-card-name">Standard Banner</span>
                     </div>
                     <div class="gsb-card-active-bar"></div>
                 </button>
@@ -320,7 +320,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                         <div class="gsb-card-bg" style="background-image:url('<?= $thumb ?>')"></div>
                         <div class="gsb-card-overlay"></div>
                         <div class="gsb-card-body">
-                            <span class="gsb-card-tag">Evento</span>
+                            <span class="gsb-card-tag">Limited</span>
                             <span class="gsb-card-name"><?= htmlspecialchars($b['nome'], ENT_QUOTES, 'UTF-8') ?></span>
                             <span class="gsb-card-rateup"><?= htmlspecialchars($b['rateup_nome'], ENT_QUOTES, 'UTF-8') ?></span>
                         </div>
@@ -332,21 +332,21 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
 
             <!-- Azioni -->
             <div class="gsb-actions">
-                <button class="gsb-action-btn" id="btn-settings" aria-label="Impostazioni">
+                <button class="gsb-action-btn" id="btn-settings" aria-label="Settings">
                     <i class="fas fa-gear"></i>
-                    <span>Impostazioni</span>
+                    <span>Settings</span>
                 </button>
-                <button class="gsb-action-btn" onclick="toggleLeaderboard()" aria-label="Classifica">
+                <button class="gsb-action-btn" onclick="toggleLeaderboard()" aria-label="Leaderboard">
                     <i class="fas fa-trophy"></i>
-                    <span>Classifica</span>
+                    <span>Leaderboard</span>
                 </button>
-                <a href="/inventario" class="gsb-action-btn" aria-label="Inventario">
+                <a href="inventario" class="gsb-action-btn" aria-label="Inventory">
                     <i class="fas fa-layer-group"></i>
-                    <span>Inventario</span>
+                    <span>Inventory</span>
                 </a>
-                <button class="gsb-action-btn" onclick="openCurrentHistory()" aria-label="Cronologia">
+                <button class="gsb-action-btn" onclick="openCurrentHistory()" aria-label="History">
                     <i class="fas fa-scroll"></i>
-                    <span>Cronologia</span>
+                    <span>Pull History</span>
                 </button>
             </div>
 
@@ -400,10 +400,10 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                     <div class="gacha-card-img-shine"></div>
                     <span class="gacha-card-new-badge" id="card-new-badge" style="display:none">NEW!</span>
                     <span class="gacha-card-50-badge gacha-card-50-badge--win" id="card-50-win" style="display:none">
-                        <i class="fas fa-trophy"></i> Rate-Up Vinto!
+                        <i class="fas fa-trophy"></i> 50/50 Won!
                     </span>
                     <span class="gacha-card-50-badge gacha-card-50-badge--loss" id="card-50-loss" style="display:none">
-                        Garantito attivato per la prossima pull
+                        Guaranteed activated for the next pull
                     </span>
                 </div>
 
@@ -416,20 +416,20 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
 
             <div class="gacha-overlay-actions" id="overlay-actions">
                 <button class="gacha-btn gacha-btn--primary" id="btn-pull-again">
-                    <i class="fas fa-rotate-right"></i> Apri ancora
+                    <i class="fas fa-rotate-right"></i> Open Again
                 </button>
                 <button class="gacha-btn gacha-btn--ghost" id="btn-close-overlay">
-                    <i class="fas fa-xmark"></i> Chiudi
+                    <i class="fas fa-xmark"></i> Close
                 </button>
-                <a href="/inventario" class="gacha-btn gacha-btn--ghost" id="btn-go-inventory">
-                    <i class="fas fa-layer-group"></i> Vedi inventario
+                <a href="inventario" class="gacha-btn gacha-btn--ghost" id="btn-go-inventory">
+                    <i class="fas fa-layer-group"></i> View Inventory
                 </a>
             </div>
         </div>
 
         <!-- Skip button -->
-        <button class="gacha-skip-btn" id="gacha-skip-btn" aria-label="Salta animazione">
-            <i class="fas fa-forward-step"></i> Salta [S]
+        <button class="gacha-skip-btn" id="gacha-skip-btn" aria-label="Skip animation">
+            <i class="fas fa-forward-step"></i> Skip [S]
         </button>
 
     </div><!-- /gacha-overlay -->
@@ -450,11 +450,11 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                 <div class="modal-header lootbox-settings-header">
                     <div>
                         <span class="lootbox-modal-kicker">Gacha</span>
-                        <h5 class="modal-title">Impostazioni</h5>
-                        <p>Probabilità, comandi e funzioni rapide.</p>
+                        <h5 class="modal-title">Settings</h5>
+                        <p>Drop rates, controls, and quick functions.</p>
                     </div>
                     <button type="button" class="lootbox-modal-close"
-                        data-bs-dismiss="modal" aria-label="Chiudi">
+                        data-bs-dismiss="modal" aria-label="Close settings">
                         <i class="fas fa-xmark"></i>
                     </button>
                 </div>
@@ -464,16 +464,16 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                         <div class="lootbox-section-head">
                             <i class="fas fa-keyboard"></i>
                             <div>
-                                <h6>Comandi</h6>
-                                <p>Scorciatoie rapide.</p>
+                                <h6>Controls</h6>
+                                <p>Quick shortcuts.</p>
                             </div>
                         </div>
                         <div class="lootbox-command-grid">
-                            <div class="lootbox-command-item"><span>Space</span><strong>Pull normale</strong></div>
-                            <div class="lootbox-command-item"><span>F</span><strong>Apertura rapida</strong></div>
-                            <div class="lootbox-command-item"><span>Enter</span><strong>Apri ancora</strong></div>
-                            <div class="lootbox-command-item"><span>Esc</span><strong>Chiudi overlay</strong></div>
-                            <div class="lootbox-command-item"><span>S</span><strong>Salta multi</strong></div>
+                            <div class="lootbox-command-item"><span>Space</span><strong>Normal Pull</strong></div>
+                            <div class="lootbox-command-item"><span>F</span><strong>Quick Open</strong></div>
+                            <div class="lootbox-command-item"><span>Enter</span><strong>Open Again</strong></div>
+                            <div class="lootbox-command-item"><span>Esc</span><strong>Close Overlay</strong></div>
+                            <div class="lootbox-command-item"><span>S</span><strong>Skip Multi</strong></div>
                         </div>
                     </section>
 
@@ -481,17 +481,16 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                         <div class="lootbox-section-head">
                             <i class="fas fa-dice"></i>
                             <div>
-                                <h6>Probabilità base</h6>
-                                <p>Calcolate server-side.</p>
+                                <h6>Base rates</h6>
                             </div>
                         </div>
                         <div class="gacha-rates-grid">
-                            <div class="gacha-rate-row rate-common"><span>Comune</span><strong>51%</strong></div>
-                            <div class="gacha-rate-row rate-rare"><span>Raro</span><strong>28%</strong></div>
-                            <div class="gacha-rate-row rate-epic"><span>Epico</span><strong>13%</strong></div>
-                            <div class="gacha-rate-row rate-legendary"><span>Leggendario</span><strong>5.99%</strong></div>
-                            <div class="gacha-rate-row rate-special"><span>Speciale</span><strong>1.80%</strong></div>
-                            <div class="gacha-rate-row rate-secret"><span>Segreto</span><strong>0.20%</strong></div>
+                            <div class="gacha-rate-row rate-common"><span>Common</span><strong>51%</strong></div>
+                            <div class="gacha-rate-row rate-rare"><span>Rare</span><strong>28%</strong></div>
+                            <div class="gacha-rate-row rate-epic"><span>Epic</span><strong>13%</strong></div>
+                            <div class="gacha-rate-row rate-legendary"><span>Legendary</span><strong>5.99%</strong></div>
+                            <div class="gacha-rate-row rate-special"><span>Special</span><strong>1.80%</strong></div>
+                            <div class="gacha-rate-row rate-secret"><span>Secret</span><strong>0.20%</strong></div>
                             <div class="gacha-rate-row rate-secret"><span>The One</span><strong>0.01%</strong></div>
                         </div>
                     </section>
@@ -500,14 +499,14 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                         <div class="lootbox-section-head">
                             <i class="fas fa-chart-line"></i>
                             <div>
-                                <h6>Sistema Pity</h6>
+                                <h6>Pity System</h6>
                             </div>
                         </div>
                         <div class="lootbox-command-grid">
-                            <div class="lootbox-command-item"><span>Soft pity std</span><strong>Pull 70</strong></div>
-                            <div class="lootbox-command-item"><span>Hard pity std</span><strong>Pull 90</strong></div>
-                            <div class="lootbox-command-item"><span>Soft pity evt</span><strong>Pull 65</strong></div>
-                            <div class="lootbox-command-item"><span>Hard pity evt</span><strong>Pull 80</strong></div>
+                            <div class="lootbox-command-item"><span>Standard Soft pity</span><strong>Pull 70</strong></div>
+                            <div class="lootbox-command-item"><span>Standard Hard pity</span><strong>Pull 90</strong></div>
+                            <div class="lootbox-command-item"><span>Limited Soft pity</span><strong>Pull 65</strong></div>
+                            <div class="lootbox-command-item"><span>Limited Hard pity</span><strong>Pull 80</strong></div>
                         </div>
                     </section>
 
@@ -517,7 +516,6 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                                 <i class="fas fa-wand-magic-sparkles"></i>
                                 <div>
                                     <h6>Admin cheats</h6>
-                                    <p>Force rarità (server-side).</p>
                                 </div>
                             </div>
                             <div class="lootbox-toggle-grid">
@@ -546,16 +544,16 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                         <div class="lootbox-section-head">
                             <i class="fas fa-lock"></i>
                             <div>
-                                <h6>Codice segreto</h6>
+                                <h6>Redeem Code</h6>
                             </div>
                         </div>
                         <div class="lootbox-secret-row">
-                            <label class="visually-hidden" for="codiceSegreto">Codice Segreto</label>
+                            <label class="visually-hidden" for="codiceSegreto">Redeem Code</label>
                             <input type="text" id="codiceSegreto" class="form-control"
-                                placeholder="Codice segreto" autocomplete="off">
+                                placeholder="Redeem Code" autocomplete="off">
                             <button type="button" class="btn btn-secondary bottone lootbox-modal-btn"
                                 data-bs-dismiss="modal" onclick="riscattaCodice()">
-                                Riscatta
+                                Redeem
                             </button>
                         </div>
                     </section>
@@ -563,7 +561,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                 <div class="modal-footer lootbox-settings-footer">
                     <button type="button"
                         class="btn btn-secondary bottone lootbox-modal-btn lootbox-modal-btn--ghost"
-                        data-bs-dismiss="modal">Chiudi</button>
+                        data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -574,27 +572,27 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
         <div class="leaderboard-box lootbox-leaderboard-box">
             <div class="leaderboard-head">
                 <div>
-                    <span class="leaderboard-kicker">Classifica</span>
+                    <span class="leaderboard-kicker">Leaderboard</span>
                     <h3 class="testobianco">Top Gacha</h3>
-                    <p>Le prime posizioni del momento.</p>
+                    <p>Top 10 players</p>
                 </div>
                 <button class="leaderboard-close" type="button"
-                    id="leaderboard-close-btn" aria-label="Chiudi">
+                    id="leaderboard-close-btn" aria-label="Close">
                     <i class="fas fa-xmark"></i>
                 </button>
             </div>
             <div class="leaderboard-buttons" role="group">
                 <button class="btn btn-secondary bottone leaderboard-btn active"
                     id="btn-casse" onclick="switchLeaderboard('casse_aperte')">
-                    <i class="fas fa-box-open"></i> <span>Casse aperte</span>
+                    <i class="fas fa-box-open"></i> <span>Pull count</span>
                 </button>
                 <button class="btn btn-secondary bottone leaderboard-btn"
                     id="btn-personaggi" onclick="switchLeaderboard('personaggi_sbloccati')">
-                    <i class="fas fa-layer-group"></i> <span>Personaggi</span>
+                    <i class="fas fa-layer-group"></i> <span>Characters</span>
                 </button>
             </div>
             <div id="leaderboard-data" class="leaderboard-data">
-                <div class="loading-text testobianco">Caricamento...</div>
+                <div class="loading-text testobianco">Loading...</div>
             </div>
         </div>
     </div>
@@ -650,7 +648,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
         crossorigin="anonymous"></script>
     <script src="/js/unlockAchievement-it.js"></script>
     <script src="/js/gacha-effects.js?v=5"></script>
-    <script src="/js/gacha.js?v=13"></script>
+    <script src="/js/gacha.js?v=14"></script>
 
     <script>
         // ── Cronologia banner corrente ────────────────────────────────────────
@@ -675,17 +673,17 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
 
         async function loadLeaderboard(type) {
             const dataDiv = document.getElementById('leaderboard-data');
-            dataDiv.innerHTML = '<div class="loading-text testobianco"><i class="fas fa-circle-notch fa-spin"></i><span>Caricamento...</span></div>';
+            dataDiv.innerHTML = '<div class="loading-text testobianco"><i class="fas fa-circle-notch fa-spin"></i><span>Loading...</span></div>';
             try {
                 const r = await fetch(`/api/get_leaderboard?type=${type}`);
                 const d = await r.json();
                 if (d.status === 'success' && d.data.length > 0) {
                     displayLeaderboard(d.data, type);
                 } else {
-                    dataDiv.innerHTML = '<div class="loading-text testobianco"><i class="fas fa-ranking-star"></i><span>Nessun dato disponibile</span></div>';
+                    dataDiv.innerHTML = '<div class="loading-text testobianco"><i class="fas fa-ranking-star"></i><span>No data available</span></div>';
                 }
             } catch {
-                dataDiv.innerHTML = '<div class="loading-text testobianco is-error"><i class="fas fa-triangle-exclamation"></i><span>Errore connessione</span></div>';
+                dataDiv.innerHTML = '<div class="loading-text testobianco is-error"><i class="fas fa-triangle-exclamation"></i><span>Connection error</span></div>';
             }
         }
 
@@ -733,25 +731,25 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                 'peak': 'MAOMAO'
             };
             if (!map[codice]) {
-                window.GachaUI?.showToast('Codice non valido, skill issue!', 'error');
+                window.GachaUI?.showToast('Invalid code, skill issue!', 'error');
                 return;
             }
             try {
                 const r = await fetch(`/api/get_character_from_nome?nomePersonaggio=${encodeURIComponent(map[codice])}`);
                 const p = await r.json();
                 if (!p?.id) {
-                    window.GachaUI?.showToast('Codice già riscattato o personaggio non trovato!', 'error');
+                    window.GachaUI?.showToast('Code already redeemed or character not found!', 'error');
                     return;
                 }
                 const inv = await fetch('/api/api_get_inventario').then(r2 => r2.json());
                 if (inv.find?.(x => x.nome === p.nome)) {
-                    window.GachaUI?.showToast('Codice già riscattato!', 'error');
+                    window.GachaUI?.showToast('Code already redeemed!', 'error');
                     return;
                 }
                 await fetch(`/api/add_character_to_inventory?character_id=${p.id}`);
                 window.GachaUI?.openRevealWithData(p);
             } catch {
-                window.GachaUI?.showToast('Errore riscatto. Riprova.', 'error');
+                window.GachaUI?.showToast('Redeem error. Please try again.', 'error');
             }
         }
     </script>
