@@ -843,13 +843,6 @@
     btnNext.innerHTML = t.btn_next_inject;
     actions.insertBefore(btnNext, actions.firstChild);
 
-    const btnSkip = document.createElement('button');
-    btnSkip.id = 'btn-multi-skip';
-    btnSkip.className = 'gacha-btn gacha-btn--ghost';
-    btnSkip.style.display = 'none';
-    btnSkip.innerHTML = t.btn_skip_inject;
-    actions.insertBefore(btnSkip, btnNext.nextSibling);
-
     const counter = document.createElement('div');
     counter.id = 'multi-counter';
     counter.style.cssText = 'position:absolute;top:14px;right:18px;font-size:.75rem;color:rgba(255,255,255,.35);font-weight:600;z-index:20;display:none;';
