@@ -482,7 +482,6 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                             <i class="fas fa-dice"></i>
                             <div>
                                 <h6>Probabilità base</h6>
-                                <p>Calcolate server-side.</p>
                             </div>
                         </div>
                         <div class="gacha-rates-grid">
