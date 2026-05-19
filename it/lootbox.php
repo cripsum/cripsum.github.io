@@ -150,7 +150,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                             aria-label="Apri 10x banner standard"
                             data-banner-id="standard" data-pull-qty="10">
                             <i class="fas fa-boxes-stacked gacha-pull-btn-icon"></i>
-                            <span>Multi 10×</span>
+                            <span>Apri 10×</span>
                         </button>
                     </div>
                     <p class="gacha-pull-hint"><i class="fas fa-bolt"></i> <kbd>F</kbd> apertura rapida &nbsp;|&nbsp; <kbd>Space</kbd> pull normale</p>
