@@ -229,8 +229,7 @@ function selectRarity(string $bannerType, int $pity, array $adminOverride = []):
         }
         // Hard pity: garantisce speciale (90% speciale, 10% segreto)
         if ($pity >= PITY_STANDARD_HARD) {
-            // 40% segreto, 60% speciale al hard pity standard
-            return (mt_rand(1, 100) <= 40) ? 'segreto' : 'speciale';
+            return (mt_rand(1, 10) === 1) ? 'segreto' : 'speciale';
         }
     } elseif ($bannerType === 'evento') {
         // Soft pity: da pull PITY_EVENTO_SOFT la % segreto sale del 6% per pull
