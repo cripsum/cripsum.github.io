@@ -143,7 +143,7 @@ if ($entry['tipo'] === 'personaggio') {
     // Recupera dati personaggio riusando l'API esistente (evita di indovinare la struttura DB)
     $baseUrl     = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http')
         . '://' . $_SERVER['HTTP_HOST'];
-    $nomeEncoded = urlencode($entry['nome']);
+    $nomeEncoded = $entry['nome'];
 
     $ctxOpts = ['http' => [
         'method'  => 'GET',
