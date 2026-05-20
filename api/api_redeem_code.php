@@ -109,6 +109,11 @@ $codici = [
         'punti'       => 5000,
         'descrizione' => ['it' => 'Ci dispiaceva per la tua sfiga, quindi beccati queste 50 pull.', 'en' => 'We felt bad for your terrible luck, so take these 50 pulls',],
     ],
+    'sossio' => [
+        'tipo'        => 'punti',
+        'punti'       => 10000,
+        'descrizione' => ['it' => 'SOSSIOHH Ecco 100 pull!', 'en' => 'SOSSIOHH Here are 100 pulls!'],
+    ],
 
 ];
 
