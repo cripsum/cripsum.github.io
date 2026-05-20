@@ -111,7 +111,7 @@ $codici = [
     ],
     'sossio' => [
         'tipo'        => 'punti',
-        'punti'       => 10000,
+        'punti'       => 10067,
         'descrizione' => ['it' => 'SOSSIOHH Ecco 100 pull!', 'en' => 'SOSSIOHH Here are 100 pulls!'],
     ],
 
