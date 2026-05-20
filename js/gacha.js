@@ -158,8 +158,6 @@
     _covActions:      null,   // riferimento azioni card-over-video multi
     videoPlaying:     false,  // true mentre un video segreto/theone è in riproduzione
     _videoAbortFn:    null,   // funzione per interrompere il video in corso
-    // Achievements
-    comuniDiFila:     0,       // streak di comuni consecutivi → achievement 9
   };
 
   /* ══════════════════════════════════════════════════════
@@ -1372,6 +1370,11 @@
       await delay(60);
       await showCard({ personaggio: p, is_new: true, vinto_50_50: null });
     },
+    // Usato da riscattaCodice() per aggiornare i punti dopo un redeem di tipo 'punti'
+    setSoldi: (nuoviSoldi) => {
+      state.soldi = nuoviSoldi;
+      updateBannerUI();
+    },
   };
 
   /* ════════════════════════════════════════════════════
@@ -1614,45 +1617,15 @@
      ACHIEVEMENTS
   ════════════════════════════════════════════════════ */
   async function triggerAchievements(data) {
-    if (typeof unlockAchievement !== 'function') return;
-    try {
-      // Achievement 5: prima pull qualsiasi
+    if(typeof unlockAchievement!=='function')return;
+    try{
       unlockAchievement(5);
-
-      // Achievement 8/16: totale casse aperte (100 / 500)
-      const r = await fetch('/api/get_casse_aperte');
-      const d = await r.json();
-      const c = d.total ?? 0;
-      if (c >= 100) unlockAchievement(8);
-      if (c >= 500) unlockAchievement(16);
-
-      // ── Achievement 9: 10 comuni di fila ──────────────────────────────
-      // Raccoglie le rarità di questa pull (singola o multi)
-      const rarities = data.pulls
-        ? data.pulls.map(p => normalizeRarity(p.personaggio.rarità))   // multi
-        : [normalizeRarity(data.personaggio.rarità)];                   // singola
-
-      for (const rarity of rarities) {
-        if (rarity === 'comune') {
-          state.comuniDiFila++;
-          if (state.comuniDiFila >= 10) unlockAchievement(9);
-        } else {
-          state.comuniDiFila = 0;   // qualsiasi altra rarità azzera lo streak
-        }
-      }
-
-      // ── Achievement 18: 134 personaggi in inventario ──────────────────
-      // Lo controlliamo solo se la pull conteneva almeno un NEW (evita fetch inutili)
-      const hasNew = data.pulls
-        ? data.pulls.some(p => p.is_new)
-        : data.is_new;
-
-      if (hasNew) {
-        const inv = await fetch('/api/api_get_inventario').then(r2 => r2.json());
-        if (Array.isArray(inv) && inv.length >= 100) unlockAchievement(18);
-      }
-
-    } catch(e) {}
+      const r=await fetch('/api/get_casse_aperte');
+      const d=await r.json();
+      const c=d.total??0;
+      if(c>=100)unlockAchievement(8);
+      if(c>=500)unlockAchievement(16);
+    }catch(e){}
   }
 
   /* ════════════════════════════════════════════════════

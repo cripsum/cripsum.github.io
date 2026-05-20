@@ -545,10 +545,12 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                         <div class="lootbox-secret-row">
                             <label class="visually-hidden" for="codiceSegreto">Codice Segreto</label>
                             <input type="text" id="codiceSegreto" class="form-control"
-                                placeholder="Codice segreto" autocomplete="off">
+                                placeholder="Codice segreto" autocomplete="off"
+                                onkeydown="if(event.key==='Enter')riscattaCodice()">
                             <button type="button" class="btn btn-secondary bottone lootbox-modal-btn"
-                                data-bs-dismiss="modal" onclick="riscattaCodice()">
-                                Riscatta
+                                id="btnRiscatta" onclick="riscattaCodice()">
+                                <span id="btnRiscattaLabel">Riscatta</span>
+                                <span id="btnRiscattaSpin" style="display:none"><i class="fas fa-spinner fa-spin"></i></span>
                             </button>
                         </div>
                     </section>
@@ -717,34 +719,64 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
             if (leaderboardVisible && e.target.id === 'leaderboard-wrapper') toggleLeaderboard();
         });
 
-        // ── Codice segreto ────────────────────────────────────────────────────
         async function riscattaCodice() {
-            const codice = document.getElementById('codiceSegreto').value.trim().toLowerCase();
-            const map = {
-                'signortoki': 'TOKI',
-                'cripsum': 'CRIPSUM',
-                'peak': 'MAOMAO'
-            };
-            if (!map[codice]) {
-                window.GachaUI?.showToast('Codice non valido, skill issue!', 'error');
-                return;
-            }
+            const input = document.getElementById('codiceSegreto');
+            const codice = input.value.trim();
+            if (!codice) return;
+            const btn = document.getElementById('btnRiscatta');
+            const label = document.getElementById('btnRiscattaLabel');
+            const spin = document.getElementById('btnRiscattaSpin');
+            btn.disabled = true;
+            label.style.display = 'none';
+            spin.style.display = 'inline';
+
             try {
-                const r = await fetch(`/api/get_character_from_nome?nomePersonaggio=${encodeURIComponent(map[codice])}`);
-                const p = await r.json();
-                if (!p?.id) {
-                    window.GachaUI?.showToast('Codice già riscattato o personaggio non trovato!', 'error');
+                const resp = await fetch('/api/api_redeem_code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        codice,
+                        lang: location.pathname.split('/').find(s => s === 'it' || s === 'en') || 'it'
+                    }),
+                    credentials: 'same-origin',
+                });
+                const data = await resp.json();
+
+                if (data.status !== 'success') {
+                    window.GachaUI?.showToast(data.message ?? 'Errore riscatto.', 'error');
                     return;
                 }
-                const inv = await fetch('/api/api_get_inventario').then(r2 => r2.json());
-                if (inv.find?.(x => x.nome === p.nome)) {
-                    window.GachaUI?.showToast('Codice già riscattato!', 'error');
-                    return;
+
+                input.value = '';
+
+                if (data.tipo === 'personaggio') {
+                    // Chiudi il modal e avvia l'animazione di reveal
+                    const modal = bootstrap.Modal.getInstance(
+                        document.getElementById('settingsModal')
+                    );
+                    modal?.hide();
+                    window.GachaUI?.openRevealWithData(data.personaggio);
+
+                } else if (data.tipo === 'punti') {
+                    // Aggiorna il contatore punti in UI e mostra toast
+                    if (data.soldi_rimasti != null) {
+                        window.GachaUI?.setSoldi?.(data.soldi_rimasti);
+                        // Aggiorna anche gli span dei punti se non lo fa GachaUI
+                        document.querySelectorAll('#user-points-std, .user-points-evt')
+                            .forEach(el => el.textContent = data.soldi_rimasti.toLocaleString('it'));
+                    }
+                    const desc = data.descrizione ?? `+${data.punti} punti!`;
+                    window.GachaUI?.showToast(`🎁 ${desc}`, 'success');
                 }
-                await fetch(`/api/add_character_to_inventory?character_id=${p.id}`);
-                window.GachaUI?.openRevealWithData(p);
+
             } catch {
                 window.GachaUI?.showToast('Errore riscatto. Riprova.', 'error');
+            } finally {
+                btn.disabled = false;
+                label.style.display = 'inline';
+                spin.style.display = 'none';
             }
         }
     </script>
