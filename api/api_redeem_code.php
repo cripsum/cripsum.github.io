@@ -112,6 +112,8 @@ $codici = [
 
 ];
 
+
+
 // ── Codice valido? ────────────────────────────────────────────────────────────
 if (!isset($codici[$codice])) {
     echo json_encode(['status' => 'error', 'message' => $t['err_invalid']]);
@@ -140,19 +142,29 @@ $stmtCheck->close();
 
 if ($entry['tipo'] === 'personaggio') {
 
-    // Recupera dati personaggio riusando l'API esistente (evita di indovinare la struttura DB)
-    $baseUrl     = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http')
+    $baseUrl  = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http')
         . '://' . $_SERVER['HTTP_HOST'];
-    $nomeEncoded = $entry['nome'];
+    $cookie   = $_SERVER['HTTP_COOKIE'] ?? '';
 
-    $ctxOpts = ['http' => [
-        'method'  => 'GET',
-        'header'  => 'Cookie: ' . ($_SERVER['HTTP_COOKIE'] ?? '') . "\r\n",
-        'timeout' => 5,
-    ]];
-    $ctx = stream_context_create($ctxOpts);
+    // Helper: GET interno via curl (funziona anche con allow_url_fopen = off)
+    $internalGet = function (string $url) use ($cookie): ?string {
+        if (!function_exists('curl_init')) return null;
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER     => ["Cookie: {$cookie}"],
+            CURLOPT_TIMEOUT        => 5,
+            CURLOPT_SSL_VERIFYPEER => false,  // stesso host, certificato già validato
+            CURLOPT_FOLLOWLOCATION => true,
+        ]);
+        $body = curl_exec($ch);
+        curl_close($ch);
+        return $body ?: null;
+    };
 
-    $charJson = @file_get_contents("{$baseUrl}/api/get_character_from_nome?nomePersonaggio={$nomeEncoded}", false, $ctx);
+    // 1. Recupera personaggio
+    $nomeEncoded = urlencode($entry['nome']);
+    $charJson    = $internalGet("{$baseUrl}/api/get_character_from_nome?nomePersonaggio={$nomeEncoded}");
     $personaggio = $charJson ? json_decode($charJson, true) : null;
 
     if (empty($personaggio['id'])) {
@@ -160,25 +172,22 @@ if ($entry['tipo'] === 'personaggio') {
         exit;
     }
 
-    // Controlla inventario
-    $invJson = @file_get_contents("{$baseUrl}/api/api_get_inventario", false, $ctx);
+    // 2. Controlla inventario
+    $invJson    = $internalGet("{$baseUrl}/api/api_get_inventario");
     $inventario = $invJson ? json_decode($invJson, true) : [];
 
-    $haChar = is_array($inventario) && array_search($personaggio['nome'], array_column($inventario, 'nome')) !== false;
+    $haChar = is_array($inventario)
+        && in_array($personaggio['nome'], array_column($inventario, 'nome'), true);
+
     if ($haChar) {
         echo json_encode(['status' => 'error', 'message' => $t['err_char_owned']]);
         exit;
     }
 
-    // Aggiungi all'inventario
-    $addCtx = stream_context_create(['http' => [
-        'method'  => 'GET',
-        'header'  => 'Cookie: ' . ($_SERVER['HTTP_COOKIE'] ?? '') . "\r\n",
-        'timeout' => 5,
-    ]]);
-    @file_get_contents("{$baseUrl}/api/add_character_to_inventory?character_id={$personaggio['id']}", false, $addCtx);
+    // 3. Aggiungi all'inventario
+    $internalGet("{$baseUrl}/api/add_character_to_inventory?character_id={$personaggio['id']}");
 
-    // Segna come riscattato
+    // 4. Segna come riscattato
     $stmtLog = $mysqli->prepare(
         'INSERT INTO codici_riscattati (codice, user_id) VALUES (?, ?)'
     );
