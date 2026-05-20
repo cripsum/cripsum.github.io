@@ -142,50 +142,42 @@ $stmtCheck->close();
 
 if ($entry['tipo'] === 'personaggio') {
 
-    $baseUrl  = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http')
-        . '://' . $_SERVER['HTTP_HOST'];
-    $cookie   = $_SERVER['HTTP_COOKIE'] ?? '';
+    // 1. Recupera personaggio (SELECT * come in get_character_from_nome.php)
+    $stmtP = $mysqli->prepare('SELECT * FROM personaggi WHERE nome = ? LIMIT 1');
+    $stmtP->bind_param('s', $entry['nome']);
+    $stmtP->execute();
+    $personaggio = $stmtP->get_result()->fetch_assoc();
+    $stmtP->close();
 
-    // Helper: GET interno via curl (funziona anche con allow_url_fopen = off)
-    $internalGet = function (string $url) use ($cookie): ?string {
-        if (!function_exists('curl_init')) return null;
-        $ch = curl_init($url);
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER     => ["Cookie: {$cookie}"],
-            CURLOPT_TIMEOUT        => 5,
-            CURLOPT_SSL_VERIFYPEER => false,  // stesso host, certificato già validato
-            CURLOPT_FOLLOWLOCATION => true,
-        ]);
-        $body = curl_exec($ch);
-        curl_close($ch);
-        return $body ?: null;
-    };
-
-    // 1. Recupera personaggio
-    $nomeEncoded = urlencode($entry['nome']);
-    $charJson    = $internalGet("{$baseUrl}/api/get_character_from_nome?nomePersonaggio={$nomeEncoded}");
-    $personaggio = $charJson ? json_decode($charJson, true) : null;
-
-    if (empty($personaggio['id'])) {
+    if (!$personaggio) {
         echo json_encode(['status' => 'error', 'message' => $t['err_char_missing']]);
         exit;
     }
 
-    // 2. Controlla inventario
-    $invJson    = $internalGet("{$baseUrl}/api/api_get_inventario");
-    $inventario = $invJson ? json_decode($invJson, true) : [];
-
-    $haChar = is_array($inventario)
-        && in_array($personaggio['nome'], array_column($inventario, 'nome'), true);
+    // 2. Già in inventario? (tabella utenti_personaggi, come in add_character_to_inventory.php)
+    $stmtChk = $mysqli->prepare(
+        'SELECT 1 FROM utenti_personaggi WHERE utente_id = ? AND personaggio_id = ? LIMIT 1'
+    );
+    $stmtChk->bind_param('ii', $userId, $personaggio['id']);
+    $stmtChk->execute();
+    $stmtChk->store_result();
+    $haChar = $stmtChk->num_rows > 0;
+    $stmtChk->close();
 
     if ($haChar) {
         echo json_encode(['status' => 'error', 'message' => $t['err_char_owned']]);
         exit;
     }
 
-    // 3. Aggiungi all'inventario
-    $internalGet("{$baseUrl}/api/add_character_to_inventory?character_id={$personaggio['id']}");
+    // 3. Aggiungi all'inventario (stessa query di add_character_to_inventory.php)
+    $stmtAdd = $mysqli->prepare(
+        'INSERT INTO utenti_personaggi (utente_id, personaggio_id, data, quantità)
+         VALUES (?, ?, NOW(), 1)
+         ON DUPLICATE KEY UPDATE quantità = quantità + 1'
+    );
+    $stmtAdd->bind_param('ii', $userId, $personaggio['id']);
+    $stmtAdd->execute();
+    $stmtAdd->close();
 
     // 4. Segna come riscattato
     $stmtLog = $mysqli->prepare(
