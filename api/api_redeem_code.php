@@ -76,6 +76,7 @@ $codici = [
     'signortoki' => ['tipo' => 'personaggio', 'nome' => 'TOKI'],
     'cripsum'    => ['tipo' => 'personaggio', 'nome' => 'CRIPSUM'],
     'peak'       => ['tipo' => 'personaggio', 'nome' => 'MAOMAO'],
+    'SBUREVOLE'  => ['tipo' => 'personaggio', 'nome' => 'ZIO DANILO SBUREVOLE'],
 
     // Punti / pull
     '67'    => [
