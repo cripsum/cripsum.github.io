@@ -114,6 +114,11 @@ $codici = [
         'punti'       => 10067,
         'descrizione' => ['it' => 'SOSSIOHH Ecco 100 pull!', 'en' => 'SOSSIOHH Here are 100 pulls!'],
     ],
+    '   tunggodisreal' => [
+        'tipo'        => 'punti',
+        'punti'       => 10000,
+        'descrizione' => ['it' => 'Tung god ti ha fatto un regalino... Ecco 100 pull!', 'en' => 'Tung god made you a little gift... Here are 100 pulls!'],
+    ],
 
 ];
 
