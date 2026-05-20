@@ -571,7 +571,7 @@
             state.filters = {
                 search: '',
                 rarity: 'all',
-                status: 'all',
+                status: 'owned',
                 sort: 'default'
             };
 
