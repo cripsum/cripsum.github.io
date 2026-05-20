@@ -153,7 +153,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                             <span>Open 10×</span>
                         </button>
                     </div>
-                    <p class="gacha-pull-hint"><i class="fas fa-bolt"></i> <kbd>F</kbd> quick open &nbsp;|&nbsp; <kbd>Space</kbd> normal pull</p>
+                    <!-- <p class="gacha-pull-hint"><i class="fas fa-bolt"></i> <kbd>F</kbd> quick open &nbsp;|&nbsp; <kbd>Space</kbd> normal pull</p> -->
                 </div>
             </section>
 
@@ -644,7 +644,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
         crossorigin="anonymous"></script>
     <script src="/js/unlockAchievement-it.js"></script>
     <script src="/js/gacha-effects.js?v=5"></script>
-    <script src="/js/gacha.js?v=26"></script>
+    <script src="/js/gacha.js?v=27"></script>
 
     <script>
         // ── Cronologia banner corrente ────────────────────────────────────────

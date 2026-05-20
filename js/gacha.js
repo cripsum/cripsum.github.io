@@ -1486,9 +1486,9 @@
         e.preventDefault(); state.isFastPull=false; startPull(state.activeBannerId);
       }
       // F = apertura veloce (skip animazione orb se skippabile)
-      if (e.code==='KeyF' && !state.overlayOpen && !state.isPulling) {
-        e.preventDefault(); startPull(state.activeBannerId, true);
-      }
+      // if (e.code==='KeyF' && !state.overlayOpen && !state.isPulling) {
+      //   e.preventDefault(); startPull(state.activeBannerId, true);
+      // }
       // Enter = pull ancora
       if (e.code==='Enter' && state.overlayOpen && !state.isPulling) {
         e.preventDefault(); btnPullAgain?.click();
