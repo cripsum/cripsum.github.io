@@ -47,7 +47,7 @@ $t = [
         'err_char_owned'   => 'Hai già questo personaggio!',
         'err_bad_config'   => 'Codice non configurato correttamente.',
         'err_unknown_type' => 'Tipo codice non riconosciuto.',
-        'pts_label'        => fn(int $n) => "+{$n} punti!",
+        'pts_suffix'       => 'punti',
     ],
     'en' => [
         'err_invalid'      => 'Invalid code, skill issue!',
@@ -56,7 +56,7 @@ $t = [
         'err_char_owned'   => 'You already have this character!',
         'err_bad_config'   => 'Code is not configured correctly.',
         'err_unknown_type' => 'Unknown code type.',
-        'pts_label'        => fn(int $n) => "+{$n} points!",
+        'pts_suffix'       => 'points',
     ],
 ][$lang];
 
@@ -226,9 +226,9 @@ if ($entry['tipo'] === 'personaggio') {
     // Descrizione localizzata: array it/en oppure stringa legacy
     $desc = $entry['descrizione'] ?? null;
     if (is_array($desc)) {
-        $desc = $desc[$lang] ?? $desc['it'] ?? ($t['pts_label'])($puntiDaAggiungere);
+        $desc = $desc[$lang] ?? $desc['it'] ?? "+{$puntiDaAggiungere} {$t['pts_suffix']}!";
     } elseif ($desc === null) {
-        $desc = ($t['pts_label'])($puntiDaAggiungere);
+        $desc = "+{$puntiDaAggiungere} {$t['pts_suffix']}!";
     }
 
     echo json_encode([
