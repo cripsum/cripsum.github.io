@@ -140,43 +140,43 @@ $stmtCheck->close();
 
 if ($entry['tipo'] === 'personaggio') {
 
-    // Recupera dati personaggio
-    $stmtP = $mysqli->prepare(
-        'SELECT id, nome, rarità, img_url, video_url, audio_url
-         FROM personaggi WHERE nome = ? LIMIT 1'
-    );
-    $stmtP->bind_param('s', $entry['nome']);
-    $stmtP->execute();
-    $personaggio = $stmtP->get_result()->fetch_assoc();
-    $stmtP->close();
+    // Recupera dati personaggio riusando l'API esistente (evita di indovinare la struttura DB)
+    $baseUrl     = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http')
+        . '://' . $_SERVER['HTTP_HOST'];
+    $nomeEncoded = urlencode($entry['nome']);
 
-    if (!$personaggio) {
+    $ctxOpts = ['http' => [
+        'method'  => 'GET',
+        'header'  => 'Cookie: ' . ($_SERVER['HTTP_COOKIE'] ?? '') . "\r\n",
+        'timeout' => 5,
+    ]];
+    $ctx = stream_context_create($ctxOpts);
+
+    $charJson = @file_get_contents("{$baseUrl}/api/get_character_from_nome?nomePersonaggio={$nomeEncoded}", false, $ctx);
+    $personaggio = $charJson ? json_decode($charJson, true) : null;
+
+    if (empty($personaggio['id'])) {
         echo json_encode(['status' => 'error', 'message' => $t['err_char_missing']]);
         exit;
     }
 
-    // Già in inventario?
-    $stmtInv = $mysqli->prepare(
-        'SELECT id FROM inventario WHERE user_id = ? AND character_id = ? LIMIT 1'
-    );
-    $stmtInv->bind_param('ii', $userId, $personaggio['id']);
-    $stmtInv->execute();
-    $stmtInv->store_result();
-    $haChar = $stmtInv->num_rows > 0;
-    $stmtInv->close();
+    // Controlla inventario
+    $invJson = @file_get_contents("{$baseUrl}/api/api_get_inventario", false, $ctx);
+    $inventario = $invJson ? json_decode($invJson, true) : [];
 
+    $haChar = is_array($inventario) && array_search($personaggio['nome'], array_column($inventario, 'nome')) !== false;
     if ($haChar) {
         echo json_encode(['status' => 'error', 'message' => $t['err_char_owned']]);
         exit;
     }
 
     // Aggiungi all'inventario
-    $stmtAdd = $mysqli->prepare(
-        'INSERT INTO inventario (user_id, character_id, ottenuto_il) VALUES (?, ?, NOW())'
-    );
-    $stmtAdd->bind_param('ii', $userId, $personaggio['id']);
-    $stmtAdd->execute();
-    $stmtAdd->close();
+    $addCtx = stream_context_create(['http' => [
+        'method'  => 'GET',
+        'header'  => 'Cookie: ' . ($_SERVER['HTTP_COOKIE'] ?? '') . "\r\n",
+        'timeout' => 5,
+    ]]);
+    @file_get_contents("{$baseUrl}/api/add_character_to_inventory?character_id={$personaggio['id']}", false, $addCtx);
 
     // Segna come riscattato
     $stmtLog = $mysqli->prepare(
