@@ -15,7 +15,6 @@ checkPermissions($mysqli, 'utente');
 $ruolo   = $_SESSION['ruolo'] ?? 'utente';
 $isAdmin = in_array($ruolo, ['admin', 'owner'], true);
 
-// ── Dati utente ───────────────────────────────────────────────────────
 $stmtUser = $mysqli->prepare(
     'SELECT username, soldi, pity_standard, pity_evento, garantito_evento
      FROM utenti WHERE id = ? LIMIT 1'
@@ -30,7 +29,6 @@ $pityStandard = (int)($userData['pity_standard']   ?? 0);
 $pityEvento   = (int)($userData['pity_evento']     ?? 0);
 $garantito    = (int)($userData['garantito_evento'] ?? 0);
 
-// ── Banner evento attivi ──────────────────────────────────────────────
 $nowDt = date('Y-m-d H:i:s');
 $stmtBanners = $mysqli->prepare(
     'SELECT be.id, be.slug, be.nome, be.descrizione, be.id_personaggio_rateup,
@@ -74,18 +72,12 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
 
     <?php include '../includes/navbar-lootbox.php'; ?>
 
-    <!-- Stars decorativi background -->
     <div class="stars" id="stars"></div>
 
-    <!-- ════════════════════════════════════════════════════
-     LAYOUT PRINCIPALE: banner area + sidebar destra
-════════════════════════════════════════════════════ -->
     <div class="gacha-layout" id="gacha-layout">
 
-        <!-- ── AREA BANNER (sinistra/centro) ────────────────── -->
         <main class="gacha-main" id="gacha-main">
 
-            <!-- Banner Standard -->
             <section
                 class="gacha-banner-view"
                 id="banner-view-standard"
@@ -157,7 +149,6 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                 </div>
             </section>
 
-            <!-- Banner Evento (generati da PHP) -->
             <?php foreach ($bannersEvento as $b):
                 $bid       = (int)$b['id'];
                 $safeName  = htmlspecialchars($b['nome'],           ENT_QUOTES, 'UTF-8');
@@ -278,18 +269,14 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                 </section>
             <?php endforeach; ?>
 
-        </main><!-- /gacha-main -->
+        </main>
 
-        <!-- ── SIDEBAR DESTRA ───────────────────────────────── -->
         <aside class="gacha-sidebar" id="gacha-sidebar" aria-label="Selezione banner">
 
-            <!-- Label top solo desktop -->
             <p class="gsb-section-label">Banner</p>
 
-            <!-- Riquadri banner -->
             <div class="gsb-banners" id="gsb-banners">
 
-                <!-- Standard -->
                 <button
                     class="gsb-card is-active"
                     data-banner-id="standard"
@@ -328,9 +315,8 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                     </button>
                 <?php endforeach; ?>
 
-            </div><!-- /gsb-banners -->
+            </div>
 
-            <!-- Azioni -->
             <div class="gsb-actions">
                 <button class="gsb-action-btn" id="btn-settings" aria-label="Impostazioni">
                     <i class="fas fa-gear"></i>
@@ -350,13 +336,10 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                 </button>
             </div>
 
-        </aside><!-- /gacha-sidebar -->
+        </aside>
 
-    </div><!-- /gacha-layout -->
+    </div>
 
-    <!-- ══════════════════════════════════════════════════════════
-     OVERLAY FULLSCREEN PULL
-══════════════════════════════════════════════════════════ -->
     <div class="gacha-overlay" id="gacha-overlay" role="dialog"
         aria-modal="true" aria-label="Risultato pull" aria-live="polite">
 
@@ -366,7 +349,6 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
         <div class="gacha-particles-layer" id="gacha-particles"></div>
         <div class="gacha-flash" id="gacha-flash"></div>
 
-        <!-- Fase 1: Orb apertura -->
         <div class="gacha-phase gacha-phase--opening" id="phase-opening">
             <div class="gacha-orb-container">
                 <div class="gacha-orb">
@@ -378,7 +360,6 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
             </div>
         </div>
 
-        <!-- Fase 2: Video -->
         <div class="gacha-phase gacha-phase--video" id="phase-video" style="display:none">
             <video id="gacha-video" autoplay muted playsinline preload="metadata"
                 webkit-playsinline></video>
@@ -387,7 +368,6 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
             </button>
         </div>
 
-        <!-- Fase 3: Card reveal -->
         <div class="gacha-phase gacha-phase--card" id="phase-card" style="display:none">
             <div class="gacha-card" id="gacha-card" aria-live="polite">
                 <div class="gacha-card-bg-glow" id="card-bg-glow"></div>
@@ -427,17 +407,12 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
             </div>
         </div>
 
-    </div><!-- /gacha-overlay -->
+    </div>
 
-    <!-- Toast -->
     <div class="gacha-toast" id="gacha-toast" role="alert" aria-live="assertive"></div>
 
-    <!-- Audio -->
     <audio id="gacha-audio" preload="none"></audio>
 
-    <!-- ══════════════════════════════════════════════════════════
-     MODAL IMPOSTAZIONI
-══════════════════════════════════════════════════════════ -->
     <div class="modal fade lootbox-settings-modal" id="impostazioniModal"
         tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable lootbox-settings-dialog">
@@ -564,7 +539,6 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
         </div>
     </div>
 
-    <!-- Leaderboard panel -->
     <div class="leaderboard-wrapper" id="leaderboard-wrapper" style="display:none">
         <div class="leaderboard-box lootbox-leaderboard-box">
             <div class="leaderboard-head">
@@ -594,7 +568,6 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
         </div>
     </div>
 
-    <!-- Achievement popup -->
     <div id="achievement-popup" class="popup">
         <img id="popup-image" src="" alt="Achievement">
         <div>
@@ -603,9 +576,6 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
         </div>
     </div>
 
-    <!-- ════════════════════════════════════════════════════
-     DATI INIZIALI PHP → JS
-════════════════════════════════════════════════════ -->
     <script>
         window.GACHA_INIT = <?= json_encode([
                                 'userId'      => (int)$_SESSION['user_id'],
@@ -632,7 +602,6 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                                 }, $bannersEvento),
                             ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 
-        // Tracking banner attivo per cronologia
         window.GACHA_INIT.activeBannerId = 'standard';
         document.querySelectorAll('.gsb-card[data-banner-id]').forEach(card => {
             card.addEventListener('click', () => {
@@ -648,7 +617,6 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
     <script src="/js/gacha.js?v=27"></script>
 
     <script>
-        // ── Cronologia banner corrente ────────────────────────────────────────
         function openCurrentHistory() {
             const bid = window.GACHA_INIT?.activeBannerId ?? 'standard';
             const label = bid === 'standard' ?
@@ -656,8 +624,6 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                 (window.GACHA_INIT?.banners?.find(b => b.id == bid)?.nome ?? 'Banner Evento');
             window.GachaHistory?.open(bid, label);
         }
-
-        // ── Leaderboard ───────────────────────────────────────────────────────
         let currentLeaderboardType = 'casse_aperte';
         let leaderboardVisible = false;
 
@@ -752,7 +718,6 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                 input.value = '';
 
                 if (data.tipo === 'personaggio') {
-                    // Chiudi il modal e avvia l'animazione di reveal
                     const modal = bootstrap.Modal.getInstance(
                         document.getElementById('settingsModal')
                     );
@@ -760,10 +725,8 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                     window.GachaUI?.openRevealWithData(data.personaggio);
 
                 } else if (data.tipo === 'punti') {
-                    // Aggiorna il contatore punti in UI e mostra toast
                     if (data.soldi_rimasti != null) {
                         window.GachaUI?.setSoldi?.(data.soldi_rimasti);
-                        // Aggiorna anche gli span dei punti se non lo fa GachaUI
                         document.querySelectorAll('#user-points-std, .user-points-evt')
                             .forEach(el => el.textContent = data.soldi_rimasti.toLocaleString('it'));
                     }
