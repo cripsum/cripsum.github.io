@@ -89,22 +89,22 @@ $codici = [
         'punti'       => 1000,
         'descrizione' => ['it' => '+1000, tieni, prenditi sta multi', 'en' => '+1000, here, take these 10 pulls'],
     ],
-    'NAUZTERRONE'     => [
+    'nauzterrone'     => [
         'tipo'        => 'punti',
         'punti'       => 6767,
         'descrizione' => ['it' => 'xd xd 67 xd nauz terrone', 'en' => 'xd xd 67 xd nauz terrone'],
     ],
-    'UPDATE30' => [
+    'update30' => [
         'tipo'        => 'punti',
         'punti'       => 3000,
         'descrizione' => ['it' => '+3000 punti per l\'aggiornamento!', 'en' => '+3000 points for the update!'],
     ],
-    'CRIPSUMGIFT' => [
+    'cripsumgift' => [
         'tipo'        => 'punti',
         'punti'       => 500,
         'descrizione' => ['it' => '5 pull uwu', 'en' => '5 pulls uwu'],
     ],
-    '5050LOSER' => [
+    '5050loser' => [
         'tipo'        => 'punti',
         'punti'       => 5000,
         'descrizione' => ['it' => 'Ci dispiaceva per la tua sfiga, quindi beccati queste 50 pull.', 'en' => 'We felt bad for your terrible luck, so take these 50 pulls',],
