@@ -273,7 +273,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                                 <span class="gacha-pull-cost-badge"><?= number_format($costo * 10) ?></span>
                             </button>
                         </div>
-                        <p class="gacha-pull-hint"><i class="fas fa-bolt"></i> <kbd>F</kbd> apertura rapida &nbsp;|&nbsp; <kbd>Space</kbd> pull normale</p>
+                        <!-- <p class="gacha-pull-hint"><i class="fas fa-bolt"></i> <kbd>F</kbd> apertura rapida &nbsp;|&nbsp; <kbd>Space</kbd> pull normale</p> -->
                     </div>
                 </section>
             <?php endforeach; ?>
@@ -465,7 +465,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                         </div>
                         <div class="lootbox-command-grid">
                             <div class="lootbox-command-item"><span>Space</span><strong>Pull normale</strong></div>
-                            <div class="lootbox-command-item"><span>F</span><strong>Apertura rapida</strong></div>
+                            <!-- <div class="lootbox-command-item"><span>F</span><strong>Apertura rapida</strong></div> -->
                             <div class="lootbox-command-item"><span>Enter</span><strong>Apri ancora</strong></div>
                             <div class="lootbox-command-item"><span>Esc</span><strong>Chiudi overlay</strong></div>
                             <div class="lootbox-command-item"><span>S</span><strong>Salta multi</strong></div>
