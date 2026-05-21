@@ -116,8 +116,8 @@ $codici = [
     ],
     'tunggodisreal' => [
         'tipo'        => 'punti',
-        'punti'       => 10000,
-        'descrizione' => ['it' => 'Tung god ti ha fatto un regalino... Ecco 100 pull!', 'en' => 'Tung god made you a little gift... Here are 100 pulls!'],
+        'punti'       => 12000,
+        'descrizione' => ['it' => 'Tung god ti ha fatto un regalino... Ecco 120 pull!', 'en' => 'Tung god made you a little gift... Here are 120 pulls!'],
     ],
 
 ];
