@@ -5,16 +5,27 @@
 if (!function_exists('profile_v3_table_exists')) {
     function profile_v3_table_exists(mysqli $mysqli, string $table): bool
     {
-        static $cache = [];
+        // Use null to check if we've initialized the cache yet
+        static $table_cache = null;
+
+        // Validate table name to prevent injection/errors
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $table)) return false;
-        if (array_key_exists($table, $cache)) return $cache[$table];
-        $stmt = $mysqli->prepare('SHOW TABLES LIKE ?');
-        if (!$stmt) return $cache[$table] = false;
-        $stmt->bind_param('s', $table);
-        $stmt->execute();
-        $exists = (bool)$stmt->get_result()->fetch_row();
-        $stmt->close();
-        return $cache[$table] = $exists;
+
+        // Fetch all tables once and cache them
+        if ($table_cache === null) {
+            $table_cache = [];
+            $result = $mysqli->query('SHOW TABLES');
+            if ($result) {
+                while ($row = $result->fetch_array(MYSQLI_NUM)) {
+                    // Store the table name as a key for fast O(1) lookups
+                    $table_cache[$row[0]] = true;
+                }
+                $result->close();
+            }
+        }
+
+        // Return true if the table exists in our cached array
+        return isset($table_cache[$table]);
     }
 }
 
