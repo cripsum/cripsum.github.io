@@ -543,4 +543,72 @@
         setTimeout(refreshProfileCustomSelects, 0);
         setTimeout(refreshProfileCustomSelects, 100);
     }
+
+    function collectCharacters() {
+    return Array.from(
+        document.querySelectorAll('#characterPicker input[type="checkbox"]:checked')
+    )
+        .slice(0, 12)
+        .map((input) => Number(input.value));
+}
+ 
+// Filtro ricerca personaggi
+const characterSearchInput = document.getElementById('characterSearchInput');
+if (characterSearchInput) {
+    characterSearchInput.addEventListener('input', () => {
+        const q = characterSearchInput.value.trim().toLowerCase();
+        document.querySelectorAll('.profile-character-choice').forEach((card) => {
+            const name = (card.dataset.charName || '').toLowerCase();
+            card.style.display = q === '' || name.includes(q) ? '' : 'none';
+        });
+    });
+}
+ 
+// Limite max 12 + aggiornamento contatore
+const characterPickerEl = document.getElementById('characterPicker');
+if (characterPickerEl) {
+    characterPickerEl.addEventListener('change', () => {
+        const checked = characterPickerEl.querySelectorAll('input[type="checkbox"]:checked');
+        if (checked.length > 12) {
+            // Deseleziona l'ultimo checkato in eccesso
+            checked[checked.length - 1].checked = false;
+            if (typeof window.profileToast === 'function') {
+                window.profileToast('Puoi selezionare massimo 12 personaggi.');
+            }
+        }
+        // Aggiorna hint contatore
+        const hint = document.querySelector('.profile-character-hint');
+        if (hint) {
+            const n = Math.min(checked.length, 12);
+            hint.innerHTML = `<i class="fas fa-circle-info"></i> ${n}/12 selezionati.`;
+        }
+    });
+}
+ 
+    // ── Hook nel submit: serializza i personaggi scelti ──────
+    // ⚠️  Questo sostituisce / integra il form submit già presente.
+    // Se hai già un listener su form 'submit', aggiungi SOLO questa riga
+    // dentro il blocco submit PRIMA del fetch:
+    //
+    //   document.getElementById('charactersJson').value =
+    //       JSON.stringify(collectCharacters());
+    //
+    // Il codice qui sotto è pensato per essere incollato vicino
+    // agli altri collectRows nel listener submit esistente.
+    (function patchSubmitForCharacters() {
+        const form = document.getElementById('profileEditForm');
+        if (!form || form.dataset.charactersPatchApplied) return;
+        form.dataset.charactersPatchApplied = '1';
+    
+        form.addEventListener(
+            'submit',
+            () => {
+                const hiddenInput = document.getElementById('charactersJson');
+                if (hiddenInput) {
+                    hiddenInput.value = JSON.stringify(collectCharacters());
+                }
+            },
+            true   // capture: si esegue prima del listener principale
+        );
+    })();
 })();

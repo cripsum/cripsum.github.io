@@ -233,6 +233,7 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
             u.profile_music_artist,
             u.profile_show_audio_player,
             u.profile_effect,
+            u.profile_show_characters,
             u.avatar_ring_enabled,
             u.avatar_ring_style,
             u.avatar_ring_color,
@@ -277,7 +278,7 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
 
 function profile_get_edit_profile(mysqli $mysqli, int $userId): ?array
 {
-    $stmt = $mysqli->prepare("SELECT id, username, display_name, bio, data_creazione, ruolo, profile_banner_type, accent_color, profile_secondary_color, profile_card_color, profile_text_color, profile_link_style, profile_button_shape, profile_theme, profile_layout, profile_visibility, discord_id, discord_username, discord_global_name, discord_avatar, discord_use_avatar, discord_use_display_name, discord_connected_at, profile_status, profile_show_stats, profile_show_socials, profile_show_links, profile_show_projects, profile_show_contents, profile_show_badges, profile_show_activity, profile_show_discord, profile_music_url, profile_music_mime, profile_music_title, profile_music_artist, profile_show_audio_player, profile_effect, avatar_ring_enabled, avatar_ring_style, avatar_ring_color, profile_views, featured_badge_id, featured_project_id, featured_content_id, profile_updated_at FROM utenti WHERE id = ? LIMIT 1");
+    $stmt = $mysqli->prepare("SELECT id, username, display_name, bio, data_creazione, ruolo, profile_banner_type, accent_color, profile_secondary_color, profile_card_color, profile_text_color, profile_link_style, profile_button_shape, profile_theme, profile_layout, profile_visibility, discord_id, discord_username, discord_global_name, discord_avatar, discord_use_avatar, discord_use_display_name, discord_connected_at, profile_status, profile_show_stats, profile_show_socials, profile_show_links, profile_show_projects, profile_show_contents, profile_show_badges, profile_show_activity, profile_show_discord, profile_music_url, profile_music_mime, profile_music_title, profile_music_artist, profile_show_audio_player, profile_effect, avatar_ring_enabled, avatar_ring_style, avatar_ring_color, profile_views, featured_badge_id, featured_project_id, featured_content_id, profile_show_characters, profile_updated_at FROM utenti WHERE id = ? LIMIT 1");
     $stmt->bind_param('i', $userId);
     $stmt->execute();
     $profile = $stmt->get_result()->fetch_assoc();
@@ -710,4 +711,88 @@ function profile_badge_rarity(int $points): array
     if ($points >= 50) return ['label' => 'Epic', 'class' => 'epic'];
     if ($points >= 20) return ['label' => 'Rare', 'class' => 'rare'];
     return ['label' => 'Common', 'class' => 'common'];
+}
+
+function profile_list_inventory_characters(mysqli $mysqli, int $userId): array
+{
+    $stmt = $mysqli->prepare("
+        SELECT
+            p.id,
+            p.nome,
+            COALESCE(p.img_url, '')  AS img_url,
+            COALESCE(p.rarità, '')   AS rarità,
+            up.quantità,
+            CASE WHEN upc.id IS NULL THEN 0 ELSE 1 END AS selected
+        FROM utenti_personaggi up
+        INNER JOIN personaggi p
+               ON p.id = up.personaggio_id
+        LEFT JOIN utenti_profile_characters upc
+               ON upc.utente_id = up.utente_id
+              AND upc.personaggio_id = p.id
+        WHERE up.utente_id = ?
+        ORDER BY selected DESC, p.rarità DESC, p.nome ASC
+    ");
+    if (!$stmt) return [];
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+    return $rows ?: [];
+}
+
+/**
+ * Personaggi visibili sul profilo pubblico (max 12).
+ */
+function profile_list_displayed_characters(mysqli $mysqli, int $userId): array
+{
+    $stmt = $mysqli->prepare("
+        SELECT
+            p.id,
+            p.nome,
+            COALESCE(p.img_url, '') AS img_url,
+            COALESCE(p.rarità, '')  AS rarità,
+            up.quantità
+        FROM utenti_profile_characters upc
+        INNER JOIN personaggi p
+               ON p.id = upc.personaggio_id
+        INNER JOIN utenti_personaggi up
+               ON up.utente_id = upc.utente_id
+              AND up.personaggio_id = p.id
+        WHERE upc.utente_id = ?
+          AND upc.is_visible = 1
+        ORDER BY upc.sort_order ASC, upc.id ASC
+        LIMIT 12
+    ");
+    if (!$stmt) return [];
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+    return $rows ?: [];
+}
+
+/**
+ * Risolve l'URL immagine di un personaggio.
+ * Se img_url è un URL assoluto lo usa direttamente, altrimenti prepende /img/.
+ */
+function profile_character_img_url(array $character): string
+{
+    $img = trim((string)($character['img_url'] ?? ''));
+    if ($img === '') return '';
+    if (profile_is_safe_url($img)) return $img;
+    return '/img/' . ltrim($img, '/');
+}
+
+/**
+ * Mappa la rarità al CSS class name (allineato a .rarity-* dei badge).
+ * Aggiungi qui altri alias se il tuo sistema usa nomi diversi.
+ */
+function profile_character_rarity_class(string $rarity): string
+{
+    return match (strtolower(trim($rarity))) {
+        'leggendario', 'legendary', '5', '5★', 'ur'  => 'legendary',
+        'epico',       'epic',      '4', '4★', 'ssr' => 'epic',
+        'raro',        'rare',      '3', '3★', 'sr'  => 'rare',
+        default                                       => 'common',
+    };
 }

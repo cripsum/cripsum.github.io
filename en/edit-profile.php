@@ -33,6 +33,7 @@ $projects = profile_list_projects($mysqli, $targetUserId, false);
 $contents = profile_list_contents($mysqli, $targetUserId, false);
 $blocks = function_exists('profile_list_blocks') ? profile_list_blocks($mysqli, $targetUserId, false) : [];
 $badges = profile_list_unlocked_badges($mysqli, $targetUserId);
+$inventoryCharacters = profile_list_inventory_characters($mysqli, $targetUserId);
 $csrf = profile_csrf_token();
 $profileFlashSuccess = $_SESSION['profile_flash_success'] ?? '';
 $profileFlashError = $_SESSION['profile_flash_error'] ?? '';
@@ -137,6 +138,7 @@ function profile_json_script(string $id, array $data): void
             <input type="hidden" name="contents_json" id="contentsJson">
             <input type="hidden" name="blocks_json" id="blocksJson">
             <input type="hidden" name="badges_json" id="badgesJson">
+            <input type="hidden" name="characters_json" id="charactersJson">
 
             <section class="bio-card profile-edit-panel js-reveal">
                 <div class="profile-editor-tabs" role="tablist">
@@ -147,6 +149,7 @@ function profile_json_script(string $id, array $data): void
                     <button type="button" data-edit-tab="custom">Custom</button>
                     <button type="button" data-edit-tab="effects">Effects</button>
                     <button type="button" data-edit-tab="badges">Badges</button>
+                    <button type="button" data-edit-tab="characters">Characters</button>
                     <button type="button" data-edit-tab="visibility">Visibility</button>
                 </div>
 
@@ -352,6 +355,76 @@ function profile_json_script(string $id, array $data): void
                     <?php endif; ?>
                 </div>
 
+                <div class="profile-edit-section" data-edit-section="characters">
+                    <div class="bio-section-heading">
+                        <div>
+                            <span><i class="fas fa-user-astronaut"></i> Favorite Characters</span>
+                            <p>Select up to 12 characters from your inventory to display on your profile.</p>
+                        </div>
+                    </div>
+
+                    <?php if ($inventoryCharacters): ?>
+                        <div class="profile-character-search-wrap">
+                            <input
+                                type="text"
+                                id="characterSearchInput"
+                                class="profile-character-search"
+                                placeholder="Search character..."
+                                autocomplete="off">
+                        </div>
+
+                        <div class="profile-character-picker" id="characterPicker">
+                            <?php foreach ($inventoryCharacters as $char): ?>
+                                <?php
+                                $charImg       = profile_character_img_url($char);
+                                $rarityClass   = profile_character_rarity_class((string)($char['rarità'] ?? ''));
+                                $charQty       = (int)($char['quantità'] ?? 0);
+                                $rarityLabel   = ucfirst((string)($char['rarità'] ?? ''));
+                                ?>
+                                <label
+                                    class="profile-character-choice rarity-<?php echo profile_h($rarityClass); ?>"
+                                    data-char-name="<?php echo profile_h(strtolower($char['nome'])); ?>"
+                                    title="<?php echo profile_h($char['nome']); ?>">
+                                    <input
+                                        type="checkbox"
+                                        value="<?php echo (int)$char['id']; ?>"
+                                        <?php echo (int)$char['selected'] === 1 ? 'checked' : ''; ?>>
+
+                                    <?php if ($charImg): ?>
+                                        <img src="<?php echo profile_h($charImg); ?>" alt="<?php echo profile_h($char['nome']); ?>" loading="lazy">
+                                    <?php else: ?>
+                                        <span class="profile-character-img-fallback-picker">
+                                            <i class="fas fa-user-astronaut"></i>
+                                        </span>
+                                    <?php endif; ?>
+
+                                    <div class="profile-character-choice-info">
+                                        <strong><?php echo profile_h($char['nome']); ?></strong>
+                                        <?php if ($charQty > 1): ?>
+                                            <small>×<?php echo $charQty; ?></small>
+                                        <?php endif; ?>
+                                    </div>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+
+                        <p class="profile-character-hint">
+                            <i class="fas fa-circle-info"></i>
+                            <?php
+                            $selectedCount = count(array_filter($inventoryCharacters, fn($c) => (int)$c['selected'] === 1));
+                            echo $selectedCount . '/12 selected.';
+                            ?>
+                        </p>
+
+                    <?php else: ?>
+                        <div class="bio-empty-state">
+                            <i class="fas fa-user-astronaut"></i>
+                            <strong>No characters in inventory</strong>
+                            <p>Obtain characters from loot boxes to display them here.</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
                 <div class="profile-edit-section" data-edit-section="visibility">
                     <div class="bio-section-heading">
                         <div><span><i class="fas fa-eye"></i> Public sections</span>
@@ -364,6 +437,12 @@ function profile_json_script(string $id, array $data): void
                         <label class="profile-toggle-card"><input type="hidden" name="profile_show_projects" value="0"><input type="checkbox" name="profile_show_projects" value="1" <?php echo (int)($profile['profile_show_projects'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-cubes"></i>Projects</span></label>
                         <label class="profile-toggle-card"><input type="hidden" name="profile_show_contents" value="0"><input type="checkbox" name="profile_show_contents" value="1" <?php echo (int)($profile['profile_show_contents'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-play"></i>Edits & contents</span></label>
                         <label class="profile-toggle-card"><input type="hidden" name="profile_show_badges" value="0"><input type="checkbox" name="profile_show_badges" value="1" <?php echo (int)($profile['profile_show_badges'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-trophy"></i>Badge</span></label>
+                        <label class="profile-toggle-card">
+                            <input type="hidden" name="profile_show_characters" value="0">
+                            <input type="checkbox" name="profile_show_characters" value="1"
+                                <?php echo (int)($profile['profile_show_characters'] ?? 1) === 1 ? 'checked' : ''; ?>>
+                            <span><i class="fas fa-user-astronaut"></i>Characters</span>
+                        </label>
                         <label class="profile-toggle-card"><input type="hidden" name="profile_show_stats" value="0"><input type="checkbox" name="profile_show_stats" value="1" <?php echo (int)($profile['profile_show_stats'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-chart-simple"></i>Statistics</span></label>
                         <label class="profile-toggle-card"><input type="hidden" name="profile_show_activity" value="0"><input type="checkbox" name="profile_show_activity" value="1" <?php echo (int)($profile['profile_show_activity'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-clock"></i>Activity</span></label>
                         <label class="profile-toggle-card"><input type="hidden" name="profile_show_discord" value="0"><input type="checkbox" name="profile_show_discord" value="1" <?php echo (int)($profile['profile_show_discord'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fab fa-discord"></i>Discord</span></label>

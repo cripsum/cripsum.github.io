@@ -61,6 +61,9 @@ if ($profile) {
         $blocks = function_exists('profile_list_blocks') ? profile_list_blocks($mysqli, $profileId, true) : [];
         $badges = profile_list_visible_badges($mysqli, $profileId);
         $activity = profile_recent_activity($mysqli, $profileId);
+        $characters = function_exists('profile_list_displayed_characters')
+            ? profile_list_displayed_characters($mysqli, $profileId)
+            : [];
 
         if (function_exists('isUserOnline')) {
             $isOnline = isUserOnline($mysqli, $profileId);
@@ -169,6 +172,7 @@ $showContents = $profile ? profile_flag($profile, 'profile_show_contents', true)
 $showBadges = $profile ? profile_flag($profile, 'profile_show_badges', true) : false;
 $showActivity = $profile ? profile_flag($profile, 'profile_show_activity', true) : false;
 $showDiscord = $profile ? profile_flag($profile, 'profile_show_discord', true) : false;
+$showCharacters = profile_flag($profile, 'profile_show_characters', true);
 
 $visibleSocials = $showSocials ? $socials : [];
 $visibleLinks = $showLinks ? $links : [];
@@ -177,6 +181,7 @@ $visibleContents = $showContents ? $contents : [];
 $visibleBlocks = $showContents ? $blocks : [];
 $visibleBadges = $showBadges ? $badges : [];
 $visibleActivity = $showActivity ? $activity : [];
+$visibleCharacters = $showCharacters ? $characters : [];
 
 $featuredLinks = array_values(array_filter($visibleLinks, fn($item) => (int)($item['is_featured'] ?? 0) === 1));
 $normalLinks = array_values(array_filter($visibleLinks, fn($item) => (int)($item['is_featured'] ?? 0) !== 1));
@@ -186,7 +191,7 @@ $featuredContents = array_values(array_filter($visibleContents, fn($item) => (in
 $normalContents = array_values(array_filter($visibleContents, fn($item) => (int)($item['is_featured'] ?? 0) !== 1));
 
 $hasStats = $showStats && $profile && ((int)$profile['profile_views'] > 0 || (int)$profile['num_achievement'] > 0 || (int)$profile['num_personaggi'] > 0 || (int)$profile['total_personaggi'] > 0);
-$hasRightContent = $hasStats || $featuredLinks || $normalLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || $visibleActivity;
+$hasRightContent = $hasStats || $featuredLinks || $normalLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || $visibleActivity || $visibleCharacters;
 $hasAnyPublicContent = $visibleSocials || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || ($showDiscord && $discordId) || $hasMusic;
 
 $spotlight = null;
@@ -280,6 +285,46 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                             </span>
                         <?php endforeach; ?>
                     </div>
+                <?php endif; ?>
+                <?php if ($visibleCharacters): ?>
+                    <section class="bio-card profile-characters-section profile-clean-section js-reveal">
+                        <?php profile_render_section_heading('fas fa-user-astronaut', 'Characters'); ?>
+                        <div class="profile-character-grid">
+                            <?php foreach ($visibleCharacters as $char): ?>
+                                <?php
+                                $charImg     = profile_character_img_url($char);
+                                $rarityClass = profile_character_rarity_class((string)($char['rarità'] ?? ''));
+                                $charQty     = (int)($char['quantità'] ?? 0);
+                                $rarityLabel = $char['rarità'] !== '' ? ucfirst((string)$char['rarità']) : null;
+                                ?>
+                                <article class="profile-character-card rarity-<?php echo profile_h($rarityClass); ?>">
+                                    <div class="profile-character-img-wrap">
+                                        <?php if ($charImg): ?>
+                                            <img
+                                                src="<?php echo profile_h($charImg); ?>"
+                                                alt="<?php echo profile_h($char['nome']); ?>"
+                                                loading="lazy">
+                                        <?php else: ?>
+                                            <span class="profile-character-img-fallback">
+                                                <i class="fas fa-user-astronaut"></i>
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="profile-character-info">
+                                        <strong><?php echo profile_h($char['nome']); ?></strong>
+                                        <div class="profile-character-meta">
+                                            <?php if ($rarityLabel): ?>
+                                                <span class="profile-character-rarity"><?php echo profile_h($rarityLabel); ?></span>
+                                            <?php endif; ?>
+                                            <?php if ($charQty > 1): ?>
+                                                <span class="profile-character-qty">×<?php echo $charQty; ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </article>
+                            <?php endforeach; ?>
+                        </div>
+                    </section>
                 <?php endif; ?>
 
                 <?php if ($visibleSocials): ?>

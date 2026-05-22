@@ -72,6 +72,7 @@ $showContents = profile_bool_from_post('profile_show_contents', true);
 $showBadges = profile_bool_from_post('profile_show_badges', true);
 $showActivity = profile_bool_from_post('profile_show_activity', true);
 $showDiscord = profile_bool_from_post('profile_show_discord', true);
+$showCharacters = profile_bool_from_post('profile_show_characters', true);
 
 if (!profile_is_valid_username($username)) {
     profile_json_response(['ok' => false, 'message' => 'Invalid username. Use 3-20 characters, letters, numbers, or underscores.'], 422);
@@ -153,7 +154,7 @@ try {
         UPDATE utenti
         SET username = ?, display_name = ?, bio = ?, accent_color = ?, profile_secondary_color = ?, profile_card_color = ?, profile_text_color = ?, profile_link_style = ?, profile_button_shape = ?, profile_theme = ?, profile_layout = ?, profile_visibility = ?, discord_id = ?, discord_use_avatar = ?, discord_use_display_name = ?, profile_status = ?,
             profile_music_url = ?, profile_music_title = ?, profile_music_artist = ?, profile_effect = ?, avatar_ring_style = ?, avatar_ring_color = ?,
-            profile_show_stats = ?, profile_show_socials = ?, profile_show_links = ?, profile_show_projects = ?, profile_show_contents = ?, profile_show_badges = ?, profile_show_activity = ?, profile_show_discord = ?, profile_show_audio_player = ?, avatar_ring_enabled = ?,
+            profile_show_stats = ?, profile_show_socials = ?, profile_show_links = ?, profile_show_projects = ?, profile_show_contents = ?, profile_show_badges = ?, profile_show_activity = ?, profile_show_discord = ?, profile_show_audio_player = ?, avatar_ring_enabled = ?, profile_show_characters = ?,
             profile_updated_at = NOW()
         WHERE id = ?
     ");
@@ -191,6 +192,7 @@ try {
         $showDiscord,
         $showAudioPlayer,
         $avatarRingEnabled,
+        $showCharacters,
         $targetUserId
     );
     if (!$stmt->execute()) throw new RuntimeException('Error updating profile.');
@@ -374,6 +376,28 @@ try {
         if (!$insertBadge->execute()) throw new RuntimeException('Error saving badge.');
     }
     $insertBadge->close();
+
+    $characterRows = array_slice(profile_decode_rows('characters_json'), 0, 12);
+
+    $stmt = $mysqli->prepare("DELETE FROM utenti_profile_characters WHERE utente_id = ?");
+    $stmt->bind_param('i', $targetUserId);
+    $stmt->execute();
+    $stmt->close();
+
+    $insertCharacter = $mysqli->prepare("
+    INSERT INTO utenti_profile_characters (utente_id, personaggio_id, sort_order, is_visible)
+    SELECT ?, up.personaggio_id, ?, 1
+    FROM utenti_personaggi up
+    WHERE up.utente_id = ? AND up.personaggio_id = ?
+    LIMIT 1
+");
+    foreach ($characterRows as $i => $charId) {
+        $charId = (int)$charId;
+        if ($charId <= 0) continue;
+        $insertCharacter->bind_param('iiii', $targetUserId, $i, $targetUserId, $charId);
+        if (!$insertCharacter->execute()) throw new RuntimeException('Errore salvataggio personaggio.');
+    }
+    $insertCharacter->close();
 
     profile_record_activity($mysqli, $targetUserId, 'profile_update', 'Updated profile');
 
