@@ -21,18 +21,25 @@ if (!function_exists('profile_v3_table_exists')) {
 if (!function_exists('profile_v3_column_exists')) {
     function profile_v3_column_exists(mysqli $mysqli, string $table, string $column): bool
     {
-        static $cache = [];
-        if (!preg_match('/^[a-zA-Z0-9_]+$/', $table) || !preg_match('/^[a-zA-Z0-9_]+$/', $column)) return false;
-        $key = $table . '.' . $column;
-        if (array_key_exists($key, $cache)) return $cache[$key];
-        $sql = 'SHOW COLUMNS FROM `' . $table . '` LIKE ?';
-        $stmt = $mysqli->prepare($sql);
-        if (!$stmt) return $cache[$key] = false;
-        $stmt->bind_param('s', $column);
-        $stmt->execute();
-        $exists = (bool)$stmt->get_result()->fetch_assoc();
-        $stmt->close();
-        return $cache[$key] = $exists;
+        static $column_cache = [];
+
+        // Validate table name to prevent SQL injection since we can't bind table names
+        if (!preg_match('/^[a-zA-Z0-9_]+$/', $table)) return false;
+
+        // If we haven't fetched the columns for this table yet, do it once
+        if (!isset($column_cache[$table])) {
+            $column_cache[$table] = [];
+            $result = $mysqli->query("SHOW COLUMNS FROM `$table`");
+            if ($result) {
+                while ($row = $result->fetch_assoc()) {
+                    // Store column names in lowercase for case-insensitive comparison
+                    $column_cache[$table][strtolower($row['Field'])] = true;
+                }
+                $result->close();
+            }
+        }
+
+        return isset($column_cache[$table][strtolower($column)]);
     }
 }
 
