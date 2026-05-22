@@ -1,4 +1,6 @@
 <?php
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
 require_once __DIR__ . '/config/session_init.php';
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/includes/functions.php';
@@ -612,17 +614,19 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     </div>
 
     <div class="bio-toast" id="bioToast" role="status" aria-live="polite"></div>
-    <script type="application/json" id="profileV3Runtime"><?php echo json_encode([
-        'profileId' => $profile ? (int)$profile['id'] : 0,
-        'lang' => $lang,
-        'canvasEffect' => $canvasEffect,
-        'canvasConfig' => $canvasConfig,
-        'enterEnabled' => $enterEnabled,
-        'enterRemember' => $enterRemember,
-        'hasMusic' => $hasMusic,
-        'showAudioPlayer' => $showAudioPlayer,
-        'completion' => $profile ? profile_v3_completion_percent($profile, $visibleLinks, $visibleSocials, $visibleBlocks) : 0,
-    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?></script>
+    <script type="application/json" id="profileV3Runtime">
+        <?php echo json_encode([
+            'profileId' => $profile ? (int)$profile['id'] : 0,
+            'lang' => $lang,
+            'canvasEffect' => $canvasEffect,
+            'canvasConfig' => $canvasConfig,
+            'enterEnabled' => $enterEnabled,
+            'enterRemember' => $enterRemember,
+            'hasMusic' => $hasMusic,
+            'showAudioPlayer' => $showAudioPlayer,
+            'completion' => $profile ? profile_v3_completion_percent($profile, $visibleLinks, $visibleSocials, $visibleBlocks) : 0,
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
 

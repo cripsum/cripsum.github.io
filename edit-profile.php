@@ -1,4 +1,6 @@
 <?php
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
 require_once __DIR__ . '/config/session_init.php';
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/includes/functions.php';
@@ -488,8 +490,12 @@ function profile_json_script(string $id, array $data): void
                     </div>
                     <canvas class="profile-analytics-canvas" id="profileAnalyticsCanvas" width="860" height="260" aria-label="Visite ultimi 30 giorni"></canvas>
                     <div class="profile-analytics-lists">
-                        <div><strong>Top referrer</strong><ul id="profileTopReferrers"></ul></div>
-                        <div><strong>Device</strong><ul id="profileTopDevices"></ul></div>
+                        <div><strong>Top referrer</strong>
+                            <ul id="profileTopReferrers"></ul>
+                        </div>
+                        <div><strong>Device</strong>
+                            <ul id="profileTopDevices"></ul>
+                        </div>
                     </div>
                 </div>
 
