@@ -286,46 +286,6 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
-                <?php if ($visibleCharacters): ?>
-                    <section class="bio-card profile-characters-section profile-clean-section js-reveal">
-                        <?php profile_render_section_heading('fas fa-user-astronaut', 'Characters'); ?>
-                        <div class="profile-character-grid">
-                            <?php foreach ($visibleCharacters as $char): ?>
-                                <?php
-                                $charImg     = profile_character_img_url($char);
-                                $rarityClass = profile_character_rarity_class((string)($char['rarità'] ?? ''));
-                                $charQty     = (int)($char['quantità'] ?? 0);
-                                $rarityLabel = $char['rarità'] !== '' ? ucfirst((string)$char['rarità']) : null;
-                                ?>
-                                <article class="profile-character-card rarity-<?php echo profile_h($rarityClass); ?>">
-                                    <div class="profile-character-img-wrap">
-                                        <?php if ($charImg): ?>
-                                            <img
-                                                src="<?php echo profile_h($charImg); ?>"
-                                                alt="<?php echo profile_h($char['nome']); ?>"
-                                                loading="lazy">
-                                        <?php else: ?>
-                                            <span class="profile-character-img-fallback">
-                                                <i class="fas fa-user-astronaut"></i>
-                                            </span>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="profile-character-info">
-                                        <strong><?php echo profile_h($char['nome']); ?></strong>
-                                        <div class="profile-character-meta">
-                                            <?php if ($rarityLabel): ?>
-                                                <span class="profile-character-rarity"><?php echo profile_h($rarityLabel); ?></span>
-                                            <?php endif; ?>
-                                            <?php if ($charQty > 1): ?>
-                                                <span class="profile-character-qty">×<?php echo $charQty; ?></span>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
-                                </article>
-                            <?php endforeach; ?>
-                        </div>
-                    </section>
-                <?php endif; ?>
 
                 <?php if ($visibleSocials): ?>
                     <div class="bio-social-grid profile-social-compact" aria-label="Social">
@@ -535,6 +495,47 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                                         <strong><?php echo profile_h($content['title']); ?></strong>
                                         <?php if (!empty($content['description'])): ?><p><?php echo profile_h($content['description']); ?></p><?php endif; ?>
                                     </a>
+                                <?php endforeach; ?>
+                            </div>
+                        </section>
+                    <?php endif; ?>
+
+                    <?php if ($visibleCharacters): ?>
+                        <section class="bio-card profile-characters-section profile-clean-section js-reveal">
+                            <?php profile_render_section_heading('fas fa-user-astronaut', 'Characters'); ?>
+                            <div class="profile-character-grid">
+                                <?php foreach ($visibleCharacters as $char): ?>
+                                    <?php
+                                    $charImg     = profile_character_img_url($char);
+                                    $rarityClass = profile_character_rarity_class((string)($char['rarità'] ?? ''));
+                                    $charQty     = (int)($char['quantità'] ?? 0);
+                                    $rarityLabel = $char['rarità'] !== '' ? ucfirst((string)$char['rarità']) : null;
+                                    ?>
+                                    <article class="profile-character-card rarity-<?php echo profile_h($rarityClass); ?>">
+                                        <div class="profile-character-img-wrap">
+                                            <?php if ($charImg): ?>
+                                                <img
+                                                    src="<?php echo profile_h($charImg); ?>"
+                                                    alt="<?php echo profile_h($char['nome']); ?>"
+                                                    loading="lazy">
+                                            <?php else: ?>
+                                                <span class="profile-character-img-fallback">
+                                                    <i class="fas fa-user-astronaut"></i>
+                                                </span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="profile-character-info">
+                                            <strong><?php echo profile_h($char['nome']); ?></strong>
+                                            <div class="profile-character-meta">
+                                                <?php if ($rarityLabel): ?>
+                                                    <span class="profile-character-rarity"><?php echo profile_h($rarityLabel); ?></span>
+                                                <?php endif; ?>
+                                                <?php if ($charQty > 1): ?>
+                                                    <span class="profile-character-qty">×<?php echo $charQty; ?></span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    </article>
                                 <?php endforeach; ?>
                             </div>
                         </section>
