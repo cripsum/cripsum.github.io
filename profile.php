@@ -220,8 +220,8 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=3.0.4">
-    <script src="/assets/js/profile.js?v=3.0.4" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=3.0.9">
+    <script src="/assets/js/profile.js?v=3.0.9" defer></script>
 </head>
 
 <body
