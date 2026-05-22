@@ -80,7 +80,7 @@
             button.addEventListener('click', async () => {
                 const text = button.dataset.copyProfile || body.dataset.profileUrl || window.location.href;
                 const ok = await copyText(text);
-                showToast(ok ? 'Profile link copied.' : 'Failed to copy link.');
+                showToast(ok ? 'Link profilo copiato.' : 'Non sono riuscito a copiare il link.');
             });
         });
 
@@ -88,7 +88,7 @@
             button.addEventListener('click', async () => {
                 const shareData = {
                     title: button.dataset.title || document.title || 'Cripsum profile',
-                    text: 'Public profile on cripsum.com',
+                    text: 'Profilo pubblico su cripsum.com',
                     url: button.dataset.url || body.dataset.profileUrl || window.location.href
                 };
                 if (navigator.share) {
@@ -97,11 +97,11 @@
                         return;
                     } catch (error) {
                         if (error.name === 'AbortError') return;
-                        console.error('Share error:', error);
+                        console.error('Errore share:', error);
                     }
                 }
                 const ok = await copyText(shareData.url);
-                showToast(ok ? 'Share not available: link copied.' : 'Share not available.');
+                showToast(ok ? 'Share non disponibile: link copiato.' : 'Share non disponibile.');
             });
         });
 
@@ -109,7 +109,7 @@
             button.addEventListener('click', () => {
                 const nextTheme = body.dataset.theme === 'light' ? 'dark' : 'light';
                 setTheme(nextTheme, true);
-                showToast(nextTheme === 'light' ? 'Light theme activated.' : 'Dark theme activated.');
+                showToast(nextTheme === 'light' ? 'Tema chiaro attivo.' : 'Tema scuro attivo.');
             });
         });
     };
@@ -212,7 +212,7 @@
             initActivityCarousel();
             updateActivityTimestamps();
         } catch (error) {
-            console.error('Discord update error:', error);
+            console.error('Errore aggiornamento Discord:', error);
         }
     };
 
@@ -301,9 +301,9 @@
             if (audio.paused) {
                 try {
                     await audio.play();
-                    showToast('Audio started.');
+                    showToast('Audio avviato.');
                 } catch (error) {
-                    showToast('The browser blocked the audio. Click again.');
+                    showToast('Il browser ha bloccato l’audio. Clicca di nuovo.');
                 }
             } else {
                 audio.pause();
@@ -502,432 +502,6 @@
     });
 })();
 
-/* Cripsum Custom Profiles 3.0 runtime */
-(() => {
-    'use strict';
-
-    const $ = (selector, parent = document) => parent.querySelector(selector);
-    const $$ = (selector, parent = document) => Array.from(parent.querySelectorAll(selector));
-
-    const readJson = (id, fallback = {}) => {
-        const node = document.getElementById(id);
-        if (!node) return fallback;
-        try {
-            return JSON.parse(node.textContent || '');
-        } catch (_) {
-            return fallback;
-        }
-    };
-
-    const runtime = readJson('profileV3Runtime', {});
-    const body = document.body;
-    const profileId = Number(runtime.profileId || body.dataset.profileId || 0);
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    const toast = (message) => {
-        if (typeof window.profileToast === 'function') window.profileToast(message);
-    };
-
-    const postJson = async (url, payload) => {
-        const response = await fetch(url, {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            body: JSON.stringify(payload),
-        });
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok || data.ok === false) throw new Error(data.message || 'Request failed.');
-        return data;
-    };
-
-    class ProfileCanvasEngine {
-        constructor(canvas, effect, config) {
-            this.canvas = canvas;
-            this.ctx = canvas ? canvas.getContext('2d', { alpha: true }) : null;
-            this.effect = effect || 'none';
-            this.config = {
-                speed: Number(config.speed || 1),
-                density: Number(config.density || 55),
-                color: String(config.color || '#ffffff'),
-                opacity: Number(config.opacity || 0.55),
-                fps: Number(config.fps || 40),
-            };
-            this.items = [];
-            this.running = false;
-            this.frame = null;
-            this.last = 0;
-            this.w = 0;
-            this.h = 0;
-            this.resize = this.resize.bind(this);
-            this.tick = this.tick.bind(this);
-        }
-
-        start() {
-            if (!this.canvas || !this.ctx || this.effect === 'none' || reducedMotion || this.running) return;
-            this.running = true;
-            this.resize();
-            window.addEventListener('resize', this.resize, { passive: true });
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) this.stop(false);
-                else this.start();
-            });
-            this.frame = requestAnimationFrame(this.tick);
-        }
-
-        stop(clear = true) {
-            this.running = false;
-            cancelAnimationFrame(this.frame);
-            window.removeEventListener('resize', this.resize);
-            if (clear && this.ctx) this.ctx.clearRect(0, 0, this.w, this.h);
-        }
-
-        resize() {
-            const dpr = Math.min(window.devicePixelRatio || 1, 2);
-            this.w = window.innerWidth;
-            this.h = window.innerHeight;
-            this.canvas.width = Math.floor(this.w * dpr);
-            this.canvas.height = Math.floor(this.h * dpr);
-            this.canvas.style.width = this.w + 'px';
-            this.canvas.style.height = this.h + 'px';
-            this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-            this.seed();
-        }
-
-        seed() {
-            const count = Math.max(5, Math.min(220, this.config.density));
-            this.items = Array.from({ length: count }, (_, i) => this.makeItem(i));
-        }
-
-        makeItem(i) {
-            const rand = (min, max) => min + Math.random() * (max - min);
-            return {
-                x: rand(0, this.w),
-                y: rand(0, this.h),
-                z: rand(0.4, 1.8),
-                r: rand(1, 4.8),
-                vx: rand(-0.35, 0.35),
-                vy: rand(0.25, 1.4),
-                a: rand(0.25, 1),
-                rot: rand(0, Math.PI * 2),
-                char: String.fromCharCode(0x30A0 + (i % 86)),
-            };
-        }
-
-        wrap(p) {
-            if (p.x < -40) p.x = this.w + 40;
-            if (p.x > this.w + 40) p.x = -40;
-            if (p.y < -60) p.y = this.h + 60;
-            if (p.y > this.h + 60) p.y = -60;
-        }
-
-        color(alpha = 1) {
-            const hex = this.config.color.replace('#', '');
-            const value = /^[0-9a-fA-F]{6}$/.test(hex) ? parseInt(hex, 16) : 0xffffff;
-            return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, ${Math.max(0, Math.min(1, alpha * this.config.opacity))})`;
-        }
-
-        tick(time) {
-            if (!this.running || document.hidden) return;
-            const minDelta = 1000 / Math.max(18, Math.min(60, this.config.fps));
-            if (time - this.last < minDelta) {
-                this.frame = requestAnimationFrame(this.tick);
-                return;
-            }
-            const dt = Math.min(2.2, (time - this.last) / 16.67 || 1);
-            this.last = time;
-            this.draw(dt);
-            this.frame = requestAnimationFrame(this.tick);
-        }
-
-        draw(dt) {
-            const ctx = this.ctx;
-            ctx.clearRect(0, 0, this.w, this.h);
-            ctx.save();
-            ctx.globalCompositeOperation = ['sparks', 'fireflies', 'orbs'].includes(this.effect) ? 'lighter' : 'source-over';
-            for (const p of this.items) {
-                this.drawItem(ctx, p, dt);
-                this.wrap(p);
-            }
-            ctx.restore();
-        }
-
-        drawItem(ctx, p, dt) {
-            const speed = this.config.speed;
-            if (this.effect === 'matrix') {
-                p.y += (10 + p.z * 18) * speed * dt;
-                ctx.font = `${12 + p.z * 6}px monospace`;
-                ctx.fillStyle = this.color(p.a);
-                ctx.fillText(p.char, p.x, p.y);
-                if (p.y > this.h + 24) {
-                    p.y = -24;
-                    p.x = Math.floor(Math.random() * this.w / 18) * 18;
-                    p.char = String.fromCharCode(0x30A0 + Math.floor(Math.random() * 86));
-                }
-                return;
-            }
-
-            if (this.effect === 'rain') {
-                p.y += (10 + p.z * 22) * speed * dt;
-                p.x += p.vx * speed * dt;
-                ctx.strokeStyle = this.color(0.52 * p.a);
-                ctx.lineWidth = Math.max(1, p.z);
-                ctx.beginPath();
-                ctx.moveTo(p.x, p.y);
-                ctx.lineTo(p.x - 8 * p.z, p.y + 18 * p.z);
-                ctx.stroke();
-                return;
-            }
-
-            if (this.effect === 'sparks') {
-                p.y -= (0.8 + p.z * 1.8) * speed * dt;
-                p.x += Math.sin(p.y * 0.02) * 0.55;
-                ctx.strokeStyle = this.color(p.a);
-                ctx.lineWidth = 1.2;
-                ctx.beginPath();
-                ctx.moveTo(p.x, p.y);
-                ctx.lineTo(p.x + p.vx * 22, p.y + 10);
-                ctx.stroke();
-                return;
-            }
-
-            if (this.effect === 'confetti') {
-                p.y += (0.8 + p.z * 1.7) * speed * dt;
-                p.x += Math.sin((p.y + p.rot) * 0.025) * 1.2;
-                p.rot += 0.05 * speed * dt;
-                ctx.save();
-                ctx.translate(p.x, p.y);
-                ctx.rotate(p.rot);
-                ctx.fillStyle = this.color(p.a);
-                ctx.fillRect(-p.r * 1.4, -p.r, p.r * 2.8, p.r * 1.7);
-                ctx.restore();
-                return;
-            }
-
-            if (this.effect === 'sakura') {
-                p.y += (0.45 + p.z) * speed * dt;
-                p.x += Math.sin((p.y + p.rot) * 0.018) * 1.4;
-                p.rot += 0.025 * speed * dt;
-                ctx.save();
-                ctx.translate(p.x, p.y);
-                ctx.rotate(p.rot);
-                ctx.fillStyle = this.color(0.82 * p.a);
-                ctx.beginPath();
-                ctx.ellipse(0, 0, p.r * 1.7, p.r * 0.75, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-                return;
-            }
-
-            if (this.effect === 'smoke') {
-                p.y -= (0.18 + p.z * 0.45) * speed * dt;
-                p.x += Math.sin((p.y + p.rot) * 0.01) * 0.4;
-                const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 6);
-                gradient.addColorStop(0, this.color(0.18 * p.a));
-                gradient.addColorStop(1, 'rgba(255,255,255,0)');
-                ctx.fillStyle = gradient;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.r * 6, 0, Math.PI * 2);
-                ctx.fill();
-                return;
-            }
-
-            if (this.effect === 'stars') {
-                p.a += Math.sin(Date.now() * 0.001 + p.x) * 0.002;
-                ctx.fillStyle = this.color(Math.max(0.18, Math.min(1, p.a)));
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, Math.max(0.7, p.r * 0.58), 0, Math.PI * 2);
-                ctx.fill();
-                return;
-            }
-
-            if (this.effect === 'orbs' || this.effect === 'fireflies') {
-                p.x += (p.vx * 1.8 + Math.sin(Date.now() * 0.001 + p.y) * 0.12) * speed * dt;
-                p.y += (p.vy * 0.45 * (this.effect === 'orbs' ? -1 : 1)) * speed * dt;
-                const radius = this.effect === 'orbs' ? p.r * 3.2 : p.r * 1.4;
-                const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, radius * 5);
-                gradient.addColorStop(0, this.color(0.75 * p.a));
-                gradient.addColorStop(1, 'rgba(255,255,255,0)');
-                ctx.fillStyle = gradient;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, radius * 5, 0, Math.PI * 2);
-                ctx.fill();
-                return;
-            }
-
-            p.y += (0.35 + p.z) * speed * dt;
-            p.x += Math.sin((p.y + p.rot) * 0.02) * 0.55;
-            ctx.fillStyle = this.color(p.a);
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-            ctx.fill();
-        }
-    }
-
-    const initEnterOverlay = (canvasEngine) => {
-        const overlay = $('#profileEnterOverlay');
-        if (!overlay) {
-            canvasEngine?.start();
-            return;
-        }
-
-        const remember = runtime.enterRemember !== false && body.dataset.enterRemember !== '0';
-        const key = `cripsum.profile.enter.${profileId}`;
-        if (remember && sessionStorage.getItem(key) === '1') {
-            overlay.remove();
-            canvasEngine?.start();
-            return;
-        }
-
-        body.classList.add('profile-enter-locked');
-        const unlock = async () => {
-            overlay.classList.add('is-hidden');
-            body.classList.remove('profile-enter-locked');
-            if (remember) sessionStorage.setItem(key, '1');
-            $$('video').forEach((video) => {
-                if (video.muted || video.classList.contains('bio-background__media')) video.play().catch(() => {});
-            });
-            const audio = $('#profileAudio');
-            if (audio && audio.dataset.autoplay === '1') {
-                audio.volume = Math.min(Math.max(Number(localStorage.getItem('cripsum.profile.audioVolume') || 0.18), 0), 1);
-                audio.play().catch(() => toast('Audio blocked by browser. Tap play again.'));
-            }
-            canvasEngine?.start();
-            setTimeout(() => overlay.remove(), 480);
-        };
-
-        $('#profileEnterButton', overlay)?.addEventListener('click', unlock);
-        overlay.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter' || event.key === ' ') unlock();
-        });
-    };
-
-    const initBackgroundParallax = () => {
-        const bg = $('.bio-background-v3[data-parallax="1"]');
-        if (!bg || reducedMotion) return;
-        let frame = null;
-        window.addEventListener('pointermove', (event) => {
-            cancelAnimationFrame(frame);
-            frame = requestAnimationFrame(() => {
-                const x = ((event.clientX / window.innerWidth) - 0.5) * -18;
-                const y = ((event.clientY / window.innerHeight) - 0.5) * -18;
-                bg.style.setProperty('--parallax-x', `${x}px`);
-                bg.style.setProperty('--parallax-y', `${y}px`);
-            });
-        }, { passive: true });
-    };
-
-    const initLinkAnalytics = () => {
-        $$('[data-profile-link-id]').forEach((link) => {
-            link.addEventListener('click', () => {
-                const linkId = Number(link.dataset.profileLinkId || 0);
-                if (!profileId || !linkId) return;
-                postJson('/api/profile_analytics.php', {
-                    profile_id: profileId,
-                    event_type: 'click',
-                    link_id: linkId,
-                    metadata: { title: link.dataset.profileLinkTitle || '' },
-                }).catch(() => {});
-            }, { passive: true });
-        });
-
-        $$('.js-share-profile').forEach((button) => {
-            button.addEventListener('click', () => {
-                if (profileId) postJson('/api/profile_analytics.php', { profile_id: profileId, event_type: 'share' }).catch(() => {});
-            }, { passive: true });
-        });
-
-        $$('.js-open-qr').forEach((button) => {
-            button.addEventListener('click', () => {
-                if (profileId) postJson('/api/profile_analytics.php', { profile_id: profileId, event_type: 'qr' }).catch(() => {});
-            }, { passive: true });
-        });
-    };
-
-    const initReactions = async () => {
-        const bar = $('[data-profile-reactions]');
-        if (!bar || !profileId) return;
-        const paint = (counts) => {
-            $$('[data-reaction]', bar).forEach((button) => {
-                const count = counts?.[button.dataset.reaction] ?? 0;
-                const small = $('small', button);
-                if (small) small.textContent = String(count);
-            });
-        };
-
-        fetch(`/api/profile_reactions.php?profile_id=${encodeURIComponent(profileId)}`, { headers: { 'Accept': 'application/json' } })
-            .then((r) => r.json())
-            .then((data) => data.ok && paint(data.counts))
-            .catch(() => {});
-
-        $$('[data-reaction]', bar).forEach((button) => {
-            button.addEventListener('click', async () => {
-                try {
-                    const data = await postJson('/api/profile_reactions.php', {
-                        profile_id: profileId,
-                        reaction: button.dataset.reaction,
-                    });
-                    paint(data.counts);
-                    toast('Reaction saved.');
-                } catch (error) {
-                    toast(error.message || 'Reaction failed.');
-                }
-            });
-        });
-    };
-
-    const initCountdowns = () => {
-        const nodes = $$('[data-countdown]');
-        if (!nodes.length) return;
-        const update = () => {
-            const now = Date.now();
-            nodes.forEach((node) => {
-                const target = Date.parse(node.dataset.countdown || '');
-                const strong = $('strong', node);
-                if (!strong || !Number.isFinite(target)) return;
-                const diff = Math.max(0, target - now);
-                const days = Math.floor(diff / 86400000);
-                const hours = Math.floor((diff % 86400000) / 3600000);
-                const minutes = Math.floor((diff % 3600000) / 60000);
-                strong.textContent = days > 0 ? `${days}d ${hours}h` : `${hours}h ${minutes}m`;
-            });
-        };
-        update();
-        setInterval(update, 30000);
-    };
-
-    const initContactBlocks = () => {
-        $$('[data-profile-contact]').forEach((form) => {
-            form.addEventListener('submit', async (event) => {
-                event.preventDefault();
-                try {
-                    await postJson('/api/profile_analytics.php', { profile_id: profileId, event_type: 'contact' });
-                    toast('Contact request noted.');
-                    form.reset();
-                } catch (error) {
-                    toast(error.message || 'Could not send.');
-                }
-            });
-        });
-    };
-
-    document.addEventListener('DOMContentLoaded', () => {
-        const canvasEngine = new ProfileCanvasEngine(
-            $('#profileCanvasEngine'),
-            runtime.canvasEffect || body.dataset.canvasEffect || 'none',
-            runtime.canvasConfig || {}
-        );
-
-        initEnterOverlay(canvasEngine);
-        initBackgroundParallax();
-        initLinkAnalytics();
-        initReactions();
-        initCountdowns();
-        initContactBlocks();
-
-        if (!$('#profileEnterOverlay')) canvasEngine.start();
-    });
-})();
-
 /* V2.9.2 - autoplay hidden profile music when player is disabled */
 (() => {
     'use strict';
@@ -952,7 +526,7 @@
                 await audio.play();
                 return true;
             } catch (error) {
-                if (showMessage) showProfileToast('Tap anywhere to enable audio.');
+                if (showMessage) showProfileToast('Tocca la pagina per avviare l’audio.');
                 return false;
             }
         };
@@ -967,7 +541,7 @@
                 const ok = await tryPlay(false);
                 if (ok) {
                     cleanup();
-                    showProfileToast('Profile audio started.');
+                    showProfileToast('Audio profilo avviato.');
                 } else {
                     armed = true;
                 }

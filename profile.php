@@ -1,11 +1,8 @@
 <?php
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
 require_once __DIR__ . '/config/session_init.php';
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/profile_helpers.php';
-require_once __DIR__ . '/includes/profile_v3_helpers.php';
 require_once __DIR__ . '/includes/cripsum_og.php';
 require_once __DIR__ . '/includes/mission_tracker.php';
 
@@ -23,9 +20,6 @@ if (!$identifier) {
     $profile = null;
 } else {
     $profile = profile_get_public_profile($mysqli, $identifier);
-    if ($profile) {
-        $profile = profile_v3_apply_extras($profile, $mysqli);
-    }
 }
 
 $isNotFound = !$profile;
@@ -62,13 +56,11 @@ if ($profile) {
         // ── /MISSION TRACKING ────────────────────────────────────────────
         $socials = profile_list_socials($mysqli, $profileId, true);
         $links = profile_list_links($mysqli, $profileId, true);
-        $links = profile_v3_enrich_links($mysqli, $profileId, $links);
         $projects = profile_list_projects($mysqli, $profileId, true);
         $contents = profile_list_contents($mysqli, $profileId, true);
         $blocks = function_exists('profile_list_blocks') ? profile_list_blocks($mysqli, $profileId, true) : [];
-        $badges = array_merge(profile_list_visible_badges($mysqli, $profileId), profile_v3_list_custom_badges($mysqli, $profileId));
+        $badges = profile_list_visible_badges($mysqli, $profileId);
         $activity = profile_recent_activity($mysqli, $profileId);
-        profile_v3_record_view($mysqli, $profileId);
 
         if (function_exists('isUserOnline')) {
             $isOnline = isUserOnline($mysqli, $profileId);
@@ -150,13 +142,10 @@ $cardColorCss = $cardColor ?: 'var(--card)';
 $textColorCss = $textColor ?: 'var(--text)';
 if ($theme === 'auto') $theme = 'dark';
 
-$lang = profile_v3_lang();
-$displayName = $profile ? (profile_v3_t($profile, 'display_name', $lang) ?: profile_display_name($profile)) : 'Profilo';
-$profileBio = $profile ? (profile_v3_t($profile, 'bio', $lang) ?: (string)($profile['bio'] ?? '')) : '';
-$localizedStatus = $profile ? (profile_v3_t($profile, 'profile_status', $lang) ?: (string)($profile['profile_status'] ?? '')) : '';
+$displayName = $profile ? profile_display_name($profile) : 'Profilo';
 $profileUrl = $profile ? 'https://cripsum.com/u/' . rawurlencode(strtolower($profile['username'])) : 'https://cripsum.com/profile.php';
 $discordId = $profile ? trim((string)($profile['discord_id'] ?? '')) : '';
-$customStatus = trim($localizedStatus);
+$customStatus = $profile ? trim((string)($profile['profile_status'] ?? '')) : '';
 $musicExternalUrl = $profile ? trim((string)($profile['profile_music_url'] ?? '')) : '';
 $musicMime = $profile ? trim((string)($profile['profile_music_mime'] ?? '')) : '';
 $hasUploadedMusic = $profile && $musicMime !== '';
@@ -171,18 +160,6 @@ $avatarRingStyle = $profile ? profile_allowed_value((string)($profile['avatar_ri
 $avatarRingColor = $profile ? profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent) : $accent;
 $backgroundUrl = $profile && !empty($profile['profile_banner_type']) ? '/includes/get_profile_banner.php?id=' . (int)$profile['id'] : null;
 $backgroundType = $profile && !empty($profile['profile_banner_type']) ? (string)$profile['profile_banner_type'] : 'video/mp4';
-$themePreset = $profile ? profile_v3_allowed_preset((string)($profile['profile_theme_preset'] ?? 'cyber')) : 'cyber';
-$fontFamily = $profile ? profile_v3_allowed_font((string)($profile['profile_font_family'] ?? 'inter')) : 'inter';
-$canvasEffect = $profile ? profile_v3_allowed_canvas((string)($profile['profile_canvas_effect'] ?? 'none')) : 'none';
-$canvasConfig = $profile ? profile_v3_json_array($profile['profile_canvas_config'] ?? '', ['speed' => 1, 'density' => 55, 'color' => '#ffffff', 'opacity' => 0.55, 'fps' => 40]) : [];
-$avatarEffect = $profile ? profile_allowed_value((string)($profile['profile_avatar_effect'] ?? 'pfp-glow'), ['pfp-glow', 'pfp-float', 'pfp-neon-border', 'pfp-glitch', 'pfp-pulse-ring', 'pfp-spin', 'pfp-shake', 'pfp-pixelate', 'pfp-rgb-shift', 'pfp-holographic'], 'pfp-glow') : 'pfp-glow';
-$avatarShape = $profile ? profile_allowed_value((string)($profile['profile_avatar_shape'] ?? 'circle'), ['circle', 'squircle', 'hexagon'], 'circle') : 'circle';
-$builder = $profile ? profile_v3_get_builder($profile) : ['version' => 3, 'blocks' => []];
-$hasBuilderBlocks = !empty($builder['blocks']);
-$enterText = $profile ? (profile_v3_t($profile, 'profile_enter_text', $lang) ?: ($lang === 'en' ? 'Click to enter' : 'Clicca per entrare')) : '';
-$enterButton = $profile ? (profile_v3_t($profile, 'profile_enter_button', $lang) ?: ($lang === 'en' ? 'Enter' : 'Entra')) : '';
-$enterEnabled = $profile ? ((int)($profile['profile_enter_enabled'] ?? 0) === 1 || ($hasMusic && !$showAudioPlayer)) : false;
-$enterRemember = $profile ? ((int)($profile['profile_enter_remember'] ?? 1) === 1) : true;
 
 $showStats = $profile ? profile_flag($profile, 'profile_show_stats', true) : false;
 $showSocials = $profile ? profile_flag($profile, 'profile_show_socials', true) : false;
@@ -209,8 +186,8 @@ $featuredContents = array_values(array_filter($visibleContents, fn($item) => (in
 $normalContents = array_values(array_filter($visibleContents, fn($item) => (int)($item['is_featured'] ?? 0) !== 1));
 
 $hasStats = $showStats && $profile && ((int)$profile['profile_views'] > 0 || (int)$profile['num_achievement'] > 0 || (int)$profile['num_personaggi'] > 0 || (int)$profile['total_personaggi'] > 0);
-$hasRightContent = $hasStats || $featuredLinks || $normalLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || $visibleActivity || $hasBuilderBlocks;
-$hasAnyPublicContent = $visibleSocials || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || $hasBuilderBlocks || ($showDiscord && $discordId) || $hasMusic;
+$hasRightContent = $hasStats || $featuredLinks || $normalLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || $visibleActivity;
+$hasAnyPublicContent = $visibleSocials || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || ($showDiscord && $discordId) || $hasMusic;
 
 $spotlight = null;
 if ($featuredContents) {
@@ -238,8 +215,8 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=3.0.5">
-    <script src="/assets/js/profile.js?v=3.0.5" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=3.0.4">
+    <script src="/assets/js/profile.js?v=3.0.4" defer></script>
 </head>
 
 <body
@@ -249,34 +226,17 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     data-profile-url="<?php echo profile_h($profileUrl); ?>"
     data-discord-id="<?php echo profile_h($showDiscord ? $discordId : ''); ?>"
     data-profile-effect="<?php echo profile_h($profileEffect); ?>"
-    data-profile-id="<?php echo $profile ? (int)$profile['id'] : 0; ?>"
-    data-theme-preset="<?php echo profile_h($themePreset); ?>"
-    data-canvas-effect="<?php echo profile_h($canvasEffect); ?>"
-    data-enter-enabled="<?php echo $enterEnabled ? '1' : '0'; ?>"
-    data-enter-remember="<?php echo $enterRemember ? '1' : '0'; ?>"
-    data-animations="<?php echo !empty($profile['profile_animations_enabled']) ? '1' : '0'; ?>"
     data-profile-link-style="<?php echo profile_h($linkStyle); ?>"
     data-profile-button-shape="<?php echo profile_h($buttonShape); ?>"
-    style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>; --profile-font-family: <?php echo profile_h(profile_v3_font_stack($fontFamily)); ?>;">
+    style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
     <?php
     if (file_exists(__DIR__ . '/includes/navbar-bio.php')) include __DIR__ . '/includes/navbar-bio.php';
     else include __DIR__ . '/includes/navbar.php';
     if (file_exists(__DIR__ . '/includes/impostazioni.php')) include __DIR__ . '/includes/impostazioni.php';
     ?>
 
-    <?php profile_v3_render_background($profile ?: [], $backgroundUrl, $backgroundType); ?>
-    <canvas class="profile-canvas-engine" id="profileCanvasEngine" aria-hidden="true"></canvas>
+    <?php profile_render_background($profile, $backgroundUrl, $backgroundType); ?>
     <div class="profile-effects-layer" aria-hidden="true"></div>
-
-    <?php if (!$isNotFound && !$isPrivateBlocked && !$isLoginBlocked && $enterEnabled): ?>
-        <section class="profile-enter-overlay" id="profileEnterOverlay" role="dialog" aria-modal="true" aria-label="<?php echo profile_h($enterText); ?>">
-            <div class="profile-enter-glass">
-                <span class="bio-pill"><i class="fas fa-power-off"></i><?php echo $lang === 'en' ? 'Profile locked' : 'Profilo bloccato'; ?></span>
-                <h2><?php echo profile_h($enterText); ?></h2>
-                <button class="bio-button bio-button--primary" type="button" id="profileEnterButton"><i class="fas fa-play"></i><?php echo profile_h($enterButton); ?></button>
-            </div>
-        </section>
-    <?php endif; ?>
 
     <?php if ($isNotFound): ?>
         <?php profile_state_page('404', 'Profile Not Found', 'This user does not exist or has changed their username.', 'Home', '/en/home'); ?>
@@ -294,11 +254,11 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                         <span class="bio-pill"><i class="fas fa-signal"></i><?php echo profile_h($customStatus); ?></span>
                     <?php endif; ?>
                     <?php if ($canEdit): ?>
-                        <a class="bio-small-button" href="/edit-profile<?php echo profile_is_staff() && !$isOwnProfile ? '?user_id=' . (int)$profile['id'] : ''; ?>" aria-label="Modifica"><i class="fas fa-pen"></i></a>
+                        <a class="bio-small-button" href="/it/edit-profile<?php echo profile_is_staff() && !$isOwnProfile ? '?user_id=' . (int)$profile['id'] : ''; ?>" aria-label="Modifica"><i class="fas fa-pen"></i></a>
                     <?php endif; ?>
                 </div>
 
-                <div class="bio-avatar-wrap profile-smart-avatar <?php echo profile_h($avatarEffect); ?> avatar-shape-<?php echo profile_h($avatarShape); ?> ring-style-<?php echo profile_h($avatarRingStyle); ?> <?php echo (!$avatarRingEnabled || $avatarRingStyle === 'none') ? 'ring-disabled' : ''; ?>" style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>;">
+                <div class="bio-avatar-wrap profile-smart-avatar ring-style-<?php echo profile_h($avatarRingStyle); ?> <?php echo (!$avatarRingEnabled || $avatarRingStyle === 'none') ? 'ring-disabled' : ''; ?>" style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>;">
                     <?php if ($avatarRingEnabled && $avatarRingStyle !== 'none'): ?><div class="bio-avatar-ring"></div><?php endif; ?>
                     <img class="bio-avatar" src="<?php echo profile_h(profile_avatar_url($profile, 256)); ?>" alt="Avatar di <?php echo profile_h($profile['username']); ?>" loading="eager" data-richpresence-pfp>
                 </div>
@@ -306,21 +266,17 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                 <div class="bio-name-block profile-smart-name">
                     <h1><?php echo profile_h($displayName); ?></h1>
                     <p class="bio-username">@<?php echo profile_h($profile['username']); ?></p>
-                    <?php if ($profileBio !== ''): ?>
-                        <p class="bio-tagline"><?php echo nl2br(profile_h($profileBio)); ?></p>
+                    <?php if (!empty($profile['bio'])): ?>
+                        <p class="bio-tagline"><?php echo nl2br(profile_h($profile['bio'])); ?></p>
                     <?php endif; ?>
                 </div>
 
                 <?php if ($visibleBadges): ?>
                     <div class="profile-mini-badges" aria-label="Badge">
                         <?php foreach (array_slice($visibleBadges, 0, 4) as $badge): ?>
-                            <?php
-                            $badgeImage = !empty($badge['custom_image_url']) && profile_is_safe_url($badge['custom_image_url'], false)
-                                ? (string)$badge['custom_image_url']
-                                : (!empty($badge['img_url']) ? '/img/' . ltrim((string)$badge['img_url'], '/') : null);
-                            ?>
+                            <?php $badgeImage = !empty($badge['img_url']) ? '/img/' . ltrim((string)$badge['img_url'], '/') : null; ?>
                             <span class="profile-mini-badge" title="<?php echo profile_h($badge['nome_en']); ?>">
-                                <?php if ($badgeImage): ?><img src="<?php echo profile_h($badgeImage); ?>" alt="" loading="lazy"><?php else: ?><i class="<?php echo profile_h($badge['icon'] ?? 'fas fa-medal'); ?>"></i><?php endif; ?>
+                                <?php if ($badgeImage): ?><img src="<?php echo profile_h($badgeImage); ?>" alt="" loading="lazy"><?php else: ?><i class="fas fa-medal"></i><?php endif; ?>
                             </span>
                         <?php endforeach; ?>
                     </div>
@@ -357,7 +313,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                     <div class="profile-owner-nudge">
                         <i class="fas fa-plus"></i>
                         <span>Add links, badges, or content to fill out the bio.</span>
-                        <a href="/edit-profile">Edit</a>
+                        <a href="/en/edit-profile">Edit</a>
                     </div>
                 <?php endif; ?>
 
@@ -366,12 +322,6 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                     <button class="bio-button js-share-profile" type="button"><i class="fas fa-share-nodes"></i>Share</button>
                     <button class="bio-icon-button js-open-qr" type="button" aria-label="QR code"><i class="fas fa-qrcode"></i></button>
                     <button class="bio-icon-button js-theme-toggle" type="button" aria-label="Theme"><i class="fas fa-moon"></i></button>
-                </div>
-
-                <div class="profile-reaction-bar" data-profile-reactions aria-label="Profile reactions">
-                    <?php foreach (['💎', '🔥', '🖤', '⚡'] as $reaction): ?>
-                        <button type="button" data-reaction="<?php echo profile_h($reaction); ?>"><span><?php echo profile_h($reaction); ?></span><small>0</small></button>
-                    <?php endforeach; ?>
                 </div>
 
                 <?php if ($hasMusic && $showAudioPlayer): ?>
@@ -430,10 +380,6 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                         </section>
                     <?php endif; ?>
 
-                    <?php if ($hasBuilderBlocks): ?>
-                        <?php profile_v3_render_builder($builder, $lang); ?>
-                    <?php endif; ?>
-
                     <?php if ($featuredLinks || $normalLinks): ?>
                         <section class="bio-card bio-featured js-reveal">
                             <?php profile_render_section_heading('fas fa-link', 'Link'); ?>
@@ -442,16 +388,9 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                                     <?php
                                     $buttonStyle = profile_allowed_value((string)($item['button_style'] ?? 'card'), ['card', 'compact', 'icon'], 'card');
                                     $linkTitle = (string)($item['title'] ?? 'Link');
-                                    $linkHref = profile_v3_link_redirect_url($item);
-                                    $customIconUrl = trim((string)($item['custom_icon_url'] ?? ''));
-                                    $thumbUrl = trim((string)($item['thumbnail_url'] ?? ''));
-                                    if (!empty($item['is_separator'])):
                                     ?>
-                                        <div class="profile-link-separator"><span><?php echo profile_h($item['separator_title'] ?: $linkTitle); ?></span></div>
-                                    <?php endif; ?>
-                                    <a class="bio-featured-link profile-link-button button-style-<?php echo profile_h($buttonStyle); ?> <?php echo !empty($item['is_featured']) ? 'is-pinned' : ''; ?> <?php echo $thumbUrl ? 'has-thumb' : ''; ?>" href="<?php echo profile_h($linkHref); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo profile_h($linkTitle); ?>" data-profile-link-id="<?php echo (int)($item['id'] ?? 0); ?>" data-profile-link-title="<?php echo profile_h($linkTitle); ?>">
-                                        <?php if ($thumbUrl && profile_is_safe_url($thumbUrl, false)): ?><span class="profile-link-thumb"><img src="<?php echo profile_h($thumbUrl); ?>" alt="" loading="lazy" decoding="async"></span><?php endif; ?>
-                                        <span class="bio-featured-link__icon"><?php if ($customIconUrl && profile_is_safe_url($customIconUrl, false)): ?><img src="<?php echo profile_h($customIconUrl); ?>" alt="" loading="lazy"><?php else: ?><i class="<?php echo profile_h($item['icon'] ?: 'fas fa-link'); ?>"></i><?php endif; ?></span>
+                                    <a class="bio-featured-link profile-link-button button-style-<?php echo profile_h($buttonStyle); ?> <?php echo !empty($item['is_featured']) ? 'is-pinned' : ''; ?>" href="<?php echo profile_h($item['url']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo profile_h($linkTitle); ?>">
+                                        <span class="bio-featured-link__icon"><i class="<?php echo profile_h($item['icon'] ?: 'fas fa-link'); ?>"></i></span>
                                         <?php if ($buttonStyle === 'icon'): ?>
                                             <span class="profile-link-icon-label"><?php echo profile_h($linkTitle); ?></span>
                                         <?php else: ?>
@@ -562,15 +501,13 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                             <div class="profile-badge-grid">
                                 <?php foreach ($visibleBadges as $badge): ?>
                                     <?php
-                                    $achievementImage = !empty($badge['custom_image_url']) && profile_is_safe_url($badge['custom_image_url'], false)
-                                        ? (string)$badge['custom_image_url']
-                                        : (!empty($badge['img_url']) ? '/img/' . ltrim((string)$badge['img_url'], '/') : null);
+                                    $achievementImage = !empty($badge['img_url']) ? '/img/' . ltrim((string)$badge['img_url'], '/') : null;
                                     $rarity = function_exists('profile_badge_rarity') ? profile_badge_rarity((int)($badge['punti'] ?? 0)) : ['label' => 'Badge', 'class' => 'common'];
                                     $isFeaturedBadge = (int)($profile['featured_badge_id'] ?? 0) === (int)$badge['id'];
                                     ?>
                                     <article class="profile-badge-card rarity-<?php echo profile_h($rarity['class']); ?> <?php echo $isFeaturedBadge ? 'is-featured' : ''; ?>" tabindex="0">
                                         <div class="profile-badge-art">
-                                            <?php if ($achievementImage): ?><img src="<?php echo profile_h($achievementImage); ?>" alt="" loading="lazy"><?php else: ?><i class="<?php echo profile_h($badge['icon'] ?? 'fas fa-medal'); ?>"></i><?php endif; ?>
+                                            <?php if ($achievementImage): ?><img src="<?php echo profile_h($achievementImage); ?>" alt="" loading="lazy"><?php else: ?><i class="fas fa-medal"></i><?php endif; ?>
                                         </div>
                                         <div class="profile-badge-info">
                                             <strong><?php echo profile_h($badge['nome_en']); ?></strong>
@@ -614,19 +551,6 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     </div>
 
     <div class="bio-toast" id="bioToast" role="status" aria-live="polite"></div>
-    <script type="application/json" id="profileV3Runtime">
-        <?php echo json_encode([
-            'profileId' => $profile ? (int)$profile['id'] : 0,
-            'lang' => $lang,
-            'canvasEffect' => $canvasEffect,
-            'canvasConfig' => $canvasConfig,
-            'enterEnabled' => $enterEnabled,
-            'enterRemember' => $enterRemember,
-            'hasMusic' => $hasMusic,
-            'showAudioPlayer' => $showAudioPlayer,
-            'completion' => $profile ? profile_v3_completion_percent($profile, $visibleLinks, $visibleSocials, $visibleBlocks) : 0,
-        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>
-    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
 

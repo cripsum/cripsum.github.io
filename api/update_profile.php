@@ -3,7 +3,6 @@ require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/profile_helpers.php';
-require_once __DIR__ . '/../includes/profile_v3_helpers.php';
 require_once __DIR__ . '/../includes/mission_tracker.php';
 
 checkBan($mysqli);
@@ -30,11 +29,6 @@ if (!profile_can_edit($targetUserId)) {
 $profile = profile_get_edit_profile($mysqli, $targetUserId);
 if (!$profile) {
     profile_json_response(['ok' => false, 'message' => 'Profile not found.'], 404);
-}
-$profile = profile_v3_apply_extras($profile, $mysqli);
-
-if (!profile_v3_rate_limit($mysqli, 'update_profile', profile_is_staff() ? 80 : 28, 300, $currentUserId)) {
-    profile_json_response(['ok' => false, 'message' => 'Too many profile updates. Wait a moment before saving again.'], 429);
 }
 
 $username = trim((string)($_POST['username'] ?? ''));
@@ -78,32 +72,6 @@ $showContents = profile_bool_from_post('profile_show_contents', true);
 $showBadges = profile_bool_from_post('profile_show_badges', true);
 $showActivity = profile_bool_from_post('profile_show_activity', true);
 $showDiscord = profile_bool_from_post('profile_show_discord', true);
-$displayNameEn = profile_clean_text($_POST['display_name_en'] ?? '', 40);
-$bioEn = trim((string)($_POST['bio_en'] ?? ''));
-$bioEn = mb_substr($bioEn, 0, 280, 'UTF-8');
-$profileStatusEn = profile_clean_text($_POST['profile_status_en'] ?? '', 60);
-$profileLocale = profile_allowed_value((string)($_POST['profile_locale'] ?? 'it'), ['it', 'en'], 'it');
-$enterEnabled = profile_bool_from_post('profile_enter_enabled', false);
-$enterText = profile_clean_text($_POST['profile_enter_text'] ?? '', 80);
-$enterTextEn = profile_clean_text($_POST['profile_enter_text_en'] ?? '', 80);
-$enterButton = profile_clean_text($_POST['profile_enter_button'] ?? '', 40);
-$enterButtonEn = profile_clean_text($_POST['profile_enter_button_en'] ?? '', 40);
-$enterRemember = profile_bool_from_post('profile_enter_remember', true);
-$backgroundMode = profile_allowed_value((string)($_POST['profile_background_mode'] ?? 'upload'), ['upload', 'image', 'video', 'youtube', 'gradient'], 'upload');
-$backgroundConfigJson = profile_v3_normalize_background_config((string)($_POST['profile_background_config'] ?? '{}'));
-$youtubeUrl = trim((string)($_POST['profile_youtube_url'] ?? ''));
-$fallbackImageUrl = trim((string)($_POST['profile_fallback_image_url'] ?? ''));
-$canvasEffect = profile_v3_allowed_canvas((string)($_POST['profile_canvas_effect'] ?? 'none'));
-$canvasConfigJson = profile_v3_normalize_canvas_config((string)($_POST['profile_canvas_config'] ?? '{}'));
-$avatarEffect = profile_allowed_value((string)($_POST['profile_avatar_effect'] ?? 'pfp-glow'), ['pfp-glow', 'pfp-float', 'pfp-neon-border', 'pfp-glitch', 'pfp-pulse-ring', 'pfp-spin', 'pfp-shake', 'pfp-pixelate', 'pfp-rgb-shift', 'pfp-holographic'], 'pfp-glow');
-$avatarShape = profile_allowed_value((string)($_POST['profile_avatar_shape'] ?? 'circle'), ['circle', 'squircle', 'hexagon'], 'circle');
-$avatarFrameUrl = trim((string)($_POST['profile_avatar_frame_url'] ?? ''));
-$themePreset = profile_v3_allowed_preset((string)($_POST['profile_theme_preset'] ?? 'cyber'));
-$fontFamily = profile_v3_allowed_font((string)($_POST['profile_font_family'] ?? 'inter'));
-$noiseEnabled = profile_bool_from_post('profile_noise_enabled', true);
-$animationsEnabled = profile_bool_from_post('profile_animations_enabled', true);
-$builderJson = profile_v3_normalize_builder_input((string)($_POST['profile_builder_json'] ?? '{}'));
-$pluginsJson = profile_v3_normalize_plugins((string)($_POST['profile_plugins_json'] ?? '[]'));
 
 if (!profile_is_valid_username($username)) {
     profile_json_response(['ok' => false, 'message' => 'Invalid username. Use 3-20 characters, letters, numbers, or underscores.'], 422);
@@ -125,18 +93,6 @@ if (!$hasConnectedDiscord) {
 
 if (!profile_is_safe_url($musicUrl, false)) {
     profile_json_response(['ok' => false, 'message' => 'Invalid music URL.'], 422);
-}
-
-if (!profile_is_safe_url($youtubeUrl, false) || ($youtubeUrl !== '' && !profile_v3_youtube_id($youtubeUrl))) {
-    profile_json_response(['ok' => false, 'message' => 'Invalid YouTube background URL.'], 422);
-}
-
-if (!profile_is_safe_url($fallbackImageUrl, false)) {
-    profile_json_response(['ok' => false, 'message' => 'Invalid fallback image URL.'], 422);
-}
-
-if (!profile_is_safe_url($avatarFrameUrl, false)) {
-    profile_json_response(['ok' => false, 'message' => 'Invalid avatar frame URL.'], 422);
 }
 
 $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE LOWER(username) = LOWER(?) AND id != ? LIMIT 1");
@@ -240,34 +196,6 @@ try {
     if (!$stmt->execute()) throw new RuntimeException('Error updating profile.');
     $stmt->close();
 
-    profile_v3_update_user_columns($mysqli, $targetUserId, [
-        'display_name_en' => ['value' => $displayNameEn !== '' ? $displayNameEn : null, 'type' => 's'],
-        'bio_en' => ['value' => $bioEn !== '' ? $bioEn : null, 'type' => 's'],
-        'profile_status_en' => ['value' => $profileStatusEn !== '' ? $profileStatusEn : null, 'type' => 's'],
-        'profile_locale' => ['value' => $profileLocale, 'type' => 's'],
-        'profile_enter_enabled' => ['value' => $enterEnabled, 'type' => 'i'],
-        'profile_enter_text' => ['value' => $enterText !== '' ? $enterText : null, 'type' => 's'],
-        'profile_enter_text_en' => ['value' => $enterTextEn !== '' ? $enterTextEn : null, 'type' => 's'],
-        'profile_enter_button' => ['value' => $enterButton !== '' ? $enterButton : null, 'type' => 's'],
-        'profile_enter_button_en' => ['value' => $enterButtonEn !== '' ? $enterButtonEn : null, 'type' => 's'],
-        'profile_enter_remember' => ['value' => $enterRemember, 'type' => 'i'],
-        'profile_background_mode' => ['value' => $backgroundMode, 'type' => 's'],
-        'profile_background_config' => ['value' => $backgroundConfigJson, 'type' => 's'],
-        'profile_youtube_url' => ['value' => $youtubeUrl !== '' ? $youtubeUrl : null, 'type' => 's'],
-        'profile_fallback_image_url' => ['value' => $fallbackImageUrl !== '' ? $fallbackImageUrl : null, 'type' => 's'],
-        'profile_canvas_effect' => ['value' => $canvasEffect, 'type' => 's'],
-        'profile_canvas_config' => ['value' => $canvasConfigJson, 'type' => 's'],
-        'profile_avatar_effect' => ['value' => $avatarEffect, 'type' => 's'],
-        'profile_avatar_shape' => ['value' => $avatarShape, 'type' => 's'],
-        'profile_avatar_frame_url' => ['value' => $avatarFrameUrl !== '' ? $avatarFrameUrl : null, 'type' => 's'],
-        'profile_theme_preset' => ['value' => $themePreset, 'type' => 's'],
-        'profile_font_family' => ['value' => $fontFamily, 'type' => 's'],
-        'profile_noise_enabled' => ['value' => $noiseEnabled, 'type' => 'i'],
-        'profile_animations_enabled' => ['value' => $animationsEnabled, 'type' => 'i'],
-        'profile_builder_json' => ['value' => $builderJson, 'type' => 's'],
-        'profile_plugins_json' => ['value' => $pluginsJson, 'type' => 's'],
-    ]);
-
     if (!empty($avatarUpload['has_file']) && isset($avatarUpload['blob'], $avatarUpload['mime'])) {
         $stmt = $mysqli->prepare("UPDATE utenti SET profile_pic = ?, profile_pic_type = ? WHERE id = ?");
         $null = null;
@@ -330,14 +258,6 @@ try {
     $stmt->bind_param('i', $targetUserId);
     $stmt->execute();
     $stmt->close();
-    if (profile_v3_table_exists($mysqli, 'profile_short_links')) {
-        $stmt = $mysqli->prepare("UPDATE profile_short_links SET is_active = 0, link_id = NULL WHERE utente_id = ?");
-        if ($stmt) {
-            $stmt->bind_param('i', $targetUserId);
-            $stmt->execute();
-            $stmt->close();
-        }
-    }
 
     $insertLink = $mysqli->prepare("INSERT INTO utenti_links (utente_id, title, description, url, icon, button_style, is_featured, is_visible, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
     foreach ($linkRows as $i => $row) {
@@ -353,7 +273,6 @@ try {
         if (!profile_is_safe_url($url, true)) throw new RuntimeException('Invalid link URL: ' . $title);
         $insertLink->bind_param('isssssiii', $targetUserId, $title, $description, $url, $icon, $buttonStyle, $featured, $visible, $i);
         if (!$insertLink->execute()) throw new RuntimeException('Error saving link.');
-        profile_v3_update_link_extras($mysqli, $targetUserId, (int)$mysqli->insert_id, $row, $url);
     }
     $insertLink->close();
 
@@ -474,17 +393,12 @@ try {
 
     if ($targetUserId === $currentUserId) {
         $_SESSION['username'] = $username;
-    } elseif (profile_is_staff()) {
-        profile_v3_admin_log($mysqli, $currentUserId, $targetUserId, 'profile_update_v3', 'Updated Cripsum Custom Profile 3.0 settings');
     }
-
-    $nextCsrf = profile_v3_rotate_csrf_token();
 
     profile_json_response([
         'ok' => true,
         'message' => 'Profile saved.',
         'profile_url' => '/u/' . rawurlencode(strtolower($username)),
-        'csrf_token' => $nextCsrf,
     ]);
 } catch (Throwable $e) {
     $mysqli->rollback();
