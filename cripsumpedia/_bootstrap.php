@@ -1048,7 +1048,7 @@ function cp_render_head(string $title, string $description, string $lang, string
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="/cripsumpedia/cripsumpedia.css?v=1.0">
+    <link rel="stylesheet" href="/cripsumpedia/cripsumpedia.css?v=1.1">
     <script>
         document.documentElement.classList.add('cp-js');
         window.Cripsumpedia = {
@@ -1059,7 +1059,7 @@ function cp_render_head(string $title, string $description, string $lang, string
             csrf: <?= json_encode(cp_csrf_token()) ?>
         };
     </script>
-    <script src="/cripsumpedia/cripsumpedia.js?v=1.0" defer></script>
+    <script src="/cripsumpedia/cripsumpedia.js?v=1.1" defer></script>
     <?php
 }
 
