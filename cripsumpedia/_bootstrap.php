@@ -1033,6 +1033,7 @@ function cp_render_head(string $title, string $description, string $lang, string
 {
     $ogImage = $ogImage ? cp_asset_url($ogImage) : '/img/sfondo-og.jpg';
     ?>
+    <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="<?= cp_h($description) ?>">
@@ -1075,72 +1076,21 @@ function cp_render_background(): void
 
 function cp_render_topbar(string $lang, string $active = 'home'): void
 {
-    $alt = $lang === 'it' ? 'en' : 'it';
-    $nav = [
-        ['home', cp_t('home', $lang), cp_url('home', [], $lang), 'fa-house'],
-        ['person', cp_t('people', $lang), cp_url('category', ['type' => 'person'], $lang), 'fa-user-astronaut'],
-        ['event', cp_t('events', $lang), cp_url('category', ['type' => 'event'], $lang), 'fa-timeline'],
-        ['meme', cp_t('memes', $lang), cp_url('category', ['type' => 'meme'], $lang), 'fa-face-grin-squint-tears'],
-        ['search', cp_t('search', $lang), cp_url('search', [], $lang), 'fa-magnifying-glass'],
-    ];
-    ?>
-    <header class="cp-topbar" data-cp-topbar>
-        <a class="cp-brand" href="<?= cp_h(cp_url('home', [], $lang)) ?>" aria-label="Cripsumpedia">
-            <img src="/img/amongus.jpg" alt="" loading="lazy">
-            <span><strong>Cripsum</strong><small>pedia</small></span>
-        </a>
-
-        <button class="cp-icon-btn cp-nav-toggle" type="button" data-cp-nav-toggle aria-label="Menu">
-            <i class="fa-solid fa-bars"></i>
-        </button>
-
-        <nav class="cp-nav" data-cp-nav>
-            <?php foreach ($nav as [$key, $label, $href, $icon]): ?>
-                <a href="<?= cp_h($href) ?>" class="<?= $active === $key ? 'is-active' : '' ?>">
-                    <i class="fa-solid <?= cp_h($icon) ?>"></i>
-                    <span><?= cp_h($label) ?></span>
-                </a>
-            <?php endforeach; ?>
-            <?php if (cp_is_admin_user()): ?>
-                <a href="<?= cp_h(cp_url('admin', [], $lang)) ?>" class="<?= $active === 'admin' ? 'is-active' : '' ?>">
-                    <i class="fa-solid fa-shield-halved"></i>
-                    <span><?= cp_h(cp_t('admin', $lang)) ?></span>
-                </a>
-            <?php endif; ?>
-        </nav>
-
-        <div class="cp-top-actions">
-            <button class="cp-icon-btn" type="button" data-cp-random title="<?= cp_h(cp_t('random', $lang)) ?>" aria-label="<?= cp_h(cp_t('random', $lang)) ?>">
-                <i class="fa-solid fa-shuffle"></i>
-            </button>
-            <a class="cp-lang" href="<?= cp_h(cp_url($active === 'search' ? 'search' : 'home', [], $alt)) ?>" aria-label="Switch language">
-                <span><?= strtoupper($lang) ?></span>
-                <i class="fa-solid fa-arrow-right"></i>
-                <span><?= strtoupper($alt) ?></span>
-            </a>
-        </div>
-    </header>
-    <?php
+    global $mysqli;
+    $richpresence = $richpresence ?? 0;
+    $nsfw = $nsfw ?? 0;
+    $ruolo = $ruolo ?? '';
+    include __DIR__ . '/../includes/navbar.php';
 }
 
 function cp_render_footer(string $lang): void
 {
+    $footerLang = $lang;
     ?>
-    <footer class="cp-footer">
-        <div>
-            <strong>Cripsumpedia</strong>
-            <p><?= cp_h(cp_t('subtitle', $lang)) ?></p>
-        </div>
-        <div class="cp-footer__links">
-            <a href="/<?= cp_h($lang) ?>/home">Cripsum</a>
-            <a href="<?= cp_h(cp_url('search', [], $lang)) ?>"><?= cp_h(cp_t('search', $lang)) ?></a>
-            <?php if (cp_is_admin_user()): ?>
-                <a href="<?= cp_h(cp_url('admin', [], $lang)) ?>"><?= cp_h(cp_t('admin', $lang)) ?></a>
-            <?php endif; ?>
-        </div>
-    </footer>
+    <?php include __DIR__ . '/../includes/footer.php'; ?>
     <div class="cp-toast" data-cp-toast hidden></div>
     <div class="cp-hover-card" data-cp-hover-card hidden></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <?php
 }
 
@@ -1156,10 +1106,16 @@ function cp_render_install_notice(string $lang): void
     <?php
 }
 
-function cp_render_search_box(string $lang, string $value = '', string $variant = 'hero'): void
+function cp_render_search_box(string $lang, string $value = '', string $variant = 'hero', ?string $actionUrl = null, array $hidden = []): void
 {
+    $actionUrl = $actionUrl ?: cp_url('search', [], $lang);
     ?>
-    <form class="cp-search cp-search--<?= cp_h($variant) ?>" action="<?= cp_h(cp_url('search', [], $lang)) ?>" method="get" data-cp-live-search>
+    <form class="cp-search cp-search--<?= cp_h($variant) ?>" action="<?= cp_h($actionUrl) ?>" method="get" data-cp-live-search>
+        <?php foreach ($hidden as $key => $hiddenValue): ?>
+            <?php if ($hiddenValue !== null && $hiddenValue !== ''): ?>
+                <input type="hidden" name="<?= cp_h($key) ?>" value="<?= cp_h($hiddenValue) ?>">
+            <?php endif; ?>
+        <?php endforeach; ?>
         <i class="fa-solid fa-magnifying-glass"></i>
         <input type="search" name="q" value="<?= cp_h($value) ?>" placeholder="<?= cp_h(cp_t('search_placeholder', $lang)) ?>" autocomplete="off" spellcheck="false" data-cp-search-input>
         <button type="submit">

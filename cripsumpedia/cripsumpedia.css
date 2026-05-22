@@ -42,9 +42,9 @@ body.cp-body {
     line-height: 1.5;
 }
 
-body.cp-focus-mode .cp-topbar,
+body.cp-focus-mode .navbarutenti,
 body.cp-focus-mode .cp-entry-sidebar,
-body.cp-focus-mode .cp-footer,
+body.cp-focus-mode .modern-footer,
 body.cp-focus-mode .cp-breadcrumbs,
 body.cp-focus-mode .cp-entry-actions {
     display: none;
@@ -2041,6 +2041,301 @@ img {
 
 .cp-hover-card small {
     color: var(--cp-muted);
+}
+
+/* UI pass: original chrome, calmer text, cleaner controls */
+body.cp-body {
+    font-family: Poppins, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-weight: 400;
+    background:
+        radial-gradient(circle at 12% 0%, rgba(66, 245, 176, .08), transparent 34rem),
+        radial-gradient(circle at 92% 12%, rgba(96, 165, 250, .08), transparent 30rem),
+        linear-gradient(145deg, #05070d, #081019 62%, #06080f);
+}
+
+body.cp-body .navbarutenti {
+    z-index: 1600;
+}
+
+body.cp-body .modern-footer {
+    font-family: Poppins, system-ui, sans-serif;
+}
+
+.cp-shell,
+.cp-admin-shell,
+.cp-editor-shell {
+    padding-top: 7rem;
+}
+
+.cp-hero,
+.cp-category-hero,
+.cp-search-hero,
+.cp-section,
+.cp-toolbar,
+.cp-feature-card,
+.cp-side-stack,
+.cp-entry-hero,
+.cp-entry-content,
+.cp-entry-sidebar,
+.cp-sidebar-card,
+.cp-admin-side,
+.cp-admin-header,
+.cp-admin-stats article,
+.cp-admin-panel,
+.cp-editor-head,
+.cp-editor-panel,
+.cp-editor-preview,
+.cp-install {
+    border-color: rgba(255, 255, 255, .1);
+    background: linear-gradient(145deg, rgba(255, 255, 255, .052), rgba(255, 255, 255, .018)), rgba(8, 13, 24, .66);
+    box-shadow: 0 18px 54px rgba(0, 0, 0, .32);
+}
+
+.cp-hero {
+    min-height: 410px;
+}
+
+.cp-entry-hero {
+    min-height: 390px;
+}
+
+.cp-entry-hero__media {
+    min-height: 350px;
+}
+
+.cp-hero h1,
+.cp-category-hero h1,
+.cp-search-hero h1,
+.cp-admin-header h1,
+.cp-editor-head h1,
+.cp-entry-hero h1 {
+    font-weight: 720;
+    font-size: 3.8rem;
+    line-height: 1.02;
+}
+
+.cp-section-head h2,
+.cp-feature-card h2,
+.cp-entry-card h2,
+.cp-search-result h2,
+.cp-markdown h2,
+.cp-markdown h3,
+.cp-markdown h4,
+.cp-content-block h2 {
+    font-weight: 680;
+}
+
+.cp-hero p,
+.cp-category-hero p,
+.cp-search-hero p,
+.cp-admin-header p,
+.cp-editor-head p,
+.cp-entry-hero p,
+.cp-entry-card p,
+.cp-search-result p,
+.cp-markdown p,
+.cp-markdown li {
+    color: rgba(220, 229, 241, .82);
+    font-weight: 400;
+    line-height: 1.62;
+}
+
+.cp-kicker,
+.cp-btn,
+.cp-icon-btn,
+.cp-entry-card__meta span,
+.cp-hero-badges span,
+.cp-status-pill,
+.cp-tag-row a,
+.cp-chip-list span,
+.cp-filter-bar span,
+.cp-field span,
+.cp-search button,
+.cp-live-item strong,
+.cp-mini-row strong,
+.cp-sidebar-card dt,
+.cp-admin-side nav a,
+.cp-admin-stats span,
+.cp-admin-table th,
+.cp-admin-entry-cell strong,
+.cp-editor-tabs button {
+    font-weight: 650;
+}
+
+.cp-kicker {
+    color: #b8f9e4;
+    background: rgba(66, 245, 176, .075);
+}
+
+.cp-shell strong,
+.cp-admin-shell strong,
+.cp-editor-shell strong,
+.cp-category-card strong,
+.cp-signal-card strong {
+    font-weight: 650;
+}
+
+.cp-btn,
+.cp-icon-btn {
+    box-shadow: none;
+}
+
+.cp-btn--primary {
+    color: #04110b;
+    background: linear-gradient(135deg, #eafff7, #69efbd);
+    box-shadow: 0 10px 26px rgba(66, 245, 176, .16);
+}
+
+.cp-entry-card,
+.cp-category-card,
+.cp-search-result,
+.cp-relation-card,
+.cp-mini-row {
+    background: rgba(255, 255, 255, .036);
+}
+
+.cp-entry-card::before,
+.cp-category-card::before,
+.cp-feature-card::before,
+.cp-relation-card::before {
+    opacity: .42;
+}
+
+.cp-search {
+    grid-template-columns: 2.7rem minmax(0, 1fr) auto;
+    align-items: center;
+    border-radius: 18px;
+    background: rgba(5, 9, 18, .72);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05);
+}
+
+.cp-search input {
+    height: 2.9rem;
+    min-height: 2.9rem;
+    padding: 0;
+    font-weight: 500;
+}
+
+.cp-search button {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    white-space: nowrap;
+    color: #04110b;
+    background: #69efbd;
+}
+
+.cp-search-results {
+    z-index: 1700;
+    border-radius: 16px;
+    background: rgba(5, 9, 18, .98);
+}
+
+.cp-live-item {
+    border-radius: 12px;
+}
+
+.cp-native-select {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+.cp-select {
+    position: relative;
+    min-width: 0;
+    width: 100%;
+}
+
+.cp-admin-toolbar .cp-select {
+    flex: 0 1 190px;
+}
+
+.cp-select__button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .7rem;
+    width: 100%;
+    min-height: 2.75rem;
+    padding: .65rem .8rem;
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 14px;
+    color: var(--cp-text);
+    background: rgba(5, 9, 18, .72);
+    cursor: pointer;
+    text-align: left;
+    font-weight: 600;
+}
+
+.cp-select__button span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cp-select__button i {
+    color: var(--cp-muted);
+    font-size: .75rem;
+    transition: transform var(--cp-transition);
+}
+
+.cp-select__button[aria-expanded="true"] {
+    border-color: rgba(66, 245, 176, .42);
+    box-shadow: 0 0 0 4px rgba(66, 245, 176, .08);
+}
+
+.cp-select__button[aria-expanded="true"] i {
+    transform: rotate(180deg);
+}
+
+.cp-select__menu {
+    position: absolute;
+    top: calc(100% + .45rem);
+    left: 0;
+    right: 0;
+    z-index: 1800;
+    max-height: 260px;
+    overflow: auto;
+    padding: .35rem;
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 16px;
+    background: rgba(5, 9, 18, .98);
+    box-shadow: 0 18px 48px rgba(0, 0, 0, .38);
+    backdrop-filter: blur(18px);
+}
+
+.cp-select__option {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 2.35rem;
+    padding: .52rem .65rem;
+    border: 0;
+    border-radius: 11px;
+    color: rgba(247, 251, 255, .78);
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    font-weight: 500;
+}
+
+.cp-select__option:hover,
+.cp-select__option.is-active {
+    color: #fff;
+    background: rgba(66, 245, 176, .1);
+}
+
+.cp-filter-bar label,
+.cp-admin-toolbar select,
+.cp-field {
+    position: relative;
 }
 
 [hidden] {

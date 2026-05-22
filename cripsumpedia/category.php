@@ -55,10 +55,14 @@ $description = cp_t('subtitle', $lang);
         </section>
 
         <section class="cp-toolbar cp-reveal" aria-label="<?= cp_h(cp_t('filters', $lang)) ?>">
-            <?php cp_render_search_box($lang, $query, 'toolbar'); ?>
+            <?php cp_render_search_box($lang, $query, 'toolbar', cp_url('category', ['type' => $type], $lang), [
+                'tag' => $tag,
+                'order' => $order,
+            ]); ?>
 
             <form class="cp-filter-bar" method="get" action="<?= cp_h(cp_url('category', ['type' => $type], $lang)) ?>">
                 <input type="hidden" name="type" value="<?= cp_h($type) ?>">
+                <input type="hidden" name="q" value="<?= cp_h($query) ?>">
                 <label>
                     <span><?= cp_h(cp_t('tag', $lang)) ?></span>
                     <select name="tag" onchange="this.form.submit()">

@@ -8,6 +8,7 @@
     const state = {
         previewCache: new Map(),
         searchTimer: null,
+        searchAbort: null,
         relationTimer: null,
         toastTimer: null,
         relations: Array.isArray(window.CripsumpediaEditorRelations) ? window.CripsumpediaEditorRelations : [],
@@ -142,10 +143,13 @@
             const search = debounce(async () => {
                 const q = input.value.trim();
                 if (q.length < 2) {
+                    if (state.searchAbort) state.searchAbort.abort();
                     box.hidden = true;
                     box.innerHTML = '';
                     return;
                 }
+                if (state.searchAbort) state.searchAbort.abort();
+                state.searchAbort = new AbortController();
                 box.hidden = false;
                 box.innerHTML = '<div class="cp-live-item"><span><strong>Searching...</strong><small>Cripsumpedia scan</small></span></div>';
                 try {
@@ -153,18 +157,110 @@
                         q,
                         lang: cfg.lang,
                         limit: 7,
-                    }));
+                    }), { signal: state.searchAbort.signal });
+                    if (input.value.trim() !== q) return;
                     box.innerHTML = renderLiveResults(data.results || []);
                 } catch (err) {
+                    if (err.name === 'AbortError') return;
                     box.innerHTML = `<div class="cp-empty" style="min-height:7rem">${escapeHtml(err.message)}</div>`;
                 }
             }, 240);
 
             input.addEventListener('input', search);
             input.addEventListener('focus', search);
+            input.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    box.hidden = true;
+                    input.blur();
+                }
+            });
+            form.addEventListener('submit', () => {
+                box.hidden = true;
+            });
             document.addEventListener('click', (event) => {
                 if (!form.contains(event.target)) box.hidden = true;
             });
+        });
+    }
+
+    function initCustomSelects() {
+        $$('select').forEach((select) => {
+            if (select.dataset.cpSelectReady === '1' || select.closest('.cp-select')) return;
+            select.dataset.cpSelectReady = '1';
+            select.classList.add('cp-native-select');
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'cp-select';
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'cp-select__button';
+            button.setAttribute('aria-haspopup', 'listbox');
+            button.setAttribute('aria-expanded', 'false');
+            const menu = document.createElement('div');
+            menu.className = 'cp-select__menu';
+            menu.setAttribute('role', 'listbox');
+            menu.hidden = true;
+
+            const currentLabel = () => select.options[select.selectedIndex]?.textContent?.trim() || '';
+            const syncButton = () => {
+                button.innerHTML = `<span>${escapeHtml(currentLabel())}</span><i class="fa-solid fa-chevron-down"></i>`;
+                $$('.cp-select__option', menu).forEach((option) => {
+                    option.classList.toggle('is-active', option.dataset.value === select.value);
+                    option.setAttribute('aria-selected', option.dataset.value === select.value ? 'true' : 'false');
+                });
+            };
+
+            Array.from(select.options).forEach((nativeOption) => {
+                const option = document.createElement('button');
+                option.type = 'button';
+                option.className = 'cp-select__option';
+                option.dataset.value = nativeOption.value;
+                option.setAttribute('role', 'option');
+                option.textContent = nativeOption.textContent || '';
+                option.addEventListener('click', () => {
+                    select.value = nativeOption.value;
+                    select.dispatchEvent(new Event('change', { bubbles: true }));
+                    syncButton();
+                    menu.hidden = true;
+                    button.setAttribute('aria-expanded', 'false');
+                    const form = select.closest('form');
+                    if (!select.getAttribute('onchange') && form?.classList.contains('cp-filter-bar')) {
+                        window.setTimeout(() => form?.requestSubmit ? form.requestSubmit() : form?.submit(), 0);
+                    }
+                });
+                menu.appendChild(option);
+            });
+
+            select.parentNode.insertBefore(wrapper, select);
+            wrapper.appendChild(select);
+            wrapper.appendChild(button);
+            wrapper.appendChild(menu);
+            syncButton();
+
+            button.addEventListener('click', () => {
+                const open = menu.hidden;
+                $$('.cp-select__menu').forEach((otherMenu) => {
+                    if (otherMenu !== menu) otherMenu.hidden = true;
+                });
+                $$('.cp-select__button').forEach((otherButton) => {
+                    if (otherButton !== button) otherButton.setAttribute('aria-expanded', 'false');
+                });
+                menu.hidden = !open;
+                button.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
+
+            select.addEventListener('change', syncButton);
+        });
+
+        document.addEventListener('click', (event) => {
+            if (event.target.closest('.cp-select')) return;
+            $$('.cp-select__menu').forEach((menu) => { menu.hidden = true; });
+            $$('.cp-select__button').forEach((button) => button.setAttribute('aria-expanded', 'false'));
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape') return;
+            $$('.cp-select__menu').forEach((menu) => { menu.hidden = true; });
+            $$('.cp-select__button').forEach((button) => button.setAttribute('aria-expanded', 'false'));
         });
     }
 
@@ -607,6 +703,7 @@
         initTopbar();
         initProgress();
         initLiveSearch();
+        initCustomSelects();
         initRandom();
         initHoverPreviews();
         initEntryActions();
