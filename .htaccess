@@ -11,6 +11,9 @@ RewriteRule ^u/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]
 # /profile/username
 RewriteRule ^profile/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]
 
+# /go/slug
+RewriteRule ^go/([a-zA-Z0-9_-]{1,64})/?$ go/index.php?slug=$1 [L,QSA]
+
 # /it/u/username
 RewriteRule ^it/u/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]
 
