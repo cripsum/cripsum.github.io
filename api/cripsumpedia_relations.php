@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 require_once __DIR__ . '/../cripsumpedia/_bootstrap.php';
@@ -34,6 +35,18 @@ if ($action === 'get') {
     $entryId = (int)($_GET['entry_id'] ?? $input['entry_id'] ?? 0);
     if ($entryId <= 0) cp_json(['ok' => false, 'message' => 'ID non valido.'], 400);
 
+    $rawRelations = cp_fetch_relations($mysqli, $entryId, null, 120);
+    // Deduplicate: bidirectional relations may appear in both directions
+    $seenTids = [];
+    $uniqueRels = [];
+    foreach ($rawRelations as $r) {
+        $tid = (int)$r['id'];
+        if (!isset($seenTids[$tid])) {
+            $seenTids[$tid] = true;
+            $uniqueRels[] = $r;
+        }
+    }
+
     $relations = array_map(static function (array $relation) use ($mysqli, $lang): array {
         $item = cp_entry_public($relation, $lang, $mysqli, false);
         return [
@@ -48,7 +61,7 @@ if ($action === 'get') {
             'relation_label' => cp_i18n($relation, 'relation_label', $lang),
             'weight' => (int)($relation['weight'] ?? 50),
         ];
-    }, cp_fetch_relations($mysqli, $entryId, null, 120));
+    }, $uniqueRels);
 
     cp_json(['ok' => true, 'relations' => $relations]);
 }

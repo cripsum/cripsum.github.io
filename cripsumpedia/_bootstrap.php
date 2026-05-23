@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/session_init.php';
@@ -1032,7 +1033,7 @@ function cp_markdown_to_html(string $markdown, mysqli $mysqli, string $lang, ?in
 function cp_render_head(string $title, string $description, string $lang, string $bodyClass = 'cp-body', ?string $ogImage = null): void
 {
     $ogImage = $ogImage ? cp_asset_url($ogImage) : '/img/sfondo-og.jpg';
-    ?>
+?>
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -1048,7 +1049,7 @@ function cp_render_head(string $title, string $description, string $lang, string
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="/cripsumpedia/cripsumpedia.css?v=1.1">
+    <link rel="stylesheet" href="/cripsumpedia/cripsumpedia.css?v=1.2">
     <script>
         document.documentElement.classList.add('cp-js');
         window.Cripsumpedia = {
@@ -1059,19 +1060,19 @@ function cp_render_head(string $title, string $description, string $lang, string
             csrf: <?= json_encode(cp_csrf_token()) ?>
         };
     </script>
-    <script src="/cripsumpedia/cripsumpedia.js?v=1.1" defer></script>
-    <?php
+    <script src="/cripsumpedia/cripsumpedia.js?v=1.2" defer></script>
+<?php
 }
 
 function cp_render_background(): void
 {
-    ?>
+?>
     <div class="cp-bg" aria-hidden="true">
         <div class="cp-bg__grid"></div>
         <div class="cp-bg__scan"></div>
     </div>
     <div class="cp-progress" data-cp-progress aria-hidden="true"></div>
-    <?php
+<?php
 }
 
 function cp_render_topbar(string $lang, string $active = 'home'): void
@@ -1086,30 +1087,30 @@ function cp_render_topbar(string $lang, string $active = 'home'): void
 function cp_render_footer(string $lang): void
 {
     $footerLang = $lang;
-    ?>
+?>
     <?php include __DIR__ . '/../includes/footer.php'; ?>
     <div class="cp-toast" data-cp-toast hidden></div>
     <div class="cp-hover-card" data-cp-hover-card hidden></div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <?php
+<?php
 }
 
 function cp_render_install_notice(string $lang): void
 {
-    ?>
+?>
     <section class="cp-install">
         <i class="fa-solid fa-database"></i>
         <h1><?= cp_h(cp_t('install_title', $lang)) ?></h1>
         <p><?= cp_h(cp_t('install_text', $lang)) ?></p>
         <code>cripsumpedia/install.sql</code>
     </section>
-    <?php
+<?php
 }
 
 function cp_render_search_box(string $lang, string $value = '', string $variant = 'hero', ?string $actionUrl = null, array $hidden = []): void
 {
     $actionUrl = $actionUrl ?: cp_url('search', [], $lang);
-    ?>
+?>
     <form class="cp-search cp-search--<?= cp_h($variant) ?>" action="<?= cp_h($actionUrl) ?>" method="get" data-cp-live-search>
         <?php foreach ($hidden as $key => $hiddenValue): ?>
             <?php if ($hiddenValue !== null && $hiddenValue !== ''): ?>
@@ -1124,14 +1125,14 @@ function cp_render_search_box(string $lang, string $value = '', string $variant 
         </button>
         <div class="cp-search-results" data-cp-search-results hidden></div>
     </form>
-    <?php
+<?php
 }
 
 function cp_render_entry_card(mysqli $mysqli, array $entry, string $lang, string $class = ''): void
 {
     $public = cp_entry_public($entry, $lang, $mysqli);
     $style = '--entry-accent:' . cp_h($public['accent']);
-    ?>
+?>
     <article class="cp-entry-card <?= cp_h($class) ?>" style="<?= $style ?>" data-cp-entry-card data-type="<?= cp_h($public['type']) ?>" data-title="<?= cp_h($public['title']) ?>">
         <a class="cp-entry-card__media" href="<?= cp_h($public['url']) ?>" aria-label="<?= cp_h($public['title']) ?>">
             <img src="<?= cp_h($public['image']) ?>" alt="<?= cp_h($public['title']) ?>" loading="lazy" onerror="this.parentElement.classList.add('is-broken'); this.remove();">
@@ -1154,12 +1155,12 @@ function cp_render_entry_card(mysqli $mysqli, array $entry, string $lang, string
             </div>
         </div>
     </article>
-    <?php
+<?php
 }
 
 function cp_render_breadcrumbs(string $lang, array $items): void
 {
-    ?>
+?>
     <nav class="cp-breadcrumbs" aria-label="Breadcrumb">
         <a href="<?= cp_h(cp_url('home', [], $lang)) ?>"><?= cp_h(cp_t('pedia', $lang)) ?></a>
         <?php foreach ($items as $item): ?>
@@ -1171,7 +1172,7 @@ function cp_render_breadcrumbs(string $lang, array $items): void
             <?php endif; ?>
         <?php endforeach; ?>
     </nav>
-    <?php
+<?php
 }
 
 function cp_group_relations_by_type(array $relations): array

@@ -237,31 +237,60 @@
             wrapper.appendChild(menu);
             syncButton();
 
+            const positionMenu = () => {
+                const rect = button.getBoundingClientRect();
+                const menuW = Math.max(rect.width, 180);
+                let menuLeft = rect.left + window.scrollX;
+                if (rect.left + menuW > window.innerWidth - 8) {
+                    menuLeft = window.scrollX + window.innerWidth - menuW - 8;
+                }
+                const spaceBelow = window.innerHeight - rect.bottom;
+                const spaceAbove = rect.top;
+                const menuMaxH = 260;
+                let menuTop, openUpward = false;
+                if (spaceBelow < menuMaxH && spaceAbove > spaceBelow) {
+                    openUpward = true;
+                    menuTop = rect.top + window.scrollY - Math.min(menuMaxH, spaceAbove - 8);
+                } else {
+                    menuTop = rect.bottom + window.scrollY + 6;
+                }
+                menu.style.cssText = `position:absolute;top:${menuTop}px;left:${Math.max(8 + window.scrollX, menuLeft)}px;width:${menuW}px;z-index:99999;right:auto;max-height:${openUpward ? spaceAbove - 8 : Math.min(menuMaxH, spaceBelow - 8)}px;`;
+            };
+
             button.addEventListener('click', () => {
                 const open = menu.hidden;
                 $$('.cp-select__menu').forEach((otherMenu) => {
-                    if (otherMenu !== menu) otherMenu.hidden = true;
+                    if (otherMenu !== menu) { otherMenu.hidden = true; otherMenu.style.cssText = ''; }
                 });
                 $$('.cp-select__button').forEach((otherButton) => {
                     if (otherButton !== button) otherButton.setAttribute('aria-expanded', 'false');
                 });
                 menu.hidden = !open;
                 button.setAttribute('aria-expanded', open ? 'true' : 'false');
+                if (!menu.hidden) {
+                    // Move to body to escape any stacking context created by backdrop-filter
+                    if (menu.parentNode !== document.body) document.body.appendChild(menu);
+                    positionMenu();
+                }
             });
 
             select.addEventListener('change', syncButton);
         });
 
         document.addEventListener('click', (event) => {
-            if (event.target.closest('.cp-select')) return;
-            $$('.cp-select__menu').forEach((menu) => { menu.hidden = true; });
+            if (event.target.closest('.cp-select') || event.target.closest('.cp-select__menu')) return;
+            $$('.cp-select__menu').forEach((menu) => { menu.hidden = true; menu.style.cssText = ''; });
             $$('.cp-select__button').forEach((button) => button.setAttribute('aria-expanded', 'false'));
         });
         document.addEventListener('keydown', (event) => {
             if (event.key !== 'Escape') return;
-            $$('.cp-select__menu').forEach((menu) => { menu.hidden = true; });
+            $$('.cp-select__menu').forEach((menu) => { menu.hidden = true; menu.style.cssText = ''; });
             $$('.cp-select__button').forEach((button) => button.setAttribute('aria-expanded', 'false'));
         });
+        window.addEventListener('scroll', () => {
+            $$('.cp-select__menu:not([hidden])').forEach((menu) => { menu.hidden = true; menu.style.cssText = ''; });
+            $$('.cp-select__button').forEach((button) => button.setAttribute('aria-expanded', 'false'));
+        }, { passive: true });
     }
 
     function initRandom() {
