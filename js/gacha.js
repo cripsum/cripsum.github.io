@@ -1614,18 +1614,42 @@
   }
 
   /* ════════════════════════════════════════════════════
-     ACHIEVEMENTS
+       ACHIEVEMENTS
   ════════════════════════════════════════════════════ */
   async function triggerAchievements(data) {
-    if(typeof unlockAchievement!=='function')return;
-    try{
+    if (typeof unlockAchievement !== 'function') return;
+    try {
       unlockAchievement(5);
-      const r=await fetch('/api/get_casse_aperte');
-      const d=await r.json();
-      const c=d.total??0;
-      if(c>=100)unlockAchievement(8);
-      if(c>=500)unlockAchievement(16);
-    }catch(e){}
+
+      const r = await fetch('/api/get_casse_aperte');
+      const d = await r.json();
+      const c = d.total ?? 0;
+      if (c >= 100) unlockAchievement(8);
+      if (c >= 500) unlockAchievement(16);
+
+      const rarities = data.pulls
+        ? data.pulls.map(p => normalizeRarity(p.personaggio.rarità)) 
+        : [normalizeRarity(data.personaggio.rarità)];                  
+
+      for (const rarity of rarities) {
+        if (rarity === 'comune') {
+          state.comuniDiFila++;
+          if (state.comuniDiFila >= 10) unlockAchievement(9);
+        } else {
+          state.comuniDiFila = 0;  
+        }
+      }
+
+      const hasNew = data.pulls
+        ? data.pulls.some(p => p.is_new)
+        : data.is_new;
+
+      if (hasNew) {
+        const inv = await fetch('/api/api_get_inventario').then(r2 => r2.json());
+        if (Array.isArray(inv) && inv.length >= 100) unlockAchievement(18);
+      }
+
+    } catch(e) {}
   }
 
   /* ════════════════════════════════════════════════════
