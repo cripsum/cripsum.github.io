@@ -410,7 +410,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                 <div class="gacha-card-details">
                     <div class="gacha-card-rarity-bar" id="card-rarity-bar"></div>
                     <p class="gacha-card-rarity-label" id="card-rarity-label">—</p>
-                    <h2 class="gacha-card-name" id="card-name">—</h2>
+                    <h2 class="gacha-card-name" id="card-name"></h2>
                 </div>
             </div>
 
