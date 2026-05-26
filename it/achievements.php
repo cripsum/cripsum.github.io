@@ -136,11 +136,11 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
         <section class="ach-stats ach-reveal">
             <article>
-                <strong id="statTotal">0</strong>
+                <strong id="statTotal" class="statTotal">0</strong>
                 <span>Totali</span>
             </article>
             <article>
-                <strong id="statUnlocked">0</strong>
+                <strong id="statUnlocked" class="statUnlocked">0</strong>
                 <span>Sbloccati</span>
             </article>
             <article>
