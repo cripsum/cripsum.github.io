@@ -28,6 +28,7 @@ $edits = [
         'title_html' => '<p>The herta &amp; Sparkle - HSR <br/> (collab con <a class="linkbianco" href="https://www.tiktok.com/@nauz_aep">Nauz</a>)</p>',
         'title_text' => 'The herta & Sparkle - HSR (collab con Nauz )',
         'music' => 'TWICE - Strategy',
+        'rpcimg' => 'https://media1.tenor.com/m/3QeWi0KI2zsAAAAC/the-herta-herta.gif',
     ],
     [
         'id' => 27,
@@ -39,6 +40,7 @@ $edits = [
         'title_html' => 'Kōtarō Bokuto - Haikyuu',
         'title_text' => 'Kōtarō Bokuto - Haikyuu',
         'music' => 'QMIIR - Sempero',
+        'rpcimg' => 'https://media1.tenor.com/m/4D0yU-tKtUQAAAAC/bokuto-koutarou.gif',
     ],
     [
         'id' => 26,
@@ -50,6 +52,7 @@ $edits = [
         'title_html' => 'Iuno - Wuthering Waves',
         'title_text' => 'Iuno - Wuthering Waves',
         'music' => 'XYLØ - Afterlife (Ark Patrol Remix)',
+        'rpcimg' => 'https://media1.tenor.com/m/9sD6KL41RgQAAAAC/iuno-iuno-wuwa.gif',
     ],
     [
         'id' => 25,
@@ -61,6 +64,7 @@ $edits = [
         'title_html' => 'Perfect Cell - DragonBall',
         'title_text' => 'Perfect Cell - DragonBall',
         'music' => 'Jmilton, CHASHKAKEFIRA - Reinado',
+        'rpcimg' => 'https://media1.tenor.com/m/mMm1Kd38phYAAAAC/big-brain-cell.gif',
     ],
     [
         'id' => 24,
@@ -72,6 +76,7 @@ $edits = [
         'title_html' => 'Waguri Kaoruko',
         'title_text' => 'Waguri Kaoruko',
         'music' => 'Tate McRae - it\'s ok i\'m ok',
+        'rpcimg' => 'https://media1.tenor.com/m/7ddM67UZbgYAAAAC/kaoruko-waguri-waguri-kaoruko.gif',
     ],
     [
         'id' => 23,
@@ -83,6 +88,7 @@ $edits = [
         'title_html' => 'Evelyn - Zenless Zone Zero',
         'title_text' => 'Evelyn - Zenless Zone Zero',
         'music' => 'Charli XCX - Track 10',
+        'rpcimg' => 'https://media1.tenor.com/m/OKrN0ca7FrYAAAAC/evelyn-zzz-singing.gif',
     ],
     [
         'id' => 22,
@@ -94,6 +100,7 @@ $edits = [
         'title_html' => 'Shorekeeper - Wuthering Waves',
         'title_text' => 'Shorekeeper - Wuthering Waves',
         'music' => 'Irokz - Toxic Potion (slowed)',
+        'rpcimg' => 'https://media1.tenor.com/m/V505Lf9lIaAAAAAC/shorekeeper-smile.gif',
     ],
     [
         'id' => 21,
@@ -105,6 +112,7 @@ $edits = [
         'title_html' => 'Karane Inda',
         'title_text' => 'Karane Inda',
         'music' => 'Katy Perry - Harleys in Hawaii',
+        'rpcimg' => 'https://media1.tenor.com/m/eLDDY0lV10wAAAAC/the-100-girlfriends-who-really-karane-inda.gif',
     ],
     [
         'id' => 20,
@@ -116,6 +124,7 @@ $edits = [
         'title_html' => 'Dante - Devil May Cry',
         'title_text' => 'Dante - Devil May Cry',
         'music' => 'ATLXS - PASSO BEM SOLTO (super slowed)',
+        'rpcimg' => 'https://media1.tenor.com/m/ZeqTSp9HVusAAAAC/taking-a-look-dante.gif',
     ],
     [
         'id' => 19,
@@ -127,6 +136,7 @@ $edits = [
         'title_html' => 'Sung Jin-Woo - Solo Levelling',
         'title_text' => 'Sung Jin-Woo - Solo Levelling',
         'music' => 'Peak - Re-Up',
+        'rpcimg' => 'https://media1.tenor.com/m/cmGCMoAyI_cAAAAC/solo-leveling-solo-leveling-season-2.gif',
     ],
     [
         'id' => 18,
@@ -138,6 +148,7 @@ $edits = [
         'title_html' => 'Nagi - Blue Lock',
         'title_text' => 'Nagi - Blue Lock',
         'music' => 'One of the girls X good for you',
+        'rpcimg' => 'https://media1.tenor.com/m/LXELPRJNdIkAAAAC/nagi-seishiro.gif',
     ],
     [
         'id' => 17,
@@ -149,6 +160,7 @@ $edits = [
         'title_html' => 'Cool Mita / Cappie - MiSide',
         'title_text' => 'Cool Mita / Cappie - MiSide',
         'music' => 'Bruno Mars - Treasure',
+        'rpcimg' => 'https://media1.tenor.com/m/nawiqYXYvmQAAAAC/miside-mita.gif',
     ],
     [
         'id' => 16,
@@ -160,6 +172,7 @@ $edits = [
         'title_html' => 'Crazy Mita - MiSide',
         'title_text' => 'Crazy Mita - MiSide',
         'music' => 'Imogen Heap - Headlock',
+        'rpcimg' => 'https://media1.tenor.com/m/nawiqYXYvmQAAAAC/miside-mita.gif',
     ],
     [
         'id' => 15,
@@ -171,6 +184,7 @@ $edits = [
         'title_html' => 'Yuki Suou - Roshidere',
         'title_text' => 'Yuki Suou - Roshidere',
         'music' => 'Rarin - Mamacita',
+        'rpcimg' => 'https://media1.tenor.com/m/4TXm2fzhjzUAAAAC/alya-sometimes-hides-her-feelings-in-russian-roshidere.gif',
     ],
     [
         'id' => 14,
@@ -182,6 +196,7 @@ $edits = [
         'title_html' => 'Alya Kujou - Roshidere',
         'title_text' => 'Alya Kujou - Roshidere',
         'music' => 'Clean Bandit - Solo',
+        'rpcimg' => 'https://media1.tenor.com/m/kMvtJh1VrroAAAAC/alya-san-hides-her-feelings-in-russian-tokidoki-bosotto-russia-go-de-dereru-tonari-no-alya-san.gif',
     ],
     [
         'id' => 13,
@@ -193,6 +208,7 @@ $edits = [
         'title_html' => 'Alya Kujou - Roshidere',
         'title_text' => 'Alya Kujou - Roshidere',
         'music' => 'Subway Surfers phonk trend',
+        'rpcimg' => 'https://media1.tenor.com/m/kMvtJh1VrroAAAAC/alya-san-hides-her-feelings-in-russian-tokidoki-bosotto-russia-go-de-dereru-tonari-no-alya-san.gif',
     ],
     [
         'id' => 12,
@@ -204,6 +220,7 @@ $edits = [
         'title_html' => 'Luca Arlia (meme)',
         'title_text' => 'Luca Arlia (meme)',
         'music' => 'Luca Carboni - Luca lo stesso',
+        'rpcimg' => 'https://media1.tenor.com/m/lMQ-ddynXIcAAAAd/andiamo-a-disoneste-disoneste.gif',
     ],
     [
         'id' => 11,
@@ -215,6 +232,7 @@ $edits = [
         'title_html' => 'Yuki Suou - Roshidere',
         'title_text' => 'Yuki Suou - Roshidere',
         'music' => 'PnB Rock - Unforgettable (Freestyle)',
+        'rpcimg' => 'https://media1.tenor.com/m/4TXm2fzhjzUAAAAC/alya-sometimes-hides-her-feelings-in-russian-roshidere.gif',
     ],
     [
         'id' => 10,
@@ -226,6 +244,7 @@ $edits = [
         'title_html' => 'Alya Kujou - Roshidere',
         'title_text' => 'Alya Kujou - Roshidere',
         'music' => 'Rarin & Frozy - Kompa',
+        'rpcimg' => 'https://media1.tenor.com/m/kMvtJh1VrroAAAAC/alya-san-hides-her-feelings-in-russian-tokidoki-bosotto-russia-go-de-dereru-tonari-no-alya-san.gif',
     ],
     [
         'id' => 9,
@@ -237,6 +256,7 @@ $edits = [
         'title_html' => 'Cristiano Ronaldo',
         'title_text' => 'Cristiano Ronaldo',
         'music' => 'G-Eazy - Tumblr Girls',
+        'rpcimg' => 'https://media1.tenor.com/m/xwKvSU1YrKIAAAAC/smile.gif',
     ],
     [
         'id' => 8,
@@ -248,6 +268,7 @@ $edits = [
         'title_html' => 'Mandy - Brawl Stars',
         'title_text' => 'Mandy - Brawl Stars',
         'music' => 'NCTS - NEXT!',
+        'rpcimg' => 'https://media1.tenor.com/m/8ZeXp8r3SAsAAAAC/mandy-brawl-stars.gif',
     ],
     [
         'id' => 7,
@@ -259,6 +280,7 @@ $edits = [
         'title_html' => 'Choso - Jujutsu Kaisen',
         'title_text' => 'Choso - Jujutsu Kaisen',
         'music' => 'The Weeknd - Is There Someone Else?',
+        'rpcimg' => 'https://media1.tenor.com/m/1BZtVPRMvOcAAAAC/choso-jujutsu-kaisen.gif',
     ],
     [
         'id' => 6,
@@ -270,6 +292,7 @@ $edits = [
         'title_html' => 'Nym',
         'title_text' => 'Nym',
         'music' => 'Chris Brown - Under the influence',
+        'rpcimg' => 'https://media1.tenor.com/m/zRZzaNPaz0YAAAAC/nym.gif',
     ],
     [
         'id' => 5,
@@ -281,6 +304,7 @@ $edits = [
         'title_html' => 'Mortis - Brawl Stars',
         'title_text' => 'Mortis - Brawl Stars',
         'music' => 'DJ FNK - Slide da Treme Melódica v2',
+        'rpcimg' => 'https://media1.tenor.com/m/wsb2cEKbkJgAAAAC/brawlstars-mortis.gif',
     ],
     [
         'id' => 4,
@@ -292,6 +316,7 @@ $edits = [
         'title_html' => 'Nino balletto tattico',
         'title_text' => 'Nino balletto tattico',
         'music' => 'Zara Larsson - Lush Life',
+        'rpcimg' => 'https://cripsum.com/img/foto_nino.jpg',
     ],
     [
         'id' => 3,
@@ -303,6 +328,7 @@ $edits = [
         'title_html' => 'Mates - Crossbar challenge',
         'title_text' => 'Mates - Crossbar challenge',
         'music' => 'G-Eazy - Lady Killers II',
+        'rpcimg' => 'https://www.webboh.it/wp-content/uploads/2019/04/mates_articolo-2.jpg',
     ],
     [
         'id' => 2,
@@ -314,6 +340,7 @@ $edits = [
         'title_html' => 'Homelander - The Boys',
         'title_text' => 'Homelander - The Boys',
         'music' => 'MGMT - Little Dark Age',
+        'rpcimg' => 'https://media1.tenor.com/m/2MKHetsOfHkAAAAC/homelander-the-boys.gif',
     ],
     [
         'id' => 1,
@@ -325,6 +352,7 @@ $edits = [
         'title_html' => 'Heisenberg - Breaking Bad',
         'title_text' => 'Heisenberg - Breaking Bad',
         'music' => 'Travis Scott - MY EYES',
+        'rpcimg' => 'https://media1.tenor.com/m/hFGpisu2EDEAAAAC/say-my-name-heisenberg-breaking-bad.gif',
     ],
 ];
 
