@@ -66,7 +66,7 @@ $public = $entry ? cp_entry_public($entry, $lang, $mysqli, false) : null;
 
             <section class="cp-entry-hero cp-reveal" style="--entry-accent: <?= cp_h($public['accent']) ?>">
                 <div class="cp-entry-hero__media">
-                    <img src="<?= cp_h(cp_asset_url($entry['banner_url'] ?: $entry['image_url'])) ?>" alt="<?= cp_h($titleText) ?>" loading="eager" onerror="this.parentElement.classList.add('is-broken'); this.remove();">
+                    <img src="<?= cp_h(cp_asset_url($entry['banner_url'] ?: $entry['image_url'])) ?>" alt="<?= cp_h($titleText) ?>" loading="eager" class="img-cripsumpedias" onerror="this.parentElement.classList.add('is-broken'); this.remove();">
                 </div>
                 <div class="cp-entry-hero__content">
                     <span class="cp-kicker"><i class="fa-solid <?= cp_h(cp_type_icon((string)$entry['entry_type'])) ?>"></i> <?= cp_h(cp_type_label((string)$entry['entry_type'], $lang)) ?></span>
