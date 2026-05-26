@@ -16,6 +16,7 @@ $edits = [
         'title_html' => 'Danil Showman',
         'title_text' => 'Danil Showman',
         'music' => 'Sto bene al mare - Marco Mengoni',
+        'richpresenceimg' => 'https://cripsum.com/img/danilshowman.jpeg',
     ],
     [
         'id' => 28,
@@ -450,6 +451,7 @@ $totalEdits = count($edits);
                     $badge = trim($edit['badge']);
                     $badgeClass = $badge !== '' ? strtolower(preg_replace('/[^a-z0-9]+/i', '-', $badge)) : '';
                     $icon = htmlspecialchars($edit['icon'], ENT_QUOTES, 'UTF-8');
+                    $rpcimg = htmlspecialchars($edit['richpresenceimage'], ENT_QUOTES, 'UTF-8');
                     ?>
                     <article
                         class="edit-card"
@@ -469,6 +471,8 @@ $totalEdits = count($edits);
                             <i class="fas fa-check"></i>
                             <span>Visto</span>
                         </div>
+
+                        <img src="<?php echo $rpcimg; ?>" alt="" class="rpcimg" style="display:none">
 
                         <div class="video-container">
                             <iframe
