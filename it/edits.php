@@ -451,7 +451,7 @@ $totalEdits = count($edits);
                     $badge = trim($edit['badge']);
                     $badgeClass = $badge !== '' ? strtolower(preg_replace('/[^a-z0-9]+/i', '-', $badge)) : '';
                     $icon = htmlspecialchars($edit['icon'], ENT_QUOTES, 'UTF-8');
-                    $rpcimg = htmlspecialchars($edit['richpresenceimage'], ENT_QUOTES, 'UTF-8');
+                    $rpcimg = htmlspecialchars($edit['rpcimg'], ENT_QUOTES, 'UTF-8');
                     ?>
                     <article
                         class="edit-card"
