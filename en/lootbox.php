@@ -394,7 +394,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
 
                 <div class="gacha-card-frame" id="card-frame">
                     <div class="gacha-card-img-wrap" id="card-img-wrap">
-                        <img id="card-img" src="/img/cassa.png" alt="Personaggio"
+                        <img id="card-img" class="card-img-godo" src="/img/cassa.png" alt="Personaggio"
                             draggable="false" onerror="this.src='/img/cassa.png'">
                     </div>
                     <div class="gacha-card-img-shine"></div>
