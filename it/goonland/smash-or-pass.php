@@ -153,8 +153,8 @@ function sopPickPost(array $posts): ?array
         $fileExt = strtolower((string)($post['file_ext'] ?? ''));
         $allTags = ' ' . strtolower(
             (string)($post['tag_string'] ?? '') . ' ' .
-            (string)($post['tag_string_general'] ?? '') . ' ' .
-            (string)($post['tag_string_character'] ?? '')
+                (string)($post['tag_string_general'] ?? '') . ' ' .
+                (string)($post['tag_string_character'] ?? '')
         ) . ' ';
 
         if (!is_string($fileUrl) || $fileUrl === '') continue;
@@ -301,6 +301,7 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../../includes/head-import.php'; ?>
     <title>GoonLand™ - Smash or Pass</title>
@@ -310,11 +311,12 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
     <script src="/js/goonland.js?v=2.7-smash-polish" defer></script>
     <script src="/js/goonland-smash-pass.js?v=2.7-smash-polish" defer></script>
 </head>
+
 <body class="goonland-page" data-goonland-page="smash-pass">
     <?php include '../../includes/navbar-goonland.php'; ?>
-    
 
     <div class="gl-bg" aria-hidden="true"><span></span><span></span></div>
+    <img src="https://media1.tenor.com/m/QJ7OYh157fcAAAAC/sonic.gif" class="goonrpcimg" style="display:none" alt="">
 
     <main class="gl-shell gl-sp-shell">
         <section class="gl-hero gl-hero-small gl-reveal">
@@ -462,4 +464,5 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="/js/modeChanger.js"></script>
 </body>
+
 </html>

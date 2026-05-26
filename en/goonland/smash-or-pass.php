@@ -310,6 +310,7 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
 
 
     <div class="gl-bg" aria-hidden="true"><span></span><span></span></div>
+    <img src="https://media1.tenor.com/m/QJ7OYh157fcAAAAC/sonic.gif" class="goonrpcimg" style="display:none" alt="">
 
     <main class="gl-shell gl-sp-shell">
         <section class="gl-hero gl-hero-small gl-reveal">
