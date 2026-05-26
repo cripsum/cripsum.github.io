@@ -496,6 +496,10 @@
         `;
 
         modal.classList.add('is-open');
+        window.__presencePost = {
+            title: post.titolo || t.no_title,
+            image: (!post.is_video && post.media_url) ? post.media_url : null,
+        };
         modal.setAttribute('aria-hidden', 'false');
         bindPostActions(bodyBox);
         await loadComments(id, `#modal-comments-${Number(post.id)}`);
@@ -505,6 +509,7 @@
         const modal = $('#cwPostModal');
         if (!modal) return;
         modal.classList.remove('is-open');
+        window.__presencePost = null;
         modal.setAttribute('aria-hidden', 'true');
         const bodyBox = $('#cwPostModalBody');
         if (bodyBox) bodyBox.innerHTML = '';
