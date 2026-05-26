@@ -16,7 +16,7 @@ $edits = [
         'title_html' => 'Danil Showman',
         'title_text' => 'Danil Showman',
         'music' => 'Sto bene al mare - Marco Mengoni',
-        'richpresenceimg' => 'https://cripsum.com/img/danilshowman.jpeg',
+        'rpcimg' => 'https://cripsum.com/img/danilshowman.jpeg',
     ],
     [
         'id' => 28,
