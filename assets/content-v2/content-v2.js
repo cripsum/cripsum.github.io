@@ -216,7 +216,7 @@
             return `<video class="cw-media" src="${escapeHtml(post.media_url)}" controls playsinline preload="metadata"></video>`;
         }
 
-        return `<img class="cw-media" src="${escapeHtml(post.media_url)}" alt="" loading="lazy" onerror="this.closest('.cw-post__media-wrap').innerHTML='<div class=&quot;cw-media&quot; style=&quot;display:grid;place-items:center;color:var(--cw-muted);&quot;><i class=&quot;fas fa-triangle-exclamation&quot;></i></div>'">`;
+        return `<img class="cw-media godomedia" src="${escapeHtml(post.media_url)}" alt="" loading="lazy" onerror="this.closest('.cw-post__media-wrap').innerHTML='<div class=&quot;cw-media&quot; style=&quot;display:grid;place-items:center;color:var(--cw-muted);&quot;><i class=&quot;fas fa-triangle-exclamation&quot;></i></div>'">`;
     };
 
     const postCard = (post) => {
