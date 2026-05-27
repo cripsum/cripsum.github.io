@@ -108,7 +108,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
 
             <div class="home-hero__art" aria-hidden="true">
                 <div class="home-hero__glow"></div>
-                <img src="../img/amongus.jpg" alt="">
+                <img src="../img/amongus-logo.jpg" alt="">
             </div>
         </section>
 

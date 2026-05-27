@@ -9,7 +9,7 @@ $footerYear = date('Y');
     <div class="footer-content">
         <div class="footer-section footer-brand-section">
             <a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/home" class="footer-brand" aria-label="Cripsum home">
-                <img src="/img/amongus.jpg" alt="Cripsum™" class="footer-logo" loading="lazy">
+                <img src="/img/amongus-logo.jpg" alt="Cripsum™" class="footer-logo" loading="lazy">
                 <span>
                     <strong class="footer-title">Cripsum™</strong>
                     <small>The best site ever</small>
