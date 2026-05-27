@@ -258,11 +258,6 @@ if ($twofaSetupSecret) {
                             <input type="checkbox" name="nsfw" <?php echo $nsfw ? 'checked' : ''; ?>>
                             <span>Show NSFW</span>
                         </label>
-
-                        <label class="auth-check">
-                            <input type="checkbox" name="richpresence" <?php echo $richpresence ? 'checked' : ''; ?>>
-                            <span>Rich Presence</span>
-                        </label>
                     </div>
 
                     <button class="auth-btn auth-btn--primary" type="submit" data-submit-text="Salva">
