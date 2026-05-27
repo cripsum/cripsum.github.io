@@ -41,8 +41,6 @@ $user_id = $_SESSION['user_id'] ?? null;
         <img src="img/toki3.jpg" alt="Goofy Animation 8" class="goofy-animation-8" style="max-width: 220px; height: auto; position: absolute; top: 60%; right: 40%;">
         <img src="img/toki4.jpg" alt="Goofy Animation 9" class="goofy-animation-9" style="max-width: 140px; height: auto; position: absolute; bottom: 10%; left: 45%;">
         <img src="img/absolutetopaz.jpg" alt="Goofy Animation 10" class="goofy-animation-10" style="max-width: 190px; height: auto; position: absolute; top: 40%; right: 5%;">
-
-        <!-- Nuove animazioni fluide -->
         <img src="img/toki5.jpg" alt="Random Mover 1" class="random-mover-1" style="max-width: 130px; height: auto; position: fixed; z-index: 1000; top: 0; left: 0;">
         <img src="img/absolutetopaz.jpg" alt="Random Mover 2" class="random-mover-2" style="max-width: 170px; height: auto; position: fixed; z-index: 1000; top: 0; left: 0;">
         <img src="img/toki.jpg" alt="DVD Bouncer" class="dvd-bouncer" style="max-width: 110px; height: auto; position: fixed; z-index: 1000; top: 0; left: 0;">

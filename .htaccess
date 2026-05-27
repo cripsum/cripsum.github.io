@@ -5,7 +5,6 @@ php_value session.gc_divisor 1000
 
 RewriteEngine On
 
-# Cripsumpedia pretty routes
 RewriteRule ^cripsumpedia/?$ cripsumpedia/index.php [L,QSA]
 RewriteRule ^cripsumpedia/home/?$ cripsumpedia/index.php [L,QSA]
 RewriteRule ^cripsumpedia/search/?$ cripsumpedia/search.php [L,QSA]
@@ -21,16 +20,12 @@ RewriteRule ^(it|en)/cripsumpedia/editor/?$ cripsumpedia/editor.php?lang=$1 [L,Q
 RewriteRule ^(it|en)/cripsumpedia/(persone|people|eventi|events|meme|memes)/?$ cripsumpedia/category.php?lang=$1&category=$2 [L,QSA]
 RewriteRule ^(it|en)/cripsumpedia/(persone|people|eventi|events|meme|memes)/([a-zA-Z0-9_-]+)/?$ cripsumpedia/entry.php?lang=$1&category=$2&slug=$3 [L,QSA]
 
-# /u/username
 RewriteRule ^u/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]
 
-# /profile/username
 RewriteRule ^profile/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]
 
-# /it/u/username
 RewriteRule ^it/u/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]
 
-# Vecchio /user/username, se vuoi mantenerlo compatibile
 RewriteRule ^user/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]
 
 RewriteRule ^it/game/?$ /it/game/lobby.php [L,QSA]
