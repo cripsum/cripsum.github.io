@@ -1,7 +1,7 @@
 <?php
-require_once '../config/session_init.php';
-require_once '../config/database.php';
-require_once '../includes/functions.php';
+require_once 'config/session_init.php';
+require_once 'config/database.php';
+require_once 'includes/functions.php';
 
 if (function_exists('checkBan') && isset($mysqli)) {
     checkBan($mysqli);
@@ -34,8 +34,8 @@ $username = $_SESSION['username'] ?? 'utente';
 </head>
 
 <body>
-    <?php include '../includes/navbar.php'; ?>
-    <?php include '../includes/impostazioni.php'; ?>
+    <?php include 'includes/navbar.php'; ?>
+    <?php include 'includes/impostazioni.php'; ?>
 
     <main class="testobianco paginaprincipale home-v2">
         <?php if (isset($_SESSION['error_message'])): ?>
@@ -120,15 +120,15 @@ $username = $_SESSION['username'] ?? 'utente';
 
             <div class="home-mood-grid">
                 <article class="home-mood-card">
-                    <img src="../img/felicita.jpg" alt="Felicità" loading="lazy" data-fallback="/img/Susremaster.png">
+                    <img src="img/felicita.jpg" alt="Felicità" loading="lazy" data-fallback="/img/Susremaster.png">
                     <h3>Felicità</h3>
                 </article>
                 <article class="home-mood-card">
-                    <img src="../img/tristezza.jpg" alt="Tristezza" loading="lazy" data-fallback="/img/Susremaster.png">
+                    <img src="img/tristezza.jpg" alt="Tristezza" loading="lazy" data-fallback="/img/Susremaster.png">
                     <h3>Tristezza</h3>
                 </article>
                 <article class="home-mood-card">
-                    <img src="../img/stupore.jpg" alt="Stupore" loading="lazy" data-fallback="/img/Susremaster.png">
+                    <img src="img/stupore.jpg" alt="Stupore" loading="lazy" data-fallback="/img/Susremaster.png">
                     <h3>Stupore</h3>
                 </article>
             </div>
@@ -264,7 +264,7 @@ $username = $_SESSION['username'] ?? 'utente';
         </div>
     </div>
 
-    <?php include '../includes/footer.php'; ?>
+    <?php include 'includes/footer.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <script src="/js/slider.js?v=6"></script>
