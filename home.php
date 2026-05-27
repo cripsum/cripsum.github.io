@@ -8,7 +8,8 @@ if (function_exists('checkBan') && isset($mysqli)) {
 }
 
 if (!function_exists('home_e')) {
-    function home_e($value) {
+    function home_e($value)
+    {
         return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
     }
 }
@@ -21,7 +22,7 @@ $username = $_SESSION['username'] ?? 'utente';
 <html lang="it">
 
 <head>
-    <?php include '../includes/head-import.php'; ?>
+    <?php include 'includes/head-import.php'; ?>
     <title data-i18n="meta.title">Cripsum™</title>
     <meta name="description" content="Cripsum™: meme, edit, lootbox, GoonLand e roba strana fatta con cura." data-i18n-attr="content|meta.desc">
     <meta property="og:title" content="Cripsum™">
