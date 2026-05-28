@@ -8,37 +8,195 @@
             crossorigin="anonymous"
         />
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="stylesheet" href="css/style.css" />
-        <link rel="stylesheet" href="css/style-dark.css" />
-        <link rel="stylesheet" href="css/achievement-style.css" />
-        <script src="js/richpresence.js"></script>
-        <title>Cripsum™</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <link rel="stylesheet" href="/css/style-dark.css" />
+        <link rel="stylesheet" href="/assets/static/static.css?v=1.0-static" />
+        <script src="/assets/static/static.js?v=1.0-static" defer></script>
+        <title>Cripsum™ — 404</title>
+
+        <style>
+            /* ── 404-specific additions ── */
+            .err-shell {
+                min-height: 100vh;
+                display: grid;
+                place-items: center;
+                padding: 2rem 1rem;
+            }
+
+            .err-card {
+                background: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.025)), var(--static-card);
+                border: 1px solid var(--static-border);
+                border-radius: var(--static-radius-xl);
+                box-shadow: var(--static-shadow);
+                backdrop-filter: blur(18px);
+                -webkit-backdrop-filter: blur(18px);
+                padding: clamp(2rem, 6vw, 3.5rem) clamp(1.5rem, 5vw, 3rem);
+                text-align: center;
+                max-width: 540px;
+                width: 100%;
+                position: relative;
+                overflow: hidden;
+            }
+
+            /* glowing ring behind the number */
+            .err-card::before {
+                content: "";
+                position: absolute;
+                inset: -60px;
+                background: radial-gradient(circle at 50% 30%, rgba(47, 107, 255, 0.18) 0%, transparent 65%);
+                pointer-events: none;
+                z-index: 0;
+            }
+
+            .err-card > * {
+                position: relative;
+                z-index: 1;
+            }
+
+            /* big glitchy 404 */
+            .err-number {
+                font-family: "Poppins", sans-serif;
+                font-size: clamp(5.5rem, 20vw, 9rem);
+                font-weight: 900;
+                line-height: 0.85;
+                letter-spacing: -0.08em;
+                background: linear-gradient(135deg, #fff 10%, rgba(var(--static-accent-rgb), 0.9) 50%, #8b5cf6 90%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                margin: 0 0 0.3rem;
+                display: block;
+                animation: err-pulse 3.4s ease-in-out infinite alternate;
+            }
+
+            @keyframes err-pulse {
+                from {
+                    filter: drop-shadow(0 0 16px rgba(47, 107, 255, 0.35));
+                }
+                to {
+                    filter: drop-shadow(0 0 36px rgba(139, 92, 246, 0.55));
+                }
+            }
+
+            .err-headline {
+                font-size: clamp(1.25rem, 4vw, 1.75rem);
+                font-weight: 900;
+                letter-spacing: -0.04em;
+                color: var(--static-text);
+                margin: 0.5rem 0 0.25rem;
+            }
+
+            .err-sub {
+                color: var(--static-muted);
+                font-size: 0.95rem;
+                line-height: 1.55;
+                margin-bottom: 1.5rem;
+            }
+
+            /* meme image */
+            .err-meme {
+                width: clamp(100px, 38%, 160px);
+                border-radius: 18px;
+                border: 1px solid var(--static-border);
+                margin: 0 auto 1.75rem;
+                display: block;
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+                animation: err-bob 3.8s ease-in-out infinite;
+            }
+
+            @keyframes err-bob {
+                0%,
+                100% {
+                    transform: translateY(0) rotate(-1.5deg);
+                }
+                50% {
+                    transform: translateY(-8px) rotate(1.5deg);
+                }
+            }
+
+            /* alert strip */
+            .err-alert {
+                display: flex;
+                gap: 0.65rem;
+                align-items: center;
+                padding: 0.75rem 1rem;
+                border: 1px solid rgba(251, 113, 133, 0.22);
+                border-radius: 999px;
+                background: rgba(251, 113, 133, 0.08);
+                color: #fecdd3;
+                font-size: 0.82rem;
+                font-weight: 800;
+                margin-bottom: 1.5rem;
+            }
+
+            .err-alert i {
+                color: var(--static-red);
+                flex-shrink: 0;
+            }
+
+            /* actions row */
+            .err-actions {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.65rem;
+                justify-content: center;
+            }
+        </style>
     </head>
-    <body>
+    <body class="static-page">
+        <!-- animated background (same as banned/static pages) -->
+        <div class="static-bg" aria-hidden="true">
+            <span class="static-orb static-orb--one"></span>
+            <span class="static-orb static-orb--two"></span>
+            <span class="static-grid-bg"></span>
+        </div>
+
+        <!-- minimal navbar, same markup as existing pages -->
         <nav class="navbarutenti navbar navbar-expand-xl">
             <div class="container-fluid">
-                <a class="navbar-brand" href="https://cripsum.com/it/home">
-                    <img src="img/amongus.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
+                <a class="navbar-brand" href="https://cripsum.com/en/home">
+                    <img src="/img/amongus-logo.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
                     <span class="align-middle ms-3 fw-bold" style="color: white">Cripsum™</span>
                 </a>
+            </div>
         </nav>
-        <div style="max-width: 600px; margin: auto; padding-top: 7rem;" class="testobianco">
-            <div style="max-width: 80%; margin: auto;">
-                <h1 class="text text-center mt-3" style="font-weight: bold; ">404</h1>
-                <h1 class="text text-center mt-3">This page doesn't exist.</h1>
-                <p class="text-center mt-3" style="font-size: small"> Seriously bro, where were you trying to go?</p>
-                <img src="img/emojithinkingmeme.png" alt="" style="max-width: 100%; margin: auto; display: block;">
-                <br><br>
-                <p class="text-center mt-3"><a href="https://cripsum.com/it/home" class="linkbianco">Go back to the homepage</a></p>
+
+        <div class="err-shell">
+            <div class="err-card static-reveal">
+                <span class="static-pill" style="margin: 0 auto 1rem">Error</span>
+
+                <span class="err-number">404</span>
+
+                <h1 class="err-headline">This page doesn't exist.</h1>
+                <p class="err-sub">Seriously bro, where were you trying to go?</p>
+
+                <img src="/img/emojithinkingmeme.png" alt="Thinking meme emoji" class="err-meme" />
+
+                <div class="err-alert">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    <span>The page you're looking for has been moved, deleted, or never existed.</span>
+                </div>
+
+                <div class="err-actions">
+                    <a href="https://cripsum.com/en/home" class="static-btn static-btn--primary">
+                        <i class="fas fa-house"></i>
+                        <span>Go back home</span>
+                    </a>
+                    <a href="javascript:history.back()" class="static-btn">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Go back</span>
+                    </a>
+                </div>
             </div>
         </div>
+
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"
         ></script>
-        
     </body>
 </html>
