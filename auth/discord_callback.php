@@ -21,7 +21,7 @@ unset($_SESSION['discord_oauth_state'], $_SESSION['discord_oauth_target_user_id'
 
 if ($code === '' || $state === '' || !hash_equals((string)$savedState, $state)) {
     $_SESSION['profile_flash_error'] = 'Invalid Discord OAuth state.';
-    header('Location: /edit-profile.php');
+    header('Location: /en/edit-profile.php');
     exit;
 }
 
@@ -95,6 +95,6 @@ try {
     $_SESSION['profile_flash_error'] = $e->getMessage();
 }
 
-$redirect = '/edit-profile.php' . (profile_is_staff() && $targetUserId !== (int)$_SESSION['user_id'] ? '?user_id=' . $targetUserId : '');
+$redirect = '/en/edit-profile.php' . (profile_is_staff() && $targetUserId !== (int)$_SESSION['user_id'] ? '?user_id=' . $targetUserId : '');
 header('Location: ' . $redirect);
 exit;
