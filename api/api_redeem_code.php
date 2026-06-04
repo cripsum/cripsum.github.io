@@ -139,6 +139,11 @@ $codici = [
         'punti'       => 3100,
         'descrizione' => ['it' => '+3000 punti per l\'aggiornamento!', 'en' => '+3000 points for the update!'],
     ],
+    'palestina' => [
+        'tipo'        => 'punti',
+        'punti'       => 3000,
+        'descrizione' => ['it' => '+30 pull da parte di netanyahu', 'en' => '+30 pulls from netanyahu'],
+    ],
 
 ];
 
