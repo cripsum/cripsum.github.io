@@ -119,6 +119,26 @@ $codici = [
         'punti'       => 12000,
         'descrizione' => ['it' => 'Tung god ti ha fatto un regalino... Ecco 120 pull!', 'en' => 'Tung god made you a little gift... Here are 120 pulls!'],
     ],
+    'sonsofsparda' => [
+        'tipo'        => 'punti',
+        'punti'       => 5000,
+        'descrizione' => ['it' => 'Dante e Vergil ti hanno regalato 50 pull!', 'en' => 'Dante and Vergil gifted you 50 pulls!'],
+    ],
+    'jackpot' => [
+        'tipo'        => 'punti',
+        'punti'       => 8000,
+        'descrizione' => ['it' => 'Jackpot! Ecco 80 pull!', 'en' => 'Jackpot! Here are 80 pulls!'],
+    ],
+    'godo2' => [
+        'tipo'        => 'punti',
+        'punti'       => 1000,
+        'descrizione' => ['it' => '+1000, tieni, prenditi sta multi', 'en' => '+1000, here, take these 10 pulls'],
+    ],
+    'update31' => [
+        'tipo'        => 'punti',
+        'punti'       => 3100,
+        'descrizione' => ['it' => '+3000 punti per l\'aggiornamento!', 'en' => '+3000 points for the update!'],
+    ],
 
 ];
 
