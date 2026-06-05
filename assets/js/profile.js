@@ -364,7 +364,9 @@
             digital_noise: 44,
             glass_rain: 24,
             aurora: 10,
-            gradient_waves: 12
+            gradient_waves: 12,
+            sakura_falling: 16,
+            cyber_grid: 1
         };
 
         const amount = particleMap[effect] || 0;
@@ -499,6 +501,27 @@
         persistDetailsState();
         setInterval(updateActivityTimestamps, 1000);
         setInterval(refreshDiscordStatus, 30000);
+
+        // Click to Enter Overlay
+        const overlay = document.getElementById('clickToEnterOverlay');
+        if (overlay) {
+            overlay.addEventListener('click', async () => {
+                const audio = document.getElementById('profileAudio');
+                if (audio) {
+                    try {
+                        const savedVolume = Number(localStorage.getItem('cripsum.profile.audioVolume') || 0.18);
+                        audio.volume = Math.min(Math.max(savedVolume, 0), 1);
+                        await audio.play();
+                        const playIcon = document.getElementById('profileAudioIcon');
+                        if (playIcon) playIcon.className = 'fas fa-pause';
+                    } catch (e) {
+                        console.error('Autoplay via click to enter failed:', e);
+                    }
+                }
+                overlay.classList.add('is-hidden');
+                overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
+            });
+        }
     });
 })();
 
@@ -515,6 +538,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         const audio = document.getElementById('profileAudio');
         if (!audio || audio.dataset.autoplay !== '1') return;
+        if (document.getElementById('clickToEnterOverlay')) return;
 
         const savedVolume = Number(localStorage.getItem('cripsum.profile.audioVolume') || 0.18);
         audio.volume = Math.min(Math.max(Number.isFinite(savedVolume) ? savedVolume : 0.18, 0), 1);

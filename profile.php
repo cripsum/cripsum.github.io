@@ -145,6 +145,11 @@ $cardColorCss = $cardColor ?: 'var(--card)';
 $textColorCss = $textColor ?: 'var(--text)';
 if ($theme === 'auto') $theme = 'dark';
 
+$layout = $profile ? profile_allowed_value((string)($profile['profile_layout'] ?? 'standard'), ['standard', 'compact', 'showcase', 'clean'], 'standard') : 'standard';
+$showEmbeds = $profile ? profile_flag($profile, 'profile_show_embeds', true) : false;
+$embeds = $showEmbeds ? profile_list_embeds($mysqli, $profileId, true) : [];
+$socialsStyle = $profile ? profile_allowed_value((string)($profile['profile_socials_style'] ?? 'cards'), ['cards', 'icons'], 'cards') : 'cards';
+
 $displayName = $profile ? profile_display_name($profile) : 'Profilo';
 $profileUrl = $profile ? 'https://cripsum.com/u/' . rawurlencode(strtolower($profile['username'])) : 'https://cripsum.com/profile.php';
 $discordId = $profile ? trim((string)($profile['discord_id'] ?? '')) : '';
@@ -157,7 +162,7 @@ $musicTitle = $profile ? trim((string)($profile['profile_music_title'] ?? '')) :
 $musicArtist = $profile ? trim((string)($profile['profile_music_artist'] ?? '')) : '';
 $showAudioPlayer = $profile ? ((int)($profile['profile_show_audio_player'] ?? 1) === 1) : false;
 $hasMusic = $hasUploadedMusic || ($musicExternalUrl !== '' && profile_is_safe_url($musicExternalUrl, true));
-$profileEffect = $profile ? profile_allowed_value((string)($profile['profile_effect'] ?? 'none'), ['none', 'cursor_glow', 'soft_particles', 'scanlines', 'ambient', 'aurora', 'gradient_waves', 'stars', 'spotlight', 'digital_noise', 'glass_rain'], 'none') : 'none';
+$profileEffect = $profile ? profile_allowed_value((string)($profile['profile_effect'] ?? 'none'), ['none', 'cursor_glow', 'soft_particles', 'scanlines', 'ambient', 'aurora', 'gradient_waves', 'stars', 'spotlight', 'digital_noise', 'glass_rain', 'sakura_falling', 'cyber_grid'], 'none') : 'none';
 $avatarRingEnabled = $profile ? ((int)($profile['avatar_ring_enabled'] ?? 1) === 1) : true;
 $avatarRingStyle = $profile ? profile_allowed_value((string)($profile['avatar_ring_style'] ?? 'spin'), ['spin', 'pulse', 'orbit', 'glow', 'dual', 'rainbow', 'halo', 'neon', 'spark', 'glitch', 'none'], 'spin') : 'spin';
 $avatarRingColor = $profile ? profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent) : $accent;
@@ -191,8 +196,8 @@ $featuredContents = array_values(array_filter($visibleContents, fn($item) => (in
 $normalContents = array_values(array_filter($visibleContents, fn($item) => (int)($item['is_featured'] ?? 0) !== 1));
 
 $hasStats = $showStats && $profile && ((int)$profile['profile_views'] > 0 || (int)$profile['num_achievement'] > 0 || (int)$profile['num_personaggi'] > 0 || (int)$profile['total_personaggi'] > 0);
-$hasRightContent = $hasStats || $featuredLinks || $normalLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || $visibleActivity || $visibleCharacters;
-$hasAnyPublicContent = $visibleSocials || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || ($showDiscord && $discordId) || $hasMusic;
+$hasRightContent = $hasStats || $featuredLinks || $normalLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || $visibleActivity || $visibleCharacters || $embeds;
+$hasAnyPublicContent = $visibleSocials || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || ($showDiscord && $discordId) || $hasMusic || $embeds;
 
 $spotlight = null;
 if ($featuredContents) {
@@ -220,8 +225,8 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=3.0.9">
-    <script src="/assets/js/profile.js?v=3.0.9" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=3.1.0">
+    <script src="/assets/js/profile.js?v=3.1.0" defer></script>
 </head>
 
 <body
@@ -233,7 +238,20 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     data-profile-effect="<?php echo profile_h($profileEffect); ?>"
     data-profile-link-style="<?php echo profile_h($linkStyle); ?>"
     data-profile-button-shape="<?php echo profile_h($buttonShape); ?>"
+    data-profile-socials-style="<?php echo profile_h($socialsStyle); ?>"
+    data-profile-layout="<?php echo profile_h($layout); ?>"
     style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
+    
+    <?php if ($profile && profile_flag($profile, 'profile_click_to_enter', false)): ?>
+        <div id="clickToEnterOverlay" class="click-to-enter-overlay">
+            <div class="click-to-enter-content">
+                <button type="button" class="click-to-enter-btn">
+                    <?php echo profile_h($profile['profile_enter_text'] ?: 'Click to Enter'); ?>
+                </button>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <?php
     if (file_exists(__DIR__ . '/includes/navbar-bio.php')) include __DIR__ . '/includes/navbar-bio.php';
     else include __DIR__ . '/includes/navbar.php';
@@ -250,7 +268,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     <?php elseif ($isLoginBlocked): ?>
         <?php profile_state_page('Login', 'Login Required', 'This profile is only visible to registered users.', 'Log In', '/en/login'); ?>
     <?php else: ?>
-        <main class="bio-page profile-smart-page <?php echo !$hasRightContent ? 'profile-smart-page--single' : ''; ?>" id="bioPage">
+        <main class="bio-page profile-smart-page <?php echo (!$hasRightContent || $layout === 'clean') ? 'profile-smart-page--single' : ''; ?> layout-<?php echo profile_h($layout); ?>" id="bioPage">
             <section class="bio-hero bio-card profile-smart-hero js-tilt-card js-reveal" aria-label="Public Profile">
                 <div class="profile-hero-actions-top">
                     <?php if ($isOnline): ?>
@@ -288,18 +306,28 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                 <?php endif; ?>
 
                 <?php if ($visibleSocials): ?>
-                    <div class="bio-social-grid profile-social-compact" aria-label="Social">
-                        <?php foreach ($visibleSocials as $social): ?>
-                            <a class="bio-social" href="<?php echo profile_h($social['url']); ?>" target="_blank" rel="noopener noreferrer">
-                                <span class="bio-social__icon"><i class="<?php echo profile_h(profile_social_icon_class($social['platform'])); ?>"></i></span>
-                                <span>
-                                    <strong><?php echo profile_h($social['label'] ?: ucfirst($social['platform'])); ?></strong>
-                                    <small><?php echo profile_h($social['display_username'] ?: profile_short_url_label($social['url'])); ?></small>
-                                </span>
-                                <i class="fas fa-arrow-up-right-from-square bio-social__arrow"></i>
-                            </a>
-                        <?php endforeach; ?>
-                    </div>
+                    <?php if ($socialsStyle === 'icons'): ?>
+                        <div class="bio-social-icons-row" aria-label="Social">
+                            <?php foreach ($visibleSocials as $social): ?>
+                                <a class="bio-social-icon bio-social-icon--<?php echo profile_h($social['platform']); ?>" href="<?php echo profile_h($social['url']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo profile_h($social['label'] ?: ucfirst($social['platform'])); ?>">
+                                    <i class="<?php echo profile_h(profile_social_icon_class($social['platform'])); ?>"></i>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="bio-social-grid profile-social-compact" aria-label="Social">
+                            <?php foreach ($visibleSocials as $social): ?>
+                                <a class="bio-social" href="<?php echo profile_h($social['url']); ?>" target="_blank" rel="noopener noreferrer">
+                                    <span class="bio-social__icon"><i class="<?php echo profile_h(profile_social_icon_class($social['platform'])); ?>"></i></span>
+                                    <span>
+                                        <strong><?php echo profile_h($social['label'] ?: ucfirst($social['platform'])); ?></strong>
+                                        <small><?php echo profile_h($social['display_username'] ?: profile_short_url_label($social['url'])); ?></small>
+                                    </span>
+                                    <i class="fas fa-arrow-up-right-from-square bio-social__arrow"></i>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                 <?php endif; ?>
 
                 <?php if ($showDiscord && $discordId): ?>
@@ -407,6 +435,29 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                                             <i class="fas fa-chevron-right"></i>
                                         <?php endif; ?>
                                     </a>
+                                <?php endforeach; ?>
+                            </div>
+                        </section>
+                    <?php endif; ?>
+
+                    <?php if ($embeds): ?>
+                        <section class="bio-card profile-embeds-section js-reveal">
+                            <?php profile_render_section_heading('fas fa-share-square', 'Embed'); ?>
+                            <div class="profile-embeds-grid">
+                                <?php foreach ($embeds as $embed): ?>
+                                    <?php
+                                    $embedUrl = $embed['url'];
+                                    $embedType = $embed['type'];
+                                    $embedTitle = $embed['title'] ?: ($embedType === 'spotify' ? 'Spotify Playlist' : 'YouTube Video');
+                                    ?>
+                                    <div class="profile-embed-wrapper profile-embed-<?php echo profile_h($embedType); ?>">
+                                        <?php if ($embed['title']): ?>
+                                            <div class="profile-embed-header">
+                                                <span><i class="<?php echo $embedType === 'spotify' ? 'fab fa-spotify' : ($embedType === 'youtube' ? 'fab fa-youtube' : 'fas fa-code'); ?>"></i><?php echo profile_h($embedTitle); ?></span>
+                                            </div>
+                                        <?php endif; ?>
+                                        <iframe src="<?php echo profile_h($embedUrl); ?>" width="100%" height="<?php echo $embedType === 'spotify' ? '352' : '315'; ?>" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                                    </div>
                                 <?php endforeach; ?>
                             </div>
                         </section>

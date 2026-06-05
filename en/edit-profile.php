@@ -32,6 +32,7 @@ $links = profile_list_links($mysqli, $targetUserId, false);
 $projects = profile_list_projects($mysqli, $targetUserId, false);
 $contents = profile_list_contents($mysqli, $targetUserId, false);
 $blocks = function_exists('profile_list_blocks') ? profile_list_blocks($mysqli, $targetUserId, false) : [];
+$embeds = function_exists('profile_list_embeds') ? profile_list_embeds($mysqli, $targetUserId, false) : [];
 $badges = profile_list_unlocked_badges($mysqli, $targetUserId);
 $inventoryCharacters = profile_list_inventory_characters($mysqli, $targetUserId);
 $csrf = profile_csrf_token();
@@ -70,9 +71,9 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Edit profile</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=3.0.9">
-    <script src="/assets/js/profile.js?v=3.0.9" defer></script>
-    <script src="/assets/js/edit-profile-en.js?v=3.0.9" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=3.1.0">
+    <script src="/assets/js/profile.js?v=3.1.0" defer></script>
+    <script src="/assets/js/edit-profile-en.js?v=3.1.0" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" style="--profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColor ?: 'var(--card)'); ?>; --profile-text-color: <?php echo profile_h($textColor ?: 'var(--text)'); ?>;">
@@ -139,18 +140,20 @@ function profile_json_script(string $id, array $data): void
             <input type="hidden" name="blocks_json" id="blocksJson">
             <input type="hidden" name="badges_json" id="badgesJson">
             <input type="hidden" name="characters_json" id="charactersJson">
+            <input type="hidden" name="embeds_json" id="embedsJson">
 
             <section class="bio-card profile-edit-panel js-reveal">
                 <div class="profile-editor-tabs" role="tablist">
-                    <button type="button" class="is-active" data-edit-tab="identity">Identity</button>
-                    <button type="button" data-edit-tab="links">Links</button>
-                    <button type="button" data-edit-tab="projects">Projects</button>
-                    <button type="button" data-edit-tab="content">Contents</button>
-                    <button type="button" data-edit-tab="custom">Custom</button>
-                    <button type="button" data-edit-tab="effects">Effects</button>
-                    <button type="button" data-edit-tab="badges">Badges</button>
-                    <button type="button" data-edit-tab="characters">Characters</button>
-                    <button type="button" data-edit-tab="visibility">Visibility</button>
+                    <button type="button" class="is-active" data-edit-tab="identity"><i class="fas fa-id-card"></i>Identity</button>
+                    <button type="button" data-edit-tab="links"><i class="fas fa-link"></i>Links</button>
+                    <button type="button" data-edit-tab="embeds"><i class="fas fa-share-square"></i>Embed</button>
+                    <button type="button" data-edit-tab="projects"><i class="fas fa-cubes"></i>Projects</button>
+                    <button type="button" data-edit-tab="content"><i class="fas fa-play-circle"></i>Contents</button>
+                    <button type="button" data-edit-tab="custom"><i class="fas fa-wand-magic-sparkles"></i>Custom</button>
+                    <button type="button" data-edit-tab="effects"><i class="fas fa-sparkles"></i>Effects</button>
+                    <button type="button" data-edit-tab="badges"><i class="fas fa-trophy"></i>Badges</button>
+                    <button type="button" data-edit-tab="characters"><i class="fas fa-user-astronaut"></i>Characters</button>
+                    <button type="button" data-edit-tab="visibility"><i class="fas fa-eye"></i>Visibility</button>
                 </div>
 
                 <div class="profile-edit-section is-active" data-edit-section="identity">
@@ -214,11 +217,25 @@ function profile_json_script(string $id, array $data): void
                         <label class="profile-field"><span>Primary accent</span><input type="color" name="accent_color" id="accentInput" value="<?php echo profile_h($accent); ?>"></label>
                         <label class="profile-field"><span>Secondary accent</span><input type="color" name="profile_secondary_color" id="secondaryColorInput" value="<?php echo profile_h($secondaryColor); ?>"></label>
                         <label class="profile-field"><span>Theme</span><select name="profile_theme" id="themeInput"><?php foreach (['dark' => 'Dark', 'light' => 'Light', 'auto' => 'Auto'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_theme'] ?? 'dark') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
-                        <label class="profile-field"><span>Layout</span><select name="profile_layout" id="layoutInput"><?php foreach (['standard' => 'Standard', 'compact' => 'Compact', 'showcase' => 'Showcase'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_layout'] ?? 'standard') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
+                        <label class="profile-field"><span>Layout</span><select name="profile_layout" id="layoutInput"><?php foreach (['standard' => 'Standard', 'compact' => 'Compact', 'showcase' => 'Showcase', 'clean' => 'Clean (e-z.bio)'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_layout'] ?? 'standard') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
                         <label class="profile-field"><span>Card color</span><input type="color" name="profile_card_color" id="cardColorInput" value="<?php echo profile_h($cardColor ?: '#080c18'); ?>"><small>Leave default for classic glass style.</small></label>
                         <label class="profile-field"><span>Text color</span><input type="color" name="profile_text_color" id="textColorInput" value="<?php echo profile_h($textColor ?: ($theme === 'light' ? '#111827' : '#f7f8ff')); ?>"></label>
                         <label class="profile-field"><span>Link style</span><select name="profile_link_style" id="linkStyleInput"><?php foreach (['glass' => 'Glass', 'solid' => 'Solid', 'outline' => 'Outline', 'neon' => 'Neon'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo $linkStyle === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
                         <label class="profile-field"><span>Button shape</span><select name="profile_button_shape" id="buttonShapeInput"><?php foreach (['pill' => 'Pill', 'rounded' => 'Rounded', 'sharp' => 'Sharp'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo $buttonShape === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
+                        <label class="profile-field"><span>Socials Style</span><select name="profile_socials_style" id="socialsStyleInput"><?php foreach (['cards' => 'Large cards (2x row)', 'icons' => 'Icons only clean'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_socials_style'] ?? 'cards') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
+                    </div>
+
+                    <div class="profile-presets-block profile-mt">
+                        <span><i class="fas fa-palette"></i> Preset Color Palettes</span>
+                        <div class="profile-presets-grid">
+                            <button type="button" class="profile-preset-btn" data-accent="#0f5bff" data-secondary="#8b5cf6" data-card="#080c18" data-text="#f7f8ff" style="--btn-accent: #0f5bff; --btn-secondary: #8b5cf6;" title="Default Cripsum"></button>
+                            <button type="button" class="profile-preset-btn" data-accent="#ff007f" data-secondary="#7f00ff" data-card="#0a0512" data-text="#ffebf5" style="--btn-accent: #ff007f; --btn-secondary: #7f00ff;" title="Cyberpunk"></button>
+                            <button type="button" class="profile-preset-btn" data-accent="#ff6b6b" data-secondary="#feca57" data-card="#1a0f0f" data-text="#fff5f5" style="--btn-accent: #ff6b6b; --btn-secondary: #feca57;" title="Sunset Glow"></button>
+                            <button type="button" class="profile-preset-btn" data-accent="#10b981" data-secondary="#3b82f6" data-card="#040d1a" data-text="#ecfdf5" style="--btn-accent: #10b981; --btn-secondary: #3b82f6;" title="Emerald Ocean"></button>
+                            <button type="button" class="profile-preset-btn" data-accent="#ffffff" data-secondary="#888888" data-card="#121212" data-text="#ffffff" style="--btn-accent: #ffffff; --btn-secondary: #888888;" title="Monochrome Clean"></button>
+                            <button type="button" class="profile-preset-btn" data-accent="#ff758c" data-secondary="#ff7eb3" data-card="#1f1015" data-text="#fff0f5" style="--btn-accent: #ff758c; --btn-secondary: #ff7eb3;" title="Cherry Blossom"></button>
+                            <button type="button" class="profile-preset-btn" data-accent="#a855f7" data-secondary="#ec4899" data-card="#150b24" data-text="#faf5ff" style="--btn-accent: #a855f7; --btn-secondary: #ec4899;" title="Purple Orchid"></button>
+                        </div>
                     </div>
 
                     <label class="profile-field"><span>Profile privacy</span><select name="profile_visibility" id="visibilityInput"><?php foreach (['public' => 'Public', 'logged_in' => 'Logged-in users only', 'private' => 'Private'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_visibility'] ?? 'public') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
@@ -238,6 +255,16 @@ function profile_json_script(string $id, array $data): void
                             <label class="profile-toggle-card profile-inline-toggle"><input type="checkbox" name="remove_profile_music_upload" value="1"><span><i class="fas fa-trash"></i>Remove uploaded MP3</span></label>
                         <?php endif; ?>
                     </div>
+
+                    <div class="bio-section-heading profile-mt">
+                        <div><span><i class="fas fa-door-open"></i> Click to Enter (Landing screen)</span>
+                            <p>Shows an introductory screen that the user must click to enter. Helps bypass browser autoplay blocks for audio.</p>
+                        </div>
+                    </div>
+                    <div class="profile-field-grid two">
+                        <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_click_to_enter" value="0"><input type="checkbox" name="profile_click_to_enter" value="1" <?php echo (int)($profile['profile_click_to_enter'] ?? 0) === 1 ? 'checked' : ''; ?> id="clickToEnterInput"><span><i class="fas fa-hand-pointer"></i>Enable Click to Enter</span></label>
+                        <label class="profile-field"><span>Entry button text</span><input type="text" name="profile_enter_text" id="enterTextInput" maxlength="80" value="<?php echo profile_h($profile['profile_enter_text'] ?? ''); ?>" placeholder="E.g. Click to Enter / Enter"></label>
+                    </div>
                 </div>
 
                 <div class="profile-edit-section" data-edit-section="links">
@@ -254,6 +281,15 @@ function profile_json_script(string $id, array $data): void
                         </div><button type="button" class="bio-button" data-add-row="links">+ Link</button>
                     </div>
                     <div class="profile-repeater" id="linksRepeater"></div>
+                </div>
+
+                <div class="profile-edit-section" data-edit-section="embeds">
+                    <div class="bio-section-heading">
+                        <div><span><i class="fas fa-share-square"></i> Embed</span>
+                            <p>Insert Spotify playlist or YouTube video.</p>
+                        </div><button type="button" class="bio-button" data-add-row="embeds">+ Embed</button>
+                    </div>
+                    <div class="profile-repeater" id="embedsRepeater"></div>
                 </div>
 
                 <div class="profile-edit-section" data-edit-section="projects">
@@ -302,9 +338,11 @@ function profile_json_script(string $id, array $data): void
                                         'stars' => 'Soft stars',
                                         'spotlight' => 'Spotlight mouse',
                                         'digital_noise' => 'Digital noise',
-                                        'glass_rain' => 'Glass rain'
+                                        'glass_rain' => 'Glass rain',
+                                        'sakura_falling' => 'Sakura petals',
+                                        'cyber_grid' => 'Cyber grid'
                                     ] as $value => $label
-                                ): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_effect'] ?? 'none') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?>
+                                  ): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_effect'] ?? 'none') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?>
                             </select></label>
                         <label class="profile-field"><span>PFP ring effect</span><select name="avatar_ring_style" id="ringStyleInput">
                                 <?php foreach (
@@ -434,6 +472,7 @@ function profile_json_script(string $id, array $data): void
                     <div class="profile-toggle-grid">
                         <label class="profile-toggle-card"><input type="hidden" name="profile_show_socials" value="0"><input type="checkbox" name="profile_show_socials" value="1" <?php echo (int)($profile['profile_show_socials'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fab fa-instagram"></i>Social</span></label>
                         <label class="profile-toggle-card"><input type="hidden" name="profile_show_links" value="0"><input type="checkbox" name="profile_show_links" value="1" <?php echo (int)($profile['profile_show_links'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-link"></i>Link</span></label>
+                        <label class="profile-toggle-card"><input type="hidden" name="profile_show_embeds" value="0"><input type="checkbox" name="profile_show_embeds" value="1" <?php echo (int)($profile['profile_show_embeds'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-share-square"></i>Embed</span></label>
                         <label class="profile-toggle-card"><input type="hidden" name="profile_show_projects" value="0"><input type="checkbox" name="profile_show_projects" value="1" <?php echo (int)($profile['profile_show_projects'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-cubes"></i>Projects</span></label>
                         <label class="profile-toggle-card"><input type="hidden" name="profile_show_contents" value="0"><input type="checkbox" name="profile_show_contents" value="1" <?php echo (int)($profile['profile_show_contents'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-play"></i>Edits & contents</span></label>
                         <label class="profile-toggle-card"><input type="hidden" name="profile_show_badges" value="0"><input type="checkbox" name="profile_show_badges" value="1" <?php echo (int)($profile['profile_show_badges'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-trophy"></i>Badge</span></label>
@@ -478,6 +517,7 @@ function profile_json_script(string $id, array $data): void
     <?php profile_json_script('initialProjectsData', $projects); ?>
     <?php profile_json_script('initialContentsData', $contents); ?>
     <?php profile_json_script('initialBlocksData', $blocks); ?>
+    <?php profile_json_script('initialEmbedsData', $embeds); ?>
 
     <?php if (file_exists(__DIR__ . '/../includes/footer-en.php')) include __DIR__ . '/../includes/footer-en.php'; ?>
 </body>

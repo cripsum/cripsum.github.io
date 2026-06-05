@@ -60,7 +60,7 @@ $musicTitleDb = $musicTitle !== '' ? $musicTitle : null;
 $musicArtist = profile_clean_text($_POST['profile_music_artist'] ?? '', 80);
 $musicArtistDb = $musicArtist !== '' ? $musicArtist : null;
 $showAudioPlayer = profile_bool_from_post('profile_show_audio_player', true);
-$profileEffect = profile_allowed_value((string)($_POST['profile_effect'] ?? 'none'), ['none', 'cursor_glow', 'soft_particles', 'scanlines', 'ambient', 'aurora', 'gradient_waves', 'stars', 'spotlight', 'digital_noise', 'glass_rain'], 'none');
+$profileEffect = profile_allowed_value((string)($_POST['profile_effect'] ?? 'none'), ['none', 'cursor_glow', 'soft_particles', 'scanlines', 'ambient', 'aurora', 'gradient_waves', 'stars', 'spotlight', 'digital_noise', 'glass_rain', 'sakura_falling', 'cyber_grid'], 'none');
 $avatarRingEnabled = profile_bool_from_post('avatar_ring_enabled', true);
 $avatarRingStyle = profile_allowed_value((string)($_POST['avatar_ring_style'] ?? 'spin'), ['spin', 'pulse', 'orbit', 'glow', 'dual', 'rainbow', 'halo', 'neon', 'spark', 'glitch', 'none'], 'spin');
 $avatarRingColor = profile_normalize_hex_color($_POST['avatar_ring_color'] ?? $accentColor);
@@ -73,6 +73,11 @@ $showBadges = profile_bool_from_post('profile_show_badges', true);
 $showActivity = profile_bool_from_post('profile_show_activity', true);
 $showDiscord = profile_bool_from_post('profile_show_discord', true);
 $showCharacters = profile_bool_from_post('profile_show_characters', true);
+$clickToEnter = profile_bool_from_post('profile_click_to_enter', false);
+$enterText = profile_clean_text($_POST['profile_enter_text'] ?? '', 80);
+$enterTextDb = $enterText !== '' ? $enterText : null;
+$socialsStyle = profile_allowed_value((string)($_POST['profile_socials_style'] ?? 'cards'), ['cards', 'icons'], 'cards');
+$showEmbeds = profile_bool_from_post('profile_show_embeds', true);
 
 if (!profile_is_valid_username($username)) {
     profile_json_response(['ok' => false, 'message' => 'Invalid username. Use 3-20 characters, letters, numbers, or underscores.'], 422);
@@ -141,6 +146,7 @@ $projectRows = array_slice(profile_decode_rows('projects_json'), 0, 8);
 $contentRows = array_slice(profile_decode_rows('contents_json'), 0, 8);
 $blockRows = array_slice(profile_decode_rows('blocks_json'), 0, 10);
 $badgeRows = array_slice(profile_decode_rows('badges_json'), 0, 8);
+$embedRows = array_slice(profile_decode_rows('embeds_json'), 0, 8);
 
 $allowedPlatforms = ['tiktok', 'instagram', 'youtube', 'twitch', 'github', 'discord', 'telegram', 'x', 'twitter', 'spotify', 'soundcloud', 'steam', 'reddit', 'pinterest', 'snapchat', 'facebook', 'linkedin', 'paypal', 'patreon', 'kick', 'bluesky', 'threads', 'behance', 'dribbble', 'website', 'email', 'other'];
 $allowedStatuses = ['active', 'paused', 'finished', 'idea'];
@@ -155,11 +161,12 @@ try {
         SET username = ?, display_name = ?, bio = ?, accent_color = ?, profile_secondary_color = ?, profile_card_color = ?, profile_text_color = ?, profile_link_style = ?, profile_button_shape = ?, profile_theme = ?, profile_layout = ?, profile_visibility = ?, discord_id = ?, discord_use_avatar = ?, discord_use_display_name = ?, profile_status = ?,
             profile_music_url = ?, profile_music_title = ?, profile_music_artist = ?, profile_effect = ?, avatar_ring_style = ?, avatar_ring_color = ?,
             profile_show_stats = ?, profile_show_socials = ?, profile_show_links = ?, profile_show_projects = ?, profile_show_contents = ?, profile_show_badges = ?, profile_show_activity = ?, profile_show_discord = ?, profile_show_audio_player = ?, avatar_ring_enabled = ?, profile_show_characters = ?,
+            profile_enter_text = ?, profile_click_to_enter = ?, profile_socials_style = ?, profile_show_embeds = ?,
             profile_updated_at = NOW()
         WHERE id = ?
     ");
     $stmt->bind_param(
-        'sssssssssssssiisssssssiiiiiiiiiiii',
+        'sssssssssssssiisssssssiiiiiiiiiiiisisii',
         $username,
         $displayNameDb,
         $bioDb,
@@ -193,6 +200,10 @@ try {
         $showAudioPlayer,
         $avatarRingEnabled,
         $showCharacters,
+        $enterTextDb,
+        $clickToEnter,
+        $socialsStyle,
+        $showEmbeds,
         $targetUserId
     );
     if (!$stmt->execute()) throw new RuntimeException('Error updating profile.');
@@ -352,6 +363,34 @@ try {
         if (!$insertBlock->execute()) throw new RuntimeException('Error saving custom blocks.');
     }
     $insertBlock->close();
+
+    $stmt = $mysqli->prepare("DELETE FROM utenti_embeds WHERE utente_id = ?");
+    $stmt->bind_param('i', $targetUserId);
+    if (!$stmt->execute()) throw new RuntimeException('Error cleaning embeds.');
+    $stmt->close();
+
+    $insertEmbed = $mysqli->prepare("INSERT INTO utenti_embeds (utente_id, type, title, url, sort_order, is_visible) VALUES (?, ?, ?, ?, ?, ?)");
+    foreach ($embedRows as $i => $row) {
+        $type = profile_allowed_value((string)($row['type'] ?? 'spotify'), ['spotify', 'youtube', 'custom'], 'spotify');
+        $title = profile_clean_text($row['title'] ?? '', 100);
+        $titleDb = $title !== '' ? $title : null;
+        $url = trim((string)($row['url'] ?? ''));
+        $visible = !empty($row['is_visible']) ? 1 : 0;
+        if ($url === '') continue;
+        if (!profile_is_safe_url($url, false)) throw new RuntimeException('Invalid embed URL.');
+        
+        if ($type === 'spotify') {
+            $embedUrl = profile_get_spotify_embed_url($url);
+            if ($embedUrl) $url = $embedUrl;
+        } elseif ($type === 'youtube') {
+            $embedUrl = profile_get_youtube_embed_url($url);
+            if ($embedUrl) $url = $embedUrl;
+        }
+
+        $insertEmbed->bind_param('isssii', $targetUserId, $type, $titleDb, $url, $i, $visible);
+        if (!$insertEmbed->execute()) throw new RuntimeException('Error saving embed.');
+    }
+    $insertEmbed->close();
 
     if ($musicUrlDb || !empty($musicUpload['has_file'])) {
         profile_record_activity($mysqli, $targetUserId, 'music', 'Updated profile song', $musicUrlDb ?: null);

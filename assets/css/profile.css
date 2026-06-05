@@ -1894,7 +1894,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
 }
 
 .profile-smart-page--single {
-    grid-template-columns: minmax(280px, 460px);
+    grid-template-columns: minmax(280px, 580px);
     justify-content: center;
 }
 
@@ -2465,15 +2465,16 @@ body[data-theme="light"] .profile-row-grid select option {
 body[data-profile-effect="cursor_glow"] .profile-effects-layer::before {
     content: "";
     position: fixed;
-    left: var(--cursor-x, 50vw);
-    top: var(--cursor-y, 50vh);
+    left: 0;
+    top: 0;
     width: 24rem;
     height: 24rem;
     border-radius: 999px;
-    transform: translate(-50%, -50%);
+    transform: translate3d(var(--cursor-x, 50vw), var(--cursor-y, 50vh), 0) translate(-50%, -50%);
     background: radial-gradient(circle, rgba(var(--accent-rgb), 0.22), transparent 66%);
     filter: blur(8px);
-    transition: left 70ms linear, top 70ms linear;
+    transition: transform 70ms linear;
+    will-change: transform;
 }
 
 body[data-profile-effect="soft_particles"] .profile-effects-layer::before,
@@ -4183,15 +4184,16 @@ body[data-profile-effect="cursor_glow"] .profile-effects-layer::before,
 body[data-profile-effect="spotlight"] .profile-effects-layer::before {
     content: "";
     position: fixed;
-    left: var(--cursor-x, 50vw);
-    top: var(--cursor-y, 50vh);
+    left: 0;
+    top: 0;
     width: 26rem;
     height: 26rem;
     border-radius: 999px;
-    transform: translate(-50%, -50%);
+    transform: translate3d(var(--cursor-x, 50vw), var(--cursor-y, 50vh), 0) translate(-50%, -50%);
     background: radial-gradient(circle, rgba(var(--accent-rgb), 0.26), rgba(var(--accent-rgb), 0.08) 38%, transparent 70%);
     filter: blur(10px);
-    transition: left 80ms linear, top 80ms linear;
+    transition: transform 80ms linear;
+    will-change: transform;
 }
 
 body[data-profile-effect="spotlight"] .profile-effects-layer::before {
@@ -4471,7 +4473,7 @@ body[data-profile-effect="glass_rain"] .profile-effects-layer::before {
 
 .public-profile-body .profile-smart-avatar .bio-avatar-ring,
 .profile-editor-shell .profile-preview-avatar-ring .bio-avatar-ring {
-    background: conic-gradient(from 90deg, transparent, var(--profile-ring-active, var(--profile-ring, var(--accent))), var(--accent-2, #8b5cf6), transparent 72%) !important;
+    background: conic-gradient(from 90deg, transparent, var(--profile-ring-active, var(--profile-ring, var(--accent))), var(--accent-2, #8b5cf6), transparent 72%);
     box-shadow: 0 0 34px color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 46%, transparent);
 }
 
@@ -5101,3 +5103,310 @@ body[data-theme="light"] .profile-select-menu {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
+
+/* ── LAYOUT CLEAN & NEW FEATURES ────────────────────────────────────────── */
+
+/* Layout Clean (e-z.bio style) */
+.layout-clean {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    max-width: 580px !important;
+    margin: 0 auto !important;
+}
+.layout-clean .profile-smart-hero {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    background: var(--profile-card-color) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border-radius: 24px !important;
+    padding: 2.2rem 1.8rem !important;
+    margin-bottom: 1.5rem !important;
+}
+.layout-clean .profile-smart-content {
+    width: 100% !important;
+}
+.layout-clean .profile-smart-name h1 {
+    font-size: 1.85rem !important;
+    margin-bottom: 0.2rem !important;
+}
+.layout-clean .bio-avatar-wrap {
+    margin: 0 auto 1.2rem auto !important;
+}
+.layout-clean .bio-social-grid {
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+    margin-top: 1rem !important;
+}
+
+/* Circular Social Icons Row */
+.bio-social-icons-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
+    margin: 1.2rem 0;
+    width: 100%;
+}
+.bio-social-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--profile-text-color, #fff);
+    font-size: 1.25rem;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.bio-social-icon:hover {
+    transform: translateY(-4px);
+    background: var(--profile-accent);
+    color: #fff !important;
+    border-color: var(--profile-accent);
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--profile-accent) 40%, transparent);
+}
+
+/* Click to Enter Overlay */
+.click-to-enter-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    background: rgba(8, 10, 18, 0.72);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0.65s;
+    pointer-events: auto;
+}
+.click-to-enter-overlay.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+}
+.click-to-enter-content {
+    text-align: center;
+}
+.click-to-enter-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #fff;
+    padding: 1.1rem 2.4rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    letter-spacing: 0.5px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    animation: breathingBtn 3s infinite ease-in-out;
+}
+.click-to-enter-btn:hover {
+    transform: scale(1.05);
+    background: var(--profile-accent, #0f5bff);
+    border-color: var(--profile-accent, #0f5bff);
+    box-shadow: 0 12px 40px color-mix(in srgb, var(--profile-accent, #0f5bff) 50%, transparent);
+}
+@keyframes breathingBtn {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    50% {
+        transform: scale(1.02);
+        box-shadow: 0 12px 44px color-mix(in srgb, var(--profile-accent, #0f5bff) 30%, rgba(0, 0, 0, 0.4));
+    }
+}
+
+/* Embeds Sections */
+.profile-embeds-section {
+    padding: 1.25rem !important;
+}
+.profile-embeds-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+.profile-embed-wrapper {
+    position: relative;
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+.profile-embed-header {
+    padding: 0.65rem 0.85rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.68);
+    background: rgba(0, 0, 0, 0.22);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.profile-embed-header i {
+    color: var(--profile-accent);
+}
+.profile-embed-spotify iframe {
+    border-radius: 0 0 16px 16px;
+}
+.profile-embed-youtube {
+    aspect-ratio: 16 / 9;
+}
+.profile-embed-youtube iframe {
+    height: 100%;
+    border: none;
+}
+
+/* Editor UX Styling */
+.profile-editor-tabs button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    padding: 0.75rem 1.25rem;
+}
+.profile-editor-tabs button i {
+    font-size: 1rem;
+    opacity: 0.85;
+}
+.profile-row-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.profile-move-up, .profile-move-down {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.7);
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+.profile-move-up:hover, .profile-move-down:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+.profile-move-up:active, .profile-move-down:active {
+    transform: scale(0.95);
+}
+
+/* Color Presets Picker */
+.profile-presets-block {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 1.1rem;
+    margin: 1rem 0;
+}
+.profile-presets-block > span {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: 0.75rem;
+}
+.profile-presets-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+.profile-preset-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    cursor: pointer;
+    position: relative;
+    background: linear-gradient(135deg, var(--btn-accent) 50%, var(--btn-secondary) 50%);
+    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.profile-preset-btn:hover {
+    transform: scale(1.18);
+    border-color: #fff;
+    box-shadow: 0 6px 16px var(--btn-accent);
+}
+.profile-preset-btn:active {
+    transform: scale(0.95);
+}
+
+/* Sakura Falling Effect */
+body[data-profile-effect="sakura_falling"] .profile-effects-layer::before {
+    display: none;
+}
+.profile-effect-dot--sakura_falling {
+    position: absolute;
+    width: 14px;
+    height: 10px;
+    background: #ffb7c5;
+    border-radius: 50% 0 50% 50%;
+    opacity: 0.85;
+    top: -20px;
+    left: var(--x);
+    transform: scale(var(--s));
+    animation: sakuraFalling var(--t) linear infinite;
+    animation-delay: var(--d);
+}
+@keyframes sakuraFalling {
+    0% {
+        transform: translateY(0) rotate(0deg) translateX(0);
+        opacity: 0.85;
+    }
+    100% {
+        transform: translateY(105vh) rotate(720deg) translateX(80px);
+        opacity: 0;
+    }
+}
+
+/* Cyber Grid Effect */
+.profile-effect-dot--cyber_grid {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(var(--accent-rgb), 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(var(--accent-rgb), 0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: center top;
+    transform: perspective(500px) rotateX(60deg) translateY(-20px) translateZ(0);
+    transform-origin: center top;
+    animation: cyberGridScroll 12s linear infinite;
+    opacity: 0.38;
+}
+@keyframes cyberGridScroll {
+    0% {
+        background-position: center 0px;
+    }
+    100% {
+        background-position: center 400px;
+    }
+}
+
+

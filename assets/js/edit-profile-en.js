@@ -33,6 +33,7 @@
     const repeaters = {
         socials: $('#socialsRepeater'),
         links: $('#linksRepeater'),
+        embeds: $('#embedsRepeater'),
         projects: $('#projectsRepeater'),
         contents: $('#contentsRepeater'),
         blocks: $('#blocksRepeater'),
@@ -43,6 +44,7 @@
     const contentTypes = [['edit', 'Edit'], ['video', 'Video'], ['game', 'Game'], ['post', 'Post'], ['other', 'Other']];
     const blockTypes = [['text', 'Text'], ['image', 'Image'], ['gif', 'GIF'], ['video', 'Video']];
     const linkButtonStyles = [['card', 'Card'], ['compact', 'Compact'], ['icon', 'Icon only']];
+    const embedTypes = [['spotify', 'Spotify'], ['youtube', 'YouTube Playlist/Video'], ['custom', 'Custom Iframe/Safe Widget']];
 
     function options(list, selected) {
         return list.map((item) => {
@@ -78,6 +80,16 @@
                     <label class="profile-row-grid full">Description<input data-field="description" maxlength="160" value="${escapeAttr(data.description || '')}" placeholder="A short phrase"></label>
                     <label class="profile-row-grid full">URL<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://..."></label>
                     <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> Featured</label>
+                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visible</label>
+                </div>`;
+        }
+
+        if (type === 'embeds') {
+            body = `
+                <div class="profile-row-grid">
+                    <label>Embed Type<select data-field="type">${options(embedTypes, data.type || 'spotify')}</select></label>
+                    <label>Title (optional)<input data-field="title" maxlength="100" value="${escapeAttr(data.title || '')}" placeholder="E.g. Spotify Playlist"></label>
+                    <label class="profile-row-grid full">Embed URL (or classic Spotify/YouTube URL)<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://open.spotify.com/... or https://www.youtube.com/..."></label>
                     <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> Visible</label>
                 </div>`;
         }
@@ -124,12 +136,39 @@
 
         row.innerHTML = `
             <div class="profile-row-head">
-                <strong>${type === 'socials' ? 'Social' : type === 'links' ? 'Link' : type === 'projects' ? 'Project' : type === 'blocks' ? 'Block' : 'Content'}</strong>
-                <button type="button" class="profile-remove-row">Remove</button>
+                <strong>${type === 'socials' ? 'Social' : type === 'links' ? 'Link' : type === 'embeds' ? 'Embed' : type === 'projects' ? 'Project' : type === 'blocks' ? 'Block' : 'Content'}</strong>
+                <div class="profile-row-actions">
+                    <button type="button" class="profile-move-up" title="Move up"><i class="fas fa-arrow-up"></i></button>
+                    <button type="button" class="profile-move-down" title="Move down"><i class="fas fa-arrow-down"></i></button>
+                    <button type="button" class="profile-remove-row">Remove</button>
+                </div>
             </div>
             ${body}`;
 
-        $('.profile-remove-row', row).addEventListener('click', () => row.remove());
+        $('.profile-remove-row', row).addEventListener('click', () => {
+            row.remove();
+            updatePreview();
+        });
+
+        const btnUp = $('.profile-move-up', row);
+        const btnDown = $('.profile-move-down', row);
+        
+        btnUp.addEventListener('click', () => {
+            const prev = row.previousElementSibling;
+            if (prev && prev.classList.contains('profile-row-card')) {
+                row.parentNode.insertBefore(row, prev);
+                updatePreview();
+            }
+        });
+        
+        btnDown.addEventListener('click', () => {
+            const next = row.nextElementSibling;
+            if (next && next.classList.contains('profile-row-card')) {
+                row.parentNode.insertBefore(next, row);
+                updatePreview();
+            }
+        });
+
         return row;
     }
 
@@ -140,6 +179,7 @@
 
     readJson('initialSocialsData').forEach((item) => addRow('socials', item));
     readJson('initialLinksData').forEach((item) => addRow('links', item));
+    readJson('initialEmbedsData').forEach((item) => addRow('embeds', item));
     readJson('initialProjectsData').forEach((item) => addRow('projects', item));
     readJson('initialContentsData').forEach((item) => addRow('contents', item));
     readJson('initialBlocksData').forEach((item) => addRow('blocks', item));
@@ -196,15 +236,19 @@
     const ringColorInput = $('#ringColorInput');
     const discordUseNameInput = $('#discordUseNameInput');
     const discordUseAvatarInput = $('#discordUseAvatarInput');
+    const socialsStyleInput = $('#socialsStyleInput');
+    const layoutInput = $('#layoutInput');
+    const clickToEnterInput = $('#clickToEnterInput');
+    const enterTextInput = $('#enterTextInput');
 
     function updatePreview() {
-        const name = displayNameInput.value.trim() || usernameInput.value.trim() || 'Utente';
+        const name = displayNameInput.value.trim() || usernameInput.value.trim() || 'User';
         $('#previewName').textContent = name;
         $('#previewUsername').textContent = '@' + (usernameInput.value.trim() || 'username');
-        $('#previewBio').textContent = bioInput.value.trim() || 'La tua bio apparirà qui.';
+        $('#previewBio').textContent = bioInput.value.trim() || 'Your bio will appear here.';
         const statusBadge = $('#previewStatusBadge');
         if (statusBadge) {
-            const status = statusInput && statusInput.value.trim() ? statusInput.value.trim() : 'Stato';
+            const status = statusInput && statusInput.value.trim() ? statusInput.value.trim() : 'Status';
             statusBadge.innerHTML = `<i class="fas fa-signal"></i>${escapeAttr(status)}`;
         }        bioCounter.textContent = bioInput.value.length;
         document.documentElement.style.setProperty('--accent', accentInput.value);
@@ -219,6 +263,12 @@
         document.body.dataset.profileButtonShape = buttonShapeInput ? buttonShapeInput.value : 'pill';
         document.body.dataset.theme = themeInput.value === 'auto' ? 'dark' : themeInput.value;
         document.body.dataset.profileEffect = profileEffectInput ? profileEffectInput.value : 'none';
+        if (layoutInput) {
+            document.body.dataset.profileLayout = layoutInput.value;
+        }
+        if (socialsStyleInput) {
+            document.body.dataset.profileSocialsStyle = socialsStyleInput.value;
+        }
         const previewCard = document.querySelector('.profile-edit-preview');
         if (previewCard && profileEffectInput) {
             previewCard.dataset.previewEffect = profileEffectInput.value;
@@ -232,10 +282,24 @@
         }
     }
 
-    [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput].filter(Boolean).forEach((input) => {
+    [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, layoutInput, clickToEnterInput, enterTextInput].filter(Boolean).forEach((input) => {
         input.addEventListener('input', updatePreview);
         input.addEventListener('change', updatePreview);
     });
+
+    $$('.profile-preset-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            if (accentInput && btn.dataset.accent) accentInput.value = btn.dataset.accent;
+            if (secondaryColorInput && btn.dataset.secondary) secondaryColorInput.value = btn.dataset.secondary;
+            if (cardColorInput && btn.dataset.card) cardColorInput.value = btn.dataset.card;
+            if (textColorInput && btn.dataset.text) textColorInput.value = btn.dataset.text;
+            updatePreview();
+            if (typeof window.profileToast === 'function') {
+                window.profileToast('Preset palette applied.');
+            }
+        });
+    });
+
     updatePreview();
 
     function previewAvatarFile(input, target) {
@@ -312,6 +376,7 @@
 
         $('#socialsJson').value = JSON.stringify(collectRows('socials'));
         $('#linksJson').value = JSON.stringify(collectRows('links'));
+        $('#embedsJson').value = JSON.stringify(collectRows('embeds'));
         $('#projectsJson').value = JSON.stringify(collectRows('projects'));
         $('#contentsJson').value = JSON.stringify(collectRows('contents'));
         $('#blocksJson').value = JSON.stringify(collectRows('blocks'));
