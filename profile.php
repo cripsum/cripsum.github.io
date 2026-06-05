@@ -216,6 +216,13 @@ if ($profile) {
     if ((int)$profile['total_personaggi'] > 0) $stats[] = ['icon' => 'fas fa-dice-d20', 'value' => profile_compact_number($profile['total_personaggi']), 'label' => 'Pulls'];
 }
 $ogMeta = cripsum_og_profile($mysqli, $profile);
+
+$lang = 'it';
+if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
+    $lang = 'en';
+} elseif (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) && strpos(strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE']), 'it') === false) {
+    $lang = 'en';
+}
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -225,8 +232,8 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=3.3.0">
-    <script src="/assets/js/profile.js?v=3.3.0" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=3.4.0">
+    <script src="/assets/js/profile.js?v=3.4.0" defer></script>
 </head>
 
 <body
@@ -275,10 +282,39 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                         <span class="bio-pill bio-pill--live"><span class="bio-dot"></span>online</span>
                     <?php elseif ($customStatus): ?>
                         <span class="bio-pill"><i class="fas fa-signal"></i><?php echo profile_h($customStatus); ?></span>
+                    <?php else: ?>
+                        <div></div>
                     <?php endif; ?>
-                    <?php if ($canEdit): ?>
-                        <a class="bio-small-button" href="/it/edit-profile<?php echo profile_is_staff() && !$isOwnProfile ? '?user_id=' . (int)$profile['id'] : ''; ?>" aria-label="Modifica"><i class="fas fa-pen"></i></a>
-                    <?php endif; ?>
+                    
+                    <div class="profile-dropdown-wrap">
+                        <button class="bio-small-button js-profile-dropdown-trigger" type="button" aria-label="Menu" aria-expanded="false">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                        <div class="profile-dropdown-menu">
+                            <?php if ($canEdit): ?>
+                                <a class="profile-dropdown-item" href="/it/edit-profile<?php echo profile_is_staff() && !$isOwnProfile ? '?user_id=' . (int)$profile['id'] : ''; ?>">
+                                    <i class="fas fa-pen"></i>
+                                    <span><?php echo ($lang === 'it') ? 'Modifica profilo' : 'Edit profile'; ?></span>
+                                </a>
+                            <?php endif; ?>
+                            <button class="profile-dropdown-item js-copy-profile" type="button">
+                                <i class="fas fa-link"></i>
+                                <span><?php echo ($lang === 'it') ? 'Copia link' : 'Copy link'; ?></span>
+                            </button>
+                            <button class="profile-dropdown-item js-share-profile" type="button">
+                                <i class="fas fa-share-nodes"></i>
+                                <span><?php echo ($lang === 'it') ? 'Condividi' : 'Share'; ?></span>
+                            </button>
+                            <button class="profile-dropdown-item js-open-qr" type="button">
+                                <i class="fas fa-qrcode"></i>
+                                <span><?php echo ($lang === 'it') ? 'Codice QR' : 'QR Code'; ?></span>
+                            </button>
+                            <button class="profile-dropdown-item js-theme-toggle" type="button">
+                                <i class="fas fa-moon"></i>
+                                <span class="theme-label-text"><?php echo ($lang === 'it') ? 'Tema scuro' : 'Dark Mode'; ?></span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="bio-avatar-wrap profile-smart-avatar ring-style-<?php echo profile_h($avatarRingStyle); ?> <?php echo (!$avatarRingEnabled || $avatarRingStyle === 'none') ? 'ring-disabled' : ''; ?>" style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>;">
@@ -349,13 +385,6 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                         <a href="/en/edit-profile">Edit</a>
                     </div>
                 <?php endif; ?>
-
-                <div class="bio-actions profile-smart-actions" aria-label="Profile Actions">
-                    <button class="bio-button bio-button--primary js-copy-profile" type="button"><i class="fas fa-link"></i>Copy</button>
-                    <button class="bio-button js-share-profile" type="button"><i class="fas fa-share-nodes"></i>Share</button>
-                    <button class="bio-icon-button js-open-qr" type="button" aria-label="QR code"><i class="fas fa-qrcode"></i></button>
-                    <button class="bio-icon-button js-theme-toggle" type="button" aria-label="Theme"><i class="fas fa-moon"></i></button>
-                </div>
 
                 <?php if ($hasMusic && $showAudioPlayer): ?>
                     <div class="bio-audio profile-audio-player" data-audio-player>

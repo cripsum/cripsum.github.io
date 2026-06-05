@@ -5532,4 +5532,77 @@ body[data-profile-effect="sakura_falling"] .profile-effects-layer::before {
     border-color: rgba(59, 130, 246, 0.3);
 }
 
+/* ── PREMIUM ACTIONS DROPDOWN MENU ───────────────────────────────────────── */
+.profile-dropdown-wrap {
+    position: relative;
+    display: inline-block;
+    margin-left: auto;
+}
+
+.profile-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 0.6rem);
+    right: 0;
+    z-index: 1000;
+    min-width: 195px;
+    background: linear-gradient(145deg, var(--profile-card-color, var(--card)), rgba(var(--accent-rgb), 0.15));
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), var(--shadow);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 0.45rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px) scale(0.95);
+    transform-origin: top right;
+    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.25s;
+}
+
+.profile-dropdown-wrap.active .profile-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+.profile-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    color: var(--profile-text-color, var(--text));
+    font-size: 0.88rem;
+    font-weight: 500;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.profile-dropdown-item:hover {
+    background: rgba(var(--accent-rgb), 0.14);
+    color: #fff !important;
+    transform: translateX(3px);
+}
+
+.profile-dropdown-item i {
+    font-size: 0.95rem;
+    color: rgba(var(--accent-rgb), 0.85);
+    width: 1.15rem;
+    text-align: center;
+    transition: color 0.15s ease;
+}
+
+.profile-dropdown-item:hover i {
+    color: #fff !important;
+}
+
 

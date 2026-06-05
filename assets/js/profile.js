@@ -49,8 +49,17 @@
 
         body.dataset.theme = nextTheme;
         localStorage.setItem('cripsum.profile.viewerTheme', nextTheme);
-        const icon = document.querySelector('.js-theme-toggle i');
-        if (icon) icon.className = nextTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+        document.querySelectorAll('.js-theme-toggle').forEach(btn => {
+            const icon = btn.querySelector('i');
+            if (icon) icon.className = nextTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+            const labelText = btn.querySelector('.theme-label-text');
+            if (labelText) {
+                const isIt = document.documentElement.lang === 'it';
+                labelText.textContent = nextTheme === 'light' 
+                    ? (isIt ? 'Modalità chiara' : 'Light Mode')
+                    : (isIt ? 'Modalità scura' : 'Dark Mode');
+            }
+        });
     };
 
     const copyText = async (text) => {
@@ -485,6 +494,50 @@
         });
     };
 
+    const initProfileThreeDotsDropdown = () => {
+        const wrap = document.querySelector('.profile-dropdown-wrap');
+        if (!wrap) return;
+        const trigger = wrap.querySelector('.js-profile-dropdown-trigger');
+        const menu = wrap.querySelector('.profile-dropdown-menu');
+        if (!trigger || !menu) return;
+
+        const toggleMenu = (event) => {
+            event.stopPropagation();
+            const isOpen = wrap.classList.contains('active');
+            if (isOpen) {
+                closeMenu();
+            } else {
+                wrap.classList.add('active');
+                trigger.setAttribute('aria-expanded', 'true');
+            }
+        };
+
+        const closeMenu = () => {
+            wrap.classList.remove('active');
+            trigger.setAttribute('aria-expanded', 'false');
+        };
+
+        trigger.addEventListener('click', toggleMenu);
+
+        document.addEventListener('click', (event) => {
+            if (!wrap.contains(event.target)) {
+                closeMenu();
+            }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeMenu();
+            }
+        });
+
+        menu.querySelectorAll('.profile-dropdown-item:not(.js-theme-toggle)').forEach(item => {
+            item.addEventListener('click', () => {
+                setTimeout(closeMenu, 150);
+            });
+        });
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
         setAccent(body.dataset.accent || '#0f5bff');
         setTheme(localStorage.getItem('cripsum.profile.viewerTheme') || body.dataset.theme || 'dark');
@@ -494,6 +547,7 @@
         initReveal();
         initTilt();
         initQrModal();
+        initProfileThreeDotsDropdown();
         initProfileAudio();
         initProfileEffects();
         initActivityCarousel();
