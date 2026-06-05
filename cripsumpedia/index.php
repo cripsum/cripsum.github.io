@@ -7,8 +7,10 @@ require_once __DIR__ . '/_bootstrap.php';
 $lang = cp_detect_lang();
 $stats = cp_fetch_stats($mysqli);
 $latest = cp_fetch_entries($mysqli, ['limit' => 6, 'order' => 'latest']);
-$trending = cp_fetch_entries($mysqli, ['limit' => 6, 'order' => 'trending']);
-$popular = cp_fetch_entries($mysqli, ['limit' => 4, 'order' => 'popular']);
+$updated = cp_fetch_entries($mysqli, ['limit' => 6, 'order' => 'updated']);
+$popular = cp_fetch_entries($mysqli, ['limit' => 5, 'order' => 'popular']);
+$random = cp_fetch_entries($mysqli, ['limit' => 4, 'order' => 'random']);
+
 $events = cp_fetch_entries($mysqli, ['type' => 'event', 'limit' => 30, 'order' => 'importance']);
 $dailyEvent = $events ? $events[cp_seeded_daily_index(count($events))] : null;
 $quote = cp_fetch_quotes($mysqli, null, 1, true)[0] ?? cp_fetch_quotes($mysqli, null, 1, false)[0] ?? null;
@@ -31,9 +33,10 @@ $description = cp_t('subtitle', $lang);
         <?php if (!cp_schema_ready($mysqli)): ?>
             <?php cp_render_install_notice($lang); ?>
         <?php else: ?>
+            <!-- Hero Section -->
             <section class="cp-hero cp-reveal">
                 <div class="cp-hero__copy">
-                    <span class="cp-kicker"><i class="fa-solid fa-satellite-dish"></i> Archivio</span>
+                    <span class="cp-kicker"><i class="fa-solid fa-satellite-dish"></i> Lore Database</span>
                     <h1>Cripsumpedia</h1>
                     <p><?= cp_h($description) ?></p>
                     <div class="cp-hero__actions">
@@ -44,6 +47,10 @@ $description = cp_t('subtitle', $lang);
                         <a class="cp-btn" href="<?= cp_h(cp_url('category', ['type' => 'event'], $lang)) ?>">
                             <i class="fa-solid fa-timeline"></i>
                             <span><?= cp_h(cp_t('events', $lang)) ?></span>
+                        </a>
+                        <a class="cp-btn" href="<?= cp_h(cp_url('category', ['type' => 'meme'], $lang)) ?>">
+                            <i class="fa-solid fa-face-grin-squint-tears"></i>
+                            <span><?= cp_h(cp_t('memes', $lang)) ?></span>
                         </a>
                         <button class="cp-btn cp-btn--ghost" type="button" data-cp-random>
                             <i class="fa-solid fa-shuffle"></i>
@@ -58,42 +65,48 @@ $description = cp_t('subtitle', $lang);
                     </div>
                 </div>
 
+                <!-- Stats Panel -->
                 <div class="cp-hero__panel">
                     <div class="cp-signal-card cp-signal-card--main">
                         <strong><?= (int)array_sum([$stats['person'], $stats['event'], $stats['meme']]) ?></strong>
                         <span>entries online</span>
                     </div>
                     <div class="cp-signal-card">
-                        <i class="fa-solid fa-eye"></i>
-                        <span><?= (int)$stats['views'] ?> <?= cp_h(cp_t('views', $lang)) ?></span>
+                        <i class="fa-solid fa-user-astronaut"></i>
+                        <span><?= (int)$stats['person'] ?> <?= cp_h(cp_t('people', $lang)) ?></span>
                     </div>
                     <div class="cp-signal-card">
-                        <i class="fa-solid fa-quote-left"></i>
-                        <span><?= (int)$stats['quotes'] ?> quotes</span>
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <span><?= (int)$stats['event'] ?> <?= cp_h(cp_t('events', $lang)) ?></span>
+                    </div>
+                    <div class="cp-signal-card">
+                        <i class="fa-solid fa-face-grin-squint-tears"></i>
+                        <span><?= (int)$stats['meme'] ?> <?= cp_h(cp_t('memes', $lang)) ?></span>
+                    </div>
+                    <div class="cp-signal-card">
+                        <i class="fa-solid fa-link"></i>
+                        <span><?= (int)$stats['relations'] ?> <?= cp_h($lang === 'en' ? 'connections' : 'collegamenti') ?></span>
                     </div>
                 </div>
             </section>
 
+            <!-- Search Area -->
             <section class="cp-hero-search cp-reveal">
-                <?php cp_render_search_box($lang); ?>
+                <?php cp_render_search_box($lang, '', 'hero'); ?>
             </section>
 
+            <!-- Categories Grid -->
             <section class="cp-section cp-reveal">
                 <div class="cp-section-head">
                     <div>
                         <span class="cp-kicker">Archivio</span>
-                        <h2><?= cp_h(cp_t('pedia', $lang)) ?></h2>
+                        <h2><?= cp_h($lang === 'en' ? 'Lore Categories' : 'Categorie Lore') ?></h2>
                     </div>
-                    <a class="cp-text-link" href="<?= cp_h(cp_url('search', [], $lang)) ?>">
-                        <?= cp_h(cp_t('search', $lang)) ?>
-                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                    </a>
                 </div>
-
                 <div class="cp-category-grid">
                     <?php
                     $categories = [
-                        ['person', cp_t('people', $lang), $stats['person'], 'Persone, rivalita, citazioni e presenza storica.', '#42f5b0'],
+                        ['person', cp_t('people', $lang), $stats['person'], 'Persone, rivalità, citazioni e presenza storica.', '#42f5b0'],
                         ['event', cp_t('events', $lang), $stats['event'], 'Cronologia canonica, guerre, incidenti e capitoli assurdi.', '#60a5fa'],
                         ['meme', cp_t('memes', $lang), $stats['meme'], 'Origini, maledizioni, running joke e reperti da conservare.', '#f97316'],
                     ];
@@ -109,6 +122,7 @@ $description = cp_t('subtitle', $lang);
                 </div>
             </section>
 
+            <!-- Dashboard / Spotlight Section -->
             <section class="cp-dashboard-grid cp-reveal">
                 <?php if ($dailyEvent): ?>
                     <?php $daily = cp_entry_public($dailyEvent, $lang, $mysqli); ?>
@@ -136,52 +150,74 @@ $description = cp_t('subtitle', $lang);
                 <?php endif; ?>
             </section>
 
-            <section class="cp-section cp-reveal">
-                <div class="cp-section-head">
-                    <div>
-                        <span class="cp-kicker"><?= cp_h(cp_t('latest', $lang)) ?></span>
-                        <h2><?= cp_h($lang === 'en' ? 'Latest entries' : 'Ultime voci') ?></h2>
-                    </div>
-                    <?php if (cp_is_admin_user()): ?>
-                        <a class="cp-btn cp-btn--small" href="<?= cp_h(cp_url('editor', [], $lang)) ?>">
-                            <i class="fa-solid fa-plus"></i>
-                            <span><?= cp_h(cp_t('new_entry', $lang)) ?></span>
-                        </a>
-                    <?php endif; ?>
-                </div>
-                <div class="cp-card-grid">
-                    <?php foreach ($latest as $entry): ?>
-                        <?php cp_render_entry_card($mysqli, $entry, $lang); ?>
-                    <?php endforeach; ?>
-                </div>
-            </section>
+            <!-- Core Content Grid -->
+            <div class="cp-home-layout cp-reveal">
+                <!-- Left Column: Added & Updated -->
+                <div class="cp-home-main">
+                    <!-- Latest Added -->
+                    <section class="cp-section cp-section--noborder">
+                        <div class="cp-section-head">
+                            <div>
+                                <span class="cp-kicker"><?= cp_h(cp_t('latest', $lang)) ?></span>
+                                <h2><?= cp_h($lang === 'en' ? 'New entries' : 'Ultime pagine aggiunte') ?></h2>
+                            </div>
+                        </div>
+                        <div class="cp-card-grid">
+                            <?php foreach ($latest as $entry): ?>
+                                <?php cp_render_entry_card($mysqli, $entry, $lang); ?>
+                            <?php endforeach; ?>
+                        </div>
+                    </section>
 
-            <section class="cp-section cp-reveal">
-                <div class="cp-section-head">
-                    <div>
-                        <span class="cp-kicker"><?= cp_h(cp_t('trending', $lang)) ?></span>
-                        <h2><?= cp_h($lang === 'en' ? 'Trending now' : 'In tendenza') ?></h2>
-                    </div>
+                    <!-- Recently Updated -->
+                    <section class="cp-section">
+                        <div class="cp-section-head">
+                            <div>
+                                <span class="cp-kicker"><?= cp_h($lang === 'en' ? 'Updated' : 'Aggiornate') ?></span>
+                                <h2><?= cp_h($lang === 'en' ? 'Recently updated' : 'Ultime pagine aggiornate') ?></h2>
+                            </div>
+                        </div>
+                        <div class="cp-card-grid cp-card-grid--compact">
+                            <?php foreach ($updated as $entry): ?>
+                                <?php cp_render_entry_card($mysqli, $entry, $lang, 'cp-entry-card--compact'); ?>
+                            <?php endforeach; ?>
+                        </div>
+                    </section>
                 </div>
-                <div class="cp-split-grid">
-                    <div class="cp-card-grid cp-card-grid--compact">
-                        <?php foreach ($trending as $entry): ?>
-                            <?php cp_render_entry_card($mysqli, $entry, $lang, 'cp-entry-card--compact'); ?>
-                        <?php endforeach; ?>
+
+                <!-- Right Column: Popular & Random -->
+                <aside class="cp-home-side">
+                    <!-- Popular stack -->
+                    <div class="cp-side-stack">
+                        <h3><?= cp_h($lang === 'en' ? 'Popular pages' : 'Pagine popolari') ?></h3>
+                        <div class="cp-side-list">
+                            <?php foreach ($popular as $entry): ?>
+                                <?php $item = cp_entry_public($entry, $lang, $mysqli, false); ?>
+                                <a class="cp-mini-row" href="<?= cp_h($item['url']) ?>" style="--entry-accent: <?= cp_h($item['accent']) ?>">
+                                    <span><i class="fa-solid <?= cp_h(cp_type_icon($item['type'])) ?>"></i></span>
+                                    <strong><?= cp_h($item['title']) ?></strong>
+                                    <em><?= (int)$item['views'] ?></em>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
-                    <aside class="cp-side-stack">
-                        <h3><?= cp_h(cp_t('popular', $lang)) ?></h3>
-                        <?php foreach ($popular as $entry): ?>
-                            <?php $item = cp_entry_public($entry, $lang, $mysqli, false); ?>
-                            <a class="cp-mini-row" href="<?= cp_h($item['url']) ?>" style="--entry-accent: <?= cp_h($item['accent']) ?>">
-                                <span><i class="fa-solid <?= cp_h(cp_type_icon($item['type'])) ?>"></i></span>
-                                <strong><?= cp_h($item['title']) ?></strong>
-                                <em><?= (int)$item['views'] ?></em>
-                            </a>
-                        <?php endforeach; ?>
-                    </aside>
-                </div>
-            </section>
+
+                    <!-- Random explorer -->
+                    <div class="cp-side-stack">
+                        <h3><?= cp_h($lang === 'en' ? 'Random explorer' : 'Elementi casuali') ?></h3>
+                        <div class="cp-side-list">
+                            <?php foreach ($random as $entry): ?>
+                                <?php $item = cp_entry_public($entry, $lang, $mysqli, false); ?>
+                                <a class="cp-mini-row" href="<?= cp_h($item['url']) ?>" style="--entry-accent: <?= cp_h($item['accent']) ?>">
+                                    <span><i class="fa-solid <?= cp_h(cp_type_icon($item['type'])) ?>"></i></span>
+                                    <strong><?= cp_h($item['title']) ?></strong>
+                                    <em><i class="fa-solid fa-shuffle"></i></em>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </aside>
+            </div>
         <?php endif; ?>
     </main>
 

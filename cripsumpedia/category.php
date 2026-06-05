@@ -9,7 +9,7 @@ $type = cp_normalize_type($_GET['type'] ?? $_GET['category'] ?? 'person') ?? 'pe
 $query = trim((string)($_GET['q'] ?? ''));
 $tag = trim((string)($_GET['tag'] ?? ''));
 $order = trim((string)($_GET['order'] ?? ($type === 'event' ? 'timeline' : 'latest')));
-$validOrders = ['latest', 'popular', 'trending', 'importance', 'timeline'];
+$validOrders = ['latest', 'popular', 'trending', 'importance', 'timeline', 'alphabetical', 'date'];
 if (!in_array($order, $validOrders, true)) $order = 'latest';
 
 $entries = cp_fetch_entries($mysqli, [
@@ -63,38 +63,49 @@ $description = cp_t('subtitle', $lang);
                     'order' => $order,
                 ]); ?>
 
-                <form class="cp-filter-bar" method="get" action="<?= cp_h(cp_url('category', ['type' => $type], $lang)) ?>">
-                    <input type="hidden" name="type" value="<?= cp_h($type) ?>">
-                    <input type="hidden" name="q" value="<?= cp_h($query) ?>">
-                    <label>
-                        <span><?= cp_h(cp_t('tag', $lang)) ?></span>
-                        <select name="tag" onchange="this.form.submit()">
-                            <option value=""><?= cp_h(cp_t('all', $lang)) ?></option>
-                            <?php foreach ($allTags as $row): ?>
-                                <?php $slug = (string)$row['slug']; ?>
-                                <option value="<?= cp_h($slug) ?>" <?= $tag === $slug ? 'selected' : '' ?>>
-                                    <?= cp_h(cp_i18n($row, 'name', $lang)) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </label>
-                    <label>
-                        <span>Order</span>
-                        <select name="order" onchange="this.form.submit()">
-                            <option value="latest" <?= $order === 'latest' ? 'selected' : '' ?>>Latest</option>
-                            <option value="popular" <?= $order === 'popular' ? 'selected' : '' ?>>Popular</option>
-                            <option value="trending" <?= $order === 'trending' ? 'selected' : '' ?>>Trending</option>
-                            <option value="importance" <?= $order === 'importance' ? 'selected' : '' ?>>Importance</option>
-                            <?php if ($type === 'event'): ?>
-                                <option value="timeline" <?= $order === 'timeline' ? 'selected' : '' ?>>Timeline</option>
-                            <?php endif; ?>
-                        </select>
-                    </label>
-                    <button class="cp-btn cp-btn--small" type="submit">
-                        <i class="fa-solid fa-filter"></i>
-                        <span><?= cp_h(cp_t('filters', $lang)) ?></span>
-                    </button>
-                </form>
+                <div class="cp-toolbar-actions">
+                    <form class="cp-filter-bar" method="get" action="<?= cp_h(cp_url('category', ['type' => $type], $lang)) ?>">
+                        <input type="hidden" name="type" value="<?= cp_h($type) ?>">
+                        <input type="hidden" name="q" value="<?= cp_h($query) ?>">
+                        <label>
+                            <span><?= cp_h(cp_t('tag', $lang)) ?></span>
+                            <select name="tag" onchange="this.form.submit()">
+                                <option value=""><?= cp_h(cp_t('all', $lang)) ?></option>
+                                <?php foreach ($allTags as $row): ?>
+                                    <?php $slug = (string)$row['slug']; ?>
+                                    <option value="<?= cp_h($slug) ?>" <?= $tag === $slug ? 'selected' : '' ?>>
+                                        <?= cp_h(cp_i18n($row, 'name', $lang)) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </label>
+                        <label>
+                            <span><?= cp_h($lang === 'en' ? 'Sort by' : 'Ordina per') ?></span>
+                            <select name="order" onchange="this.form.submit()">
+                                <option value="latest" <?= $order === 'latest' ? 'selected' : '' ?>><?= cp_h($lang === 'en' ? 'Latest' : 'Ultimi inseriti') ?></option>
+                                <option value="popular" <?= $order === 'popular' ? 'selected' : '' ?>><?= cp_h($lang === 'en' ? 'Popular' : 'Più visti') ?></option>
+                                <option value="trending" <?= $order === 'trending' ? 'selected' : '' ?>><?= cp_h($lang === 'en' ? 'Trending' : 'In tendenza') ?></option>
+                                <option value="importance" <?= $order === 'importance' ? 'selected' : '' ?>><?= cp_h($lang === 'en' ? 'Importance' : 'Importanza') ?></option>
+                                <option value="alphabetical" <?= $order === 'alphabetical' ? 'selected' : '' ?>><?= cp_h($lang === 'en' ? 'Alphabetical' : 'Alfabetico') ?></option>
+                                <option value="date" <?= $order === 'date' ? 'selected' : '' ?>><?= cp_h($lang === 'en' ? 'Lore Date' : 'Data cronologica') ?></option>
+                                <?php if ($type === 'event'): ?>
+                                    <option value="timeline" <?= $order === 'timeline' ? 'selected' : '' ?>><?= cp_h($lang === 'en' ? 'Timeline' : 'Cronologia') ?></option>
+                                <?php endif; ?>
+                            </select>
+                        </label>
+                        <button class="cp-btn cp-btn--small" type="submit">
+                            <i class="fa-solid fa-filter"></i>
+                            <span><?= cp_h(cp_t('filters', $lang)) ?></span>
+                        </button>
+                    </form>
+
+                    <?php if ($order !== 'timeline' || $type !== 'event'): ?>
+                        <div class="cp-view-toggle">
+                            <button type="button" class="cp-icon-btn is-active" data-cp-view-toggle="grid" title="<?= cp_h($lang === 'en' ? 'Grid view' : 'Visualizzazione griglia') ?>"><i class="fa-solid fa-table-cells"></i></button>
+                            <button type="button" class="cp-icon-btn" data-cp-view-toggle="list" title="<?= cp_h($lang === 'en' ? 'List view' : 'Visualizzazione lista') ?>"><i class="fa-solid fa-list"></i></button>
+                        </div>
+                    <?php endif; ?>
+                </div>
             </section>
 
             <?php if ($type === 'event' && $order === 'timeline'): ?>
@@ -127,7 +138,7 @@ $description = cp_t('subtitle', $lang);
                 <section class="cp-section cp-reveal">
                     <div class="cp-section-head">
                         <div>
-                            <span class="cp-kicker"><?= count($entries) ?> results</span>
+                            <span class="cp-kicker"><?= count($entries) ?> <?= cp_h($lang === 'en' ? 'results' : 'risultati') ?></span>
                             <h2><?= cp_h(cp_type_plural($type, $lang)) ?></h2>
                         </div>
                     </div>

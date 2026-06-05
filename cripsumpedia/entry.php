@@ -36,6 +36,24 @@ foreach ($rawRels as $_r) {
 unset($_seenRelIds, $_r, $_tid, $rawRels);
 $groupedRelations = cp_group_relations_by_type($relations);
 $public = $entry ? cp_entry_public($entry, $lang, $mysqli, false) : null;
+
+$creatorName = '';
+if ($entry && !empty($entry['created_by'])) {
+    $stmt = $mysqli->prepare("SELECT display_name, username FROM utenti WHERE id = ? LIMIT 1");
+    if ($stmt) {
+        $stmt->bind_param('i', $entry['created_by']);
+        $stmt->execute();
+        $userRow = $stmt->get_result()->fetch_assoc();
+        $creatorName = $userRow ? ($userRow['display_name'] ?: $userRow['username']) : '';
+        $stmt->close();
+    }
+}
+
+// Fetch automatic related pages
+$relatedEntries = $entry ? cp_fetch_related_entries($mysqli, (int)$entry['id'], (string)$entry['entry_type'], 4) : [];
+
+// Fetch adjacent entries (prev/next)
+$adjacent = $entry ? cp_fetch_adjacent_entries($mysqli, (int)$entry['id'], (string)$entry['entry_type']) : ['prev' => null, 'next' => null];
 ?>
 <!DOCTYPE html>
 <html lang="<?= cp_h($lang) ?>">
@@ -77,9 +95,9 @@ $public = $entry ? cp_entry_public($entry, $lang, $mysqli, false) : null;
                         <p><?= cp_h(cp_i18n($entry, 'description', $lang)) ?></p>
                     <?php endif; ?>
                     <div class="cp-hero-badges">
-                        <span><?= cp_h(cp_status_label($entry['canonical_status'] ?? 'canon', $lang)) ?></span>
-                        <span><?= cp_h($entry['rarity'] ?? 'common') ?></span>
-                        <span><?= (int)($entry['views_count'] ?? 0) ?> <?= cp_h(cp_t('views', $lang)) ?></span>
+                        <span class="cp-badge cp-badge--status"><?= cp_h(cp_status_label($entry['canonical_status'] ?? 'canon', $lang)) ?></span>
+                        <span class="cp-badge cp-badge--rarity cp-badge--<?= cp_h($entry['rarity'] ?? 'common') ?>"><?= cp_h($entry['rarity'] ?? 'common') ?></span>
+                        <span class="cp-badge cp-badge--views"><i class="fa-solid fa-eye"></i> <?= (int)($entry['views_count'] ?? 0) ?></span>
                     </div>
                     <div class="cp-entry-actions">
                         <button class="cp-btn cp-btn--primary" type="button" data-cp-share>
@@ -107,81 +125,162 @@ $public = $entry ? cp_entry_public($entry, $lang, $mysqli, false) : null;
             </section>
 
             <div class="cp-entry-layout">
-                <article class="cp-entry-content cp-reveal" data-cp-readable>
-                    <?php if (cp_i18n($entry, 'description', $lang) !== ''): ?>
-                        <p class="cp-entry-lead"><?= cp_h(cp_i18n($entry, 'description', $lang)) ?></p>
-                    <?php endif; ?>
+                <div class="cp-entry-main">
+                    <article class="cp-entry-content cp-reveal" data-cp-readable>
+                        <?php if (cp_i18n($entry, 'description', $lang) !== ''): ?>
+                            <p class="cp-entry-lead"><?= cp_h(cp_i18n($entry, 'description', $lang)) ?></p>
+                        <?php endif; ?>
 
-                    <div class="cp-markdown">
-                        <?= cp_markdown_to_html($content, $mysqli, $lang, (int)$entry['id']) ?>
-                    </div>
+                        <div class="cp-markdown">
+                            <?= cp_markdown_to_html($content, $mysqli, $lang, (int)$entry['id']) ?>
+                        </div>
 
-                    <?php if ($quotes): ?>
-                        <section class="cp-content-block">
-                            <h2><?= cp_h(cp_t('quotes', $lang)) ?></h2>
-                            <div class="cp-quote-grid">
-                                <?php foreach ($quotes as $quote): ?>
-                                    <blockquote>
-                                        <?= cp_h(cp_i18n($quote, 'quote_text', $lang)) ?>
-                                        <?php if (cp_i18n($quote, 'speaker', $lang) !== ''): ?>
-                                            <cite><?= cp_h(cp_i18n($quote, 'speaker', $lang)) ?></cite>
+                        <?php if ($quotes): ?>
+                            <section class="cp-content-block">
+                                <h2><?= cp_h(cp_t('quotes', $lang)) ?></h2>
+                                <div class="cp-quote-grid">
+                                    <?php foreach ($quotes as $quote): ?>
+                                        <blockquote>
+                                            <?= cp_h(cp_i18n($quote, 'quote_text', $lang)) ?>
+                                            <?php if (cp_i18n($quote, 'speaker', $lang) !== ''): ?>
+                                                <cite><?= cp_h(cp_i18n($quote, 'speaker', $lang)) ?></cite>
+                                            <?php endif; ?>
+                                        </blockquote>
+                                    <?php endforeach; ?>
+                                </div>
+                            </section>
+                        <?php endif; ?>
+
+                        <!-- Dedicated Connections (Collegamenti) Section -->
+                        <?php
+                        $hasRels = !empty($groupedRelations['person']) || !empty($groupedRelations['event']) || !empty($groupedRelations['meme']);
+                        if ($hasRels):
+                        ?>
+                            <section class="cp-content-block cp-connections-section">
+                                <h2><i class="fa-solid fa-circle-nodes"></i> <?= cp_h($lang === 'en' ? 'Encyclopedic Connections' : 'Collegamenti Enciclopedici') ?></h2>
+                                <div class="cp-connections-container">
+                                    <?php foreach (['person' => 'related_people', 'event' => 'related_events', 'meme' => 'related_memes'] as $gType => $tKey): ?>
+                                        <?php if (!empty($groupedRelations[$gType])): ?>
+                                            <div class="cp-connections-group">
+                                                <h3><?= cp_h(cp_t($tKey, $lang)) ?></h3>
+                                                <div class="cp-relation-grid">
+                                                    <?php foreach ($groupedRelations[$gType] as $relation): ?>
+                                                        <?php $rel = cp_entry_public($relation, $lang, $mysqli, false); ?>
+                                                        <a class="cp-relation-card" href="<?= cp_h($rel['url']) ?>" style="--entry-accent: <?= cp_h($rel['accent']) ?>">
+                                                            <i class="fa-solid <?= cp_h(cp_type_icon($rel['type'])) ?>"></i>
+                                                            <div class="cp-relation-card__info">
+                                                                <strong><?= cp_h($rel['title']) ?></strong>
+                                                                <small><?= cp_h(cp_i18n($relation, 'relation_label', $lang) ?: $relation['relation_type']) ?></small>
+                                                            </div>
+                                                        </a>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            </div>
                                         <?php endif; ?>
-                                    </blockquote>
-                                <?php endforeach; ?>
-                            </div>
-                        </section>
-                    <?php endif; ?>
+                                    <?php endforeach; ?>
+                                </div>
+                            </section>
+                        <?php endif; ?>
 
-                    <?php if ($relations): ?>
-                        <section class="cp-content-block">
-                            <h2><?= cp_h(cp_t('relations', $lang)) ?></h2>
-                            <div class="cp-relation-grid">
-                                <?php foreach ($relations as $relation): ?>
-                                    <?php $rel = cp_entry_public($relation, $lang, $mysqli, false); ?>
-                                    <a class="cp-relation-card" href="<?= cp_h($rel['url']) ?>" style="--entry-accent: <?= cp_h($rel['accent']) ?>">
-                                        <i class="fa-solid <?= cp_h(cp_type_icon($rel['type'])) ?>"></i>
-                                        <span><?= cp_h($rel['title']) ?></span>
-                                        <small><?= cp_h(cp_i18n($relation, 'relation_label', $lang) ?: $relation['relation_type']) ?></small>
-                                    </a>
-                                <?php endforeach; ?>
-                            </div>
-                        </section>
-                    <?php endif; ?>
-                </article>
+                        <!-- Automatic Related Pages Section -->
+                        <?php if ($relatedEntries): ?>
+                            <section class="cp-content-block cp-related-section">
+                                <h2><i class="fa-solid fa-wand-magic-sparkles"></i> <?= cp_h($lang === 'en' ? 'Related Lore' : 'Voci correlate') ?></h2>
+                                <div class="cp-card-grid cp-card-grid--compact">
+                                    <?php foreach ($relatedEntries as $rEntry): ?>
+                                        <?php cp_render_entry_card($mysqli, $rEntry, $lang); ?>
+                                    <?php endforeach; ?>
+                                </div>
+                            </section>
+                        <?php endif; ?>
+                    </article>
+
+                    <!-- Previous / Next Navigation Footer -->
+                    <nav class="cp-entry-navigation cp-reveal" aria-label="<?= cp_h($lang === 'en' ? 'Entry navigation' : 'Navigazione voci') ?>">
+                        <div class="cp-entry-navigation__prev">
+                            <?php if ($adjacent['prev']): ?>
+                                <?php $prevItem = cp_entry_public($adjacent['prev'], $lang, $mysqli, false); ?>
+                                <a href="<?= cp_h($prevItem['url']) ?>">
+                                    <small><i class="fa-solid fa-arrow-left"></i> <?= cp_h($lang === 'en' ? 'Previous' : 'Precedente') ?></small>
+                                    <strong><?= cp_h($prevItem['title']) ?></strong>
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                        <button class="cp-btn cp-btn--ghost" type="button" data-cp-random title="<?= cp_h($lang === 'en' ? 'Random entry' : 'Voce casuale') ?>">
+                            <i class="fa-solid fa-shuffle"></i>
+                            <span><?= cp_h(cp_t('random', $lang)) ?></span>
+                        </button>
+                        <div class="cp-entry-navigation__next">
+                            <?php if ($adjacent['next']): ?>
+                                <?php $nextItem = cp_entry_public($adjacent['next'], $lang, $mysqli, false); ?>
+                                <a href="<?= cp_h($nextItem['url']) ?>">
+                                    <small><?= cp_h($lang === 'en' ? 'Next' : 'Successivo') ?> <i class="fa-solid fa-arrow-right"></i></small>
+                                    <strong><?= cp_h($nextItem['title']) ?></strong>
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    </nav>
+                </div>
 
                 <aside class="cp-entry-sidebar cp-reveal">
-                    <section class="cp-sidebar-card">
-                        <h2><?= cp_h(cp_t('quick_info', $lang)) ?></h2>
-                        <dl>
-                            <div>
-                                <dt><?= cp_h(cp_t('status', $lang)) ?></dt>
-                                <dd><?= cp_h(cp_status_label($entry['canonical_status'] ?? 'canon', $lang)) ?></dd>
-                            </div>
-                            <div>
-                                <dt><?= cp_h(cp_t('importance', $lang)) ?></dt>
-                                <dd><?= (int)($entry['importance'] ?? 0) ?>/100</dd>
-                            </div>
-                            <?php if (!empty($entry['lore_date'])): ?>
-                                <div>
-                                    <dt><?= cp_h(cp_t('lore_date', $lang)) ?></dt>
-                                    <dd><?= cp_h($entry['lore_date']) ?></dd>
-                                </div>
+                    <!-- Premium Wiki Infobox -->
+                    <section class="cp-infobox" style="--entry-accent: <?= cp_h($public['accent']) ?>">
+                        <div class="cp-infobox__header">
+                            <h2><?= cp_h($titleText) ?></h2>
+                            <?php if (cp_i18n($entry, 'subtitle', $lang) !== ''): ?>
+                                <small><?= cp_h(cp_i18n($entry, 'subtitle', $lang)) ?></small>
                             <?php endif; ?>
-                            <?php if (!empty($entry['real_date'])): ?>
-                                <div>
-                                    <dt><?= cp_h(cp_t('real_date', $lang)) ?></dt>
-                                    <dd><?= cp_h(cp_safe_date($entry['real_date'])) ?></dd>
-                                </div>
-                            <?php endif; ?>
-                            <div>
-                                <dt><?= cp_h(cp_t('created', $lang)) ?></dt>
-                                <dd><?= cp_h(cp_safe_date($entry['created_at'] ?? '')) ?></dd>
-                            </div>
-                            <div>
-                                <dt><?= cp_h(cp_t('updated', $lang)) ?></dt>
-                                <dd><?= cp_h(cp_safe_date($entry['updated_at'] ?? '')) ?></dd>
-                            </div>
-                        </dl>
+                        </div>
+
+                        <div class="cp-infobox__media">
+                            <img src="<?= cp_h($public['image']) ?>" alt="<?= cp_h($titleText) ?>" onerror="this.parentElement.classList.add('is-broken'); this.remove();">
+                            <span class="cp-infobox__fallback"><i class="fa-solid <?= cp_h(cp_type_icon((string)$entry['entry_type'])) ?>"></i></span>
+                        </div>
+
+                        <div class="cp-infobox__badges">
+                            <span class="cp-badge cp-badge--rarity cp-badge--<?= cp_h($entry['rarity'] ?? 'common') ?>"><?= cp_h($entry['rarity'] ?? 'common') ?></span>
+                            <span class="cp-badge cp-badge--status cp-badge--<?= cp_h($entry['canonical_status'] ?? 'canon') ?>"><?= cp_h(cp_status_label($entry['canonical_status'] ?? 'canon', $lang)) ?></span>
+                        </div>
+
+                        <table class="cp-infobox__table">
+                            <tbody>
+                                <tr>
+                                    <th><?= cp_h($lang === 'en' ? 'Category' : 'Categoria') ?></th>
+                                    <td>
+                                        <span class="cp-infobox-cat-badge">
+                                            <i class="fa-solid <?= cp_h(cp_type_icon((string)$entry['entry_type'])) ?>"></i>
+                                            <?= cp_h(cp_type_label((string)$entry['entry_type'], $lang)) ?>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <?php if (!empty($entry['lore_date'])): ?>
+                                    <tr>
+                                        <th><?= cp_h(cp_t('lore_date', $lang)) ?></th>
+                                        <td><?= cp_h($entry['lore_date']) ?></td>
+                                    </tr>
+                                <?php endif; ?>
+                                <?php if (!empty($entry['real_date'])): ?>
+                                    <tr>
+                                        <th><?= cp_h(cp_t('real_date', $lang)) ?></th>
+                                        <td><?= cp_h(cp_safe_date($entry['real_date'])) ?></td>
+                                    </tr>
+                                <?php endif; ?>
+                                <?php if ($creatorName !== ''): ?>
+                                    <tr>
+                                        <th><?= cp_h($lang === 'en' ? 'Author' : 'Autore') ?></th>
+                                        <td><?= cp_h($creatorName) ?></td>
+                                    </tr>
+                                <?php endif; ?>
+                                <tr>
+                                    <th><?= cp_h($lang === 'en' ? 'Last edit' : 'Ultima modifica') ?></th>
+                                    <td><?= cp_h(cp_safe_date($entry['updated_at'] ?? '')) ?></td>
+                                </tr>
+                                <tr>
+                                    <th><?= cp_h($lang === 'en' ? 'Views' : 'Letture') ?></th>
+                                    <td><?= (int)($entry['views_count'] ?? 0) ?></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </section>
 
                     <?php if ($tags): ?>
@@ -208,29 +307,6 @@ $public = $entry ? cp_entry_public($entry, $lang, $mysqli, false) : null;
                             </div>
                         </section>
                     <?php endif; ?>
-
-                    <?php
-                    $sidebarGroups = [
-                        'person' => cp_t('related_people', $lang),
-                        'event' => cp_t('related_events', $lang),
-                        'meme' => cp_t('related_memes', $lang),
-                    ];
-                    foreach ($sidebarGroups as $groupType => $label):
-                        if (empty($groupedRelations[$groupType])) continue;
-                    ?>
-                        <section class="cp-sidebar-card">
-                            <h2><?= cp_h($label) ?></h2>
-                            <div class="cp-side-relations">
-                                <?php foreach (array_slice($groupedRelations[$groupType], 0, 8) as $relation): ?>
-                                    <?php $rel = cp_entry_public($relation, $lang, $mysqli, false); ?>
-                                    <a href="<?= cp_h($rel['url']) ?>" style="--entry-accent: <?= cp_h($rel['accent']) ?>">
-                                        <i class="fa-solid <?= cp_h(cp_type_icon($groupType)) ?>"></i>
-                                        <span><?= cp_h($rel['title']) ?></span>
-                                    </a>
-                                <?php endforeach; ?>
-                            </div>
-                        </section>
-                    <?php endforeach; ?>
                 </aside>
             </div>
         <?php endif; ?>

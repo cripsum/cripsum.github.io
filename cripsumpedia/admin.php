@@ -132,6 +132,7 @@ $title = cp_t('admin', $lang) . ' - Cripsumpedia';
                                             <td data-label="Updated"><?= cp_h(cp_safe_date($entry['updated_at'] ?? '')) ?></td>
                                             <td data-label="Actions">
                                                 <div class="cp-admin-actions">
+                                                    <a class="cp-icon-btn" href="<?= cp_h($item['url']) ?>" target="_blank" title="<?= cp_h(cp_t('read', $lang)) ?>"><i class="fa-solid fa-eye"></i></a>
                                                     <a class="cp-icon-btn" href="<?= cp_h(cp_url('editor', ['id' => (int)$entry['id']], $lang)) ?>" title="<?= cp_h(cp_t('editor', $lang)) ?>"><i class="fa-solid fa-pen"></i></a>
                                                     <button class="cp-icon-btn" type="button" data-cp-delete-entry="<?= (int)$entry['id'] ?>" title="<?= cp_h(cp_t('delete', $lang)) ?>"><i class="fa-solid fa-trash"></i></button>
                                                 </div>

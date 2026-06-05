@@ -12,6 +12,45 @@ $results = $query !== ''
 
 $title = cp_t('search', $lang) . ' - Cripsumpedia';
 $description = cp_t('subtitle', $lang);
+
+// Group results by category if type is null (All)
+$groupedResults = [];
+if ($type === null) {
+    foreach ($results as $entry) {
+        $eType = (string)$entry['entry_type'];
+        $groupedResults[$eType][] = $entry;
+    }
+}
+
+function cp_render_search_item(array $entry, string $query, string $lang, mysqli $mysqli): void
+{
+    $item = cp_entry_public($entry, $lang, $mysqli);
+    $hlTitle = cp_highlight($item['title'], $query);
+    $hlDesc = cp_highlight(cp_excerpt($item['description'], 230), $query);
+?>
+    <article class="cp-search-result" style="--entry-accent: <?= cp_h($item['accent']) ?>">
+        <a class="cp-search-result__image" href="<?= cp_h($item['url']) ?>">
+            <img src="<?= cp_h($item['image']) ?>" alt="<?= cp_h($item['title']) ?>" loading="lazy" onerror="this.parentElement.classList.add('is-broken'); this.remove();">
+            <i class="fa-solid <?= cp_h(cp_type_icon($item['type'])) ?>"></i>
+        </a>
+        <div>
+            <div class="cp-entry-card__meta">
+                <span><?= cp_h($item['type_label']) ?></span>
+                <span><?= (int)$item['views'] ?> <?= cp_h(cp_t('views', $lang)) ?></span>
+            </div>
+            <h2><a href="<?= cp_h($item['url']) ?>"><?= $hlTitle ?></a></h2>
+            <p><?= $hlDesc ?></p>
+            <div class="cp-tag-row">
+                <?php foreach (array_slice($item['tags'], 0, 5) as $tagRow): ?>
+                    <a href="<?= cp_h(cp_url('category', ['type' => $item['type'], 'tag' => $tagRow['slug']], $lang)) ?>" style="--tag-color: <?= cp_h($tagRow['color']) ?>">
+                        <?= cp_h($tagRow['name']) ?>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </article>
+<?php
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?= cp_h($lang) ?>">
@@ -60,7 +99,7 @@ $description = cp_t('subtitle', $lang);
         <section class="cp-section cp-reveal">
             <div class="cp-section-head">
                 <div>
-                    <span class="cp-kicker"><?= count($results) ?> results</span>
+                    <span class="cp-kicker"><?= count($results) ?> <?= cp_h($lang === 'en' ? 'results' : 'risultati') ?></span>
                     <h2><?= $query !== '' ? cp_h($query) : cp_h(cp_t('trending', $lang)) ?></h2>
                 </div>
             </div>
@@ -68,32 +107,31 @@ $description = cp_t('subtitle', $lang);
             <?php if (!$results): ?>
                 <div class="cp-empty"><?= cp_h(cp_t('no_results', $lang)) ?></div>
             <?php else: ?>
-                <div class="cp-search-list" data-cp-search-list>
-                    <?php foreach ($results as $entry): ?>
-                        <?php $item = cp_entry_public($entry, $lang, $mysqli); ?>
-                        <article class="cp-search-result" style="--entry-accent: <?= cp_h($item['accent']) ?>">
-                            <a class="cp-search-result__image" href="<?= cp_h($item['url']) ?>">
-                                <img src="<?= cp_h($item['image']) ?>" alt="<?= cp_h($item['title']) ?>" loading="lazy" onerror="this.parentElement.classList.add('is-broken'); this.remove();">
-                                <i class="fa-solid <?= cp_h(cp_type_icon($item['type'])) ?>"></i>
-                            </a>
-                            <div>
-                                <div class="cp-entry-card__meta">
-                                    <span><?= cp_h($item['type_label']) ?></span>
-                                    <span><?= (int)$item['views'] ?> <?= cp_h(cp_t('views', $lang)) ?></span>
+                <?php if ($type !== null): ?>
+                    <div class="cp-search-list" data-cp-search-list>
+                        <?php foreach ($results as $entry): ?>
+                            <?php cp_render_search_item($entry, $query, $lang, $mysqli); ?>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="cp-search-grouped">
+                        <?php foreach (['person' => 'people', 'event' => 'events', 'meme' => 'memes'] as $gType => $tKey): ?>
+                            <?php if (!empty($groupedResults[$gType])): ?>
+                                <div class="cp-search-group">
+                                    <h3 class="cp-search-group__title">
+                                        <i class="fa-solid <?= cp_h(cp_type_icon($gType)) ?>"></i>
+                                        <?= cp_h(cp_type_plural($gType, $lang)) ?>
+                                    </h3>
+                                    <div class="cp-search-list">
+                                        <?php foreach ($groupedResults[$gType] as $entry): ?>
+                                            <?php cp_render_search_item($entry, $query, $lang, $mysqli); ?>
+                                        <?php endforeach; ?>
+                                    </div>
                                 </div>
-                                <h2><a href="<?= cp_h($item['url']) ?>"><?= cp_h($item['title']) ?></a></h2>
-                                <p><?= cp_h(cp_excerpt($item['description'], 230)) ?></p>
-                                <div class="cp-tag-row">
-                                    <?php foreach (array_slice($item['tags'], 0, 5) as $tagRow): ?>
-                                        <a href="<?= cp_h(cp_url('category', ['type' => $item['type'], 'tag' => $tagRow['slug']], $lang)) ?>" style="--tag-color: <?= cp_h($tagRow['color']) ?>">
-                                            <?= cp_h($tagRow['name']) ?>
-                                        </a>
-                                    <?php endforeach; ?>
-                                </div>
-                            </div>
-                        </article>
-                    <?php endforeach; ?>
-                </div>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
             <?php endif; ?>
         </section>
     <?php endif; ?>

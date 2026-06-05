@@ -440,7 +440,7 @@ function cp_status_label(?string $status, string $lang): string
 
 function cp_fetch_stats(mysqli $mysqli): array
 {
-    $stats = ['person' => 0, 'event' => 0, 'meme' => 0, 'views' => 0, 'quotes' => 0];
+    $stats = ['person' => 0, 'event' => 0, 'meme' => 0, 'views' => 0, 'quotes' => 0, 'relations' => 0];
     if (!cp_schema_ready($mysqli)) return $stats;
 
     $sql = "SELECT entry_type, COUNT(*) AS total, COALESCE(SUM(views_count), 0) AS views
@@ -460,6 +460,11 @@ function cp_fetch_stats(mysqli $mysqli): array
     if ($result = $mysqli->query("SELECT COUNT(*) AS total FROM cripsumpedia_quotes")) {
         $row = $result->fetch_assoc();
         $stats['quotes'] = (int)($row['total'] ?? 0);
+    }
+
+    if ($result = $mysqli->query("SELECT COUNT(*) AS total FROM cripsumpedia_relations")) {
+        $row = $result->fetch_assoc();
+        $stats['relations'] = (int)($row['total'] ?? 0);
     }
     return $stats;
 }
@@ -507,11 +512,15 @@ function cp_fetch_entries(mysqli $mysqli, array $options = []): array
         array_push($params, $like, $like, $like, $like, $like, $like, $like, $like, $like, $like);
     }
 
+    $lang = cp_detect_lang();
     $order = match ((string)($options['order'] ?? 'latest')) {
         'popular' => 'e.views_count DESC, e.updated_at DESC',
         'trending' => 'e.trending_score DESC, e.views_count DESC, e.updated_at DESC',
         'importance' => 'e.importance DESC, e.real_date DESC, e.updated_at DESC',
         'timeline' => 'COALESCE(e.real_date, e.created_at) ASC, e.importance DESC',
+        'alphabetical' => ($lang === 'en' ? "COALESCE(NULLIF(e.title_en, ''), e.title) ASC" : "e.title ASC"),
+        'date' => 'COALESCE(e.real_date, e.created_at) DESC',
+        'updated' => 'e.updated_at DESC, e.id DESC',
         'random' => 'RAND()',
         default => 'e.created_at DESC, e.id DESC',
     };
@@ -537,12 +546,107 @@ function cp_fetch_entries(mysqli $mysqli, array $options = []): array
     $rows = cp_stmt_all($stmt);
     $stmt->close();
     $unique = [];
+    $excludeId = isset($options['exclude']) ? (int)$options['exclude'] : 0;
     foreach ($rows as $row) {
         $relatedId = (int)($row['id'] ?? 0);
-        if ($relatedId <= 0 || $relatedId === $entryId || isset($unique[$relatedId])) continue;
+        if ($relatedId <= 0 || $relatedId === $excludeId || isset($unique[$relatedId])) continue;
         $unique[$relatedId] = $row;
     }
     return array_values($unique);
+}
+
+function cp_fetch_related_entries(mysqli $mysqli, int $entryId, string $type, int $limit = 4): array
+{
+    if (!cp_schema_ready($mysqli)) return [];
+    $limit = max(1, min(20, $limit));
+
+    // First try: entries that share tags with the current entry
+    $sql = "SELECT DISTINCT e.*
+            FROM cripsumpedia_entries e
+            INNER JOIN cripsumpedia_entry_tags et ON et.entry_id = e.id
+            WHERE e.id <> ? AND e.status = 'published' AND et.tag_id IN (
+                SELECT tag_id FROM cripsumpedia_entry_tags WHERE entry_id = ?
+            )
+            ORDER BY e.trending_score DESC, e.views_count DESC
+            LIMIT ?";
+    $stmt = $mysqli->prepare($sql);
+    $results = [];
+    if ($stmt) {
+        $stmt->bind_param('iii', $entryId, $entryId, $limit);
+        $stmt->execute();
+        $results = cp_stmt_all($stmt);
+        $stmt->close();
+    }
+
+    // Second try: if we don't have enough entries, fill with entries of the same type
+    if (count($results) < $limit) {
+        $needed = $limit - count($results);
+        $excludeIds = array_map(static fn($r) => (int)$r['id'], $results);
+        $excludeIds[] = $entryId;
+        $inClause = implode(',', $excludeIds);
+
+        $sql = "SELECT * FROM cripsumpedia_entries
+                WHERE id NOT IN ($inClause) AND entry_type = ? AND status = 'published'
+                ORDER BY trending_score DESC, views_count DESC
+                LIMIT ?";
+        $stmt = $mysqli->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param('si', $type, $needed);
+            $stmt->execute();
+            $fill = cp_stmt_all($stmt);
+            $stmt->close();
+            $results = array_merge($results, $fill);
+        }
+    }
+
+    // Third try: if still not enough, fill with any entries
+    if (count($results) < $limit) {
+        $needed = $limit - count($results);
+        $excludeIds = array_map(static fn($r) => (int)$r['id'], $results);
+        $excludeIds[] = $entryId;
+        $inClause = implode(',', $excludeIds);
+
+        $sql = "SELECT * FROM cripsumpedia_entries
+                WHERE id NOT IN ($inClause) AND status = 'published'
+                ORDER BY trending_score DESC, views_count DESC
+                LIMIT ?";
+        $stmt = $mysqli->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param('i', $needed);
+            $stmt->execute();
+            $fill = cp_stmt_all($stmt);
+            $stmt->close();
+            $results = array_merge($results, $fill);
+        }
+    }
+
+    return array_slice($results, 0, $limit);
+}
+
+function cp_fetch_adjacent_entries(mysqli $mysqli, int $currentId, string $type): array
+{
+    $adjacent = ['prev' => null, 'next' => null];
+    if (!cp_schema_ready($mysqli)) return $adjacent;
+
+    // Previous entry (smaller ID)
+    $stmt = $mysqli->prepare("SELECT * FROM cripsumpedia_entries WHERE entry_type = ? AND status = 'published' AND id < ? ORDER BY id DESC LIMIT 1");
+    if ($stmt) {
+        $stmt->bind_param('si', $type, $currentId);
+        $stmt->execute();
+        $adjacent['prev'] = $stmt->get_result()->fetch_assoc() ?: null;
+        $stmt->close();
+    }
+
+    // Next entry (larger ID)
+    $stmt = $mysqli->prepare("SELECT * FROM cripsumpedia_entries WHERE entry_type = ? AND status = 'published' AND id > ? ORDER BY id ASC LIMIT 1");
+    if ($stmt) {
+        $stmt->bind_param('si', $type, $currentId);
+        $stmt->execute();
+        $adjacent['next'] = $stmt->get_result()->fetch_assoc() ?: null;
+        $stmt->close();
+    }
+
+    return $adjacent;
 }
 
 function cp_count_entries(mysqli $mysqli, array $options = []): int
@@ -1189,4 +1293,14 @@ function cp_seeded_daily_index(int $count): int
 {
     if ($count <= 0) return 0;
     return (int)(hexdec(substr(hash('crc32b', date('Y-m-d')), 0, 6)) % $count);
+}
+
+function cp_highlight(string $text, string $query): string
+{
+    $query = trim($query);
+    if ($query === '') return htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    
+    $escaped = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $pattern = '/' . preg_quote(htmlspecialchars($query, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'), '/') . '/i';
+    return preg_replace_callback($pattern, static fn($m) => '<mark class="cp-highlight">' . $m[0] . '</mark>', $escaped) ?? $escaped;
 }

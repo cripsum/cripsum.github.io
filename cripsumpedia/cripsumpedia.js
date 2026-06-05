@@ -118,20 +118,31 @@
         window.addEventListener('resize', update);
     }
 
-    function renderLiveResults(results) {
+    function highlightText(text, query) {
+        if (!query || !text) return escapeHtml(text);
+        const escapedQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const regex = new RegExp(`(${escapedQuery})`, 'gi');
+        return escapeHtml(text).replace(regex, '<mark class="cp-highlight">$1</mark>');
+    }
+
+    function renderLiveResults(results, query = '') {
         if (!results.length) {
             return `<div class="cp-empty" style="min-height:7rem">${escapeHtml(cfg.lang === 'en' ? 'No results' : 'Nessun risultato')}</div>`;
         }
-        return results.map((item) => `
-            <a class="cp-live-item" href="${escapeHtml(item.url)}" style="--entry-accent:${escapeHtml(item.accent)}">
-                <img src="${escapeHtml(item.image)}" alt="" loading="lazy" onerror="this.remove()">
-                <span>
-                    <strong>${escapeHtml(item.title)}</strong>
-                    <small>${escapeHtml(item.type_label)} · ${escapeHtml(item.description || '').slice(0, 96)}</small>
-                </span>
-                <i class="fa-solid fa-arrow-right"></i>
-            </a>
-        `).join('');
+        return results.map((item) => {
+            const hlTitle = highlightText(item.title, query);
+            const hlDesc = highlightText((item.description || '').slice(0, 96), query);
+            return `
+                <a class="cp-live-item" href="${escapeHtml(item.url)}" style="--entry-accent:${escapeHtml(item.accent)}">
+                    <img src="${escapeHtml(item.image)}" alt="" loading="lazy" onerror="this.remove()">
+                    <span>
+                        <strong>${hlTitle}</strong>
+                        <small>${escapeHtml(item.type_label)} · ${hlDesc}...</small>
+                    </span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            `;
+        }).join('');
     }
 
     function initLiveSearch() {
@@ -159,7 +170,7 @@
                         limit: 7,
                     }), { signal: state.searchAbort.signal });
                     if (input.value.trim() !== q) return;
-                    box.innerHTML = renderLiveResults(data.results || []);
+                    box.innerHTML = renderLiveResults(data.results || [], q);
                 } catch (err) {
                     if (err.name === 'AbortError') return;
                     box.innerHTML = `<div class="cp-empty" style="min-height:7rem">${escapeHtml(err.message)}</div>`;
@@ -727,6 +738,32 @@
         });
     }
 
+    function initViewToggle() {
+        const gridBtn = $('[data-cp-view-toggle="grid"]');
+        const listBtn = $('[data-cp-view-toggle="list"]');
+        const grid = $('[data-cp-card-grid]');
+        if (!grid) return;
+
+        const setMode = (mode) => {
+            if (mode === 'list') {
+                grid.classList.add('is-list');
+                listBtn?.classList.add('is-active');
+                gridBtn?.classList.remove('is-active');
+            } else {
+                grid.classList.remove('is-list');
+                gridBtn?.classList.add('is-active');
+                listBtn?.classList.remove('is-active');
+            }
+            localStorage.setItem('cp-view-mode', mode);
+        };
+
+        const savedMode = localStorage.getItem('cp-view-mode') || 'grid';
+        setMode(savedMode);
+
+        gridBtn?.addEventListener('click', () => setMode('grid'));
+        listBtn?.addEventListener('click', () => setMode('list'));
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         initReveal();
         initTopbar();
@@ -742,5 +779,6 @@
         initUploads();
         initEditorSubmit();
         initAdminDelete();
+        initViewToggle();
     });
 })();
