@@ -7,13 +7,14 @@
         it: {
             date_locale:        'it-IT',
             rarity: {
-                comune:         'Comune',
-                raro:           'Raro',
-                epico:          'Epico',
-                leggendario:    'Leggendario',
-                speciale:       'Speciale',
-                segreto:        'Segreto',
-                theone:         'THE ONE'
+                comune:             'Comune',
+                raro:               'Raro',
+                epico:              'Epico',
+                leggendario:        'Leggendario',
+                speciale:           'Speciale',
+                segreto:            'Segreto',
+                segreto_limited:    'Segreto Limited',
+                theone:             'THE ONE'
             },
             unknown:            '???',
             not_found:          'Non trovato',
@@ -28,13 +29,14 @@
         en: {
             date_locale:        'en-GB',
             rarity: {
-                comune:         'Common',
-                raro:           'Rare',
-                epico:          'Epic',
-                leggendario:    'Legendary',
-                speciale:       'Special',
-                segreto:        'Secret',
-                theone:         'THE ONE'
+                comune:             'Common',
+                raro:               'Rare',
+                epico:              'Epic',
+                leggendario:        'Legendary',
+                speciale:           'Special',
+                segreto:            'Secret',
+                segreto_limited:    'Secret Limited',
+                theone:             'THE ONE'
             },
             unknown:            '???',
             not_found:          'Not found',
@@ -58,7 +60,7 @@
         openedBoxes: 'https://cripsum.com/api/get_casse_aperte'
     };
 
-    const rarityOrder = ['comune', 'raro', 'epico', 'leggendario', 'speciale', 'segreto', 'theone'];
+    const rarityOrder = ['comune', 'raro', 'epico', 'leggendario', 'speciale', 'segreto', 'segreto_limited', 'theone'];
 
     const state = {
         inventory: [],
@@ -246,11 +248,16 @@
         });
     };
 
+    const isSecretLimited = (entry) => entry.rarity === 'segreto' && normalize(entry.category) === 'limited';
+
+    const getDisplayRarity = (entry) => isSecretLimited(entry) ? 'segreto_limited' : entry.rarity;
+
     const visibleBaseEntries = () => {
         return state.entries.filter((entry) => {
-            const foundInRarity = state.entries.some((item) => item.rarity === entry.rarity && item.owned);
+            const displayRarity = getDisplayRarity(entry);
+            const foundInGroup = state.entries.some((item) => getDisplayRarity(item) === displayRarity && item.owned);
 
-            if ((entry.rarity === 'segreto' || entry.rarity === 'theone') && !foundInRarity) {
+            if ((displayRarity === 'segreto' || displayRarity === 'segreto_limited' || displayRarity === 'theone') && !foundInGroup) {
                 return false;
             }
 
@@ -264,7 +271,13 @@
         let list = visibleBaseEntries();
 
         if (state.filters.rarity !== 'all') {
-            list = list.filter((entry) => entry.rarity === state.filters.rarity);
+            if (state.filters.rarity === 'segreto_limited') {
+                list = list.filter((entry) => isSecretLimited(entry));
+            } else if (state.filters.rarity === 'segreto') {
+                list = list.filter((entry) => entry.rarity === 'segreto' && !isSecretLimited(entry));
+            } else {
+                list = list.filter((entry) => entry.rarity === state.filters.rarity);
+            }
         }
 
         if (state.filters.status === 'owned') {
@@ -318,8 +331,9 @@
 
         rarityOrder.forEach((rarity) => groups.set(rarity, []));
         entries.forEach((entry) => {
-            if (!groups.has(entry.rarity)) groups.set(entry.rarity, []);
-            groups.get(entry.rarity).push(entry);
+            const key = getDisplayRarity(entry);
+            if (!groups.has(key)) groups.set(key, []);
+            groups.get(key).push(entry);
         });
 
         return groups;
@@ -337,7 +351,7 @@
     };
 
     const renderRarityTitle = (rarity, entries) => {
-        const baseEntries = visibleBaseEntries().filter((entry) => entry.rarity === rarity);
+        const baseEntries = visibleBaseEntries().filter((entry) => getDisplayRarity(entry) === rarity);
         const found = baseEntries.filter((entry) => entry.owned).length;
         const total = baseEntries.length;
 
@@ -357,7 +371,7 @@
         const displayName = entry.owned ? entry.name : t.unknown;
 
         return `
-            <article class="character-card rarity-${escapeHtml(entry.rarity)} ${entry.owned ? 'is-owned' : 'is-missing'}"
+            <article class="character-card rarity-${escapeHtml(entry.rarity)}${isSecretLimited(entry) ? ' rarity-segreto_limited' : ''} ${entry.owned ? 'is-owned' : 'is-missing'}"
                      data-character-id="${entry.id}"
                      ${entry.owned ? 'tabindex="0" role="button"' : ''}
                      aria-label="${entry.owned ? escapeHtml(t.open_character(entry.name)) : t.not_found}">

@@ -34,7 +34,6 @@ if (!$target_user) {
     exit('Utente non trovato');
 }
 
-// Admin cannot ban owner or other admins
 if (isAdmin() && !isOwner()) {
     if ($target_user['ruolo'] === 'owner' || $target_user['ruolo'] === 'admin') {
         http_response_code(403);

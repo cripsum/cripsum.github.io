@@ -1,24 +1,10 @@
 <?php
-
-/**
- * api_redeem_code.php
- * POST /api/api_redeem_code
- *
- * Body JSON: { "codice": "string", "lang": "it"|"en" }
- *
- * Risponde con JSON:
- *   { status: 'success', tipo: 'personaggio', personaggio: {...}, is_new: true }
- *   { status: 'success', tipo: 'punti', punti: 500, soldi_rimasti: 1200, descrizione: '...' }
- *   { status: 'error',   message: '...' }
- */
-
 require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-// ── Auth ──────────────────────────────────────────────────────────────────────
 if (empty($_SESSION['user_id'])) {
     echo json_encode(['status' => 'error', 'message' => 'Non autenticato.']);
     exit;
@@ -26,7 +12,6 @@ if (empty($_SESSION['user_id'])) {
 
 $userId = (int)$_SESSION['user_id'];
 
-// ── Input ─────────────────────────────────────────────────────────────────────
 $body   = json_decode(file_get_contents('php://input'), true);
 $codice = strtolower(trim($body['codice'] ?? ''));
 $lang   = ($body['lang'] ?? 'it') === 'en' ? 'en' : 'it';
@@ -36,9 +21,6 @@ if ($codice === '') {
     exit;
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// TRADUZIONI
-// ══════════════════════════════════════════════════════════════════════════════
 $t = [
     'it' => [
         'err_invalid'      => 'Codice non valido, skill issue!',
@@ -60,25 +42,12 @@ $t = [
     ],
 ][$lang];
 
-// ══════════════════════════════════════════════════════════════════════════════
-// CATALOGO CODICI
-//
-// Ogni voce è un array con:
-//   tipo         => 'personaggio' | 'punti'
-//   --- se personaggio ---
-//   nome         => nome esatto nella colonna `nome` della tabella `personaggi`
-//   --- se punti ---
-//   punti        => (int) quanti punti aggiungere
-//   descrizione  => [ 'it' => '...', 'en' => '...' ]  testo toast (opzionale)
-// ══════════════════════════════════════════════════════════════════════════════
 $codici = [
-    // Personaggi
     'signortoki' => ['tipo' => 'personaggio', 'nome' => 'TOKI'],
     'cripsum'    => ['tipo' => 'personaggio', 'nome' => 'CRIPSUM'],
     'peak'       => ['tipo' => 'personaggio', 'nome' => 'MAOMAO'],
     'sburevole'  => ['tipo' => 'personaggio', 'nome' => 'ZIO DANILO SBUREVOLE'],
 
-    // Punti / pull
     '67'    => [
         'tipo'        => 'punti',
         'punti'       => 67,
@@ -148,8 +117,6 @@ $codici = [
 ];
 
 
-
-// ── Codice valido? ────────────────────────────────────────────────────────────
 if (!isset($codici[$codice])) {
     echo json_encode(['status' => 'error', 'message' => $t['err_invalid']]);
     exit;
@@ -157,7 +124,6 @@ if (!isset($codici[$codice])) {
 
 $entry = $codici[$codice];
 
-// ── Già riscattato da questo utente? ─────────────────────────────────────────
 $stmtCheck = $mysqli->prepare(
     'SELECT id FROM codici_riscattati WHERE codice = ? AND user_id = ? LIMIT 1'
 );
@@ -171,13 +137,8 @@ if ($stmtCheck->num_rows > 0) {
 }
 $stmtCheck->close();
 
-// ══════════════════════════════════════════════════════════════════════════════
-// GESTIONE PER TIPO
-// ══════════════════════════════════════════════════════════════════════════════
-
 if ($entry['tipo'] === 'personaggio') {
 
-    // 1. Recupera personaggio (SELECT * come in get_character_from_nome.php)
     $stmtP = $mysqli->prepare('SELECT * FROM personaggi WHERE nome = ? LIMIT 1');
     $stmtP->bind_param('s', $entry['nome']);
     $stmtP->execute();
@@ -189,7 +150,6 @@ if ($entry['tipo'] === 'personaggio') {
         exit;
     }
 
-    // 2. Già in inventario? (tabella utenti_personaggi, come in add_character_to_inventory.php)
     $stmtChk = $mysqli->prepare(
         'SELECT 1 FROM utenti_personaggi WHERE utente_id = ? AND personaggio_id = ? LIMIT 1'
     );
@@ -204,7 +164,6 @@ if ($entry['tipo'] === 'personaggio') {
         exit;
     }
 
-    // 3. Aggiungi all'inventario (stessa query di add_character_to_inventory.php)
     $stmtAdd = $mysqli->prepare(
         'INSERT INTO utenti_personaggi (utente_id, personaggio_id, data, quantità)
          VALUES (?, ?, NOW(), 1)
@@ -214,7 +173,6 @@ if ($entry['tipo'] === 'personaggio') {
     $stmtAdd->execute();
     $stmtAdd->close();
 
-    // 4. Segna come riscattato
     $stmtLog = $mysqli->prepare(
         'INSERT INTO codici_riscattati (codice, user_id) VALUES (?, ?)'
     );
@@ -236,7 +194,6 @@ if ($entry['tipo'] === 'personaggio') {
         exit;
     }
 
-    // Aggiorna i punti nella tabella utenti
     $stmtUpd = $mysqli->prepare(
         'UPDATE utenti SET soldi = soldi + ? WHERE id = ?'
     );
@@ -244,7 +201,6 @@ if ($entry['tipo'] === 'personaggio') {
     $stmtUpd->execute();
     $stmtUpd->close();
 
-    // Leggi i punti aggiornati
     $stmtSoldi = $mysqli->prepare('SELECT soldi FROM utenti WHERE id = ? LIMIT 1');
     $stmtSoldi->bind_param('i', $userId);
     $stmtSoldi->execute();
@@ -252,7 +208,6 @@ if ($entry['tipo'] === 'personaggio') {
     $stmtSoldi->fetch();
     $stmtSoldi->close();
 
-    // Segna come riscattato
     $stmtLog = $mysqli->prepare(
         'INSERT INTO codici_riscattati (codice, user_id) VALUES (?, ?)'
     );
@@ -260,7 +215,6 @@ if ($entry['tipo'] === 'personaggio') {
     $stmtLog->execute();
     $stmtLog->close();
 
-    // Descrizione localizzata: array it/en oppure stringa legacy
     $desc = $entry['descrizione'] ?? null;
     if (is_array($desc)) {
         $desc = $desc[$lang] ?? $desc['it'] ?? "+{$puntiDaAggiungere} {$t['pts_suffix']}!";

@@ -102,6 +102,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                     <option value="leggendario">Leggendario</option>
                     <option value="speciale">Speciale</option>
                     <option value="segreto">Segreto</option>
+                    <option value="segreto_limited">Segreto Limited</option>
                     <option value="theone">The One</option>
                 </select>
 
@@ -118,6 +119,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                     <button type="button" data-value="leggendario"><strong>Leggendario</strong></button>
                     <button type="button" data-value="speciale"><strong>Speciale</strong></button>
                     <button type="button" data-value="segreto"><strong>Segreto</strong></button>
+                    <button type="button" data-value="segreto_limited"><strong>Segreto Limited</strong></button>
                     <button type="button" data-value="theone"><strong>The One</strong></button>
                 </div>
             </div>

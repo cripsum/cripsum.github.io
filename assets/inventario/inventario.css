@@ -570,6 +570,10 @@ body.inv-page {
     --rarity-color: #a855f7;
     --rarity-glow: rgba(168, 85, 247, 0.22);
 }
+.rarity-segreto_limited {
+    --rarity-color: #e040fb;
+    --rarity-glow: rgba(224, 64, 251, 0.26);
+}
 .rarity-theone {
     --rarity-color: #38bdf8;
     --rarity-glow: rgba(56, 189, 248, 0.22);
@@ -964,6 +968,10 @@ body.inv-page .dropdown-menu button:hover {
     --rarity-color: #a855f7;
     --rarity-glow: rgba(168, 85, 247, 0.52);
 }
+.rarity-segreto_limited {
+    --rarity-color: #e040fb;
+    --rarity-glow: rgba(224, 64, 251, 0.56);
+}
 .rarity-theone {
     --rarity-color: #38bdf8;
     --rarity-glow: rgba(56, 189, 248, 0.58);
@@ -1016,6 +1024,7 @@ body.inv-page .dropdown-menu button:hover {
 
 .rarity-section.rarity-speciale .characters-grid,
 .rarity-section.rarity-segreto .characters-grid,
+.rarity-section.rarity-segreto_limited .characters-grid,
 .rarity-section.rarity-theone .characters-grid {
     padding: 1rem;
     border-radius: 24px;
@@ -1026,6 +1035,7 @@ body.inv-page .dropdown-menu button:hover {
 
 .rarity-section.rarity-speciale .rarity-title,
 .rarity-section.rarity-segreto .rarity-title,
+.rarity-section.rarity-segreto_limited .rarity-title,
 .rarity-section.rarity-theone .rarity-title {
     padding: 0.65rem 0.85rem;
     border-radius: 20px;
@@ -1090,12 +1100,14 @@ body.inv-page .dropdown-menu button:hover {
 @media (max-width: 620px) {
     .rarity-section.rarity-speciale,
     .rarity-section.rarity-segreto,
+    .rarity-section.rarity-segreto_limited,
     .rarity-section.rarity-theone {
         box-shadow: 0 14px 42px rgba(0, 0, 0, 0.34), 0 0 30px var(--rarity-glow) !important;
     }
 
     .rarity-section.rarity-speciale .characters-grid,
     .rarity-section.rarity-segreto .characters-grid,
+    .rarity-section.rarity-segreto_limited .characters-grid,
     .rarity-section.rarity-theone .characters-grid {
         padding: 0.75rem;
         border-radius: 18px;
@@ -1105,6 +1117,7 @@ body.inv-page .dropdown-menu button:hover {
 @media (prefers-reduced-motion: reduce) {
     .rarity-section.rarity-speciale,
     .rarity-section.rarity-segreto,
+    .rarity-section.rarity-segreto_limited,
     .rarity-section.rarity-theone {
         animation: none !important;
     }
@@ -1121,6 +1134,7 @@ body.inv-page .dropdown-menu button:hover {
 
 .rarity-section.rarity-speciale,
 .rarity-section.rarity-segreto,
+.rarity-section.rarity-segreto_limited,
 .rarity-section.rarity-theone {
     filter: none !important;
 }
@@ -1217,6 +1231,7 @@ body.inv-page .dropdown-menu button:hover {
 
 .rarity-section.rarity-speciale .characters-grid,
 .rarity-section.rarity-segreto .characters-grid,
+.rarity-section.rarity-segreto_limited .characters-grid,
 .rarity-section.rarity-theone .characters-grid {
     background: rgba(0, 0, 0, 0.28) !important;
     backdrop-filter: blur(10px);
@@ -1226,6 +1241,7 @@ body.inv-page .dropdown-menu button:hover {
 @media (prefers-reduced-motion: reduce) {
     .rarity-section.rarity-speciale,
     .rarity-section.rarity-segreto,
+    .rarity-section.rarity-segreto_limited,
     .rarity-section.rarity-theone,
     .character-card.rarity-speciale .character-badge--rarity {
         animation: none !important;
@@ -1245,6 +1261,7 @@ body.inv-page .dropdown-menu button:hover {
 
 .rarity-section.rarity-speciale,
 .rarity-section.rarity-segreto,
+.rarity-section.rarity-segreto_limited,
 .rarity-section.rarity-theone {
     position: relative !important;
     overflow: hidden !important;
@@ -1255,6 +1272,7 @@ body.inv-page .dropdown-menu button:hover {
 
 .rarity-section.rarity-speciale::before,
 .rarity-section.rarity-segreto::before,
+.rarity-section.rarity-segreto_limited::before,
 .rarity-section.rarity-theone::before {
     content: "" !important;
     position: absolute !important;
@@ -1275,6 +1293,7 @@ body.inv-page .dropdown-menu button:hover {
 
 .rarity-section.rarity-speciale::after,
 .rarity-section.rarity-segreto::after,
+.rarity-section.rarity-segreto_limited::after,
 .rarity-section.rarity-theone::after {
     content: "" !important;
     position: absolute !important;
@@ -1323,6 +1342,7 @@ body.inv-page .dropdown-menu button:hover {
 
 .rarity-section.rarity-speciale > *,
 .rarity-section.rarity-segreto > *,
+.rarity-section.rarity-segreto_limited > *,
 .rarity-section.rarity-theone > * {
     position: relative !important;
     z-index: 2 !important;
@@ -1330,6 +1350,7 @@ body.inv-page .dropdown-menu button:hover {
 
 .rarity-section.rarity-speciale .rarity-title,
 .rarity-section.rarity-segreto .rarity-title,
+.rarity-section.rarity-segreto_limited .rarity-title,
 .rarity-section.rarity-theone .rarity-title {
     padding: 0.75rem 0.95rem !important;
     border-radius: 20px !important;
@@ -1369,6 +1390,7 @@ body.inv-page .dropdown-menu button:hover {
 @media (prefers-reduced-motion: reduce) {
     .rarity-section.rarity-speciale::before,
     .rarity-section.rarity-segreto::before,
+    .rarity-section.rarity-segreto_limited::before,
     .rarity-section.rarity-theone::before,
     .character-card.rarity-speciale .character-badge--rarity {
         animation: none !important;
@@ -1496,6 +1518,7 @@ body.inv-page .dropdown-menu button:hover {
 
 body.inv-page .rarity-section.rarity-speciale,
 body.inv-page .rarity-section.rarity-segreto,
+body.inv-page .rarity-section.rarity-segreto_limited,
 body.inv-page .rarity-section.rarity-theone {
     position: relative !important;
     isolation: isolate !important;
@@ -1506,6 +1529,7 @@ body.inv-page .rarity-section.rarity-theone {
 
 body.inv-page .rarity-section.rarity-speciale::before,
 body.inv-page .rarity-section.rarity-segreto::before,
+body.inv-page .rarity-section.rarity-segreto_limited::before,
 body.inv-page .rarity-section.rarity-theone::before {
     content: "" !important;
     position: absolute !important;
@@ -1527,6 +1551,7 @@ body.inv-page .rarity-section.rarity-theone::before {
 
 body.inv-page .rarity-section.rarity-speciale::after,
 body.inv-page .rarity-section.rarity-segreto::after,
+body.inv-page .rarity-section.rarity-segreto_limited::after,
 body.inv-page .rarity-section.rarity-theone::after {
     content: "" !important;
     position: absolute !important;
@@ -1539,6 +1564,7 @@ body.inv-page .rarity-section.rarity-theone::after {
 
 body.inv-page .rarity-section.rarity-speciale > *,
 body.inv-page .rarity-section.rarity-segreto > *,
+body.inv-page .rarity-section.rarity-segreto_limited > *,
 body.inv-page .rarity-section.rarity-theone > * {
     position: relative !important;
     z-index: 2 !important;
@@ -1583,6 +1609,18 @@ body.inv-page .rarity-section.rarity-segreto::before {
     animation-duration: 4.8s !important;
 }
 
+body.inv-page .rarity-section.rarity-segreto_limited {
+    --rarity-color: #e040fb !important;
+    --rarity-glow: rgba(224, 64, 251, 0.56) !important;
+    border-color: rgba(224, 64, 251, 0.72) !important;
+    box-shadow: 0 18px 58px rgba(0, 0, 0, 0.38), 0 0 48px rgba(224, 64, 251, 0.48), 0 0 68px rgba(255, 193, 7, 0.22) !important;
+}
+
+body.inv-page .rarity-section.rarity-segreto_limited::before {
+    background: linear-gradient(90deg, #9400d3 0%, #e040fb 12.5%, #ff6f00 25%, #ffc107 37.5%, #e040fb 50%, #9400d3 62.5%, #e040fb 75%, #ffc107 87.5%, #9400d3 100%) !important;
+    animation-duration: 5.4s !important;
+}
+
 body.inv-page .rarity-section.rarity-theone {
     border-color: rgba(0, 191, 255, 0.74) !important;
     box-shadow: 0 18px 58px rgba(0, 0, 0, 0.38), 0 0 54px rgba(0, 11, 112, 0.58), 0 0 74px rgba(0, 191, 255, 0.28) !important;
@@ -1595,6 +1633,7 @@ body.inv-page .rarity-section.rarity-theone::before {
 
 body.inv-page .rarity-section.rarity-speciale .characters-grid,
 body.inv-page .rarity-section.rarity-segreto .characters-grid,
+body.inv-page .rarity-section.rarity-segreto_limited .characters-grid,
 body.inv-page .rarity-section.rarity-theone .characters-grid {
     background: rgba(0, 0, 0, 0.3) !important;
     backdrop-filter: blur(10px) !important;
@@ -1603,6 +1642,7 @@ body.inv-page .rarity-section.rarity-theone .characters-grid {
 
 body.inv-page .rarity-section.rarity-speciale .rarity-title,
 body.inv-page .rarity-section.rarity-segreto .rarity-title,
+body.inv-page .rarity-section.rarity-segreto_limited .rarity-title,
 body.inv-page .rarity-section.rarity-theone .rarity-title {
     background: rgba(0, 0, 0, 0.34) !important;
     color: #fff !important;
@@ -1619,12 +1659,14 @@ body.inv-page .modal-character.rarity-speciale .modal-character__actions .inv-bt
 
 body.inv-page .rarity-section.rarity-speciale::before,
 body.inv-page .rarity-section.rarity-segreto::before,
+body.inv-page .rarity-section.rarity-segreto_limited::before,
 body.inv-page .rarity-section.rarity-theone::before {
     animation-play-state: running !important;
 }
 
 body.inv-page.no-rarity-animations .rarity-section.rarity-speciale::before,
 body.inv-page.no-rarity-animations .rarity-section.rarity-segreto::before,
+body.inv-page.no-rarity-animations .rarity-section.rarity-segreto_limited::before,
 body.inv-page.no-rarity-animations .rarity-section.rarity-theone::before,
 body.inv-page.no-rarity-animations .modal-character.rarity-speciale .modal-character__image,
 body.inv-page.no-rarity-animations .modal-character.rarity-speciale .character-badge--rarity,
@@ -1648,12 +1690,14 @@ body.inv-page .modal-character.rarity-leggendario .character-badge--rarity {
 
 body.inv-page .rarity-section.rarity-speciale,
 body.inv-page .rarity-section.rarity-segreto,
+body.inv-page .rarity-section.rarity-segreto_limited,
 body.inv-page .rarity-section.rarity-theone {
     padding-top: 0 !important;
 }
 
 body.inv-page .rarity-section.rarity-speciale .rarity-title,
 body.inv-page .rarity-section.rarity-segreto .rarity-title,
+body.inv-page .rarity-section.rarity-segreto_limited .rarity-title,
 body.inv-page .rarity-section.rarity-theone .rarity-title {
     margin: 0 0 0.9rem 0 !important;
     border-radius: 0 0 20px 20px !important;
@@ -1662,6 +1706,7 @@ body.inv-page .rarity-section.rarity-theone .rarity-title {
 
 body.inv-page .rarity-section.rarity-speciale::before,
 body.inv-page .rarity-section.rarity-segreto::before,
+body.inv-page .rarity-section.rarity-segreto_limited::before,
 body.inv-page .rarity-section.rarity-theone::before {
     top: -2px !important;
     height: calc(100% + 4px) !important;
@@ -1670,12 +1715,14 @@ body.inv-page .rarity-section.rarity-theone::before {
 @media (max-width: 620px) {
     body.inv-page .rarity-section.rarity-speciale,
     body.inv-page .rarity-section.rarity-segreto,
+    body.inv-page .rarity-section.rarity-segreto_limited,
     body.inv-page .rarity-section.rarity-theone {
         padding-top: 0 !important;
     }
 
     body.inv-page .rarity-section.rarity-speciale .rarity-title,
     body.inv-page .rarity-section.rarity-segreto .rarity-title,
+    body.inv-page .rarity-section.rarity-segreto_limited .rarity-title,
     body.inv-page .rarity-section.rarity-theone .rarity-title {
         padding-top: 0.85rem !important;
     }
@@ -1692,6 +1739,7 @@ body.inv-page .rarity-section.rarity-theone::before {
 
 body.inv-page .rarity-section.rarity-speciale,
 body.inv-page .rarity-section.rarity-segreto,
+body.inv-page .rarity-section.rarity-segreto_limited,
 body.inv-page .rarity-section.rarity-theone {
     overflow: hidden !important;
     isolation: isolate !important;
@@ -1701,6 +1749,7 @@ body.inv-page .rarity-section.rarity-theone {
 
 body.inv-page .rarity-section.rarity-speciale::before,
 body.inv-page .rarity-section.rarity-segreto::before,
+body.inv-page .rarity-section.rarity-segreto_limited::before,
 body.inv-page .rarity-section.rarity-theone::before {
     content: "" !important;
     position: absolute !important;
@@ -1758,6 +1807,23 @@ body.inv-page .rarity-section.rarity-segreto::before {
     animation-duration: 6.2s !important;
 }
 
+body.inv-page .rarity-section.rarity-segreto_limited::before {
+    background-image: linear-gradient(
+        90deg,
+        #9400d3 0%,
+        #e040fb 12.5%,
+        #ff6f00 25%,
+        #ffc107 37.5%,
+        #e040fb 50%,
+
+        #9400d3 62.5%,
+        #e040fb 75%,
+        #ffc107 87.5%,
+        #9400d3 100%
+    ) !important;
+    animation-duration: 5.6s !important;
+}
+
 body.inv-page .rarity-section.rarity-theone::before {
     background-image: linear-gradient(
         90deg,
@@ -1777,6 +1843,7 @@ body.inv-page .rarity-section.rarity-theone::before {
 
 body.inv-page .rarity-section.rarity-speciale::after,
 body.inv-page .rarity-section.rarity-segreto::after,
+body.inv-page .rarity-section.rarity-segreto_limited::after,
 body.inv-page .rarity-section.rarity-theone::after {
     z-index: 1 !important;
     background: radial-gradient(circle at 82% 10%, rgba(255, 255, 255, 0.14), transparent 28%), linear-gradient(180deg, rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.34)) !important;
@@ -1784,6 +1851,7 @@ body.inv-page .rarity-section.rarity-theone::after {
 
 body.inv-page .rarity-section.rarity-speciale > *,
 body.inv-page .rarity-section.rarity-segreto > *,
+body.inv-page .rarity-section.rarity-segreto_limited > *,
 body.inv-page .rarity-section.rarity-theone > * {
     position: relative !important;
     z-index: 2 !important;
@@ -1847,6 +1915,7 @@ body.inv-page .modal-character.rarity-speciale .modal-character__image {
 }
 */ body.inv-page .rarity-section.rarity-speciale::before,
 body.inv-page .rarity-section.rarity-segreto::before,
+body.inv-page .rarity-section.rarity-segreto_limited::before,
 body.inv-page .rarity-section.rarity-theone::before {
     animation-name: raritySeamlessSlide !important;
     animation-timing-function: linear !important;
@@ -1855,8 +1924,22 @@ body.inv-page .rarity-section.rarity-theone::before {
 
 body.inv-page.no-rarity-animations .rarity-section.rarity-speciale::before,
 body.inv-page.no-rarity-animations .rarity-section.rarity-segreto::before,
+body.inv-page.no-rarity-animations .rarity-section.rarity-segreto_limited::before,
 body.inv-page.no-rarity-animations .rarity-section.rarity-theone::before {
     animation: none !important;
+}
+
+/* Segreto Limited — premium title badge */
+body.inv-page .rarity-section.rarity-segreto_limited .rarity-title strong::after {
+    content: " ✦";
+    color: #ffc107;
+    text-shadow: 0 0 12px rgba(255, 193, 7, 0.6);
+}
+
+.character-card.rarity-segreto_limited .character-badge--rarity {
+    background: linear-gradient(135deg, #e040fb, #9400d3) !important;
+    border-color: rgba(224, 64, 251, 0.5) !important;
+    box-shadow: 0 0 18px rgba(224, 64, 251, 0.28) !important;
 }
 
 .inv-custom-select {
