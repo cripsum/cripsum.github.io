@@ -13,7 +13,7 @@
                 leggendario:        'Leggendario',
                 speciale:           'Speciale',
                 segreto:            'Segreto',
-                segreto_limited:    'Segreto Limited',
+                segreto_limited:    'Segreto Limitato',
                 theone:             'THE ONE'
             },
             unknown:            '???',
@@ -35,7 +35,7 @@
                 leggendario:        'Legendary',
                 speciale:           'Special',
                 segreto:            'Secret',
-                segreto_limited:    'Secret Limited',
+                segreto_limited:    'Limited Secret',
                 theone:             'THE ONE'
             },
             unknown:            '???',

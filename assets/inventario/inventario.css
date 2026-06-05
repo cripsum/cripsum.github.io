@@ -1931,7 +1931,6 @@ body.inv-page.no-rarity-animations .rarity-section.rarity-theone::before {
 
 /* Segreto Limited — premium title badge */
 body.inv-page .rarity-section.rarity-segreto_limited .rarity-title strong::after {
-    content: " ✦";
     color: #ffc107;
     text-shadow: 0 0 12px rgba(255, 193, 7, 0.6);
 }
