@@ -1894,7 +1894,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
 }
 
 .profile-smart-page--single {
-    grid-template-columns: minmax(280px, 580px);
+    grid-template-columns: minmax(0, 580px);
     justify-content: center;
 }
 
@@ -3108,7 +3108,8 @@ body[data-theme="light"].bio-v2-body .dropdown-menu button {
 
 .profile-smart-hero {
     max-height: calc(100dvh - 7rem);
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     scrollbar-width: thin;
     scrollbar-color: rgba(var(--accent-rgb), 0.35) transparent;
 }
@@ -3410,6 +3411,10 @@ body[data-profile-button-shape="sharp"] .bio-icon-button {
         padding-top: 5.05rem !important;
         padding-bottom: 1rem !important;
         gap: 0.62rem !important;
+    }
+
+    .profile-smart-page--single {
+        grid-template-columns: 1fr !important;
     }
 
     .profile-smart-hero,
@@ -5111,8 +5116,10 @@ body[data-theme="light"] .profile-select-menu {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
+    width: 100% !important;
     max-width: 580px !important;
     margin: 0 auto !important;
+    box-sizing: border-box !important;
 }
 .layout-clean .profile-smart-hero {
     width: 100% !important;
@@ -5405,6 +5412,124 @@ body[data-profile-effect="sakura_falling"] .profile-effects-layer::before {
     100% {
         background-position: center 400px;
     }
+}
+
+/* ── SECTION AND CHARACTER ORDERING STYLES ──────────────────────────────── */
+.profile-sections-sort-list, .profile-character-sort-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 0.75rem;
+}
+
+.profile-sort-item, .profile-character-sort-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 0.62rem 0.8rem;
+    transition: all 0.2s ease;
+}
+
+.profile-sort-item:hover, .profile-character-sort-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(var(--accent-rgb), 0.25);
+    transform: translateY(-1px);
+}
+
+.profile-sort-item-info, .profile-character-sort-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.88rem;
+    font-weight: 500;
+}
+
+.profile-sort-item-info i {
+    color: rgba(var(--accent-rgb), 0.85);
+    width: 1.1rem;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+/* Specific for Character sorting cards */
+.profile-character-sort-img {
+    width: 2.2rem;
+    height: 2.2rem;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.profile-character-sort-fallback {
+    width: 2.2rem;
+    height: 2.2rem;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+}
+
+.profile-character-sort-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Up/Down buttons for sorting list elements */
+.profile-move-up-char, .profile-move-down-char,
+.profile-move-up-sec, .profile-move-down-sec {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.7);
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.profile-move-up-char:hover, .profile-move-down-char:hover,
+.profile-move-up-sec:hover, .profile-move-down-sec:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.profile-move-up-char:active, .profile-move-down-char:active,
+.profile-move-up-sec:active, .profile-move-down-sec:active {
+    transform: scale(0.95);
+}
+
+.profile-move-up-char:disabled, .profile-move-down-char:disabled,
+.profile-move-up-sec:disabled, .profile-move-down-sec:disabled {
+    opacity: 0.3;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+/* Character Rarity borders for sort cards */
+.profile-character-sort-card.rarity-legendary {
+    border-color: rgba(245, 158, 11, 0.3);
+}
+.profile-character-sort-card.rarity-epic {
+    border-color: rgba(139, 92, 246, 0.3);
+}
+.profile-character-sort-card.rarity-rare {
+    border-color: rgba(59, 130, 246, 0.3);
 }
 
 

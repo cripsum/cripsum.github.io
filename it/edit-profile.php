@@ -71,9 +71,9 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Modifica profilo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=3.2.1">
-    <script src="/assets/js/profile.js?v=3.2.1" defer></script>
-    <script src="/assets/js/edit-profile.js?v=3.2.1" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=3.3.0">
+    <script src="/assets/js/profile.js?v=3.3.0" defer></script>
+    <script src="/assets/js/edit-profile.js?v=3.3.0" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" style="--profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColor ?: 'var(--card)'); ?>; --profile-text-color: <?php echo profile_h($textColor ?: 'var(--text)'); ?>;">
@@ -454,6 +454,14 @@ function profile_json_script(string $id, array $data): void
                             ?>
                         </p>
 
+                        <div class="profile-character-sort-section" style="margin-top: 1.5rem;">
+                            <strong style="display: block; margin-bottom: 0.5rem;"><i class="fas fa-sort"></i> Ordinamento Personaggi Selezionati</strong>
+                            <p style="font-size: 0.82rem; color: var(--muted-2); margin-bottom: 0.75rem;">Sposta i personaggi selezionati per decidere l'ordine in cui appaiono sul tuo profilo.</p>
+                            <div id="characterSortList" class="profile-character-sort-list">
+                                <!-- Populated dynamically via JS -->
+                            </div>
+                        </div>
+
                     <?php else: ?>
                         <div class="bio-empty-state">
                             <i class="fas fa-user-astronaut"></i>
@@ -485,6 +493,16 @@ function profile_json_script(string $id, array $data): void
                         <label class="profile-toggle-card"><input type="hidden" name="profile_show_stats" value="0"><input type="checkbox" name="profile_show_stats" value="1" <?php echo (int)($profile['profile_show_stats'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-chart-simple"></i>Statistiche</span></label>
                         <label class="profile-toggle-card"><input type="hidden" name="profile_show_activity" value="0"><input type="checkbox" name="profile_show_activity" value="1" <?php echo (int)($profile['profile_show_activity'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-clock"></i>Attività</span></label>
                         <label class="profile-toggle-card"><input type="hidden" name="profile_show_discord" value="0"><input type="checkbox" name="profile_show_discord" value="1" <?php echo (int)($profile['profile_show_discord'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fab fa-discord"></i>Discord</span></label>
+                    </div>
+
+                    <div class="bio-section-heading" style="margin-top: 1.8rem;">
+                        <div><span><i class="fas fa-sort"></i> Ordinamento sezioni</span>
+                            <p>Sposta le sezioni per cambiare l'ordine in cui appaiono sul tuo profilo pubblico.</p>
+                        </div>
+                    </div>
+                    <input type="hidden" name="profile_sections_order" id="sectionsOrderJson" value="<?php echo profile_h($profile['profile_sections_order'] ?? 'links,embeds,stats,projects,blocks,contents,characters,badges,activity'); ?>">
+                    <div id="sectionsSortList" class="profile-sections-sort-list">
+                        <!-- Populated via Javascript -->
                     </div>
                 </div>
                 <div class="profile-editor-footer">
@@ -518,6 +536,11 @@ function profile_json_script(string $id, array $data): void
     <?php profile_json_script('initialContentsData', $contents); ?>
     <?php profile_json_script('initialBlocksData', $blocks); ?>
     <?php profile_json_script('initialEmbedsData', $embeds); ?>
+    <?php
+    $displayedChars = profile_list_displayed_characters($mysqli, $targetUserId);
+    $displayedCharIds = array_map(fn($c) => (int)$c['id'], $displayedChars);
+    profile_json_script('initialCharactersData', $displayedCharIds);
+    ?>
 
     <?php if (file_exists(__DIR__ . '/../includes/footer.php')) include __DIR__ . '/../includes/footer.php'; ?>
 </body>

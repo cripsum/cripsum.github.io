@@ -79,6 +79,18 @@ $enterTextDb = $enterText !== '' ? $enterText : null;
 $socialsStyle = profile_allowed_value((string)($_POST['profile_socials_style'] ?? 'cards'), ['cards', 'icons'], 'cards');
 $showEmbeds = profile_bool_from_post('profile_show_embeds', true);
 
+$sectionsOrder = trim((string)($_POST['profile_sections_order'] ?? ''));
+if ($sectionsOrder === '') {
+    $sectionsOrder = 'links,embeds,stats,projects,blocks,contents,characters,badges,activity';
+}
+$allowedSectionsList = ['links', 'embeds', 'stats', 'projects', 'blocks', 'contents', 'characters', 'badges', 'activity'];
+$sectionsArray = explode(',', $sectionsOrder);
+$validSectionsArray = array_values(array_intersect($sectionsArray, $allowedSectionsList));
+if (empty($validSectionsArray)) {
+    $validSectionsArray = $allowedSectionsList;
+}
+$sectionsOrderDb = implode(',', $validSectionsArray);
+
 if (!profile_is_valid_username($username)) {
     profile_json_response(['ok' => false, 'message' => 'Invalid username. Use 3-20 characters, letters, numbers, or underscores.'], 422);
 }
@@ -161,12 +173,12 @@ try {
         SET username = ?, display_name = ?, bio = ?, accent_color = ?, profile_secondary_color = ?, profile_card_color = ?, profile_text_color = ?, profile_link_style = ?, profile_button_shape = ?, profile_theme = ?, profile_layout = ?, profile_visibility = ?, discord_id = ?, discord_use_avatar = ?, discord_use_display_name = ?, profile_status = ?,
             profile_music_url = ?, profile_music_title = ?, profile_music_artist = ?, profile_effect = ?, avatar_ring_style = ?, avatar_ring_color = ?,
             profile_show_stats = ?, profile_show_socials = ?, profile_show_links = ?, profile_show_projects = ?, profile_show_contents = ?, profile_show_badges = ?, profile_show_activity = ?, profile_show_discord = ?, profile_show_audio_player = ?, avatar_ring_enabled = ?, profile_show_characters = ?,
-            profile_enter_text = ?, profile_click_to_enter = ?, profile_socials_style = ?, profile_show_embeds = ?,
+            profile_enter_text = ?, profile_click_to_enter = ?, profile_socials_style = ?, profile_show_embeds = ?, profile_sections_order = ?,
             profile_updated_at = NOW()
         WHERE id = ?
     ");
     $stmt->bind_param(
-        'sssssssssssssiisssssssiiiiiiiiiiisisii',
+        'sssssssssssssiisssssssiiiiiiiiiiisisisi',
         $username,
         $displayNameDb,
         $bioDb,
@@ -204,6 +216,7 @@ try {
         $clickToEnter,
         $socialsStyle,
         $showEmbeds,
+        $sectionsOrderDb,
         $targetUserId
     );
     if (!$stmt->execute()) throw new RuntimeException('Error updating profile.');

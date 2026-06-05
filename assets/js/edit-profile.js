@@ -609,14 +609,105 @@
         setTimeout(refreshProfileCustomSelects, 100);
     }
 
+    // Gestione ordinamento personaggi
+    let selectedCharIds = [];
+    const initialDataEl = document.getElementById('initialCharactersData');
+    if (initialDataEl) {
+        try {
+            selectedCharIds = JSON.parse(initialDataEl.textContent || '[]');
+        } catch (e) {
+            console.error('Errore parsing initialCharactersData:', e);
+        }
+    }
+
+    // Carica personaggi inizialmente selezionati (se non presenti in initialCharactersData)
+    const initialChecked = Array.from(document.querySelectorAll('#characterPicker input[type="checkbox"]:checked'))
+        .map(input => Number(input.value));
+    initialChecked.forEach(id => {
+        if (!selectedCharIds.includes(id)) {
+            selectedCharIds.push(id);
+        }
+    });
+    // Pulisci eventuali deselezionati
+    selectedCharIds = selectedCharIds.filter(id => initialChecked.includes(id)).slice(0, 12);
+
     function collectCharacters() {
-    return Array.from(
-        document.querySelectorAll('#characterPicker input[type="checkbox"]:checked')
-    )
-        .slice(0, 12)
-        .map((input) => Number(input.value));
-}
- 
+        return selectedCharIds;
+    }
+
+    function getCharacterDetails(charId) {
+        const label = document.querySelector(`#characterPicker input[value="${charId}"]`)?.closest('.profile-character-choice');
+        if (!label) return { id: charId, name: 'Personaggio', img: '', rarityClass: 'rarity-common' };
+        const name = label.getAttribute('title') || label.querySelector('strong')?.textContent || 'Personaggio';
+        const img = label.querySelector('img')?.getAttribute('src') || '';
+        const rarityClass = Array.from(label.classList).find(c => c.startsWith('rarity-')) || 'rarity-common';
+        return { id: charId, name, img, rarityClass };
+    }
+
+    function renderCharacterSortList() {
+        const sortListEl = document.getElementById('characterSortList');
+        if (!sortListEl) return;
+        sortListEl.innerHTML = '';
+
+        if (selectedCharIds.length === 0) {
+            sortListEl.innerHTML = `
+                <div style="font-size: 0.82rem; color: var(--muted-2); font-style: italic; padding: 0.5rem 0;">
+                    Nessun personaggio selezionato. Spunta le caselle sopra per aggiungerne.
+                </div>
+            `;
+            return;
+        }
+
+        selectedCharIds.forEach((charId, index) => {
+            const details = getCharacterDetails(charId);
+            if (!details) return;
+
+            const card = document.createElement('div');
+            card.className = `profile-character-sort-card ${details.rarityClass}`;
+            card.dataset.charId = charId;
+            card.innerHTML = `
+                <div class="profile-character-sort-info">
+                    ${details.img ? `<img src="${details.img}" alt="" class="profile-character-sort-img">` : `<span class="profile-character-sort-fallback"><i class="fas fa-user-astronaut"></i></span>`}
+                    <strong class="profile-character-sort-name">${details.name}</strong>
+                </div>
+                <div class="profile-row-actions">
+                    <button type="button" class="profile-move-up-char" title="Sposta su" ${index === 0 ? 'disabled' : ''}><i class="fas fa-arrow-up"></i></button>
+                    <button type="button" class="profile-move-down-char" title="Sposta giù" ${index === selectedCharIds.length - 1 ? 'disabled' : ''}><i class="fas fa-arrow-down"></i></button>
+                </div>
+            `;
+
+            card.querySelector('.profile-move-up-char').addEventListener('click', (e) => {
+                e.preventDefault();
+                if (index > 0) {
+                    const temp = selectedCharIds[index];
+                    selectedCharIds[index] = selectedCharIds[index - 1];
+                    selectedCharIds[index - 1] = temp;
+                    renderCharacterSortList();
+                }
+            });
+
+            card.querySelector('.profile-move-down-char').addEventListener('click', (e) => {
+                e.preventDefault();
+                if (index < selectedCharIds.length - 1) {
+                    const temp = selectedCharIds[index];
+                    selectedCharIds[index] = selectedCharIds[index + 1];
+                    selectedCharIds[index + 1] = temp;
+                    renderCharacterSortList();
+                }
+            });
+
+            sortListEl.appendChild(card);
+        });
+    }
+
+    function updateCharacterCounter() {
+        const hint = document.querySelector('.profile-character-hint');
+        if (hint) {
+            const n = selectedCharIds.length;
+            hint.innerHTML = `<i class="fas fa-circle-info"></i> ${n}/12 selezionati.`;
+        }
+    }
+
     // Filtro ricerca personaggi
     const characterSearchInput = document.getElementById('characterSearchInput');
     if (characterSearchInput) {
@@ -629,37 +720,117 @@
         });
     }
     
-    // Limite max 12 + aggiornamento contatore
+    // Listener checkbox picker personaggi
     const characterPickerEl = document.getElementById('characterPicker');
     if (characterPickerEl) {
-        characterPickerEl.addEventListener('change', () => {
-            const checked = characterPickerEl.querySelectorAll('input[type="checkbox"]:checked');
-            if (checked.length > 12) {
-                // Deseleziona l'ultimo checkato in eccesso
-                checked[checked.length - 1].checked = false;
-                if (typeof window.profileToast === 'function') {
-                    window.profileToast('Puoi selezionare massimo 12 personaggi.');
+        characterPickerEl.addEventListener('change', (e) => {
+            if (e.target && e.target.type === 'checkbox') {
+                const charId = Number(e.target.value);
+                if (e.target.checked) {
+                    const checkedCount = characterPickerEl.querySelectorAll('input[type="checkbox"]:checked').length;
+                    if (checkedCount > 12) {
+                        e.target.checked = false;
+                        if (typeof window.profileToast === 'function') {
+                            window.profileToast('Puoi selezionare massimo 12 personaggi.');
+                        }
+                        return;
+                    }
+                    if (!selectedCharIds.includes(charId)) {
+                        selectedCharIds.push(charId);
+                    }
+                } else {
+                    selectedCharIds = selectedCharIds.filter(id => id !== charId);
                 }
-            }
-            // Aggiorna hint contatore
-            const hint = document.querySelector('.profile-character-hint');
-            if (hint) {
-                const n = Math.min(checked.length, 12);
-                hint.innerHTML = `<i class="fas fa-circle-info"></i> ${n}/12 selezionati.`;
+                renderCharacterSortList();
+                updateCharacterCounter();
             }
         });
     }
+
+    // Inizializza lista ordinamento personaggi
+    renderCharacterSortList();
+    updateCharacterCounter();
+
+    // ── ORDINAMENTO SEZIONI PROFILO ─────────────────────────────────────────
+    const sectionInfo = {
+        links: { name: 'Link', icon: 'fas fa-link' },
+        embeds: { name: 'Embed (Spotify/YouTube)', icon: 'fas fa-share-square' },
+        stats: { name: 'Statistiche', icon: 'fas fa-chart-simple' },
+        projects: { name: 'Progetti', icon: 'fas fa-cubes' },
+        blocks: { name: 'Custom Blocks', icon: 'fas fa-wand-magic-sparkles' },
+        contents: { name: 'Edit e Contenuti', icon: 'fas fa-play' },
+        characters: { name: 'Personaggi', icon: 'fas fa-user-astronaut' },
+        badges: { name: 'Badge', icon: 'fas fa-trophy' },
+        activity: { name: 'Attività Recente', icon: 'fas fa-clock' }
+    };
+
+    function initSectionsSorting() {
+        const sectionsOrderInput = document.getElementById('sectionsOrderJson');
+        const sectionsSortList = document.getElementById('sectionsSortList');
+        if (!sectionsOrderInput || !sectionsSortList) return;
+
+        const allowedList = ['links', 'embeds', 'stats', 'projects', 'blocks', 'contents', 'characters', 'badges', 'activity'];
+        let currentOrder = sectionsOrderInput.value.split(',').map(s => s.trim()).filter(s => allowedList.includes(s));
+
+        // Inserisci eventuali sezioni mancanti alla fine
+        allowedList.forEach(s => {
+            if (!currentOrder.includes(s)) currentOrder.push(s);
+        });
+
+        function renderSectionsList() {
+            sectionsSortList.innerHTML = '';
+            currentOrder.forEach((secKey, index) => {
+                const info = sectionInfo[secKey] || { name: secKey, icon: 'fas fa-folder' };
+                const item = document.createElement('div');
+                item.className = 'profile-sort-item';
+                item.dataset.secKey = secKey;
+                item.innerHTML = `
+                    <div class="profile-sort-item-info">
+                        <i class="${info.icon}"></i>
+                        <span>${info.name}</span>
+                    </div>
+                    <div class="profile-row-actions">
+                        <button type="button" class="profile-move-up-sec" title="Sposta su" ${index === 0 ? 'disabled' : ''}><i class="fas fa-arrow-up"></i></button>
+                        <button type="button" class="profile-move-down-sec" title="Sposta giù" ${index === currentOrder.length - 1 ? 'disabled' : ''}><i class="fas fa-arrow-down"></i></button>
+                    </div>
+                `;
+
+                item.querySelector('.profile-move-up-sec').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (index > 0) {
+                        const temp = currentOrder[index];
+                        currentOrder[index] = currentOrder[index - 1];
+                        currentOrder[index - 1] = temp;
+                        saveSectionsOrder();
+                        renderSectionsList();
+                    }
+                });
+
+                item.querySelector('.profile-move-down-sec').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (index < currentOrder.length - 1) {
+                        const temp = currentOrder[index];
+                        currentOrder[index] = currentOrder[index + 1];
+                        currentOrder[index + 1] = temp;
+                        saveSectionsOrder();
+                        renderSectionsList();
+                    }
+                });
+
+                sectionsSortList.appendChild(item);
+            });
+        }
+
+        function saveSectionsOrder() {
+            sectionsOrderInput.value = currentOrder.join(',');
+        }
+
+        renderSectionsList();
+    }
+
+    initSectionsSorting();
     
     // ── Hook nel submit: serializza i personaggi scelti ──────
-    // ⚠️  Questo sostituisce / integra il form submit già presente.
-    // Se hai già un listener su form 'submit', aggiungi SOLO questa riga
-    // dentro il blocco submit PRIMA del fetch:
-    //
-    //   document.getElementById('charactersJson').value =
-    //       JSON.stringify(collectCharacters());
-    //
-    // Il codice qui sotto è pensato per essere incollato vicino
-    // agli altri collectRows nel listener submit esistente.
     (function patchSubmitForCharacters() {
         const form = document.getElementById('profileEditForm');
         if (!form || form.dataset.charactersPatchApplied) return;
@@ -673,7 +844,7 @@
                     hiddenInput.value = JSON.stringify(collectCharacters());
                 }
             },
-            true   // capture: si esegue prima del listener principale
+            true
         );
     })();
     

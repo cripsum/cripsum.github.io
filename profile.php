@@ -225,8 +225,8 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=3.2.1">
-    <script src="/assets/js/profile.js?v=3.2.1" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=3.3.0">
+    <script src="/assets/js/profile.js?v=3.3.0" defer></script>
 </head>
 
 <body
@@ -413,7 +413,12 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                         </section>
                     <?php endif; ?>
 
-                    <?php if ($featuredLinks || $normalLinks): ?>
+                    <?php
+                    $sectionsHtml = [];
+
+                    // 1. Links
+                    ob_start();
+                    if ($featuredLinks || $normalLinks): ?>
                         <section class="bio-card bio-featured js-reveal">
                             <?php profile_render_section_heading('fas fa-link', 'Link'); ?>
                             <div class="bio-featured-grid profile-link-grid profile-link-count-<?php echo count(array_merge($featuredLinks, $normalLinks)); ?>">
@@ -438,9 +443,12 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                                 <?php endforeach; ?>
                             </div>
                         </section>
-                    <?php endif; ?>
+                    <?php endif;
+                    $sectionsHtml['links'] = ob_get_clean();
 
-                    <?php if ($embeds): ?>
+                    // 2. Embeds
+                    ob_start();
+                    if ($embeds): ?>
                         <section class="bio-card profile-embeds-section js-reveal">
                             <?php profile_render_section_heading('fas fa-share-square', 'Embed'); ?>
                             <div class="profile-embeds-grid">
@@ -461,17 +469,23 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                                 <?php endforeach; ?>
                             </div>
                         </section>
-                    <?php endif; ?>
+                    <?php endif;
+                    $sectionsHtml['embeds'] = ob_get_clean();
 
-                    <?php if ($hasStats): ?>
+                    // 3. Stats
+                    ob_start();
+                    if ($hasStats): ?>
                         <div class="bio-stats-grid profile-stats-compact js-reveal">
                             <?php foreach (array_slice($stats, 0, 4) as $stat): ?>
                                 <article class="bio-stat-card"><i class="<?php echo profile_h($stat['icon']); ?>"></i><strong><?php echo profile_h($stat['value']); ?></strong><span><?php echo profile_h($stat['label']); ?></span></article>
                             <?php endforeach; ?>
                         </div>
-                    <?php endif; ?>
+                    <?php endif;
+                    $sectionsHtml['stats'] = ob_get_clean();
 
-                    <?php if ($visibleProjects): ?>
+                    // 4. Projects
+                    ob_start();
+                    if ($visibleProjects): ?>
                         <section class="bio-card bio-details profile-clean-section js-reveal">
                             <?php profile_render_section_heading('fas fa-cubes', 'Projects'); ?>
                             <div class="bio-project-grid">
@@ -496,9 +510,12 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                                 <?php endforeach; ?>
                             </div>
                         </section>
-                    <?php endif; ?>
+                    <?php endif;
+                    $sectionsHtml['projects'] = ob_get_clean();
 
-                    <?php if ($visibleBlocks): ?>
+                    // 5. Blocks
+                    ob_start();
+                    if ($visibleBlocks): ?>
                         <section class="bio-card bio-details profile-clean-section js-reveal">
                             <div class="profile-block-grid">
                                 <?php foreach ($visibleBlocks as $block): ?>
@@ -522,9 +539,12 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                                 <?php endforeach; ?>
                             </div>
                         </section>
-                    <?php endif; ?>
+                    <?php endif;
+                    $sectionsHtml['blocks'] = ob_get_clean();
 
-                    <?php if ($visibleContents): ?>
+                    // 6. Contents
+                    ob_start();
+                    if ($visibleContents): ?>
                         <section class="bio-card bio-details profile-clean-section js-reveal">
                             <?php profile_render_section_heading('fas fa-play-circle', 'Content'); ?>
                             <div class="bio-preview-grid">
@@ -549,9 +569,12 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                                 <?php endforeach; ?>
                             </div>
                         </section>
-                    <?php endif; ?>
+                    <?php endif;
+                    $sectionsHtml['contents'] = ob_get_clean();
 
-                    <?php if ($visibleCharacters): ?>
+                    // 7. Characters
+                    ob_start();
+                    if ($visibleCharacters): ?>
                         <section class="bio-card profile-characters-section profile-clean-section js-reveal">
                             <?php profile_render_section_heading('fas fa-user-astronaut', 'Characters'); ?>
                             <div class="profile-character-grid">
@@ -590,9 +613,12 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                                 <?php endforeach; ?>
                             </div>
                         </section>
-                    <?php endif; ?>
+                    <?php endif;
+                    $sectionsHtml['characters'] = ob_get_clean();
 
-                    <?php if ($visibleBadges): ?>
+                    // 8. Badges
+                    ob_start();
+                    if ($visibleBadges): ?>
                         <section class="bio-card bio-details profile-clean-section js-reveal">
                             <?php profile_render_section_heading('fas fa-trophy', 'Badge'); ?>
                             <div class="profile-badge-grid">
@@ -615,10 +641,12 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                                 <?php endforeach; ?>
                             </div>
                         </section>
-                    <?php endif; ?>
+                    <?php endif;
+                    $sectionsHtml['badges'] = ob_get_clean();
 
-
-                    <?php if ($visibleActivity): ?>
+                    // 9. Activity
+                    ob_start();
+                    if ($visibleActivity): ?>
                         <section class="bio-card bio-about js-reveal">
                             <?php profile_render_section_heading('fas fa-clock', 'Activity'); ?>
                             <div class="profile-activity-strip">
@@ -631,7 +659,29 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                                 <?php endforeach; ?>
                             </div>
                         </section>
-                    <?php endif; ?>
+                    <?php endif;
+                    $sectionsHtml['activity'] = ob_get_clean();
+
+                    // Output sections in the custom order
+                    $sectionsOrderRaw = $profile['profile_sections_order'] ?? 'links,embeds,stats,projects,blocks,contents,characters,badges,activity';
+                    $sectionsOrder = explode(',', $sectionsOrderRaw);
+                    $allowedSectionsList = ['links', 'embeds', 'stats', 'projects', 'blocks', 'contents', 'characters', 'badges', 'activity'];
+
+                    foreach ($sectionsOrder as $secKey) {
+                        $secKey = trim($secKey);
+                        if (isset($sectionsHtml[$secKey])) {
+                            echo $sectionsHtml[$secKey];
+                            unset($sectionsHtml[$secKey]);
+                        }
+                    }
+
+                    // Append any active sections not found in the custom order list
+                    foreach ($allowedSectionsList as $secKey) {
+                        if (isset($sectionsHtml[$secKey])) {
+                            echo $sectionsHtml[$secKey];
+                        }
+                    }
+                    ?>
                 </section>
             <?php endif; ?>
         </main>
