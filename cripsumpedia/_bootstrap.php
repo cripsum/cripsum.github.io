@@ -350,7 +350,7 @@ function cp_type_icon(string $type): string
     };
 }
 
-function cp_valid_color(?string $color, string $fallback = '#42f5b0'): string
+function cp_valid_color(?string $color, string $fallback = '#2f6bff'): string
 {
     $color = trim((string)$color);
     return preg_match('/^#[0-9a-fA-F]{6}$/', $color) ? $color : $fallback;
@@ -1153,7 +1153,7 @@ function cp_render_head(string $title, string $description, string $lang, string
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="/cripsumpedia/cripsumpedia.css?v=1.3">
+    <link rel="stylesheet" href="/cripsumpedia/cripsumpedia.css?v=1.4">
     <script>
         document.documentElement.classList.add('cp-js');
         window.Cripsumpedia = {
@@ -1164,7 +1164,7 @@ function cp_render_head(string $title, string $description, string $lang, string
             csrf: <?= json_encode(cp_csrf_token()) ?>
         };
     </script>
-    <script src="/cripsumpedia/cripsumpedia.js?v=1.3" defer></script>
+    <script src="/cripsumpedia/cripsumpedia.js?v=1.4" defer></script>
 <?php
 }
 
@@ -1299,7 +1299,7 @@ function cp_highlight(string $text, string $query): string
 {
     $query = trim($query);
     if ($query === '') return htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-    
+
     $escaped = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     $pattern = '/' . preg_quote(htmlspecialchars($query, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'), '/') . '/i';
     return preg_replace_callback($pattern, static fn($m) => '<mark class="cp-highlight">' . $m[0] . '</mark>', $escaped) ?? $escaped;

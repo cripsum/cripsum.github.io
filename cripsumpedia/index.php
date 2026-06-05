@@ -106,7 +106,7 @@ $description = cp_t('subtitle', $lang);
                 <div class="cp-category-grid">
                     <?php
                     $categories = [
-                        ['person', cp_t('people', $lang), $stats['person'], 'Persone, rivalità, citazioni e presenza storica.', '#42f5b0'],
+                        ['person', cp_t('people', $lang), $stats['person'], 'Persone, rivalità, citazioni e presenza storica.', '#2f6bff'],
                         ['event', cp_t('events', $lang), $stats['event'], 'Cronologia canonica, guerre, incidenti e capitoli assurdi.', '#60a5fa'],
                         ['meme', cp_t('memes', $lang), $stats['meme'], 'Origini, maledizioni, running joke e reperti da conservare.', '#f97316'],
                     ];

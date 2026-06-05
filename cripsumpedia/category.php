@@ -43,7 +43,7 @@ $description = cp_t('subtitle', $lang);
                 ['label' => cp_type_plural($type, $lang), 'url' => null],
             ]); ?>
 
-            <section class="cp-category-hero cp-reveal" style="--entry-accent: <?= cp_h($type === 'person' ? '#42f5b0' : ($type === 'event' ? '#60a5fa' : '#f97316')) ?>">
+            <section class="cp-category-hero cp-reveal" style="--entry-accent: <?= cp_h($type === 'person' ? '#2f6bff' : ($type === 'event' ? '#60a5fa' : '#f97316')) ?>">
                 <div>
                     <span class="cp-kicker"><i class="fa-solid <?= cp_h(cp_type_icon($type)) ?>"></i> <?= cp_h(cp_type_plural($type, $lang)) ?></span>
                     <h1><?= cp_h(cp_type_plural($type, $lang)) ?></h1>
