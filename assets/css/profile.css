@@ -1995,7 +1995,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
     flex-wrap: wrap;
     justify-content: center;
     gap: 0.45rem;
-    margin-top: 0.45rem;
+    margin-top: 1.6rem;
 }
 
 .profile-small-meta span {

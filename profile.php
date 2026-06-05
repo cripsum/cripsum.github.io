@@ -184,6 +184,9 @@ $visibleLinks = $showLinks ? $links : [];
 $visibleProjects = $showProjects ? $projects : [];
 $visibleContents = $showContents ? $contents : [];
 $visibleBlocks = $showContents ? $blocks : [];
+$badgesDisplay = $profile['profile_badges_display'] ?? 'both';
+$showMiniBadges = $showBadges && ($badgesDisplay === 'both' || $badgesDisplay === 'card_only');
+$showBadgesSection = $showBadges && ($badgesDisplay === 'both' || $badgesDisplay === 'tab_only');
 $visibleBadges = $showBadges ? $badges : [];
 $visibleActivity = $showActivity ? $activity : [];
 $visibleCharacters = $showCharacters ? $characters : [];
@@ -232,8 +235,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=3.4.0">
-    <script src="/assets/js/profile.js?v=3.4.0" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=3.5.0">
+    <script src="/assets/js/profile.js?v=3.5.0" defer></script>
 </head>
 
 <body
@@ -278,12 +281,16 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         <main class="bio-page profile-smart-page <?php echo (!$hasRightContent || $layout === 'clean') ? 'profile-smart-page--single' : ''; ?> layout-<?php echo profile_h($layout); ?>" id="bioPage">
             <section class="bio-hero bio-card profile-smart-hero js-tilt-card js-reveal" aria-label="Public Profile">
                 <div class="profile-hero-actions-top">
-                    <?php if ($isOnline): ?>
-                        <span class="bio-pill bio-pill--live"><span class="bio-dot"></span>online</span>
-                    <?php elseif ($customStatus): ?>
-                        <span class="bio-pill"><i class="fas fa-signal"></i><?php echo profile_h($customStatus); ?></span>
+                    <?php if ($showStats): ?>
+                        <?php if ($isOnline): ?>
+                            <span class="bio-pill bio-pill--live"><span class="bio-dot"></span>online</span>
+                        <?php elseif ($customStatus): ?>
+                            <span class="bio-pill"><i class="fas fa-signal"></i><?php echo profile_h($customStatus); ?></span>
+                        <?php else: ?>
+                            <div></div>
+                        <?php endif; ?>
                     <?php else: ?>
-                        <div></div>
+                        <span class="bio-pill"><i class="fas fa-eye"></i><?php echo profile_compact_number($profile['profile_views'] ?? 0); ?> <?php echo ($lang === 'it') ? 'visite' : 'views'; ?></span>
                     <?php endif; ?>
                     
                     <div class="profile-dropdown-wrap">
@@ -330,7 +337,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     <?php endif; ?>
                 </div>
 
-                <?php if ($visibleBadges): ?>
+                <?php if ($visibleBadges && $showMiniBadges): ?>
                     <div class="profile-mini-badges" aria-label="Badge">
                         <?php foreach (array_slice($visibleBadges, 0, 4) as $badge): ?>
                             <?php $badgeImage = !empty($badge['img_url']) ? '/img/' . ltrim((string)$badge['img_url'], '/') : null; ?>
@@ -419,6 +426,13 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                 <?php endif; ?>
 
                 <div class="profile-small-meta">
+                    <?php if (!$showStats): ?>
+                        <?php if ($isOnline): ?>
+                            <span class="bio-pill bio-pill--live" style="margin-right: 0.4rem; padding: 0.2rem 0.5rem;"><span class="bio-dot"></span>online</span>
+                        <?php elseif ($customStatus): ?>
+                            <span class="bio-pill" style="margin-right: 0.4rem; padding: 0.2rem 0.5rem;"><i class="fas fa-signal"></i><?php echo profile_h($customStatus); ?></span>
+                        <?php endif; ?>
+                    <?php endif; ?>
                     <span><i class="fas fa-calendar"></i><?php echo date('d/m/Y', strtotime($profile['data_creazione'])); ?></span>
                     <?php if (!$isOnline && $lastSeen): ?><span><i class="fas fa-clock"></i><?php echo profile_h(profile_time_ago($lastSeen)); ?></span><?php endif; ?>
                     <?php if ($showDiscord && $discordId): ?><span><i class="fab fa-discord"></i>Discord</span><?php endif; ?>
@@ -647,7 +661,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 
                     // 8. Badges
                     ob_start();
-                    if ($visibleBadges): ?>
+                    if ($visibleBadges && $showBadgesSection): ?>
                         <section class="bio-card bio-details profile-clean-section js-reveal">
                             <?php profile_render_section_heading('fas fa-trophy', 'Badge'); ?>
                             <div class="profile-badge-grid">

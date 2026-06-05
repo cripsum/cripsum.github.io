@@ -78,6 +78,7 @@ $enterText = profile_clean_text($_POST['profile_enter_text'] ?? '', 80);
 $enterTextDb = $enterText !== '' ? $enterText : null;
 $socialsStyle = profile_allowed_value((string)($_POST['profile_socials_style'] ?? 'cards'), ['cards', 'icons'], 'cards');
 $showEmbeds = profile_bool_from_post('profile_show_embeds', true);
+$badgesDisplay = profile_allowed_value((string)($_POST['profile_badges_display'] ?? 'both'), ['both', 'card_only', 'tab_only', 'none'], 'both');
 
 $sectionsOrder = trim((string)($_POST['profile_sections_order'] ?? ''));
 if ($sectionsOrder === '') {
@@ -173,12 +174,12 @@ try {
         SET username = ?, display_name = ?, bio = ?, accent_color = ?, profile_secondary_color = ?, profile_card_color = ?, profile_text_color = ?, profile_link_style = ?, profile_button_shape = ?, profile_theme = ?, profile_layout = ?, profile_visibility = ?, discord_id = ?, discord_use_avatar = ?, discord_use_display_name = ?, profile_status = ?,
             profile_music_url = ?, profile_music_title = ?, profile_music_artist = ?, profile_effect = ?, avatar_ring_style = ?, avatar_ring_color = ?,
             profile_show_stats = ?, profile_show_socials = ?, profile_show_links = ?, profile_show_projects = ?, profile_show_contents = ?, profile_show_badges = ?, profile_show_activity = ?, profile_show_discord = ?, profile_show_audio_player = ?, avatar_ring_enabled = ?, profile_show_characters = ?,
-            profile_enter_text = ?, profile_click_to_enter = ?, profile_socials_style = ?, profile_show_embeds = ?, profile_sections_order = ?,
+            profile_enter_text = ?, profile_click_to_enter = ?, profile_socials_style = ?, profile_show_embeds = ?, profile_sections_order = ?, profile_badges_display = ?,
             profile_updated_at = NOW()
         WHERE id = ?
     ");
     $stmt->bind_param(
-        'sssssssssssssiisssssssiiiiiiiiiiisisisi',
+        'sssssssssssssiisssssssiiiiiiiiiiisisisisi',
         $username,
         $displayNameDb,
         $bioDb,
@@ -217,6 +218,7 @@ try {
         $socialsStyle,
         $showEmbeds,
         $sectionsOrderDb,
+        $badgesDisplay,
         $targetUserId
     );
     if (!$stmt->execute()) throw new RuntimeException('Error updating profile.');
