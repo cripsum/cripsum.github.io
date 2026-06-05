@@ -150,7 +150,7 @@ function profile_json_script(string $id, array $data): void
                     <button type="button" data-edit-tab="projects"><i class="fas fa-cubes"></i>Projects</button>
                     <button type="button" data-edit-tab="content"><i class="fas fa-play-circle"></i>Contents</button>
                     <button type="button" data-edit-tab="custom"><i class="fas fa-wand-magic-sparkles"></i>Custom</button>
-                    <button type="button" data-edit-tab="effects"><i class="fas fa-sparkles"></i>Effects</button>
+                    <button type="button" data-edit-tab="effects"><i class="fas fa-wand-magic-sparkles"></i>Effects</button>
                     <button type="button" data-edit-tab="badges"><i class="fas fa-trophy"></i>Badges</button>
                     <button type="button" data-edit-tab="characters"><i class="fas fa-user-astronaut"></i>Characters</button>
                     <button type="button" data-edit-tab="visibility"><i class="fas fa-eye"></i>Visibility</button>
@@ -342,7 +342,7 @@ function profile_json_script(string $id, array $data): void
                                         'sakura_falling' => 'Sakura petals',
                                         'cyber_grid' => 'Cyber grid'
                                     ] as $value => $label
-                                  ): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_effect'] ?? 'none') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?>
+                                ): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_effect'] ?? 'none') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?>
                             </select></label>
                         <label class="profile-field"><span>PFP ring effect</span><select name="avatar_ring_style" id="ringStyleInput">
                                 <?php foreach (
