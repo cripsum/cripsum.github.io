@@ -235,8 +235,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=3.5.0">
-    <script src="/assets/js/profile.js?v=3.5.0" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=3.6.0">
+    <script src="/assets/js/profile.js?v=3.6.0" defer></script>
 </head>
 
 <body
@@ -340,9 +340,33 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                 <?php if ($visibleBadges && $showMiniBadges): ?>
                     <div class="profile-mini-badges" aria-label="Badge">
                         <?php foreach (array_slice($visibleBadges, 0, 4) as $badge): ?>
-                            <?php $badgeImage = !empty($badge['img_url']) ? '/img/' . ltrim((string)$badge['img_url'], '/') : null; ?>
-                            <span class="profile-mini-badge" title="<?php echo profile_h($badge['nome_en']); ?>">
-                                <?php if ($badgeImage): ?><img src="<?php echo profile_h($badgeImage); ?>" alt="" loading="lazy"><?php else: ?><i class="fas fa-medal"></i><?php endif; ?>
+                            <?php
+                            $badgeName = ($lang === 'it' && !empty($badge['nome'])) ? $badge['nome'] : (!empty($badge['nome_en']) ? $badge['nome_en'] : $badge['nome']);
+                            $badgeImage = !empty($badge['img_url']) ? (preg_match('/^https?:\/\//i', $badge['img_url']) ? $badge['img_url'] : '/img/' . ltrim((string)$badge['img_url'], '/')) : null;
+                            
+                            $styleAttr = '';
+                            $extraClasses = '';
+                            if ($badge['badge_source'] === 'custom') {
+                                $extraClasses .= ' custom-badge-mini';
+                                if (!empty($badge['color'])) {
+                                    $rgb = function_exists('profile_hex_to_rgb') ? profile_hex_to_rgb($badge['color']) : null;
+                                    if ($rgb) {
+                                        $rgbStr = "{$rgb[0]}, {$rgb[1]}, {$rgb[2]}";
+                                        $styleAttr = 'style="--badge-color: ' . profile_h($badge['color']) . '; --badge-color-rgb: ' . $rgbStr . '; --badge-color-glow-alpha: rgba(' . $rgbStr . ', 0.15);"';
+                                    } else {
+                                        $styleAttr = 'style="--badge-color: ' . profile_h($badge['color']) . ';"';
+                                    }
+                                }
+                            }
+                            ?>
+                            <span class="profile-mini-badge<?php echo $extraClasses; ?>" <?php echo $styleAttr; ?> title="<?php echo profile_h($badgeName); ?>">
+                                <?php if ($badgeImage): ?>
+                                    <img src="<?php echo profile_h($badgeImage); ?>" alt="" loading="lazy">
+                                <?php elseif ($badge['badge_source'] === 'custom' && !empty($badge['icon'])): ?>
+                                    <i class="<?php echo profile_h($badge['icon']); ?>"></i>
+                                <?php else: ?>
+                                    <i class="fas fa-medal"></i>
+                                <?php endif; ?>
                             </span>
                         <?php endforeach; ?>
                     </div>
@@ -667,18 +691,74 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                             <div class="profile-badge-grid">
                                 <?php foreach ($visibleBadges as $badge): ?>
                                     <?php
-                                    $achievementImage = !empty($badge['img_url']) ? '/img/' . ltrim((string)$badge['img_url'], '/') : null;
-                                    $rarity = function_exists('profile_badge_rarity') ? profile_badge_rarity((int)($badge['punti'] ?? 0)) : ['label' => 'Badge', 'class' => 'common'];
-                                    $isFeaturedBadge = (int)($profile['featured_badge_id'] ?? 0) === (int)$badge['id'];
+                                    $badgeName = ($lang === 'it' && !empty($badge['nome'])) ? $badge['nome'] : (!empty($badge['nome_en']) ? $badge['nome_en'] : $badge['nome']);
+                                    $badgeDesc = ($lang === 'it' && !empty($badge['descrizione'])) ? $badge['descrizione'] : (!empty($badge['descrizione_en']) ? $badge['descrizione_en'] : $badge['descrizione']);
+                                    
+                                    $badgeImage = !empty($badge['img_url']) ? (preg_match('/^https?:\/\//i', $badge['img_url']) ? $badge['img_url'] : '/img/' . ltrim((string)$badge['img_url'], '/')) : null;
+                                    
+                                    $isFeaturedBadge = (int)($profile['featured_badge_id'] ?? 0) === (int)$badge['id'] && $badge['badge_source'] === 'achievement';
+                                    
+                                    $styleAttr = '';
+                                    $cardClasses = [];
+                                    
+                                    if ($badge['badge_source'] === 'custom') {
+                                        $cardClasses[] = 'custom-badge-card';
+                                        if (!empty($badge['badge_type'])) {
+                                            $cardClasses[] = 'badge-type-' . $badge['badge_type'];
+                                        }
+                                        if (!empty($badge['animation']) && $badge['animation'] !== 'none') {
+                                            $cardClasses[] = 'badge-anim-' . $badge['animation'];
+                                        }
+                                        if (!empty($badge['glow']) && (int)$badge['glow'] === 1) {
+                                            $cardClasses[] = 'badge-glow';
+                                        }
+                                        
+                                        if (!empty($badge['color'])) {
+                                            $rgb = function_exists('profile_hex_to_rgb') ? profile_hex_to_rgb($badge['color']) : null;
+                                            if ($rgb) {
+                                                $rgbStr = "{$rgb[0]}, {$rgb[1]}, {$rgb[2]}";
+                                                $styleAttr = 'style="--badge-color: ' . profile_h($badge['color']) . '; --badge-color-rgb: ' . $rgbStr . '; --badge-color-alpha: rgba(' . $rgbStr . ', 0.12); --badge-color-bg-alpha: rgba(' . $rgbStr . ', 0.08); --badge-color-border-alpha: rgba(' . $rgbStr . ', 0.25); --badge-color-shadow: rgba(' . $rgbStr . ', 0.2); --badge-color-glow-alpha: rgba(' . $rgbStr . ', 0.15); --badge-color-glow-alpha-hover: rgba(' . $rgbStr . ', 0.3);"';
+                                            } else {
+                                                $styleAttr = 'style="--badge-color: ' . profile_h($badge['color']) . ';"';
+                                            }
+                                        }
+                                        
+                                        $badgeTypeLabels = [
+                                            'staff' => ($lang === 'it') ? 'Staff' : 'Staff',
+                                            'verified' => ($lang === 'it') ? 'Verificato' : 'Verified',
+                                            'developer' => ($lang === 'it') ? 'Sviluppatore' : 'Developer',
+                                            'artist' => ($lang === 'it') ? 'Artista' : 'Artist',
+                                            'rare' => ($lang === 'it') ? 'Raro' : 'Rare',
+                                            'custom' => ($lang === 'it') ? 'Speciale' : 'Special',
+                                        ];
+                                        $subtitle = $badgeTypeLabels[$badge['badge_type'] ?? 'custom'] ?? (($lang === 'it') ? 'Speciale' : 'Special');
+                                    } else {
+                                        $rarity = function_exists('profile_badge_rarity') ? profile_badge_rarity((int)($badge['punti'] ?? 0)) : ['label' => 'Badge', 'class' => 'common'];
+                                        $cardClasses[] = 'rarity-' . $rarity['class'];
+                                        if ($isFeaturedBadge) {
+                                            $cardClasses[] = 'is-featured';
+                                        }
+                                        $subtitle = $rarity['label'] . ((int)($badge['punti'] ?? 0) > 0 ? ' · ' . (int)$badge['punti'] . ' punti' : '');
+                                    }
+                                    
+                                    $classStr = implode(' ', $cardClasses);
                                     ?>
-                                    <article class="profile-badge-card rarity-<?php echo profile_h($rarity['class']); ?> <?php echo $isFeaturedBadge ? 'is-featured' : ''; ?>" tabindex="0">
+                                    <article class="profile-badge-card <?php echo profile_h($classStr); ?>" <?php echo $styleAttr; ?> tabindex="0">
                                         <div class="profile-badge-art">
-                                            <?php if ($achievementImage): ?><img src="<?php echo profile_h($achievementImage); ?>" alt="" loading="lazy"><?php else: ?><i class="fas fa-medal"></i><?php endif; ?>
+                                            <?php if ($badgeImage): ?>
+                                                <img src="<?php echo profile_h($badgeImage); ?>" alt="" loading="lazy">
+                                            <?php elseif ($badge['badge_source'] === 'custom' && !empty($badge['icon'])): ?>
+                                                <i class="<?php echo profile_h($badge['icon']); ?>"></i>
+                                            <?php else: ?>
+                                                <i class="fas fa-medal"></i>
+                                            <?php endif; ?>
                                         </div>
                                         <div class="profile-badge-info">
-                                            <strong><?php echo profile_h($badge['nome_en']); ?></strong>
-                                            <?php if (!empty($badge['descrizione_en'])): ?><p><?php echo profile_h($badge['descrizione_en']); ?></p><?php endif; ?>
-                                            <small><?php echo profile_h($rarity['label']); ?><?php echo (int)($badge['punti'] ?? 0) > 0 ? ' · ' . (int)$badge['punti'] . ' punti' : ''; ?></small>
+                                            <strong><?php echo profile_h($badgeName); ?></strong>
+                                            <?php if (!empty($badgeDesc)): ?>
+                                                <p><?php echo profile_h($badgeDesc); ?></p>
+                                            <?php endif; ?>
+                                            <small><?php echo profile_h($subtitle); ?></small>
                                         </div>
                                     </article>
                                 <?php endforeach; ?>

@@ -5605,4 +5605,158 @@ body[data-profile-effect="sakura_falling"] .profile-effects-layer::before {
     color: #fff !important;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+   CUSTOM BADGES PREMIUM STYLES & MICRO-ANIMATIONS
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* 1. Custom Badge Mini Icons (Main Card) */
+.profile-mini-badge.custom-badge-mini {
+    border-color: var(--badge-color, rgba(255, 255, 255, 0.15));
+    background: var(--badge-color-bg-alpha, rgba(255, 255, 255, 0.05));
+    color: var(--badge-color, #fff);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.profile-mini-badge.custom-badge-mini:hover {
+    border-color: var(--badge-color);
+    box-shadow: 0 0 10px var(--badge-color-glow-alpha, rgba(255, 255, 255, 0.2)), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px) scale(1.05);
+}
+
+.profile-mini-badge.custom-badge-mini img {
+    border-radius: inherit;
+    object-fit: cover;
+}
+
+/* 2. Custom Badge Cards (Badges Tab/Section) */
+.profile-badge-card.custom-badge-card {
+    border-color: var(--badge-color, rgba(255, 255, 255, 0.15));
+    background: radial-gradient(circle at top left, var(--badge-color-alpha, rgba(var(--accent-rgb), 0.1)), transparent 10rem), rgba(255, 255, 255, 0.04);
+}
+
+.profile-badge-card.custom-badge-card:hover,
+.profile-badge-card.custom-badge-card:focus-visible {
+    border-color: var(--badge-color);
+    background: radial-gradient(circle at top left, var(--badge-color-alpha, rgba(var(--accent-rgb), 0.15)), transparent 12rem), rgba(255, 255, 255, 0.06);
+    box-shadow: 0 12px 30px var(--badge-color-shadow, rgba(0, 0, 0, 0.35));
+}
+
+.profile-badge-card.custom-badge-card .profile-badge-art {
+    color: var(--badge-color, var(--accent));
+    background: var(--badge-color-bg-alpha, rgba(255, 255, 255, 0.05));
+    border: 1px solid var(--badge-color-border-alpha, rgba(255, 255, 255, 0.1));
+}
+
+/* 3. Glow Effect */
+.profile-badge-card.custom-badge-card.badge-glow {
+    box-shadow: 0 0 10px var(--badge-color-glow-alpha, rgba(255, 255, 255, 0.1));
+}
+
+.profile-badge-card.custom-badge-card.badge-glow:hover {
+    box-shadow: 0 0 22px var(--badge-color-glow-alpha-hover, rgba(255, 255, 255, 0.25)), 0 12px 30px var(--badge-color-shadow, rgba(0, 0, 0, 0.35));
+}
+
+/* 4. Types Specific Accents */
+.profile-badge-card.custom-badge-card.badge-type-staff {
+    border-style: dashed;
+}
+.profile-badge-card.custom-badge-card.badge-type-verified .profile-badge-info strong::after {
+    content: " \f058";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    color: var(--badge-color, #3b82f6);
+    margin-left: 0.25rem;
+    font-size: 0.85rem;
+}
+
+/* 5. Micro-Animations */
+
+/* Pulse */
+@keyframes badge-pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.06);
+    }
+}
+.profile-badge-card.badge-anim-pulse .profile-badge-art {
+    animation: badge-pulse 2s infinite ease-in-out;
+}
+
+/* Float */
+@keyframes badge-float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+.profile-badge-card.badge-anim-float .profile-badge-art {
+    animation: badge-float 2.5s infinite ease-in-out;
+}
+
+/* Shine */
+@keyframes badge-shine {
+    0% {
+        left: -120%;
+    }
+    100% {
+        left: 220%;
+    }
+}
+.profile-badge-card.badge-anim-shine {
+    position: relative;
+    overflow: hidden;
+}
+.profile-badge-card.badge-anim-shine::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.12),
+        transparent
+    );
+    transform: skewX(-25deg);
+    animation: badge-shine 3.5s infinite ease-in-out;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Glitch */
+@keyframes badge-glitch {
+    0%, 100% {
+        transform: translate(0);
+        filter: hue-rotate(0deg);
+    }
+    10% {
+        transform: translate(-1px, 1px);
+        filter: hue-rotate(15deg) saturate(1.2);
+    }
+    20% {
+        transform: translate(-1px, -1px);
+        filter: hue-rotate(-15deg);
+    }
+    30% {
+        transform: translate(1px, 1px);
+        filter: hue-rotate(30deg);
+    }
+    40% {
+        transform: translate(1px, -1px);
+        filter: hue-rotate(-30deg) saturate(1.5);
+    }
+    50% {
+        transform: translate(0);
+    }
+}
+.profile-badge-card.badge-anim-glitch:hover .profile-badge-art {
+    animation: badge-glitch 0.4s infinite linear;
+}
+
 

@@ -406,18 +406,69 @@ function profile_activity_icon(string $type): string
     };
 }
 
+function profile_hex_to_rgb(string $hex): ?array
+{
+    $hex = ltrim($hex, '#');
+    if (strlen($hex) === 3) {
+        $r = hexdec(substr($hex, 0, 1) . substr($hex, 0, 1));
+        $g = hexdec(substr($hex, 1, 1) . substr($hex, 1, 1));
+        $b = hexdec(substr($hex, 2, 1) . substr($hex, 2, 1));
+    } elseif (strlen($hex) === 6) {
+        $r = hexdec(substr($hex, 0, 2));
+        $g = hexdec(substr($hex, 2, 2));
+        $b = hexdec(substr($hex, 4, 2));
+    } else {
+        return null;
+    }
+    return [$r, $g, $b];
+}
+
 function profile_list_visible_badges(mysqli $mysqli, int $userId): array
 {
     $stmt = $mysqli->prepare("
-        SELECT a.id, a.nome, a.nome_en, COALESCE(NULLIF(upb.custom_description, ''), a.descrizione_en) AS descrizione_en, a.img_url, a.punti, upb.sort_order
-        FROM utenti_profile_badges upb
-        INNER JOIN achievement a ON a.id = upb.achievement_id
-        INNER JOIN utenti_achievement ua ON ua.achievement_id = a.id AND ua.utente_id = upb.utente_id
-        WHERE upb.utente_id = ? AND upb.is_visible = 1
-        ORDER BY upb.sort_order ASC, upb.id ASC
+        (SELECT 'achievement' AS badge_source,
+                a.id,
+                a.nome,
+                a.nome_en,
+                COALESCE(NULLIF(upb.custom_description, ''), a.descrizione) AS descrizione,
+                COALESCE(NULLIF(upb.custom_description, ''), a.descrizione_en) AS descrizione_en,
+                a.img_url,
+                a.punti,
+                upb.sort_order,
+                NULL AS color,
+                0 AS glow,
+                'none' AS animation,
+                'custom' AS badge_type,
+                NULL AS icon
+         FROM utenti_profile_badges upb
+         INNER JOIN achievement a ON a.id = upb.achievement_id
+         INNER JOIN utenti_achievement ua ON ua.achievement_id = a.id AND ua.utente_id = upb.utente_id
+         WHERE upb.utente_id = ? AND upb.is_visible = 1)
+        UNION ALL
+        (SELECT 'custom' AS badge_source,
+                cb.id,
+                cb.name AS nome,
+                cb.name_en AS nome_en,
+                cb.descrizione,
+                cb.descrizione_en,
+                cb.image_url AS img_url,
+                0 AS punti,
+                ucb.sort_order,
+                cb.color,
+                cb.glow,
+                cb.animation,
+                cb.badge_type,
+                cb.icon
+         FROM user_custom_badges ucb
+         INNER JOIN custom_badges cb ON cb.id = ucb.badge_id
+         WHERE ucb.utente_id = ? AND ucb.is_visible = 1)
+        ORDER BY sort_order ASC, id ASC
         LIMIT 8
     ");
-    $stmt->bind_param('i', $userId);
+    if (!$stmt) {
+        return [];
+    }
+    $stmt->bind_param('ii', $userId, $userId);
     $stmt->execute();
     $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
