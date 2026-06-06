@@ -79,18 +79,47 @@ $enterTextDb = $enterText !== '' ? $enterText : null;
 $socialsStyle = profile_allowed_value((string)($_POST['profile_socials_style'] ?? 'cards'), ['cards', 'icons'], 'cards');
 $showEmbeds = profile_bool_from_post('profile_show_embeds', true);
 $badgesDisplay = profile_allowed_value((string)($_POST['profile_badges_display'] ?? 'both'), ['both', 'card_only', 'tab_only', 'none'], 'both');
+$badgesPosition = profile_allowed_value((string)($_POST['profile_badges_position'] ?? 'below_bio'), ['below_bio', 'below_username', 'right_of_name'], 'below_bio');
+$discordServerInvite = trim((string)($_POST['discord_server_invite'] ?? ''));
+
+$oldInvite = $profile['discord_server_invite'] ?? '';
+$discordServerCache = $profile['discord_server_cache'] ?? null;
+$discordServerCacheTime = (int)($profile['discord_server_cache_time'] ?? 0);
+
+if ($discordServerInvite !== $oldInvite) {
+    if ($discordServerInvite !== '') {
+        $inviteCode = null;
+        if (preg_match('/(?:discord\.gg\/|discord\.com\/invite\/)?([a-zA-Z0-9\-]+)/i', $discordServerInvite, $matches)) {
+            $inviteCode = $matches[1];
+        } else {
+            $inviteCode = $discordServerInvite;
+        }
+        $widgetData = profile_fetch_discord_server_data($inviteCode);
+        if ($widgetData) {
+            $discordServerCache = json_encode($widgetData);
+            $discordServerCacheTime = time();
+        } else {
+            $discordServerCache = null;
+            $discordServerCacheTime = 0;
+        }
+    } else {
+        $discordServerCache = null;
+        $discordServerCacheTime = 0;
+    }
+}
 
 $sectionsOrder = trim((string)($_POST['profile_sections_order'] ?? ''));
 if ($sectionsOrder === '') {
-    $sectionsOrder = 'links,embeds,stats,projects,blocks,contents,characters,badges,activity';
+    $sectionsOrder = 'links,embeds,stats,projects,blocks,contents,characters,badges,activity,discord_server';
 }
-$allowedSectionsList = ['links', 'embeds', 'stats', 'projects', 'blocks', 'contents', 'characters', 'badges', 'activity'];
+$allowedSectionsList = ['links', 'embeds', 'stats', 'projects', 'blocks', 'contents', 'characters', 'badges', 'activity', 'discord_server'];
 $sectionsArray = explode(',', $sectionsOrder);
 $validSectionsArray = array_values(array_intersect($sectionsArray, $allowedSectionsList));
 if (empty($validSectionsArray)) {
     $validSectionsArray = $allowedSectionsList;
 }
 $sectionsOrderDb = implode(',', $validSectionsArray);
+
 
 if (!profile_is_valid_username($username)) {
     profile_json_response(['ok' => false, 'message' => 'Invalid username. Use 3-20 characters, letters, numbers, or underscores.'], 422);
@@ -175,11 +204,12 @@ try {
             profile_music_url = ?, profile_music_title = ?, profile_music_artist = ?, profile_effect = ?, avatar_ring_style = ?, avatar_ring_color = ?,
             profile_show_stats = ?, profile_show_socials = ?, profile_show_links = ?, profile_show_projects = ?, profile_show_contents = ?, profile_show_badges = ?, profile_show_activity = ?, profile_show_discord = ?, profile_show_audio_player = ?, avatar_ring_enabled = ?, profile_show_characters = ?,
             profile_enter_text = ?, profile_click_to_enter = ?, profile_socials_style = ?, profile_show_embeds = ?, profile_sections_order = ?, profile_badges_display = ?,
+            profile_badges_position = ?, discord_server_invite = ?, discord_server_cache = ?, discord_server_cache_time = ?,
             profile_updated_at = NOW()
         WHERE id = ?
     ");
     $stmt->bind_param(
-        'sssssssssssssiisssssssiiiiiiiiiiisisissi',
+        'sssssssssssssiisssssssiiiiiiiiiiisisisssssii',
         $username,
         $displayNameDb,
         $bioDb,
@@ -219,6 +249,10 @@ try {
         $showEmbeds,
         $sectionsOrderDb,
         $badgesDisplay,
+        $badgesPosition,
+        $discordServerInvite,
+        $discordServerCache,
+        $discordServerCacheTime,
         $targetUserId
     );
     if (!$stmt->execute()) throw new RuntimeException('Error updating profile.');
@@ -411,25 +445,58 @@ try {
         profile_record_activity($mysqli, $targetUserId, 'music', 'Updated profile song', $musicUrlDb ?: null);
     }
 
+    // Clear existing achievements selections
     $stmt = $mysqli->prepare("DELETE FROM utenti_profile_badges WHERE utente_id = ?");
     $stmt->bind_param('i', $targetUserId);
     $stmt->execute();
     $stmt->close();
 
-    $insertBadge = $mysqli->prepare("
+    // Clear visibility and reset order of custom badges for this user
+    $stmt = $mysqli->prepare("UPDATE user_custom_badges SET is_visible = 0, sort_order = 999 WHERE utente_id = ?");
+    $stmt->bind_param('i', $targetUserId);
+    $stmt->execute();
+    $stmt->close();
+
+    $insertAchievement = $mysqli->prepare("
         INSERT INTO utenti_profile_badges (utente_id, achievement_id, sort_order, is_visible)
         SELECT ?, ua.achievement_id, ?, 1
         FROM utenti_achievement ua
         WHERE ua.utente_id = ? AND ua.achievement_id = ?
         LIMIT 1
     ");
-    foreach ($badgeRows as $i => $badgeId) {
-        $badgeId = (int)$badgeId;
-        if ($badgeId <= 0) continue;
-        $insertBadge->bind_param('iiii', $targetUserId, $i, $targetUserId, $badgeId);
-        if (!$insertBadge->execute()) throw new RuntimeException('Error saving badge.');
+
+    $updateCustom = $mysqli->prepare("
+        UPDATE user_custom_badges
+        SET is_visible = 1, sort_order = ?
+        WHERE utente_id = ? AND badge_id = ?
+    ");
+
+    foreach ($badgeRows as $i => $badgeCompoundId) {
+        $badgeCompoundId = trim((string)$badgeCompoundId);
+        if ($badgeCompoundId === '') continue;
+
+        if (strpos($badgeCompoundId, 'custom_') === 0) {
+            $badgeId = (int)substr($badgeCompoundId, 7);
+            if ($badgeId > 0 && $updateCustom) {
+                $updateCustom->bind_param('iii', $i, $targetUserId, $badgeId);
+                if (!$updateCustom->execute()) throw new RuntimeException('Error saving custom badge.');
+            }
+        } else {
+            // Either starts with "achievement_" or is a plain ID for backward compatibility
+            $badgeId = $badgeCompoundId;
+            if (strpos($badgeCompoundId, 'achievement_') === 0) {
+                $badgeId = substr($badgeCompoundId, 12);
+            }
+            $badgeId = (int)$badgeId;
+            if ($badgeId > 0 && $insertAchievement) {
+                $insertAchievement->bind_param('iiii', $targetUserId, $i, $targetUserId, $badgeId);
+                if (!$insertAchievement->execute()) throw new RuntimeException('Error saving achievement badge.');
+            }
+        }
     }
-    $insertBadge->close();
+    if ($insertAchievement) $insertAchievement->close();
+    if ($updateCustom) $updateCustom->close();
+
 
     $characterRows = array_slice(profile_decode_rows('characters_json'), 0, 12);
 

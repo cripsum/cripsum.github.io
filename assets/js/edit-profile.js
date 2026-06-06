@@ -212,7 +212,7 @@
     }
 
     function collectBadges() {
-        return $$('#badgePicker input[type="checkbox"]:checked').slice(0, 8).map((input) => Number(input.value));
+        return $$('#badgeSortList .badge-select-chk:checked').map(chk => chk.dataset.id).slice(0, 8);
     }
 
     const displayNameInput = $('#displayNameInput');
@@ -761,7 +761,8 @@
         contents: { name: 'Edit e Contenuti', icon: 'fas fa-play' },
         characters: { name: 'Personaggi', icon: 'fas fa-user-astronaut' },
         badges: { name: 'Badge', icon: 'fas fa-trophy' },
-        activity: { name: 'Attività Recente', icon: 'fas fa-clock' }
+        activity: { name: 'Attività Recente', icon: 'fas fa-clock' },
+        discord_server: { name: 'Server Discord', icon: 'fab fa-discord' }
     };
 
     function initSectionsSorting() {
@@ -769,7 +770,7 @@
         const sectionsSortList = document.getElementById('sectionsSortList');
         if (!sectionsOrderInput || !sectionsSortList) return;
 
-        const allowedList = ['links', 'embeds', 'stats', 'projects', 'blocks', 'contents', 'characters', 'badges', 'activity'];
+        const allowedList = ['links', 'embeds', 'stats', 'projects', 'blocks', 'contents', 'characters', 'badges', 'activity', 'discord_server'];
         let currentOrder = sectionsOrderInput.value.split(',').map(s => s.trim()).filter(s => allowedList.includes(s));
 
         // Inserisci eventuali sezioni mancanti alla fine
@@ -829,6 +830,113 @@
     }
 
     initSectionsSorting();
+
+    function initBadgesSorting() {
+        const badgeSortList = document.getElementById('badgeSortList');
+        const badgesJsonInput = document.getElementById('badgesJson');
+        if (!badgeSortList || !badgesJsonInput) return;
+
+        let badges = [];
+        try {
+            badges = JSON.parse(badgeSortList.dataset.badges || '[]');
+        } catch (_) {
+            badges = [];
+        }
+
+        function renderBadgesList() {
+            badgeSortList.innerHTML = '';
+            if (badges.length === 0) {
+                badgeSortList.innerHTML = `
+                    <div class="bio-empty-state">
+                        <i class="fas fa-medal"></i>
+                        <strong>Nessun badge sbloccato o assegnato</strong>
+                    </div>
+                `;
+                return;
+            }
+
+            badges.forEach((badge, index) => {
+                const isSelected = Number(badge.selected) === 1;
+                const compoundId = badge.badge_source + '_' + badge.id;
+                const badgeName = badge.nome;
+                const badgeImg = badge.img_url ? (badge.img_url.startsWith('http') ? badge.img_url : '/img/' + badge.img_url.replace(/^\//, '')) : null;
+                const iconClass = badge.icon || 'fas fa-medal';
+
+                const item = document.createElement('div');
+                item.className = 'profile-sort-item badge-sort-item' + (isSelected ? ' is-selected' : '');
+
+                let previewHtml = '';
+                if (badgeImg) {
+                    previewHtml = `<img src="${escapeAttr(badgeImg)}" alt="" style="width: 24px; height: 24px; object-fit: contain; border-radius: 4px;">`;
+                } else {
+                    previewHtml = `<i class="${escapeAttr(iconClass)}" style="font-size: 1.1rem; color: ${escapeAttr(badge.color || 'var(--accent)')}"></i>`;
+                }
+
+                item.innerHTML = `
+                    <div class="profile-sort-item-info">
+                        <input type="checkbox" class="badge-select-chk" data-id="${escapeAttr(compoundId)}" ${isSelected ? 'checked' : ''}>
+                        <div class="badge-sort-preview" style="margin: 0 10px; display: flex; align-items: center;">${previewHtml}</div>
+                        <span style="font-weight: 550;">${escapeAttr(badgeName)}</span>
+                    </div>
+                    <div class="profile-row-actions">
+                        <button type="button" class="profile-move-up-badge" title="Sposta su" ${index === 0 ? 'disabled' : ''}><i class="fas fa-arrow-up"></i></button>
+                        <button type="button" class="profile-move-down-badge" title="Sposta giù" ${index === badges.length - 1 ? 'disabled' : ''}><i class="fas fa-arrow-down"></i></button>
+                    </div>
+                `;
+
+                item.querySelector('.badge-select-chk').addEventListener('change', (e) => {
+                    badge.selected = e.target.checked ? 1 : 0;
+                    saveBadgesState();
+                    renderBadgesList();
+                });
+
+                item.querySelector('.profile-move-up-badge').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (index > 0) {
+                        const temp = badges[index];
+                        badges[index] = badges[index - 1];
+                        badges[index - 1] = temp;
+                        saveBadgesState();
+                        renderBadgesList();
+                    }
+                });
+
+                item.querySelector('.profile-move-down-badge').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (index < badges.length - 1) {
+                        const temp = badges[index];
+                        badges[index] = badges[index + 1];
+                        badges[index + 1] = temp;
+                        saveBadgesState();
+                        renderBadgesList();
+                    }
+                });
+
+                badgeSortList.appendChild(item);
+            });
+        }
+
+        function saveBadgesState() {
+            const selectedBadges = badges
+                .filter(b => Number(b.selected) === 1)
+                .map(b => b.badge_source + '_' + b.id)
+                .slice(0, 8);
+            badgesJsonInput.value = JSON.stringify(selectedBadges);
+        }
+
+        // Initial sort: selected first, then sort_order, then ID
+        badges.sort((a, b) => {
+            const selA = Number(a.selected) === 1 ? 1 : 0;
+            const selB = Number(b.selected) === 1 ? 1 : 0;
+            if (selA !== selB) return selB - selA;
+            return Number(a.sort_order) - Number(b.sort_order);
+        });
+
+        renderBadgesList();
+        saveBadgesState();
+    }
+
+    initBadgesSorting();
     
     // ── Hook nel submit: serializza i personaggi scelti ──────
     (function patchSubmitForCharacters() {

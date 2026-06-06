@@ -249,6 +249,10 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
             u.profile_show_embeds,
             u.profile_sections_order,
             u.profile_badges_display,
+            u.profile_badges_position,
+            u.discord_server_invite,
+            u.discord_server_cache,
+            u.discord_server_cache_time,
             COALESCE(ach.num_achievement, 0) AS num_achievement,
             COALESCE(inv.num_personaggi, 0) AS num_personaggi,
             COALESCE(inv.total_personaggi, 0) AS total_personaggi
@@ -492,6 +496,87 @@ function profile_list_unlocked_badges(mysqli $mysqli, int $userId): array
     $stmt->close();
     return $rows ?: [];
 }
+
+function profile_list_all_user_badges(mysqli $mysqli, int $userId): array
+{
+    $stmt = $mysqli->prepare("
+        (SELECT 'achievement' AS badge_source,
+                a.id,
+                a.nome,
+                a.nome_en,
+                a.img_url,
+                NULL AS icon,
+                NULL AS color,
+                0 AS glow,
+                'none' AS animation,
+                'custom' AS badge_type,
+                CASE WHEN upb.id IS NULL THEN 0 ELSE 1 END AS selected,
+                COALESCE(upb.sort_order, 999) AS sort_order
+         FROM utenti_achievement ua
+         INNER JOIN achievement a ON a.id = ua.achievement_id
+         LEFT JOIN utenti_profile_badges upb ON upb.utente_id = ua.utente_id AND upb.achievement_id = a.id
+         WHERE ua.utente_id = ?)
+        UNION ALL
+        (SELECT 'custom' AS badge_source,
+                cb.id,
+                cb.name AS nome,
+                cb.name_en AS nome_en,
+                cb.image_url AS img_url,
+                cb.icon,
+                cb.color,
+                cb.glow,
+                cb.animation,
+                cb.badge_type,
+                COALESCE(ucb.is_visible, 0) AS selected,
+                COALESCE(ucb.sort_order, 999) AS sort_order
+         FROM user_custom_badges ucb
+         INNER JOIN custom_badges cb ON cb.id = ucb.badge_id
+         WHERE ucb.utente_id = ?)
+        ORDER BY selected DESC, sort_order ASC, id ASC
+    ");
+    if (!$stmt) {
+        return [];
+    }
+    $stmt->bind_param('ii', $userId, $userId);
+    $stmt->execute();
+    $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+    return $rows ?: [];
+}
+
+function profile_fetch_discord_server_data(?string $inviteCode): ?array
+{
+    if (empty($inviteCode)) {
+        return null;
+    }
+    $url = "https://discord.com/api/v10/invites/" . urlencode($inviteCode) . "?with_counts=true";
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'CripsumProfileWidget/1.0 (PHP)');
+    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpCode === 200 && $response) {
+        $data = json_decode($response, true);
+        if (is_array($data) && isset($data['guild'])) {
+            return [
+                'code' => $data['code'] ?? $inviteCode,
+                'server_name' => $data['guild']['name'] ?? '',
+                'guild_id' => $data['guild']['id'] ?? '',
+                'icon_hash' => $data['guild']['icon'] ?? null,
+                'online_members' => $data['approximate_presence_count'] ?? 0,
+                'total_members' => $data['approximate_member_count'] ?? 0,
+                'fetched_at' => time()
+            ];
+        }
+    }
+    return null;
+}
+
 
 
 function profile_unlock_achievement(mysqli $mysqli, int $userId, int $achievementId): bool

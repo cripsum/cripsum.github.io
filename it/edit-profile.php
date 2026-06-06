@@ -33,7 +33,7 @@ $projects = profile_list_projects($mysqli, $targetUserId, false);
 $contents = profile_list_contents($mysqli, $targetUserId, false);
 $blocks = function_exists('profile_list_blocks') ? profile_list_blocks($mysqli, $targetUserId, false) : [];
 $embeds = function_exists('profile_list_embeds') ? profile_list_embeds($mysqli, $targetUserId, false) : [];
-$badges = profile_list_unlocked_badges($mysqli, $targetUserId);
+$availableBadges = profile_list_all_user_badges($mysqli, $targetUserId);
 $inventoryCharacters = profile_list_inventory_characters($mysqli, $targetUserId);
 $csrf = profile_csrf_token();
 $profileFlashSuccess = $_SESSION['profile_flash_success'] ?? '';
@@ -71,9 +71,9 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Modifica profilo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=3.6.0">
-    <script src="/assets/js/profile.js?v=3.6.0" defer></script>
-    <script src="/assets/js/edit-profile.js?v=3.6.0" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=3.7.0">
+    <script src="/assets/js/profile.js?v=3.7.0" defer></script>
+    <script src="/assets/js/edit-profile.js?v=3.7.0" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" style="--profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColor ?: 'var(--card)'); ?>; --profile-text-color: <?php echo profile_h($textColor ?: 'var(--text)'); ?>;">
@@ -145,6 +145,7 @@ function profile_json_script(string $id, array $data): void
             <section class="bio-card profile-edit-panel js-reveal">
                 <div class="profile-editor-tabs" role="tablist">
                     <button type="button" class="is-active" data-edit-tab="identity"><i class="fas fa-id-card"></i>Identità</button>
+                    <button type="button" data-edit-tab="discord"><i class="fab fa-discord"></i>Server Discord</button>
                     <button type="button" data-edit-tab="links"><i class="fas fa-link"></i>Link</button>
                     <button type="button" data-edit-tab="embeds"><i class="fas fa-share-square"></i>Embed</button>
                     <button type="button" data-edit-tab="projects"><i class="fas fa-cubes"></i>Progetti</button>
@@ -267,6 +268,19 @@ function profile_json_script(string $id, array $data): void
                     </div>
                 </div>
 
+                <div class="profile-edit-section" data-edit-section="discord">
+                    <div class="bio-section-heading">
+                        <div><span><i class="fab fa-discord"></i> Server Discord</span>
+                            <p>Mostra un widget del tuo server Discord sul tuo profilo pubblico.</p>
+                        </div>
+                    </div>
+                    <label class="profile-field">
+                        <span>Link d'invito del server Discord</span>
+                        <input type="text" name="discord_server_invite" id="discordServerInviteInput" value="<?php echo profile_h($profile['discord_server_invite'] ?? ''); ?>" placeholder="https://discord.gg/invito o codice d'invito">
+                        <small>Inserisci il link d'invito (es. <code>https://discord.gg/tuoserver</code>) per mostrare il widget del server.</small>
+                    </label>
+                </div>
+
                 <div class="profile-edit-section" data-edit-section="links">
                     <div class="bio-section-heading">
                         <div><span><i class="fas fa-link"></i> Social</span>
@@ -373,24 +387,12 @@ function profile_json_script(string $id, array $data): void
                 <div class="profile-edit-section" data-edit-section="badges">
                     <div class="bio-section-heading">
                         <div><span><i class="fas fa-trophy"></i> Badge visibili</span>
-                            <p>Puoi mostrarne massimo 8.</p>
+                            <p>Scegli quali badge mostrare sul tuo profilo (massimo 8) e ordinali.</p>
                         </div>
                     </div>
-                    <?php if ($badges): ?>
-                        <div class="profile-badge-picker" id="badgePicker">
-                            <?php foreach ($badges as $badge): ?>
-                                <label class="profile-badge-choice">
-                                    <input type="checkbox" value="<?php echo (int)$badge['id']; ?>" <?php echo (int)$badge['selected'] === 1 ? 'checked' : ''; ?>>
-                                    <?php if (!empty($badge['img_url'])): ?><img src="/img/<?php echo profile_h($badge['img_url']); ?>" alt=""><?php else: ?><span>✦</span><?php endif; ?>
-                                    <strong><?php echo profile_h($badge['nome']); ?></strong>
-                                </label>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php else: ?>
-                        <div class="bio-empty-state"><i class="fas fa-medal"></i><strong>Nessun badge sbloccato</strong>
-                            <p>Quando sblocchi achievement, puoi mostrarli qui.</p>
-                        </div>
-                    <?php endif; ?>
+                    <div class="profile-sortable-list" id="badgeSortList" data-badges="<?php echo profile_h(json_encode($availableBadges)); ?>">
+                        <!-- Popolato via Javascript -->
+                    </div>
                 </div>
 
                 <div class="profile-edit-section" data-edit-section="characters">
@@ -495,14 +497,22 @@ function profile_json_script(string $id, array $data): void
                         <label class="profile-toggle-card"><input type="hidden" name="profile_show_discord" value="0"><input type="checkbox" name="profile_show_discord" value="1" <?php echo (int)($profile['profile_show_discord'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fab fa-discord"></i>Discord</span></label>
                     </div>
 
-                    <div style="margin-top: 1.25rem; width: 100%;">
+                    <div style="margin-top: 1.25rem; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <label class="profile-field" style="display: flex; flex-direction: column; gap: 0.4rem; width: 100%;">
                             <span style="font-size: 0.82rem; font-weight: 600; color: var(--muted);"><i class="fas fa-trophy"></i> Modalità visualizzazione Badge</span>
                             <select name="profile_badges_display" id="badgesDisplayInput" class="profile-select-menu" style="width: 100%; max-width: 100%;">
                                 <option value="both" <?php echo ($profile['profile_badges_display'] ?? 'both') === 'both' ? 'selected' : ''; ?>>Mostra in entrambi (sotto il nome e sezione)</option>
-                                <option value="card_only" <?php echo ($profile['profile_badges_display'] ?? 'both') === 'card_only' ? 'selected' : ''; ?>>Mostra solo sotto il nome (card principale)</option>
+                                <option value="card_only" <?php echo ($profile['profile_badges_display'] ?? 'both') === 'card_only' ? 'selected' : ''; ?>>Mostra solo sul profilo (card principale)</option>
                                 <option value="tab_only" <?php echo ($profile['profile_badges_display'] ?? 'both') === 'tab_only' ? 'selected' : ''; ?>>Mostra solo nella sezione/tab dei badge</option>
                                 <option value="none" <?php echo ($profile['profile_badges_display'] ?? 'both') === 'none' ? 'selected' : ''; ?>>Nascondi badge completamente</option>
+                            </select>
+                        </label>
+                        <label class="profile-field" style="display: flex; flex-direction: column; gap: 0.4rem; width: 100%;">
+                            <span style="font-size: 0.82rem; font-weight: 600; color: var(--muted);"><i class="fas fa-location-arrow"></i> Posizione dei mini-badge sul profilo</span>
+                            <select name="profile_badges_position" id="badgesPositionInput" class="profile-select-menu" style="width: 100%; max-width: 100%;">
+                                <option value="below_bio" <?php echo ($profile['profile_badges_position'] ?? 'below_bio') === 'below_bio' ? 'selected' : ''; ?>>Sotto la bio</option>
+                                <option value="below_username" <?php echo ($profile['profile_badges_position'] ?? 'below_bio') === 'below_username' ? 'selected' : ''; ?>>Sotto lo username</option>
+                                <option value="right_of_name" <?php echo ($profile['profile_badges_position'] ?? 'below_bio') === 'right_of_name' ? 'selected' : ''; ?>>A destra del nome</option>
                             </select>
                         </label>
                     </div>

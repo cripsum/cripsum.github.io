@@ -185,11 +185,49 @@ $visibleProjects = $showProjects ? $projects : [];
 $visibleContents = $showContents ? $contents : [];
 $visibleBlocks = $showContents ? $blocks : [];
 $badgesDisplay = $profile['profile_badges_display'] ?? 'both';
+$badgesPosition = $profile['profile_badges_position'] ?? 'below_bio';
 $showMiniBadges = $showBadges && ($badgesDisplay === 'both' || $badgesDisplay === 'card_only');
 $showBadgesSection = $showBadges && ($badgesDisplay === 'both' || $badgesDisplay === 'tab_only');
 $visibleBadges = $showBadges ? $badges : [];
 $visibleActivity = $showActivity ? $activity : [];
 $visibleCharacters = $showCharacters ? $characters : [];
+
+// Discord Server invite processing
+$discordServerInvite = $profile['discord_server_invite'] ?? '';
+$discordServerCache = $profile['discord_server_cache'] ?? '';
+$discordServerCacheTime = (int)($profile['discord_server_cache_time'] ?? 0);
+
+$widgetData = null;
+if (!empty($discordServerInvite)) {
+    if (!empty($discordServerCache) && (time() - $discordServerCacheTime < 300)) {
+        // Cache is valid (5 minutes)
+        $widgetData = json_decode($discordServerCache, true);
+    } else {
+        // Refresh cache
+        $inviteCode = null;
+        if (preg_match('/(?:discord\.gg\/|discord\.com\/invite\/)?([a-zA-Z0-9\-]+)/i', $discordServerInvite, $matches)) {
+            $inviteCode = $matches[1];
+        } else {
+            $inviteCode = $discordServerInvite;
+        }
+        
+        $widgetData = profile_fetch_discord_server_data($inviteCode);
+        if ($widgetData) {
+            $jsonStr = json_encode($widgetData);
+            // Save to DB
+            $updStmt = $mysqli->prepare("UPDATE utenti SET discord_server_cache = ?, discord_server_cache_time = ? WHERE id = ?");
+            if ($updStmt) {
+                $now = time();
+                $updStmt->bind_param('sii', $jsonStr, $now, $profile['id']);
+                $updStmt->execute();
+                $updStmt->close();
+            }
+        } elseif (!empty($discordServerCache)) {
+            // Fallback to old cache
+            $widgetData = json_decode($discordServerCache, true);
+        }
+    }
+}
 
 $featuredLinks = array_values(array_filter($visibleLinks, fn($item) => (int)($item['is_featured'] ?? 0) === 1));
 $normalLinks = array_values(array_filter($visibleLinks, fn($item) => (int)($item['is_featured'] ?? 0) !== 1));
@@ -199,8 +237,8 @@ $featuredContents = array_values(array_filter($visibleContents, fn($item) => (in
 $normalContents = array_values(array_filter($visibleContents, fn($item) => (int)($item['is_featured'] ?? 0) !== 1));
 
 $hasStats = $showStats && $profile && ((int)$profile['profile_views'] > 0 || (int)$profile['num_achievement'] > 0 || (int)$profile['num_personaggi'] > 0 || (int)$profile['total_personaggi'] > 0);
-$hasRightContent = $hasStats || $featuredLinks || $normalLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || $visibleActivity || $visibleCharacters || $embeds;
-$hasAnyPublicContent = $visibleSocials || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || ($showDiscord && $discordId) || $hasMusic || $embeds;
+$hasRightContent = $hasStats || $featuredLinks || $normalLinks || $visibleProjects || $visibleContents || $visibleBlocks || ($visibleBadges && $showBadgesSection) || $visibleActivity || $visibleCharacters || $embeds || $widgetData;
+$hasAnyPublicContent = $visibleSocials || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || ($showDiscord && $discordId) || $hasMusic || $embeds || $widgetData;
 
 $spotlight = null;
 if ($featuredContents) {
@@ -235,8 +273,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=3.6.0">
-    <script src="/assets/js/profile.js?v=3.6.0" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=3.7.0">
+    <script src="/assets/js/profile.js?v=3.7.0" defer></script>
 </head>
 
 <body
@@ -329,16 +367,12 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     <img class="bio-avatar" src="<?php echo profile_h(profile_avatar_url($profile, 256)); ?>" alt="Avatar di <?php echo profile_h($profile['username']); ?>" loading="eager" data-richpresence-pfp>
                 </div>
 
-                <div class="bio-name-block profile-smart-name">
-                    <h1><?php echo profile_h($displayName); ?></h1>
-                    <p class="bio-username">@<?php echo profile_h($profile['username']); ?></p>
-                    <?php if (!empty($profile['bio'])): ?>
-                        <p class="bio-tagline"><?php echo nl2br(profile_h($profile['bio'])); ?></p>
-                    <?php endif; ?>
-                </div>
-
-                <?php if ($visibleBadges && $showMiniBadges): ?>
-                    <div class="profile-mini-badges" aria-label="Badge">
+                <?php
+                $renderMiniBadgesHtml = '';
+                if ($visibleBadges && $showMiniBadges) {
+                    ob_start();
+                    ?>
+                    <div class="profile-mini-badges badges-pos-<?php echo profile_h($badgesPosition); ?>" aria-label="Badge">
                         <?php foreach (array_slice($visibleBadges, 0, 4) as $badge): ?>
                             <?php
                             $badgeName = ($lang === 'it' && !empty($badge['nome'])) ? $badge['nome'] : (!empty($badge['nome_en']) ? $badge['nome_en'] : $badge['nome']);
@@ -370,7 +404,21 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                             </span>
                         <?php endforeach; ?>
                     </div>
-                <?php endif; ?>
+                    <?php
+                    $renderMiniBadgesHtml = ob_get_clean();
+                }
+                ?>
+
+                <div class="bio-name-block profile-smart-name">
+                    <h1><?php echo profile_h($displayName); ?><?php if ($badgesPosition === 'right_of_name') echo $renderMiniBadgesHtml; ?></h1>
+                    <p class="bio-username">@<?php echo profile_h($profile['username']); ?></p>
+                    <?php if ($badgesPosition === 'below_username') echo $renderMiniBadgesHtml; ?>
+                    <?php if (!empty($profile['bio'])): ?>
+                        <p class="bio-tagline"><?php echo nl2br(profile_h($profile['bio'])); ?></p>
+                    <?php endif; ?>
+                </div>
+
+                <?php if ($badgesPosition === 'below_bio' || empty($badgesPosition)) echo $renderMiniBadgesHtml; ?>
 
                 <?php if ($visibleSocials): ?>
                     <?php if ($socialsStyle === 'icons'): ?>
@@ -786,10 +834,57 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     <?php endif;
                     $sectionsHtml['activity'] = ob_get_clean();
 
+                    // 10. Discord Server Widget
+                    ob_start();
+                    if ($widgetData):
+                        $discordServerName = $widgetData['server_name'] ?? '';
+                        $discordServerIcon = $widgetData['icon_hash'] ?? null;
+                        $discordGuildId = $widgetData['guild_id'] ?? '';
+                        $discordOnline = (int)($widgetData['online_members'] ?? 0);
+                        $discordTotal = (int)($widgetData['total_members'] ?? 0);
+                        $discordCode = $widgetData['code'] ?? '';
+                        
+                        $discordJoinUrl = "https://discord.gg/" . rawurlencode($discordCode);
+                        
+                        $discordIconUrl = null;
+                        if ($discordServerIcon && $discordGuildId) {
+                            $format = strpos($discordServerIcon, 'a_') === 0 ? 'gif' : 'png';
+                            $discordIconUrl = "https://cdn.discordapp.com/icons/" . rawurlencode($discordGuildId) . "/" . rawurlencode($discordServerIcon) . "." . $format . "?size=128";
+                        }
+                        ?>
+                        <section class="bio-card profile-discord-server-section js-reveal">
+                            <div class="profile-discord-server-card">
+                                <div class="profile-discord-server-left">
+                                    <?php if ($discordIconUrl): ?>
+                                        <img class="profile-discord-server-icon" src="<?php echo profile_h($discordIconUrl); ?>" alt="<?php echo profile_h($discordServerName); ?>" loading="lazy">
+                                    <?php else: ?>
+                                        <div class="profile-discord-server-icon-fallback">
+                                            <i class="fab fa-discord"></i>
+                                        </div>
+                                    <?php endif; ?>
+                                    
+                                    <div class="profile-discord-server-info">
+                                        <span class="profile-discord-server-label"><?php echo ($lang === 'it') ? 'SERVER DISCORD' : 'DISCORD SERVER'; ?></span>
+                                        <strong class="profile-discord-server-name"><?php echo profile_h($discordServerName); ?></strong>
+                                        <div class="profile-discord-server-stats">
+                                            <span class="discord-stat-online"><span class="discord-stat-dot online"></span><?php echo profile_compact_number($discordOnline); ?> <?php echo ($lang === 'it') ? 'Online' : 'Online'; ?></span>
+                                            <span class="discord-stat-total"><span class="discord-stat-dot total"></span><?php echo profile_compact_number($discordTotal); ?> <?php echo ($lang === 'it') ? 'Membri' : 'Members'; ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a href="<?php echo profile_h($discordJoinUrl); ?>" target="_blank" rel="noopener noreferrer" class="bio-button discord-join-button">
+                                    <i class="fab fa-discord"></i>
+                                    <span><?php echo ($lang === 'it') ? 'Entra' : 'Join'; ?></span>
+                                </a>
+                            </div>
+                        </section>
+                    <?php endif;
+                    $sectionsHtml['discord_server'] = ob_get_clean();
+
                     // Output sections in the custom order
-                    $sectionsOrderRaw = $profile['profile_sections_order'] ?? 'links,embeds,stats,projects,blocks,contents,characters,badges,activity';
+                    $sectionsOrderRaw = $profile['profile_sections_order'] ?? 'links,embeds,stats,projects,blocks,contents,characters,badges,activity,discord_server';
                     $sectionsOrder = explode(',', $sectionsOrderRaw);
-                    $allowedSectionsList = ['links', 'embeds', 'stats', 'projects', 'blocks', 'contents', 'characters', 'badges', 'activity'];
+                    $allowedSectionsList = ['links', 'embeds', 'stats', 'projects', 'blocks', 'contents', 'characters', 'badges', 'activity', 'discord_server'];
 
                     foreach ($sectionsOrder as $secKey) {
                         $secKey = trim($secKey);
