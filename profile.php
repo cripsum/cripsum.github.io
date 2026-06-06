@@ -96,7 +96,7 @@ function profile_state_page(string $code, string $title, string $text, ?string $
 
 function profile_render_background(?array $profile, ?string $backgroundUrl, string $backgroundType): void
 {
-    $defaultBackgroundVideo = '/vid/splash-landscape.mp4';
+    $defaultBackgroundVideo = '/vid/Overlaymatta.mp4';
     $url = $backgroundUrl ?: $defaultBackgroundVideo;
     $type = $backgroundUrl ? $backgroundType : 'video/mp4';
     $isVideo = str_starts_with($type, 'video/');
