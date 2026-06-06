@@ -13,7 +13,7 @@ $lastUpdated = 'Aprile 2026';
     <title>Cripsum™ - Termini</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/static/static.css?v=1.0-static">
+    <link rel="stylesheet" href="/assets/static/static.css?v=1.1-static">
     <script src="/assets/static/static.js?v=1.0-static" defer></script>
 
 </head>
@@ -32,6 +32,7 @@ $lastUpdated = 'Aprile 2026';
 
     <main class="static-shell">
         <section class="static-hero static-reveal">
+            <img src="/img/tos.gif" alt="Cripsum™ TOS Logo" class="static-tos-logo">
             <span class="static-pill">Termini</span>
             <h1>Termini e Condizioni</h1>
             <p>Usando Cripsum™ accetti queste regole. Sono scritte in modo più leggibile, senza cambiare il senso.</p>
