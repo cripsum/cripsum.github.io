@@ -114,7 +114,7 @@ body[data-theme="light"] .bio-background__overlay {
 .bio-orb--two {
     right: -9rem;
     bottom: 10%;
-    background: rgba(139, 92, 246, 0.5);
+    background: color-mix(in srgb, var(--accent-2) 50%, transparent);
     animation-delay: -3s;
 }
 
@@ -257,6 +257,10 @@ body[data-theme="light"] .bio-avatar {
 
 .bio-name-block {
     margin-bottom: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 
 .bio-kicker,
@@ -5884,15 +5888,7 @@ body[data-profile-effect="sakura_falling"] .profile-effects-layer::before {
     align-items: center;
     gap: 0.35rem;
     flex-wrap: wrap;
-    justify-content: flex-start;
-}
-.layout-clean .profile-name-row {
     justify-content: center;
-}
-@media (max-width: 720px) {
-    .profile-name-row {
-        justify-content: center !important;
-    }
 }
 
 /* Custom Checkbox in Editor Badge Sort List */
