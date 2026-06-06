@@ -8,6 +8,7 @@ $lastUpdated = 'Aprile 2026';
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Termini</title>
@@ -20,7 +21,7 @@ $lastUpdated = 'Aprile 2026';
 
 <body class="static-page">
     <?php include '../includes/navbar.php'; ?>
-    
+
 
 
     <div class="static-bg" aria-hidden="true">
@@ -35,7 +36,7 @@ $lastUpdated = 'Aprile 2026';
             <div>
                 <span class="static-pill">Termini</span>
                 <h1>Termini e Condizioni</h1>
-                <p>Usando Cripsum™ accetti queste regole. Sono scritte in modo più leggibile, senza cambiare il senso.</p>
+                <p>Usando Cripsum™ accetti queste regole.</p>
                 <div class="static-meta">
                     <span class="static-chip"><i class="fas fa-calendar"></i> Aggiornati: <?php echo htmlspecialchars($lastUpdated, ENT_QUOTES, 'UTF-8'); ?></span>
                     <span class="static-chip"><i class="fas fa-scale-balanced"></i> Regole del sito</span>
@@ -110,4 +111,5 @@ $lastUpdated = 'Aprile 2026';
     <?php include '../includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>

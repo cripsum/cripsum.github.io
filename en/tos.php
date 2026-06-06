@@ -36,7 +36,7 @@ $lastUpdated = 'April 2026';
             <div>
                 <span class="static-pill">Terms</span>
                 <h1>Terms of Service</h1>
-                <p>By using Cripsum™ you agree to these rules. They are written to be more readable, without changing their meaning.</p>
+                <p>By using Cripsum™ you agree to these rules.</p>
                 <div class="static-meta">
                     <span class="static-chip"><i class="fas fa-calendar"></i> Updated: <?php echo htmlspecialchars($lastUpdated, ENT_QUOTES, 'UTF-8'); ?></span>
                     <span class="static-chip"><i class="fas fa-scale-balanced"></i> Site Rules</span>
