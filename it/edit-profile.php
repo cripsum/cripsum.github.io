@@ -52,7 +52,7 @@ $discordConnected = !empty($profile['discord_id']) && !empty($profile['discord_u
 $discordAvatarUrl = $discordConnected ? profile_discord_avatar_url((string)$profile['discord_id'], $profile['discord_avatar'] ?? null, 128) : null;
 $discordDisplayName = trim((string)($profile['discord_global_name'] ?? '')) ?: trim((string)($profile['discord_username'] ?? ''));
 $connectDiscordUrl = '../auth/discord_connect.php' . (profile_is_staff() && $targetUserId !== $currentUserId ? '?target_user_id=' . (int)$targetUserId : '');
-$backgroundUrl = !empty($profile['profile_banner_type']) ? '../includes/get_profile_banner.php?id=' . (int)$profile['id'] : '../vid/Shorekeeper Wallpaper 4K Loop.mp4';
+$backgroundUrl = !empty($profile['profile_banner_type']) ? '../includes/get_profile_banner.php?id=' . (int)$profile['id'] : '../vid/nga.mp4';
 $backgroundType = !empty($profile['profile_banner_type']) ? (string)$profile['profile_banner_type'] : 'video/mp4';
 $backgroundIsVideo = str_starts_with($backgroundType, 'video/');
 $backgroundIsImage = str_starts_with($backgroundType, 'image/');
@@ -102,7 +102,7 @@ function profile_json_script(string $id, array $data): void
             <img class="bio-background__media" src="<?php echo profile_h($backgroundUrl); ?>" alt="" loading="eager">
         <?php else: ?>
             <video class="bio-background__media" autoplay muted loop playsinline poster="">
-                <source src="/vid/Shorekeeper Wallpaper 4K Loop.mp4" type="video/mp4">
+                <source src="/vid/nga.mp4" type="video/mp4">
             </video>
         <?php endif; ?>
         <div class="bio-background__overlay"></div>
@@ -494,7 +494,7 @@ function profile_json_script(string $id, array $data): void
                         <label class="profile-toggle-card"><input type="hidden" name="profile_show_activity" value="0"><input type="checkbox" name="profile_show_activity" value="1" <?php echo (int)($profile['profile_show_activity'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-clock"></i>Attività</span></label>
                         <label class="profile-toggle-card"><input type="hidden" name="profile_show_discord" value="0"><input type="checkbox" name="profile_show_discord" value="1" <?php echo (int)($profile['profile_show_discord'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fab fa-discord"></i>Discord</span></label>
                     </div>
-                    
+
                     <div style="margin-top: 1.25rem; width: 100%;">
                         <label class="profile-field" style="display: flex; flex-direction: column; gap: 0.4rem; width: 100%;">
                             <span style="font-size: 0.82rem; font-weight: 600; color: var(--muted);"><i class="fas fa-trophy"></i> Modalità visualizzazione Badge</span>
