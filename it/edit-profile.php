@@ -71,9 +71,9 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Modifica profilo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=3.7.0">
-    <script src="/assets/js/profile.js?v=3.7.0" defer></script>
-    <script src="/assets/js/edit-profile.js?v=3.7.0" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=3.7.1">
+    <script src="/assets/js/profile.js?v=3.7.1" defer></script>
+    <script src="/assets/js/edit-profile.js?v=3.7.1" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" style="--profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColor ?: 'var(--card)'); ?>; --profile-text-color: <?php echo profile_h($textColor ?: 'var(--text)'); ?>;">
@@ -145,7 +145,7 @@ function profile_json_script(string $id, array $data): void
             <section class="bio-card profile-edit-panel js-reveal">
                 <div class="profile-editor-tabs" role="tablist">
                     <button type="button" class="is-active" data-edit-tab="identity"><i class="fas fa-id-card"></i>Identità</button>
-                    <button type="button" data-edit-tab="discord"><i class="fab fa-discord"></i>Server Discord</button>
+                    <button type="button" data-edit-tab="discord"><i class="fab fa-discord"></i>Discord</button>
                     <button type="button" data-edit-tab="links"><i class="fas fa-link"></i>Link</button>
                     <button type="button" data-edit-tab="embeds"><i class="fas fa-share-square"></i>Embed</button>
                     <button type="button" data-edit-tab="projects"><i class="fas fa-cubes"></i>Progetti</button>
@@ -170,44 +170,7 @@ function profile_json_script(string $id, array $data): void
 
                     <label class="profile-field"><span>Bio</span><textarea name="bio" id="bioInput" maxlength="280" rows="5" placeholder="Scrivi qualcosa di tuo..."><?php echo profile_h($profile['bio'] ?? ''); ?></textarea><small><span id="bioCounter">0</span>/280</small></label>
 
-                    <div class="profile-field-grid two">
-                        <label class="profile-field"><span>Stato breve</span><input type="text" name="profile_status" id="statusInput" maxlength="60" value="<?php echo profile_h($profile['profile_status'] ?? ''); ?>" placeholder="editing, gaming, busy..."><small>Appare vicino al nome se non sei online.</small></label>
-                        <label class="profile-field"><span>Discord user ID</span><input type="text" name="discord_id" id="discordIdInput" maxlength="25" value="<?php echo profile_h($profile['discord_id'] ?? ''); ?>" placeholder="Es. 8239582304530540"><small>Serve solo per Lanyard/Rich Presence.</small></label>
-                    </div>
-
-                    <div class="profile-discord-connect-card">
-                        <div class="profile-discord-connect-main">
-                            <?php if ($discordConnected): ?>
-                                <?php if ($discordAvatarUrl): ?><img src="<?php echo profile_h($discordAvatarUrl); ?>" alt="" loading="lazy"><?php else: ?><span class="profile-discord-avatar-fallback"><i class="fab fa-discord"></i></span><?php endif; ?>
-                                <div>
-                                    <strong><?php echo profile_h($discordDisplayName ?: $profile['discord_username']); ?></strong>
-                                    <small>@<?php echo profile_h($profile['discord_username']); ?> · ID <?php echo profile_h($profile['discord_id']); ?></small>
-                                </div>
-                            <?php else: ?>
-                                <span class="profile-discord-avatar-fallback"><i class="fab fa-discord"></i></span>
-                                <div>
-                                    <strong>Discord non collegato</strong>
-                                    <small>Collega Discord per salvare ID, username e avatar.</small>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                        <div class="profile-discord-actions">
-                            <a class="bio-button bio-button--primary" href="<?php echo profile_h($connectDiscordUrl); ?>"><i class="fab fa-discord"></i><?php echo $discordConnected ? 'Ricollega' : 'Collega Discord'; ?></a>
-                            <?php if ($discordConnected): ?>
-                                <button class="bio-button profile-discord-disconnect" type="submit" form="disconnectDiscordForm"><i class="fas fa-link-slash"></i>Scollega</button>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-
-                    <div class="profile-discord-note">
-                        <i class="fas fa-circle-info"></i>
-                        <span>Il login Discord salva solo ID, username e avatar. se vuoi abilitare la Rich Presence ti basta entrare nel <a href="https://discord.com/invite/lanyard" target="_blank" rel="noopener noreferrer">server discord Lanyard</a>.</span>
-                    </div>
-
-                    <div class="profile-field-grid two" style="margin-top: 2%;">
-                        <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="discord_use_display_name" value="0"><input type="checkbox" name="discord_use_display_name" id="discordUseNameInput" value="1" <?php echo (int)($profile['discord_use_display_name'] ?? 0) === 1 ? 'checked' : ''; ?> <?php echo !$discordConnected ? 'disabled' : ''; ?>><span><i class="fab fa-discord"></i>Usa nome Discord</span></label>
-                        <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="discord_use_avatar" value="0"><input type="checkbox" name="discord_use_avatar" id="discordUseAvatarInput" value="1" <?php echo (int)($profile['discord_use_avatar'] ?? 0) === 1 ? 'checked' : ''; ?> <?php echo !$discordConnected ? 'disabled' : ''; ?>><span><i class="fab fa-discord"></i>Usa avatar Discord</span></label>
-                    </div>
+                    <label class="profile-field"><span>Stato breve</span><input type="text" name="profile_status" id="statusInput" maxlength="60" value="<?php echo profile_h($profile['profile_status'] ?? ''); ?>" placeholder="editing, gaming, busy..."><small>Appare vicino al nome se non sei online.</small></label>
 
                     <div class="profile-field-grid two">
                         <label class="profile-field"><span>Avatar</span><input type="file" name="avatar" id="avatarInput" accept="image/jpeg,image/png,image/webp,image/gif"><small>Max 2MB. JPG, PNG, WEBP o GIF.</small></label>
@@ -270,10 +233,63 @@ function profile_json_script(string $id, array $data): void
 
                 <div class="profile-edit-section" data-edit-section="discord">
                     <div class="bio-section-heading">
+                        <div><span><i class="fab fa-discord"></i> Discord</span>
+                            <p>Collega il tuo account Discord e configura il widget del tuo server.</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-discord-connect-card">
+                        <div class="profile-discord-connect-main">
+                            <?php if ($discordConnected): ?>
+                                <?php if ($discordAvatarUrl): ?><img src="<?php echo profile_h($discordAvatarUrl); ?>" alt="" loading="lazy"><?php else: ?><span class="profile-discord-avatar-fallback"><i class="fab fa-discord"></i></span><?php endif; ?>
+                                <div>
+                                    <strong><?php echo profile_h($discordDisplayName ?: $profile['discord_username']); ?></strong>
+                                    <small>@<?php echo profile_h($profile['discord_username']); ?> · ID <?php echo profile_h($profile['discord_id']); ?></small>
+                                </div>
+                            <?php else: ?>
+                                <span class="profile-discord-avatar-fallback"><i class="fab fa-discord"></i></span>
+                                <div>
+                                    <strong>Discord non collegato</strong>
+                                    <small>Collega Discord per salvare ID, username e avatar.</small>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="profile-discord-actions">
+                            <a class="bio-button bio-button--primary" href="<?php echo profile_h($connectDiscordUrl); ?>"><i class="fab fa-discord"></i><?php echo $discordConnected ? 'Ricollega' : 'Collega Discord'; ?></a>
+                            <?php if ($discordConnected): ?>
+                                <button class="bio-button profile-discord-disconnect" type="submit" form="disconnectDiscordForm"><i class="fas fa-link-slash"></i>Scollega</button>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <div class="profile-field-grid two" style="margin-top: 2%;">
+                        <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="discord_use_display_name" value="0"><input type="checkbox" name="discord_use_display_name" id="discordUseNameInput" value="1" <?php echo (int)($profile['discord_use_display_name'] ?? 0) === 1 ? 'checked' : ''; ?> <?php echo !$discordConnected ? 'disabled' : ''; ?>><span><i class="fab fa-discord"></i>Usa nome Discord</span></label>
+                        <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="discord_use_avatar" value="0"><input type="checkbox" name="discord_use_avatar" id="discordUseAvatarInput" value="1" <?php echo (int)($profile['discord_use_avatar'] ?? 0) === 1 ? 'checked' : ''; ?> <?php echo !$discordConnected ? 'disabled' : ''; ?>><span><i class="fab fa-discord"></i>Usa avatar Discord</span></label>
+                    </div>
+
+                    <div class="bio-section-heading" style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.5rem;">
+                        <div><span><i class="fas fa-signal"></i> Lanyard & Rich Presence</span>
+                            <p>Mostra il tuo stato e la tua attività in tempo reale (giochi, Spotify, ecc.).</p>
+                        </div>
+                    </div>
+                    
+                    <label class="profile-field">
+                        <span>Discord user ID</span>
+                        <input type="text" name="discord_id" id="discordIdInput" maxlength="25" value="<?php echo profile_h($profile['discord_id'] ?? ''); ?>" placeholder="Es. 8239582304530540">
+                        <small>Necessario per caricare la tua attività e il tuo stato Lanyard.</small>
+                    </label>
+
+                    <div class="profile-discord-note" style="margin-bottom: 2rem;">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Il login Discord salva solo ID, username e avatar. Se vuoi abilitare la Rich Presence ti basta entrare nel <a href="https://discord.com/invite/lanyard" target="_blank" rel="noopener noreferrer">server discord Lanyard</a>.</span>
+                    </div>
+
+                    <div class="bio-section-heading" style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.5rem;">
                         <div><span><i class="fab fa-discord"></i> Server Discord</span>
                             <p>Mostra un widget del tuo server Discord sul tuo profilo pubblico.</p>
                         </div>
                     </div>
+
                     <label class="profile-field">
                         <span>Link d'invito del server Discord</span>
                         <input type="text" name="discord_server_invite" id="discordServerInviteInput" value="<?php echo profile_h($profile['discord_server_invite'] ?? ''); ?>" placeholder="https://discord.gg/invito o codice d'invito">

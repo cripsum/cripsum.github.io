@@ -879,8 +879,8 @@
                         <span style="font-weight: 550;">${escapeAttr(badgeName)}</span>
                     </div>
                     <div class="profile-row-actions">
-                        <button type="button" class="profile-move-up-badge" title="Sposta su" ${index === 0 ? 'disabled' : ''}><i class="fas fa-arrow-up"></i></button>
-                        <button type="button" class="profile-move-down-badge" title="Sposta giù" ${index === badges.length - 1 ? 'disabled' : ''}><i class="fas fa-arrow-down"></i></button>
+                        <button type="button" class="profile-move-up profile-move-up-badge" title="Sposta su" ${index === 0 ? 'disabled' : ''}><i class="fas fa-arrow-up"></i></button>
+                        <button type="button" class="profile-move-down profile-move-down-badge" title="Sposta giù" ${index === badges.length - 1 ? 'disabled' : ''}><i class="fas fa-arrow-down"></i></button>
                     </div>
                 `;
 

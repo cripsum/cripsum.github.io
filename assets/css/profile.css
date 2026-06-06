@@ -5892,5 +5892,80 @@ body[data-profile-effect="sakura_falling"] .profile-effects-layer::before {
     }
 }
 
+/* Badge in H1 - inheritance style fixes */
+.bio-name-block h1 .profile-mini-badges,
+.profile-smart-name h1 .profile-mini-badges {
+    -webkit-text-fill-color: initial !important;
+    color: initial !important;
+    line-height: 1 !important;
+    letter-spacing: normal !important;
+    text-transform: none !important;
+}
+
+.bio-name-block h1 .profile-mini-badge,
+.profile-smart-name h1 .profile-mini-badge {
+    -webkit-text-fill-color: var(--accent) !important;
+    background-clip: border-box !important;
+    -webkit-background-clip: border-box !important;
+    font-weight: normal !important;
+    font-style: normal !important;
+    letter-spacing: normal !important;
+}
+
+.bio-name-block h1 .profile-mini-badge.custom-badge-mini,
+.profile-smart-name h1 .profile-mini-badge.custom-badge-mini {
+    -webkit-text-fill-color: var(--badge-color, #fff) !important;
+}
+
+.bio-name-block h1 .profile-mini-badge i,
+.profile-smart-name h1 .profile-mini-badge i {
+    -webkit-text-fill-color: inherit !important;
+    font-weight: normal !important;
+    font-style: normal !important;
+    font-size: inherit !important;
+}
+
+/* Custom Checkbox in Editor Badge Sort List */
+.badge-select-chk {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1.15rem;
+    height: 1.15rem;
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.03);
+    cursor: pointer;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+.badge-select-chk:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+.badge-select-chk:checked::after {
+    content: "\f00c";
+    font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif;
+    font-weight: 900;
+    font-size: 0.65rem;
+    color: #fff;
+    position: absolute;
+}
+.badge-select-chk:hover {
+    border-color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.05);
+}
+
+/* Disabled sorting buttons style */
+.profile-move-up:disabled,
+.profile-move-down:disabled {
+    opacity: 0.25 !important;
+    pointer-events: none !important;
+    cursor: not-allowed !important;
+}
+
+
 
 
