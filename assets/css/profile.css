@@ -5762,10 +5762,10 @@ body[data-profile-effect="sakura_falling"] .profile-effects-layer::before {
 
 /* Mini-Badges Positioning Options */
 .profile-mini-badges.badges-pos-right_of_name {
-    display: inline-flex;
-    vertical-align: middle;
+    display: flex;
+    align-items: center;
     gap: 0.35rem;
-    margin: 0 0 0 0.75rem;
+    margin: 0 0 0 0.35rem;
 }
 .profile-mini-badges.badges-pos-right_of_name .profile-mini-badge {
     width: 1.6rem;
@@ -5877,37 +5877,16 @@ body[data-profile-effect="sakura_falling"] .profile-effects-layer::before {
     }
 }
 
-/* Badge in H1 - inheritance style fixes */
-.bio-name-block h1 .profile-mini-badges,
-.profile-smart-name h1 .profile-mini-badges {
-    -webkit-text-fill-color: initial !important;
-    color: initial !important;
-    line-height: 1 !important;
-    letter-spacing: normal !important;
-    text-transform: none !important;
+/* Name and right-of-name badges row layout */
+.profile-name-row {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    justify-content: flex-start;
 }
-
-.bio-name-block h1 .profile-mini-badge,
-.profile-smart-name h1 .profile-mini-badge {
-    -webkit-text-fill-color: var(--accent) !important;
-    background-clip: border-box !important;
-    -webkit-background-clip: border-box !important;
-    font-weight: normal !important;
-    font-style: normal !important;
-    letter-spacing: normal !important;
-}
-
-.bio-name-block h1 .profile-mini-badge.custom-badge-mini,
-.profile-smart-name h1 .profile-mini-badge.custom-badge-mini {
-    -webkit-text-fill-color: var(--badge-color, #fff) !important;
-}
-
-.bio-name-block h1 .profile-mini-badge i,
-.profile-smart-name h1 .profile-mini-badge i {
-    -webkit-text-fill-color: inherit !important;
-    font-weight: normal !important;
-    font-style: normal !important;
-    font-size: inherit !important;
+.layout-clean .profile-name-row {
+    justify-content: center;
 }
 
 /* Custom Checkbox in Editor Badge Sort List */

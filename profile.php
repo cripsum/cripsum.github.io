@@ -277,8 +277,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=3.7.3">
-    <script src="/assets/js/profile.js?v=3.7.3" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=3.7.4">
+    <script src="/assets/js/profile.js?v=3.7.4" defer></script>
 </head>
 
 <body
@@ -414,7 +414,10 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                 ?>
 
                 <div class="bio-name-block profile-smart-name">
-                    <h1><?php echo profile_h($displayName); ?><?php if ($badgesPosition === 'right_of_name') echo $renderMiniBadgesHtml; ?></h1>
+                    <div class="profile-name-row">
+                        <h1><?php echo profile_h($displayName); ?></h1>
+                        <?php if ($badgesPosition === 'right_of_name') echo $renderMiniBadgesHtml; ?>
+                    </div>
                     <p class="bio-username">@<?php echo profile_h($profile['username']); ?></p>
                     <?php if ($badgesPosition === 'below_username') echo $renderMiniBadgesHtml; ?>
                     <?php if (!empty($profile['bio'])): ?>
