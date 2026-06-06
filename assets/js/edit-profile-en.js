@@ -761,8 +761,7 @@
         contents: { name: 'Edits & Contents', icon: 'fas fa-play' },
         characters: { name: 'Characters', icon: 'fas fa-user-astronaut' },
         badges: { name: 'Badges', icon: 'fas fa-trophy' },
-        activity: { name: 'Recent Activity', icon: 'fas fa-clock' },
-        discord_server: { name: 'Discord Server', icon: 'fab fa-discord' }
+        activity: { name: 'Recent Activity', icon: 'fas fa-clock' }
     };
 
     function initSectionsSorting() {
@@ -770,7 +769,7 @@
         const sectionsSortList = document.getElementById('sectionsSortList');
         if (!sectionsOrderInput || !sectionsSortList) return;
 
-        const allowedList = ['links', 'embeds', 'stats', 'projects', 'blocks', 'contents', 'characters', 'badges', 'activity', 'discord_server'];
+        const allowedList = ['links', 'embeds', 'stats', 'projects', 'blocks', 'contents', 'characters', 'badges', 'activity'];
         let currentOrder = sectionsOrderInput.value.split(',').map(s => s.trim()).filter(s => allowedList.includes(s));
 
         // Insert missing sections at the end

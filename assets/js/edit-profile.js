@@ -761,8 +761,7 @@
         contents: { name: 'Edit e Contenuti', icon: 'fas fa-play' },
         characters: { name: 'Personaggi', icon: 'fas fa-user-astronaut' },
         badges: { name: 'Badge', icon: 'fas fa-trophy' },
-        activity: { name: 'Attività Recente', icon: 'fas fa-clock' },
-        discord_server: { name: 'Server Discord', icon: 'fab fa-discord' }
+        activity: { name: 'Attività Recente', icon: 'fas fa-clock' }
     };
 
     function initSectionsSorting() {
@@ -770,7 +769,7 @@
         const sectionsSortList = document.getElementById('sectionsSortList');
         if (!sectionsOrderInput || !sectionsSortList) return;
 
-        const allowedList = ['links', 'embeds', 'stats', 'projects', 'blocks', 'contents', 'characters', 'badges', 'activity', 'discord_server'];
+        const allowedList = ['links', 'embeds', 'stats', 'projects', 'blocks', 'contents', 'characters', 'badges', 'activity'];
         let currentOrder = sectionsOrderInput.value.split(',').map(s => s.trim()).filter(s => allowedList.includes(s));
 
         // Inserisci eventuali sezioni mancanti alla fine

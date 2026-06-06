@@ -238,7 +238,7 @@ $normalContents = array_values(array_filter($visibleContents, fn($item) => (int)
 
 $hasStats = $showStats && $profile && ((int)$profile['profile_views'] > 0 || (int)$profile['num_achievement'] > 0 || (int)$profile['num_personaggi'] > 0 || (int)$profile['total_personaggi'] > 0);
 $hasDiscordSection = ($showDiscord && !empty($discordId)) || !empty($widgetData);
-$hasRightContent = $hasStats || $featuredLinks || $normalLinks || $visibleProjects || $visibleContents || $visibleBlocks || ($visibleBadges && $showBadgesSection) || $visibleActivity || $visibleCharacters || $embeds || $hasDiscordSection;
+$hasRightContent = $hasStats || $featuredLinks || $normalLinks || $visibleProjects || $visibleContents || $visibleBlocks || ($visibleBadges && $showBadgesSection) || $visibleActivity || $visibleCharacters || $embeds;
 $hasAnyPublicContent = $visibleSocials || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || $hasDiscordSection || $hasMusic || $embeds;
 
 $spotlight = null;
@@ -274,8 +274,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=3.7.1">
-    <script src="/assets/js/profile.js?v=3.7.1" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=3.7.2">
+    <script src="/assets/js/profile.js?v=3.7.2" defer></script>
 </head>
 
 <body
@@ -444,10 +444,17 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
+                <?php endif; ?>                <?php if ($showDiscord && ($discordId || $widgetData)): ?>
+                    <div class="profile-discord-left js-reveal" aria-label="Attività Discord">
+                        <div class="profile-discord-left__title">
+                            <span><i class="fab fa-discord"></i>Discord</span>
+                        </div>
+                        <div class="discord-box" id="discordBox">
+                            <?php $discordProfileId = $discordId;
+                            require __DIR__ . '/includes/discord_status.php'; ?>
+                        </div>
+                    </div>
                 <?php endif; ?>
-
-
-
                 <?php if (!$hasAnyPublicContent && $isOwnProfile): ?>
                     <div class="profile-owner-nudge">
                         <i class="fas fa-plus"></i>
@@ -825,74 +832,10 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     <?php endif;
                     $sectionsHtml['activity'] = ob_get_clean();
 
-                    // 10. Discord Combined Section
-                    ob_start();
-                    if ($hasDiscordSection):
-                        ?>
-                        <section class="bio-card profile-discord-combined-section js-reveal">
-                            <?php profile_render_section_heading('fab fa-discord', 'Discord'); ?>
-                            
-                            <div class="profile-discord-combined-layout" style="display: flex; flex-direction: column; gap: 1.25rem; width: 100%;">
-                                <?php if ($showDiscord && $discordId): ?>
-                                    <!-- Discord Status / Lanyard -->
-                                    <div class="discord-box" id="discordBox" style="width: 100%;">
-                                        <?php $discordProfileId = $discordId;
-                                        require __DIR__ . '/includes/discord_status.php'; ?>
-                                    </div>
-                                <?php endif; ?>
-
-                                <?php if ($widgetData): 
-                                    $discordServerName = $widgetData['server_name'] ?? '';
-                                    $discordServerIcon = $widgetData['icon_hash'] ?? null;
-                                    $discordGuildId = $widgetData['guild_id'] ?? '';
-                                    $discordOnline = (int)($widgetData['online_members'] ?? 0);
-                                    $discordTotal = (int)($widgetData['total_members'] ?? 0);
-                                    $discordCode = $widgetData['code'] ?? '';
-                                    
-                                    $discordJoinUrl = "https://discord.gg/" . rawurlencode($discordCode);
-                                    
-                                    $discordIconUrl = null;
-                                    if ($discordServerIcon && $discordGuildId) {
-                                        $format = strpos($discordServerIcon, 'a_') === 0 ? 'gif' : 'png';
-                                        $discordIconUrl = "https://cdn.discordapp.com/icons/" . rawurlencode($discordGuildId) . "/" . rawurlencode($discordServerIcon) . "." . $format . "?size=128";
-                                    }
-                                    ?>
-                                    <!-- Discord Server Widget -->
-                                    <div class="profile-discord-server-card" <?php echo ($showDiscord && $discordId) ? 'style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 1.25rem;"' : ''; ?>>
-                                        <div class="profile-discord-server-left">
-                                            <?php if ($discordIconUrl): ?>
-                                                <img class="profile-discord-server-icon" src="<?php echo profile_h($discordIconUrl); ?>" alt="<?php echo profile_h($discordServerName); ?>" loading="lazy">
-                                            <?php else: ?>
-                                                <div class="profile-discord-server-icon-fallback">
-                                                    <i class="fab fa-discord"></i>
-                                                </div>
-                                            <?php endif; ?>
-                                            
-                                            <div class="profile-discord-server-info">
-                                                <span class="profile-discord-server-label"><?php echo ($lang === 'it') ? 'SERVER DISCORD' : 'DISCORD SERVER'; ?></span>
-                                                <strong class="profile-discord-server-name"><?php echo profile_h($discordServerName); ?></strong>
-                                                <div class="profile-discord-server-stats">
-                                                    <span class="discord-stat-online"><span class="discord-stat-dot online"></span><?php echo profile_compact_number($discordOnline); ?> Online</span>
-                                                    <span class="discord-stat-total"><span class="discord-stat-dot total"></span><?php echo profile_compact_number($discordTotal); ?> <?php echo ($lang === 'it') ? 'Membri' : 'Members'; ?></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <a href="<?php echo profile_h($discordJoinUrl); ?>" target="_blank" rel="noopener noreferrer" class="bio-button discord-join-button">
-                                            <i class="fab fa-discord"></i>
-                                            <span><?php echo ($lang === 'it') ? 'Entra' : 'Join'; ?></span>
-                                        </a>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </section>
-                    <?php endif;
-                    $sectionsHtml['discord'] = ob_get_clean();
-
                     // Output sections in the custom order
-                    $sectionsOrderRaw = $profile['profile_sections_order'] ?? 'links,embeds,stats,projects,blocks,contents,characters,badges,activity,discord';
-                    $sectionsOrderRaw = str_replace('discord_server', 'discord', $sectionsOrderRaw);
+                    $sectionsOrderRaw = $profile['profile_sections_order'] ?? 'links,embeds,stats,projects,blocks,contents,characters,badges,activity';
                     $sectionsOrder = explode(',', $sectionsOrderRaw);
-                    $allowedSectionsList = ['links', 'embeds', 'stats', 'projects', 'blocks', 'contents', 'characters', 'badges', 'activity', 'discord'];
+                    $allowedSectionsList = ['links', 'embeds', 'stats', 'projects', 'blocks', 'contents', 'characters', 'badges', 'activity'];
 
                     foreach ($sectionsOrder as $secKey) {
                         $secKey = trim($secKey);
