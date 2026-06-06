@@ -5778,7 +5778,7 @@ body[data-profile-effect="sakura_falling"] .profile-effects-layer::before {
     font-size: 0.82rem;
 }
 .profile-mini-badges.badges-pos-below_username {
-    margin: 0.3rem 0 0.6rem;
+    margin: 0.75rem 0 0.15rem;
 }
 .profile-mini-badges.badges-pos-below_bio {
     margin: 0.8rem 0 0.2rem;
