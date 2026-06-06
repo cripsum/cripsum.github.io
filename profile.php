@@ -96,7 +96,7 @@ function profile_state_page(string $code, string $title, string $text, ?string $
 
 function profile_render_background(?array $profile, ?string $backgroundUrl, string $backgroundType): void
 {
-    $defaultBackgroundVideo = '/vid/Shorekeeper Wallpaper 4K Loop.mp4';
+    $defaultBackgroundVideo = '/vid/splash-landscape.mp4';
     $url = $backgroundUrl ?: $defaultBackgroundVideo;
     $type = $backgroundUrl ? $backgroundType : 'video/mp4';
     $isVideo = str_starts_with($type, 'video/');
@@ -251,7 +251,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     data-profile-socials-style="<?php echo profile_h($socialsStyle); ?>"
     data-profile-layout="<?php echo profile_h($layout); ?>"
     style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
-    
+
     <?php if ($profile && profile_flag($profile, 'profile_click_to_enter', false)): ?>
         <div id="clickToEnterOverlay" class="click-to-enter-overlay">
             <div class="click-to-enter-content">
@@ -292,7 +292,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     <?php else: ?>
                         <span class="bio-pill"><i class="fas fa-eye"></i><?php echo profile_compact_number($profile['profile_views'] ?? 0); ?> <?php echo ($lang === 'it') ? 'visite' : 'views'; ?></span>
                     <?php endif; ?>
-                    
+
                     <div class="profile-dropdown-wrap">
                         <button class="bio-small-button js-profile-dropdown-trigger" type="button" aria-label="Menu" aria-expanded="false">
                             <i class="fas fa-ellipsis-h"></i>
@@ -343,7 +343,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                             <?php
                             $badgeName = ($lang === 'it' && !empty($badge['nome'])) ? $badge['nome'] : (!empty($badge['nome_en']) ? $badge['nome_en'] : $badge['nome']);
                             $badgeImage = !empty($badge['img_url']) ? (preg_match('/^https?:\/\//i', $badge['img_url']) ? $badge['img_url'] : '/img/' . ltrim((string)$badge['img_url'], '/')) : null;
-                            
+
                             $styleAttr = '';
                             $extraClasses = '';
                             if ($badge['badge_source'] === 'custom') {
@@ -694,14 +694,14 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     <?php
                                     $badgeName = ($lang === 'it' && !empty($badge['nome'])) ? $badge['nome'] : (!empty($badge['nome_en']) ? $badge['nome_en'] : $badge['nome']);
                                     $badgeDesc = ($lang === 'it' && !empty($badge['descrizione'])) ? $badge['descrizione'] : (!empty($badge['descrizione_en']) ? $badge['descrizione_en'] : $badge['descrizione']);
-                                    
+
                                     $badgeImage = !empty($badge['img_url']) ? (preg_match('/^https?:\/\//i', $badge['img_url']) ? $badge['img_url'] : '/img/' . ltrim((string)$badge['img_url'], '/')) : null;
-                                    
+
                                     $isFeaturedBadge = (int)($profile['featured_badge_id'] ?? 0) === (int)$badge['id'] && $badge['badge_source'] === 'achievement';
-                                    
+
                                     $styleAttr = '';
                                     $cardClasses = [];
-                                    
+
                                     if ($badge['badge_source'] === 'custom') {
                                         $cardClasses[] = 'custom-badge-card';
                                         if (!empty($badge['badge_type'])) {
@@ -713,7 +713,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                         if (!empty($badge['glow']) && (int)$badge['glow'] === 1) {
                                             $cardClasses[] = 'badge-glow';
                                         }
-                                        
+
                                         if (!empty($badge['color'])) {
                                             $rgb = function_exists('profile_hex_to_rgb') ? profile_hex_to_rgb($badge['color']) : null;
                                             if ($rgb) {
@@ -723,7 +723,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                                 $styleAttr = 'style="--badge-color: ' . profile_h($badge['color']) . ';"';
                                             }
                                         }
-                                        
+
                                         $badgeTypeLabels = [
                                             'staff' => ($lang === 'it') ? 'Staff' : 'Staff',
                                             'verified' => ($lang === 'it') ? 'Verificato' : 'Verified',
@@ -741,7 +741,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                         }
                                         $subtitle = $rarity['label'] . ((int)($badge['punti'] ?? 0) > 0 ? ' · ' . (int)$badge['punti'] . ' punti' : '');
                                     }
-                                    
+
                                     $classStr = implode(' ', $cardClasses);
                                     ?>
                                     <article class="profile-badge-card <?php echo profile_h($classStr); ?>" <?php echo $styleAttr; ?> tabindex="0">
