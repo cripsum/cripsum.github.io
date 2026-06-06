@@ -5766,11 +5766,12 @@ body[data-profile-effect="sakura_falling"] .profile-effects-layer::before {
     align-items: center;
     gap: 0.35rem;
     margin: 0 0 0 0.35rem;
+    transform: translateY(2px);
 }
 .profile-mini-badges.badges-pos-right_of_name .profile-mini-badge {
-    width: 1.6rem;
-    height: 1.6rem;
-    font-size: 0.75rem;
+    width: 1.85rem;
+    height: 1.85rem;
+    font-size: 0.82rem;
 }
 .profile-mini-badges.badges-pos-below_username {
     margin: 0.3rem 0 0.6rem;
@@ -5887,6 +5888,11 @@ body[data-profile-effect="sakura_falling"] .profile-effects-layer::before {
 }
 .layout-clean .profile-name-row {
     justify-content: center;
+}
+@media (max-width: 720px) {
+    .profile-name-row {
+        justify-content: center !important;
+    }
 }
 
 /* Custom Checkbox in Editor Badge Sort List */
