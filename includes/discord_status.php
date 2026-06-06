@@ -142,59 +142,13 @@ $payload = $data['data'] ?? null;
 $hasLanyardUser = $payload && !empty($payload['discord_user']);
 
 if (!$hasLanyardUser) {
-    if (!empty($widgetData)) {
-        $discordServerName = $widgetData['server_name'] ?? '';
-        $discordServerIcon = $widgetData['icon_hash'] ?? null;
-        $discordGuildId = $widgetData['guild_id'] ?? '';
-        $discordOnline = (int)($widgetData['online_members'] ?? 0);
-        $discordTotal = (int)($widgetData['total_members'] ?? 0);
-        $discordCode = $widgetData['code'] ?? '';
-        
-        $discordJoinUrl = "https://discord.gg/" . rawurlencode($discordCode);
-        
-        $discordIconUrl = null;
-        if ($discordServerIcon && $discordGuildId) {
-            $format = strpos($discordServerIcon, 'a_') === 0 ? 'gif' : 'png';
-            $discordIconUrl = "https://cdn.discordapp.com/icons/" . rawurlencode($discordGuildId) . "/" . rawurlencode($discordServerIcon) . "." . $format . "?size=128";
-        }
-        ?>
-        <div class="ds-card" style="padding: 0.9rem;">
-            <div class="profile-discord-server-card" style="margin-top: 0; width: 100%;">
-                <div class="profile-discord-server-left">
-                    <?php if ($discordIconUrl): ?>
-                        <img class="profile-discord-server-icon" src="<?php echo htmlspecialchars($discordIconUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($discordServerName, ENT_QUOTES, 'UTF-8'); ?>" loading="lazy">
-                    <?php else: ?>
-                        <div class="profile-discord-server-icon-fallback">
-                            <i class="fab fa-discord"></i>
-                        </div>
-                    <?php endif; ?>
-                    
-                    <div class="profile-discord-server-info">
-                        <span class="profile-discord-server-label"><?php echo (isset($lang) && $lang === 'en') ? 'DISCORD SERVER' : 'SERVER DISCORD'; ?></span>
-                        <strong class="profile-discord-server-name" style="font-size: 1.02rem;"><?php echo htmlspecialchars($discordServerName, ENT_QUOTES, 'UTF-8'); ?></strong>
-                        <div class="profile-discord-server-stats" style="font-size: 0.78rem;">
-                            <span class="discord-stat-online"><span class="discord-stat-dot online"></span><?php echo number_format($discordOnline); ?> Online</span>
-                            <span class="discord-stat-total"><span class="discord-stat-dot total"></span><?php echo number_format($discordTotal); ?> <?php echo (isset($lang) && $lang === 'en') ? 'Members' : 'Membri'; ?></span>
-                        </div>
-                    </div>
-                </div>
-                <a href="<?php echo htmlspecialchars($discordJoinUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" class="bio-button discord-join-button" style="padding: 0.45rem 0.9rem; font-size: 0.82rem; border-radius: 8px;">
-                    <i class="fab fa-discord"></i>
-                    <span><?php echo (isset($lang) && $lang === 'en') ? 'Join' : 'Entra'; ?></span>
-                </a>
-            </div>
-        </div>
-        <?php
-        return;
-    } else {
-        ?>
-        <div class="ds-card ds-error">
-            <i class="fas fa-triangle-exclamation"></i>
-            <span>Stato Discord non disponibile.</span>
-        </div>
-        <?php
-        return;
-    }
+    ?>
+    <div class="ds-card ds-error">
+        <i class="fas fa-triangle-exclamation"></i>
+        <span>Stato Discord non disponibile.</span>
+    </div>
+    <?php
+    return;
 }
 
 $user = $payload['discord_user'];
@@ -283,49 +237,6 @@ $discordUserId = $user['id'] ?? $discord_id;
                     </div>
                 </div>
             <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
-
-    <?php if (!empty($widgetData)): 
-        $discordServerName = $widgetData['server_name'] ?? '';
-        $discordServerIcon = $widgetData['icon_hash'] ?? null;
-        $discordGuildId = $widgetData['guild_id'] ?? '';
-        $discordOnline = (int)($widgetData['online_members'] ?? 0);
-        $discordTotal = (int)($widgetData['total_members'] ?? 0);
-        $discordCode = $widgetData['code'] ?? '';
-        
-        $discordJoinUrl = "https://discord.gg/" . rawurlencode($discordCode);
-        
-        $discordIconUrl = null;
-        if ($discordServerIcon && $discordGuildId) {
-            $format = strpos($discordServerIcon, 'a_') === 0 ? 'gif' : 'png';
-            $discordIconUrl = "https://cdn.discordapp.com/icons/" . rawurlencode($discordGuildId) . "/" . rawurlencode($discordServerIcon) . "." . $format . "?size=128";
-        }
-        ?>
-        <!-- Discord Server Widget inside the main ds-card -->
-        <div class="profile-discord-server-card" style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 0.85rem; margin-top: 0.85rem; width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; flex-wrap: wrap;">
-            <div class="profile-discord-server-left" style="display: flex; align-items: center; gap: 0.8rem;">
-                <?php if ($discordIconUrl): ?>
-                    <img class="profile-discord-server-icon" src="<?php echo htmlspecialchars($discordIconUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($discordServerName, ENT_QUOTES, 'UTF-8'); ?>" loading="lazy" style="width: 2.8rem; height: 2.8rem; border-radius: 0.75rem; object-fit: cover;">
-                <?php else: ?>
-                    <div class="profile-discord-server-icon-fallback" style="width: 2.8rem; height: 2.8rem; border-radius: 0.75rem; background: linear-gradient(135deg, #5865F2, #404EED); color: #fff; display: grid; place-items: center; font-size: 1.4rem;">
-                        <i class="fab fa-discord"></i>
-                    </div>
-                <?php endif; ?>
-                
-                <div class="profile-discord-server-info" style="display: flex; flex-direction: column; gap: 0.1rem; text-align: left;">
-                    <span class="profile-discord-server-label" style="font-size: 0.65rem; font-weight: 700; color: var(--muted); letter-spacing: 0.05em;"><?php echo (isset($lang) && $lang === 'en') ? 'DISCORD SERVER' : 'SERVER DISCORD'; ?></span>
-                    <strong class="profile-discord-server-name" style="font-size: 0.98rem; font-weight: 700; color: var(--text);"><?php echo htmlspecialchars($discordServerName, ENT_QUOTES, 'UTF-8'); ?></strong>
-                    <div class="profile-discord-server-stats" style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.75rem; font-weight: 600; color: var(--muted);">
-                        <span class="discord-stat-online" style="display: flex; align-items: center; gap: 0.25rem;"><span class="discord-stat-dot online" style="width: 0.45rem; height: 0.45rem; border-radius: 50%; background-color: #23a55a; box-shadow: 0 0 5px #23a55a;"></span><?php echo number_format($discordOnline); ?> Online</span>
-                        <span class="discord-stat-total" style="display: flex; align-items: center; gap: 0.25rem;"><span class="discord-stat-dot total" style="width: 0.45rem; height: 0.45rem; border-radius: 50%; background-color: #949ba4;"></span><?php echo number_format($discordTotal); ?> <?php echo (isset($lang) && $lang === 'en') ? 'Members' : 'Membri'; ?></span>
-                    </div>
-                </div>
-            </div>
-            <a href="<?php echo htmlspecialchars($discordJoinUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" class="bio-button discord-join-button" style="padding: 0.45rem 0.9rem; font-size: 0.82rem; border-radius: 8px; background: #5865F2 !important; color: #fff !important; text-decoration: none; display: flex; align-items: center; gap: 0.4rem; font-weight: 600; transition: background 0.2s, transform 0.2s;">
-                <i class="fab fa-discord"></i>
-                <span><?php echo (isset($lang) && $lang === 'en') ? 'Join' : 'Entra'; ?></span>
-            </a>
         </div>
     <?php endif; ?>
 </div>

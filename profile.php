@@ -204,11 +204,14 @@ if (!empty($discordServerInvite)) {
         $widgetData = json_decode($discordServerCache, true);
     } else {
         // Refresh cache
-        $inviteCode = null;
-        if (preg_match('/(?:discord\.gg\/|discord\.com\/invite\/)?([a-zA-Z0-9\-]+)/i', $discordServerInvite, $matches)) {
-            $inviteCode = $matches[1];
-        } else {
-            $inviteCode = $discordServerInvite;
+        $inviteCode = trim($discordServerInvite);
+        $urlParts = parse_url($inviteCode);
+        if ($urlParts && isset($urlParts['path'])) {
+            $path = trim($urlParts['path'], '/');
+            if ($path !== '') {
+                $parts = explode('/', $path);
+                $inviteCode = end($parts);
+            }
         }
         
         $widgetData = profile_fetch_discord_server_data($inviteCode);
@@ -237,7 +240,7 @@ $featuredContents = array_values(array_filter($visibleContents, fn($item) => (in
 $normalContents = array_values(array_filter($visibleContents, fn($item) => (int)($item['is_featured'] ?? 0) !== 1));
 
 $hasStats = $showStats && $profile && ((int)$profile['profile_views'] > 0 || (int)$profile['num_achievement'] > 0 || (int)$profile['num_personaggi'] > 0 || (int)$profile['total_personaggi'] > 0);
-$hasDiscordSection = ($showDiscord && !empty($discordId)) || !empty($widgetData);
+$hasDiscordSection = $showDiscord && (!empty($discordId) || !empty($widgetData));
 $hasRightContent = $hasStats || $featuredLinks || $normalLinks || $visibleProjects || $visibleContents || $visibleBlocks || ($visibleBadges && $showBadgesSection) || $visibleActivity || $visibleCharacters || $embeds;
 $hasAnyPublicContent = $visibleSocials || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || $hasDiscordSection || $hasMusic || $embeds;
 
@@ -274,8 +277,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=3.7.2">
-    <script src="/assets/js/profile.js?v=3.7.2" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=3.7.3">
+    <script src="/assets/js/profile.js?v=3.7.3" defer></script>
 </head>
 
 <body
@@ -444,7 +447,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
-                <?php endif; ?>                <?php if ($showDiscord && ($discordId || $widgetData)): ?>
+                <?php endif; ?>                <?php if ($showDiscord && $discordId): ?>
                     <div class="profile-discord-left js-reveal" aria-label="Attività Discord">
                         <div class="profile-discord-left__title">
                             <span><i class="fab fa-discord"></i>Discord</span>
@@ -452,6 +455,56 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         <div class="discord-box" id="discordBox">
                             <?php $discordProfileId = $discordId;
                             require __DIR__ . '/includes/discord_status.php'; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($showDiscord && !empty($widgetData)): ?>
+                    <?php 
+                    $discordServerName = $widgetData['server_name'] ?? '';
+                    $discordServerIcon = $widgetData['icon_hash'] ?? null;
+                    $discordGuildId = $widgetData['guild_id'] ?? '';
+                    $discordOnline = (int)($widgetData['online_members'] ?? 0);
+                    $discordTotal = (int)($widgetData['total_members'] ?? 0);
+                    $discordCode = $widgetData['code'] ?? '';
+                    
+                    $discordJoinUrl = "https://discord.gg/" . rawurlencode($discordCode);
+                    
+                    $discordIconUrl = null;
+                    if ($discordServerIcon && $discordGuildId) {
+                        $format = strpos($discordServerIcon, 'a_') === 0 ? 'gif' : 'png';
+                        $discordIconUrl = "https://cdn.discordapp.com/icons/" . rawurlencode($discordGuildId) . "/" . rawurlencode($discordServerIcon) . "." . $format . "?size=128";
+                    }
+                    ?>
+                    <div class="profile-discord-left js-reveal" aria-label="Server Discord" style="margin-top: 1.25rem;">
+                        <div class="profile-discord-left__title">
+                            <span><i class="fab fa-discord"></i><?php echo (isset($lang) && $lang === 'en') ? 'Discord Server' : 'Server Discord'; ?></span>
+                        </div>
+                        <div class="ds-card profile-discord-server-section" style="padding: 1.25rem;">
+                            <div class="profile-discord-server-card">
+                                <div class="profile-discord-server-left">
+                                    <?php if ($discordIconUrl): ?>
+                                        <img class="profile-discord-server-icon" src="<?php echo htmlspecialchars($discordIconUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($discordServerName, ENT_QUOTES, 'UTF-8'); ?>" loading="lazy">
+                                    <?php else: ?>
+                                        <div class="profile-discord-server-icon-fallback">
+                                            <i class="fab fa-discord"></i>
+                                        </div>
+                                    <?php endif; ?>
+                                    
+                                    <div class="profile-discord-server-info">
+                                        <span class="profile-discord-server-label"><?php echo (isset($lang) && $lang === 'en') ? 'DISCORD SERVER' : 'SERVER DISCORD'; ?></span>
+                                        <strong class="profile-discord-server-name"><?php echo htmlspecialchars($discordServerName, ENT_QUOTES, 'UTF-8'); ?></strong>
+                                        <div class="profile-discord-server-stats">
+                                            <span class="discord-stat-online"><span class="discord-stat-dot online"></span><?php echo number_format($discordOnline); ?> Online</span>
+                                            <span class="discord-stat-total"><span class="discord-stat-dot total"></span><?php echo number_format($discordTotal); ?> <?php echo (isset($lang) && $lang === 'en') ? 'Members' : 'Membri'; ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a href="<?php echo htmlspecialchars($discordJoinUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" class="bio-button bio-button--primary discord-join-button">
+                                    <i class="fab fa-discord"></i>
+                                    <span><?php echo (isset($lang) && $lang === 'en') ? 'Join' : 'Entra'; ?></span>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 <?php endif; ?>

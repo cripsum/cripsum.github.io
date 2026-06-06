@@ -88,11 +88,14 @@ $discordServerCacheTime = (int)($profile['discord_server_cache_time'] ?? 0);
 
 if ($discordServerInvite !== $oldInvite) {
     if ($discordServerInvite !== '') {
-        $inviteCode = null;
-        if (preg_match('/(?:discord\.gg\/|discord\.com\/invite\/)?([a-zA-Z0-9\-]+)/i', $discordServerInvite, $matches)) {
-            $inviteCode = $matches[1];
-        } else {
-            $inviteCode = $discordServerInvite;
+        $inviteCode = trim($discordServerInvite);
+        $urlParts = parse_url($inviteCode);
+        if ($urlParts && isset($urlParts['path'])) {
+            $path = trim($urlParts['path'], '/');
+            if ($path !== '') {
+                $parts = explode('/', $path);
+                $inviteCode = end($parts);
+            }
         }
         $widgetData = profile_fetch_discord_server_data($inviteCode);
         if ($widgetData) {
