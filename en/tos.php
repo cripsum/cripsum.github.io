@@ -14,7 +14,7 @@ $lastUpdated = 'April 2026';
     <title>Cripsum™ - Terms</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/static/static.css?v=1.1-static">
+    <link rel="stylesheet" href="/assets/static/static.css?v=1.2-static">
     <script src="/assets/static/static.js?v=1.0-static" defer></script>
 
 </head>
@@ -32,14 +32,18 @@ $lastUpdated = 'April 2026';
 
 
     <main class="static-shell">
-        <section class="static-hero static-reveal">
-            <img src="/img/tos.gif" alt="Cripsum™ TOS Logo" class="static-tos-logo">
-            <span class="static-pill">Terms</span>
-            <h1>Terms of Service</h1>
-            <p>By using Cripsum™ you agree to these rules. They are written to be more readable, without changing their meaning.</p>
-            <div class="static-meta">
-                <span class="static-chip"><i class="fas fa-calendar"></i> Updated: <?php echo htmlspecialchars($lastUpdated, ENT_QUOTES, 'UTF-8'); ?></span>
-                <span class="static-chip"><i class="fas fa-scale-balanced"></i> Site Rules</span>
+        <section class="static-hero static-hero--split static-reveal">
+            <div>
+                <span class="static-pill">Terms</span>
+                <h1>Terms of Service</h1>
+                <p>By using Cripsum™ you agree to these rules. They are written to be more readable, without changing their meaning.</p>
+                <div class="static-meta">
+                    <span class="static-chip"><i class="fas fa-calendar"></i> Updated: <?php echo htmlspecialchars($lastUpdated, ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="static-chip"><i class="fas fa-scale-balanced"></i> Site Rules</span>
+                </div>
+            </div>
+            <div class="static-hero__logo-container">
+                <img src="/img/tos.gif" alt="Cripsum™ TOS Logo" class="static-tos-logo">
             </div>
         </section>
 
