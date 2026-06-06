@@ -439,11 +439,12 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         </div>
                     </div>
                 <?php elseif ($hasMusic && !$showAudioPlayer): ?>
+                    <?php $hasClickToEnter = $profile && profile_flag($profile, 'profile_click_to_enter', false); ?>
                     <audio
                         id="profileAudio"
                         class="profile-hidden-audio"
                         preload="auto"
-                        autoplay
+                        <?php if (!$hasClickToEnter): ?>autoplay<?php endif; ?>
                         loop
                         data-autoplay="1"
                         src="<?php echo profile_h($musicUrl); ?>"></audio>
