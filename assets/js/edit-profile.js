@@ -706,12 +706,70 @@
         });
     };
 
+    function hexToHsvLocal(hex) {
+        let clean = String(hex || '').replace('#', '').trim();
+        if (clean.length === 3) {
+            clean = clean.split('').map(c => c + c).join('');
+        }
+        if (!/^[0-9a-fA-F]{6}$/.test(clean)) return { h: 0, s: 0, v: 0 };
+        const r = parseInt(clean.substring(0, 2), 16) / 255;
+        const g = parseInt(clean.substring(2, 4), 16) / 255;
+        const b = parseInt(clean.substring(4, 6), 16) / 255;
+        
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        const d = max - min;
+        let h;
+        if (d === 0) {
+            h = 0;
+        } else {
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
+            }
+            h /= 6;
+        }
+        return {
+            h: Math.round(h * 360),
+            s: max === 0 ? 0 : d / max,
+            v: max
+        };
+    }
+
+    function hsvToHexLocal(h, s, v) {
+        let r, g, b;
+        const i = Math.floor(h / 60);
+        const f = h / 60 - i;
+        const p = v * (1 - s);
+        const q = v * (1 - f * s);
+        const t = v * (1 - (1 - f) * s);
+        switch (i % 6) {
+            case 0: r = v, g = t, b = p; break;
+            case 1: r = q, g = v, b = p; break;
+            case 2: r = p, g = v, b = t; break;
+            case 3: r = p, g = q, b = v; break;
+            case 4: r = t, g = p, b = v; break;
+            case 5: r = v, g = p, b = q; break;
+        }
+        const toHex = x => {
+            const hex = Math.round(x * 255).toString(16);
+            return hex.length === 1 ? '0' + hex : hex;
+        };
+        return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+    }
+
     const syncProfileColorPicker = (wrap) => {
         const input = wrap.querySelector('input[type="color"]');
         const preview = wrap.querySelector('.profile-color-preview');
         const value = wrap.querySelector('.profile-color-value');
         const textInput = wrap.querySelector('.profile-color-hex-text');
         const swatches = Array.from(wrap.querySelectorAll('.profile-color-swatch'));
+
+        const svSquare = wrap.querySelector('.profile-color-sv-square');
+        const svHandle = wrap.querySelector('.profile-color-sv-handle');
+        const hueSlider = wrap.querySelector('.profile-color-hue-slider');
+        const hueHandle = wrap.querySelector('.profile-color-hue-handle');
 
         if (!input || !preview || !value) return;
 
@@ -726,6 +784,14 @@
             const active = swatch.dataset.color.toLowerCase() === val.toLowerCase();
             swatch.classList.toggle('is-active', active);
         });
+
+        if (svSquare && svHandle && hueSlider && hueHandle) {
+            const hsv = hexToHsvLocal(val);
+            svSquare.style.backgroundColor = `hsl(${hsv.h}, 100%, 50%)`;
+            svHandle.style.left = `${hsv.s * 100}%`;
+            svHandle.style.top = `${(1 - hsv.v) * 100}%`;
+            hueHandle.style.left = `${(hsv.h / 360) * 100}%`;
+        }
     };
 
     const buildProfileColorPicker = (input) => {
@@ -748,6 +814,10 @@
 
         const dropdown = document.createElement('div');
         dropdown.className = 'profile-color-dropdown';
+        
+        dropdown.addEventListener('click', (event) => {
+            event.stopPropagation();
+        });
 
         const presetColors = [
             '#f43f5e', '#ec4899', '#d946ef', '#a855f7', '#6366f1', '#3b82f6',
@@ -777,6 +847,27 @@
         });
         dropdown.appendChild(swatchesGrid);
 
+        const advancedContainer = document.createElement('div');
+        advancedContainer.className = 'profile-color-picker-advanced';
+
+        const svSquare = document.createElement('div');
+        svSquare.className = 'profile-color-sv-square';
+        svSquare.innerHTML = `
+            <div class="profile-color-sv-white"></div>
+            <div class="profile-color-sv-black"></div>
+            <div class="profile-color-sv-handle"></div>
+        `;
+
+        const hueSlider = document.createElement('div');
+        hueSlider.className = 'profile-color-hue-slider';
+        hueSlider.innerHTML = `
+            <div class="profile-color-hue-handle"></div>
+        `;
+
+        advancedContainer.appendChild(svSquare);
+        advancedContainer.appendChild(hueSlider);
+        dropdown.appendChild(advancedContainer);
+
         const customRow = document.createElement('div');
         customRow.className = 'profile-color-custom-row';
 
@@ -800,26 +891,66 @@
             }
         });
 
-        const pickerBtn = document.createElement('button');
-        pickerBtn.type = 'button';
-        pickerBtn.className = 'profile-color-picker-btn';
-        pickerBtn.title = 'Altro / Custom';
-        pickerBtn.innerHTML = '<i class="fas fa-eye-dropper"></i>';
-
-        pickerBtn.addEventListener('click', (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            input.click();
-        });
-
         customRow.appendChild(textInput);
-        customRow.appendChild(pickerBtn);
         dropdown.appendChild(customRow);
 
         input.parentNode.insertBefore(wrap, input);
         wrap.appendChild(input);
         wrap.appendChild(trigger);
         wrap.appendChild(dropdown);
+
+        const handleDrag = (element, callback) => {
+            const onDrag = (e) => {
+                const rect = element.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                let x = (clientX - rect.left) / rect.width;
+                let y = (clientY - rect.top) / rect.height;
+                x = Math.max(0, Math.min(1, x));
+                y = Math.max(0, Math.min(1, y));
+                callback(x, y);
+            };
+
+            const onMouseDown = (e) => {
+                e.preventDefault();
+                onDrag(e);
+
+                const onMouseMove = (moveEvent) => {
+                    onDrag(moveEvent);
+                };
+                const onMouseUp = () => {
+                    window.removeEventListener('mousemove', onMouseMove);
+                    window.removeEventListener('mouseup', onMouseUp);
+                    window.removeEventListener('touchmove', onMouseMove);
+                    window.removeEventListener('touchend', onMouseUp);
+                };
+                window.addEventListener('mousemove', onMouseMove);
+                window.addEventListener('mouseup', onMouseUp);
+                window.addEventListener('touchmove', onMouseMove);
+                window.addEventListener('touchend', onMouseUp);
+            };
+
+            element.addEventListener('mousedown', onMouseDown);
+            element.addEventListener('touchstart', onMouseDown, { passive: false });
+        };
+
+        handleDrag(svSquare, (x, y) => {
+            const hsv = hexToHsvLocal(input.value);
+            const newHex = hsvToHexLocal(hsv.h, x, 1 - y);
+            input.value = newHex;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+            syncProfileColorPicker(wrap);
+        });
+
+        handleDrag(hueSlider, (x) => {
+            const hsv = hexToHsvLocal(input.value);
+            const newHex = hsvToHexLocal(Math.round(x * 360), hsv.s, hsv.v);
+            input.value = newHex;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+            syncProfileColorPicker(wrap);
+        });
 
         trigger.addEventListener('click', (event) => {
             event.preventDefault();

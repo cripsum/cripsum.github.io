@@ -1,6 +1,6 @@
 @font-face {
     font-family: 'Minecraft';
-    src: url('../fonts/minecraft.woff2') format('woff2');
+    src: url('../fonts/minecraft.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
@@ -4613,7 +4613,7 @@ body[data-profile-effect="glass_rain"] .profile-effects-layer::before {
     color: var(--text);
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.035)), rgba(8, 12, 24, 0.86);
     font: inherit;
-    font-weight: 900;
+    font-weight: 400;
     cursor: pointer;
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
     transition: border-color var(--transition), background var(--transition), box-shadow var(--transition), transform var(--transition);
@@ -6043,7 +6043,7 @@ body[data-theme="light"] .profile-custom-tooltip {
     color: var(--text);
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.035)), rgba(8, 12, 24, 0.86);
     font: inherit;
-    font-weight: 900;
+    font-weight: 400;
     cursor: pointer;
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
     transition: border-color var(--transition), background var(--transition), box-shadow var(--transition), transform var(--transition);
@@ -6090,6 +6090,7 @@ body[data-theme="light"] .profile-custom-tooltip {
     padding: 0.8rem;
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 20px;
+    font-weight: 400;
     background: radial-gradient(circle at 12% 0%, rgba(var(--accent-rgb), 0.22), transparent 38%), linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.035)), rgba(8, 12, 24, 0.98);
     box-shadow: 0 24px 70px rgba(0, 0, 0, 0.48), 0 0 36px rgba(var(--accent-rgb), 0.16);
     backdrop-filter: blur(18px);
@@ -6177,6 +6178,74 @@ body[data-theme="light"] .profile-custom-tooltip {
 .profile-color-picker-btn:hover {
     background: rgba(255, 255, 255, 0.15);
     border-color: var(--accent);
+}
+
+/* Custom advanced HSV color picker */
+.profile-color-picker-advanced {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 0.4rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-color-sv-square {
+    position: relative;
+    height: 110px;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: crosshair;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.profile-color-sv-white {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, #fff, transparent);
+}
+
+.profile-color-sv-black {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, #000, transparent);
+}
+
+.profile-color-sv-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border: 1.5px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
+    transform: translate(-5px, -5px);
+    pointer-events: none;
+    will-change: left, top;
+}
+
+.profile-color-hue-slider {
+    position: relative;
+    height: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    background: linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
+    user-select: none;
+    -webkit-select: none;
+    margin-bottom: 0.3rem;
+}
+
+.profile-color-hue-handle {
+    position: absolute;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    border: 1.5px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
+    transform: translate(-6px, -50%);
+    pointer-events: none;
+    will-change: left;
 }
 
 
