@@ -359,7 +359,7 @@ body[data-theme="light"] .bio-name-block h1 {
 .bio-badge {
     text-transform: none;
     font-size: 0.8rem;
-    font-weight: 800;
+    font-weight: 600;
 }
 
 .bio-meta-row {
@@ -413,7 +413,7 @@ body[data-theme="light"] .bio-name-block h1 {
     color: var(--text);
     background: rgba(255, 255, 255, 0.07);
     cursor: pointer;
-    font-weight: 800;
+    font-weight: 600;
     transition: transform var(--transition), border-color var(--transition), background var(--transition), box-shadow var(--transition);
 }
 
@@ -611,7 +611,7 @@ body[data-theme="light"] .bio-name-block h1 {
     gap: 0.55rem;
     color: var(--text);
     font-size: 1rem;
-    font-weight: 900;
+    font-weight: 700;
     letter-spacing: -0.02em;
 }
 
@@ -644,7 +644,7 @@ body[data-theme="light"] .bio-name-block h1 {
     margin-bottom: 0.2rem;
     color: var(--muted-2);
     font-size: 0.72rem;
-    font-weight: 900;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
 }
@@ -664,7 +664,7 @@ body[data-theme="light"] .bio-name-block h1 {
     min-width: 2.6rem;
     color: var(--muted);
     font-size: 0.78rem;
-    font-weight: 800;
+    font-weight: 600;
     text-align: center;
 }
 
@@ -749,7 +749,7 @@ body[data-theme="light"] .bio-name-block h1 {
     margin-top: 0.5rem;
     color: var(--muted);
     font-size: 0.82rem;
-    font-weight: 800;
+    font-weight: 600;
 }
 
 .bio-featured,
@@ -788,7 +788,7 @@ body[data-theme="light"] .bio-name-block h1 {
 .bio-featured-link__content small {
     color: var(--accent);
     font-size: 0.72rem;
-    font-weight: 900;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
 }
@@ -864,7 +864,7 @@ body[data-theme="light"] .bio-name-block h1 {
     padding-top: 1rem;
     color: var(--muted-2);
     font-size: 0.75rem;
-    font-weight: 900;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
 }
@@ -886,7 +886,7 @@ body[data-theme="light"] .bio-name-block h1 {
     color: var(--accent);
     background: rgba(var(--accent-rgb), 0.08);
     font-size: 0.72rem;
-    font-weight: 900;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
 }
@@ -944,7 +944,7 @@ body[data-theme="light"] .bio-name-block h1 {
 .bio-achievement-card small {
     color: var(--muted-2);
     font-size: 0.74rem;
-    font-weight: 800;
+    font-weight: 600;
 }
 
 .bio-empty-state {
@@ -989,7 +989,7 @@ body[data-theme="light"] .bio-name-block h1 {
     margin-bottom: 0.35rem;
     color: var(--muted-2);
     font-size: 0.75rem;
-    font-weight: 900;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.07em;
 }
@@ -1014,7 +1014,7 @@ body[data-theme="light"] .bio-name-block h1 {
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     font-size: 0.9rem;
-    font-weight: 800;
+    font-weight: 600;
     opacity: 0;
     pointer-events: none;
     transition: transform var(--transition), opacity var(--transition);
@@ -1104,7 +1104,7 @@ body[data-theme="light"] .ds-status-dot {
     align-items: center;
     gap: 0.45rem;
     margin-bottom: 0.25rem;
-    font-weight: 900;
+    font-weight: 700;
 }
 
 .ds-name svg {
@@ -1191,7 +1191,7 @@ body[data-theme="light"] .ds-status-dot {
     margin-bottom: 0.2rem;
     color: var(--text);
     font-size: 0.88rem;
-    font-weight: 900;
+    font-weight: 700;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1492,7 +1492,7 @@ body[data-theme="light"] .profile-edit-hero h1 {
     border-radius: 999px;
     color: var(--muted);
     background: transparent;
-    font-weight: 900;
+    font-weight: 700;
     cursor: pointer;
     transition: background var(--transition), color var(--transition), transform var(--transition);
 }
@@ -1536,7 +1536,7 @@ body[data-theme="light"] .profile-edit-hero h1 {
 .profile-check-line {
     color: var(--text);
     font-size: 0.86rem;
-    font-weight: 900;
+    font-weight: 700;
 }
 
 .profile-field small {
@@ -1663,7 +1663,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
     color: #fb7185;
     background: rgba(244, 63, 94, 0.08);
     cursor: pointer;
-    font-weight: 900;
+    font-weight: 700;
 }
 
 .profile-row-grid {
@@ -1768,7 +1768,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
     color: var(--muted);
     background: rgba(var(--accent-rgb), 0.08);
     font-size: 0.84rem;
-    font-weight: 800;
+    font-weight: 600;
     text-align: left;
 }
 
@@ -1958,7 +1958,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
     margin-top: 0.85rem;
     margin-bottom: 0;
     font-size: 0.98rem;
-    font-weight: 650;
+    font-weight: 500;
     line-height: 1.55;
 }
 
@@ -2032,7 +2032,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
     gap: 0.38rem;
     color: var(--muted);
     font-size: 0.78rem;
-    font-weight: 750;
+    font-weight: 600;
 }
 
 .profile-small-meta i {
@@ -2060,7 +2060,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
 }
 
 .profile-owner-nudge a {
-    font-weight: 900;
+    font-weight: 700;
     text-decoration: none;
 }
 
@@ -2117,7 +2117,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
 .profile-spotlight-content span {
     color: var(--accent);
     font-size: 0.72rem;
-    font-weight: 900;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
 }
@@ -2198,7 +2198,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
     color: var(--accent);
     background: rgba(var(--accent-rgb), 0.1);
     font-size: 0.62rem;
-    font-weight: 950;
+    font-weight: 700;
     letter-spacing: 0.08em;
 }
 
@@ -2251,7 +2251,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
 .profile-badge-info small {
     color: var(--muted-2);
     font-size: 0.72rem;
-    font-weight: 850;
+    font-weight: 600;
 }
 
 .rarity-legendary {
@@ -2341,7 +2341,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
     align-items: center;
     gap: 0.5rem;
     color: var(--text);
-    font-weight: 850;
+    font-weight: 600;
 }
 
 .profile-toggle-card i {
@@ -2662,7 +2662,7 @@ body[data-profile-effect="scanlines"] .profile-effects-layer::before {
     color: var(--accent);
     background: rgba(var(--accent-rgb), 0.12);
     font-size: 0.72rem;
-    font-weight: 900;
+    font-weight: 700;
     text-transform: uppercase;
 }
 
@@ -2709,13 +2709,13 @@ body[data-profile-effect="scanlines"] .profile-effects-layer::before {
     text-overflow: ellipsis;
     white-space: nowrap;
     font-size: 0.86rem;
-    font-weight: 800;
+    font-weight: 600;
 }
 
 .profile-activity-pill small {
     color: var(--muted-2);
     font-size: 0.74rem;
-    font-weight: 800;
+    font-weight: 600;
     white-space: nowrap;
 }
 
@@ -3088,7 +3088,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu button {
     gap: 0.45rem;
     color: var(--muted);
     font-size: 0.78rem;
-    font-weight: 900;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
 }
@@ -3252,7 +3252,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu button {
     max-width: 100%;
     color: var(--text);
     font-size: 0.78rem;
-    font-weight: 850;
+    font-weight: 600;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -3848,7 +3848,7 @@ body[data-profile-button-shape="sharp"] .bio-icon-button {
     align-items: center;
     gap: 0.7rem;
     padding: 0.9rem 1rem;
-    font-weight: 800;
+    font-weight: 600;
 }
 
 .profile-flash.is-success {
@@ -3954,7 +3954,7 @@ body[data-profile-button-shape="sharp"] .bio-icon-button {
 .profile-discord-note a,
 .profile-lanyard-hint {
     color: var(--text);
-    font-weight: 800;
+    font-weight: 600;
 }
 
 .profile-lanyard-hint {
@@ -4465,7 +4465,7 @@ body[data-profile-effect="glass_rain"] .profile-effects-layer::before {
     color: var(--muted);
     background: rgba(255, 255, 255, 0.045);
     font-size: 0.82rem;
-    font-weight: 800;
+    font-weight: 600;
 }
 
 .profile-effect-hint i {
@@ -4694,7 +4694,7 @@ body[data-profile-effect="glass_rain"] .profile-effects-layer::before {
 
 .profile-select-menu strong {
     color: var(--text);
-    font-weight: 950;
+    font-weight: 700;
 }
 
 .profile-select-menu span {
@@ -4704,7 +4704,7 @@ body[data-profile-effect="glass_rain"] .profile-effects-layer::before {
     color: var(--accent);
     background: rgba(var(--accent-rgb), 0.12);
     font-size: 0.7rem;
-    font-weight: 950;
+    font-weight: 700;
     text-align: center;
 }
 
@@ -4874,7 +4874,7 @@ body[data-theme="light"] .profile-select-menu {
 .profile-character-info strong {
     display: block;
     font-size: 0.84rem;
-    font-weight: 900;
+    font-weight: 700;
     letter-spacing: -0.01em;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -4894,7 +4894,7 @@ body[data-theme="light"] .profile-select-menu {
     padding: 0.16rem 0.42rem;
     border-radius: 999px;
     font-size: 0.66rem;
-    font-weight: 950;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     background: rgba(var(--accent-rgb), 0.12);
@@ -4925,7 +4925,7 @@ body[data-theme="light"] .profile-select-menu {
     padding: 0.16rem 0.38rem;
     border-radius: 999px;
     font-size: 0.66rem;
-    font-weight: 950;
+    font-weight: 700;
     color: var(--muted);
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid var(--border);
@@ -5061,7 +5061,7 @@ body[data-theme="light"] .profile-select-menu {
 .profile-character-choice strong {
     display: block;
     font-size: 0.76rem;
-    font-weight: 900;
+    font-weight: 700;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -5072,7 +5072,7 @@ body[data-theme="light"] .profile-select-menu {
     display: inline-block;
     margin-top: 0.22rem;
     font-size: 0.65rem;
-    font-weight: 850;
+    font-weight: 600;
     color: var(--muted-2);
 }
 
@@ -5094,7 +5094,7 @@ body[data-theme="light"] .profile-select-menu {
     margin-top: 0.65rem;
     color: var(--muted-2);
     font-size: 0.82rem;
-    font-weight: 800;
+    font-weight: 600;
 }
 
 .profile-character-hint i {
@@ -5973,7 +5973,7 @@ body[data-profile-effect="sakura_falling"] .profile-effects-layer::before {
     pointer-events: none;
     padding: 0.52rem 0.85rem;
     font-size: 0.78rem;
-    font-weight: 750;
+    font-weight: 600;
     color: var(--profile-text-color, var(--text));
     background: color-mix(in srgb, var(--profile-card-color, var(--card)) 92%, transparent);
     border: 1px solid rgba(var(--accent-rgb), 0.35);
