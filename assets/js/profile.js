@@ -368,13 +368,10 @@
         layer.querySelectorAll('.profile-effect-dot').forEach((dot) => dot.remove());
 
         const particleMap = {
-            soft_particles: 18,
-            stars: 34,
-            digital_noise: 44,
-            glass_rain: 24,
-            aurora: 10,
-            gradient_waves: 12,
-            sakura_falling: 16,
+            soft_particles: 25,
+            stars: 40,
+            glass_rain: 50,
+            sakura_falling: 20,
             cyber_grid: 1
         };
 

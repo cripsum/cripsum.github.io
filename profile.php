@@ -313,14 +313,13 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     }
     ?>
     <style>
-        :root,
         .bio-v2-body {
             --radius-lg: <?php echo $borderRadius; ?>px !important;
             --radius-md: <?php echo round($borderRadius * 0.73); ?>px !important;
             --radius-sm: <?php echo round($borderRadius * 0.47); ?>px !important;
 
             --profile-card-opacity: <?php echo $cardOpacity / 100; ?> !important;
-            --profile-card-bg: color-mix(in srgb, var(--profile-card-color, <?php echo $theme === 'light' ? '#ffffff' : '#080c18'; ?>) calc(var(--profile-card-opacity) * 100%), transparent) !important;
+            --profile-card-bg: color-mix(in srgb, var(--profile-card-color, <?php echo $theme === 'light' ? '#ffffff' : '#080c18'; ?>) <?php echo $cardOpacity; ?>%, transparent) !important;
             --card: var(--profile-card-bg) !important;
             --card-strong: color-mix(in srgb, <?php echo !empty($profile['profile_card_color']) ? $profile['profile_card_color'] : ($theme === 'light' ? '#ffffff' : '#080c18'); ?> <?php echo min(100, $cardOpacity + 20); ?>%, transparent) !important;
 
@@ -328,9 +327,6 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             --profile-border-color: <?php echo profile_h($borderColor); ?> !important;
             <?php endif; ?>--profile-border-width: <?php echo $borderWidth; ?>px !important;
             --profile-font: '<?php echo profile_h($profileFont); ?>', sans-serif !important;
-        }
-
-        .bio-v2-body {
             font-family: var(--profile-font, "Poppins", sans-serif) !important;
         }
     </style>
