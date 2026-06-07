@@ -141,7 +141,7 @@ $cardColor = $profile ? profile_optional_hex_color($profile['profile_card_color'
 $textColor = $profile ? profile_optional_hex_color($profile['profile_text_color'] ?? '') : null;
 $linkStyle = $profile ? profile_allowed_value((string)($profile['profile_link_style'] ?? 'glass'), ['glass', 'solid', 'outline', 'neon'], 'glass') : 'glass';
 $buttonShape = $profile ? profile_allowed_value((string)($profile['profile_button_shape'] ?? 'pill'), ['pill', 'rounded', 'sharp'], 'pill') : 'pill';
-$cardColorCss = $cardColor ?: 'var(--card)';
+$cardColorCss = $cardColor ?: ($theme === 'light' ? '#ffffff' : '#080c18');
 $textColorCss = $textColor ?: 'var(--text)';
 if ($theme === 'auto') $theme = 'dark';
 
@@ -301,7 +301,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         'Rubik' => 'Rubik:ital,wght@0,300..900;1,300..900&display=swap',
         'Bebas Neue' => 'Bebas+Neue&display=swap'
     ];
-    if (array_key_exists($profileFont, $googleFonts)) {
+    if (array_key_exists($profileFont, $googleFonts) && $profileFont !== 'Poppins') {
         echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n";
         echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
         echo '<link href="https://fonts.googleapis.com/css2?family=' . $googleFonts[$profileFont] . '" rel="stylesheet">' . "\n";
@@ -314,7 +314,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         --radius-sm: <?php echo round($borderRadius * 0.47); ?>px !important;
         
         --profile-card-opacity: <?php echo $cardOpacity / 100; ?> !important;
-        --profile-card-bg: color-mix(in srgb, var(--profile-card-color, var(--card)) calc(var(--profile-card-opacity) * 100%), transparent) !important;
+        --profile-card-bg: color-mix(in srgb, var(--profile-card-color, <?php echo $theme === 'light' ? '#ffffff' : '#080c18'; ?>) calc(var(--profile-card-opacity) * 100%), transparent) !important;
         --card: var(--profile-card-bg) !important;
         --card-strong: color-mix(in srgb, <?php echo !empty($profile['profile_card_color']) ? $profile['profile_card_color'] : ($theme === 'light' ? '#ffffff' : '#080c18'); ?> <?php echo min(100, $cardOpacity + 20); ?>%, transparent) !important;
         
