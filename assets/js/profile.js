@@ -706,6 +706,8 @@
         const target = e.target.closest('[title], [data-tooltip]');
         if (!target) return;
         
+        if (target === activeTooltip) return;
+        
         if (target.hasAttribute('title')) {
             const titleVal = target.getAttribute('title');
             if (titleVal && titleVal.trim() !== '') {
@@ -723,8 +725,13 @@
     });
 
     document.addEventListener('mouseout', (e) => {
-        const target = e.target.closest('[data-tooltip]');
-        if (!target || target !== activeTooltip) return;
+        if (!activeTooltip) return;
+        
+        const related = e.relatedTarget;
+        if (related && (related === activeTooltip || activeTooltip.contains(related))) {
+            return;
+        }
+        
         hideTooltip();
     });
 
