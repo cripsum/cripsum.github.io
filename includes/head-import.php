@@ -43,7 +43,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <link rel="icon" href="/img/Susremaster.png" type="image/png" />
         <link rel="shortcut icon" href="/img/Susremaster.png" type="image/png" />
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="/css/style.css?v=27" />
         <link rel="stylesheet" href="/css/style-dark.css?v=23" />
         <link rel="stylesheet" href="/css/navbar-search.css?v=1.2" />

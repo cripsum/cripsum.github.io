@@ -74,7 +74,7 @@ function profile_json_script(string $id, array $data): void
     <link rel="stylesheet" href="/assets/css/profile.css?v=3.9.4">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300..900&family=Roboto:wght@300..900&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Fira+Code:wght@300..700&family=PT+Mono&family=Cinzel:wght@400..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Bebas+Neue&family=Press+Start+2P&family=Bungee&family=Permanent+Marker&family=Creepster&family=Shojumaru&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Inter:wght@300..900&family=Roboto:wght@300..900&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Fira+Code:wght@300..700&family=PT+Mono&family=Cinzel:wght@400..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Bebas+Neue&family=Press+Start+2P&family=Bungee&family=Permanent+Marker&family=Creepster&family=Shojumaru&display=swap" rel="stylesheet">
     <script src="/assets/js/profile.js?v=3.9.4" defer></script>
     <script src="/assets/js/edit-profile.js?v=3.9.4" defer></script>
 </head>
@@ -250,23 +250,34 @@ function profile_json_script(string $id, array $data): void
                     </div>
                     <div class="profile-field-grid two">
                         <label class="profile-field"><span>Font profilo</span><select name="profile_font" id="fontInput">
-                            <?php 
-                             $fonts = [
-                                'Poppins' => 'Poppins (Default)', 'Inter' => 'Inter', 'Roboto' => 'Roboto', 
-                                'Outfit' => 'Outfit', 'Playfair Display' => 'Playfair Display', 'Space Grotesk' => 'Space Grotesk', 
-                                'Syne' => 'Syne', 'Montserrat' => 'Montserrat', 'Fira Code' => 'Fira Code (Monospace)', 
-                                'PT Mono' => 'PT Mono', 'Cinzel' => 'Cinzel (Serif Elegant)', 'Rubik' => 'Rubik', 
-                                'Bebas Neue' => 'Bebas Neue',
-                                'Minecraft' => 'Minecraft (Gaming)', 'Gang of Three' => 'Gang of Three (Kung-Fu Brush)',
-                                'Press Start 2P' => 'Press Start 2P (Retro Retro)', 'Bungee' => 'Bungee (Arcade Heavy)',
-                                'Permanent Marker' => 'Permanent Marker (Graffiti)', 'Creepster' => 'Creepster (Horror)',
-                                'Shojumaru' => 'Shojumaru (Asian Style)'
-                             ];
-                            foreach ($fonts as $fontVal => $fontLabel): ?>
-                                <option value="<?php echo $fontVal; ?>" <?php echo ($profile['profile_font'] ?? 'Poppins') === $fontVal ? 'selected' : ''; ?>><?php echo $fontLabel; ?></option>
-                            <?php endforeach; ?>
-                        </select></label>
-                        
+                                <?php
+                                $fonts = [
+                                    'Poppins' => 'Poppins (Default)',
+                                    'Inter' => 'Inter',
+                                    'Roboto' => 'Roboto',
+                                    'Outfit' => 'Outfit',
+                                    'Playfair Display' => 'Playfair Display',
+                                    'Space Grotesk' => 'Space Grotesk',
+                                    'Syne' => 'Syne',
+                                    'Montserrat' => 'Montserrat',
+                                    'Fira Code' => 'Fira Code (Monospace)',
+                                    'PT Mono' => 'PT Mono',
+                                    'Cinzel' => 'Cinzel (Serif Elegant)',
+                                    'Rubik' => 'Rubik',
+                                    'Bebas Neue' => 'Bebas Neue',
+                                    'Minecraft' => 'Minecraft (Gaming)',
+                                    'Gang of Three' => 'Gang of Three (Kung-Fu Brush)',
+                                    'Press Start 2P' => 'Press Start 2P (Retro Retro)',
+                                    'Bungee' => 'Bungee (Arcade Heavy)',
+                                    'Permanent Marker' => 'Permanent Marker (Graffiti)',
+                                    'Creepster' => 'Creepster (Horror)',
+                                    'Shojumaru' => 'Shojumaru (Asian Style)'
+                                ];
+                                foreach ($fonts as $fontVal => $fontLabel): ?>
+                                    <option value="<?php echo $fontVal; ?>" <?php echo ($profile['profile_font'] ?? 'Poppins') === $fontVal ? 'selected' : ''; ?>><?php echo $fontLabel; ?></option>
+                                <?php endforeach; ?>
+                            </select></label>
+
                         <label class="profile-field"><span>Opacità card</span>
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <input type="range" name="profile_card_opacity" id="cardOpacityInput" min="0" max="100" value="<?php echo (int)($profile['profile_card_opacity'] ?? 68); ?>" style="flex: 1;">
@@ -274,21 +285,21 @@ function profile_json_script(string $id, array $data): void
                             </div>
                             <small>0% per farsi il profilo full trasparente.</small>
                         </label>
-                        
+
                         <label class="profile-field"><span>Raggio angoli card</span>
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <input type="range" name="profile_border_radius" id="borderRadiusInput" min="0" max="40" value="<?php echo (int)($profile['profile_border_radius'] ?? 30); ?>" style="flex: 1;">
                                 <span id="borderRadiusVal" style="font-weight: 700; min-width: 40px; text-align: right;"><?php echo (int)($profile['profile_border_radius'] ?? 30); ?>px</span>
                             </div>
                         </label>
-                        
+
                         <label class="profile-field"><span>Spessore bordo card</span>
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <input type="range" name="profile_border_width" id="borderWidthInput" min="0" max="5" value="<?php echo (int)($profile['profile_border_width'] ?? 1); ?>" style="flex: 1;">
                                 <span id="borderWidthVal" style="font-weight: 700; min-width: 40px; text-align: right;"><?php echo (int)($profile['profile_border_width'] ?? 1); ?>px</span>
                             </div>
                         </label>
-                        
+
                         <label class="profile-field"><span>Colore bordo card</span>
                             <input type="color" name="profile_border_color" id="borderColorInput" value="<?php echo profile_h($profile['profile_border_color'] ?? '#ffffff'); ?>">
                             <small>Ignorato se lo spessore del bordo è 0.</small>
@@ -342,7 +353,7 @@ function profile_json_script(string $id, array $data): void
                             <p>Mostra il tuo stato e la tua attività in tempo reale (giochi, Spotify, ecc.).</p>
                         </div>
                     </div>
-                    
+
                     <label class="profile-field">
                         <span>Discord user ID</span>
                         <input type="text" name="discord_id" id="discordIdInput" maxlength="25" value="<?php echo profile_h($profile['discord_id'] ?? ''); ?>" placeholder="Es. 8239582304530540">

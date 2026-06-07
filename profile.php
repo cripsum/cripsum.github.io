@@ -219,7 +219,7 @@ if (!empty($discordServerInvite)) {
                 $inviteCode = end($parts);
             }
         }
-        
+
         $widgetData = profile_fetch_discord_server_data($inviteCode);
         if ($widgetData) {
             $jsonStr = json_encode($widgetData);
@@ -287,7 +287,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <script src="/assets/js/profile.js?v=3.9.4" defer></script>
     <?php
     $googleFonts = [
-        'Poppins' => 'Poppins:wght@300;400;500;600;700;800&display=swap',
+        'Poppins' => 'Poppins',
         'Inter' => 'Inter:wght@300;400;500;600;700;800&display=swap',
         'Roboto' => 'Roboto:wght@300;400;500;700&display=swap',
         'Outfit' => 'Outfit:wght@300;400;500;600;700;800&display=swap',
@@ -313,26 +313,26 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     }
     ?>
     <style>
-    :root, .bio-v2-body {
-        --radius-lg: <?php echo $borderRadius; ?>px !important;
-        --radius-md: <?php echo round($borderRadius * 0.73); ?>px !important;
-        --radius-sm: <?php echo round($borderRadius * 0.47); ?>px !important;
-        
-        --profile-card-opacity: <?php echo $cardOpacity / 100; ?> !important;
-        --profile-card-bg: color-mix(in srgb, var(--profile-card-color, <?php echo $theme === 'light' ? '#ffffff' : '#080c18'; ?>) calc(var(--profile-card-opacity) * 100%), transparent) !important;
-        --card: var(--profile-card-bg) !important;
-        --card-strong: color-mix(in srgb, <?php echo !empty($profile['profile_card_color']) ? $profile['profile_card_color'] : ($theme === 'light' ? '#ffffff' : '#080c18'); ?> <?php echo min(100, $cardOpacity + 20); ?>%, transparent) !important;
-        
-        <?php if ($borderColor): ?>
-        --border: <?php echo profile_h($borderColor); ?> !important;
-        --profile-border-color: <?php echo profile_h($borderColor); ?> !important;
-        <?php endif; ?>
-        --profile-border-width: <?php echo $borderWidth; ?>px !important;
-        --profile-font: '<?php echo profile_h($profileFont); ?>', sans-serif !important;
-    }
-    .bio-v2-body {
-        font-family: var(--profile-font, "Poppins", sans-serif) !important;
-    }
+        :root,
+        .bio-v2-body {
+            --radius-lg: <?php echo $borderRadius; ?>px !important;
+            --radius-md: <?php echo round($borderRadius * 0.73); ?>px !important;
+            --radius-sm: <?php echo round($borderRadius * 0.47); ?>px !important;
+
+            --profile-card-opacity: <?php echo $cardOpacity / 100; ?> !important;
+            --profile-card-bg: color-mix(in srgb, var(--profile-card-color, <?php echo $theme === 'light' ? '#ffffff' : '#080c18'; ?>) calc(var(--profile-card-opacity) * 100%), transparent) !important;
+            --card: var(--profile-card-bg) !important;
+            --card-strong: color-mix(in srgb, <?php echo !empty($profile['profile_card_color']) ? $profile['profile_card_color'] : ($theme === 'light' ? '#ffffff' : '#080c18'); ?> <?php echo min(100, $cardOpacity + 20); ?>%, transparent) !important;
+
+            <?php if ($borderColor): ?>--border: <?php echo profile_h($borderColor); ?> !important;
+            --profile-border-color: <?php echo profile_h($borderColor); ?> !important;
+            <?php endif; ?>--profile-border-width: <?php echo $borderWidth; ?>px !important;
+            --profile-font: '<?php echo profile_h($profileFont); ?>', sans-serif !important;
+        }
+
+        .bio-v2-body {
+            font-family: var(--profile-font, "Poppins", sans-serif) !important;
+        }
     </style>
 </head>
 
@@ -430,7 +430,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                 $renderMiniBadgesHtml = '';
                 if ($visibleBadges && $showMiniBadges) {
                     ob_start();
-                    ?>
+                ?>
                     <div class="profile-mini-badges badges-pos-<?php echo profile_h($badgesPosition); ?>" aria-label="Badge">
                         <?php foreach (array_slice($visibleBadges, 0, 4) as $badge): ?>
                             <?php
@@ -463,7 +463,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                             </span>
                         <?php endforeach; ?>
                     </div>
-                    <?php
+                <?php
                     $renderMiniBadgesHtml = ob_get_clean();
                 }
                 ?>
@@ -505,29 +505,29 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
-                <?php endif; ?>                <?php if ($showDiscord && $discordId): ?>
+                <?php endif; ?> <?php if ($showDiscord && $discordId): ?>
                     <div class="profile-discord-left js-reveal" aria-label="Attività Discord">
                         <div class="profile-discord-left__title">
                             <span><i class="fab fa-discord"></i>Discord</span>
                         </div>
                         <div class="discord-box" id="discordBox">
                             <?php $discordProfileId = $discordId;
-                            require __DIR__ . '/includes/discord_status.php'; ?>
+                                    require __DIR__ . '/includes/discord_status.php'; ?>
                         </div>
                     </div>
                 <?php endif; ?>
 
                 <?php if ($showDiscord && !empty($widgetData)): ?>
-                    <?php 
+                    <?php
                     $discordServerName = $widgetData['server_name'] ?? '';
                     $discordServerIcon = $widgetData['icon_hash'] ?? null;
                     $discordGuildId = $widgetData['guild_id'] ?? '';
                     $discordOnline = (int)($widgetData['online_members'] ?? 0);
                     $discordTotal = (int)($widgetData['total_members'] ?? 0);
                     $discordCode = $widgetData['code'] ?? '';
-                    
+
                     $discordJoinUrl = "https://discord.gg/" . rawurlencode($discordCode);
-                    
+
                     $discordIconUrl = null;
                     if ($discordServerIcon && $discordGuildId) {
                         $format = strpos($discordServerIcon, 'a_') === 0 ? 'gif' : 'png';
@@ -548,7 +548,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                             <i class="fab fa-discord"></i>
                                         </div>
                                     <?php endif; ?>
-                                    
+
                                     <div class="profile-discord-server-info">
                                         <span class="profile-discord-server-label"><?php echo (isset($lang) && $lang === 'en') ? 'DISCORD SERVER' : 'SERVER DISCORD'; ?></span>
                                         <strong class="profile-discord-server-name"><?php echo htmlspecialchars($discordServerName, ENT_QUOTES, 'UTF-8'); ?></strong>
