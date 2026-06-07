@@ -9,7 +9,19 @@
         <link rel="shortcut icon" href="img/Susremaster.png" type="image/png" />
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta http-equiv="refresh" content="0;url=https://cripsum.com/en/home" />
+        <noscript>
+            <meta http-equiv="refresh" content="0;url=https://cripsum.com/en/home" />
+        </noscript>
     </head>
-    <body></body>
+    <body>
+        <script>
+            (function () {
+                var lang = (navigator.language || navigator.userLanguage || "en").toLowerCase();
+                var isItalian = lang === "it" || lang.startsWith("it-");
+                window.location.replace(
+                    "https://cripsum.com/" + (isItalian ? "it" : "en") + "/home"
+                );
+            })();
+        </script>
+    </body>
 </html>
