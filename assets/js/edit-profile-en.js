@@ -325,6 +325,9 @@
         document.body.dataset.profileButtonShape = buttonShapeInput ? buttonShapeInput.value : 'pill';
         document.body.dataset.theme = themeInput.value === 'auto' ? 'dark' : themeInput.value;
         document.body.dataset.profileEffect = profileEffectInput ? profileEffectInput.value : 'none';
+        if (typeof window.initProfileEffects === 'function') {
+            window.initProfileEffects();
+        }
         if (layoutInput) {
             document.body.dataset.profileLayout = layoutInput.value;
         }

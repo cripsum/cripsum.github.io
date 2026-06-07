@@ -391,6 +391,7 @@
         }
         layer.appendChild(fragment);
     };
+    window.initProfileEffects = initProfileEffects;
 
     const persistDetailsState = () => {
         const details = document.querySelectorAll('.bio-details');

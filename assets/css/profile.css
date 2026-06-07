@@ -2712,7 +2712,7 @@ body.bio-v2-body {
 }
 
 .bio-v2-body > .profile-effects-layer {
-    z-index: -2 !important;
+    z-index: 1 !important;
 }
 
 .bio-v2-body > main,
@@ -4180,7 +4180,7 @@ body[data-profile-effect="cursor_glow"] .profile-effects-layer::before {
     height: 24rem;
     border-radius: 999px;
     transform: translate3d(var(--cursor-x, 50vw), var(--cursor-y, 50vh), 0) translate(-50%, -50%);
-    background: radial-gradient(circle, color-mix(in srgb, var(--accent) 18%, transparent) 0%, color-mix(in srgb, var(--accent-2, #8b5cf6) 6%, transparent) 45%, transparent 70%) !important;
+    background: radial-gradient(circle, color-mix(in srgb, var(--accent) 26%, transparent) 0%, color-mix(in srgb, var(--accent-2, #8b5cf6) 12%, transparent) 45%, transparent 70%) !important;
     filter: blur(20px) !important;
     transition: transform 100ms cubic-bezier(0.1, 0.8, 0.3, 1);
     will-change: transform;
@@ -4197,7 +4197,7 @@ body[data-profile-effect="spotlight"] .profile-effects-layer::before {
     height: 38rem;
     border-radius: 999px;
     transform: translate3d(var(--cursor-x, 50vw), var(--cursor-y, 50vh), 0) translate(-50%, -50%);
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, color-mix(in srgb, var(--accent) 10%, transparent) 40%, transparent 70%) !important;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, color-mix(in srgb, var(--accent) 18%, transparent) 40%, transparent 70%) !important;
     mix-blend-mode: screen !important;
     filter: blur(15px) !important;
     transition: transform 80ms cubic-bezier(0.1, 0.8, 0.3, 1);
@@ -4246,9 +4246,12 @@ body[data-profile-effect="spotlight"] .profile-effects-layer::before {
 body[data-profile-effect="ambient"] .profile-effects-layer::before {
     content: "";
     position: absolute;
-    inset: -15%;
-    background: radial-gradient(circle at 10% 20%, color-mix(in srgb, var(--accent) 22%, transparent) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, color-mix(in srgb, var(--accent-2, #8b5cf6) 20%, transparent) 0%, transparent 45%) !important;
+    width: 130% !important;
+    height: 130% !important;
+    left: -15% !important;
+    top: -15% !important;
+    background: radial-gradient(circle at 10% 20%, color-mix(in srgb, var(--accent) 35%, transparent) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, color-mix(in srgb, var(--accent-2, #8b5cf6) 30%, transparent) 0%, transparent 45%) !important;
     filter: blur(50px) !important;
     animation: premiumAmbient 8s ease-in-out infinite alternate !important;
     z-index: 1;
@@ -4256,9 +4259,12 @@ body[data-profile-effect="ambient"] .profile-effects-layer::before {
 body[data-profile-effect="ambient"] .profile-effects-layer::after {
     content: "";
     position: absolute;
-    inset: -10%;
-    background: radial-gradient(circle at 75% 25%, color-mix(in srgb, var(--accent) 15%, transparent) 0%, transparent 35%),
-                radial-gradient(circle at 25% 75%, color-mix(in srgb, var(--accent-2, #8b5cf6) 15%, transparent) 0%, transparent 40%) !important;
+    width: 120% !important;
+    height: 120% !important;
+    left: -10% !important;
+    top: -10% !important;
+    background: radial-gradient(circle at 75% 25%, color-mix(in srgb, var(--accent) 30%, transparent) 0%, transparent 35%),
+                radial-gradient(circle at 25% 75%, color-mix(in srgb, var(--accent-2, #8b5cf6) 25%, transparent) 0%, transparent 40%) !important;
     filter: blur(60px) !important;
     animation: premiumAmbient 12s ease-in-out infinite alternate-reverse !important;
     z-index: 1;
@@ -4272,12 +4278,15 @@ body[data-profile-effect="ambient"] .profile-effects-layer::after {
 body[data-profile-effect="aurora"] .profile-effects-layer::before {
     content: "";
     position: absolute;
-    inset: -30%;
+    width: 160% !important;
+    height: 160% !important;
+    left: -30% !important;
+    top: -30% !important;
     background: linear-gradient(135deg, 
-        color-mix(in srgb, var(--accent) 18%, transparent),
-        color-mix(in srgb, var(--accent-2, #8b5cf6) 15%, transparent),
-        color-mix(in srgb, var(--accent) 10%, transparent),
-        color-mix(in srgb, var(--accent-2, #8b5cf6) 18%, transparent)
+        color-mix(in srgb, var(--accent) 35%, transparent),
+        color-mix(in srgb, var(--accent-2, #8b5cf6) 30%, transparent),
+        color-mix(in srgb, var(--accent) 25%, transparent),
+        color-mix(in srgb, var(--accent-2, #8b5cf6) 32%, transparent)
     ) !important;
     background-size: 400% 400% !important;
     filter: blur(40px) saturate(1.4) !important;
@@ -4294,9 +4303,12 @@ body[data-profile-effect="aurora"] .profile-effects-layer::before {
 body[data-profile-effect="gradient_waves"] .profile-effects-layer::before {
     content: "";
     position: absolute;
-    inset: -20%;
-    background: radial-gradient(ellipse at 50% 100%, color-mix(in srgb, var(--accent) 20%, transparent) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--accent-2, #8b5cf6) 18%, transparent) 0%, transparent 50%) !important;
+    width: 140% !important;
+    height: 140% !important;
+    left: -20% !important;
+    top: -20% !important;
+    background: radial-gradient(ellipse at 50% 100%, color-mix(in srgb, var(--accent) 38%, transparent) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--accent-2, #8b5cf6) 32%, transparent) 0%, transparent 50%) !important;
     filter: blur(30px) !important;
     animation: premiumGradientWaves 14s ease-in-out infinite alternate !important;
     z-index: 1;
