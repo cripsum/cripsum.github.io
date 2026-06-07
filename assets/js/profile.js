@@ -632,3 +632,102 @@
         });
     });
 })();
+
+/* Premium Custom Tooltips System */
+(() => {
+    'use strict';
+
+    let activeTooltip = null;
+    let tooltipEl = null;
+
+    const createTooltip = () => {
+        if (tooltipEl) return tooltipEl;
+        tooltipEl = document.createElement('div');
+        tooltipEl.className = 'profile-custom-tooltip';
+        tooltipEl.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(tooltipEl);
+        return tooltipEl;
+    };
+
+    const showTooltip = (target, text) => {
+        const tooltip = createTooltip();
+        tooltip.textContent = text;
+        
+        tooltip.classList.remove('is-visible', 'pos-top', 'pos-bottom');
+        
+        // Position
+        const targetRect = target.getBoundingClientRect();
+        
+        // Temporarily display to calculate dimensions
+        tooltip.style.left = '0px';
+        tooltip.style.top = '0px';
+        tooltip.style.display = 'block';
+        
+        const tWidth = tooltip.offsetWidth;
+        const tHeight = tooltip.offsetHeight;
+        
+        // Position horizontally (center relative to target)
+        let left = targetRect.left + window.scrollX + (targetRect.width - tWidth) / 2;
+        // Keep within viewport horizontal bounds
+        const padding = 8;
+        if (left < padding) left = padding;
+        if (left + tWidth > window.innerWidth - padding) {
+            left = window.innerWidth - tWidth - padding;
+        }
+        
+        // Position vertically: try above first
+        let top = targetRect.top + window.scrollY - tHeight - 8;
+        let posClass = 'pos-top';
+        
+        // If it goes off-screen vertically, put it below
+        if (targetRect.top - tHeight - 8 < 0) {
+            top = targetRect.bottom + window.scrollY + 8;
+            posClass = 'pos-bottom';
+        }
+        
+        tooltip.style.left = `${left}px`;
+        tooltip.style.top = `${top}px`;
+        tooltip.classList.add(posClass);
+        
+        // Trigger reflow to animate
+        void tooltip.offsetWidth;
+        tooltip.classList.add('is-visible');
+        activeTooltip = target;
+    };
+
+    const hideTooltip = () => {
+        if (tooltipEl) {
+            tooltipEl.classList.remove('is-visible');
+        }
+        activeTooltip = null;
+    };
+
+    document.addEventListener('mouseover', (e) => {
+        const target = e.target.closest('[title], [data-tooltip]');
+        if (!target) return;
+        
+        if (target.hasAttribute('title')) {
+            const titleVal = target.getAttribute('title');
+            if (titleVal && titleVal.trim() !== '') {
+                target.setAttribute('data-tooltip', titleVal);
+                target.removeAttribute('title');
+            } else {
+                return;
+            }
+        }
+        
+        const tooltipText = target.getAttribute('data-tooltip');
+        if (!tooltipText) return;
+        
+        showTooltip(target, tooltipText);
+    });
+
+    document.addEventListener('mouseout', (e) => {
+        const target = e.target.closest('[data-tooltip]');
+        if (!target || target !== activeTooltip) return;
+        hideTooltip();
+    });
+
+    document.addEventListener('click', hideTooltip);
+    window.addEventListener('scroll', hideTooltip, { passive: true });
+})();

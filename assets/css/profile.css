@@ -5932,6 +5932,64 @@ body[data-profile-effect="sakura_falling"] .profile-effects-layer::before {
     cursor: not-allowed !important;
 }
 
+/* Premium Custom Tooltips System */
+.profile-custom-tooltip {
+    position: absolute;
+    z-index: 19000;
+    pointer-events: none;
+    padding: 0.52rem 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 750;
+    color: var(--profile-text-color, var(--text));
+    background: color-mix(in srgb, var(--profile-card-color, var(--card)) 92%, transparent);
+    border: 1px solid rgba(var(--accent-rgb), 0.35);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.42), 0 0 12px rgba(var(--accent-rgb), 0.16);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    opacity: 0;
+    transform: translateY(5px) scale(0.96);
+    transition: opacity 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+    white-space: nowrap;
+    text-align: center;
+}
+
+body[data-theme="light"] .profile-custom-tooltip {
+    background: color-mix(in srgb, var(--profile-card-color, #ffffff) 94%, transparent);
+    border-color: rgba(var(--accent-rgb), 0.25);
+    box-shadow: 0 10px 25px rgba(17, 24, 39, 0.12), 0 0 12px rgba(var(--accent-rgb), 0.1);
+}
+
+.profile-custom-tooltip.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Tooltip Arrow */
+.profile-custom-tooltip::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+.profile-custom-tooltip.pos-top::after {
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px 6px 0 6px;
+    border-color: rgba(var(--accent-rgb), 0.35) transparent transparent transparent;
+}
+
+.profile-custom-tooltip.pos-bottom::after {
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 0 6px 6px 6px;
+    border-color: transparent transparent rgba(var(--accent-rgb), 0.35) transparent;
+}
+
 
 
 
