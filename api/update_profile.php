@@ -44,6 +44,19 @@ $cardColorDb = profile_optional_hex_color($_POST['profile_card_color'] ?? '');
 $textColorDb = profile_optional_hex_color($_POST['profile_text_color'] ?? '');
 $linkStyle = profile_allowed_value((string)($_POST['profile_link_style'] ?? 'glass'), ['glass', 'solid', 'outline', 'neon'], 'glass');
 $buttonShape = profile_allowed_value((string)($_POST['profile_button_shape'] ?? 'pill'), ['pill', 'rounded', 'sharp'], 'pill');
+$font = profile_allowed_value((string)($_POST['profile_font'] ?? 'Poppins'), [
+    'Poppins', 'Inter', 'Roboto', 'Outfit', 'Playfair Display', 
+    'Space Grotesk', 'Syne', 'Montserrat', 'Fira Code', 'PT Mono', 
+    'Cinzel', 'Rubik', 'Bebas Neue'
+], 'Poppins');
+$borderRadius = (int)($_POST['profile_border_radius'] ?? 30);
+if ($borderRadius < 0 || $borderRadius > 40) $borderRadius = 30;
+$cardOpacity = (int)($_POST['profile_card_opacity'] ?? 68);
+if ($cardOpacity < 0 || $cardOpacity > 100) $cardOpacity = 68;
+$borderColorDb = profile_optional_hex_color($_POST['profile_border_color'] ?? '');
+$borderWidth = (int)($_POST['profile_border_width'] ?? 1);
+if ($borderWidth < 0 || $borderWidth > 5) $borderWidth = 1;
+
 $theme = profile_allowed_value((string)($_POST['profile_theme'] ?? 'dark'), ['dark', 'light', 'auto'], 'dark');
 $layout = profile_allowed_value((string)($_POST['profile_layout'] ?? 'standard'), ['standard', 'compact', 'showcase'], 'standard');
 $visibility = profile_allowed_value((string)($_POST['profile_visibility'] ?? 'public'), ['public', 'logged_in', 'private'], 'public');
@@ -208,11 +221,12 @@ try {
             profile_show_stats = ?, profile_show_socials = ?, profile_show_links = ?, profile_show_projects = ?, profile_show_contents = ?, profile_show_badges = ?, profile_show_activity = ?, profile_show_discord = ?, profile_show_audio_player = ?, avatar_ring_enabled = ?, profile_show_characters = ?,
             profile_enter_text = ?, profile_click_to_enter = ?, profile_socials_style = ?, profile_show_embeds = ?, profile_sections_order = ?, profile_badges_display = ?,
             profile_badges_position = ?, discord_server_invite = ?, discord_server_cache = ?, discord_server_cache_time = ?,
+            profile_font = ?, profile_border_radius = ?, profile_card_opacity = ?, profile_border_color = ?, profile_border_width = ?,
             profile_updated_at = NOW()
         WHERE id = ?
     ");
     $stmt->bind_param(
-        'sssssssssssssiisssssssiiiiiiiiiiisisisssssii',
+        'sssssssssssssiisssssssiiiiiiiiiiisisisssssiisiisii',
         $username,
         $displayNameDb,
         $bioDb,
@@ -256,6 +270,11 @@ try {
         $discordServerInvite,
         $discordServerCache,
         $discordServerCacheTime,
+        $font,
+        $borderRadius,
+        $cardOpacity,
+        $borderColorDb,
+        $borderWidth,
         $targetUserId
     );
     if (!$stmt->execute()) throw new RuntimeException('Error updating profile.');

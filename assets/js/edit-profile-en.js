@@ -241,6 +241,42 @@
     const clickToEnterInput = $('#clickToEnterInput');
     const enterTextInput = $('#enterTextInput');
 
+    const fontInput = $('#fontInput');
+    const borderRadiusInput = $('#borderRadiusInput');
+    const cardOpacityInput = $('#cardOpacityInput');
+    const borderColorInput = $('#borderColorInput');
+    const borderWidthInput = $('#borderWidthInput');
+
+    const borderRadiusVal = $('#borderRadiusVal');
+    const cardOpacityVal = $('#cardOpacityVal');
+    const borderWidthVal = $('#borderWidthVal');
+
+    const loadedFonts = new Set();
+    function loadGoogleFontPreview(fontName) {
+        if (!fontName || loadedFonts.has(fontName)) return;
+        loadedFonts.add(fontName);
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontName)}:wght@300;400;500;600;700;800&display=swap`;
+        document.head.appendChild(link);
+    }
+
+    if (borderRadiusInput && borderRadiusVal) {
+        borderRadiusInput.addEventListener('input', () => {
+            borderRadiusVal.textContent = borderRadiusInput.value + 'px';
+        });
+    }
+    if (cardOpacityInput && cardOpacityVal) {
+        cardOpacityInput.addEventListener('input', () => {
+            cardOpacityVal.textContent = cardOpacityInput.value + '%';
+        });
+    }
+    if (borderWidthInput && borderWidthVal) {
+        borderWidthInput.addEventListener('input', () => {
+            borderWidthVal.textContent = borderWidthInput.value + 'px';
+        });
+    }
+
     function updatePreview() {
         const name = displayNameInput.value.trim() || usernameInput.value.trim() || 'User';
         $('#previewName').textContent = name;
@@ -255,8 +291,34 @@
         document.documentElement.style.setProperty('--accent-rgb', hexToRgbLocal(accentInput.value));
         document.documentElement.style.setProperty('--profile-accent', accentInput.value);
         document.documentElement.style.setProperty('--accent-2', secondaryColorInput ? secondaryColorInput.value : accentInput.value);
-        document.documentElement.style.setProperty('--profile-card-color', cardColorInput ? cardColorInput.value : 'var(--card)');
-        document.documentElement.style.setProperty('--profile-text-color', textColorInput ? textColorInput.value : 'var(--text)');
+        
+        // Custom card opacity, color mix and border variables preview
+        const cardCol = cardColorInput ? cardColorInput.value : '#080c18';
+        const opacityVal = cardOpacityInput ? parseInt(cardOpacityInput.value, 10) : 68;
+        const radiusVal = borderRadiusInput ? parseInt(borderRadiusInput.value, 10) : 30;
+        const borderWVal = borderWidthInput ? parseInt(borderWidthInput.value, 10) : 1;
+        
+        document.documentElement.style.setProperty('--radius-lg', `${radiusVal}px`);
+        document.documentElement.style.setProperty('--radius-md', `${Math.round(radiusVal * 0.73)}px`);
+        document.documentElement.style.setProperty('--radius-sm', `${Math.round(radiusVal * 0.47)}px`);
+        
+        document.documentElement.style.setProperty('--profile-card-opacity', opacityVal / 100);
+        document.documentElement.style.setProperty('--card', `color-mix(in srgb, ${cardCol} ${opacityVal}%, transparent)`);
+        document.documentElement.style.setProperty('--profile-card-color', `color-mix(in srgb, ${cardCol} ${opacityVal}%, transparent)`);
+        document.documentElement.style.setProperty('--card-strong', `color-mix(in srgb, ${cardCol} ${Math.min(100, opacityVal + 20)}%, transparent)`);
+        
+        document.documentElement.style.setProperty('--profile-border-width', `${borderWVal}px`);
+        if (borderColorInput && borderColorInput.value) {
+            document.documentElement.style.setProperty('--border', borderColorInput.value);
+            document.documentElement.style.setProperty('--profile-border-color', borderColorInput.value);
+        }
+        
+        if (fontInput && fontInput.value) {
+            loadGoogleFontPreview(fontInput.value);
+            document.documentElement.style.setProperty('--profile-font', `'${fontInput.value}', sans-serif`);
+            document.body.style.fontFamily = `var(--profile-font)`;
+        }
+
         document.documentElement.style.setProperty('--profile-ring', ringColorInput ? ringColorInput.value : accentInput.value);
         document.body.dataset.accent = accentInput.value;
         document.body.dataset.profileLinkStyle = linkStyleInput ? linkStyleInput.value : 'glass';
@@ -282,7 +344,7 @@
         }
     }
 
-    [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, layoutInput, clickToEnterInput, enterTextInput].filter(Boolean).forEach((input) => {
+    [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, layoutInput, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, borderColorInput, borderWidthInput].filter(Boolean).forEach((input) => {
         input.addEventListener('input', updatePreview);
         input.addEventListener('change', updatePreview);
     });

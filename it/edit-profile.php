@@ -71,9 +71,9 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Modifica profilo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=3.8.1">
-    <script src="/assets/js/profile.js?v=3.8.1" defer></script>
-    <script src="/assets/js/edit-profile.js?v=3.8.1" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=3.9.0">
+    <script src="/assets/js/profile.js?v=3.9.0" defer></script>
+    <script src="/assets/js/edit-profile.js?v=3.9.0" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" style="--profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColor ?: 'var(--card)'); ?>; --profile-text-color: <?php echo profile_h($textColor ?: 'var(--text)'); ?>;">
@@ -145,6 +145,7 @@ function profile_json_script(string $id, array $data): void
             <section class="bio-card profile-edit-panel js-reveal">
                 <div class="profile-editor-tabs" role="tablist">
                     <button type="button" class="is-active" data-edit-tab="identity"><i class="fas fa-id-card"></i>Identità</button>
+                    <button type="button" data-edit-tab="design"><i class="fas fa-palette"></i>Stile</button>
                     <button type="button" data-edit-tab="discord"><i class="fab fa-discord"></i>Discord</button>
                     <button type="button" data-edit-tab="links"><i class="fas fa-link"></i>Link</button>
                     <button type="button" data-edit-tab="embeds"><i class="fas fa-share-square"></i>Embed</button>
@@ -177,31 +178,6 @@ function profile_json_script(string $id, array $data): void
                         <label class="profile-field"><span>Sfondo profilo</span><input type="file" name="banner" id="bannerInput" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"><small>Max 12MB. Foto, GIF o video. Cambia lo sfondo della pagina.</small></label>
                     </div>
 
-                    <div class="profile-field-grid three">
-                        <label class="profile-field"><span>Accent principale</span><input type="color" name="accent_color" id="accentInput" value="<?php echo profile_h($accent); ?>"></label>
-                        <label class="profile-field"><span>Accent secondario</span><input type="color" name="profile_secondary_color" id="secondaryColorInput" value="<?php echo profile_h($secondaryColor); ?>"></label>
-                        <label class="profile-field"><span>Tema</span><select name="profile_theme" id="themeInput"><?php foreach (['dark' => 'Scuro', 'light' => 'Chiaro', 'auto' => 'Auto'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_theme'] ?? 'dark') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
-                        <label class="profile-field"><span>Layout</span><select name="profile_layout" id="layoutInput"><?php foreach (['standard' => 'Standard', 'compact' => 'Compatto', 'showcase' => 'Showcase', 'clean' => 'Clean (e-z.bio)'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_layout'] ?? 'standard') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
-                        <label class="profile-field"><span>Colore card</span><input type="color" name="profile_card_color" id="cardColorInput" value="<?php echo profile_h($cardColor ?: '#080c18'); ?>"><small>Lascia il default se vuoi il glass classico.</small></label>
-                        <label class="profile-field"><span>Colore testo</span><input type="color" name="profile_text_color" id="textColorInput" value="<?php echo profile_h($textColor ?: ($theme === 'light' ? '#111827' : '#f7f8ff')); ?>"></label>
-                        <label class="profile-field"><span>Stile link</span><select name="profile_link_style" id="linkStyleInput"><?php foreach (['glass' => 'Glass', 'solid' => 'Pieno', 'outline' => 'Outline', 'neon' => 'Neon'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo $linkStyle === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
-                        <label class="profile-field"><span>Forma bottoni</span><select name="profile_button_shape" id="buttonShapeInput"><?php foreach (['pill' => 'Pill', 'rounded' => 'Rounded', 'sharp' => 'Squadrato'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo $buttonShape === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
-                        <label class="profile-field"><span>Stile Social</span><select name="profile_socials_style" id="socialsStyleInput"><?php foreach (['cards' => 'Card grandi (2x riga)', 'icons' => 'Solo icone clean'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_socials_style'] ?? 'cards') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
-                    </div>
-
-                    <div class="profile-presets-block profile-mt">
-                        <span><i class="fas fa-palette"></i> Palette Colore Preset</span>
-                        <div class="profile-presets-grid">
-                            <button type="button" class="profile-preset-btn" data-accent="#0f5bff" data-secondary="#8b5cf6" data-card="#080c18" data-text="#f7f8ff" style="--btn-accent: #0f5bff; --btn-secondary: #8b5cf6;" title="Default Cripsum"></button>
-                            <button type="button" class="profile-preset-btn" data-accent="#ff007f" data-secondary="#7f00ff" data-card="#0a0512" data-text="#ffebf5" style="--btn-accent: #ff007f; --btn-secondary: #7f00ff;" title="Cyberpunk"></button>
-                            <button type="button" class="profile-preset-btn" data-accent="#ff6b6b" data-secondary="#feca57" data-card="#1a0f0f" data-text="#fff5f5" style="--btn-accent: #ff6b6b; --btn-secondary: #feca57;" title="Sunset Glow"></button>
-                            <button type="button" class="profile-preset-btn" data-accent="#10b981" data-secondary="#3b82f6" data-card="#040d1a" data-text="#ecfdf5" style="--btn-accent: #10b981; --btn-secondary: #3b82f6;" title="Emerald Ocean"></button>
-                            <button type="button" class="profile-preset-btn" data-accent="#ffffff" data-secondary="#888888" data-card="#121212" data-text="#ffffff" style="--btn-accent: #ffffff; --btn-secondary: #888888;" title="Monochrome Clean"></button>
-                            <button type="button" class="profile-preset-btn" data-accent="#ff758c" data-secondary="#ff7eb3" data-card="#1f1015" data-text="#fff0f5" style="--btn-accent: #ff758c; --btn-secondary: #ff7eb3;" title="Cherry Blossom"></button>
-                            <button type="button" class="profile-preset-btn" data-accent="#a855f7" data-secondary="#ec4899" data-card="#150b24" data-text="#faf5ff" style="--btn-accent: #a855f7; --btn-secondary: #ec4899;" title="Purple Orchid"></button>
-                        </div>
-                    </div>
-
                     <label class="profile-field"><span>Privacy profilo</span><select name="profile_visibility" id="visibilityInput"><?php foreach (['public' => 'Pubblico', 'logged_in' => 'Solo utenti loggati', 'private' => 'Privato'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_visibility'] ?? 'public') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
 
                     <div class="bio-section-heading profile-mt">
@@ -228,6 +204,88 @@ function profile_json_script(string $id, array $data): void
                     <div class="profile-field-grid two">
                         <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_click_to_enter" value="0"><input type="checkbox" name="profile_click_to_enter" value="1" <?php echo (int)($profile['profile_click_to_enter'] ?? 0) === 1 ? 'checked' : ''; ?> id="clickToEnterInput"><span><i class="fas fa-hand-pointer"></i>Abilita Click to Enter</span></label>
                         <label class="profile-field"><span>Testo bottone d'ingresso</span><input type="text" name="profile_enter_text" id="enterTextInput" maxlength="80" value="<?php echo profile_h($profile['profile_enter_text'] ?? ''); ?>" placeholder="Es. Click to Enter / Entra"></label>
+                    </div>
+                </div>
+
+                <div class="profile-edit-section" data-edit-section="design">
+                    <div class="bio-section-heading">
+                        <div><span><i class="fas fa-palette"></i> Stile e Design</span>
+                            <p>Personalizza l'aspetto visivo del tuo profilo, inclusi colori, font, bordi e trasparenze.</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-presets-block">
+                        <span><i class="fas fa-palette"></i> Palette Colore Preset</span>
+                        <div class="profile-presets-grid">
+                            <button type="button" class="profile-preset-btn" data-accent="#0f5bff" data-secondary="#8b5cf6" data-card="#080c18" data-text="#f7f8ff" style="--btn-accent: #0f5bff; --btn-secondary: #8b5cf6;" title="Default Cripsum"></button>
+                            <button type="button" class="profile-preset-btn" data-accent="#ff007f" data-secondary="#7f00ff" data-card="#0a0512" data-text="#ffebf5" style="--btn-accent: #ff007f; --btn-secondary: #7f00ff;" title="Cyberpunk"></button>
+                            <button type="button" class="profile-preset-btn" data-accent="#ff6b6b" data-secondary="#feca57" data-card="#1a0f0f" data-text="#fff5f5" style="--btn-accent: #ff6b6b; --btn-secondary: #feca57;" title="Sunset Glow"></button>
+                            <button type="button" class="profile-preset-btn" data-accent="#10b981" data-secondary="#3b82f6" data-card="#040d1a" data-text="#ecfdf5" style="--btn-accent: #10b981; --btn-secondary: #3b82f6;" title="Emerald Ocean"></button>
+                            <button type="button" class="profile-preset-btn" data-accent="#ffffff" data-secondary="#888888" data-card="#121212" data-text="#ffffff" style="--btn-accent: #ffffff; --btn-secondary: #888888;" title="Monochrome Clean"></button>
+                            <button type="button" class="profile-preset-btn" data-accent="#ff758c" data-secondary="#ff7eb3" data-card="#1f1015" data-text="#fff0f5" style="--btn-accent: #ff758c; --btn-secondary: #ff7eb3;" title="Cherry Blossom"></button>
+                            <button type="button" class="profile-preset-btn" data-accent="#a855f7" data-secondary="#ec4899" data-card="#150b24" data-text="#faf5ff" style="--btn-accent: #a855f7; --btn-secondary: #ec4899;" title="Purple Orchid"></button>
+                        </div>
+                    </div>
+
+                    <div class="bio-section-heading profile-mt">
+                        <div><span><i class="fas fa-sliders"></i> Opzioni Layout e Colori</span></div>
+                    </div>
+                    <div class="profile-field-grid three">
+                        <label class="profile-field"><span>Accent principale</span><input type="color" name="accent_color" id="accentInput" value="<?php echo profile_h($accent); ?>"></label>
+                        <label class="profile-field"><span>Accent secondario</span><input type="color" name="profile_secondary_color" id="secondaryColorInput" value="<?php echo profile_h($secondaryColor); ?>"></label>
+                        <label class="profile-field"><span>Tema</span><select name="profile_theme" id="themeInput"><?php foreach (['dark' => 'Scuro', 'light' => 'Chiaro', 'auto' => 'Auto'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_theme'] ?? 'dark') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
+                        <label class="profile-field"><span>Layout</span><select name="profile_layout" id="layoutInput"><?php foreach (['standard' => 'Standard', 'compact' => 'Compatto', 'showcase' => 'Showcase', 'clean' => 'Clean (e-z.bio)'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_layout'] ?? 'standard') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
+                        <label class="profile-field"><span>Colore card</span><input type="color" name="profile_card_color" id="cardColorInput" value="<?php echo profile_h($cardColor ?: '#080c18'); ?>"><small>Lascia il default se vuoi il glass classico.</small></label>
+                        <label class="profile-field"><span>Colore testo</span><input type="color" name="profile_text_color" id="textColorInput" value="<?php echo profile_h($textColor ?: ($theme === 'light' ? '#111827' : '#f7f8ff')); ?>"></label>
+                        <label class="profile-field"><span>Stile link</span><select name="profile_link_style" id="linkStyleInput"><?php foreach (['glass' => 'Glass', 'solid' => 'Pieno', 'outline' => 'Outline', 'neon' => 'Neon'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo $linkStyle === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
+                        <label class="profile-field"><span>Forma bottoni</span><select name="profile_button_shape" id="buttonShapeInput"><?php foreach (['pill' => 'Pill', 'rounded' => 'Rounded', 'sharp' => 'Squadrato'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo $buttonShape === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
+                        <label class="profile-field"><span>Stile Social</span><select name="profile_socials_style" id="socialsStyleInput"><?php foreach (['cards' => 'Card grandi (2x riga)', 'icons' => 'Solo icone clean'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_socials_style'] ?? 'cards') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
+                    </div>
+
+                    <div class="bio-section-heading profile-mt">
+                        <div><span><i class="fas fa-wand-magic-sparkles"></i> Forme, Bordi e Trasparenze</span></div>
+                    </div>
+                    <div class="profile-field-grid two">
+                        <label class="profile-field"><span>Font profilo</span><select name="profile_font" id="fontInput">
+                            <?php 
+                            $fonts = [
+                                'Poppins' => 'Poppins (Default)', 'Inter' => 'Inter', 'Roboto' => 'Roboto', 
+                                'Outfit' => 'Outfit', 'Playfair Display' => 'Playfair Display', 'Space Grotesk' => 'Space Grotesk', 
+                                'Syne' => 'Syne', 'Montserrat' => 'Montserrat', 'Fira Code' => 'Fira Code (Monospace)', 
+                                'PT Mono' => 'PT Mono', 'Cinzel' => 'Cinzel (Serif Elegant)', 'Rubik' => 'Rubik', 
+                                'Bebas Neue' => 'Bebas Neue'
+                            ];
+                            foreach ($fonts as $fontVal => $fontLabel): ?>
+                                <option value="<?php echo $fontVal; ?>" <?php echo ($profile['profile_font'] ?? 'Poppins') === $fontVal ? 'selected' : ''; ?>><?php echo $fontLabel; ?></option>
+                            <?php endforeach; ?>
+                        </select></label>
+                        
+                        <label class="profile-field"><span>Opacità card</span>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" name="profile_card_opacity" id="cardOpacityInput" min="0" max="100" value="<?php echo (int)($profile['profile_card_opacity'] ?? 68); ?>" style="flex: 1;">
+                                <span id="cardOpacityVal" style="font-weight: 700; min-width: 40px; text-align: right;"><?php echo (int)($profile['profile_card_opacity'] ?? 68); ?>%</span>
+                            </div>
+                            <small>0% per farsi il profilo full trasparente.</small>
+                        </label>
+                        
+                        <label class="profile-field"><span>Raggio angoli card</span>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" name="profile_border_radius" id="borderRadiusInput" min="0" max="40" value="<?php echo (int)($profile['profile_border_radius'] ?? 30); ?>" style="flex: 1;">
+                                <span id="borderRadiusVal" style="font-weight: 700; min-width: 40px; text-align: right;"><?php echo (int)($profile['profile_border_radius'] ?? 30); ?>px</span>
+                            </div>
+                        </label>
+                        
+                        <label class="profile-field"><span>Spessore bordo card</span>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" name="profile_border_width" id="borderWidthInput" min="0" max="5" value="<?php echo (int)($profile['profile_border_width'] ?? 1); ?>" style="flex: 1;">
+                                <span id="borderWidthVal" style="font-weight: 700; min-width: 40px; text-align: right;"><?php echo (int)($profile['profile_border_width'] ?? 1); ?>px</span>
+                            </div>
+                        </label>
+                        
+                        <label class="profile-field"><span>Colore bordo card</span>
+                            <input type="color" name="profile_border_color" id="borderColorInput" value="<?php echo profile_h($profile['profile_border_color'] ?? '#ffffff'); ?>">
+                            <small>Ignorato se lo spessore del bordo è 0.</small>
+                        </label>
                     </div>
                 </div>
 

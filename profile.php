@@ -179,6 +179,12 @@ $showActivity = $profile ? profile_flag($profile, 'profile_show_activity', true)
 $showDiscord = $profile ? profile_flag($profile, 'profile_show_discord', true) : false;
 $showCharacters = profile_flag($profile, 'profile_show_characters', true);
 
+$profileFont = $profile['profile_font'] ?? 'Poppins';
+$borderRadius = (int)($profile['profile_border_radius'] ?? 30);
+$cardOpacity = (int)($profile['profile_card_opacity'] ?? 68);
+$borderColor = $profile['profile_border_color'] ?? null;
+$borderWidth = (int)($profile['profile_border_width'] ?? 1);
+
 $visibleSocials = $showSocials ? $socials : [];
 $visibleLinks = $showLinks ? $links : [];
 $visibleProjects = $showProjects ? $projects : [];
@@ -277,8 +283,52 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=3.8.1">
-    <script src="/assets/js/profile.js?v=3.8.1" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=3.9.0">
+    <script src="/assets/js/profile.js?v=3.9.0" defer></script>
+    <?php
+    $googleFonts = [
+        'Poppins' => 'Poppins:wght@300;400;500;600;700;800&display=swap',
+        'Inter' => 'Inter:wght@300;400;500;600;700;800&display=swap',
+        'Roboto' => 'Roboto:wght@300;400;500;700&display=swap',
+        'Outfit' => 'Outfit:wght@300;400;500;600;700;800&display=swap',
+        'Playfair Display' => 'Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap',
+        'Space Grotesk' => 'Space+Grotesk:wght@300..700&display=swap',
+        'Syne' => 'Syne:wght@400..800&display=swap',
+        'Montserrat' => 'Montserrat:ital,wght@0,100..900;1,100..900&display=swap',
+        'Fira Code' => 'Fira+Code:wght@300..700&display=swap',
+        'PT Mono' => 'PT+Mono&display=swap',
+        'Cinzel' => 'Cinzel:wght@400..900&display=swap',
+        'Rubik' => 'Rubik:ital,wght@0,300..900;1,300..900&display=swap',
+        'Bebas Neue' => 'Bebas+Neue&display=swap'
+    ];
+    if (array_key_exists($profileFont, $googleFonts)) {
+        echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n";
+        echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
+        echo '<link href="https://fonts.googleapis.com/css2?family=' . $googleFonts[$profileFont] . '" rel="stylesheet">' . "\n";
+    }
+    ?>
+    <style>
+    :root, .bio-v2-body {
+        --radius-lg: <?php echo $borderRadius; ?>px !important;
+        --radius-md: <?php echo round($borderRadius * 0.73); ?>px !important;
+        --radius-sm: <?php echo round($borderRadius * 0.47); ?>px !important;
+        
+        --profile-card-opacity: <?php echo $cardOpacity / 100; ?> !important;
+        --profile-card-bg: color-mix(in srgb, var(--profile-card-color, var(--card)) calc(var(--profile-card-opacity) * 100%), transparent) !important;
+        --card: var(--profile-card-bg) !important;
+        --card-strong: color-mix(in srgb, <?php echo !empty($profile['profile_card_color']) ? $profile['profile_card_color'] : ($theme === 'light' ? '#ffffff' : '#080c18'); ?> <?php echo min(100, $cardOpacity + 20); ?>%, transparent) !important;
+        
+        <?php if ($borderColor): ?>
+        --border: <?php echo profile_h($borderColor); ?> !important;
+        --profile-border-color: <?php echo profile_h($borderColor); ?> !important;
+        <?php endif; ?>
+        --profile-border-width: <?php echo $borderWidth; ?>px !important;
+        --profile-font: '<?php echo profile_h($profileFont); ?>', sans-serif !important;
+    }
+    .bio-v2-body {
+        font-family: var(--profile-font, "Poppins", sans-serif) !important;
+    }
+    </style>
 </head>
 
 <body

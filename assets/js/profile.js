@@ -666,8 +666,8 @@
         const tWidth = tooltip.offsetWidth;
         const tHeight = tooltip.offsetHeight;
         
-        // Position horizontally (center relative to target)
-        let left = targetRect.left + window.scrollX + (targetRect.width - tWidth) / 2;
+        // Position horizontally (center relative to target in viewport coordinates)
+        let left = targetRect.left + (targetRect.width - tWidth) / 2;
         // Keep within viewport horizontal bounds
         const padding = 8;
         if (left < padding) left = padding;
@@ -676,12 +676,12 @@
         }
         
         // Position vertically: try above first
-        let top = targetRect.top + window.scrollY - tHeight - 8;
+        let top = targetRect.top - tHeight - 8;
         let posClass = 'pos-top';
         
         // If it goes off-screen vertically, put it below
         if (targetRect.top - tHeight - 8 < 0) {
-            top = targetRect.bottom + window.scrollY + 8;
+            top = targetRect.bottom + 8;
             posClass = 'pos-bottom';
         }
         
