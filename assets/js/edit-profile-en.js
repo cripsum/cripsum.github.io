@@ -287,10 +287,10 @@
             const status = statusInput && statusInput.value.trim() ? statusInput.value.trim() : 'Status';
             statusBadge.innerHTML = `<i class="fas fa-signal"></i>${escapeAttr(status)}`;
         }        bioCounter.textContent = bioInput.value.length;
-        document.documentElement.style.setProperty('--accent', accentInput.value);
-        document.documentElement.style.setProperty('--accent-rgb', hexToRgbLocal(accentInput.value));
-        document.documentElement.style.setProperty('--profile-accent', accentInput.value);
-        document.documentElement.style.setProperty('--accent-2', secondaryColorInput ? secondaryColorInput.value : accentInput.value);
+        document.body.style.setProperty('--accent', accentInput.value);
+        document.body.style.setProperty('--accent-rgb', hexToRgbLocal(accentInput.value));
+        document.body.style.setProperty('--profile-accent', accentInput.value);
+        document.body.style.setProperty('--accent-2', secondaryColorInput ? secondaryColorInput.value : accentInput.value);
         
         // Custom card opacity, color mix and border variables preview
         const cardCol = cardColorInput ? cardColorInput.value : '#080c18';
@@ -298,28 +298,28 @@
         const radiusVal = borderRadiusInput ? parseInt(borderRadiusInput.value, 10) : 30;
         const borderWVal = borderWidthInput ? parseInt(borderWidthInput.value, 10) : 1;
         
-        document.documentElement.style.setProperty('--radius-lg', `${radiusVal}px`);
-        document.documentElement.style.setProperty('--radius-md', `${Math.round(radiusVal * 0.73)}px`);
-        document.documentElement.style.setProperty('--radius-sm', `${Math.round(radiusVal * 0.47)}px`);
+        document.body.style.setProperty('--radius-lg', `${radiusVal}px`);
+        document.body.style.setProperty('--radius-md', `${Math.round(radiusVal * 0.73)}px`);
+        document.body.style.setProperty('--radius-sm', `${Math.round(radiusVal * 0.47)}px`);
         
-        document.documentElement.style.setProperty('--profile-card-opacity', opacityVal / 100);
-        document.documentElement.style.setProperty('--card', `color-mix(in srgb, ${cardCol} ${opacityVal}%, transparent)`);
-        document.documentElement.style.setProperty('--profile-card-color', `color-mix(in srgb, ${cardCol} ${opacityVal}%, transparent)`);
-        document.documentElement.style.setProperty('--card-strong', `color-mix(in srgb, ${cardCol} ${Math.min(100, opacityVal + 20)}%, transparent)`);
+        document.body.style.setProperty('--profile-card-opacity', opacityVal / 100);
+        document.body.style.setProperty('--card', `color-mix(in srgb, ${cardCol} ${opacityVal}%, transparent)`);
+        document.body.style.setProperty('--profile-card-color', `color-mix(in srgb, ${cardCol} ${opacityVal}%, transparent)`);
+        document.body.style.setProperty('--card-strong', `color-mix(in srgb, ${cardCol} ${Math.min(100, opacityVal + 20)}%, transparent)`);
         
-        document.documentElement.style.setProperty('--profile-border-width', `${borderWVal}px`);
+        document.body.style.setProperty('--profile-border-width', `${borderWVal}px`);
         if (borderColorInput && borderColorInput.value) {
-            document.documentElement.style.setProperty('--border', borderColorInput.value);
-            document.documentElement.style.setProperty('--profile-border-color', borderColorInput.value);
+            document.body.style.setProperty('--border', borderColorInput.value);
+            document.body.style.setProperty('--profile-border-color', borderColorInput.value);
         }
         
         if (fontInput && fontInput.value) {
             loadGoogleFontPreview(fontInput.value);
-            document.documentElement.style.setProperty('--profile-font', `'${fontInput.value}', sans-serif`);
+            document.body.style.setProperty('--profile-font', `'${fontInput.value}', sans-serif`);
             document.body.style.fontFamily = `var(--profile-font)`;
         }
 
-        document.documentElement.style.setProperty('--profile-ring', ringColorInput ? ringColorInput.value : accentInput.value);
+        document.body.style.setProperty('--profile-ring', ringColorInput ? ringColorInput.value : accentInput.value);
         document.body.dataset.accent = accentInput.value;
         document.body.dataset.profileLinkStyle = linkStyleInput ? linkStyleInput.value : 'glass';
         document.body.dataset.profileButtonShape = buttonShapeInput ? buttonShapeInput.value : 'pill';
@@ -351,16 +351,93 @@
 
     $$('.profile-preset-btn').forEach((btn) => {
         btn.addEventListener('click', () => {
-            if (accentInput && btn.dataset.accent) accentInput.value = btn.dataset.accent;
-            if (secondaryColorInput && btn.dataset.secondary) secondaryColorInput.value = btn.dataset.secondary;
-            if (cardColorInput && btn.dataset.card) cardColorInput.value = btn.dataset.card;
-            if (textColorInput && btn.dataset.text) textColorInput.value = btn.dataset.text;
+            if (accentInput && btn.dataset.accent) {
+                accentInput.value = btn.dataset.accent;
+                accentInput.dispatchEvent(new Event('input', { bubbles: true }));
+                accentInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            if (secondaryColorInput && btn.dataset.secondary) {
+                secondaryColorInput.value = btn.dataset.secondary;
+                secondaryColorInput.dispatchEvent(new Event('input', { bubbles: true }));
+                secondaryColorInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            if (cardColorInput && btn.dataset.card) {
+                cardColorInput.value = btn.dataset.card;
+                cardColorInput.dispatchEvent(new Event('input', { bubbles: true }));
+                cardColorInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            if (textColorInput && btn.dataset.text) {
+                textColorInput.value = btn.dataset.text;
+                textColorInput.dispatchEvent(new Event('input', { bubbles: true }));
+                textColorInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
             updatePreview();
             if (typeof window.profileToast === 'function') {
                 window.profileToast('Preset palette applied.');
             }
         });
     });
+
+    const resetDesignBtn = $('#resetDesignBtn');
+    if (resetDesignBtn) {
+        resetDesignBtn.addEventListener('click', () => {
+            const isIt = document.documentElement.lang === 'it';
+            const msg = isIt 
+                ? 'Sei sicuro di voler ripristinare tutte le impostazioni del design ai valori di default?' 
+                : 'Are you sure you want to reset all design settings to default values?';
+            
+            if (!confirm(msg)) return;
+
+            const defaults = {
+                accentInput: '#0f5bff',
+                secondaryColorInput: '#8b5cf6',
+                themeInput: 'dark',
+                layoutInput: 'standard',
+                cardColorInput: '#080c18',
+                textColorInput: '#f7f8ff',
+                linkStyleInput: 'glass',
+                buttonShapeInput: 'pill',
+                socialsStyleInput: 'cards',
+                fontInput: 'Poppins',
+                cardOpacityInput: '68',
+                borderRadiusInput: '30',
+                borderWidthInput: '1',
+                borderColorInput: '#ffffff'
+            };
+
+            const inputsMap = {
+                accentInput,
+                secondaryColorInput,
+                themeInput,
+                layoutInput,
+                cardColorInput,
+                textColorInput,
+                linkStyleInput,
+                buttonShapeInput,
+                socialsStyleInput,
+                fontInput,
+                cardOpacityInput,
+                borderRadiusInput,
+                borderWidthInput,
+                borderColorInput
+            };
+
+            Object.entries(defaults).forEach(([key, val]) => {
+                const input = inputsMap[key];
+                if (input) {
+                    input.value = val;
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
+
+            updatePreview();
+
+            if (typeof window.profileToast === 'function') {
+                window.profileToast('Design settings reset to defaults.');
+            }
+        });
+    }
 
     updatePreview();
 
@@ -760,11 +837,11 @@
     };
 
     const initProfileCustomColorPickers = (root = document) => {
-        root.querySelectorAll('.profile-editor-shell .profile-field input[type="color"]').forEach(buildProfileColorPicker);
+        root.querySelectorAll('.profile-field input[type="color"]').forEach(buildProfileColorPicker);
     };
 
     const initProfileCustomSelects = (root = document) => {
-        root.querySelectorAll('.profile-editor-shell .profile-field select, .profile-editor-shell .profile-row-grid select').forEach(buildProfileSelect);
+        root.querySelectorAll('.profile-field select, .profile-row-grid select').forEach(buildProfileSelect);
     };
 
     const refreshProfileCustomSelects = () => {

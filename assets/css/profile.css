@@ -1,13 +1,13 @@
 @font-face {
     font-family: 'Minecraft';
-    src: url('https://cdn.jsdelivr.net/npm/@south-paw/typeface-minecraft/files/minecraft.woff2') format('woff2');
+    src: url('../fonts/minecraft.woff2') format('woff2');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
 }
 @font-face {
     font-family: 'Gang of Three';
-    src: url('https://cdn.jsdelivr.net/gh/nitianabhigyan/Rock-Paper-Scissors/go3v2.ttf') format('truetype');
+    src: url('../fonts/go3v2.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
@@ -3180,7 +3180,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu button {
 .public-profile-body .bio-card,
 .profile-editor-shell .bio-card {
     background: radial-gradient(circle at top right, rgba(var(--accent-rgb), 0.1), transparent 12rem),
-        linear-gradient(145deg, color-mix(in srgb, var(--profile-card-color, var(--card)) 88%, transparent), rgba(var(--accent-rgb), 0.055));
+        linear-gradient(145deg, var(--card), rgba(var(--accent-rgb), 0.055));
 }
 
 .public-profile-body .bio-button--primary,
