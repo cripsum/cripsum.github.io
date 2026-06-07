@@ -47,7 +47,8 @@ $buttonShape = profile_allowed_value((string)($_POST['profile_button_shape'] ?? 
 $font = profile_allowed_value((string)($_POST['profile_font'] ?? 'Poppins'), [
     'Poppins', 'Inter', 'Roboto', 'Outfit', 'Playfair Display', 
     'Space Grotesk', 'Syne', 'Montserrat', 'Fira Code', 'PT Mono', 
-    'Cinzel', 'Rubik', 'Bebas Neue'
+    'Cinzel', 'Rubik', 'Bebas Neue', 'Minecraft', 'Gang of Three',
+    'Press Start 2P', 'Bungee', 'Permanent Marker', 'Creepster', 'Shojumaru'
 ], 'Poppins');
 $borderRadius = (int)($_POST['profile_border_radius'] ?? 30);
 if ($borderRadius < 0 || $borderRadius > 40) $borderRadius = 30;

@@ -1,3 +1,18 @@
+@font-face {
+    font-family: 'Minecraft';
+    src: url('https://cdn.jsdelivr.net/npm/@south-paw/typeface-minecraft/files/minecraft.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Gang of Three';
+    src: url('https://cdn.jsdelivr.net/gh/nitianabhigyan/Rock-Paper-Scissors/go3v2.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
 :root {
     --accent: #0f5bff;
     --accent-rgb: 15, 91, 255;
@@ -6008,6 +6023,162 @@ body[data-theme="light"] .profile-custom-tooltip {
     border-width: 0 6px 6px 6px;
     border-color: transparent transparent rgba(var(--accent-rgb), 0.35) transparent;
 }
+
+/* Custom color picker profile editor */
+.profile-custom-color-picker {
+    position: relative;
+    width: 100%;
+}
+
+.profile-color-trigger {
+    width: 100%;
+    min-height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    padding: 0.82rem 0.95rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    color: var(--text);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.035)), rgba(8, 12, 24, 0.86);
+    font: inherit;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+    transition: border-color var(--transition), background var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+
+.profile-color-trigger:hover,
+.profile-custom-color-picker.is-open .profile-color-trigger {
+    border-color: rgba(var(--accent-rgb), 0.55);
+    background: linear-gradient(145deg, rgba(var(--accent-rgb), 0.16), rgba(255, 255, 255, 0.04)), rgba(8, 12, 24, 0.94);
+    box-shadow: 0 0 0 5px rgba(var(--accent-rgb), 0.12);
+}
+
+.profile-color-preview {
+    display: inline-block;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 8px rgba(0,0,0,0.3);
+    flex-shrink: 0;
+}
+
+.profile-color-value {
+    flex-grow: 1;
+    text-align: left;
+    font-family: monospace;
+    font-size: 0.95rem;
+    color: var(--text);
+    text-transform: uppercase;
+}
+
+.profile-color-trigger i {
+    color: var(--accent);
+}
+
+.profile-color-dropdown {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 0.5rem);
+    z-index: 10000;
+    display: grid;
+    gap: 0.8rem;
+    padding: 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    background: radial-gradient(circle at 12% 0%, rgba(var(--accent-rgb), 0.22), transparent 38%), linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.035)), rgba(8, 12, 24, 0.98);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.48), 0 0 36px rgba(var(--accent-rgb), 0.16);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+    pointer-events: none;
+    transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.profile-custom-color-picker.is-open .profile-color-dropdown {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.profile-color-swatches {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.4rem;
+}
+
+.profile-color-swatch {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+    box-shadow: inset 0 0 4px rgba(0,0,0,0.2);
+}
+
+.profile-color-swatch:hover {
+    transform: scale(1.15);
+    border-color: #ffffff;
+    box-shadow: 0 0 8px rgba(255,255,255,0.4);
+}
+
+.profile-color-swatch.is-active {
+    transform: scale(1.1);
+    border-color: #ffffff;
+    box-shadow: 0 0 0 2px var(--accent);
+}
+
+.profile-color-custom-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 0.6rem;
+}
+
+.profile-color-hex-text {
+    flex-grow: 1;
+    min-height: 2.2rem;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--text);
+    font-family: monospace;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    transition: border-color 0.15s ease;
+}
+
+.profile-color-hex-text:focus {
+    border-color: var(--accent);
+    outline: none;
+}
+
+.profile-color-picker-btn {
+    width: 2.2rem;
+    height: 2.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.profile-color-picker-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--accent);
+}
+
 
 
 

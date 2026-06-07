@@ -72,6 +72,9 @@ function profile_json_script(string $id, array $data): void
     <title>Cripsum™ - Modifica profilo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/assets/css/profile.css?v=3.9.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Inter&family=Roboto&family=Outfit&family=Playfair+Display&family=Space+Grotesk&family=Syne&family=Montserrat&family=Fira+Code&family=PT+Mono&family=Cinzel&family=Rubik&family=Bebas+Neue&family=Press+Start+2P&family=Bungee&family=Permanent+Marker&family=Creepster&family=Shojumaru&display=swap" rel="stylesheet">
     <script src="/assets/js/profile.js?v=3.9.0" defer></script>
     <script src="/assets/js/edit-profile.js?v=3.9.0" defer></script>
 </head>
@@ -248,13 +251,17 @@ function profile_json_script(string $id, array $data): void
                     <div class="profile-field-grid two">
                         <label class="profile-field"><span>Font profilo</span><select name="profile_font" id="fontInput">
                             <?php 
-                            $fonts = [
+                             $fonts = [
                                 'Poppins' => 'Poppins (Default)', 'Inter' => 'Inter', 'Roboto' => 'Roboto', 
                                 'Outfit' => 'Outfit', 'Playfair Display' => 'Playfair Display', 'Space Grotesk' => 'Space Grotesk', 
                                 'Syne' => 'Syne', 'Montserrat' => 'Montserrat', 'Fira Code' => 'Fira Code (Monospace)', 
                                 'PT Mono' => 'PT Mono', 'Cinzel' => 'Cinzel (Serif Elegant)', 'Rubik' => 'Rubik', 
-                                'Bebas Neue' => 'Bebas Neue'
-                            ];
+                                'Bebas Neue' => 'Bebas Neue',
+                                'Minecraft' => 'Minecraft (Gaming)', 'Gang of Three' => 'Gang of Three (Kung-Fu Brush)',
+                                'Press Start 2P' => 'Press Start 2P (Retro Retro)', 'Bungee' => 'Bungee (Arcade Heavy)',
+                                'Permanent Marker' => 'Permanent Marker (Graffiti)', 'Creepster' => 'Creepster (Horror)',
+                                'Shojumaru' => 'Shojumaru (Asian Style)'
+                             ];
                             foreach ($fonts as $fontVal => $fontLabel): ?>
                                 <option value="<?php echo $fontVal; ?>" <?php echo ($profile['profile_font'] ?? 'Poppins') === $fontVal ? 'selected' : ''; ?>><?php echo $fontLabel; ?></option>
                             <?php endforeach; ?>

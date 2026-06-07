@@ -253,7 +253,7 @@
 
     const loadedFonts = new Set();
     function loadGoogleFontPreview(fontName) {
-        if (!fontName || loadedFonts.has(fontName)) return;
+        if (!fontName || fontName === 'Poppins' || fontName === 'Minecraft' || fontName === 'Gang of Three' || loadedFonts.has(fontName)) return;
         loadedFonts.add(fontName);
         const link = document.createElement('link');
         link.rel = 'stylesheet';
@@ -533,6 +533,9 @@
         if (!selected) return;
 
         current.textContent = selected.textContent.trim();
+        if (select.name === 'profile_font') {
+            current.style.fontFamily = `'${selected.value}', sans-serif`;
+        }
 
         buttons.forEach((button) => {
             const active = button.dataset.value === selected.value;
@@ -580,6 +583,9 @@
                 <strong>${option.textContent.trim()}</strong>
                 <span>${shortLabel(option.textContent)}</span>
             `;
+            if (select.name === 'profile_font') {
+                button.style.fontFamily = `'${option.value}', sans-serif`;
+            }
 
             button.addEventListener('click', (event) => {
                 event.preventDefault();
@@ -616,6 +622,147 @@
         syncProfileSelect(wrap, false);
     };
 
+    const closeAllProfileColorPickers = (except = null) => {
+        document.querySelectorAll('[data-profile-color-picker].is-open').forEach((wrap) => {
+            if (except && wrap === except) return;
+            wrap.classList.remove('is-open');
+        });
+    };
+
+    const syncProfileColorPicker = (wrap) => {
+        const input = wrap.querySelector('input[type="color"]');
+        const preview = wrap.querySelector('.profile-color-preview');
+        const value = wrap.querySelector('.profile-color-value');
+        const textInput = wrap.querySelector('.profile-color-hex-text');
+        const swatches = Array.from(wrap.querySelectorAll('.profile-color-swatch'));
+
+        if (!input || !preview || !value) return;
+
+        const val = input.value;
+        preview.style.backgroundColor = val;
+        value.textContent = val;
+        if (textInput && textInput.value.toLowerCase() !== val.toLowerCase()) {
+            textInput.value = val;
+        }
+
+        swatches.forEach((swatch) => {
+            const active = swatch.dataset.color.toLowerCase() === val.toLowerCase();
+            swatch.classList.toggle('is-active', active);
+        });
+    };
+
+    const buildProfileColorPicker = (input) => {
+        if (!input || input.dataset.profileColorBuilt === '1') return;
+        input.dataset.profileColorBuilt = '1';
+        input.classList.add('profile-native-select');
+
+        const wrap = document.createElement('div');
+        wrap.className = 'profile-custom-color-picker';
+        wrap.dataset.profileColorPicker = '1';
+
+        const trigger = document.createElement('button');
+        trigger.type = 'button';
+        trigger.className = 'profile-color-trigger';
+        trigger.innerHTML = `
+            <span class="profile-color-preview"></span>
+            <span class="profile-color-value"></span>
+            <i class="fas fa-palette"></i>
+        `;
+
+        const dropdown = document.createElement('div');
+        dropdown.className = 'profile-color-dropdown';
+
+        const presetColors = [
+            '#f43f5e', '#ec4899', '#d946ef', '#a855f7', '#6366f1', '#3b82f6',
+            '#06b6d4', '#0ea5e9', '#14b8a6', '#10b981', '#22c55e', '#eab308',
+            '#f97316', '#ef4444', '#ffffff', '#9ca3af', '#4b5563', '#080c18'
+        ];
+
+        const swatchesGrid = document.createElement('div');
+        swatchesGrid.className = 'profile-color-swatches';
+        presetColors.forEach((color) => {
+            const swatch = document.createElement('div');
+            swatch.className = 'profile-color-swatch';
+            swatch.style.backgroundColor = color;
+            swatch.dataset.color = color;
+            swatch.title = color;
+
+            swatch.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                input.value = color;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+                syncProfileColorPicker(wrap);
+            });
+
+            swatchesGrid.appendChild(swatch);
+        });
+        dropdown.appendChild(swatchesGrid);
+
+        const customRow = document.createElement('div');
+        customRow.className = 'profile-color-custom-row';
+
+        const textInput = document.createElement('input');
+        textInput.type = 'text';
+        textInput.className = 'profile-color-hex-text';
+        textInput.placeholder = '#000000';
+        textInput.maxLength = 7;
+
+        textInput.addEventListener('input', () => {
+            let val = textInput.value.trim();
+            if (!val.startsWith('#')) {
+                val = '#' + val;
+            }
+            const hexRegex = /^#([A-Fa-f0-9]{3}){1,2}$/;
+            if (hexRegex.test(val)) {
+                input.value = val;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+                syncProfileColorPicker(wrap);
+            }
+        });
+
+        const pickerBtn = document.createElement('button');
+        pickerBtn.type = 'button';
+        pickerBtn.className = 'profile-color-picker-btn';
+        pickerBtn.title = 'More / Custom';
+        pickerBtn.innerHTML = '<i class="fas fa-eye-dropper"></i>';
+
+        pickerBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            input.click();
+        });
+
+        customRow.appendChild(textInput);
+        customRow.appendChild(pickerBtn);
+        dropdown.appendChild(customRow);
+
+        input.parentNode.insertBefore(wrap, input);
+        wrap.appendChild(input);
+        wrap.appendChild(trigger);
+        wrap.appendChild(dropdown);
+
+        trigger.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            closeAllProfileColorPickers(wrap);
+            closeAllProfileSelects();
+
+            const isOpen = wrap.classList.toggle('is-open');
+        });
+
+        input.addEventListener('input', () => syncProfileColorPicker(wrap));
+        input.addEventListener('change', () => syncProfileColorPicker(wrap));
+
+        syncProfileColorPicker(wrap);
+    };
+
+    const initProfileCustomColorPickers = (root = document) => {
+        root.querySelectorAll('.profile-editor-shell .profile-field input[type="color"]').forEach(buildProfileColorPicker);
+    };
+
     const initProfileCustomSelects = (root = document) => {
         root.querySelectorAll('.profile-editor-shell .profile-field select, .profile-editor-shell .profile-row-grid select').forEach(buildProfileSelect);
     };
@@ -635,6 +782,7 @@
                 mutation.addedNodes.forEach((node) => {
                     if (!(node instanceof HTMLElement)) return;
                     initProfileCustomSelects(node);
+                    initProfileCustomColorPickers(node);
                 });
             });
         });
@@ -647,16 +795,19 @@
 
     document.addEventListener('click', () => {
         closeAllProfileSelects();
+        closeAllProfileColorPickers();
     });
 
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
             closeAllProfileSelects();
+            closeAllProfileColorPickers();
         }
     });
 
     document.addEventListener('DOMContentLoaded', () => {
         initProfileCustomSelects();
+        initProfileCustomColorPickers();
         startProfileSelectObserver();
 
         setTimeout(refreshProfileCustomSelects, 0);
@@ -665,11 +816,13 @@
 
     if (document.readyState !== 'loading') {
         initProfileCustomSelects();
+        initProfileCustomColorPickers();
         startProfileSelectObserver();
 
         setTimeout(refreshProfileCustomSelects, 0);
         setTimeout(refreshProfileCustomSelects, 100);
     }
+
 
     // Selected characters ordering management
     let selectedCharIds = [];

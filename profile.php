@@ -299,7 +299,12 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         'PT Mono' => 'PT+Mono&display=swap',
         'Cinzel' => 'Cinzel:wght@400..900&display=swap',
         'Rubik' => 'Rubik:ital,wght@0,300..900;1,300..900&display=swap',
-        'Bebas Neue' => 'Bebas+Neue&display=swap'
+        'Bebas Neue' => 'Bebas+Neue&display=swap',
+        'Press Start 2P' => 'Press+Start+2P&display=swap',
+        'Bungee' => 'Bungee&display=swap',
+        'Permanent Marker' => 'Permanent+Marker&display=swap',
+        'Creepster' => 'Creepster&display=swap',
+        'Shojumaru' => 'Shojumaru&display=swap'
     ];
     if (array_key_exists($profileFont, $googleFonts) && $profileFont !== 'Poppins') {
         echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n";
