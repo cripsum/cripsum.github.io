@@ -641,6 +641,7 @@
 
     let activeTooltip = null;
     let tooltipEl = null;
+    let showTimeout = null;
 
     const createTooltip = () => {
         if (tooltipEl) return tooltipEl;
@@ -655,7 +656,7 @@
         tooltipEl.style.opacity = '0';
         tooltipEl.style.visibility = 'hidden';
         tooltipEl.style.transform = 'translateY(5px) scale(0.96)';
-        tooltipEl.style.transition = 'opacity 0.15s cubic-bezier(0.25, 1, 0.5, 1), transform 0.15s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.15s linear';
+        tooltipEl.style.transition = 'opacity 0.26s cubic-bezier(0.16, 1, 0.3, 1), transform 0.26s cubic-bezier(0.16, 1, 0.3, 1)';
         
         document.body.appendChild(tooltipEl);
         return tooltipEl;
@@ -667,12 +668,10 @@
         
         tooltip.classList.remove('pos-top', 'pos-bottom');
         
-        // Temporarily show to calculate dimensions (opacity: 0 makes it invisible during measurement)
+        // Temporarily display block to calculate offset dimensions
         tooltip.style.display = 'block';
-        tooltip.style.visibility = 'visible';
         const tWidth = tooltip.offsetWidth;
         const tHeight = tooltip.offsetHeight;
-        tooltip.style.visibility = 'hidden';
         
         // Position
         const targetRect = target.getBoundingClientRect();
@@ -699,9 +698,14 @@
         tooltip.style.top = `${top}px`;
         tooltip.classList.add(posClass);
         
+        // Ensure visibility is shown before setting transitions
+        tooltip.style.visibility = 'visible';
+        
+        // Force reflow
+        tooltip.offsetHeight;
+        
         // Animate in
         tooltip.style.opacity = '1';
-        tooltip.style.visibility = 'visible';
         tooltip.style.transform = 'translateY(0) scale(1)';
         
         activeTooltip = target;
@@ -710,10 +714,23 @@
     const hideTooltip = () => {
         if (tooltipEl) {
             tooltipEl.style.opacity = '0';
-            tooltipEl.style.visibility = 'hidden';
             tooltipEl.style.transform = 'translateY(5px) scale(0.96)';
+            
+            // Wait for transition to complete before setting visibility hidden
+            setTimeout(() => {
+                if (activeTooltip === null && tooltipEl.style.opacity === '0') {
+                    tooltipEl.style.visibility = 'hidden';
+                }
+            }, 260);
         }
         activeTooltip = null;
+    };
+
+    const cancelShow = () => {
+        if (showTimeout) {
+            clearTimeout(showTimeout);
+            showTimeout = null;
+        }
     };
 
     document.addEventListener('mouseover', (e) => {
@@ -735,20 +752,35 @@
         const tooltipText = target.getAttribute('data-tooltip');
         if (!tooltipText) return;
         
-        showTooltip(target, tooltipText);
+        cancelShow();
+        
+        // Premium 500ms hover-delay to prevent tooltip spamming while moving mouse
+        showTimeout = setTimeout(() => {
+            showTooltip(target, tooltipText);
+            showTimeout = null;
+        }, 500);
     });
 
     document.addEventListener('mouseout', (e) => {
-        if (!activeTooltip) return;
-        
         const related = e.relatedTarget;
-        if (related && (related === activeTooltip || activeTooltip.contains(related))) {
-            return;
+        
+        if (activeTooltip) {
+            if (related && (related === activeTooltip || activeTooltip.contains(related))) {
+                return;
+            }
+            hideTooltip();
         }
         
-        hideTooltip();
+        cancelShow();
     });
 
-    document.addEventListener('click', hideTooltip);
-    window.addEventListener('scroll', hideTooltip, { passive: true });
+    document.addEventListener('click', () => {
+        cancelShow();
+        hideTooltip();
+    });
+    
+    window.addEventListener('scroll', () => {
+        cancelShow();
+        hideTooltip();
+    }, { passive: true });
 })();
