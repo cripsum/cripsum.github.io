@@ -878,6 +878,21 @@
     const buildProfileColorPicker = (input) => {
         if (!input || input.dataset.profileColorBuilt === '1') return;
         input.dataset.profileColorBuilt = '1';
+
+        // Convert parent <label> to <div> to prevent default label activation of the color input
+        let container = input.parentNode;
+        if (container && container.tagName === 'LABEL') {
+            const div = document.createElement('div');
+            Array.from(container.attributes).forEach(attr => {
+                div.setAttribute(attr.name, attr.value);
+            });
+            while (container.firstChild) {
+                div.appendChild(container.firstChild);
+            }
+            container.parentNode.replaceChild(div, container);
+            container = div;
+        }
+
         input.classList.add('profile-native-select');
 
         const wrap = document.createElement('div');
@@ -1044,6 +1059,16 @@
 
         input.addEventListener('input', () => syncProfileColorPicker(wrap));
         input.addEventListener('change', () => syncProfileColorPicker(wrap));
+
+        if (container) {
+            container.addEventListener('click', (event) => {
+                if (event.target === container || event.target.tagName === 'SPAN') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    trigger.click();
+                }
+            });
+        }
 
         syncProfileColorPicker(wrap);
     };

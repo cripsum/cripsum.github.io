@@ -6550,8 +6550,14 @@ body[data-theme="light"] .profile-custom-tooltip.pos-bottom::after {
     transform: translateZ(0);
 }
 @keyframes nameRainbowShift {
-    0% { background-position: 0% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+        background-position: 0% 0;
+        filter: hue-rotate(0deg);
+    }
+    100% {
+        background-position: -200% 0;
+        filter: hue-rotate(360deg);
+    }
 }
 
 /* Glow */
