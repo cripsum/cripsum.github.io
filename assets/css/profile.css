@@ -6047,13 +6047,15 @@ body[data-profile-effect="sakura_falling"] .profile-effects-layer::before {
 
 /* Premium Custom Tooltips System */
 .profile-custom-tooltip {
+    display: none;
     position: fixed;
     z-index: 19000;
-    pointer-events: none;
+    pointer-events: none !important;
     padding: 0.52rem 0.85rem;
     font-size: 0.78rem;
     font-weight: 600;
     color: var(--profile-text-color, var(--text));
+    background: #080c18; /* Fallback for older browsers */
     background: color-mix(in srgb, var(--profile-card-color, var(--card)) 92%, transparent);
     border: 1px solid rgba(var(--accent-rgb), 0.35);
     border-radius: 8px;
@@ -6068,6 +6070,7 @@ body[data-profile-effect="sakura_falling"] .profile-effects-layer::before {
 }
 
 body[data-theme="light"] .profile-custom-tooltip {
+    background: #ffffff; /* Fallback for older browsers */
     background: color-mix(in srgb, var(--profile-card-color, #ffffff) 94%, transparent);
     border-color: rgba(var(--accent-rgb), 0.25);
     box-shadow: 0 10px 25px rgba(17, 24, 39, 0.12), 0 0 12px rgba(var(--accent-rgb), 0.1);

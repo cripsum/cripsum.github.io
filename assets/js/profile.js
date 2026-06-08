@@ -641,30 +641,34 @@
 
     let activeTooltip = null;
     let tooltipEl = null;
+    let hideTimeout = null;
 
     const createTooltip = () => {
         if (tooltipEl) return tooltipEl;
         tooltipEl = document.createElement('div');
         tooltipEl.className = 'profile-custom-tooltip';
         tooltipEl.setAttribute('aria-hidden', 'true');
+        tooltipEl.style.display = 'none';
         document.body.appendChild(tooltipEl);
         return tooltipEl;
     };
 
     const showTooltip = (target, text) => {
+        if (hideTimeout) {
+            clearTimeout(hideTimeout);
+            hideTimeout = null;
+        }
+
         const tooltip = createTooltip();
         tooltip.textContent = text;
         
         tooltip.classList.remove('is-visible', 'pos-top', 'pos-bottom');
         
-        // Position
-        const targetRect = target.getBoundingClientRect();
-        
-        // Temporarily display to calculate dimensions
-        tooltip.style.left = '0px';
-        tooltip.style.top = '0px';
+        // Ensure display block is set first to calculate dimensions
         tooltip.style.display = 'block';
         
+        // Position
+        const targetRect = target.getBoundingClientRect();
         const tWidth = tooltip.offsetWidth;
         const tHeight = tooltip.offsetHeight;
         
@@ -698,8 +702,17 @@
     };
 
     const hideTooltip = () => {
+        if (hideTimeout) {
+            clearTimeout(hideTimeout);
+        }
         if (tooltipEl) {
             tooltipEl.classList.remove('is-visible');
+            hideTimeout = setTimeout(() => {
+                if (tooltipEl && !tooltipEl.classList.contains('is-visible')) {
+                    tooltipEl.style.display = 'none';
+                }
+                hideTimeout = null;
+            }, 180);
         }
         activeTooltip = null;
     };
