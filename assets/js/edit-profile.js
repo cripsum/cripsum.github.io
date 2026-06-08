@@ -334,7 +334,7 @@
         if (socialsStyleInput) {
             document.body.dataset.profileSocialsStyle = socialsStyleInput.value;
         }
-        const previewCard = document.querySelector('.profile-edit-preview');
+        const previewCard = document.querySelector('.profile-preview-card');
         if (previewCard && profileEffectInput) {
             previewCard.dataset.previewEffect = profileEffectInput.value;
         }

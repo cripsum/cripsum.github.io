@@ -2483,11 +2483,14 @@ body[data-theme="light"] .profile-row-grid select option {
 }
 
 .profile-effects-layer {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    overflow: hidden;
+    display: block !important;
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+    z-index: 10 !important;
 }
 
 
@@ -2712,14 +2715,14 @@ body.bio-v2-body {
 }
 
 .bio-v2-body > .profile-effects-layer {
-    z-index: 1 !important;
+    z-index: 10 !important;
 }
 
 .bio-v2-body > main,
 .bio-v2-body > .bio-page,
 .bio-v2-body > .profile-smart-page {
     position: relative;
-    z-index: 2 !important;
+    z-index: 100 !important;
 }
 
 .profile-smart-page {
@@ -4487,11 +4490,11 @@ body[data-profile-effect="scanlines"] .profile-effects-layer::after {
     color: var(--accent);
 }
 
-.profile-edit-preview[data-preview-effect="aurora"] {
+.profile-preview-card[data-preview-effect="aurora"] {
     box-shadow: var(--shadow), 0 0 42px rgba(var(--accent-rgb), 0.18);
 }
 
-.profile-edit-preview[data-preview-effect="digital_noise"] {
+.profile-preview-card[data-preview-effect="digital_noise"] {
     background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 5px), linear-gradient(145deg, var(--card), rgba(var(--accent-rgb), 0.06));
 }
 
