@@ -381,7 +381,11 @@
         const fragment = document.createDocumentFragment();
         for (let i = 0; i < amount; i += 1) {
             const dot = document.createElement('span');
-            dot.className = `profile-effect-dot profile-effect-dot--${effect}`;
+            let extraClass = '';
+            if (effect === 'glass_rain') {
+                extraClass = Math.random() > 0.5 ? ' profile-effect-dot--glass_rain-static' : ' profile-effect-dot--glass_rain-trickle';
+            }
+            dot.className = `profile-effect-dot profile-effect-dot--${effect}${extraClass}`;
             dot.style.setProperty('--x', `${Math.random() * 100}%`);
             dot.style.setProperty('--y', `${Math.random() * 100}%`);
             dot.style.setProperty('--s', `${0.55 + Math.random() * 1.45}`);

@@ -4219,28 +4219,28 @@ body[data-profile-effect="spotlight"] .profile-effects-layer::before {
 /* 3. Soft Particles */
 .profile-effect-dot--soft_particles {
     position: absolute;
-    width: calc(45px * var(--s)) !important;
-    height: calc(45px * var(--s)) !important;
-    background: radial-gradient(circle, color-mix(in srgb, var(--accent) 15%, transparent) 0%, transparent 70%) !important;
+    width: calc(40px * var(--s)) !important;
+    height: calc(40px * var(--s)) !important;
+    background: radial-gradient(circle, color-mix(in srgb, var(--accent) 80%, transparent) 0%, color-mix(in srgb, var(--accent) 25%, transparent) 40%, transparent 70%) !important;
     box-shadow: none !important;
     filter: blur(4px) !important;
-    opacity: 0.3 !important;
+    opacity: 0.72 !important;
     animation: premiumSoftParticles var(--t) ease-in-out infinite !important;
     animation-delay: var(--d) !important;
 }
 @keyframes premiumSoftParticles {
     0% {
-        transform: translate3d(0, 0, 0) scale(0.8) rotate(0deg);
+        transform: translate3d(0, 0, 0) scale(0.7) rotate(0deg);
         opacity: 0;
     }
     20% {
-        opacity: 0.35;
+        opacity: 0.78;
     }
     80% {
-        opacity: 0.35;
+        opacity: 0.78;
     }
     100% {
-        transform: translate3d(calc(var(--s) * 50px), -120px, 0) scale(1.2) rotate(180deg);
+        transform: translate3d(50px, -150px, 0) scale(1.3) rotate(180deg);
         opacity: 0;
     }
 }
@@ -4360,11 +4360,11 @@ body[data-profile-effect="digital_noise"] .profile-effects-layer::before {
     content: "" !important;
     position: absolute !important;
     inset: 0 !important;
-    background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 4px),
-                repeating-linear-gradient(90deg, rgba(var(--accent-rgb), 0.012) 0 1px, transparent 1px 9px) !important;
-    opacity: 0.6 !important;
+    background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px 4px),
+                repeating-linear-gradient(90deg, rgba(var(--accent-rgb), 0.1) 0 1px, transparent 1px 9px) !important;
+    opacity: 0.45 !important;
     mix-blend-mode: screen !important;
-    animation: premiumNoiseShift 0.2s steps(4, end) infinite !important;
+    animation: premiumNoiseShift 0.25s steps(4, end) infinite !important;
     z-index: 1 !important;
 }
 @keyframes premiumNoiseShift {
@@ -4374,24 +4374,76 @@ body[data-profile-effect="digital_noise"] .profile-effects-layer::before {
     75% { transform: translate(-1px, -2px); }
 }
 
-/* 9. Glass Rain */
+/* 9. Glass Rain (Hyper-realistic refracted water drops on screen) */
 .profile-effect-dot--glass_rain {
     position: absolute !important;
-    top: -100px !important;
-    left: var(--x) !important;
-    width: 1.5px !important;
-    height: calc(55px * var(--s)) !important;
-    background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.35) 70%, transparent 100%) !important;
-    opacity: 0.35 !important;
-    animation: premiumRainFall var(--t) linear infinite !important;
+    background: transparent !important;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40% !important;
+    box-shadow: 
+        inset -1.5px -1.5px 3px rgba(0, 0, 0, 0.4),
+        inset 1.5px 1.5px 3px rgba(255, 255, 255, 0.6),
+        0.5px 1px 3px rgba(0, 0, 0, 0.25) !important;
+    backdrop-filter: blur(1.5px) contrast(1.25) brightness(0.93) !important;
+    -webkit-backdrop-filter: blur(1.5px) contrast(1.25) brightness(0.93) !important;
+    width: calc(14px * var(--s)) !important;
+    height: calc(17px * var(--s)) !important;
+    pointer-events: none !important;
+}
+.profile-effect-dot--glass_rain::before {
+    content: "" !important;
+    position: absolute !important;
+    top: 18% !important;
+    left: 18% !important;
+    width: 25% !important;
+    height: 25% !important;
+    background: rgba(255, 255, 255, 0.85) !important;
+    border-radius: 50% !important;
+}
+.profile-effect-dot--glass_rain-trickle {
+    animation: waterDropTrickle var(--t) linear infinite !important;
     animation-delay: var(--d) !important;
 }
-@keyframes premiumRainFall {
+.profile-effect-dot--glass_rain-static {
+    animation: waterDropStatic var(--t) ease-in-out infinite !important;
+    animation-delay: var(--d) !important;
+}
+@keyframes waterDropTrickle {
     0% {
-        transform: translate3d(0, -100px, 0);
+        transform: translate3d(0, 0, 0) scale(0.8);
+        opacity: 0;
+    }
+    6% {
+        opacity: 1;
+    }
+    28% {
+        transform: translate3d(0, 25px, 0) scale(1);
+    }
+    32% {
+        transform: translate3d(0, 25px, 0) scale(0.95);
+    }
+    55% {
+        transform: translate3d(1px, 95px, 0) scale(1.05);
+    }
+    60% {
+        transform: translate3d(1px, 95px, 0) scale(0.92);
+    }
+    85% {
+        transform: translate3d(3px, 220px, 0) scale(0.82);
+        opacity: 1;
     }
     100% {
-        transform: translate3d(15px, 105vh, 0);
+        transform: translate3d(4px, 280px, 0) scale(0.6);
+        opacity: 0;
+    }
+}
+@keyframes waterDropStatic {
+    0%, 100% {
+        opacity: 0;
+        transform: scale(0.7);
+    }
+    10%, 90% {
+        opacity: 0.95;
+        transform: scale(1);
     }
 }
 
@@ -5413,29 +5465,30 @@ body[data-profile-effect="sakura_falling"] .profile-effects-layer::before {
 }
 .profile-effect-dot--sakura_falling {
     position: absolute !important;
-    width: 14px !important;
-    height: 9px !important;
+    width: calc(14px * var(--s)) !important;
+    height: calc(9px * var(--s)) !important;
     background: #ffb7c5 !important;
     border-radius: 50% 0 50% 50% !important;
     opacity: 0.78 !important;
     box-shadow: 0 0 6px rgba(255, 183, 197, 0.3) !important;
-    top: -20px !important;
+    top: -30px !important;
     left: var(--x) !important;
-    transform: scale(var(--s)) rotate(0deg) !important;
     animation: premiumSakuraFalling var(--t) linear infinite !important;
     animation-delay: var(--d) !important;
 }
 @keyframes premiumSakuraFalling {
     0% {
-        transform: translate3d(0, -20px, 0) scale(var(--s)) rotate(0deg);
-        opacity: 0.8;
+        transform: translate3d(0, -30px, 0) rotate(0deg);
+        opacity: 0;
     }
-    50% {
-        transform: translate3d(40px, 50vh, 0) scale(var(--s)) rotate(180deg);
-        opacity: 0.7;
+    10% {
+        opacity: 0.82;
+    }
+    90% {
+        opacity: 0.82;
     }
     100% {
-        transform: translate3d(90px, 105vh, 0) scale(var(--s)) rotate(360deg);
+        transform: translate3d(100px, 105vh, 0) rotate(360deg);
         opacity: 0;
     }
 }
