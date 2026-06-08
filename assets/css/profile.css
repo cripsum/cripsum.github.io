@@ -301,19 +301,13 @@ body[data-theme="light"] .bio-avatar {
     font-size: clamp(2.25rem, 5vw, 3.7rem);
     line-height: 0.95;
     letter-spacing: -0.08em;
-    background: linear-gradient(135deg, #fff, rgb(201, 217, 255), var(--accent));
-    background-size: 200% 200%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: gradientShift 5s ease-in-out infinite;
+    color: var(--profile-text-color, #ffffff);
 }
 
 body[data-theme="light"] .bio-name-block h1 {
-    background: linear-gradient(135deg, #0f172a, #334155, var(--accent));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #0f172a;
+    background: none;
+    -webkit-text-fill-color: initial;
 }
 
 @keyframes gradientShift {
@@ -3142,10 +3136,9 @@ body[data-theme="light"].bio-v2-body .dropdown-menu button {
 
 .public-profile-body .bio-name-block h1,
 .profile-editor-shell .bio-name-block h1 {
-    background: linear-gradient(135deg, var(--profile-text-color, #fff), rgb(201, 217, 255), var(--accent), var(--accent-2));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--profile-text-color, #ffffff);
+    background: none;
+    -webkit-text-fill-color: initial;
 }
 
 .profile-link-grid {
