@@ -251,6 +251,14 @@
     const cardOpacityVal = $('#cardOpacityVal');
     const borderWidthVal = $('#borderWidthVal');
 
+    const nameColorTypeInput = $('#nameColorTypeInput');
+    const nameSolidColorInput = $('#nameSolidColorInput');
+    const nameGradColor1Input = $('#nameGradColor1Input');
+    const nameGradColor2Input = $('#nameGradColor2Input');
+    const nameGradAngleInput = $('#nameGradAngleInput');
+    const nameAnimationInput = $('#nameAnimationInput');
+    const nameGlowColorInput = $('#nameGlowColorInput');
+
     const loadedFonts = new Set();
     function loadGoogleFontPreview(fontName) {
         if (!fontName || fontName === 'Poppins' || fontName === 'Minecraft' || fontName === 'Gang of Three' || loadedFonts.has(fontName)) return;
@@ -277,9 +285,79 @@
         });
     }
 
+    function toggleNameFields() {
+        if (!nameColorTypeInput) return;
+        const type = nameColorTypeInput.value;
+        const anim = nameAnimationInput ? nameAnimationInput.value : 'none';
+
+        // Toggle Solid Color fields
+        $$('.field-name-solid').forEach(el => {
+            el.style.display = type === 'solid' ? 'block' : 'none';
+        });
+
+        // Toggle Gradient fields
+        $$('.field-name-gradient').forEach(el => {
+            el.style.display = type === 'gradient' ? 'block' : 'none';
+        });
+
+        // Toggle Glow fields
+        $$('.field-name-glow').forEach(el => {
+            el.style.display = (anim === 'glow' || anim === 'neon') ? 'block' : 'none';
+        });
+    }
+
+    if (nameColorTypeInput) {
+        nameColorTypeInput.addEventListener('change', toggleNameFields);
+    }
+    if (nameAnimationInput) {
+        nameAnimationInput.addEventListener('change', toggleNameFields);
+    }
+    // Run initial toggle
+    toggleNameFields();
+
     function updatePreview() {
         const name = displayNameInput.value.trim() || usernameInput.value.trim() || 'User';
-        $('#previewName').textContent = name;
+        const previewNameEl = $('#previewName');
+        if (previewNameEl) {
+            const escapeHtml = (str) => str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+            
+            const colorType = nameColorTypeInput ? nameColorTypeInput.value : 'default';
+            const solidColor = nameSolidColorInput ? nameSolidColorInput.value : '#ffffff';
+            const gradColor1 = nameGradColor1Input ? nameGradColor1Input.value : '#ffffff';
+            const gradColor2 = nameGradColor2Input ? nameGradColor2Input.value : '#8b5cf6';
+            const gradAngle = nameGradAngleInput ? nameGradAngleInput.value : '90';
+            const anim = nameAnimationInput ? nameAnimationInput.value : 'none';
+            const glowColor = nameGlowColorInput ? nameGlowColorInput.value : '#8b5cf6';
+
+            previewNameEl.dataset.nameType = colorType;
+            previewNameEl.dataset.nameAnim = anim;
+            previewNameEl.dataset.text = name;
+
+            previewNameEl.style.setProperty('--name-color1', solidColor);
+            previewNameEl.style.setProperty('--name-color2', gradColor1);
+            previewNameEl.style.setProperty('--name-color3', gradColor2);
+            previewNameEl.style.setProperty('--name-angle', `${gradAngle}deg`);
+            previewNameEl.style.setProperty('--name-glow-color', glowColor);
+
+            if (anim === 'bounce') {
+                let formatted = '';
+                const chars = [...name];
+                chars.forEach((char, i) => {
+                    if (char === ' ') {
+                        formatted += `<span class="name-char space-char" style="--char-index: ${i};">&nbsp;</span>`;
+                    } else {
+                        formatted += `<span class="name-char" style="--char-index: ${i};">${escapeHtml(char)}</span>`;
+                    }
+                });
+                previewNameEl.innerHTML = formatted;
+            } else {
+                previewNameEl.textContent = name;
+            }
+
+            if (typeof window.initNameSparkles === 'function') {
+                window.initNameSparkles();
+            }
+        }
         $('#previewUsername').textContent = '@' + (usernameInput.value.trim() || 'username');
         $('#previewBio').textContent = bioInput.value.trim() || 'Your bio will appear here.';
         const statusBadge = $('#previewStatusBadge');
@@ -347,7 +425,7 @@
         }
     }
 
-    [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, layoutInput, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, borderColorInput, borderWidthInput].filter(Boolean).forEach((input) => {
+    [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, layoutInput, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput].filter(Boolean).forEach((input) => {
         input.addEventListener('input', updatePreview);
         input.addEventListener('change', updatePreview);
     });

@@ -192,6 +192,22 @@ $visibleContents = $showContents ? $contents : [];
 $visibleBlocks = $showContents ? $blocks : [];
 $badgesDisplay = $profile['profile_badges_display'] ?? 'both';
 $badgesPosition = $profile['profile_badges_position'] ?? 'below_bio';
+
+$nameStyle = [];
+if ($profile && !empty($profile['profile_name_style'])) {
+    $nameStyle = json_decode($profile['profile_name_style'], true);
+}
+if (!is_array($nameStyle)) {
+    $nameStyle = [];
+}
+$nameType = $nameStyle['type'] ?? 'default';
+$nameAnim = $nameStyle['animation'] ?? 'none';
+$nameSolidColor = $nameStyle['solid_color'] ?? '#ffffff';
+$nameGradColor1 = $nameStyle['grad_color1'] ?? '#ffffff';
+$nameGradColor2 = $nameStyle['grad_color2'] ?? '#8b5cf6';
+$nameGradAngle = $nameStyle['grad_angle'] ?? 90;
+$nameGlowColor = $nameStyle['glow_color'] ?? '#8b5cf6';
+
 $showMiniBadges = $showBadges && ($badgesDisplay === 'both' || $badgesDisplay === 'card_only');
 $showBadgesSection = $showBadges && ($badgesDisplay === 'both' || $badgesDisplay === 'tab_only');
 $visibleBadges = $showBadges ? $badges : [];
@@ -283,8 +299,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.0.7">
-    <script src="/assets/js/profile.js?v=4.0.7" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.0.8">
+    <script src="/assets/js/profile.js?v=4.0.8" defer></script>
     <?php
     $googleFonts = [
         'Poppins' => 'Poppins',
@@ -466,7 +482,13 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 
                 <div class="bio-name-block profile-smart-name">
                     <div class="profile-name-row">
-                        <h1><?php echo profile_h($displayName); ?></h1>
+                        <h1 class="profile-display-name" 
+                            data-name-type="<?php echo profile_h($nameType); ?>" 
+                            data-name-anim="<?php echo profile_h($nameAnim); ?>" 
+                            data-text="<?php echo profile_h($displayName); ?>"
+                            style="--name-color1: <?php echo profile_h($nameSolidColor); ?>; --name-color2: <?php echo profile_h($nameGradColor1); ?>; --name-color3: <?php echo profile_h($nameGradColor2); ?>; --name-angle: <?php echo profile_h($nameGradAngle); ?>deg; --name-glow-color: <?php echo profile_h($nameGlowColor); ?>;">
+                            <?php echo profile_format_name($displayName, $nameStyle); ?>
+                        </h1>
                         <?php if ($badgesPosition === 'right_of_name') echo $renderMiniBadgesHtml; ?>
                     </div>
                     <p class="bio-username">@<?php echo profile_h($profile['username']); ?></p>
