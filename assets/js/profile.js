@@ -647,6 +647,16 @@
         tooltipEl = document.createElement('div');
         tooltipEl.className = 'profile-custom-tooltip';
         tooltipEl.setAttribute('aria-hidden', 'true');
+        
+        // Set fallback inline styles to ensure visibility transitions work regardless of cached CSS
+        tooltipEl.style.position = 'fixed';
+        tooltipEl.style.zIndex = '999999';
+        tooltipEl.style.pointerEvents = 'none';
+        tooltipEl.style.opacity = '0';
+        tooltipEl.style.visibility = 'hidden';
+        tooltipEl.style.transform = 'translateY(5px) scale(0.96)';
+        tooltipEl.style.transition = 'opacity 0.15s cubic-bezier(0.25, 1, 0.5, 1), transform 0.15s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.15s linear';
+        
         document.body.appendChild(tooltipEl);
         return tooltipEl;
     };
@@ -655,16 +665,20 @@
         const tooltip = createTooltip();
         tooltip.textContent = text;
         
-        tooltip.classList.remove('is-visible', 'pos-top', 'pos-bottom');
+        tooltip.classList.remove('pos-top', 'pos-bottom');
+        
+        // Temporarily show to calculate dimensions (opacity: 0 makes it invisible during measurement)
+        tooltip.style.display = 'block';
+        tooltip.style.visibility = 'visible';
+        const tWidth = tooltip.offsetWidth;
+        const tHeight = tooltip.offsetHeight;
+        tooltip.style.visibility = 'hidden';
         
         // Position
         const targetRect = target.getBoundingClientRect();
-        const tWidth = tooltip.offsetWidth;
-        const tHeight = tooltip.offsetHeight;
         
         // Position horizontally (center relative to target in viewport coordinates)
         let left = targetRect.left + (targetRect.width - tWidth) / 2;
-        // Keep within viewport horizontal bounds
         const padding = 8;
         if (left < padding) left = padding;
         if (left + tWidth > window.innerWidth - padding) {
@@ -684,13 +698,20 @@
         tooltip.style.left = `${left}px`;
         tooltip.style.top = `${top}px`;
         tooltip.classList.add(posClass);
-        tooltip.classList.add('is-visible');
+        
+        // Animate in
+        tooltip.style.opacity = '1';
+        tooltip.style.visibility = 'visible';
+        tooltip.style.transform = 'translateY(0) scale(1)';
+        
         activeTooltip = target;
     };
 
     const hideTooltip = () => {
         if (tooltipEl) {
-            tooltipEl.classList.remove('is-visible');
+            tooltipEl.style.opacity = '0';
+            tooltipEl.style.visibility = 'hidden';
+            tooltipEl.style.transform = 'translateY(5px) scale(0.96)';
         }
         activeTooltip = null;
     };
