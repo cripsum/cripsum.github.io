@@ -78,6 +78,17 @@ $profileEffect = profile_allowed_value((string)($_POST['profile_effect'] ?? 'non
 $avatarRingEnabled = profile_bool_from_post('avatar_ring_enabled', true);
 $avatarRingStyle = profile_allowed_value((string)($_POST['avatar_ring_style'] ?? 'spin'), ['spin', 'pulse', 'orbit', 'glow', 'dual', 'rainbow', 'halo', 'neon', 'spark', 'glitch', 'none'], 'spin');
 $avatarRingColor = profile_normalize_hex_color($_POST['avatar_ring_color'] ?? $accentColor);
+
+$nameStyleConfig = [
+    'type' => profile_allowed_value((string)($_POST['profile_name_color_type'] ?? 'default'), ['default', 'solid', 'gradient'], 'default'),
+    'solid_color' => profile_normalize_hex_color($_POST['profile_name_solid_color'] ?? '#ffffff'),
+    'grad_color1' => profile_normalize_hex_color($_POST['profile_name_grad_color1'] ?? '#ffffff'),
+    'grad_color2' => profile_normalize_hex_color($_POST['profile_name_grad_color2'] ?? '#8b5cf6'),
+    'grad_angle' => min(max((int)($_POST['profile_name_grad_angle'] ?? 90), 0), 360),
+    'animation' => profile_allowed_value((string)($_POST['profile_name_animation'] ?? 'none'), ['none', 'rainbow', 'glow', 'sparkles', 'fire', 'water', 'glitch', 'neon', 'bounce'], 'none'),
+    'glow_color' => profile_normalize_hex_color($_POST['profile_name_glow_color'] ?? '#8b5cf6')
+];
+$profileNameStyleJson = json_encode($nameStyleConfig);
 $showStats = profile_bool_from_post('profile_show_stats', true);
 $showSocials = profile_bool_from_post('profile_show_socials', true);
 $showLinks = profile_bool_from_post('profile_show_links', true);
@@ -223,11 +234,12 @@ try {
             profile_enter_text = ?, profile_click_to_enter = ?, profile_socials_style = ?, profile_show_embeds = ?, profile_sections_order = ?, profile_badges_display = ?,
             profile_badges_position = ?, discord_server_invite = ?, discord_server_cache = ?, discord_server_cache_time = ?,
             profile_font = ?, profile_border_radius = ?, profile_card_opacity = ?, profile_border_color = ?, profile_border_width = ?,
+            profile_name_style = ?,
             profile_updated_at = NOW()
         WHERE id = ?
     ");
     $stmt->bind_param(
-        'sssssssssssssiisssssssiiiiiiiiiiisisisssssisiisii',
+        'sssssssssssssiisssssssiiiiiiiiiiisisisssssisiisiisi',
         $username,
         $displayNameDb,
         $bioDb,
@@ -276,6 +288,7 @@ try {
         $cardOpacity,
         $borderColorDb,
         $borderWidth,
+        $profileNameStyleJson,
         $targetUserId
     );
     if (!$stmt->execute()) throw new RuntimeException('Error updating profile.');

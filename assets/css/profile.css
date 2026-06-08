@@ -6521,6 +6521,192 @@ body[data-theme="light"] .profile-custom-tooltip.pos-bottom::after {
     }
 }
 
+/* Premium Custom Display Name Effects */
+.profile-display-name {
+    position: relative;
+    display: inline-block;
+    color: var(--profile-text-color, #fff);
+    transition: all 0.3s ease;
+}
+
+/* 1. Name color types */
+.profile-display-name[data-name-type="solid"] {
+    color: var(--name-color1, #fff) !important;
+}
+
+.profile-display-name[data-name-type="gradient"] {
+    background: linear-gradient(var(--name-angle, 90deg), var(--name-color2, #ffffff), var(--name-color3, #8b5cf6)) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    display: inline-block;
+}
+
+/* 2. Animations / Effects */
+/* Rainbow */
+.profile-display-name[data-name-anim="rainbow"] {
+    background: linear-gradient(90deg, #ff0055, #7a00ff, #00e5ff, #00ff66, #ff0055) !important;
+    background-size: 200% auto !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    display: inline-block;
+    animation: nameRainbowShift 3s linear infinite !important;
+}
+@keyframes nameRainbowShift {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+}
+
+/* Glow */
+.profile-display-name[data-name-anim="glow"] {
+    text-shadow: 0 0 10px var(--name-glow-color, var(--accent)), 0 0 20px var(--name-glow-color, var(--accent)) !important;
+    animation: nameGlowPulse 1.8s ease-in-out infinite alternate !important;
+}
+@keyframes nameGlowPulse {
+    from {
+        text-shadow: 0 0 8px var(--name-glow-color, var(--accent)), 0 0 15px var(--name-glow-color, var(--accent)), 0 0 22px var(--name-glow-color, var(--accent));
+    }
+    to {
+        text-shadow: 0 0 16px var(--name-glow-color, var(--accent)), 0 0 28px var(--name-glow-color, var(--accent)), 0 0 40px var(--name-glow-color, var(--accent));
+    }
+}
+
+/* Fire */
+.profile-display-name[data-name-anim="fire"] {
+    background: linear-gradient(0deg, #ff3300 0%, #ff7700 50%, #ffdd00 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    display: inline-block;
+    animation: nameFireWave 1.5s ease-in-out infinite alternate !important;
+}
+@keyframes nameFireWave {
+    0% {
+        filter: drop-shadow(0 -2px 2px rgba(255, 51, 0, 0.5)) brightness(1);
+    }
+    100% {
+        filter: drop-shadow(0 -4px 5px rgba(255, 119, 0, 0.85)) brightness(1.25);
+    }
+}
+
+/* Water */
+.profile-display-name[data-name-anim="water"] {
+    background: linear-gradient(180deg, #0044ff, #00ffcc, #0044ff) !important;
+    background-size: 100% 200% !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    display: inline-block;
+    animation: nameWaterShift 3.5s ease-in-out infinite !important;
+    filter: drop-shadow(0 2px 4px rgba(0, 68, 255, 0.45));
+}
+@keyframes nameWaterShift {
+    0%, 100% { background-position: center 0%; }
+    50% { background-position: center 100%; }
+}
+
+/* Glitch */
+.profile-display-name[data-name-anim="glitch"] {
+    position: relative;
+    display: inline-block;
+}
+.profile-display-name[data-name-anim="glitch"]::before,
+.profile-display-name[data-name-anim="glitch"]::after {
+    content: attr(data-text) !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: transparent !important;
+}
+.profile-display-name[data-name-anim="glitch"]::before {
+    left: 2px !important;
+    text-shadow: -1px 0 #ff0055 !important;
+    clip: rect(44px, 450px, 56px, 0) !important;
+    animation: nameGlitchAnim1 4s infinite linear alternate-reverse !important;
+}
+.profile-display-name[data-name-anim="glitch"]::after {
+    left: -2px !important;
+    text-shadow: -1px 0 #00ffff, 0 1px #00ffff !important;
+    clip: rect(85px, 450px, 140px, 0) !important;
+    animation: nameGlitchAnim2 4s infinite linear alternate-reverse !important;
+}
+@keyframes nameGlitchAnim1 {
+    0% { clip: rect(15px, 9999px, 66px, 0); }
+    12% { clip: rect(85px, 9999px, 5px, 0); }
+    25% { clip: rect(32px, 9999px, 115px, 0); }
+    38% { clip: rect(95px, 9999px, 43px, 0); }
+    50% { clip: rect(12px, 9999px, 85px, 0); }
+    62% { clip: rect(76px, 9999px, 120px, 0); }
+    75% { clip: rect(5px, 9999px, 15px, 0); }
+    88% { clip: rect(110px, 9999px, 95px, 0); }
+    100% { clip: rect(43px, 9999px, 50px, 0); }
+}
+@keyframes nameGlitchAnim2 {
+    0% { clip: rect(65px, 9999px, 15px, 0); }
+    12% { clip: rect(12px, 9999px, 85px, 0); }
+    25% { clip: rect(95px, 9999px, 43px, 0); }
+    38% { clip: rect(110px, 9999px, 95px, 0); }
+    50% { clip: rect(5px, 9999px, 15px, 0); }
+    62% { clip: rect(76px, 9999px, 120px, 0); }
+    75% { clip: rect(32px, 9999px, 115px, 0); }
+    88% { clip: rect(85px, 9999px, 5px, 0); }
+    100% { clip: rect(15px, 9999px, 66px, 0); }
+}
+
+/* Neon */
+.profile-display-name[data-name-anim="neon"] {
+    color: #fff !important;
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px var(--name-glow-color, var(--accent)), 0 0 30px var(--name-glow-color, var(--accent)) !important;
+    animation: nameNeonFlicker 3s infinite alternate !important;
+}
+@keyframes nameNeonFlicker {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px var(--name-glow-color, var(--accent)), 0 0 30px var(--name-glow-color, var(--accent));
+        opacity: 1;
+    }
+    20%, 24%, 55% {
+        text-shadow: none;
+        opacity: 0.6;
+    }
+}
+
+/* Bounce */
+.profile-display-name[data-name-anim="bounce"] .name-char {
+    display: inline-block !important;
+    animation: nameLetterBounce 1s ease-in-out infinite alternate !important;
+    animation-delay: calc(var(--char-index) * 0.08s) !important;
+}
+.profile-display-name[data-name-anim="bounce"] .name-char.space-char {
+    width: 0.26em !important;
+}
+@keyframes nameLetterBounce {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-8px); }
+}
+
+/* Sparkles container & sparkle elements */
+.name-sparkle {
+    position: absolute !important;
+    width: 7px !important;
+    height: 7px !important;
+    pointer-events: none !important;
+    clip-path: polygon(50% 0%, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0% 50%, 35% 35%) !important;
+    z-index: 10 !important;
+    animation: nameSparkleFade 0.8s ease-out forwards !important;
+}
+@keyframes nameSparkleFade {
+    0% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    40% {
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.2) rotate(120deg);
+        opacity: 0;
+    }
+}
+
 
 
 

@@ -783,4 +783,38 @@
         cancelShow();
         hideTooltip();
     }, { passive: true });
+
+    // Name Sparkles Generator
+    let nameSparklesInterval = null;
+    const initNameSparkles = () => {
+        if (nameSparklesInterval) {
+            clearInterval(nameSparklesInterval);
+            nameSparklesInterval = null;
+        }
+        const nameEl = document.querySelector('.profile-display-name[data-name-anim="sparkles"]');
+        if (!nameEl) return;
+
+        nameSparklesInterval = setInterval(() => {
+            const rect = nameEl.getBoundingClientRect();
+            if (rect.width === 0) return;
+
+            const sparkle = document.createElement('div');
+            sparkle.className = 'name-sparkle';
+            
+            const x = Math.random() * rect.width;
+            const y = Math.random() * rect.height;
+            
+            sparkle.style.left = `${x}px`;
+            sparkle.style.top = `${y}px`;
+            
+            const colors = ['#ffffff', 'var(--accent)', 'var(--accent-2, #8b5cf6)'];
+            sparkle.style.background = colors[Math.floor(Math.random() * colors.length)];
+            
+            nameEl.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 800);
+        }, 180);
+    };
+
+    initNameSparkles();
+    window.initNameSparkles = initNameSparkles;
 })();
