@@ -6058,7 +6058,7 @@ body[data-profile-effect="sakura_falling"] .profile-effects-layer::before {
     letter-spacing: 0.01em !important;
     color: rgba(255, 255, 255, 0.92) !important;
     background: rgba(10, 10, 16, 0.86) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid color-mix(in srgb, var(--accent, #0f5bff) 35%, rgba(255, 255, 255, 0.05)) !important;
     border-radius: 6px !important;
     box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06) inset !important;
     backdrop-filter: blur(16px) saturate(180%) !important;
@@ -6073,7 +6073,7 @@ body[data-profile-effect="sakura_falling"] .profile-effects-layer::before {
 body[data-theme="light"] .profile-custom-tooltip {
     color: rgba(15, 23, 42, 0.95) !important;
     background: rgba(255, 255, 255, 0.92) !important;
-    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    border: 1px solid color-mix(in srgb, var(--accent, #0f5bff) 30%, rgba(0, 0, 0, 0.06)) !important;
     box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.02) inset !important;
 }
 
