@@ -239,7 +239,7 @@ try {
         WHERE id = ?
     ");
     $stmt->bind_param(
-        'sssssssssssssiisssssssiiiiiiiiiiisisisssssisiisiisi',
+        'sssssssssssssiisssssssiiiiiiiiiiisisisssssisiisisi',
         $username,
         $displayNameDb,
         $bioDb,
