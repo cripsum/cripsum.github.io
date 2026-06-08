@@ -6548,7 +6548,7 @@ body[data-theme="light"] .profile-custom-tooltip.pos-bottom::after {
 }
 @keyframes nameRainbowShift {
     0% { background-position: 0% 0; }
-    100% { background-position: -200% 0; }
+    100% { background-position: 100% 0; }
 }
 
 /* Glow */
@@ -6620,13 +6620,13 @@ body[data-theme="light"] .profile-custom-tooltip.pos-bottom::after {
     left: 2px !important;
     text-shadow: -2px 0 #ff0055 !important;
     clip-path: inset(40% 0 30% 0) !important;
-    animation: nameGlitchAnim1 1s infinite linear alternate-reverse !important;
+    animation: nameGlitchAnim1 2s infinite steps(1) alternate-reverse !important;
 }
 .profile-display-name[data-name-anim="glitch"]::after {
     left: -2px !important;
     text-shadow: -2px 0 #00ffff, 0 1px #00ffff !important;
     clip-path: inset(15% 0 65% 0) !important;
-    animation: nameGlitchAnim2 1.2s infinite linear alternate-reverse !important;
+    animation: nameGlitchAnim2 1.5s infinite steps(1) alternate-reverse !important;
 }
 @keyframes nameGlitchAnim1 {
     0% {

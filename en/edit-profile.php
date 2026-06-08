@@ -33,6 +33,13 @@ if ($profile && !empty($profile['profile_name_style'])) {
 if (!is_array($nameStyle)) {
     $nameStyle = [];
 }
+$nameType = $nameStyle['type'] ?? 'default';
+$nameAnim = $nameStyle['animation'] ?? 'none';
+$nameSolidColor = $nameStyle['solid_color'] ?? '#ffffff';
+$nameGradColor1 = $nameStyle['grad_color1'] ?? '#ffffff';
+$nameGradColor2 = $nameStyle['grad_color2'] ?? '#8b5cf6';
+$nameGradAngle = $nameStyle['grad_angle'] ?? 90;
+$nameGlowColor = $nameStyle['glow_color'] ?? '#8b5cf6';
 
 $socials = profile_list_socials($mysqli, $targetUserId, false);
 $links = profile_list_links($mysqli, $targetUserId, false);
@@ -80,12 +87,12 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Edit profile</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=4.1.1">
+    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=4.1.3">
     <preconnect href="https://fonts.googleapis.com">
         <preconnect href="https://fonts.gstatic.com" crossorigin>
             <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Inter:wght@300..900&family=Roboto:wght@300..900&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Fira+Code:wght@300..700&family=PT+Mono&family=Cinzel:wght@400..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Bebas+Neue&family=Press+Start+2P&family=Bungee&family=Permanent+Marker&family=Creepster&family=Shojumaru&display=swap" rel="stylesheet">
-            <script src="/assets/js/profile.js?v=4.1.1" defer></script>
-            <script src="/assets/js/edit-profile-en.js?v=4.1.1" defer></script>
+            <script src="/assets/js/profile.js?v=4.1.3" defer></script>
+            <script src="/assets/js/edit-profile-en.js?v=4.1.3" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-effect="<?php echo profile_h($profile['profile_effect'] ?? 'none'); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" style="--profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
@@ -680,7 +687,13 @@ function profile_json_script(string $id, array $data): void
                     <div class="bio-avatar-ring" id="previewAvatarRing"></div><img class="bio-avatar" id="previewAvatar" src="<?php echo profile_h(profile_avatar_url($profile, 256)); ?>" alt="">
                 </div>
                 <div class="bio-name-block">
-                    <h1 id="previewName"><?php echo profile_h($displayName); ?></h1>
+                    <h1 id="previewName" class="profile-display-name" 
+                        data-name-type="<?php echo profile_h($nameType); ?>" 
+                        data-name-anim="<?php echo profile_h($nameAnim); ?>" 
+                        data-text="<?php echo profile_h($displayName); ?>"
+                        style="--name-color1: <?php echo profile_h($nameSolidColor); ?>; --name-color2: <?php echo profile_h($nameGradColor1); ?>; --name-color3: <?php echo profile_h($nameGradColor2); ?>; --name-angle: <?php echo profile_h($nameGradAngle); ?>deg; --name-glow-color: <?php echo profile_h($nameGlowColor); ?>;">
+                        <?php echo profile_format_name($displayName, $nameStyle); ?>
+                    </h1>
                     <p class="bio-username" id="previewUsername">@<?php echo profile_h($profile['username']); ?></p>
                 </div>
                 <p class="bio-tagline" id="previewBio"><?php echo profile_h($profile['bio'] ?: 'Your bio will appear here.'); ?></p>
