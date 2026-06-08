@@ -6538,15 +6538,15 @@ body[data-theme="light"] .profile-custom-tooltip.pos-bottom::after {
 /* Rainbow */
 .profile-display-name[data-name-anim="rainbow"] {
     background: linear-gradient(90deg, #ff0055, #7a00ff, #00e5ff, #00ff66, #ff0055) !important;
-    background-size: 200% auto !important;
+    background-size: 200% 100% !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     display: inline-block;
     animation: nameRainbowShift 3s linear infinite !important;
 }
 @keyframes nameRainbowShift {
-    0% { background-position: 0% center; }
-    100% { background-position: 200% center; }
+    0% { background-position: 0% 50%; }
+    100% { background-position: -200% 50%; }
 }
 
 /* Glow */
@@ -6599,6 +6599,8 @@ body[data-theme="light"] .profile-custom-tooltip.pos-bottom::after {
 .profile-display-name[data-name-anim="glitch"] {
     position: relative;
     display: inline-block;
+    color: var(--profile-text-color, #fff) !important;
+    -webkit-text-fill-color: var(--profile-text-color, #fff) !important;
 }
 .profile-display-name[data-name-anim="glitch"]::before,
 .profile-display-name[data-name-anim="glitch"]::after {
@@ -6609,40 +6611,42 @@ body[data-theme="light"] .profile-custom-tooltip.pos-bottom::after {
     width: 100% !important;
     height: 100% !important;
     background: transparent !important;
+    color: var(--profile-text-color, #fff) !important;
+    -webkit-text-fill-color: var(--profile-text-color, #fff) !important;
 }
 .profile-display-name[data-name-anim="glitch"]::before {
     left: 2px !important;
-    text-shadow: -1px 0 #ff0055 !important;
-    clip: rect(44px, 450px, 56px, 0) !important;
-    animation: nameGlitchAnim1 4s infinite linear alternate-reverse !important;
+    text-shadow: -2px 0 #ff0055 !important;
+    clip-path: inset(40% 0 30% 0) !important;
+    animation: nameGlitchAnim1 2s infinite linear alternate-reverse !important;
 }
 .profile-display-name[data-name-anim="glitch"]::after {
     left: -2px !important;
-    text-shadow: -1px 0 #00ffff, 0 1px #00ffff !important;
-    clip: rect(85px, 450px, 140px, 0) !important;
-    animation: nameGlitchAnim2 4s infinite linear alternate-reverse !important;
+    text-shadow: -2px 0 #00ffff, 0 1px #00ffff !important;
+    clip-path: inset(15% 0 65% 0) !important;
+    animation: nameGlitchAnim2 2s infinite linear alternate-reverse !important;
 }
 @keyframes nameGlitchAnim1 {
-    0% { clip: rect(15px, 9999px, 66px, 0); }
-    12% { clip: rect(85px, 9999px, 5px, 0); }
-    25% { clip: rect(32px, 9999px, 115px, 0); }
-    38% { clip: rect(95px, 9999px, 43px, 0); }
-    50% { clip: rect(12px, 9999px, 85px, 0); }
-    62% { clip: rect(76px, 9999px, 120px, 0); }
-    75% { clip: rect(5px, 9999px, 15px, 0); }
-    88% { clip: rect(110px, 9999px, 95px, 0); }
-    100% { clip: rect(43px, 9999px, 50px, 0); }
+    0% { clip-path: inset(15% 0 66% 0); }
+    12% { clip-path: inset(85% 0 5% 0); }
+    25% { clip-path: inset(32% 0 15% 0); }
+    38% { clip-path: inset(5% 0 83% 0); }
+    50% { clip-path: inset(62% 0 15% 0); }
+    62% { clip-path: inset(16% 0 70% 0); }
+    75% { clip-path: inset(85% 0 5% 0); }
+    88% { clip-path: inset(10% 0 75% 0); }
+    100% { clip-path: inset(43% 0 50% 0); }
 }
 @keyframes nameGlitchAnim2 {
-    0% { clip: rect(65px, 9999px, 15px, 0); }
-    12% { clip: rect(12px, 9999px, 85px, 0); }
-    25% { clip: rect(95px, 9999px, 43px, 0); }
-    38% { clip: rect(110px, 9999px, 95px, 0); }
-    50% { clip: rect(5px, 9999px, 15px, 0); }
-    62% { clip: rect(76px, 9999px, 120px, 0); }
-    75% { clip: rect(32px, 9999px, 115px, 0); }
-    88% { clip: rect(85px, 9999px, 5px, 0); }
-    100% { clip: rect(15px, 9999px, 66px, 0); }
+    0% { clip-path: inset(65% 0 15% 0); }
+    12% { clip-path: inset(12% 0 80% 0); }
+    25% { clip-path: inset(80% 0 10% 0); }
+    38% { clip-path: inset(10% 0 75% 0); }
+    50% { clip-path: inset(50% 0 35% 0); }
+    62% { clip-path: inset(76% 0 12% 0); }
+    75% { clip-path: inset(32% 0 50% 0); }
+    88% { clip-path: inset(55% 0 5% 0); }
+    100% { clip-path: inset(15% 0 66% 0); }
 }
 
 /* Neon */
@@ -6667,6 +6671,14 @@ body[data-theme="light"] .profile-custom-tooltip.pos-bottom::after {
     display: inline-block !important;
     animation: nameLetterBounce 1s ease-in-out infinite alternate !important;
     animation-delay: calc(var(--char-index) * 0.08s) !important;
+    color: inherit;
+    -webkit-text-fill-color: currentColor !important;
+}
+.profile-display-name[data-name-type="gradient"] .name-char {
+    background: linear-gradient(var(--name-angle, 90deg), var(--name-color2, #ffffff), var(--name-color3, #8b5cf6)) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
 }
 .profile-display-name[data-name-anim="bounce"] .name-char.space-char {
     width: 0.26em !important;
