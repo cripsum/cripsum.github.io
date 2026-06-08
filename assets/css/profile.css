@@ -6047,7 +6047,7 @@ body[data-profile-effect="sakura_falling"] .profile-effects-layer::before {
 
 /* Premium Custom Tooltips System */
 .profile-custom-tooltip {
-    display: none;
+    visibility: hidden;
     position: fixed;
     z-index: 19000;
     pointer-events: none !important;
@@ -6064,7 +6064,7 @@ body[data-profile-effect="sakura_falling"] .profile-effects-layer::before {
     -webkit-backdrop-filter: blur(14px);
     opacity: 0;
     transform: translateY(5px) scale(0.96);
-    transition: opacity 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: opacity 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), visibility 0.18s linear;
     white-space: nowrap;
     text-align: center;
 }
@@ -6078,6 +6078,7 @@ body[data-theme="light"] .profile-custom-tooltip {
 
 .profile-custom-tooltip.is-visible {
     opacity: 1;
+    visibility: visible;
     transform: translateY(0) scale(1);
 }
 
