@@ -6559,24 +6559,16 @@ body[data-theme="light"] .profile-custom-tooltip.pos-bottom::after {
 }
 
 /* 1. Glow: Soft, breathing background aura */
-.public-profile-body .ring-style-glow.bio-avatar-wrap,
-.profile-editor-shell .ring-style-glow.bio-avatar-wrap {
-    animation: premiumGlowWrap 3s ease-in-out infinite alternate !important;
-}
-@keyframes premiumGlowWrap {
-    0% { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--profile-ring, var(--accent)) 55%, transparent)); }
-    100% { filter: drop-shadow(0 0 18px color-mix(in srgb, var(--profile-ring, var(--accent)) 85%, transparent)); }
-}
 .public-profile-body .ring-style-glow .bio-avatar-ring,
 .profile-editor-shell .ring-style-glow .bio-avatar-ring {
     background: var(--profile-ring, var(--accent)) !important;
-    filter: none !important;
+    filter: blur(14px) !important;
     opacity: 0.65 !important;
     animation: premiumRingGlow 3s ease-in-out infinite alternate !important;
 }
 @keyframes premiumRingGlow {
-    0% { transform: scale(0.96); opacity: 0.45; }
-    100% { transform: scale(1.06); opacity: 0.75; }
+    0% { transform: scale(0.96); opacity: 0.5; }
+    100% { transform: scale(1.06); opacity: 0.8; }
 }
 
 /* 2. Spin: Clean, modern rotating gradient */
@@ -6696,20 +6688,15 @@ body[data-avatar-shape="badge"] .ring-style-orbit .bio-avatar-ring::before {
 }
 
 /* 7. Halo: Clean blurred halo light beam */
-.public-profile-body .ring-style-halo.bio-avatar-wrap,
-.profile-editor-shell .ring-style-halo.bio-avatar-wrap {
-    animation: premiumRingHaloWrap 4s ease-in-out infinite alternate !important;
-}
-@keyframes premiumRingHaloWrap {
-    0% { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--profile-ring, var(--accent)) 40%, transparent)); }
-    100% { filter: drop-shadow(0 0 12px color-mix(in srgb, var(--profile-ring, var(--accent)) 85%, transparent)); }
-}
 .public-profile-body .ring-style-halo .bio-avatar-ring,
 .profile-editor-shell .ring-style-halo .bio-avatar-ring {
-    background: var(--profile-ring, var(--accent)) !important;
-    filter: none !important;
-    opacity: 0.45 !important;
-    animation: none !important;
+    background: radial-gradient(circle, transparent 55%, var(--profile-ring, var(--accent)) 68%, transparent 72%) !important;
+    filter: blur(4px) !important;
+    animation: premiumRingHalo 4s ease-in-out infinite alternate !important;
+}
+@keyframes premiumRingHalo {
+    0% { transform: scale(0.97); opacity: 0.6; }
+    100% { transform: scale(1.05); opacity: 0.95; }
 }
 
 /* 8. Neon: Sharp cyber glowing border */
@@ -7235,4 +7222,15 @@ body[data-avatar-border="0"] .ring-style-neon .bio-avatar-ring {
 
 body[data-avatar-border="0"] .bio-avatar {
     border-width: 0 !important;
+}
+
+/* Restore unclipped circular blurs for Glow and Halo styles on polygons */
+body[data-avatar-shape="hexagon"] .ring-style-glow .bio-avatar-ring,
+body[data-avatar-shape="octagon"] .ring-style-glow .bio-avatar-ring,
+body[data-avatar-shape="badge"] .ring-style-glow .bio-avatar-ring,
+body[data-avatar-shape="hexagon"] .ring-style-halo .bio-avatar-ring,
+body[data-avatar-shape="octagon"] .ring-style-halo .bio-avatar-ring,
+body[data-avatar-shape="badge"] .ring-style-halo .bio-avatar-ring {
+    clip-path: none !important;
+    border-radius: 50% !important;
 }
