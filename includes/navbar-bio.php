@@ -515,7 +515,7 @@ if ($isPublicProfilePage):
      ───────────────────────────────────────────────────────────────────────── -->
 
 <!-- 1. Navigation Overlay -->
-<div id="profileNavOverlay" class="profile-nav-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="<?php echo ($lang === 'it') ? 'Menu di navigazione' : 'Navigation menu'; ?>">
+<div id="profileNavOverlay" class="profile-nav-overlay" style="position: fixed; inset: 0; z-index: 19000; opacity: 0; visibility: hidden; pointer-events: none; display: flex; justify-content: center; align-items: center;" aria-hidden="true" role="dialog" aria-modal="true" aria-label="<?php echo ($lang === 'it') ? 'Menu di navigazione' : 'Navigation menu'; ?>">
     <div class="profile-nav-overlay-backdrop"></div>
     <div class="profile-nav-overlay-container">
         <div class="profile-nav-overlay-header">
@@ -605,7 +605,7 @@ if ($isPublicProfilePage):
 </div>
 
 <!-- 2. User Search Overlay -->
-<div id="profileSearchOverlay" class="profile-nav-overlay profile-search-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="<?php echo ($lang === 'it') ? 'Cerca utenti' : 'Search users'; ?>">
+<div id="profileSearchOverlay" class="profile-nav-overlay profile-search-overlay" style="position: fixed; inset: 0; z-index: 19000; opacity: 0; visibility: hidden; pointer-events: none; display: flex; justify-content: center; align-items: center;" aria-hidden="true" role="dialog" aria-modal="true" aria-label="<?php echo ($lang === 'it') ? 'Cerca utenti' : 'Search users'; ?>">
     <div class="profile-nav-overlay-backdrop"></div>
     <div class="profile-nav-overlay-container">
         <div class="profile-nav-overlay-header">
@@ -627,7 +627,7 @@ if ($isPublicProfilePage):
 </div>
 
 <!-- 3. Report Profile Modal -->
-<div id="profileReportModal" class="profile-report-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="<?php echo ($lang === 'it') ? 'Segnala profilo' : 'Report profile'; ?>">
+<div id="profileReportModal" class="profile-report-modal" style="position: fixed; inset: 0; z-index: 20000; display: grid; place-items: center; opacity: 0; pointer-events: none;" aria-hidden="true" role="dialog" aria-modal="true" aria-label="<?php echo ($lang === 'it') ? 'Segnala profilo' : 'Report profile'; ?>">
     <div class="profile-report-backdrop"></div>
     <div class="profile-report-card">
         <button class="js-close-report" type="button" aria-label="<?php echo ($lang === 'it') ? 'Chiudi' : 'Close'; ?>">&times;</button>

@@ -7290,9 +7290,9 @@ body.profile-overlay-open {
 }
 
 .profile-nav-overlay.is-visible {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
 }
 
 .profile-nav-overlay-backdrop {
@@ -7812,8 +7812,8 @@ body[data-theme="light"] .profile-search-item {
 }
 
 .profile-report-modal.is-visible {
-    opacity: 1;
-    pointer-events: auto;
+    opacity: 1 !important;
+    pointer-events: auto !important;
 }
 
 .profile-report-backdrop {
