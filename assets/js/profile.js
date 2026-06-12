@@ -370,22 +370,115 @@
         syncIcons();
     };
 
+    const handlePointerMove = (event) => {
+        document.documentElement.style.setProperty('--cursor-x', `${event.clientX}px`);
+        document.documentElement.style.setProperty('--cursor-y', `${event.clientY}px`);
+    };
+
+    const handleRainResize = () => {
+        if (window.currentRainInstance) {
+            const canvas = document.querySelector('.profile-effects-layer canvas.raindrop-canvas');
+            if (canvas) {
+                const rect = canvas.getBoundingClientRect();
+                window.currentRainInstance.resize(rect.width, rect.height);
+            }
+        }
+    };
+
     const initProfileEffects = () => {
         const effect = body.dataset.profileEffect || 'none';
         const layer = document.querySelector('.profile-effects-layer');
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+        // Clean up previous WebGL rain if it exists
+        if (window.currentRainInstance) {
+            try {
+                window.currentRainInstance.stop();
+            } catch (e) {
+                console.error('Error stopping RaindropFX:', e);
+            }
+            window.currentRainInstance = null;
+        }
+        if (layer) {
+            const oldCanvas = layer.querySelector('canvas.raindrop-canvas');
+            if (oldCanvas) oldCanvas.remove();
+        }
+        window.removeEventListener('resize', handleRainResize);
+
         const needsPointer = ['cursor_glow', 'spotlight'].includes(effect);
+        window.removeEventListener('pointermove', handlePointerMove);
         if (needsPointer) {
-            window.addEventListener('pointermove', (event) => {
-                document.documentElement.style.setProperty('--cursor-x', `${event.clientX}px`);
-                document.documentElement.style.setProperty('--cursor-y', `${event.clientY}px`);
-            }, { passive: true });
+            window.addEventListener('pointermove', handlePointerMove, { passive: true });
         }
 
         if (!layer || reduceMotion) return;
 
         layer.querySelectorAll('.profile-effect-dot').forEach((dot) => dot.remove());
+
+        if (effect === 'glass_rain') {
+            const hasWebGL2 = !!window.WebGL2RenderingContext && !!document.createElement('canvas').getContext('webgl2');
+            if (hasWebGL2) {
+                const loadRainLibrary = () => {
+                    if (window.RaindropFX) return Promise.resolve();
+                    return new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = '/assets/js/raindrop-fx.js';
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
+                };
+
+                loadRainLibrary().then(() => {
+                    if (body.dataset.profileEffect !== 'glass_rain') return;
+                    
+                    let canvas = layer.querySelector('canvas.raindrop-canvas');
+                    if (!canvas) {
+                        canvas = document.createElement('canvas');
+                        canvas.className = 'raindrop-canvas';
+                        canvas.style.position = 'absolute';
+                        canvas.style.top = '0';
+                        canvas.style.left = '0';
+                        canvas.style.width = '100%';
+                        canvas.style.height = '100%';
+                        canvas.style.pointerEvents = 'none';
+                        canvas.style.zIndex = '1';
+                        layer.appendChild(canvas);
+                    }
+
+                    const rect = canvas.getBoundingClientRect();
+                    canvas.width = rect.width;
+                    canvas.height = rect.height;
+
+                    const bgMedia = document.querySelector('.bio-background__media');
+                    let bgSource = '/img/banner_standard_bg.jpg';
+                    if (bgMedia && bgMedia.tagName === 'IMG') {
+                        bgSource = bgMedia.src;
+                    }
+
+                    try {
+                        const raindropFx = new window.RaindropFX({
+                            canvas: canvas,
+                            background: bgSource,
+                            spawnInterval: [60, 180],
+                            spawnSize: [12, 28],
+                            maxRaindrops: 500,
+                            raindropShadowOffset: 0.75,
+                            raindropLightBump: 0.6
+                        });
+                        raindropFx.start();
+                        window.currentRainInstance = raindropFx;
+                        window.addEventListener('resize', handleRainResize, { passive: true });
+                    } catch (err) {
+                        console.error('Error starting RaindropFX:', err);
+                    }
+                }).catch(err => {
+                    console.error('Failed to load raindrop-fx library:', err);
+                });
+
+                return;
+            }
+        }
 
         const particleMap = {
             soft_particles: 25,
