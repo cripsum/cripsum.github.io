@@ -247,6 +247,18 @@ function profile_json_script(string $id, array $data): void
                         </div>
                     </div>
 
+                    <div class="profile-presets-block profile-mt">
+                        <span><i class="fas fa-shapes"></i> UI Style Presets</span>
+                        <div class="profile-presets-grid" style="grid-template-columns: repeat(3, 1fr);">
+                            <button type="button" class="ui-preset-btn btn-secondary" data-preset="modern" style="padding: 8px; font-size: 0.8rem;">Modern</button>
+                            <button type="button" class="ui-preset-btn btn-secondary" data-preset="glass" style="padding: 8px; font-size: 0.8rem;">Glass</button>
+                            <button type="button" class="ui-preset-btn btn-secondary" data-preset="bubble" style="padding: 8px; font-size: 0.8rem;">Bubble</button>
+                            <button type="button" class="ui-preset-btn btn-secondary" data-preset="sharp" style="padding: 8px; font-size: 0.8rem;">Sharp</button>
+                            <button type="button" class="ui-preset-btn btn-secondary" data-preset="cyber" style="padding: 8px; font-size: 0.8rem;">Cyber</button>
+                            <button type="button" class="ui-preset-btn btn-secondary" data-preset="minimal" style="padding: 8px; font-size: 0.8rem;">Minimal</button>
+                        </div>
+                    </div>
+
                     <div class="bio-section-heading profile-mt">
                         <div><span><i class="fas fa-sliders"></i> Layout & Colors Options</span></div>
                     </div>
@@ -266,6 +278,43 @@ function profile_json_script(string $id, array $data): void
                         <div><span><i class="fas fa-wand-magic-sparkles"></i> Shapes, Borders & Transparency</span></div>
                     </div>
                     <div class="profile-field-grid two">
+                        <label class="profile-field"><span>Global UI Shape</span><select name="profile_ui_shape" id="uiShapeInput">
+                                <?php foreach (['circle' => 'Circle (100%)', 'rounded' => 'Rounded (24px)', 'soft' => 'Soft Rounded (16px)', 'square-rounded' => 'Square Rounded (8px)', 'square' => 'Square (0px)', 'pill' => 'Pill (999px)'] as $val => $lbl): ?>
+                                    <option value="<?php echo $val; ?>" <?php echo ($profile['profile_ui_shape'] ?? 'circle') === $val ? 'selected' : ''; ?>><?php echo $lbl; ?></option>
+                                <?php endforeach; ?>
+                            </select></label>
+                        <label class="profile-field"><span>Avatar PFP Shape</span><select name="profile_avatar_shape" id="avatarShapeInput">
+                                <?php foreach (['circle' => 'Circle', 'squircle' => 'Squircle', 'square' => 'Square', 'hexagon' => 'Hexagon', 'octagon' => 'Octagon', 'badge' => 'Gaming Badge (Shield)'] as $val => $lbl): ?>
+                                    <option value="<?php echo $val; ?>" <?php echo ($profile['profile_avatar_shape'] ?? 'circle') === $val ? 'selected' : ''; ?>><?php echo $lbl; ?></option>
+                                <?php endforeach; ?>
+                            </select></label>
+                            
+                        <label class="profile-field"><span>Social Icons Size</span>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" name="profile_social_size" id="socialSizeInput" min="32" max="72" value="<?php echo (int)($profile['profile_social_size'] ?? 42); ?>" style="flex: 1;">
+                                <span id="socialSizeVal" style="font-weight: 700; min-width: 40px; text-align: right;"><?php echo (int)($profile['profile_social_size'] ?? 42); ?>px</span>
+                            </div>
+                        </label>
+                        <label class="profile-field"><span>Social Icons Spacing</span>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" name="profile_icon_spacing" id="iconSpacingInput" min="0" max="24" value="<?php echo (int)($profile['profile_icon_spacing'] ?? 8); ?>" style="flex: 1;">
+                                <span id="iconSpacingVal" style="font-weight: 700; min-width: 40px; text-align: right;"><?php echo (int)($profile['profile_icon_spacing'] ?? 8); ?>px</span>
+                            </div>
+                        </label>
+
+                        <label class="profile-field"><span>Badge Size</span>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" name="profile_badge_size" id="badgeSizeInput" min="16" max="60" value="<?php echo (int)($profile['profile_badge_size'] ?? 24); ?>" style="flex: 1;">
+                                <span id="badgeSizeVal" style="font-weight: 700; min-width: 40px; text-align: right;"><?php echo (int)($profile['profile_badge_size'] ?? 24); ?>px</span>
+                            </div>
+                        </label>
+                        <label class="profile-field"><span>Buttons Height (Media/Links)</span>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" name="profile_button_size" id="buttonSizeInput" min="32" max="80" value="<?php echo (int)($profile['profile_button_size'] ?? 48); ?>" style="flex: 1;">
+                                <span id="buttonSizeVal" style="font-weight: 700; min-width: 40px; text-align: right;"><?php echo (int)($profile['profile_button_size'] ?? 48); ?>px</span>
+                            </div>
+                        </label>
+
                         <label class="profile-field"><span>Profile font</span><select name="profile_font" id="fontInput">
                                 <?php
                                 $fonts = [

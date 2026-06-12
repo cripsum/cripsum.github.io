@@ -241,8 +241,21 @@
     const clickToEnterInput = $('#clickToEnterInput');
     const enterTextInput = $('#enterTextInput');
 
+    const uiShapeInput = $('#uiShapeInput');
+    const avatarShapeInput = $('#avatarShapeInput');
+    const socialSizeInput = $('#socialSizeInput');
+    const iconSpacingInput = $('#iconSpacingInput');
+    const badgeSizeInput = $('#badgeSizeInput');
+    const buttonSizeInput = $('#buttonSizeInput');
+
+    const socialSizeVal = $('#socialSizeVal');
+    const iconSpacingVal = $('#iconSpacingVal');
+    const badgeSizeVal = $('#badgeSizeVal');
+    const buttonSizeVal = $('#buttonSizeVal');
+
     const fontInput = $('#fontInput');
     const borderRadiusInput = $('#borderRadiusInput');
+    const cardOpacityInput = $('#cardOpacityInput');
     const cardBlurInput = $('#cardBlurInput');
     const borderOpacityInput = $('#borderOpacityInput');
     const borderColorInput = $('#borderColorInput');
@@ -413,6 +426,38 @@
             document.body.style.setProperty('--profile-font', `'${fontInput.value}', sans-serif`);
             document.body.style.fontFamily = `var(--profile-font)`;
         }
+        
+        if (uiShapeInput) {
+            let shapeIco = '50%', shapeBtn = '999px', shapeCard = '24px';
+            switch (uiShapeInput.value) {
+                case 'circle': shapeIco = '50%'; shapeBtn = '999px'; shapeCard = '24px'; break;
+                case 'rounded': shapeIco = '24px'; shapeBtn = '24px'; shapeCard = '24px'; break;
+                case 'soft': shapeIco = '16px'; shapeBtn = '16px'; shapeCard = '16px'; break;
+                case 'square-rounded': shapeIco = '8px'; shapeBtn = '8px'; shapeCard = '8px'; break;
+                case 'square': shapeIco = '0px'; shapeBtn = '0px'; shapeCard = '0px'; break;
+                case 'pill': shapeIco = '999px'; shapeBtn = '999px'; shapeCard = '999px'; break;
+            }
+            document.body.style.setProperty('--ui-shape-icon', shapeIco);
+            document.body.style.setProperty('--ui-shape-button', shapeBtn);
+            document.body.style.setProperty('--ui-shape-card', shapeCard);
+        }
+        if (socialSizeInput) {
+            document.body.style.setProperty('--social-icon-size', `${socialSizeInput.value}px`);
+            if (socialSizeVal) socialSizeVal.textContent = `${socialSizeInput.value}px`;
+        }
+        if (iconSpacingInput) {
+            document.body.style.setProperty('--social-icon-spacing', `${iconSpacingInput.value}px`);
+            if (iconSpacingVal) iconSpacingVal.textContent = `${iconSpacingInput.value}px`;
+        }
+        if (badgeSizeInput) {
+            document.body.style.setProperty('--badge-size', `${badgeSizeInput.value}px`);
+            if (badgeSizeVal) badgeSizeVal.textContent = `${badgeSizeInput.value}px`;
+        }
+        if (buttonSizeInput) {
+            document.body.style.setProperty('--button-height', `${buttonSizeInput.value}px`);
+            if (buttonSizeVal) buttonSizeVal.textContent = `${buttonSizeInput.value}px`;
+        }
+        if (avatarShapeInput) document.body.dataset.avatarShape = avatarShapeInput.value;
 
         document.body.style.setProperty('--profile-ring', ringColorInput ? ringColorInput.value : accentInput.value);
         document.body.dataset.accent = accentInput.value;
@@ -442,9 +487,42 @@
         }
     }
 
-    [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, layoutInput, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput].filter(Boolean).forEach((input) => {
+    [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, layoutInput, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput].filter(Boolean).forEach((input) => {
         input.addEventListener('input', updatePreview);
         input.addEventListener('change', updatePreview);
+    });
+
+
+    $$('.ui-preset-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const preset = btn.dataset.preset;
+            let p_ui = 'circle', p_av = 'circle', p_br = 30, p_bo = 100, p_bw = 1, p_link = 'glass', p_btn = 'pill';
+            switch (preset) {
+                case 'modern': p_ui='soft'; p_av='squircle'; p_br=24; p_bo=20; p_bw=1; p_link='outline'; p_btn='rounded'; break;
+                case 'glass': p_ui='circle'; p_av='circle'; p_br=30; p_bo=30; p_bw=1; p_link='glass'; p_btn='pill'; break;
+                case 'bubble': p_ui='circle'; p_av='circle'; p_br=40; p_bo=0; p_bw=0; p_link='solid'; p_btn='pill'; break;
+                case 'sharp': p_ui='square'; p_av='square'; p_br=0; p_bo=100; p_bw=2; p_link='outline'; p_btn='sharp'; break;
+                case 'cyber': p_ui='square-rounded'; p_av='hexagon'; p_br=8; p_bo=100; p_bw=1; p_link='neon'; p_btn='sharp'; break;
+                case 'minimal': p_ui='rounded'; p_av='circle'; p_br=16; p_bo=10; p_bw=1; p_link='solid'; p_btn='rounded'; break;
+            }
+            
+            if (uiShapeInput) uiShapeInput.value = p_ui;
+            if (avatarShapeInput) avatarShapeInput.value = p_av;
+            if (borderRadiusInput) borderRadiusInput.value = p_br;
+            if (borderOpacityInput) borderOpacityInput.value = p_bo;
+            if (borderWidthInput) borderWidthInput.value = p_bw;
+            if (linkStyleInput) linkStyleInput.value = p_link;
+            if (buttonShapeInput) buttonShapeInput.value = p_btn;
+            
+            [uiShapeInput, avatarShapeInput, borderRadiusInput, borderOpacityInput, borderWidthInput, linkStyleInput, buttonShapeInput].filter(Boolean).forEach(inp => {
+                inp.dispatchEvent(new Event('input', { bubbles: true }));
+                inp.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+            updatePreview();
+            if (typeof window.profileToast === 'function') {
+                window.profileToast(window.location.pathname.includes('/en/') ? 'UI Style preset applied.' : 'UI Style preset applicato.');
+            }
+        });
     });
 
     $$('.profile-preset-btn').forEach((btn) => {

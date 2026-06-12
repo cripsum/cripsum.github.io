@@ -62,6 +62,17 @@ if ($borderWidth < 0 || $borderWidth > 5) $borderWidth = 1;
 $borderOpacity = (int)($_POST['profile_border_opacity'] ?? 100);
 if ($borderOpacity < 0 || $borderOpacity > 100) $borderOpacity = 100;
 
+$uiShape = profile_allowed_value((string)($_POST['profile_ui_shape'] ?? 'circle'), ['circle', 'rounded', 'soft', 'square-rounded', 'square', 'pill'], 'circle');
+$avatarShape = profile_allowed_value((string)($_POST['profile_avatar_shape'] ?? 'circle'), ['circle', 'squircle', 'square', 'hexagon', 'octagon', 'badge'], 'circle');
+$socialSize = (int)($_POST['profile_social_size'] ?? 42);
+if ($socialSize < 32 || $socialSize > 72) $socialSize = 42;
+$iconSpacing = (int)($_POST['profile_icon_spacing'] ?? 8);
+if ($iconSpacing < 0 || $iconSpacing > 24) $iconSpacing = 8;
+$badgeSize = (int)($_POST['profile_badge_size'] ?? 24);
+if ($badgeSize < 16 || $badgeSize > 60) $badgeSize = 24;
+$buttonSize = (int)($_POST['profile_button_size'] ?? 48);
+if ($buttonSize < 32 || $buttonSize > 80) $buttonSize = 48;
+
 $theme = profile_allowed_value((string)($_POST['profile_theme'] ?? 'dark'), ['dark', 'light', 'auto'], 'dark');
 $layout = profile_allowed_value((string)($_POST['profile_layout'] ?? 'standard'), ['standard', 'compact', 'showcase'], 'standard');
 $visibility = profile_allowed_value((string)($_POST['profile_visibility'] ?? 'public'), ['public', 'logged_in', 'private'], 'public');
@@ -239,11 +250,12 @@ try {
             profile_badges_position = ?, discord_server_invite = ?, discord_server_cache = ?, discord_server_cache_time = ?,
             profile_font = ?, profile_border_radius = ?, profile_card_opacity = ?, profile_card_blur = ?, profile_border_opacity = ?, profile_border_color = ?, profile_border_width = ?,
             profile_name_style = ?,
+            profile_ui_shape = ?, profile_avatar_shape = ?, profile_social_size = ?, profile_icon_spacing = ?, profile_badge_size = ?, profile_button_size = ?,
             profile_updated_at = NOW()
         WHERE id = ?
     ");
     $stmt->bind_param(
-        'sssssssssssssiisssssssiiiiiiiiiiisisisssssisiiiisisi',
+        'sssssssssssssiisssssssiiiiiiiiiiisisisssssisiiiisisiissiiii',
         $username,
         $displayNameDb,
         $bioDb,
@@ -295,6 +307,12 @@ try {
         $borderColorDb,
         $borderWidth,
         $profileNameStyleJson,
+        $uiShape,
+        $avatarShape,
+        $socialSize,
+        $iconSpacing,
+        $badgeSize,
+        $buttonSize,
         $targetUserId
     );
     if (!$stmt->execute()) throw new RuntimeException('Error updating profile.');

@@ -114,7 +114,7 @@ body[data-theme="light"] .bio-background__overlay {
 .bio-orb {
     width: 26rem;
     height: 26rem;
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     filter: blur(60px);
     opacity: 0.45;
     animation: bioFloat 9s ease-in-out infinite alternate;
@@ -208,7 +208,7 @@ body[data-theme="light"] .bio-background__overlay {
     min-height: 2rem;
     padding: 0.38rem 0.72rem;
     border: 1px solid rgba(var(--accent-rgb), 0.28);
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     color: var(--text);
     background: rgba(255, 255, 255, 0.06);
     font-size: 0.76rem;
@@ -226,7 +226,7 @@ body[data-theme="light"] .bio-background__overlay {
 .bio-dot {
     width: 0.52rem;
     height: 0.52rem;
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     background: #22c55e;
     box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.12);
 }
@@ -243,7 +243,7 @@ body[data-theme="light"] .bio-background__overlay {
 .bio-avatar-ring {
     position: absolute;
     inset: -8px;
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     background: conic-gradient(from 90deg, transparent, var(--accent), #8b5cf6, transparent 70%);
     animation: bioSpin 8s linear infinite;
     opacity: 0.95;
@@ -253,7 +253,7 @@ body[data-theme="light"] .bio-background__overlay {
     position: relative;
     width: 124px;
     height: 124px;
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     object-fit: cover;
     border: 4px solid rgba(3, 7, 18, 0.82);
     background: rgba(255, 255, 255, 0.06);
@@ -370,7 +370,7 @@ body[data-theme="light"] .bio-name-block h1 {
     gap: 0.45rem;
     padding: 0.55rem 0.7rem;
     border: 1px solid var(--border);
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     background: rgba(255, 255, 255, 0.05);
     color: var(--muted);
     font-size: 0.82rem;
@@ -403,7 +403,7 @@ body[data-theme="light"] .bio-name-block h1 {
     justify-content: center;
     gap: 0.5rem;
     border: 1px solid var(--border);
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     color: var(--text);
     background: rgba(255, 255, 255, 0.07);
     cursor: pointer;
@@ -464,7 +464,7 @@ body[data-theme="light"] .bio-name-block h1 {
 .bio-accent {
     width: 1.35rem;
     height: 1.35rem;
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     border: 2px solid rgba(255, 255, 255, 0.34);
     cursor: pointer;
     background: var(--pick);
@@ -669,7 +669,7 @@ body[data-theme="light"] .bio-name-block h1 {
 .bio-audio input[type="range"] {
     width: 100%;
     height: 6px;
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     appearance: none;
     -webkit-appearance: none;
     background: rgba(255, 255, 255, 0.14);
@@ -681,7 +681,7 @@ body[data-theme="light"] .bio-name-block h1 {
     width: 17px;
     height: 17px;
     border: 0;
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     appearance: none;
     -webkit-appearance: none;
     background: var(--accent);
@@ -692,7 +692,7 @@ body[data-theme="light"] .bio-name-block h1 {
     width: 17px;
     height: 17px;
     border: 0;
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     background: var(--accent);
     box-shadow: 0 0 0 6px rgba(var(--accent-rgb), 0.16);
 }
@@ -876,7 +876,7 @@ body[data-theme="light"] .bio-name-block h1 {
     align-self: flex-start;
     padding: 0.34rem 0.55rem;
     border: 1px solid rgba(var(--accent-rgb), 0.28);
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     color: var(--accent);
     background: rgba(var(--accent-rgb), 0.08);
     font-size: 0.72rem;
@@ -1001,7 +1001,7 @@ body[data-theme="light"] .bio-name-block h1 {
     max-width: min(92vw, 420px);
     padding: 0.85rem 1rem;
     border: 1px solid rgba(var(--accent-rgb), 0.42);
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     color: var(--text);
     background: var(--card-strong);
     box-shadow: var(--shadow);
@@ -1067,7 +1067,7 @@ body[data-theme="light"] .bio-name-block h1 {
     width: 17px;
     height: 17px;
     border: 3px solid rgba(5, 7, 13, 0.96);
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     background: #80848e;
 }
 
@@ -1126,7 +1126,7 @@ body[data-theme="light"] .ds-status-dot {
     width: 2.4rem;
     height: 2.4rem;
     border: 1px solid var(--border);
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     color: var(--text);
     text-decoration: none;
     background: rgba(255, 255, 255, 0.06);
@@ -1483,7 +1483,7 @@ body[data-theme="light"] .profile-edit-hero h1 {
     min-height: 2.6rem;
     padding: 0.65rem 0.9rem;
     border: 0;
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     color: var(--muted);
     background: transparent;
     font-weight: 700;
@@ -1652,7 +1652,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
 
 .profile-remove-row {
     border: 1px solid rgba(244, 63, 94, 0.32);
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     padding: 0.5rem 0.75rem;
     color: #fb7185;
     background: rgba(244, 63, 94, 0.08);
@@ -1972,7 +1972,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
     height: 2.1rem;
     font-size: 0.95rem;
     border: 1px solid rgba(var(--accent-rgb), 0.32);
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     background: rgba(var(--accent-rgb), 0.12);
     color: var(--accent);
     transition: transform var(--transition), border-color var(--transition), background var(--transition);
@@ -2188,7 +2188,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
     right: 0.55rem;
     padding: 0.22rem 0.42rem;
     border: 1px solid rgba(var(--accent-rgb), 0.36);
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     color: var(--accent);
     background: rgba(var(--accent-rgb), 0.1);
     font-size: 0.62rem;
@@ -2603,7 +2603,7 @@ body[data-theme="light"] .profile-row-grid select option {
     width: fit-content;
     margin-top: 0.7rem;
     padding: 0.25rem 0.5rem;
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     color: var(--accent);
     background: rgba(var(--accent-rgb), 0.12);
     font-size: 0.72rem;
@@ -2628,7 +2628,7 @@ body[data-theme="light"] .profile-row-grid select option {
     max-width: 100%;
     padding: 0.6rem 0.72rem;
     border: 1px solid var(--border);
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     color: var(--text);
     background: rgba(255, 255, 255, 0.055);
     text-decoration: none;
@@ -3092,7 +3092,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu button {
 }
 
 .profile-smart-hero::-webkit-scrollbar-thumb {
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     background: rgba(var(--accent-rgb), 0.35);
 }
 
@@ -3235,7 +3235,7 @@ body[data-profile-button-shape="pill"] .profile-link-button,
 body[data-profile-button-shape="pill"] .bio-social,
 body[data-profile-button-shape="pill"] .bio-button,
 body[data-profile-button-shape="pill"] .bio-icon-button {
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
 }
 
 body[data-profile-button-shape="rounded"] .profile-link-button,
@@ -4174,7 +4174,7 @@ body[data-profile-effect="cursor_glow"] .profile-effects-layer::before {
     top: 0;
     width: 24rem;
     height: 24rem;
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     transform: translate3d(var(--cursor-x, 50vw), var(--cursor-y, 50vh), 0) translate(-50%, -50%);
     background: radial-gradient(circle, color-mix(in srgb, var(--accent) 26%, transparent) 0%, color-mix(in srgb, var(--accent-2, #8b5cf6) 12%, transparent) 45%, transparent 70%) !important;
     filter: blur(20px) !important;
@@ -4191,7 +4191,7 @@ body[data-profile-effect="spotlight"] .profile-effects-layer::before {
     top: 0;
     width: 38rem;
     height: 38rem;
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     transform: translate3d(var(--cursor-x, 50vw), var(--cursor-y, 50vh), 0) translate(-50%, -50%);
     background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, color-mix(in srgb, var(--accent) 18%, transparent) 40%, transparent 70%) !important;
     mix-blend-mode: screen !important;
@@ -4763,7 +4763,7 @@ body[data-profile-effect="scanlines"] .profile-effects-layer::after {
 .profile-select-menu span {
     min-width: 2.7rem;
     padding: 0.22rem 0.48rem;
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     color: var(--accent);
     background: rgba(var(--accent-rgb), 0.12);
     font-size: 0.7rem;
@@ -4955,7 +4955,7 @@ body[data-theme="light"] .profile-select-menu {
 .profile-character-rarity {
     display: inline-block;
     padding: 0.16rem 0.42rem;
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     font-size: 0.66rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -4986,7 +4986,7 @@ body[data-theme="light"] .profile-select-menu {
     align-items: center;
     gap: 0.2rem;
     padding: 0.16rem 0.38rem;
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     font-size: 0.66rem;
     font-weight: 700;
     color: var(--muted);
@@ -5032,7 +5032,7 @@ body[data-theme="light"] .profile-select-menu {
     width: 4px;
 }
 .profile-character-picker::-webkit-scrollbar-thumb {
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     background: rgba(var(--accent-rgb), 0.35);
 }
 
@@ -5086,7 +5086,7 @@ body[data-theme="light"] .profile-select-menu {
     place-items: center;
     width: 1.4rem;
     height: 1.4rem;
-    border-radius: 999px;
+    border-radius: var(--ui-shape-button, 999px);
     font-size: 0.62rem;
     color: #fff;
     background: var(--accent);
@@ -6801,3 +6801,74 @@ body[data-theme="light"] .profile-custom-tooltip.pos-bottom::after {
 
 
 
+
+
+/* ==========================================================================
+   AVATAR POLYGONS & EFFECTS
+   ========================================================================== */
+body[data-avatar-shape="squircle"] .bio-avatar {
+    clip-path: path('M 0,50 C 0,0 0,0 50,0 S 100,0 100,50 100,100 50,100 0,100 0,50'); /* or simpler inset */
+    border-radius: 30%;
+}
+body[data-avatar-shape="square"] .bio-avatar {
+    border-radius: 0%;
+}
+body[data-avatar-shape="hexagon"] .bio-avatar {
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    border-radius: 0;
+}
+body[data-avatar-shape="octagon"] .bio-avatar {
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+    border-radius: 0;
+}
+body[data-avatar-shape="badge"] .bio-avatar {
+    clip-path: polygon(50% 0%, 100% 15%, 100% 85%, 50% 100%, 0% 85%, 0% 15%);
+    border-radius: 0;
+}
+
+/* Avatar rings need to follow the clip-path! */
+body[data-avatar-shape="hexagon"] .bio-avatar-ring,
+body[data-avatar-shape="octagon"] .bio-avatar-ring,
+body[data-avatar-shape="badge"] .bio-avatar-ring {
+    border-radius: 0 !important;
+}
+
+/* Apply clip-paths to the rings as well if they are polygons */
+body[data-avatar-shape="hexagon"] .bio-avatar-ring {
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+body[data-avatar-shape="octagon"] .bio-avatar-ring {
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+}
+body[data-avatar-shape="badge"] .bio-avatar-ring {
+    clip-path: polygon(50% 0%, 100% 15%, 100% 85%, 50% 100%, 0% 85%, 0% 15%);
+}
+body[data-avatar-shape="square"] .bio-avatar-ring {
+    border-radius: 0 !important;
+}
+body[data-avatar-shape="squircle"] .bio-avatar-ring {
+    border-radius: 30% !important;
+}
+
+/* Base shape variables for elements */
+.bio-social {
+    border-radius: var(--ui-shape-icon, 50%);
+    width: var(--social-icon-size, 42px);
+    height: var(--social-icon-size, 42px);
+    font-size: calc(var(--social-icon-size, 42px) * 0.45);
+}
+
+.bio-socials {
+    gap: var(--social-icon-spacing, 8px);
+}
+
+.bio-badge {
+    border-radius: var(--ui-shape-icon, 50%);
+    width: var(--badge-size, 24px);
+    height: var(--badge-size, 24px);
+}
+
+.bio-button {
+    border-radius: var(--ui-shape-button, 999px);
+    min-height: var(--button-height, 48px);
+}

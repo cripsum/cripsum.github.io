@@ -187,6 +187,51 @@ $borderOpacity = (int)($profile['profile_border_opacity'] ?? 100);
 $borderColor = $profile['profile_border_color'] ?? null;
 $borderWidth = (int)($profile['profile_border_width'] ?? 1);
 
+$uiShape = $profile['profile_ui_shape'] ?? 'circle';
+$avatarShape = $profile['profile_avatar_shape'] ?? 'circle';
+$socialSize = (int)($profile['profile_social_size'] ?? 42);
+$iconSpacing = (int)($profile['profile_icon_spacing'] ?? 8);
+$badgeSize = (int)($profile['profile_badge_size'] ?? 24);
+$buttonSize = (int)($profile['profile_button_size'] ?? 48);
+
+// Map UI shape to variables
+$uiShapeIcon = '50%';
+$uiShapeButton = '999px';
+$uiShapeCard = '24px';
+
+switch ($uiShape) {
+    case 'circle':
+        $uiShapeIcon = '50%';
+        $uiShapeButton = '999px';
+        $uiShapeCard = '24px';
+        break;
+    case 'rounded':
+        $uiShapeIcon = '24px';
+        $uiShapeButton = '24px';
+        $uiShapeCard = '24px';
+        break;
+    case 'soft':
+        $uiShapeIcon = '16px';
+        $uiShapeButton = '16px';
+        $uiShapeCard = '16px';
+        break;
+    case 'square-rounded':
+        $uiShapeIcon = '8px';
+        $uiShapeButton = '8px';
+        $uiShapeCard = '8px';
+        break;
+    case 'square':
+        $uiShapeIcon = '0px';
+        $uiShapeButton = '0px';
+        $uiShapeCard = '0px';
+        break;
+    case 'pill':
+        $uiShapeIcon = '999px';
+        $uiShapeButton = '999px';
+        $uiShapeCard = '999px';
+        break;
+}
+
 $visibleSocials = $showSocials ? $socials : [];
 $visibleLinks = $showLinks ? $links : [];
 $visibleProjects = $showProjects ? $projects : [];
@@ -348,6 +393,14 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             <?php endif; ?>--profile-border-width: <?php echo $borderWidth; ?>px !important;
             --profile-font: '<?php echo profile_h($profileFont); ?>', sans-serif !important;
             font-family: var(--profile-font, "Poppins", sans-serif) !important;
+            
+            --ui-shape-icon: <?php echo $uiShapeIcon; ?> !important;
+            --ui-shape-button: <?php echo $uiShapeButton; ?> !important;
+            --ui-shape-card: <?php echo $uiShapeCard; ?> !important;
+            --social-icon-size: <?php echo $socialSize; ?>px !important;
+            --social-icon-spacing: <?php echo $iconSpacing; ?>px !important;
+            --badge-size: <?php echo $badgeSize; ?>px !important;
+            --button-height: <?php echo $buttonSize; ?>px !important;
         }
     </style>
 </head>
@@ -363,6 +416,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     data-profile-button-shape="<?php echo profile_h($buttonShape); ?>"
     data-profile-socials-style="<?php echo profile_h($socialsStyle); ?>"
     data-profile-layout="<?php echo profile_h($layout); ?>"
+    data-avatar-shape="<?php echo profile_h($avatarShape); ?>"
     style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
 
     <?php if ($profile && profile_flag($profile, 'profile_click_to_enter', false)): ?>
