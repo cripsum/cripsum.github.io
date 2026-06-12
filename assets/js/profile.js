@@ -460,13 +460,13 @@
                         const raindropFx = new window.RaindropFX({
                             canvas: canvas,
                             background: bgSource,
-                            spawnInterval: [0.15, 0.35],
-                            spawnSize: [35, 65],
+                            spawnInterval: [0.3, 0.8],
+                            spawnSize: [35, 55],
                             spawnLimit: 150,
-                            dropletsPerSeconds: 50,
-                            dropletSize: [2, 6],
+                            dropletsPerSeconds: 800,
+                            dropletSize: [6, 18],
                             mist: false,
-                            backgroundBlurSteps: 0,
+                            backgroundBlurSteps: 2,
                             raindropShadowOffset: 0.75,
                             raindropLightBump: 0.6
                         });
