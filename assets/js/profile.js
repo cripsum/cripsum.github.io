@@ -391,10 +391,6 @@
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         // Clean up previous WebGL rain if it exists
-        if (window._rainBgInterval) {
-            clearInterval(window._rainBgInterval);
-            window._rainBgInterval = null;
-        }
         if (window.currentRainInstance) {
             try {
                 window.currentRainInstance.stop();
