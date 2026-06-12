@@ -163,7 +163,7 @@ body[data-theme="light"] .bio-background__overlay {
 
 .bio-card {
     position: relative;
-    background: linear-gradient(145deg, var(--card), rgba(var(--accent-rgb), 0.06));
+    background: linear-gradient(145deg, var(--card), rgba(var(--accent-rgb), calc(0.06 * var(--profile-card-opacity, 1))));
     border: var(--profile-border-width, 1px) solid var(--border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow);
@@ -182,7 +182,7 @@ body[data-theme="light"] .bio-background__overlay {
     mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     mask-composite: exclude;
     pointer-events: none;
-    opacity: 0.65;
+    opacity: calc(0.65 * var(--profile-card-opacity, 1));
 }
 
 .bio-hero {
