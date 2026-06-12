@@ -473,13 +473,29 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     <span><?php echo ($lang === 'it') ? 'Modifica profilo' : 'Edit profile'; ?></span>
                                 </a>
                             <?php endif; ?>
+                            <a class="profile-dropdown-item" href="/<?php echo $lang; ?>/home">
+                                <i class="fas fa-home"></i>
+                                <span>Home Page</span>
+                            </a>
+                            <button class="profile-dropdown-item js-open-search" type="button">
+                                <i class="fas fa-search"></i>
+                                <span><?php echo ($lang === 'it') ? 'Cerca utenti' : 'Search users'; ?></span>
+                            </button>
+                            <button class="profile-dropdown-item js-open-navigation" type="button">
+                                <i class="fas fa-compass"></i>
+                                <span><?php echo ($lang === 'it') ? 'Apri Navigazione' : 'Open Navigation'; ?></span>
+                            </button>
                             <button class="profile-dropdown-item js-copy-profile" type="button">
                                 <i class="fas fa-link"></i>
                                 <span><?php echo ($lang === 'it') ? 'Copia link' : 'Copy link'; ?></span>
                             </button>
                             <button class="profile-dropdown-item js-share-profile" type="button">
                                 <i class="fas fa-share-nodes"></i>
-                                <span><?php echo ($lang === 'it') ? 'Condividi' : 'Share'; ?></span>
+                                <span><?php echo ($lang === 'it') ? 'Condividi Profilo' : 'Share Profile'; ?></span>
+                            </button>
+                            <button class="profile-dropdown-item js-open-report" type="button">
+                                <i class="fas fa-flag"></i>
+                                <span><?php echo ($lang === 'it') ? 'Segnala Profilo' : 'Report Profile'; ?></span>
                             </button>
                             <button class="profile-dropdown-item js-open-qr" type="button">
                                 <i class="fas fa-qrcode"></i>

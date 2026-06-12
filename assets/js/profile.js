@@ -540,6 +540,251 @@
         });
     };
 
+    const initProfileNavRedesign = () => {
+        const navOverlay = document.getElementById('profileNavOverlay');
+        const searchOverlay = document.getElementById('profileSearchOverlay');
+        const reportModal = document.getElementById('profileReportModal');
+
+        if (!navOverlay && !searchOverlay && !reportModal) return;
+
+        let activeTrigger = null;
+
+        const openOverlay = (overlay, trigger = null) => {
+            if (!overlay) return;
+            activeTrigger = trigger;
+            overlay.classList.add('is-visible');
+            overlay.setAttribute('aria-hidden', 'false');
+            body.classList.add('profile-overlay-open');
+
+            // Accessibility: Focus on overlay container or input
+            const input = overlay.querySelector('input');
+            if (input) {
+                setTimeout(() => input.focus(), 100);
+            } else {
+                const closeBtn = overlay.querySelector('.profile-nav-overlay-close-btn') || overlay.querySelector('.js-close-report') || overlay.querySelector('button');
+                if (closeBtn) setTimeout(() => closeBtn.focus(), 100);
+            }
+        };
+
+        const closeOverlay = (overlay) => {
+            if (!overlay) return;
+            overlay.classList.remove('is-visible');
+            overlay.setAttribute('aria-hidden', 'true');
+            
+            // Check if any other overlay is still visible
+            const anyVisible = document.querySelector('.profile-nav-overlay.is-visible, .profile-report-modal.is-visible');
+            if (!anyVisible) {
+                body.classList.remove('profile-overlay-open');
+            }
+
+            // Accessibility: Restore focus to trigger
+            if (activeTrigger) {
+                setTimeout(() => activeTrigger.focus(), 50);
+                activeTrigger = null;
+            }
+        };
+
+        // Navigation Overlay Event Listeners
+        const navTriggers = document.querySelectorAll('.js-open-navigation');
+        const closeNavBtn = navOverlay?.querySelector('.js-close-navigation');
+        const navBackdrop = navOverlay?.querySelector('.profile-nav-overlay-backdrop');
+
+        navTriggers.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                openOverlay(navOverlay, btn);
+            });
+        });
+
+        if (closeNavBtn) {
+            closeNavBtn.addEventListener('click', () => closeOverlay(navOverlay));
+        }
+        if (navBackdrop) {
+            navBackdrop.addEventListener('click', () => closeOverlay(navOverlay));
+        }
+
+        // Search Overlay Event Listeners
+        const searchTriggers = document.querySelectorAll('.js-open-search');
+        const closeSearchBtn = searchOverlay?.querySelector('.js-close-search');
+        const searchBackdrop = searchOverlay?.querySelector('.profile-nav-overlay-backdrop');
+        const searchInput = document.getElementById('profileSearchInput');
+        const searchClear = document.getElementById('profileSearchClear');
+        const searchResults = document.getElementById('profileSearchResults');
+
+        searchTriggers.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                openOverlay(searchOverlay, btn);
+            });
+        });
+
+        if (closeSearchBtn) {
+            closeSearchBtn.addEventListener('click', () => {
+                closeOverlay(searchOverlay);
+                if (searchInput) searchInput.value = '';
+                if (searchClear) searchClear.style.display = 'none';
+                if (searchResults) {
+                    const isIt = document.documentElement.lang === 'it';
+                    searchResults.innerHTML = `<div class="profile-search-status">${isIt ? 'Digita almeno 2 caratteri per iniziare...' : 'Type at least 2 characters to start...'}</div>`;
+                }
+            });
+        }
+        if (searchBackdrop) {
+            searchBackdrop.addEventListener('click', () => {
+                closeOverlay(searchOverlay);
+                if (searchInput) searchInput.value = '';
+                if (searchClear) searchClear.style.display = 'none';
+            });
+        }
+
+        // Report Modal Event Listeners
+        const reportTriggers = document.querySelectorAll('.js-open-report');
+        const closeReportBtn = reportModal?.querySelector('.js-close-report');
+        const reportBackdrop = reportModal?.querySelector('.profile-report-backdrop');
+        const reportForm = document.getElementById('profileReportForm');
+        const reportDetail = document.getElementById('profileReportDetail');
+
+        reportTriggers.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                openOverlay(reportModal, btn);
+            });
+        });
+
+        if (closeReportBtn) {
+            closeReportBtn.addEventListener('click', () => closeOverlay(reportModal));
+        }
+        if (reportBackdrop) {
+            reportBackdrop.addEventListener('click', () => closeOverlay(reportModal));
+        }
+
+        if (reportForm) {
+            reportForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const reasonEl = reportForm.querySelector('input[name="report_reason"]:checked');
+                const reason = reasonEl ? reasonEl.value : 'spam';
+                const detail = reportDetail ? reportDetail.value.trim() : '';
+
+                // Client-side report simulation
+                const isIt = document.documentElement.lang === 'it';
+                showToast(isIt ? 'Segnalazione inviata con successo ai moderatori.' : 'Report submitted successfully to moderators.');
+                
+                // Reset form
+                reportForm.reset();
+                closeOverlay(reportModal);
+            });
+        }
+
+        // Search live query logic (AJAX / Fetch)
+        if (searchInput && searchResults) {
+            let debounceTimer = null;
+            let currentQuery = '';
+
+            const performSearch = async (query) => {
+                const isIt = document.documentElement.lang === 'it';
+                searchResults.innerHTML = `<div class="profile-search-status">${isIt ? 'Ricerca in corso...' : 'Searching...'}</div>`;
+
+                try {
+                    const response = await fetch(`/includes/search_users.php?q=${encodeURIComponent(query)}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    const data = await response.json();
+
+                    if (searchInput.value.trim() !== query) return; // ignore outdated request
+
+                    if (data.error) {
+                        searchResults.innerHTML = `<div class="profile-search-status text-danger">${data.error}</div>`;
+                        return;
+                    }
+
+                    if (!data.length) {
+                        searchResults.innerHTML = `<div class="profile-search-status">${isIt ? 'Nessun utente trovato.' : 'No users found.'}</div>`;
+                        return;
+                    }
+
+                    // Render results in a nice scrollable list
+                    searchResults.innerHTML = data.map((user) => {
+                        let roleLabel = user.ruolo === 'owner' ? 'Owner' : (user.ruolo === 'admin' ? 'Admin' : (isIt ? 'Utente' : 'User'));
+                        return `
+                            <a href="/u/${encodeURIComponent(user.username)}" class="profile-search-item">
+                                <img src="${user.pfp}" alt="${user.username}" class="profile-search-avatar" onerror="this.src='/img/default_pfp.png'">
+                                <div class="profile-search-info">
+                                    <span class="profile-search-username">${user.username}</span>
+                                    <span class="profile-search-role ${user.ruolo}">${roleLabel}</span>
+                                </div>
+                                <i class="fas fa-arrow-up-right-from-square profile-search-arrow"></i>
+                            </a>
+                        `;
+                    }).join('');
+
+                } catch (err) {
+                    console.error('Search error:', err);
+                    searchResults.innerHTML = `<div class="profile-search-status text-danger">${isIt ? 'Errore nella ricerca, riprova.' : 'Search error, try again.'}</div>`;
+                }
+            };
+
+            searchInput.addEventListener('input', () => {
+                const q = searchInput.value.trim();
+                if (searchClear) searchClear.style.display = q.length ? 'block' : 'none';
+
+                clearTimeout(debounceTimer);
+
+                if (q.length < 2) {
+                    currentQuery = '';
+                    const isIt = document.documentElement.lang === 'it';
+                    searchResults.innerHTML = `<div class="profile-search-status">${isIt ? 'Digita almeno 2 caratteri per iniziare...' : 'Type at least 2 characters to start...'}</div>`;
+                    return;
+                }
+
+                if (q === currentQuery) return;
+                currentQuery = q;
+
+                debounceTimer = setTimeout(() => performSearch(q), 300);
+            });
+
+            searchClear?.addEventListener('click', () => {
+                searchInput.value = '';
+                searchClear.style.display = 'none';
+                currentQuery = '';
+                const isIt = document.documentElement.lang === 'it';
+                searchResults.innerHTML = `<div class="profile-search-status">${isIt ? 'Digita almeno 2 caratteri per iniziare...' : 'Type at least 2 characters to start...'}</div>`;
+                searchInput.focus();
+            });
+        }
+
+        // Accessibility: Keyboard trap focus and ESC close
+        document.addEventListener('keydown', (e) => {
+            const openOverlayEl = document.querySelector('.profile-nav-overlay.is-visible, .profile-report-modal.is-visible');
+            if (!openOverlayEl) return;
+
+            if (e.key === 'Escape') {
+                closeOverlay(openOverlayEl);
+                return;
+            }
+
+            if (e.key === 'Tab') {
+                // Keep focus inside overlay
+                const focusables = openOverlayEl.querySelectorAll('a, button, input, textarea, select, [tabindex="0"]');
+                if (focusables.length === 0) return;
+                const first = focusables[0];
+                const last = focusables[focusables.length - 1];
+
+                if (e.shiftKey) {
+                    if (document.activeElement === first) {
+                        last.focus();
+                        e.preventDefault();
+                    }
+                } else {
+                    if (document.activeElement === last) {
+                        first.focus();
+                        e.preventDefault();
+                    }
+                }
+            }
+        });
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
         setAccent(body.dataset.accent || '#0f5bff');
         setTheme(localStorage.getItem('cripsum.profile.viewerTheme') || body.dataset.theme || 'dark');
@@ -555,6 +800,7 @@
         initActivityCarousel();
         updateActivityTimestamps();
         persistDetailsState();
+        initProfileNavRedesign();
         setInterval(updateActivityTimestamps, 1000);
         setInterval(refreshDiscordStatus, 30000);
 

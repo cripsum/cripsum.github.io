@@ -277,12 +277,14 @@ $statCards = [
     <meta property="og:url" content="<?= e($profileUrl); ?>">
     <link rel="stylesheet" href="css/style-users.css?v=3">
     <link rel="stylesheet" href="css/bio-v2.css?v=20260425">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.2.6">
     <title><?= e($profileConfig['display_name']); ?> — Bio</title>
     <script src="js/nomePagina.js" defer></script>
     <script src="js/bio-v2.js?v=20260425" defer></script>
+    <script src="/assets/js/profile.js?v=4.2.6" defer></script>
 </head>
 <body
-    class="bio-v2-body"
+    class="bio-v2-body public-profile-body"
     data-theme="dark"
     data-profile-url="<?= e($profileUrl); ?>"
     data-discord-id="<?= e($profileConfig['discord_id']); ?>"
@@ -341,9 +343,41 @@ $statCards = [
                     <i class="fas fa-share-nodes"></i>
                     Share
                 </button>
-                <button class="bio-icon-button js-theme-toggle" type="button" aria-label="Cambia tema">
-                    <i class="fas fa-moon"></i>
-                </button>
+                <div class="profile-dropdown-wrap" style="position: relative; display: inline-block;">
+                    <button class="bio-icon-button js-profile-dropdown-trigger" type="button" aria-label="Menu" aria-expanded="false">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </button>
+                    <div class="profile-dropdown-menu">
+                        <a class="profile-dropdown-item" href="/<?= $lang ?>/home">
+                            <i class="fas fa-home"></i>
+                            <span>Home Page</span>
+                        </a>
+                        <button class="profile-dropdown-item js-open-search" type="button">
+                            <i class="fas fa-search"></i>
+                            <span>Cerca utenti</span>
+                        </button>
+                        <button class="profile-dropdown-item js-open-navigation" type="button">
+                            <i class="fas fa-compass"></i>
+                            <span>Apri Navigazione</span>
+                        </button>
+                        <button class="profile-dropdown-item js-copy-profile" type="button">
+                            <i class="fas fa-link"></i>
+                            <span>Copia link</span>
+                        </button>
+                        <button class="profile-dropdown-item js-share-profile" type="button">
+                            <i class="fas fa-share-nodes"></i>
+                            <span>Condividi Profilo</span>
+                        </button>
+                        <button class="profile-dropdown-item js-open-report" type="button">
+                            <i class="fas fa-flag"></i>
+                            <span>Segnala Profilo</span>
+                        </button>
+                        <button class="profile-dropdown-item js-theme-toggle" type="button">
+                            <i class="fas fa-moon"></i>
+                            <span class="theme-label-text">Tema scuro</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="bio-accent-picker" aria-label="Accent color">

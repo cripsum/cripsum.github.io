@@ -505,3 +505,158 @@ if ($isLoggedIn) {
 
     })();
 </script>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     NAVIGATION REDESIGN OVERLAYS & MODALS MARKUP
+     ───────────────────────────────────────────────────────────────────────── -->
+
+<!-- 1. Navigation Overlay -->
+<div id="profileNavOverlay" class="profile-nav-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="<?php echo ($lang === 'it') ? 'Menu di navigazione' : 'Navigation menu'; ?>">
+    <div class="profile-nav-overlay-backdrop"></div>
+    <div class="profile-nav-overlay-container">
+        <div class="profile-nav-overlay-header">
+            <div class="profile-nav-overlay-logo">
+                <img src="/img/amongus-logo.jpg" alt="Logo">
+                <span>Cripsum™</span>
+            </div>
+            <button class="profile-nav-overlay-close-btn js-close-navigation" aria-label="<?php echo ($lang === 'it') ? 'Chiudi navigazione' : 'Close navigation'; ?>">&times;</button>
+        </div>
+        <div class="profile-nav-overlay-content">
+            <div class="profile-nav-grid">
+                <!-- Section Memes -->
+                <div class="profile-nav-section">
+                    <h3><i class="fas fa-image"></i> <?php echo htmlspecialchars($t['memes']); ?></h3>
+                    <ul class="profile-nav-links">
+                        <li><a href="/<?php echo $lang; ?>/shitpost"><i class="fas fa-fire"></i> Shitpost</a></li>
+                        <li><a href="/<?php echo $lang; ?>/tiktokpedia"><i class="fab fa-tiktok"></i> TikTokPedia</a></li>
+                        <li><a href="/<?php echo $lang; ?>/rimasti"><i class="fas fa-star"></i> <?php echo htmlspecialchars($t['top_rimasti']); ?></a></li>
+                        <li><a href="/<?php echo $lang; ?>/cripsumpedia/home"><i class="fas fa-book"></i> CripsumPedia</a></li>
+                    </ul>
+                </div>
+                <!-- Section Games -->
+                <div class="profile-nav-section">
+                    <h3><i class="fas fa-gamepad"></i> <?php echo htmlspecialchars($t['games']); ?></h3>
+                    <ul class="profile-nav-links">
+                        <li><a href="/<?php echo $lang; ?>/gambling"><i class="fas fa-dice"></i> Gambling</a></li>
+                        <li><a href="/<?php echo $lang; ?>/lootbox"><i class="fas fa-box-open"></i> Lootbox</a></li>
+                        <li><a href="/<?php echo $lang; ?>/game/"><i class="fas fa-gamepad"></i> <?php echo htmlspecialchars($t['duels']); ?></a></li>
+                    </ul>
+                </div>
+                <!-- Section Shop -->
+                <div class="profile-nav-section">
+                    <h3><i class="fas fa-shopping-cart"></i> <?php echo htmlspecialchars($t['shop']); ?></h3>
+                    <ul class="profile-nav-links">
+                        <li><a href="/<?php echo $lang; ?>/negozio"><i class="fas fa-store"></i> <?php echo htmlspecialchars($t['store']); ?></a></li>
+                        <li><a href="/<?php echo $lang; ?>/merch"><i class="fas fa-tshirt"></i> Merch</a></li>
+                    </ul>
+                </div>
+                <!-- Section Other -->
+                <div class="profile-nav-section">
+                    <h3><i class="fas fa-ellipsis-h"></i> <?php echo htmlspecialchars($t['other']); ?></h3>
+                    <ul class="profile-nav-links">
+                        <li><a href="/<?php echo $lang; ?>/download"><i class="fas fa-download"></i> Downloads</a></li>
+                        <li><a href="/<?php echo $lang; ?>/donazioni"><i class="fas fa-heart"></i> <?php echo htmlspecialchars($t['donations']); ?></a></li>
+                        <li><a href="/<?php echo $lang; ?>/chisiamo"><i class="fas fa-users"></i> <?php echo htmlspecialchars($t['about']); ?></a></li>
+                        <li><a href="/<?php echo $lang; ?>/edits"><i class="fas fa-video"></i> Edits</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- User Profile Section inside Overlay -->
+            <div class="profile-nav-user-section">
+                <?php if (!$isLoggedIn): ?>
+                    <div class="profile-nav-auth-buttons">
+                        <a href="/<?php echo $lang; ?>/accedi" class="profile-nav-auth-btn primary"><i class="fas fa-sign-in-alt"></i> <?php echo htmlspecialchars($t['login']); ?></a>
+                        <a href="/<?php echo $lang; ?>/registrati" class="profile-nav-auth-btn secondary"><i class="fas fa-user-plus"></i> <?php echo htmlspecialchars($t['register']); ?></a>
+                    </div>
+                <?php else: ?>
+                    <div class="profile-nav-user-card">
+                        <div class="profile-nav-user-info">
+                            <img src="<?php echo htmlspecialchars($profilePic); ?>&t=<?php echo time(); ?>" alt="Avatar">
+                            <div>
+                                <h4><?php echo htmlspecialchars($username); ?></h4>
+                                <span><?php echo htmlspecialchars($t['user_badge']); ?></span>
+                            </div>
+                        </div>
+                        <div class="profile-nav-user-grid">
+                            <a href="/u/<?php echo htmlspecialchars($username); ?>"><i class="fas fa-user"></i> <?php echo htmlspecialchars($t['my_profile']); ?></a>
+                            <a href="/<?php echo $lang; ?>/impostazioni"><i class="fas fa-cog"></i> <?php echo htmlspecialchars($t['settings']); ?></a>
+                            <a href="/<?php echo $lang; ?>/achievements"><i class="fas fa-trophy"></i> Achievements</a>
+                            <a href="/<?php echo $lang; ?>/missions"><i class="fas fa-bullseye"></i> <?php echo htmlspecialchars($t['missions']); ?></a>
+                            <a href="/<?php echo $lang; ?>/inventario"><i class="fas fa-box"></i> <?php echo htmlspecialchars($t['inventory']); ?></a>
+                            <a href="/<?php echo $lang; ?>/global-chat"><i class="fas fa-envelope"></i> <?php echo htmlspecialchars($t['global_chat']); ?></a>
+                            <?php if (isset($nsfw) && $nsfw === 1): ?>
+                                <a href="/<?php echo $lang; ?>/goonland/home"><i class="fas fa-eye-slash"></i> GoonLand</a>
+                            <?php endif; ?>
+                            <?php if (isset($ruolo) && ($ruolo === 'admin' || $ruolo === 'owner')): ?>
+                                <a href="/<?php echo $lang; ?>/admin"><i class="fas fa-shield-alt"></i> <?php echo htmlspecialchars($t['admin_panel']); ?></a>
+                            <?php endif; ?>
+                            <a href="https://cripsum.com/logout" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2. User Search Overlay -->
+<div id="profileSearchOverlay" class="profile-nav-overlay profile-search-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="<?php echo ($lang === 'it') ? 'Cerca utenti' : 'Search users'; ?>">
+    <div class="profile-nav-overlay-backdrop"></div>
+    <div class="profile-nav-overlay-container">
+        <div class="profile-nav-overlay-header">
+            <div class="profile-nav-overlay-logo">
+                <i class="fas fa-search" style="color: var(--accent); font-size: 1.15rem;"></i>
+                <span><?php echo ($lang === 'it') ? 'Cerca Utenti' : 'Search Users'; ?></span>
+            </div>
+            <button class="profile-nav-overlay-close-btn js-close-search" aria-label="<?php echo ($lang === 'it') ? 'Chiudi ricerca' : 'Close search'; ?>">&times;</button>
+        </div>
+        <div class="profile-search-input-wrap">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="profileSearchInput" placeholder="<?php echo htmlspecialchars($t['search_ph']); ?>" autocomplete="off" spellcheck="false" maxlength="30">
+            <button id="profileSearchClear" style="display: none;" aria-label="<?php echo htmlspecialchars($t['search_clear']); ?>">&times;</button>
+        </div>
+        <div id="profileSearchResults" class="profile-search-results">
+            <div class="profile-search-status"><?php echo ($lang === 'it') ? 'Digita almeno 2 caratteri per iniziare...' : 'Type at least 2 characters to start...'; ?></div>
+        </div>
+    </div>
+</div>
+
+<!-- 3. Report Profile Modal -->
+<div id="profileReportModal" class="profile-report-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="<?php echo ($lang === 'it') ? 'Segnala profilo' : 'Report profile'; ?>">
+    <div class="profile-report-backdrop"></div>
+    <div class="profile-report-card">
+        <button class="js-close-report" type="button" aria-label="<?php echo ($lang === 'it') ? 'Chiudi' : 'Close'; ?>">&times;</button>
+        <div class="profile-report-header">
+            <i class="fas fa-flag text-danger" style="font-size: 1.8rem; margin-bottom: 0.5rem; display: inline-block;"></i>
+            <h3><?php echo ($lang === 'it') ? 'Segnala Profilo' : 'Report Profile'; ?></h3>
+            <p><?php echo ($lang === 'it') ? 'Seleziona il motivo per cui desideri segnalare questo profilo.' : 'Select the reason why you want to report this profile.'; ?></p>
+        </div>
+        <form id="profileReportForm" class="profile-report-form">
+            <div class="profile-report-options">
+                <label class="profile-report-option">
+                    <input type="radio" name="report_reason" value="spam" checked>
+                    <span><?php echo ($lang === 'it') ? 'Spam / Pubblicità' : 'Spam / Advertising'; ?></span>
+                </label>
+                <label class="profile-report-option">
+                    <input type="radio" name="report_reason" value="inappropriate">
+                    <span><?php echo ($lang === 'it') ? 'Inappropriato / NSFW' : 'Inappropriate / NSFW'; ?></span>
+                </label>
+                <label class="profile-report-option">
+                    <input type="radio" name="report_reason" value="harassment">
+                    <span><?php echo ($lang === 'it') ? 'Molestie / Bullismo' : 'Harassment / Bullying'; ?></span>
+                </label>
+                <label class="profile-report-option">
+                    <input type="radio" name="report_reason" value="other">
+                    <span><?php echo ($lang === 'it') ? 'Altro motivo' : 'Other reason'; ?></span>
+                </label>
+            </div>
+            <div class="profile-report-detail-group">
+                <textarea id="profileReportDetail" placeholder="<?php echo ($lang === 'it') ? 'Fornisci ulteriori dettagli (opzionale)...' : 'Provide further details (optional)...'; ?>" maxlength="200"></textarea>
+            </div>
+            <button type="submit" class="bio-button bio-button--primary" style="width: 100%; margin-top: 0.8rem; border: none; color: #fff;">
+                <?php echo ($lang === 'it') ? 'Invia Segnalazione' : 'Submit Report'; ?>
+            </button>
+        </form>
+    </div>
+</div>
