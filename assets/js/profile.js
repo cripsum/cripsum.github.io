@@ -462,6 +462,8 @@
                         canvas.style.height = '100%';
                         canvas.style.pointerEvents = 'none';
                         canvas.style.zIndex = '1';
+                        const isLightTheme = body.dataset.theme === 'light';
+                        canvas.style.filter = isLightTheme ? 'brightness(0.95)' : 'brightness(0.45)';
                         layer.appendChild(canvas);
                     }
 
