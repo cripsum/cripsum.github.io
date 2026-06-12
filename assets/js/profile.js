@@ -383,13 +383,6 @@
                 window.currentRainInstance.resize(rect.width, rect.height);
             }
         }
-        if (window.currentRainFgInstance) {
-            const canvas = document.querySelector('.profile-effects-foreground-layer canvas.raindrop-canvas');
-            if (canvas) {
-                const rect = canvas.getBoundingClientRect();
-                window.currentRainFgInstance.resize(rect.width, rect.height);
-            }
-        }
     };
 
     const initProfileEffects = () => {
@@ -406,20 +399,10 @@
             }
             window.currentRainInstance = null;
         }
-        if (window.currentRainFgInstance) {
-            try {
-                window.currentRainFgInstance.stop();
-            } catch (e) {
-                console.error('Error stopping RaindropFX (foreground):', e);
-            }
-            window.currentRainFgInstance = null;
-        }
         if (layer) {
             const oldCanvas = layer.querySelector('canvas.raindrop-canvas');
             if (oldCanvas) oldCanvas.remove();
         }
-        const oldFgLayer = document.querySelector('.profile-effects-foreground-layer');
-        if (oldFgLayer) oldFgLayer.remove();
 
         window.removeEventListener('resize', handleRainResize);
 
@@ -450,7 +433,11 @@
                 loadRainLibrary().then(() => {
                     if (body.dataset.profileEffect !== 'glass_rain') return;
                     
-                    // 1. Background canvas (for normal background droplets and background blur)
+                    // Single canvas for all rain effects (background droplets + larger sliding drops)
+                    // NOTE: Only ONE RaindropFX instance is used because the library shares static
+                    // Shader objects internally. Running two instances causes WebGL INVALID_OPERATION
+                    // errors ("uniform location is not from the associated program") since each
+                    // instance creates its own GL context but the shared shaders mix up uniform locations.
                     let canvas = layer.querySelector('canvas.raindrop-canvas');
                     if (!canvas) {
                         canvas = document.createElement('canvas');
@@ -471,38 +458,6 @@
                     canvas.width = rect.width;
                     canvas.height = rect.height;
 
-                    // 2. Foreground canvas (for large sliding drops on top of card)
-                    let fgLayer = document.querySelector('.profile-effects-foreground-layer');
-                    if (!fgLayer) {
-                        fgLayer = document.createElement('div');
-                        fgLayer.className = 'profile-effects-foreground-layer';
-                        fgLayer.style.position = 'fixed';
-                        fgLayer.style.top = '0';
-                        fgLayer.style.left = '0';
-                        fgLayer.style.width = '100vw';
-                        fgLayer.style.height = '100vh';
-                        fgLayer.style.pointerEvents = 'none';
-                        fgLayer.style.zIndex = '1000';
-                        document.body.appendChild(fgLayer);
-                    }
-
-                    let fgCanvas = fgLayer.querySelector('canvas.raindrop-canvas');
-                    if (!fgCanvas) {
-                        fgCanvas = document.createElement('canvas');
-                        fgCanvas.className = 'raindrop-canvas';
-                        fgCanvas.style.position = 'absolute';
-                        fgCanvas.style.top = '0';
-                        fgCanvas.style.left = '0';
-                        fgCanvas.style.width = '100%';
-                        fgCanvas.style.height = '100%';
-                        fgCanvas.style.pointerEvents = 'none';
-                        fgLayer.appendChild(fgCanvas);
-                    }
-
-                    const fgRect = fgCanvas.getBoundingClientRect();
-                    fgCanvas.width = fgRect.width;
-                    fgCanvas.height = fgRect.height;
-
                     const bgMedia = document.querySelector('.bio-background__media');
                     let bgSource = '/img/banner_standard_bg.jpg';
                     if (bgMedia && bgMedia.tagName === 'IMG') {
@@ -510,12 +465,12 @@
                     }
 
                     try {
-                        // Background rain: normal droplets + blur
+                        // Single rain instance: combines background droplets + larger sliding drops
                         const raindropFx = new window.RaindropFX({
                             canvas: canvas,
                             background: bgSource,
-                            spawnInterval: [60, 180],
-                            spawnSize: [12, 28],
+                            spawnInterval: [0.15, 0.6],
+                            spawnSize: [12, 55],
                             spawnLimit: 0,
                             dropletsPerSeconds: 800,
                             dropletSize: [6, 18],
@@ -526,23 +481,6 @@
                         });
                         raindropFx.start();
                         window.currentRainInstance = raindropFx;
-
-                        // Foreground rain: ONLY the big sliding drops on top of the card
-                        const raindropFgFx = new window.RaindropFX({
-                            canvas: fgCanvas,
-                            background: bgSource,
-                            spawnInterval: [0.05, 0.2],
-                            spawnSize: [35, 60],
-                            spawnLimit: 300,
-                            dropletsPerSeconds: 0,
-                            mist: false,
-                            backgroundBlurSteps: 2,
-                            transparentBackground: true,
-                            raindropShadowOffset: 0.75,
-                            raindropLightBump: 0.6
-                        });
-                        raindropFgFx.start();
-                        window.currentRainFgInstance = raindropFgFx;
 
                         window.addEventListener('resize', handleRainResize, { passive: true });
                     } catch (err) {
