@@ -255,13 +255,13 @@ body[data-theme="light"] .bio-background__overlay {
     height: 124px;
     border-radius: var(--ui-shape-button, 999px);
     object-fit: cover;
-    border: 4px solid rgba(3, 7, 18, 0.82);
+    border: 4px solid var(--profile-ring, rgba(3, 7, 18, 0.82));
     background: rgba(255, 255, 255, 0.06);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.36);
 }
 
 body[data-theme="light"] .bio-avatar {
-    border-color: rgba(255, 255, 255, 0.88);
+    border-color: var(--profile-ring, rgba(255, 255, 255, 0.88));
 }
 
 @keyframes bioSpin {
@@ -6830,60 +6830,86 @@ body[data-theme="light"] .profile-custom-tooltip.pos-bottom::after {
 /* ==========================================================================
    AVATAR POLYGONS & EFFECTS
    ========================================================================== */
+/* Squircle */
+body[data-avatar-shape="squircle"] .bio-avatar-wrap {
+    border-radius: 30% !important;
+    overflow: hidden;
+}
 body[data-avatar-shape="squircle"] .bio-avatar {
-    clip-path: path('M 0,50 C 0,0 0,0 50,0 S 100,0 100,50 100,100 50,100 0,100 0,50'); /* or simpler inset */
-    border-radius: 30%;
-}
-body[data-avatar-shape="square"] .bio-avatar {
-    border-radius: 0%;
-}
-body[data-avatar-shape="hexagon"] .bio-avatar {
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    border-radius: 0;
-}
-body[data-avatar-shape="octagon"] .bio-avatar {
-    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
-    border-radius: 0;
-}
-body[data-avatar-shape="badge"] .bio-avatar {
-    clip-path: polygon(50% 0%, 100% 15%, 100% 85%, 50% 100%, 0% 85%, 0% 15%);
-    border-radius: 0;
-}
-
-/* Avatar rings need to follow the clip-path! */
-body[data-avatar-shape="hexagon"] .bio-avatar-ring,
-body[data-avatar-shape="octagon"] .bio-avatar-ring,
-body[data-avatar-shape="badge"] .bio-avatar-ring {
-    border-radius: 0 !important;
-}
-
-/* Apply clip-paths to the rings as well if they are polygons */
-body[data-avatar-shape="hexagon"] .bio-avatar-ring {
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-}
-body[data-avatar-shape="octagon"] .bio-avatar-ring {
-    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
-}
-body[data-avatar-shape="badge"] .bio-avatar-ring {
-    clip-path: polygon(50% 0%, 100% 15%, 100% 85%, 50% 100%, 0% 85%, 0% 15%);
-}
-body[data-avatar-shape="square"] .bio-avatar-ring {
-    border-radius: 0 !important;
+    border-radius: 30% !important;
+    clip-path: none !important;
 }
 body[data-avatar-shape="squircle"] .bio-avatar-ring {
     border-radius: 30% !important;
+    clip-path: none !important;
+}
+
+/* Square */
+body[data-avatar-shape="square"] .bio-avatar-wrap {
+    border-radius: 0% !important;
+    overflow: hidden;
+}
+body[data-avatar-shape="square"] .bio-avatar {
+    border-radius: 0% !important;
+    clip-path: none !important;
+}
+body[data-avatar-shape="square"] .bio-avatar-ring {
+    border-radius: 0% !important;
+    clip-path: none !important;
+}
+
+/* Hexagon */
+body[data-avatar-shape="hexagon"] .bio-avatar-wrap {
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%) !important;
+    border-radius: 0 !important;
+}
+body[data-avatar-shape="hexagon"] .bio-avatar {
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%) !important;
+    border-radius: 0 !important;
+}
+body[data-avatar-shape="hexagon"] .bio-avatar-ring {
+    border-radius: 0 !important;
+    clip-path: none !important;
+}
+
+/* Octagon */
+body[data-avatar-shape="octagon"] .bio-avatar-wrap {
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%) !important;
+    border-radius: 0 !important;
+}
+body[data-avatar-shape="octagon"] .bio-avatar {
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%) !important;
+    border-radius: 0 !important;
+}
+body[data-avatar-shape="octagon"] .bio-avatar-ring {
+    border-radius: 0 !important;
+    clip-path: none !important;
+}
+
+/* Badge */
+body[data-avatar-shape="badge"] .bio-avatar-wrap {
+    clip-path: polygon(50% 0%, 100% 15%, 100% 85%, 50% 100%, 0% 85%, 0% 15%) !important;
+    border-radius: 0 !important;
+}
+body[data-avatar-shape="badge"] .bio-avatar {
+    clip-path: polygon(50% 0%, 100% 15%, 100% 85%, 50% 100%, 0% 85%, 0% 15%) !important;
+    border-radius: 0 !important;
+}
+body[data-avatar-shape="badge"] .bio-avatar-ring {
+    border-radius: 0 !important;
+    clip-path: none !important;
 }
 
 /* Base shape variables for elements */
-.bio-social {
-    border-radius: var(--ui-shape-icon, 50%);
-    width: var(--social-icon-size, 42px);
-    height: var(--social-icon-size, 42px);
-    font-size: calc(var(--social-icon-size, 42px) * 0.45);
+.bio-social-icon {
+    border-radius: var(--ui-shape-icon, 50%) !important;
+    width: var(--social-icon-size, 42px) !important;
+    height: var(--social-icon-size, 42px) !important;
+    font-size: calc(var(--social-icon-size, 42px) * 0.45) !important;
 }
 
-.bio-socials {
-    gap: var(--social-icon-spacing, 8px);
+.bio-social-icons-row {
+    gap: var(--social-icon-spacing, 8px) !important;
 }
 
 .bio-badge {
