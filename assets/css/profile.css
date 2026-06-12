@@ -7244,6 +7244,12 @@ body.public-profile-body .navbarutenti {
     display: none !important;
 }
 
+body.public-profile-body {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
 body.public-profile-body .bio-page {
     min-height: 100vh !important;
     min-height: 100dvh !important;
@@ -7253,8 +7259,21 @@ body.public-profile-body .bio-page {
     padding-bottom: 4.5rem !important;
 }
 
+/* Remove internal scrollbars on public profile cards/sections */
 body.public-profile-body .profile-smart-hero {
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+/* Sticky top only on desktop double-column layouts */
+body.public-profile-body .profile-smart-page:not(.profile-smart-page--single) .profile-smart-hero {
     top: 3.5rem !important;
+}
+
+/* Fallback for when the hero is too tall for the viewport (handled dynamically by JS) */
+body.public-profile-body .profile-smart-hero.hero-no-sticky {
+    position: relative !important;
+    top: auto !important;
 }
 
 @media (max-width: 1080px) {
@@ -7262,19 +7281,24 @@ body.public-profile-body .profile-smart-hero {
         padding-top: 2.8rem !important;
         padding-bottom: 2rem !important;
     }
+
+    body.public-profile-body .profile-smart-hero {
+        position: relative !important;
+        top: auto !important;
+    }
 }
 
 @media (max-width: 720px) {
     body.public-profile-body .bio-page {
-        padding-top: 2rem !important;
-        padding-bottom: 2rem !important;
+        padding-top: 1.25rem !important;
+        padding-bottom: 1.25rem !important;
     }
 }
 
 @media (max-width: 420px) {
     body.public-profile-body .bio-page {
-        padding-top: 1.5rem !important;
-        padding-bottom: 1.5rem !important;
+        padding-top: 0.85rem !important;
+        padding-bottom: 0.85rem !important;
     }
 }
 

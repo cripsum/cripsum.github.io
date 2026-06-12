@@ -6,6 +6,25 @@
     let toastTimer = null;
     let activityInterval = null;
 
+    const updateStickyBehavior = () => {
+        const hero = document.querySelector('.public-profile-body .profile-smart-hero');
+        if (!hero) return;
+
+        if (window.innerWidth > 1080) {
+            const viewportHeight = window.innerHeight;
+            const heroHeight = hero.offsetHeight;
+            const offset = 80; // offset top + safety margin
+
+            if (heroHeight > (viewportHeight - offset)) {
+                hero.classList.add('hero-no-sticky');
+            } else {
+                hero.classList.remove('hero-no-sticky');
+            }
+        } else {
+            hero.classList.remove('hero-no-sticky');
+        }
+    };
+
     const showToast = (message) => {
         if (!toast) return;
         toast.textContent = message;
@@ -220,6 +239,7 @@
             box.innerHTML = await response.text();
             initActivityCarousel();
             updateActivityTimestamps();
+            updateStickyBehavior();
         } catch (error) {
             console.error('Errore aggiornamento Discord:', error);
         }
@@ -801,6 +821,10 @@
         updateActivityTimestamps();
         persistDetailsState();
         initProfileNavRedesign();
+
+        updateStickyBehavior();
+        window.addEventListener('resize', updateStickyBehavior);
+        window.addEventListener('load', updateStickyBehavior);
         setInterval(updateActivityTimestamps, 1000);
         setInterval(refreshDiscordStatus, 30000);
 
