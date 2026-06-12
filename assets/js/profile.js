@@ -440,7 +440,7 @@
                     if (window.RaindropFX) return Promise.resolve();
                     return new Promise((resolve, reject) => {
                         const script = document.createElement('script');
-                        script.src = '/assets/js/raindrop-fx.js';
+                        script.src = '/assets/js/raindrop-fx.js?v=4.4.6';
                         script.onload = resolve;
                         script.onerror = reject;
                         document.head.appendChild(script);

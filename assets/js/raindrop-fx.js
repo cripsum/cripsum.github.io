@@ -258,7 +258,7 @@ void main()\r
     // fragColor = vec4(mask, mask, mask, 1);\r
     // color = color * vec3(uColor);\r
 \r
-    fragColor = vec4(color.rgb, mask);// vec4(color.rgb, mask);\r
+    fragColor = vec4(color.rgb * mask, mask);// vec4(color.rgb, mask);\r
 }`;var Ea=`#version 300 es\r
 precision mediump float;\r
 \r
