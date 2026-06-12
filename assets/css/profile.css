@@ -4747,20 +4747,6 @@ body[data-profile-effect="digital_noise"] .profile-effects-layer::after {
     }
 }
 
-/* Wet glass base layer: applies a frosted/blurred look over the page background.
-   NOTE: backdrop-filter breaks video/GIF playback underneath, so this effect
-   only works properly with static image backgrounds. The editor shows a warning
-   when users select Glass rain. */
-body[data-profile-effect="glass_rain"] .profile-effects-layer::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    backdrop-filter: blur(3px) brightness(0.88) saturate(1.1);
-    -webkit-backdrop-filter: blur(3px) brightness(0.88) saturate(1.1);
-    z-index: 0;
-    pointer-events: none;
-}
-
 /* Foreground glass rain overlay (pure CSS, sits on top of card) */
 .profile-effects-foreground-layer {
     position: fixed;

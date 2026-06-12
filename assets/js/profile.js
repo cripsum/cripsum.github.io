@@ -489,14 +489,15 @@
                     }
 
                     try {
-                        // transparentBackground lets the CSS backdrop-filter glass overlay
-                        // handle the frosted look. Note: backdrop-filter breaks video/GIF
-                        // playback, so Glass rain only supports static image backgrounds.
+                        // transparentBackground=false so RaindropFX renders its native
+                        // glass refraction effect (blurred background seen through wet glass).
+                        // The library loads the background as a static WebGL texture, so
+                        // videos/GIFs will freeze — only static image backgrounds are supported.
                         // The editor warns users about this limitation.
                         const raindropFx = new window.RaindropFX({
                             canvas: canvas,
                             background: bgSource,
-                            transparentBackground: true,
+                            transparentBackground: false,
                             spawnInterval: [0.03, 0.12],
                             spawnSize: [30, 65],
                             spawnLimit: 500,
