@@ -347,8 +347,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.2.7">
-    <script src="/assets/js/profile.js?v=4.2.7" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.3.2">
+    <script src="/assets/js/profile.js?v=4.3.2" defer></script>
     <?php
     $googleFonts = [
         'Poppins' => 'Poppins',
@@ -432,6 +432,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <?php endif; ?>
 
     <?php
+    $isPublicProfilePage = true;
     if (file_exists(__DIR__ . '/includes/navbar-bio.php')) include __DIR__ . '/includes/navbar-bio.php';
     else include __DIR__ . '/includes/navbar.php';
     if (file_exists(__DIR__ . '/includes/impostazioni.php')) include __DIR__ . '/includes/impostazioni.php';

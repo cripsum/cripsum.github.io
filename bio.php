@@ -277,11 +277,11 @@ $statCards = [
     <meta property="og:url" content="<?= e($profileUrl); ?>">
     <link rel="stylesheet" href="css/style-users.css?v=3">
     <link rel="stylesheet" href="css/bio-v2.css?v=20260425">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.2.6">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.3.2">
     <title><?= e($profileConfig['display_name']); ?> — Bio</title>
     <script src="js/nomePagina.js" defer></script>
     <script src="js/bio-v2.js?v=20260425" defer></script>
-    <script src="/assets/js/profile.js?v=4.2.6" defer></script>
+    <script src="/assets/js/profile.js?v=4.3.2" defer></script>
 </head>
 <body
     class="bio-v2-body public-profile-body"
@@ -289,7 +289,10 @@ $statCards = [
     data-profile-url="<?= e($profileUrl); ?>"
     data-discord-id="<?= e($profileConfig['discord_id']); ?>"
 >
-    <?php include __DIR__ . '/includes/navbar-bio.php'; ?>
+    <?php
+    $isPublicProfilePage = true;
+    include __DIR__ . '/includes/navbar-bio.php';
+    ?>
 
     <div class="bio-background" aria-hidden="true">
         <video autoplay muted loop playsinline poster="">

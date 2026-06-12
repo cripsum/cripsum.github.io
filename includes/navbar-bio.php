@@ -506,6 +506,10 @@ if ($isLoggedIn) {
     })();
 </script>
 
+<?php
+$isPublicProfilePage = isset($isPublicProfilePage) && $isPublicProfilePage === true;
+if ($isPublicProfilePage):
+?>
 <!-- ─────────────────────────────────────────────────────────────────────────
      NAVIGATION REDESIGN OVERLAYS & MODALS MARKUP
      ───────────────────────────────────────────────────────────────────────── -->
@@ -659,4 +663,5 @@ if ($isLoggedIn) {
             </button>
         </form>
     </div>
-</div>
+</div>
+<?php endif; ?>
