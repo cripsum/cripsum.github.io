@@ -7245,24 +7245,36 @@ body.public-profile-body .navbarutenti {
 }
 
 body.public-profile-body .bio-page {
-    padding-top: 3.5rem !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    box-sizing: border-box !important;
+    align-content: center !important;
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+}
+
+body.public-profile-body .profile-smart-hero {
+    top: 2rem !important;
 }
 
 @media (max-width: 1080px) {
     body.public-profile-body .bio-page {
         padding-top: 2.8rem !important;
+        padding-bottom: 2rem !important;
     }
 }
 
 @media (max-width: 720px) {
     body.public-profile-body .bio-page {
         padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
     }
 }
 
 @media (max-width: 420px) {
     body.public-profile-body .bio-page {
         padding-top: 1.5rem !important;
+        padding-bottom: 1.5rem !important;
     }
 }
 
