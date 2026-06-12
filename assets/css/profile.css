@@ -4328,7 +4328,6 @@ body[data-profile-button-shape="sharp"] .bio-icon-button {
 /* Better profile effects */
 /* Premium custom page effects overlay layering */
 body[data-profile-effect="soft_particles"] .profile-effects-layer,
-body[data-profile-effect="glass_rain"] .profile-effects-layer,
 body[data-profile-effect="sakura_falling"] .profile-effects-layer,
 body[data-profile-effect="scanlines"] .profile-effects-layer,
 body[data-profile-effect="digital_noise"] .profile-effects-layer {
@@ -4389,7 +4388,7 @@ body[data-profile-effect="spotlight"] .profile-effects-layer::before {
         color-mix(in srgb, var(--accent-2, #8b5cf6) 20%, transparent) 60%, 
         transparent 100%) !important;
     filter: blur(1px) !important;
-    opacity: 0 !important;
+    opacity: 0;
     mix-blend-mode: screen !important;
     animation: premiumSoftParticles var(--t) ease-in-out infinite !important;
     animation-delay: var(--d) !important;
