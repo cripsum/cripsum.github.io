@@ -440,7 +440,7 @@
                     if (window.RaindropFX) return Promise.resolve();
                     return new Promise((resolve, reject) => {
                         const script = document.createElement('script');
-                        script.src = '/assets/js/raindrop-fx.js?v=4.4.6';
+                        script.src = '/assets/js/raindrop-fx.js?v=4.4.7';
                         script.onload = resolve;
                         script.onerror = reject;
                         document.head.appendChild(script);
@@ -531,9 +531,9 @@
                         const raindropFgFx = new window.RaindropFX({
                             canvas: fgCanvas,
                             background: bgSource,
-                            spawnInterval: [0.15, 0.4],
-                            spawnSize: [35, 55],
-                            spawnLimit: 150,
+                            spawnInterval: [0.05, 0.2],
+                            spawnSize: [35, 60],
+                            spawnLimit: 300,
                             dropletsPerSeconds: 0,
                             mist: false,
                             backgroundBlurSteps: 2,
