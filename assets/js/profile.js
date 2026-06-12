@@ -475,8 +475,6 @@
                         canvas.style.height = '100%';
                         canvas.style.pointerEvents = 'none';
                         canvas.style.zIndex = '1';
-                        const isLightTheme = body.dataset.theme === 'light';
-                        canvas.style.filter = isLightTheme ? 'brightness(0.95)' : 'brightness(0.45)';
                         layer.appendChild(canvas);
                     }
 
@@ -490,15 +488,24 @@
                         bgSource = bgMedia.src;
                     }
 
+                    // If background is a GIF, use transparent mode so the animated
+                    // GIF shows through (WebGL textures are static single-frame snapshots)
+                    const isAnimatedBg = /\.gif(\?|$)/i.test(bgSource);
+                    if (!isAnimatedBg) {
+                        const isLightTheme = body.dataset.theme === 'light';
+                        canvas.style.filter = isLightTheme ? 'brightness(0.95)' : 'brightness(0.45)';
+                    }
+
                     try {
                         // Single rain instance: combines background droplets + larger sliding drops
                         const raindropFx = new window.RaindropFX({
                             canvas: canvas,
                             background: bgSource,
+                            transparentBackground: isAnimatedBg,
                             spawnInterval: [0.03, 0.12],
                             spawnSize: [30, 65],
                             spawnLimit: 500,
-                            dropletsPerSeconds: 800,
+                            dropletsPerSeconds: isAnimatedBg ? 0 : 800,
                             dropletSize: [6, 18],
                             mist: false,
                             backgroundBlurSteps: 2,
