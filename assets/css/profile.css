@@ -5452,6 +5452,30 @@ body[data-theme="light"] .profile-select-menu {
     transform: scale(0.95);
 }
 
+.ui-preset-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 0.5rem;
+    border-radius: var(--radius-sm, 8px);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+.ui-preset-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+.ui-preset-btn:active {
+    transform: translateY(0);
+}
+
+
 /* Sakura Falling Effect */
 body[data-profile-effect="sakura_falling"] .profile-effects-layer::before {
     display: none !important;
