@@ -488,24 +488,19 @@
                         bgSource = bgMedia.src;
                     }
 
-                    // If background is a GIF, use transparent mode so the animated
-                    // GIF shows through (WebGL textures are static single-frame snapshots)
-                    const isAnimatedBg = /\.gif(\?|$)/i.test(bgSource);
-                    if (!isAnimatedBg) {
-                        const isLightTheme = body.dataset.theme === 'light';
-                        canvas.style.filter = isLightTheme ? 'brightness(0.95)' : 'brightness(0.45)';
-                    }
-
                     try {
-                        // Single rain instance: combines background droplets + larger sliding drops
+                        // Always use transparentBackground so the page's actual background
+                        // (video, GIF, or image) stays visible underneath. RaindropFX loads
+                        // backgrounds as a static WebGL texture (single frame), which would
+                        // freeze any animated background. The canvas only renders rain drops.
                         const raindropFx = new window.RaindropFX({
                             canvas: canvas,
                             background: bgSource,
-                            transparentBackground: isAnimatedBg,
+                            transparentBackground: true,
                             spawnInterval: [0.03, 0.12],
                             spawnSize: [30, 65],
                             spawnLimit: 500,
-                            dropletsPerSeconds: isAnimatedBg ? 0 : 800,
+                            dropletsPerSeconds: 0,
                             dropletSize: [6, 18],
                             mist: false,
                             backgroundBlurSteps: 2,
