@@ -244,11 +244,13 @@
     const fontInput = $('#fontInput');
     const borderRadiusInput = $('#borderRadiusInput');
     const cardOpacityInput = $('#cardOpacityInput');
+    const cardBlurInput = $('#cardBlurInput');
     const borderColorInput = $('#borderColorInput');
     const borderWidthInput = $('#borderWidthInput');
 
     const borderRadiusVal = $('#borderRadiusVal');
     const cardOpacityVal = $('#cardOpacityVal');
+    const cardBlurVal = $('#cardBlurVal');
     const borderWidthVal = $('#borderWidthVal');
 
     const nameColorTypeInput = $('#nameColorTypeInput');
@@ -277,6 +279,11 @@
     if (cardOpacityInput && cardOpacityVal) {
         cardOpacityInput.addEventListener('input', () => {
             cardOpacityVal.textContent = cardOpacityInput.value + '%';
+        });
+    }
+    if (cardBlurInput && cardBlurVal) {
+        cardBlurInput.addEventListener('input', () => {
+            cardBlurVal.textContent = cardBlurInput.value + 'px';
         });
     }
     if (borderWidthInput && borderWidthVal) {
@@ -373,6 +380,7 @@
         // Custom card opacity, color mix and border variables preview
         const cardCol = cardColorInput ? cardColorInput.value : '#080c18';
         const opacityVal = cardOpacityInput ? parseInt(cardOpacityInput.value, 10) : 68;
+        const blurVal = cardBlurInput ? parseInt(cardBlurInput.value, 10) : 20;
         const radiusVal = borderRadiusInput ? parseInt(borderRadiusInput.value, 10) : 30;
         const borderWVal = borderWidthInput ? parseInt(borderWidthInput.value, 10) : 1;
         
@@ -381,6 +389,7 @@
         document.body.style.setProperty('--radius-sm', `${Math.round(radiusVal * 0.47)}px`);
         
         document.body.style.setProperty('--profile-card-opacity', opacityVal / 100);
+        document.body.style.setProperty('--profile-card-blur', `${blurVal}px`);
         document.body.style.setProperty('--card', `color-mix(in srgb, ${cardCol} ${opacityVal}%, transparent)`);
         document.body.style.setProperty('--profile-card-color', `color-mix(in srgb, ${cardCol} ${opacityVal}%, transparent)`);
         document.body.style.setProperty('--card-strong', `color-mix(in srgb, ${cardCol} ${Math.min(100, opacityVal + 20)}%, transparent)`);
@@ -425,7 +434,7 @@
         }
     }
 
-    [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, layoutInput, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput].filter(Boolean).forEach((input) => {
+    [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, layoutInput, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput].filter(Boolean).forEach((input) => {
         input.addEventListener('input', updatePreview);
         input.addEventListener('change', updatePreview);
     });
@@ -481,6 +490,7 @@
                 socialsStyleInput: 'cards',
                 fontInput: 'Poppins',
                 cardOpacityInput: '68',
+                cardBlurInput: '20',
                 borderRadiusInput: '30',
                 borderWidthInput: '1',
                 borderColorInput: '#ffffff'
@@ -498,6 +508,7 @@
                 socialsStyleInput,
                 fontInput,
                 cardOpacityInput,
+                cardBlurInput,
                 borderRadiusInput,
                 borderWidthInput,
                 borderColorInput

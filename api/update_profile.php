@@ -54,6 +54,8 @@ $borderRadius = (int)($_POST['profile_border_radius'] ?? 30);
 if ($borderRadius < 0 || $borderRadius > 40) $borderRadius = 30;
 $cardOpacity = (int)($_POST['profile_card_opacity'] ?? 68);
 if ($cardOpacity < 0 || $cardOpacity > 100) $cardOpacity = 68;
+$cardBlur = (int)($_POST['profile_card_blur'] ?? 20);
+if ($cardBlur < 0 || $cardBlur > 40) $cardBlur = 20;
 $borderColorDb = profile_optional_hex_color($_POST['profile_border_color'] ?? '');
 $borderWidth = (int)($_POST['profile_border_width'] ?? 1);
 if ($borderWidth < 0 || $borderWidth > 5) $borderWidth = 1;
@@ -233,13 +235,13 @@ try {
             profile_show_stats = ?, profile_show_socials = ?, profile_show_links = ?, profile_show_projects = ?, profile_show_contents = ?, profile_show_badges = ?, profile_show_activity = ?, profile_show_discord = ?, profile_show_audio_player = ?, avatar_ring_enabled = ?, profile_show_characters = ?,
             profile_enter_text = ?, profile_click_to_enter = ?, profile_socials_style = ?, profile_show_embeds = ?, profile_sections_order = ?, profile_badges_display = ?,
             profile_badges_position = ?, discord_server_invite = ?, discord_server_cache = ?, discord_server_cache_time = ?,
-            profile_font = ?, profile_border_radius = ?, profile_card_opacity = ?, profile_border_color = ?, profile_border_width = ?,
+            profile_font = ?, profile_border_radius = ?, profile_card_opacity = ?, profile_card_blur = ?, profile_border_color = ?, profile_border_width = ?,
             profile_name_style = ?,
             profile_updated_at = NOW()
         WHERE id = ?
     ");
     $stmt->bind_param(
-        'sssssssssssssiisssssssiiiiiiiiiiisisisssssisiisisi',
+        'sssssssssssssiisssssssiiiiiiiiiiisisisssssisiiisisi',
         $username,
         $displayNameDb,
         $bioDb,
@@ -286,6 +288,7 @@ try {
         $font,
         $borderRadius,
         $cardOpacity,
+        $cardBlur,
         $borderColorDb,
         $borderWidth,
         $profileNameStyleJson,
