@@ -163,10 +163,10 @@ body[data-theme="light"] .bio-background__overlay {
 
 .bio-card {
     position: relative;
-    background: linear-gradient(145deg, var(--card), rgba(var(--accent-rgb), calc(0.06 * var(--profile-card-opacity, 1))));
-    border: var(--profile-border-width, 1px) solid var(--border);
+    background: var(--card);
+    border: var(--profile-border-width, 1px) solid color-mix(in srgb, var(--border) calc(100% * var(--profile-border-opacity, 1)), transparent);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow);
+    box-shadow: 0 24px 48px -12px rgba(0, 0, 0, calc(0.45 * var(--profile-card-opacity, 1)));
     backdrop-filter: blur(var(--profile-card-blur, 20px));
     -webkit-backdrop-filter: blur(var(--profile-card-blur, 20px));
     overflow: hidden;

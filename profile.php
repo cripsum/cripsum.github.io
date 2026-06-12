@@ -183,6 +183,7 @@ $profileFont = $profile['profile_font'] ?? 'Poppins';
 $borderRadius = (int)($profile['profile_border_radius'] ?? 30);
 $cardOpacity = (int)($profile['profile_card_opacity'] ?? 68);
 $cardBlur = (int)($profile['profile_card_blur'] ?? 20);
+$borderOpacity = (int)($profile['profile_border_opacity'] ?? 100);
 $borderColor = $profile['profile_border_color'] ?? null;
 $borderWidth = (int)($profile['profile_border_width'] ?? 1);
 
@@ -300,8 +301,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.1.9">
-    <script src="/assets/js/profile.js?v=4.1.9" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.2.0">
+    <script src="/assets/js/profile.js?v=4.2.0" defer></script>
     <?php
     $googleFonts = [
         'Poppins' => 'Poppins',
@@ -337,6 +338,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 
             --profile-card-opacity: <?php echo $cardOpacity / 100; ?> !important;
             --profile-card-blur: <?php echo $cardBlur; ?>px !important;
+            --profile-border-opacity: <?php echo $borderOpacity / 100; ?> !important;
             --profile-card-bg: color-mix(in srgb, var(--profile-card-color, <?php echo $theme === 'light' ? '#ffffff' : '#080c18'; ?>) <?php echo $cardOpacity; ?>%, transparent) !important;
             --card: var(--profile-card-bg) !important;
             --card-strong: color-mix(in srgb, <?php echo !empty($profile['profile_card_color']) ? $profile['profile_card_color'] : ($theme === 'light' ? '#ffffff' : '#080c18'); ?> <?php echo min(100, $cardOpacity + 20); ?>%, transparent) !important;
