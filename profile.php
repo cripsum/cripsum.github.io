@@ -186,6 +186,7 @@ $cardBlur = (int)($profile['profile_card_blur'] ?? 20);
 $borderOpacity = (int)($profile['profile_border_opacity'] ?? 100);
 $borderColor = $profile['profile_border_color'] ?? null;
 $borderWidth = (int)($profile['profile_border_width'] ?? 1);
+$avatarBorder = (int)($profile['profile_avatar_border'] ?? 1);
 
 $uiShape = $profile['profile_ui_shape'] ?? 'circle';
 $avatarShape = $profile['profile_avatar_shape'] ?? 'circle';
@@ -346,8 +347,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.2.3">
-    <script src="/assets/js/profile.js?v=4.2.3" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.2.4">
+    <script src="/assets/js/profile.js?v=4.2.4" defer></script>
     <?php
     $googleFonts = [
         'Poppins' => 'Poppins',
@@ -417,6 +418,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     data-profile-socials-style="<?php echo profile_h($socialsStyle); ?>"
     data-profile-layout="<?php echo profile_h($layout); ?>"
     data-avatar-shape="<?php echo profile_h($avatarShape); ?>"
+    data-avatar-border="<?php echo $avatarBorder; ?>"
     style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
 
     <?php if ($profile && profile_flag($profile, 'profile_click_to_enter', false)): ?>

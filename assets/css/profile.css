@@ -1033,7 +1033,7 @@ body[data-theme="light"] .bio-name-block h1 {
 /* Discord status v2 */
 .ds-card {
     border: 1px solid var(--border);
-    border-radius: 18px;
+    border-radius: var(--radius-md, 18px);
     background: rgba(88, 101, 242, 0.08);
     overflow: hidden;
 }
@@ -6921,4 +6921,18 @@ body[data-avatar-shape="badge"] .bio-avatar-ring {
 .bio-button {
     border-radius: var(--ui-shape-button, 999px);
     min-height: var(--button-height, 48px);
+}
+
+/* Neon ring attached to the border */
+.ring-style-neon .bio-avatar-ring {
+    inset: 2px !important;
+}
+
+/* When pfp border is disabled (data-avatar-border="0") */
+body[data-avatar-border="0"] .bio-avatar-ring {
+    inset: 4px !important;
+}
+
+body[data-avatar-border="0"] .bio-avatar {
+    border-width: 0 !important;
 }

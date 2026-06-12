@@ -232,6 +232,7 @@
     const musicFileInput = $('#musicFileInput');
     const profileEffectInput = $('#profileEffectInput');
     const ringEnabledInput = $('#ringEnabledInput');
+    const avatarBorderInput = $('#avatarBorderInput');
     const ringStyleInput = $('#ringStyleInput');
     const ringColorInput = $('#ringColorInput');
     const discordUseNameInput = $('#discordUseNameInput');
@@ -458,6 +459,7 @@
             if (buttonSizeVal) buttonSizeVal.textContent = `${buttonSizeInput.value}px`;
         }
         if (avatarShapeInput) document.body.dataset.avatarShape = avatarShapeInput.value;
+        if (avatarBorderInput) document.body.dataset.avatarBorder = avatarBorderInput.checked ? '1' : '0';
 
         document.body.style.setProperty('--profile-ring', ringColorInput ? ringColorInput.value : accentInput.value);
         document.body.dataset.accent = accentInput.value;
@@ -487,7 +489,7 @@
         }
     }
 
-    [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, layoutInput, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput].filter(Boolean).forEach((input) => {
+    [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, layoutInput, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput].filter(Boolean).forEach((input) => {
         input.addEventListener('input', updatePreview);
         input.addEventListener('change', updatePreview);
     });

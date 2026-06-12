@@ -93,6 +93,7 @@ $profileEffect = profile_allowed_value((string)($_POST['profile_effect'] ?? 'non
 $avatarRingEnabled = profile_bool_from_post('avatar_ring_enabled', true);
 $avatarRingStyle = profile_allowed_value((string)($_POST['avatar_ring_style'] ?? 'spin'), ['spin', 'pulse', 'orbit', 'glow', 'dual', 'rainbow', 'halo', 'neon', 'spark', 'glitch', 'none'], 'spin');
 $avatarRingColor = profile_normalize_hex_color($_POST['avatar_ring_color'] ?? $accentColor);
+$avatarBorder = profile_bool_from_post('profile_avatar_border', true);
 
 $nameStyleConfig = [
     'type' => profile_allowed_value((string)($_POST['profile_name_color_type'] ?? 'default'), ['default', 'solid', 'gradient'], 'default'),
@@ -250,12 +251,12 @@ try {
             profile_badges_position = ?, discord_server_invite = ?, discord_server_cache = ?, discord_server_cache_time = ?,
             profile_font = ?, profile_border_radius = ?, profile_card_opacity = ?, profile_card_blur = ?, profile_border_opacity = ?, profile_border_color = ?, profile_border_width = ?,
             profile_name_style = ?,
-            profile_ui_shape = ?, profile_avatar_shape = ?, profile_social_size = ?, profile_icon_spacing = ?, profile_badge_size = ?, profile_button_size = ?,
+            profile_ui_shape = ?, profile_avatar_shape = ?, profile_social_size = ?, profile_icon_spacing = ?, profile_badge_size = ?, profile_button_size = ?, profile_avatar_border = ?,
             profile_updated_at = NOW()
         WHERE id = ?
     ");
     $stmt->bind_param(
-        'sssssssssssssiisssssssiiiiiiiiiiisisisssssisiiiisisssiiiii',
+        'sssssssssssssiisssssssiiiiiiiiiiisisisssssisiiiisisssiiiiii',
         $username,
         $displayNameDb,
         $bioDb,
@@ -313,6 +314,7 @@ try {
         $iconSpacing,
         $badgeSize,
         $buttonSize,
+        $avatarBorder,
         $targetUserId
     );
     if (!$stmt->execute()) throw new RuntimeException('Error updating profile.');
