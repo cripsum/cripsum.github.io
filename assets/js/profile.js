@@ -13,7 +13,7 @@
         if (window.innerWidth > 1080) {
             const viewportHeight = window.innerHeight;
             const heroHeight = hero.offsetHeight;
-            const offset = 80; // offset top + safety margin
+            const offset = 72; // offset top + safety margin
 
             if (heroHeight > (viewportHeight - offset)) {
                 hero.classList.add('hero-no-sticky');
