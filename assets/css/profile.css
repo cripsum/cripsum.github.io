@@ -4691,6 +4691,18 @@ body[data-profile-effect="digital_noise"] .profile-effects-layer::after {
     }
 }
 
+/* Wet glass base layer: blurs the actual page background in real-time (works with GIF/video).
+   This replaces the static WebGL blurred background that was lost when using transparentBackground mode. */
+body[data-profile-effect="glass_rain"] .profile-effects-layer::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(3px) brightness(0.88) saturate(1.1);
+    -webkit-backdrop-filter: blur(3px) brightness(0.88) saturate(1.1);
+    z-index: 0;
+    pointer-events: none;
+}
+
 /* Foreground glass rain overlay (pure CSS, sits on top of card) */
 .profile-effects-foreground-layer {
     position: fixed;

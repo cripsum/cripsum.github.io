@@ -500,7 +500,7 @@
                             spawnInterval: [0.03, 0.12],
                             spawnSize: [30, 65],
                             spawnLimit: 500,
-                            dropletsPerSeconds: 0,
+                            dropletsPerSeconds: 500,
                             dropletSize: [6, 18],
                             mist: false,
                             backgroundBlurSteps: 2,
