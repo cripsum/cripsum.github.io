@@ -7245,18 +7245,23 @@ body.public-profile-body .navbarutenti {
 }
 
 body.public-profile-body {
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
     margin: 0 !important;
     padding: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
 }
 
 body.public-profile-body .bio-page {
-    min-height: 100vh !important;
-    min-height: 100dvh !important;
+    min-height: auto !important;
     box-sizing: border-box !important;
-    align-content: center !important;
-    padding-top: 3rem !important;
-    padding-bottom: 3rem !important;
+    padding-top: 3.5rem !important;
+    padding-bottom: 3.5rem !important;
 }
 
 /* Remove internal scrollbars on public profile cards/sections */
