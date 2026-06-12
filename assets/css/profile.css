@@ -2398,7 +2398,7 @@ body[data-theme="light"].bio-v2-body {
 }
 
 body[data-theme="light"] .bio-card {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.82), rgba(var(--accent-rgb), 0.08));
+    background: linear-gradient(145deg, var(--card), rgba(var(--accent-rgb), calc(0.08 * var(--profile-card-opacity, 1))));
 }
 
 body[data-theme="light"] .bio-social,
@@ -3124,8 +3124,8 @@ body[data-theme="light"].bio-v2-body .dropdown-menu button {
 
 .public-profile-body .bio-card,
 .profile-editor-shell .bio-card {
-    background: radial-gradient(circle at top right, rgba(var(--accent-rgb), 0.1), transparent 12rem),
-        linear-gradient(145deg, var(--card), rgba(var(--accent-rgb), 0.055));
+    background: radial-gradient(circle at top right, rgba(var(--accent-rgb), calc(0.1 * var(--profile-card-opacity, 1))), transparent 12rem),
+        linear-gradient(145deg, var(--card), rgba(var(--accent-rgb), calc(0.055 * var(--profile-card-opacity, 1))));
 }
 
 .public-profile-body .bio-button--primary,
