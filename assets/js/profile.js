@@ -1193,7 +1193,7 @@
         
         cancelShow();
         
-        // Premium 500ms hover-delay to prevent tooltip spamming while moving mouse
+        // Premium 500ms hover-delay to prevent tooltip spamming while moving mous
         showTimeout = setTimeout(() => {
             showTooltip(target, tooltipText);
             showTimeout = null;

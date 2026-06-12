@@ -151,7 +151,7 @@ in vec4 vPos;\r
 in vec2 vUV;\r
 \r
 uniform sampler2D uMainTex;\r
-uniform vec4 uTexSize; // (w, h, 1/w, 1/h)\r
+uniform vec4 uTexSize; // (w, h, 1/w, 1/h)\r 
 uniform float uSampleOffset;\r
 \r
 out vec4 fragColor;\r
