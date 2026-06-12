@@ -483,40 +483,24 @@
                     canvas.height = rect.height;
 
                     const bgMedia = document.querySelector('.bio-background__media');
-                    const isVideo = bgMedia && bgMedia.tagName === 'VIDEO';
-                    const isImg = bgMedia && bgMedia.tagName === 'IMG';
-
-                    // For animated backgrounds (video/GIF) we capture frames onto a
-                    // mirror canvas and periodically feed them to the RaindropFX
-                    // renderer so the wet-glass effect stays in full opaque mode
-                    // (with small droplets + blur + refraction) while the background
-                    // still appears to animate through the glass.
                     let bgSource = '/img/banner_standard_bg.jpg';
-                    let mirrorCanvas = null;
-
-                    if (isVideo || isImg) {
-                        mirrorCanvas = document.createElement('canvas');
-                        const mw = Math.min(canvas.width, 512);
-                        const mh = Math.min(canvas.height, 512);
-                        mirrorCanvas.width = mw;
-                        mirrorCanvas.height = mh;
-                        const mctx = mirrorCanvas.getContext('2d', { willReadFrequently: false });
-                        try { mctx.drawImage(bgMedia, 0, 0, mw, mh); } catch (e) { /* tainted */ }
-                        bgSource = mirrorCanvas;
+                    if (bgMedia && bgMedia.tagName === 'IMG') {
+                        bgSource = bgMedia.src;
                     }
 
-                    const isLightTheme = body.dataset.theme === 'light';
-                    canvas.style.filter = isLightTheme ? 'brightness(0.95)' : 'brightness(0.45)';
-
                     try {
-                        // Full opaque mode: background blur + small droplets + refraction
+                        // Always use transparentBackground so the page's actual background
+                        // (video, GIF, or image) stays visible underneath. RaindropFX loads
+                        // backgrounds as a static WebGL texture (single frame), which would
+                        // freeze any animated background. The canvas only renders rain drops.
                         const raindropFx = new window.RaindropFX({
                             canvas: canvas,
                             background: bgSource,
+                            transparentBackground: true,
                             spawnInterval: [0.03, 0.12],
                             spawnSize: [30, 65],
                             spawnLimit: 500,
-                            dropletsPerSeconds: 800,
+                            dropletsPerSeconds: 500,
                             dropletSize: [6, 18],
                             mist: false,
                             backgroundBlurSteps: 2,
@@ -525,29 +509,6 @@
                         });
                         raindropFx.start();
                         window.currentRainInstance = raindropFx;
-
-                        // For animated backgrounds, periodically refresh the texture
-                        // by capturing a new frame from the video/GIF element.
-                        if (mirrorCanvas && bgMedia) {
-                            const refreshBg = () => {
-                                if (!window.currentRainInstance) return;
-                                const mctx = mirrorCanvas.getContext('2d');
-                                try { mctx.drawImage(bgMedia, 0, 0, mirrorCanvas.width, mirrorCanvas.height); } catch (e) { return; }
-                                // Access internal render pipeline and refresh background texture
-                                try {
-                                    const inst = window.currentRainInstance;
-                                    // Find the internal Li renderer (property that has reloadBackground)
-                                    const pipeline = Object.values(inst).find(v =>
-                                        v && typeof v === 'object' && typeof v.reloadBackground === 'function'
-                                    );
-                                    if (pipeline) {
-                                        pipeline.options.background = mirrorCanvas;
-                                        pipeline.reloadBackground();
-                                    }
-                                } catch (e) { /* silently fail */ }
-                            };
-                            window._rainBgInterval = setInterval(refreshBg, 200);
-                        }
 
                         window.addEventListener('resize', handleRainResize, { passive: true });
                     } catch (err) {
