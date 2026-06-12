@@ -547,6 +547,11 @@
             dot.style.setProperty('--s', `${0.55 + Math.random() * 1.45}`);
             dot.style.setProperty('--d', `${Math.random() * -12}s`);
             dot.style.setProperty('--t', `${7 + Math.random() * 11}s`);
+            if (effect === 'stars') {
+                const rand = Math.random();
+                const starColor = rand < 0.25 ? 'var(--accent)' : (rand < 0.40 ? 'var(--accent-2, #8b5cf6)' : '#ffffff');
+                dot.style.setProperty('--star-color', starColor);
+            }
             fragment.appendChild(dot);
         }
         layer.appendChild(fragment);

@@ -4398,38 +4398,42 @@ body[data-profile-effect="spotlight"] .profile-effects-layer::before {
 /* 3. Soft Particles */
 .profile-effect-dot--soft_particles {
     position: absolute;
-    width: calc(32px * var(--s)) !important;
-    height: calc(32px * var(--s)) !important;
+    width: calc(60px * var(--s)) !important;
+    height: calc(60px * var(--s)) !important;
+    border-radius: 50% !important;
     background: radial-gradient(
         circle,
-        rgba(255, 255, 255, 0.8) 0%,
-        color-mix(in srgb, var(--accent) 60%, transparent) 30%,
-        color-mix(in srgb, var(--accent-2, #8b5cf6) 20%, transparent) 60%,
-        transparent 100%
+        rgba(255, 255, 255, 0.9) 0%,
+        color-mix(in srgb, var(--accent) 45%, transparent) 25%,
+        color-mix(in srgb, var(--accent-2, #8b5cf6) 15%, transparent) 55%,
+        transparent 75%
     ) !important;
-    filter: blur(1px) !important;
+    filter: blur(4px) !important;
     opacity: 0;
-    mix-blend-mode: screen !important;
+    mix-blend-mode: plus-lighter !important;
     animation: premiumSoftParticles var(--t) ease-in-out infinite !important;
     animation-delay: var(--d) !important;
 }
 @keyframes premiumSoftParticles {
     0% {
-        transform: translate3d(0, 0, 0) scale(0.6);
+        transform: translate3d(0, 0, 0) scale(0.5);
         opacity: 0;
     }
     15% {
-        opacity: 0.65;
+        opacity: 0.7;
     }
-    50% {
-        transform: translate3d(calc(var(--s) * 25px), -80px, 0) scale(1.1);
+    35% {
+        transform: translate3d(calc(var(--s) * 18px), -60px, 0) scale(0.9);
+    }
+    65% {
+        transform: translate3d(calc(var(--s) * -18px), -130px, 0) scale(1.1);
         opacity: 0.8;
     }
     85% {
-        opacity: 0.65;
+        opacity: 0.5;
     }
     100% {
-        transform: translate3d(calc(var(--s) * -25px), -180px, 0) scale(0.6);
+        transform: translate3d(calc(var(--s) * 12px), -210px, 0) scale(0.6);
         opacity: 0;
     }
 }
@@ -4438,38 +4442,53 @@ body[data-profile-effect="spotlight"] .profile-effects-layer::before {
 body[data-profile-effect="ambient"] .profile-effects-layer::before {
     content: "";
     position: absolute;
-    width: 140% !important;
-    height: 140% !important;
-    left: -20% !important;
-    top: -20% !important;
-    background: radial-gradient(circle at 20% 30%, color-mix(in srgb, var(--accent) 20%, transparent) 0%, transparent 60%),
-        radial-gradient(circle at 80% 70%, color-mix(in srgb, var(--accent-2, #8b5cf6) 15%, transparent) 0%, transparent 60%) !important;
-    filter: blur(120px) !important;
-    animation: premiumAmbient 15s ease-in-out infinite alternate !important;
+    width: 150% !important;
+    height: 150% !important;
+    left: -25% !important;
+    top: -25% !important;
+    background: radial-gradient(circle at 20% 30%, color-mix(in srgb, var(--accent) 9%, transparent) 0%, transparent 65%),
+        radial-gradient(circle at 80% 70%, color-mix(in srgb, var(--accent-2, #8b5cf6) 7%, transparent) 0%, transparent 65%) !important;
+    filter: blur(160px) !important;
+    animation: premiumAmbientOne 25s ease-in-out infinite alternate !important;
     z-index: 1;
+    mix-blend-mode: screen !important;
+    opacity: 0.8;
 }
 body[data-profile-effect="ambient"] .profile-effects-layer::after {
     content: "";
     position: absolute;
-    width: 130% !important;
-    height: 130% !important;
-    left: -15% !important;
-    top: -15% !important;
-    background: radial-gradient(circle at 80% 20%, color-mix(in srgb, var(--accent-2, #8b5cf6) 18%, transparent) 0%, transparent 55%),
-        radial-gradient(circle at 20% 80%, color-mix(in srgb, var(--accent) 15%, transparent) 0%, transparent 55%) !important;
-    filter: blur(140px) !important;
-    animation: premiumAmbient 20s ease-in-out infinite alternate-reverse !important;
+    width: 140% !important;
+    height: 140% !important;
+    left: -20% !important;
+    top: -20% !important;
+    background: radial-gradient(circle at 80% 20%, color-mix(in srgb, var(--accent-2, #8b5cf6) 8%, transparent) 0%, transparent 60%),
+        radial-gradient(circle at 20% 80%, color-mix(in srgb, var(--accent) 6%, transparent) 0%, transparent 60%) !important;
+    filter: blur(180px) !important;
+    animation: premiumAmbientTwo 35s ease-in-out infinite alternate !important;
     z-index: 1;
+    mix-blend-mode: screen !important;
+    opacity: 0.7;
 }
-@keyframes premiumAmbient {
+@keyframes premiumAmbientOne {
     0% {
-        transform: translate(0, 0) scale(1) rotate(0deg);
+        transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
     }
     50% {
-        transform: translate(-3%, 2%) scale(1.05) rotate(3deg);
+        transform: translate3d(-4%, 3%, 0) scale(1.06) rotate(6deg);
     }
     100% {
-        transform: translate(3%, -2%) scale(1.1) rotate(6deg);
+        transform: translate3d(4%, -3%, 0) scale(0.95) rotate(-6deg);
+    }
+}
+@keyframes premiumAmbientTwo {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1.05) rotate(0deg);
+    }
+    50% {
+        transform: translate3d(3%, -4%, 0) scale(0.95) rotate(-9deg);
+    }
+    100% {
+        transform: translate3d(-3%, 4%, 0) scale(1.08) rotate(9deg);
     }
 }
 
@@ -4477,63 +4496,87 @@ body[data-profile-effect="ambient"] .profile-effects-layer::after {
 body[data-profile-effect="aurora"] .profile-effects-layer::before {
     content: "";
     position: absolute;
-    width: 150% !important;
-    height: 100% !important;
-    left: -25% !important;
-    top: -20% !important;
-    background: linear-gradient(
+    width: 250% !important;
+    height: 120vh !important;
+    left: -75% !important;
+    top: -30vh !important;
+    background: repeating-linear-gradient(
         90deg,
         transparent 0%,
-        color-mix(in srgb, var(--accent) 22%, transparent) 25%,
-        color-mix(in srgb, var(--accent-2, #8b5cf6) 18%, transparent) 50%,
-        color-mix(in srgb, var(--accent) 20%, transparent) 75%,
+        transparent 10%,
+        color-mix(in srgb, var(--accent) 10%, transparent) 18%,
+        transparent 26%,
+        transparent 40%,
+        color-mix(in srgb, var(--accent-2, #8b5cf6) 8%, transparent) 48%,
+        transparent 56%,
+        transparent 70%,
+        color-mix(in srgb, var(--accent) 7%, transparent) 78%,
+        transparent 85%,
         transparent 100%
     ) !important;
-    filter: blur(80px) !important;
-    animation: auroraWaveOne 22s ease-in-out infinite alternate !important;
+    background-size: 100vw 100% !important;
+    filter: blur(100px) !important;
+    opacity: 0.7;
+    mix-blend-mode: screen !important;
+    animation: premiumAuroraOne 28s ease-in-out infinite alternate !important;
     transform-origin: center top;
     z-index: 1;
 }
 body[data-profile-effect="aurora"] .profile-effects-layer::after {
     content: "";
     position: absolute;
-    width: 150% !important;
-    height: 100% !important;
-    left: -25% !important;
-    top: -10% !important;
-    background: linear-gradient(
+    width: 250% !important;
+    height: 120vh !important;
+    left: -75% !important;
+    top: -20vh !important;
+    background: repeating-linear-gradient(
         90deg,
         transparent 0%,
-        color-mix(in srgb, var(--accent-2, #8b5cf6) 20%, transparent) 30%,
-        color-mix(in srgb, var(--accent) 18%, transparent) 60%,
-        color-mix(in srgb, var(--accent-2, #8b5cf6) 15%, transparent) 80%,
+        transparent 12%,
+        color-mix(in srgb, var(--accent-2, #8b5cf6) 9%, transparent) 20%,
+        transparent 28%,
+        transparent 42%,
+        color-mix(in srgb, var(--accent) 7%, transparent) 50%,
+        transparent 58%,
+        transparent 72%,
+        color-mix(in srgb, var(--accent-2, #8b5cf6) 8%, transparent) 80%,
+        transparent 88%,
         transparent 100%
     ) !important;
-    filter: blur(90px) !important;
-    animation: auroraWaveTwo 28s ease-in-out infinite alternate !important;
+    background-size: 120vw 100% !important;
+    filter: blur(120px) !important;
+    opacity: 0.6;
+    mix-blend-mode: screen !important;
+    animation: premiumAuroraTwo 36s ease-in-out infinite alternate !important;
     transform-origin: center top;
     z-index: 1;
 }
-@keyframes auroraWaveOne {
+@keyframes premiumAuroraOne {
     0% {
-        transform: translateY(0) scaleY(0.9) skewX(-10deg);
+        transform: translateY(0) scaleY(0.9) skewX(-14deg) rotate(-2deg);
+        background-position: 0% 0%;
     }
     50% {
-        transform: translateY(-5%) scaleY(1.1) skewX(5deg);
+        transform: translateY(-3%) scaleY(1.08) skewX(8deg) rotate(2deg);
+        background-position: 50vw 0%;
     }
     100% {
-        transform: translateY(5%) scaleY(0.95) skewX(-5deg);
+        transform: translateY(3%) scaleY(0.95) skewX(-6deg) rotate(-1deg);
+        background-position: 100vw 0%;
     }
 }
-@keyframes auroraWaveTwo {
+@keyframes premiumAuroraTwo {
     0% {
-        transform: translateY(0) scaleY(1) skewX(10deg);
+        transform: translateY(0) scaleY(1) skewX(12deg) rotate(2deg);
+        background-position: 120vw 0%;
     }
     50% {
-        transform: translateY(3%) scaleY(0.85) skewX(-8deg);
+        transform: translateY(2%) scaleY(0.85) skewX(-10deg) rotate(-2deg);
+        background-position: 60vw 0%;
     }
     100% {
-        transform: translateY(-3%) scaleY(1.05) skewX(8deg);
+        transform: translateY(-2%) scaleY(1.05) skewX(12deg) rotate(1deg);
+        background-position: 0% 0%;
     }
 }
 
@@ -4542,29 +4585,41 @@ body[data-profile-effect="gradient_waves"] .profile-effects-layer::before {
     content: "";
     position: absolute;
     width: 200vw !important;
-    height: 200vw !important;
+    height: 120vh !important;
     left: -50vw !important;
-    top: 50vh !important;
-    background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 18%, transparent) 0%, color-mix(in srgb, var(--accent-2, #8b5cf6) 24%, transparent) 100%) !important;
-    border-radius: 43% 45% 44% 40% !important;
-    animation: waveRotateOne 25s infinite linear !important;
-    filter: blur(30px) !important;
+    bottom: -70vh !important;
+    top: auto !important;
+    background: linear-gradient(180deg, 
+        color-mix(in srgb, var(--accent) 8%, transparent) 0%, 
+        color-mix(in srgb, var(--accent-2, #8b5cf6) 12%, transparent) 50%,
+        color-mix(in srgb, var(--accent) 4%, transparent) 100%
+    ) !important;
+    border-radius: 46% 40% 48% 42% / 44% 48% 40% 46% !important;
+    animation: waveRotateOne 48s infinite linear !important;
+    filter: blur(60px) !important;
     z-index: 1;
-    opacity: 0.85;
+    opacity: 0.6;
+    mix-blend-mode: screen !important;
 }
 body[data-profile-effect="gradient_waves"] .profile-effects-layer::after {
     content: "";
     position: absolute;
-    width: 205vw !important;
-    height: 205vw !important;
-    left: -52vw !important;
-    top: 48vh !important;
-    background: linear-gradient(180deg, color-mix(in srgb, var(--accent-2, #8b5cf6) 15%, transparent) 0%, color-mix(in srgb, var(--accent) 20%, transparent) 100%) !important;
-    border-radius: 40% 43% 42% 45% !important;
-    animation: waveRotateTwo 30s infinite linear !important;
-    filter: blur(40px) !important;
+    width: 220vw !important;
+    height: 130vh !important;
+    left: -60vw !important;
+    bottom: -75vh !important;
+    top: auto !important;
+    background: linear-gradient(180deg, 
+        color-mix(in srgb, var(--accent-2, #8b5cf6) 10%, transparent) 0%, 
+        color-mix(in srgb, var(--accent) 8%, transparent) 50%,
+        color-mix(in srgb, var(--accent-2, #8b5cf6) 3%, transparent) 100%
+    ) !important;
+    border-radius: 42% 48% 40% 46% / 46% 40% 48% 42% !important;
+    animation: waveRotateTwo 60s infinite linear !important;
+    filter: blur(80px) !important;
     z-index: 1;
-    opacity: 0.75;
+    opacity: 0.5;
+    mix-blend-mode: screen !important;
 }
 @keyframes waveRotateOne {
     from {
@@ -4586,34 +4641,54 @@ body[data-profile-effect="gradient_waves"] .profile-effects-layer::after {
 /* 7. Stars */
 .profile-effect-dot--stars {
     position: absolute;
-    width: calc(3px * var(--s)) !important;
-    height: calc(3px * var(--s)) !important;
-    background: #ffffff !important;
-    border-radius: 999px !important;
-    box-shadow: 0 0 8px #ffffff !important;
-    opacity: 0.8 !important;
+    width: calc(12px * var(--s)) !important;
+    height: calc(12px * var(--s)) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    pointer-events: none !important;
     animation: premiumStarsTwinkle var(--t) ease-in-out infinite !important;
     animation-delay: var(--d) !important;
+}
+.profile-effect-dot--stars::before {
+    content: "" !important;
+    position: absolute !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: var(--star-color, #ffffff) !important;
+    clip-path: polygon(50% 0%, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0% 50%, 42% 42%) !important;
+}
+.profile-effect-dot--stars::after {
+    content: "" !important;
+    position: absolute !important;
+    width: 150% !important;
+    height: 150% !important;
+    background: radial-gradient(circle, color-mix(in srgb, var(--star-color, #ffffff) 80%, transparent) 0%, transparent 70%) !important;
+    z-index: -1 !important;
 }
 @keyframes premiumStarsTwinkle {
     0%,
     100% {
-        opacity: 0.1;
-        transform: scale(0.6);
+        opacity: 0.15;
+        transform: scale(0.5) rotate(0deg);
     }
     50% {
         opacity: 0.95;
-        transform: scale(1.3);
+        transform: scale(1.2) rotate(90deg);
     }
 }
 body[data-profile-effect="stars"] .profile-effects-layer::before {
     content: "";
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(1px 1px at 20px 30px, #eee, transparent), radial-gradient(1.5px 1.5px at 150px 70px, #fff, transparent), radial-gradient(2px 2px at 80px 220px, #fff, transparent) !important;
-    background-size: 250px 250px !important;
-    opacity: 0.22 !important;
-    animation: premiumStarParallax 60s linear infinite !important;
+    background-image: 
+        radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.7), transparent), 
+        radial-gradient(1.5px 1.5px at 150px 70px, rgba(255,255,255,0.8), transparent), 
+        radial-gradient(1.5px 1.5px at 80px 220px, color-mix(in srgb, var(--accent) 50%, #fff), transparent),
+        radial-gradient(2px 2px at 200px 180px, color-mix(in srgb, var(--accent-2, #8b5cf6) 50%, #fff), transparent) !important;
+    background-size: 300px 300px !important;
+    opacity: 0.28 !important;
+    animation: premiumStarParallax 80s linear infinite !important;
     z-index: 1;
 }
 @keyframes premiumStarParallax {
@@ -4621,20 +4696,19 @@ body[data-profile-effect="stars"] .profile-effects-layer::before {
         background-position: 0 0;
     }
     to {
-        background-position: 250px 500px;
+        background-position: 300px 600px;
     }
 }
 
 /* 8. Digital Noise */
-/* 8. Digital Noise */
 body[data-profile-effect="digital_noise"] .profile-effects-layer::before {
     content: "" !important;
     position: fixed !important;
-    inset: -50px !important;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E") !important;
-    opacity: 0.16 !important;
+    inset: -100px !important;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E") !important;
+    opacity: 0.07 !important;
     mix-blend-mode: overlay !important;
-    animation: premiumRealNoise 0.15s steps(4) infinite !important;
+    animation: premiumRealNoise 0.18s steps(6) infinite !important;
     z-index: 1 !important;
     pointer-events: none !important;
 }
@@ -4642,29 +4716,27 @@ body[data-profile-effect="digital_noise"] .profile-effects-layer::after {
     content: "" !important;
     position: fixed !important;
     inset: 0 !important;
-    background: linear-gradient(to bottom, transparent 0%, rgba(255, 0, 80, 0.06) 39%, rgba(0, 255, 255, 0.06) 40%, transparent 41%, transparent 100%) !important;
+    background: linear-gradient(to bottom, 
+        transparent 0%, 
+        color-mix(in srgb, var(--accent) 5%, transparent) 39%, 
+        color-mix(in srgb, var(--accent-2, #8b5cf6) 5%, transparent) 41%, 
+        transparent 43%, 
+        transparent 100%
+    ) !important;
     background-size: 100% 300px !important;
-    animation: digitalGlitchSweep 6s linear infinite !important;
+    animation: digitalGlitchSweep 7s linear infinite !important;
     pointer-events: none !important;
     z-index: 2 !important;
-    opacity: 0.8 !important;
+    opacity: 0.7 !important;
 }
 @keyframes premiumRealNoise {
-    0% {
-        transform: translate(0, 0);
-    }
-    25% {
-        transform: translate(-10px, 5px) rotate(90deg);
-    }
-    50% {
-        transform: translate(5px, -10px) rotate(180deg);
-    }
-    75% {
-        transform: translate(-5px, -5px) rotate(270deg);
-    }
-    100% {
-        transform: translate(10px, 10px) rotate(360deg);
-    }
+    0% { transform: translate3d(0, 0, 0); }
+    16% { transform: translate3d(-10px, -5px, 0); }
+    33% { transform: translate3d(5px, -15px, 0); }
+    50% { transform: translate3d(-15px, 10px, 0); }
+    66% { transform: translate3d(10px, 5px, 0); }
+    83% { transform: translate3d(-5px, -10px, 0); }
+    100% { transform: translate3d(0, 0, 0); }
 }
 @keyframes digitalGlitchSweep {
     0% {
