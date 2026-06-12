@@ -489,10 +489,10 @@
                     }
 
                     try {
-                        // Always use transparentBackground so the page's actual background
-                        // (video, GIF, or image) stays visible underneath. RaindropFX loads
-                        // backgrounds as a static WebGL texture (single frame), which would
-                        // freeze any animated background. The canvas only renders rain drops.
+                        // transparentBackground lets the CSS backdrop-filter glass overlay
+                        // handle the frosted look. Note: backdrop-filter breaks video/GIF
+                        // playback, so Glass rain only supports static image backgrounds.
+                        // The editor warns users about this limitation.
                         const raindropFx = new window.RaindropFX({
                             canvas: canvas,
                             background: bgSource,

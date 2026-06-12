@@ -467,6 +467,10 @@
         document.body.dataset.profileButtonShape = buttonShapeInput ? buttonShapeInput.value : 'pill';
         document.body.dataset.theme = themeInput.value === 'auto' ? 'dark' : themeInput.value;
         document.body.dataset.profileEffect = profileEffectInput ? profileEffectInput.value : 'none';
+        const glassRainWarning = $('#glassRainWarning');
+        if (glassRainWarning) {
+            glassRainWarning.style.display = (profileEffectInput && profileEffectInput.value === 'glass_rain') ? 'flex' : 'none';
+        }
         if (typeof window.initProfileEffects === 'function') {
             window.initProfileEffects();
         }

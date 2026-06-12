@@ -1648,6 +1648,26 @@ body[data-theme="light"] .profile-edit-hero h1 {
     line-height: 1.35;
 }
 
+/* Warning notice for effects with technical limitations (e.g. Glass rain) */
+.profile-effect-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 8px 12px;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: #f5a623;
+    background: rgba(245, 166, 35, 0.08);
+    border: 1px solid rgba(245, 166, 35, 0.2);
+    border-radius: 10px;
+}
+.profile-effect-warning i {
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-size: 0.8rem;
+}
+
 .profile-field input,
 .profile-field textarea,
 .profile-field select,
@@ -4727,8 +4747,10 @@ body[data-profile-effect="digital_noise"] .profile-effects-layer::after {
     }
 }
 
-/* Wet glass base layer: blurs the actual page background in real-time (works with GIF/video).
-   This replaces the static WebGL blurred background that was lost when using transparentBackground mode. */
+/* Wet glass base layer: applies a frosted/blurred look over the page background.
+   NOTE: backdrop-filter breaks video/GIF playback underneath, so this effect
+   only works properly with static image backgrounds. The editor shows a warning
+   when users select Glass rain. */
 body[data-profile-effect="glass_rain"] .profile-effects-layer::before {
     content: "";
     position: absolute;
