@@ -87,12 +87,12 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Edit profile</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=4.2.1">
+    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=4.2.2">
     <preconnect href="https://fonts.googleapis.com">
         <preconnect href="https://fonts.gstatic.com" crossorigin>
             <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Inter:wght@300..900&family=Roboto:wght@300..900&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Fira+Code:wght@300..700&family=PT+Mono&family=Cinzel:wght@400..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Bebas+Neue&family=Press+Start+2P&family=Bungee&family=Permanent+Marker&family=Creepster&family=Shojumaru&display=swap" rel="stylesheet">
-            <script src="/assets/js/profile.js?v=4.2.1" defer></script>
-            <script src="/assets/js/edit-profile-en.js?v=4.2.1" defer></script>
+            <script src="/assets/js/profile.js?v=4.2.2" defer></script>
+            <script src="/assets/js/edit-profile-en.js?v=4.2.2" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-effect="<?php echo profile_h($profile['profile_effect'] ?? 'none'); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" style="--profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
@@ -288,7 +288,7 @@ function profile_json_script(string $id, array $data): void
                                     <option value="<?php echo $val; ?>" <?php echo ($profile['profile_avatar_shape'] ?? 'circle') === $val ? 'selected' : ''; ?>><?php echo $lbl; ?></option>
                                 <?php endforeach; ?>
                             </select></label>
-                            
+
                         <label class="profile-field"><span>Social Icons Size</span>
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <input type="range" name="profile_social_size" id="socialSizeInput" min="32" max="72" value="<?php echo (int)($profile['profile_social_size'] ?? 42); ?>" style="flex: 1;">
@@ -569,29 +569,29 @@ function profile_json_script(string $id, array $data): void
                     </div>
                     <div class="profile-field-grid three">
                         <label class="profile-field"><span>Name color type</span><select name="profile_name_color_type" id="nameColorTypeInput">
-                            <option value="default" <?php echo ($nameStyle['type'] ?? 'default') === 'default' ? 'selected' : ''; ?>>Default white</option>
-                            <option value="solid" <?php echo ($nameStyle['type'] ?? 'default') === 'solid' ? 'selected' : ''; ?>>Solid color</option>
-                            <option value="gradient" <?php echo ($nameStyle['type'] ?? 'default') === 'gradient' ? 'selected' : ''; ?>>Gradient</option>
-                        </select></label>
-                        
+                                <option value="default" <?php echo ($nameStyle['type'] ?? 'default') === 'default' ? 'selected' : ''; ?>>Default white</option>
+                                <option value="solid" <?php echo ($nameStyle['type'] ?? 'default') === 'solid' ? 'selected' : ''; ?>>Solid color</option>
+                                <option value="gradient" <?php echo ($nameStyle['type'] ?? 'default') === 'gradient' ? 'selected' : ''; ?>>Gradient</option>
+                            </select></label>
+
                         <label class="profile-field field-name-solid"><span>Name color</span><input type="color" name="profile_name_solid_color" id="nameSolidColorInput" value="<?php echo profile_h($nameStyle['solid_color'] ?? '#ffffff'); ?>"></label>
-                        
+
                         <label class="profile-field field-name-gradient"><span>Gradient color 1</span><input type="color" name="profile_name_grad_color1" id="nameGradColor1Input" value="<?php echo profile_h($nameStyle['grad_color1'] ?? '#ffffff'); ?>"></label>
                         <label class="profile-field field-name-gradient"><span>Gradient color 2</span><input type="color" name="profile_name_grad_color2" id="nameGradColor2Input" value="<?php echo profile_h($nameStyle['grad_color2'] ?? '#8b5cf6'); ?>"></label>
                         <label class="profile-field field-name-gradient"><span>Gradient angle (deg)</span><input type="number" name="profile_name_grad_angle" id="nameGradAngleInput" min="0" max="360" value="<?php echo (int)($nameStyle['grad_angle'] ?? 90); ?>"></label>
-                        
+
                         <label class="profile-field"><span>Name animation</span><select name="profile_name_animation" id="nameAnimationInput">
-                            <option value="none" <?php echo ($nameStyle['animation'] ?? 'none') === 'none' ? 'selected' : ''; ?>>None</option>
-                            <option value="rainbow" <?php echo ($nameStyle['animation'] ?? 'none') === 'rainbow' ? 'selected' : ''; ?>>Rainbow slide</option>
-                            <option value="glow" <?php echo ($nameStyle['animation'] ?? 'none') === 'glow' ? 'selected' : ''; ?>>Pulsing glow</option>
-                            <option value="sparkles" <?php echo ($nameStyle['animation'] ?? 'none') === 'sparkles' ? 'selected' : ''; ?>>Magic sparkles</option>
-                            <option value="fire" <?php echo ($nameStyle['animation'] ?? 'none') === 'fire' ? 'selected' : ''; ?>>Animated fire</option>
-                            <option value="water" <?php echo ($nameStyle['animation'] ?? 'none') === 'water' ? 'selected' : ''; ?>>Fluid water</option>
-                            <option value="glitch" <?php echo ($nameStyle['animation'] ?? 'none') === 'glitch' ? 'selected' : ''; ?>>Cyber glitch</option>
-                            <option value="neon" <?php echo ($nameStyle['animation'] ?? 'none') === 'neon' ? 'selected' : ''; ?>>Flickering neon</option>
-                            <option value="bounce" <?php echo ($nameStyle['animation'] ?? 'none') === 'bounce' ? 'selected' : ''; ?>>Bouncing letters</option>
-                        </select></label>
-                        
+                                <option value="none" <?php echo ($nameStyle['animation'] ?? 'none') === 'none' ? 'selected' : ''; ?>>None</option>
+                                <option value="rainbow" <?php echo ($nameStyle['animation'] ?? 'none') === 'rainbow' ? 'selected' : ''; ?>>Rainbow slide</option>
+                                <option value="glow" <?php echo ($nameStyle['animation'] ?? 'none') === 'glow' ? 'selected' : ''; ?>>Pulsing glow</option>
+                                <option value="sparkles" <?php echo ($nameStyle['animation'] ?? 'none') === 'sparkles' ? 'selected' : ''; ?>>Magic sparkles</option>
+                                <option value="fire" <?php echo ($nameStyle['animation'] ?? 'none') === 'fire' ? 'selected' : ''; ?>>Animated fire</option>
+                                <option value="water" <?php echo ($nameStyle['animation'] ?? 'none') === 'water' ? 'selected' : ''; ?>>Fluid water</option>
+                                <option value="glitch" <?php echo ($nameStyle['animation'] ?? 'none') === 'glitch' ? 'selected' : ''; ?>>Cyber glitch</option>
+                                <option value="neon" <?php echo ($nameStyle['animation'] ?? 'none') === 'neon' ? 'selected' : ''; ?>>Flickering neon</option>
+                                <option value="bounce" <?php echo ($nameStyle['animation'] ?? 'none') === 'bounce' ? 'selected' : ''; ?>>Bouncing letters</option>
+                            </select></label>
+
                         <label class="profile-field field-name-glow"><span>Glow color</span><input type="color" name="profile_name_glow_color" id="nameGlowColorInput" value="<?php echo profile_h($nameStyle['glow_color'] ?? '#8b5cf6'); ?>"></label>
                     </div>
                 </div>
@@ -752,9 +752,9 @@ function profile_json_script(string $id, array $data): void
                     <div class="bio-avatar-ring" id="previewAvatarRing"></div><img class="bio-avatar" id="previewAvatar" src="<?php echo profile_h(profile_avatar_url($profile, 256)); ?>" alt="">
                 </div>
                 <div class="bio-name-block">
-                    <h1 id="previewName" class="profile-display-name" 
-                        data-name-type="<?php echo profile_h($nameType); ?>" 
-                        data-name-anim="<?php echo profile_h($nameAnim); ?>" 
+                    <h1 id="previewName" class="profile-display-name"
+                        data-name-type="<?php echo profile_h($nameType); ?>"
+                        data-name-anim="<?php echo profile_h($nameAnim); ?>"
                         data-text="<?php echo profile_h($displayName); ?>"
                         style="--name-color1: <?php echo profile_h($nameSolidColor); ?>; --name-color2: <?php echo profile_h($nameGradColor1); ?>; --name-color3: <?php echo profile_h($nameGradColor2); ?>; --name-angle: <?php echo profile_h($nameGradAngle); ?>deg; --name-glow-color: <?php echo profile_h($nameGlowColor); ?>;">
                         <?php echo profile_format_name($displayName, $nameStyle); ?>

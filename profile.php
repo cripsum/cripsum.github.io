@@ -346,8 +346,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.2.1">
-    <script src="/assets/js/profile.js?v=4.2.1" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.2.2">
+    <script src="/assets/js/profile.js?v=4.2.2" defer></script>
     <?php
     $googleFonts = [
         'Poppins' => 'Poppins',
@@ -393,7 +393,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             <?php endif; ?>--profile-border-width: <?php echo $borderWidth; ?>px !important;
             --profile-font: '<?php echo profile_h($profileFont); ?>', sans-serif !important;
             font-family: var(--profile-font, "Poppins", sans-serif) !important;
-            
+
             --ui-shape-icon: <?php echo $uiShapeIcon; ?> !important;
             --ui-shape-button: <?php echo $uiShapeButton; ?> !important;
             --ui-shape-card: <?php echo $uiShapeCard; ?> !important;
@@ -540,9 +540,9 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 
                 <div class="bio-name-block profile-smart-name">
                     <div class="profile-name-row">
-                        <h1 class="profile-display-name" 
-                            data-name-type="<?php echo profile_h($nameType); ?>" 
-                            data-name-anim="<?php echo profile_h($nameAnim); ?>" 
+                        <h1 class="profile-display-name"
+                            data-name-type="<?php echo profile_h($nameType); ?>"
+                            data-name-anim="<?php echo profile_h($nameAnim); ?>"
                             data-text="<?php echo profile_h($displayName); ?>"
                             style="--name-color1: <?php echo profile_h($nameSolidColor); ?>; --name-color2: <?php echo profile_h($nameGradColor1); ?>; --name-color3: <?php echo profile_h($nameGradColor2); ?>; --name-angle: <?php echo profile_h($nameGradAngle); ?>deg; --name-glow-color: <?php echo profile_h($nameGlowColor); ?>;">
                             <?php echo profile_format_name($displayName, $nameStyle); ?>
