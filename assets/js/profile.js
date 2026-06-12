@@ -403,6 +403,9 @@
             const oldCanvas = layer.querySelector('canvas.raindrop-canvas');
             if (oldCanvas) oldCanvas.remove();
         }
+        // Clean up previous CSS foreground drops
+        const oldFgLayer = document.querySelector('.profile-effects-foreground-layer');
+        if (oldFgLayer) oldFgLayer.remove();
 
         window.removeEventListener('resize', handleRainResize);
 
@@ -417,6 +420,28 @@
         layer.querySelectorAll('.profile-effect-dot').forEach((dot) => dot.remove());
 
         if (effect === 'glass_rain') {
+            // Spawn CSS foreground drops (visible ON TOP of the card)
+            // These are pure CSS — no WebGL conflicts.
+            const fgLayer = document.createElement('div');
+            fgLayer.className = 'profile-effects-foreground-layer';
+            document.body.appendChild(fgLayer);
+
+            const fgCount = 18;
+            const fgFragment = document.createDocumentFragment();
+            for (let i = 0; i < fgCount; i++) {
+                const drop = document.createElement('span');
+                drop.className = 'profile-fg-drop';
+                const size = 18 + Math.random() * 22;
+                drop.style.width = size + 'px';
+                drop.style.height = (size * 1.3) + 'px';
+                drop.style.left = (2 + Math.random() * 96) + '%';
+                drop.style.top = (-5 - Math.random() * 12) + '%';
+                drop.style.setProperty('--drop-t', (4 + Math.random() * 6) + 's');
+                drop.style.setProperty('--drop-d', (Math.random() * 8) + 's');
+                fgFragment.appendChild(drop);
+            }
+            fgLayer.appendChild(fgFragment);
+
             const hasWebGL2 = !!window.WebGL2RenderingContext && !!document.createElement('canvas').getContext('webgl2');
             if (hasWebGL2) {
                 const loadRainLibrary = () => {
@@ -433,11 +458,12 @@
                 loadRainLibrary().then(() => {
                     if (body.dataset.profileEffect !== 'glass_rain') return;
                     
-                    // Single canvas for all rain effects (background droplets + larger sliding drops)
+                    // Single canvas for background rain (droplets + sliding drops behind card)
                     // NOTE: Only ONE RaindropFX instance is used because the library shares static
                     // Shader objects internally. Running two instances causes WebGL INVALID_OPERATION
                     // errors ("uniform location is not from the associated program") since each
                     // instance creates its own GL context but the shared shaders mix up uniform locations.
+                    // Foreground drops use pure CSS instead (see .profile-fg-drop).
                     let canvas = layer.querySelector('canvas.raindrop-canvas');
                     if (!canvas) {
                         canvas = document.createElement('canvas');
