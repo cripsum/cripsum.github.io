@@ -10,11 +10,14 @@ if (!isLoggedIn()) {
     exit;
 }
 
-$targetUserId = profile_current_user_id();
-if ($targetUserId <= 0) {
+$currentUserId = profile_current_user_id();
+if ($currentUserId <= 0) {
     echo json_encode(['ok' => false, 'message' => 'Utente non trovato.']);
     exit;
 }
+
+$requestTargetUserId = isset($_REQUEST['target_user_id']) ? (int)$_REQUEST['target_user_id'] : 0;
+$targetUserId = ($requestTargetUserId > 0 && profile_is_staff()) ? $requestTargetUserId : $currentUserId;
 
 // Action dispatcher
 $action = $_GET['action'] ?? '';
@@ -118,6 +121,29 @@ switch ($action) {
         $presetData['badges_json'] = $_POST['badges_json'] ?? '[]';
         $presetData['characters_json'] = $_POST['characters_json'] ?? '[]';
 
+        // Fetch media blobs from the database
+        $mediaStmt = $mysqli->prepare("SELECT profile_pic, profile_pic_type, profile_banner, profile_banner_type, profile_music_blob, profile_music_mime FROM utenti WHERE id = ? LIMIT 1");
+        $mediaStmt->bind_param('i', $targetUserId);
+        $mediaStmt->execute();
+        $mediaRow = $mediaStmt->get_result()->fetch_assoc();
+        $mediaStmt->close();
+
+        if ($mediaRow) {
+            $presetData['profile_pic_b64'] = $mediaRow['profile_pic'] ? base64_encode($mediaRow['profile_pic']) : null;
+            $presetData['profile_pic_type'] = $mediaRow['profile_pic_type'];
+            $presetData['profile_banner_b64'] = $mediaRow['profile_banner'] ? base64_encode($mediaRow['profile_banner']) : null;
+            $presetData['profile_banner_type'] = $mediaRow['profile_banner_type'];
+            $presetData['profile_music_b64'] = $mediaRow['profile_music_blob'] ? base64_encode($mediaRow['profile_music_blob']) : null;
+            $presetData['profile_music_mime'] = $mediaRow['profile_music_mime'];
+        } else {
+            $presetData['profile_pic_b64'] = null;
+            $presetData['profile_pic_type'] = null;
+            $presetData['profile_banner_b64'] = null;
+            $presetData['profile_banner_type'] = null;
+            $presetData['profile_music_b64'] = null;
+            $presetData['profile_music_mime'] = null;
+        }
+
         $serialized = json_encode($presetData, JSON_UNESCAPED_UNICODE);
 
         $stmt = $mysqli->prepare("INSERT INTO utenti_presets (utente_id, nome, preset_data) VALUES (?, ?, ?)");
@@ -215,6 +241,63 @@ switch ($action) {
             exit;
         }
         $stmt->close();
+
+        // 1. Restore Avatar (profile_pic)
+        if (array_key_exists('profile_pic_b64', $presetData)) {
+            if ($presetData['profile_pic_b64'] !== null) {
+                $picBlob = base64_decode($presetData['profile_pic_b64']);
+                $picMime = $presetData['profile_pic_type'] ?? 'image/png';
+                $stmt = $mysqli->prepare("UPDATE utenti SET profile_pic = ?, profile_pic_type = ? WHERE id = ?");
+                $null = null;
+                $stmt->bind_param('bsi', $null, $picMime, $targetUserId);
+                $stmt->send_long_data(0, $picBlob);
+                $stmt->execute();
+                $stmt->close();
+            } else {
+                $stmt = $mysqli->prepare("UPDATE utenti SET profile_pic = NULL, profile_pic_type = NULL WHERE id = ?");
+                $stmt->bind_param('i', $targetUserId);
+                $stmt->execute();
+                $stmt->close();
+            }
+        }
+
+        // 2. Restore Banner (profile_banner)
+        if (array_key_exists('profile_banner_b64', $presetData)) {
+            if ($presetData['profile_banner_b64'] !== null) {
+                $bannerBlob = base64_decode($presetData['profile_banner_b64']);
+                $bannerMime = $presetData['profile_banner_type'] ?? 'image/png';
+                $stmt = $mysqli->prepare("UPDATE utenti SET profile_banner = ?, profile_banner_type = ? WHERE id = ?");
+                $null = null;
+                $stmt->bind_param('bsi', $null, $bannerMime, $targetUserId);
+                $stmt->send_long_data(0, $bannerBlob);
+                $stmt->execute();
+                $stmt->close();
+            } else {
+                $stmt = $mysqli->prepare("UPDATE utenti SET profile_banner = NULL, profile_banner_type = NULL WHERE id = ?");
+                $stmt->bind_param('i', $targetUserId);
+                $stmt->execute();
+                $stmt->close();
+            }
+        }
+
+        // 3. Restore Music (profile_music_blob)
+        if (array_key_exists('profile_music_b64', $presetData)) {
+            if ($presetData['profile_music_b64'] !== null) {
+                $musicBlob = base64_decode($presetData['profile_music_b64']);
+                $musicMime = $presetData['profile_music_mime'] ?? 'audio/mpeg';
+                $stmt = $mysqli->prepare("UPDATE utenti SET profile_music_blob = ?, profile_music_mime = ?, profile_music_url = NULL WHERE id = ?");
+                $null = null;
+                $stmt->bind_param('bsi', $null, $musicMime, $targetUserId);
+                $stmt->send_long_data(0, $musicBlob);
+                $stmt->execute();
+                $stmt->close();
+            } else {
+                $stmt = $mysqli->prepare("UPDATE utenti SET profile_music_blob = NULL, profile_music_mime = NULL WHERE id = ?");
+                $stmt->bind_param('i', $targetUserId);
+                $stmt->execute();
+                $stmt->close();
+            }
+        }
 
         // Restore child relations within transactional execution context
         try {

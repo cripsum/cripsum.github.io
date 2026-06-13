@@ -1,6 +1,7 @@
 (function () {
     const form = document.getElementById('profileEditForm');
     if (!form) return;
+    const targetUserId = form.querySelector('input[name="target_user_id"]')?.value || '';
 
     const $ = (selector, parent = document) => parent.querySelector(selector);
     const $$ = (selector, parent = document) => Array.from(parent.querySelectorAll(selector));
@@ -910,7 +911,6 @@
 
     if (aliasInput && aliasIcon && aliasMsg) {
         let debounceTimer;
-        const targetUserId = form.querySelector('input[name="target_user_id"]')?.value || '';
 
         const checkAlias = async () => {
             const val = aliasInput.value.trim();
@@ -1847,7 +1847,7 @@
         if (!presetsListContainer) return;
         presetsListContainer.innerHTML = '<div class="bio-empty-state"><i class="fas fa-spinner fa-spin"></i><strong>Loading presets...</strong></div>';
         try {
-            const res = await fetch('../api/manage_presets.php?action=list');
+            const res = await fetch(`../api/manage_presets.php?action=list&target_user_id=${targetUserId}`);
             const data = await res.json();
             if (!res.ok || !data.ok) throw new Error(data.message || 'Error loading presets.');
             
@@ -1951,6 +1951,7 @@
 
             const formData = new FormData(form);
             formData.append('preset_name', trimmedName);
+            formData.append('target_user_id', targetUserId);
 
             try {
                 const res = await fetch('../api/manage_presets.php?action=save', {
@@ -1972,6 +1973,7 @@
         try {
             const formData = new FormData();
             formData.append('preset_id', id);
+            formData.append('target_user_id', targetUserId);
             const res = await fetch('../api/manage_presets.php?action=load', {
                 method: 'POST',
                 body: formData
@@ -1989,6 +1991,7 @@
         try {
             const formData = new FormData();
             formData.append('preset_id', id);
+            formData.append('target_user_id', targetUserId);
             const res = await fetch('../api/manage_presets.php?action=duplicate', {
                 method: 'POST',
                 body: formData
@@ -2014,6 +2017,7 @@
             const formData = new FormData();
             formData.append('preset_id', id);
             formData.append('preset_name', trimmed);
+            formData.append('target_user_id', targetUserId);
             const res = await fetch('../api/manage_presets.php?action=rename', {
                 method: 'POST',
                 body: formData
@@ -2032,6 +2036,7 @@
         try {
             const formData = new FormData();
             formData.append('preset_id', id);
+            formData.append('target_user_id', targetUserId);
             const res = await fetch('../api/manage_presets.php?action=delete', {
                 method: 'POST',
                 body: formData
