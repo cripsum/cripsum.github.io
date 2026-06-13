@@ -1104,6 +1104,7 @@
 (() => {
     'use strict';
 
+    const body = document.body;
     let activeTooltip = null;
     let tooltipEl = null;
     let showTimeout = null;

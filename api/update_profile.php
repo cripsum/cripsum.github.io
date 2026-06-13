@@ -320,7 +320,7 @@ try {
         WHERE id = ?
     ");
     $stmt->bind_param(
-        'sssssssssssssiisssssssiiiiiiiiiiisisisssssisiiiisisssiiiiiisiiiddsssiisiii',
+        'sssssssssssssiisssssssiiiiiiiiiiisisisssssisiiiisisssiiiiisiiddisssissisi',
         $username,
         $displayNameDb,
         $bioDb,
