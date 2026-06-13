@@ -634,9 +634,9 @@
         }
 
         if (cornerStyleInput) {
-            let radius = '50%';
+            let radius = '100px';
             switch (cornerStyleInput.value) {
-                case 'circle': radius = '50%'; break;
+                case 'circle': radius = '100px'; break;
                 case 'rounded': radius = '12px'; break;
                 case 'soft': radius = '6px'; break;
                 case 'square': radius = '0px'; break;

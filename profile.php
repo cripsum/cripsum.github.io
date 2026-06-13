@@ -366,8 +366,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.5.2">
-    <script src="/assets/js/profile.js?v=4.5.2" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.5.3">
+    <script src="/assets/js/profile.js?v=4.5.3" defer></script>
     <?php
     $googleFonts = [
         'Poppins' => 'Poppins',
@@ -398,7 +398,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <?php
     $cornerStyle = $profile['profile_corner_style'] ?? 'circle';
     $cornerStyleCustom = (int)($profile['profile_corner_style_custom'] ?? 8);
-    $profileCornerRadius = '50%';
+    $profileCornerRadius = '100px';
     if ($cornerStyle === 'rounded') {
         $profileCornerRadius = '12px';
     } elseif ($cornerStyle === 'soft') {
