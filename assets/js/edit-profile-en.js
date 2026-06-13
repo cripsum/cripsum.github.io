@@ -1947,6 +1947,7 @@
             document.getElementById('contentsJson').value = JSON.stringify(collectRows('contents'));
             document.getElementById('blocksJson').value = JSON.stringify(collectRows('blocks'));
             document.getElementById('badgesJson').value = JSON.stringify(collectBadges());
+            document.getElementById('charactersJson').value = JSON.stringify(collectCharacters());
             document.getElementById('profileTagsJson').value = JSON.stringify(collectRows('tags'));
 
             const formData = new FormData(form);
