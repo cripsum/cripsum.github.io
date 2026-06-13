@@ -89,12 +89,12 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Edit profile</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=4.4.22">
+    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=4.5">
     <preconnect href="https://fonts.googleapis.com">
         <preconnect href="https://fonts.gstatic.com" crossorigin>
             <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Inter:wght@300..900&family=Roboto:wght@300..900&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Fira+Code:wght@300..700&family=PT+Mono&family=Cinzel:wght@400..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Bebas+Neue&family=Press+Start+2P&family=Bungee&family=Permanent+Marker&family=Creepster&family=Shojumaru&display=swap" rel="stylesheet">
-            <script src="/assets/js/profile.js?v=4.4.22" defer></script>
-            <script src="/assets/js/edit-profile-en.js?v=4.4.22" defer></script>
+            <script src="/assets/js/profile.js?v=4.5" defer></script>
+            <script src="/assets/js/edit-profile-en.js?v=4.5" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-effect="<?php echo profile_h($profile['profile_effect'] ?? 'none'); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" data-avatar-shape="<?php echo profile_h($avatarShape); ?>" data-avatar-border="<?php echo $avatarBorder; ?>" style="--profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
@@ -164,6 +164,7 @@ function profile_json_script(string $id, array $data): void
             <input type="hidden" name="badges_json" id="badgesJson">
             <input type="hidden" name="characters_json" id="charactersJson">
             <input type="hidden" name="embeds_json" id="embedsJson">
+            <input type="hidden" name="profile_tags_json" id="profileTagsJson">
 
             <section class="bio-card profile-edit-panel js-reveal">
                 <div class="profile-editor-tabs" role="tablist">
@@ -179,6 +180,7 @@ function profile_json_script(string $id, array $data): void
                     <button type="button" data-edit-tab="badges"><i class="fas fa-trophy"></i>Badges</button>
                     <button type="button" data-edit-tab="characters"><i class="fas fa-user-astronaut"></i>Characters</button>
                     <button type="button" data-edit-tab="visibility"><i class="fas fa-eye"></i>Visibility</button>
+                    <button type="button" data-edit-tab="presets"><i class="fas fa-magic"></i>Presets</button>
                 </div>
 
                 <div class="profile-edit-section is-active" data-edit-section="identity">
@@ -192,6 +194,14 @@ function profile_json_script(string $id, array $data): void
                         <label class="profile-field"><span>Username</span><input type="text" name="username" id="usernameInput" maxlength="20" required value="<?php echo profile_h($profile['username']); ?>" placeholder="username"><small>3-20 characters. Letters, numbers and underscores.</small></label>
                     </div>
 
+                    <label class="profile-field"><span>Custom URL Alias (cripsum.com/youralias)</span>
+                        <div style="position: relative;">
+                            <input type="text" name="custom_alias" id="customAliasInput" maxlength="30" value="<?php echo profile_h($profile['custom_alias'] ?? ''); ?>" placeholder="customalias" style="padding-right: 40px;">
+                            <span id="aliasValidationIcon" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 1.1rem; pointer-events: none;"></span>
+                        </div>
+                        <small id="aliasValidationMessage" style="transition: color 0.2s;">Leave empty to disable. Allows accessing your profile via cripsum.com/youralias</small>
+                    </label>
+
                     <label class="profile-field"><span>Bio</span><textarea name="bio" id="bioInput" maxlength="280" rows="5" placeholder="Write something about yourself..."><?php echo profile_h($profile['bio'] ?? ''); ?></textarea><small><span id="bioCounter">0</span>/280</small></label>
 
                     <label class="profile-field"><span>Short status</span><input type="text" name="profile_status" id="statusInput" maxlength="60" value="<?php echo profile_h($profile['profile_status'] ?? ''); ?>" placeholder="editing, gaming, busy..."><small>Appears next to your name when you are not online.</small></label>
@@ -202,6 +212,14 @@ function profile_json_script(string $id, array $data): void
                     </div>
 
                     <label class="profile-field"><span>Profile privacy</span><select name="profile_visibility" id="visibilityInput"><?php foreach (['public' => 'Public', 'logged_in' => 'Logged-in users only', 'private' => 'Private'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_visibility'] ?? 'public') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
+
+                    <div class="bio-section-heading profile-mt" style="border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 1.5rem;">
+                        <div><span><i class="fas fa-tags"></i> Custom Tags / Pills</span>
+                            <p>Add colored pills below your biography (max 10).</p>
+                        </div>
+                        <button type="button" class="bio-button" data-add-row="tags">+ Add Tag</button>
+                    </div>
+                    <div class="profile-repeater" id="tagsRepeater"></div>
 
                     <div class="bio-section-heading profile-mt">
                         <div><span><i class="fas fa-music"></i> Profile audio</span>
@@ -289,6 +307,22 @@ function profile_json_script(string $id, array $data): void
                         <label class="profile-field"><span>Avatar PFP Shape</span><select name="profile_avatar_shape" id="avatarShapeInput">
                                 <?php foreach (['circle' => 'Circle', 'squircle' => 'Squircle', 'square' => 'Square', 'hexagon' => 'Hexagon', 'octagon' => 'Octagon', 'badge' => 'Gaming Badge (Shield)'] as $val => $lbl): ?>
                                     <option value="<?php echo $val; ?>" <?php echo ($profile['profile_avatar_shape'] ?? 'circle') === $val ? 'selected' : ''; ?>><?php echo $lbl; ?></option>
+                                <?php endforeach; ?>
+                            </select></label>
+
+                        <label class="profile-field"><span>Secondary Corners Style</span><select name="profile_corner_style" id="cornerStyleInput">
+                                <?php foreach (['circle' => 'Circle (Round)', 'rounded' => 'Classic Rounded', 'soft' => 'Soft Rounded', 'square' => 'Square', 'custom' => 'Custom (px)'] as $val => $lbl): ?>
+                                    <option value="<?php echo $val; ?>" <?php echo ($profile['profile_corner_style'] ?? 'circle') === $val ? 'selected' : ''; ?>><?php echo $lbl; ?></option>
+                                <?php endforeach; ?>
+                            </select></label>
+                        <label class="profile-field" id="cornerStyleCustomContainer" style="display: <?php echo ($profile['profile_corner_style'] ?? 'circle') === 'custom' ? 'block' : 'none'; ?>;"><span>Custom Roundness (<span id="cornerStyleCustomVal"><?php echo (int)($profile['profile_corner_style_custom'] ?? 8); ?></span>px)</span>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" name="profile_corner_style_custom" id="cornerStyleCustomInput" min="0" max="100" value="<?php echo (int)($profile['profile_corner_style_custom'] ?? 8); ?>" style="flex: 1;">
+                            </div>
+                        </label>
+                        <label class="profile-field"><span>Card & Button Border Style</span><select name="profile_border_style" id="borderStyleInput">
+                                <?php foreach (['none' => 'No Border', 'thin' => 'Thin Border', 'glow' => 'Glow Border', 'gradient' => 'Gradient Border (Premium)'] as $val => $lbl): ?>
+                                    <option value="<?php echo $val; ?>" <?php echo ($profile['profile_border_style'] ?? 'thin') === $val ? 'selected' : ''; ?>><?php echo $lbl; ?></option>
                                 <?php endforeach; ?>
                             </select></label>
 
@@ -598,6 +632,105 @@ function profile_json_script(string $id, array $data): void
 
                         <label class="profile-field field-name-glow"><span>Glow color</span><input type="color" name="profile_name_glow_color" id="nameGlowColorInput" value="<?php echo profile_h($nameStyle['glow_color'] ?? '#8b5cf6'); ?>"></label>
                     </div>
+
+                    <?php
+                    $dbTiltEnabled = (int)($profile['tilt_enabled'] ?? 1);
+                    $dbTiltMax = (int)($profile['tilt_max'] ?? 15);
+                    $dbTiltGlare = (float)($profile['tilt_glare'] ?? 0.0);
+                    $dbTiltZoom = (float)($profile['tilt_zoom'] ?? 1.05);
+                    $dbTiltSpeed = (int)($profile['tilt_speed'] ?? 400);
+
+                    $selectedPreset = 'custom';
+                    if ($dbTiltEnabled === 0) {
+                        $selectedPreset = 'off';
+                    } else {
+                        if ($dbTiltMax === 10 && abs($dbTiltGlare - 0.15) < 0.01 && abs($dbTiltZoom - 1.02) < 0.01 && $dbTiltSpeed === 800) {
+                            $selectedPreset = 'soft';
+                        } else if ($dbTiltMax === 15 && abs($dbTiltGlare - 0.25) < 0.01 && abs($dbTiltZoom - 1.05) < 0.01 && $dbTiltSpeed === 600) {
+                            $selectedPreset = 'medium';
+                        } else if ($dbTiltMax === 25 && abs($dbTiltGlare - 0.40) < 0.01 && abs($dbTiltZoom - 1.08) < 0.01 && $dbTiltSpeed === 400) {
+                            $selectedPreset = 'strong';
+                        } else if ($dbTiltMax === 35 && abs($dbTiltGlare - 0.60) < 0.01 && abs($dbTiltZoom - 1.12) < 0.01 && $dbTiltSpeed === 200) {
+                            $selectedPreset = 'extreme';
+                        } else if ($dbTiltMax === 15 && abs($dbTiltGlare - 0.0) < 0.01 && abs($dbTiltZoom - 1.05) < 0.01 && $dbTiltSpeed === 400) {
+                            $selectedPreset = 'medium'; // Match old default
+                        }
+                    }
+                    ?>
+                    <div class="bio-section-heading" style="margin-top: 1.8rem; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 1.5rem;">
+                        <div><span><i class="fas fa-cube"></i> Tilt Effect (Card Tilt)</span>
+                            <p>Customize the 3D tilt effect on the main profile card upon hover.</p>
+                        </div>
+                    </div>
+                    <div class="profile-field-grid two">
+                        <label class="profile-field"><span>Tilt Level</span>
+                            <select name="tilt_preset" id="tiltPresetInput">
+                                <option value="off" <?php echo $selectedPreset === 'off' ? 'selected' : ''; ?>>Off (Disabled)</option>
+                                <option value="soft" <?php echo $selectedPreset === 'soft' ? 'selected' : ''; ?>>Soft</option>
+                                <option value="medium" <?php echo $selectedPreset === 'medium' ? 'selected' : ''; ?>>Medium</option>
+                                <option value="strong" <?php echo $selectedPreset === 'strong' ? 'selected' : ''; ?>>Strong</option>
+                                <option value="extreme" <?php echo $selectedPreset === 'extreme' ? 'selected' : ''; ?>>Extreme</option>
+                                <option value="custom" <?php echo $selectedPreset === 'custom' ? 'selected' : ''; ?>>Custom</option>
+                            </select>
+                        </label>
+                        <label class="profile-toggle-card profile-inline-toggle" style="margin-top: 1.5rem;">
+                            <input type="hidden" name="tilt_enabled" value="0">
+                            <input type="checkbox" name="tilt_enabled" id="tiltEnabledInput" value="1" <?php echo $dbTiltEnabled === 1 ? 'checked' : ''; ?>>
+                            <span>Enable card tilt effect</span>
+                        </label>
+                    </div>
+                    <div id="tiltCustomControls" class="profile-field-grid two" style="display: <?php echo $selectedPreset === 'custom' ? 'grid' : 'none'; ?>; margin-top: 1rem;">
+                        <label class="profile-field"><span>Max tilt angle (<span id="tiltMaxVal"><?php echo $dbTiltMax; ?></span>°)</span>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" name="tilt_max" id="tiltMaxInput" min="0" max="45" value="<?php echo $dbTiltMax; ?>" style="flex: 1;">
+                            </div>
+                        </label>
+                        <label class="profile-field"><span>Glare opacity (<span id="tiltGlareVal"><?php echo $dbTiltGlare; ?></span>)</span>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" name="tilt_glare" id="tiltGlareInput" min="0" max="1" step="0.05" value="<?php echo $dbTiltGlare; ?>" style="flex: 1;">
+                            </div>
+                        </label>
+                        <label class="profile-field"><span>Hover Zoom (<span id="tiltZoomVal"><?php echo $dbTiltZoom; ?></span>x)</span>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" name="tilt_zoom" id="tiltZoomInput" min="1.0" max="1.3" step="0.01" value="<?php echo $dbTiltZoom; ?>" style="flex: 1;">
+                            </div>
+                        </label>
+                        <label class="profile-field"><span>Animation Speed (Return) (<span id="tiltSpeedVal"><?php echo $dbTiltSpeed; ?></span>ms)</span>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" name="tilt_speed" id="tiltSpeedInput" min="100" max="2000" step="50" value="<?php echo $dbTiltSpeed; ?>" style="flex: 1;">
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="bio-section-heading" style="margin-top: 1.8rem; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 1.5rem;">
+                        <div><span><i class="fas fa-window-maximize"></i> Browser Tab Title</span>
+                            <p>Customize the page title shown on the browser tab and add animations.</p>
+                        </div>
+                    </div>
+                    <div class="profile-field-grid two">
+                        <label class="profile-field"><span>Custom tab title</span>
+                            <input type="text" name="profile_tab_title" id="profileTabTitleInput" maxlength="80" value="<?php echo profile_h($profile['profile_tab_title'] ?? ''); ?>" placeholder="Leave blank to use username">
+                        </label>
+                        <label class="profile-field"><span>Title Animation</span>
+                            <select name="profile_tab_animation" id="profileTabAnimationInput">
+                                <option value="static" <?php echo ($profile['profile_tab_animation'] ?? 'static') === 'static' ? 'selected' : ''; ?>>Static</option>
+                                <option value="marquee" <?php echo ($profile['profile_tab_animation'] ?? 'static') === 'marquee' ? 'selected' : ''; ?>>Marquee (Scrolling)</option>
+                                <option value="bounce" <?php echo ($profile['profile_tab_animation'] ?? 'static') === 'bounce' ? 'selected' : ''; ?>>Bounce (Back and forth)</option>
+                                <option value="pulse" <?php echo ($profile['profile_tab_animation'] ?? 'static') === 'pulse' ? 'selected' : ''; ?>>Pulse (Alternating)</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="profile-field-grid two" style="margin-top: 1rem;">
+                        <label class="profile-field"><span>Animated / Alt text</span>
+                            <input type="text" name="profile_tab_animation_text" id="profileTabAnimationTextInput" maxlength="120" value="<?php echo profile_h($profile['profile_tab_animation_text'] ?? ''); ?>" placeholder="E.g. ★ Welcome ★">
+                            <small>Used as secondary text for marquee or pulse alternation.</small>
+                        </label>
+                        <label class="profile-field"><span>Animation Speed (ms) (<span id="profileTabSpeedVal"><?php echo (int)($profile['profile_tab_animation_speed'] ?? 1000); ?></span>ms)</span>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" name="profile_tab_animation_speed" id="profileTabAnimationSpeedInput" min="200" max="5000" step="100" value="<?php echo (int)($profile['profile_tab_animation_speed'] ?? 1000); ?>" style="flex: 1;">
+                            </div>
+                        </label>
+                    </div>
                 </div>
 
                 <div class="profile-edit-section" data-edit-section="badges">
@@ -743,6 +876,19 @@ function profile_json_script(string $id, array $data): void
                         <!-- Populated via Javascript -->
                     </div>
                 </div>
+
+                <div class="profile-edit-section" data-edit-section="presets">
+                    <div class="bio-section-heading">
+                        <div><span><i class="fas fa-magic"></i> Profile Presets</span>
+                            <p>Save and load complete profile configurations (maximum of 3 presets).</p>
+                        </div>
+                        <button type="button" class="bio-button" id="saveNewPresetBtn"><i class="fas fa-plus"></i> Save Current Preset</button>
+                    </div>
+                    <div class="presets-list-container" id="presetsListContainer">
+                        <!-- Presets loaded via AJAX -->
+                    </div>
+                </div>
+
                 <div class="profile-editor-footer">
                     <button type="submit" class="bio-button bio-button--primary" id="saveProfileButton"><i class="fas fa-save"></i>Save profile</button>
                     <a class="bio-button" href="/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>">Cancel</a>
@@ -775,6 +921,10 @@ function profile_json_script(string $id, array $data): void
     <div class="bio-toast" id="bioToast" role="status" aria-live="polite"></div>
 
     <?php profile_json_script('initialSocialsData', $socials); ?>
+    <?php
+    $tags = json_decode($profile['profile_tags_json'] ?? '[]', true) ?: [];
+    profile_json_script('initialTagsData', $tags);
+    ?>
     <?php profile_json_script('initialLinksData', $links); ?>
     <?php profile_json_script('initialProjectsData', $projects); ?>
     <?php profile_json_script('initialContentsData', $contents); ?>

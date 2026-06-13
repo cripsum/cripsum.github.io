@@ -268,6 +268,20 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
             u.profile_badge_size,
             u.profile_button_size,
             u.profile_avatar_border,
+            u.custom_alias,
+            u.tilt_enabled,
+            u.tilt_max,
+            u.tilt_glare,
+            u.tilt_zoom,
+            u.tilt_speed,
+            u.profile_tags_json,
+            u.profile_tab_title,
+            u.profile_tab_animation,
+            u.profile_tab_animation_speed,
+            u.profile_tab_animation_text,
+            u.profile_corner_style,
+            u.profile_corner_style_custom,
+            u.profile_border_style,
             COALESCE(ach.num_achievement, 0) AS num_achievement,
             COALESCE(inv.num_personaggi, 0) AS num_personaggi,
             COALESCE(inv.total_personaggi, 0) AS total_personaggi
@@ -301,9 +315,129 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
     return $profile ?: null;
 }
 
+function profile_get_public_profile_by_alias(mysqli $mysqli, string $alias): ?array
+{
+    $sql = "
+        SELECT
+            u.id,
+            u.username,
+            u.display_name,
+            u.bio,
+            u.data_creazione,
+            u.soldi,
+            u.ruolo,
+            u.profile_banner_type,
+            u.accent_color,
+            u.profile_secondary_color,
+            u.profile_card_color,
+            u.profile_text_color,
+            u.profile_link_style,
+            u.profile_button_shape,
+            u.profile_theme,
+            u.profile_layout,
+            u.profile_visibility,
+            u.discord_id,
+            u.discord_username,
+            u.discord_global_name,
+            u.discord_avatar,
+            u.discord_use_avatar,
+            u.discord_use_display_name,
+            u.discord_connected_at,
+            u.profile_status,
+            u.profile_show_stats,
+            u.profile_show_socials,
+            u.profile_show_links,
+            u.profile_show_projects,
+            u.profile_show_contents,
+            u.profile_show_badges,
+            u.profile_show_activity,
+            u.profile_show_discord,
+            u.profile_music_url,
+            u.profile_music_mime,
+            u.profile_music_title,
+            u.profile_music_artist,
+            u.profile_show_audio_player,
+            u.profile_effect,
+            u.profile_show_characters,
+            u.avatar_ring_enabled,
+            u.avatar_ring_style,
+            u.avatar_ring_color,
+            u.profile_views,
+            u.featured_badge_id,
+            u.featured_project_id,
+            u.featured_content_id,
+            u.profile_updated_at,
+            u.ultimo_accesso,
+            u.profile_enter_text,
+            u.profile_click_to_enter,
+            u.profile_socials_style,
+            u.profile_show_embeds,
+            u.profile_sections_order,
+            u.profile_badges_display,
+            u.profile_badges_position,
+            u.discord_server_invite,
+            u.discord_server_cache,
+            u.discord_server_cache_time,
+            u.profile_font,
+            u.profile_border_radius,
+            u.profile_card_opacity,
+            u.profile_card_blur,
+            u.profile_border_opacity,
+            u.profile_border_color,
+            u.profile_border_width,
+            u.profile_name_style,
+            u.profile_ui_shape,
+            u.profile_avatar_shape,
+            u.profile_social_size,
+            u.profile_icon_spacing,
+            u.profile_badge_size,
+            u.profile_button_size,
+            u.profile_avatar_border,
+            u.custom_alias,
+            u.tilt_enabled,
+            u.tilt_max,
+            u.tilt_glare,
+            u.tilt_zoom,
+            u.tilt_speed,
+            u.profile_tags_json,
+            u.profile_tab_title,
+            u.profile_tab_animation,
+            u.profile_tab_animation_speed,
+            u.profile_tab_animation_text,
+            u.profile_corner_style,
+            u.profile_corner_style_custom,
+            u.profile_border_style,
+            COALESCE(ach.num_achievement, 0) AS num_achievement,
+            COALESCE(inv.num_personaggi, 0) AS num_personaggi,
+            COALESCE(inv.total_personaggi, 0) AS total_personaggi
+        FROM utenti u
+        LEFT JOIN (
+            SELECT utente_id, COUNT(DISTINCT achievement_id) AS num_achievement
+            FROM utenti_achievement
+            GROUP BY utente_id
+        ) ach ON ach.utente_id = u.id
+        LEFT JOIN (
+            SELECT utente_id, COUNT(DISTINCT personaggio_id) AS num_personaggi, COALESCE(SUM(`quantità`), 0) AS total_personaggi
+            FROM utenti_personaggi
+            GROUP BY utente_id
+        ) inv ON inv.utente_id = u.id
+        WHERE LOWER(u.custom_alias) = LOWER(?)
+        LIMIT 1
+    ";
+
+    $stmt = $mysqli->prepare($sql);
+    if (!$stmt) return null;
+    $stmt->bind_param('s', $alias);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $profile = $result->fetch_assoc();
+    $stmt->close();
+    return $profile ?: null;
+}
+
 function profile_get_edit_profile(mysqli $mysqli, int $userId): ?array
 {
-    $stmt = $mysqli->prepare("SELECT id, username, display_name, bio, data_creazione, ruolo, profile_banner_type, accent_color, profile_secondary_color, profile_card_color, profile_text_color, profile_link_style, profile_button_shape, profile_theme, profile_layout, profile_visibility, discord_id, discord_username, discord_global_name, discord_avatar, discord_use_avatar, discord_use_display_name, discord_connected_at, profile_status, profile_show_stats, profile_show_socials, profile_show_links, profile_show_projects, profile_show_contents, profile_show_badges, profile_show_activity, profile_show_discord, profile_music_url, profile_music_mime, profile_music_title, profile_music_artist, profile_show_audio_player, profile_effect, avatar_ring_enabled, avatar_ring_style, avatar_ring_color, profile_views, featured_badge_id, featured_project_id, featured_content_id, profile_show_characters, profile_updated_at, profile_enter_text, profile_click_to_enter, profile_socials_style, profile_show_embeds, profile_sections_order, profile_badges_display, profile_badges_position, discord_server_invite, discord_server_cache, discord_server_cache_time, profile_font, profile_border_radius, profile_card_opacity, profile_card_blur, profile_border_opacity, profile_border_color, profile_border_width, profile_name_style, profile_ui_shape, profile_avatar_shape, profile_social_size, profile_icon_spacing, profile_badge_size, profile_button_size, profile_avatar_border FROM utenti WHERE id = ? LIMIT 1");
+    $stmt = $mysqli->prepare("SELECT id, username, display_name, bio, data_creazione, ruolo, profile_banner_type, accent_color, profile_secondary_color, profile_card_color, profile_text_color, profile_link_style, profile_button_shape, profile_theme, profile_layout, profile_visibility, discord_id, discord_username, discord_global_name, discord_avatar, discord_use_avatar, discord_use_display_name, discord_connected_at, profile_status, profile_show_stats, profile_show_socials, profile_show_links, profile_show_projects, profile_show_contents, profile_show_badges, profile_show_activity, profile_show_discord, profile_music_url, profile_music_mime, profile_music_title, profile_music_artist, profile_show_audio_player, profile_effect, avatar_ring_enabled, avatar_ring_style, avatar_ring_color, profile_views, featured_badge_id, featured_project_id, featured_content_id, profile_show_characters, profile_updated_at, profile_enter_text, profile_click_to_enter, profile_socials_style, profile_show_embeds, profile_sections_order, profile_badges_display, profile_badges_position, discord_server_invite, discord_server_cache, discord_server_cache_time, profile_font, profile_border_radius, profile_card_opacity, profile_card_blur, profile_border_opacity, profile_border_color, profile_border_width, profile_name_style, profile_ui_shape, profile_avatar_shape, profile_social_size, profile_icon_spacing, profile_badge_size, profile_button_size, profile_avatar_border, custom_alias, tilt_enabled, tilt_max, tilt_glare, tilt_zoom, tilt_speed, profile_tags_json, profile_tab_title, profile_tab_animation, profile_tab_animation_speed, profile_tab_animation_text, profile_corner_style, profile_corner_style_custom, profile_border_style FROM utenti WHERE id = ? LIMIT 1");
     $stmt->bind_param('i', $userId);
     $stmt->execute();
     $profile = $stmt->get_result()->fetch_assoc();

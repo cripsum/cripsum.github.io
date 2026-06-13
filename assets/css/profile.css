@@ -8478,3 +8478,181 @@ body[data-theme="light"] .profile-report-detail-group textarea {
         max-height: calc(100vh - 160px);
     }
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   CRIPSUM PROFILES 3.X - PREMIUM STYLING ADDITIONS
+   ────────────────────────────────────────────────────────────────────────── */
+
+:root {
+    --accent-2: #8b5cf6;
+}
+
+/* Global Corner Radius overrides for secondary components */
+.bio-social-icon {
+    border-radius: var(--profile-corner-radius, 50%) !important;
+}
+.bio-social__icon,
+.bio-featured-link__icon,
+.bio-project-card__icon,
+.bio-preview-card__icon {
+    border-radius: var(--profile-corner-radius, 14px) !important;
+}
+.profile-mini-badge {
+    border-radius: var(--profile-corner-radius, var(--ui-shape-button, 999px)) !important;
+}
+.bio-pill,
+.bio-badge {
+    border-radius: var(--profile-corner-radius, var(--ui-shape-button, 999px)) !important;
+}
+.bio-small-button,
+.bio-icon-button {
+    border-radius: var(--profile-corner-radius, var(--ui-shape-button, 999px)) !important;
+}
+.bio-audio input[type="range"],
+.bio-audio input[type="range"]::-webkit-slider-thumb,
+.bio-audio input[type="range"]::-moz-range-thumb {
+    border-radius: var(--profile-corner-radius, var(--ui-shape-button, 999px)) !important;
+}
+.ds-avatar {
+    border-radius: var(--profile-corner-radius, 18px) !important;
+}
+
+/* Border Styles Customizations */
+
+/* border-style: none */
+.profile-border-style-none .bio-card {
+    border: none !important;
+}
+.profile-border-style-none .bio-card::before {
+    display: none !important;
+}
+.profile-border-style-none .bio-social,
+.profile-border-style-none .bio-featured-link,
+.profile-border-style-none .bio-project-card,
+.profile-border-style-none .bio-preview-card,
+.profile-border-style-none .bio-audio,
+.profile-border-style-none .bio-discord-panel,
+.profile-border-style-none .profile-block-card {
+    border: none !important;
+}
+.profile-border-style-none .bio-social::after,
+.profile-border-style-none .bio-featured-link::after,
+.profile-border-style-none .bio-project-card::after,
+.profile-border-style-none .bio-preview-card::after {
+    display: none !important;
+}
+
+/* border-style: glow */
+.profile-border-style-glow .bio-card {
+    border: 1px solid var(--profile-accent) !important;
+    box-shadow: 0 0 16px rgba(var(--accent-rgb), 0.35), 0 24px 48px -12px rgba(0, 0, 0, calc(0.45 * var(--profile-card-opacity, 1))) !important;
+}
+.profile-border-style-glow .bio-card::before {
+    display: none !important;
+}
+.profile-border-style-glow .bio-social,
+.profile-border-style-glow .bio-featured-link,
+.profile-border-style-glow .bio-project-card,
+.profile-border-style-glow .bio-preview-card,
+.profile-border-style-glow .bio-audio,
+.profile-border-style-glow .bio-discord-panel,
+.profile-border-style-glow .profile-block-card {
+    border: 1px solid var(--profile-accent) !important;
+}
+.profile-border-style-glow .bio-social::after,
+.profile-border-style-glow .bio-featured-link::after,
+.profile-border-style-glow .bio-project-card::after,
+.profile-border-style-glow .bio-preview-card::after {
+    display: none !important;
+}
+.profile-border-style-glow .bio-social:hover,
+.profile-border-style-glow .bio-featured-link:hover,
+.profile-border-style-glow .bio-project-card:hover,
+.profile-border-style-glow .bio-preview-card:hover {
+    box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.5), 0 16px 42px rgba(0, 0, 0, 0.18) !important;
+}
+
+/* border-style: gradient (Premium Masked Gradient) */
+.profile-border-style-gradient .bio-card {
+    border: 1px solid transparent !important;
+    background: linear-gradient(var(--profile-card-bg, var(--card)), var(--profile-card-bg, var(--card))) padding-box, linear-gradient(135deg, var(--profile-accent), var(--accent-2, #8b5cf6)) border-box !important;
+}
+.profile-border-style-gradient .bio-card::before {
+    display: none !important;
+}
+.profile-border-style-gradient .bio-social,
+.profile-border-style-gradient .bio-featured-link,
+.profile-border-style-gradient .bio-project-card,
+.profile-border-style-gradient .bio-preview-card,
+.profile-border-style-gradient .bio-audio,
+.profile-border-style-gradient .bio-discord-panel,
+.profile-border-style-gradient .profile-block-card {
+    border: 1px solid transparent !important;
+    background: linear-gradient(var(--profile-card-bg, rgba(255,255,255,0.055)), var(--profile-card-bg, rgba(255,255,255,0.055))) padding-box, linear-gradient(135deg, var(--profile-accent), var(--accent-2, #8b5cf6)) border-box !important;
+}
+.profile-border-style-gradient .bio-social::after,
+.profile-border-style-gradient .bio-featured-link::after,
+.profile-border-style-gradient .bio-project-card::after,
+.profile-border-style-gradient .bio-preview-card::after {
+    display: none !important;
+}
+.profile-border-style-gradient .bio-social:hover,
+.profile-border-style-gradient .bio-featured-link:hover,
+.profile-border-style-gradient .bio-project-card:hover,
+.profile-border-style-gradient .bio-preview-card:hover {
+    background: linear-gradient(rgba(var(--accent-rgb), 0.1), rgba(var(--accent-rgb), 0.1)) padding-box, linear-gradient(135deg, var(--profile-accent), var(--accent-2, #8b5cf6)) border-box !important;
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.18) !important;
+}
+
+/* Tag / Pills Styles */
+.profile-tag-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 550;
+    border-radius: var(--profile-corner-radius, 99px);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-muted, #9ca3af);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    cursor: default;
+    user-select: none;
+}
+.profile-tag-pill:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.profile-tag-pill[style*="background"] {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+.profile-tag-pill[style*="background"]:hover {
+    box-shadow: 0 4px 14px rgba(var(--accent-rgb), 0.25);
+    filter: brightness(1.1);
+}
+
+/* Card Hover Elevation Premium feel */
+.bio-social:hover,
+.bio-featured-link:hover,
+.bio-project-card:hover,
+.bio-preview-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.24) !important;
+}
+
+/* Focus states & Accessibility */
+.bio-social:focus-visible,
+.bio-featured-link:focus-visible,
+.bio-project-card:focus-visible,
+.bio-preview-card:focus-visible,
+.bio-button:focus-visible,
+.bio-icon-button:focus-visible {
+    outline: 2px solid var(--profile-accent) !important;
+    outline-offset: 2px;
+}
+

@@ -164,22 +164,76 @@
         if (!cards.length || !canHover) return;
 
         cards.forEach((card) => {
+            const enabled = card.dataset.tiltEnabled !== '0';
+            if (!enabled) return;
+
+            const maxTilt = parseFloat(card.dataset.tiltMax ?? 15);
+            const glare = parseFloat(card.dataset.tiltGlare ?? 0);
+            const zoom = parseFloat(card.dataset.tiltZoom ?? 1.05);
+            const speed = parseInt(card.dataset.tiltSpeed ?? 400, 10);
+
+            card.style.transition = `transform ${speed}ms cubic-bezier(.03,.98,.52,.99), box-shadow ${speed}ms cubic-bezier(.03,.98,.52,.99)`;
+
+            let glareInner = null;
+            if (glare > 0) {
+                card.style.position = 'relative';
+                let glareContainer = card.querySelector('.js-tilt-glare');
+                if (!glareContainer) {
+                    glareContainer = document.createElement('div');
+                    glareContainer.className = 'js-tilt-glare';
+                    glareContainer.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; border-radius: inherit; z-index: 10;';
+                    
+                    glareInner = document.createElement('div');
+                    glareInner.className = 'js-tilt-glare-inner';
+                    glareInner.style.cssText = `position: absolute; top: 50%; left: 50%; width: 200%; height: 200%; background: linear-gradient(135deg, rgba(255,255,255,${glare}) 0%, rgba(255,255,255,0) 100%); transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: opacity ${speed}ms cubic-bezier(.03,.98,.52,.99), transform ${speed}ms cubic-bezier(.03,.98,.52,.99);`;
+                    
+                    glareContainer.appendChild(glareInner);
+                    card.appendChild(glareContainer);
+                } else {
+                    glareInner = glareContainer.querySelector('.js-tilt-glare-inner');
+                }
+            }
+
             let frame = null;
+
+            card.addEventListener('mouseenter', () => {
+                card.style.transition = 'none';
+                if (glareInner) {
+                    glareInner.style.transition = 'none';
+                    glareInner.style.opacity = '1';
+                }
+            });
+
             const handleMove = (event) => {
                 const rect = card.getBoundingClientRect();
                 const x = event.clientX - rect.left;
                 const y = event.clientY - rect.top;
-                const rotateX = ((y / rect.height) - 0.5) * -3;
-                const rotateY = ((x / rect.width) - 0.5) * 3;
+                
+                const rotateX = ((y / rect.height) - 0.5) * -maxTilt;
+                const rotateY = ((x / rect.width) - 0.5) * maxTilt;
+
+                const glareX = ((x / rect.width) - 0.5) * -100;
+                const glareY = ((y / rect.height) - 0.5) * -100;
+
                 cancelAnimationFrame(frame);
                 frame = requestAnimationFrame(() => {
-                    card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                    card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(${zoom}, ${zoom}, ${zoom})`;
+                    if (glareInner) {
+                        glareInner.style.transform = `translate(-50%, -50%) translate(${glareX}%, ${glareY}%)`;
+                    }
                 });
             };
+
             card.addEventListener('mousemove', handleMove);
             card.addEventListener('mouseleave', () => {
                 cancelAnimationFrame(frame);
-                card.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg)';
+                card.style.transition = `transform ${speed}ms cubic-bezier(.03,.98,.52,.99), box-shadow ${speed}ms cubic-bezier(.03,.98,.52,.99)`;
+                card.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+                if (glareInner) {
+                    glareInner.style.transition = `opacity ${speed}ms cubic-bezier(.03,.98,.52,.99), transform ${speed}ms cubic-bezier(.03,.98,.52,.99)`;
+                    glareInner.style.opacity = '0';
+                    glareInner.style.transform = 'translate(-50%, -50%) translate(0%, 0%)';
+                }
             });
         });
     };
@@ -1228,4 +1282,42 @@
 
     initNameSparkles();
     window.initNameSparkles = initNameSparkles;
+
+    const initTabTitleAnimation = () => {
+        const title = body.dataset.tabTitle || document.title;
+        const anim = body.dataset.tabAnimation || 'static';
+        const speed = parseInt(body.dataset.tabAnimationSpeed ?? 1000, 10);
+        const text = body.dataset.tabAnimationText ?? '';
+
+        if (anim === 'static') return;
+
+        let interval = null;
+        if (anim === 'marquee') {
+            let marqueeText = (text || title) + '   ';
+            interval = setInterval(() => {
+                marqueeText = marqueeText.substring(1) + marqueeText.substring(0, 1);
+                document.title = marqueeText;
+            }, speed);
+        } else if (anim === 'bounce') {
+            let bounceText = text || title;
+            let pos = 0;
+            let direction = 1;
+            const paddingMax = 6;
+            interval = setInterval(() => {
+                let spaces = ' '.repeat(pos);
+                document.title = spaces + bounceText;
+                pos += direction;
+                if (pos >= paddingMax || pos <= 0) direction = -direction;
+            }, speed);
+        } else if (anim === 'pulse') {
+            let state = false;
+            const t1 = title;
+            const t2 = text || (title + ' ♡');
+            interval = setInterval(() => {
+                document.title = state ? t1 : t2;
+                state = !state;
+            }, speed);
+        }
+    };
+    initTabTitleAnimation();
 })();

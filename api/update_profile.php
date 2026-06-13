@@ -123,6 +123,69 @@ $badgesDisplay = profile_allowed_value((string)($_POST['profile_badges_display']
 $badgesPosition = profile_allowed_value((string)($_POST['profile_badges_position'] ?? 'below_bio'), ['below_bio', 'below_username', 'right_of_name'], 'below_bio');
 $discordServerInvite = trim((string)($_POST['discord_server_invite'] ?? ''));
 
+// Premium Features 3.X Parameters Extraction & Validation
+$customAlias = isset($_POST['custom_alias']) ? trim((string)$_POST['custom_alias']) : '';
+$customAliasDb = $customAlias !== '' ? $customAlias : null;
+if ($customAliasDb !== null) {
+    if (!preg_match('/^[a-zA-Z0-9_-]{3,30}$/', $customAliasDb)) {
+        profile_json_response(['ok' => false, 'message' => 'L\'alias URL personalizzato non è valido.'], 422);
+    }
+    $blacklist = ['api', 'assets', 'audio', 'auth', 'config', 'css', 'data', 'en', 'img', 'includes', 'it', 'js', 'mc', 'user', 'vid', 'u', 'admin', 'logout', 'profile', 'bio', 'gaming', 'game', 'negozio', 'shop', 'privacy', 'tos', 'terms', 'about', 'chisiamo', 'merch', 'checkout', 'lootbox', 'shitpost', 'missions', 'index', '404', 'aura', 'discord', 'register', 'registrati', 'login', 'accedi', 'settings', 'impostazioni', 'dashboard', 'help', 'support', 'uwu', 'db', 'search'];
+    if (in_array(strtolower($customAliasDb), $blacklist, true)) {
+        profile_json_response(['ok' => false, 'message' => 'Questo alias è riservato.'], 422);
+    }
+    $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE LOWER(username) = LOWER(?) LIMIT 1");
+    $stmt->bind_param('s', $customAliasDb);
+    $stmt->execute();
+    if ($stmt->get_result()->fetch_assoc()) {
+        $stmt->close();
+        profile_json_response(['ok' => false, 'message' => 'L\'alias coincide con un username esistente.'], 422);
+    }
+    $stmt->close();
+    $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE LOWER(custom_alias) = LOWER(?) AND id != ? LIMIT 1");
+    $stmt->bind_param('si', $customAliasDb, $targetUserId);
+    $stmt->execute();
+    if ($stmt->get_result()->fetch_assoc()) {
+        $stmt->close();
+        profile_json_response(['ok' => false, 'message' => 'Alias già in uso da un altro utente.'], 409);
+    }
+    $stmt->close();
+}
+
+$tiltEnabled = profile_bool_from_post('tilt_enabled', true) ? 1 : 0;
+$tiltMax = min(max((int)($_POST['tilt_max'] ?? 15), 0), 45);
+$tiltGlare = min(max((float)($_POST['tilt_glare'] ?? 0.0), 0.0), 1.0);
+$tiltZoom = min(max((float)($_POST['tilt_zoom'] ?? 1.05), 1.0), 1.3);
+$tiltSpeed = min(max((int)($_POST['tilt_speed'] ?? 400), 100), 2000);
+
+$tagsRaw = $_POST['profile_tags_json'] ?? '[]';
+$tagsDecoded = json_decode($tagsRaw, true);
+$tagsArray = [];
+if (is_array($tagsDecoded)) {
+    foreach (array_slice($tagsDecoded, 0, 10) as $tag) {
+        $tagText = profile_clean_text($tag['text'] ?? '', 40);
+        if ($tagText === '') continue;
+        $tagsArray[] = [
+            'text' => $tagText,
+            'icon' => profile_clean_text($tag['icon'] ?? '', 40),
+            'color' => profile_optional_hex_color($tag['color'] ?? ''),
+            'gradient' => profile_optional_hex_color($tag['gradient'] ?? '')
+        ];
+    }
+}
+$profileTagsJsonDb = json_encode($tagsArray);
+
+$profileTabTitle = profile_clean_text($_POST['profile_tab_title'] ?? '', 80);
+$profileTabTitleDb = $profileTabTitle !== '' ? $profileTabTitle : null;
+$profileTabAnimation = profile_allowed_value((string)($_POST['profile_tab_animation'] ?? 'static'), ['static', 'marquee', 'bounce', 'pulse'], 'static');
+$profileTabAnimationSpeed = min(max((int)($_POST['profile_tab_animation_speed'] ?? 1000), 200), 5000);
+$profileTabAnimationText = profile_clean_text($_POST['profile_tab_animation_text'] ?? '', 120);
+$profileTabAnimationTextDb = $profileTabAnimationText !== '' ? $profileTabAnimationText : null;
+
+$profileCornerStyle = profile_allowed_value((string)($_POST['profile_corner_style'] ?? 'circle'), ['circle', 'rounded', 'soft', 'square', 'custom'], 'circle');
+$profileCornerStyleCustom = min(max((int)($_POST['profile_corner_style_custom'] ?? 8), 0), 100);
+$profileBorderStyle = profile_allowed_value((string)($_POST['profile_border_style'] ?? 'thin'), ['none', 'thin', 'glow', 'gradient'], 'thin');
+
 $oldInvite = $profile['discord_server_invite'] ?? '';
 $discordServerCache = $profile['discord_server_cache'] ?? null;
 $discordServerCacheTime = (int)($profile['discord_server_cache_time'] ?? 0);
@@ -252,11 +315,12 @@ try {
             profile_font = ?, profile_border_radius = ?, profile_card_opacity = ?, profile_card_blur = ?, profile_border_opacity = ?, profile_border_color = ?, profile_border_width = ?,
             profile_name_style = ?,
             profile_ui_shape = ?, profile_avatar_shape = ?, profile_social_size = ?, profile_icon_spacing = ?, profile_badge_size = ?, profile_button_size = ?, profile_avatar_border = ?,
+            custom_alias = ?, tilt_enabled = ?, tilt_max = ?, tilt_glare = ?, tilt_zoom = ?, tilt_speed = ?, profile_tags_json = ?, profile_tab_title = ?, profile_tab_animation = ?, profile_tab_animation_speed = ?, profile_tab_animation_text = ?, profile_corner_style = ?, profile_corner_style_custom = ?, profile_border_style = ?,
             profile_updated_at = NOW()
         WHERE id = ?
     ");
     $stmt->bind_param(
-        'sssssssssssssiisssssssiiiiiiiiiiisisisssssisiiiisisssiiiiii',
+        'sssssssssssssiisssssssiiiiiiiiiiisisisssssisiiiisisssiiiiiisiiiddsssiisiii',
         $username,
         $displayNameDb,
         $bioDb,
@@ -315,6 +379,20 @@ try {
         $badgeSize,
         $buttonSize,
         $avatarBorder,
+        $customAliasDb,
+        $tiltEnabled,
+        $tiltMax,
+        $tiltGlare,
+        $tiltZoom,
+        $tiltSpeed,
+        $profileTagsJsonDb,
+        $profileTabTitleDb,
+        $profileTabAnimation,
+        $profileTabAnimationSpeed,
+        $profileTabAnimationTextDb,
+        $profileCornerStyle,
+        $profileCornerStyleCustom,
+        $profileBorderStyle,
         $targetUserId
     );
     if (!$stmt->execute()) throw new RuntimeException('Error updating profile.');

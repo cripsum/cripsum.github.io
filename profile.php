@@ -10,16 +10,29 @@ checkBan($mysqli);
 
 $isLoggedIn = isLoggedIn();
 $currentUserId = profile_current_user_id();
-$identifier = profile_get_identifier();
+$customAlias = $_GET['custom_alias'] ?? null;
 
-if (!$identifier) {
-    if ($isLoggedIn && !empty($_SESSION['username'])) {
-        header('Location: /u/' . rawurlencode(strtolower($_SESSION['username'])));
-        exit;
-    }
-    $profile = null;
+if ($customAlias !== null && trim((string)$customAlias) !== '') {
+    $customAlias = trim((string)$customAlias);
+    $profile = profile_get_public_profile_by_alias($mysqli, $customAlias);
 } else {
-    $profile = profile_get_public_profile($mysqli, $identifier);
+    $identifier = profile_get_identifier();
+    if (!$identifier) {
+        if ($isLoggedIn && !empty($_SESSION['username'])) {
+            header('Location: /u/' . rawurlencode(strtolower($_SESSION['username'])));
+            exit;
+        }
+        $profile = null;
+    } else {
+        $profile = profile_get_public_profile($mysqli, $identifier);
+        
+        // Redirect SEO: if user visits /u/username but has a custom alias, redirect to the custom alias
+        if ($profile && !empty($profile['custom_alias'])) {
+            header("HTTP/1.1 301 Moved Permanently");
+            header('Location: /' . rawurlencode(strtolower($profile['custom_alias'])));
+            exit;
+        }
+    }
 }
 
 $isNotFound = !$profile;
@@ -344,11 +357,17 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 
 <head>
     <?php include __DIR__ . '/includes/head-import.php'; ?>
-    <title><?php echo $profile ? 'Cripsum™ - ' . profile_h($displayName) : 'Cripsum™ - Profilo'; ?></title>
+    <?php
+    $pageTitle = 'Cripsum™ - ' . ($profile['display_name'] ?? $profile['username'] ?? 'Profilo');
+    if (!empty($profile['profile_tab_title'])) {
+        $pageTitle = $profile['profile_tab_title'];
+    }
+    ?>
+    <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.4.22">
-    <script src="/assets/js/profile.js?v=4.4.22" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.5">
+    <script src="/assets/js/profile.js?v=4.5" defer></script>
     <?php
     $googleFonts = [
         'Poppins' => 'Poppins',
@@ -376,11 +395,26 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         echo '<link href="https://fonts.googleapis.com/css2?family=' . $googleFonts[$profileFont] . '" rel="stylesheet">' . "\n";
     }
     ?>
+    <?php
+    $cornerStyle = $profile['profile_corner_style'] ?? 'circle';
+    $cornerStyleCustom = (int)($profile['profile_corner_style_custom'] ?? 8);
+    $profileCornerRadius = '50%';
+    if ($cornerStyle === 'rounded') {
+        $profileCornerRadius = '12px';
+    } elseif ($cornerStyle === 'soft') {
+        $profileCornerRadius = '6px';
+    } elseif ($cornerStyle === 'square') {
+        $profileCornerRadius = '0px';
+    } elseif ($cornerStyle === 'custom') {
+        $profileCornerRadius = $cornerStyleCustom . 'px';
+    }
+    ?>
     <style>
         .bio-v2-body {
             --radius-lg: <?php echo $borderRadius; ?>px !important;
             --radius-md: <?php echo round($borderRadius * 0.73); ?>px !important;
             --radius-sm: <?php echo round($borderRadius * 0.47); ?>px !important;
+            --profile-corner-radius: <?php echo $profileCornerRadius; ?> !important;
 
             --profile-card-opacity: <?php echo $cardOpacity / 100; ?> !important;
             --profile-card-blur: <?php echo $cardBlur; ?>px !important;
@@ -407,7 +441,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 </head>
 
 <body
-    class="bio-v2-body public-profile-body"
+    class="bio-v2-body public-profile-body profile-border-style-<?php echo profile_h($profile['profile_border_style'] ?? 'thin'); ?>"
     data-theme="<?php echo profile_h($theme); ?>"
     data-accent="<?php echo profile_h($accent); ?>"
     data-profile-url="<?php echo profile_h($profileUrl); ?>"
@@ -419,6 +453,10 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     data-profile-layout="<?php echo profile_h($layout); ?>"
     data-avatar-shape="<?php echo profile_h($avatarShape); ?>"
     data-avatar-border="<?php echo $avatarBorder; ?>"
+    data-tab-title="<?php echo profile_h($pageTitle); ?>"
+    data-tab-animation="<?php echo profile_h($profile['profile_tab_animation'] ?? 'static'); ?>"
+    data-tab-animation-speed="<?php echo (int)($profile['profile_tab_animation_speed'] ?? 1000); ?>"
+    data-tab-animation-text="<?php echo profile_h($profile['profile_tab_animation_text'] ?? ''); ?>"
     style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
 
     <?php if ($profile && profile_flag($profile, 'profile_click_to_enter', false)): ?>
@@ -449,7 +487,12 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         <?php profile_state_page('Login', 'Login Required', 'This profile is only visible to registered users.', 'Log In', '/en/login'); ?>
     <?php else: ?>
         <main class="bio-page profile-smart-page <?php echo (!$hasRightContent || $layout === 'clean') ? 'profile-smart-page--single' : ''; ?> layout-<?php echo profile_h($layout); ?>" id="bioPage">
-            <section class="bio-hero bio-card profile-smart-hero js-tilt-card js-reveal" aria-label="Public Profile">
+            <section class="bio-hero bio-card profile-smart-hero js-tilt-card js-reveal" aria-label="Public Profile"
+                data-tilt-enabled="<?php echo (int)($profile['tilt_enabled'] ?? 1); ?>"
+                data-tilt-max="<?php echo (int)($profile['tilt_max'] ?? 15); ?>"
+                data-tilt-glare="<?php echo (float)($profile['tilt_glare'] ?? 0.0); ?>"
+                data-tilt-zoom="<?php echo (float)($profile['tilt_zoom'] ?? 1.05); ?>"
+                data-tilt-speed="<?php echo (int)($profile['tilt_speed'] ?? 400); ?>">
                 <div class="profile-hero-actions-top">
                     <?php if ($showStats): ?>
                         <?php if ($isOnline): ?>
@@ -572,6 +615,37 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     <?php if ($badgesPosition === 'below_username') echo $renderMiniBadgesHtml; ?>
                     <?php if (!empty($profile['bio'])): ?>
                         <p class="bio-tagline"><?php echo nl2br(profile_h($profile['bio'])); ?></p>
+                    <?php endif; ?>
+
+                    <?php
+                    $profileTags = json_decode($profile['profile_tags_json'] ?? '[]', true) ?: [];
+                    if (!empty($profileTags)):
+                    ?>
+                        <div class="profile-tags-container" style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 0.75rem;">
+                            <?php foreach ($profileTags as $tag):
+                                $tagText = $tag['text'] ?? '';
+                                if (trim($tagText) === '') continue;
+                                $tagIcon = $tag['icon'] ?? '';
+                                $tagColor = $tag['color'] ?? '';
+                                $tagGradient = $tag['gradient'] ?? '';
+                                
+                                $tagStyle = '';
+                                if (!empty($tagColor)) {
+                                    if (!empty($tagGradient)) {
+                                        $tagStyle = 'background: linear-gradient(135deg, ' . $tagColor . ', ' . $tagGradient . ') !important; border-color: transparent !important; color: #fff !important;';
+                                    } else {
+                                        $tagStyle = 'background: ' . $tagColor . ' !important; border-color: transparent !important; color: #fff !important;';
+                                    }
+                                }
+                            ?>
+                                <span class="profile-tag-pill" style="<?php echo $tagStyle; ?>">
+                                    <?php if (!empty($tagIcon)): ?>
+                                        <i class="<?php echo profile_h($tagIcon); ?>" style="margin-right: 4px;"></i>
+                                    <?php endif; ?>
+                                    <?php echo profile_h($tagText); ?>
+                                </span>
+                            <?php endforeach; ?>
+                        </div>
                     <?php endif; ?>
                 </div>
 

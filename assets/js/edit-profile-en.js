@@ -37,6 +37,7 @@
         projects: $('#projectsRepeater'),
         contents: $('#contentsRepeater'),
         blocks: $('#blocksRepeater'),
+        tags: $('#tagsRepeater'),
     };
 
     const platformOptions = ['tiktok', 'instagram', 'youtube', 'twitch', 'github', 'discord', 'telegram', 'x', 'spotify', 'soundcloud', 'steam', 'reddit', 'pinterest', 'snapchat', 'facebook', 'linkedin', 'paypal', 'patreon', 'kick', 'bluesky', 'threads', 'behance', 'dribbble', 'website', 'email', 'other'];
@@ -134,9 +135,25 @@
                 </div>`;
         }
 
+        if (type === 'tags') {
+            body = `
+                <div class="profile-row-grid">
+                    <label>Pill Text<input data-field="text" maxlength="40" value="${escapeAttr(data.text || '')}" placeholder="E.g. JavaScript"></label>
+                    <label>FontAwesome Icon (optional)<input data-field="icon" maxlength="40" value="${escapeAttr(data.icon || '')}" placeholder="fab fa-js"></label>
+                    <div class="profile-row-grid two full" style="margin-top: 10px;">
+                        <label class="profile-check-line"><input type="checkbox" data-field="use_color" ${boolAttr(data.use_color ?? (data.color ? 1 : 0))}> Use Custom Color</label>
+                        <label class="profile-check-line"><input type="checkbox" data-field="use_gradient" ${boolAttr(data.use_gradient ?? (data.gradient ? 1 : 0))}> Use Gradient</label>
+                    </div>
+                    <div class="profile-row-grid two full tag-color-inputs" style="display: ${data.use_color || data.color ? 'grid' : 'none'};">
+                        <label>Background Color<input type="color" data-field="color" value="${escapeAttr(data.color || '#8b5cf6')}"></label>
+                        <label class="tag-gradient-input" style="display: ${data.use_gradient || data.gradient ? 'block' : 'none'};">Background Gradient<input type="color" data-field="gradient" value="${escapeAttr(data.gradient || '#ec4899')}"></label>
+                    </div>
+                </div>`;
+        }
+
         row.innerHTML = `
             <div class="profile-row-head">
-                <strong>${type === 'socials' ? 'Social' : type === 'links' ? 'Link' : type === 'embeds' ? 'Embed' : type === 'projects' ? 'Project' : type === 'blocks' ? 'Block' : 'Content'}</strong>
+                <strong>${type === 'socials' ? 'Social' : type === 'links' ? 'Link' : type === 'embeds' ? 'Embed' : type === 'projects' ? 'Project' : type === 'blocks' ? 'Block' : type === 'tags' ? 'Tag' : 'Content'}</strong>
                 <div class="profile-row-actions">
                     <button type="button" class="profile-move-up" title="Move up"><i class="fas fa-arrow-up"></i></button>
                     <button type="button" class="profile-move-down" title="Move down"><i class="fas fa-arrow-down"></i></button>
@@ -169,6 +186,28 @@
             }
         });
 
+        if (type === 'tags') {
+            setTimeout(() => {
+                const useColorChk = row.querySelector('[data-field="use_color"]');
+                const useGradientChk = row.querySelector('[data-field="use_gradient"]');
+                const colorContainer = row.querySelector('.tag-color-inputs');
+                const gradientContainer = row.querySelector('.tag-gradient-input');
+                
+                if (useColorChk && colorContainer) {
+                    useColorChk.addEventListener('change', () => {
+                        colorContainer.style.display = useColorChk.checked ? 'grid' : 'none';
+                        updatePreview();
+                    });
+                }
+                if (useGradientChk && gradientContainer) {
+                    useGradientChk.addEventListener('change', () => {
+                        gradientContainer.style.display = useGradientChk.checked ? 'block' : 'none';
+                        updatePreview();
+                    });
+                }
+            }, 0);
+        }
+
         return row;
     }
 
@@ -183,9 +222,10 @@
     readJson('initialProjectsData').forEach((item) => addRow('projects', item));
     readJson('initialContentsData').forEach((item) => addRow('contents', item));
     readJson('initialBlocksData').forEach((item) => addRow('blocks', item));
+    readJson('initialTagsData').forEach((item) => addRow('tags', item));
 
     Object.entries(repeaters).forEach(([type, node]) => {
-        if (node && node.children.length === 0) addRow(type, {});
+        if (node && node.children.length === 0 && type !== 'tags') addRow(type, {});
     });
 
     $$('[data-add-row]').forEach((button) => {
@@ -309,6 +349,143 @@
     if (borderWidthInput && borderWidthVal) {
         borderWidthInput.addEventListener('input', () => {
             borderWidthVal.textContent = borderWidthInput.value + 'px';
+        });
+    }
+
+    // Slider inputs for premium v3.x features
+    const tiltPresetInput = $('#tiltPresetInput');
+    const tiltEnabledInput = $('#tiltEnabledInput');
+    const tiltMaxInput = $('#tiltMaxInput');
+    const tiltGlareInput = $('#tiltGlareInput');
+    const tiltZoomInput = $('#tiltZoomInput');
+    const tiltSpeedInput = $('#tiltSpeedInput');
+    const tiltCustomControls = $('#tiltCustomControls');
+
+    const tiltMaxVal = $('#tiltMaxVal');
+    const tiltGlareVal = $('#tiltGlareVal');
+    const tiltZoomVal = $('#tiltZoomVal');
+    const tiltSpeedVal = $('#tiltSpeedVal');
+
+    const profileTabTitleInput = $('#profileTabTitleInput');
+    const profileTabAnimationInput = $('#profileTabAnimationInput');
+    const profileTabAnimationTextInput = $('#profileTabAnimationTextInput');
+    const profileTabAnimationSpeedInput = $('#profileTabAnimationSpeedInput');
+    const profileTabSpeedVal = $('#profileTabSpeedVal');
+
+    const cornerStyleInput = $('#cornerStyleInput');
+    const cornerStyleCustomInput = $('#cornerStyleCustomInput');
+    const cornerStyleCustomContainer = $('#cornerStyleCustomContainer');
+    const cornerStyleCustomVal = $('#cornerStyleCustomVal');
+
+    const borderStyleInput = $('#borderStyleInput');
+
+    if (tiltMaxInput && tiltMaxVal) {
+        tiltMaxInput.addEventListener('input', () => {
+            tiltMaxVal.textContent = tiltMaxInput.value;
+            updatePreview();
+        });
+    }
+    if (tiltGlareInput && tiltGlareVal) {
+        tiltGlareInput.addEventListener('input', () => {
+            tiltGlareVal.textContent = tiltGlareInput.value;
+            updatePreview();
+        });
+    }
+    if (tiltZoomInput && tiltZoomVal) {
+        tiltZoomInput.addEventListener('input', () => {
+            tiltZoomVal.textContent = tiltZoomInput.value;
+            updatePreview();
+        });
+    }
+    if (tiltSpeedInput && tiltSpeedVal) {
+        tiltSpeedInput.addEventListener('input', () => {
+            tiltSpeedVal.textContent = tiltSpeedInput.value;
+            updatePreview();
+        });
+    }
+    if (profileTabAnimationSpeedInput && profileTabSpeedVal) {
+        profileTabAnimationSpeedInput.addEventListener('input', () => {
+            profileTabSpeedVal.textContent = profileTabAnimationSpeedInput.value;
+        });
+    }
+    if (cornerStyleCustomInput && cornerStyleCustomVal) {
+        cornerStyleCustomInput.addEventListener('input', () => {
+            cornerStyleCustomVal.textContent = cornerStyleCustomInput.value;
+            updatePreview();
+        });
+    }
+
+    if (tiltPresetInput) {
+        tiltPresetInput.addEventListener('change', () => {
+            const val = tiltPresetInput.value;
+            if (val === 'off') {
+                if (tiltEnabledInput) tiltEnabledInput.checked = false;
+                if (tiltCustomControls) tiltCustomControls.style.display = 'none';
+            } else {
+                if (tiltEnabledInput) tiltEnabledInput.checked = true;
+                if (val === 'custom') {
+                    if (tiltCustomControls) tiltCustomControls.style.display = 'grid';
+                } else {
+                    if (tiltCustomControls) tiltCustomControls.style.display = 'none';
+                    // Apply presets
+                    if (val === 'soft') {
+                        tiltMaxInput.value = 10;
+                        tiltGlareInput.value = 0.15;
+                        tiltZoomInput.value = 1.02;
+                        tiltSpeedInput.value = 800;
+                    } else if (val === 'medium') {
+                        tiltMaxInput.value = 15;
+                        tiltGlareInput.value = 0.25;
+                        tiltZoomInput.value = 1.05;
+                        tiltSpeedInput.value = 600;
+                    } else if (val === 'strong') {
+                        tiltMaxInput.value = 25;
+                        tiltGlareInput.value = 0.40;
+                        tiltZoomInput.value = 1.08;
+                        tiltSpeedInput.value = 400;
+                    } else if (val === 'extreme') {
+                        tiltMaxInput.value = 35;
+                        tiltGlareInput.value = 0.60;
+                        tiltZoomInput.value = 1.12;
+                        tiltSpeedInput.value = 200;
+                    }
+                    if (tiltMaxVal) tiltMaxVal.textContent = tiltMaxInput.value;
+                    if (tiltGlareVal) tiltGlareVal.textContent = tiltGlareInput.value;
+                    if (tiltZoomVal) tiltZoomVal.textContent = tiltZoomInput.value;
+                    if (tiltSpeedVal) tiltSpeedVal.textContent = tiltSpeedInput.value;
+                }
+            }
+            updatePreview();
+        });
+    }
+
+    if (tiltEnabledInput) {
+        tiltEnabledInput.addEventListener('change', () => {
+            if (!tiltEnabledInput.checked) {
+                if (tiltPresetInput) tiltPresetInput.value = 'off';
+                if (tiltCustomControls) tiltCustomControls.style.display = 'none';
+            } else {
+                if (tiltPresetInput) {
+                    tiltPresetInput.value = 'medium';
+                    tiltPresetInput.dispatchEvent(new Event('change'));
+                }
+            }
+            updatePreview();
+        });
+    }
+
+    if (cornerStyleInput) {
+        cornerStyleInput.addEventListener('change', () => {
+            if (cornerStyleCustomContainer) {
+                cornerStyleCustomContainer.style.display = cornerStyleInput.value === 'custom' ? 'block' : 'none';
+            }
+            updatePreview();
+        });
+    }
+
+    if (borderStyleInput) {
+        borderStyleInput.addEventListener('change', () => {
+            updatePreview();
         });
     }
 
@@ -441,6 +618,23 @@
             document.body.style.setProperty('--ui-shape-icon', shapeIco);
             document.body.style.setProperty('--ui-shape-button', shapeBtn);
             document.body.style.setProperty('--ui-shape-card', shapeCard);
+        }
+
+        if (cornerStyleInput) {
+            let radius = '50%';
+            switch (cornerStyleInput.value) {
+                case 'circle': radius = '50%'; break;
+                case 'rounded': radius = '12px'; break;
+                case 'soft': radius = '6px'; break;
+                case 'square': radius = '0px'; break;
+                case 'custom': radius = `${cornerStyleCustomInput ? cornerStyleCustomInput.value : 8}px`; break;
+            }
+            document.body.style.setProperty('--profile-corner-radius', radius);
+        }
+
+        if (borderStyleInput) {
+            document.body.className = document.body.className.replace(/\bprofile-border-style-\S+/g, '');
+            document.body.classList.add(`profile-border-style-${borderStyleInput.value}`);
         }
         if (socialSizeInput) {
             document.body.style.setProperty('--social-icon-size', `${socialSizeInput.value}px`);
@@ -696,6 +890,57 @@
     bannerInput.addEventListener('change', () => previewBackgroundFile(bannerInput));
     if (musicFileInput) musicFileInput.addEventListener('change', () => previewMusicFile(musicFileInput));
 
+    // Live Alias URL Checker
+    const aliasInput = document.getElementById('customAliasInput');
+    const aliasIcon = document.getElementById('aliasValidationIcon');
+    const aliasMsg = document.getElementById('aliasValidationMessage');
+
+    if (aliasInput && aliasIcon && aliasMsg) {
+        let debounceTimer;
+        const targetUserId = form.querySelector('input[name="target_user_id"]')?.value || '';
+
+        const checkAlias = async () => {
+            const val = aliasInput.value.trim();
+            if (val === '') {
+                aliasIcon.innerHTML = '';
+                aliasMsg.textContent = 'Leave empty to disable. Allows accessing your profile via cripsum.com/youralias';
+                aliasMsg.style.color = '';
+                return;
+            }
+
+            if (!/^[a-zA-Z0-9_-]{3,30}$/.test(val)) {
+                aliasIcon.innerHTML = '<i class="fas fa-times-circle" style="color: #ef4444;"></i>';
+                aliasMsg.textContent = 'Alias must be between 3 and 30 characters (letters, numbers, hyphens, underscores).';
+                aliasMsg.style.color = '#ef4444';
+                return;
+            }
+
+            try {
+                const res = await fetch(`../api/check_alias.php?alias=${encodeURIComponent(val)}&target_user_id=${targetUserId}`);
+                const data = await res.json();
+                if (data.available) {
+                    aliasIcon.innerHTML = '<i class="fas fa-check-circle" style="color: #10b981;"></i>';
+                    aliasMsg.textContent = 'Alias is available!';
+                    aliasMsg.style.color = '#10b981';
+                } else {
+                    aliasIcon.innerHTML = '<i class="fas fa-times-circle" style="color: #ef4444;"></i>';
+                    aliasMsg.textContent = data.message || 'Alias is not available.';
+                    aliasMsg.style.color = '#ef4444';
+                }
+            } catch (err) {
+                aliasIcon.innerHTML = '';
+                aliasMsg.textContent = 'Error checking availability.';
+                aliasMsg.style.color = '#ef4444';
+            }
+        };
+
+        aliasInput.addEventListener('input', () => {
+            aliasIcon.innerHTML = '<i class="fas fa-spinner fa-spin" style="color: var(--accent);"></i>';
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(checkAlias, 400);
+        });
+    }
+
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
 
@@ -706,6 +951,7 @@
         $('#contentsJson').value = JSON.stringify(collectRows('contents'));
         $('#blocksJson').value = JSON.stringify(collectRows('blocks'));
         $('#badgesJson').value = JSON.stringify(collectBadges());
+        $('#profileTagsJson').value = JSON.stringify(collectRows('tags'));
 
         const button = $('#saveProfileButton');
         button.disabled = true;
@@ -1579,6 +1825,214 @@
     }
 
     initBadgesSorting();
+
+    // ── PROFILE PRESETS MANAGEMENT ───────────────────────────────────────────
+    const presetsListContainer = document.getElementById('presetsListContainer');
+    const saveNewPresetBtn = document.getElementById('saveNewPresetBtn');
+
+    async function loadPresets() {
+        if (!presetsListContainer) return;
+        presetsListContainer.innerHTML = '<div class="bio-empty-state"><i class="fas fa-spinner fa-spin"></i><strong>Loading presets...</strong></div>';
+        try {
+            const res = await fetch('../api/manage_presets.php?action=list');
+            const data = await res.json();
+            if (!res.ok || !data.ok) throw new Error(data.message || 'Error loading presets.');
+            
+            if (data.presets.length === 0) {
+                presetsListContainer.innerHTML = `
+                    <div class="bio-empty-state">
+                        <i class="fas fa-magic"></i>
+                        <strong>No presets saved</strong>
+                        <p>You can save your current configuration as a preset to restore it in the future.</p>
+                    </div>`;
+                return;
+            }
+
+            presetsListContainer.innerHTML = '';
+            const grid = document.createElement('div');
+            grid.className = 'profile-presets-grid-container';
+            grid.style.display = 'grid';
+            grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
+            grid.style.gap = '1.25rem';
+            grid.style.marginTop = '1rem';
+
+            data.presets.forEach(preset => {
+                const card = document.createElement('div');
+                card.className = 'bio-card preset-card';
+                card.style.padding = '1.25rem';
+                card.style.display = 'flex';
+                card.style.flexDirection = 'column';
+                card.style.gap = '0.75rem';
+                card.style.position = 'relative';
+                card.style.border = '1px solid rgba(255, 255, 255, 0.08)';
+                card.style.borderRadius = '16px';
+                card.style.background = 'rgba(255, 255, 255, 0.02)';
+                card.style.transition = 'all 0.2s';
+
+                let accentColor = '#0f5bff';
+                let secondaryColor = '#8b5cf6';
+                try {
+                    const parsed = JSON.parse(preset.preset_data);
+                    if (parsed.accent_color) accentColor = parsed.accent_color;
+                    if (parsed.profile_secondary_color) secondaryColor = parsed.profile_secondary_color;
+                } catch(e){}
+
+                card.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <strong style="font-size: 1.1rem; color: var(--text);">${escapeAttr(preset.nome)}</strong>
+                        <div style="display: flex; gap: 6px;">
+                            <span style="width: 14px; height: 14px; border-radius: 50%; background: ${accentColor}; border: 1px solid rgba(255, 255, 255, 0.2);"></span>
+                            <span style="width: 14px; height: 14px; border-radius: 50%; background: ${secondaryColor}; border: 1px solid rgba(255, 255, 255, 0.2);"></span>
+                        </div>
+                    </div>
+                    <small style="color: var(--muted); font-size: 0.8rem;">Created on: ${escapeAttr(preset.created_at)}</small>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem;">
+                        <button type="button" class="bio-button load-preset-btn" data-id="${preset.id}" style="padding: 0.4rem; font-size: 0.85rem;"><i class="fas fa-upload"></i> Load</button>
+                        <button type="button" class="bio-button duplicate-preset-btn" data-id="${preset.id}" style="padding: 0.4rem; font-size: 0.85rem; background: rgba(255,255,255,0.05); color: #fff;"><i class="fas fa-copy"></i> Duplicate</button>
+                        <button type="button" class="bio-button rename-preset-btn" data-id="${preset.id}" data-name="${escapeAttr(preset.nome)}" style="padding: 0.4rem; font-size: 0.85rem; background: rgba(255,255,255,0.05); color: #fff;"><i class="fas fa-edit"></i> Rename</button>
+                        <button type="button" class="bio-button delete-preset-btn" data-id="${preset.id}" style="padding: 0.4rem; font-size: 0.85rem; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25);"><i class="fas fa-trash"></i> Delete</button>
+                    </div>`;
+                grid.appendChild(card);
+            });
+            presetsListContainer.innerHTML = '';
+            presetsListContainer.appendChild(grid);
+
+            // Bind actions
+            presetsListContainer.querySelectorAll('.load-preset-btn').forEach(btn => {
+                btn.addEventListener('click', () => handleLoadPreset(btn.dataset.id));
+            });
+            presetsListContainer.querySelectorAll('.duplicate-preset-btn').forEach(btn => {
+                btn.addEventListener('click', () => handleDuplicatePreset(btn.dataset.id));
+            });
+            presetsListContainer.querySelectorAll('.rename-preset-btn').forEach(btn => {
+                btn.addEventListener('click', () => handleRenamePreset(btn.dataset.id, btn.dataset.name));
+            });
+            presetsListContainer.querySelectorAll('.delete-preset-btn').forEach(btn => {
+                btn.addEventListener('click', () => handleDeletePreset(btn.dataset.id));
+            });
+
+        } catch (error) {
+            presetsListContainer.innerHTML = `<div class="bio-card is-error" style="padding: 1rem;"><i class="fas fa-triangle-exclamation"></i><span>${escapeAttr(error.message)}</span></div>`;
+        }
+    }
+
+    if (saveNewPresetBtn) {
+        saveNewPresetBtn.addEventListener('click', async () => {
+            const name = prompt('Enter a name for this preset:');
+            if (name === null) return;
+            const trimmedName = name.trim();
+            if (trimmedName === '') {
+                window.profileToast('Preset name cannot be empty.');
+                return;
+            }
+
+            const form = document.getElementById('profileEditForm');
+            document.getElementById('socialsJson').value = JSON.stringify(collectRows('socials'));
+            document.getElementById('linksJson').value = JSON.stringify(collectRows('links'));
+            document.getElementById('embedsJson').value = JSON.stringify(collectRows('embeds'));
+            document.getElementById('projectsJson').value = JSON.stringify(collectRows('projects'));
+            document.getElementById('contentsJson').value = JSON.stringify(collectRows('contents'));
+            document.getElementById('blocksJson').value = JSON.stringify(collectRows('blocks'));
+            document.getElementById('badgesJson').value = JSON.stringify(collectBadges());
+            document.getElementById('profileTagsJson').value = JSON.stringify(collectRows('tags'));
+
+            const formData = new FormData(form);
+            formData.append('preset_name', trimmedName);
+
+            try {
+                const res = await fetch('../api/manage_presets.php?action=save', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (!res.ok || !data.ok) throw new Error(data.message || 'Error saving preset.');
+                window.profileToast(data.message || 'Preset saved successfully!');
+                loadPresets();
+            } catch(err) {
+                window.profileToast(err.message || 'Error saving preset.');
+            }
+        });
+    }
+
+    async function handleLoadPreset(id) {
+        if (!confirm('Are you sure you want to load this preset? Current unsaved configuration will be lost.')) return;
+        try {
+            const formData = new FormData();
+            formData.append('preset_id', id);
+            const res = await fetch('../api/manage_presets.php?action=load', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (!res.ok || !data.ok) throw new Error(data.message || 'Error loading preset.');
+            window.profileToast(data.message || 'Preset loaded! Reloading page...');
+            setTimeout(() => window.location.reload(), 1000);
+        } catch(err) {
+            window.profileToast(err.message || 'Error loading preset.');
+        }
+    }
+
+    async function handleDuplicatePreset(id) {
+        try {
+            const formData = new FormData();
+            formData.append('preset_id', id);
+            const res = await fetch('../api/manage_presets.php?action=duplicate', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (!res.ok || !data.ok) throw new Error(data.message || 'Error duplicating preset.');
+            window.profileToast(data.message || 'Preset duplicated!');
+            loadPresets();
+        } catch(err) {
+            window.profileToast(err.message || 'Error duplicating preset.');
+        }
+    }
+
+    async function handleRenamePreset(id, currentName) {
+        const newName = prompt('Enter the new name for the preset:', currentName);
+        if (newName === null) return;
+        const trimmed = newName.trim();
+        if (trimmed === '') {
+            window.profileToast('Preset name cannot be empty.');
+            return;
+        }
+        try {
+            const formData = new FormData();
+            formData.append('preset_id', id);
+            formData.append('preset_name', trimmed);
+            const res = await fetch('../api/manage_presets.php?action=rename', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (!res.ok || !data.ok) throw new Error(data.message || 'Error renaming preset.');
+            window.profileToast(data.message || 'Preset renamed!');
+            loadPresets();
+        } catch(err) {
+            window.profileToast(err.message || 'Error renaming preset.');
+        }
+    }
+
+    async function handleDeletePreset(id) {
+        if (!confirm('Are you sure you want to delete this preset? This action cannot be undone.')) return;
+        try {
+            const formData = new FormData();
+            formData.append('preset_id', id);
+            const res = await fetch('../api/manage_presets.php?action=delete', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (!res.ok || !data.ok) throw new Error(data.message || 'Error deleting preset.');
+            window.profileToast(data.message || 'Preset deleted!');
+            loadPresets();
+        } catch(err) {
+            window.profileToast(err.message || 'Error deleting preset.');
+        }
+    }
+
+    loadPresets();
     
     // ── Hook submit to serialize ordered character selections ──────
     (function patchSubmitForCharacters() {
