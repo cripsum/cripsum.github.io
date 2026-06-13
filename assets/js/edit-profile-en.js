@@ -247,6 +247,14 @@
                 const key = input.dataset.field;
                 obj[key] = input.type === 'checkbox' ? input.checked : input.value.trim();
             });
+            if (type === 'tags') {
+                if (!obj.use_color) {
+                    obj.color = '';
+                    obj.gradient = '';
+                } else if (!obj.use_gradient) {
+                    obj.gradient = '';
+                }
+            }
             return obj;
         }).filter((obj) => Object.values(obj).some((value) => value !== '' && value !== false));
     }
@@ -428,7 +436,12 @@
                 } else {
                     if (tiltCustomControls) tiltCustomControls.style.display = 'none';
                     // Apply presets
-                    if (val === 'soft') {
+                    if (val === 'super_soft') {
+                        tiltMaxInput.value = 5;
+                        tiltGlareInput.value = 0.08;
+                        tiltZoomInput.value = 1.01;
+                        tiltSpeedInput.value = 1000;
+                    } else if (val === 'soft') {
                         tiltMaxInput.value = 10;
                         tiltGlareInput.value = 0.15;
                         tiltZoomInput.value = 1.02;

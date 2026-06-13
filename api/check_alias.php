@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/profile_helpers.php';
 
 checkBan($mysqli);
 

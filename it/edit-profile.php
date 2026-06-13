@@ -89,12 +89,12 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Modifica profilo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=4.5.1">
+    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=4.5.2">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Inter:wght@300..900&family=Roboto:wght@300..900&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Fira+Code:wght@300..700&family=PT+Mono&family=Cinzel:wght@400..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Bebas+Neue&family=Press+Start+2P&family=Bungee&family=Permanent+Marker&family=Creepster&family=Shojumaru&display=swap" rel="stylesheet">
-    <script src="/assets/js/profile.js?v=4.5.1" defer></script>
-    <script src="/assets/js/edit-profile.js?v=4.5.1" defer></script>
+    <script src="/assets/js/profile.js?v=4.5.2" defer></script>
+    <script src="/assets/js/edit-profile.js?v=4.5.2" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-effect="<?php echo profile_h($profile['profile_effect'] ?? 'none'); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" data-avatar-shape="<?php echo profile_h($avatarShape); ?>" data-avatar-border="<?php echo $avatarBorder; ?>" style="--profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
@@ -644,7 +644,9 @@ function profile_json_script(string $id, array $data): void
                     if ($dbTiltEnabled === 0) {
                         $selectedPreset = 'off';
                     } else {
-                        if ($dbTiltMax === 10 && abs($dbTiltGlare - 0.15) < 0.01 && abs($dbTiltZoom - 1.02) < 0.01 && $dbTiltSpeed === 800) {
+                        if ($dbTiltMax === 5 && abs($dbTiltGlare - 0.08) < 0.01 && abs($dbTiltZoom - 1.01) < 0.01 && $dbTiltSpeed === 1000) {
+                            $selectedPreset = 'super_soft';
+                        } else if ($dbTiltMax === 10 && abs($dbTiltGlare - 0.15) < 0.01 && abs($dbTiltZoom - 1.02) < 0.01 && $dbTiltSpeed === 800) {
                             $selectedPreset = 'soft';
                         } else if ($dbTiltMax === 15 && abs($dbTiltGlare - 0.25) < 0.01 && abs($dbTiltZoom - 1.05) < 0.01 && $dbTiltSpeed === 600) {
                             $selectedPreset = 'medium';
@@ -666,6 +668,7 @@ function profile_json_script(string $id, array $data): void
                         <label class="profile-field"><span>Livello Tilt</span>
                             <select name="tilt_preset" id="tiltPresetInput">
                                 <option value="off" <?php echo $selectedPreset === 'off' ? 'selected' : ''; ?>>Off (Disattivato)</option>
+                                <option value="super_soft" <?php echo $selectedPreset === 'super_soft' ? 'selected' : ''; ?>>Super Soft</option>
                                 <option value="soft" <?php echo $selectedPreset === 'soft' ? 'selected' : ''; ?>>Soft</option>
                                 <option value="medium" <?php echo $selectedPreset === 'medium' ? 'selected' : ''; ?>>Medium</option>
                                 <option value="strong" <?php echo $selectedPreset === 'strong' ? 'selected' : ''; ?>>Strong</option>

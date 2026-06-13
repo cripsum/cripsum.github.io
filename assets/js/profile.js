@@ -185,7 +185,7 @@
                     
                     glareInner = document.createElement('div');
                     glareInner.className = 'js-tilt-glare-inner';
-                    glareInner.style.cssText = `position: absolute; top: 50%; left: 50%; width: 200%; height: 200%; background: linear-gradient(135deg, rgba(255,255,255,${glare}) 0%, rgba(255,255,255,0) 100%); transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: opacity ${speed}ms cubic-bezier(.03,.98,.52,.99), transform ${speed}ms cubic-bezier(.03,.98,.52,.99);`;
+                    glareInner.style.cssText = `position: absolute; top: 50%; left: 50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,${glare}) 0%, rgba(255,255,255,0) 60%); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: opacity ${speed}ms cubic-bezier(.03,.98,.52,.99), transform ${speed}ms cubic-bezier(.03,.98,.52,.99);`;
                     
                     glareContainer.appendChild(glareInner);
                     card.appendChild(glareContainer);

@@ -366,8 +366,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.5.1">
-    <script src="/assets/js/profile.js?v=4.5.1" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.5.2">
+    <script src="/assets/js/profile.js?v=4.5.2" defer></script>
     <?php
     $googleFonts = [
         'Poppins' => 'Poppins',
