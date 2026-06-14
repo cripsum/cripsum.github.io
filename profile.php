@@ -466,8 +466,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.7.6">
-    <script src="/assets/js/profile.js?v=4.7.6" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.7.7">
+    <script src="/assets/js/profile.js?v=4.7.7" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -599,13 +599,16 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <?php elseif ($isLoginBlocked): ?>
         <?php profile_state_page('Login', 'Login Required', 'This profile is only visible to registered users.', 'Log In', '/en/login'); ?>
     <?php else: ?>
+        <?php
+        $tiltAttrs = 'data-tilt-enabled="' . (int)($profile['tilt_enabled'] ?? 1) . '" ' .
+                     'data-tilt-max="' . (int)($profile['tilt_max'] ?? 15) . '" ' .
+                     'data-tilt-glare="' . (float)($profile['tilt_glare'] ?? 0.0) . '" ' .
+                     'data-tilt-zoom="' . (float)($profile['tilt_zoom'] ?? 1.05) . '" ' .
+                     'data-tilt-speed="' . (int)($profile['tilt_speed'] ?? 400) . '"';
+        ?>
         <main class="bio-page profile-smart-page <?php echo (!$hasRightContent || $layout === 'clean') ? 'profile-smart-page--single' : ''; ?> layout-<?php echo profile_h($layout); ?>" id="bioPage">
-            <section class="bio-hero bio-card profile-smart-hero js-tilt-card js-reveal" aria-label="Public Profile"
-                data-tilt-enabled="<?php echo (int)($profile['tilt_enabled'] ?? 1); ?>"
-                data-tilt-max="<?php echo (int)($profile['tilt_max'] ?? 15); ?>"
-                data-tilt-glare="<?php echo (float)($profile['tilt_glare'] ?? 0.0); ?>"
-                data-tilt-zoom="<?php echo (float)($profile['tilt_zoom'] ?? 1.05); ?>"
-                data-tilt-speed="<?php echo (int)($profile['tilt_speed'] ?? 400); ?>">
+            <div class="profile-smart-hero-wrapper">
+                <section class="bio-hero bio-card profile-smart-hero js-tilt-card js-reveal" aria-label="Public Profile" <?php echo $tiltAttrs; ?>>
                 <div class="profile-hero-actions-top">
                     <?php if ($showStats): ?>
                         <?php if ($isOnline): ?>
@@ -949,11 +952,12 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     <?php if ($showDiscord && $discordId): ?><span><i class="fab fa-discord"></i>Discord</span><?php endif; ?>
                 </div>
             </section>
+            </div>
 
             <?php if ($hasRightContent): ?>
                 <section class="bio-content profile-smart-content" aria-label="Contenuti profilo">
                     <?php if ($spotlight): ?>
-                        <section class="bio-card bio-featured profile-spotlight js-reveal">
+                        <section class="bio-card bio-featured profile-spotlight js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
                             <a class="profile-spotlight-link" href="<?php echo profile_h($spotlight['url'] ?: '#'); ?>" <?php echo $spotlight['url'] ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
                                 <span class="profile-spotlight-icon"><i class="<?php echo profile_h($spotlight['icon']); ?>"></i></span>
                                 <span class="profile-spotlight-content">
@@ -973,7 +977,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     // 1. Links
                     ob_start();
                     if ($featuredLinks || $normalLinks): ?>
-                        <section class="bio-card bio-featured js-reveal">
+                        <section class="bio-card bio-featured js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
                             <?php profile_render_section_heading('fas fa-link', 'Link'); ?>
                             <div class="bio-featured-grid profile-link-grid profile-link-count-<?php echo count(array_merge($featuredLinks, $normalLinks)); ?>">
                                 <?php foreach (array_merge($featuredLinks, $normalLinks) as $item): ?>
@@ -1003,7 +1007,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     // 2. Embeds
                     ob_start();
                     if ($embeds): ?>
-                        <section class="bio-card profile-embeds-section js-reveal">
+                        <section class="bio-card profile-embeds-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
                             <?php profile_render_section_heading('fas fa-share-square', 'Embed'); ?>
                             <div class="profile-embeds-grid">
                                 <?php foreach ($embeds as $embed): ?>
@@ -1040,7 +1044,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     // 4. Projects
                     ob_start();
                     if ($visibleProjects): ?>
-                        <section class="bio-card bio-details profile-clean-section js-reveal">
+                        <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
                             <?php profile_render_section_heading('fas fa-cubes', 'Projects'); ?>
                             <div class="bio-project-grid">
                                 <?php foreach ($visibleProjects as $project): ?>
@@ -1070,7 +1074,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     // 5. Blocks
                     ob_start();
                     if ($visibleBlocks): ?>
-                        <section class="bio-card bio-details profile-clean-section js-reveal">
+                        <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
                             <div class="profile-block-grid">
                                 <?php foreach ($visibleBlocks as $block): ?>
                                     <?php
@@ -1099,7 +1103,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     // 6. Contents
                     ob_start();
                     if ($visibleContents): ?>
-                        <section class="bio-card bio-details profile-clean-section js-reveal">
+                        <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
                             <?php profile_render_section_heading('fas fa-play-circle', 'Content'); ?>
                             <div class="bio-preview-grid">
                                 <?php foreach ($visibleContents as $content): ?>
@@ -1129,7 +1133,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     // 7. Characters
                     ob_start();
                     if ($visibleCharacters): ?>
-                        <section class="bio-card profile-characters-section profile-clean-section js-reveal">
+                        <section class="bio-card profile-characters-section profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
                             <?php profile_render_section_heading('fas fa-user-astronaut', 'Characters'); ?>
                             <div class="profile-character-grid">
                                 <?php foreach ($visibleCharacters as $char): ?>
@@ -1173,7 +1177,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     // 8. Badges
                     ob_start();
                     if ($visibleBadges && $showBadgesSection): ?>
-                        <section class="bio-card bio-details profile-clean-section js-reveal">
+                        <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
                             <?php profile_render_section_heading('fas fa-trophy', 'Badge'); ?>
                             <div class="profile-badge-grid">
                                 <?php foreach ($visibleBadges as $badge): ?>
@@ -1257,7 +1261,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     // 9. Activity
                     ob_start();
                     if ($visibleActivity): ?>
-                        <section class="bio-card bio-about js-reveal">
+                        <section class="bio-card bio-about js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
                             <?php profile_render_section_heading('fas fa-clock', 'Activity'); ?>
                             <div class="profile-activity-strip">
                                 <?php foreach (array_slice($visibleActivity, 0, 5) as $item): ?>
@@ -1334,14 +1338,19 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                             }
                         }
                     }
-                    const card = document.querySelector('.js-tilt-card');
-                    if (card) {
+                    const cards = document.querySelectorAll('.js-tilt-card');
+                    cards.forEach(card => {
                         for (const [key, value] of Object.entries(data.attributes)) {
                             if (key.startsWith('data-tilt-')) {
                                 card.setAttribute(key, value);
                             }
                         }
-                    }
+                        if (card.getAttribute('data-tilt-enabled') === '0') {
+                            card.style.transform = 'none';
+                            const glare = card.querySelector('.js-tilt-glare');
+                            if (glare) glare.style.display = 'none';
+                        }
+                    });
                 } else if (data.type === 'update-text') {
                     for (const [selector, text] of Object.entries(data.texts)) {
                         const el = document.querySelector(selector);

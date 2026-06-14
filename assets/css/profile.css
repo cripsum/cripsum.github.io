@@ -2040,10 +2040,21 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
     justify-content: center;
 }
 
-.profile-smart-hero {
-    padding: 1.15rem;
+.profile-smart-hero-wrapper {
     position: sticky;
     top: 6.2rem;
+    align-self: start;
+    z-index: 10;
+    transform-style: preserve-3d;
+}
+
+.profile-smart-hero {
+    padding: 1.15rem;
+}
+
+.js-tilt-card {
+    will-change: transform;
+    transform-style: preserve-3d;
 }
 
 .profile-hero-actions-top {
@@ -3067,7 +3078,8 @@ body[data-theme="light"].bio-v2-body .dropdown-menu button:hover {
     padding-bottom: 2.2rem !important;
 }
 
-.public-profile-body .profile-smart-page--single .profile-smart-hero {
+.public-profile-body .profile-smart-page--single .profile-smart-hero,
+.public-profile-body .profile-smart-page--single .profile-smart-hero-wrapper {
     position: relative !important;
     top: auto !important;
 }
@@ -3224,9 +3236,11 @@ body[data-theme="light"].bio-v2-body .dropdown-menu button {
 }
 
 @media (max-width: 1080px) {
-    .profile-smart-hero {
+    .profile-smart-hero-wrapper {
         position: relative;
         top: auto;
+    }
+    .profile-smart-hero {
         max-height: none;
         overflow: visible;
     }
@@ -7683,12 +7697,12 @@ body.public-profile-body .profile-smart-hero {
 }
 
 /* Sticky top only on desktop double-column layouts */
-body.public-profile-body .profile-smart-page:not(.profile-smart-page--single) .profile-smart-hero {
+body.public-profile-body .profile-smart-page:not(.profile-smart-page--single) .profile-smart-hero-wrapper {
     top: 3rem !important;
 }
 
 /* Specificity override for when the hero is too tall for the viewport (handled dynamically by JS) */
-body.public-profile-body .profile-smart-page:not(.profile-smart-page--single) .profile-smart-hero.hero-no-sticky {
+body.public-profile-body .profile-smart-page:not(.profile-smart-page--single) .profile-smart-hero-wrapper.hero-no-sticky {
     position: relative !important;
     top: auto !important;
 }
@@ -7699,8 +7713,8 @@ body.public-profile-body .profile-smart-page:not(.profile-smart-page--single) .p
         padding-bottom: 2rem !important;
     }
 
-    body.public-profile-body .profile-smart-page:not(.profile-smart-page--single) .profile-smart-hero,
-    body.public-profile-body .profile-smart-page .profile-smart-hero {
+    body.public-profile-body .profile-smart-page:not(.profile-smart-page--single) .profile-smart-hero-wrapper,
+    body.public-profile-body .profile-smart-page .profile-smart-hero-wrapper {
         position: relative !important;
         top: auto !important;
     }

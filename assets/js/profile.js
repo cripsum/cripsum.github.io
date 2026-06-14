@@ -8,7 +8,8 @@
 
     const updateStickyBehavior = () => {
         const hero = document.querySelector('.public-profile-body .profile-smart-hero');
-        if (!hero) return;
+        const wrapper = document.querySelector('.public-profile-body .profile-smart-hero-wrapper');
+        if (!hero || !wrapper) return;
 
         if (window.innerWidth > 1080) {
             const viewportHeight = window.innerHeight;
@@ -16,12 +17,12 @@
             const offset = 72; // offset top + safety margin
 
             if (heroHeight > (viewportHeight - offset)) {
-                hero.classList.add('hero-no-sticky');
+                wrapper.classList.add('hero-no-sticky');
             } else {
-                hero.classList.remove('hero-no-sticky');
+                wrapper.classList.remove('hero-no-sticky');
             }
         } else {
-            hero.classList.remove('hero-no-sticky');
+            wrapper.classList.remove('hero-no-sticky');
         }
     };
 
