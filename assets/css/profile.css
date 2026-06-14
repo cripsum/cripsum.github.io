@@ -2045,7 +2045,6 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
     top: 6.2rem;
     align-self: start;
     z-index: 10;
-    transform-style: preserve-3d;
 }
 
 .profile-smart-hero {
