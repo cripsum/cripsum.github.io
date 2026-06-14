@@ -33,7 +33,7 @@
     z-index: -3 !important;
 }
 
-.profile-edit-layout {
+.builder-shell-layout {
     width: 100vw !important;
     max-width: 100vw !important;
     height: calc(100vh - 72px) !important;
@@ -44,7 +44,7 @@
     background: transparent !important;
 }
 
-#profileEditForm.profile-edit-grid {
+#profileEditForm.builder-grid-container {
     display: flex !important;
     flex-direction: row !important;
     width: 100vw !important;
