@@ -168,7 +168,7 @@ function profile_json_script(string $id, array $data): void
                             <button type="submit" name="salva" class="editor-btn editor-btn-primary" id="saveBtn"><i class="fas fa-save"></i> Salva</button>
                         </div>
                     </div>
-                    
+
                     <div class="editor-controls-row">
                         <div class="editor-search-wrapper">
                             <i class="fas fa-search editor-search-icon"></i>
@@ -613,7 +613,7 @@ function profile_json_script(string $id, array $data): void
                             <label class="profile-field">
                                 <span>Link d'invito del server Discord</span>
                                 <input type="text" name="discord_server_invite" id="discordServerInviteInput" value="<?php echo profile_h($profile['discord_server_invite'] ?? ''); ?>" placeholder="https://discord.gg/invito o codice d'invito">
-                                    <small>Inserisci il link d'invito (es. <code>https://discord.gg/tuoserver</code>) per mostrare il widget del server.</small>
+                                <small>Inserisci il link d'invito (es. <code>https://discord.gg/tuoserver</code>) per mostrare il widget del server.</small>
                             </label>
                         </div>
                     </div>
@@ -838,7 +838,7 @@ function profile_json_script(string $id, array $data): void
                                         <option value="rainbow" <?php echo ($nameStyle['animation'] ?? 'none') === 'rainbow' ? 'selected' : ''; ?>>Slide arcobaleno</option>
                                         <option value="glow" <?php echo ($nameStyle['animation'] ?? 'none') === 'glow' ? 'selected' : ''; ?>>Bagliore pulsante</option>
                                         <option value="sparkles" <?php echo ($nameStyle['animation'] ?? 'none') === 'sparkles' ? 'selected' : ''; ?>>Sparkles magici</option>
-                                        <option value="fire" <?php echo ($nameStyle['animation'] ?? 'none') === 'fire' ? 'selected' : ''; ?>>Fuoco animato</option>
+                                        <option value="fire" <?php echo ($nameStyle['animation'] ?? 'none') === 'fire' ? 'selected' : ''; ?>>Fuoco e Fiamme 71</option>
                                         <option value="water" <?php echo ($nameStyle['animation'] ?? 'none') === 'water' ? 'selected' : ''; ?>>Acqua fluida</option>
                                         <option value="glitch" <?php echo ($nameStyle['animation'] ?? 'none') === 'glitch' ? 'selected' : ''; ?>>Glitch cibernetico</option>
                                         <option value="neon" <?php echo ($nameStyle['animation'] ?? 'none') === 'neon' ? 'selected' : ''; ?>>Neon tremolante</option>
@@ -1222,7 +1222,8 @@ function profile_json_script(string $id, array $data): void
     profile_json_script('initialCharactersData', $displayedCharIds);
     ?>
 
-    <?php // if (file_exists(__DIR__ . '/../includes/footer.php')) include __DIR__ . '/../includes/footer.php'; ?>
+    <?php // if (file_exists(__DIR__ . '/../includes/footer.php')) include __DIR__ . '/../includes/footer.php'; 
+    ?>
     <div class="editor-loading-overlay" id="editorLoadingOverlay">
         <div class="editor-loading-spinner"></div>
         <div class="editor-loading-text" id="editorLoadingText">Salvataggio in corso...</div>
