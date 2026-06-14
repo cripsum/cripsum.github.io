@@ -9,6 +9,13 @@ require_once __DIR__ . '/includes/mission_tracker.php';
 checkBan($mysqli);
 
 $isLoggedIn = isLoggedIn();
+
+if (!isLoggedIn()) {
+    $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
+    $_SESSION['login_message'] = 'Devi essere loggato per creare un profilo.';
+    header('Location: accedi');
+    exit();
+}
 $currentUserId = profile_current_user_id();
 $customAlias = $_GET['custom_alias'] ?? null;
 
@@ -69,25 +76,37 @@ if ($profile) {
         // ── /MISSION TRACKING ────────────────────────────────────────────
         if (isset($_GET['preview_mode']) && isset($_SESSION['profile_draft'][$profileId])) {
             $draft = $_SESSION['profile_draft'][$profileId];
-            
+
             // Override profile values
             foreach ($draft as $key => $val) {
                 if (!in_array($key, ['socials_json', 'links_json', 'projects_json', 'contents_json', 'blocks_json', 'badges_json', 'characters_json', 'embeds_json', 'profile_tags_json'])) {
                     $profile[$key] = $val;
                 }
             }
-            
+
             // Re-map booleans
             $booleans = [
-                'tilt_enabled', 'avatar_ring_enabled', 'profile_avatar_border', 'profile_show_stats', 
-                'profile_show_socials', 'profile_show_links', 'profile_show_projects', 'profile_show_contents', 
-                'profile_show_blocks', 'profile_show_badges', 'profile_show_activity', 'profile_show_discord', 'profile_show_audio_player', 
-                'profile_click_to_enter', 'profile_show_embeds', 'profile_show_characters'
+                'tilt_enabled',
+                'avatar_ring_enabled',
+                'profile_avatar_border',
+                'profile_show_stats',
+                'profile_show_socials',
+                'profile_show_links',
+                'profile_show_projects',
+                'profile_show_contents',
+                'profile_show_blocks',
+                'profile_show_badges',
+                'profile_show_activity',
+                'profile_show_discord',
+                'profile_show_audio_player',
+                'profile_click_to_enter',
+                'profile_show_embeds',
+                'profile_show_characters'
             ];
             foreach ($booleans as $boolCol) {
                 $profile[$boolCol] = isset($draft[$boolCol]) ? (int)$draft[$boolCol] : 0;
             }
-            
+
             // Re-map list JSON variables
             $socials = isset($draft['socials_json']) ? json_decode($draft['socials_json'], true) : [];
             $links = isset($draft['links_json']) ? json_decode($draft['links_json'], true) : [];
@@ -98,7 +117,7 @@ if ($profile) {
             if (isset($draft['profile_tags_json'])) {
                 $profile['profile_tags_json'] = $draft['profile_tags_json'];
             }
-            
+
             // Resolve badges
             $badges = [];
             if (isset($draft['badges_json'])) {
@@ -122,7 +141,7 @@ if ($profile) {
                     }
                 }
             }
-            
+
             // Resolve characters
             $characters = [];
             if (isset($draft['characters_json'])) {
@@ -142,7 +161,7 @@ if ($profile) {
                     }
                 }
             }
-            
+
             $activity = profile_recent_activity($mysqli, $profileId);
         } else {
             $socials = profile_list_socials($mysqli, $profileId, true);
@@ -450,14 +469,15 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <link rel="stylesheet" href="/assets/css/profile.css?v=4.7.4">
     <script src="/assets/js/profile.js?v=4.7.4" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
-    <style>
-        .profile-smart-page {
-            padding-top: 1.5rem !important;
-        }
-        body {
-            overflow-y: auto !important;
-        }
-    </style>
+        <style>
+            .profile-smart-page {
+                padding-top: 1.5rem !important;
+            }
+
+            body {
+                overflow-y: auto !important;
+            }
+        </style>
     <?php endif; ?>
     <?php
     $googleFonts = [
@@ -721,7 +741,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                 $tagIcon = $tag['icon'] ?? '';
                                 $tagColor = $tag['color'] ?? '';
                                 $tagGradient = $tag['gradient'] ?? '';
-                                
+
                                 $tagStyle = '';
                                 if (!empty($tagColor)) {
                                     if (!empty($tagGradient)) {
@@ -836,7 +856,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     </div>
                 <?php endif; ?>
 
-                <?php 
+                <?php
                 $isPreview = isset($_GET['preview_mode']);
                 $hasClickToEnter = $profile && profile_flag($profile, 'profile_click_to_enter', false);
                 ?>
@@ -871,25 +891,25 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         data-autoplay="1"
                         src="<?php echo profile_h($musicUrl); ?>"></audio>
                     <?php if ($isPreview): ?>
-                    <div class="bio-audio profile-audio-player" data-audio-player style="display: none;">
-                        <div class="bio-audio__header">
-                            <div>
-                                <small>Audio</small>
-                                <strong><i class="fas fa-music"></i><?php echo profile_h($musicTitle ?: 'Profile Song'); ?></strong>
-                                <span class="profile-artist-span" style="<?php echo $musicArtist ? '' : 'display: none;'; ?>"><?php echo profile_h($musicArtist); ?></span>
+                        <div class="bio-audio profile-audio-player" data-audio-player style="display: none;">
+                            <div class="bio-audio__header">
+                                <div>
+                                    <small>Audio</small>
+                                    <strong><i class="fas fa-music"></i><?php echo profile_h($musicTitle ?: 'Profile Song'); ?></strong>
+                                    <span class="profile-artist-span" style="<?php echo $musicArtist ? '' : 'display: none;'; ?>"><?php echo profile_h($musicArtist); ?></span>
+                                </div>
+                                <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i class="fas fa-play"></i></button>
                             </div>
-                            <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i class="fas fa-play"></i></button>
+                            <div class="bio-audio__progress">
+                                <span>0:00</span>
+                                <input type="range" min="0" max="100" step="0.1" value="0" aria-label="Audio progress">
+                                <span>0:00</span>
+                            </div>
+                            <div class="bio-audio__bottom">
+                                <button class="bio-small-button js-profile-volume-toggle" type="button" aria-label="Mute"><i class="fas fa-volume-down"></i></button>
+                                <input type="range" min="0" max="1" step="0.01" value="0.18" aria-label="Volume">
+                            </div>
                         </div>
-                        <div class="bio-audio__progress">
-                            <span>0:00</span>
-                            <input type="range" min="0" max="100" step="0.1" value="0" aria-label="Audio progress">
-                            <span>0:00</span>
-                        </div>
-                        <div class="bio-audio__bottom">
-                            <button class="bio-small-button js-profile-volume-toggle" type="button" aria-label="Mute"><i class="fas fa-volume-down"></i></button>
-                            <input type="range" min="0" max="1" step="0.01" value="0.18" aria-label="Volume">
-                        </div>
-                    </div>
                     <?php endif; ?>
                 <?php elseif ($isPreview): ?>
                     <audio id="profileAudio" preload="metadata"></audio>
@@ -1288,121 +1308,121 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <div class="bio-toast" id="bioToast" role="status" aria-live="polite"></div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <?php if (isset($_GET['preview_mode'])): ?>
-    <script>
-    window.addEventListener('message', function(event) {
-        if (!event.data) return;
-        const data = event.data;
-        if (data.type === 'update-css-variables') {
-            const body = document.querySelector('.bio-v2-body');
-            if (body) {
-                for (const [key, value] of Object.entries(data.variables)) {
-                    body.style.setProperty(key, value, 'important');
-                }
-            }
-        } else if (data.type === 'update-attributes') {
-            const body = document.querySelector('.bio-v2-body');
-            if (body) {
-                for (const [key, value] of Object.entries(data.attributes)) {
-                    if (key.startsWith('data-')) {
-                        body.setAttribute(key, value);
-                    } else if (key === 'style') {
-                        for (const [styleKey, styleVal] of Object.entries(value)) {
-                            body.style.setProperty(styleKey, styleVal);
+        <script>
+            window.addEventListener('message', function(event) {
+                if (!event.data) return;
+                const data = event.data;
+                if (data.type === 'update-css-variables') {
+                    const body = document.querySelector('.bio-v2-body');
+                    if (body) {
+                        for (const [key, value] of Object.entries(data.variables)) {
+                            body.style.setProperty(key, value, 'important');
                         }
                     }
-                }
-            }
-        } else if (data.type === 'update-text') {
-            for (const [selector, text] of Object.entries(data.texts)) {
-                const el = document.querySelector(selector);
-                if (el) {
-                    if (selector === '.profile-display-name') {
-                        el.setAttribute('data-text', text);
-                        el.textContent = text;
-                    } else if (selector === '.bio-tagline') {
-                        el.innerHTML = text.replace(/\n/g, '<br>');
-                    } else if (selector.includes('profile-audio-player strong')) {
-                        el.innerHTML = `<i class="fas fa-music"></i>` + text;
-                    } else {
-                        el.textContent = text;
+                } else if (data.type === 'update-attributes') {
+                    const body = document.querySelector('.bio-v2-body');
+                    if (body) {
+                        for (const [key, value] of Object.entries(data.attributes)) {
+                            if (key.startsWith('data-')) {
+                                body.setAttribute(key, value);
+                            } else if (key === 'style') {
+                                for (const [styleKey, styleVal] of Object.entries(value)) {
+                                    body.style.setProperty(styleKey, styleVal);
+                                }
+                            }
+                        }
                     }
-                } else if (selector === '.bio-tagline' && text.trim() !== '') {
-                    // Bio was empty, render it dynamically
-                    const nameBlock = document.querySelector('.bio-name-block');
-                    if (nameBlock) {
-                        const newBio = document.createElement('p');
-                        newBio.className = 'bio-tagline';
-                        newBio.innerHTML = text.replace(/\n/g, '<br>');
-                        nameBlock.appendChild(newBio);
+                } else if (data.type === 'update-text') {
+                    for (const [selector, text] of Object.entries(data.texts)) {
+                        const el = document.querySelector(selector);
+                        if (el) {
+                            if (selector === '.profile-display-name') {
+                                el.setAttribute('data-text', text);
+                                el.textContent = text;
+                            } else if (selector === '.bio-tagline') {
+                                el.innerHTML = text.replace(/\n/g, '<br>');
+                            } else if (selector.includes('profile-audio-player strong')) {
+                                el.innerHTML = `<i class="fas fa-music"></i>` + text;
+                            } else {
+                                el.textContent = text;
+                            }
+                        } else if (selector === '.bio-tagline' && text.trim() !== '') {
+                            // Bio was empty, render it dynamically
+                            const nameBlock = document.querySelector('.bio-name-block');
+                            if (nameBlock) {
+                                const newBio = document.createElement('p');
+                                newBio.className = 'bio-tagline';
+                                newBio.innerHTML = text.replace(/\n/g, '<br>');
+                                nameBlock.appendChild(newBio);
+                            }
+                        }
                     }
+                } else if (data.type === 'update-avatar-src') {
+                    const avatar = document.querySelector('.bio-avatar');
+                    if (avatar) {
+                        avatar.src = data.src;
+                    }
+                } else if (data.type === 'update-background-media') {
+                    const background = document.querySelector('.bio-background');
+                    if (background) {
+                        background.querySelectorAll('.bio-background__media, video').forEach((node) => node.remove());
+                        let media;
+                        if (data.fileType.startsWith('video/')) {
+                            media = document.createElement('video');
+                            media.className = 'bio-background__media';
+                            media.autoplay = true;
+                            media.muted = true;
+                            media.loop = true;
+                            media.playsInline = true;
+                            const source = document.createElement('source');
+                            source.src = data.url;
+                            source.type = data.fileType;
+                            media.appendChild(source);
+                        } else if (data.fileType.startsWith('image/')) {
+                            media = document.createElement('img');
+                            media.className = 'bio-background__media';
+                            media.src = data.url;
+                            media.alt = '';
+                        }
+                        if (media) {
+                            background.prepend(media);
+                        }
+                    }
+                } else if (data.type === 'update-music-player') {
+                    const player = document.querySelector('[data-audio-player]');
+                    const audio = document.getElementById('profileAudio');
+                    if (player) {
+                        if (data.hasMusic && data.showPlayer) {
+                            player.style.removeProperty('display');
+                        } else {
+                            player.style.display = 'none';
+                        }
+                    }
+                    if (audio && data.src) {
+                        const newSrc = data.src || '';
+                        if (audio.getAttribute('src') !== newSrc) {
+                            audio.src = newSrc;
+                            audio.load();
+                        }
+                    }
+                    const titleEl = document.querySelector('.profile-audio-player strong');
+                    if (titleEl) {
+                        titleEl.innerHTML = `<i class="fas fa-music"></i>` + (data.title || 'Profile Song');
+                    }
+                    const artistEl = document.querySelector('.profile-artist-span');
+                    if (artistEl) {
+                        if (data.artist) {
+                            artistEl.textContent = data.artist;
+                            artistEl.style.removeProperty('display');
+                        } else {
+                            artistEl.style.display = 'none';
+                        }
+                    }
+                } else if (data.type === 'reload') {
+                    window.location.reload();
                 }
-            }
-        } else if (data.type === 'update-avatar-src') {
-            const avatar = document.querySelector('.bio-avatar');
-            if (avatar) {
-                avatar.src = data.src;
-            }
-        } else if (data.type === 'update-background-media') {
-            const background = document.querySelector('.bio-background');
-            if (background) {
-                background.querySelectorAll('.bio-background__media, video').forEach((node) => node.remove());
-                let media;
-                if (data.fileType.startsWith('video/')) {
-                    media = document.createElement('video');
-                    media.className = 'bio-background__media';
-                    media.autoplay = true;
-                    media.muted = true;
-                    media.loop = true;
-                    media.playsInline = true;
-                    const source = document.createElement('source');
-                    source.src = data.url;
-                    source.type = data.fileType;
-                    media.appendChild(source);
-                } else if (data.fileType.startsWith('image/')) {
-                    media = document.createElement('img');
-                    media.className = 'bio-background__media';
-                    media.src = data.url;
-                    media.alt = '';
-                }
-                if (media) {
-                    background.prepend(media);
-                }
-            }
-        } else if (data.type === 'update-music-player') {
-            const player = document.querySelector('[data-audio-player]');
-            const audio = document.getElementById('profileAudio');
-            if (player) {
-                if (data.hasMusic && data.showPlayer) {
-                    player.style.removeProperty('display');
-                } else {
-                    player.style.display = 'none';
-                }
-            }
-            if (audio && data.src) {
-                const newSrc = data.src || '';
-                if (audio.getAttribute('src') !== newSrc) {
-                    audio.src = newSrc;
-                    audio.load();
-                }
-            }
-            const titleEl = document.querySelector('.profile-audio-player strong');
-            if (titleEl) {
-                titleEl.innerHTML = `<i class="fas fa-music"></i>` + (data.title || 'Profile Song');
-            }
-            const artistEl = document.querySelector('.profile-artist-span');
-            if (artistEl) {
-                if (data.artist) {
-                    artistEl.textContent = data.artist;
-                    artistEl.style.removeProperty('display');
-                } else {
-                    artistEl.style.display = 'none';
-                }
-            }
-        } else if (data.type === 'reload') {
-            window.location.reload();
-        }
-    });
-    </script>
+            });
+        </script>
     <?php endif; ?>
 </body>
 
