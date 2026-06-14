@@ -41,15 +41,15 @@ if (in_array(strtolower($alias), $blacklist, true)) {
     exit;
 }
 
-// Controllo collisione con gli username esistenti (per evitare ambiguità o conflitti di navigazione)
-$stmt = $mysqli->prepare("SELECT id FROM utenti WHERE LOWER(username) = LOWER(?) LIMIT 1");
-$stmt->bind_param('s', $alias);
+// Controllo collisione con gli username di ALTRI utenti (il proprio username è permesso come alias)
+$stmt = $mysqli->prepare("SELECT id FROM utenti WHERE LOWER(username) = LOWER(?) AND id != ? LIMIT 1");
+$stmt->bind_param('si', $alias, $targetUserId);
 $stmt->execute();
 $userCollision = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
 if ($userCollision) {
-    echo json_encode(['ok' => true, 'available' => false, 'message' => 'Questo alias coincide con un username esistente.']);
+    echo json_encode(['ok' => true, 'available' => false, 'message' => 'Questo alias coincide con lo username di un altro utente.']);
     exit;
 }
 

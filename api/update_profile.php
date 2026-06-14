@@ -135,12 +135,12 @@ if ($customAliasDb !== null) {
     if (in_array(strtolower($customAliasDb), $blacklist, true)) {
         profile_json_response(['ok' => false, 'message' => 'Questo alias è riservato.'], 422);
     }
-    $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE LOWER(username) = LOWER(?) LIMIT 1");
-    $stmt->bind_param('s', $customAliasDb);
+    $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE LOWER(username) = LOWER(?) AND id != ? LIMIT 1");
+    $stmt->bind_param('si', $customAliasDb, $targetUserId);
     $stmt->execute();
     if ($stmt->get_result()->fetch_assoc()) {
         $stmt->close();
-        profile_json_response(['ok' => false, 'message' => 'L\'alias coincide con un username esistente.'], 422);
+        profile_json_response(['ok' => false, 'message' => 'L\'alias coincide con lo username di un altro utente.'], 422);
     }
     $stmt->close();
     $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE LOWER(custom_alias) = LOWER(?) AND id != ? LIMIT 1");

@@ -15,6 +15,13 @@ $customAlias = $_GET['custom_alias'] ?? null;
 if ($customAlias !== null && trim((string)$customAlias) !== '') {
     $customAlias = trim((string)$customAlias);
     $profile = profile_get_public_profile_by_alias($mysqli, $customAlias);
+
+    // Redirect SEO: alias visits redirect to the canonical /u/username URL
+    if ($profile && !empty($profile['username']) && !isset($_GET['preview_mode'])) {
+        header("HTTP/1.1 301 Moved Permanently");
+        header('Location: /u/' . rawurlencode(strtolower($profile['username'])));
+        exit;
+    }
 } else {
     $identifier = profile_get_identifier();
     if (!$identifier) {
@@ -25,13 +32,6 @@ if ($customAlias !== null && trim((string)$customAlias) !== '') {
         $profile = null;
     } else {
         $profile = profile_get_public_profile($mysqli, $identifier);
-        
-        // Redirect SEO: if user visits /u/username but has a custom alias, redirect to the custom alias
-        if ($profile && !empty($profile['custom_alias']) && !isset($_GET['preview_mode'])) {
-            header("HTTP/1.1 301 Moved Permanently");
-            header('Location: /' . rawurlencode(strtolower($profile['custom_alias'])));
-            exit;
-        }
     }
 }
 
