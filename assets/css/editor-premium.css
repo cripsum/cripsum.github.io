@@ -227,31 +227,31 @@
 }
 
 .editor-search-input {
-    width: 100%;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
-    padding: 0.6rem 1rem 0.6rem 2.6rem;
-    color: #fff;
-    font-size: 0.85rem;
-    transition: all 0.2s;
+    width: 100% !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 8px !important;
+    padding: 0.6rem 1rem 0.6rem 2.8rem !important;
+    color: #fff !important;
+    font-size: 0.85rem !important;
+    transition: all 0.2s !important;
 }
 
 .editor-search-input:focus {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--editor-accent);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(var(--editor-accent-rgb), 0.15);
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: var(--editor-accent) !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(var(--editor-accent-rgb), 0.15) !important;
 }
 
 .editor-search-icon {
-    position: absolute;
-    left: 0.8rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: rgba(255, 255, 255, 0.3);
-    font-size: 0.9rem;
-    pointer-events: none;
+    position: absolute !important;
+    left: 0.9rem !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: rgba(255, 255, 255, 0.3) !important;
+    font-size: 0.9rem !important;
+    pointer-events: none !important;
 }
 
 .editor-search-clear {
@@ -268,6 +268,29 @@
 
 .editor-search-clear:hover {
     color: #fff;
+}
+
+/* Character search clean input styles to match editor-search */
+.profile-editor-shell .profile-character-search-wrap {
+    position: relative !important;
+}
+
+.profile-editor-shell .profile-character-search {
+    width: 100% !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 8px !important;
+    padding: 0.6rem 1rem 0.6rem 2.8rem !important;
+    color: #fff !important;
+    font-size: 0.85rem !important;
+    transition: all 0.2s !important;
+}
+
+.profile-editor-shell .profile-character-search:focus {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: var(--editor-accent) !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(var(--editor-accent-rgb), 0.15) !important;
 }
 
 /* Sidebar Scroll Container */
