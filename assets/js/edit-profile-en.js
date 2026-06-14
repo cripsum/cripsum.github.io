@@ -809,6 +809,12 @@
         const searchClear = document.getElementById('editorSearchClear');
         if (!searchInput) return;
 
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+            }
+        });
+
         searchInput.addEventListener('input', () => {
             const query = searchInput.value.trim().toLowerCase();
             if (searchClear) searchClear.style.display = query !== '' ? 'block' : 'none';
