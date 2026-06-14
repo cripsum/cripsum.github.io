@@ -281,8 +281,9 @@ $discordId = $profile ? trim((string)($profile['discord_id'] ?? '')) : '';
 $customStatus = $profile ? trim((string)($profile['profile_status'] ?? '')) : '';
 $musicExternalUrl = $profile ? trim((string)($profile['profile_music_url'] ?? '')) : '';
 $musicMime = $profile ? trim((string)($profile['profile_music_mime'] ?? '')) : '';
-$hasUploadedMusic = $profile && $musicMime !== '';
-$musicUrl = $hasUploadedMusic ? '/includes/get_profile_music.php?id=' . (int)$profile['id'] : $musicExternalUrl;
+$hasUploadedMusic = $profile && $musicMime !== '' && empty($profile['remove_profile_music_upload']);
+$stamp = ($profile && !empty($profile['profile_updated_at'])) ? (int)strtotime((string)$profile['profile_updated_at']) : time();
+$musicUrl = $hasUploadedMusic ? '/includes/get_profile_music.php?id=' . (int)$profile['id'] . '&t=' . $stamp : $musicExternalUrl;
 $musicTitle = $profile ? trim((string)($profile['profile_music_title'] ?? '')) : '';
 $musicArtist = $profile ? trim((string)($profile['profile_music_artist'] ?? '')) : '';
 $showAudioPlayer = $profile ? ((int)($profile['profile_show_audio_player'] ?? 1) === 1) : false;
@@ -291,7 +292,7 @@ $profileEffect = $profile ? profile_allowed_value((string)($profile['profile_eff
 $avatarRingEnabled = $profile ? ((int)($profile['avatar_ring_enabled'] ?? 1) === 1) : true;
 $avatarRingStyle = $profile ? profile_allowed_value((string)($profile['avatar_ring_style'] ?? 'spin'), ['spin', 'pulse', 'orbit', 'glow', 'dual', 'rainbow', 'halo', 'neon', 'spark', 'glitch', 'none'], 'spin') : 'spin';
 $avatarRingColor = $profile ? profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent) : $accent;
-$backgroundUrl = $profile && !empty($profile['profile_banner_type']) ? '/includes/get_profile_banner.php?id=' . (int)$profile['id'] : null;
+$backgroundUrl = $profile && !empty($profile['profile_banner_type']) ? '/includes/get_profile_banner.php?id=' . (int)$profile['id'] . '&t=' . $stamp : null;
 $backgroundType = $profile && !empty($profile['profile_banner_type']) ? (string)$profile['profile_banner_type'] : 'video/mp4';
 
 $showStats = $profile ? profile_flag($profile, 'profile_show_stats', true) : false;
@@ -479,8 +480,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.8.6">
-    <script src="/assets/js/profile.js?v=4.8.6" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.8.7">
+    <script src="/assets/js/profile.js?v=4.8.7" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {

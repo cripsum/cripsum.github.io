@@ -92,8 +92,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Cripsum™ - Sign up</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    <link rel="stylesheet" href="/assets/auth/auth.css?v=1.0-2fa">
-    <script src="/assets/auth/auth.js?v=1.0-2fa" defer></script>
+    <link rel="stylesheet" href="/assets/auth/auth.css?v=1.1">
+    <script src="/assets/auth/auth.js?v=1.1" defer></script>
 </head>
 
 <body class="auth-page">

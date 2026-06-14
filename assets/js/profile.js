@@ -898,10 +898,38 @@
                 const reasonEl = reportForm.querySelector('input[name="report_reason"]:checked');
                 const reason = reasonEl ? reasonEl.value : 'spam';
                 const detail = reportDetail ? reportDetail.value.trim() : '';
+                const reportedUserEl = reportForm.querySelector('input[name="reported_user_id"]');
+                const reportedUserId = reportedUserEl ? parseInt(reportedUserEl.value, 10) : 0;
 
-                // Client-side report simulation
                 const isIt = document.documentElement.lang === 'it';
-                showToast(isIt ? 'Segnalazione inviata con successo ai moderatori.' : 'Report submitted successfully to moderators.');
+
+                if (!reportedUserId) {
+                    showToast(isIt ? 'ID utente non trovato.' : 'User ID not found.');
+                    return;
+                }
+
+                fetch('/api/report_profile.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        reported_user_id: reportedUserId,
+                        reason: reason,
+                        detail: detail
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.ok) {
+                        showToast(isIt ? 'Segnalazione inviata con successo ai moderatori.' : 'Report submitted successfully to moderators.');
+                    } else {
+                        showToast(data.error || (isIt ? 'Errore durante l\'invio.' : 'Error submitting report.'));
+                    }
+                })
+                .catch(err => {
+                    showToast(isIt ? 'Errore di connessione.' : 'Connection error.');
+                });
                 
                 // Reset form
                 reportForm.reset();

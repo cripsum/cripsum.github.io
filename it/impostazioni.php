@@ -37,44 +37,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!csrf_validate($_POST['csrf_token'] ?? null)) {
         $error = 'Sessione scaduta. Riprova.';
-    } elseif ($action === 'save_settings') {
+    } elseif ($action === 'update_profile') {
         $newUsername = strtolower(trim($_POST['username'] ?? ''));
-        $newEmail = trim($_POST['email'] ?? '');
-        $newPassword = $_POST['password'] ?? '';
-        $currentPassword = $_POST['current_password'] ?? '';
         $newNsfw = isset($_POST['nsfw']) ? 1 : 0;
         $newRichpresence = isset($_POST['richpresence']) ? 1 : 0;
 
-        $emailChanged = strcasecmp($newEmail, $email) !== 0;
-        $passwordChanged = $newPassword !== '';
-
-        if ($newUsername === '' || $newEmail === '') {
-            $error = 'Username ed email sono obbligatori.';
+        if ($newUsername === '') {
+            $error = 'Lo username è obbligatorio.';
         } elseif (!auth_is_valid_username($newUsername)) {
             $error = 'Username non valido.';
-        } elseif (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
-            $error = 'Email non valida.';
-        } elseif ($passwordChanged && strlen($newPassword) < 8) {
-            $error = 'La nuova password deve avere almeno 8 caratteri.';
-        } elseif (($emailChanged || $passwordChanged) && !auth_verify_user_password($mysqli, $userId, $currentPassword)) {
-            $error = 'Inserisci la password attuale per modificare email o password.';
         } else {
-            $result = updateUserSettings($mysqli, $userId, $newUsername, $newEmail, $newPassword, $newNsfw, $newRichpresence);
+            $result = updateUserSettings($mysqli, $userId, $newUsername, $email, '', $newNsfw, $newRichpresence);
 
             if ($result === true) {
-                if ($emailChanged) {
-                    session_destroy();
-                    session_start();
-                    $_SESSION['login_message'] = 'Email modificata. Controlla la nuova casella per verificare l’account.';
-                    header('Location: accedi');
-                    exit();
-                }
-
-                $success = 'Impostazioni salvate.';
+                $success = 'Profilo aggiornato con successo.';
                 $username = $newUsername;
-                $email = $newEmail;
                 $nsfw = $newNsfw;
                 $richpresence = $newRichpresence;
+            } else {
+                $error = is_string($result) ? $result : 'Errore durante il salvataggio.';
+            }
+        }
+    } elseif ($action === 'update_email') {
+        $newEmail = trim($_POST['email'] ?? '');
+        $currentPassword = $_POST['current_password'] ?? '';
+        $hasPassword = !empty($currentUser['password']);
+
+        if ($newEmail === '') {
+            $error = 'L’email è obbligatoria.';
+        } elseif (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
+            $error = 'Email non valida.';
+        } elseif (strcasecmp($newEmail, $email) === 0) {
+            $error = 'La nuova email è uguale a quella attuale.';
+        } elseif ($hasPassword && !auth_verify_user_password($mysqli, $userId, $currentPassword)) {
+            $error = 'Password attuale non valida.';
+        } else {
+            $result = updateUserSettings($mysqli, $userId, $username, $newEmail, '', $nsfw, $richpresence);
+
+            if ($result === true) {
+                session_destroy();
+                session_start();
+                $_SESSION['login_message'] = 'Email modificata. Controlla la nuova casella per verificare l’account.';
+                header('Location: accedi');
+                exit();
+            } else {
+                $error = is_string($result) ? $result : 'Errore durante il salvataggio.';
+            }
+        }
+    } elseif ($action === 'update_password') {
+        $newPassword = $_POST['password'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
+        $currentPassword = $_POST['current_password'] ?? '';
+        $hasPassword = !empty($currentUser['password']);
+
+        if ($newPassword === '') {
+            $error = 'La nuova password è obbligatoria.';
+        } elseif (strlen($newPassword) < 8) {
+            $error = 'La nuova password deve avere almeno 8 caratteri.';
+        } elseif ($newPassword !== $confirmPassword) {
+            $error = 'Le due password non coincidono.';
+        } elseif ($hasPassword && !auth_verify_user_password($mysqli, $userId, $currentPassword)) {
+            $error = 'Password attuale non valida.';
+        } else {
+            $result = updateUserSettings($mysqli, $userId, $username, $email, $newPassword, $nsfw, $richpresence);
+
+            if ($result === true) {
+                $success = 'Password modificata con successo.';
             } else {
                 $error = is_string($result) ? $result : 'Errore durante il salvataggio.';
             }
@@ -171,8 +199,8 @@ if ($twofaSetupSecret) {
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Impostazioni</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/auth/auth.css?v=1.0-2fa">
-    <script src="/assets/auth/auth.js?v=1.0-2fa" defer></script>
+    <link rel="stylesheet" href="/assets/auth/auth.css?v=1.1">
+    <script src="/assets/auth/auth.js?v=1.1" defer></script>
 </head>
 
 <body class="auth-page settings-page">
@@ -207,181 +235,275 @@ if ($twofaSetupSecret) {
             <div class="auth-alert auth-reveal" style="background: rgba(255, 193, 7, 0.15); border: 1px solid #ffc107; color: #ffc107; padding: 1rem; border-radius: 20px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 15px;">
                 <i class="fas fa-key"></i>
                 <span style="flex-grow: 1;">Imposta una password per accedere anche senza Google.</span>
-                <a href="imposta_password.php" class="auth-btn" style="background: #ffc107; color: #000; width: auto; padding: 5px 15px;">Configura</a>
+                <a href="#password" class="auth-btn" style="background: #ffc107; color: #000; width: auto; padding: 5px 15px;" onclick="document.querySelector('.settings-tab-btn[data-tab=\'password\']').click();">Configura</a>
             </div>
         <?php endif; ?>
 
-        <section class="settings-grid">
-            <article class="settings-panel auth-reveal">
-                <div class="settings-panel__head">
-                    <h2>Profilo</h2>
-                    <p>Dati base e preferenze.</p>
-                </div>
+        <div class="settings-container">
+            <aside class="settings-sidebar auth-reveal">
+                <button class="settings-tab-btn active" data-tab="profile">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Profilo</span>
+                </button>
+                <button class="settings-tab-btn" data-tab="email">
+                    <i class="fas fa-envelope"></i>
+                    <span>Email</span>
+                </button>
+                <button class="settings-tab-btn" data-tab="password">
+                    <i class="fas fa-key"></i>
+                    <span>Password</span>
+                </button>
+                <button class="settings-tab-btn" data-tab="twofa">
+                    <i class="fas fa-shield-halved"></i>
+                    <span>Sicurezza 2FA</span>
+                </button>
+            </aside>
 
-                <form method="POST" class="auth-form" data-auth-form>
-                    <?php echo csrf_field(); ?>
-                    <input type="hidden" name="action" value="save_settings">
-
-                    <label class="auth-field">
-                        <span>Username</span>
-                        <input type="text" name="username" value="<?php echo auth_h($username); ?>" required maxlength="20">
-                    </label>
-
-                    <label class="auth-field">
-                        <span>Email</span>
-                        <input type="email" name="email" value="<?php echo auth_h($email); ?>" required>
-                    </label>
-
-                    <label class="auth-field">
-                        <span>Password attuale</span>
-                        <div class="auth-password">
-                            <input type="password" name="current_password" autocomplete="current-password" data-password-input>
-                            <button type="button" data-toggle-password aria-label="Mostra password" style="margin-top: -18px;">
-                                <i class="fas fa-eye"></i>
-                            </button>
+            <div class="settings-main">
+                <!-- Tab: Profilo -->
+                <div class="settings-tab-content active" id="tab-profile">
+                    <article class="settings-panel auth-reveal">
+                        <div class="settings-panel__head">
+                            <h2>Informazioni Profilo</h2>
+                            <p>Gestisci i dati pubblici e le preferenze di visualizzazione.</p>
                         </div>
-                        <small>Serve solo per cambiare email o password.</small>
-                    </label>
 
-                    <label class="auth-field">
-                        <span>Nuova password</span>
-                        <div class="auth-password">
-                            <input type="password" name="password" autocomplete="new-password" minlength="8" data-password-input>
-                            <button type="button" data-toggle-password aria-label="Mostra password" style="margin-top: -18px;">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </label>
-
-                    <div class="settings-checks">
-                        <label class="auth-check">
-                            <input type="checkbox" name="nsfw" <?php echo $nsfw ? 'checked' : ''; ?>>
-                            <span>Mostra NSFW</span>
-                        </label>
-                    </div>
-
-                    <button class="auth-btn auth-btn--primary" type="submit" data-submit-text="Salva">
-                        <span>Salva</span>
-                    </button>
-                </form>
-            </article>
-
-            <article class="settings-panel auth-reveal">
-                <div class="settings-panel__head">
-                    <h2>Sicurezza</h2>
-                    <p>Proteggi l’account con app autenticatore.</p>
-                </div>
-
-                <?php if (!$twofaStatus['has_columns']): ?>
-                    <div class="auth-alert auth-alert--info">
-                        <i class="fas fa-database"></i>
-                        <span>2FA non installata nel database. Esegui il file SQL incluso.</span>
-                    </div>
-                <?php else: ?>
-                    <div class="twofa-status <?php echo $twofaStatus['enabled'] ? 'is-enabled' : ''; ?>">
-                        <i class="fas <?php echo $twofaStatus['enabled'] ? 'fa-shield-halved' : 'fa-shield'; ?>"></i>
-                        <div>
-                            <strong><?php echo $twofaStatus['enabled'] ? '2FA attiva' : '2FA non attiva'; ?></strong>
-                            <span><?php echo $twofaStatus['enabled'] ? 'Il login richiede un codice.' : 'Consigliata per proteggere l’account.'; ?></span>
-                        </div>
-                    </div>
-
-                    <?php if (!$twofaStatus['enabled'] && !$twofaSetupSecret): ?>
-                        <form method="POST" class="auth-form">
+                        <form method="POST" action="#profile" class="auth-form" data-auth-form>
                             <?php echo csrf_field(); ?>
-                            <input type="hidden" name="action" value="start_2fa_setup">
-                            <button class="auth-btn auth-btn--primary" type="submit">
-                                <i class="fas fa-qrcode"></i>
-                                <span>Attiva 2FA</span>
-                            </button>
-                        </form>
-                    <?php endif; ?>
-
-                    <?php if (!$twofaStatus['enabled'] && $twofaSetupSecret): ?>
-                        <div class="twofa-setup">
-                            <img src="<?php echo auth_h($qrUrl); ?>" alt="QR code 2FA">
-                            <div>
-                                <strong>Scansiona il QR code</strong>
-                                <p>Usa Google Authenticator, Authy, Microsoft Authenticator o simili.</p>
-                                <code><?php echo auth_h($twofaSetupSecret); ?></code>
-                            </div>
-                        </div>
-
-                        <form method="POST" class="auth-form" data-auth-form>
-                            <?php echo csrf_field(); ?>
-                            <input type="hidden" name="action" value="enable_2fa">
+                            <input type="hidden" name="action" value="update_profile">
 
                             <label class="auth-field">
-                                <span>Codice a 6 cifre</span>
-                                <input type="text" name="twofa_code" inputmode="numeric" autocomplete="one-time-code" placeholder="123456" required>
+                                <span>Username</span>
+                                <input type="text" name="username" value="<?php echo auth_h($username); ?>" required maxlength="20">
                             </label>
 
-                            <button class="auth-btn auth-btn--primary" type="submit" data-submit-text="Conferma 2FA">
-                                <span>Conferma 2FA</span>
+                            <div class="settings-checks">
+                                <label class="auth-check">
+                                    <input type="checkbox" name="nsfw" <?php echo $nsfw ? 'checked' : ''; ?>>
+                                    <span>Mostra NSFW</span>
+                                </label>
+                            </div>
+
+                            <button class="auth-btn auth-btn--primary" type="submit" data-submit-text="Salva">
+                                <span>Salva Modifiche</span>
                             </button>
                         </form>
-                    <?php endif; ?>
+                    </article>
+                </div>
 
-                    <?php if ($backupCodesNew): ?>
-                        <div class="backup-codes">
-                            <strong>Backup codes</strong>
-                            <p>Salvali ora. Non verranno mostrati di nuovo.</p>
-                            <div class="backup-codes__grid">
-                                <?php foreach ($backupCodesNew as $code): ?>
-                                    <code><?php echo auth_h($code); ?></code>
-                                <?php endforeach; ?>
-                            </div>
+                <!-- Tab: Email -->
+                <div class="settings-tab-content" id="tab-email">
+                    <article class="settings-panel auth-reveal">
+                        <div class="settings-panel__head">
+                            <h2>Indirizzo Email</h2>
+                            <p>Modifica l'indirizzo email associato al tuo account.</p>
                         </div>
-                    <?php endif; ?>
 
-                    <?php if ($twofaStatus['enabled']): ?>
-                        <details class="security-details">
-                            <summary>Rigenera backup codes</summary>
-                            <form method="POST" class="auth-form" data-auth-form>
-                                <?php echo csrf_field(); ?>
-                                <input type="hidden" name="action" value="regenerate_backup_codes">
+                        <form method="POST" action="#email" class="auth-form" data-auth-form>
+                            <?php echo csrf_field(); ?>
+                            <input type="hidden" name="action" value="update_email">
 
+                            <label class="auth-field">
+                                <span>Email Attuale</span>
+                                <input type="email" value="<?php echo auth_h($email); ?>" disabled style="opacity: 0.6; cursor: not-allowed;">
+                            </label>
+
+                            <label class="auth-field">
+                                <span>Nuova Email</span>
+                                <input type="email" name="email" required placeholder="nuovo.indirizzo@esempio.com">
+                            </label>
+
+                            <?php if (!empty($currentUser['password'])): ?>
                                 <label class="auth-field">
                                     <span>Password attuale</span>
-                                    <input type="password" name="current_password" autocomplete="current-password" required>
+                                    <div class="auth-password">
+                                        <input type="password" name="current_password" autocomplete="current-password" required data-password-input>
+                                        <button type="button" data-toggle-password aria-label="Mostra password" style="margin-top: -18px;">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <small>Necessaria per confermare la modifica dell'email.</small>
                                 </label>
+                            <?php endif; ?>
 
-                                <label class="auth-field">
-                                    <span>Codice 2FA</span>
-                                    <input type="text" name="twofa_code" required>
-                                </label>
+                            <button class="auth-btn auth-btn--primary" type="submit" data-submit-text="Salva">
+                                <span>Aggiorna Email</span>
+                            </button>
+                        </form>
+                    </article>
+                </div>
 
-                                <button class="auth-btn auth-btn--soft" type="submit" data-submit-text="Rigenera">
-                                    <span>Rigenera</span>
-                                </button>
-                            </form>
-                        </details>
+                <!-- Tab: Password -->
+                <div class="settings-tab-content" id="tab-password">
+                    <article class="settings-panel auth-reveal">
+                        <div class="settings-panel__head">
+                            <h2>Password</h2>
+                            <p><?php echo empty($currentUser['password']) ? 'Imposta una password per il tuo account.' : 'Aggiorna la tua password di accesso.'; ?></p>
+                        </div>
 
-                        <details class="security-details security-details--danger">
-                            <summary>Disattiva 2FA</summary>
-                            <form method="POST" class="auth-form" data-auth-form>
-                                <?php echo csrf_field(); ?>
-                                <input type="hidden" name="action" value="disable_2fa">
+                        <form method="POST" action="#password" class="auth-form" data-auth-form>
+                            <?php echo csrf_field(); ?>
+                            <input type="hidden" name="action" value="update_password">
 
+                            <?php if (!empty($currentUser['password'])): ?>
                                 <label class="auth-field">
                                     <span>Password attuale</span>
-                                    <input type="password" name="current_password" autocomplete="current-password" required>
+                                    <div class="auth-password">
+                                        <input type="password" name="current_password" autocomplete="current-password" required data-password-input>
+                                        <button type="button" data-toggle-password aria-label="Mostra password" style="margin-top: -18px;">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
                                 </label>
+                            <?php endif; ?>
 
-                                <label class="auth-field">
-                                    <span>Codice 2FA o backup code</span>
-                                    <input type="text" name="twofa_code" required>
-                                </label>
+                            <label class="auth-field">
+                                <span>Nuova password</span>
+                                <div class="auth-password">
+                                    <input type="password" name="password" autocomplete="new-password" minlength="8" required data-password-input>
+                                    <button type="button" data-toggle-password aria-label="Mostra password" style="margin-top: -18px;">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </label>
 
-                                <button class="auth-btn auth-btn--danger" type="submit" data-submit-text="Disattiva">
-                                    <span>Disattiva 2FA</span>
-                                </button>
-                            </form>
-                        </details>
-                    <?php endif; ?>
-                <?php endif; ?>
-            </article>
-        </section>
+                            <label class="auth-field">
+                                <span>Conferma nuova password</span>
+                                <div class="auth-password">
+                                    <input type="password" name="confirm_password" autocomplete="new-password" minlength="8" required data-password-input>
+                                    <button type="button" data-toggle-password aria-label="Mostra password" style="margin-top: -18px;">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </label>
+
+                            <button class="auth-btn auth-btn--primary" type="submit" data-submit-text="Salva">
+                                <span><?php echo empty($currentUser['password']) ? 'Imposta Password' : 'Cambia Password'; ?></span>
+                            </button>
+                        </form>
+                    </article>
+                </div>
+
+                <!-- Tab: 2FA -->
+                <div class="settings-tab-content" id="tab-twofa">
+                    <article class="settings-panel auth-reveal">
+                        <div class="settings-panel__head">
+                            <h2>Autenticazione a Due Fattori</h2>
+                            <p>Proteggi il tuo account richiedendo un codice di sicurezza aggiuntivo.</p>
+                        </div>
+
+                        <?php if (!$twofaStatus['has_columns']): ?>
+                            <div class="auth-alert auth-alert--info">
+                                <i class="fas fa-database"></i>
+                                <span>2FA non installata nel database. Esegui il file SQL incluso.</span>
+                            </div>
+                        <?php else: ?>
+                            <div class="twofa-status <?php echo $twofaStatus['enabled'] ? 'is-enabled' : ''; ?>">
+                                <i class="fas <?php echo $twofaStatus['enabled'] ? 'fa-shield-halved' : 'fa-shield'; ?>"></i>
+                                <div>
+                                    <strong><?php echo $twofaStatus['enabled'] ? '2FA attiva' : '2FA non attiva'; ?></strong>
+                                    <span><?php echo $twofaStatus['enabled'] ? 'Il login richiede un codice.' : 'Consigliata per proteggere l’account.'; ?></span>
+                                </div>
+                            </div>
+
+                            <?php if (!$twofaStatus['enabled'] && !$twofaSetupSecret): ?>
+                                <form method="POST" action="#twofa" class="auth-form">
+                                    <?php echo csrf_field(); ?>
+                                    <input type="hidden" name="action" value="start_2fa_setup">
+                                    <button class="auth-btn auth-btn--primary" type="submit">
+                                        <i class="fas fa-qrcode"></i>
+                                        <span>Attiva 2FA</span>
+                                    </button>
+                                </form>
+                            <?php endif; ?>
+
+                            <?php if (!$twofaStatus['enabled'] && $twofaSetupSecret): ?>
+                                <div class="twofa-setup">
+                                    <img src="<?php echo auth_h($qrUrl); ?>" alt="QR code 2FA">
+                                    <div>
+                                        <strong>Scansiona il QR code</strong>
+                                        <p>Usa Google Authenticator, Authy, Microsoft Authenticator o simili.</p>
+                                        <code><?php echo auth_h($twofaSetupSecret); ?></code>
+                                    </div>
+                                </div>
+
+                                <form method="POST" action="#twofa" class="auth-form" data-auth-form>
+                                    <?php echo csrf_field(); ?>
+                                    <input type="hidden" name="action" value="enable_2fa">
+
+                                    <label class="auth-field">
+                                        <span>Codice a 6 cifre</span>
+                                        <input type="text" name="twofa_code" inputmode="numeric" autocomplete="one-time-code" placeholder="123456" required>
+                                    </label>
+
+                                    <button class="auth-btn auth-btn--primary" type="submit" data-submit-text="Conferma 2FA">
+                                        <span>Conferma 2FA</span>
+                                    </button>
+                                </form>
+                            <?php endif; ?>
+
+                            <?php if ($backupCodesNew): ?>
+                                <div class="backup-codes">
+                                    <strong>Backup codes</strong>
+                                    <p>Salvali ora. Non verranno mostrati di nuovo.</p>
+                                    <div class="backup-codes__grid">
+                                        <?php foreach ($backupCodesNew as $code): ?>
+                                            <code><?php echo auth_h($code); ?></code>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if ($twofaStatus['enabled']): ?>
+                                <details class="security-details">
+                                    <summary>Rigenera backup codes</summary>
+                                    <form method="POST" action="#twofa" class="auth-form" data-auth-form>
+                                        <?php echo csrf_field(); ?>
+                                        <input type="hidden" name="action" value="regenerate_backup_codes">
+
+                                        <label class="auth-field">
+                                            <span>Password attuale</span>
+                                            <input type="password" name="current_password" autocomplete="current-password" required>
+                                        </label>
+
+                                        <label class="auth-field">
+                                            <span>Codice 2FA</span>
+                                            <input type="text" name="twofa_code" required>
+                                        </label>
+
+                                        <button class="auth-btn auth-btn--soft" type="submit" data-submit-text="Rigenera">
+                                            <span>Rigenera</span>
+                                        </button>
+                                    </form>
+                                </details>
+
+                                <details class="security-details security-details--danger">
+                                    <summary>Disattiva 2FA</summary>
+                                    <form method="POST" action="#twofa" class="auth-form" data-auth-form>
+                                        <?php echo csrf_field(); ?>
+                                        <input type="hidden" name="action" value="disable_2fa">
+
+                                        <label class="auth-field">
+                                            <span>Password attuale</span>
+                                            <input type="password" name="current_password" autocomplete="current-password" required>
+                                        </label>
+
+                                        <label class="auth-field">
+                                            <span>Codice 2FA o backup code</span>
+                                            <input type="text" name="twofa_code" required>
+                                        </label>
+
+                                        <button class="auth-btn auth-btn--danger" type="submit" data-submit-text="Disattiva">
+                                            <span>Disattiva 2FA</span>
+                                        </button>
+                                    </form>
+                                </details>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </article>
+                </div>
+            </div>
+        </div>
     </main>
 
     <?php include '../includes/footer.php'; ?>

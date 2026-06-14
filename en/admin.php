@@ -180,13 +180,14 @@ $csrfToken = admin_csrf_token();
                 <div class="admin-toolbar">
                     <div>
                         <strong>Segnalazioni</strong>
-                        <small>Controlla report su Shitpost, Top Rimasti e Chat.</small>
+                        <small>Controlla report su Shitpost, Top Rimasti, Chat e Profili.</small>
                     </div>
                     <div class="admin-toolbar-actions">
                         <select id="reportsSourceFilter" class="admin-input">
                             <option value="all">Tutte</option>
                             <option value="content">Contenuti</option>
                             <option value="chat">Chat</option>
+                            <option value="profile">Profili</option>
                         </select>
                         <select id="reportsStatusFilter" class="admin-input">
                             <option value="open">Aperte</option>
@@ -244,7 +245,7 @@ $csrfToken = admin_csrf_token();
     <div class="admin-toast" id="adminToast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script src="/assets/admin-v2/admin.js?v=2.2-reports-content-data"></script>
+    <script src="/assets/admin-v2/admin.js?v=2.3"></script>
 </body>
 
 </html>

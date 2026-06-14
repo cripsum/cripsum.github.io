@@ -26,6 +26,8 @@ if ($profile['profile_visibility'] === 'logged_in' && !$isLoggedIn) {
     profile_json_response(['ok' => false, 'message' => 'Devi accedere per vedere questo profilo.'], 401);
 }
 
+$stamp = !empty($profile['profile_updated_at']) ? (int)strtotime((string)$profile['profile_updated_at']) : time();
+
 profile_json_response([
     'ok' => true,
     'profile' => [
@@ -33,8 +35,8 @@ profile_json_response([
         'username' => $profile['username'],
         'display_name' => $profile['display_name'] ?: $profile['username'],
         'bio' => $profile['bio'],
-        'avatar_url' => '/includes/get_pfp.php?id=' . $profileId,
-        'banner_url' => !empty($profile['profile_banner_type']) ? '/includes/get_profile_banner.php?id=' . $profileId : null,
+        'avatar_url' => '/includes/get_pfp.php?id=' . $profileId . '&t=' . $stamp,
+        'banner_url' => !empty($profile['profile_banner_type']) ? '/includes/get_profile_banner.php?id=' . $profileId . '&t=' . $stamp : null,
         'accent_color' => profile_normalize_hex_color($profile['accent_color'] ?? '#0f5bff'),
         'theme' => $profile['profile_theme'],
         'layout' => $profile['profile_layout'],

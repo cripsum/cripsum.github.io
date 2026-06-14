@@ -225,19 +225,27 @@
                 if (useColorChk && colorContainer) {
                     useColorChk.addEventListener('change', () => {
                         colorContainer.style.display = useColorChk.checked ? 'grid' : 'none';
-                        updatePreview();
-                        triggerAutosave(true);
                     });
                 }
                 if (useGradientChk && gradientContainer) {
                     useGradientChk.addEventListener('change', () => {
                         gradientContainer.style.display = useGradientChk.checked ? 'block' : 'none';
-                        updatePreview();
-                        triggerAutosave(true);
                     });
                 }
             }, 0);
         }
+
+        // General input and change listeners for all inputs inside the row
+        $$('input, select, textarea', row).forEach((input) => {
+            input.addEventListener('input', () => {
+                updatePreview();
+                triggerAutosave(false);
+            });
+            input.addEventListener('change', () => {
+                updatePreview();
+                triggerAutosave(true);
+            });
+        });
 
         return row;
     }
@@ -566,10 +574,11 @@
                 }
             }, '*');
 
-            const musicUrl = musicUrlInput?.value.trim() || '';
+            const isMusicRemoved = removeMusicUploadInput && removeMusicUploadInput.checked;
+            const musicUrl = isMusicRemoved ? '' : (musicUrlInput?.value.trim() || '');
             const showPlayer = showAudioPlayerInput?.checked || false;
-            const hasServerMusic = document.getElementById('hasServerMusic')?.value === '1';
-            const hasMusicSource = musicUrl !== '' || cachedMusicData !== null || hasServerMusic;
+            const hasServerMusic = isMusicRemoved ? false : (document.getElementById('hasServerMusic')?.value === '1');
+            const hasMusicSource = musicUrl !== '' || (cachedMusicData !== null && !isMusicRemoved) || hasServerMusic;
 
             iframe.contentWindow.postMessage({
                 type: 'update-music-player',
@@ -577,7 +586,7 @@
                 hasMusic: hasMusicSource,
                 title: musicTitle,
                 artist: musicArtist,
-                src: cachedMusicData ? cachedMusicData.url : musicUrl
+                src: (cachedMusicData && !isMusicRemoved) ? cachedMusicData.url : musicUrl
             }, '*');
         }
         
@@ -691,8 +700,20 @@
         }
     }
 
+    const discordServerInviteInput = $('#discordServerInviteInput');
+    const removeMusicUploadInput = $('input[name="remove_profile_music_upload"]');
+
+    if (removeMusicUploadInput) {
+        removeMusicUploadInput.addEventListener('change', () => {
+            if (removeMusicUploadInput.checked) {
+                if (musicFileInput) musicFileInput.value = '';
+                cachedMusicData = null;
+            }
+        });
+    }
+
     // Register simple inputs listeners for live updates and autosave
-    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, layoutInput, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput, musicUrlInput, musicTitleInput, musicArtistInput, showAudioPlayerInput, cornerStyleCustomInput, tiltMaxInput, tiltGlareInput, tiltZoomInput, tiltSpeedInput, profileTabAnimationSpeedInput].filter(Boolean);
+    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, layoutInput, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput, musicUrlInput, musicTitleInput, musicArtistInput, showAudioPlayerInput, cornerStyleCustomInput, tiltMaxInput, tiltGlareInput, tiltZoomInput, tiltSpeedInput, profileTabAnimationSpeedInput, profileTabTitleInput, profileTabAnimationInput, profileTabAnimationTextInput, cornerStyleInput, borderStyleInput, discordServerInviteInput, removeMusicUploadInput].filter(Boolean);
 
     simpleInputs.forEach((input) => {
         input.addEventListener('input', () => {
@@ -1393,6 +1414,9 @@
     function previewMusicFile(input) {
         const file = input.files && input.files[0];
         if (!file) return;
+        if (removeMusicUploadInput) {
+            removeMusicUploadInput.checked = false;
+        }
         const isMp3 = file.type === 'audio/mpeg' || file.name.toLowerCase().endsWith('.mp3');
         if (!isMp3) {
             window.profileToast(isEnglish ? 'Use only MP3 files.' : 'Usa solo file MP3.');

@@ -19,7 +19,7 @@ $csrfToken = admin_csrf_token();
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/admin-v2/admin.css?v=2.2-reports-content-data">
+    <link rel="stylesheet" href="/assets/admin-v2/admin.css?v=2.3">
 </head>
 
 <body class="admin-v2-body" data-csrf="<?php echo admin_h($csrfToken); ?>" data-admin-id="<?php echo (int)$currentAdmin['id']; ?>" data-admin-role="<?php echo admin_h($currentAdmin['ruolo']); ?>">
@@ -180,13 +180,14 @@ $csrfToken = admin_csrf_token();
                 <div class="admin-toolbar">
                     <div>
                         <strong>Segnalazioni</strong>
-                        <small>Controlla report su Shitpost, Top Rimasti e Chat.</small>
+                        <small>Controlla report su Shitpost, Top Rimasti, Chat e Profili.</small>
                     </div>
                     <div class="admin-toolbar-actions">
                         <select id="reportsSourceFilter" class="admin-input">
                             <option value="all">Tutte</option>
                             <option value="content">Contenuti</option>
                             <option value="chat">Chat</option>
+                            <option value="profile">Profili</option>
                         </select>
                         <select id="reportsStatusFilter" class="admin-input">
                             <option value="open">Aperte</option>
@@ -244,7 +245,7 @@ $csrfToken = admin_csrf_token();
     <div class="admin-toast" id="adminToast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script src="/assets/admin-v2/admin.js?v=2.2-reports-content-data"></script>
+    <script src="/assets/admin-v2/admin.js?v=2.3"></script>
 </body>
 
 </html>

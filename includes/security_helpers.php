@@ -359,6 +359,10 @@ function auth_complete_login(array $user): void
     $_SESSION['ruolo'] = $user['ruolo'] ?? 'utente';
     $_SESSION['nsfw'] = (int)($user['nsfw'] ?? 0);
     $_SESSION['richpresence'] = (int)($user['richpresence'] ?? 0);
+
+    if (empty($user['password'])) {
+        $_SESSION['needs_password'] = true;
+    }
 }
 
 function auth_start_password_login(mysqli $mysqli, string $identifier, string $password): array

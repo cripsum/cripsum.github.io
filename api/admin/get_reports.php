@@ -84,6 +84,38 @@ try {
         }
     }
 
+    if (($source === 'all' || $source === 'profile') && admin_table_exists($mysqli, 'profile_reports')) {
+        $sql = "
+            SELECT
+                pr.id,
+                'profile' AS report_source,
+                'profile' AS content_type,
+                pr.reported_user_id AS post_id,
+                pr.reporter_user_id AS reporter_id,
+                CONCAT(pr.reason, COALESCE(CONCAT(' - ', pr.detail), '')) AS reason,
+                pr.status,
+                pr.created_at,
+                pr.reviewed_at,
+                pr.reviewed_by,
+                ru.username AS reporter_username,
+                CONCAT('Profilo di ', tu.username) AS target_title,
+                tu.username AS target_username
+            FROM profile_reports pr
+            LEFT JOIN utenti ru ON ru.id = pr.reporter_user_id
+            LEFT JOIN utenti tu ON tu.id = pr.reported_user_id
+            ORDER BY pr.created_at DESC
+            LIMIT 500
+        ";
+        $result = $mysqli->query($sql);
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $row['report_source_label'] = 'Profilo';
+                $row['target_url'] = '/u/' . rawurlencode(strtolower($row['target_username'] ?? ''));
+                $reports[] = $row;
+            }
+        }
+    }
+
     $reports = array_values(array_filter($reports, function ($row) use ($q, $status) {
         if ($status !== 'all' && ($row['status'] ?? '') !== $status) return false;
         if ($q === '') return true;

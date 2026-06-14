@@ -2397,40 +2397,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
     border-color: rgba(59, 130, 246, 0.45);
 }
 
-.profile-qr-modal {
-    position: fixed;
-    inset: 0;
-    z-index: 10000;
-    display: grid;
-    place-items: center;
-    padding: 1rem;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity var(--transition);
-}
-
-.profile-qr-modal.is-visible {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.profile-qr-backdrop {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.62);
-    backdrop-filter: blur(10px);
-}
-
-.profile-qr-card {
-    position: relative;
-    z-index: 1;
-    width: min(92vw, 360px);
-    padding: 1rem;
-    display: grid;
-    gap: 0.9rem;
-    justify-items: center;
-    text-align: center;
-}
+/* Older duplicate QR modal styling commented out */
 
 .profile-qr-card .js-close-qr {
     position: absolute;
@@ -2880,22 +2847,30 @@ body.bio-v2-body {
     height: 100vh !important;
     height: 100dvh !important;
     padding: 1rem !important;
-    opacity: 0;
+    visibility: hidden;
     pointer-events: none;
     transform: none !important;
     overflow: hidden;
-    transition: opacity 180ms ease;
+    transition: visibility 0.3s step-end;
 }
 
 .profile-qr-modal.is-visible {
-    opacity: 1;
-    pointer-events: auto;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transition: visibility 0s;
 }
 
 .profile-qr-backdrop {
     position: absolute !important;
     inset: 0 !important;
     z-index: 0 !important;
+    background: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    transition: background-color 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease;
+}
+
+.profile-qr-modal.is-visible .profile-qr-backdrop {
     background: rgba(0, 0, 0, 0.68);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
@@ -2911,12 +2886,14 @@ body.bio-v2-body {
     gap: 0.9rem !important;
     justify-items: center !important;
     text-align: center !important;
-    transform: translateY(10px) scale(0.98);
-    transition: transform 180ms ease;
+    transform: translateY(24px) scale(0.95);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
 }
 
 .profile-qr-modal.is-visible .profile-qr-card {
     transform: translateY(0) scale(1);
+    opacity: 1;
 }
 
 .profile-qr-card .js-close-qr {
@@ -7746,33 +7723,42 @@ body.profile-overlay-open {
     height: 100vh;
     height: 100dvh;
     z-index: 19000;
-    opacity: 0;
     visibility: hidden;
     pointer-events: none;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s;
+    transition: visibility 0.4s step-end;
     overflow: hidden;
 }
 
 .profile-nav-overlay.is-visible {
-    opacity: 1 !important;
     visibility: visible !important;
     pointer-events: auto !important;
+    transition: visibility 0s;
 }
 
 .profile-nav-overlay-backdrop {
     position: absolute;
     inset: 0;
+    background: rgba(8, 12, 24, 0);
+    backdrop-filter: blur(0px) saturate(100%);
+    -webkit-backdrop-filter: blur(0px) saturate(100%);
+    z-index: 0;
+    transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 0.4s cubic-bezier(0.16, 1, 0.3, 1), -webkit-backdrop-filter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.profile-nav-overlay.is-visible .profile-nav-overlay-backdrop {
     background: rgba(8, 12, 24, 0.72);
     backdrop-filter: blur(20px) saturate(190%);
     -webkit-backdrop-filter: blur(20px) saturate(190%);
-    z-index: 0;
-    transition: opacity 0.4s ease;
 }
 
 body[data-theme="light"] .profile-nav-overlay-backdrop {
+    background: rgba(255, 255, 255, 0);
+}
+
+body[data-theme="light"] .profile-nav-overlay.is-visible .profile-nav-overlay-backdrop {
     background: rgba(255, 255, 255, 0.74);
 }
 
@@ -7789,8 +7775,9 @@ body[data-theme="light"] .profile-nav-overlay-backdrop {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    transform: scale(0.96) translateY(20px);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: scale(0.96) translateY(24px);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 body[data-theme="light"] .profile-nav-overlay-container {
@@ -7801,6 +7788,7 @@ body[data-theme="light"] .profile-nav-overlay-container {
 
 .profile-nav-overlay.is-visible .profile-nav-overlay-container {
     transform: scale(1) translateY(0);
+    opacity: 1;
 }
 
 /* Header */
@@ -8281,21 +8269,29 @@ body[data-theme="light"] .profile-search-item {
     height: 100vh !important;
     height: 100dvh !important;
     padding: 1rem !important;
-    opacity: 0;
+    visibility: hidden;
     pointer-events: none;
     overflow: hidden;
-    transition: opacity 180ms ease;
+    transition: visibility 0.3s step-end;
 }
 
 .profile-report-modal.is-visible {
-    opacity: 1 !important;
+    visibility: visible !important;
     pointer-events: auto !important;
+    transition: visibility 0s;
 }
 
 .profile-report-backdrop {
     position: absolute !important;
     inset: 0 !important;
     z-index: 0 !important;
+    background: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    transition: background-color 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease;
+}
+
+.profile-report-modal.is-visible .profile-report-backdrop {
     background: rgba(0, 0, 0, 0.68);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
@@ -8305,17 +8301,35 @@ body[data-theme="light"] .profile-search-item {
     position: relative !important;
     z-index: 1 !important;
     width: min(92vw, 380px) !important;
-    max-height: min(90vh, 560px);
-    padding: 1.75rem !important;
+    max-height: min(92vh, 580px) !important;
+    padding: 1.5rem !important;
     border-radius: 24px !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 1.2rem !important;
+    gap: 1rem !important;
     background: radial-gradient(circle at top right, rgba(var(--accent-rgb), 0.1), transparent 12rem), rgba(8, 12, 24, 0.94) !important;
     border: 1px solid rgba(var(--accent-rgb), 0.3) !important;
     box-shadow: 0 32px 80px rgba(0, 0, 0, 0.5) !important;
-    transform: translateY(15px) scale(0.97);
-    transition: transform 180ms ease;
+    transform: translateY(24px) scale(0.95);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(var(--accent-rgb), 0.3) transparent;
+}
+
+.profile-report-card::-webkit-scrollbar {
+    width: 6px;
+}
+.profile-report-card::-webkit-scrollbar-track {
+    background: transparent;
+}
+.profile-report-card::-webkit-scrollbar-thumb {
+    background: rgba(var(--accent-rgb), 0.3);
+    border-radius: 3px;
+}
+.profile-report-card::-webkit-scrollbar-thumb:hover {
+    background: rgba(var(--accent-rgb), 0.5);
 }
 
 body[data-theme="light"] .profile-report-card {
@@ -8326,6 +8340,7 @@ body[data-theme="light"] .profile-report-card {
 
 .profile-report-modal.is-visible .profile-report-card {
     transform: translateY(0) scale(1);
+    opacity: 1;
 }
 
 .profile-report-card .js-close-report {

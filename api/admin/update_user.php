@@ -34,14 +34,80 @@ try {
     if ($exists) admin_fail('Email già in uso.');
 
     $extra = admin_update_user_timestamp_sql($mysqli);
-    $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, email = ?, ruolo = ? $extra WHERE id = ? LIMIT 1");
+
+    // Parse additional fields
+    $soldi = isset($input['soldi']) ? (int)$input['soldi'] : null;
+    $data_creazione = isset($input['data_creazione']) ? trim((string)$input['data_creazione']) : null;
+    $email_verificata = isset($input['email_verificata']) ? (int)$input['email_verificata'] : null;
+    $nsfw = isset($input['nsfw']) ? (int)$input['nsfw'] : null;
+    $richpresence = isset($input['richpresence']) ? (int)$input['richpresence'] : null;
+    $twofa_enabled = isset($input['twofa_enabled']) ? (int)$input['twofa_enabled'] : null;
+
+    $sets = ['username = ?', 'email = ?', 'ruolo = ?'];
+    $types = 'sss';
+    $params = [$username, $email, $role];
+
+    if ($soldi !== null && admin_column_exists($mysqli, 'utenti', 'soldi')) {
+        $sets[] = 'soldi = ?';
+        $types .= 'i';
+        $params[] = $soldi;
+    }
+    if ($data_creazione !== null && admin_column_exists($mysqli, 'utenti', 'data_creazione')) {
+        if ($data_creazione !== '') {
+            if (!preg_match('/^\d{4}-\d{2}-\d{2}(\s\d{2}:\d{2}:\d{2})?$/', $data_creazione)) {
+                admin_fail('Formato data di creazione non valido. Usa YYYY-MM-DD HH:MM:SS');
+            }
+            $sets[] = 'data_creazione = ?';
+            $types .= 's';
+            $params[] = $data_creazione;
+        }
+    }
+    if ($email_verificata !== null && admin_column_exists($mysqli, 'utenti', 'email_verificata')) {
+        $sets[] = 'email_verificata = ?';
+        $types .= 'i';
+        $params[] = $email_verificata;
+    }
+    if ($nsfw !== null && admin_column_exists($mysqli, 'utenti', 'nsfw')) {
+        $sets[] = 'nsfw = ?';
+        $types .= 'i';
+        $params[] = $nsfw;
+    }
+    if ($richpresence !== null && admin_column_exists($mysqli, 'utenti', 'richpresence')) {
+        $sets[] = 'richpresence = ?';
+        $types .= 'i';
+        $params[] = $richpresence;
+    }
+    if ($twofa_enabled !== null && admin_column_exists($mysqli, 'utenti', 'twofa_enabled')) {
+        $sets[] = 'twofa_enabled = ?';
+        $types .= 'i';
+        $params[] = $twofa_enabled;
+        
+        if ($twofa_enabled === 0 && admin_column_exists($mysqli, 'utenti', 'twofa_secret')) {
+            $sets[] = 'twofa_secret = NULL';
+        }
+    }
+
+    $sql_sets = implode(', ', $sets);
+    if ($extra !== '') {
+        $sql_sets .= $extra;
+    }
+
+    $params[] = $userId;
+    $types .= 'i';
+
+    $stmt = $mysqli->prepare("UPDATE utenti SET $sql_sets WHERE id = ? LIMIT 1");
     if (!$stmt) admin_fail('Query aggiornamento non valida.', 500);
-    $stmt->bind_param('sssi', $username, $email, $role, $userId);
+    $stmt->bind_param($types, ...$params);
     if (!$stmt->execute()) admin_fail('Non sono riuscito ad aggiornare l’utente.', 500);
     $stmt->close();
 
-    admin_log($mysqli, (int)$adminUser['id'], 'update_user', $userId, ['username' => $username, 'email' => $email, 'role' => $role]);
+    $logPayload = ['username' => $username, 'email' => $email, 'role' => $role];
+    if ($soldi !== null) $logPayload['soldi'] = $soldi;
+    if ($data_creazione !== null) $logPayload['data_creazione'] = $data_creazione;
+    if ($twofa_enabled !== null) $logPayload['twofa_enabled'] = $twofa_enabled;
+
+    admin_log($mysqli, (int)$adminUser['id'], 'update_user', $userId, $logPayload);
     admin_ok(['message' => 'Utente aggiornato.']);
 } catch (Throwable $e) {
-    admin_fail('Errore aggiornamento utente.', 500);
+    admin_fail('Errore aggiornamento utente. Dettaglio: ' . $e->getMessage(), 500);
 }

@@ -81,6 +81,54 @@
         document.addEventListener('click', (event) => {
             if (event.target.closest('.dropdown')) return;
             $$('.dropdown-menu.show').forEach((menu) => menu.classList.remove('show'));
+    const initSettingsTabs = () => {
+        const sidebar = $('.settings-sidebar');
+        if (!sidebar) return;
+
+        const tabButtons = $$('.settings-tab-btn', sidebar);
+        const tabContents = $$('.settings-tab-content');
+
+        const switchTab = (tabId) => {
+            const targetButton = tabButtons.find(btn => btn.dataset.tab === tabId);
+            const targetContent = $(`#tab-${tabId}`);
+
+            if (!targetButton || !targetContent) return;
+
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            targetButton.classList.add('active');
+            targetContent.classList.add('active');
+
+            if (window.location.hash !== `#${tabId}`) {
+                history.replaceState(null, null, `#${tabId}`);
+            }
+        };
+
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                switchTab(btn.dataset.tab);
+            });
+        });
+
+        let initialTab = 'profile';
+        const hash = window.location.hash.replace('#', '');
+        if (hash) {
+            const mappedHash = hash === 'security' || hash === 'twofa' ? 'twofa' : hash;
+            const targetContent = $(`#tab-${mappedHash}`);
+            if (targetContent) {
+                initialTab = mappedHash;
+            }
+        }
+
+        switchTab(initialTab);
+
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash.replace('#', '');
+            if (hash) {
+                const mappedHash = hash === 'security' || hash === 'twofa' ? 'twofa' : hash;
+                switchTab(mappedHash);
+            }
         });
     };
 
@@ -89,5 +137,6 @@
         initLoadingForms();
         initReveal();
         initDropdownFallback();
+        initSettingsTabs();
     });
 })();

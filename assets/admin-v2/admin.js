@@ -397,6 +397,24 @@
                     <option value="admin" ${user.ruolo === 'admin' ? 'selected' : ''} ${adminRole !== 'owner' ? 'disabled' : ''}>admin</option>
                     <option value="owner" ${user.ruolo === 'owner' ? 'selected' : ''} ${adminRole !== 'owner' ? 'disabled' : ''}>owner</option>
                 </select></div>
+                <div class="admin-field"><label>Soldi</label><input type="number" name="soldi" value="${Number(user.soldi ?? 0)}" min="0"></div>
+                <div class="admin-field"><label>Data Creazione</label><input type="text" name="data_creazione" value="${escapeHtml(user.data_creazione || '')}" placeholder="YYYY-MM-DD HH:MM:SS"></div>
+                <div class="admin-field"><label>Email Verificata</label><select name="email_verificata">
+                    <option value="1" ${Number(user.email_verificata) === 1 ? 'selected' : ''}>Sì (1)</option>
+                    <option value="0" ${Number(user.email_verificata) === 0 ? 'selected' : ''}>No (0)</option>
+                </select></div>
+                <div class="admin-field"><label>NSFW</label><select name="nsfw">
+                    <option value="1" ${Number(user.nsfw) === 1 ? 'selected' : ''}>Abilitato</option>
+                    <option value="0" ${Number(user.nsfw) === 0 ? 'selected' : ''}>Disabilitato</option>
+                </select></div>
+                <div class="admin-field"><label>Rich Presence</label><select name="richpresence">
+                    <option value="1" ${Number(user.richpresence) === 1 ? 'selected' : ''}>Sì (1)</option>
+                    <option value="0" ${Number(user.richpresence) === 0 ? 'selected' : ''}>No (0)</option>
+                </select></div>
+                <div class="admin-field"><label>2FA Abilitato</label><select name="twofa_enabled">
+                    <option value="1" ${Number(user.twofa_enabled) === 1 ? 'selected' : ''}>Sì (1)</option>
+                    <option value="0" ${Number(user.twofa_enabled) === 0 ? 'selected' : ''}>No (0)</option>
+                </select></div>
             </form>
         `, `<button class="admin-btn" data-admin-close="1">Annulla</button><button class="admin-btn admin-btn--primary" id="saveUserBtn">Salva</button>`);
         $('#saveUserBtn').addEventListener('click', async () => {
