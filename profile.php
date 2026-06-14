@@ -12,7 +12,7 @@ $isLoggedIn = isLoggedIn();
 
 if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-    $_SESSION['login_message'] = 'Devi essere loggato per creare un profilo.';
+    $_SESSION['login_message'] = 'You need to log in to create a profile.';
     header('Location: accedi');
     exit();
 }
