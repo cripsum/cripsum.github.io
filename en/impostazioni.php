@@ -199,8 +199,8 @@ if ($twofaSetupSecret) {
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Account settings</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/auth/auth.css?v=1.1">
-    <script src="/assets/auth/auth.js?v=1.1" defer></script>
+    <link rel="stylesheet" href="/assets/auth/auth.css?v=1.2">
+    <script src="/assets/auth/auth.js?v=1.2" defer></script>
 </head>
 
 <body class="auth-page settings-page">

@@ -81,6 +81,9 @@
         document.addEventListener('click', (event) => {
             if (event.target.closest('.dropdown')) return;
             $$('.dropdown-menu.show').forEach((menu) => menu.classList.remove('show'));
+        });
+    };
+
     const initSettingsTabs = () => {
         const sidebar = $('.settings-sidebar');
         if (!sidebar) return;
