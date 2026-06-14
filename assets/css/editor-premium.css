@@ -13,7 +13,10 @@
 }
 
 .profile-editor-shell .profile-edit-hero,
-.profile-editor-shell .profile-flash {
+.profile-editor-shell .profile-flash,
+.profile-editor-shell #siteFooter,
+.profile-editor-shell .modern-footer,
+.profile-editor-shell footer {
     display: none !important;
 }
 
