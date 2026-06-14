@@ -24,8 +24,8 @@ $action = $_GET['action'] ?? '';
 
 switch ($action) {
     case 'list':
-        $stmt = $mysqli->prepare("SELECT id, nome, created_at, preset_data FROM utenti_presets WHERE utente_id = ? ORDER BY created_at DESC");
-        $stmt->bind_param('i', $targetUserId);
+        $stmt = $mysqli->prepare("SELECT id, nome, created_at, preset_data FROM utenti_presets WHERE utente_id = ? OR utente_id = ? ORDER BY created_at DESC");
+        $stmt->bind_param('ii', $targetUserId, $currentUserId);
         $stmt->execute();
         $res = $stmt->get_result();
         $presets = [];
@@ -163,8 +163,8 @@ switch ($action) {
             exit;
         }
 
-        $stmt = $mysqli->prepare("SELECT preset_data FROM utenti_presets WHERE id = ? AND utente_id = ? LIMIT 1");
-        $stmt->bind_param('ii', $presetId, $targetUserId);
+        $stmt = $mysqli->prepare("SELECT preset_data FROM utenti_presets WHERE id = ? AND (utente_id = ? OR utente_id = ?) LIMIT 1");
+        $stmt->bind_param('iii', $presetId, $targetUserId, $currentUserId);
         $stmt->execute();
         $presetRow = $stmt->get_result()->fetch_assoc();
         $stmt->close();
@@ -504,9 +504,8 @@ switch ($action) {
             echo json_encode(['ok' => false, 'message' => 'Hai raggiunto il limite massimo di 3 preset.']);
             exit;
         }
-
-        $stmt = $mysqli->prepare("SELECT nome, preset_data FROM utenti_presets WHERE id = ? AND utente_id = ? LIMIT 1");
-        $stmt->bind_param('ii', $presetId, $targetUserId);
+        $stmt = $mysqli->prepare("SELECT nome, preset_data FROM utenti_presets WHERE id = ? AND (utente_id = ? OR utente_id = ?) LIMIT 1");
+        $stmt->bind_param('iii', $presetId, $targetUserId, $currentUserId);
         $stmt->execute();
         $row = $stmt->get_result()->fetch_assoc();
         $stmt->close();
@@ -535,8 +534,8 @@ switch ($action) {
             exit;
         }
 
-        $stmt = $mysqli->prepare("UPDATE utenti_presets SET nome = ? WHERE id = ? AND utente_id = ?");
-        $stmt->bind_param('sii', $newName, $presetId, $targetUserId);
+        $stmt = $mysqli->prepare("UPDATE utenti_presets SET nome = ? WHERE id = ? AND (utente_id = ? OR utente_id = ?)");
+        $stmt->bind_param('siii', $newName, $presetId, $targetUserId, $currentUserId);
         if ($stmt->execute()) {
             echo json_encode(['ok' => true, 'message' => 'Preset rinominato!']);
         } else {
@@ -552,8 +551,8 @@ switch ($action) {
             exit;
         }
 
-        $stmt = $mysqli->prepare("DELETE FROM utenti_presets WHERE id = ? AND utente_id = ?");
-        $stmt->bind_param('ii', $presetId, $targetUserId);
+        $stmt = $mysqli->prepare("DELETE FROM utenti_presets WHERE id = ? AND (utente_id = ? OR utente_id = ?)");
+        $stmt->bind_param('iii', $presetId, $targetUserId, $currentUserId);
         if ($stmt->execute()) {
             echo json_encode(['ok' => true, 'message' => 'Preset eliminato.']);
         } else {

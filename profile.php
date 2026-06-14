@@ -27,7 +27,7 @@ if ($customAlias !== null && trim((string)$customAlias) !== '') {
         $profile = profile_get_public_profile($mysqli, $identifier);
         
         // Redirect SEO: if user visits /u/username but has a custom alias, redirect to the custom alias
-        if ($profile && !empty($profile['custom_alias'])) {
+        if ($profile && !empty($profile['custom_alias']) && !isset($_GET['preview_mode'])) {
             header("HTTP/1.1 301 Moved Permanently");
             header('Location: /' . rawurlencode(strtolower($profile['custom_alias'])));
             exit;
@@ -67,16 +67,95 @@ if ($profile) {
             }
         }
         // ── /MISSION TRACKING ────────────────────────────────────────────
-        $socials = profile_list_socials($mysqli, $profileId, true);
-        $links = profile_list_links($mysqli, $profileId, true);
-        $projects = profile_list_projects($mysqli, $profileId, true);
-        $contents = profile_list_contents($mysqli, $profileId, true);
-        $blocks = function_exists('profile_list_blocks') ? profile_list_blocks($mysqli, $profileId, true) : [];
-        $badges = profile_list_visible_badges($mysqli, $profileId);
-        $activity = profile_recent_activity($mysqli, $profileId);
-        $characters = function_exists('profile_list_displayed_characters')
-            ? profile_list_displayed_characters($mysqli, $profileId)
-            : [];
+        if (isset($_GET['preview_mode']) && isset($_SESSION['profile_draft'][$profileId])) {
+            $draft = $_SESSION['profile_draft'][$profileId];
+            
+            // Override profile values
+            foreach ($draft as $key => $val) {
+                if (!in_array($key, ['socials_json', 'links_json', 'projects_json', 'contents_json', 'blocks_json', 'badges_json', 'characters_json', 'embeds_json', 'profile_tags_json'])) {
+                    $profile[$key] = $val;
+                }
+            }
+            
+            // Re-map booleans
+            $booleans = [
+                'tilt_enabled', 'avatar_ring_enabled', 'profile_avatar_border', 'profile_show_stats', 
+                'profile_show_socials', 'profile_show_links', 'profile_show_projects', 'profile_show_contents', 
+                'profile_show_badges', 'profile_show_activity', 'profile_show_discord', 'profile_show_audio_player', 
+                'profile_click_to_enter', 'profile_show_embeds', 'profile_show_characters'
+            ];
+            foreach ($booleans as $boolCol) {
+                $profile[$boolCol] = isset($draft[$boolCol]) ? (int)$draft[$boolCol] : 0;
+            }
+            
+            // Re-map list JSON variables
+            $socials = isset($draft['socials_json']) ? json_decode($draft['socials_json'], true) : [];
+            $links = isset($draft['links_json']) ? json_decode($draft['links_json'], true) : [];
+            $projects = isset($draft['projects_json']) ? json_decode($draft['projects_json'], true) : [];
+            $contents = isset($draft['contents_json']) ? json_decode($draft['contents_json'], true) : [];
+            $blocks = isset($draft['blocks_json']) ? json_decode($draft['blocks_json'], true) : [];
+            $embeds = isset($draft['embeds_json']) ? json_decode($draft['embeds_json'], true) : [];
+            if (isset($draft['profile_tags_json'])) {
+                $profile['profile_tags_json'] = $draft['profile_tags_json'];
+            }
+            
+            // Resolve badges
+            $badges = [];
+            if (isset($draft['badges_json'])) {
+                $badgeCompoundIds = json_decode($draft['badges_json'], true) ?: [];
+                foreach ($badgeCompoundIds as $i => $compoundId) {
+                    if (str_starts_with($compoundId, 'custom_')) {
+                        $badgeId = (int)substr($compoundId, 7);
+                        $res = $mysqli->query("SELECT 'custom' AS badge_source, cb.id, cb.name AS nome, cb.name_en AS nome_en, cb.descrizione, cb.descrizione_en, cb.image_url AS img_url, 0 AS punti, $i AS sort_order, cb.color, cb.glow, cb.animation, cb.badge_type, cb.icon FROM custom_badges cb WHERE cb.id = " . $badgeId);
+                        if ($row = $res->fetch_assoc()) {
+                            $badges[] = $row;
+                        }
+                    } else {
+                        $badgeId = $compoundId;
+                        if (str_starts_with($compoundId, 'achievement_')) {
+                            $badgeId = (int)substr($compoundId, 12);
+                        }
+                        $res = $mysqli->query("SELECT 'achievement' AS badge_source, a.id, a.nome, a.nome_en, a.descrizione, a.descrizione_en, a.img_url, a.punti, $i AS sort_order, NULL AS color, 0 AS glow, 'none' AS animation, 'custom' AS badge_type, NULL AS icon FROM achievement a WHERE a.id = " . $badgeId);
+                        if ($row = $res->fetch_assoc()) {
+                            $badges[] = $row;
+                        }
+                    }
+                }
+            }
+            
+            // Resolve characters
+            $characters = [];
+            if (isset($draft['characters_json'])) {
+                $charIds = json_decode($draft['characters_json'], true) ?: [];
+                foreach ($charIds as $i => $charId) {
+                    $charId = (int)$charId;
+                    if ($charId <= 0) continue;
+                    $res = $mysqli->query("
+                        SELECT p.id, p.nome, COALESCE(p.img_url, '') AS img_url, COALESCE(p.rarità, '') AS rarità, COALESCE(up.quantità, 1) as quantità
+                        FROM personaggi p
+                        LEFT JOIN utenti_personaggi up ON up.personaggio_id = p.id AND up.utente_id = " . $profileId . "
+                        WHERE p.id = " . $charId . "
+                        LIMIT 1
+                    ");
+                    if ($row = $res->fetch_assoc()) {
+                        $characters[] = $row;
+                    }
+                }
+            }
+            
+            $activity = profile_recent_activity($mysqli, $profileId);
+        } else {
+            $socials = profile_list_socials($mysqli, $profileId, true);
+            $links = profile_list_links($mysqli, $profileId, true);
+            $projects = profile_list_projects($mysqli, $profileId, true);
+            $contents = profile_list_contents($mysqli, $profileId, true);
+            $blocks = function_exists('profile_list_blocks') ? profile_list_blocks($mysqli, $profileId, true) : [];
+            $badges = profile_list_visible_badges($mysqli, $profileId);
+            $activity = profile_recent_activity($mysqli, $profileId);
+            $characters = function_exists('profile_list_displayed_characters')
+                ? profile_list_displayed_characters($mysqli, $profileId)
+                : [];
+        }
 
         if (function_exists('isUserOnline')) {
             $isOnline = isUserOnline($mysqli, $profileId);
@@ -1149,6 +1228,60 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 
     <div class="bio-toast" id="bioToast" role="status" aria-live="polite"></div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <?php if (isset($_GET['preview_mode'])): ?>
+    <script>
+    window.addEventListener('message', function(event) {
+        if (!event.data) return;
+        const data = event.data;
+        if (data.type === 'update-css-variables') {
+            const body = document.querySelector('.bio-v2-body');
+            if (body) {
+                for (const [key, value] of Object.entries(data.variables)) {
+                    body.style.setProperty(key, value, 'important');
+                }
+            }
+        } else if (data.type === 'update-attributes') {
+            const body = document.querySelector('.bio-v2-body');
+            if (body) {
+                for (const [key, value] of Object.entries(data.attributes)) {
+                    if (key.startsWith('data-')) {
+                        body.setAttribute(key, value);
+                    } else if (key === 'style') {
+                        for (const [styleKey, styleVal] of Object.entries(value)) {
+                            body.style.setProperty(styleKey, styleVal);
+                        }
+                    }
+                }
+            }
+        } else if (data.type === 'update-text') {
+            for (const [selector, text] of Object.entries(data.texts)) {
+                const el = document.querySelector(selector);
+                if (el) {
+                    if (selector === '.profile-display-name') {
+                        el.setAttribute('data-text', text);
+                        el.textContent = text;
+                    } else if (selector === '.bio-tagline') {
+                        el.innerHTML = text.replace(/\n/g, '<br>');
+                    } else {
+                        el.textContent = text;
+                    }
+                } else if (selector === '.bio-tagline' && text.trim() !== '') {
+                    // Bio was empty, render it dynamically
+                    const nameBlock = document.querySelector('.bio-name-block');
+                    if (nameBlock) {
+                        const newBio = document.createElement('p');
+                        newBio.className = 'bio-tagline';
+                        newBio.innerHTML = text.replace(/\n/g, '<br>');
+                        nameBlock.appendChild(newBio);
+                    }
+                }
+            }
+        } else if (data.type === 'reload') {
+            window.location.reload();
+        }
+    });
+    </script>
+    <?php endif; ?>
 </body>
 
 </html>

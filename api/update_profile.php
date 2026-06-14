@@ -680,6 +680,11 @@ try {
         $_SESSION['username'] = $username;
     }
 
+    // Clear draft on successful save
+    if (isset($_SESSION['profile_draft'][$targetUserId])) {
+        unset($_SESSION['profile_draft'][$targetUserId]);
+    }
+
     profile_json_response([
         'ok' => true,
         'message' => 'Profile saved.',

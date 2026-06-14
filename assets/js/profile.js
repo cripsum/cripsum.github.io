@@ -181,7 +181,7 @@
                 if (!glareContainer) {
                     glareContainer = document.createElement('div');
                     glareContainer.className = 'js-tilt-glare';
-                    glareContainer.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; border-radius: inherit; z-index: 10;';
+                    glareContainer.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; border-radius: inherit; z-index: 10; -webkit-mask-image: -webkit-radial-gradient(white, black);';
                     
                     glareInner = document.createElement('div');
                     glareInner.className = 'js-tilt-glare-inner';
