@@ -568,7 +568,8 @@
 
             const musicUrl = musicUrlInput?.value.trim() || '';
             const showPlayer = showAudioPlayerInput?.checked || false;
-            const hasMusicSource = musicUrl !== '' || cachedMusicData !== null;
+            const hasServerMusic = document.getElementById('hasServerMusic')?.value === '1';
+            const hasMusicSource = musicUrl !== '' || cachedMusicData !== null || hasServerMusic;
 
             iframe.contentWindow.postMessage({
                 type: 'update-music-player',
