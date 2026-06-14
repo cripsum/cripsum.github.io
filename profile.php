@@ -447,8 +447,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.7.1">
-    <script src="/assets/js/profile.js?v=4.7.1" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.7.2">
+    <script src="/assets/js/profile.js?v=4.7.2" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
     <style>
         .profile-smart-page {
@@ -838,17 +838,16 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 
                 <?php 
                 $isPreview = isset($_GET['preview_mode']);
-                $shouldRenderPlayer = ($hasMusic && $showAudioPlayer) || $isPreview;
-                $shouldRenderHidden = !$shouldRenderPlayer && ($hasMusic || $isPreview);
+                $hasClickToEnter = $profile && profile_flag($profile, 'profile_click_to_enter', false);
                 ?>
-                <?php if ($shouldRenderPlayer): ?>
-                    <div class="bio-audio profile-audio-player" data-audio-player style="<?php echo ($hasMusic && $showAudioPlayer) ? '' : 'display: none !important;'; ?>">
+                <?php if ($hasMusic && $showAudioPlayer): ?>
+                    <div class="bio-audio profile-audio-player" data-audio-player>
                         <audio id="profileAudio" preload="metadata" src="<?php echo profile_h($musicUrl); ?>"></audio>
                         <div class="bio-audio__header">
                             <div>
                                 <small>Audio</small>
                                 <strong><i class="fas fa-music"></i><?php echo profile_h($musicTitle ?: 'Profile Song'); ?></strong>
-                                <span class="profile-artist-span" style="<?php echo $musicArtist ? '' : 'display: none !important;'; ?>"><?php echo profile_h($musicArtist); ?></span>
+                                <span class="profile-artist-span" style="<?php echo $musicArtist ? '' : 'display: none;'; ?>"><?php echo profile_h($musicArtist); ?></span>
                             </div>
                             <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i id="profileAudioIcon" class="fas fa-play"></i></button>
                         </div>
@@ -862,8 +861,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                             <input id="profileVolumeSlider" type="range" min="0" max="1" step="0.01" value="0.18" aria-label="Volume">
                         </div>
                     </div>
-                <?php elseif ($shouldRenderHidden): ?>
-                    <?php $hasClickToEnter = $profile && profile_flag($profile, 'profile_click_to_enter', false); ?>
+                <?php elseif ($hasMusic && !$showAudioPlayer): ?>
                     <audio
                         id="profileAudio"
                         class="profile-hidden-audio"
@@ -872,6 +870,48 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         loop
                         data-autoplay="1"
                         src="<?php echo profile_h($musicUrl); ?>"></audio>
+                    <?php if ($isPreview): ?>
+                    <div class="bio-audio profile-audio-player" data-audio-player style="display: none;">
+                        <div class="bio-audio__header">
+                            <div>
+                                <small>Audio</small>
+                                <strong><i class="fas fa-music"></i><?php echo profile_h($musicTitle ?: 'Profile Song'); ?></strong>
+                                <span class="profile-artist-span" style="<?php echo $musicArtist ? '' : 'display: none;'; ?>"><?php echo profile_h($musicArtist); ?></span>
+                            </div>
+                            <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i class="fas fa-play"></i></button>
+                        </div>
+                        <div class="bio-audio__progress">
+                            <span>0:00</span>
+                            <input type="range" min="0" max="100" step="0.1" value="0" aria-label="Audio progress">
+                            <span>0:00</span>
+                        </div>
+                        <div class="bio-audio__bottom">
+                            <button class="bio-small-button js-profile-volume-toggle" type="button" aria-label="Mute"><i class="fas fa-volume-down"></i></button>
+                            <input type="range" min="0" max="1" step="0.01" value="0.18" aria-label="Volume">
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                <?php elseif ($isPreview): ?>
+                    <audio id="profileAudio" preload="metadata"></audio>
+                    <div class="bio-audio profile-audio-player" data-audio-player style="display: none;">
+                        <div class="bio-audio__header">
+                            <div>
+                                <small>Audio</small>
+                                <strong><i class="fas fa-music"></i>Profile Song</strong>
+                                <span class="profile-artist-span" style="display: none;"></span>
+                            </div>
+                            <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i class="fas fa-play"></i></button>
+                        </div>
+                        <div class="bio-audio__progress">
+                            <span>0:00</span>
+                            <input type="range" min="0" max="100" step="0.1" value="0" aria-label="Audio progress">
+                            <span>0:00</span>
+                        </div>
+                        <div class="bio-audio__bottom">
+                            <button class="bio-small-button js-profile-volume-toggle" type="button" aria-label="Mute"><i class="fas fa-volume-down"></i></button>
+                            <input type="range" min="0" max="1" step="0.01" value="0.18" aria-label="Volume">
+                        </div>
+                    </div>
                 <?php endif; ?>
 
                 <div class="profile-small-meta">
@@ -1333,12 +1373,12 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             const audio = document.getElementById('profileAudio');
             if (player) {
                 if (data.hasMusic && data.showPlayer) {
-                    player.style.setProperty('display', '', 'important');
+                    player.style.removeProperty('display');
                 } else {
-                    player.style.setProperty('display', 'none', 'important');
+                    player.style.display = 'none';
                 }
             }
-            if (audio) {
+            if (audio && data.src) {
                 const newSrc = data.src || '';
                 if (audio.getAttribute('src') !== newSrc) {
                     audio.src = newSrc;
@@ -1347,15 +1387,15 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             }
             const titleEl = document.querySelector('.profile-audio-player strong');
             if (titleEl) {
-                titleEl.innerHTML = `<i class="fas fa-music"></i>` + data.title;
+                titleEl.innerHTML = `<i class="fas fa-music"></i>` + (data.title || 'Profile Song');
             }
-            const artistEl = document.querySelector('.profile-audio-player span, .profile-artist-span');
+            const artistEl = document.querySelector('.profile-artist-span');
             if (artistEl) {
                 if (data.artist) {
                     artistEl.textContent = data.artist;
-                    artistEl.style.setProperty('display', '', 'important');
+                    artistEl.style.removeProperty('display');
                 } else {
-                    artistEl.style.setProperty('display', 'none', 'important');
+                    artistEl.style.display = 'none';
                 }
             }
         } else if (data.type === 'reload') {

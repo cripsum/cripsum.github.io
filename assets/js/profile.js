@@ -1028,7 +1028,7 @@
         if (overlay) {
             overlay.addEventListener('click', async () => {
                 const audio = document.getElementById('profileAudio');
-                if (audio) {
+                if (audio && audio.src && audio.src !== window.location.href) {
                     try {
                         const savedVolume = Number(localStorage.getItem('cripsum.profile.audioVolume') || 0.18);
                         audio.volume = Math.min(Math.max(savedVolume, 0), 1);
@@ -1036,7 +1036,7 @@
                         const playIcon = document.getElementById('profileAudioIcon');
                         if (playIcon) playIcon.className = 'fas fa-pause';
                     } catch (e) {
-                        console.error('Autoplay via click to enter failed:', e);
+                        console.warn('Autoplay via click to enter skipped:', e.message);
                     }
                 }
                 overlay.classList.add('is-hidden');
