@@ -66,9 +66,9 @@
 
 /* Sidebar Styling */
 .editor-sidebar {
-    width: 450px;
-    min-width: 420px;
-    max-width: 480px;
+    width: 550px;
+    min-width: 500px;
+    max-width: 600px;
     height: 100%;
     background: rgba(8, 12, 24, 0.76);
     border-right: 1px solid rgba(255, 255, 255, 0.12);
@@ -268,7 +268,13 @@
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 12px;
     overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Hide accordion subtitle and green badges */
+.editor-card-text p,
+.editor-status-badge {
+    display: none !important;
 }
 
 .editor-card.is-expanded {
@@ -369,17 +375,25 @@
 }
 
 .editor-card-body {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), padding 0.3s ease;
-    padding: 0 1.2rem;
-    border-top: 1px solid transparent;
+    display: none;
+    padding: 1.2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .editor-card.is-expanded .editor-card-body {
-    max-height: 2000px; /* high enough limit */
-    padding: 1.2rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    display: block;
+    animation: slideDownFade 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideDownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Custom Field Design (Inputs & Labels) */
@@ -453,31 +467,79 @@
     border-radius: 8px;
 }
 
-/* Sliders */
+/* Premium Figma/Canva-style Sliders */
 input[type="range"] {
     -webkit-appearance: none;
     width: 100%;
-    height: 5px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 2px;
     outline: none;
-    margin: 10px 0;
+    margin: 14px 0;
+    cursor: pointer;
+    transition: background 0.2s;
 }
 
+input[type="range"]:focus {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Webkit (Chrome, Safari, Edge, Opera) */
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
-    background: #8b5cf6;
+    background: #ffffff;
     cursor: pointer;
-    transition: transform 0.1s, background-color 0.2s;
-    box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    transition: transform 0.15s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.15s, box-shadow 0.15s;
+    border: 1px solid rgba(0, 0, 0, 0.15);
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
-    transform: scale(1.25);
+    transform: scale(1.2);
+    background: #8b5cf6;
+    box-shadow: 0 2px 6px rgba(139, 92, 246, 0.4);
+    border-color: rgba(139, 92, 246, 0.2);
+}
+
+input[type="range"]::-webkit-slider-thumb:active {
+    transform: scale(1.3);
     background: #a855f7;
+    box-shadow: 0 3px 8px rgba(168, 85, 247, 0.6);
+}
+
+/* Firefox */
+input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    transition: transform 0.15s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.15s, box-shadow 0.15s;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+    transform: scale(1.2);
+    background: #8b5cf6;
+    box-shadow: 0 2px 6px rgba(139, 92, 246, 0.4);
+    border-color: rgba(139, 92, 246, 0.2);
+}
+
+input[type="range"]::-moz-range-thumb:active {
+    transform: scale(1.3);
+    background: #a855f7;
+    box-shadow: 0 3px 8px rgba(168, 85, 247, 0.6);
+}
+
+input[type="range"]::-moz-range-track {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 2px;
 }
 
 /* Toggle Switches */
