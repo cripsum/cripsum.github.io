@@ -11,15 +11,27 @@ checkBan($mysqli);
 $isLoggedIn = isLoggedIn();
 $currentUserId = profile_current_user_id();
 $customAlias = $_GET['custom_alias'] ?? null;
-
-if ($customAlias !== null && trim((string)$customAlias) !== '') {
+if ($customAlias !== null) {
     $customAlias = trim((string)$customAlias);
+    if (strtolower($customAlias) === 'profile') {
+        $customAlias = null; // Treat /profile as direct profile.php visit
+    }
+}
+
+if ($customAlias !== null && $customAlias !== '') {
     $profile = profile_get_public_profile_by_alias($mysqli, $customAlias);
 
     // Redirect SEO: alias visits redirect to the canonical /u/username URL
     if ($profile && !empty($profile['username']) && !isset($_GET['preview_mode'])) {
         header("HTTP/1.1 301 Moved Permanently");
         header('Location: /u/' . rawurlencode(strtolower($profile['username'])));
+        exit;
+    }
+
+    // Serve standard website 404.html if the custom alias doesn't exist
+    if (!$profile) {
+        header("HTTP/1.1 404 Not Found");
+        include __DIR__ . '/404.html';
         exit;
     }
 } else {
@@ -29,7 +41,15 @@ if ($customAlias !== null && trim((string)$customAlias) !== '') {
             header('Location: /u/' . rawurlencode(strtolower($_SESSION['username'])));
             exit;
         }
-        $profile = null;
+        // Redirect logged out users accessing their own profile to login
+        $lang = 'it';
+        if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
+            $lang = 'en';
+        } elseif (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) && strpos(strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE']), 'it') === false) {
+            $lang = 'en';
+        }
+        header("Location: /{$lang}/accedi");
+        exit;
     } else {
         $profile = profile_get_public_profile($mysqli, $identifier);
     }
@@ -459,8 +479,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.8.5">
-    <script src="/assets/js/profile.js?v=4.8.5" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.8.6">
+    <script src="/assets/js/profile.js?v=4.8.6" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {

@@ -954,16 +954,15 @@ input[type="range"]::-moz-range-track {
     color: #fff !important;
 }
 
-/* Onboarding Tour styles */
 .onboarding-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(8, 5, 14, 0.45);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     z-index: 20000 !important;
     display: flex;
     align-items: center;

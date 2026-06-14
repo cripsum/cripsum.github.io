@@ -2257,41 +2257,41 @@
 
     // ── ONBOARDING WALKTHROUGH TOUR ──────────────────────────────────────────
     function launchOnboardingTour() {
-        if (localStorage.getItem('cripsum_profile_editor_tour_seen')) return;
+        if (localStorage.getItem('cripsum_profile_editor_guide_seen')) return;
 
         const steps = isEnglish ? [
             {
-                title: "Welcome to the Profile Editor!",
-                desc: "We completely redesigned the editor to provide a premium, Figma-like design experience. Let's see how it works!"
+                title: "Welcome to the Profile Editor",
+                desc: "Here is a quick guide to help you customize your profile using the new interface."
             },
             {
-                title: "Global settings search",
-                desc: "Type 'avatar', 'color', or any setting name in the search bar to locate specific fields instantly without scrolling."
+                title: "Search Settings",
+                desc: "Use the search bar at the top of the sidebar to quickly find specific settings without scrolling through the cards."
             },
             {
-                title: "Interactive Live Preview",
-                desc: "The preview frame on the right displays exactly what your profile looks like in real time! You can switch between desktop and mobile viewport sizes."
+                title: "Live Preview",
+                desc: "The right panel shows your changes in real time. Use the icons at the top of the preview to switch between desktop and mobile views."
             },
             {
-                title: "Autosave Drafts",
-                desc: "The editor saves a session draft automatically while you work. When you're ready to publish, click 'Save' in the top right header."
+                title: "Save Changes",
+                desc: "Your progress is saved automatically as a draft while editing. Click the 'Save' button in the top right corner to publish your changes."
             }
         ] : [
             {
-                title: "Benvenuto nel Profile Editor!",
-                desc: "Abbiamo completamente riprogettato l'editor per offrirti un'esperienza di design fluida e premium, simile a Figma. Vediamo come funziona!"
+                title: "Benvenuto nel Profile Editor",
+                desc: "Ecco una breve guida per aiutarti a personalizzare il tuo profilo con la nuova interfaccia."
             },
             {
-                title: "Ricerca globale impostazioni",
-                desc: "Scrivi 'avatar', 'colori' o qualsiasi impostazione nella barra di ricerca per trovare all'istante i campi che desideri modificare."
+                title: "Cerca Impostazioni",
+                desc: "Usa la barra di ricerca in cima alla barra laterale per trovare rapidamente le impostazioni che desideri modificare senza scorrere."
             },
             {
-                title: "Anteprima Live Interattiva",
-                desc: "Il pannello destro mostra in tempo reale l'anteprima esatta del tuo profilo. Puoi alternare tra la visualizzazione Desktop e Mobile."
+                title: "Anteprima in Tempo Reale",
+                desc: "Il pannello destro mostra le modifiche all'istante. Usa le icone in alto per alternare tra la visualizzazione desktop e mobile."
             },
             {
-                title: "Salvataggio automatico bozza",
-                desc: "Mentre modifichi, l'editor salva una bozza temporanea. Quando sei soddisfatto delle modifiche, clicca 'Salva' in alto a destra per pubblicarle."
+                title: "Salva le Modifiche",
+                desc: "Le modifiche vengono salvate automaticamente come bozza temporanea mentre lavori. Clicca sul pulsante 'Salva' in alto a destra per pubblicarle sul tuo profilo."
             }
         ];
 
@@ -2317,7 +2317,7 @@
             `;
 
             card.querySelector('#skipTourBtn').addEventListener('click', () => {
-                localStorage.setItem('cripsum_profile_editor_tour_seen', 'true');
+                localStorage.setItem('cripsum_profile_editor_guide_seen', 'true');
                 overlay.remove();
             });
 
@@ -2326,7 +2326,7 @@
                     currentStep++;
                     renderStep();
                 } else {
-                    localStorage.setItem('cripsum_profile_editor_tour_seen', 'true');
+                    localStorage.setItem('cripsum_profile_editor_guide_seen', 'true');
                     overlay.remove();
                 }
             });
