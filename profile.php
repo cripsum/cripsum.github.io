@@ -466,8 +466,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.7.5">
-    <script src="/assets/js/profile.js?v=4.7.5" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.7.6">
+    <script src="/assets/js/profile.js?v=4.7.6" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -1325,12 +1325,20 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     const body = document.querySelector('.bio-v2-body');
                     if (body) {
                         for (const [key, value] of Object.entries(data.attributes)) {
-                            if (key.startsWith('data-')) {
+                            if (key.startsWith('data-') && !key.startsWith('data-tilt-')) {
                                 body.setAttribute(key, value);
                             } else if (key === 'style') {
                                 for (const [styleKey, styleVal] of Object.entries(value)) {
                                     body.style.setProperty(styleKey, styleVal);
                                 }
+                            }
+                        }
+                    }
+                    const card = document.querySelector('.js-tilt-card');
+                    if (card) {
+                        for (const [key, value] of Object.entries(data.attributes)) {
+                            if (key.startsWith('data-tilt-')) {
+                                card.setAttribute(key, value);
                             }
                         }
                     }

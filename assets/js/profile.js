@@ -164,18 +164,19 @@
         if (!cards.length || !canHover) return;
 
         cards.forEach((card) => {
-            const enabled = card.dataset.tiltEnabled !== '0';
-            if (!enabled) return;
-
-            const maxTilt = parseFloat(card.dataset.tiltMax ?? 15);
-            const glare = parseFloat(card.dataset.tiltGlare ?? 0);
-            const zoom = parseFloat(card.dataset.tiltZoom ?? 1.05);
-            const speed = parseInt(card.dataset.tiltSpeed ?? 400, 10);
-
-            card.style.transition = `transform ${speed}ms cubic-bezier(.03,.98,.52,.99), box-shadow ${speed}ms cubic-bezier(.03,.98,.52,.99)`;
+            const getSpeed = () => parseInt(card.dataset.tiltSpeed ?? 400, 10);
+            const getGlare = () => parseFloat(card.dataset.tiltGlare ?? 0);
 
             let glareInner = null;
-            if (glare > 0) {
+            
+            const checkAndCreateGlare = () => {
+                const glareVal = getGlare();
+                if (glareVal <= 0) {
+                    const existing = card.querySelector('.js-tilt-glare');
+                    if (existing) existing.style.display = 'none';
+                    glareInner = null;
+                    return;
+                }
                 card.style.position = 'relative';
                 let glareContainer = card.querySelector('.js-tilt-glare');
                 if (!glareContainer) {
@@ -185,18 +186,26 @@
                     
                     glareInner = document.createElement('div');
                     glareInner.className = 'js-tilt-glare-inner';
-                    glareInner.style.cssText = `position: absolute; top: 50%; left: 50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,${glare}) 0%, rgba(255,255,255,0) 60%); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: opacity ${speed}ms cubic-bezier(.03,.98,.52,.99), transform ${speed}ms cubic-bezier(.03,.98,.52,.99);`;
+                    glareInner.style.cssText = `position: absolute; top: 50%; left: 50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,${glareVal}) 0%, rgba(255,255,255,0) 60%); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: opacity ${getSpeed()}ms cubic-bezier(.03,.98,.52,.99), transform ${getSpeed()}ms cubic-bezier(.03,.98,.52,.99);`;
                     
                     glareContainer.appendChild(glareInner);
                     card.appendChild(glareContainer);
                 } else {
+                    glareContainer.style.display = 'block';
                     glareInner = glareContainer.querySelector('.js-tilt-glare-inner');
+                    if (glareInner) {
+                        glareInner.style.background = `radial-gradient(circle, rgba(255,255,255,${glareVal}) 0%, rgba(255,255,255,0) 60%)`;
+                    }
                 }
-            }
+            };
 
             let frame = null;
 
             card.addEventListener('mouseenter', () => {
+                const enabled = card.dataset.tiltEnabled !== '0';
+                if (!enabled) return;
+                checkAndCreateGlare();
+
                 card.style.transition = 'none';
                 if (glareInner) {
                     glareInner.style.transition = 'none';
@@ -205,6 +214,12 @@
             });
 
             const handleMove = (event) => {
+                const enabled = card.dataset.tiltEnabled !== '0';
+                if (!enabled) return;
+
+                const maxTilt = parseFloat(card.dataset.tiltMax ?? 15);
+                const zoom = parseFloat(card.dataset.tiltZoom ?? 1.05);
+
                 const rect = card.getBoundingClientRect();
                 const x = event.clientX - rect.left;
                 const y = event.clientY - rect.top;
@@ -226,6 +241,12 @@
 
             card.addEventListener('mousemove', handleMove);
             card.addEventListener('mouseleave', () => {
+                const enabled = card.dataset.tiltEnabled !== '0';
+                if (!enabled) {
+                    card.style.transform = 'none';
+                    return;
+                }
+                const speed = getSpeed();
                 cancelAnimationFrame(frame);
                 card.style.transition = `transform ${speed}ms cubic-bezier(.03,.98,.52,.99), box-shadow ${speed}ms cubic-bezier(.03,.98,.52,.99)`;
                 card.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';

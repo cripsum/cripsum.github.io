@@ -590,6 +590,11 @@
         if (profileEffectInput) attributes['data-profile-effect'] = profileEffectInput.value;
         if (layoutInput) attributes['data-profile-layout'] = layoutInput.value;
         if (socialsStyleInput) attributes['data-profile-socials-style'] = socialsStyleInput.value;
+        if (tiltEnabledInput) attributes['data-tilt-enabled'] = tiltEnabledInput.checked ? '1' : '0';
+        if (tiltMaxInput) attributes['data-tilt-max'] = tiltMaxInput.value;
+        if (tiltGlareInput) attributes['data-tilt-glare'] = tiltGlareInput.value;
+        if (tiltZoomInput) attributes['data-tilt-zoom'] = tiltZoomInput.value;
+        if (tiltSpeedInput) attributes['data-tilt-speed'] = tiltSpeedInput.value;
         
         if (iframe && iframe.contentWindow) {
             iframe.contentWindow.postMessage({
@@ -608,6 +613,7 @@
         if (tiltZoomVal && tiltZoomInput) tiltZoomVal.textContent = tiltZoomInput.value;
         if (tiltSpeedVal && tiltSpeedInput) tiltSpeedVal.textContent = tiltSpeedInput.value;
         if (cornerStyleCustomVal && cornerStyleCustomInput) cornerStyleCustomVal.textContent = cornerStyleCustomInput.value;
+        if (profileTabSpeedVal && profileTabAnimationSpeedInput) profileTabSpeedVal.textContent = profileTabAnimationSpeedInput.value + 'ms';
         if (bioCounter && bioInput) bioCounter.textContent = bioInput.value.length;
     }
 
@@ -686,7 +692,7 @@
     }
 
     // Register simple inputs listeners for live updates and autosave
-    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, layoutInput, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput, musicUrlInput, musicTitleInput, musicArtistInput, showAudioPlayerInput].filter(Boolean);
+    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, layoutInput, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput, musicUrlInput, musicTitleInput, musicArtistInput, showAudioPlayerInput, cornerStyleCustomInput, tiltMaxInput, tiltGlareInput, tiltZoomInput, tiltSpeedInput, profileTabAnimationSpeedInput].filter(Boolean);
 
     simpleInputs.forEach((input) => {
         input.addEventListener('input', () => {
