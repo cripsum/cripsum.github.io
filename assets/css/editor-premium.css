@@ -821,8 +821,11 @@ input[type="range"]::-moz-range-track {
 }
 
 .device-frame.mobile {
-    width: 375px;
-    height: 780px;
+    width: 415px;
+    height: 820px;
+    max-width: 100%;
+    max-height: 100%;
+    aspect-ratio: 415 / 820;
     border-radius: 36px;
     border: 12px solid #1a1b23;
     overflow: hidden;
