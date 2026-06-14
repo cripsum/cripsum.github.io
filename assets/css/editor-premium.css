@@ -1,54 +1,69 @@
 /* Editor Premium UI/UX Style Overhaul - Design System */
 
 /* Global Editor Overrides */
+/* Global Editor Overrides */
 .profile-editor-shell {
     overflow: hidden !important;
     height: 100vh !important;
     width: 100vw !important;
     margin: 0 !important;
     padding: 0 !important;
-    background: #04060a !important;
+    background: transparent !important;
     font-family: 'Inter', system-ui, sans-serif !important;
 }
 
-.profile-editor-shell #navbar, 
-.profile-editor-shell .bio-background,
 .profile-editor-shell .profile-edit-hero,
 .profile-editor-shell .profile-flash {
     display: none !important;
 }
 
+.profile-editor-shell .navbar,
+.profile-editor-shell .navbarutenti {
+    display: flex !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 72px !important;
+    z-index: 15000 !important;
+}
+
+.profile-editor-shell .bio-background {
+    display: block !important;
+    z-index: -3 !important;
+}
+
 .profile-edit-layout {
     width: 100vw !important;
     max-width: 100vw !important;
-    height: 100vh !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    height: calc(100vh - 72px) !important;
+    margin-top: 72px !important;
     display: flex !important;
     flex-direction: row !important;
     overflow: hidden !important;
-    background: #04060a !important;
+    background: transparent !important;
 }
 
 #profileEditForm.profile-edit-grid {
     display: flex !important;
     flex-direction: row !important;
     width: 100vw !important;
-    height: 100vh !important;
+    height: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
     gap: 0 !important;
     overflow: hidden !important;
+    background: transparent !important;
 }
 
 /* Sidebar Styling */
 .editor-sidebar {
-    width: 480px;
-    min-width: 480px;
+    width: 450px;
+    min-width: 420px;
     max-width: 480px;
-    height: 100vh;
-    background: rgba(10, 12, 18, 0.95);
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    height: 100%;
+    background: rgba(8, 12, 24, 0.76);
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(20px);
     display: flex;
     flex-direction: column;
@@ -522,8 +537,9 @@ input[type="range"]::-webkit-slider-thumb:hover {
 /* Preview Area */
 .editor-preview-pane {
     flex-grow: 1;
-    height: 100vh;
-    background: #08090d;
+    height: 100%;
+    background: rgba(5, 7, 13, 0.45);
+    backdrop-filter: blur(10px);
     background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0);
     background-size: 24px 24px;
     display: flex;
@@ -536,8 +552,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .preview-toolbar {
     width: 100%;
     padding: 0.8rem 1.5rem;
-    background: rgba(10, 12, 18, 0.8);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(8, 12, 24, 0.68);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(10px);
     display: flex;
     justify-content: space-between;

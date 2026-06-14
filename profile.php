@@ -445,8 +445,18 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.5.5">
-    <script src="/assets/js/profile.js?v=4.5.5" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.6.0">
+    <script src="/assets/js/profile.js?v=4.6.0" defer></script>
+    <?php if (isset($_GET['preview_mode'])): ?>
+    <style>
+        .profile-smart-page {
+            padding-top: 1.5rem !important;
+        }
+        body {
+            overflow-y: auto !important;
+        }
+    </style>
+    <?php endif; ?>
     <?php
     $googleFonts = [
         'Poppins' => 'Poppins',
@@ -550,9 +560,11 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 
     <?php
     $isPublicProfilePage = true;
-    if (file_exists(__DIR__ . '/includes/navbar-bio.php')) include __DIR__ . '/includes/navbar-bio.php';
-    else include __DIR__ . '/includes/navbar.php';
-    if (file_exists(__DIR__ . '/includes/impostazioni.php')) include __DIR__ . '/includes/impostazioni.php';
+    if (!isset($_GET['preview_mode'])) {
+        if (file_exists(__DIR__ . '/includes/navbar-bio.php')) include __DIR__ . '/includes/navbar-bio.php';
+        else include __DIR__ . '/includes/navbar.php';
+        if (file_exists(__DIR__ . '/includes/impostazioni.php')) include __DIR__ . '/includes/impostazioni.php';
+    }
     ?>
 
     <?php profile_render_background($profile, $backgroundUrl, $backgroundType); ?>
