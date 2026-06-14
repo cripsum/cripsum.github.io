@@ -9,13 +9,6 @@ require_once __DIR__ . '/includes/mission_tracker.php';
 checkBan($mysqli);
 
 $isLoggedIn = isLoggedIn();
-
-if (!isLoggedIn()) {
-    $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-    $_SESSION['login_message'] = 'You need to log in to create a profile.';
-    header('Location: accedi');
-    exit();
-}
 $currentUserId = profile_current_user_id();
 $customAlias = $_GET['custom_alias'] ?? null;
 
