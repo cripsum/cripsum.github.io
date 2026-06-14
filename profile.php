@@ -466,8 +466,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.7.4">
-    <script src="/assets/js/profile.js?v=4.7.4" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.7.5">
+    <script src="/assets/js/profile.js?v=4.7.5" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -619,6 +619,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         <span class="bio-pill"><i class="fas fa-eye"></i><?php echo profile_compact_number($profile['profile_views'] ?? 0); ?> <?php echo ($lang === 'it') ? 'visite' : 'views'; ?></span>
                     <?php endif; ?>
 
+                    <?php if (!isset($_GET['preview_mode'])): ?>
                     <div class="profile-dropdown-wrap">
                         <button class="bio-small-button js-profile-dropdown-trigger" type="button" aria-label="Menu" aria-expanded="false">
                             <i class="fas fa-ellipsis-h"></i>
@@ -664,6 +665,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                             </button>
                         </div>
                     </div>
+                    <?php endif; ?>
                 </div>
 
                 <div class="bio-avatar-wrap profile-smart-avatar ring-style-<?php echo profile_h($avatarRingStyle); ?> <?php echo (!$avatarRingEnabled || $avatarRingStyle === 'none') ? 'ring-disabled' : ''; ?>" style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>;">
@@ -848,7 +850,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         </div>
                     </div>
                 <?php endif; ?>
-                <?php if (!$hasAnyPublicContent && $isOwnProfile): ?>
+                <?php if (!$hasAnyPublicContent && $isOwnProfile && !isset($_GET['preview_mode'])): ?>
                     <div class="profile-owner-nudge">
                         <i class="fas fa-plus"></i>
                         <span>Add links, badges, or content to fill out the bio.</span>
