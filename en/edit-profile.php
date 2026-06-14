@@ -55,6 +55,18 @@ $profileFlashError = $_SESSION['profile_flash_error'] ?? '';
 unset($_SESSION['profile_flash_success'], $_SESSION['profile_flash_error']);
 $accent = profile_normalize_hex_color($profile['accent_color'] ?? '#0f5bff');
 $secondaryColor = profile_normalize_hex_color($profile['profile_secondary_color'] ?? $accent);
+
+$accentHex = ltrim($accent, '#');
+if (strlen($accentHex) == 3) {
+    $r = hexdec(substr($accentHex, 0, 1) . substr($accentHex, 0, 1));
+    $g = hexdec(substr($accentHex, 1, 1) . substr($accentHex, 1, 1));
+    $b = hexdec(substr($accentHex, 2, 1) . substr($accentHex, 2, 1));
+} else {
+    $r = hexdec(substr($accentHex, 0, 2));
+    $g = hexdec(substr($accentHex, 2, 2));
+    $b = hexdec(substr($accentHex, 4, 2));
+}
+$accentRgbComma = "$r, $g, $b";
 $cardColor = profile_optional_hex_color($profile['profile_card_color'] ?? '') ?: '';
 $textColor = profile_optional_hex_color($profile['profile_text_color'] ?? '') ?: '';
 $linkStyle = profile_allowed_value((string)($profile['profile_link_style'] ?? 'glass'), ['glass', 'solid', 'outline', 'neon'], 'glass');
@@ -89,17 +101,17 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Edit profile</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=4.6.4">
-    <link rel="stylesheet" href="/assets/css/editor-premium.css?v=4.6.4">
+    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=4.6.5">
+    <link rel="stylesheet" href="/assets/css/editor-premium.css?v=4.6.5">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Inter:wght@300..900&family=Roboto:wght@300..900&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Fira+Code:wght@300..700&family=PT+Mono&family=Cinzel:wght@400..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Bebas+Neue&family=Press+Start+2P&family=Bungee&family=Permanent+Marker&family=Creepster&family=Shojumaru&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <script src="/assets/js/profile.js?v=4.6.4" defer></script>
-    <script src="/assets/js/edit-profile-en.js?v=4.6.4" defer></script>
+    <script src="/assets/js/profile.js?v=4.6.5" defer></script>
+    <script src="/assets/js/edit-profile-en.js?v=4.6.5" defer></script>
 </head>
 
-<body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-effect="<?php echo profile_h($profile['profile_effect'] ?? 'none'); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" data-avatar-shape="<?php echo profile_h($avatarShape); ?>" data-avatar-border="<?php echo $avatarBorder; ?>" style="--profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
+<body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-effect="<?php echo profile_h($profile['profile_effect'] ?? 'none'); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" data-avatar-shape="<?php echo profile_h($avatarShape); ?>" data-avatar-border="<?php echo $avatarBorder; ?>" style="--accent: <?php echo profile_h($accent); ?>; --accent-rgb: <?php echo $accentRgbComma; ?>; --profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
     <?php
     $isPublicProfilePage = false;
     if (file_exists(__DIR__ . '/../includes/navbar-bio.php')) {
@@ -145,8 +157,7 @@ function profile_json_script(string $id, array $data): void
                 <div class="editor-sidebar-header">
                     <div class="editor-sidebar-brand">
                         <div class="editor-brand-title">
-                            <h2>Visual Builder</h2>
-                            <span>Cripsum Profiles 3.X</span>
+                            <h2>Profile Editor</h2>
                         </div>
                         <div class="editor-header-actions">
                             <button type="button" class="editor-btn editor-btn-icon" id="undoBtn" disabled title="Undo (Ctrl+Z)"><i class="fas fa-undo"></i></button>
@@ -1145,7 +1156,7 @@ function profile_json_script(string $id, array $data): void
                         <button type="button" class="btn-viewport is-active" data-viewport="desktop"><i class="fas fa-desktop"></i> Desktop</button>
                         <button type="button" class="btn-viewport" data-viewport="mobile"><i class="fas fa-mobile-alt"></i> Mobile</button>
                     </div>
-                    <a href="/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" target="_blank" class="btn-view-live" title="Open in new tab"><i class="fas fa-external-link-alt"></i></a>
+                    <a href="/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" target="_blank" class="btn-view-live" title="Open in new tab"><i class="fas fa-external-link-alt"></i> Go to profile</a>
                 </div>
                 <div class="preview-canvas">
                     <div class="device-frame desktop" id="previewDeviceFrame">
@@ -1187,6 +1198,11 @@ function profile_json_script(string $id, array $data): void
     ?>
 
     <?php // if (file_exists(__DIR__ . '/../includes/footer-en.php')) include __DIR__ . '/../includes/footer-en.php'; ?>
+    <div class="editor-loading-overlay" id="editorLoadingOverlay">
+        <div class="editor-loading-spinner"></div>
+        <div class="editor-loading-text" id="editorLoadingText">Saving profile...</div>
+        <div class="editor-loading-subtext" id="editorLoadingSubtext">Uploading media files, please do not close this page.</div>
+    </div>
 </body>
 
 </html>

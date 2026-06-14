@@ -413,6 +413,12 @@
     function updatePreview() {
         const accentVal = accentInput?.value || '#0f5bff';
         const secondaryVal = secondaryColorInput?.value || accentVal;
+
+        if (accentInput) {
+            document.body.style.setProperty('--accent', accentVal);
+            document.body.style.setProperty('--accent-rgb', hexToRgbLocal(accentVal));
+        }
+
         const cardCol = cardColorInput?.value || '#080c18';
         const opacityVal = cardOpacityInput ? parseInt(cardOpacityInput.value, 10) : 68;
         const blurVal = cardBlurInput ? parseInt(cardBlurInput.value, 10) : 20;
@@ -1377,10 +1383,31 @@
         $('#badgesJson').value = JSON.stringify(collectBadges());
         $('#profileTagsJson').value = JSON.stringify(collectRows('tags'));
 
-        const button = $('#saveProfileButton');
+        const button = $('#saveBtn') || $('#saveProfileButton');
+        const overlay = document.getElementById('editorLoadingOverlay');
+        const overlayText = document.getElementById('editorLoadingText');
+
+        // Check if files are selected for upload
+        const hasFiles = [
+            document.getElementById('avatarInput'),
+            document.getElementById('bannerInput'),
+            document.getElementById('musicFileInput')
+        ].some(input => input && input.files && input.files.length > 0);
+
         if (button) {
             button.disabled = true;
-            button.textContent = isEnglish ? 'Saving...' : 'Salvataggio...';
+            button.innerHTML = hasFiles
+                ? `<i class="fas fa-spinner fa-spin"></i> ${isEnglish ? 'Uploading...' : 'Caricamento...'}`
+                : `<i class="fas fa-spinner fa-spin"></i> ${isEnglish ? 'Saving...' : 'Salvataggio...'}`;
+        }
+
+        if (overlay) {
+            if (overlayText) {
+                overlayText.textContent = hasFiles
+                    ? (isEnglish ? 'Uploading media files...' : 'Caricamento file multimediali...')
+                    : (isEnglish ? 'Saving profile...' : 'Salvataggio profilo...');
+            }
+            overlay.classList.add('is-active');
         }
 
         try {
@@ -1402,7 +1429,10 @@
         } finally {
             if (button) {
                 button.disabled = false;
-                button.textContent = isEnglish ? 'Save profile' : 'Salva profilo';
+                button.innerHTML = `<i class="fas fa-save"></i> ${isEnglish ? 'Save' : 'Salva'}`;
+            }
+            if (overlay) {
+                overlay.classList.remove('is-active');
             }
         }
     });
