@@ -696,7 +696,9 @@
         });
         input.addEventListener('change', () => {
             updatePreview();
-            const isStructural = input.tagName === 'SELECT' || input.type === 'checkbox' || input.type === 'radio';
+            // EXCEPT music-related inputs which are synced in real-time via postMessage
+            const isMusicRealtime = (input === showAudioPlayerInput || input === musicUrlInput || input === musicTitleInput || input === musicArtistInput);
+            const isStructural = !isMusicRealtime && (input.tagName === 'SELECT' || input.type === 'checkbox' || input.type === 'radio');
             triggerAutosave(isStructural);
             pushHistoryState();
         });
