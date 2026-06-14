@@ -447,8 +447,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.7.3">
-    <script src="/assets/js/profile.js?v=4.7.3" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.7.4">
+    <script src="/assets/js/profile.js?v=4.7.4" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
     <style>
         .profile-smart-page {
