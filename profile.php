@@ -283,23 +283,23 @@ $showBlocks = $profile ? profile_flag($profile, 'profile_show_blocks', true) : f
 $showBadges = $profile ? profile_flag($profile, 'profile_show_badges', true) : false;
 $showActivity = $profile ? profile_flag($profile, 'profile_show_activity', true) : false;
 $showDiscord = $profile ? profile_flag($profile, 'profile_show_discord', true) : false;
-$showCharacters = profile_flag($profile, 'profile_show_characters', true);
+$showCharacters = $profile ? profile_flag($profile, 'profile_show_characters', true) : false;
 
-$profileFont = $profile['profile_font'] ?? 'Poppins';
-$borderRadius = (int)($profile['profile_border_radius'] ?? 30);
-$cardOpacity = (int)($profile['profile_card_opacity'] ?? 68);
-$cardBlur = (int)($profile['profile_card_blur'] ?? 20);
-$borderOpacity = (int)($profile['profile_border_opacity'] ?? 100);
-$borderColor = $profile['profile_border_color'] ?? null;
-$borderWidth = (int)($profile['profile_border_width'] ?? 1);
-$avatarBorder = (int)($profile['profile_avatar_border'] ?? 1);
+$profileFont = $profile ? ($profile['profile_font'] ?? 'Poppins') : 'Poppins';
+$borderRadius = $profile ? (int)($profile['profile_border_radius'] ?? 30) : 30;
+$cardOpacity = $profile ? (int)($profile['profile_card_opacity'] ?? 68) : 68;
+$cardBlur = $profile ? (int)($profile['profile_card_blur'] ?? 20) : 20;
+$borderOpacity = $profile ? (int)($profile['profile_border_opacity'] ?? 100) : 100;
+$borderColor = $profile ? ($profile['profile_border_color'] ?? null) : null;
+$borderWidth = $profile ? (int)($profile['profile_border_width'] ?? 1) : 1;
+$avatarBorder = $profile ? (int)($profile['profile_avatar_border'] ?? 1) : 1;
 
-$uiShape = $profile['profile_ui_shape'] ?? 'circle';
-$avatarShape = $profile['profile_avatar_shape'] ?? 'circle';
-$socialSize = (int)($profile['profile_social_size'] ?? 42);
-$iconSpacing = (int)($profile['profile_icon_spacing'] ?? 8);
-$badgeSize = (int)($profile['profile_badge_size'] ?? 24);
-$buttonSize = (int)($profile['profile_button_size'] ?? 48);
+$uiShape = $profile ? ($profile['profile_ui_shape'] ?? 'circle') : 'circle';
+$avatarShape = $profile ? ($profile['profile_avatar_shape'] ?? 'circle') : 'circle';
+$socialSize = $profile ? (int)($profile['profile_social_size'] ?? 42) : 42;
+$iconSpacing = $profile ? (int)($profile['profile_icon_spacing'] ?? 8) : 8;
+$badgeSize = $profile ? (int)($profile['profile_badge_size'] ?? 24) : 24;
+$buttonSize = $profile ? (int)($profile['profile_button_size'] ?? 48) : 48;
 
 // Map UI shape to variables
 $uiShapeIcon = '50%';
@@ -344,8 +344,8 @@ $visibleLinks = $showLinks ? $links : [];
 $visibleProjects = $showProjects ? $projects : [];
 $visibleContents = $showContents ? $contents : [];
 $visibleBlocks = $showBlocks ? $blocks : [];
-$badgesDisplay = $profile['profile_badges_display'] ?? 'both';
-$badgesPosition = $profile['profile_badges_position'] ?? 'below_bio';
+$badgesDisplay = $profile ? ($profile['profile_badges_display'] ?? 'both') : 'both';
+$badgesPosition = $profile ? ($profile['profile_badges_position'] ?? 'below_bio') : 'below_bio';
 
 $nameStyle = [];
 if ($profile && !empty($profile['profile_name_style'])) {
@@ -369,9 +369,9 @@ $visibleActivity = $showActivity ? $activity : [];
 $visibleCharacters = $showCharacters ? $characters : [];
 
 // Discord Server invite processing
-$discordServerInvite = $profile['discord_server_invite'] ?? '';
-$discordServerCache = $profile['discord_server_cache'] ?? '';
-$discordServerCacheTime = (int)($profile['discord_server_cache_time'] ?? 0);
+$discordServerInvite = $profile ? ($profile['discord_server_invite'] ?? '') : '';
+$discordServerCache = $profile ? ($profile['discord_server_cache'] ?? '') : '';
+$discordServerCacheTime = $profile ? (int)($profile['discord_server_cache_time'] ?? 0) : 0;
 
 $widgetData = null;
 if (!empty($discordServerInvite)) {
@@ -451,16 +451,16 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 <head>
     <?php include __DIR__ . '/includes/head-import.php'; ?>
     <?php
-    $pageTitle = 'Cripsum™ - ' . ($profile['display_name'] ?? $profile['username'] ?? 'Profilo');
-    if (!empty($profile['profile_tab_title'])) {
+    $pageTitle = 'Cripsum™ - ' . ($profile ? ($profile['display_name'] ?? $profile['username'] ?? 'Profilo') : 'Profilo');
+    if ($profile && !empty($profile['profile_tab_title'])) {
         $pageTitle = $profile['profile_tab_title'];
     }
     ?>
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.8.2">
-    <script src="/assets/js/profile.js?v=4.8.2" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.8.5">
+    <script src="/assets/js/profile.js?v=4.8.5" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {

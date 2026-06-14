@@ -2268,11 +2268,11 @@
 
     // ── ONBOARDING WALKTHROUGH TOUR ──────────────────────────────────────────
     function launchOnboardingTour() {
-        if (localStorage.getItem('cripsum_visual_builder_tour_seen')) return;
+        if (localStorage.getItem('cripsum_profile_editor_tour_seen')) return;
 
         const steps = isEnglish ? [
             {
-                title: "Welcome to the Visual Builder!",
+                title: "Welcome to the Profile Editor!",
                 desc: "We completely redesigned the editor to provide a premium, Figma-like design experience. Let's see how it works!"
             },
             {
@@ -2289,7 +2289,7 @@
             }
         ] : [
             {
-                title: "Benvenuto nel Visual Builder!",
+                title: "Benvenuto nel Profile Editor!",
                 desc: "Abbiamo completamente riprogettato l'editor per offrirti un'esperienza di design fluida e premium, simile a Figma. Vediamo come funziona!"
             },
             {
@@ -2302,7 +2302,7 @@
             },
             {
                 title: "Salvataggio automatico bozza",
-                desc: "Mentre modifichi, il builder salva una bozza temporanea. Quando sei soddisfatto delle modifiche, clicca 'Salva' in alto a destra per pubblicarle."
+                desc: "Mentre modifichi, l'editor salva una bozza temporanea. Quando sei soddisfatto delle modifiche, clicca 'Salva' in alto a destra per pubblicarle."
             }
         ];
 
@@ -2328,7 +2328,7 @@
             `;
 
             card.querySelector('#skipTourBtn').addEventListener('click', () => {
-                localStorage.setItem('cripsum_visual_builder_tour_seen', 'true');
+                localStorage.setItem('cripsum_profile_editor_tour_seen', 'true');
                 overlay.remove();
             });
 
@@ -2337,7 +2337,7 @@
                     currentStep++;
                     renderStep();
                 } else {
-                    localStorage.setItem('cripsum_visual_builder_tour_seen', 'true');
+                    localStorage.setItem('cripsum_profile_editor_tour_seen', 'true');
                     overlay.remove();
                 }
             });
