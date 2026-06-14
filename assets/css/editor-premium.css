@@ -3,8 +3,8 @@
 /* Global Editor Overrides */
 /* Global Editor Overrides */
 .profile-editor-shell {
-    --editor-accent: var(--accent, #8b5cf6);
-    --editor-accent-rgb: var(--accent-rgb, 139, 92, 246);
+    --editor-accent: var(--accent, #0f5bff);
+    --editor-accent-rgb: var(--accent-rgb, 15, 91, 255);
     overflow: hidden !important;
     height: 100vh !important;
     width: 100vw !important;
@@ -69,8 +69,9 @@
 /* Sidebar Styling */
 .editor-sidebar {
     width: 550px;
-    min-width: 500px;
-    max-width: 600px;
+    min-width: 320px;
+    max-width: 85vw;
+    flex-shrink: 0;
     height: 100%;
     background: rgba(8, 12, 24, 0.76);
     border-right: 1px solid rgba(255, 255, 255, 0.12);
@@ -80,6 +81,41 @@
     overflow: hidden;
     z-index: 10;
     box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Resize Handle */
+.editor-resize-handle {
+    width: 8px;
+    height: 100%;
+    cursor: col-resize;
+    background: rgba(255, 255, 255, 0.04);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: 1px solid rgba(0, 0, 0, 0.4);
+    transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+    z-index: 20;
+    flex-shrink: 0;
+}
+.editor-resize-handle:hover,
+.editor-resize-handle.is-dragging {
+    background-color: var(--editor-accent, #0f5bff);
+    border-color: var(--editor-accent, #0f5bff);
+    box-shadow: 0 0 10px rgba(var(--editor-accent-rgb, 15, 91, 255), 0.5);
+}
+.editor-resize-handle::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 1px;
+}
+.editor-resize-handle:hover::after,
+.editor-resize-handle.is-dragging::after {
+    background: #fff;
 }
 
 .editor-sidebar-header {
@@ -299,7 +335,7 @@
 
 .editor-card.is-expanded {
     background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(139, 92, 246, 0.3);
+    border-color: rgba(var(--editor-accent-rgb), 0.3);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
@@ -512,7 +548,7 @@ input[type="range"]::-webkit-slider-thumb {
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    background: var(--editor-accent, #8b5cf6);
+    background: var(--editor-accent, #0f5bff);
     cursor: pointer;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
     transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
@@ -521,7 +557,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 input[type="range"]::-webkit-slider-thumb:hover {
     transform: scale(1.15);
-    background: var(--editor-accent, #8b5cf6);
+    background: var(--editor-accent, #0f5bff);
     border-color: #ffffff;
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5), 0 0 10px rgba(var(--editor-accent-rgb), 0.5);
 }
@@ -529,7 +565,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 input[type="range"]::-webkit-slider-thumb:active {
     transform: scale(1.25);
     background: #ffffff;
-    border-color: var(--editor-accent, #8b5cf6);
+    border-color: var(--editor-accent, #0f5bff);
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6), 0 0 18px var(--editor-accent);
 }
 
@@ -538,7 +574,7 @@ input[type="range"]::-moz-range-thumb {
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    background: var(--editor-accent, #8b5cf6);
+    background: var(--editor-accent, #0f5bff);
     cursor: pointer;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
     transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
@@ -547,7 +583,7 @@ input[type="range"]::-moz-range-thumb {
 
 input[type="range"]::-moz-range-thumb:hover {
     transform: scale(1.15);
-    background: var(--editor-accent, #8b5cf6);
+    background: var(--editor-accent, #0f5bff);
     border-color: #ffffff;
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5), 0 0 10px rgba(var(--editor-accent-rgb), 0.5);
 }
@@ -555,7 +591,7 @@ input[type="range"]::-moz-range-thumb:hover {
 input[type="range"]::-moz-range-thumb:active {
     transform: scale(1.25);
     background: #ffffff;
-    border-color: var(--editor-accent, #8b5cf6);
+    border-color: var(--editor-accent, #0f5bff);
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6), 0 0 18px var(--editor-accent);
 }
 
@@ -1101,9 +1137,9 @@ input[type="range"]::-moz-range-track {
     height: 50px;
     border: 3px solid rgba(255, 255, 255, 0.1);
     border-radius: 50%;
-    border-top-color: var(--editor-accent, #8b5cf6);
+    border-top-color: var(--editor-accent, #0f5bff);
     animation: spin 1s linear infinite;
-    box-shadow: 0 0 15px rgba(var(--editor-accent-rgb, 139, 92, 246), 0.3);
+    box-shadow: 0 0 15px rgba(var(--editor-accent-rgb, 15, 91, 255), 0.3);
 }
 
 .editor-loading-text {

@@ -110,6 +110,7 @@ $showSocials = profile_bool_from_post('profile_show_socials', true);
 $showLinks = profile_bool_from_post('profile_show_links', true);
 $showProjects = profile_bool_from_post('profile_show_projects', true);
 $showContents = profile_bool_from_post('profile_show_contents', true);
+$showBlocks = profile_bool_from_post('profile_show_blocks', true);
 $showBadges = profile_bool_from_post('profile_show_badges', true);
 $showActivity = profile_bool_from_post('profile_show_activity', true);
 $showDiscord = profile_bool_from_post('profile_show_discord', true);
@@ -309,7 +310,7 @@ try {
         UPDATE utenti
         SET username = ?, display_name = ?, bio = ?, accent_color = ?, profile_secondary_color = ?, profile_card_color = ?, profile_text_color = ?, profile_link_style = ?, profile_button_shape = ?, profile_theme = ?, profile_layout = ?, profile_visibility = ?, discord_id = ?, discord_use_avatar = ?, discord_use_display_name = ?, profile_status = ?,
             profile_music_url = ?, profile_music_title = ?, profile_music_artist = ?, profile_effect = ?, avatar_ring_style = ?, avatar_ring_color = ?,
-            profile_show_stats = ?, profile_show_socials = ?, profile_show_links = ?, profile_show_projects = ?, profile_show_contents = ?, profile_show_badges = ?, profile_show_activity = ?, profile_show_discord = ?, profile_show_audio_player = ?, avatar_ring_enabled = ?, profile_show_characters = ?,
+            profile_show_stats = ?, profile_show_socials = ?, profile_show_links = ?, profile_show_projects = ?, profile_show_contents = ?, profile_show_blocks = ?, profile_show_badges = ?, profile_show_activity = ?, profile_show_discord = ?, profile_show_audio_player = ?, avatar_ring_enabled = ?, profile_show_characters = ?,
             profile_enter_text = ?, profile_click_to_enter = ?, profile_socials_style = ?, profile_show_embeds = ?, profile_sections_order = ?, profile_badges_display = ?,
             profile_badges_position = ?, discord_server_invite = ?, discord_server_cache = ?, discord_server_cache_time = ?,
             profile_font = ?, profile_border_radius = ?, profile_card_opacity = ?, profile_card_blur = ?, profile_border_opacity = ?, profile_border_color = ?, profile_border_width = ?,
@@ -320,7 +321,7 @@ try {
         WHERE id = ?
     ");
     $stmt->bind_param(
-        'sssssssssssssiisssssssiiiiiiiiiiisisisssssisiiiisisssiiiiisiiddisssissisi',
+        'sssssssssssssiisssssssiiiiiiiiiiiisisisssssisiiiisisssiiiiisiiddisssissisi',
         $username,
         $displayNameDb,
         $bioDb,
@@ -348,6 +349,7 @@ try {
         $showLinks,
         $showProjects,
         $showContents,
+        $showBlocks,
         $showBadges,
         $showActivity,
         $showDiscord,

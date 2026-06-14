@@ -255,9 +255,7 @@
     readJson('initialBlocksData').forEach((item) => addRow('blocks', item));
     readJson('initialTagsData').forEach((item) => addRow('tags', item));
 
-    Object.entries(repeaters).forEach(([type, node]) => {
-        if (node && node.children.length === 0 && type !== 'tags') addRow(type, {});
-    });
+
 
     $$('[data-add-row]').forEach((button) => {
         button.addEventListener('click', () => {
@@ -276,6 +274,16 @@
                 const key = input.dataset.field;
                 obj[key] = input.type === 'checkbox' ? input.checked : input.value.trim();
             });
+            
+            // Check if the row is effectively empty based on type
+            if (type === 'socials' && !obj.url) return null;
+            if (type === 'links' && !obj.title && !obj.url) return null;
+            if (type === 'embeds' && !obj.url) return null;
+            if (type === 'projects' && !obj.title) return null;
+            if (type === 'contents' && !obj.title) return null;
+            if (type === 'blocks' && !obj.title && !obj.body && !obj.media_url) return null;
+            if (type === 'tags' && !obj.text) return null;
+
             if (type === 'tags') {
                 if (!obj.use_color) {
                     obj.color = '';
@@ -285,7 +293,7 @@
                 }
             }
             return obj;
-        }).filter((obj) => Object.values(obj).some((value) => value !== '' && value !== false));
+        }).filter(Boolean);
     }
 
     function collectBadges() {
@@ -318,6 +326,43 @@
     const layoutInput = $('#layoutInput');
     const clickToEnterInput = $('#clickToEnterInput');
     const enterTextInput = $('#enterTextInput');
+    const musicUrlInput = $('#musicUrlInput');
+    const musicTitleInput = $('#musicTitleInput');
+    const musicArtistInput = $('#musicArtistInput');
+    const showAudioPlayerInput = $('#showAudioPlayerInput');
+    let cachedAvatarData = null;
+    let cachedBackgroundData = null;
+    let cachedMusicData = null;
+
+    const previewIframe = document.getElementById('profilePreviewIframe');
+    if (previewIframe) {
+        previewIframe.addEventListener('load', () => {
+            if (cachedAvatarData && previewIframe.contentWindow) {
+                previewIframe.contentWindow.postMessage({
+                    type: 'update-avatar-src',
+                    src: cachedAvatarData
+                }, '*');
+            }
+            if (cachedBackgroundData && previewIframe.contentWindow) {
+                previewIframe.contentWindow.postMessage({
+                    type: 'update-background-media',
+                    fileType: cachedBackgroundData.fileType,
+                    url: cachedBackgroundData.url
+                }, '*');
+            }
+            if (cachedMusicData && previewIframe.contentWindow) {
+                previewIframe.contentWindow.postMessage({
+                    type: 'update-music-player',
+                    showPlayer: showAudioPlayerInput?.checked || false,
+                    hasMusic: true,
+                    title: musicTitleInput?.value.trim() || 'Profile Song',
+                    artist: musicArtistInput?.value.trim() || '',
+                    src: cachedMusicData.url
+                }, '*');
+            }
+            updatePreview();
+        });
+    }
 
     const uiShapeInput = $('#uiShapeInput');
     const avatarShapeInput = $('#avatarShapeInput');
@@ -508,6 +553,8 @@
         const dName = displayNameInput?.value.trim() || usernameInput?.value.trim() || 'Utente';
         const uName = '@' + (usernameInput?.value.trim() || 'username');
         const bioText = bioInput?.value.trim() || (isEnglish ? 'Your bio will appear here.' : 'La tua bio apparirà qui.');
+        const musicTitle = musicTitleInput?.value.trim() || 'Profile Song';
+        const musicArtist = musicArtistInput?.value.trim() || '';
         
         if (iframe && iframe.contentWindow) {
             iframe.contentWindow.postMessage({
@@ -517,6 +564,19 @@
                     '.bio-username': uName,
                     '.bio-tagline': bioText
                 }
+            }, '*');
+
+            const musicUrl = musicUrlInput?.value.trim() || '';
+            const showPlayer = showAudioPlayerInput?.checked || false;
+            const hasMusicSource = musicUrl !== '' || cachedMusicData !== null;
+
+            iframe.contentWindow.postMessage({
+                type: 'update-music-player',
+                showPlayer: showPlayer,
+                hasMusic: hasMusicSource,
+                title: musicTitle,
+                artist: musicArtist,
+                src: cachedMusicData ? cachedMusicData.url : musicUrl
             }, '*');
         }
         
@@ -625,7 +685,7 @@
     }
 
     // Register simple inputs listeners for live updates and autosave
-    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, layoutInput, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput].filter(Boolean);
+    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, layoutInput, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput, musicUrlInput, musicTitleInput, musicArtistInput, showAudioPlayerInput].filter(Boolean);
 
     simpleInputs.forEach((input) => {
         input.addEventListener('input', () => {
@@ -638,6 +698,14 @@
             // Select changes or checkboxes trigger immediate save and reload of preview
             const isStructural = input.tagName === 'SELECT' || input.type === 'checkbox' || input.type === 'radio';
             triggerAutosave(isStructural);
+            pushHistoryState();
+        });
+    });
+
+    // Listen to changes on visibility checkboxes and display select menus
+    $$('.profile-toggle-grid input[type="checkbox"], #badgesDisplayInput, #badgesPositionInput').forEach((input) => {
+        input.addEventListener('change', () => {
+            triggerAutosave(true);
             pushHistoryState();
         });
     });
@@ -1257,7 +1325,17 @@
         const file = input.files && input.files[0];
         if (!file || !file.type.startsWith('image/')) return;
         const reader = new FileReader();
-        reader.onload = () => { target.src = reader.result; };
+        reader.onload = () => { 
+            target.src = reader.result; 
+            cachedAvatarData = reader.result; // Cache avatar data URL
+            const iframe = document.getElementById('profilePreviewIframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({
+                    type: 'update-avatar-src',
+                    src: reader.result
+                }, '*');
+            }
+        };
         reader.readAsDataURL(file);
     }
 
@@ -1269,6 +1347,7 @@
         if (!background) return;
 
         const url = URL.createObjectURL(file);
+        cachedBackgroundData = { url: url, fileType: file.type }; // Cache background URL and type
         background.querySelectorAll('.bio-background__media, video').forEach((node) => node.remove());
 
         let media;
@@ -1294,6 +1373,17 @@
 
         media.className = 'bio-background__media';
         background.prepend(media);
+
+        // Also post message to iframe preview
+        const iframe = document.getElementById('profilePreviewIframe');
+        if (iframe && iframe.contentWindow) {
+            iframe.contentWindow.postMessage({
+                type: 'update-background-media',
+                fileType: file.type,
+                url: url
+            }, '*');
+        }
+
         window.profileToast(isEnglish ? 'Background preview updated.' : 'Anteprima sfondo aggiornata.');
     }
 
@@ -1314,9 +1404,85 @@
         const title = $('#musicTitleInput');
         if (title && !title.value.trim()) {
             title.value = file.name.replace(/\.mp3$/i, '');
+            title.dispatchEvent(new Event('input', { bubbles: true }));
         }
+
+        const url = URL.createObjectURL(file);
+        cachedMusicData = { url: url };
+        const iframe = document.getElementById('profilePreviewIframe');
+        if (iframe && iframe.contentWindow) {
+            iframe.contentWindow.postMessage({
+                type: 'update-music-player',
+                showPlayer: showAudioPlayerInput?.checked || false,
+                hasMusic: true,
+                title: title?.value || file.name.replace(/\.mp3$/i, ''),
+                artist: $('#musicArtistInput')?.value || '',
+                src: url
+            }, '*');
+        }
+
         window.profileToast(isEnglish ? 'MP3 selected. Save to apply.' : 'MP3 selezionato. Salva per applicarlo.');
     }
+
+    // ── SIDEBAR RESIZE HANDLE ────────────────────────────────────────────────
+    function initResizeHandle() {
+        const handle = document.getElementById('editorResizeHandle');
+        const sidebar = document.querySelector('.editor-sidebar');
+        if (!handle || !sidebar) return;
+
+        const savedWidth = localStorage.getItem('editor-sidebar-width');
+        if (savedWidth) {
+            sidebar.style.width = savedWidth + 'px';
+        }
+
+        let startX = 0;
+        let startWidth = 0;
+        let isDragging = false;
+
+        function onMouseDown(e) {
+            e.preventDefault();
+            startX = e.clientX;
+            startWidth = sidebar.offsetWidth;
+            isDragging = true;
+            handle.classList.add('is-dragging');
+            document.body.style.cursor = 'col-resize';
+            const iframe = document.getElementById('profilePreviewIframe');
+            if (iframe) {
+                iframe.style.pointerEvents = 'none';
+            }
+
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        }
+
+        function onMouseMove(e) {
+            if (!isDragging) return;
+            const newWidth = startWidth + (e.clientX - startX);
+            const minW = 320;
+            const maxW = window.innerWidth * 0.85;
+            if (newWidth >= minW && newWidth <= maxW) {
+                sidebar.style.width = newWidth + 'px';
+            }
+        }
+
+        function onMouseUp() {
+            if (!isDragging) return;
+            isDragging = false;
+            handle.classList.remove('is-dragging');
+            document.body.style.cursor = '';
+            const iframe = document.getElementById('profilePreviewIframe');
+            if (iframe) {
+                iframe.style.pointerEvents = 'auto';
+            }
+            localStorage.setItem('editor-sidebar-width', sidebar.offsetWidth);
+
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        }
+
+        handle.addEventListener('mousedown', onMouseDown);
+    }
+    initResizeHandle();
 
     avatarInput.addEventListener('change', () => previewAvatarFile(avatarInput, $('#previewAvatar')));
     bannerInput.addEventListener('change', () => previewBackgroundFile(bannerInput));
@@ -1388,6 +1554,7 @@
         $('#blocksJson').value = JSON.stringify(collectRows('blocks'));
         $('#badgesJson').value = JSON.stringify(collectBadges());
         $('#profileTagsJson').value = JSON.stringify(collectRows('tags'));
+        $('#charactersJson').value = JSON.stringify(collectCharacters());
 
         const button = $('#saveBtn') || $('#saveProfileButton');
         const overlay = document.getElementById('editorLoadingOverlay');

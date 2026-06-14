@@ -67,9 +67,10 @@ switch ($action) {
             'profile_card_color', 'profile_text_color', 'profile_link_style', 'profile_button_shape', 
             'profile_theme', 'profile_layout', 'profile_visibility', 'profile_status', 'profile_show_stats', 
             'profile_show_socials', 'profile_show_links', 'profile_show_projects', 'profile_show_contents', 
+            'profile_show_blocks', 
             'profile_show_badges', 'profile_show_activity', 'profile_show_discord', 'profile_music_url', 
             'profile_music_mime', 'profile_music_title', 'profile_music_artist', 'profile_show_audio_player', 
-            'profile_effect', 'profile_show_characters', 'avatar_ring_enabled', 'avatar_ring_style', 
+            'profile_effect', 'profile_show_characters', 'avatar_ring_enabled', 'avatar_ring_style',  
             'avatar_ring_color', 'profile_enter_text', 'profile_click_to_enter', 'profile_socials_style', 
             'profile_show_embeds', 'profile_sections_order', 'profile_badges_display', 'profile_badges_position', 
             'discord_server_invite', 'profile_font', 'profile_border_radius', 'profile_card_opacity', 
@@ -100,6 +101,7 @@ switch ($action) {
         $booleans = [
             'tilt_enabled', 'avatar_ring_enabled', 'profile_avatar_border', 'profile_show_stats', 
             'profile_show_socials', 'profile_show_links', 'profile_show_projects', 'profile_show_contents', 
+            'profile_show_blocks', 
             'profile_show_badges', 'profile_show_activity', 'profile_show_discord', 'profile_show_audio_player', 
             'profile_click_to_enter', 'profile_show_embeds', 'profile_show_characters'
         ];
@@ -185,6 +187,7 @@ switch ($action) {
             'profile_card_color', 'profile_text_color', 'profile_link_style', 'profile_button_shape', 
             'profile_theme', 'profile_layout', 'profile_visibility', 'profile_status', 'profile_show_stats', 
             'profile_show_socials', 'profile_show_links', 'profile_show_projects', 'profile_show_contents', 
+            'profile_show_blocks', 
             'profile_show_badges', 'profile_show_activity', 'profile_show_discord', 'profile_music_url', 
             'profile_music_mime', 'profile_music_title', 'profile_music_artist', 'profile_show_audio_player', 
             'profile_effect', 'profile_show_characters', 'avatar_ring_enabled', 'avatar_ring_style', 

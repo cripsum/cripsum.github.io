@@ -81,7 +81,7 @@ if ($profile) {
             $booleans = [
                 'tilt_enabled', 'avatar_ring_enabled', 'profile_avatar_border', 'profile_show_stats', 
                 'profile_show_socials', 'profile_show_links', 'profile_show_projects', 'profile_show_contents', 
-                'profile_show_badges', 'profile_show_activity', 'profile_show_discord', 'profile_show_audio_player', 
+                'profile_show_blocks', 'profile_show_badges', 'profile_show_activity', 'profile_show_discord', 'profile_show_audio_player', 
                 'profile_click_to_enter', 'profile_show_embeds', 'profile_show_characters'
             ];
             foreach ($booleans as $boolCol) {
@@ -228,7 +228,8 @@ function profile_render_section_heading(string $icon, string $title, ?string $su
 
 $theme = $profile ? profile_allowed_value((string)($profile['profile_theme'] ?? 'dark'), ['dark', 'light', 'auto'], 'dark') : 'dark';
 $accent = $profile ? profile_normalize_hex_color($profile['accent_color'] ?? '#0f5bff') : '#0f5bff';
-$secondaryColor = $profile ? profile_normalize_hex_color($profile['profile_secondary_color'] ?? $accent) : $accent;
+$secColorRaw = $profile ? trim((string)($profile['profile_secondary_color'] ?? '')) : '';
+$secondaryColor = (preg_match('/^#[0-9a-fA-F]{6}$/', $secColorRaw)) ? strtolower($secColorRaw) : $accent;
 $cardColor = $profile ? profile_optional_hex_color($profile['profile_card_color'] ?? '') : null;
 $textColor = $profile ? profile_optional_hex_color($profile['profile_text_color'] ?? '') : null;
 $linkStyle = $profile ? profile_allowed_value((string)($profile['profile_link_style'] ?? 'glass'), ['glass', 'solid', 'outline', 'neon'], 'glass') : 'glass';
@@ -266,6 +267,7 @@ $showSocials = $profile ? profile_flag($profile, 'profile_show_socials', true) :
 $showLinks = $profile ? profile_flag($profile, 'profile_show_links', true) : false;
 $showProjects = $profile ? profile_flag($profile, 'profile_show_projects', true) : false;
 $showContents = $profile ? profile_flag($profile, 'profile_show_contents', true) : false;
+$showBlocks = $profile ? profile_flag($profile, 'profile_show_blocks', true) : false;
 $showBadges = $profile ? profile_flag($profile, 'profile_show_badges', true) : false;
 $showActivity = $profile ? profile_flag($profile, 'profile_show_activity', true) : false;
 $showDiscord = $profile ? profile_flag($profile, 'profile_show_discord', true) : false;
@@ -329,7 +331,7 @@ $visibleSocials = $showSocials ? $socials : [];
 $visibleLinks = $showLinks ? $links : [];
 $visibleProjects = $showProjects ? $projects : [];
 $visibleContents = $showContents ? $contents : [];
-$visibleBlocks = $showContents ? $blocks : [];
+$visibleBlocks = $showBlocks ? $blocks : [];
 $badgesDisplay = $profile['profile_badges_display'] ?? 'both';
 $badgesPosition = $profile['profile_badges_position'] ?? 'below_bio';
 
@@ -445,8 +447,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.6.0">
-    <script src="/assets/js/profile.js?v=4.6.0" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.7.1">
+    <script src="/assets/js/profile.js?v=4.7.1" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
     <style>
         .profile-smart-page {
@@ -834,14 +836,19 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     </div>
                 <?php endif; ?>
 
-                <?php if ($hasMusic && $showAudioPlayer): ?>
-                    <div class="bio-audio profile-audio-player" data-audio-player>
+                <?php 
+                $isPreview = isset($_GET['preview_mode']);
+                $shouldRenderPlayer = ($hasMusic && $showAudioPlayer) || $isPreview;
+                $shouldRenderHidden = !$shouldRenderPlayer && ($hasMusic || $isPreview);
+                ?>
+                <?php if ($shouldRenderPlayer): ?>
+                    <div class="bio-audio profile-audio-player" data-audio-player style="<?php echo ($hasMusic && $showAudioPlayer) ? '' : 'display: none !important;'; ?>">
                         <audio id="profileAudio" preload="metadata" src="<?php echo profile_h($musicUrl); ?>"></audio>
                         <div class="bio-audio__header">
                             <div>
                                 <small>Audio</small>
                                 <strong><i class="fas fa-music"></i><?php echo profile_h($musicTitle ?: 'Profile Song'); ?></strong>
-                                <?php if ($musicArtist): ?><span><?php echo profile_h($musicArtist); ?></span><?php endif; ?>
+                                <span class="profile-artist-span" style="<?php echo $musicArtist ? '' : 'display: none !important;'; ?>"><?php echo profile_h($musicArtist); ?></span>
                             </div>
                             <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i id="profileAudioIcon" class="fas fa-play"></i></button>
                         </div>
@@ -855,7 +862,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                             <input id="profileVolumeSlider" type="range" min="0" max="1" step="0.01" value="0.18" aria-label="Volume">
                         </div>
                     </div>
-                <?php elseif ($hasMusic && !$showAudioPlayer): ?>
+                <?php elseif ($shouldRenderHidden): ?>
                     <?php $hasClickToEnter = $profile && profile_flag($profile, 'profile_click_to_enter', false); ?>
                     <audio
                         id="profileAudio"
@@ -1274,6 +1281,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         el.textContent = text;
                     } else if (selector === '.bio-tagline') {
                         el.innerHTML = text.replace(/\n/g, '<br>');
+                    } else if (selector.includes('profile-audio-player strong')) {
+                        el.innerHTML = `<i class="fas fa-music"></i>` + text;
                     } else {
                         el.textContent = text;
                     }
@@ -1286,6 +1295,67 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         newBio.innerHTML = text.replace(/\n/g, '<br>');
                         nameBlock.appendChild(newBio);
                     }
+                }
+            }
+        } else if (data.type === 'update-avatar-src') {
+            const avatar = document.querySelector('.bio-avatar');
+            if (avatar) {
+                avatar.src = data.src;
+            }
+        } else if (data.type === 'update-background-media') {
+            const background = document.querySelector('.bio-background');
+            if (background) {
+                background.querySelectorAll('.bio-background__media, video').forEach((node) => node.remove());
+                let media;
+                if (data.fileType.startsWith('video/')) {
+                    media = document.createElement('video');
+                    media.className = 'bio-background__media';
+                    media.autoplay = true;
+                    media.muted = true;
+                    media.loop = true;
+                    media.playsInline = true;
+                    const source = document.createElement('source');
+                    source.src = data.url;
+                    source.type = data.fileType;
+                    media.appendChild(source);
+                } else if (data.fileType.startsWith('image/')) {
+                    media = document.createElement('img');
+                    media.className = 'bio-background__media';
+                    media.src = data.url;
+                    media.alt = '';
+                }
+                if (media) {
+                    background.prepend(media);
+                }
+            }
+        } else if (data.type === 'update-music-player') {
+            const player = document.querySelector('[data-audio-player]');
+            const audio = document.getElementById('profileAudio');
+            if (player) {
+                if (data.hasMusic && data.showPlayer) {
+                    player.style.setProperty('display', '', 'important');
+                } else {
+                    player.style.setProperty('display', 'none', 'important');
+                }
+            }
+            if (audio) {
+                const newSrc = data.src || '';
+                if (audio.getAttribute('src') !== newSrc) {
+                    audio.src = newSrc;
+                    audio.load();
+                }
+            }
+            const titleEl = document.querySelector('.profile-audio-player strong');
+            if (titleEl) {
+                titleEl.innerHTML = `<i class="fas fa-music"></i>` + data.title;
+            }
+            const artistEl = document.querySelector('.profile-audio-player span, .profile-artist-span');
+            if (artistEl) {
+                if (data.artist) {
+                    artistEl.textContent = data.artist;
+                    artistEl.style.setProperty('display', '', 'important');
+                } else {
+                    artistEl.style.setProperty('display', 'none', 'important');
                 }
             }
         } else if (data.type === 'reload') {

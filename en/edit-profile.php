@@ -54,7 +54,8 @@ $profileFlashSuccess = $_SESSION['profile_flash_success'] ?? '';
 $profileFlashError = $_SESSION['profile_flash_error'] ?? '';
 unset($_SESSION['profile_flash_success'], $_SESSION['profile_flash_error']);
 $accent = profile_normalize_hex_color($profile['accent_color'] ?? '#0f5bff');
-$secondaryColor = profile_normalize_hex_color($profile['profile_secondary_color'] ?? $accent);
+$secColorRaw = trim((string)($profile['profile_secondary_color'] ?? ''));
+$secondaryColor = (preg_match('/^#[0-9a-fA-F]{6}$/', $secColorRaw)) ? strtolower($secColorRaw) : $accent;
 
 $accentHex = ltrim($accent, '#');
 if (strlen($accentHex) == 3) {
@@ -101,14 +102,14 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Edit profile</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=4.6.5">
-    <link rel="stylesheet" href="/assets/css/editor-premium.css?v=4.6.5">
+    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=4.7.1">
+    <link rel="stylesheet" href="/assets/css/editor-premium.css?v=4.7.1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Inter:wght@300..900&family=Roboto:wght@300..900&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Fira+Code:wght@300..700&family=PT+Mono&family=Cinzel:wght@400..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Bebas+Neue&family=Press+Start+2P&family=Bungee&family=Permanent+Marker&family=Creepster&family=Shojumaru&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <script src="/assets/js/profile.js?v=4.6.5" defer></script>
-    <script src="/assets/js/edit-profile-en.js?v=4.6.5" defer></script>
+    <script src="/assets/js/profile.js?v=4.7.1" defer></script>
+    <script src="/assets/js/edit-profile-en.js?v=4.7.1" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-effect="<?php echo profile_h($profile['profile_effect'] ?? 'none'); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" data-avatar-shape="<?php echo profile_h($avatarShape); ?>" data-avatar-border="<?php echo $avatarBorder; ?>" style="--accent: <?php echo profile_h($accent); ?>; --accent-rgb: <?php echo $accentRgbComma; ?>; --profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
@@ -240,7 +241,7 @@ function profile_json_script(string $id, array $data): void
                                 <label class="profile-field"><span>Song URL</span><input type="url" name="profile_music_url" id="musicUrlInput" maxlength="255" value="<?php echo profile_h($profile['profile_music_url'] ?? ''); ?>" placeholder="https://.../audio.mp3"><small>Use this only if you don't upload a file.</small></label>
                                 <label class="profile-field"><span>Song title</span><input type="text" name="profile_music_title" id="musicTitleInput" maxlength="80" value="<?php echo profile_h($profile['profile_music_title'] ?? ''); ?>" placeholder="Song title"></label>
                                 <label class="profile-field"><span>Artist / note</span><input type="text" name="profile_music_artist" id="musicArtistInput" maxlength="80" value="<?php echo profile_h($profile['profile_music_artist'] ?? ''); ?>" placeholder="Artist or source"></label>
-                                <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_show_audio_player" value="0"><input type="checkbox" name="profile_show_audio_player" value="1" <?php echo (int)($profile['profile_show_audio_player'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-sliders"></i>Show player</span></label>
+                                <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_show_audio_player" value="0"><input type="checkbox" name="profile_show_audio_player" value="1" <?php echo (int)($profile['profile_show_audio_player'] ?? 1) === 1 ? 'checked' : ''; ?> id="showAudioPlayerInput"><span><i class="fas fa-sliders"></i>Show player</span></label>
                                 <?php if (!empty($profile['profile_music_mime'])): ?>
                                     <label class="profile-toggle-card profile-inline-toggle"><input type="checkbox" name="remove_profile_music_upload" value="1"><span><i class="fas fa-trash"></i>Remove uploaded MP3</span></label>
                                 <?php endif; ?>
@@ -1076,6 +1077,7 @@ function profile_json_script(string $id, array $data): void
                                 <label class="profile-toggle-card"><input type="hidden" name="profile_show_embeds" value="0"><input type="checkbox" name="profile_show_embeds" value="1" <?php echo (int)($profile['profile_show_embeds'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-share-square"></i>Embeds</span></label>
                                 <label class="profile-toggle-card"><input type="hidden" name="profile_show_projects" value="0"><input type="checkbox" name="profile_show_projects" value="1" <?php echo (int)($profile['profile_show_projects'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-cubes"></i>Projects</span></label>
                                 <label class="profile-toggle-card"><input type="hidden" name="profile_show_contents" value="0"><input type="checkbox" name="profile_show_contents" value="1" <?php echo (int)($profile['profile_show_contents'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-play"></i>Edits & content</span></label>
+                                <label class="profile-toggle-card"><input type="hidden" name="profile_show_blocks" value="0"><input type="checkbox" name="profile_show_blocks" value="1" <?php echo (int)($profile['profile_show_blocks'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-wand-magic-sparkles"></i>Custom Blocks</span></label>
                                 <label class="profile-toggle-card"><input type="hidden" name="profile_show_badges" value="0"><input type="checkbox" name="profile_show_badges" value="1" <?php echo (int)($profile['profile_show_badges'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-trophy"></i>Badges</span></label>
                                 <label class="profile-toggle-card">
                                     <input type="hidden" name="profile_show_characters" value="0">
@@ -1148,6 +1150,9 @@ function profile_json_script(string $id, array $data): void
                     </div>
                 </div>
             </div>
+
+            <!-- Resize Handle -->
+            <div class="editor-resize-handle" id="editorResizeHandle"></div>
 
             <div class="editor-preview-pane">
                 <div class="preview-toolbar">
