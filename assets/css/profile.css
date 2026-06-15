@@ -8794,6 +8794,12 @@ body[data-theme="light"] .profile-report-detail-group textarea {
     justify-content: center !important;
 }
 
+body.public-profile-body .profile-smart-page.layout-stacked:not(.profile-smart-page--single) .profile-smart-hero-wrapper,
+body.public-profile-body .profile-smart-page.layout-clean:not(.profile-smart-page--single) .profile-smart-hero-wrapper {
+    position: relative !important;
+    top: auto !important;
+}
+
 .layout-stacked .profile-smart-hero-wrapper,
 .layout-clean .profile-smart-hero-wrapper,
 .layout-stacked .profile-smart-content,
@@ -8807,11 +8813,16 @@ body[data-theme="light"] .profile-report-detail-group textarea {
     top: auto !important;
 }
 
+.layout-stacked .profile-smart-hero,
+.layout-clean .profile-smart-hero {
+    margin-bottom: 0 !important;
+}
+
 .layout-stacked .profile-smart-content,
 .layout-clean .profile-smart-content {
     display: grid !important;
     gap: 0.85rem !important;
-    margin-top: 1rem !important;
+    margin-top: 0 !important;
     position: relative !important;
     z-index: 1 !important;
 }
