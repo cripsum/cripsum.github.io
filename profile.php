@@ -494,8 +494,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.8.10">
-    <script src="/assets/js/profile.js?v=4.8.10" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.8.11">
+    <script src="/assets/js/profile.js?v=4.8.11" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -985,8 +985,12 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             </div>
 
             <?php if ($hasRightContent): ?>
-                <section class="bio-content profile-smart-content" aria-label="Contenuti profilo">
-                    <?php if ($spotlight): ?>
+                <section class="bio-content profile-smart-content <?php echo $layoutCss === 'center-split' ? 'profile-smart-content--split' : ''; ?>" aria-label="Contenuti profilo">
+                    <?php
+                    $spotlightHtml = '';
+                    if ($spotlight) {
+                        ob_start();
+                    ?>
                         <section class="bio-card bio-featured profile-spotlight js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
                             <a class="profile-spotlight-link" href="<?php echo profile_h($spotlight['url'] ?: '#'); ?>" <?php echo $spotlight['url'] ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
                                 <span class="profile-spotlight-icon"><i class="<?php echo profile_h($spotlight['icon']); ?>"></i></span>
@@ -999,7 +1003,10 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                 <?php if ($spotlight['url']): ?><i class="fas fa-arrow-up-right-from-square"></i><?php endif; ?>
                             </a>
                         </section>
-                    <?php endif; ?>
+                    <?php
+                        $spotlightHtml = ob_get_clean();
+                    }
+                    ?>
 
                     <?php
                     $sectionsHtml = [];
@@ -1311,18 +1318,48 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     $sectionsOrder = explode(',', $sectionsOrderRaw);
                     $allowedSectionsList = ['links', 'embeds', 'stats', 'projects', 'blocks', 'contents', 'characters', 'badges', 'activity'];
 
+                    $orderedSectionsHtml = [];
+                    if (trim($spotlightHtml) !== '') {
+                        $orderedSectionsHtml[] = $spotlightHtml;
+                    }
+
                     foreach ($sectionsOrder as $secKey) {
                         $secKey = trim($secKey);
                         if (isset($sectionsHtml[$secKey])) {
-                            echo $sectionsHtml[$secKey];
+                            if (trim($sectionsHtml[$secKey]) !== '') {
+                                $orderedSectionsHtml[] = $sectionsHtml[$secKey];
+                            }
                             unset($sectionsHtml[$secKey]);
                         }
                     }
 
                     // Append any active sections not found in the custom order list
                     foreach ($allowedSectionsList as $secKey) {
-                        if (isset($sectionsHtml[$secKey])) {
-                            echo $sectionsHtml[$secKey];
+                        if (isset($sectionsHtml[$secKey]) && trim($sectionsHtml[$secKey]) !== '') {
+                            $orderedSectionsHtml[] = $sectionsHtml[$secKey];
+                        }
+                    }
+
+                    if ($layoutCss === 'center-split') {
+                        echo '<div class="profile-split-column profile-split-column--left">';
+                        foreach ($orderedSectionsHtml as $sectionIndex => $sectionHtml) {
+                            if ($sectionIndex % 2 !== 0) {
+                                continue;
+                            }
+                            echo '<div class="profile-split-item" style="--profile-split-order: ' . (int)$sectionIndex . ';">' . $sectionHtml . '</div>';
+                        }
+                        echo '</div>';
+                        echo '<div class="profile-split-column profile-split-column--right">';
+                        foreach ($orderedSectionsHtml as $sectionIndex => $sectionHtml) {
+                            if ($sectionIndex % 2 === 0) {
+                                continue;
+                            }
+                            echo '<div class="profile-split-item" style="--profile-split-order: ' . (int)$sectionIndex . ';">' . $sectionHtml . '</div>';
+                        }
+                        echo '</div>';
+                    } else {
+                        foreach ($orderedSectionsHtml as $sectionHtml) {
+                            echo $sectionHtml;
                         }
                     }
                     ?>
