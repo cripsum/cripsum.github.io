@@ -403,7 +403,6 @@ $visibleBadges = $showBadges ? $badges : [];
 $visibleActivity = $showActivity ? $activity : [];
 $visibleCharacters = $showCharacters ? $characters : [];
 
-// Discord Server invite processing
 $discordServerInvite = $profile ? ($profile['discord_server_invite'] ?? '') : '';
 $discordServerCache = $profile ? ($profile['discord_server_cache'] ?? '') : '';
 $discordServerCacheTime = $profile ? (int)($profile['discord_server_cache_time'] ?? 0) : 0;
@@ -411,10 +410,8 @@ $discordServerCacheTime = $profile ? (int)($profile['discord_server_cache_time']
 $widgetData = null;
 if (!empty($discordServerInvite)) {
     if (!empty($discordServerCache) && (time() - $discordServerCacheTime < 300)) {
-        // Cache is valid (5 minutes)
         $widgetData = json_decode($discordServerCache, true);
     } else {
-        // Refresh cache
         $inviteCode = trim($discordServerInvite);
         $urlParts = parse_url($inviteCode);
         if ($urlParts && isset($urlParts['path'])) {
@@ -428,7 +425,6 @@ if (!empty($discordServerInvite)) {
         $widgetData = profile_fetch_discord_server_data($inviteCode);
         if ($widgetData) {
             $jsonStr = json_encode($widgetData);
-            // Save to DB
             $updStmt = $mysqli->prepare("UPDATE utenti SET discord_server_cache = ?, discord_server_cache_time = ? WHERE id = ?");
             if ($updStmt) {
                 $now = time();
@@ -437,7 +433,6 @@ if (!empty($discordServerInvite)) {
                 $updStmt->close();
             }
         } elseif (!empty($discordServerCache)) {
-            // Fallback to old cache
             $widgetData = json_decode($discordServerCache, true);
         }
     }
@@ -1313,7 +1308,6 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     <?php endif;
                     $sectionsHtml['activity'] = ob_get_clean();
 
-                    // Output sections in the custom order
                     $sectionsOrderRaw = $profile['profile_sections_order'] ?? 'links,embeds,stats,projects,blocks,contents,characters,badges,activity';
                     $sectionsOrder = explode(',', $sectionsOrderRaw);
                     $allowedSectionsList = ['links', 'embeds', 'stats', 'projects', 'blocks', 'contents', 'characters', 'badges', 'activity'];
@@ -1333,7 +1327,6 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         }
                     }
 
-                    // Append any active sections not found in the custom order list
                     foreach ($allowedSectionsList as $secKey) {
                         if (isset($sectionsHtml[$secKey]) && trim($sectionsHtml[$secKey]) !== '') {
                             $orderedSectionsHtml[] = $sectionsHtml[$secKey];
@@ -1464,7 +1457,6 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                 el.textContent = text;
                             }
                         } else if (selector === '.bio-tagline' && text.trim() !== '') {
-                            // Bio was empty, render it dynamically
                             const nameBlock = document.querySelector('.bio-name-block');
                             if (nameBlock) {
                                 const newBio = document.createElement('p');

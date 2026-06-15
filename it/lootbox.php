@@ -145,7 +145,6 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                             <span>Apri 10×</span>
                         </button>
                     </div>
-                    <!-- <p class="gacha-pull-hint"><i class="fa-solid fa-bolt"></i> <kbd>F</kbd> apertura rapida &nbsp;|&nbsp; <kbd>Space</kbd> pull normale</p> -->
                 </div>
             </section>
 
@@ -264,7 +263,6 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                                 <span class="gacha-pull-cost-badge"><?= number_format($costo * 10) ?></span>
                             </button>
                         </div>
-                        <!-- <p class="gacha-pull-hint"><i class="fa-solid fa-bolt"></i> <kbd>F</kbd> apertura rapida &nbsp;|&nbsp; <kbd>Space</kbd> pull normale</p> -->
                     </div>
                 </section>
             <?php endforeach; ?>
