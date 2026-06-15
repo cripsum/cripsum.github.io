@@ -9081,3 +9081,36 @@ body[data-profile-link-style="gradient"] .profile-link-icon-label {
     display: none !important;
 }
 
+html:has(body.public-profile-body) {
+    min-height: 100% !important;
+    overflow-x: hidden !important;
+}
+
+body.public-profile-body {
+    display: grid !important;
+    place-content: center !important;
+    place-items: center !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    height: auto !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
+
+body.public-profile-body .bio-page {
+    margin-block: auto !important;
+    padding-top: clamp(0.85rem, 3dvh, 2rem) !important;
+    padding-bottom: clamp(0.85rem, 3dvh, 2rem) !important;
+}
+
+body.public-profile-body .profile-effects-layer,
+body.public-profile-body .profile-effects-foreground-layer {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+    contain: layout paint !important;
+}
+
