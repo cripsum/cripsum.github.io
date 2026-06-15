@@ -12,6 +12,7 @@ $order = trim((string)($_GET['order'] ?? ($type === 'event' ? 'timeline' : 'late
 $validOrders = ['latest', 'popular', 'trending', 'importance', 'timeline', 'alphabetical', 'date'];
 if (!in_array($order, $validOrders, true)) $order = 'latest';
 
+$stats = cp_fetch_stats($mysqli);
 $entries = cp_fetch_entries($mysqli, [
     'type' => $type,
     'q' => $query,
@@ -43,6 +44,20 @@ $description = cp_t('subtitle', $lang);
                 ['label' => cp_type_plural($type, $lang), 'url' => null],
             ]); ?>
 
+            <nav class="cp-category-tabs cp-reveal" aria-label="<?= cp_h($lang === 'en' ? 'Lore sections' : 'Sezioni lore') ?>">
+                <?php foreach ([
+                    ['person', '#2f6bff'],
+                    ['event', '#60a5fa'],
+                    ['meme', '#f97316'],
+                ] as [$tabType, $accent]): ?>
+                    <a class="<?= $type === $tabType ? 'is-active' : '' ?>" href="<?= cp_h(cp_url('category', ['type' => $tabType], $lang)) ?>" style="--entry-accent: <?= cp_h($accent) ?>">
+                        <i class="fa-solid <?= cp_h(cp_type_icon($tabType)) ?>"></i>
+                        <span><?= cp_h(cp_type_plural($tabType, $lang)) ?></span>
+                        <strong><?= (int)($stats[$tabType] ?? 0) ?></strong>
+                    </a>
+                <?php endforeach; ?>
+            </nav>
+
             <section class="cp-category-hero cp-reveal" style="--entry-accent: <?= cp_h($type === 'person' ? '#2f6bff' : ($type === 'event' ? '#60a5fa' : '#f97316')) ?>">
                 <div>
                     <span class="cp-kicker"><i class="fa-solid <?= cp_h(cp_type_icon($type)) ?>"></i> <?= cp_h(cp_type_plural($type, $lang)) ?></span>
@@ -50,6 +65,16 @@ $description = cp_t('subtitle', $lang);
                     <p><?= cp_h($type === 'event'
                             ? ($lang === 'en' ? 'Browse events in chronological order, filter by date and importance.' : 'Sfoglia gli eventi in ordine cronologico, filtra per data e importanza.')
                             : ($lang === 'en' ? 'Browse all entries with live search, tag and order filters.' : 'Sfoglia tutte le voci con ricerca live, filtri per tag e ordinamento.')) ?></p>
+                    <div class="cp-category-hero__actions">
+                        <a class="cp-btn cp-btn--primary" href="<?= cp_h(cp_url('search', ['type' => $type], $lang)) ?>">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <span><?= cp_h(cp_t('search', $lang)) ?></span>
+                        </a>
+                        <button class="cp-btn cp-btn--ghost" type="button" data-cp-random data-cp-random-type="<?= cp_h($type) ?>">
+                            <i class="fa-solid fa-shuffle"></i>
+                            <span><?= cp_h(cp_t('random', $lang)) ?></span>
+                        </button>
+                    </div>
                 </div>
                 <aside>
                     <strong><?= (int)$count ?></strong>

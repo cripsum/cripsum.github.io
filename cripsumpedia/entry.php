@@ -167,7 +167,10 @@ $adjacent = $entry ? cp_fetch_adjacent_entries($mysqli, (int)$entry['id'], (stri
                                                     <?php foreach ($groupedRelations[$gType] as $relation): ?>
                                                         <?php $rel = cp_entry_public($relation, $lang, $mysqli, false); ?>
                                                         <a class="cp-relation-card" href="<?= cp_h($rel['url']) ?>" style="--entry-accent: <?= cp_h($rel['accent']) ?>">
-                                                            <i class="fa-solid <?= cp_h(cp_type_icon($rel['type'])) ?>"></i>
+                                                            <span class="cp-relation-card__media">
+                                                                <img src="<?= cp_h($rel['image']) ?>" alt="<?= cp_h($rel['title']) ?>" loading="lazy" onerror="this.parentElement.classList.add('is-broken'); this.remove();">
+                                                                <i class="fa-solid <?= cp_h(cp_type_icon($rel['type'])) ?>"></i>
+                                                            </span>
                                                             <div class="cp-relation-card__info">
                                                                 <strong><?= cp_h($rel['title']) ?></strong>
                                                                 <small><?= cp_h(cp_i18n($relation, 'relation_label', $lang) ?: $relation['relation_type']) ?></small>

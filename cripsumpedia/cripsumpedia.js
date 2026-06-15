@@ -134,7 +134,10 @@
             const hlDesc = highlightText((item.description || '').slice(0, 96), query);
             return `
                 <a class="cp-live-item" href="${escapeHtml(item.url)}" style="--entry-accent:${escapeHtml(item.accent)}">
-                    <img src="${escapeHtml(item.image)}" alt="" loading="lazy" onerror="this.remove()">
+                    <span class="cp-live-thumb">
+                        <img src="${escapeHtml(item.image)}" alt="" loading="lazy" onerror="this.parentElement.classList.add('is-broken'); this.remove()">
+                        <i class="fa-solid fa-book-open"></i>
+                    </span>
                     <span>
                         <strong>${hlTitle}</strong>
                         <small>${escapeHtml(item.type_label)} · ${hlDesc}...</small>
@@ -162,7 +165,7 @@
                 if (state.searchAbort) state.searchAbort.abort();
                 state.searchAbort = new AbortController();
                 box.hidden = false;
-                box.innerHTML = '<div class="cp-live-item"><span><strong>Searching...</strong><small>Cripsumpedia scan</small></span></div>';
+                box.innerHTML = '<div class="cp-live-item"><span class="cp-live-thumb cp-live-thumb--ghost"><i class="fa-solid fa-magnifying-glass"></i></span><span><strong>Searching...</strong><small>Cripsumpedia scan</small></span></div>';
                 try {
                     const data = await fetchJson(endpoint(cfg.searchEndpoint, {
                         q,
@@ -310,9 +313,11 @@
             if (!button) return;
             button.disabled = true;
             try {
+                const type = button.dataset.cpRandomType || '';
                 const data = await fetchJson(endpoint(cfg.searchEndpoint, {
                     action: 'random',
                     lang: cfg.lang,
+                    type,
                 }));
                 if (data.url) window.location.href = data.url;
             } catch (err) {
