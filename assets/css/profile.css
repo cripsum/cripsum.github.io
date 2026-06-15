@@ -134,11 +134,7 @@ body[data-theme="light"] .bio-background__overlay {
 }
 
 .bio-grid-glow {
-    inset: 0;
-    background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-    background-size: 72px 72px;
-    mask-image: linear-gradient(to bottom, transparent, black 25%, transparent 92%);
-    opacity: 0.32;
+    display: none !important;
 }
 
 @keyframes bioFloat {

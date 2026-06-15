@@ -241,7 +241,6 @@ function profile_render_background(?array $profile, ?string $backgroundUrl, stri
         <div class="bio-background__overlay"></div>
         <div class="bio-orb bio-orb--one"></div>
         <div class="bio-orb bio-orb--two"></div>
-        <div class="bio-grid-glow"></div>
     </div>
 <?php
 }
@@ -489,8 +488,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.8.16">
-    <script src="/assets/js/profile.js?v=4.8.16" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.8.17">
+    <script src="/assets/js/profile.js?v=4.8.17" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
