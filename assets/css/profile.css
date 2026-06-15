@@ -8767,6 +8767,10 @@ body[data-theme="light"] .profile-report-detail-group textarea {
     width: 100% !important;
 }
 
+.layout-center-split .bio-project-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
 .layout-center-split .profile-smart-content:not(.profile-smart-content--split) {
     display: contents !important;
 }
