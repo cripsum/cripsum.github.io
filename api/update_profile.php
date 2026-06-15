@@ -76,10 +76,10 @@ if ($buttonSize < 32 || $buttonSize > 80) $buttonSize = 48;
 $theme = profile_allowed_value((string)($_POST['profile_theme'] ?? 'dark'), ['dark', 'light', 'auto'], 'dark');
 $rawLayout = (string)($_POST['profile_layout'] ?? 'standard');
 $layoutAliases = [
-    'left-tabs' => 'compact',
+    'left-tabs' => 'standard',
     'right-tabs' => 'showcase',
     'stacked' => 'clean',
-    'center-split' => 'showcase',
+    'center-split' => 'compact',
 ];
 $rawLayout = $layoutAliases[$rawLayout] ?? $rawLayout;
 $layout = profile_allowed_value($rawLayout, ['standard', 'compact', 'showcase', 'clean'], 'standard');

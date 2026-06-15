@@ -272,16 +272,16 @@ if ($theme === 'auto') $theme = 'dark';
 
 $rawLayout = $profile ? (string)($profile['profile_layout'] ?? 'standard') : 'standard';
 $layoutAliases = [
-    'left-tabs' => 'compact',
+    'left-tabs' => 'standard',
     'right-tabs' => 'showcase',
     'stacked' => 'clean',
-    'center-split' => 'showcase',
+    'center-split' => 'compact',
 ];
 $rawLayout = $layoutAliases[$rawLayout] ?? $rawLayout;
 $layout = profile_allowed_value($rawLayout, ['standard', 'compact', 'showcase', 'clean'], 'standard');
 $layoutCss = [
     'standard' => 'standard',
-    'compact' => 'left-tabs',
+    'compact' => 'center-split',
     'showcase' => 'right-tabs',
     'clean' => 'stacked',
 ][$layout] ?? 'standard';
@@ -494,8 +494,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.8.9">
-    <script src="/assets/js/profile.js?v=4.8.9" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.8.10">
+    <script src="/assets/js/profile.js?v=4.8.10" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -1385,13 +1385,13 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                 }
                             });
                             const layoutMap = {
-                                compact: 'left-tabs',
+                                compact: 'center-split',
                                 showcase: 'right-tabs',
                                 clean: 'stacked',
-                                'left-tabs': 'left-tabs',
+                                'left-tabs': 'standard',
                                 'right-tabs': 'right-tabs',
                                 stacked: 'stacked',
-                                'center-split': 'right-tabs',
+                                'center-split': 'center-split',
                                 standard: 'standard'
                             };
                             const nextLayout = layoutMap[data.attributes['data-profile-layout']] || 'standard';

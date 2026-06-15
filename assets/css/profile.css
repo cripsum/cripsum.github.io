@@ -8760,6 +8760,7 @@ body[data-theme="light"] .profile-report-detail-group textarea {
     width: min(660px, calc(100% - 32px)) !important;
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) !important;
+    row-gap: 1rem !important;
     justify-content: center !important;
 }
 
@@ -8780,6 +8781,7 @@ body[data-theme="light"] .profile-report-detail-group textarea {
 .layout-clean .profile-smart-content {
     display: grid !important;
     gap: 0.85rem !important;
+    margin-top: 0.25rem !important;
 }
 
 .bio-card {
@@ -8925,6 +8927,17 @@ body[data-profile-link-style="gradient"] .profile-link-icon-label {
     }
 
     .layout-center-split .profile-smart-hero-wrapper,
+    .layout-standard .profile-smart-hero-wrapper,
+    .layout-left-tabs .profile-smart-hero-wrapper,
+    .layout-compact .profile-smart-hero-wrapper,
+    .layout-right-tabs .profile-smart-hero-wrapper,
+    .layout-showcase .profile-smart-hero-wrapper,
+    .layout-center-split .profile-smart-content,
+    .layout-standard .profile-smart-content,
+    .layout-left-tabs .profile-smart-content,
+    .layout-compact .profile-smart-content,
+    .layout-right-tabs .profile-smart-content,
+    .layout-showcase .profile-smart-content,
     .layout-center-split .profile-smart-content > * {
         grid-column: 1 !important;
     }
@@ -8937,10 +8950,19 @@ body[data-profile-link-style="gradient"] .profile-link-icon-label {
     .layout-showcase .profile-smart-hero-wrapper {
         position: relative !important;
         top: auto !important;
+        grid-row: 1 !important;
+        width: 100% !important;
     }
 
-    .layout-center-split .profile-smart-content {
+    .layout-center-split .profile-smart-content,
+    .layout-standard .profile-smart-content,
+    .layout-left-tabs .profile-smart-content,
+    .layout-compact .profile-smart-content,
+    .layout-right-tabs .profile-smart-content,
+    .layout-showcase .profile-smart-content {
         display: grid !important;
+        grid-row: 2 !important;
+        width: 100% !important;
         gap: 0.85rem !important;
     }
 }
