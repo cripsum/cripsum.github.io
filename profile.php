@@ -264,13 +264,20 @@ $secColorRaw = $profile ? trim((string)($profile['profile_secondary_color'] ?? '
 $secondaryColor = (preg_match('/^#[0-9a-fA-F]{6}$/', $secColorRaw)) ? strtolower($secColorRaw) : $accent;
 $cardColor = $profile ? profile_optional_hex_color($profile['profile_card_color'] ?? '') : null;
 $textColor = $profile ? profile_optional_hex_color($profile['profile_text_color'] ?? '') : null;
-$linkStyle = $profile ? profile_allowed_value((string)($profile['profile_link_style'] ?? 'glass'), ['glass', 'solid', 'outline', 'neon'], 'glass') : 'glass';
+$linkStyle = $profile ? profile_allowed_value((string)($profile['profile_link_style'] ?? 'glass'), ['glass', 'solid', 'outline', 'neon', 'minimal', 'gradient'], 'glass') : 'glass';
 $buttonShape = $profile ? profile_allowed_value((string)($profile['profile_button_shape'] ?? 'pill'), ['pill', 'rounded', 'sharp'], 'pill') : 'pill';
 $cardColorCss = $cardColor ?: ($theme === 'light' ? '#ffffff' : '#080c18');
 $textColorCss = $textColor ?: 'var(--text)';
 if ($theme === 'auto') $theme = 'dark';
 
-$layout = $profile ? profile_allowed_value((string)($profile['profile_layout'] ?? 'standard'), ['standard', 'compact', 'showcase', 'clean'], 'standard') : 'standard';
+$rawLayout = $profile ? (string)($profile['profile_layout'] ?? 'standard') : 'standard';
+$layoutAliases = [
+    'compact' => 'left-tabs',
+    'showcase' => 'center-split',
+    'clean' => 'stacked',
+];
+$rawLayout = $layoutAliases[$rawLayout] ?? $rawLayout;
+$layout = profile_allowed_value($rawLayout, ['standard', 'left-tabs', 'center-split', 'stacked'], 'standard');
 $showEmbeds = $profile ? profile_flag($profile, 'profile_show_embeds', true) : false;
 $embeds = $showEmbeds ? profile_list_embeds($mysqli, $profileId, true) : [];
 $socialsStyle = $profile ? profile_allowed_value((string)($profile['profile_socials_style'] ?? 'cards'), ['cards', 'icons'], 'cards') : 'cards';
@@ -480,8 +487,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.8.7">
-    <script src="/assets/js/profile.js?v=4.8.7" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.8.8">
+    <script src="/assets/js/profile.js?v=4.8.8" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -544,6 +551,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             --profile-card-opacity: <?php echo $cardOpacity / 100; ?> !important;
             --profile-card-blur: <?php echo $cardBlur; ?>px !important;
             --profile-border-opacity: <?php echo $borderOpacity / 100; ?> !important;
+            --profile-border-opacity-percent: <?php echo $borderOpacity; ?>% !important;
+            --profile-border-glow-alpha: <?php echo round(($borderOpacity / 100) * 0.34, 3); ?> !important;
             --profile-card-bg: color-mix(in srgb, var(--profile-card-color, <?php echo $theme === 'light' ? '#ffffff' : '#080c18'; ?>) <?php echo $cardOpacity; ?>%, transparent) !important;
             --card: var(--profile-card-bg) !important;
             --card-strong: color-mix(in srgb, <?php echo !empty($profile['profile_card_color']) ? $profile['profile_card_color'] : ($theme === 'light' ? '#ffffff' : '#080c18'); ?> <?php echo min(100, $cardOpacity + 20); ?>%, transparent) !important;
@@ -620,7 +629,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                      'data-tilt-zoom="' . (float)($profile['tilt_zoom'] ?? 1.05) . '" ' .
                      'data-tilt-speed="' . (int)($profile['tilt_speed'] ?? 400) . '"';
         ?>
-        <main class="bio-page profile-smart-page <?php echo (!$hasRightContent || $layout === 'clean') ? 'profile-smart-page--single' : ''; ?> layout-<?php echo profile_h($layout); ?>" id="bioPage">
+        <main class="bio-page profile-smart-page <?php echo (!$hasRightContent || $layout === 'stacked') ? 'profile-smart-page--single' : ''; ?> layout-<?php echo profile_h($layout); ?>" id="bioPage">
             <div class="profile-smart-hero-wrapper">
                 <section class="bio-hero bio-card profile-smart-hero js-tilt-card js-reveal" aria-label="Public Profile" <?php echo $tiltAttrs; ?>>
                 <div class="profile-hero-actions-top">
@@ -1350,6 +1359,27 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     body.style.setProperty(styleKey, styleVal);
                                 }
                             }
+                        }
+                        if (data.attributes['data-profile-border-style']) {
+                            body.classList.forEach((className) => {
+                                if (className.startsWith('profile-border-style-')) {
+                                    body.classList.remove(className);
+                                }
+                            });
+                            body.classList.add('profile-border-style-' + data.attributes['data-profile-border-style']);
+                        }
+                    }
+                    if (data.attributes['data-profile-layout']) {
+                        const page = document.getElementById('bioPage');
+                        if (page) {
+                            page.classList.forEach((className) => {
+                                if (className.startsWith('layout-')) {
+                                    page.classList.remove(className);
+                                }
+                            });
+                            const nextLayout = data.attributes['data-profile-layout'];
+                            page.classList.add('layout-' + nextLayout);
+                            page.classList.toggle('profile-smart-page--single', nextLayout === 'stacked' || !document.querySelector('.profile-smart-content'));
                         }
                     }
                     const cards = document.querySelectorAll('.js-tilt-card');

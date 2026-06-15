@@ -8684,3 +8684,240 @@ body[data-theme="light"] .profile-report-detail-group textarea {
     outline-offset: 2px;
 }
 
+/* Profile layout, link and border fixes */
+.profile-smart-page.layout-standard,
+.profile-smart-page.layout-left-tabs {
+    width: min(1180px, calc(100% - 32px)) !important;
+    display: grid !important;
+    grid-template-columns: minmax(300px, 390px) minmax(0, 1fr) !important;
+    align-items: start !important;
+    justify-content: center !important;
+}
+
+.profile-smart-page.layout-left-tabs {
+    grid-template-columns: minmax(280px, 360px) minmax(0, 760px) !important;
+}
+
+.profile-smart-page.layout-center-split {
+    width: min(1440px, calc(100% - 32px)) !important;
+    display: grid !important;
+    grid-template-columns: minmax(250px, 1fr) minmax(300px, 380px) minmax(250px, 1fr) !important;
+    grid-auto-rows: max-content !important;
+    align-items: start !important;
+    justify-content: center !important;
+    column-gap: 1rem !important;
+    row-gap: 1rem !important;
+}
+
+.layout-center-split .profile-smart-hero-wrapper {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    position: sticky !important;
+    top: 3rem !important;
+}
+
+.layout-center-split .profile-smart-content {
+    display: contents !important;
+}
+
+.layout-center-split .profile-smart-content > * {
+    min-width: 0 !important;
+}
+
+.layout-center-split .profile-smart-content > :nth-child(odd) {
+    grid-column: 1 !important;
+}
+
+.layout-center-split .profile-smart-content > :nth-child(even) {
+    grid-column: 3 !important;
+}
+
+.profile-smart-page.layout-stacked,
+.profile-smart-page.layout-stacked.profile-smart-page--single {
+    width: min(660px, calc(100% - 32px)) !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    justify-content: center !important;
+}
+
+.layout-stacked .profile-smart-hero-wrapper,
+.layout-stacked .profile-smart-content {
+    width: 100% !important;
+}
+
+.layout-stacked .profile-smart-hero-wrapper {
+    position: relative !important;
+    top: auto !important;
+}
+
+.layout-stacked .profile-smart-content {
+    display: grid !important;
+    gap: 0.85rem !important;
+}
+
+.bio-card {
+    --profile-surface-layer: linear-gradient(var(--card), var(--card));
+}
+
+.bio-social,
+.bio-featured-link,
+.bio-project-card,
+.bio-preview-card,
+.bio-audio,
+.bio-discord-panel,
+.profile-block-card {
+    --profile-control-bg: rgba(255, 255, 255, 0.055);
+    --profile-surface-layer: linear-gradient(var(--profile-control-bg), var(--profile-control-bg));
+}
+
+body[data-theme="light"] .bio-social,
+body[data-theme="light"] .bio-featured-link,
+body[data-theme="light"] .bio-project-card,
+body[data-theme="light"] .bio-preview-card,
+body[data-theme="light"] .bio-audio,
+body[data-theme="light"] .bio-discord-panel,
+body[data-theme="light"] .profile-block-card {
+    --profile-control-bg: rgba(255, 255, 255, 0.72);
+}
+
+body[data-profile-link-style="glass"] .profile-link-button {
+    --profile-surface-layer: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(var(--accent-rgb), 0.07));
+    border-color: color-mix(in srgb, var(--profile-border-color, var(--accent)) 28%, transparent) !important;
+    background: var(--profile-surface-layer) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 14px 32px rgba(0, 0, 0, 0.14) !important;
+}
+
+body[data-profile-link-style="solid"] .profile-link-button {
+    --profile-surface-layer: linear-gradient(135deg, color-mix(in srgb, var(--accent) 92%, #05070d), color-mix(in srgb, var(--accent-2) 86%, #05070d));
+    color: #fff !important;
+    border-color: transparent !important;
+    background: var(--profile-surface-layer) !important;
+}
+
+body[data-profile-link-style="outline"] .profile-link-button {
+    --profile-surface-layer: linear-gradient(rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.018));
+    border-color: color-mix(in srgb, var(--profile-border-color, var(--accent)) 72%, transparent) !important;
+    background: var(--profile-surface-layer) !important;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 24%, transparent) !important;
+}
+
+body[data-profile-link-style="neon"] .profile-link-button {
+    --profile-surface-layer: linear-gradient(145deg, rgba(var(--accent-rgb), 0.2), rgba(255, 255, 255, 0.052));
+    border-color: color-mix(in srgb, var(--profile-border-color, var(--accent)) 82%, transparent) !important;
+    background: var(--profile-surface-layer) !important;
+    box-shadow: 0 0 22px rgba(var(--accent-rgb), 0.24), inset 0 0 20px rgba(var(--accent-rgb), 0.11) !important;
+}
+
+body[data-profile-link-style="minimal"] .profile-link-button {
+    --profile-surface-layer: linear-gradient(transparent, transparent);
+    border-color: transparent !important;
+    border-bottom-color: color-mix(in srgb, var(--profile-border-color, var(--accent)) 58%, transparent) !important;
+    background: var(--profile-surface-layer) !important;
+    box-shadow: none !important;
+}
+
+body[data-profile-link-style="gradient"] .profile-link-button {
+    --profile-surface-layer: linear-gradient(135deg, rgba(var(--accent-rgb), 0.95), color-mix(in srgb, var(--accent-2) 92%, #111827));
+    color: #fff !important;
+    border-color: transparent !important;
+    background: var(--profile-surface-layer) !important;
+    box-shadow: 0 18px 40px color-mix(in srgb, var(--accent) 24%, transparent) !important;
+}
+
+body[data-profile-link-style="solid"] .profile-link-button em,
+body[data-profile-link-style="solid"] .profile-link-button small,
+body[data-profile-link-style="solid"] .profile-link-icon-label,
+body[data-profile-link-style="gradient"] .profile-link-button em,
+body[data-profile-link-style="gradient"] .profile-link-button small,
+body[data-profile-link-style="gradient"] .profile-link-icon-label {
+    color: rgba(255, 255, 255, 0.84) !important;
+}
+
+.profile-border-style-glow .bio-card,
+.profile-border-style-glow .bio-social,
+.profile-border-style-glow .bio-featured-link,
+.profile-border-style-glow .bio-project-card,
+.profile-border-style-glow .bio-preview-card,
+.profile-border-style-glow .bio-audio,
+.profile-border-style-glow .bio-discord-panel,
+.profile-border-style-glow .profile-block-card {
+    border-width: var(--profile-border-width, 1px) !important;
+    border-style: solid !important;
+    border-color: color-mix(in srgb, var(--profile-border-color, var(--profile-accent)) var(--profile-border-opacity-percent, 100%), transparent) !important;
+}
+
+.profile-border-style-glow .bio-card {
+    box-shadow: 0 0 calc(16px + var(--profile-border-width, 1px)) rgba(var(--accent-rgb), var(--profile-border-glow-alpha, 0.34)), 0 24px 48px -12px rgba(0, 0, 0, calc(0.45 * var(--profile-card-opacity, 1))) !important;
+}
+
+.profile-border-style-glow .bio-card::before,
+.profile-border-style-gradient .bio-card::before {
+    display: none !important;
+}
+
+.profile-border-style-gradient .bio-card,
+.profile-border-style-gradient .bio-social,
+.profile-border-style-gradient .bio-featured-link,
+.profile-border-style-gradient .bio-project-card,
+.profile-border-style-gradient .bio-preview-card,
+.profile-border-style-gradient .bio-audio,
+.profile-border-style-gradient .bio-discord-panel,
+.profile-border-style-gradient .profile-block-card {
+    border-width: var(--profile-border-width, 1px) !important;
+    border-style: solid !important;
+    border-color: transparent !important;
+    background: var(--profile-surface-layer, linear-gradient(var(--card), var(--card))) padding-box,
+        linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--profile-border-color, var(--profile-accent)) var(--profile-border-opacity-percent, 100%), transparent),
+            color-mix(in srgb, var(--accent-2, #8b5cf6) var(--profile-border-opacity-percent, 100%), transparent)
+        ) border-box !important;
+}
+
+.profile-border-style-gradient .bio-social:hover,
+.profile-border-style-gradient .bio-featured-link:hover,
+.profile-border-style-gradient .bio-project-card:hover,
+.profile-border-style-gradient .bio-preview-card:hover {
+    background: var(--profile-surface-layer, linear-gradient(rgba(var(--accent-rgb), 0.1), rgba(var(--accent-rgb), 0.1))) padding-box,
+        linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--profile-border-color, var(--profile-accent)) var(--profile-border-opacity-percent, 100%), transparent),
+            color-mix(in srgb, var(--accent-2, #8b5cf6) var(--profile-border-opacity-percent, 100%), transparent)
+        ) border-box !important;
+}
+
+@media (max-width: 1180px) {
+    .profile-smart-page.layout-center-split,
+    .profile-smart-page.layout-standard,
+    .profile-smart-page.layout-left-tabs {
+        width: min(760px, calc(100% - 28px)) !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .layout-center-split .profile-smart-hero-wrapper,
+    .layout-center-split .profile-smart-content > * {
+        grid-column: 1 !important;
+    }
+
+    .layout-center-split .profile-smart-hero-wrapper,
+    .layout-standard .profile-smart-hero-wrapper,
+    .layout-left-tabs .profile-smart-hero-wrapper {
+        position: relative !important;
+        top: auto !important;
+    }
+
+    .layout-center-split .profile-smart-content {
+        display: grid !important;
+        gap: 0.85rem !important;
+    }
+}
+
+@media (max-width: 720px) {
+    .profile-smart-page.layout-standard,
+    .profile-smart-page.layout-left-tabs,
+    .profile-smart-page.layout-center-split,
+    .profile-smart-page.layout-stacked {
+        width: min(100% - 22px, 620px) !important;
+    }
+}
+

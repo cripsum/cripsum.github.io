@@ -491,6 +491,8 @@
             '--profile-card-opacity': opacityVal / 100,
             '--profile-card-blur': `${blurVal}px`,
             '--profile-border-opacity': borderOpacityVal / 100,
+            '--profile-border-opacity-percent': `${borderOpacityVal}%`,
+            '--profile-border-glow-alpha': Math.round((borderOpacityVal / 100) * 0.34 * 1000) / 1000,
             '--card': `color-mix(in srgb, ${cardCol} ${opacityVal}%, transparent)`,
             '--profile-card-color': `color-mix(in srgb, ${cardCol} ${opacityVal}%, transparent)`,
             '--card-strong': `color-mix(in srgb, ${cardCol} ${Math.min(100, opacityVal + 20)}%, transparent)`,
@@ -598,6 +600,7 @@
         if (buttonShapeInput) attributes['data-profile-button-shape'] = buttonShapeInput.value;
         if (profileEffectInput) attributes['data-profile-effect'] = profileEffectInput.value;
         if (layoutInput) attributes['data-profile-layout'] = layoutInput.value;
+        if (borderStyleInput) attributes['data-profile-border-style'] = borderStyleInput.value;
         if (socialsStyleInput) attributes['data-profile-socials-style'] = socialsStyleInput.value;
         if (tiltEnabledInput) attributes['data-tilt-enabled'] = tiltEnabledInput.checked ? '1' : '0';
         if (tiltMaxInput) attributes['data-tilt-max'] = tiltMaxInput.value;

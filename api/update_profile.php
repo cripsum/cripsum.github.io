@@ -42,7 +42,7 @@ $accentColor = profile_normalize_hex_color($_POST['accent_color'] ?? '#0f5bff');
 $secondaryColor = profile_normalize_hex_color($_POST['profile_secondary_color'] ?? '#8b5cf6');
 $cardColorDb = profile_optional_hex_color($_POST['profile_card_color'] ?? '');
 $textColorDb = profile_optional_hex_color($_POST['profile_text_color'] ?? '');
-$linkStyle = profile_allowed_value((string)($_POST['profile_link_style'] ?? 'glass'), ['glass', 'solid', 'outline', 'neon'], 'glass');
+$linkStyle = profile_allowed_value((string)($_POST['profile_link_style'] ?? 'glass'), ['glass', 'solid', 'outline', 'neon', 'minimal', 'gradient'], 'glass');
 $buttonShape = profile_allowed_value((string)($_POST['profile_button_shape'] ?? 'pill'), ['pill', 'rounded', 'sharp'], 'pill');
 $font = profile_allowed_value((string)($_POST['profile_font'] ?? 'Poppins'), [
     'Poppins', 'Inter', 'Roboto', 'Outfit', 'Playfair Display', 
@@ -74,7 +74,14 @@ $buttonSize = (int)($_POST['profile_button_size'] ?? 48);
 if ($buttonSize < 32 || $buttonSize > 80) $buttonSize = 48;
 
 $theme = profile_allowed_value((string)($_POST['profile_theme'] ?? 'dark'), ['dark', 'light', 'auto'], 'dark');
-$layout = profile_allowed_value((string)($_POST['profile_layout'] ?? 'standard'), ['standard', 'compact', 'showcase'], 'standard');
+$rawLayout = (string)($_POST['profile_layout'] ?? 'standard');
+$layoutAliases = [
+    'compact' => 'left-tabs',
+    'showcase' => 'center-split',
+    'clean' => 'stacked',
+];
+$rawLayout = $layoutAliases[$rawLayout] ?? $rawLayout;
+$layout = profile_allowed_value($rawLayout, ['standard', 'left-tabs', 'center-split', 'stacked'], 'standard');
 $visibility = profile_allowed_value((string)($_POST['profile_visibility'] ?? 'public'), ['public', 'logged_in', 'private'], 'public');
 $discordId = trim((string)($_POST['discord_id'] ?? ''));
 $discordIdDb = $discordId !== '' ? $discordId : null;
