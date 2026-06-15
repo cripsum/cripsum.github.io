@@ -486,20 +486,20 @@
 
                     <div class="character-meta">
                         <span class="character-badge">
-                            <i class="fas fa-box"></i>
+                            <i class="fa-solid fa-box"></i>
                             x${entry.quantity}
                         </span>
 
                         ${entry.category ? `
                             <span class="character-badge">
-                                <i class="fas fa-tag"></i>
+                                <i class="fa-solid fa-tag"></i>
                                 ${escapeHtml(entry.category)}
                             </span>
                         ` : ''}
 
                         ${entry.date ? `
                             <span class="character-badge">
-                                <i class="fas fa-calendar-check"></i>
+                                <i class="fa-solid fa-calendar-check"></i>
                                 ${escapeHtml(formatDate(entry.date, true))}
                             </span>
                         ` : ''}
@@ -514,7 +514,7 @@
 
                     <div class="modal-character__actions">
                         <a class="inv-btn inv-btn--primary" href="animazione_personaggio?id_personaggio=${encodeURIComponent(entry.id)}">
-                            <i class="fas fa-wand-magic-sparkles"></i>
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
                             <span>${t.view_animation}</span>
                         </a>
                     </div>

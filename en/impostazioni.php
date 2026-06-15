@@ -219,21 +219,21 @@ if ($twofaSetupSecret) {
 
         <?php if ($error): ?>
             <div class="auth-alert auth-alert--error">
-                <i class="fas fa-triangle-exclamation"></i>
+                <i class="fa-solid fa-triangle-exclamation"></i>
                 <span><?php echo auth_h($error); ?></span>
             </div>
         <?php endif; ?>
 
         <?php if ($success): ?>
             <div class="auth-alert auth-alert--success">
-                <i class="fas fa-check-circle"></i>
+                <i class="fa-solid fa-circle-check"></i>
                 <span><?php echo auth_h($success); ?></span>
             </div>
         <?php endif; ?>
 
         <?php if (empty($currentUser['password'])): ?>
             <div class="auth-alert auth-reveal" style="background: rgba(255, 193, 7, 0.15); border: 1px solid #ffc107; color: #ffc107; padding: 1rem; border-radius: 20px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 15px;">
-                <i class="fas fa-key"></i>
+                <i class="fa-solid fa-key"></i>
                 <span style="flex-grow: 1;">Set a password to access without Google.</span>
                 <a href="#password" class="auth-btn" style="background: #ffc107; color: #000; width: auto; padding: 5px 15px;" onclick="document.querySelector('.settings-tab-btn[data-tab=\'password\']').click();">Configure</a>
             </div>
@@ -242,19 +242,19 @@ if ($twofaSetupSecret) {
         <div class="settings-container">
             <aside class="settings-sidebar auth-reveal">
                 <button class="settings-tab-btn active" data-tab="profile">
-                    <i class="fas fa-user-circle"></i>
+                    <i class="fa-solid fa-user-circle"></i>
                     <span>Profile</span>
                 </button>
                 <button class="settings-tab-btn" data-tab="email">
-                    <i class="fas fa-envelope"></i>
+                    <i class="fa-solid fa-envelope"></i>
                     <span>Email</span>
                 </button>
                 <button class="settings-tab-btn" data-tab="password">
-                    <i class="fas fa-key"></i>
+                    <i class="fa-solid fa-key"></i>
                     <span>Password</span>
                 </button>
                 <button class="settings-tab-btn" data-tab="twofa">
-                    <i class="fas fa-shield-halved"></i>
+                    <i class="fa-solid fa-shield-halved"></i>
                     <span>Security 2FA</span>
                 </button>
             </aside>
@@ -319,7 +319,7 @@ if ($twofaSetupSecret) {
                                     <div class="auth-password">
                                         <input type="password" name="current_password" autocomplete="current-password" required data-password-input>
                                         <button type="button" data-toggle-password aria-label="Show password" style="margin-top: -18px;">
-                                            <i class="fas fa-eye"></i>
+                                            <i class="fa-solid fa-eye"></i>
                                         </button>
                                     </div>
                                     <small>Required to confirm email changes.</small>
@@ -351,7 +351,7 @@ if ($twofaSetupSecret) {
                                     <div class="auth-password">
                                         <input type="password" name="current_password" autocomplete="current-password" required data-password-input>
                                         <button type="button" data-toggle-password aria-label="Show password" style="margin-top: -18px;">
-                                            <i class="fas fa-eye"></i>
+                                            <i class="fa-solid fa-eye"></i>
                                         </button>
                                     </div>
                                 </label>
@@ -362,7 +362,7 @@ if ($twofaSetupSecret) {
                                 <div class="auth-password">
                                     <input type="password" name="password" autocomplete="new-password" minlength="8" required data-password-input>
                                     <button type="button" data-toggle-password aria-label="Show password" style="margin-top: -18px;">
-                                        <i class="fas fa-eye"></i>
+                                        <i class="fa-solid fa-eye"></i>
                                     </button>
                                 </div>
                             </label>
@@ -372,7 +372,7 @@ if ($twofaSetupSecret) {
                                 <div class="auth-password">
                                     <input type="password" name="confirm_password" autocomplete="new-password" minlength="8" required data-password-input>
                                     <button type="button" data-toggle-password aria-label="Show password" style="margin-top: -18px;">
-                                        <i class="fas fa-eye"></i>
+                                        <i class="fa-solid fa-eye"></i>
                                     </button>
                                 </div>
                             </label>
@@ -394,12 +394,12 @@ if ($twofaSetupSecret) {
 
                         <?php if (!$twofaStatus['has_columns']): ?>
                             <div class="auth-alert auth-alert--info">
-                                <i class="fas fa-database"></i>
+                                <i class="fa-solid fa-database"></i>
                                 <span>2FA not installed in the database. Run the included SQL file.</span>
                             </div>
                         <?php else: ?>
                             <div class="twofa-status <?php echo $twofaStatus['enabled'] ? 'is-enabled' : ''; ?>">
-                                <i class="fas <?php echo $twofaStatus['enabled'] ? 'fa-shield-halved' : 'fa-shield'; ?>"></i>
+                                <i class="fa-solid <?php echo $twofaStatus['enabled'] ? 'fa-shield-halved' : 'fa-shield'; ?>"></i>
                                 <div>
                                     <strong><?php echo $twofaStatus['enabled'] ? '2FA enabled' : '2FA disabled'; ?></strong>
                                     <span><?php echo $twofaStatus['enabled'] ? 'Login requires a code.' : 'Recommended to protect your account.'; ?></span>
@@ -411,7 +411,7 @@ if ($twofaSetupSecret) {
                                     <?php echo csrf_field(); ?>
                                     <input type="hidden" name="action" value="start_2fa_setup">
                                     <button class="auth-btn auth-btn--primary" type="submit">
-                                        <i class="fas fa-qrcode"></i>
+                                        <i class="fa-solid fa-qrcode"></i>
                                         <span>Enable 2FA</span>
                                     </button>
                                 </form>

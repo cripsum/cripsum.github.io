@@ -88,12 +88,12 @@ if ($isLoggedIn) {
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/home"><i class="fas fa-arrow-left"></i> <?= $t['back_cripsum'] ?></a></li>
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/home"><i class="fas fa-home"></i> <?= $t['home_page'] ?></a></li>
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/goon-generator"><i class="fas fa-cogs"></i> <?= $t['goon_gen'] ?></a></li>
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/anime-girl-quiz"><i class="fas fa-question-circle"></i> <?= $t['waifu_quiz'] ?></a></li>
-                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/smash-or-pass"><i class="fas fa-heart"></i> <?= $t['smash_pass'] ?></a></li>
-                <li class="nav-item"><a class="nav-link" href=""><i class="fas fa-clock"></i> <?= $t['coming_soon'] ?></a></li>
+                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/home"><i class="fa-solid fa-arrow-left"></i> <?= $t['back_cripsum'] ?></a></li>
+                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/home"><i class="fa-solid fa-home"></i> <?= $t['home_page'] ?></a></li>
+                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/goon-generator"><i class="fa-solid fa-gears"></i> <?= $t['goon_gen'] ?></a></li>
+                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/anime-girl-quiz"><i class="fa-solid fa-circle-question"></i> <?= $t['waifu_quiz'] ?></a></li>
+                <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/goonland/smash-or-pass"><i class="fa-solid fa-heart"></i> <?= $t['smash_pass'] ?></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><i class="fa-solid fa-clock"></i> <?= $t['coming_soon'] ?></a></li>
             </ul>
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
@@ -108,8 +108,8 @@ if ($isLoggedIn) {
                     </a>
                 </li>
                 <?php if (!$isLoggedIn): ?>
-                    <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/accedi"><i class="fas fa-sign-in-alt"></i> <?= $t['login'] ?></a></li>
-                    <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/registrati"><i class="fas fa-user-plus"></i> <?= $t['register'] ?></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/accedi"><i class="fa-solid fa-right-to-bracket"></i> <?= $t['login'] ?></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/registrati"><i class="fa-solid fa-user-plus"></i> <?= $t['register'] ?></a></li>
                 <?php else: ?>
                     <li class="nav-item dropdown dropdownutenti">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
@@ -118,22 +118,22 @@ if ($isLoggedIn) {
                             <span><?php echo htmlspecialchars($username); ?></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end animate slideIn">
-                            <li><a class="dropdown-item" href="/u/<?php echo htmlspecialchars($username); ?>"><i class="fas fa-user me-2"></i><?= $t['my_profile'] ?></a></li>
-                            <li><a class="dropdown-item" href="/<?= $lang ?>/impostazioni"><i class="fas fa-cog me-2"></i><?= $t['settings'] ?></a></li>
-                            <li><a class="dropdown-item" href="/<?= $lang ?>/achievements"><i class="fas fa-trophy me-2"></i>Achievements</a></li>
-                            <li><a class="dropdown-item" href="/<?= $lang ?>/missions"><i class="fas fa-bullseye me-2"></i><?= $t['missions'] ?></a></li>
-                            <li><a class="dropdown-item" href="/<?= $lang ?>/inventario"><i class="fas fa-box me-2"></i><?= $t['inventory'] ?></a></li>
-                            <li><a class="dropdown-item" href="/<?= $lang ?>/global-chat"><i class="fas fa-envelope me-2"></i><?= $t['global_chat'] ?></a></li>
+                            <li><a class="dropdown-item" href="/u/<?php echo htmlspecialchars($username); ?>"><i class="fa-solid fa-user me-2"></i><?= $t['my_profile'] ?></a></li>
+                            <li><a class="dropdown-item" href="/<?= $lang ?>/impostazioni"><i class="fa-solid fa-gear me-2"></i><?= $t['settings'] ?></a></li>
+                            <li><a class="dropdown-item" href="/<?= $lang ?>/achievements"><i class="fa-solid fa-trophy me-2"></i>Achievements</a></li>
+                            <li><a class="dropdown-item" href="/<?= $lang ?>/missions"><i class="fa-solid fa-bullseye me-2"></i><?= $t['missions'] ?></a></li>
+                            <li><a class="dropdown-item" href="/<?= $lang ?>/inventario"><i class="fa-solid fa-box me-2"></i><?= $t['inventory'] ?></a></li>
+                            <li><a class="dropdown-item" href="/<?= $lang ?>/global-chat"><i class="fa-solid fa-envelope me-2"></i><?= $t['global_chat'] ?></a></li>
                             <?php if ($nsfw === 1): ?>
-                                <li><a class="dropdown-item" href="/<?= $lang ?>/goonland/home"><i class="fas fa-eye-slash me-2"></i>GoonLand</a></li>
+                                <li><a class="dropdown-item" href="/<?= $lang ?>/goonland/home"><i class="fa-solid fa-eye-slash me-2"></i>GoonLand</a></li>
                             <?php endif; ?>
                             <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
-                                <li><a class="dropdown-item" href="/<?= $lang ?>/admin"><i class="fas fa-shield-alt me-2"></i><?= $t['admin_panel'] ?></a></li>
+                                <li><a class="dropdown-item" href="/<?= $lang ?>/admin"><i class="fa-solid fa-shield-halved me-2"></i><?= $t['admin_panel'] ?></a></li>
                             <?php endif; ?>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
-                            <li><a class="dropdown-item text-danger" href="https://cripsum.com/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                            <li><a class="dropdown-item text-danger" href="https://cripsum.com/logout"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
                         </ul>
                     </li>
                 <?php endif; ?>

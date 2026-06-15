@@ -55,7 +55,7 @@ if ($token && $nuova_password) {
     <main class="form-shell form-shell--narrow">
         <section class="form-card form-reveal">
             <div class="confirm-icon">
-                <i class="fas <?php echo $success ? 'fa-check' : 'fa-triangle-exclamation'; ?>"></i>
+                <i class="fa-solid <?php echo $success ? 'fa-check' : 'fa-triangle-exclamation'; ?>"></i>
             </div>
 
             <div class="form-card__header" style="text-align:center;">
@@ -66,7 +66,7 @@ if ($token && $nuova_password) {
 
             <div class="form-actions form-actions--center">
                 <a class="form-btn form-btn--primary" href="accedi">
-                    <i class="fas fa-arrow-left"></i>
+                    <i class="fa-solid fa-arrow-left"></i>
                     <span>Torna al login</span>
                 </a>
             </div>

@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <?php if ($error): ?>
                 <div class="form-alert form-alert--error">
-                    <i class="fas fa-triangle-exclamation"></i>
+                    <i class="fa-solid fa-triangle-exclamation"></i>
                     <span><?php echo auth_h($error); ?></span>
                 </div>
             <?php endif; ?>
@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="form-actions">
                     <button class="form-btn form-btn--primary form-btn--wide" type="submit" data-loading-text="Verifying...">
-                        <i class="fas fa-shield-halved"></i>
+                        <i class="fa-solid fa-shield-halved"></i>
                         <span>Verify</span>
                     </button>
                 </div>

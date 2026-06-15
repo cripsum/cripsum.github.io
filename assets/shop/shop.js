@@ -157,7 +157,7 @@
 
             const saved = isFavorite(id);
             button.classList.toggle('is-saved', saved);
-            button.innerHTML = saved ? '<i class="fas fa-heart"></i>' : '<i class="far fa-heart"></i>';
+            button.innerHTML = saved ? '<i class="fa-solid fa-heart"></i>' : '<i class="fa-regular fa-heart"></i>';
         });
     };
 

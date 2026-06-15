@@ -201,7 +201,7 @@
                     <p class="home-slide__description">${escapeHtml(slide.description)}</p>
                     <a class="home-btn home-btn--primary home-slide__button" href="${escapeHtml(slide.link)}">
                         <span>${escapeHtml(slide.buttonText)}</span>
-                        <i class="fas fa-arrow-right"></i>
+                        <i class="fa-solid fa-arrow-right"></i>
                     </a>
                 </div>
 

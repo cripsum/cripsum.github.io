@@ -14,7 +14,7 @@
 
                 const isPassword = input.type === 'password';
                 input.type = isPassword ? 'text' : 'password';
-                button.innerHTML = `<i class="fas ${isPassword ? 'fa-eye-slash' : 'fa-eye'}"></i>`;
+                button.innerHTML = `<i class="fa-solid ${isPassword ? 'fa-eye-slash' : 'fa-eye'}"></i>`;
             });
         });
     };
@@ -27,7 +27,7 @@
 
                 const text = button.dataset.submitText || button.textContent.trim() || 'Invio';
                 button.classList.add('is-loading');
-                button.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i><span>${text}</span>`;
+                button.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i><span>${text}</span>`;
             });
         });
     };

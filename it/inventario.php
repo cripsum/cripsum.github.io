@@ -63,7 +63,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
             </div>
 
             <a href="lootbox" class="inv-btn inv-btn--primary">
-                <i class="fas fa-box-open"></i>
+                <i class="fa-solid fa-box-open"></i>
                 <span>Torna alla lootbox</span>
             </a>
         </section>
@@ -89,7 +89,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
         <section class="inv-controls inv-reveal">
             <label class="inv-search">
-                <i class="fas fa-search"></i>
+                <i class="fa-solid fa-search"></i>
                 <input type="search" id="inventorySearch" placeholder="Cerca personaggi..." autocomplete="off">
             </label>
 
@@ -108,7 +108,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
                 <button type="button" class="inv-select-trigger" aria-haspopup="listbox" aria-expanded="false">
                     <span class="inv-select-current">Tutte le rarità</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <i class="fa-solid fa-chevron-down"></i>
                 </button>
 
                 <div class="inv-select-menu" role="listbox" aria-label="Filtra per rarità">
@@ -134,7 +134,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
                 <button type="button" class="inv-select-trigger" aria-haspopup="listbox" aria-expanded="false">
                     <span class="inv-select-current">Tutti</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <i class="fa-solid fa-chevron-down"></i>
                 </button>
 
                 <div class="inv-select-menu" role="listbox" aria-label="Filtra per stato">
@@ -155,7 +155,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
                 <button type="button" class="inv-select-trigger" aria-haspopup="listbox" aria-expanded="false">
                     <span class="inv-select-current">Ordine originale</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <i class="fa-solid fa-chevron-down"></i>
                 </button>
 
                 <div class="inv-select-menu" role="listbox" aria-label="Ordina inventario">
@@ -167,7 +167,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
             </div>
 
             <button type="button" class="inv-btn inv-btn--soft" id="resetInventoryFilters">
-                <i class="fas fa-rotate-left"></i>
+                <i class="fa-solid fa-rotate-left"></i>
                 <span>Reset</span>
             </button>
         </section>
@@ -186,13 +186,13 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
         </section>
 
         <section id="inventoryError" class="inv-empty" hidden>
-            <i class="fas fa-triangle-exclamation"></i>
+            <i class="fa-solid fa-triangle-exclamation"></i>
             <strong>Non riesco a caricare l’inventario</strong>
             <span>Riprova tra poco.</span>
         </section>
 
         <section id="inventoryEmpty" class="inv-empty" hidden>
-            <i class="fas fa-magnifying-glass"></i>
+            <i class="fa-solid fa-magnifying-glass"></i>
             <strong>Nessun personaggio trovato</strong>
             <span>Cambia ricerca o filtri.</span>
         </section>
@@ -204,7 +204,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
         <div class="inv-modal__backdrop" data-close-character-modal></div>
         <article class="inv-modal__panel" role="dialog" aria-modal="true" aria-labelledby="characterModalTitle">
             <button type="button" class="inv-modal__close" data-close-character-modal aria-label="Chiudi">
-                <i class="fas fa-xmark"></i>
+                <i class="fa-solid fa-xmark"></i>
             </button>
 
             <div id="characterModalContent"></div>

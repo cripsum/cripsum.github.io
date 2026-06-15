@@ -41,14 +41,14 @@ $username = $_SESSION['username'] ?? '';
 
                 <?php if ($isLogged): ?>
                     <div class="static-alert static-alert--success" style="margin-top:1rem;">
-                        <i class="fas fa-user-check"></i>
+                        <i class="fa-solid fa-user-check"></i>
                         <p>You are writing as <strong><?php echo htmlspecialchars($username, ENT_QUOTES, 'UTF-8'); ?></strong>. If you report an issue, please include your username.</p>
                     </div>
                 <?php endif; ?>
             </div>
 
             <aside class="static-hero__side">
-                <span class="static-chip"><i class="fas fa-clock"></i> Response is not immediate</span>
+                <span class="static-chip"><i class="fa-solid fa-clock"></i> Response is not immediate</span>
                 <p>Write clearly. It helps us resolve things faster.</p>
             </aside>
         </section>
@@ -58,19 +58,19 @@ $username = $_SESSION['username'] ?? '';
                 <h2>Contacts</h2>
                 <div class="static-grid">
                     <a href="mailto:sburra@cripsum.com" class="static-contact-link">
-                        <i class="fas fa-envelope"></i>
+                        <i class="fa-solid fa-envelope"></i>
                         <span>Email: sburra@cripsum.com</span>
                     </a>
                     <a href="#" class="static-contact-link">
-                        <i class="fab fa-telegram"></i>
+                        <i class="fa-brands fa-telegram"></i>
                         <span>Telegram: @cripsum</span>
                     </a>
                     <a href="#" class="static-contact-link">
-                        <i class="fab fa-discord"></i>
+                        <i class="fa-brands fa-discord"></i>
                         <span>Discord: @cripsum</span>
                     </a>
                     <a href="#" class="static-contact-link">
-                        <i class="fab fa-instagram"></i>
+                        <i class="fa-brands fa-instagram"></i>
                         <span>Instagram: @cripsum</span>
                     </a>
                 </div>
@@ -91,7 +91,7 @@ $username = $_SESSION['username'] ?? '';
             <h2>Quick FAQ</h2>
 
             <label class="static-faq-search">
-                <i class="fas fa-search"></i>
+                <i class="fa-solid fa-search"></i>
                 <input type="search" placeholder="Search the FAQ..." data-static-faq-search="#supportFaq">
             </label>
 

@@ -113,7 +113,7 @@ function msn_h(mixed $v): string
 
             <div class="msn-timer msn-timer--daily msn-glass">
                 <div class="msn-timer__icon">
-                    <i class="fas fa-sun"></i>
+                    <i class="fa-solid fa-sun"></i>
                 </div>
                 <div class="msn-timer__body">
                     <div class="msn-timer__label">
@@ -127,7 +127,7 @@ function msn_h(mixed $v): string
 
             <div class="msn-timer msn-timer--weekly msn-glass">
                 <div class="msn-timer__icon">
-                    <i class="fas fa-calendar-week"></i>
+                    <i class="fa-solid fa-calendar-week"></i>
                 </div>
                 <div class="msn-timer__body">
                     <div class="msn-timer__label">
@@ -153,7 +153,7 @@ function msn_h(mixed $v): string
                 role="tab"
                 aria-selected="true"
                 aria-controls="msnDailyPanel">
-                <i class="fas fa-sun"></i>
+                <i class="fa-solid fa-sun"></i>
                 <?php echo $isEn ? 'Daily' : 'Giornaliere'; ?>
                 <span class="msn-tab__count" id="msnTabDailyCount">5</span>
             </button>
@@ -165,7 +165,7 @@ function msn_h(mixed $v): string
                 role="tab"
                 aria-selected="false"
                 aria-controls="msnWeeklyPanel">
-                <i class="fas fa-calendar-week"></i>
+                <i class="fa-solid fa-calendar-week"></i>
                 <?php echo $isEn ? 'Weekly' : 'Settimanali'; ?>
                 <span class="msn-tab__count" id="msnTabWeeklyCount">3</span>
             </button>
@@ -186,7 +186,7 @@ function msn_h(mixed $v): string
 
         <!-- Error state -->
         <div id="msnError" class="msn-empty msn-glass" hidden>
-            <i class="fas fa-triangle-exclamation"></i>
+            <i class="fa-solid fa-triangle-exclamation"></i>
             <strong><?php echo $isEn ? 'Cannot load missions' : 'Impossibile caricare le missioni'; ?></strong>
             <span><?php echo $isEn ? 'Try again in a moment.' : 'Riprova tra poco.'; ?></span>
         </div>
@@ -203,7 +203,7 @@ function msn_h(mixed $v): string
                 aria-labelledby="msnTabDaily">
                 <div class="msn-panel__header">
                     <h2 class="msn-panel__title">
-                        <i class="fas fa-sun"></i>
+                        <i class="fa-solid fa-sun"></i>
                         <?php echo $isEn ? 'Daily Missions' : 'Missioni Giornaliere'; ?>
                     </h2>
                     <span class="msn-panel__progress" id="msnDailyProgress"></span>
@@ -226,7 +226,7 @@ function msn_h(mixed $v): string
                 aria-labelledby="msnTabWeekly">
                 <div class="msn-panel__header">
                     <h2 class="msn-panel__title">
-                        <i class="fas fa-calendar-week"></i>
+                        <i class="fa-solid fa-calendar-week"></i>
                         <?php echo $isEn ? 'Weekly Missions' : 'Missioni Settimanali'; ?>
                     </h2>
                     <span class="msn-panel__progress" id="msnWeeklyProgress"></span>
@@ -246,7 +246,7 @@ function msn_h(mixed $v): string
 
     <!-- ── Toast ─────────────────────────────────────────────── -->
     <div id="msnToast" class="msn-toast" role="status" aria-live="polite" aria-atomic="true">
-        <i class="fas fa-check-circle msn-toast__icon" id="msnToastIcon"></i>
+        <i class="fa-solid fa-circle-check msn-toast__icon" id="msnToastIcon"></i>
         <div>
             <div id="msnToastMsg"></div>
             <div class="msn-toast__pts" id="msnToastPts"></div>

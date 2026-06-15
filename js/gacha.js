@@ -37,20 +37,20 @@
       intro_raro:         { label:'RARO',       sub:'Qualcosa di interessante' },
       intro_comune:       { label:'COMUNE',     sub:'Niente di speciale...' },
       // Multi navigation buttons
-      btn_summary:        '<i class="fas fa-flag-checkered"></i> Continua',
-      btn_next:           (cur, tot) => `<i class="fas fa-forward"></i> Prossima (${cur}/${tot})`,
+      btn_summary:        '<i class="fa-solid fa-flag-checkered"></i> Continua',
+      btn_next:           (cur, tot) => `<i class="fa-solid fa-forward"></i> Prossima (${cur}/${tot})`,
       btn_next_label:     'Prossima',
-      btn_skip_cov:       '<i class="fas fa-forward-fast"></i> Salta',
-      btn_next_inject:    '<i class="fas fa-forward"></i> Prossima',
-      btn_skip_inject:    '<i class="fas fa-forward-fast"></i> Salta [S]',
+      btn_skip_cov:       '<i class="fa-solid fa-forward-fast"></i> Salta',
+      btn_next_inject:    '<i class="fa-solid fa-forward"></i> Prossima',
+      btn_skip_inject:    '<i class="fa-solid fa-forward-fast"></i> Salta [S]',
       // Multi summary
       summary_title:      'Riepilogo Multi',
       summary_new_one:    (n) => `${n} nuovo`,
       summary_new_many:   (n) => `${n} nuovi`,
       summary_rare:       '✦ Raro trovato',
-      btn_multi_again:    '<i class="fas fa-rotate-right"></i> Apri x10',
-      btn_close:          '<i class="fas fa-xmark"></i> Chiudi',
-      btn_inventory:      '<i class="fas fa-layer-group"></i> Inventario',
+      btn_multi_again:    '<i class="fa-solid fa-rotate-right"></i> Apri x10',
+      btn_close:          '<i class="fa-solid fa-xmark"></i> Chiudi',
+      btn_inventory:      '<i class="fa-solid fa-layer-group"></i> Inventario',
       // History modal
       history_kicker:     'Gacha',
       history_title:      'Cronologia Pull',
@@ -81,19 +81,19 @@
       intro_epico:        { label:'EPIC',        sub:'A good multi!' },
       intro_raro:         { label:'RARE',        sub:'Something interesting' },
       intro_comune:       { label:'COMMON',      sub:'Nothing special...' },
-      btn_summary:        '<i class="fas fa-flag-checkered"></i> Summary',
-      btn_next:           (cur, tot) => `<i class="fas fa-forward"></i> Next (${cur}/${tot})`,
+      btn_summary:        '<i class="fa-solid fa-flag-checkered"></i> Summary',
+      btn_next:           (cur, tot) => `<i class="fa-solid fa-forward"></i> Next (${cur}/${tot})`,
       btn_next_label:     'Next',
-      btn_skip_cov:       '<i class="fas fa-forward-fast"></i> Skip',
-      btn_next_inject:    '<i class="fas fa-forward"></i> Next',
-      btn_skip_inject:    '<i class="fas fa-forward-fast"></i> Skip [S]',
+      btn_skip_cov:       '<i class="fa-solid fa-forward-fast"></i> Skip',
+      btn_next_inject:    '<i class="fa-solid fa-forward"></i> Next',
+      btn_skip_inject:    '<i class="fa-solid fa-forward-fast"></i> Skip [S]',
       summary_title:      'Multi Summary',
       summary_new_one:    (n) => `${n} new`,
       summary_new_many:   (n) => `${n} new`,
       summary_rare:       '✦ Rare found',
-      btn_multi_again:    '<i class="fas fa-rotate-right"></i> Multi again',
-      btn_close:          '<i class="fas fa-xmark"></i> Close',
-      btn_inventory:      '<i class="fas fa-layer-group"></i> Inventory',
+      btn_multi_again:    '<i class="fa-solid fa-rotate-right"></i> Multi again',
+      btn_close:          '<i class="fa-solid fa-xmark"></i> Close',
+      btn_inventory:      '<i class="fa-solid fa-layer-group"></i> Inventory',
       history_kicker:     'Gacha',
       history_title:      'Pull History',
       history_close:      'Close',
@@ -734,7 +734,7 @@
           </div>
           <div class="gacha-card-img-shine"></div>
           ${data.is_new ? '<span class="gacha-card-new-badge">NEW!</span>' : ''}
-          ${data.vinto_50_50===1 ? '<span class="gacha-card-50-badge gacha-card-50-badge--win"><i class="fas fa-trophy"></i> Rate-Up!</span>' : ''}
+          ${data.vinto_50_50===1 ? '<span class="gacha-card-50-badge gacha-card-50-badge--win"><i class="fa-solid fa-trophy"></i> Rate-Up!</span>' : ''}
           ${data.vinto_50_50===0 ? `<span class="gacha-card-50-badge gacha-card-50-badge--loss">${t.history_guaranteed}</span>` : ''}
         </div>
         <div class="gacha-card-details">
@@ -1555,7 +1555,7 @@
               <h5 class="modal-title testobianco">${t.history_title}</h5>
               <p id="gacha-history-banner-label" style="color:rgba(255,255,255,.45);font-size:.82rem;margin:0"></p>
             </div>
-            <button type="button" class="lootbox-modal-close" data-bs-dismiss="modal"><i class="fas fa-xmark"></i></button>
+            <button type="button" class="lootbox-modal-close" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i></button>
           </div>
           <div class="modal-body" style="padding:16px 20px;max-height:60vh;overflow-y:auto">
             <div id="gacha-history-list"></div>
@@ -1573,7 +1573,7 @@
     const modal=$('gachaHistoryModal');
     if(!modal||!window.bootstrap)return;
     $('gacha-history-banner-label').textContent=bannerName??'';
-    $('gacha-history-list').innerHTML='<div style="text-align:center;color:rgba(255,255,255,.35);padding:40px"><i class="fas fa-circle-notch fa-spin"></i></div>';
+    $('gacha-history-list').innerHTML='<div style="text-align:center;color:rgba(255,255,255,.35);padding:40px"><i class="fa-solid fa-circle-notch fa-spin"></i></div>';
     bootstrap.Modal.getOrCreateInstance(modal).show();
     try{
       const resp=await fetch(`/api/api_gacha_history?banner_id=${encodeURIComponent(bannerId)}&limit=60`,{credentials:'same-origin'});

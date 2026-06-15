@@ -550,7 +550,7 @@
 
                     <div class="ach-card__content">
                         <span class="ach-status ${isUnlocked ? 'ach-status--unlocked' : 'ach-status--locked'}">
-                            ${isUnlocked ? '<i class="fas fa-check"></i>' : '<i class="fas fa-lock"></i>'}
+                            ${isUnlocked ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-lock"></i>'}
                             ${statusText}
                         </span>
 
@@ -561,13 +561,13 @@
 
                 <div class="ach-card__meta">
                     <span class="ach-badge ach-badge--points">
-                        <i class="fas fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
                         ${t.points(achievement.punti)}
                     </span>
 
                     ${date ? `
                         <span class="ach-badge">
-                            <i class="fas fa-calendar-check"></i>
+                            <i class="fa-solid fa-calendar-check"></i>
                             ${escapeHtml(date)}
                         </span>
                     ` : ''}
@@ -641,7 +641,7 @@
 
                 <div>
                     <span class="ach-status ${isUnlocked ? 'ach-status--unlocked' : 'ach-status--locked'}">
-                        ${isUnlocked ? '<i class="fas fa-check"></i>' : '<i class="fas fa-lock"></i>'}
+                        ${isUnlocked ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-lock"></i>'}
                         ${isUnlocked ? t.unlocked : t.locked}
                     </span>
 
@@ -650,13 +650,13 @@
 
                     <div class="ach-card__meta" style="padding: 1rem 0 0;">
                         <span class="ach-badge ach-badge--points">
-                            <i class="fas fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
                             ${t.points(achievement.punti)}
                         </span>
 
                         ${date ? `
                             <span class="ach-badge">
-                                <i class="fas fa-calendar-check"></i>
+                                <i class="fa-solid fa-calendar-check"></i>
                                 ${escapeHtml(date)}
                             </span>
                         ` : ''}
@@ -676,7 +676,7 @@
 
                     <div class="ach-modal-actions">
                         <button type="button" class="ach-btn" id="copyAchievementLink">
-                            <i class="fas fa-link"></i>
+                            <i class="fa-solid fa-link"></i>
                             ${t.copy_link}
                         </button>
                     </div>

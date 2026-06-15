@@ -28,9 +28,9 @@
             btn_claimed:      'Riscattata',
             btn_claim:        'Riscatta!',
             btn_pending:      'In corso',
-            btn_loading:      '<i class="fas fa-spinner fa-spin"></i> Riscatto...',
-            btn_claim_icon:   '<i class="fas fa-gift"></i> Riscatta!',
-            btn_claimed_icon: '<i class="fas fa-check"></i> Riscattata',
+            btn_loading:      '<i class="fa-solid fa-spinner fa-spin"></i> Riscatto...',
+            btn_claim_icon:   '<i class="fa-solid fa-gift"></i> Riscatta!',
+            btn_claimed_icon: '<i class="fa-solid fa-check"></i> Riscattata',
             aria_claim:       (title) => `Riscatta missione ${title}`,
             progress:         'Progresso',
             countdown_reset:  'Aggiornamento...',
@@ -50,9 +50,9 @@
             btn_claimed:      'Claimed',
             btn_claim:        'Claim!',
             btn_pending:      'In progress',
-            btn_loading:      '<i class="fas fa-spinner fa-spin"></i> Claiming...',
-            btn_claim_icon:   '<i class="fas fa-gift"></i> Claim!',
-            btn_claimed_icon: '<i class="fas fa-check"></i> Claimed',
+            btn_loading:      '<i class="fa-solid fa-spinner fa-spin"></i> Claiming...',
+            btn_claim_icon:   '<i class="fa-solid fa-gift"></i> Claim!',
+            btn_claimed_icon: '<i class="fa-solid fa-check"></i> Claimed',
             aria_claim:       (title) => `Claim mission ${title}`,
             progress:         'Progress',
             countdown_reset:  'Updating...',
@@ -175,7 +175,7 @@
         if (!missions.length) {
             container.innerHTML = `
                 <div class="msn-empty">
-                    <i class="fas fa-scroll"></i>
+                    <i class="fa-solid fa-scroll"></i>
                     <strong>${t.empty_title}</strong>
                     <span>${t.empty_sub}</span>
                 </div>`;
@@ -229,13 +229,13 @@
         art.innerHTML = `
             <div class="msn-card__top">
                 <div class="msn-icon">
-                    <i class="fas ${m.icona || 'fa-star'}"></i>
+                    <i class="fa-solid ${m.icona || 'fa-star'}"></i>
                 </div>
                 <div class="msn-card__meta">
                     <h3 class="msn-card__title">${esc(m.titolo)}</h3>
                     <p class="msn-card__desc">${esc(m.descrizione)}</p>
                     <span class="msn-badge">
-                        <i class="fas ${diffIcon}"></i>
+                        <i class="fa-solid ${diffIcon}"></i>
                         ${diffLabel}
                     </span>
                 </div>
@@ -253,7 +253,7 @@
 
             <div class="msn-card__footer">
                 <div class="msn-reward">
-                    <i class="fas fa-coins"></i>
+                    <i class="fa-solid fa-coins"></i>
                     +${m.punti_reward} pt
                 </div>
                 <button
@@ -263,7 +263,7 @@
                     aria-label="Riscatta missione ${esc(m.titolo)}"
                     ${(claimed || !completed) ? 'disabled' : ''}
                 >
-                    <i class="fas ${btnIcon}"></i>
+                    <i class="fa-solid ${btnIcon}"></i>
                     ${btnText}
                 </button>
             </div>
@@ -337,10 +337,10 @@
     function setClaimLoading(btn, loading) {
         if (loading) {
             btn.classList.add('msn-btn-claim--loading');
-            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Riscatto...`;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Riscatto...`;
         } else {
             btn.classList.remove('msn-btn-claim--loading');
-            btn.innerHTML = `<i class="fas fa-gift"></i> Riscatta!`;
+            btn.innerHTML = `<i class="fa-solid fa-gift"></i> Riscatta!`;
         }
     }
 
@@ -350,7 +350,7 @@
         // Aggiorna bottone
         btn.className   = 'msn-btn-claim msn-btn-claim--claimed';
         btn.disabled    = true;
-        btn.innerHTML   = `<i class="fas fa-check"></i> Riscattata`;
+        btn.innerHTML   = `<i class="fa-solid fa-check"></i> Riscattata`;
         btn.removeEventListener('click', handleClaim);
 
         // Aggiorna card
@@ -475,14 +475,14 @@
         if (errorMsg) {
             els.toast.style.borderColor = 'rgba(248,113,113,0.4)';
             els.toast.innerHTML = `
-                <i class="fas fa-triangle-exclamation msn-toast__icon" style="color:var(--msn-red)"></i>
+                <i class="fa-solid fa-triangle-exclamation msn-toast__icon" style="color:var(--msn-red)"></i>
                 <div>
                     <div>${esc(errorMsg)}</div>
                 </div>`;
         } else {
             els.toast.style.borderColor = '';
             els.toast.innerHTML = `
-                <i class="fas fa-check-circle msn-toast__icon"></i>
+                <i class="fa-solid fa-circle-check msn-toast__icon"></i>
                 <div>
                     <div>Missione completata!</div>
                     ${pts ? `<div class="msn-toast__pts">+${pts} punti</div>` : ''}

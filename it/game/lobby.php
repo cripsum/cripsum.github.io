@@ -31,7 +31,7 @@ if (!isLoggedIn()) {
     <main class="game-shell game-lobby-shell">
         <section class="game-hero game-reveal">
             <div class="game-hero-copy">
-                <span class="game-kicker"><i class="fas fa-shield-halved"></i> Cripsum™ Duel</span>
+                <span class="game-kicker"><i class="fa-solid fa-shield-halved"></i> Cripsum™ Duel</span>
                 <h1>Lobby</h1>
                 <p>Avvia una partita, controlla il tuo rank e guarda la classifica. Il game vero sta in una pagina separata.</p>
                 <div class="game-steps" aria-label="Come iniziare">
@@ -56,13 +56,13 @@ if (!isLoggedIn()) {
                     </div>
                     <div class="game-action-grid">
                         <button class="game-mode-card" data-action="find-match" data-mode="casual" type="button">
-                            <i class="fas fa-gamepad"></i><strong>Casual</strong><span>Partita normale, senza punti ranked.</span>
+                            <i class="fa-solid fa-gamepad"></i><strong>Casual</strong><span>Partita normale, senza punti ranked.</span>
                         </button>
                         <button class="game-mode-card" data-action="find-match" data-mode="ranked" type="button">
-                            <i class="fas fa-ranking-star"></i><strong>Ranked</strong><span>Vinci o perdi punti. Sali di categoria.</span>
+                            <i class="fa-solid fa-ranking-star"></i><strong>Ranked</strong><span>Vinci o perdi punti. Sali di categoria.</span>
                         </button>
                         <button class="game-mode-card game-mode-card-bot" data-action="create-bot" type="button">
-                            <i class="fas fa-robot"></i><strong>Offline vs Bot</strong><span>Gioca subito contro il bot, senza aspettare.</span>
+                            <i class="fa-solid fa-robot"></i><strong>Offline vs Bot</strong><span>Gioca subito contro il bot, senza aspettare.</span>
                         </button>
                     </div>
 
@@ -73,7 +73,7 @@ if (!isLoggedIn()) {
                         </div>
                         <input id="privatePasswordInput" type="password" maxlength="64" placeholder="Password stanza">
                         <button class="game-btn game-btn-special" data-action="create-private" type="button">
-                            <i class="fas fa-lock"></i> Crea privata
+                            <i class="fa-solid fa-lock"></i> Crea privata
                         </button>
                     </div>
 
@@ -99,12 +99,12 @@ if (!isLoggedIn()) {
                         </div>
                     </div>
                     <div class="game-rule-list">
-                        <article><i class="fas fa-users"></i><strong> Team da 3</strong><span> - Usi solo personaggi che hai nell’inventario.</span></article>
-                        <article><i class="fas fa-hand-fist"></i><strong> Attacco</strong><span> - Fa danno base e ti dà +1 energia.</span></article>
-                        <article><i class="fas fa-wand-magic-sparkles"></i><strong> Speciale</strong><span> - Fa più danno, ma costa energia e ha un cooldown.</span></article>
-                        <article><i class="fas fa-shield"></i><strong> Difesa</strong><span> - Riduce il prossimo danno e recupera energia.</span></article>
-                        <article><i class="fas fa-battery-full"></i><strong> Carica</strong><span> - Recupera energia se vuoi preparare la mossa speciale.</span></article>
-                        <article><i class="fas fa-repeat"></i><strong> Cambio</strong><span> - Clicca una tua carta sotto per cambiarla. Consuma un turno.</span></article>
+                        <article><i class="fa-solid fa-users"></i><strong> Team da 3</strong><span> - Usi solo personaggi che hai nell’inventario.</span></article>
+                        <article><i class="fa-solid fa-hand-fist"></i><strong> Attacco</strong><span> - Fa danno base e ti dà +1 energia.</span></article>
+                        <article><i class="fa-solid fa-wand-magic-sparkles"></i><strong> Speciale</strong><span> - Fa più danno, ma costa energia e ha un cooldown.</span></article>
+                        <article><i class="fa-solid fa-shield"></i><strong> Difesa</strong><span> - Riduce il prossimo danno e recupera energia.</span></article>
+                        <article><i class="fa-solid fa-battery-full"></i><strong> Carica</strong><span> - Recupera energia se vuoi preparare la mossa speciale.</span></article>
+                        <article><i class="fa-solid fa-repeat"></i><strong> Cambio</strong><span> - Clicca una tua carta sotto per cambiarla. Consuma un turno.</span></article>
                     </div>
                 </section>
             </div>
@@ -117,12 +117,12 @@ if (!isLoggedIn()) {
                         </div>
                     </div>
                     <div class="game-rank-ladder game-rank-ladder-v14">
-                        <span data-rank="bronzo"><i class="fas fa-shield"></i><strong>Bronzo</strong><small>0-999</small></span>
-                        <span data-rank="argento"><i class="fas fa-medal"></i><strong>Argento</strong><small>1000-1199</small></span>
-                        <span data-rank="oro"><i class="fas fa-crown"></i><strong>Oro</strong><small>1200-1399</small></span>
-                        <span data-rank="diamante"><i class="fas fa-gem"></i><strong>Diamante</strong><small>1400-1599</small></span>
-                        <span data-rank="campione"><i class="fas fa-trophy"></i><strong>Campione</strong><small>1600-1899</small></span>
-                        <span data-rank="leggenda"><i class="fas fa-dragon"></i><strong>Leggenda</strong><small>1900+</small></span>
+                        <span data-rank="bronzo"><i class="fa-solid fa-shield"></i><strong>Bronzo</strong><small>0-999</small></span>
+                        <span data-rank="argento"><i class="fa-solid fa-medal"></i><strong>Argento</strong><small>1000-1199</small></span>
+                        <span data-rank="oro"><i class="fa-solid fa-crown"></i><strong>Oro</strong><small>1200-1399</small></span>
+                        <span data-rank="diamante"><i class="fa-solid fa-gem"></i><strong>Diamante</strong><small>1400-1599</small></span>
+                        <span data-rank="campione"><i class="fa-solid fa-trophy"></i><strong>Campione</strong><small>1600-1899</small></span>
+                        <span data-rank="leggenda"><i class="fa-solid fa-dragon"></i><strong>Leggenda</strong><small>1900+</small></span>
                     </div>
                 </section>
 

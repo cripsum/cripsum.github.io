@@ -49,7 +49,7 @@
 
         const icon = document.querySelector('.js-theme-toggle i');
         if (icon) {
-            icon.className = nextTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+            icon.className = nextTheme === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
         }
     };
 
@@ -192,16 +192,16 @@
 
         const syncVolumeIcon = () => {
             if (audio.muted || audio.volume === 0) {
-                volumeIcon.className = 'fas fa-volume-mute';
+                volumeIcon.className = 'fa-solid fa-volume-xmark';
             } else if (audio.volume < 0.5) {
-                volumeIcon.className = 'fas fa-volume-down';
+                volumeIcon.className = 'fa-solid fa-volume-low';
             } else {
-                volumeIcon.className = 'fas fa-volume-up';
+                volumeIcon.className = 'fa-solid fa-volume-high';
             }
         };
 
         const syncPlayIcon = () => {
-            playIcon.className = audio.paused ? 'fas fa-play' : 'fas fa-pause';
+            playIcon.className = audio.paused ? 'fa-solid fa-play' : 'fa-solid fa-pause';
         };
 
         const updateProgress = () => {

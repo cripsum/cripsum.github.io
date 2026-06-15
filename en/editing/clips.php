@@ -37,17 +37,17 @@ if (!isOwner()) {
                 <div class="col-lg-11">
                     <div class="page-header">
                         <div class="page-icon-wrapper">
-                            <i class="fas fa-film page-icon"></i>
+                            <i class="fa-solid fa-film page-icon"></i>
                         </div>
                         <h1 class="page-title">Clip & Flowframe</h1>
                         <p class="page-description">Materiale video di qualità e tool per la fluidità dei frame per creare edit professionali</p>
                         <!-- <div class="software-badge">
-                            <i class="fas fa-video"></i> Material & Tools
+                            <i class="fa-solid fa-video"></i> Material & Tools
                         </div> -->
 
                         <div class="filter-bar">
                             <div class="search-box">
-                                <i class="fas fa-search"></i>
+                                <i class="fa-solid fa-search"></i>
                                 <input type="text" placeholder="Cerca clip o tool...">
                             </div>
                             <div class="filter-buttons">
@@ -70,9 +70,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">Cinematic Clips Pack Vol.1</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-video"></i> 50 Clip
+                                    <i class="fa-solid fa-video"></i> 50 Clip
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 432
+                                    <i class="fa-solid fa-download"></i> 432
                                 </p>
                                 <p class="card-description">Collezione di 50 clip cinematografiche in 4K, perfette per edit emozionali e storytelling.</p>
                                 <div class="card-tags">
@@ -82,7 +82,7 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-primary full-width">
-                                        <i class="fas fa-download"></i> Scarica Pack
+                                        <i class="fa-solid fa-download"></i> Scarica Pack
                                     </a>
                                 </div>
                             </div>
@@ -98,9 +98,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">Flowframes AI</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-microchip"></i> Tool
+                                    <i class="fa-solid fa-microchip"></i> Tool
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 1.2k
+                                    <i class="fa-solid fa-download"></i> 1.2k
                                 </p>
                                 <p class="card-description">Software AI per frame interpolation. Converti video da 30fps a 60fps o 120fps con qualità professionale.</p>
                                 <div class="card-tags">
@@ -110,7 +110,7 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-primary full-width">
-                                        <i class="fas fa-download"></i> Scarica Tool
+                                        <i class="fa-solid fa-download"></i> Scarica Tool
                                     </a>
                                 </div>
                             </div>
@@ -126,9 +126,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">Urban Street Footage</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-video"></i> 35 Clip
+                                    <i class="fa-solid fa-video"></i> 35 Clip
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 298
+                                    <i class="fa-solid fa-download"></i> 298
                                 </p>
                                 <p class="card-description">Riprese urbane e street con atmosfera notturna, ideali per edit trap, drill e hip-hop.</p>
                                 <div class="card-tags">
@@ -138,7 +138,7 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-primary full-width">
-                                        <i class="fas fa-download"></i> Scarica Pack
+                                        <i class="fa-solid fa-download"></i> Scarica Pack
                                     </a>
                                 </div>
                             </div>
@@ -154,9 +154,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">ReelSmart Motion Blur</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-cube"></i> Plugin AE
+                                    <i class="fa-solid fa-cube"></i> Plugin AE
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 867
+                                    <i class="fa-solid fa-download"></i> 867
                                 </p>
                                 <p class="card-description">Plugin professionale per aggiungere motion blur realistico ai tuoi video e animazioni.</p>
                                 <div class="card-tags">
@@ -166,7 +166,7 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-primary full-width">
-                                        <i class="fas fa-download"></i> Scarica Trial
+                                        <i class="fa-solid fa-download"></i> Scarica Trial
                                     </a>
                                 </div>
                             </div>
@@ -182,9 +182,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">Nature & Landscape Pack</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-video"></i> 40 Clip
+                                    <i class="fa-solid fa-video"></i> 40 Clip
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 512
+                                    <i class="fa-solid fa-download"></i> 512
                                 </p>
                                 <p class="card-description">Riprese mozzafiato di natura, paesaggi e scenari naturali in altissima qualità.</p>
                                 <div class="card-tags">
@@ -194,7 +194,7 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-primary full-width">
-                                        <i class="fas fa-download"></i> Scarica Pack
+                                        <i class="fa-solid fa-download"></i> Scarica Pack
                                     </a>
                                 </div>
                             </div>
@@ -210,9 +210,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">Twixtor Pro</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-cube"></i> Plugin AE
+                                    <i class="fa-solid fa-cube"></i> Plugin AE
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 1.4k
+                                    <i class="fa-solid fa-download"></i> 1.4k
                                 </p>
                                 <p class="card-description">Il miglior plugin per slow motion di qualità professionale con motion tracking avanzato.</p>
                                 <div class="card-tags">
@@ -222,7 +222,7 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-primary full-width">
-                                        <i class="fas fa-download"></i> Scarica Trial
+                                        <i class="fa-solid fa-download"></i> Scarica Trial
                                     </a>
                                 </div>
                             </div>
@@ -231,7 +231,7 @@ if (!isOwner()) {
 
                     <div class="load-more-section">
                         <button class="load-more-btn">
-                            <i class="fas fa-plus"></i> Carica altri
+                            <i class="fa-solid fa-plus"></i> Carica altri
                         </button>
                     </div>
                 </div>

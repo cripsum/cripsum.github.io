@@ -64,7 +64,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
     <main class="home-page">
         <?php if (isset($_SESSION['error_message'])): ?>
             <div class="home-alert" role="alert">
-                <i class="fas fa-triangle-exclamation"></i>
+                <i class="fa-solid fa-triangle-exclamation"></i>
                 <span><?php echo home_h($_SESSION['error_message']); ?></span>
             </div>
             <?php unset($_SESSION['error_message']); ?>
@@ -80,27 +80,27 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                 <div class="home-actions">
                     <?php if ($isLoggedIn && $currentUsername): ?>
                         <a class="home-btn home-btn--primary" href="<?php echo home_h($profileUrl); ?>">
-                            <i class="fas fa-user"></i>
+                            <i class="fa-solid fa-user"></i>
                             <span>Go to profile</span>
                         </a>
                     <?php else: ?>
                         <a class="home-btn home-btn--primary" href="registrati">
-                            <i class="fas fa-user-plus"></i>
+                            <i class="fa-solid fa-user-plus"></i>
                             <span>Sign up</span>
                         </a>
                         <a class="home-btn home-btn--ghost" href="accedi">
-                            <i class="fas fa-right-to-bracket"></i>
+                            <i class="fa-solid fa-right-to-bracket"></i>
                             <span>Login</span>
                         </a>
                     <?php endif; ?>
 
                     <button class="home-btn home-btn--ghost" type="button" onclick="if(window.newsPopup) window.newsPopup.open();">
-                        <i class="fas fa-layer-group"></i>
+                        <i class="fa-solid fa-layer-group"></i>
                         <span>News</span>
                     </button>
 
                     <button class="home-btn home-btn--plain" type="button" data-bs-toggle="modal" data-bs-target="#disclaimerModal">
-                        <i class="fas fa-circle-info"></i>
+                        <i class="fa-solid fa-circle-info"></i>
                         <span>Disclaimer</span>
                     </button>
                 </div>
@@ -158,25 +158,25 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
             <div class="social-icons-modern">
                 <a href="https://www.tiktok.com/@cripsum" class="social-link-modern tiktok" title="TikTok" target="_blank" rel="noopener">
                     <div class="social-icon-wrapper">
-                        <i class="fab fa-tiktok"></i>
+                        <i class="fa-brands fa-tiktok"></i>
                         <span class="social-label">TikTok</span>
                     </div>
                 </a>
                 <a href="https://www.instagram.com/cripsum/" class="social-link-modern instagram" title="Instagram" target="_blank" rel="noopener">
                     <div class="social-icon-wrapper">
-                        <i class="fab fa-instagram"></i>
+                        <i class="fa-brands fa-instagram"></i>
                         <span class="social-label">Instagram</span>
                     </div>
                 </a>
                 <a href="https://discord.gg/XdheJHVURw" class="social-link-modern discord" title="Discord" target="_blank" rel="noopener">
                     <div class="social-icon-wrapper">
-                        <i class="fab fa-discord"></i>
+                        <i class="fa-brands fa-discord"></i>
                         <span class="social-label">Discord</span>
                     </div>
                 </a>
                 <a href="https://t.me/cripsum" class="social-link-modern telegram" title="Telegram" target="_blank" rel="noopener">
                     <div class="social-icon-wrapper">
-                        <i class="fab fa-telegram-plane"></i>
+                        <i class="fa-brands fa-telegram"></i>
                         <span class="social-label">Telegram</span>
                     </div>
                 </a>
@@ -189,7 +189,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                 target="_blank"
                 rel="noopener"
                 onclick="if (typeof unlockAchievement === 'function') unlockAchievement(10);">
-                <i class="fas fa-gift"></i>
+                <i class="fa-solid fa-gift"></i>
                 <span>Grab your free V-bucks here!!!!</span>
             </a>
         </section>

@@ -70,7 +70,7 @@ $download = [
 
 
                 <div class="download-note download-note--warning">
-                    <i class="fas fa-triangle-exclamation"></i>
+                    <i class="fa-solid fa-triangle-exclamation"></i>
                     <p><?php echo htmlspecialchars($download['note'], ENT_QUOTES, 'UTF-8'); ?></p>
                 </div>
 
@@ -95,17 +95,17 @@ $download = [
                         <?php endif; ?>
                         data-download-link
                         data-download-title="<?php echo htmlspecialchars($download['title'], ENT_QUOTES, 'UTF-8'); ?>">
-                        <i class="fas fa-download"></i>
+                        <i class="fa-solid fa-download"></i>
                         <span><?php echo htmlspecialchars($download['button'], ENT_QUOTES, 'UTF-8'); ?></span>
                     </a>
 
                     <button class="download-secondary-btn" type="button" data-copy-download>
-                        <i class="fas fa-link"></i>
+                        <i class="fa-solid fa-link"></i>
                         <span>Copia link</span>
                     </button>
 
                     <a class="download-secondary-btn" href="<?php echo htmlspecialchars($download['back_href'], ENT_QUOTES, 'UTF-8'); ?>">
-                        <i class="fas fa-arrow-left"></i>
+                        <i class="fa-solid fa-arrow-left"></i>
                         <span>Torna ai download</span>
                     </a>
                 </div>
@@ -130,7 +130,7 @@ $download = [
     </main>
 
     <div class="download-toast" data-download-toast hidden>
-        <i class="fas fa-check"></i>
+        <i class="fa-solid fa-check"></i>
         <span>Download avviato</span>
     </div>
 

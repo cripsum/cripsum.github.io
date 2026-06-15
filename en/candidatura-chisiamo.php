@@ -53,7 +53,7 @@ unset($_SESSION['result_candidatura']);
 
             <?php if ($result_candidatura): ?>
                 <div class="form-alert form-alert--info">
-                    <i class="fas fa-circle-info"></i>
+                    <i class="fa-solid fa-circle-info"></i>
                     <span><?php echo htmlspecialchars($result_candidatura, ENT_QUOTES, 'UTF-8'); ?></span>
                 </div>
             <?php endif; ?>
@@ -96,14 +96,14 @@ unset($_SESSION['result_candidatura']);
 
                 <div class="form-actions">
                     <button class="form-btn form-btn--primary form-btn--wide" type="submit" data-loading-text="Submitting application...">
-                        <i class="fas fa-paper-plane"></i>
+                        <i class="fa-solid fa-paper-plane"></i>
                         <span>Submit application</span>
                     </button>
                 </div>
             </form>
 
             <div class="form-links">
-                <a href="../"><i class="fas fa-arrow-left"></i> Back to home</a>
+                <a href="../"><i class="fa-solid fa-arrow-left"></i> Back to home</a>
             </div>
         </section>
     </main>

@@ -71,7 +71,7 @@
         localStorage.setItem('cripsum.profile.viewerTheme', nextTheme);
         document.querySelectorAll('.js-theme-toggle').forEach(btn => {
             const icon = btn.querySelector('i');
-            if (icon) icon.className = nextTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+            if (icon) icon.className = nextTheme === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
             const labelText = btn.querySelector('.theme-label-text');
             if (labelText) {
                 const isIt = document.documentElement.lang === 'it';
@@ -380,11 +380,11 @@
         volumeSlider.value = String(audio.volume);
 
         const syncIcons = () => {
-            if (playIcon) playIcon.className = audio.paused ? 'fas fa-play' : 'fas fa-pause';
+            if (playIcon) playIcon.className = audio.paused ? 'fa-solid fa-play' : 'fa-solid fa-pause';
             if (volumeIcon) {
                 volumeIcon.className = audio.muted || audio.volume === 0
-                    ? 'fas fa-volume-mute'
-                    : audio.volume < 0.5 ? 'fas fa-volume-down' : 'fas fa-volume-up';
+                    ? 'fa-solid fa-volume-xmark'
+                    : audio.volume < 0.5 ? 'fa-solid fa-volume-low' : 'fa-solid fa-volume-high';
             }
         };
 
@@ -978,7 +978,7 @@
                                     <span class="profile-search-username">${user.username}</span>
                                     <span class="profile-search-role ${user.ruolo}">${roleLabel}</span>
                                 </div>
-                                <i class="fas fa-arrow-up-right-from-square profile-search-arrow"></i>
+                                <i class="fa-solid fa-arrow-up-right-from-square profile-search-arrow"></i>
                             </a>
                         `;
                     }).join('');
@@ -1084,7 +1084,7 @@
                         audio.volume = Math.min(Math.max(savedVolume, 0), 1);
                         await audio.play();
                         const playIcon = document.getElementById('profileAudioIcon');
-                        if (playIcon) playIcon.className = 'fas fa-pause';
+                        if (playIcon) playIcon.className = 'fa-solid fa-pause';
                     } catch (e) {
                         console.warn('Autoplay via click to enter skipped:', e.message);
                     }

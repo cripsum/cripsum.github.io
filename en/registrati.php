@@ -111,14 +111,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="auth-card__form">
                 <?php if ($error): ?>
                     <div class="auth-alert auth-alert--error">
-                        <i class="fas fa-triangle-exclamation"></i>
+                        <i class="fa-solid fa-triangle-exclamation"></i>
                         <span><?php echo auth_h($error); ?></span>
                     </div>
                 <?php endif; ?>
 
                 <?php if ($success): ?>
                     <div class="auth-alert auth-alert--success">
-                        <i class="fas fa-check-circle"></i>
+                        <i class="fa-solid fa-circle-check"></i>
                         <span><?php echo auth_h($success); ?></span>
                     </div>
                 <?php endif; ?>
@@ -141,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="auth-password">
                             <input type="password" name="password" autocomplete="new-password" required minlength="8" data-password-input>
                             <button type="button" data-toggle-password aria-label="Show password" style="margin-top: -18px;">
-                                <i class="fas fa-eye"></i>
+                                <i class="fa-solid fa-eye"></i>
                             </button>
                         </div>
                     </label>
@@ -151,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="auth-password">
                             <input type="password" name="repeatPassword" autocomplete="new-password" required minlength="8" data-password-input>
                             <button type="button" data-toggle-password aria-label="Show password" style="margin-top: -18px;">
-                                <i class="fas fa-eye"></i>
+                                <i class="fa-solid fa-eye"></i>
                             </button>
                         </div>
                     </label>

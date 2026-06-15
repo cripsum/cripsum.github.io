@@ -37,17 +37,17 @@ if (!isOwner()) {
                 <div class="col-lg-11">
                     <div class="page-header">
                         <div class="page-icon-wrapper">
-                            <i class="fas fa-layer-group page-icon"></i>
+                            <i class="fa-solid fa-layer-group page-icon"></i>
                         </div>
                         <h1 class="page-title">Overlay</h1>
                         <p class="page-description">Effetti visivi premium e overlay di alta qualità per arricchire i tuoi contenuti creativi</p>
                         <!-- <div class="software-badge">
-                            <i class="fas fa-magic"></i> VFX Assets
+                            <i class="fa-solid fa-magic"></i> VFX Assets
                         </div> -->
 
                         <div class="filter-bar">
                             <div class="search-box">
-                                <i class="fas fa-search"></i>
+                                <i class="fa-solid fa-search"></i>
                                 <input type="text" placeholder="Cerca overlay...">
                             </div>
                             <div class="filter-buttons">
@@ -70,9 +70,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">Glitch Effect Pack</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-layer-group"></i> 30 Overlay
+                                    <i class="fa-solid fa-layer-group"></i> 30 Overlay
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 678
+                                    <i class="fa-solid fa-download"></i> 678
                                 </p>
                                 <p class="card-description">Collezione di 30 overlay glitch in 4K con canale alpha, perfetti per effetti digitali e cyberpunk.</p>
                                 <div class="card-tags">
@@ -82,7 +82,7 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-primary full-width">
-                                        <i class="fas fa-download"></i> Scarica Pack
+                                        <i class="fa-solid fa-download"></i> Scarica Pack
                                     </a>
                                 </div>
                             </div>
@@ -98,9 +98,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">Cinematic Light Leaks</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-layer-group"></i> 45 Overlay
+                                    <i class="fa-solid fa-layer-group"></i> 45 Overlay
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 891
+                                    <i class="fa-solid fa-download"></i> 891
                                 </p>
                                 <p class="card-description">Light leaks cinematografici per aggiungere atmosfera e calore ai tuoi video.</p>
                                 <div class="card-tags">
@@ -110,7 +110,7 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-primary full-width">
-                                        <i class="fas fa-download"></i> Scarica Pack
+                                        <i class="fa-solid fa-download"></i> Scarica Pack
                                     </a>
                                 </div>
                             </div>
@@ -126,9 +126,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">VHS & Retro Pack</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-layer-group"></i> 25 Overlay
+                                    <i class="fa-solid fa-layer-group"></i> 25 Overlay
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 534
+                                    <i class="fa-solid fa-download"></i> 534
                                 </p>
                                 <p class="card-description">Effetti VHS vintage, rumore analogico e distorsioni per uno stile retrò autentico.</p>
                                 <div class="card-tags">
@@ -138,7 +138,7 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-primary full-width">
-                                        <i class="fas fa-download"></i> Scarica Pack
+                                        <i class="fa-solid fa-download"></i> Scarica Pack
                                     </a>
                                 </div>
                             </div>
@@ -154,9 +154,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">Particle Effects HD</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-layer-group"></i> 40 Overlay
+                                    <i class="fa-solid fa-layer-group"></i> 40 Overlay
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 723
+                                    <i class="fa-solid fa-download"></i> 723
                                 </p>
                                 <p class="card-description">Particelle, scintille, polvere e effetti atmosferici in alta risoluzione con alpha channel.</p>
                                 <div class="card-tags">
@@ -166,7 +166,7 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-primary full-width">
-                                        <i class="fas fa-download"></i> Scarica Pack
+                                        <i class="fa-solid fa-download"></i> Scarica Pack
                                     </a>
                                 </div>
                             </div>
@@ -182,9 +182,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">Smoke & Fog Collection</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-layer-group"></i> 35 Overlay
+                                    <i class="fa-solid fa-layer-group"></i> 35 Overlay
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 612
+                                    <i class="fa-solid fa-download"></i> 612
                                 </p>
                                 <p class="card-description">Effetti fumo e nebbia realistici perfetti per aggiungere profondità e atmosfera.</p>
                                 <div class="card-tags">
@@ -194,7 +194,7 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-primary full-width">
-                                        <i class="fas fa-download"></i> Scarica Pack
+                                        <i class="fa-solid fa-download"></i> Scarica Pack
                                     </a>
                                 </div>
                             </div>
@@ -210,9 +210,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">Film Grain & Texture</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-layer-group"></i> 20 Overlay
+                                    <i class="fa-solid fa-layer-group"></i> 20 Overlay
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 445
+                                    <i class="fa-solid fa-download"></i> 445
                                 </p>
                                 <p class="card-description">Texture di pellicola cinematografica e grain per un look analogico professionale.</p>
                                 <div class="card-tags">
@@ -222,7 +222,7 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-primary full-width">
-                                        <i class="fas fa-download"></i> Scarica Pack
+                                        <i class="fa-solid fa-download"></i> Scarica Pack
                                     </a>
                                 </div>
                             </div>
@@ -231,7 +231,7 @@ if (!isOwner()) {
 
                     <div class="load-more-section">
                         <button class="load-more-btn">
-                            <i class="fas fa-plus"></i> Carica altri
+                            <i class="fa-solid fa-plus"></i> Carica altri
                         </button>
                     </div>
                 </div>

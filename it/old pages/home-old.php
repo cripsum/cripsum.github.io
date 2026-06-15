@@ -158,7 +158,7 @@ checkBan($mysqli);
                         <h5 class="modal-title" id="disclaimerModalLabel">Disclaimer</h5>
                     </div>
                     <div class="modal-body">
-                        <p style="font-weight: normal;">Questo sito è pensato per intrattenere e far sorridere. <br />Di seguito alcune note importanti per un’esperienza sicura e positiva.</p>
+                        <p style="font-weight: normal;">Questo sito è pensato per intrattenere e fa-regular sorridere. <br />Di seguito alcune note importanti per un’esperienza sicura e positiva.</p>
                         <ul class="text-start mb-2 mb-lg-0" style="font-weight: normal;">
                             <li class="mb-2">
                                 Il contenuto di questo sito è creato per divertire, senza intenzione di offendere o mancare di rispetto a nessuno. un esempio sono le pagine "TikTokPedia", "Top
@@ -234,25 +234,25 @@ checkBan($mysqli);
                     <div class="social-icons-modern d-flex justify-content-center align-items-center gap-4 flex-wrap">
                         <a href="https://www.tiktok.com/@cripsum" class="social-link-modern tiktok" title="TikTok">
                             <div class="social-icon-wrapper">
-                                <i class="fab fa-tiktok"></i>
+                                <i class="fa-brands fa-tiktok"></i>
                                 <span class="social-label">TikTok</span>
                             </div>
                         </a>
                         <a href="https://www.instagram.com/cripsum/" class="social-link-modern instagram" title="Instagram">
                             <div class="social-icon-wrapper">
-                                <i class="fab fa-instagram"></i>
+                                <i class="fa-brands fa-instagram"></i>
                                 <span class="social-label">Instagram</span>
                             </div>
                         </a>
                         <a href="https://discord.gg/XdheJHVURw" class="social-link-modern discord" title="Discord">
                             <div class="social-icon-wrapper">
-                                <i class="fab fa-discord"></i>
+                                <i class="fa-brands fa-discord"></i>
                                 <span class="social-label">Discord</span>
                             </div>
                         </a>
                         <a href="https://t.me/cripsum" class="social-link-modern telegram" title="Telegram">
                             <div class="social-icon-wrapper">
-                                <i class="fab fa-telegram-plane"></i>
+                                <i class="fa-brands fa-telegram"></i>
                                 <span class="social-label">Telegram</span>
                             </div>
                         </a>

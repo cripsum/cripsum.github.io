@@ -44,14 +44,14 @@ $user_id = $_SESSION['user_id'] ?? null;
 
                 <div class="form-actions">
                     <button class="form-btn form-btn--primary form-btn--wide" type="submit" data-loading-text="Sending link...">
-                        <i class="fas fa-paper-plane"></i>
+                        <i class="fa-solid fa-paper-plane"></i>
                         <span>Send link</span>
                     </button>
                 </div>
             </form>
 
             <div class="form-links">
-                <a href="accedi"><i class="fas fa-arrow-left"></i> Back to login</a>
+                <a href="accedi"><i class="fa-solid fa-arrow-left"></i> Back to login</a>
             </div>
         </section>
     </main>

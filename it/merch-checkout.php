@@ -142,7 +142,7 @@ checkBan($mysqli);
 
                         <div class="form-actions">
                             <a href="merch-confirm" class="form-btn form-btn--primary form-btn--wide">
-                                <i class="fas fa-lock"></i>
+                                <i class="fa-solid fa-lock"></i>
                                 <span>Invia e paga</span>
                             </a>
                         </div>

@@ -467,24 +467,24 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
     <main class="gl-shell gl-quiz-shell">
         <section class="gl-hero gl-hero-small gl-reveal">
             <div class="gl-hero-text">
-                <span class="gl-kicker"><i class="fas fa-heart-pulse"></i> Waifu Quiz</span>
+                <span class="gl-kicker"><i class="fa-solid fa-heart-pulse"></i> Waifu Quiz</span>
                 <h1>Find Your Ideal Anime Girl</h1>
                 <p>10 quick questions. Answer and discover your perfect waifu</p>
                 <div class="gl-actions">
-                    <a class="gl-btn gl-btn-main" href="#glAnimeQuiz"><i class="fas fa-play"></i> Start Quiz</a>
-                    <a class="gl-btn gl-btn-ghost" href="home"><i class="fas fa-arrow-left"></i> Home GoonLand</a>
+                    <a class="gl-btn gl-btn-main" href="#glAnimeQuiz"><i class="fa-solid fa-play"></i> Start Quiz</a>
+                    <a class="gl-btn gl-btn-ghost" href="home"><i class="fa-solid fa-arrow-left"></i> Home GoonLand</a>
                 </div>
             </div>
         </section>
 
         <?php if ($sharedProfile): ?>
             <section class="gl-shared-result gl-reveal">
-                <span class="gl-kicker"><i class="fas fa-share-nodes"></i> Shared Result</span>
+                <span class="gl-kicker"><i class="fa-solid fa-share-nodes"></i> Shared Result</span>
                 <h2><?php echo gl_safe_html($ogTitle); ?></h2>
                 <p><?php echo gl_safe_html($ogDescription); ?></p>
                 <div class="gl-actions">
-                    <a class="gl-btn gl-btn-main" href="#glAnimeQuiz"><i class="fas fa-play"></i> Take the quiz</a>
-                    <button class="gl-btn gl-btn-ghost" type="button" data-copy-current-url><i class="fas fa-link"></i> Copy link</button>
+                    <a class="gl-btn gl-btn-main" href="#glAnimeQuiz"><i class="fa-solid fa-play"></i> Take the quiz</a>
+                    <button class="gl-btn gl-btn-ghost" type="button" data-copy-current-url><i class="fa-solid fa-link"></i> Copy link</button>
                 </div>
             </section>
         <?php endif; ?>
@@ -507,8 +507,8 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
                 </div>
 
                 <div class="gl-quiz-nav">
-                    <button class="gl-btn gl-btn-ghost" type="button" id="glQuizBack"><i class="fas fa-arrow-left"></i> Back</button>
-                    <button class="gl-btn gl-btn-main" type="button" id="glQuizNext"><i class="fas fa-arrow-right"></i> Next</button>
+                    <button class="gl-btn gl-btn-ghost" type="button" id="glQuizBack"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                    <button class="gl-btn gl-btn-main" type="button" id="glQuizNext"><i class="fa-solid fa-arrow-right"></i> Next</button>
                 </div>
             </div>
 
@@ -524,7 +524,7 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
         <section class="gl-result gl-reveal" id="glQuizResult" hidden>
             <div class="gl-result-head">
                 <div>
-                    <span class="gl-kicker"><i class="fas fa-star"></i> Result</span>
+                    <span class="gl-kicker"><i class="fa-solid fa-star"></i> Result</span>
                     <h2 id="glResultTitle">Your Ideal Type</h2>
                     <p id="glResultDescription"></p>
                 </div>
@@ -534,7 +534,7 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
             <div class="gl-result-grid">
                 <div class="gl-result-media" id="glResultMedia">
                     <div class="gl-placeholder" id="glResultPlaceholder">
-                        <i class="fas fa-circle-notch fa-spin"></i>
+                        <i class="fa-solid fa-circle-notch fa-spin"></i>
                         <strong>Searching for reference</strong>
                         <span>It takes a moment.</span>
                     </div>
@@ -556,9 +556,9 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
                     </div>
 
                     <div class="gl-result-actions">
-                        <button class="gl-btn gl-btn-main" type="button" id="glQuizReroll"><i class="fas fa-shuffle"></i> Reroll image</button>
-                        <button class="gl-btn gl-btn-ghost" type="button" id="glQuizRestart"><i class="fas fa-rotate-left"></i> Retake quiz</button>
-                        <button class="gl-icon-btn" type="button" id="glQuizShare" aria-label="Copy result"><i class="fas fa-share-nodes"></i></button>
+                        <button class="gl-btn gl-btn-main" type="button" id="glQuizReroll"><i class="fa-solid fa-shuffle"></i> Reroll image</button>
+                        <button class="gl-btn gl-btn-ghost" type="button" id="glQuizRestart"><i class="fa-solid fa-rotate-left"></i> Retake quiz</button>
+                        <button class="gl-icon-btn" type="button" id="glQuizShare" aria-label="Copy result"><i class="fa-solid fa-share-nodes"></i></button>
                     </div>
                 </div>
             </div>
@@ -573,8 +573,8 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
         </div>
     </div>
 
-    <button class="gl-top" type="button" data-gl-top aria-label="Torna su"><i class="fas fa-arrow-up"></i></button>
-    <div class="gl-toast" id="goonlandToast" hidden><i class="fas fa-check"></i><span>Done</span></div>
+    <button class="gl-top" type="button" data-gl-top aria-label="Torna su"><i class="fa-solid fa-arrow-up"></i></button>
+    <div class="gl-toast" id="goonlandToast" hidden><i class="fa-solid fa-check"></i><span>Done</span></div>
 
     <?php include '../../includes/footer-en.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>

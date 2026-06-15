@@ -36,18 +36,18 @@ checkBan($mysqli);
                 <p>Regole semplici per tenere la chat leggibile e usabile da tutti.</p>
                 <div class="static-actions">
                     <a href="global-chat" class="static-btn static-btn--primary">
-                        <i class="fas fa-comments"></i>
+                        <i class="fa-solid fa-comments"></i>
                         <span>Torna alla chat</span>
                     </a>
                     <a href="supporto" class="static-btn">
-                        <i class="fas fa-life-ring"></i>
+                        <i class="fa-solid fa-life-ring"></i>
                         <span>Supporto</span>
                     </a>
                 </div>
             </div>
 
             <aside class="static-hero__side">
-                <span class="static-chip"><i class="fas fa-shield-halved"></i> Moderazione attiva</span>
+                <span class="static-chip"><i class="fa-solid fa-shield-halved"></i> Moderazione attiva</span>
                 <p>Violazioni gravi o ripetute possono portare a mute o ban.</p>
             </aside>
         </section>

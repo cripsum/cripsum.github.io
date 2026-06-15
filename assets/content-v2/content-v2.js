@@ -209,14 +209,14 @@
 
     const mediaHtml = (post) => {
         if (!post.media_url) {
-            return `<div class="cw-media" style="display:grid;place-items:center;color:var(--cw-muted);"><i class="fas fa-image"></i></div>`;
+            return `<div class="cw-media" style="display:grid;place-items:center;color:var(--cw-muted);"><i class="fa-solid fa-image"></i></div>`;
         }
 
         if (post.is_video) {
             return `<video class="cw-media" src="${escapeHtml(post.media_url)}" controls playsinline preload="metadata"></video>`;
         }
 
-        return `<img class="cw-media godomedia" src="${escapeHtml(post.media_url)}" alt="" loading="lazy" onerror="this.closest('.cw-post__media-wrap').innerHTML='<div class=&quot;cw-media&quot; style=&quot;display:grid;place-items:center;color:var(--cw-muted);&quot;><i class=&quot;fas fa-triangle-exclamation&quot;></i></div>'">`;
+        return `<img class="cw-media godomedia" src="${escapeHtml(post.media_url)}" alt="" loading="lazy" onerror="this.closest('.cw-post__media-wrap').innerHTML='<div class=&quot;cw-media&quot; style=&quot;display:grid;place-items:center;color:var(--cw-muted);&quot;><i class=&quot;fa-solid fa-triangle-exclamation&quot;></i></div>'">`;
     };
 
     const postCard = (post) => {
@@ -233,7 +233,7 @@
             <article class="cw-post ${isSpoiler ? 'is-spoiler' : ''}" data-post-id="${Number(post.id)}" data-approved="${approved ? '1' : '0'}">
                 <button type="button" class="cw-post__media-wrap cw-post__media-button" data-open-post="${Number(post.id)}" aria-label="${t.open_post}">
                     ${mediaHtml(post)}
-                    ${isSpoiler ? `<button type="button" class="cw-spoiler-cover" data-reveal-spoiler="${Number(post.id)}"><span class="cw-btn cw-btn--ghost"><i class="fas fa-eye"></i> ${t.show_spoiler}</span></button>` : ''}
+                    ${isSpoiler ? `<button type="button" class="cw-spoiler-cover" data-reveal-spoiler="${Number(post.id)}"><span class="cw-btn cw-btn--ghost"><i class="fa-solid fa-eye"></i> ${t.show_spoiler}</span></button>` : ''}
                 </button>
 
                 <div class="cw-card-body">
@@ -253,31 +253,31 @@
                     ${hasExtra ? `<p class="cw-extra">${escapeHtml(post.extra_text)}</p>` : ''}
 
                     <div class="cw-meta-row">
-                        ${tag ? `<span class="cw-meta-pill"><i class="fas fa-tag"></i>${escapeHtml(tag)}</span>` : ''}
-                        ${approved ? '' : `<span class="cw-meta-pill"><i class="fas fa-clock"></i>${t.pending}</span>`}
-                        <span class="cw-meta-pill"><i class="fas fa-eye"></i>${compactNumber(post.views || 0)}</span>
+                        ${tag ? `<span class="cw-meta-pill"><i class="fa-solid fa-tag"></i>${escapeHtml(tag)}</span>` : ''}
+                        ${approved ? '' : `<span class="cw-meta-pill"><i class="fa-solid fa-clock"></i>${t.pending}</span>`}
+                        <span class="cw-meta-pill"><i class="fa-solid fa-eye"></i>${compactNumber(post.views || 0)}</span>
                     </div>
 
                     <div class="cw-actions">
                         <button type="button" class="cw-action ${post.user_liked ? 'is-active' : ''}" data-action="react" data-id="${Number(post.id)}">
-                            <i class="fas fa-fire"></i> <span>${compactNumber(post.score || 0)}</span>
+                            <i class="fa-solid fa-fire"></i> <span>${compactNumber(post.score || 0)}</span>
                         </button>
                         <button type="button" class="cw-action" data-action="comments" data-id="${Number(post.id)}">
-                            <i class="fas fa-comment"></i> <span>${compactNumber(post.comments_count || 0)}</span>
+                            <i class="fa-solid fa-comment"></i> <span>${compactNumber(post.comments_count || 0)}</span>
                         </button>
                         <button type="button" class="cw-action ${post.user_saved ? 'is-active' : ''}" data-action="save" data-id="${Number(post.id)}">
-                            <i class="fas fa-bookmark"></i> <span>${t.save}</span>
+                            <i class="fa-solid fa-bookmark"></i> <span>${t.save}</span>
                         </button>
                         <button type="button" class="cw-action" data-action="share" data-url="${escapeHtml(url)}">
-                            <i class="fas fa-share-nodes"></i> <span>Share</span>
+                            <i class="fa-solid fa-share-nodes"></i> <span>Share</span>
                         </button>
                     </div>
 
                     <div class="cw-admin-actions">
-                        <button type="button" class="cw-btn cw-btn--ghost" data-action="report" data-id="${Number(post.id)}"><i class="fas fa-flag"></i> ${t.report}</button>
-                        ${canManage ? `<button type="button" class="cw-btn cw-btn--ghost" data-action="edit" data-id="${Number(post.id)}"><i class="fas fa-pen"></i> ${t.edit}</button>` : ''}
-                        ${canManage ? `<button type="button" class="cw-btn cw-btn--danger" data-action="delete" data-id="${Number(post.id)}"><i class="fas fa-trash"></i> ${t.delete}</button>` : ''}
-                        ${isAdmin ? `<button type="button" class="cw-btn cw-btn--ghost" data-action="approve" data-approved="${approved ? '0' : '1'}" data-id="${Number(post.id)}"><i class="fas ${approved ? 'fa-xmark' : 'fa-check'}"></i> ${approved ? t.hide : t.approve}</button>` : ''}
+                        <button type="button" class="cw-btn cw-btn--ghost" data-action="report" data-id="${Number(post.id)}"><i class="fa-solid fa-flag"></i> ${t.report}</button>
+                        ${canManage ? `<button type="button" class="cw-btn cw-btn--ghost" data-action="edit" data-id="${Number(post.id)}"><i class="fa-solid fa-pen"></i> ${t.edit}</button>` : ''}
+                        ${canManage ? `<button type="button" class="cw-btn cw-btn--danger" data-action="delete" data-id="${Number(post.id)}"><i class="fa-solid fa-trash"></i> ${t.delete}</button>` : ''}
+                        ${isAdmin ? `<button type="button" class="cw-btn cw-btn--ghost" data-action="approve" data-approved="${approved ? '0' : '1'}" data-id="${Number(post.id)}"><i class="fa-solid ${approved ? 'fa-xmark' : 'fa-check'}"></i> ${approved ? t.hide : t.approve}</button>` : ''}
                     </div>
 
                     <div class="cw-comments" id="comments-${Number(post.id)}" hidden></div>
@@ -292,10 +292,10 @@
 
         const stats = data.stats || {};
         box.innerHTML = [
-            ['fas fa-layer-group', stats.total || 0, 'Post'],
-            ['fas fa-fire', stats.reactions || 0, type === 'rimasto' ? t.stat_votes : t.stat_likes],
-            ['fas fa-comments', stats.comments || 0, t.stat_comments],
-            ['fas fa-eye', stats.views || 0, t.stat_views],
+            ['fa-solid fa-layer-group', stats.total || 0, 'Post'],
+            ['fa-solid fa-fire', stats.reactions || 0, type === 'rimasto' ? t.stat_votes : t.stat_likes],
+            ['fa-solid fa-comments', stats.comments || 0, t.stat_comments],
+            ['fa-solid fa-eye', stats.views || 0, t.stat_views],
         ].map(([icon, value, label]) => `<span class="cw-meta-pill"><i class="${icon}"></i><b>${compactNumber(value)}</b>${label}</span>`).join('');
         box.hidden = false;
     };
@@ -347,7 +347,7 @@
             render(false);
         } catch (error) {
             showToast(error.message, true);
-            $('#cwFeed').innerHTML = `<div class="cw-empty"><i class="fas fa-triangle-exclamation"></i><strong>${t.load_error}</strong><span>${escapeHtml(error.message)}</span></div>`;
+            $('#cwFeed').innerHTML = `<div class="cw-empty"><i class="fa-solid fa-triangle-exclamation"></i><strong>${t.load_error}</strong><span>${escapeHtml(error.message)}</span></div>`;
         } finally {
             state.loading = false;
             $('#cwLoader').style.display = 'none';
@@ -472,21 +472,21 @@
                     ${hasExtra ? `<p class="cw-extra">${escapeHtml(post.extra_text)}</p>` : ''}
 
                     <div class="cw-meta-row">
-                        ${tag ? `<span class="cw-meta-pill"><i class="fas fa-tag"></i>${escapeHtml(tag)}</span>` : ''}
-                        <span class="cw-meta-pill"><i class="fas fa-fire"></i>${compactNumber(post.score || 0)}</span>
-                        <span class="cw-meta-pill"><i class="fas fa-comment"></i>${compactNumber(post.comments_count || 0)}</span>
-                        <span class="cw-meta-pill"><i class="fas fa-eye"></i>${compactNumber(post.views || 0)}</span>
+                        ${tag ? `<span class="cw-meta-pill"><i class="fa-solid fa-tag"></i>${escapeHtml(tag)}</span>` : ''}
+                        <span class="cw-meta-pill"><i class="fa-solid fa-fire"></i>${compactNumber(post.score || 0)}</span>
+                        <span class="cw-meta-pill"><i class="fa-solid fa-comment"></i>${compactNumber(post.comments_count || 0)}</span>
+                        <span class="cw-meta-pill"><i class="fa-solid fa-eye"></i>${compactNumber(post.views || 0)}</span>
                     </div>
 
                     <div class="cw-actions cw-actions--detail">
                         <button type="button" class="cw-action ${post.user_liked ? 'is-active' : ''}" data-action="react" data-id="${Number(post.id)}">
-                            <i class="fas fa-fire"></i> <span>${compactNumber(post.score || 0)}</span>
+                            <i class="fa-solid fa-fire"></i> <span>${compactNumber(post.score || 0)}</span>
                         </button>
                         <button type="button" class="cw-action ${post.user_saved ? 'is-active' : ''}" data-action="save" data-id="${Number(post.id)}">
-                            <i class="fas fa-bookmark"></i> <span>${t.save}</span>
+                            <i class="fa-solid fa-bookmark"></i> <span>${t.save}</span>
                         </button>
                         <button type="button" class="cw-action" data-action="share" data-url="${escapeHtml(url)}">
-                            <i class="fas fa-share-nodes"></i> <span>Share</span>
+                            <i class="fa-solid fa-share-nodes"></i> <span>Share</span>
                         </button>
                     </div>
 
@@ -704,14 +704,14 @@
                                 <small>${formatDate(comment.created_at)}</small>
                                 <span>${escapeHtml(comment.commento || '')}</span>
                             </div>
-                            ${isAdmin || Number(comment.id_utente) === currentUserId ? `<button type="button" class="cw-icon-btn cw-icon-btn--danger" data-delete-comment="${Number(comment.id)}" data-post-id="${Number(id)}"><i class="fas fa-trash"></i></button>` : ''}
+                            ${isAdmin || Number(comment.id_utente) === currentUserId ? `<button type="button" class="cw-icon-btn cw-icon-btn--danger" data-delete-comment="${Number(comment.id)}" data-post-id="${Number(id)}"><i class="fa-solid fa-trash"></i></button>` : ''}
                         </div>
-                    `).join('') : `<div class="cw-meta-pill"><i class="fas fa-comment"></i>${t.no_comments}</div>`}
+                    `).join('') : `<div class="cw-meta-pill"><i class="fa-solid fa-comment"></i>${t.no_comments}</div>`}
                 </div>
                 ${isLogged ? `
                     <form class="cw-comment-form" data-comment-form="${Number(id)}">
                         <input name="commento" maxlength="500" placeholder="${t.comment_placeholder}">
-                        <button class="cw-icon-btn" type="submit"><i class="fas fa-paper-plane"></i></button>
+                        <button class="cw-icon-btn" type="submit"><i class="fa-solid fa-paper-plane"></i></button>
                     </form>` : ''}
             `;
 
@@ -739,7 +739,7 @@
                 }
             });
         } catch (error) {
-            box.innerHTML = `<div class="cw-meta-pill"><i class="fas fa-triangle-exclamation"></i>${escapeHtml(error.message)}</div>`;
+            box.innerHTML = `<div class="cw-meta-pill"><i class="fa-solid fa-triangle-exclamation"></i>${escapeHtml(error.message)}</div>`;
         }
     };
 
@@ -795,7 +795,7 @@
         modal.classList.remove('is-open');
         modal.setAttribute('aria-hidden', 'true');
         $('#cwCreateForm')?.reset();
-        $('#cwPreview').innerHTML = `<i class="fas fa-cloud-arrow-up"></i><strong>${t.upload_hint}</strong><span>${t.upload_limits}</span>`;
+        $('#cwPreview').innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i><strong>${t.upload_hint}</strong><span>${t.upload_limits}</span>`;
     };
 
     const initCreate = () => {

@@ -12,7 +12,7 @@ $edits = [
         'category' => 'influencer',
         'streamable' => 'https://streamable.com/e/nq7psh?',
         'badge' => 'Latest',
-        'icon' => 'fas fa-star character-icon',
+        'icon' => 'fa-solid fa-star character-icon',
         'title_html' => 'Danil Showman',
         'title_text' => 'Danil Showman',
         'music' => 'Sto bene al mare - Marco Mengoni',
@@ -24,7 +24,7 @@ $edits = [
         'category' => 'games',
         'streamable' => 'https://streamable.com/e/kez9r2?',
         'badge' => 'Collab',
-        'icon' => 'fas fa-gamepad character-icon',
+        'icon' => 'fa-solid fa-gamepad character-icon',
         'title_html' => '<p>The herta &amp; Sparkle - HSR <br/> (collab con <a class="linkbianco" href="https://www.tiktok.com/@nauz_aep">Nauz</a>)</p>',
         'title_text' => 'The herta & Sparkle - HSR (collab con Nauz )',
         'music' => 'TWICE - Strategy',
@@ -36,7 +36,7 @@ $edits = [
         'category' => 'anime',
         'streamable' => 'https://streamable.com/e/io9mwe?',
         'badge' => '',
-        'icon' => 'fas fa-user character-icon',
+        'icon' => 'fa-solid fa-user character-icon',
         'title_html' => 'Kōtarō Bokuto - Haikyuu',
         'title_text' => 'Kōtarō Bokuto - Haikyuu',
         'music' => 'QMIIR - Sempero',
@@ -48,7 +48,7 @@ $edits = [
         'category' => 'games',
         'streamable' => 'https://streamable.com/e/ypekqr?',
         'badge' => '',
-        'icon' => 'fas fa-gamepad character-icon',
+        'icon' => 'fa-solid fa-gamepad character-icon',
         'title_html' => 'Iuno - Wuthering Waves',
         'title_text' => 'Iuno - Wuthering Waves',
         'music' => 'XYLØ - Afterlife (Ark Patrol Remix)',
@@ -60,7 +60,7 @@ $edits = [
         'category' => 'anime',
         'streamable' => 'https://streamable.com/e/rh84rz?',
         'badge' => '',
-        'icon' => 'fas fa-user character-icon',
+        'icon' => 'fa-solid fa-user character-icon',
         'title_html' => 'Perfect Cell - DragonBall',
         'title_text' => 'Perfect Cell - DragonBall',
         'music' => 'Jmilton, CHASHKAKEFIRA - Reinado',
@@ -72,7 +72,7 @@ $edits = [
         'category' => 'anime',
         'streamable' => 'https://streamable.com/e/41cdia?',
         'badge' => '',
-        'icon' => 'fas fa-user character-icon',
+        'icon' => 'fa-solid fa-user character-icon',
         'title_html' => 'Waguri Kaoruko',
         'title_text' => 'Waguri Kaoruko',
         'music' => 'Tate McRae - it\'s ok i\'m ok',
@@ -84,7 +84,7 @@ $edits = [
         'category' => 'games',
         'streamable' => 'https://streamable.com/e/xzj4ag?',
         'badge' => '',
-        'icon' => 'fas fa-gamepad character-icon',
+        'icon' => 'fa-solid fa-gamepad character-icon',
         'title_html' => 'Evelyn - Zenless Zone Zero',
         'title_text' => 'Evelyn - Zenless Zone Zero',
         'music' => 'Charli XCX - Track 10',
@@ -96,7 +96,7 @@ $edits = [
         'category' => 'games',
         'streamable' => 'https://streamable.com/e/tfs4nt?',
         'badge' => '',
-        'icon' => 'fas fa-gamepad character-icon',
+        'icon' => 'fa-solid fa-gamepad character-icon',
         'title_html' => 'Shorekeeper - Wuthering Waves',
         'title_text' => 'Shorekeeper - Wuthering Waves',
         'music' => 'Irokz - Toxic Potion (slowed)',
@@ -108,7 +108,7 @@ $edits = [
         'category' => 'anime',
         'streamable' => 'https://streamable.com/e/lowaxh?',
         'badge' => '',
-        'icon' => 'fas fa-user character-icon',
+        'icon' => 'fa-solid fa-user character-icon',
         'title_html' => 'Karane Inda',
         'title_text' => 'Karane Inda',
         'music' => 'Katy Perry - Harleys in Hawaii',
@@ -120,7 +120,7 @@ $edits = [
         'category' => 'games',
         'streamable' => 'https://streamable.com/e/8iv09j?',
         'badge' => '',
-        'icon' => 'fas fa-gamepad character-icon',
+        'icon' => 'fa-solid fa-gamepad character-icon',
         'title_html' => 'Dante - Devil May Cry',
         'title_text' => 'Dante - Devil May Cry',
         'music' => 'ATLXS - PASSO BEM SOLTO (super slowed)',
@@ -132,7 +132,7 @@ $edits = [
         'category' => 'anime',
         'streamable' => 'https://streamable.com/e/gyfwer?',
         'badge' => '',
-        'icon' => 'fas fa-user character-icon',
+        'icon' => 'fa-solid fa-user character-icon',
         'title_html' => 'Sung Jin-Woo - Solo Levelling',
         'title_text' => 'Sung Jin-Woo - Solo Levelling',
         'music' => 'Peak - Re-Up',
@@ -144,7 +144,7 @@ $edits = [
         'category' => 'anime',
         'streamable' => 'https://streamable.com/e/1n4azs?',
         'badge' => '',
-        'icon' => 'fas fa-user character-icon',
+        'icon' => 'fa-solid fa-user character-icon',
         'title_html' => 'Nagi - Blue Lock',
         'title_text' => 'Nagi - Blue Lock',
         'music' => 'One of the girls X good for you',
@@ -156,7 +156,7 @@ $edits = [
         'category' => 'games',
         'streamable' => 'https://streamable.com/e/79a35r?',
         'badge' => '',
-        'icon' => 'fas fa-gamepad character-icon',
+        'icon' => 'fa-solid fa-gamepad character-icon',
         'title_html' => 'Cool Mita / Cappie - MiSide',
         'title_text' => 'Cool Mita / Cappie - MiSide',
         'music' => 'Bruno Mars - Treasure',
@@ -168,7 +168,7 @@ $edits = [
         'category' => 'games',
         'streamable' => 'https://streamable.com/e/1j8bd8?',
         'badge' => '',
-        'icon' => 'fas fa-gamepad character-icon',
+        'icon' => 'fa-solid fa-gamepad character-icon',
         'title_html' => 'Crazy Mita - MiSide',
         'title_text' => 'Crazy Mita - MiSide',
         'music' => 'Imogen Heap - Headlock',
@@ -180,7 +180,7 @@ $edits = [
         'category' => 'anime',
         'streamable' => 'https://streamable.com/e/nkccr6?',
         'badge' => '',
-        'icon' => 'fas fa-user character-icon',
+        'icon' => 'fa-solid fa-user character-icon',
         'title_html' => 'Yuki Suou - Roshidere',
         'title_text' => 'Yuki Suou - Roshidere',
         'music' => 'Rarin - Mamacita',
@@ -192,7 +192,7 @@ $edits = [
         'category' => 'anime',
         'streamable' => 'https://streamable.com/e/wy68h4?',
         'badge' => '',
-        'icon' => 'fas fa-user character-icon',
+        'icon' => 'fa-solid fa-user character-icon',
         'title_html' => 'Alya Kujou - Roshidere',
         'title_text' => 'Alya Kujou - Roshidere',
         'music' => 'Clean Bandit - Solo',
@@ -204,7 +204,7 @@ $edits = [
         'category' => 'anime',
         'streamable' => 'https://streamable.com/e/gyfwui?',
         'badge' => '',
-        'icon' => 'fas fa-user character-icon',
+        'icon' => 'fa-solid fa-user character-icon',
         'title_html' => 'Alya Kujou - Roshidere',
         'title_text' => 'Alya Kujou - Roshidere',
         'music' => 'Subway Surfers phonk trend',
@@ -216,7 +216,7 @@ $edits = [
         'category' => 'influencer',
         'streamable' => 'https://streamable.com/e/pdcav0?',
         'badge' => '',
-        'icon' => 'fas fa-star character-icon',
+        'icon' => 'fa-solid fa-star character-icon',
         'title_html' => 'Luca Arlia (meme)',
         'title_text' => 'Luca Arlia (meme)',
         'music' => 'Luca Carboni - Luca lo stesso',
@@ -228,7 +228,7 @@ $edits = [
         'category' => 'anime',
         'streamable' => 'https://streamable.com/e/mx6h2n?',
         'badge' => '',
-        'icon' => 'fas fa-user character-icon',
+        'icon' => 'fa-solid fa-user character-icon',
         'title_html' => 'Yuki Suou - Roshidere',
         'title_text' => 'Yuki Suou - Roshidere',
         'music' => 'PnB Rock - Unforgettable (Freestyle)',
@@ -240,7 +240,7 @@ $edits = [
         'category' => 'anime',
         'streamable' => 'https://streamable.com/e/ml3dve?',
         'badge' => '',
-        'icon' => 'fas fa-user character-icon',
+        'icon' => 'fa-solid fa-user character-icon',
         'title_html' => 'Alya Kujou - Roshidere',
         'title_text' => 'Alya Kujou - Roshidere',
         'music' => 'Rarin & Frozy - Kompa',
@@ -252,7 +252,7 @@ $edits = [
         'category' => 'sports',
         'streamable' => 'https://streamable.com/e/bf8j16?',
         'badge' => '',
-        'icon' => 'fas fa-futbol character-icon',
+        'icon' => 'fa-solid fa-futbol character-icon',
         'title_html' => 'Cristiano Ronaldo',
         'title_text' => 'Cristiano Ronaldo',
         'music' => 'G-Eazy - Tumblr Girls',
@@ -264,7 +264,7 @@ $edits = [
         'category' => 'games',
         'streamable' => 'https://streamable.com/e/zjyoct?',
         'badge' => '',
-        'icon' => 'fas fa-gamepad character-icon',
+        'icon' => 'fa-solid fa-gamepad character-icon',
         'title_html' => 'Mandy - Brawl Stars',
         'title_text' => 'Mandy - Brawl Stars',
         'music' => 'NCTS - NEXT!',
@@ -276,7 +276,7 @@ $edits = [
         'category' => 'anime',
         'streamable' => 'https://streamable.com/e/bllcn8?',
         'badge' => '',
-        'icon' => 'fas fa-user character-icon',
+        'icon' => 'fa-solid fa-user character-icon',
         'title_html' => 'Choso - Jujutsu Kaisen',
         'title_text' => 'Choso - Jujutsu Kaisen',
         'music' => 'The Weeknd - Is There Someone Else?',
@@ -288,7 +288,7 @@ $edits = [
         'category' => 'influencer',
         'streamable' => 'https://streamable.com/e/r2bppn?',
         'badge' => '',
-        'icon' => 'fas fa-star character-icon',
+        'icon' => 'fa-solid fa-star character-icon',
         'title_html' => 'Nym',
         'title_text' => 'Nym',
         'music' => 'Chris Brown - Under the influence',
@@ -300,7 +300,7 @@ $edits = [
         'category' => 'games',
         'streamable' => 'https://streamable.com/e/zd75uc?',
         'badge' => '',
-        'icon' => 'fas fa-gamepad character-icon',
+        'icon' => 'fa-solid fa-gamepad character-icon',
         'title_html' => 'Mortis - Brawl Stars',
         'title_text' => 'Mortis - Brawl Stars',
         'music' => 'DJ FNK - Slide da Treme Melódica v2',
@@ -312,7 +312,7 @@ $edits = [
         'category' => 'influencer',
         'streamable' => 'https://streamable.com/e/r9ygoy?',
         'badge' => '',
-        'icon' => 'fas fa-star character-icon',
+        'icon' => 'fa-solid fa-star character-icon',
         'title_html' => 'Nino balletto tattico',
         'title_text' => 'Nino balletto tattico',
         'music' => 'Zara Larsson - Lush Life',
@@ -324,7 +324,7 @@ $edits = [
         'category' => 'influencer',
         'streamable' => 'https://streamable.com/e/vnqxdt?',
         'badge' => '',
-        'icon' => 'fas fa-star character-icon',
+        'icon' => 'fa-solid fa-star character-icon',
         'title_html' => 'Mates - Crossbar challenge',
         'title_text' => 'Mates - Crossbar challenge',
         'music' => 'G-Eazy - Lady Killers II',
@@ -336,7 +336,7 @@ $edits = [
         'category' => 'movies',
         'streamable' => 'https://streamable.com/e/htbn8k?',
         'badge' => '',
-        'icon' => 'fas fa-film character-icon',
+        'icon' => 'fa-solid fa-film character-icon',
         'title_html' => 'Homelander - The Boys',
         'title_text' => 'Homelander - The Boys',
         'music' => 'MGMT - Little Dark Age',
@@ -348,7 +348,7 @@ $edits = [
         'category' => 'movies',
         'streamable' => 'https://streamable.com/e/x40nn6?',
         'badge' => '',
-        'icon' => 'fas fa-film character-icon',
+        'icon' => 'fa-solid fa-film character-icon',
         'title_html' => 'Heisenberg - Breaking Bad',
         'title_text' => 'Heisenberg - Breaking Bad',
         'music' => 'Travis Scott - MY EYES',
@@ -397,7 +397,7 @@ $totalEdits = count($edits);
 
                 <div class="edits-hero__actions">
                     <a href="https://tiktok.com/@cripsum" class="tiktok-link" target="_blank" rel="noopener">
-                        <i class="fab fa-tiktok"></i>
+                        <i class="fa-brands fa-tiktok"></i>
                         <span>TikTok</span>
                     </a>
 
@@ -411,7 +411,7 @@ $totalEdits = count($edits);
 
         <section class="edits-toolbar fadeup" aria-label="Filtri edits">
             <div class="edits-search">
-                <i class="fas fa-search"></i>
+                <i class="fa-solid fa-search"></i>
                 <input type="search" id="editSearch" placeholder="Cerca per nome o musica..." autocomplete="off">
             </div>
 
@@ -435,7 +435,7 @@ $totalEdits = count($edits);
 
                         <button type="button" class="edits-select-trigger" aria-haspopup="listbox" aria-expanded="false">
                             <span class="edits-select-current">Ordine originale</span>
-                            <i class="fas fa-chevron-down"></i>
+                            <i class="fa-solid fa-chevron-down"></i>
                         </button>
 
                         <div class="edits-select-menu" role="listbox" aria-label="Ordina edit">
@@ -496,7 +496,7 @@ $totalEdits = count($edits);
                         <?php endif; ?>
 
                         <div class="watched-badge">
-                            <i class="fas fa-check"></i>
+                            <i class="fa-solid fa-check"></i>
                             <span>Visto</span>
                         </div>
 
@@ -518,7 +518,7 @@ $totalEdits = count($edits);
 
                             <div class="video-overlay">
                                 <div class="play-button">
-                                    <i class="fas fa-play"></i>
+                                    <i class="fa-solid fa-play"></i>
                                 </div>
                             </div>
                         </div>
@@ -530,7 +530,7 @@ $totalEdits = count($edits);
                             </div>
 
                             <div class="music-info">
-                                <i class="fas fa-music music-icon"></i>
+                                <i class="fa-solid fa-music music-icon"></i>
                                 <span><?php echo $music; ?></span>
                             </div>
                         </div>
@@ -539,7 +539,7 @@ $totalEdits = count($edits);
             </div>
 
             <div class="edits-empty" id="editsEmpty" hidden>
-                <i class="fas fa-video-slash"></i>
+                <i class="fa-solid fa-video-slash"></i>
                 <strong>Nessun edit trovato</strong>
                 <p>Prova a cambiare filtro o ricerca.</p>
             </div>

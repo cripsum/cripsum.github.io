@@ -82,7 +82,7 @@ if (!isset($_COOKIE['banned']) || $_COOKIE['banned'] == '0') {
     <main class="static-shell static-shell--narrow">
         <section class="static-ban-card static-reveal">
             <div class="static-ban-icon">
-                <i class="fas fa-ban"></i>
+                <i class="fa-solid fa-ban"></i>
             </div>
 
             <span class="static-pill">Account</span>
@@ -90,13 +90,13 @@ if (!isset($_COOKIE['banned']) || $_COOKIE['banned'] == '0') {
             <p>Your account has been banned for violating the terms or rules of the site.</p>
 
             <div class="static-alert static-alert--danger" style="margin-top:1rem; text-align:left;">
-                <i class="fas fa-circle-exclamation"></i>
+                <i class="fa-solid fa-circle-exclamation"></i>
                 <p>If you think this is an error, please contact support and include your username, account email, and a clear description.</p>
             </div>
 
             <div class="static-actions" style="justify-content:center;">
                 <a href="mailto:support@cripsum.com" class="static-btn static-btn--primary">
-                    <i class="fas fa-envelope"></i>
+                    <i class="fa-solid fa-envelope"></i>
                     <span>Contact support</span>
                 </a>
             </div>

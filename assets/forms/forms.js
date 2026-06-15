@@ -33,7 +33,7 @@
                 button.dataset.originalText = button.innerHTML;
                 button.classList.add('is-loading');
                 button.setAttribute('disabled', 'disabled');
-                button.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i><span>${text}</span>`;
+                button.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i><span>${text}</span>`;
             });
         });
     };
@@ -48,7 +48,7 @@
             button.addEventListener('click', () => {
                 const isPassword = input.type === 'password';
                 input.type = isPassword ? 'text' : 'password';
-                button.innerHTML = isPassword ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+                button.innerHTML = isPassword ? '<i class="fa-solid fa-eye-slash"></i>' : '<i class="fa-solid fa-eye"></i>';
                 button.setAttribute('aria-label', isPassword ? 'Nascondi password' : 'Mostra password');
             });
         });

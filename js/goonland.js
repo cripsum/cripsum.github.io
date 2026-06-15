@@ -6,9 +6,9 @@
     const t = {
         it: {
             wait_seconds:   (n) => `Attendi ${n} secondi...`,
-            wait_btn:       (n) => `<i class="fas fa-clock"></i><span>Attendi (${n}s)</span>`,
-            generate_btn:   '<i class="fas fa-shuffle"></i><span>Genera nuova foto</span>',
-            loading_btn:    '<i class="fas fa-circle-notch fa-spin"></i><span>Caricamento...</span>',
+            wait_btn:       (n) => `<i class="fa-solid fa-clock"></i><span>Attendi (${n}s)</span>`,
+            generate_btn:   '<i class="fa-solid fa-shuffle"></i><span>Genera nuova foto</span>',
+            loading_btn:    '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Caricamento...</span>',
             status_ready:   "Pronto",
             status_loading: "Caricamento",
             status_done:    "Generata",
@@ -25,9 +25,9 @@
         },
         en: {
             wait_seconds:   (n) => `Wait ${n} seconds...`,
-            wait_btn:       (n) => `<i class="fas fa-clock"></i><span>Wait (${n}s)</span>`,
-            generate_btn:   '<i class="fas fa-shuffle"></i><span>Generate new image</span>',
-            loading_btn:    '<i class="fas fa-circle-notch fa-spin"></i><span>Loading...</span>',
+            wait_btn:       (n) => `<i class="fa-solid fa-clock"></i><span>Wait (${n}s)</span>`,
+            generate_btn:   '<i class="fa-solid fa-shuffle"></i><span>Generate new image</span>',
+            loading_btn:    '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Loading...</span>',
             status_ready:   "Ready",
             status_loading: "Loading",
             status_done:    "Generated",

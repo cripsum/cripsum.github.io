@@ -30,10 +30,10 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
 
     <main class="game-shell game-arena-shell">
         <section class="game-compact-top">
-            <a class="game-btn game-btn-ghost" href="/it/game/lobby.php"><i class="fas fa-arrow-left"></i> Lobby</a>
+            <a class="game-btn game-btn-ghost" href="/it/game/lobby.php"><i class="fa-solid fa-arrow-left"></i> Lobby</a>
             <div class="game-top-pills">
                 <div class="game-room-pill">Room: <strong id="arenaRoomCode">---</strong></div>
-                <div class="game-spectator-pill" id="spectatorPill" hidden><i class="fas fa-eye"></i><strong id="spectatorCount">0</strong></div>
+                <div class="game-spectator-pill" id="spectatorPill" hidden><i class="fa-solid fa-eye"></i><strong id="spectatorCount">0</strong></div>
             </div>
         </section>
 
@@ -54,11 +54,11 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
                 <div><span class="game-kicker">Team</span><h2>Scegli 3 personaggi</h2></div>
                 <div class="game-room-pill">Room: <strong id="roomCodeLabel">---</strong></div>
             </div>
-            <div class="game-guide"><i class="fas fa-circle-info"></i><span>Seleziona 3 carte. La prima sarà quella attiva all’inizio.</span></div>
+            <div class="game-guide"><i class="fa-solid fa-circle-info"></i><span>Seleziona 3 carte. La prima sarà quella attiva all’inizio.</span></div>
             <div class="game-team-selected" id="selectedTeam"></div>
             <div class="game-inventory-toolbar"><input type="search" id="cardSearch" placeholder="Cerca personaggio..."><span id="teamCounter">0/3</span></div>
             <div class="game-card-grid" id="inventoryGrid"></div>
-            <div class="game-actions"><button class="game-btn game-btn-main" data-action="submit-team" type="button"><i class="fas fa-check"></i> Conferma team</button><button class="game-btn game-btn-ghost" data-action="forfeit" type="button">Abbandona</button></div>
+            <div class="game-actions"><button class="game-btn game-btn-main" data-action="submit-team" type="button"><i class="fa-solid fa-check"></i> Conferma team</button><button class="game-btn game-btn-ghost" data-action="forfeit" type="button">Abbandona</button></div>
         </section>
 
         <section class="game-arena" id="arenaPanel" hidden>
@@ -67,7 +67,7 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
                 <div><span class="game-kicker" id="matchStatus">Partita</span><h2 id="turnLabel">Attesa...</h2></div>
             </div>
             <div class="game-spectator-mode" id="spectatorMode" hidden>
-                <i class="fas fa-eye"></i>
+                <i class="fa-solid fa-eye"></i>
                 <span>Stai guardando questa partita. Puoi leggere la chat e mandare reazioni, ma non puoi giocare o scrivere.</span>
             </div>
             <div class="game-board">
@@ -76,12 +76,12 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
                 <div class="game-side game-side-player"><h3 id="playerName">Tu</h3><div class="game-active-card" id="playerActive"></div><div class="game-team-row" id="playerTeam"></div></div>
             </div>
             <div class="game-action-bar" id="actionBar" aria-label="Azioni battaglia">
-                <button class="game-move game-move-attack" data-battle-action="basic_attack" type="button"><i class="fas fa-hand-fist"></i><strong>Attacco</strong><span>Danno base · +1 energia</span></button>
-                <button class="game-move game-move-special" data-battle-action="special_attack" type="button"><i class="fas fa-wand-magic-sparkles"></i><strong>Speciale</strong><span>Più danno · costa energia</span></button>
-                <button class="game-move game-move-defend" data-battle-action="defend" type="button"><i class="fas fa-shield"></i><strong>Difesa</strong><span>Riduce danno · +1 energia</span></button>
-                <button class="game-move game-move-charge" data-battle-action="charge" type="button"><i class="fas fa-battery-full"></i><strong>Carica</strong><span>Recupera +2 energia</span></button>
+                <button class="game-move game-move-attack" data-battle-action="basic_attack" type="button"><i class="fa-solid fa-hand-fist"></i><strong>Attacco</strong><span>Danno base · +1 energia</span></button>
+                <button class="game-move game-move-special" data-battle-action="special_attack" type="button"><i class="fa-solid fa-wand-magic-sparkles"></i><strong>Speciale</strong><span>Più danno · costa energia</span></button>
+                <button class="game-move game-move-defend" data-battle-action="defend" type="button"><i class="fa-solid fa-shield"></i><strong>Difesa</strong><span>Riduce danno · +1 energia</span></button>
+                <button class="game-move game-move-charge" data-battle-action="charge" type="button"><i class="fa-solid fa-battery-full"></i><strong>Carica</strong><span>Recupera +2 energia</span></button>
             </div>
-            <div class="game-sub-actions"><span><i class="fas fa-repeat"></i> Per cambiare carta clicca una tua carta sotto.</span><button class="game-btn game-btn-ghost" data-action="forfeit" type="button">Abbandona</button></div>
+            <div class="game-sub-actions"><span><i class="fa-solid fa-repeat"></i> Per cambiare carta clicca una tua carta sotto.</span><button class="game-btn game-btn-ghost" data-action="forfeit" type="button">Abbandona</button></div>
             <div class="game-arena-bottom">
                 <div class="game-log-wrap">
                     <div class="game-log-title">Log turno</div>

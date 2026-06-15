@@ -24,10 +24,10 @@ $footerYear = date('Y');
         <div class="footer-section">
             <h6 class="footer-subtitle">Useful links</h6>
             <ul class="footer-links">
-                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/privacy" class="footer-link"><i class="fas fa-shield-alt" style="margin-right: 4px;"></i>Privacy</a></li>
-                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/tos" class="footer-link"><i class="fas fa-file-contract" style="margin-right: 4px;"></i>Terms</a></li>
-                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/supporto" class="footer-link"><i class="fas fa-headset" style="margin-right: 4px;"></i>Support</a></li>
-                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/chat-policy" class="footer-link"><i class="fas fa-comments" style="margin-right: 4px;"></i>Chat Policy</a></li>
+                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/privacy" class="footer-link"><i class="fa-solid fa-shield-halved" style="margin-right: 4px;"></i>Privacy</a></li>
+                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/tos" class="footer-link"><i class="fa-solid fa-file-contract" style="margin-right: 4px;"></i>Terms</a></li>
+                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/supporto" class="footer-link"><i class="fa-solid fa-headset" style="margin-right: 4px;"></i>Support</a></li>
+                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/chat-policy" class="footer-link"><i class="fa-solid fa-comments" style="margin-right: 4px;"></i>Chat Policy</a></li>
             </ul>
         </div>
 
@@ -35,21 +35,21 @@ $footerYear = date('Y');
             <h6 class="footer-subtitle">Social</h6>
             <div class="footer-social" aria-label="Social Cripsum">
                 <a href="https://www.tiktok.com/@cripsum" class="footer-social-link" title="TikTok" aria-label="TikTok" target="_blank" rel="noopener">
-                    <i class="fab fa-tiktok"></i>
+                    <i class="fa-brands fa-tiktok"></i>
                 </a>
                 <a href="https://www.instagram.com/cripsum/" class="footer-social-link" title="Instagram" aria-label="Instagram" target="_blank" rel="noopener">
-                    <i class="fab fa-instagram"></i>
+                    <i class="fa-brands fa-instagram"></i>
                 </a>
                 <a href="https://discord.gg/XdheJHVURw" class="footer-social-link" title="Discord" aria-label="Discord" target="_blank" rel="noopener">
-                    <i class="fab fa-discord"></i>
+                    <i class="fa-brands fa-discord"></i>
                 </a>
                 <a href="https://t.me/cripsum" class="footer-social-link" title="Telegram" aria-label="Telegram" target="_blank" rel="noopener">
-                    <i class="fab fa-telegram"></i>
+                    <i class="fa-brands fa-telegram"></i>
                 </a>
             </div>
 
             <button type="button" class="footer-top-button" data-footer-back-top>
-                <i class="fas fa-arrow-up"></i>
+                <i class="fa-solid fa-arrow-up"></i>
                 <span>Back to top</span>
             </button>
         </div>

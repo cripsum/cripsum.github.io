@@ -50,7 +50,7 @@ $downloads = [
         </section>
 
         <section class="shop-note shop-reveal">
-            <i class="fas fa-circle-info"></i>
+            <i class="fa-solid fa-circle-info"></i>
             <div>
                 <strong>Prima di scaricare</strong>
                 <span>Alcuni link portano a pagine interne, altri a siti esterni. In ogni caso lo staff di Cripsum™ assicura che i download siano sempre sicuri.</span>
@@ -60,7 +60,7 @@ $downloads = [
         <section class="shop-panel shop-reveal" id="download-list">
             <div class="shop-toolbar">
                 <label class="shop-search">
-                    <i class="fas fa-search"></i>
+                    <i class="fa-solid fa-search"></i>
                     <input type="search" data-shop-search placeholder="Cerca download">
                 </label>
 
@@ -78,7 +78,7 @@ $downloads = [
 
                     <button type="button" class="shop-select-trigger" aria-haspopup="listbox" aria-expanded="false">
                         <span class="shop-select-current">Ordine originale</span>
-                        <i class="fas fa-chevron-down"></i>
+                        <i class="fa-solid fa-chevron-down"></i>
                     </button>
 
                     <div class="shop-select-menu" role="listbox" aria-label="Ordina download">
@@ -117,9 +117,9 @@ $downloads = [
                             <div class="shop-card__footer">
                                 <strong><?php echo $item['status'] === 'soon' ? 'Non disponibile' : 'Disponibile'; ?></strong>
                                 <div class="shop-card__actions">
-                                    <button type="button" class="shop-icon-btn" data-open-detail title="Dettagli"><i class="fas fa-eye"></i></button>
+                                    <button type="button" class="shop-icon-btn" data-open-detail title="Dettagli"><i class="fa-solid fa-eye"></i></button>
                                     <?php if ($item['status'] === 'available'): ?>
-                                        <button type="button" class="shop-icon-btn" data-copy-link title="Copia link"><i class="fas fa-link"></i></button>
+                                        <button type="button" class="shop-icon-btn" data-copy-link title="Copia link"><i class="fa-solid fa-link"></i></button>
                                         <a class="shop-btn shop-btn--small" href="<?php echo shop_h($item['link']); ?>">Scarica</a>
                                     <?php else: ?>
                                         <span class="shop-btn shop-btn--small is-disabled">Presto</span>
@@ -132,7 +132,7 @@ $downloads = [
             </div>
 
             <div class="shop-empty" data-shop-empty hidden>
-                <i class="fas fa-folder-open"></i>
+                <i class="fa-solid fa-folder-open"></i>
                 <strong>Nessun download trovato</strong>
                 <span>Prova a cambiare filtro o ricerca.</span>
             </div>
@@ -166,7 +166,7 @@ $downloads = [
     <div class="shop-modal" data-shop-modal hidden>
         <div class="shop-modal__backdrop" data-close-modal></div>
         <article class="shop-modal__panel" role="dialog" aria-modal="true" aria-label="Dettaglio download">
-            <button type="button" class="shop-modal__close" data-close-modal aria-label="Chiudi"><i class="fas fa-xmark"></i></button>
+            <button type="button" class="shop-modal__close" data-close-modal aria-label="Chiudi"><i class="fa-solid fa-xmark"></i></button>
             <div class="shop-modal__content" data-modal-content></div>
         </article>
     </div>

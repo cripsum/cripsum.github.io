@@ -144,7 +144,7 @@ $hasLanyardUser = $payload && !empty($payload['discord_user']);
 if (!$hasLanyardUser) {
     ?>
     <div class="ds-card ds-error">
-        <i class="fas fa-triangle-exclamation"></i>
+        <i class="fa-solid fa-triangle-exclamation"></i>
         <span>Stato Discord non disponibile.</span>
     </div>
     <?php
@@ -204,7 +204,7 @@ $discordUserId = $user['id'] ?? $discord_id;
         </div>
 
         <a class="ds-open" href="https://discord.com/users/<?= ds_e($discordUserId); ?>" target="_blank" rel="noopener noreferrer" aria-label="Apri profilo Discord">
-            <i class="fas fa-arrow-up-right-from-square"></i>
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
         </a>
     </div>
 
@@ -216,7 +216,7 @@ $discordUserId = $user['id'] ?? $discord_id;
                     <?php if ($icon): ?>
                         <img class="ds-activity-icon" src="<?= ds_e($icon); ?>" alt="" loading="lazy">
                     <?php else: ?>
-                        <span class="ds-activity-icon-fallback"><i class="fas fa-gamepad"></i></span>
+                        <span class="ds-activity-icon-fallback"><i class="fa-solid fa-gamepad"></i></span>
                     <?php endif; ?>
 
                     <div class="ds-activity-content">

@@ -89,7 +89,7 @@ function tp_h($value): string
 
         <section class="tp-toolbar tp-reveal" aria-label="Filtri TikTokpedia">
             <div class="tp-search">
-                <i class="fas fa-search"></i>
+                <i class="fa-solid fa-search"></i>
                 <input type="search" id="tpSearch" placeholder="Search for a voice, description, or tag..." autocomplete="off">
             </div>
 
@@ -140,12 +140,12 @@ function tp_h($value): string
 
                         <div class="tp-card-actions">
                             <a class="tp-btn tp-btn-main" href="<?php echo tp_h($voice['tiktok']); ?>" target="_blank" rel="noopener noreferrer">
-                                <i class="fab fa-tiktok"></i>
+                                <i class="fa-brands fa-tiktok"></i>
                                 TikTok
                             </a>
 
                             <button class="tp-btn tp-btn-ghost" type="button" data-copy-link>
-                                <i class="fas fa-link"></i>
+                                <i class="fa-solid fa-link"></i>
                                 Copy link
                             </button>
                         </div>
@@ -155,23 +155,23 @@ function tp_h($value): string
         </section>
 
         <section class="tp-empty" id="tpEmpty" hidden>
-            <i class="fas fa-magnifying-glass"></i>
+            <i class="fa-solid fa-magnifying-glass"></i>
             <strong>No entries found</strong>
             <p>Try changing the search or filter.</p>
         </section>
 
         <section class="tp-note tp-reveal">
-            <i class="fas fa-circle-info"></i>
+            <i class="fa-solid fa-circle-info"></i>
             <p>More entries will be added when there is real content to include.</p>
         </section>
     </main>
 
     <button class="tp-top" type="button" id="tpTop" aria-label="Torna su">
-        <i class="fas fa-arrow-up"></i>
+        <i class="fa-solid fa-arrow-up"></i>
     </button>
 
     <div class="tp-toast" id="tpToast" hidden>
-        <i class="fas fa-check"></i>
+        <i class="fa-solid fa-check"></i>
         <span>Link copied</span>
     </div>
 

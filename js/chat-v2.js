@@ -205,7 +205,7 @@
 
     const profileBadgeHtml = (badge) => {
         if (!badge) return '';
-        const image = badge.image ? `<img src="${escapeHtml(badge.image)}" alt="">` : '<i class="fas fa-medal"></i>';
+        const image = badge.image ? `<img src="${escapeHtml(badge.image)}" alt="">` : '<i class="fa-solid fa-medal"></i>';
         return `<span class="chat-user-badge" title="${escapeHtml(badge.name)}">${image}${escapeHtml(badge.name)}</span>`;
     };
 
@@ -216,14 +216,14 @@
     const messageActionsHtml = (msg) => {
         if (msg.is_deleted) return '';
         const actions = [
-            actionButton('reply', 'fas fa-reply', 'Rispondi'),
-            actionButton('react', 'far fa-face-smile', 'Reagisci'),
-            actionButton('copy', 'fas fa-copy', 'Copia'),
+            actionButton('reply', 'fa-solid fa-reply', 'Rispondi'),
+            actionButton('react', 'fa-regular fa-face-smile', 'Reagisci'),
+            actionButton('copy', 'fa-solid fa-copy', 'Copia'),
         ];
-        if (msg.can_edit) actions.push(actionButton('edit', 'fas fa-pen', 'Modifica'));
-        if (msg.can_delete) actions.push(actionButton('delete', 'fas fa-trash', 'Elimina', 'is-danger'));
-        if (msg.can_report) actions.push(actionButton('report', 'fas fa-flag', 'Segnala'));
-        if (msg.can_report) actions.push(actionButton('mute', 'fas fa-user-slash', 'Muta utente'));
+        if (msg.can_edit) actions.push(actionButton('edit', 'fa-solid fa-pen', 'Modifica'));
+        if (msg.can_delete) actions.push(actionButton('delete', 'fa-solid fa-trash', 'Elimina', 'is-danger'));
+        if (msg.can_report) actions.push(actionButton('report', 'fa-solid fa-flag', 'Segnala'));
+        if (msg.can_report) actions.push(actionButton('mute', 'fa-solid fa-user-slash', 'Muta utente'));
         return `<div class="chat-message-actions">${actions.join('')}</div>`;
     };
 
@@ -286,7 +286,7 @@
         return `<article class="${classes}" id="msg-${escapeHtml(msgId)}" data-id="${escapeHtml(msgId)}" data-user-id="${Number(msg.user_id) || 0}" data-message="${escapeHtml(bodyText)}" data-username="${escapeHtml(msg.username || 'utente')}">${mine ? main + avatar : avatar + main}</article>`;
     };
 
-    const emptyHtml = () => `<div class="chat-empty"><div class="chat-empty-inner"><i class="fas fa-comments"></i><strong>Nessun messaggio</strong><p>Scrivi il primo.</p></div></div>`;
+    const emptyHtml = () => `<div class="chat-empty"><div class="chat-empty-inner"><i class="fa-solid fa-comments"></i><strong>Nessun messaggio</strong><p>Scrivi il primo.</p></div></div>`;
 
     const addDaySeparators = (messages) => {
         let html = '';
@@ -389,7 +389,7 @@
             if (el.loadOlder) el.loadOlder.hidden = (data.messages || []).length < 40;
             setSyncState('ok', 'Live');
         } catch (error) {
-            if (el.messages) el.messages.innerHTML = `<div class="chat-empty"><div class="chat-empty-inner"><i class="fas fa-triangle-exclamation"></i><strong>Errore chat</strong><p>${escapeHtml(error.message)}</p></div></div>`;
+            if (el.messages) el.messages.innerHTML = `<div class="chat-empty"><div class="chat-empty-inner"><i class="fa-solid fa-triangle-exclamation"></i><strong>Errore chat</strong><p>${escapeHtml(error.message)}</p></div></div>`;
             setSyncState('error', 'Errore');
         } finally {
             state.loading = false;
@@ -808,7 +808,7 @@
     const syncSoundButton = () => {
         if (!el.soundButton) return;
         const icon = el.soundButton.querySelector('i');
-        if (icon) icon.className = state.soundEnabled ? 'fas fa-volume-high' : 'fas fa-volume-xmark';
+        if (icon) icon.className = state.soundEnabled ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark';
         el.soundButton.classList.toggle('is-active', state.soundEnabled);
     };
 

@@ -139,14 +139,14 @@ $charJson = $charData ? json_encode($charData, JSON_HEX_TAG | JSON_HEX_APOS | JS
     <?php if (!empty($errorMsg)): ?>
         <!-- ══ ERRORE ══════════════════════════════════════════════════════════ -->
         <div id="anim-error">
-            <h2><i class="fas fa-circle-exclamation"></i> Character not found</h2>
+            <h2><i class="fa-solid fa-circle-exclamation"></i> Character not found</h2>
             <p><?= htmlspecialchars($errorMsg) ?></p>
-            <a href="javascript:history.back()"><i class="fas fa-arrow-left"></i> Go back</a>
+            <a href="javascript:history.back()"><i class="fa-solid fa-arrow-left"></i> Go back</a>
         </div>
 
     <?php else: ?>
         <!-- ══ BADGE ANTEPRIMA ═════════════════════════════════════════════════ -->
-        <div id="anim-preview-badge"><i class="fas fa-eye"></i> Preview animation</div>
+        <div id="anim-preview-badge"><i class="fa-solid fa-eye"></i> Preview animation</div>
 
         <!-- ══ STELLE SFONDO ══════════════════════════════════════════════════ -->
         <div class="stars" id="stars"></div>
@@ -181,7 +181,7 @@ $charJson = $charData ? json_encode($charData, JSON_HEX_TAG | JSON_HEX_APOS | JS
                 <video id="gacha-video" playsinline preload="metadata"
                     webkit-playsinline></video>
                 <button class="gacha-video-unmute" id="video-unmute-btn" style="display:none">
-                    <i class="fas fa-volume-xmark"></i> Tap for audio
+                    <i class="fa-solid fa-volume-xmark"></i> Tap for audio
                 </button>
             </div>
 
@@ -210,13 +210,13 @@ $charJson = $charData ? json_encode($charData, JSON_HEX_TAG | JSON_HEX_APOS | JS
                 <!-- Azioni post-animazione -->
                 <div id="anim-actions">
                     <a href="?id_personaggio=<?= $idPersonaggio ?>" class="gacha-btn gacha-btn--primary">
-                        <i class="fas fa-rotate-right"></i> Watch again
+                        <i class="fa-solid fa-rotate-right"></i> Watch again
                     </a>
                     <a href="inventario" class="gacha-btn gacha-btn--ghost">
-                        <i class="fas fa-layer-group"></i> Inventory
+                        <i class="fa-solid fa-layer-group"></i> Inventory
                     </a>
                     <button class="gacha-btn gacha-btn--ghost" onclick="history.back()">
-                        <i class="fas fa-arrow-left"></i> Go back
+                        <i class="fa-solid fa-arrow-left"></i> Go back
                     </button>
                 </div>
             </div>
@@ -476,13 +476,13 @@ $charJson = $charData ? json_encode($charData, JSON_HEX_TAG | JSON_HEX_APOS | JS
       <div id="cov-anim-actions" class="gacha-overlay-actions" style="display:none">
         <a href="?id_personaggio=<?= $idPersonaggio ?>"
            class="gacha-btn gacha-btn--primary">
-          <i class="fas fa-rotate-right"></i> Watch again
+          <i class="fa-solid fa-rotate-right"></i> Watch again
         </a>
         <a href="inventario" class="gacha-btn gacha-btn--ghost">
-          <i class="fas fa-layer-group"></i> Inventory
+          <i class="fa-solid fa-layer-group"></i> Inventory
         </a>
         <button class="gacha-btn gacha-btn--ghost" onclick="history.back()">
-          <i class="fas fa-arrow-left"></i> Go back
+          <i class="fa-solid fa-arrow-left"></i> Go back
         </button>
       </div>
     `;

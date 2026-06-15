@@ -39,7 +39,7 @@ $token = $_GET['token'] ?? '';
                     <div class="password-wrap" data-password-wrap>
                         <input type="password" name="nuova_password" placeholder="Nuova password" required autocomplete="new-password">
                         <button type="button" class="password-toggle" data-toggle-password aria-label="Mostra password">
-                            <i class="fas fa-eye"></i>
+                            <i class="fa-solid fa-eye"></i>
                         </button>
                     </div>
                     <small>Usa almeno 8 caratteri, se possibile.</small>
@@ -47,14 +47,14 @@ $token = $_GET['token'] ?? '';
 
                 <div class="form-actions">
                     <button class="form-btn form-btn--primary form-btn--wide" type="submit" data-loading-text="Salvataggio...">
-                        <i class="fas fa-check"></i>
+                        <i class="fa-solid fa-check"></i>
                         <span>Salva password</span>
                     </button>
                 </div>
             </form>
 
             <div class="form-links">
-                <a href="accedi"><i class="fas fa-arrow-left"></i> Torna al login</a>
+                <a href="accedi"><i class="fa-solid fa-arrow-left"></i> Torna al login</a>
             </div>
         </section>
     </main>

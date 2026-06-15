@@ -10,7 +10,7 @@ checkBan($mysqli);
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Chi siamo</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css">
     <link rel="stylesheet" href="/assets/chisiamo/chisiamo-colors.css?v=2.2-original-cards-colors">
     <style>
         @font-face {
@@ -49,7 +49,7 @@ checkBan($mysqli);
         <section class="chisiamo-section" style="border-radius: 20px;">
             <h1 class="chisiamo-title">Il Nostro Team di Sviluppo</h1>
             <p class="chisiamo-subtitle">
-                Vuoi far parte del nostro team di sviluppo? Manda una e-mail allegando immagine, nome e descrizione, e se vuoi, un username o un link social per i crediti.
+                Vuoi fa-regular parte del nostro team di sviluppo? Manda una e-mail allegando immagine, nome e descrizione, e se vuoi, un username o un link social per i crediti.
             </p>
         </section>
 
@@ -141,7 +141,7 @@ checkBan($mysqli);
                             <h3 class="member-name">Scammarpreet</h3>
                             <p class="member-description">
                                 <strong>Money grabber • Scammer • Guru • Doxer</strong><br>
-                                Gambler professionista che sa come far girare i soldi.
+                                Gambler professionista che sa come fa-regular girare i soldi.
                             </p>
                         </div>
                     </div>
@@ -322,11 +322,11 @@ checkBan($mysqli);
         <section class="join-team-section">
             <h2 class="join-title">Unisciti al Team!</h2>
             <p class="join-description">
-                Hai quello che serve per far parte della squadra più king del web?
+                Hai quello che serve per fa-regular parte della squadra più king del web?
                 Mandaci la tua candidatura e diventa parte della squadra + da king del secolo!
             </p>
             <a href="candidatura-chisiamo" class="join-email">
-                <i class="fas fa-envelope me-2"></i>
+                <i class="fa-solid fa-envelope me-2"></i>
                 clicca qui per inviare la tua candidatura
             </a>
         </section>

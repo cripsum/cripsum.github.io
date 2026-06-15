@@ -37,17 +37,17 @@ if (!isOwner()) {
                 <div class="col-lg-11">
                     <div class="page-header">
                         <div class="page-icon-wrapper">
-                            <i class="fas fa-download page-icon"></i>
+                            <i class="fa-solid fa-download page-icon"></i>
                         </div>
                         <h1 class="page-title">Download</h1>
                         <p class="page-description">Software, plugin e strumenti essenziali per After Effects sempre aggiornati</p>
                         <!-- <div class="software-badge">
-                            <i class="fab fa-adobe"></i> After Effects
+                            <i class="fa-solid fa-clapperboard"></i> After Effects
                         </div> -->
 
                         <div class="filter-bar">
                             <div class="search-box">
-                                <i class="fas fa-search"></i>
+                                <i class="fa-solid fa-search"></i>
                                 <input type="text" placeholder="Cerca software o plugin...">
                             </div>
                             <div class="filter-buttons">
@@ -70,9 +70,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">After Effects</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-cube"></i> Software
+                                    <i class="fa-solid fa-cube"></i> Software
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 1.2k
+                                    <i class="fa-solid fa-download"></i> 1.2k
                                 </p>
                                 <p class="card-description">Il software di riferimento per animazioni, effetti visivi e motion graphics professionale.</p>
                                 <div class="card-tags">
@@ -82,7 +82,7 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-primary full-width">
-                                        <i class="fas fa-download"></i> Scarica ora
+                                        <i class="fa-solid fa-download"></i> Scarica ora
                                     </a>
                                 </div>
                             </div>
@@ -98,9 +98,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">Flow</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-cube"></i> Plugin
+                                    <i class="fa-solid fa-cube"></i> Plugin
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 856
+                                    <i class="fa-solid fa-download"></i> 856
                                 </p>
                                 <p class="card-description">Crea transizioni fluide e animazioni motion graphics in pochi click con questo potente plugin.</p>
                                 <div class="card-tags">
@@ -110,7 +110,7 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-primary full-width">
-                                        <i class="fas fa-download"></i> Scarica ora
+                                        <i class="fa-solid fa-download"></i> Scarica ora
                                     </a>
                                 </div>
                             </div>
@@ -126,9 +126,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">Animation Composer</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-code"></i> Plugin
+                                    <i class="fa-solid fa-code"></i> Plugin
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 2.1k
+                                    <i class="fa-solid fa-download"></i> 2.1k
                                 </p>
                                 <p class="card-description">Oltre 100 effetti di transizione, preset ed animazioni preimpostate per velocizzare il workflow.</p>
                                 <div class="card-tags">
@@ -138,7 +138,7 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-primary full-width">
-                                        <i class="fas fa-download"></i> Scarica ora
+                                        <i class="fa-solid fa-download"></i> Scarica ora
                                     </a>
                                 </div>
                             </div>
@@ -154,9 +154,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">Saber</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-cube"></i> Plugin
+                                    <i class="fa-solid fa-cube"></i> Plugin
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 1.8k
+                                    <i class="fa-solid fa-download"></i> 1.8k
                                 </p>
                                 <p class="card-description">Plugin essenziale per creare effetti laser, spade laser e raggi di luce fotorealistici.</p>
                                 <div class="card-tags">
@@ -166,7 +166,7 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-primary full-width">
-                                        <i class="fas fa-download"></i> Scarica ora
+                                        <i class="fa-solid fa-download"></i> Scarica ora
                                     </a>
                                 </div>
                             </div>
@@ -182,9 +182,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">Element 3D</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-cube"></i> Plugin
+                                    <i class="fa-solid fa-cube"></i> Plugin
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 945
+                                    <i class="fa-solid fa-download"></i> 945
                                 </p>
                                 <p class="card-description">Importa e anima modelli 3D direttamente in After Effects con rendering GPU ultra veloce.</p>
                                 <div class="card-tags">
@@ -194,7 +194,7 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-primary full-width">
-                                        <i class="fas fa-download"></i> Scarica trial
+                                        <i class="fa-solid fa-download"></i> Scarica trial
                                     </a>
                                 </div>
                             </div>
@@ -210,9 +210,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">Duik Bassel</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-code"></i> Script
+                                    <i class="fa-solid fa-code"></i> Script
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 678
+                                    <i class="fa-solid fa-download"></i> 678
                                 </p>
                                 <p class="card-description">Strumento completo per il rigging e l'animazione di personaggi in After Effects.</p>
                                 <div class="card-tags">
@@ -222,7 +222,7 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-primary full-width">
-                                        <i class="fas fa-download"></i> Scarica ora
+                                        <i class="fa-solid fa-download"></i> Scarica ora
                                     </a>
                                 </div>
                             </div>
@@ -231,7 +231,7 @@ if (!isOwner()) {
 
                     <div class="load-more-section">
                         <button class="load-more-btn">
-                            <i class="fas fa-plus"></i> Carica altri
+                            <i class="fa-solid fa-plus"></i> Carica altri
                         </button>
                     </div>
                 </div>

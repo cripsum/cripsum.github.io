@@ -38,80 +38,80 @@ if (!isOwner()) {
                         <h1 class="editing-title">Benvenuto su Cripsum™</h1>
                         <p class="editing-subtitle">Risorse per i tuoi progetti di editing</p>
                         <div class="free-banner">
-                            <p class="free-text"><i class="fas fa-gift"></i> E la cosa migliore? È tutto completamente gratuito! :P</p>
+                            <p class="free-text"><i class="fa-solid fa-gift"></i> E la cosa migliore? È tutto completamente gratuito! :P</p>
                         </div>
                     </div>
 
                     <div class="resources-grid">
                         <div class="resource-card">
                             <div class="resource-icon">
-                                <i class="fas fa-book-open"></i>
+                                <i class="fa-solid fa-book-open"></i>
                             </div>
                             <h3 class="resource-title">Tutorial & Preset</h3>
                             <p class="resource-description">Guide semplici con preset pronti da usare. Impara qualche tecnica interessante e prova subito gli effetti nei tuoi video.</p>
                             <a href="tutorials" class="resource-link">
                                 <span>Inizia ad imparare</span>
-                                <i class="fas fa-arrow-right"></i>
+                                <i class="fa-solid fa-arrow-right"></i>
                             </a>
                         </div>
 
                         <div class="resource-card">
                             <div class="resource-icon success">
-                                <i class="fas fa-download"></i>
+                                <i class="fa-solid fa-download"></i>
                             </div>
                             <h3 class="resource-title">Download</h3>
                             <p class="resource-description">Software, plugin e strumenti utili che uso anch'io per editare. Li aggiorno quando posso!</p>
                             <a href="downloads" class="resource-link success">
                                 <span>Scarica ora</span>
-                                <i class="fas fa-arrow-right"></i>
+                                <i class="fa-solid fa-arrow-right"></i>
                             </a>
                         </div>
 
                         <div class="resource-card">
                             <div class="resource-icon warning">
-                                <i class="fas fa-film"></i>
+                                <i class="fa-solid fa-film"></i>
                             </div>
                             <h3 class="resource-title">Clip & Flowframe</h3>
                             <p class="resource-description">Flowframe anime, clip da film e serie TV, animazioni manga e tanto altro per creare i tuoi edit.</p>
                             <a href="clips" class="resource-link warning">
                                 <span>Scopri le risorse</span>
-                                <i class="fas fa-arrow-right"></i>
+                                <i class="fa-solid fa-arrow-right"></i>
                             </a>
                         </div>
 
                         <div class="resource-card">
                             <div class="resource-icon info">
-                                <i class="fas fa-layer-group"></i>
+                                <i class="fa-solid fa-layer-group"></i>
                             </div>
                             <h3 class="resource-title">Overlay</h3>
                             <p class="resource-description">Effetti visivi e overlay carini per dare quel tocco in più ai tuoi video.</p>
                             <a href="overlays" class="resource-link info">
                                 <span>Visualizza overlay</span>
-                                <i class="fas fa-arrow-right"></i>
+                                <i class="fa-solid fa-arrow-right"></i>
                             </a>
                         </div>
 
                         <div class="resource-card">
                             <div class="resource-icon danger">
-                                <i class="fas fa-music"></i>
+                                <i class="fa-solid fa-music"></i>
                             </div>
                             <h3 class="resource-title">Audio</h3>
                             <p class="resource-description">Una collezione di effetti sonori e musiche che ho raccolto per i miei edit.</p>
                             <a href="audio" class="resource-link danger">
                                 <span>Ascolta ora</span>
-                                <i class="fas fa-arrow-right"></i>
+                                <i class="fa-solid fa-arrow-right"></i>
                             </a>
                         </div>
 
                         <div class="resource-card">
                             <div class="resource-icon secondary">
-                                <i class="fas fa-file-archive"></i>
+                                <i class="fa-solid fa-file-archive"></i>
                             </div>
                             <h3 class="resource-title">Progetti</h3>
                             <p class="resource-description">File di progetto completi e template già pronti che puoi modificare e usare come vuoi.</p>
                             <a href="projects" class="resource-link secondary">
                                 <span>Ottieni progetti</span>
-                                <i class="fas fa-arrow-right"></i>
+                                <i class="fa-solid fa-arrow-right"></i>
                             </a>
                         </div>
                     </div>

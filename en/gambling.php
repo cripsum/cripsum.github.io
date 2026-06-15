@@ -58,12 +58,12 @@ $username = $_SESSION['username'] ?? 'Utente';
 
                 <div class="gambling-actions">
                     <button class="gambling-btn gambling-btn--soft" type="button" data-open-rules>
-                        <i class="fas fa-circle-info"></i>
+                        <i class="fa-solid fa-circle-info"></i>
                         <span>Rules</span>
                     </button>
 
                     <button class="gambling-btn gambling-btn--soft" type="button" data-reset-session>
-                        <i class="fas fa-rotate-left"></i>
+                        <i class="fa-solid fa-rotate-left"></i>
                         <span>Reset session</span>
                     </button>
                 </div>
@@ -125,12 +125,12 @@ $username = $_SESSION['username'] ?? 'Utente';
 
                 <div class="spin-controls">
                     <button class="spin-btn" type="button" data-spin-button>
-                        <i class="fas fa-play"></i>
+                        <i class="fa-solid fa-play"></i>
                         <span>SPIN</span>
                     </button>
 
                     <button class="auto-spin-btn" type="button" data-auto-spin-button>
-                        <i class="fas fa-forward"></i>
+                        <i class="fa-solid fa-forward"></i>
                         <span>Auto x10</span>
                     </button>
                 </div>
@@ -212,7 +212,7 @@ $username = $_SESSION['username'] ?? 'Utente';
     <div class="gambling-modal" data-rules-modal hidden>
         <div class="gambling-modal__panel" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
             <button class="gambling-modal__close" type="button" data-close-rules aria-label="Chiudi">
-                <i class="fas fa-xmark"></i>
+                <i class="fa-solid fa-xmark"></i>
             </button>
 
             <span class="gambling-pill">Rules</span>

@@ -214,8 +214,8 @@
 
         if (links) {
             const items = [];
-            if (data.postUrl) items.push(`<a href="${escapeHtml(data.postUrl)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-up-right-from-square"></i> ${t.open_post}</a>`);
-            if (data.source) items.push(`<a href="${escapeHtml(data.source)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-link"></i> ${t.source}</a>`);
+            if (data.postUrl) items.push(`<a href="${escapeHtml(data.postUrl)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-up-right-from-square"></i> ${t.open_post}</a>`);
+            if (data.source) items.push(`<a href="${escapeHtml(data.source)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-link"></i> ${t.source}</a>`);
             links.innerHTML = items.join("");
         }
 
@@ -232,7 +232,7 @@
         preload.onerror = () => {
             if (placeholder) {
                 placeholder.style.display = "grid";
-                placeholder.innerHTML = `<i class="fas fa-triangle-exclamation"></i><strong>${t.img_failed}</strong><span>${t.img_retry}</span>`;
+                placeholder.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i><strong>${t.img_failed}</strong><span>${t.img_retry}</span>`;
             }
             image.hidden = true;
         };
@@ -271,7 +271,7 @@
 
         if (placeholder) {
             placeholder.style.display = "grid";
-            placeholder.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i><strong>${t.loading_text}</strong><span>${t.loading_sub}</span>`;
+            placeholder.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i><strong>${t.loading_text}</strong><span>${t.loading_sub}</span>`;
         }
 
         if (spinner) spinner.style.display = "block";
@@ -299,7 +299,7 @@
             currentCard = null;
             if (placeholder) {
                 placeholder.style.display = "grid";
-                placeholder.innerHTML = `<i class="fas fa-triangle-exclamation"></i><strong>${t.status_error}</strong><span>${escapeHtml(error.message || t.err_retry)}</span>`;
+                placeholder.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i><strong>${t.status_error}</strong><span>${escapeHtml(error.message || t.err_retry)}</span>`;
             }
             showToast(error.message || t.err_retry);
             setStatus(t.status_error);

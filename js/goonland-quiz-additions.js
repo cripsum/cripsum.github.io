@@ -12,8 +12,8 @@
     const t = {
         it: {
             question_step:  (cur, tot) => `Domanda ${cur} / ${tot}`,
-            btn_next:       '<i class="fas fa-arrow-right"></i> Avanti',
-            btn_finish:     '<i class="fas fa-star"></i> Vedi risultato',
+            btn_next:       '<i class="fa-solid fa-arrow-right"></i> Avanti',
+            btn_finish:     '<i class="fa-solid fa-star"></i> Vedi risultato',
             toast_answer:   "Scegli una risposta",
             toast_all:      "Rispondi a tutte le domande",
             toast_copied:   "Link copiato",
@@ -42,8 +42,8 @@
         },
         en: {
             question_step:  (cur, tot) => `Question ${cur} / ${tot}`,
-            btn_next:       '<i class="fas fa-arrow-right"></i> Next',
-            btn_finish:     '<i class="fas fa-star"></i> See result',
+            btn_next:       '<i class="fa-solid fa-arrow-right"></i> Next',
+            btn_finish:     '<i class="fa-solid fa-star"></i> See result',
             toast_answer:   "Choose an answer",
             toast_all:      "Answer all questions",
             toast_copied:   "Link copied",
@@ -322,7 +322,7 @@
             yandere:  { title: "Obsessive Yandere", desc: "You like red flags with big eyes. Risky choice." },
             dommy:    { title: "Goth Dommy Mommy", desc: "You like a confident, dominant girl with enough aura to make you stay quiet." },
             goth:     { title: "Dark Gothic Queen", desc: "Black, mystery and a cold gaze. Your downfall, but with aesthetic." },
-            gyaru:    { title: "Gyaru Teaser", desc: "You want strong energy, constant teasing and zero fear of going too far." },
+            gyaru:    { title: "Gyaru Teaser", desc: "You want strong energy, constant teasing and zero fear of going too fa-regular." },
             maid:     { title: "Shy Maid", desc: "Classic, cute and a little doting. A clean choice, but always effective." },
             fantasy:  { title: "Demon Fantasy Girl", desc: "You want something less ordinary. Horns, magic, problems and lots of presence." },
             elegant:  { title: "Elegant Mommy", desc: "You like a composed, polished girl who's superior without even trying." },
@@ -392,7 +392,7 @@
             }
 
             button.innerHTML = `
-                <span class="gl-answer-icon"><i class="fas ${answer.icon}"></i></span>
+                <span class="gl-answer-icon"><i class="fa-solid ${answer.icon}"></i></span>
                 <span>
                     <strong>${answer.label}</strong>
                     <span>${answer.desc}</span>
@@ -547,7 +547,7 @@
             if (placeholder) {
                 placeholder.style.display = "grid";
                 placeholder.innerHTML = `
-                    <i class="fas fa-triangle-exclamation"></i>
+                    <i class="fa-solid fa-triangle-exclamation"></i>
                     <strong>${t.no_result}</strong> <span>${error.message || t.retry_answers}</span>
                 `;
             }

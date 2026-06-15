@@ -22,7 +22,7 @@
     function img(src){if(!src)return'/img/Susremaster.png'; if(/^https?:\/\//i.test(src)||src.startsWith('/'))return src; return `/img/${src}`;}
     function cardImg(src,alt){return `<img src="${esc(img(src))}" alt="${esc(alt)}" onerror="this.onerror=null;this.src='/img/Susremaster.png';">`;}
     function rankIcon(rank){const key=typeof rank==='string'?rank:(rank?.key||''); const icons={bronzo:'fa-shield',argento:'fa-medal',oro:'fa-crown',diamante:'fa-gem',campione:'fa-trophy',leggenda:'fa-dragon'}; return icons[key]||'fa-shield';}
-    function rankBadge(rank){if(!rank)return'';return `<span class="game-rank-badge" data-rank="${esc(rank.key)}"><i class="fas ${rankIcon(rank)}"></i>${esc(rank.label)}</span>`}
+    function rankBadge(rank){if(!rank)return'';return `<span class="game-rank-badge" data-rank="${esc(rank.key)}"><i class="fa-solid ${rankIcon(rank)}"></i>${esc(rank.label)}</span>`}
     function playerTitle(player,fallback='Player'){return `${esc(player?.username||fallback)} ${rankBadge(player?.rank)}`;}
     function goArena(matchId){window.location.href=`/it/game/arena.php?match_id=${encodeURIComponent(matchId)}`;}
     function modeLabel(mode){return mode==='ranked'?'Ranked':mode==='bot'?'Offline vs Bot':'Partita';}
@@ -49,7 +49,7 @@
                         <strong>${esc(m.player1)} vs ${esc(m.player2)}</strong>
                         <span>${esc(m.mode)} · turno ${m.turn_number}</span>
                     </div>
-                    <em><i class="fas fa-eye"></i> ${m.spectator_count}</em>
+                    <em><i class="fa-solid fa-eye"></i> ${m.spectator_count}</em>
                 </a>
             `).join('');
         } catch(e) {

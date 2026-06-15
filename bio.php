@@ -161,28 +161,28 @@ $socialLinks = [
         'label' => 'TikTok',
         'handle' => '@cripsum',
         'url' => 'https://tiktok.cripsum.com',
-        'icon' => 'fab fa-tiktok',
+        'icon' => 'fa-brands fa-tiktok',
         'kind' => 'tiktok',
     ],
     [
         'label' => 'Telegram',
         'handle' => 'sburragrigliata',
         'url' => 'https://t.me/sburragrigliata',
-        'icon' => 'fab fa-telegram-plane',
+        'icon' => 'fa-brands fa-telegram',
         'kind' => 'telegram',
     ],
     [
         'label' => 'Discord',
         'handle' => 'server',
         'url' => 'https://discord.cripsum.com',
-        'icon' => 'fab fa-discord',
+        'icon' => 'fa-brands fa-discord',
         'kind' => 'discord',
     ],
     [
         'label' => 'Website',
         'handle' => 'cripsum.com',
         'url' => 'https://cripsum.com',
-        'icon' => 'fas fa-globe',
+        'icon' => 'fa-solid fa-globe',
         'kind' => 'website',
     ],
 ];
@@ -192,21 +192,21 @@ $featuredLinks = [
         'title' => 'Cripsum.com',
         'description' => 'Hub principale, profili, esperimenti e pagine del sito.',
         'url' => 'https://cripsum.com',
-        'icon' => 'fas fa-layer-group',
+        'icon' => 'fa-solid fa-layer-group',
         'tag' => 'Main',
     ],
     [
         'title' => 'GoonLand™',
         'description' => 'Micro-universo più ironico, visuale e personale.',
         'url' => 'https://cripsum.com',
-        'icon' => 'fas fa-bolt',
+        'icon' => 'fa-solid fa-bolt',
         'tag' => 'Project',
     ],
     [
         'title' => 'Discord Community',
         'description' => 'Server, update, test e roba legata ai progetti.',
         'url' => 'https://discord.cripsum.com',
-        'icon' => 'fab fa-discord',
+        'icon' => 'fa-brands fa-discord',
         'tag' => 'Live',
     ],
 ];
@@ -216,21 +216,21 @@ $projectCards = [
         'title' => 'VanzaKart Launcher',
         'description' => 'Launcher e updater custom per modpack su Dolphin.',
         'meta' => 'C# / Dolphin / updater',
-        'icon' => 'fas fa-gamepad',
+        'icon' => 'fa-solid fa-gamepad',
         'url' => '#',
     ],
     [
         'title' => 'Cripsum Lootbox',
         'description' => 'Sistema di personaggi, rarità, inventario e achievement.',
         'meta' => 'PHP / MySQL / JS',
-        'icon' => 'fas fa-box-open',
+        'icon' => 'fa-solid fa-box-open',
         'url' => 'https://cripsum.com',
     ],
     [
         'title' => 'Edits',
         'description' => 'Video edit personali, prove visual e contenuti brevi.',
         'meta' => 'After Effects / TikTok',
-        'icon' => 'fas fa-clapperboard',
+        'icon' => 'fa-solid fa-clapperboard',
         'url' => 'https://tiktok.cripsum.com',
     ],
 ];
@@ -240,29 +240,29 @@ $contentPreviews = [
         'title' => 'Latest edits',
         'description' => 'Raccolta rapida dei contenuti video più recenti.',
         'url' => 'https://tiktok.cripsum.com',
-        'icon' => 'fas fa-play',
+        'icon' => 'fa-solid fa-play',
         'label' => 'Video',
     ],
     [
         'title' => 'Profile hub',
         'description' => 'Statistiche, badge, social e stato Discord in un posto solo.',
         'url' => $profileUrl,
-        'icon' => 'fas fa-id-card',
+        'icon' => 'fa-solid fa-id-card',
         'label' => 'Bio',
     ],
 ];
 
 $heroBadges = [
-    ['label' => 'Founder', 'icon' => 'fas fa-crown'],
-    ['label' => 'Editor', 'icon' => 'fas fa-wand-magic-sparkles'],
-    ['label' => 'Developer', 'icon' => 'fas fa-code'],
+    ['label' => 'Founder', 'icon' => 'fa-solid fa-crown'],
+    ['label' => 'Editor', 'icon' => 'fa-solid fa-wand-magic-sparkles'],
+    ['label' => 'Developer', 'icon' => 'fa-solid fa-code'],
 ];
 
 $statCards = [
-    ['label' => 'Achievement', 'value' => $achievementCount, 'icon' => 'fas fa-trophy'],
-    ['label' => 'Personaggi', 'value' => $uniqueCharacters, 'icon' => 'fas fa-user-astronaut'],
-    ['label' => 'Pull totali', 'value' => $totalPulls, 'icon' => 'fas fa-dice-d20'],
-    ['label' => 'Crediti', 'value' => (int) ($user['soldi'] ?? 0), 'icon' => 'fas fa-coins'],
+    ['label' => 'Achievement', 'value' => $achievementCount, 'icon' => 'fa-solid fa-trophy'],
+    ['label' => 'Personaggi', 'value' => $uniqueCharacters, 'icon' => 'fa-solid fa-user-astronaut'],
+    ['label' => 'Pull totali', 'value' => $totalPulls, 'icon' => 'fa-solid fa-dice-d20'],
+    ['label' => 'Crediti', 'value' => (int) ($user['soldi'] ?? 0), 'icon' => 'fa-solid fa-coins'],
 ];
 ?>
 <!DOCTYPE html>
@@ -332,51 +332,51 @@ $statCards = [
             </div>
 
             <div class="bio-meta-row">
-                <span><i class="fas fa-location-dot"></i><?= e($profileConfig['location']); ?></span>
-                <span><i class="fas fa-calendar"></i>Dal <?= e(formatShortDate($user['data_creazione'] ?? null)); ?></span>
-                <span><i class="fas fa-shield-halved"></i><?= e($profileConfig['role']); ?></span>
+                <span><i class="fa-solid fa-location-dot"></i><?= e($profileConfig['location']); ?></span>
+                <span><i class="fa-solid fa-calendar"></i>Dal <?= e(formatShortDate($user['data_creazione'] ?? null)); ?></span>
+                <span><i class="fa-solid fa-shield-halved"></i><?= e($profileConfig['role']); ?></span>
             </div>
 
             <div class="bio-actions" aria-label="Azioni profilo">
                 <button class="bio-button bio-button--primary js-copy-profile" type="button">
-                    <i class="fas fa-link"></i>
+                    <i class="fa-solid fa-link"></i>
                     Copia link
                 </button>
                 <button class="bio-button js-share-profile" type="button">
-                    <i class="fas fa-share-nodes"></i>
+                    <i class="fa-solid fa-share-nodes"></i>
                     Share
                 </button>
                 <div class="profile-dropdown-wrap" style="position: relative; display: inline-block;">
                     <button class="bio-icon-button js-profile-dropdown-trigger" type="button" aria-label="Menu" aria-expanded="false">
-                        <i class="fas fa-ellipsis-h"></i>
+                        <i class="fa-solid fa-ellipsis-h"></i>
                     </button>
                     <div class="profile-dropdown-menu">
                         <a class="profile-dropdown-item" href="/<?= $lang ?>/home">
-                            <i class="fas fa-home"></i>
+                            <i class="fa-solid fa-home"></i>
                             <span>Home Page</span>
                         </a>
                         <button class="profile-dropdown-item js-open-search" type="button">
-                            <i class="fas fa-search"></i>
+                            <i class="fa-solid fa-search"></i>
                             <span>Cerca utenti</span>
                         </button>
                         <button class="profile-dropdown-item js-open-navigation" type="button">
-                            <i class="fas fa-compass"></i>
+                            <i class="fa-solid fa-compass"></i>
                             <span>Apri Navigazione</span>
                         </button>
                         <button class="profile-dropdown-item js-copy-profile" type="button">
-                            <i class="fas fa-link"></i>
+                            <i class="fa-solid fa-link"></i>
                             <span>Copia link</span>
                         </button>
                         <button class="profile-dropdown-item js-share-profile" type="button">
-                            <i class="fas fa-share-nodes"></i>
+                            <i class="fa-solid fa-share-nodes"></i>
                             <span>Condividi Profilo</span>
                         </button>
                         <button class="profile-dropdown-item js-open-report" type="button">
-                            <i class="fas fa-flag"></i>
+                            <i class="fa-solid fa-flag"></i>
                             <span>Segnala Profilo</span>
                         </button>
                         <button class="profile-dropdown-item js-theme-toggle" type="button">
-                            <i class="fas fa-moon"></i>
+                            <i class="fa-solid fa-moon"></i>
                             <span class="theme-label-text">Tema scuro</span>
                         </button>
                     </div>
@@ -398,7 +398,7 @@ $statCards = [
                             <strong><?= e($link['label']); ?></strong>
                             <small><?= e($link['handle']); ?></small>
                         </span>
-                        <i class="fas fa-arrow-up-right-from-square bio-social__arrow"></i>
+                        <i class="fa-solid fa-arrow-up-right-from-square bio-social__arrow"></i>
                     </a>
                 <?php endforeach; ?>
             </div>
@@ -424,10 +424,10 @@ $statCards = [
                 <div class="bio-audio__header">
                     <div>
                         <small>now playing</small>
-                        <strong><i class="fas fa-music"></i><?= e($profileConfig['audio_title']); ?></strong>
+                        <strong><i class="fa-solid fa-music"></i><?= e($profileConfig['audio_title']); ?></strong>
                     </div>
                     <button class="bio-icon-button js-audio-toggle" type="button" aria-label="Play o pausa">
-                        <i class="fas fa-play" id="playPauseIcon"></i>
+                        <i class="fa-solid fa-play" id="playPauseIcon"></i>
                     </button>
                 </div>
 
@@ -439,7 +439,7 @@ $statCards = [
 
                 <div class="bio-audio__bottom">
                     <button class="bio-small-button js-volume-toggle" type="button">
-                        <i class="fas fa-volume-up" id="volumeIcon"></i>
+                        <i class="fa-solid fa-volume-high" id="volumeIcon"></i>
                     </button>
                     <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.12" aria-label="Volume audio">
                 </div>
@@ -474,7 +474,7 @@ $statCards = [
                                 <strong><?= e($item['title']); ?></strong>
                                 <em><?= e($item['description']); ?></em>
                             </span>
-                            <i class="fas fa-chevron-right"></i>
+                            <i class="fa-solid fa-chevron-right"></i>
                         </a>
                     <?php endforeach; ?>
                 </div>
@@ -482,8 +482,8 @@ $statCards = [
 
             <details class="bio-card bio-details js-reveal" open>
                 <summary>
-                    <span><i class="fas fa-cubes"></i> Progetti</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <span><i class="fa-solid fa-cubes"></i> Progetti</span>
+                    <i class="fa-solid fa-chevron-down"></i>
                 </summary>
                 <div class="bio-project-grid">
                     <?php foreach ($projectCards as $project): ?>
@@ -499,8 +499,8 @@ $statCards = [
 
             <details class="bio-card bio-details js-reveal" open>
                 <summary>
-                    <span><i class="fas fa-play-circle"></i> Edit e contenuti</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <span><i class="fa-solid fa-circle-play"></i> Edit e contenuti</span>
+                    <i class="fa-solid fa-chevron-down"></i>
                 </summary>
                 <div class="bio-preview-grid">
                     <?php foreach ($contentPreviews as $preview): ?>
@@ -516,8 +516,8 @@ $statCards = [
 
             <details class="bio-card bio-details js-reveal" open>
                 <summary>
-                    <span><i class="fas fa-trophy"></i> Badge recenti</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <span><i class="fa-solid fa-trophy"></i> Badge recenti</span>
+                    <i class="fa-solid fa-chevron-down"></i>
                 </summary>
 
                 <?php if (!empty($recentAchievements)): ?>
@@ -532,7 +532,7 @@ $statCards = [
                                 <?php if ($achievementImage): ?>
                                     <img src="<?= e($achievementImage); ?>" alt="" loading="lazy">
                                 <?php else: ?>
-                                    <span class="bio-achievement-card__fallback"><i class="fas fa-medal"></i></span>
+                                    <span class="bio-achievement-card__fallback"><i class="fa-solid fa-medal"></i></span>
                                 <?php endif; ?>
                                 <div>
                                     <strong><?= e($achievement['nome']); ?></strong>
@@ -544,7 +544,7 @@ $statCards = [
                     </div>
                 <?php else: ?>
                     <div class="bio-empty-state">
-                        <i class="fas fa-medal"></i>
+                        <i class="fa-solid fa-medal"></i>
                         <strong>Nessun badge recente</strong>
                         <p>Quando questo profilo sblocca achievement, appariranno qui.</p>
                     </div>

@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="auth-card__form">
                 <?php if ($error): ?>
                     <div class="auth-alert auth-alert--error">
-                        <i class="fas fa-triangle-exclamation"></i>
+                        <i class="fa-solid fa-triangle-exclamation"></i>
                         <span><?php echo auth_h($error); ?></span>
 
                         <?php if (stripos($error, 'verificare') !== false): ?>
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <?php if (isset($_SESSION['login_message'])): ?>
                     <div class="auth-alert auth-alert--info">
-                        <i class="fas fa-circle-info"></i>
+                        <i class="fa-solid fa-circle-info"></i>
                         <span><?php echo auth_h($_SESSION['login_message']); ?></span>
                     </div>
                     <?php unset($_SESSION['login_message']); ?>
@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="auth-password">
                             <input type="password" name="password" autocomplete="current-password" required data-password-input>
                             <button type="button" data-toggle-password aria-label="Mostra password" style="margin-top: -18px;">
-                                <i class="fas fa-eye"></i>
+                                <i class="fa-solid fa-eye"></i>
                             </button>
                         </div>
                     </label>

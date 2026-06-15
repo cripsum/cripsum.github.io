@@ -110,8 +110,8 @@
     };
 
     const statusBadge = (isBanned) => isBanned == 1
-        ? '<span class="admin-badge admin-badge--danger"><i class="fas fa-ban"></i>Bannato</span>'
-        : '<span class="admin-badge admin-badge--success"><i class="fas fa-check"></i>Attivo</span>';
+        ? '<span class="admin-badge admin-badge--danger"><i class="fa-solid fa-ban"></i>Bannato</span>'
+        : '<span class="admin-badge admin-badge--success"><i class="fa-solid fa-check"></i>Attivo</span>';
 
 
     const assetUrl = (value) => {
@@ -123,7 +123,7 @@
         return `/img/${value.replace(/^\/+/, '')}`;
     };
 
-    const thumb = (url, icon = 'fas fa-image') => {
+    const thumb = (url, icon = 'fa-solid fa-image') => {
         const src = assetUrl(url);
         return src
             ? `<span class="admin-thumb"><img src="${escapeHtml(src)}" alt="" loading="lazy" onerror="this.closest('.admin-thumb').classList.add('is-broken'); this.remove();"></span>`
@@ -235,9 +235,9 @@
         const items = [];
         const start = Math.max(1, page - 2);
         const end = Math.min(pages, page + 2);
-        items.push(`<button ${page <= 1 ? 'disabled' : ''} data-page="${page - 1}"><i class="fas fa-chevron-left"></i></button>`);
+        items.push(`<button ${page <= 1 ? 'disabled' : ''} data-page="${page - 1}"><i class="fa-solid fa-chevron-left"></i></button>`);
         for (let i = start; i <= end; i++) items.push(`<button class="${i === page ? 'is-active' : ''}" data-page="${i}">${i}</button>`);
-        items.push(`<button ${page >= pages ? 'disabled' : ''} data-page="${page + 1}"><i class="fas fa-chevron-right"></i></button>`);
+        items.push(`<button ${page >= pages ? 'disabled' : ''} data-page="${page + 1}"><i class="fa-solid fa-chevron-right"></i></button>`);
         box.innerHTML = items.join('');
         $$('button[data-page]', box).forEach((btn) => btn.addEventListener('click', () => onPage(Number(btn.dataset.page))));
     };
@@ -247,17 +247,17 @@
             const data = await api('get_stats.php');
             const stats = data.stats || {};
             $('#adminStatsGrid').innerHTML = [
-                ['fas fa-users', stats.users, 'Utenti totali'],
-                ['fas fa-ban', stats.banned, 'Bannati'],
-                ['fas fa-box-open', stats.characters, 'Personaggi'],
-                ['fas fa-trophy', stats.achievements, 'Achievement'],
-                ['fas fa-user-shield', stats.admins, 'Admin / owner'],
-                ['fas fa-layer-group', stats.inventory_rows, 'Inventario'],
-                ['fas fa-medal', stats.unlocked_achievements, 'Sblocchi'],
-                ['fas fa-image', stats.shitposts, 'Shitpost'],
-                ['fas fa-ranking-star', stats.toprimasti, 'Top Rimasti'],
-                ['fas fa-flag', stats.content_reports_open, 'Report contenuti aperti'],
-                ['fas fa-message-exclamation', stats.chat_reports_open, 'Report chat aperti'],
+                ['fa-solid fa-users', stats.users, 'Utenti totali'],
+                ['fa-solid fa-ban', stats.banned, 'Bannati'],
+                ['fa-solid fa-box-open', stats.characters, 'Personaggi'],
+                ['fa-solid fa-trophy', stats.achievements, 'Achievement'],
+                ['fa-solid fa-user-shield', stats.admins, 'Admin / owner'],
+                ['fa-solid fa-layer-group', stats.inventory_rows, 'Inventario'],
+                ['fa-solid fa-medal', stats.unlocked_achievements, 'Sblocchi'],
+                ['fa-solid fa-image', stats.shitposts, 'Shitpost'],
+                ['fa-solid fa-ranking-star', stats.toprimasti, 'Top Rimasti'],
+                ['fa-solid fa-flag', stats.content_reports_open, 'Report contenuti aperti'],
+                ['fa-solid fa-comments', stats.chat_reports_open, 'Report chat aperti'],
             ].map(([icon, value, label]) => `
                 <article class="admin-stat-card"><i class="${icon}"></i><strong>${compactNumber(value)}</strong><span>${label}</span></article>
             `).join('');
@@ -273,18 +273,18 @@
                     </div>
                     <div class="admin-row-actions">${roleBadge(user.ruolo)}${statusBadge(user.isBannato)}</div>
                 </div>
-            `).join('') : emptyState('fas fa-user', 'Nessun utente');
+            `).join('') : emptyState('fa-solid fa-user', 'Nessun utente');
 
             await loadLogs(true);
         } catch (error) {
             const grid = $('#adminStatsGrid');
             if (grid) {
-                grid.innerHTML = `<article class="admin-stat-card admin-stat-card--error"><i class="fas fa-triangle-exclamation"></i><strong>Errore</strong><span>${escapeHtml(error.message)}</span></article>`;
+                grid.innerHTML = `<article class="admin-stat-card admin-stat-card--error"><i class="fa-solid fa-triangle-exclamation"></i><strong>Errore</strong><span>${escapeHtml(error.message)}</span></article>`;
             }
             const latest = $('#latestUsersBox');
             const logs = $('#dashboardLogsBox');
-            if (latest) latest.innerHTML = emptyState('fas fa-triangle-exclamation', 'Utenti non caricati', error.message);
-            if (logs) logs.innerHTML = emptyState('fas fa-triangle-exclamation', 'Log non caricati');
+            if (latest) latest.innerHTML = emptyState('fa-solid fa-triangle-exclamation', 'Utenti non caricati', error.message);
+            if (logs) logs.innerHTML = emptyState('fa-solid fa-triangle-exclamation', 'Log non caricati');
             showToast(error.message, true);
         }
     };
@@ -305,11 +305,11 @@
             <td data-label="Stats"><span class="admin-muted">Pull</span> <b>${compactNumber(user.pull_count)}</b><br><span class="admin-muted">Badge</span> <b>${compactNumber(user.achievement_count)}</b></td>
             <td data-label="Data" class="admin-nowrap">${formatDate(user.data_creazione)}</td>
             <td data-label="Azioni"><div class="admin-row-actions">
-                <button class="admin-btn admin-btn--small" data-action="details" data-id="${Number(user.id)}"><i class="fas fa-eye"></i> Dettagli</button>
-                <button class="admin-btn admin-btn--small" data-action="edit" data-id="${Number(user.id)}"><i class="fas fa-pen"></i> Modifica</button>
+                <button class="admin-btn admin-btn--small" data-action="details" data-id="${Number(user.id)}"><i class="fa-solid fa-eye"></i> Dettagli</button>
+                <button class="admin-btn admin-btn--small" data-action="edit" data-id="${Number(user.id)}"><i class="fa-solid fa-pen"></i> Modifica</button>
                 ${user.isBannato == 1
-                    ? `<button class="admin-btn admin-btn--small" data-action="unban" data-id="${Number(user.id)}"><i class="fas fa-check"></i> Sbanna</button>`
-                    : `<button class="admin-btn admin-btn--small admin-btn--danger" data-action="ban" data-id="${Number(user.id)}"><i class="fas fa-ban"></i> Banna</button>`}
+                    ? `<button class="admin-btn admin-btn--small" data-action="unban" data-id="${Number(user.id)}"><i class="fa-solid fa-check"></i> Sbanna</button>`
+                    : `<button class="admin-btn admin-btn--small admin-btn--danger" data-action="ban" data-id="${Number(user.id)}"><i class="fa-solid fa-ban"></i> Banna</button>`}
             </div></td>
         </tr>
     `;
@@ -334,11 +334,11 @@
                     <thead><tr><th>Utente</th><th>Ruolo</th><th>Stato</th><th>Stats</th><th>Data</th><th>Azioni</th></tr></thead>
                     <tbody>${state.cache.users.map(userRow).join('')}</tbody>
                 </table>
-            ` : emptyState('fas fa-users', 'Nessun utente trovato', 'Prova a cambiare ricerca o filtri.');
+            ` : emptyState('fa-solid fa-users', 'Nessun utente trovato', 'Prova a cambiare ricerca o filtri.');
             bindUserActions(box);
             pagination('#usersPagination', data.pagination, (page) => { state.users.page = page; loadUsers(); });
         } catch (error) {
-            box.innerHTML = emptyState('fas fa-triangle-exclamation', 'Errore utenti', error.message);
+            box.innerHTML = emptyState('fa-solid fa-triangle-exclamation', 'Errore utenti', error.message);
         }
     };
 
@@ -371,10 +371,10 @@
                         ${user.motivo_ban ? `<p class="admin-muted">Motivo ban: ${escapeHtml(user.motivo_ban)}</p>` : ''}
                     </aside>
                     <div class="admin-detail-tabs">
-                        <div class="admin-toolbar"><div><strong>Inventario</strong><small>${inv.length} personaggi mostrati</small></div><button class="admin-btn admin-btn--primary" id="quickAddCharacter"><i class="fas fa-plus"></i> Personaggio</button></div>
-                        <div class="admin-mini-grid">${inv.length ? inv.map((item) => `<div class="admin-mini-card"><strong>${escapeHtml(item.nome)}</strong><span>${escapeHtml(item.rarita || '—')} · x${Number(item.quantita || 1)}</span><button class="admin-btn admin-btn--small admin-btn--danger" data-remove-character="${Number(item.id)}"><i class="fas fa-trash"></i> Rimuovi</button></div>`).join('') : emptyState('fas fa-box-open', 'Inventario vuoto')}</div>
-                        <div class="admin-toolbar"><div><strong>Achievement</strong><small>${ach.length} achievement mostrati</small></div><button class="admin-btn admin-btn--primary" id="quickAddAchievement"><i class="fas fa-plus"></i> Achievement</button></div>
-                        <div class="admin-mini-grid">${ach.length ? ach.map((item) => `<div class="admin-mini-card"><strong>${escapeHtml(item.nome)}</strong><span>${Number(item.punti || 0)} punti</span><button class="admin-btn admin-btn--small admin-btn--danger" data-remove-achievement="${Number(item.id)}"><i class="fas fa-trash"></i> Rimuovi</button></div>`).join('') : emptyState('fas fa-trophy', 'Nessun achievement')}</div>
+                        <div class="admin-toolbar"><div><strong>Inventario</strong><small>${inv.length} personaggi mostrati</small></div><button class="admin-btn admin-btn--primary" id="quickAddCharacter"><i class="fa-solid fa-plus"></i> Personaggio</button></div>
+                        <div class="admin-mini-grid">${inv.length ? inv.map((item) => `<div class="admin-mini-card"><strong>${escapeHtml(item.nome)}</strong><span>${escapeHtml(item.rarita || '—')} · x${Number(item.quantita || 1)}</span><button class="admin-btn admin-btn--small admin-btn--danger" data-remove-character="${Number(item.id)}"><i class="fa-solid fa-trash"></i> Rimuovi</button></div>`).join('') : emptyState('fa-solid fa-box-open', 'Inventario vuoto')}</div>
+                        <div class="admin-toolbar"><div><strong>Achievement</strong><small>${ach.length} achievement mostrati</small></div><button class="admin-btn admin-btn--primary" id="quickAddAchievement"><i class="fa-solid fa-plus"></i> Achievement</button></div>
+                        <div class="admin-mini-grid">${ach.length ? ach.map((item) => `<div class="admin-mini-card"><strong>${escapeHtml(item.nome)}</strong><span>${Number(item.punti || 0)} punti</span><button class="admin-btn admin-btn--small admin-btn--danger" data-remove-achievement="${Number(item.id)}"><i class="fa-solid fa-trash"></i> Rimuovi</button></div>`).join('') : emptyState('fa-solid fa-trophy', 'Nessun achievement')}</div>
                     </div>
                 </div>
             `);
@@ -448,12 +448,12 @@
             state.cache.characters = data.characters || [];
             box.innerHTML = state.cache.characters.length ? `
                 <table class="admin-table"><thead><tr><th>Nome</th><th>Rarità</th><th>Categoria</th><th>Azioni</th></tr></thead><tbody>
-                    ${state.cache.characters.map((c) => `<tr><td data-label="Nome"><div class="admin-name-cell">${thumb(c.image_url || c.img_url, 'fas fa-box-open')}<div><div class="admin-row-title">${escapeHtml(c.nome)}</div><div class="admin-row-sub">#${Number(c.id)}</div></div></div></td><td data-label="Rarità">${escapeHtml(c.rarita || '—')}</td><td data-label="Categoria">${escapeHtml(c.categoria || '—')}</td><td data-label="Azioni"><div class="admin-row-actions"><button class="admin-btn admin-btn--small" data-edit-character="${Number(c.id)}"><i class="fas fa-pen"></i> Modifica</button><button class="admin-btn admin-btn--small admin-btn--danger" data-delete-character="${Number(c.id)}"><i class="fas fa-trash"></i> Elimina</button></div></td></tr>`).join('')}
-                </tbody></table>` : emptyState('fas fa-box-open', 'Nessun personaggio');
+                    ${state.cache.characters.map((c) => `<tr><td data-label="Nome"><div class="admin-name-cell">${thumb(c.image_url || c.img_url, 'fa-solid fa-box-open')}<div><div class="admin-row-title">${escapeHtml(c.nome)}</div><div class="admin-row-sub">#${Number(c.id)}</div></div></div></td><td data-label="Rarità">${escapeHtml(c.rarita || '—')}</td><td data-label="Categoria">${escapeHtml(c.categoria || '—')}</td><td data-label="Azioni"><div class="admin-row-actions"><button class="admin-btn admin-btn--small" data-edit-character="${Number(c.id)}"><i class="fa-solid fa-pen"></i> Modifica</button><button class="admin-btn admin-btn--small admin-btn--danger" data-delete-character="${Number(c.id)}"><i class="fa-solid fa-trash"></i> Elimina</button></div></td></tr>`).join('')}
+                </tbody></table>` : emptyState('fa-solid fa-box-open', 'Nessun personaggio');
             $$('[data-edit-character]', box).forEach((b) => b.addEventListener('click', () => openCharacterForm(state.cache.characters.find((c) => Number(c.id) === Number(b.dataset.editCharacter)))));
             $$('[data-delete-character]', box).forEach((b) => b.addEventListener('click', () => deleteCharacter(Number(b.dataset.deleteCharacter))));
             pagination('#charactersPagination', data.pagination, (page) => { state.characters.page = page; loadCharacters(); });
-        } catch (error) { box.innerHTML = emptyState('fas fa-triangle-exclamation', 'Errore personaggi', error.message); }
+        } catch (error) { box.innerHTML = emptyState('fa-solid fa-triangle-exclamation', 'Errore personaggi', error.message); }
     };
 
     const characterFormHtml = (item = {}) => `
@@ -490,12 +490,12 @@
             state.cache.achievements = data.achievements || [];
             box.innerHTML = state.cache.achievements.length ? `
                 <table class="admin-table"><thead><tr><th>Nome</th><th>Descrizione</th><th>Punti</th><th>Azioni</th></tr></thead><tbody>
-                    ${state.cache.achievements.map((a) => `<tr><td data-label="Nome"><div class="admin-name-cell">${thumb(a.image_url || a.img_url, 'fas fa-trophy')}<div><div class="admin-row-title">${escapeHtml(a.nome)}</div><div class="admin-row-sub">#${Number(a.id)}</div></div></div></td><td data-label="Descrizione">${escapeHtml(a.descrizione || '—')}</td><td data-label="Punti">${Number(a.punti || 0)}</td><td data-label="Azioni"><div class="admin-row-actions"><button class="admin-btn admin-btn--small" data-edit-achievement="${Number(a.id)}"><i class="fas fa-pen"></i> Modifica</button><button class="admin-btn admin-btn--small admin-btn--danger" data-delete-achievement="${Number(a.id)}"><i class="fas fa-trash"></i> Elimina</button></div></td></tr>`).join('')}
-                </tbody></table>` : emptyState('fas fa-trophy', 'Nessun achievement');
+                    ${state.cache.achievements.map((a) => `<tr><td data-label="Nome"><div class="admin-name-cell">${thumb(a.image_url || a.img_url, 'fa-solid fa-trophy')}<div><div class="admin-row-title">${escapeHtml(a.nome)}</div><div class="admin-row-sub">#${Number(a.id)}</div></div></div></td><td data-label="Descrizione">${escapeHtml(a.descrizione || '—')}</td><td data-label="Punti">${Number(a.punti || 0)}</td><td data-label="Azioni"><div class="admin-row-actions"><button class="admin-btn admin-btn--small" data-edit-achievement="${Number(a.id)}"><i class="fa-solid fa-pen"></i> Modifica</button><button class="admin-btn admin-btn--small admin-btn--danger" data-delete-achievement="${Number(a.id)}"><i class="fa-solid fa-trash"></i> Elimina</button></div></td></tr>`).join('')}
+                </tbody></table>` : emptyState('fa-solid fa-trophy', 'Nessun achievement');
             $$('[data-edit-achievement]', box).forEach((b) => b.addEventListener('click', () => openAchievementForm(state.cache.achievements.find((a) => Number(a.id) === Number(b.dataset.editAchievement)))));
             $$('[data-delete-achievement]', box).forEach((b) => b.addEventListener('click', () => deleteAchievement(Number(b.dataset.deleteAchievement))));
             pagination('#achievementsPagination', data.pagination, (page) => { state.achievements.page = page; loadAchievements(); });
-        } catch (error) { box.innerHTML = emptyState('fas fa-triangle-exclamation', 'Errore achievement', error.message); }
+        } catch (error) { box.innerHTML = emptyState('fa-solid fa-triangle-exclamation', 'Errore achievement', error.message); }
     };
 
     const achievementFormHtml = (item = {}) => `
@@ -566,16 +566,16 @@
 
 
     const approvalBadge = (approved) => Number(approved) === 1
-        ? '<span class="admin-badge admin-badge--success"><i class="fas fa-check"></i>Approvato</span>'
-        : '<span class="admin-badge admin-badge--warning"><i class="fas fa-clock"></i>In attesa</span>';
+        ? '<span class="admin-badge admin-badge--success"><i class="fa-solid fa-check"></i>Approvato</span>'
+        : '<span class="admin-badge admin-badge--warning"><i class="fa-solid fa-clock"></i>In attesa</span>';
 
     const reportStatusBadge = (status) => {
-        if (status === 'reviewed') return '<span class="admin-badge admin-badge--info"><i class="fas fa-check-double"></i>Revisionata</span>';
-        if (status === 'dismissed') return '<span class="admin-badge"><i class="fas fa-eye-slash"></i>Ignorata</span>';
-        return '<span class="admin-badge admin-badge--danger"><i class="fas fa-flag"></i>Aperta</span>';
+        if (status === 'reviewed') return '<span class="admin-badge admin-badge--info"><i class="fa-solid fa-check-double"></i>Revisionata</span>';
+        if (status === 'dismissed') return '<span class="admin-badge"><i class="fa-solid fa-eye-slash"></i>Ignorata</span>';
+        return '<span class="admin-badge admin-badge--danger"><i class="fa-solid fa-flag"></i>Aperta</span>';
     };
 
-    const postMedia = (url, fallbackIcon = 'fas fa-image') => url
+    const postMedia = (url, fallbackIcon = 'fa-solid fa-image') => url
         ? `<img class="admin-content-thumb" src="${escapeHtml(url)}" alt="" loading="lazy">`
         : `<span class="admin-content-thumb admin-content-thumb--empty"><i class="${fallbackIcon}"></i></span>`;
 
@@ -584,11 +584,11 @@
         const score = mode === 'toprimasti' ? (post.votes_count || post.reazioni || 0) : (post.likes_count || 0);
         return `
             <div class="admin-metric-line">
-                <span><i class="fas fa-fire"></i>${scoreLabel}: <b>${compactNumber(score)}</b></span>
-                <span><i class="fas fa-comment"></i>Commenti: <b>${compactNumber(post.comments_count || 0)}</b></span>
-                <span><i class="fas fa-eye"></i>Visite: <b>${compactNumber(post.views || 0)}</b></span>
-                <span><i class="fas fa-bookmark"></i>Salvati: <b>${compactNumber(post.saves_count || 0)}</b></span>
-                <span class="${Number(post.reports_count || 0) > 0 ? 'admin-danger-text' : ''}"><i class="fas fa-flag"></i>Report: <b>${compactNumber(post.reports_count || 0)}</b></span>
+                <span><i class="fa-solid fa-fire"></i>${scoreLabel}: <b>${compactNumber(score)}</b></span>
+                <span><i class="fa-solid fa-comment"></i>Commenti: <b>${compactNumber(post.comments_count || 0)}</b></span>
+                <span><i class="fa-solid fa-eye"></i>Visite: <b>${compactNumber(post.views || 0)}</b></span>
+                <span><i class="fa-solid fa-bookmark"></i>Salvati: <b>${compactNumber(post.saves_count || 0)}</b></span>
+                <span class="${Number(post.reports_count || 0) > 0 ? 'admin-danger-text' : ''}"><i class="fa-solid fa-flag"></i>Report: <b>${compactNumber(post.reports_count || 0)}</b></span>
             </div>
         `;
     };
@@ -625,13 +625,13 @@
                         <td data-label="Stato">${approvalBadge(post.approvato)}</td>
                         <td data-label="Dati"><b>${compactNumber(post.likes_count || 0)}</b> like<br><span class="admin-muted">${compactNumber(post.views || 0)} visite</span></td>
                         <td data-label="Azioni"><div class="admin-row-actions">
-                            <button class="admin-btn admin-btn--small" data-edit-shitpost="${Number(post.id)}"><i class="fas fa-pen"></i> Modifica</button>
-                            <button class="admin-btn admin-btn--small" data-toggle-shitpost="${Number(post.id)}" data-approved="${Number(post.approvato) === 1 ? 0 : 1}"><i class="fas ${Number(post.approvato) === 1 ? 'fa-xmark' : 'fa-check'}"></i> ${Number(post.approvato) === 1 ? 'Nascondi' : 'Approva'}</button>
-                            <button class="admin-btn admin-btn--small" data-comments-shitpost="${Number(post.id)}"><i class="fas fa-comments"></i> Commenti</button>
-                            <button class="admin-btn admin-btn--small admin-btn--danger" data-delete-shitpost="${Number(post.id)}"><i class="fas fa-trash"></i> Elimina</button>
+                            <button class="admin-btn admin-btn--small" data-edit-shitpost="${Number(post.id)}"><i class="fa-solid fa-pen"></i> Modifica</button>
+                            <button class="admin-btn admin-btn--small" data-toggle-shitpost="${Number(post.id)}" data-approved="${Number(post.approvato) === 1 ? 0 : 1}"><i class="fa-solid ${Number(post.approvato) === 1 ? 'fa-xmark' : 'fa-check'}"></i> ${Number(post.approvato) === 1 ? 'Nascondi' : 'Approva'}</button>
+                            <button class="admin-btn admin-btn--small" data-comments-shitpost="${Number(post.id)}"><i class="fa-solid fa-comments"></i> Commenti</button>
+                            <button class="admin-btn admin-btn--small admin-btn--danger" data-delete-shitpost="${Number(post.id)}"><i class="fa-solid fa-trash"></i> Elimina</button>
                         </div></td>
                     </tr>`).join('')}
-                </tbody></table>` : emptyState('fas fa-image', 'Nessuno shitpost');
+                </tbody></table>` : emptyState('fa-solid fa-image', 'Nessuno shitpost');
 
             $$('[data-edit-shitpost]', box).forEach((b) => b.addEventListener('click', () => openShitpostForm(state.cache.shitposts.find((p) => Number(p.id) === Number(b.dataset.editShitpost)))));
             $$('[data-toggle-shitpost]', box).forEach((b) => b.addEventListener('click', () => toggleShitpost(Number(b.dataset.toggleShitpost), Number(b.dataset.approved))));
@@ -640,7 +640,7 @@
 
             pagination('#shitpostsPagination', data.pagination, (page) => { state.shitposts.page = page; loadShitposts(); });
         } catch (error) {
-            box.innerHTML = emptyState('fas fa-triangle-exclamation', 'Errore shitpost', error.message);
+            box.innerHTML = emptyState('fa-solid fa-triangle-exclamation', 'Errore shitpost', error.message);
         }
     };
 
@@ -698,10 +698,10 @@
                                 </div>
                             </div>
                             <div class="admin-row-actions">
-                                <button class="admin-btn admin-btn--small admin-btn--danger" data-delete-comment="${Number(comment.id)}"><i class="fas fa-trash"></i> Elimina</button>
+                                <button class="admin-btn admin-btn--small admin-btn--danger" data-delete-comment="${Number(comment.id)}"><i class="fa-solid fa-trash"></i> Elimina</button>
                             </div>
                         </div>
-                    `).join('') : emptyState('fas fa-comments', 'Nessun commento')}
+                    `).join('') : emptyState('fa-solid fa-comments', 'Nessun commento')}
                 </div>
             `, `<button class="admin-btn" data-admin-close="1">Chiudi</button>`);
             $$('[data-delete-comment]', $('#adminModalBody')).forEach((b) => b.addEventListener('click', async () => {
@@ -731,13 +731,13 @@
                         <td data-label="Stato">${approvalBadge(post.approvato)}</td>
                         <td data-label="Dati"><b>${compactNumber(post.votes_count || post.reazioni || 0)}</b> voti<br><span class="admin-muted">${compactNumber(post.views || 0)} visite</span></td>
                         <td data-label="Azioni"><div class="admin-row-actions">
-                            <button class="admin-btn admin-btn--small" data-edit-toprimasti="${Number(post.id)}"><i class="fas fa-pen"></i> Modifica</button>
-                            <button class="admin-btn admin-btn--small" data-toggle-toprimasti="${Number(post.id)}" data-approved="${Number(post.approvato) === 1 ? 0 : 1}"><i class="fas ${Number(post.approvato) === 1 ? 'fa-xmark' : 'fa-check'}"></i> ${Number(post.approvato) === 1 ? 'Nascondi' : 'Approva'}</button>
-                            <button class="admin-btn admin-btn--small" data-reset-votes="${Number(post.id)}"><i class="fas fa-rotate-left"></i> Reset voti</button>
-                            <button class="admin-btn admin-btn--small admin-btn--danger" data-delete-toprimasti="${Number(post.id)}"><i class="fas fa-trash"></i> Elimina</button>
+                            <button class="admin-btn admin-btn--small" data-edit-toprimasti="${Number(post.id)}"><i class="fa-solid fa-pen"></i> Modifica</button>
+                            <button class="admin-btn admin-btn--small" data-toggle-toprimasti="${Number(post.id)}" data-approved="${Number(post.approvato) === 1 ? 0 : 1}"><i class="fa-solid ${Number(post.approvato) === 1 ? 'fa-xmark' : 'fa-check'}"></i> ${Number(post.approvato) === 1 ? 'Nascondi' : 'Approva'}</button>
+                            <button class="admin-btn admin-btn--small" data-reset-votes="${Number(post.id)}"><i class="fa-solid fa-rotate-left"></i> Reset voti</button>
+                            <button class="admin-btn admin-btn--small admin-btn--danger" data-delete-toprimasti="${Number(post.id)}"><i class="fa-solid fa-trash"></i> Elimina</button>
                         </div></td>
                     </tr>`).join('')}
-                </tbody></table>` : emptyState('fas fa-ranking-star', 'Nessun post');
+                </tbody></table>` : emptyState('fa-solid fa-ranking-star', 'Nessun post');
 
             $$('[data-edit-toprimasti]', box).forEach((b) => b.addEventListener('click', () => openToprimastiForm(state.cache.toprimasti.find((p) => Number(p.id) === Number(b.dataset.editToprimasti)))));
             $$('[data-toggle-toprimasti]', box).forEach((b) => b.addEventListener('click', () => toggleToprimasti(Number(b.dataset.toggleToprimasti), Number(b.dataset.approved))));
@@ -746,7 +746,7 @@
 
             pagination('#toprimastiPagination', data.pagination, (page) => { state.toprimasti.page = page; loadToprimasti(); });
         } catch (error) {
-            box.innerHTML = emptyState('fas fa-triangle-exclamation', 'Errore Top Rimasti', error.message);
+            box.innerHTML = emptyState('fa-solid fa-triangle-exclamation', 'Errore Top Rimasti', error.message);
         }
     };
 
@@ -824,17 +824,17 @@
                         </td>
                         <td data-label="Stato">${reportStatusBadge(report.status)}</td>
                         <td data-label="Azioni"><div class="admin-row-actions">
-                            <button class="admin-btn admin-btn--small" data-report-status="${Number(report.id)}" data-source="${escapeHtml(report.report_source)}" data-status="reviewed"><i class="fas fa-check-double"></i> Revisionata</button>
-                            <button class="admin-btn admin-btn--small" data-report-status="${Number(report.id)}" data-source="${escapeHtml(report.report_source)}" data-status="dismissed"><i class="fas fa-eye-slash"></i> Ignora</button>
-                            <button class="admin-btn admin-btn--small" data-report-status="${Number(report.id)}" data-source="${escapeHtml(report.report_source)}" data-status="open"><i class="fas fa-flag"></i> Riapri</button>
+                            <button class="admin-btn admin-btn--small" data-report-status="${Number(report.id)}" data-source="${escapeHtml(report.report_source)}" data-status="reviewed"><i class="fa-solid fa-check-double"></i> Revisionata</button>
+                            <button class="admin-btn admin-btn--small" data-report-status="${Number(report.id)}" data-source="${escapeHtml(report.report_source)}" data-status="dismissed"><i class="fa-solid fa-eye-slash"></i> Ignora</button>
+                            <button class="admin-btn admin-btn--small" data-report-status="${Number(report.id)}" data-source="${escapeHtml(report.report_source)}" data-status="open"><i class="fa-solid fa-flag"></i> Riapri</button>
                         </div></td>
                     </tr>`).join('')}
-                </tbody></table>` : emptyState('fas fa-flag', 'Nessuna segnalazione');
+                </tbody></table>` : emptyState('fa-solid fa-flag', 'Nessuna segnalazione');
 
             $$('[data-report-status]', box).forEach((btn) => btn.addEventListener('click', () => updateReportStatus(Number(btn.dataset.reportStatus), btn.dataset.source, btn.dataset.status)));
             pagination('#reportsPagination', data.pagination, (page) => { state.reports.page = page; loadReports(); });
         } catch (error) {
-            box.innerHTML = emptyState('fas fa-triangle-exclamation', 'Errore segnalazioni', error.message);
+            box.innerHTML = emptyState('fa-solid fa-triangle-exclamation', 'Errore segnalazioni', error.message);
         }
     };
 
@@ -855,17 +855,17 @@
             const logs = data.logs || [];
             const small = logs.slice(0, 8).map((log) => `
                 <div class="admin-row-card">
-                    <div class="admin-row-main"><span class="admin-brand-mark" style="width:2.2rem;height:2.2rem"><i class="fas fa-bolt"></i></span><div><div class="admin-row-title">${escapeHtml(log.action)}</div><div class="admin-row-sub">${escapeHtml(log.admin_username || 'Admin')} · ${formatDateTime(log.created_at)}</div></div></div>
-                </div>`).join('') || emptyState('fas fa-clock', 'Nessun log');
+                    <div class="admin-row-main"><span class="admin-brand-mark" style="width:2.2rem;height:2.2rem"><i class="fa-solid fa-bolt"></i></span><div><div class="admin-row-title">${escapeHtml(log.action)}</div><div class="admin-row-sub">${escapeHtml(log.admin_username || 'Admin')} · ${formatDateTime(log.created_at)}</div></div></div>
+                </div>`).join('') || emptyState('fa-solid fa-clock', 'Nessun log');
             $('#dashboardLogsBox').innerHTML = small;
             if (!dashboardOnly) {
                 $('#logsTable').innerHTML = logs.length ? `
                     <table class="admin-table"><thead><tr><th>Azione</th><th>Admin</th><th>Target</th><th>Data</th><th>IP</th></tr></thead><tbody>
                     ${logs.map((log) => `<tr><td data-label="Azione"><b>${escapeHtml(log.action)}</b><div class="admin-row-sub">${escapeHtml(log.details || '')}</div></td><td data-label="Admin">${escapeHtml(log.admin_username || log.admin_id)}</td><td data-label="Target">${escapeHtml(log.target_username || log.target_user_id || '—')}</td><td data-label="Data">${formatDateTime(log.created_at)}</td><td data-label="IP">${escapeHtml(log.ip_address || '—')}</td></tr>`).join('')}
-                    </tbody></table>` : emptyState('fas fa-clock-rotate-left', 'Nessun log');
+                    </tbody></table>` : emptyState('fa-solid fa-clock-rotate-left', 'Nessun log');
             }
         } catch (error) {
-            if (!dashboardOnly) $('#logsTable').innerHTML = emptyState('fas fa-triangle-exclamation', 'Errore log', error.message);
+            if (!dashboardOnly) $('#logsTable').innerHTML = emptyState('fa-solid fa-triangle-exclamation', 'Errore log', error.message);
         }
     };
 
@@ -930,7 +930,7 @@
             console.error('Admin init error:', error);
             const grid = $('#adminStatsGrid');
             if (grid) {
-                grid.innerHTML = `<article class="admin-stat-card admin-stat-card--error"><i class="fas fa-triangle-exclamation"></i><strong>Errore JS</strong><span>${escapeHtml(error.message)}</span></article>`;
+                grid.innerHTML = `<article class="admin-stat-card admin-stat-card--error"><i class="fa-solid fa-triangle-exclamation"></i><strong>Errore JS</strong><span>${escapeHtml(error.message)}</span></article>`;
             }
             showToast('Errore inizializzazione admin: ' + error.message, true);
         }

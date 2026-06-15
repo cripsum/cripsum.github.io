@@ -36,8 +36,8 @@ $lastUpdated = 'Aprile 2026';
             <h1>Informativa sulla Privacy</h1>
             <p>Qui trovi come vengono gestite le informazioni personali su Cripsum™.</p>
             <div class="static-meta">
-                <span class="static-chip"><i class="fas fa-calendar"></i> Aggiornata: <?php echo htmlspecialchars($lastUpdated, ENT_QUOTES, 'UTF-8'); ?></span>
-                <span class="static-chip"><i class="fas fa-shield-halved"></i> Dati e sicurezza</span>
+                <span class="static-chip"><i class="fa-solid fa-calendar"></i> Aggiornata: <?php echo htmlspecialchars($lastUpdated, ENT_QUOTES, 'UTF-8'); ?></span>
+                <span class="static-chip"><i class="fa-solid fa-shield-halved"></i> Dati e sicurezza</span>
             </div>
         </section>
 
@@ -55,7 +55,7 @@ $lastUpdated = 'Aprile 2026';
             <div class="static-content">
                 <section class="static-legal-section static-reveal" id="raccolta">
                     <h2>Informazioni raccolte</h2>
-                    <p>Raccogliamo solo le informazioni necessarie per far funzionare il sito e il tuo account.</p>
+                    <p>Raccogliamo solo le informazioni necessarie per fa-regular funzionare il sito e il tuo account.</p>
                     <ul>
                         <li>Informazioni fornite dall’utente, come nome utente ed email.</li>
                         <li>Informazioni tecniche raccolte automaticamente, come indirizzo IP, browser e dati di sessione.</li>
@@ -96,7 +96,7 @@ $lastUpdated = 'Aprile 2026';
     </main>
 
     <button class="static-top-btn" id="staticBackTop" type="button" aria-label="Torna su">
-        <i class="fas fa-arrow-up"></i>
+        <i class="fa-solid fa-arrow-up"></i>
     </button>
 
     <?php include '../includes/footer.php'; ?>

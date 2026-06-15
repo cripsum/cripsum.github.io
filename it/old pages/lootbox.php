@@ -165,14 +165,14 @@ require_once '../api/api_personaggi.php';
                             </div>
 
                             <button type="button" class="lootbox-modal-close" data-bs-dismiss="modal" aria-label="Chiudi">
-                                <i class="fas fa-xmark"></i>
+                                <i class="fa-solid fa-xmark"></i>
                             </button>
                         </div>
 
                         <div class="modal-body lootbox-settings-body">
                             <section class="lootbox-settings-section">
                                 <div class="lootbox-section-head">
-                                    <i class="fas fa-keyboard"></i>
+                                    <i class="fa-solid fa-keyboard"></i>
                                     <div>
                                         <h6>Comandi</h6>
                                         <p>Scorciatoie rapide durante la pull.</p>
@@ -201,7 +201,7 @@ require_once '../api/api_personaggi.php';
 
                             <section class="lootbox-settings-section">
                                 <div class="lootbox-section-head">
-                                    <i class="fas fa-dice"></i>
+                                    <i class="fa-solid fa-dice"></i>
                                     <div>
                                         <h6>Probabilità</h6>
                                         <p>Le percentuali restano quelle originali.</p>
@@ -239,7 +239,7 @@ require_once '../api/api_personaggi.php';
                             <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
                                 <section id="admin-cheats" class="lootbox-settings-section lootbox-admin-section">
                                     <div class="lootbox-section-head">
-                                        <i class="fas fa-wand-magic-sparkles"></i>
+                                        <i class="fa-solid fa-wand-magic-sparkles"></i>
                                         <div>
                                             <h6>Admin cheats</h6>
                                             <p>sucate.</p>
@@ -293,7 +293,7 @@ require_once '../api/api_personaggi.php';
 
                             <section class="lootbox-settings-section lootbox-code-section">
                                 <div class="lootbox-section-head">
-                                    <i class="fas fa-lock"></i>
+                                    <i class="fa-solid fa-lock"></i>
                                     <div>
                                         <h6>Codice segreto</h6>
                                         <p>Inserisci un codice valido, se ne hai uno.</p>
@@ -336,17 +336,17 @@ require_once '../api/api_personaggi.php';
                     </div>
 
                     <button class="leaderboard-close" type="button" onclick="toggleLeaderboard()" aria-label="Chiudi classifica">
-                        <i class="fas fa-xmark"></i>
+                        <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
 
                 <div class="leaderboard-buttons" role="group" aria-label="Filtro classifica">
                     <button class="btn btn-secondary bottone leaderboard-btn active" onclick="switchLeaderboard('casse_aperte')" id="btn-casse">
-                        <i class="fas fa-box-open"></i>
+                        <i class="fa-solid fa-box-open"></i>
                         <span>Casse aperte</span>
                     </button>
                     <button class="btn btn-secondary bottone leaderboard-btn" onclick="switchLeaderboard('personaggi_sbloccati')" id="btn-personaggi">
-                        <i class="fas fa-layer-group"></i>
+                        <i class="fa-solid fa-layer-group"></i>
                         <span>Personaggi</span>
                     </button>
                 </div>
@@ -1894,7 +1894,7 @@ require_once '../api/api_personaggi.php';
             async function loadLeaderboard(type) {
                 const dataDiv = document.getElementById('leaderboard-data');
 
-                dataDiv.innerHTML = '<div class="loading-text testobianco"><i class="fas fa-circle-notch fa-spin"></i><span>Caricamento...</span></div>';
+                dataDiv.innerHTML = '<div class="loading-text testobianco"><i class="fa-solid fa-circle-notch fa-spin"></i><span>Caricamento...</span></div>';
 
                 try {
                     const response = await fetch(`https://cripsum.com/api/get_leaderboard?type=${type}`);
@@ -1903,11 +1903,11 @@ require_once '../api/api_personaggi.php';
                     if (data.status === 'success' && data.data.length > 0) {
                         displayLeaderboard(data.data, type);
                     } else {
-                        dataDiv.innerHTML = '<div class="loading-text testobianco"><i class="fas fa-ranking-star"></i><span>Nessun dato disponibile</span></div>';
+                        dataDiv.innerHTML = '<div class="loading-text testobianco"><i class="fa-solid fa-ranking-star"></i><span>Nessun dato disponibile</span></div>';
                     }
                 } catch (error) {
                     console.error('Errore leaderboard:', error);
-                    dataDiv.innerHTML = '<div class="loading-text testobianco is-error"><i class="fas fa-triangle-exclamation"></i><span>Errore di connessione</span></div>';
+                    dataDiv.innerHTML = '<div class="loading-text testobianco is-error"><i class="fa-solid fa-triangle-exclamation"></i><span>Errore di connessione</span></div>';
                 }
             }
 

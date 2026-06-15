@@ -38,8 +38,8 @@ $lastUpdated = 'Aprile 2026';
                 <h1>Termini e Condizioni</h1>
                 <p>Usando Cripsum™ accetti queste regole.</p>
                 <div class="static-meta">
-                    <span class="static-chip"><i class="fas fa-calendar"></i> Aggiornati: <?php echo htmlspecialchars($lastUpdated, ENT_QUOTES, 'UTF-8'); ?></span>
-                    <span class="static-chip"><i class="fas fa-scale-balanced"></i> Regole del sito</span>
+                    <span class="static-chip"><i class="fa-solid fa-calendar"></i> Aggiornati: <?php echo htmlspecialchars($lastUpdated, ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="static-chip"><i class="fa-solid fa-scale-balanced"></i> Regole del sito</span>
                 </div>
             </div>
             <div class="static-hero__logo-container">
@@ -105,7 +105,7 @@ $lastUpdated = 'Aprile 2026';
     </main>
 
     <button class="static-top-btn" id="staticBackTop" type="button" aria-label="Torna su">
-        <i class="fas fa-arrow-up"></i>
+        <i class="fa-solid fa-arrow-up"></i>
     </button>
 
     <?php include '../includes/footer.php'; ?>

@@ -40,24 +40,24 @@ $username = $_SESSION['username'] ?? '';
 
                 <?php if ($isLogged): ?>
                     <div class="static-meta">
-                        <span class="static-chip"><i class="fas fa-user"></i> Grazie, <?php echo htmlspecialchars($username, ENT_QUOTES, 'UTF-8'); ?></span>
+                        <span class="static-chip"><i class="fa-solid fa-user"></i> Grazie, <?php echo htmlspecialchars($username, ENT_QUOTES, 'UTF-8'); ?></span>
                     </div>
                 <?php endif; ?>
 
                 <div class="static-actions">
                     <a href="https://www.buymeacoffee.com/cripsum" target="_blank" rel="noopener" class="static-btn static-btn--primary" onclick="unlockAchievement(4)">
-                        <i class="fas fa-heart"></i>
+                        <i class="fa-solid fa-heart"></i>
                         <span>Dona su BuyMeACoffee</span>
                     </a>
                     <a href="supporto" class="static-btn">
-                        <i class="fas fa-circle-question"></i>
+                        <i class="fa-solid fa-circle-question"></i>
                         <span>Domande?</span>
                     </a>
                 </div>
             </div>
 
             <aside class="static-hero__side">
-                <span class="static-chip"><i class="fas fa-mug-hot"></i> Opzionale</span>
+                <span class="static-chip"><i class="fa-solid fa-mug-hot"></i> Opzionale</span>
                 <p>Il sito resta utilizzabile anche senza donare.</p>
 
                 <div class="static-donation-button">

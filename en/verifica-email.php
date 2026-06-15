@@ -72,7 +72,7 @@ if ($_POST && isset($_POST['resend_email'])) {
     <main class="form-shell form-shell--narrow">
         <section class="form-card form-reveal">
             <div class="confirm-icon">
-                <i class="fas <?php echo $messageType === 'success' ? 'fa-check' : 'fa-triangle-exclamation'; ?>"></i>
+                <i class="fa-solid <?php echo $messageType === 'success' ? 'fa-check' : 'fa-triangle-exclamation'; ?>"></i>
             </div>
 
             <div class="form-card__header" style="text-align:center;">
@@ -82,14 +82,14 @@ if ($_POST && isset($_POST['resend_email'])) {
             </div>
 
             <div class="form-alert <?php echo $messageType === 'success' ? 'form-alert--success' : 'form-alert--error'; ?>">
-                <i class="fas <?php echo $messageType === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'; ?>"></i>
+                <i class="fa-solid <?php echo $messageType === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'; ?>"></i>
                 <span><?php echo htmlspecialchars($message, ENT_QUOTES, 'UTF-8'); ?></span>
             </div>
 
             <?php if ($messageType === 'success'): ?>
                 <div class="form-actions form-actions--center">
                     <a href="accedi" class="form-btn form-btn--primary">
-                        <i class="fas fa-right-to-bracket"></i>
+                        <i class="fa-solid fa-right-to-bracket"></i>
                         <span>Log in now</span>
                     </a>
                 </div>
@@ -103,7 +103,7 @@ if ($_POST && isset($_POST['resend_email'])) {
 
                     <div class="form-actions">
                         <button type="submit" name="resend_email" class="form-btn form-btn--primary form-btn--wide" data-loading-text="Sending...">
-                            <i class="fas fa-paper-plane"></i>
+                            <i class="fa-solid fa-paper-plane"></i>
                             <span>Resend Email</span>
                         </button>
                     </div>

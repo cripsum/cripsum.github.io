@@ -10,7 +10,7 @@ checkBan($mysqli);
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - About us</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css">
     <link rel="stylesheet" href="/assets/chisiamo/chisiamo-colors.css?v=2.2-original-cards-colors">
     <style>
         @font-face {
@@ -326,7 +326,7 @@ checkBan($mysqli);
                 Send us your application and become part of the coolest squad of the century!
             </p>
             <a href="candidatura-chisiamo" class="join-email">
-                <i class="fas fa-envelope me-2"></i>
+                <i class="fa-solid fa-envelope me-2"></i>
                 click here to send your application
             </a>
         </section>

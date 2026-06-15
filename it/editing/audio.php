@@ -39,17 +39,17 @@ if (!isOwner()) {
                 <div class="col-lg-11">
                     <div class="page-header">
                         <div class="page-icon-wrapper">
-                            <i class="fas fa-music page-icon"></i>
+                            <i class="fa-solid fa-music page-icon"></i>
                         </div>
                         <h1 class="page-title">Audio</h1>
                         <p class="page-description">Libreria completa di effetti sonori e tracce musicali per i tuoi progetti</p>
                         <!-- <div class="software-badge">
-                            <i class="fas fa-headphones"></i> Sound Library
+                            <i class="fa-solid fa-headphones"></i> Sound Library
                         </div> -->
 
                         <div class="filter-bar">
                             <div class="search-box">
-                                <i class="fas fa-search"></i>
+                                <i class="fa-solid fa-search"></i>
                                 <input type="text" placeholder="Cerca audio o effetti...">
                             </div>
                             <div class="filter-buttons">
@@ -72,9 +72,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">Trap Beats Collection</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-music"></i> 15 Tracce
+                                    <i class="fa-solid fa-music"></i> 15 Tracce
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 892
+                                    <i class="fa-solid fa-download"></i> 892
                                 </p>
                                 <p class="card-description">Beat trap moderni e aggressivi, perfetti per edit urban e street. Royalty-free.</p>
                                 <div class="card-tags">
@@ -84,10 +84,10 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-secondary">
-                                        <i class="fas fa-play"></i> Anteprima
+                                        <i class="fa-solid fa-play"></i> Anteprima
                                     </a>
                                     <a href="#" class="btn-primary">
-                                        <i class="fas fa-download"></i> Scarica
+                                        <i class="fa-solid fa-download"></i> Scarica
                                     </a>
                                 </div>
                             </div>
@@ -103,9 +103,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">Cinematic SFX Pack</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-volume-up"></i> 150 Effetti
+                                    <i class="fa-solid fa-volume-high"></i> 150 Effetti
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 1.2k
+                                    <i class="fa-solid fa-download"></i> 1.2k
                                 </p>
                                 <p class="card-description">Effetti sonori cinematografici: whoosh, impacts, risers e transitions di qualità professionale.</p>
                                 <div class="card-tags">
@@ -115,10 +115,10 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-secondary">
-                                        <i class="fas fa-play"></i> Anteprima
+                                        <i class="fa-solid fa-play"></i> Anteprima
                                     </a>
                                     <a href="#" class="btn-primary">
-                                        <i class="fas fa-download"></i> Scarica
+                                        <i class="fa-solid fa-download"></i> Scarica
                                     </a>
                                 </div>
                             </div>
@@ -134,9 +134,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">Lo-Fi Chill Beats</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-music"></i> 20 Tracce
+                                    <i class="fa-solid fa-music"></i> 20 Tracce
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 645
+                                    <i class="fa-solid fa-download"></i> 645
                                 </p>
                                 <p class="card-description">Beat lo-fi rilassanti e atmosferici, ideali per vlog, tutorial e contenuti chill.</p>
                                 <div class="card-tags">
@@ -146,10 +146,10 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-secondary">
-                                        <i class="fas fa-play"></i> Anteprima
+                                        <i class="fa-solid fa-play"></i> Anteprima
                                     </a>
                                     <a href="#" class="btn-primary">
-                                        <i class="fas fa-download"></i> Scarica
+                                        <i class="fa-solid fa-download"></i> Scarica
                                     </a>
                                 </div>
                             </div>
@@ -165,9 +165,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">Glitch & Digital SFX</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-volume-up"></i> 80 Effetti
+                                    <i class="fa-solid fa-volume-high"></i> 80 Effetti
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 534
+                                    <i class="fa-solid fa-download"></i> 534
                                 </p>
                                 <p class="card-description">Effetti sonori glitch, distorsioni digitali e suoni futuristici per edit moderni.</p>
                                 <div class="card-tags">
@@ -177,10 +177,10 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-secondary">
-                                        <i class="fas fa-play"></i> Anteprima
+                                        <i class="fa-solid fa-play"></i> Anteprima
                                     </a>
                                     <a href="#" class="btn-primary">
-                                        <i class="fas fa-download"></i> Scarica
+                                        <i class="fa-solid fa-download"></i> Scarica
                                     </a>
                                 </div>
                             </div>
@@ -196,9 +196,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">Epic Orchestral Music</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-music"></i> 12 Tracce
+                                    <i class="fa-solid fa-music"></i> 12 Tracce
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 723
+                                    <i class="fa-solid fa-download"></i> 723
                                 </p>
                                 <p class="card-description">Musica orchestrale epica e cinematografica per trailer, intro e momenti drammatici.</p>
                                 <div class="card-tags">
@@ -208,10 +208,10 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-secondary">
-                                        <i class="fas fa-play"></i> Anteprima
+                                        <i class="fa-solid fa-play"></i> Anteprima
                                     </a>
                                     <a href="#" class="btn-primary">
-                                        <i class="fas fa-download"></i> Scarica
+                                        <i class="fa-solid fa-download"></i> Scarica
                                     </a>
                                 </div>
                             </div>
@@ -227,9 +227,9 @@ if (!isOwner()) {
                             <div class="card-content">
                                 <h3 class="card-title">Ambient Atmospheres</h3>
                                 <p class="card-meta">
-                                    <i class="fas fa-wind"></i> 45 Tracce
+                                    <i class="fa-solid fa-wind"></i> 45 Tracce
                                     <span class="divider">•</span>
-                                    <i class="fas fa-download"></i> 412
+                                    <i class="fa-solid fa-download"></i> 412
                                 </p>
                                 <p class="card-description">Atmosfere ambient e texture sonore per creare profondità e mood nei tuoi video.</p>
                                 <div class="card-tags">
@@ -239,10 +239,10 @@ if (!isOwner()) {
                                 </div>
                                 <div class="card-actions">
                                     <a href="#" class="btn-secondary">
-                                        <i class="fas fa-play"></i> Anteprima
+                                        <i class="fa-solid fa-play"></i> Anteprima
                                     </a>
                                     <a href="#" class="btn-primary">
-                                        <i class="fas fa-download"></i> Scarica
+                                        <i class="fa-solid fa-download"></i> Scarica
                                     </a>
                                 </div>
                             </div>
@@ -251,7 +251,7 @@ if (!isOwner()) {
 
                     <div class="load-more-section">
                         <button class="load-more-btn">
-                            <i class="fas fa-plus"></i> Carica altri
+                            <i class="fa-solid fa-plus"></i> Carica altri
                         </button>
                     </div>
                 </div>

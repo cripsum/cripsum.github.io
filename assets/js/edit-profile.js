@@ -43,7 +43,7 @@
     };
 
     const platformOptions = ['tiktok', 'instagram', 'youtube', 'twitch', 'github', 'discord', 'telegram', 'x', 'spotify', 'soundcloud', 'steam', 'reddit', 'pinterest', 'snapchat', 'facebook', 'linkedin', 'paypal', 'patreon', 'kick', 'bluesky', 'threads', 'behance', 'dribbble', 'website', 'email', 'other'];
-    const projectStatuses = isEnglish 
+    const projectStatuses = isEnglish
         ? [['active', 'Active'], ['paused', 'On Hold'], ['finished', 'Finished'], ['idea', 'Idea']]
         : [['active', 'Attivo'], ['paused', 'In pausa'], ['finished', 'Finito'], ['idea', 'Idea']];
     const contentTypes = isEnglish
@@ -88,7 +88,7 @@
             body = `
                 <div class="profile-row-grid">
                     <label>${isEnglish ? 'Title' : 'Titolo'}<input data-field="title" maxlength="60" value="${escapeAttr(data.title || '')}" placeholder="Portfolio"></label>
-                    <label>${isEnglish ? 'FontAwesome Icon' : 'Icona FontAwesome'}<input data-field="icon" maxlength="40" value="${escapeAttr(data.icon || 'fas fa-link')}" placeholder="fab fa-spotify"></label>
+                    <label>${isEnglish ? 'FontAwesome Icon' : 'Icona FontAwesome'}<input data-field="icon" maxlength="40" value="${escapeAttr(data.icon || 'fa-solid fa-link')}" placeholder="fa-brands fa-spotify"></label>
                     <label>${isEnglish ? 'Button type' : 'Tipo tasto'}<select data-field="button_style">${options(linkButtonStyles, data.button_style || 'card')}</select></label>
                     <label class="profile-row-grid full">${isEnglish ? 'Description' : 'Descrizione'}<input data-field="description" maxlength="160" value="${escapeAttr(data.description || '')}" placeholder="Una frase breve"></label>
                     <label class="profile-row-grid full">URL<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://..."></label>
@@ -151,7 +151,7 @@
             body = `
                 <div class="profile-row-grid">
                     <label>${isEnglish ? 'Pill Text' : 'Testo Pillola'}<input data-field="text" maxlength="40" value="${escapeAttr(data.text || '')}" placeholder="Es. JavaScript"></label>
-                    <label>${isEnglish ? 'FontAwesome Icon (opt)' : 'Icona FontAwesome (opzionale)'}<input data-field="icon" maxlength="40" value="${escapeAttr(data.icon || '')}" placeholder="fab fa-js"></label>
+                    <label>${isEnglish ? 'FontAwesome Icon (opt)' : 'Icona FontAwesome (opzionale)'}<input data-field="icon" maxlength="40" value="${escapeAttr(data.icon || '')}" placeholder="fa-brands fa-js"></label>
                     <div class="profile-row-grid two full" style="margin-top: 10px;">
                         <label class="profile-check-line"><input type="checkbox" data-field="use_color" ${boolAttr(data.use_color ?? (data.color ? 1 : 0))}> ${isEnglish ? 'Use Custom Color' : 'Usa Colore Personalizzato'}</label>
                         <label class="profile-check-line"><input type="checkbox" data-field="use_gradient" ${boolAttr(data.use_gradient ?? (data.gradient ? 1 : 0))}> ${isEnglish ? 'Use Gradient' : 'Usa Gradiente'}</label>
@@ -174,12 +174,12 @@
         row.innerHTML = `
             <div class="profile-row-head">
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <div class="profile-row-handle" style="cursor: grab;"><i class="fas fa-grip-vertical"></i></div>
+                    <div class="profile-row-handle" style="cursor: grab;"><i class="fa-solid fa-grip-vertical"></i></div>
                     <strong>${labelText}</strong>
                 </div>
                 <div class="profile-row-actions">
-                    <button type="button" class="profile-move-up" title="${isEnglish ? 'Move up' : 'Sposta su'}"><i class="fas fa-arrow-up"></i></button>
-                    <button type="button" class="profile-move-down" title="${isEnglish ? 'Move down' : 'Sposta giù'}"><i class="fas fa-arrow-down"></i></button>
+                    <button type="button" class="profile-move-up" title="${isEnglish ? 'Move up' : 'Sposta su'}"><i class="fa-solid fa-arrow-up"></i></button>
+                    <button type="button" class="profile-move-down" title="${isEnglish ? 'Move down' : 'Sposta giù'}"><i class="fa-solid fa-arrow-down"></i></button>
                     <button type="button" class="profile-remove-row">${isEnglish ? 'Remove' : 'Rimuovi'}</button>
                 </div>
             </div>
@@ -194,7 +194,7 @@
 
         const btnUp = $('.profile-move-up', row);
         const btnDown = $('.profile-move-down', row);
-        
+
         btnUp.addEventListener('click', () => {
             const prev = row.previousElementSibling;
             if (prev && prev.classList.contains('profile-row-card')) {
@@ -204,7 +204,7 @@
                 pushHistoryState();
             }
         });
-        
+
         btnDown.addEventListener('click', () => {
             const next = row.nextElementSibling;
             if (next && next.classList.contains('profile-row-card')) {
@@ -221,7 +221,7 @@
                 const useGradientChk = row.querySelector('[data-field="use_gradient"]');
                 const colorContainer = row.querySelector('.tag-color-inputs');
                 const gradientContainer = row.querySelector('.tag-gradient-input');
-                
+
                 if (useColorChk && colorContainer) {
                     useColorChk.addEventListener('change', () => {
                         colorContainer.style.display = useColorChk.checked ? 'grid' : 'none';
@@ -282,7 +282,7 @@
                 const key = input.dataset.field;
                 obj[key] = input.type === 'checkbox' ? input.checked : input.value.trim();
             });
-            
+
             // Check if the row is effectively empty based on type
             if (type === 'socials' && !obj.url) return null;
             if (type === 'links' && !obj.title && !obj.url) return null;
@@ -479,7 +479,7 @@
         const radiusVal = borderRadiusInput ? parseInt(borderRadiusInput.value, 10) : 30;
         const borderWVal = borderWidthInput ? parseInt(borderWidthInput.value, 10) : 1;
         const fontVal = fontInput?.value || 'Poppins';
-        
+
         const variables = {
             '--accent': accentVal,
             '--accent-rgb': hexToRgbLocal(accentVal),
@@ -498,7 +498,7 @@
             '--card-strong': `color-mix(in srgb, ${cardCol} ${Math.min(100, opacityVal + 20)}%, transparent)`,
             '--profile-border-width': `${borderWVal}px`
         };
-        
+
         if (borderColorInput && borderColorInput.value) {
             variables['--border'] = borderColorInput.value;
             variables['--profile-border-color'] = borderColorInput.value;
@@ -507,7 +507,7 @@
             variables['--profile-font'] = `'${fontVal}', sans-serif`;
             loadGoogleFontPreview(fontVal);
         }
-        
+
         if (uiShapeInput) {
             let shapeIco = '50%', shapeBtn = '999px', shapeCard = '24px';
             switch (uiShapeInput.value) {
@@ -522,7 +522,7 @@
             variables['--ui-shape-button'] = shapeBtn;
             variables['--ui-shape-card'] = shapeCard;
         }
-        
+
         if (cornerStyleInput) {
             let radius = '100px';
             switch (cornerStyleInput.value) {
@@ -534,7 +534,7 @@
             }
             variables['--profile-corner-radius'] = radius;
         }
-        
+
         if (socialSizeInput) {
             variables['--social-icon-size'] = `${socialSizeInput.value}px`;
             if (socialSizeVal) socialSizeVal.textContent = `${socialSizeInput.value}px`;
@@ -551,7 +551,7 @@
             variables['--button-height'] = `${buttonSizeInput.value}px`;
             if (buttonSizeVal) buttonSizeVal.textContent = `${buttonSizeInput.value}px`;
         }
-        
+
         const iframe = document.getElementById('profilePreviewIframe');
         if (iframe && iframe.contentWindow) {
             iframe.contentWindow.postMessage({
@@ -559,13 +559,13 @@
                 variables: variables
             }, '*');
         }
-        
+
         const dName = displayNameInput?.value.trim() || usernameInput?.value.trim() || 'Utente';
         const uName = '@' + (usernameInput?.value.trim() || 'username');
         const bioText = bioInput?.value.trim() || (isEnglish ? 'Your bio will appear here.' : 'La tua bio apparirà qui.');
         const musicTitle = musicTitleInput?.value.trim() || 'Profile Song';
         const musicArtist = musicArtistInput?.value.trim() || '';
-        
+
         if (iframe && iframe.contentWindow) {
             iframe.contentWindow.postMessage({
                 type: 'update-text',
@@ -591,7 +591,7 @@
                 src: (cachedMusicData && !isMusicRemoved) ? cachedMusicData.url : musicUrl
             }, '*');
         }
-        
+
         const attributes = {};
         if (themeInput) attributes['data-theme'] = themeInput.value === 'auto' ? 'dark' : themeInput.value;
         if (avatarShapeInput) attributes['data-avatar-shape'] = avatarShapeInput.value;
@@ -607,14 +607,14 @@
         if (tiltGlareInput) attributes['data-tilt-glare'] = tiltGlareInput.value;
         if (tiltZoomInput) attributes['data-tilt-zoom'] = tiltZoomInput.value;
         if (tiltSpeedInput) attributes['data-tilt-speed'] = tiltSpeedInput.value;
-        
+
         if (iframe && iframe.contentWindow) {
             iframe.contentWindow.postMessage({
                 type: 'update-attributes',
                 attributes: attributes
             }, '*');
         }
-        
+
         if (borderRadiusVal && borderRadiusInput) borderRadiusVal.textContent = borderRadiusInput.value + 'px';
         if (cardOpacityVal && cardOpacityInput) cardOpacityVal.textContent = cardOpacityInput.value + '%';
         if (cardBlurVal && cardBlurInput) cardBlurVal.textContent = cardBlurInput.value + 'px';
@@ -641,7 +641,7 @@
     function triggerAutosave(immediate = false) {
         const statusSpan = document.getElementById('autosaveStatus');
         if (statusSpan) {
-            statusSpan.innerHTML = `<i class="fas fa-spinner fa-spin" style="color: var(--accent);"></i> ${isEnglish ? 'Saving draft...' : 'Salvataggio bozza...'}`;
+            statusSpan.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="color: var(--accent);"></i> ${isEnglish ? 'Saving draft...' : 'Salvataggio bozza...'}`;
             statusSpan.style.color = 'rgba(255,255,255,0.6)';
         }
 
@@ -678,7 +678,7 @@
                 const data = await res.json();
                 if (data.ok) {
                     if (statusSpan) {
-                        statusSpan.innerHTML = `<i class="fas fa-check-circle" style="color: #10b981;"></i> ${isEnglish ? 'Draft saved' : 'Bozza salvata'}`;
+                        statusSpan.innerHTML = `<i class="fa-solid fa-circle-check" style="color: #10b981;"></i> ${isEnglish ? 'Draft saved' : 'Bozza salvata'}`;
                         statusSpan.style.color = 'rgba(255,255,255,0.4)';
                     }
                     if (immediate) {
@@ -686,12 +686,12 @@
                     }
                 } else {
                     if (statusSpan) {
-                        statusSpan.innerHTML = `<i class="fas fa-exclamation-circle" style="color: #ef4444;"></i> ${isEnglish ? 'Save failed' : 'Errore bozza'}`;
+                        statusSpan.innerHTML = `<i class="fa-solid fa-circle-exclamation" style="color: #ef4444;"></i> ${isEnglish ? 'Save failed' : 'Errore bozza'}`;
                     }
                 }
             } catch (e) {
                 if (statusSpan) {
-                    statusSpan.innerHTML = `<i class="fas fa-exclamation-circle" style="color: #ef4444;"></i> ${isEnglish ? 'Save failed' : 'Errore bozza'}`;
+                    statusSpan.innerHTML = `<i class="fa-solid fa-circle-exclamation" style="color: #ef4444;"></i> ${isEnglish ? 'Save failed' : 'Errore bozza'}`;
                 }
             }
         };
@@ -762,7 +762,7 @@
             characters: collectCharacters(),
             sectionsOrder: $('#sectionsOrderJson')?.value || ''
         };
-        
+
         $$('input[name], select[name], textarea[name]', form).forEach(input => {
             if (input.type === 'file' || input.name === 'csrf_token' || input.name === 'target_user_id' || input.name.endsWith('Json')) return;
             if (input.type === 'checkbox') {
@@ -783,7 +783,7 @@
         try {
             isUndoingRedoing = true;
             const state = JSON.parse(stateStr);
-            
+
             // Restore inputs
             Object.entries(state.inputs).forEach(([name, value]) => {
                 $$(`[name="${name}"]`, form).forEach(input => {
@@ -798,7 +798,7 @@
                     input.dispatchEvent(new Event('change', { bubbles: true }));
                 });
             });
-            
+
             // Restore repeaters
             const repeatKeys = ['socials', 'links', 'embeds', 'projects', 'contents', 'blocks', 'tags'];
             repeatKeys.forEach(key => {
@@ -807,7 +807,7 @@
                     state[key].forEach(item => addRow(key, item));
                 }
             });
-            
+
             // Restore badges
             if (Array.isArray(state.badges)) {
                 $$('#badgeSortList .badge-select-chk').forEach(chk => {
@@ -816,7 +816,7 @@
                     chk.dispatchEvent(new Event('change', { bubbles: true }));
                 });
             }
-            
+
             // Restore characters
             if (Array.isArray(state.characters)) {
                 selectedCharIds = state.characters;
@@ -826,7 +826,7 @@
                 renderCharacterSortList();
                 updateCharacterCounter();
             }
-            
+
             // Restore sections order
             if (state.sectionsOrder) {
                 const input = document.getElementById('sectionsOrderJson');
@@ -835,7 +835,7 @@
                     initSectionsSorting();
                 }
             }
-            
+
             updatePreview();
             triggerAutosave(true);
         } catch (e) {
@@ -849,7 +849,7 @@
         if (isUndoingRedoing) return;
         const currentState = serializeFormState();
         if (historyStack[historyIndex] === currentState) return;
-        
+
         historyStack = historyStack.slice(0, historyIndex + 1);
         historyStack.push(currentState);
         if (historyStack.length > 50) {
@@ -904,7 +904,7 @@
                 if (e.target.closest('button, input, select, .profile-custom-select, .profile-custom-color-picker')) return;
                 const card = header.closest('.editor-card');
                 const isExpanded = card.classList.contains('is-expanded');
-                
+
                 // Keep toggle behavior individual
                 card.classList.toggle('is-expanded', !isExpanded);
             });
@@ -932,7 +932,7 @@
 
             $$('.editor-sidebar-scroll .editor-card').forEach(card => {
                 removeSearchHighlights(card);
-                
+
                 if (query === '') {
                     card.style.display = '';
                     card.classList.remove('is-expanded');
@@ -945,7 +945,7 @@
                 const headerH3 = card.querySelector('.editor-card-text h3')?.textContent || '';
                 const headerP = card.querySelector('.editor-card-text p')?.textContent || '';
                 const labelsText = $$('label', card).map(l => l.textContent).join(' ');
-                
+
                 const combined = `${headerH3} ${headerP} ${labelsText}`.toLowerCase();
                 const isMatch = combined.includes(query);
 
@@ -988,7 +988,7 @@
             const val = node.nodeValue;
             const regex = new RegExp(`(${escapeRegExp(query)})`, 'gi');
             const highlighted = val.replace(regex, '<mark class="search-highlight">$1</mark>');
-            
+
             const span = document.createElement('span');
             span.className = 'search-highlight-wrapper';
             span.innerHTML = highlighted;
@@ -1144,9 +1144,9 @@
         if (floatingBtn && sidebar) {
             floatingBtn.addEventListener('click', () => {
                 const isOpen = sidebar.classList.toggle('preview-open');
-                floatingBtn.innerHTML = isOpen 
-                    ? '<i class="fas fa-edit"></i>' 
-                    : '<i class="fas fa-eye"></i>';
+                floatingBtn.innerHTML = isOpen
+                    ? '<i class="fa-solid fa-pen-to-square"></i>'
+                    : '<i class="fa-solid fa-eye"></i>';
             });
         }
     }
@@ -1164,7 +1164,7 @@
                 case 'cyber': p_ui='square-rounded'; p_av='hexagon'; p_br=8; p_bo=100; p_bw=1; p_link='neon'; p_btn='sharp'; break;
                 case 'minimal': p_ui='rounded'; p_av='circle'; p_br=16; p_bo=10; p_bw=1; p_link='solid'; p_btn='rounded'; break;
             }
-            
+
             if (uiShapeInput) uiShapeInput.value = p_ui;
             if (avatarShapeInput) avatarShapeInput.value = p_av;
             if (borderRadiusInput) borderRadiusInput.value = p_br;
@@ -1172,7 +1172,7 @@
             if (borderWidthInput) borderWidthInput.value = p_bw;
             if (linkStyleInput) linkStyleInput.value = p_link;
             if (buttonShapeInput) buttonShapeInput.value = p_btn;
-            
+
             [uiShapeInput, avatarShapeInput, borderRadiusInput, borderOpacityInput, borderWidthInput, linkStyleInput, buttonShapeInput].filter(Boolean).forEach(inp => {
                 inp.dispatchEvent(new Event('input', { bubbles: true }));
                 inp.dispatchEvent(new Event('change', { bubbles: true }));
@@ -1220,10 +1220,10 @@
     const resetDesignBtn = $('#resetDesignBtn');
     if (resetDesignBtn) {
         resetDesignBtn.addEventListener('click', () => {
-            const msg = isEnglish 
+            const msg = isEnglish
                 ? 'Are you sure you want to reset all design settings to default values?'
                 : 'Sei sicuro di voler ripristinare tutte le impostazioni del design ai valori di default?';
-            
+
             if (!confirm(msg)) return;
 
             const defaults = {
@@ -1358,8 +1358,8 @@
         const file = input.files && input.files[0];
         if (!file || !file.type.startsWith('image/')) return;
         const reader = new FileReader();
-        reader.onload = () => { 
-            target.src = reader.result; 
+        reader.onload = () => {
+            target.src = reader.result;
             cachedAvatarData = reader.result; // Cache avatar data URL
             const iframe = document.getElementById('profilePreviewIframe');
             if (iframe && iframe.contentWindow) {
@@ -1536,7 +1536,7 @@
             const val = aliasInput.value.trim();
             if (val === '') {
                 aliasIcon.innerHTML = '';
-                aliasMsg.textContent = isEnglish 
+                aliasMsg.textContent = isEnglish
                     ? 'Leave empty to disable. Allows accessing your profile via cripsum.com/youralias'
                     : 'Lascia vuoto per disattivare. Permette di accedere al tuo profilo tramite cripsum.com/tuoalias';
                 aliasMsg.style.color = '';
@@ -1544,7 +1544,7 @@
             }
 
             if (!/^[a-zA-Z0-9_-]{3,30}$/.test(val)) {
-                aliasIcon.innerHTML = '<i class="fas fa-times-circle" style="color: #ef4444;"></i>';
+                aliasIcon.innerHTML = '<i class="fa-solid fa-circle-xmark" style="color: #ef4444;"></i>';
                 aliasMsg.textContent = isEnglish
                     ? 'Alias must contain between 3 and 30 characters (letters, numbers, dashes, underscores).'
                     : "L'alias deve contenere da 3 a 30 caratteri (lettere, numeri, trattini, underscore).";
@@ -1556,11 +1556,11 @@
                 const res = await fetch(`/api/check_alias.php?alias=${encodeURIComponent(val)}&target_user_id=${targetUserId}`);
                 const data = await res.json();
                 if (data.available) {
-                    aliasIcon.innerHTML = '<i class="fas fa-check-circle" style="color: #10b981;"></i>';
+                    aliasIcon.innerHTML = '<i class="fa-solid fa-circle-check" style="color: #10b981;"></i>';
                     aliasMsg.textContent = isEnglish ? 'Alias available!' : 'Alias disponibile!';
                     aliasMsg.style.color = '#10b981';
                 } else {
-                    aliasIcon.innerHTML = '<i class="fas fa-times-circle" style="color: #ef4444;"></i>';
+                    aliasIcon.innerHTML = '<i class="fa-solid fa-circle-xmark" style="color: #ef4444;"></i>';
                     aliasMsg.textContent = data.message || (isEnglish ? 'Alias not available.' : 'Alias non disponibile.');
                     aliasMsg.style.color = '#ef4444';
                 }
@@ -1572,7 +1572,7 @@
         };
 
         aliasInput.addEventListener('input', () => {
-            aliasIcon.innerHTML = '<i class="fas fa-spinner fa-spin" style="color: var(--accent);"></i>';
+            aliasIcon.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="color: var(--accent);"></i>';
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(checkAlias, 400);
         });
@@ -1606,8 +1606,8 @@
         if (button) {
             button.disabled = true;
             button.innerHTML = hasFiles
-                ? `<i class="fas fa-spinner fa-spin"></i> ${isEnglish ? 'Uploading...' : 'Caricamento...'}`
-                : `<i class="fas fa-spinner fa-spin"></i> ${isEnglish ? 'Saving...' : 'Salvataggio...'}`;
+                ? `<i class="fa-solid fa-spinner fa-spin"></i> ${isEnglish ? 'Uploading...' : 'Caricamento...'}`
+                : `<i class="fa-solid fa-spinner fa-spin"></i> ${isEnglish ? 'Saving...' : 'Salvataggio...'}`;
         }
 
         if (overlay) {
@@ -1629,7 +1629,7 @@
             const data = await response.json();
             if (!response.ok || !data.ok) throw new Error(data.message || (isEnglish ? 'Error saving.' : 'Errore salvataggio.'));
             window.profileToast(data.message || (isEnglish ? 'Profile saved.' : 'Profilo salvato.'));
-            
+
             // Clear draft session after successful publish
             setTimeout(() => {
                 window.location.href = data.profile_url || '/profile.php';
@@ -1639,7 +1639,7 @@
         } finally {
             if (button) {
                 button.disabled = false;
-                button.innerHTML = `<i class="fas fa-save"></i> ${isEnglish ? 'Salva' : 'Salva'}`;
+                button.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> ${isEnglish ? 'Salva' : 'Salva'}`;
             }
             if (overlay) {
                 overlay.classList.remove('is-active');
@@ -1703,12 +1703,12 @@
             card.dataset.charId = charId;
             card.innerHTML = `
                 <div class="profile-character-sort-info">
-                    ${details.img ? `<img src="${details.img}" alt="" class="profile-character-sort-img">` : `<span class="profile-character-sort-fallback"><i class="fas fa-user-astronaut"></i></span>`}
+                    ${details.img ? `<img src="${details.img}" alt="" class="profile-character-sort-img">` : `<span class="profile-character-sort-fallback"><i class="fa-solid fa-user-astronaut"></i></span>`}
                     <strong class="profile-character-sort-name">${details.name}</strong>
                 </div>
                 <div class="profile-row-actions">
-                    <button type="button" class="profile-move-up-char" title="${isEnglish ? 'Move up' : 'Sposta su'}" ${index === 0 ? 'disabled' : ''}><i class="fas fa-arrow-up"></i></button>
-                    <button type="button" class="profile-move-down-char" title="${isEnglish ? 'Move down' : 'Sposta giù'}" ${index === selectedCharIds.length - 1 ? 'disabled' : ''}><i class="fas fa-arrow-down"></i></button>
+                    <button type="button" class="profile-move-up-char" title="${isEnglish ? 'Move up' : 'Sposta su'}" ${index === 0 ? 'disabled' : ''}><i class="fa-solid fa-arrow-up"></i></button>
+                    <button type="button" class="profile-move-down-char" title="${isEnglish ? 'Move down' : 'Sposta giù'}" ${index === selectedCharIds.length - 1 ? 'disabled' : ''}><i class="fa-solid fa-arrow-down"></i></button>
                 </div>
             `;
 
@@ -1762,7 +1762,7 @@
         const hint = document.querySelector('.profile-character-hint');
         if (hint) {
             const n = selectedCharIds.length;
-            hint.innerHTML = `<i class="fas fa-circle-info"></i> ${n}/12 ${isEnglish ? 'selected' : 'selezionati'}.`;
+            hint.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${n}/12 ${isEnglish ? 'selected' : 'selezionati'}.`;
         }
     }
 
@@ -1776,7 +1776,7 @@
             });
         });
     }
-    
+
     const characterPickerEl = document.getElementById('characterPicker');
     if (characterPickerEl) {
         characterPickerEl.addEventListener('change', (e) => {
@@ -1810,25 +1810,25 @@
 
     // ── PROFILE SECTIONS ORDERING ─────────────────────────────────────────
     const sectionInfo = isEnglish ? {
-        links: { name: 'Links', icon: 'fas fa-link' },
-        embeds: { name: 'Embeds (Spotify/YouTube)', icon: 'fas fa-share-square' },
-        stats: { name: 'Statistics', icon: 'fas fa-chart-simple' },
-        projects: { name: 'Projects', icon: 'fas fa-cubes' },
-        blocks: { name: 'Custom Blocks', icon: 'fas fa-wand-magic-sparkles' },
-        contents: { name: 'Edits & Content', icon: 'fas fa-play' },
-        characters: { name: 'Characters', icon: 'fas fa-user-astronaut' },
-        badges: { name: 'Badges', icon: 'fas fa-trophy' },
-        activity: { name: 'Recent Activity', icon: 'fas fa-clock' }
+        links: { name: 'Links', icon: 'fa-solid fa-link' },
+        embeds: { name: 'Embeds (Spotify/YouTube)', icon: 'fa-solid fa-share-from-square' },
+        stats: { name: 'Statistics', icon: 'fa-solid fa-chart-simple' },
+        projects: { name: 'Projects', icon: 'fa-solid fa-cubes' },
+        blocks: { name: 'Custom Blocks', icon: 'fa-solid fa-wand-magic-sparkles' },
+        contents: { name: 'Edits & Content', icon: 'fa-solid fa-play' },
+        characters: { name: 'Characters', icon: 'fa-solid fa-user-astronaut' },
+        badges: { name: 'Badges', icon: 'fa-solid fa-trophy' },
+        activity: { name: 'Recent Activity', icon: 'fa-solid fa-clock' }
     } : {
-        links: { name: 'Link', icon: 'fas fa-link' },
-        embeds: { name: 'Embed (Spotify/YouTube)', icon: 'fas fa-share-square' },
-        stats: { name: 'Statistiche', icon: 'fas fa-chart-simple' },
-        projects: { name: 'Progetti', icon: 'fas fa-cubes' },
-        blocks: { name: 'Custom Blocks', icon: 'fas fa-wand-magic-sparkles' },
-        contents: { name: 'Edit e Contenuti', icon: 'fas fa-play' },
-        characters: { name: 'Personaggi', icon: 'fas fa-user-astronaut' },
-        badges: { name: 'Badge', icon: 'fas fa-trophy' },
-        activity: { name: 'Attività Recente', icon: 'fas fa-clock' }
+        links: { name: 'Link', icon: 'fa-solid fa-link' },
+        embeds: { name: 'Embed (Spotify/YouTube)', icon: 'fa-solid fa-share-from-square' },
+        stats: { name: 'Statistiche', icon: 'fa-solid fa-chart-simple' },
+        projects: { name: 'Progetti', icon: 'fa-solid fa-cubes' },
+        blocks: { name: 'Custom Blocks', icon: 'fa-solid fa-wand-magic-sparkles' },
+        contents: { name: 'Edit e Contenuti', icon: 'fa-solid fa-play' },
+        characters: { name: 'Personaggi', icon: 'fa-solid fa-user-astronaut' },
+        badges: { name: 'Badge', icon: 'fa-solid fa-trophy' },
+        activity: { name: 'Attività Recente', icon: 'fa-solid fa-clock' }
     };
 
     function initSectionsSorting() {
@@ -1846,7 +1846,7 @@
         function renderSectionsList() {
             sectionsSortList.innerHTML = '';
             currentOrder.forEach((secKey, index) => {
-                const info = sectionInfo[secKey] || { name: secKey, icon: 'fas fa-folder' };
+                const info = sectionInfo[secKey] || { name: secKey, icon: 'fa-solid fa-folder' };
                 const item = document.createElement('div');
                 item.className = 'profile-sort-item';
                 item.dataset.secKey = secKey;
@@ -1856,8 +1856,8 @@
                         <span>${info.name}</span>
                     </div>
                     <div class="profile-row-actions">
-                        <button type="button" class="profile-move-up-sec" title="${isEnglish ? 'Move up' : 'Sposta su'}" ${index === 0 ? 'disabled' : ''}><i class="fas fa-arrow-up"></i></button>
-                        <button type="button" class="profile-move-down-sec" title="${isEnglish ? 'Move down' : 'Sposta giù'}" ${index === currentOrder.length - 1 ? 'disabled' : ''}><i class="fas fa-arrow-down"></i></button>
+                        <button type="button" class="profile-move-up-sec" title="${isEnglish ? 'Move up' : 'Sposta su'}" ${index === 0 ? 'disabled' : ''}><i class="fa-solid fa-arrow-up"></i></button>
+                        <button type="button" class="profile-move-down-sec" title="${isEnglish ? 'Move down' : 'Sposta giù'}" ${index === currentOrder.length - 1 ? 'disabled' : ''}><i class="fa-solid fa-arrow-down"></i></button>
                     </div>
                 `;
 
@@ -1936,7 +1936,7 @@
             if (badges.length === 0) {
                 badgeSortList.innerHTML = `
                     <div class="bio-empty-state">
-                        <i class="fas fa-medal"></i>
+                        <i class="fa-solid fa-medal"></i>
                         <strong>${isEnglish ? 'No badges unlocked or assigned' : 'Nessun badge sbloccato o assegnato'}</strong>
                     </div>
                 `;
@@ -1948,7 +1948,7 @@
                 const compoundId = badge.badge_source + '_' + badge.id;
                 const badgeName = badge.nome;
                 const badgeImg = badge.img_url ? (badge.img_url.startsWith('http') ? badge.img_url : '/img/' + badge.img_url.replace(/^\//, '')) : null;
-                const iconClass = badge.icon || 'fas fa-medal';
+                const iconClass = badge.icon || 'fa-solid fa-medal';
 
                 const item = document.createElement('div');
                 item.className = 'profile-sort-item badge-sort-item' + (isSelected ? ' is-selected' : '');
@@ -1967,8 +1967,8 @@
                         <span style="font-weight: 550;">${escapeAttr(badgeName)}</span>
                     </div>
                     <div class="profile-row-actions">
-                        <button type="button" class="profile-move-up profile-move-up-badge" title="${isEnglish ? 'Move up' : 'Sposta su'}" ${index === 0 ? 'disabled' : ''}><i class="fas fa-arrow-up"></i></button>
-                        <button type="button" class="profile-move-down profile-move-down-badge" title="${isEnglish ? 'Move down' : 'Sposta giù'}" ${index === badges.length - 1 ? 'disabled' : ''}><i class="fas fa-arrow-down"></i></button>
+                        <button type="button" class="profile-move-up profile-move-up-badge" title="${isEnglish ? 'Move up' : 'Sposta su'}" ${index === 0 ? 'disabled' : ''}><i class="fa-solid fa-arrow-up"></i></button>
+                        <button type="button" class="profile-move-down profile-move-down-badge" title="${isEnglish ? 'Move down' : 'Sposta giù'}" ${index === badges.length - 1 ? 'disabled' : ''}><i class="fa-solid fa-arrow-down"></i></button>
                     </div>
                 `;
 
@@ -2079,16 +2079,16 @@
 
     async function loadPresets() {
         if (!presetsListContainer) return;
-        presetsListContainer.innerHTML = `<div class="bio-empty-state"><i class="fas fa-spinner fa-spin"></i><strong>${isEnglish ? 'Loading presets...' : 'Caricamento preset...'}</strong></div>`;
+        presetsListContainer.innerHTML = `<div class="bio-empty-state"><i class="fa-solid fa-spinner fa-spin"></i><strong>${isEnglish ? 'Loading presets...' : 'Caricamento preset...'}</strong></div>`;
         try {
             const res = await fetch(`/api/manage_presets.php?action=list&target_user_id=${targetUserId}`);
             const data = await res.json();
             if (!res.ok || !data.ok) throw new Error(data.message || (isEnglish ? 'Error loading presets.' : 'Errore caricamento preset.'));
-            
+
             if (data.presets.length === 0) {
                 presetsListContainer.innerHTML = `
                     <div class="bio-empty-state">
-                        <i class="fas fa-magic"></i>
+                        <i class="fa-solid fa-magic"></i>
                         <strong>${isEnglish ? 'No presets saved' : 'Nessun preset salvato'}</strong>
                         <p>${isEnglish ? 'Save your current design setup as a preset to restore it later.' : 'Puoi salvare la tua configurazione corrente come preset per poterla ripristinare in futuro.'}</p>
                     </div>`;
@@ -2134,10 +2134,10 @@
                     </div>
                     <small style="color: var(--muted); font-size: 0.8rem;">${isEnglish ? 'Created on:' : 'Creato il:'} ${escapeAttr(preset.created_at)}</small>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem;">
-                        <button type="button" class="bio-button load-preset-btn" data-id="${preset.id}" style="padding: 0.4rem; font-size: 0.85rem;"><i class="fas fa-upload"></i> ${isEnglish ? 'Load' : 'Carica'}</button>
-                        <button type="button" class="bio-button duplicate-preset-btn" data-id="${preset.id}" style="padding: 0.4rem; font-size: 0.85rem; background: rgba(255,255,255,0.05); color: #fff;"><i class="fas fa-copy"></i> ${isEnglish ? 'Copy' : 'Duplica'}</button>
-                        <button type="button" class="bio-button rename-preset-btn" data-id="${preset.id}" data-name="${escapeAttr(preset.nome)}" style="padding: 0.4rem; font-size: 0.85rem; background: rgba(255,255,255,0.05); color: #fff;"><i class="fas fa-edit"></i> ${isEnglish ? 'Rename' : 'Rinomina'}</button>
-                        <button type="button" class="bio-button delete-preset-btn" data-id="${preset.id}" style="padding: 0.4rem; font-size: 0.85rem; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25);"><i class="fas fa-trash"></i> ${isEnglish ? 'Delete' : 'Elimina'}</button>
+                        <button type="button" class="bio-button load-preset-btn" data-id="${preset.id}" style="padding: 0.4rem; font-size: 0.85rem;"><i class="fa-solid fa-upload"></i> ${isEnglish ? 'Load' : 'Carica'}</button>
+                        <button type="button" class="bio-button duplicate-preset-btn" data-id="${preset.id}" style="padding: 0.4rem; font-size: 0.85rem; background: rgba(255,255,255,0.05); color: #fff;"><i class="fa-solid fa-copy"></i> ${isEnglish ? 'Copy' : 'Duplica'}</button>
+                        <button type="button" class="bio-button rename-preset-btn" data-id="${preset.id}" data-name="${escapeAttr(preset.nome)}" style="padding: 0.4rem; font-size: 0.85rem; background: rgba(255,255,255,0.05); color: #fff;"><i class="fa-solid fa-pen-to-square"></i> ${isEnglish ? 'Rename' : 'Rinomina'}</button>
+                        <button type="button" class="bio-button delete-preset-btn" data-id="${preset.id}" style="padding: 0.4rem; font-size: 0.85rem; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25);"><i class="fa-solid fa-trash"></i> ${isEnglish ? 'Delete' : 'Elimina'}</button>
                     </div>`;
                 grid.appendChild(card);
             });
@@ -2158,7 +2158,7 @@
             });
 
         } catch (error) {
-            presetsListContainer.innerHTML = `<div class="bio-card is-error" style="padding: 1rem;"><i class="fas fa-triangle-exclamation"></i><span>${escapeAttr(error.message)}</span></div>`;
+            presetsListContainer.innerHTML = `<div class="bio-card is-error" style="padding: 1rem;"><i class="fa-solid fa-triangle-exclamation"></i><span>${escapeAttr(error.message)}</span></div>`;
         }
     }
 
@@ -2203,7 +2203,7 @@
     }
 
     async function handleLoadPreset(id) {
-        const confirmMsg = isEnglish 
+        const confirmMsg = isEnglish
             ? 'Are you sure you want to load this preset? Your unsaved setup will be overwritten.'
             : 'Sei sicuro di voler caricare questo preset? La configurazione corrente non salvata andrà persa.';
         if (!confirm(confirmMsg)) return;
@@ -2270,7 +2270,7 @@
     }
 
     async function handleDeletePreset(id) {
-        const confirmMsg = isEnglish 
+        const confirmMsg = isEnglish
             ? 'Are you sure you want to delete this preset? This action cannot be undone.'
             : 'Sei sicuro di voler eliminare questo preset? Questa operazione non può essere annullata.';
         if (!confirm(confirmMsg)) return;
@@ -2389,7 +2389,7 @@
         statusSpan.style.display = 'inline-flex';
         statusSpan.style.alignItems = 'center';
         statusSpan.style.gap = '4px';
-        statusSpan.innerHTML = `<i class="fas fa-check-circle" style="color: #10b981;"></i> ${isEnglish ? 'Draft saved' : 'Bozza salvata'}`;
+        statusSpan.innerHTML = `<i class="fa-solid fa-circle-check" style="color: #10b981;"></i> ${isEnglish ? 'Draft saved' : 'Bozza salvata'}`;
         brandSpan.parentNode.appendChild(statusSpan);
     }
 
@@ -2495,7 +2495,7 @@
         trigger.setAttribute('aria-expanded', 'false');
         trigger.innerHTML = `
             <span class="profile-select-current"></span>
-            <i class="fas fa-chevron-down"></i>
+            <i class="fa-solid fa-chevron-down"></i>
         `;
 
         const menu = document.createElement('div');
@@ -2566,7 +2566,7 @@
         const r = parseInt(clean.substring(0, 2), 16) / 255;
         const g = parseInt(clean.substring(2, 4), 16) / 255;
         const b = parseInt(clean.substring(4, 6), 16) / 255;
-        
+
         const max = Math.max(r, g, b);
         const min = Math.min(r, g, b);
         const d = max - min;
@@ -2674,12 +2674,12 @@
         trigger.innerHTML = `
             <span class="profile-color-preview"></span>
             <span class="profile-color-value"></span>
-            <i class="fas fa-palette"></i>
+            <i class="fa-solid fa-palette"></i>
         `;
 
         const dropdown = document.createElement('div');
         dropdown.className = 'profile-color-dropdown';
-        
+
         dropdown.addEventListener('click', (event) => {
             event.stopPropagation();
         });

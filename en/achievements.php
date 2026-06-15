@@ -83,7 +83,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
         <section class="ach-controls ach-reveal">
             <div class="ach-search">
-                <i class="fas fa-search"></i>
+                <i class="fa-solid fa-search"></i>
                 <input type="search" id="achievementSearch" placeholder="Search achievements..." autocomplete="off">
             </div>
 
@@ -105,7 +105,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
                 <button type="button" class="ach-select-trigger" aria-haspopup="listbox" aria-expanded="false">
                     <span class="ach-select-current">Original order</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <i class="fa-solid fa-chevron-down"></i>
                 </button>
 
                 <div class="ach-select-menu" role="listbox" aria-label="Sort achievements">
@@ -163,13 +163,13 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
         </section>
 
         <section id="achievementError" class="ach-empty" hidden>
-            <i class="fas fa-triangle-exclamation"></i>
+            <i class="fa-solid fa-triangle-exclamation"></i>
             <strong>Unable to load achievements</strong>
             <span>Please try again later.</span>
         </section>
 
         <section id="achievementEmpty" class="ach-empty" hidden>
-            <i class="fas fa-magnifying-glass"></i>
+            <i class="fa-solid fa-magnifying-glass"></i>
             <strong>No achievements found</strong>
             <span>Change search or filter.</span>
         </section>
@@ -181,7 +181,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
         <div class="ach-modal__backdrop" data-close-ach-modal></div>
         <article class="ach-modal__panel" role="dialog" aria-modal="true" aria-labelledby="achievementModalTitle">
             <button type="button" class="ach-modal__close" data-close-ach-modal aria-label="Close">
-                <i class="fas fa-xmark"></i>
+                <i class="fa-solid fa-xmark"></i>
             </button>
 
             <div id="achievementModalContent"></div>

@@ -35,7 +35,7 @@ $csrfToken = admin_csrf_token();
     <main class="admin-shell">
         <aside class="admin-sidebar" aria-label="Navigazione admin">
             <div class="admin-brand-card">
-                <span class="admin-brand-mark"><i class="fas fa-shield-halved"></i></span>
+                <span class="admin-brand-mark"><i class="fa-solid fa-shield-halved"></i></span>
                 <div>
                     <strong>Admin Panel</strong>
                     <small><?php echo admin_h($currentAdmin['username']); ?> · <?php echo admin_h($currentAdmin['ruolo']); ?></small>
@@ -43,18 +43,18 @@ $csrfToken = admin_csrf_token();
             </div>
 
             <nav class="admin-nav" data-admin-nav>
-                <button type="button" class="is-active" data-section="dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></button>
-                <button type="button" data-section="users"><i class="fas fa-users"></i><span>Utenti</span></button>
-                <button type="button" data-section="characters"><i class="fas fa-box-open"></i><span>Personaggi</span></button>
-                <button type="button" data-section="achievements"><i class="fas fa-trophy"></i><span>Achievement</span></button>
-                <button type="button" data-section="shitposts"><i class="fas fa-image"></i><span>Shitpost</span></button>
-                <button type="button" data-section="toprimasti"><i class="fas fa-ranking-star"></i><span>Top Rimasti</span></button>
-                <button type="button" data-section="reports"><i class="fas fa-flag"></i><span>Segnalazioni</span></button>
-                <button type="button" data-section="logs"><i class="fas fa-clock-rotate-left"></i><span>Log</span></button>
+                <button type="button" class="is-active" data-section="dashboard"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></button>
+                <button type="button" data-section="users"><i class="fa-solid fa-users"></i><span>Utenti</span></button>
+                <button type="button" data-section="characters"><i class="fa-solid fa-box-open"></i><span>Personaggi</span></button>
+                <button type="button" data-section="achievements"><i class="fa-solid fa-trophy"></i><span>Achievement</span></button>
+                <button type="button" data-section="shitposts"><i class="fa-solid fa-image"></i><span>Shitpost</span></button>
+                <button type="button" data-section="toprimasti"><i class="fa-solid fa-ranking-star"></i><span>Top Rimasti</span></button>
+                <button type="button" data-section="reports"><i class="fa-solid fa-flag"></i><span>Segnalazioni</span></button>
+                <button type="button" data-section="logs"><i class="fa-solid fa-clock-rotate-left"></i><span>Log</span></button>
             </nav>
 
             <a class="admin-side-link" href="/api/admin/export_users_csv.php?csrf_token=<?php echo urlencode($csrfToken); ?>">
-                <i class="fas fa-file-csv"></i>
+                <i class="fa-solid fa-file-csv"></i>
                 <span>Esporta utenti CSV</span>
             </a>
         </aside>
@@ -66,10 +66,10 @@ $csrfToken = admin_csrf_token();
                 </div>
                 <div class="admin-header-actions">
                     <label class="admin-global-search">
-                        <i class="fas fa-search"></i>
+                        <i class="fa-solid fa-search"></i>
                         <input type="search" id="adminGlobalSearch" placeholder="Cerca nel pannello">
                     </label>
-                    <button type="button" class="admin-icon-btn" id="adminRefreshBtn" title="Aggiorna"><i class="fas fa-rotate"></i></button>
+                    <button type="button" class="admin-icon-btn" id="adminRefreshBtn" title="Aggiorna"><i class="fa-solid fa-rotate"></i></button>
                 </div>
             </header>
 
@@ -124,7 +124,7 @@ $csrfToken = admin_csrf_token();
             <section class="admin-section" id="section-characters" data-section-panel="characters">
                 <div class="admin-toolbar">
                     <div><strong>Personaggi</strong><small>Crea, modifica o rimuovi personaggi dal database.</small></div>
-                    <button type="button" class="admin-btn admin-btn--primary" id="createCharacterBtn"><i class="fas fa-plus"></i> Nuovo</button>
+                    <button type="button" class="admin-btn admin-btn--primary" id="createCharacterBtn"><i class="fa-solid fa-plus"></i> Nuovo</button>
                 </div>
                 <div id="charactersTable" class="admin-table-card"></div>
                 <div id="charactersPagination" class="admin-pagination"></div>
@@ -133,7 +133,7 @@ $csrfToken = admin_csrf_token();
             <section class="admin-section" id="section-achievements" data-section-panel="achievements">
                 <div class="admin-toolbar">
                     <div><strong>Achievement</strong><small>Gestisci badge e obiettivi sbloccabili.</small></div>
-                    <button type="button" class="admin-btn admin-btn--primary" id="createAchievementBtn"><i class="fas fa-plus"></i> Nuovo</button>
+                    <button type="button" class="admin-btn admin-btn--primary" id="createAchievementBtn"><i class="fa-solid fa-plus"></i> Nuovo</button>
                 </div>
                 <div id="achievementsTable" class="admin-table-card"></div>
                 <div id="achievementsPagination" class="admin-pagination"></div>

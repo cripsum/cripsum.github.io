@@ -62,22 +62,22 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
     <main class="gl-shell gl-home-shell">
         <section class="gl-hero gl-home-hero gl-reveal">
             <div class="gl-hero-text">
-                <span class="gl-kicker"><i class="fas fa-heart"></i> GoonLand</span>
+                <span class="gl-kicker"><i class="fa-solid fa-heart"></i> GoonLand</span>
                 <h1>GoonLand</h1>
                 <p>Un progetto ideato da Zakator e Cripsum: uno spazio digitale provocatorio, giocoso e visivamente coinvolgente.</p>
 
                 <div class="gl-actions">
                     <a class="gl-btn gl-btn-main" href="/it/goonland/goon-generator">
-                        <i class="fas fa-wand-magic-sparkles"></i> Apri il generator
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Apri il generator
                     </a>
                     <a class="gl-btn gl-btn-main" href="/it/goonland/anime-girl-quiz">
-                        <i class="fas fa-heart-pulse"></i> Anime Girl Quiz
+                        <i class="fa-solid fa-heart-pulse"></i> Anime Girl Quiz
                     </a>
                     <a class="gl-btn gl-btn-main" href="/it/goonland/smash-or-pass">
-                        <i class="fas fa-fire"></i> Smash or Pass
+                        <i class="fa-solid fa-fire"></i> Smash or Pass
                     </a>
                     <a class="gl-btn gl-btn-ghost" href="/it/home">
-                        <i class="fas fa-arrow-left"></i> Torna al sito
+                        <i class="fa-solid fa-arrow-left"></i> Torna al sito
                     </a>
                 </div>
             </div>
@@ -93,7 +93,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
                 <span class="gl-kicker">Cos’è GoonLand?</span>
                 <h2>Un piccolo universo digitale.</h2>
                 <p>GoonLand è un progetto ideato da Zakator e Cripsum: uno spazio digitale unico nel suo genere, nato dalla volontà di creare un ambiente che fosse al tempo stesso provocatorio, giocoso e visivamente coinvolgente.</p>
-                <p>Non si tratta solo di un sito, ma di un piccolo universo costruito per intrattenere, far riflettere e talvolta confondere in modo creativo e fuori dagli schemi.</p>
+                <p>Non si tratta solo di un sito, ma di un piccolo universo costruito per intrattenere, fa-regular riflettere e talvolta confondere in modo creativo e fuori dagli schemi.</p>
             </article>
 
             <article class="gl-lore-card gl-lore-card--wide gl-reveal">
@@ -127,7 +127,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
         </div>
     </div>
 
-    <button class="gl-top" type="button" data-gl-top aria-label="Torna su"><i class="fas fa-arrow-up"></i></button>
+    <button class="gl-top" type="button" data-gl-top aria-label="Torna su"><i class="fa-solid fa-arrow-up"></i></button>
 
     <?php include '../../includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>

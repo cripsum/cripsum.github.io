@@ -131,7 +131,7 @@ $stmt->close();
                 <div class="card shadow-lg border-0">
                     <div class="card-body p-4">
                         <h5 class="card-title mb-3 text-white d-flex align-items-center">
-                            <i class="fas fa-users me-2"></i>
+                            <i class="fa-solid fa-users me-2"></i>
                             Cerca Utenti
                         </h5>
                         <div class="input-group mb-2">
@@ -147,12 +147,12 @@ $stmt->close();
                                 class="btn btn-light px-4 shadow-sm"
                                 onclick="searchUser()"
                                 style="border-radius: 0 50px 50px 0; font-weight: 600; transition: all 0.3s ease;">
-                                <i class="fas fa-search me-1"></i>
+                                <i class="fa-solid fa-search me-1"></i>
                                 Cerca
                             </button>
                         </div>
                         <small class="text-white-50 d-flex align-items-center">
-                            <i class="fas fa-info-circle me-1"></i>
+                            <i class="fa-solid fa-circle-info me-1"></i>
                             Scopri altri profili della community
                         </small>
                     </div>

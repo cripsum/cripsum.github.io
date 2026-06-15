@@ -52,7 +52,7 @@ $products = [
         <section class="shop-panel shop-reveal" id="prodotti">
             <div class="shop-toolbar">
                 <label class="shop-search">
-                    <i class="fas fa-search"></i>
+                    <i class="fa-solid fa-search"></i>
                     <input type="search" data-shop-search placeholder="Search products..." aria-label="Search products...">
                 </label>
 
@@ -74,7 +74,7 @@ $products = [
 
                     <button type="button" class="shop-select-trigger" aria-haspopup="listbox" aria-expanded="false">
                         <span class="shop-select-current">Original order</span>
-                        <i class="fas fa-chevron-down"></i>
+                        <i class="fa-solid fa-chevron-down"></i>
                     </button>
 
                     <div class="shop-select-menu" role="listbox" aria-label="Sort products options">
@@ -121,7 +121,7 @@ $products = [
                             <div class="shop-card__footer">
                                 <strong><?php echo number_format((float)$product['price'], 2, ',', '.'); ?>€</strong>
                                 <div class="shop-card__actions">
-                                    <button type="button" class="shop-icon-btn" data-open-detail title="Dettagli"><i class="fas fa-eye"></i></button>
+                                    <button type="button" class="shop-icon-btn" data-open-detail title="Dettagli"><i class="fa-solid fa-eye"></i></button>
                                     <a class="shop-btn shop-btn--small" href="<?php echo shop_h($product['link']); ?>">Buy now</a>
                                 </div>
                             </div>
@@ -131,7 +131,7 @@ $products = [
             </div>
 
             <div class="shop-empty" data-shop-empty hidden>
-                <i class="fas fa-box-open"></i>
+                <i class="fa-solid fa-box-open"></i>
                 <strong>No products found</strong>
                 <span>Try changing your search or filter.</span>
             </div>
@@ -157,7 +157,7 @@ $products = [
     <div class="shop-modal" data-shop-modal hidden>
         <div class="shop-modal__backdrop" data-close-modal></div>
         <article class="shop-modal__panel" role="dialog" aria-modal="true" aria-label="Dettaglio prodotto">
-            <button type="button" class="shop-modal__close" data-close-modal aria-label="Chiudi"><i class="fas fa-xmark"></i></button>
+            <button type="button" class="shop-modal__close" data-close-modal aria-label="Chiudi"><i class="fa-solid fa-xmark"></i></button>
             <div class="shop-modal__content" data-modal-content></div>
         </article>
     </div>

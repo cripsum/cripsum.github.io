@@ -62,22 +62,22 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
     <main class="gl-shell gl-home-shell">
         <section class="gl-hero gl-home-hero gl-reveal">
             <div class="gl-hero-text">
-                <span class="gl-kicker"><i class="fas fa-heart"></i> GoonLand</span>
+                <span class="gl-kicker"><i class="fa-solid fa-heart"></i> GoonLand</span>
                 <h1>GoonLand</h1>
                 <p>A project designed by Zakator and Cripsum: a provocative, playful, and visually immersive digital space.</p>
 
                 <div class="gl-actions">
                     <a class="gl-btn gl-btn-main" href="goon-generator">
-                        <i class="fas fa-wand-magic-sparkles"></i> Goon Generator
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Goon Generator
                     </a>
                     <a class="gl-btn gl-btn-main" href="anime-girl-quiz">
-                        <i class="fas fa-heart-pulse"></i> Anime Girl Quiz
+                        <i class="fa-solid fa-heart-pulse"></i> Anime Girl Quiz
                     </a>
                     <a class="gl-btn gl-btn-main" href="smash-or-pass">
-                        <i class="fas fa-fire"></i> Smash or Pass
+                        <i class="fa-solid fa-fire"></i> Smash or Pass
                     </a>
                     <a class="gl-btn gl-btn-ghost" href="../home">
-                        <i class="fas fa-arrow-left"></i> Back to main site
+                        <i class="fa-solid fa-arrow-left"></i> Back to main site
                     </a>
                 </div>
             </div>
@@ -127,7 +127,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
         </div>
     </div>
 
-    <button class="gl-top" type="button" data-gl-top aria-label="Torna su"><i class="fas fa-arrow-up"></i></button>
+    <button class="gl-top" type="button" data-gl-top aria-label="Torna su"><i class="fa-solid fa-arrow-up"></i></button>
 
     <?php include '../../includes/footer-en.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>

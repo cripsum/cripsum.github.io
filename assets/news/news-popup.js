@@ -177,13 +177,13 @@
         overlayEl.innerHTML = `
             <div class="np-popup">
                 <button type="button" class="np-close" aria-label="${esc(ui.close)}">
-                    <i class="fas fa-xmark"></i>
+                    <i class="fa-solid fa-xmark"></i>
                 </button>
 
                 <aside class="np-sidebar" aria-label="Lista news">
                     <div class="np-sidebar__head">
                         <span class="np-sidebar__label">
-                            <i class="fas fa-newspaper"></i>
+                            <i class="fa-solid fa-newspaper"></i>
                             ${esc(ui.label)}
                         </span>
                     </div>
@@ -193,7 +193,7 @@
                 <section class="np-content">
                     <div class="np-content__scroll">
                         <div class="np-empty">
-                            <i class="fas fa-newspaper"></i>
+                            <i class="fa-solid fa-newspaper"></i>
                             <strong>${esc(ui.empty_title)}</strong>
                             <span>${esc(ui.empty_sub)}</span>
                         </div>

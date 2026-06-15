@@ -65,11 +65,11 @@ $onlineCount = $lineeGuidaChat === 1 ? chat_get_online_count($mysqli) : 0;
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="chatGuidelinesModalLabel"><i class="fas fa-shield-halved"></i> Prima di entrare</h5>
+                        <h5 class="modal-title" id="chatGuidelinesModalLabel"><i class="fa-solid fa-shield-halved"></i> Prima di entrare</h5>
                     </div>
                     <div class="modal-body">
                         <p>Rispetta gli altri, evita spam e non inviare contenuti pericolosi.</p>
-                        <a href="chat-policy" target="_blank" class="chat-policy-link"><i class="fas fa-book-open"></i> Linee guida</a>
+                        <a href="chat-policy" target="_blank" class="chat-policy-link"><i class="fa-solid fa-book-open"></i> Linee guida</a>
                         <form method="POST" action="/includes/accept_chat_terms.php" class="chat-guidelines-form">
                             <label class="chat-check">
                                 <input type="checkbox" id="acceptTerms" required>
@@ -95,7 +95,7 @@ $onlineCount = $lineeGuidaChat === 1 ? chat_get_online_count($mysqli) : 0;
             <section class="chat-panel" aria-label="Chat Globale">
                 <header class="chat-topbar">
                     <div class="chat-title-block">
-                        <span class="chat-kicker"><i class="fas fa-globe"></i> Globale</span>
+                        <span class="chat-kicker"><i class="fa-solid fa-globe"></i> Globale</span>
                         <h1>Chat</h1>
                     </div>
 
@@ -104,16 +104,16 @@ $onlineCount = $lineeGuidaChat === 1 ? chat_get_online_count($mysqli) : 0;
                             <span class="chat-online-dot"></span>
                             <strong id="chatOnlineCount"><?php echo (int)$onlineCount; ?></strong>
                         </span>
-                        <span class="chat-sync-state" id="chatSyncState" title="Stato chat"><i class="fas fa-circle"></i><span>Live</span></span>
-                        <button type="button" class="chat-icon-button js-toggle-search" aria-label="Cerca messaggi"><i class="fas fa-search"></i></button>
-                        <button type="button" class="chat-icon-button js-toggle-sound" aria-label="Notifiche audio"><i class="fas fa-volume-xmark"></i></button>
+                        <span class="chat-sync-state" id="chatSyncState" title="Stato chat"><i class="fa-solid fa-circle"></i><span>Live</span></span>
+                        <button type="button" class="chat-icon-button js-toggle-search" aria-label="Cerca messaggi"><i class="fa-solid fa-search"></i></button>
+                        <button type="button" class="chat-icon-button js-toggle-sound" aria-label="Notifiche audio"><i class="fa-solid fa-volume-xmark"></i></button>
                     </div>
                 </header>
 
                 <div class="chat-search" id="chatSearch" hidden>
-                    <i class="fas fa-search"></i>
+                    <i class="fa-solid fa-search"></i>
                     <input type="search" id="chatSearchInput" placeholder="Cerca nella chat..." maxlength="80" autocomplete="off">
-                    <button type="button" class="js-clear-search" aria-label="Cancella ricerca"><i class="fas fa-xmark"></i></button>
+                    <button type="button" class="js-clear-search" aria-label="Cancella ricerca"><i class="fa-solid fa-xmark"></i></button>
                 </div>
 
                 <div class="chat-loadbar">
@@ -127,7 +127,7 @@ $onlineCount = $lineeGuidaChat === 1 ? chat_get_online_count($mysqli) : 0;
                 </div>
 
                 <button type="button" class="chat-new-messages js-new-messages" hidden>Nuovi messaggi</button>
-                <button type="button" class="chat-scroll-bottom js-scroll-bottom" hidden aria-label="Torna in basso"><i class="fas fa-arrow-down"></i></button>
+                <button type="button" class="chat-scroll-bottom js-scroll-bottom" hidden aria-label="Torna in basso"><i class="fa-solid fa-arrow-down"></i></button>
 
                 <div class="chat-typing" id="chatTyping" hidden></div>
 
@@ -137,7 +137,7 @@ $onlineCount = $lineeGuidaChat === 1 ? chat_get_online_count($mysqli) : 0;
                             <small>Risposta a <strong id="replyUsername"></strong></small>
                             <span id="replyText"></span>
                         </div>
-                        <button type="button" class="js-cancel-reply" aria-label="Annulla risposta"><i class="fas fa-xmark"></i></button>
+                        <button type="button" class="js-cancel-reply" aria-label="Annulla risposta"><i class="fa-solid fa-xmark"></i></button>
                     </div>
 
                     <div class="chat-edit-preview" id="editPreview" hidden>
@@ -145,16 +145,16 @@ $onlineCount = $lineeGuidaChat === 1 ? chat_get_online_count($mysqli) : 0;
                             <small>Modifica messaggio</small>
                             <span>Invia per salvare. Esc per annullare.</span>
                         </div>
-                        <button type="button" class="js-cancel-edit" aria-label="Annulla modifica"><i class="fas fa-xmark"></i></button>
+                        <button type="button" class="js-cancel-edit" aria-label="Annulla modifica"><i class="fa-solid fa-xmark"></i></button>
                     </div>
 
                     <div class="chat-gif-panel" id="chatGifPanel" hidden>
                         <div class="chat-gif-head">
                             <div class="chat-gif-search">
-                                <i class="fas fa-magnifying-glass"></i>
+                                <i class="fa-solid fa-magnifying-glass"></i>
                                 <input type="search" id="chatGifSearch" placeholder="Cerca GIF su GIPHY..." maxlength="60" autocomplete="off">
                             </div>
-                            <button type="button" class="chat-icon-button js-close-gifs" aria-label="Chiudi GIF"><i class="fas fa-xmark"></i></button>
+                            <button type="button" class="chat-icon-button js-close-gifs" aria-label="Chiudi GIF"><i class="fa-solid fa-xmark"></i></button>
                         </div>
                         <div class="chat-gif-grid" id="chatGifGrid"></div>
                         <button type="button" class="chat-gif-more js-more-gifs" hidden>Carica altre GIF</button>
@@ -172,8 +172,8 @@ $onlineCount = $lineeGuidaChat === 1 ? chat_get_online_count($mysqli) : 0;
 
                     <form id="chatForm" class="chat-form" autocomplete="off">
                         <img class="chat-my-avatar" src="/includes/get_pfp.php?id=<?php echo $userId; ?>" alt="">
-                        <button type="button" class="chat-tool-button js-toggle-gifs" aria-label="Apri GIF"><i class="fas fa-image"></i></button>
-                        <button type="button" class="chat-tool-button js-toggle-emojis" aria-label="Emoji rapide"><i class="far fa-face-smile"></i></button>
+                        <button type="button" class="chat-tool-button js-toggle-gifs" aria-label="Apri GIF"><i class="fa-solid fa-image"></i></button>
+                        <button type="button" class="chat-tool-button js-toggle-emojis" aria-label="Emoji rapide"><i class="fa-regular fa-face-smile"></i></button>
                         <div class="chat-input-wrap">
                             <textarea id="chatInput" rows="1" maxlength="<?php echo (int)MAX_MESSAGE_LENGTH; ?>" placeholder="Scrivi..." aria-label="Messaggio"></textarea>
                             <div class="chat-input-footer">
@@ -181,7 +181,7 @@ $onlineCount = $lineeGuidaChat === 1 ? chat_get_online_count($mysqli) : 0;
                                 <span>Enter invia · Shift+Enter va a capo</span>
                             </div>
                         </div>
-                        <button type="submit" class="chat-send" id="chatSendButton" aria-label="Invia messaggio"><i class="fas fa-paper-plane"></i></button>
+                        <button type="submit" class="chat-send" id="chatSendButton" aria-label="Invia messaggio"><i class="fa-solid fa-paper-plane"></i></button>
                     </form>
                 </footer>
             </section>

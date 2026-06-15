@@ -37,8 +37,8 @@ $lastUpdated = 'April 2026';
             <h1>Privacy Policy</h1>
             <p>Here you can find out how personal information is handled on Cripsum™.</p>
             <div class="static-meta">
-                <span class="static-chip"><i class="fas fa-calendar"></i> Updated: <?php echo htmlspecialchars($lastUpdated, ENT_QUOTES, 'UTF-8'); ?></span>
-                <span class="static-chip"><i class="fas fa-shield-halved"></i> Data & Security</span>
+                <span class="static-chip"><i class="fa-solid fa-calendar"></i> Updated: <?php echo htmlspecialchars($lastUpdated, ENT_QUOTES, 'UTF-8'); ?></span>
+                <span class="static-chip"><i class="fa-solid fa-shield-halved"></i> Data & Security</span>
             </div>
         </section>
 
@@ -97,7 +97,7 @@ $lastUpdated = 'April 2026';
     </main>
 
     <button class="static-top-btn" id="staticBackTop" type="button" aria-label="Back to top">
-        <i class="fas fa-arrow-up"></i>
+        <i class="fa-solid fa-arrow-up"></i>
     </button>
 
     <?php include '../includes/footer-en.php'; ?>

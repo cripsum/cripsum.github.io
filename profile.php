@@ -457,19 +457,19 @@ $hasAnyPublicContent = $visibleSocials || $visibleLinks || $visibleProjects || $
 
 $spotlight = null;
 if ($featuredContents) {
-    $spotlight = ['type' => 'Contenuto', 'icon' => 'fas fa-play', 'title' => $featuredContents[0]['title'], 'description' => $featuredContents[0]['description'] ?: '', 'url' => $featuredContents[0]['url'] ?: '', 'meta' => $featuredContents[0]['content_type'] ?? 'contenuto'];
+    $spotlight = ['type' => 'Contenuto', 'icon' => 'fa-solid fa-play', 'title' => $featuredContents[0]['title'], 'description' => $featuredContents[0]['description'] ?: '', 'url' => $featuredContents[0]['url'] ?: '', 'meta' => $featuredContents[0]['content_type'] ?? 'contenuto'];
 } elseif ($featuredProjects) {
-    $spotlight = ['type' => 'Progetto', 'icon' => 'fas fa-layer-group', 'title' => $featuredProjects[0]['title'], 'description' => $featuredProjects[0]['description'] ?: '', 'url' => $featuredProjects[0]['url'] ?: '', 'meta' => $featuredProjects[0]['tech_stack'] ?: profile_status_label($featuredProjects[0]['status'] ?? 'active')];
+    $spotlight = ['type' => 'Progetto', 'icon' => 'fa-solid fa-layer-group', 'title' => $featuredProjects[0]['title'], 'description' => $featuredProjects[0]['description'] ?: '', 'url' => $featuredProjects[0]['url'] ?: '', 'meta' => $featuredProjects[0]['tech_stack'] ?: profile_status_label($featuredProjects[0]['status'] ?? 'active')];
 } elseif ($featuredLinks) {
-    $spotlight = ['type' => 'Link', 'icon' => $featuredLinks[0]['icon'] ?: 'fas fa-link', 'title' => $featuredLinks[0]['title'], 'description' => $featuredLinks[0]['description'] ?: profile_short_url_label($featuredLinks[0]['url']), 'url' => $featuredLinks[0]['url'], 'meta' => 'in evidenza'];
+    $spotlight = ['type' => 'Link', 'icon' => $featuredLinks[0]['icon'] ?: 'fa-solid fa-link', 'title' => $featuredLinks[0]['title'], 'description' => $featuredLinks[0]['description'] ?: profile_short_url_label($featuredLinks[0]['url']), 'url' => $featuredLinks[0]['url'], 'meta' => 'in evidenza'];
 }
 
 $stats = [];
 if ($profile) {
-    if ((int)$profile['profile_views'] > 0) $stats[] = ['icon' => 'fas fa-eye', 'value' => profile_compact_number($profile['profile_views']), 'label' => 'Views'];
-    if ((int)$profile['num_achievement'] > 0) $stats[] = ['icon' => 'fas fa-trophy', 'value' => profile_compact_number($profile['num_achievement']), 'label' => 'Badges'];
-    if ((int)$profile['num_personaggi'] > 0) $stats[] = ['icon' => 'fas fa-user-astronaut', 'value' => profile_compact_number($profile['num_personaggi']), 'label' => 'Characters'];
-    if ((int)$profile['total_personaggi'] > 0) $stats[] = ['icon' => 'fas fa-dice-d20', 'value' => profile_compact_number($profile['total_personaggi']), 'label' => 'Pulls'];
+    if ((int)$profile['profile_views'] > 0) $stats[] = ['icon' => 'fa-solid fa-eye', 'value' => profile_compact_number($profile['profile_views']), 'label' => 'Views'];
+    if ((int)$profile['num_achievement'] > 0) $stats[] = ['icon' => 'fa-solid fa-trophy', 'value' => profile_compact_number($profile['num_achievement']), 'label' => 'Badges'];
+    if ((int)$profile['num_personaggi'] > 0) $stats[] = ['icon' => 'fa-solid fa-user-astronaut', 'value' => profile_compact_number($profile['num_personaggi']), 'label' => 'Characters'];
+    if ((int)$profile['total_personaggi'] > 0) $stats[] = ['icon' => 'fa-solid fa-dice-d20', 'value' => profile_compact_number($profile['total_personaggi']), 'label' => 'Pulls'];
 }
 $ogMeta = cripsum_og_profile($mysqli, $profile);
 
@@ -644,56 +644,56 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         <?php if ($isOnline): ?>
                             <span class="bio-pill bio-pill--live"><span class="bio-dot"></span>online</span>
                         <?php elseif ($customStatus): ?>
-                            <span class="bio-pill"><i class="fas fa-signal"></i><?php echo profile_h($customStatus); ?></span>
+                            <span class="bio-pill"><i class="fa-solid fa-signal"></i><?php echo profile_h($customStatus); ?></span>
                         <?php else: ?>
                             <div></div>
                         <?php endif; ?>
                     <?php else: ?>
-                        <span class="bio-pill"><i class="fas fa-eye"></i><?php echo profile_compact_number($profile['profile_views'] ?? 0); ?> <?php echo ($lang === 'it') ? 'visite' : 'views'; ?></span>
+                        <span class="bio-pill"><i class="fa-solid fa-eye"></i><?php echo profile_compact_number($profile['profile_views'] ?? 0); ?> <?php echo ($lang === 'it') ? 'visite' : 'views'; ?></span>
                     <?php endif; ?>
 
                     <?php if (!isset($_GET['preview_mode'])): ?>
                     <div class="profile-dropdown-wrap">
                         <button class="bio-small-button js-profile-dropdown-trigger" type="button" aria-label="Menu" aria-expanded="false">
-                            <i class="fas fa-ellipsis-h"></i>
+                            <i class="fa-solid fa-ellipsis-h"></i>
                         </button>
                         <div class="profile-dropdown-menu">
                             <?php if ($canEdit): ?>
                                 <a class="profile-dropdown-item" href="/it/edit-profile<?php echo profile_is_staff() && !$isOwnProfile ? '?user_id=' . (int)$profile['id'] : ''; ?>">
-                                    <i class="fas fa-pen"></i>
+                                    <i class="fa-solid fa-pen"></i>
                                     <span><?php echo ($lang === 'it') ? 'Modifica profilo' : 'Edit profile'; ?></span>
                                 </a>
                             <?php endif; ?>
                             <a class="profile-dropdown-item" href="/<?php echo $lang; ?>/home">
-                                <i class="fas fa-home"></i>
+                                <i class="fa-solid fa-home"></i>
                                 <span>Home Page</span>
                             </a>
                             <button class="profile-dropdown-item js-open-search" type="button">
-                                <i class="fas fa-search"></i>
+                                <i class="fa-solid fa-search"></i>
                                 <span><?php echo ($lang === 'it') ? 'Cerca utenti' : 'Search users'; ?></span>
                             </button>
                             <button class="profile-dropdown-item js-open-navigation" type="button">
-                                <i class="fas fa-compass"></i>
+                                <i class="fa-solid fa-compass"></i>
                                 <span><?php echo ($lang === 'it') ? 'Apri Navigazione' : 'Open Navigation'; ?></span>
                             </button>
                             <button class="profile-dropdown-item js-copy-profile" type="button">
-                                <i class="fas fa-link"></i>
+                                <i class="fa-solid fa-link"></i>
                                 <span><?php echo ($lang === 'it') ? 'Copia link' : 'Copy link'; ?></span>
                             </button>
                             <button class="profile-dropdown-item js-share-profile" type="button">
-                                <i class="fas fa-share-nodes"></i>
+                                <i class="fa-solid fa-share-nodes"></i>
                                 <span><?php echo ($lang === 'it') ? 'Condividi Profilo' : 'Share Profile'; ?></span>
                             </button>
                             <button class="profile-dropdown-item js-open-report" type="button">
-                                <i class="fas fa-flag"></i>
+                                <i class="fa-solid fa-flag"></i>
                                 <span><?php echo ($lang === 'it') ? 'Segnala Profilo' : 'Report Profile'; ?></span>
                             </button>
                             <button class="profile-dropdown-item js-open-qr" type="button">
-                                <i class="fas fa-qrcode"></i>
+                                <i class="fa-solid fa-qrcode"></i>
                                 <span><?php echo ($lang === 'it') ? 'Codice QR' : 'QR Code'; ?></span>
                             </button>
                             <button class="profile-dropdown-item js-theme-toggle" type="button">
-                                <i class="fas fa-moon"></i>
+                                <i class="fa-solid fa-moon"></i>
                                 <span class="theme-label-text"><?php echo ($lang === 'it') ? 'Tema scuro' : 'Dark Mode'; ?></span>
                             </button>
                         </div>
@@ -738,7 +738,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                 <?php elseif ($badge['badge_source'] === 'custom' && !empty($badge['icon'])): ?>
                                     <i class="<?php echo profile_h($badge['icon']); ?>"></i>
                                 <?php else: ?>
-                                    <i class="fas fa-medal"></i>
+                                    <i class="fa-solid fa-medal"></i>
                                 <?php endif; ?>
                             </span>
                         <?php endforeach; ?>
@@ -817,7 +817,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                         <strong><?php echo profile_h($social['label'] ?: ucfirst($social['platform'])); ?></strong>
                                         <small><?php echo profile_h($social['display_username'] ?: profile_short_url_label($social['url'])); ?></small>
                                     </span>
-                                    <i class="fas fa-arrow-up-right-from-square bio-social__arrow"></i>
+                                    <i class="fa-solid fa-arrow-up-right-from-square bio-social__arrow"></i>
                                 </a>
                             <?php endforeach; ?>
                         </div>
@@ -825,7 +825,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                 <?php endif; ?> <?php if ($showDiscord && $discordId): ?>
                     <div class="profile-discord-left js-reveal" aria-label="Attività Discord">
                         <div class="profile-discord-left__title">
-                            <span><i class="fab fa-discord"></i>Discord</span>
+                            <span><i class="fa-brands fa-discord"></i>Discord</span>
                         </div>
                         <div class="discord-box" id="discordBox">
                             <?php $discordProfileId = $discordId;
@@ -853,7 +853,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     ?>
                     <div class="profile-discord-left js-reveal" aria-label="Server Discord" style="margin-top: 1.25rem;">
                         <div class="profile-discord-left__title">
-                            <span><i class="fab fa-discord"></i><?php echo (isset($lang) && $lang === 'en') ? 'Discord Server' : 'Server Discord'; ?></span>
+                            <span><i class="fa-brands fa-discord"></i><?php echo (isset($lang) && $lang === 'en') ? 'Discord Server' : 'Server Discord'; ?></span>
                         </div>
                         <div class="ds-card profile-discord-server-section" style="padding: 1.25rem;">
                             <div class="profile-discord-server-card">
@@ -862,7 +862,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                         <img class="profile-discord-server-icon" src="<?php echo htmlspecialchars($discordIconUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($discordServerName, ENT_QUOTES, 'UTF-8'); ?>" loading="lazy">
                                     <?php else: ?>
                                         <div class="profile-discord-server-icon-fallback">
-                                            <i class="fab fa-discord"></i>
+                                            <i class="fa-brands fa-discord"></i>
                                         </div>
                                     <?php endif; ?>
 
@@ -876,7 +876,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     </div>
                                 </div>
                                 <a href="<?php echo htmlspecialchars($discordJoinUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" class="bio-button bio-button--primary discord-join-button">
-                                    <i class="fab fa-discord"></i>
+                                    <i class="fa-brands fa-discord"></i>
                                     <span><?php echo (isset($lang) && $lang === 'en') ? 'Join' : 'Entra'; ?></span>
                                 </a>
                             </div>
@@ -885,7 +885,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                 <?php endif; ?>
                 <?php if (!$hasAnyPublicContent && $isOwnProfile && !isset($_GET['preview_mode'])): ?>
                     <div class="profile-owner-nudge">
-                        <i class="fas fa-plus"></i>
+                        <i class="fa-solid fa-plus"></i>
                         <span>Add links, badges, or content to fill out the bio.</span>
                         <a href="/en/edit-profile">Edit</a>
                     </div>
@@ -901,10 +901,10 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         <div class="bio-audio__header">
                             <div>
                                 <small>Audio</small>
-                                <strong><i class="fas fa-music"></i><?php echo profile_h($musicTitle ?: 'Profile Song'); ?></strong>
+                                <strong><i class="fa-solid fa-music"></i><?php echo profile_h($musicTitle ?: 'Profile Song'); ?></strong>
                                 <span class="profile-artist-span" style="<?php echo $musicArtist ? '' : 'display: none;'; ?>"><?php echo profile_h($musicArtist); ?></span>
                             </div>
-                            <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i id="profileAudioIcon" class="fas fa-play"></i></button>
+                            <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i id="profileAudioIcon" class="fa-solid fa-play"></i></button>
                         </div>
                         <div class="bio-audio__progress">
                             <span id="profileAudioCurrent">0:00</span>
@@ -912,7 +912,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                             <span id="profileAudioTotal">0:00</span>
                         </div>
                         <div class="bio-audio__bottom">
-                            <button class="bio-small-button js-profile-volume-toggle" type="button" aria-label="Mute"><i id="profileVolumeIcon" class="fas fa-volume-down"></i></button>
+                            <button class="bio-small-button js-profile-volume-toggle" type="button" aria-label="Mute"><i id="profileVolumeIcon" class="fa-solid fa-volume-low"></i></button>
                             <input id="profileVolumeSlider" type="range" min="0" max="1" step="0.01" value="0.18" aria-label="Volume">
                         </div>
                     </div>
@@ -930,10 +930,10 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                             <div class="bio-audio__header">
                                 <div>
                                     <small>Audio</small>
-                                    <strong><i class="fas fa-music"></i><?php echo profile_h($musicTitle ?: 'Profile Song'); ?></strong>
+                                    <strong><i class="fa-solid fa-music"></i><?php echo profile_h($musicTitle ?: 'Profile Song'); ?></strong>
                                     <span class="profile-artist-span" style="<?php echo $musicArtist ? '' : 'display: none;'; ?>"><?php echo profile_h($musicArtist); ?></span>
                                 </div>
-                                <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i class="fas fa-play"></i></button>
+                                <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i class="fa-solid fa-play"></i></button>
                             </div>
                             <div class="bio-audio__progress">
                                 <span>0:00</span>
@@ -941,7 +941,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                 <span>0:00</span>
                             </div>
                             <div class="bio-audio__bottom">
-                                <button class="bio-small-button js-profile-volume-toggle" type="button" aria-label="Mute"><i class="fas fa-volume-down"></i></button>
+                                <button class="bio-small-button js-profile-volume-toggle" type="button" aria-label="Mute"><i class="fa-solid fa-volume-low"></i></button>
                                 <input type="range" min="0" max="1" step="0.01" value="0.18" aria-label="Volume">
                             </div>
                         </div>
@@ -952,10 +952,10 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         <div class="bio-audio__header">
                             <div>
                                 <small>Audio</small>
-                                <strong><i class="fas fa-music"></i>Profile Song</strong>
+                                <strong><i class="fa-solid fa-music"></i>Profile Song</strong>
                                 <span class="profile-artist-span" style="display: none;"></span>
                             </div>
-                            <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i class="fas fa-play"></i></button>
+                            <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i class="fa-solid fa-play"></i></button>
                         </div>
                         <div class="bio-audio__progress">
                             <span>0:00</span>
@@ -963,7 +963,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                             <span>0:00</span>
                         </div>
                         <div class="bio-audio__bottom">
-                            <button class="bio-small-button js-profile-volume-toggle" type="button" aria-label="Mute"><i class="fas fa-volume-down"></i></button>
+                            <button class="bio-small-button js-profile-volume-toggle" type="button" aria-label="Mute"><i class="fa-solid fa-volume-low"></i></button>
                             <input type="range" min="0" max="1" step="0.01" value="0.18" aria-label="Volume">
                         </div>
                     </div>
@@ -974,12 +974,12 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         <?php if ($isOnline): ?>
                             <span class="bio-pill bio-pill--live" style="margin-right: 0.4rem; padding: 0.2rem 0.5rem;"><span class="bio-dot"></span>online</span>
                         <?php elseif ($customStatus): ?>
-                            <span class="bio-pill" style="margin-right: 0.4rem; padding: 0.2rem 0.5rem;"><i class="fas fa-signal"></i><?php echo profile_h($customStatus); ?></span>
+                            <span class="bio-pill" style="margin-right: 0.4rem; padding: 0.2rem 0.5rem;"><i class="fa-solid fa-signal"></i><?php echo profile_h($customStatus); ?></span>
                         <?php endif; ?>
                     <?php endif; ?>
-                    <span><i class="fas fa-calendar"></i><?php echo date('d/m/Y', strtotime($profile['data_creazione'])); ?></span>
-                    <?php if (!$isOnline && $lastSeen): ?><span><i class="fas fa-clock"></i><?php echo profile_h(profile_time_ago($lastSeen)); ?></span><?php endif; ?>
-                    <?php if ($showDiscord && $discordId): ?><span><i class="fab fa-discord"></i>Discord</span><?php endif; ?>
+                    <span><i class="fa-solid fa-calendar"></i><?php echo date('d/m/Y', strtotime($profile['data_creazione'])); ?></span>
+                    <?php if (!$isOnline && $lastSeen): ?><span><i class="fa-solid fa-clock"></i><?php echo profile_h(profile_time_ago($lastSeen)); ?></span><?php endif; ?>
+                    <?php if ($showDiscord && $discordId): ?><span><i class="fa-brands fa-discord"></i>Discord</span><?php endif; ?>
                 </div>
             </section>
             </div>
@@ -1000,7 +1000,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     <?php if ($spotlight['description']): ?><em><?php echo profile_h($spotlight['description']); ?></em><?php endif; ?>
                                     <?php if ($spotlight['meta']): ?><span><?php echo profile_h($spotlight['meta']); ?></span><?php endif; ?>
                                 </span>
-                                <?php if ($spotlight['url']): ?><i class="fas fa-arrow-up-right-from-square"></i><?php endif; ?>
+                                <?php if ($spotlight['url']): ?><i class="fa-solid fa-arrow-up-right-from-square"></i><?php endif; ?>
                             </a>
                         </section>
                     <?php
@@ -1015,7 +1015,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     ob_start();
                     if ($featuredLinks || $normalLinks): ?>
                         <section class="bio-card bio-featured js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
-                            <?php profile_render_section_heading('fas fa-link', 'Link'); ?>
+                            <?php profile_render_section_heading('fa-solid fa-link', 'Link'); ?>
                             <div class="bio-featured-grid profile-link-grid profile-link-count-<?php echo count(array_merge($featuredLinks, $normalLinks)); ?>">
                                 <?php foreach (array_merge($featuredLinks, $normalLinks) as $item): ?>
                                     <?php
@@ -1023,7 +1023,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     $linkTitle = (string)($item['title'] ?? 'Link');
                                     ?>
                                     <a class="bio-featured-link profile-link-button button-style-<?php echo profile_h($buttonStyle); ?> <?php echo !empty($item['is_featured']) ? 'is-pinned' : ''; ?>" href="<?php echo profile_h($item['url']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo profile_h($linkTitle); ?>">
-                                        <span class="bio-featured-link__icon"><i class="<?php echo profile_h($item['icon'] ?: 'fas fa-link'); ?>"></i></span>
+                                        <span class="bio-featured-link__icon"><i class="<?php echo profile_h($item['icon'] ?: 'fa-solid fa-link'); ?>"></i></span>
                                         <?php if ($buttonStyle === 'icon'): ?>
                                             <span class="profile-link-icon-label"><?php echo profile_h($linkTitle); ?></span>
                                         <?php else: ?>
@@ -1032,7 +1032,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                                 <strong><?php echo profile_h($linkTitle); ?></strong>
                                                 <?php if (!empty($item['description'])): ?><em><?php echo profile_h($item['description']); ?></em><?php else: ?><em><?php echo profile_h(profile_short_url_label($item['url'])); ?></em><?php endif; ?>
                                             </span>
-                                            <i class="fas fa-chevron-right"></i>
+                                            <i class="fa-solid fa-chevron-right"></i>
                                         <?php endif; ?>
                                     </a>
                                 <?php endforeach; ?>
@@ -1045,7 +1045,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     ob_start();
                     if ($embeds): ?>
                         <section class="bio-card profile-embeds-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
-                            <?php profile_render_section_heading('fas fa-share-square', 'Embed'); ?>
+                            <?php profile_render_section_heading('fa-solid fa-share-from-square', 'Embed'); ?>
                             <div class="profile-embeds-grid">
                                 <?php foreach ($embeds as $embed): ?>
                                     <?php
@@ -1056,7 +1056,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     <div class="profile-embed-wrapper profile-embed-<?php echo profile_h($embedType); ?>">
                                         <?php if ($embed['title']): ?>
                                             <div class="profile-embed-header">
-                                                <span><i class="<?php echo $embedType === 'spotify' ? 'fab fa-spotify' : ($embedType === 'youtube' ? 'fab fa-youtube' : 'fas fa-code'); ?>"></i><?php echo profile_h($embedTitle); ?></span>
+                                                <span><i class="<?php echo $embedType === 'spotify' ? 'fa-brands fa-spotify' : ($embedType === 'youtube' ? 'fa-brands fa-youtube' : 'fa-solid fa-code'); ?>"></i><?php echo profile_h($embedTitle); ?></span>
                                             </div>
                                         <?php endif; ?>
                                         <iframe src="<?php echo profile_h($embedUrl); ?>" width="100%" height="<?php echo $embedType === 'spotify' ? '352' : '315'; ?>" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
@@ -1082,7 +1082,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     ob_start();
                     if ($visibleProjects): ?>
                         <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
-                            <?php profile_render_section_heading('fas fa-cubes', 'Projects'); ?>
+                            <?php profile_render_section_heading('fa-solid fa-cubes', 'Projects'); ?>
                             <div class="bio-project-grid">
                                 <?php foreach ($visibleProjects as $project): ?>
                                     <?php
@@ -1093,10 +1093,10 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                         <?php if ($hasProjectImage): ?>
                                             <span class="profile-card-media profile-project-media">
                                                 <img src="<?php echo profile_h($projectImageUrl); ?>" alt="<?php echo profile_h($project['title']); ?>" loading="lazy" onerror="this.parentElement.classList.add('is-broken'); this.remove();">
-                                                <span class="profile-card-media__fallback"><i class="fas fa-image"></i></span>
+                                                <span class="profile-card-media__fallback"><i class="fa-solid fa-image"></i></span>
                                             </span>
                                         <?php else: ?>
-                                            <span class="bio-project-card__icon"><i class="fas fa-layer-group"></i></span>
+                                            <span class="bio-project-card__icon"><i class="fa-solid fa-layer-group"></i></span>
                                         <?php endif; ?>
                                         <strong><?php echo profile_h($project['title']); ?></strong>
                                         <?php if (!empty($project['description'])): ?><p><?php echo profile_h($project['description']); ?></p><?php endif; ?>
@@ -1141,7 +1141,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     ob_start();
                     if ($visibleContents): ?>
                         <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
-                            <?php profile_render_section_heading('fas fa-play-circle', 'Content'); ?>
+                            <?php profile_render_section_heading('fa-solid fa-circle-play', 'Content'); ?>
                             <div class="bio-preview-grid">
                                 <?php foreach ($visibleContents as $content): ?>
                                     <?php
@@ -1152,10 +1152,10 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                         <?php if ($hasContentThumb): ?>
                                             <span class="profile-card-media profile-content-media">
                                                 <img src="<?php echo profile_h($contentThumbUrl); ?>" alt="<?php echo profile_h($content['title']); ?>" loading="lazy" onerror="this.parentElement.classList.add('is-broken'); this.remove();">
-                                                <span class="profile-card-media__fallback"><i class="fas fa-play"></i></span>
+                                                <span class="profile-card-media__fallback"><i class="fa-solid fa-play"></i></span>
                                             </span>
                                         <?php else: ?>
-                                            <span class="bio-preview-card__icon"><i class="fas fa-play"></i></span>
+                                            <span class="bio-preview-card__icon"><i class="fa-solid fa-play"></i></span>
                                         <?php endif; ?>
                                         <span class="bio-preview-card__label"><?php echo profile_h($content['content_type']); ?></span>
                                         <strong><?php echo profile_h($content['title']); ?></strong>
@@ -1171,7 +1171,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     ob_start();
                     if ($visibleCharacters): ?>
                         <section class="bio-card profile-characters-section profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
-                            <?php profile_render_section_heading('fas fa-user-astronaut', 'Characters'); ?>
+                            <?php profile_render_section_heading('fa-solid fa-user-astronaut', 'Characters'); ?>
                             <div class="profile-character-grid">
                                 <?php foreach ($visibleCharacters as $char): ?>
                                     <?php
@@ -1189,7 +1189,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                                     loading="lazy">
                                             <?php else: ?>
                                                 <span class="profile-character-img-fallback">
-                                                    <i class="fas fa-user-astronaut"></i>
+                                                    <i class="fa-solid fa-user-astronaut"></i>
                                                 </span>
                                             <?php endif; ?>
                                         </div>
@@ -1215,7 +1215,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     ob_start();
                     if ($visibleBadges && $showBadgesSection): ?>
                         <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
-                            <?php profile_render_section_heading('fas fa-trophy', 'Badge'); ?>
+                            <?php profile_render_section_heading('fa-solid fa-trophy', 'Badge'); ?>
                             <div class="profile-badge-grid">
                                 <?php foreach ($visibleBadges as $badge): ?>
                                     <?php
@@ -1278,7 +1278,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                             <?php elseif ($badge['badge_source'] === 'custom' && !empty($badge['icon'])): ?>
                                                 <i class="<?php echo profile_h($badge['icon']); ?>"></i>
                                             <?php else: ?>
-                                                <i class="fas fa-medal"></i>
+                                                <i class="fa-solid fa-medal"></i>
                                             <?php endif; ?>
                                         </div>
                                         <div class="profile-badge-info">
@@ -1299,11 +1299,11 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     ob_start();
                     if ($visibleActivity): ?>
                         <section class="bio-card bio-about js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
-                            <?php profile_render_section_heading('fas fa-clock', 'Activity'); ?>
+                            <?php profile_render_section_heading('fa-solid fa-clock', 'Activity'); ?>
                             <div class="profile-activity-strip">
                                 <?php foreach (array_slice($visibleActivity, 0, 5) as $item): ?>
                                     <a class="profile-activity-pill" href="<?php echo !empty($item['url']) ? profile_h($item['url']) : '#'; ?>" <?php echo !empty($item['url']) ? 'target="_blank" rel="noopener noreferrer"' : 'aria-disabled="true"'; ?>>
-                                        <i class="<?php echo profile_h(function_exists('profile_activity_icon') ? profile_activity_icon($item['activity_type'] ?? '') : 'fas fa-clock'); ?>"></i>
+                                        <i class="<?php echo profile_h(function_exists('profile_activity_icon') ? profile_activity_icon($item['activity_type'] ?? '') : 'fa-solid fa-clock'); ?>"></i>
                                         <span><?php echo profile_h($item['label']); ?></span>
                                         <small><?php echo profile_h(profile_time_ago($item['created_at'] ?? null)); ?></small>
                                     </a>
@@ -1371,10 +1371,10 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <div class="profile-qr-modal" id="profileQrModal" aria-hidden="true">
         <div class="profile-qr-backdrop js-close-qr"></div>
         <section class="bio-card profile-qr-card" role="dialog" aria-modal="true" aria-label="QR Profile">
-            <button class="bio-small-button js-close-qr" type="button" aria-label="Close"><i class="fas fa-xmark"></i></button>
+            <button class="bio-small-button js-close-qr" type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
             <strong>QR Profile</strong>
             <img class="profile-qr-image" alt="QR code of the profile" src="/api/profile_qr.php?url=<?php echo rawurlencode($profileUrl); ?>" data-qr-src="/api/profile_qr.php?url=<?php echo rawurlencode($profileUrl); ?>">
-            <button class="bio-button bio-button--primary js-copy-profile" type="button"><i class="fas fa-link"></i>Copy link</button>
+            <button class="bio-button bio-button--primary js-copy-profile" type="button"><i class="fa-solid fa-link"></i>Copy link</button>
         </section>
     </div>
 
@@ -1459,7 +1459,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                             } else if (selector === '.bio-tagline') {
                                 el.innerHTML = text.replace(/\n/g, '<br>');
                             } else if (selector.includes('profile-audio-player strong')) {
-                                el.innerHTML = `<i class="fas fa-music"></i>` + text;
+                                el.innerHTML = `<i class="fa-solid fa-music"></i>` + text;
                             } else {
                                 el.textContent = text;
                             }
@@ -1524,7 +1524,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     }
                     const titleEl = document.querySelector('.profile-audio-player strong');
                     if (titleEl) {
-                        titleEl.innerHTML = `<i class="fas fa-music"></i>` + (data.title || 'Profile Song');
+                        titleEl.innerHTML = `<i class="fa-solid fa-music"></i>` + (data.title || 'Profile Song');
                     }
                     const artistEl = document.querySelector('.profile-artist-span');
                     if (artistEl) {

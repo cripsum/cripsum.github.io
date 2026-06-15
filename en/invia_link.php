@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <main class="form-shell form-shell--narrow">
         <section class="form-card form-reveal">
             <div class="confirm-icon">
-                <i class="fas fa-envelope"></i>
+                <i class="fa-solid fa-envelope"></i>
             </div>
 
             <div class="form-card__header" style="text-align:center;">
@@ -64,13 +64,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="form-alert form-alert--info">
-                <i class="fas fa-circle-info"></i>
+                <i class="fa-solid fa-circle-info"></i>
                 <span><?php echo htmlspecialchars($messaggio, ENT_QUOTES, 'UTF-8'); ?></span>
             </div>
 
             <div class="form-actions form-actions--center">
                 <a class="form-btn form-btn--primary" href="accedi">
-                    <i class="fas fa-arrow-left"></i>
+                    <i class="fa-solid fa-arrow-left"></i>
                     <span>Back to login</span>
                 </a>
             </div>

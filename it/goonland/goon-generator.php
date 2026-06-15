@@ -283,11 +283,11 @@ if ($stmt) {
     <main class="gl-shell">
         <section class="gl-hero gl-hero-small gl-reveal">
             <div class="gl-hero-text">
-                <span class="gl-kicker"><i class="fas fa-wand-magic-sparkles"></i> Generator</span>
+                <span class="gl-kicker"><i class="fa-solid fa-wand-magic-sparkles"></i> Generator</span>
                 <h1>Goon Generator</h1>
                 <p>Genera una foto, scaricala se vuoi e scala la classifica. Stessa funzione, interfaccia più pulita.</p>
                 <div class="gl-actions">
-                    <a class="gl-btn gl-btn-ghost" href="/it/goonland/home"><i class="fas fa-arrow-left"></i> Home GoonLand</a>
+                    <a class="gl-btn gl-btn-ghost" href="/it/goonland/home"><i class="fa-solid fa-arrow-left"></i> Home GoonLand</a>
                 </div>
             </div>
         </section>
@@ -304,7 +304,7 @@ if ($stmt) {
 
                 <div class="gl-image-stage" id="imageContainer">
                     <div class="gl-placeholder">
-                        <i class="fas fa-image"></i>
+                        <i class="fa-solid fa-image"></i>
                         <strong>Nessuna immagine ancora</strong>
                         <span>Clicca il tasto rosa per generare la prima foto.</span>
                     </div>
@@ -325,7 +325,7 @@ if ($stmt) {
 
                         <button class="gl-select-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
                             <span class="gl-select-current">Waifu - SFW</span>
-                            <i class="fas fa-chevron-down"></i>
+                            <i class="fa-solid fa-chevron-down"></i>
                         </button>
 
                         <div class="gl-select-menu" role="listbox" aria-label="Scegli tipo contenuto">
@@ -354,10 +354,10 @@ if ($stmt) {
 
                     <div class="gl-generator-buttons">
                         <button class="gl-btn gl-btn-main" id="generateBtn" type="button" onclick="generateImage()">
-                            <i class="fas fa-shuffle"></i> Genera nuova foto
+                            <i class="fa-solid fa-shuffle"></i> Genera nuova foto
                         </button>
                         <button class="gl-icon-btn" id="downloadBtn" type="button" onclick="downloadImage()" aria-label="Scarica immagine" hidden>
-                            <i class="fas fa-download"></i>
+                            <i class="fa-solid fa-download"></i>
                         </button>
                     </div>
 
@@ -389,7 +389,7 @@ if ($stmt) {
                     </div>
                 <?php else: ?>
                     <div class="gl-empty">
-                        <i class="fas fa-ranking-star"></i>
+                        <i class="fa-solid fa-ranking-star"></i>
                         <strong>Nessun dato disponibile</strong>
                         <span>La classifica apparirà dopo i primi click.</span>
                     </div>
@@ -406,8 +406,8 @@ if ($stmt) {
         </div>
     </div>
 
-    <button class="gl-top" type="button" data-gl-top aria-label="Torna su"><i class="fas fa-arrow-up"></i></button>
-    <div class="gl-toast" id="goonlandToast" hidden><i class="fas fa-check"></i><span>Fatto</span></div>
+    <button class="gl-top" type="button" data-gl-top aria-label="Torna su"><i class="fa-solid fa-arrow-up"></i></button>
+    <div class="gl-toast" id="goonlandToast" hidden><i class="fa-solid fa-check"></i><span>Fatto</span></div>
 
     <?php include '../../includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>

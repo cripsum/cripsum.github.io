@@ -151,7 +151,7 @@ function profile_json_script(string $id, array $data): void
     <div class="profile-effects-layer" aria-hidden="true"></div>
     <main class="builder-shell-layout">
         <button type="button" class="btn-floating-preview" id="floatingPreviewBtn" aria-label="Preview">
-            <i class="fas fa-eye"></i>
+            <i class="fa-solid fa-eye"></i>
         </button>
 
         <form id="profileEditForm" class="builder-grid-container" method="post" enctype="multipart/form-data" action="../api/update_profile.php">
@@ -162,17 +162,17 @@ function profile_json_script(string $id, array $data): void
                             <h2>Profile Editor</h2>
                         </div>
                         <div class="editor-header-actions">
-                            <button type="button" class="editor-btn editor-btn-icon" id="undoBtn" disabled title="Undo (Ctrl+Z)"><i class="fas fa-undo"></i></button>
-                            <button type="button" class="editor-btn editor-btn-icon" id="redoBtn" disabled title="Redo (Ctrl+Y)"><i class="fas fa-redo"></i></button>
-                            <button type="submit" name="salva" class="editor-btn editor-btn-primary" id="saveBtn"><i class="fas fa-save"></i> Save</button>
+                            <button type="button" class="editor-btn editor-btn-icon" id="undoBtn" disabled title="Undo (Ctrl+Z)"><i class="fa-solid fa-arrow-rotate-left"></i></button>
+                            <button type="button" class="editor-btn editor-btn-icon" id="redoBtn" disabled title="Redo (Ctrl+Y)"><i class="fa-solid fa-arrow-rotate-right"></i></button>
+                            <button type="submit" name="salva" class="editor-btn editor-btn-primary" id="saveBtn"><i class="fa-solid fa-floppy-disk"></i> Save</button>
                         </div>
                     </div>
                     
                     <div class="editor-controls-row">
                         <div class="editor-search-wrapper">
-                            <i class="fas fa-search editor-search-icon"></i>
+                            <i class="fa-solid fa-search editor-search-icon"></i>
                             <input type="text" class="editor-search-input" id="editorSearch" placeholder="Search settings (e.g. avatar, colors...)...">
-                            <button type="button" class="editor-search-clear" id="editorSearchClear" style="display: none;"><i class="fas fa-times"></i></button>
+                            <button type="button" class="editor-search-clear" id="editorSearchClear" style="display: none;"><i class="fa-solid fa-xmark"></i></button>
                         </div>
                     </div>
                 </div>
@@ -180,7 +180,7 @@ function profile_json_script(string $id, array $data): void
                 <div class="editor-sidebar-scroll">
                     <?php if ($profileFlashSuccess || $profileFlashError): ?>
                         <div class="bio-card profile-flash <?php echo $profileFlashError ? 'is-error' : 'is-success'; ?>" style="margin-bottom: 1rem; display: flex !important;">
-                            <i class="<?php echo $profileFlashError ? 'fas fa-triangle-exclamation' : 'fas fa-check'; ?>"></i>
+                            <i class="<?php echo $profileFlashError ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-check'; ?>"></i>
                             <span><?php echo profile_h($profileFlashError ?: $profileFlashSuccess); ?></span>
                         </div>
                     <?php endif; ?>
@@ -188,7 +188,7 @@ function profile_json_script(string $id, array $data): void
                     <div class="profile-edit-section editor-card" data-edit-section="identity">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
-                                <span class="editor-card-icon"><i class="fas fa-id-card"></i></span>
+                                <span class="editor-card-icon"><i class="fa-solid fa-id-card"></i></span>
                                 <div class="editor-card-text">
                                     <h3>Identity</h3>
                                     <p>Display name, bio, avatar, music and tags</p>
@@ -196,7 +196,7 @@ function profile_json_script(string $id, array $data): void
                             </div>
                             <div class="editor-card-actions">
                                 <span class="editor-status-badge is-active">Active</span>
-                                <span class="editor-card-chevron"><i class="fas fa-chevron-down"></i></span>
+                                <span class="editor-card-chevron"><i class="fa-solid fa-chevron-down"></i></span>
                             </div>
                         </div>
                         <div class="editor-card-body">
@@ -225,7 +225,7 @@ function profile_json_script(string $id, array $data): void
                             <label class="profile-field"><span>Profile privacy</span><select name="profile_visibility" id="visibilityInput"><?php foreach (['public' => 'Public', 'logged_in' => 'Logged in users only', 'private' => 'Private'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_visibility'] ?? 'public') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
 
                             <div class="bio-section-heading profile-mt" style="border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 1.5rem;">
-                                <div><span><i class="fas fa-tags"></i> Custom Tag / Pills</span>
+                                <div><span><i class="fa-solid fa-tags"></i> Custom Tag / Pills</span>
                                     <p>Add colored pills under your biography (max 10).</p>
                                 </div>
                                 <button type="button" class="bio-button" data-add-row="tags">+ Add Tag</button>
@@ -233,7 +233,7 @@ function profile_json_script(string $id, array $data): void
                             <div class="profile-repeater" id="tagsRepeater"></div>
 
                             <div class="bio-section-heading profile-mt">
-                                <div><span><i class="fas fa-music"></i> Profile audio</span>
+                                <div><span><i class="fa-solid fa-music"></i> Profile audio</span>
                                     <p>Upload an MP3 or use a public audio URL.</p>
                                 </div>
                             </div>
@@ -242,20 +242,20 @@ function profile_json_script(string $id, array $data): void
                                 <label class="profile-field"><span>Song URL</span><input type="url" name="profile_music_url" id="musicUrlInput" maxlength="255" value="<?php echo profile_h($profile['profile_music_url'] ?? ''); ?>" placeholder="https://.../audio.mp3"><small>Use this only if you don't upload a file.</small></label>
                                 <label class="profile-field"><span>Song title</span><input type="text" name="profile_music_title" id="musicTitleInput" maxlength="80" value="<?php echo profile_h($profile['profile_music_title'] ?? ''); ?>" placeholder="Song title"></label>
                                 <label class="profile-field"><span>Artist / note</span><input type="text" name="profile_music_artist" id="musicArtistInput" maxlength="80" value="<?php echo profile_h($profile['profile_music_artist'] ?? ''); ?>" placeholder="Artist or source"></label>
-                                <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_show_audio_player" value="0"><input type="checkbox" name="profile_show_audio_player" value="1" <?php echo (int)($profile['profile_show_audio_player'] ?? 1) === 1 ? 'checked' : ''; ?> id="showAudioPlayerInput"><span><i class="fas fa-sliders"></i>Show player</span></label>
+                                <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_show_audio_player" value="0"><input type="checkbox" name="profile_show_audio_player" value="1" <?php echo (int)($profile['profile_show_audio_player'] ?? 1) === 1 ? 'checked' : ''; ?> id="showAudioPlayerInput"><span><i class="fa-solid fa-sliders"></i>Show player</span></label>
                                 <input type="hidden" id="hasServerMusic" value="<?php echo (!empty($profile['profile_music_mime']) || !empty(trim((string)($profile['profile_music_url'] ?? '')))) ? '1' : '0'; ?>">
                                 <?php if (!empty($profile['profile_music_mime'])): ?>
-                                    <label class="profile-toggle-card profile-inline-toggle"><input type="checkbox" name="remove_profile_music_upload" value="1"><span><i class="fas fa-trash"></i>Remove uploaded MP3</span></label>
+                                    <label class="profile-toggle-card profile-inline-toggle"><input type="checkbox" name="remove_profile_music_upload" value="1"><span><i class="fa-solid fa-trash"></i>Remove uploaded MP3</span></label>
                                 <?php endif; ?>
                             </div>
 
                             <div class="bio-section-heading profile-mt">
-                                <div><span><i class="fas fa-door-open"></i> Click to Enter (Entry Screen)</span>
+                                <div><span><i class="fa-solid fa-door-open"></i> Click to Enter (Entry Screen)</span>
                                     <p>Show an entry overlay that the user must click to view the profile. Useful to auto-play audio.</p>
                                 </div>
                             </div>
                             <div class="profile-field-grid two">
-                                <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_click_to_enter" value="0"><input type="checkbox" name="profile_click_to_enter" value="1" <?php echo (int)($profile['profile_click_to_enter'] ?? 0) === 1 ? 'checked' : ''; ?> id="clickToEnterInput"><span><i class="fas fa-hand-pointer"></i>Enable Click to Enter</span></label>
+                                <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_click_to_enter" value="0"><input type="checkbox" name="profile_click_to_enter" value="1" <?php echo (int)($profile['profile_click_to_enter'] ?? 0) === 1 ? 'checked' : ''; ?> id="clickToEnterInput"><span><i class="fa-solid fa-hand-pointer"></i>Enable Click to Enter</span></label>
                                 <label class="profile-field"><span>Entry button text</span><input type="text" name="profile_enter_text" id="enterTextInput" maxlength="80" value="<?php echo profile_h($profile['profile_enter_text'] ?? ''); ?>" placeholder="E.g. Click to Enter / Enter"></label>
                             </div>
                         </div>
@@ -264,7 +264,7 @@ function profile_json_script(string $id, array $data): void
                     <div class="profile-edit-section editor-card" data-edit-section="design">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
-                                <span class="editor-card-icon"><i class="fas fa-palette"></i></span>
+                                <span class="editor-card-icon"><i class="fa-solid fa-palette"></i></span>
                                 <div class="editor-card-text">
                                     <h3>Style and Colors</h3>
                                     <p>Premium themes, palettes, layout, shapes, borders and opacity</p>
@@ -272,12 +272,12 @@ function profile_json_script(string $id, array $data): void
                             </div>
                             <div class="editor-card-actions">
                                 <span class="editor-status-badge is-active">Customized</span>
-                                <span class="editor-card-chevron"><i class="fas fa-chevron-down"></i></span>
+                                <span class="editor-card-chevron"><i class="fa-solid fa-chevron-down"></i></span>
                             </div>
                         </div>
                         <div class="editor-card-body">
                             <div class="profile-presets-block" style="margin-bottom: 1.5rem;">
-                                <span><i class="fas fa-magic"></i> Premium Themes (One-click to apply)</span>
+                                <span><i class="fa-solid fa-magic"></i> Premium Themes (One-click to apply)</span>
                                 <div class="theme-presets-gallery">
                                     <div class="theme-preset-card" data-theme-preset="cyberpunk">
                                         <div class="theme-preview-swatch">
@@ -364,7 +364,7 @@ function profile_json_script(string $id, array $data): void
                             </div>
 
                             <div class="profile-presets-block">
-                                <span><i class="fas fa-palette"></i> Quick Color Palettes</span>
+                                <span><i class="fa-solid fa-palette"></i> Quick Color Palettes</span>
                                 <div class="profile-presets-grid">
                                     <button type="button" class="profile-preset-btn" data-accent="#0f5bff" data-secondary="#8b5cf6" data-card="#080c18" data-text="#f7f8ff" style="--btn-accent: #0f5bff; --btn-secondary: #8b5cf6;" title="Default Cripsum"></button>
                                     <button type="button" class="profile-preset-btn" data-accent="#ff007f" data-secondary="#7f00ff" data-card="#0a0512" data-text="#ffebf5" style="--btn-accent: #ff007f; --btn-secondary: #7f00ff;" title="Cyberpunk"></button>
@@ -377,7 +377,7 @@ function profile_json_script(string $id, array $data): void
                             </div>
 
                             <div class="profile-presets-block profile-mt">
-                                <span><i class="fas fa-shapes"></i> UI Style Presets</span>
+                                <span><i class="fa-solid fa-shapes"></i> UI Style Presets</span>
                                 <div class="profile-presets-grid" style="grid-template-columns: repeat(3, 1fr);">
                                     <button type="button" class="ui-preset-btn btn-secondary" data-preset="modern" style="padding: 8px; font-size: 0.8rem;">Modern</button>
                                     <button type="button" class="ui-preset-btn btn-secondary" data-preset="glass" style="padding: 8px; font-size: 0.8rem;">Glass</button>
@@ -389,7 +389,7 @@ function profile_json_script(string $id, array $data): void
                             </div>
 
                             <div class="bio-section-heading profile-mt">
-                                <div><span><i class="fas fa-sliders"></i> Layout and Colors Options</span></div>
+                                <div><span><i class="fa-solid fa-sliders"></i> Layout and Colors Options</span></div>
                             </div>
                             <div class="profile-field-grid three">
                                 <label class="profile-field"><span>Primary accent</span><input type="color" name="accent_color" id="accentInput" value="<?php echo profile_h($accent); ?>"></label>
@@ -404,7 +404,7 @@ function profile_json_script(string $id, array $data): void
                             </div>
 
                             <div class="bio-section-heading profile-mt">
-                                <div><span><i class="fas fa-wand-magic-sparkles"></i> Shapes, Borders and Transparency</span></div>
+                                <div><span><i class="fa-solid fa-wand-magic-sparkles"></i> Shapes, Borders and Transparency</span></div>
                             </div>
                             <div class="profile-field-grid two">
                                 <label class="profile-field"><span>UI Global Shape</span><select name="profile_ui_shape" id="uiShapeInput">
@@ -532,7 +532,7 @@ function profile_json_script(string $id, array $data): void
                             </div>
                             <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 1.5rem;">
                                 <button type="button" id="resetDesignBtn" class="bio-button" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25); display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.9rem;">
-                                    <i class="fas fa-undo"></i> Reset to default values
+                                    <i class="fa-solid fa-arrow-rotate-left"></i> Reset to default values
                                 </button>
                             </div>
                         </div>
@@ -541,7 +541,7 @@ function profile_json_script(string $id, array $data): void
                     <div class="profile-edit-section editor-card" data-edit-section="discord">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
-                                <span class="editor-card-icon"><i class="fab fa-discord"></i></span>
+                                <span class="editor-card-icon"><i class="fa-brands fa-discord"></i></span>
                                 <div class="editor-card-text">
                                     <h3>Discord</h3>
                                     <p>Discord account connection, Lanyard ID and server Widget</p>
@@ -549,20 +549,20 @@ function profile_json_script(string $id, array $data): void
                             </div>
                             <div class="editor-card-actions">
                                 <span class="editor-status-badge <?php echo $discordConnected ? 'is-active' : ''; ?>"><?php echo $discordConnected ? 'Connected' : 'Disconnected'; ?></span>
-                                <span class="editor-card-chevron"><i class="fas fa-chevron-down"></i></span>
+                                <span class="editor-card-chevron"><i class="fa-solid fa-chevron-down"></i></span>
                             </div>
                         </div>
                         <div class="editor-card-body">
                             <div class="profile-discord-connect-card">
                                 <div class="profile-discord-connect-main">
                                     <?php if ($discordConnected): ?>
-                                        <?php if ($discordAvatarUrl): ?><img src="<?php echo profile_h($discordAvatarUrl); ?>" alt="" loading="lazy"><?php else: ?><span class="profile-discord-avatar-fallback"><i class="fab fa-discord"></i></span><?php endif; ?>
+                                        <?php if ($discordAvatarUrl): ?><img src="<?php echo profile_h($discordAvatarUrl); ?>" alt="" loading="lazy"><?php else: ?><span class="profile-discord-avatar-fallback"><i class="fa-brands fa-discord"></i></span><?php endif; ?>
                                         <div>
                                             <strong><?php echo profile_h($discordDisplayName ?: $profile['discord_username']); ?></strong>
                                             <small>@<?php echo profile_h($profile['discord_username']); ?> · ID <?php echo profile_h($profile['discord_id']); ?></small>
                                         </div>
                                     <?php else: ?>
-                                        <span class="profile-discord-avatar-fallback"><i class="fab fa-discord"></i></span>
+                                        <span class="profile-discord-avatar-fallback"><i class="fa-brands fa-discord"></i></span>
                                         <div>
                                             <strong>Discord not connected</strong>
                                             <small>Connect Discord to import ID, username and avatar.</small>
@@ -570,20 +570,20 @@ function profile_json_script(string $id, array $data): void
                                     <?php endif; ?>
                                 </div>
                                 <div class="profile-discord-actions">
-                                    <a class="bio-button bio-button--primary" href="<?php echo profile_h($connectDiscordUrl); ?>"><i class="fab fa-discord"></i><?php echo $discordConnected ? 'Reconnect' : 'Connect Discord'; ?></a>
+                                    <a class="bio-button bio-button--primary" href="<?php echo profile_h($connectDiscordUrl); ?>"><i class="fa-brands fa-discord"></i><?php echo $discordConnected ? 'Reconnect' : 'Connect Discord'; ?></a>
                                     <?php if ($discordConnected): ?>
-                                        <button class="bio-button profile-discord-disconnect" type="submit" form="disconnectDiscordForm"><i class="fas fa-link-slash"></i>Disconnect</button>
+                                        <button class="bio-button profile-discord-disconnect" type="submit" form="disconnectDiscordForm"><i class="fa-solid fa-link-slash"></i>Disconnect</button>
                                     <?php endif; ?>
                                 </div>
                             </div>
 
                             <div class="profile-field-grid two" style="margin-top: 2%;">
-                                <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="discord_use_display_name" value="0"><input type="checkbox" name="discord_use_display_name" id="discordUseNameInput" value="1" <?php echo (int)($profile['discord_use_display_name'] ?? 0) === 1 ? 'checked' : ''; ?> <?php echo !$discordConnected ? 'disabled' : ''; ?>><span><i class="fab fa-discord"></i>Use Discord name</span></label>
-                                <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="discord_use_avatar" value="0"><input type="checkbox" name="discord_use_avatar" id="discordUseAvatarInput" value="1" <?php echo (int)($profile['discord_use_avatar'] ?? 0) === 1 ? 'checked' : ''; ?> <?php echo !$discordConnected ? 'disabled' : ''; ?>><span><i class="fab fa-discord"></i>Use Discord avatar</span></label>
+                                <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="discord_use_display_name" value="0"><input type="checkbox" name="discord_use_display_name" id="discordUseNameInput" value="1" <?php echo (int)($profile['discord_use_display_name'] ?? 0) === 1 ? 'checked' : ''; ?> <?php echo !$discordConnected ? 'disabled' : ''; ?>><span><i class="fa-brands fa-discord"></i>Use Discord name</span></label>
+                                <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="discord_use_avatar" value="0"><input type="checkbox" name="discord_use_avatar" id="discordUseAvatarInput" value="1" <?php echo (int)($profile['discord_use_avatar'] ?? 0) === 1 ? 'checked' : ''; ?> <?php echo !$discordConnected ? 'disabled' : ''; ?>><span><i class="fa-brands fa-discord"></i>Use Discord avatar</span></label>
                             </div>
 
                             <div class="bio-section-heading" style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.5rem;">
-                                <div><span><i class="fas fa-signal"></i> Lanyard & Rich Presence</span>
+                                <div><span><i class="fa-solid fa-signal"></i> Lanyard & Rich Presence</span>
                                     <p>Show your state and activities in real-time (games, Spotify, etc.).</p>
                                 </div>
                             </div>
@@ -595,12 +595,12 @@ function profile_json_script(string $id, array $data): void
                             </label>
 
                             <div class="profile-discord-note" style="margin-bottom: 2rem;">
-                                <i class="fas fa-info-circle"></i>
+                                <i class="fa-solid fa-circle-info"></i>
                                 <span>Discord login only imports your ID, username and avatar. If you want to enable Rich Presence, join the <a href="https://discord.com/invite/lanyard" target="_blank" rel="noopener noreferrer">Lanyard Discord server</a>.</span>
                             </div>
 
                             <div class="bio-section-heading" style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.5rem;">
-                                <div><span><i class="fab fa-discord"></i> Discord Server</span>
+                                <div><span><i class="fa-brands fa-discord"></i> Discord Server</span>
                                     <p>Display a widget of your Discord server on your public profile.</p>
                                 </div>
                             </div>
@@ -616,7 +616,7 @@ function profile_json_script(string $id, array $data): void
                     <div class="profile-edit-section editor-card" data-edit-section="links">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
-                                <span class="editor-card-icon"><i class="fas fa-link"></i></span>
+                                <span class="editor-card-icon"><i class="fa-solid fa-link"></i></span>
                                 <div class="editor-card-text">
                                     <h3>Socials and Links</h3>
                                     <p>Social profiles (icons) and large highlighted custom cards</p>
@@ -624,19 +624,19 @@ function profile_json_script(string $id, array $data): void
                             </div>
                             <div class="editor-card-actions">
                                 <span class="editor-status-badge is-active">Links</span>
-                                <span class="editor-card-chevron"><i class="fas fa-chevron-down"></i></span>
+                                <span class="editor-card-chevron"><i class="fa-solid fa-chevron-down"></i></span>
                             </div>
                         </div>
                         <div class="editor-card-body">
                             <div class="bio-section-heading">
-                                <div><span><i class="fas fa-link"></i> Socials</span>
+                                <div><span><i class="fa-solid fa-link"></i> Socials</span>
                                     <p>Quick icons under profile details.</p>
                                 </div><button type="button" class="bio-button" data-add-row="socials">+ Social</button>
                             </div>
                             <div class="profile-repeater" id="socialsRepeater"></div>
 
                             <div class="bio-section-heading profile-mt">
-                                <div><span><i class="fas fa-star"></i> Custom Links</span>
+                                <div><span><i class="fa-solid fa-star"></i> Custom Links</span>
                                     <p>Large highlighted cards.</p>
                                 </div><button type="button" class="bio-button" data-add-row="links">+ Link</button>
                             </div>
@@ -647,7 +647,7 @@ function profile_json_script(string $id, array $data): void
                     <div class="profile-edit-section editor-card" data-edit-section="embeds">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
-                                <span class="editor-card-icon"><i class="fas fa-share-square"></i></span>
+                                <span class="editor-card-icon"><i class="fa-solid fa-share-from-square"></i></span>
                                 <div class="editor-card-text">
                                     <h3>Embed</h3>
                                     <p>Spotify playlists, YouTube videos or external widgets</p>
@@ -655,12 +655,12 @@ function profile_json_script(string $id, array $data): void
                             </div>
                             <div class="editor-card-actions">
                                 <span class="editor-status-badge is-active">Media</span>
-                                <span class="editor-card-chevron"><i class="fas fa-chevron-down"></i></span>
+                                <span class="editor-card-chevron"><i class="fa-solid fa-chevron-down"></i></span>
                             </div>
                         </div>
                         <div class="editor-card-body">
                             <div class="bio-section-heading">
-                                <div><span><i class="fas fa-share-square"></i> Embed</span>
+                                <div><span><i class="fa-solid fa-share-from-square"></i> Embed</span>
                                     <p>Insert Spotify playlist or YouTube video embed code.</p>
                                 </div><button type="button" class="bio-button" data-add-row="embeds">+ Embed</button>
                             </div>
@@ -671,7 +671,7 @@ function profile_json_script(string $id, array $data): void
                     <div class="profile-edit-section editor-card" data-edit-section="projects">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
-                                <span class="editor-card-icon"><i class="fas fa-cubes"></i></span>
+                                <span class="editor-card-icon"><i class="fa-solid fa-cubes"></i></span>
                                 <div class="editor-card-text">
                                     <h3>Projects</h3>
                                     <p>Showcase of your favorite projects or websites</p>
@@ -679,12 +679,12 @@ function profile_json_script(string $id, array $data): void
                             </div>
                             <div class="editor-card-actions">
                                 <span class="editor-status-badge is-active">Showcase</span>
-                                <span class="editor-card-chevron"><i class="fas fa-chevron-down"></i></span>
+                                <span class="editor-card-chevron"><i class="fa-solid fa-chevron-down"></i></span>
                             </div>
                         </div>
                         <div class="editor-card-body">
                             <div class="bio-section-heading">
-                                <div><span><i class="fas fa-cubes"></i> Projects</span></div>
+                                <div><span><i class="fa-solid fa-cubes"></i> Projects</span></div>
                                 <button type="button" class="bio-button" data-add-row="projects">+ Project</button>
                             </div>
                             <div class="profile-repeater" id="projectsRepeater"></div>
@@ -694,7 +694,7 @@ function profile_json_script(string $id, array $data): void
                     <div class="profile-edit-section editor-card" data-edit-section="content">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
-                                <span class="editor-card-icon"><i class="fas fa-play-circle"></i></span>
+                                <span class="editor-card-icon"><i class="fa-solid fa-circle-play"></i></span>
                                 <div class="editor-card-text">
                                     <h3>Contents</h3>
                                     <p>Edits, videos, and custom showcase layouts</p>
@@ -702,12 +702,12 @@ function profile_json_script(string $id, array $data): void
                             </div>
                             <div class="editor-card-actions">
                                 <span class="editor-status-badge is-active">Video</span>
-                                <span class="editor-card-chevron"><i class="fas fa-chevron-down"></i></span>
+                                <span class="editor-card-chevron"><i class="fa-solid fa-chevron-down"></i></span>
                             </div>
                         </div>
                         <div class="editor-card-body">
                             <div class="bio-section-heading">
-                                <div><span><i class="fas fa-play-circle"></i> Contents</span>
+                                <div><span><i class="fa-solid fa-circle-play"></i> Contents</span>
                                     <p>Edits, video, custom pages and showcases.</p>
                                 </div><button type="button" class="bio-button" data-add-row="contents">+ Content</button>
                             </div>
@@ -718,7 +718,7 @@ function profile_json_script(string $id, array $data): void
                     <div class="profile-edit-section editor-card" data-edit-section="custom">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
-                                <span class="editor-card-icon"><i class="fas fa-wand-magic-sparkles"></i></span>
+                                <span class="editor-card-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
                                 <div class="editor-card-text">
                                     <h3>Custom Blocks</h3>
                                     <p>Free custom blocks with text, images, GIFs or videos</p>
@@ -726,12 +726,12 @@ function profile_json_script(string $id, array $data): void
                             </div>
                             <div class="editor-card-actions">
                                 <span class="editor-status-badge is-active">HTML/Text</span>
-                                <span class="editor-card-chevron"><i class="fas fa-chevron-down"></i></span>
+                                <span class="editor-card-chevron"><i class="fa-solid fa-chevron-down"></i></span>
                             </div>
                         </div>
                         <div class="editor-card-body">
                             <div class="bio-section-heading">
-                                <div><span><i class="fas fa-wand-magic-sparkles"></i> Custom blocks</span>
+                                <div><span><i class="fa-solid fa-wand-magic-sparkles"></i> Custom blocks</span>
                                     <p>Texts, images, GIFs or videos.</p>
                                 </div><button type="button" class="bio-button" data-add-row="blocks">+ Block</button>
                             </div>
@@ -742,7 +742,7 @@ function profile_json_script(string $id, array $data): void
                     <div class="profile-edit-section editor-card" data-edit-section="effects">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
-                                <span class="editor-card-icon"><i class="fas fa-magic"></i></span>
+                                <span class="editor-card-icon"><i class="fa-solid fa-magic"></i></span>
                                 <div class="editor-card-text">
                                     <h3>Effects and PFP Ring</h3>
                                     <p>Page effects, PFP ring, name colors, tilt card and browser tab</p>
@@ -750,12 +750,12 @@ function profile_json_script(string $id, array $data): void
                             </div>
                             <div class="editor-card-actions">
                                 <span class="editor-status-badge is-active">Effects</span>
-                                <span class="editor-card-chevron"><i class="fas fa-chevron-down"></i></span>
+                                <span class="editor-card-chevron"><i class="fa-solid fa-chevron-down"></i></span>
                             </div>
                         </div>
                         <div class="editor-card-body">
                             <div class="bio-section-heading">
-                                <div><span><i class="fas fa-magic"></i> Page Effects</span>
+                                <div><span><i class="fa-solid fa-magic"></i> Page Effects</span>
                                     <p>Aesthetic effects for cursor, page and photo profile.</p>
                                 </div>
                             </div>
@@ -778,7 +778,7 @@ function profile_json_script(string $id, array $data): void
                                                 'cyber_grid' => 'Cyber grid'
                                             ] as $value => $label
                                         ): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_effect'] ?? 'none') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?>
-                                    </select><small id="glassRainWarning" class="profile-effect-warning" style="display:<?php echo ($profile['profile_effect'] ?? 'none') === 'glass_rain' ? 'flex' : 'none'; ?>"><i class="fas fa-info-circle"></i> Glass rain only supports static backgrounds (images).</small></label>
+                                    </select><small id="glassRainWarning" class="profile-effect-warning" style="display:<?php echo ($profile['profile_effect'] ?? 'none') === 'glass_rain' ? 'flex' : 'none'; ?>"><i class="fa-solid fa-circle-info"></i> Glass rain only supports static backgrounds (images).</small></label>
                                 <label class="profile-field"><span>PFP Ring style</span><select name="avatar_ring_style" id="ringStyleInput">
                                         <?php foreach (
                                             [
@@ -799,13 +799,13 @@ function profile_json_script(string $id, array $data): void
                                 <label class="profile-field"><span>PFP Ring color</span><input type="color" name="avatar_ring_color" id="ringColorInput" value="<?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>"></label>
                             </div>
                             <div class="profile-effect-hint" style="margin: 0.5rem 0 1rem 0;">
-                                <span><i class="fas fa-info-circle"></i> The ring color is applied on the public profile.</span>
+                                <span><i class="fa-solid fa-circle-info"></i> The ring color is applied on the public profile.</span>
                             </div>
-                            <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="avatar_ring_enabled" value="0"><input type="checkbox" name="avatar_ring_enabled" id="ringEnabledInput" value="1" <?php echo (int)($profile['avatar_ring_enabled'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-circle-notch"></i>Show ring around profile picture</span></label>
-                            <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_avatar_border" value="0"><input type="checkbox" name="profile_avatar_border" id="avatarBorderInput" value="1" <?php echo (int)($profile['profile_avatar_border'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-border-style"></i>Show border on profile picture</span></label>
+                            <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="avatar_ring_enabled" value="0"><input type="checkbox" name="avatar_ring_enabled" id="ringEnabledInput" value="1" <?php echo (int)($profile['avatar_ring_enabled'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fa-solid fa-circle-notch"></i>Show ring around profile picture</span></label>
+                            <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_avatar_border" value="0"><input type="checkbox" name="profile_avatar_border" id="avatarBorderInput" value="1" <?php echo (int)($profile['profile_avatar_border'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fa-solid fa-border-style"></i>Show border on profile picture</span></label>
 
                             <div class="bio-section-heading" style="margin-top: 1.8rem; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 1.5rem;">
-                                <div><span><i class="fas fa-signature"></i> Display Name Customization</span>
+                                <div><span><i class="fa-solid fa-signature"></i> Display Name Customization</span>
                                     <p>Customize the look and animation of your profile display name.</p>
                                 </div>
                             </div>
@@ -864,7 +864,7 @@ function profile_json_script(string $id, array $data): void
                             }
                             ?>
                             <div class="bio-section-heading" style="margin-top: 1.8rem; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 1.5rem;">
-                                <div><span><i class="fas fa-cube"></i> Tilt Card Effect</span>
+                                <div><span><i class="fa-solid fa-cube"></i> Tilt Card Effect</span>
                                     <p>Customize the 3D tilt effect on your profile card when hovered by the mouse.</p>
                                 </div>
                             </div>
@@ -910,7 +910,7 @@ function profile_json_script(string $id, array $data): void
                             </div>
 
                             <div class="bio-section-heading" style="margin-top: 1.8rem; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 1.5rem;">
-                                <div><span><i class="fas fa-window-maximize"></i> Browser Tab Title</span>
+                                <div><span><i class="fa-solid fa-window-maximize"></i> Browser Tab Title</span>
                                     <p>Customize the title of the browser tab and add animated title effects.</p>
                                 </div>
                             </div>
@@ -944,7 +944,7 @@ function profile_json_script(string $id, array $data): void
                     <div class="profile-edit-section editor-card" data-edit-section="badges">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
-                                <span class="editor-card-icon"><i class="fas fa-trophy"></i></span>
+                                <span class="editor-card-icon"><i class="fa-solid fa-trophy"></i></span>
                                 <div class="editor-card-text">
                                     <h3>Badges</h3>
                                     <p>Select which badges to show on profile and sort them</p>
@@ -952,12 +952,12 @@ function profile_json_script(string $id, array $data): void
                             </div>
                             <div class="editor-card-actions">
                                 <span class="editor-status-badge is-active">Badges</span>
-                                <span class="editor-card-chevron"><i class="fas fa-chevron-down"></i></span>
+                                <span class="editor-card-chevron"><i class="fa-solid fa-chevron-down"></i></span>
                             </div>
                         </div>
                         <div class="editor-card-body">
                             <div class="bio-section-heading">
-                                <div><span><i class="fas fa-trophy"></i> Visible Badges</span>
+                                <div><span><i class="fa-solid fa-trophy"></i> Visible Badges</span>
                                     <p>Choose up to 8 badges to display on your profile and sort them.</p>
                                 </div>
                             </div>
@@ -970,7 +970,7 @@ function profile_json_script(string $id, array $data): void
                     <div class="profile-edit-section editor-card" data-edit-section="characters">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
-                                <span class="editor-card-icon"><i class="fas fa-user-astronaut"></i></span>
+                                <span class="editor-card-icon"><i class="fa-solid fa-user-astronaut"></i></span>
                                 <div class="editor-card-text">
                                     <h3>Favorite Characters</h3>
                                     <p>Showcase up to 12 inventory characters on your profile</p>
@@ -978,13 +978,13 @@ function profile_json_script(string $id, array $data): void
                             </div>
                             <div class="editor-card-actions">
                                 <span class="editor-status-badge is-active">Inventory</span>
-                                <span class="editor-card-chevron"><i class="fas fa-chevron-down"></i></span>
+                                <span class="editor-card-chevron"><i class="fa-solid fa-chevron-down"></i></span>
                             </div>
                         </div>
                         <div class="editor-card-body">
                             <?php if ($inventoryCharacters): ?>
                                 <div class="profile-character-search-wrap editor-search-wrapper">
-                                    <i class="fas fa-search editor-search-icon"></i>
+                                    <i class="fa-solid fa-search editor-search-icon"></i>
                                     <input
                                         type="text"
                                         id="characterSearchInput"
@@ -1014,7 +1014,7 @@ function profile_json_script(string $id, array $data): void
                                                 <img src="<?php echo profile_h($charImg); ?>" alt="<?php echo profile_h($char['nome']); ?>" loading="lazy">
                                             <?php else: ?>
                                                 <span class="profile-character-img-fallback-picker">
-                                                    <i class="fas fa-user-astronaut"></i>
+                                                    <i class="fa-solid fa-user-astronaut"></i>
                                                 </span>
                                             <?php endif; ?>
 
@@ -1029,7 +1029,7 @@ function profile_json_script(string $id, array $data): void
                                 </div>
 
                                 <p class="profile-character-hint">
-                                    <i class="fas fa-circle-info"></i>
+                                    <i class="fa-solid fa-circle-info"></i>
                                     <?php
                                     $selectedCount = count(array_filter($inventoryCharacters, fn($c) => (int)$c['selected'] === 1));
                                     echo $selectedCount . '/12 selected.';
@@ -1037,7 +1037,7 @@ function profile_json_script(string $id, array $data): void
                                 </p>
 
                                 <div class="profile-character-sort-section" style="margin-top: 1.5rem;">
-                                    <strong style="display: block; margin-bottom: 0.5rem;"><i class="fas fa-sort"></i> Selected Characters Sorting</strong>
+                                    <strong style="display: block; margin-bottom: 0.5rem;"><i class="fa-solid fa-sort"></i> Selected Characters Sorting</strong>
                                     <p style="font-size: 0.82rem; color: var(--muted-2); margin-bottom: 0.75rem;">Drag and drop to rearrange order of appearance.</p>
                                     <div id="characterSortList" class="profile-character-sort-list">
                                         <!-- Populated dynamically via JS -->
@@ -1046,7 +1046,7 @@ function profile_json_script(string $id, array $data): void
 
                             <?php else: ?>
                                 <div class="bio-empty-state">
-                                    <i class="fas fa-user-astronaut"></i>
+                                    <i class="fa-solid fa-user-astronaut"></i>
                                     <strong>No characters in inventory</strong>
                                     <p>Acquire characters from lootboxes to display them here.</p>
                                 </div>
@@ -1057,7 +1057,7 @@ function profile_json_script(string $id, array $data): void
                     <div class="profile-edit-section editor-card" data-edit-section="visibility">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
-                                <span class="editor-card-icon"><i class="fas fa-eye"></i></span>
+                                <span class="editor-card-icon"><i class="fa-solid fa-eye"></i></span>
                                 <div class="editor-card-text">
                                     <h3>Visibility and Sorting</h3>
                                     <p>Toggle visible sections, rearrange profile layout sections</p>
@@ -1065,37 +1065,37 @@ function profile_json_script(string $id, array $data): void
                             </div>
                             <div class="editor-card-actions">
                                 <span class="editor-status-badge is-active">Options</span>
-                                <span class="editor-card-chevron"><i class="fas fa-chevron-down"></i></span>
+                                <span class="editor-card-chevron"><i class="fa-solid fa-chevron-down"></i></span>
                             </div>
                         </div>
                         <div class="editor-card-body">
                             <div class="bio-section-heading">
-                                <div><span><i class="fas fa-eye"></i> Public Sections Visibility</span>
+                                <div><span><i class="fa-solid fa-eye"></i> Public Sections Visibility</span>
                                     <p>Disable features you don't want to display. Empty sections stay hidden automatically.</p>
                                 </div>
                             </div>
                             <div class="profile-toggle-grid">
-                                <label class="profile-toggle-card"><input type="hidden" name="profile_show_socials" value="0"><input type="checkbox" name="profile_show_socials" value="1" <?php echo (int)($profile['profile_show_socials'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fab fa-instagram"></i>Social</span></label>
-                                <label class="profile-toggle-card"><input type="hidden" name="profile_show_links" value="0"><input type="checkbox" name="profile_show_links" value="1" <?php echo (int)($profile['profile_show_links'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-link"></i>Links</span></label>
-                                <label class="profile-toggle-card"><input type="hidden" name="profile_show_embeds" value="0"><input type="checkbox" name="profile_show_embeds" value="1" <?php echo (int)($profile['profile_show_embeds'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-share-square"></i>Embeds</span></label>
-                                <label class="profile-toggle-card"><input type="hidden" name="profile_show_projects" value="0"><input type="checkbox" name="profile_show_projects" value="1" <?php echo (int)($profile['profile_show_projects'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-cubes"></i>Projects</span></label>
-                                <label class="profile-toggle-card"><input type="hidden" name="profile_show_contents" value="0"><input type="checkbox" name="profile_show_contents" value="1" <?php echo (int)($profile['profile_show_contents'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-play"></i>Edits & content</span></label>
-                                <label class="profile-toggle-card"><input type="hidden" name="profile_show_blocks" value="0"><input type="checkbox" name="profile_show_blocks" value="1" <?php echo (int)($profile['profile_show_blocks'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-wand-magic-sparkles"></i>Custom Blocks</span></label>
-                                <label class="profile-toggle-card"><input type="hidden" name="profile_show_badges" value="0"><input type="checkbox" name="profile_show_badges" value="1" <?php echo (int)($profile['profile_show_badges'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-trophy"></i>Badges</span></label>
+                                <label class="profile-toggle-card"><input type="hidden" name="profile_show_socials" value="0"><input type="checkbox" name="profile_show_socials" value="1" <?php echo (int)($profile['profile_show_socials'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fa-brands fa-instagram"></i>Social</span></label>
+                                <label class="profile-toggle-card"><input type="hidden" name="profile_show_links" value="0"><input type="checkbox" name="profile_show_links" value="1" <?php echo (int)($profile['profile_show_links'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fa-solid fa-link"></i>Links</span></label>
+                                <label class="profile-toggle-card"><input type="hidden" name="profile_show_embeds" value="0"><input type="checkbox" name="profile_show_embeds" value="1" <?php echo (int)($profile['profile_show_embeds'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fa-solid fa-share-from-square"></i>Embeds</span></label>
+                                <label class="profile-toggle-card"><input type="hidden" name="profile_show_projects" value="0"><input type="checkbox" name="profile_show_projects" value="1" <?php echo (int)($profile['profile_show_projects'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fa-solid fa-cubes"></i>Projects</span></label>
+                                <label class="profile-toggle-card"><input type="hidden" name="profile_show_contents" value="0"><input type="checkbox" name="profile_show_contents" value="1" <?php echo (int)($profile['profile_show_contents'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fa-solid fa-play"></i>Edits & content</span></label>
+                                <label class="profile-toggle-card"><input type="hidden" name="profile_show_blocks" value="0"><input type="checkbox" name="profile_show_blocks" value="1" <?php echo (int)($profile['profile_show_blocks'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fa-solid fa-wand-magic-sparkles"></i>Custom Blocks</span></label>
+                                <label class="profile-toggle-card"><input type="hidden" name="profile_show_badges" value="0"><input type="checkbox" name="profile_show_badges" value="1" <?php echo (int)($profile['profile_show_badges'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fa-solid fa-trophy"></i>Badges</span></label>
                                 <label class="profile-toggle-card">
                                     <input type="hidden" name="profile_show_characters" value="0">
                                     <input type="checkbox" name="profile_show_characters" value="1"
                                         <?php echo (int)($profile['profile_show_characters'] ?? 1) === 1 ? 'checked' : ''; ?>>
-                                    <span><i class="fas fa-user-astronaut"></i>Characters</span>
+                                    <span><i class="fa-solid fa-user-astronaut"></i>Characters</span>
                                 </label>
-                                <label class="profile-toggle-card"><input type="hidden" name="profile_show_stats" value="0"><input type="checkbox" name="profile_show_stats" value="1" <?php echo (int)($profile['profile_show_stats'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-chart-simple"></i>Stats</span></label>
-                                <label class="profile-toggle-card"><input type="hidden" name="profile_show_activity" value="0"><input type="checkbox" name="profile_show_activity" value="1" <?php echo (int)($profile['profile_show_activity'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fas fa-clock"></i>Activity</span></label>
-                                <label class="profile-toggle-card"><input type="hidden" name="profile_show_discord" value="0"><input type="checkbox" name="profile_show_discord" value="1" <?php echo (int)($profile['profile_show_discord'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fab fa-discord"></i>Discord</span></label>
+                                <label class="profile-toggle-card"><input type="hidden" name="profile_show_stats" value="0"><input type="checkbox" name="profile_show_stats" value="1" <?php echo (int)($profile['profile_show_stats'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fa-solid fa-chart-simple"></i>Stats</span></label>
+                                <label class="profile-toggle-card"><input type="hidden" name="profile_show_activity" value="0"><input type="checkbox" name="profile_show_activity" value="1" <?php echo (int)($profile['profile_show_activity'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fa-solid fa-clock"></i>Activity</span></label>
+                                <label class="profile-toggle-card"><input type="hidden" name="profile_show_discord" value="0"><input type="checkbox" name="profile_show_discord" value="1" <?php echo (int)($profile['profile_show_discord'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fa-brands fa-discord"></i>Discord</span></label>
                             </div>
 
                             <div style="margin-top: 1.25rem; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                                 <label class="profile-field" style="display: flex; flex-direction: column; gap: 0.4rem; width: 100%;">
-                                    <span style="font-size: 0.82rem; font-weight: 600; color: var(--muted);"><i class="fas fa-trophy"></i> Badges Display Mode</span>
+                                    <span style="font-size: 0.82rem; font-weight: 600; color: var(--muted);"><i class="fa-solid fa-trophy"></i> Badges Display Mode</span>
                                     <select name="profile_badges_display" id="badgesDisplayInput" class="profile-select-menu" style="width: 100%; max-width: 100%;">
                                         <option value="both" <?php echo ($profile['profile_badges_display'] ?? 'both') === 'both' ? 'selected' : ''; ?>>Show in both (profile card and badges tab)</option>
                                         <option value="card_only" <?php echo ($profile['profile_badges_display'] ?? 'both') === 'card_only' ? 'selected' : ''; ?>>Show only on profile card (main container)</option>
@@ -1104,7 +1104,7 @@ function profile_json_script(string $id, array $data): void
                                     </select>
                                 </label>
                                 <label class="profile-field" style="display: flex; flex-direction: column; gap: 0.4rem; width: 100%;">
-                                    <span style="font-size: 0.82rem; font-weight: 600; color: var(--muted);"><i class="fas fa-location-arrow"></i> Mini-badges Position</span>
+                                    <span style="font-size: 0.82rem; font-weight: 600; color: var(--muted);"><i class="fa-solid fa-location-arrow"></i> Mini-badges Position</span>
                                     <select name="profile_badges_position" id="badgesPositionInput" class="profile-select-menu" style="width: 100%; max-width: 100%;">
                                         <option value="below_bio" <?php echo ($profile['profile_badges_position'] ?? 'below_bio') === 'below_bio' ? 'selected' : ''; ?>>Below bio</option>
                                         <option value="below_username" <?php echo ($profile['profile_badges_position'] ?? 'below_bio') === 'below_username' ? 'selected' : ''; ?>>Below username</option>
@@ -1114,7 +1114,7 @@ function profile_json_script(string $id, array $data): void
                             </div>
 
                             <div class="bio-section-heading" style="margin-top: 1.8rem;">
-                                <div><span><i class="fas fa-sort"></i> Sections Sorting</span>
+                                <div><span><i class="fa-solid fa-sort"></i> Sections Sorting</span>
                                     <p>Drag and drop sections to rearrange their vertical order on your public profile.</p>
                                 </div>
                             </div>
@@ -1128,7 +1128,7 @@ function profile_json_script(string $id, array $data): void
                     <div class="profile-edit-section editor-card" data-edit-section="presets">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
-                                <span class="editor-card-icon"><i class="fas fa-magic"></i></span>
+                                <span class="editor-card-icon"><i class="fa-solid fa-magic"></i></span>
                                 <div class="editor-card-text">
                                     <h3>Profile Presets</h3>
                                     <p>Save or load complete configurations to swap profile designs instantly</p>
@@ -1136,15 +1136,15 @@ function profile_json_script(string $id, array $data): void
                             </div>
                             <div class="editor-card-actions">
                                 <span class="editor-status-badge is-active">Presets</span>
-                                <span class="editor-card-chevron"><i class="fas fa-chevron-down"></i></span>
+                                <span class="editor-card-chevron"><i class="fa-solid fa-chevron-down"></i></span>
                             </div>
                         </div>
                         <div class="editor-card-body">
                             <div class="bio-section-heading">
-                                <div><span><i class="fas fa-magic"></i> Profile Presets</span>
+                                <div><span><i class="fa-solid fa-magic"></i> Profile Presets</span>
                                     <p>Save and load complete configurations of your profile (max 3 presets).</p>
                                 </div>
-                                <button type="button" class="bio-button" id="saveNewPresetBtn"><i class="fas fa-plus"></i> Save Current Preset</button>
+                                <button type="button" class="bio-button" id="saveNewPresetBtn"><i class="fa-solid fa-plus"></i> Save Current Preset</button>
                             </div>
                             <div class="presets-list-container" id="presetsListContainer">
                                 <!-- Presets loaded via AJAX -->
@@ -1161,10 +1161,10 @@ function profile_json_script(string $id, array $data): void
                 <div class="preview-toolbar">
                     <span class="preview-status">Real-time Live Preview</span>
                     <div class="viewport-buttons">
-                        <button type="button" class="btn-viewport is-active" data-viewport="desktop"><i class="fas fa-desktop"></i> Desktop</button>
-                        <button type="button" class="btn-viewport" data-viewport="mobile"><i class="fas fa-mobile-alt"></i> Mobile</button>
+                        <button type="button" class="btn-viewport is-active" data-viewport="desktop"><i class="fa-solid fa-desktop"></i> Desktop</button>
+                        <button type="button" class="btn-viewport" data-viewport="mobile"><i class="fa-solid fa-mobile-screen-button"></i> Mobile</button>
                     </div>
-                    <a href="/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" target="_blank" class="btn-view-live" title="Open in new tab"><i class="fas fa-external-link-alt"></i> Go to profile</a>
+                    <a href="/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" target="_blank" class="btn-view-live" title="Open in new tab"><i class="fa-solid fa-up-right-from-square"></i> Go to profile</a>
                 </div>
                 <div class="preview-canvas">
                     <div class="device-frame desktop" id="previewDeviceFrame">

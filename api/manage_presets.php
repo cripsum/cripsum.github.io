@@ -333,7 +333,7 @@ switch ($action) {
                 $title = profile_clean_text($row['title'] ?? '', 60);
                 $description = profile_clean_text($row['description'] ?? '', 160);
                 $url = trim((string)($row['url'] ?? ''));
-                $icon = profile_clean_text($row['icon'] ?? 'fas fa-link', 40);
+                $icon = profile_clean_text($row['icon'] ?? 'fa-solid fa-link', 40);
                 $buttonStyle = profile_allowed_value((string)($row['button_style'] ?? 'card'), ['card', 'compact', 'icon'], 'card');
                 $featured = !empty($row['is_featured']) ? 1 : 0;
                 $visible = !empty($row['is_visible']) ? 1 : 0;

@@ -121,7 +121,7 @@
             popup.innerHTML = `
                 <img id="popup-image" class="achievement-popup__image" src="${FALLBACK_IMAGE}" alt="Achievement" loading="lazy">
                 <div class="achievement-popup__content" data-achievement-popup-content>
-                    <span class="achievement-popup__kicker"><i class="fas fa-trophy"></i> Achievement</span>
+                    <span class="achievement-popup__kicker"><i class="fa-solid fa-trophy"></i> Achievement</span>
                     <h3 id="popup-title" class="achievement-popup__title"></h3>
                     <p id="popup-description" class="achievement-popup__description"></p>
                     <div class="achievement-popup__meta">
@@ -130,7 +130,7 @@
                     </div>
                 </div>
                 <button type="button" class="achievement-popup__close" data-achievement-close aria-label="Chiudi achievement">
-                    <i class="fas fa-xmark"></i>
+                    <i class="fa-solid fa-xmark"></i>
                 </button>
                 <div class="achievement-popup__bar" aria-hidden="true"><span></span></div>
             `;
