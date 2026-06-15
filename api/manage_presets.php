@@ -22,6 +22,91 @@ $targetUserId = ($requestTargetUserId > 0 && profile_is_staff()) ? $requestTarge
 // Action dispatcher
 $action = $_GET['action'] ?? '';
 
+function profile_build_preset_data(mysqli $mysqli, int $targetUserId): ?array
+{
+    // Columns representing all customizations & style tokens
+    $columnsToSave = [
+        'display_name', 'bio', 'profile_banner_type', 'accent_color', 'profile_secondary_color',
+        'profile_card_color', 'profile_text_color', 'profile_link_style', 'profile_button_shape',
+        'profile_theme', 'profile_layout', 'profile_visibility', 'profile_status', 'profile_show_stats',
+        'profile_show_socials', 'profile_show_links', 'profile_show_projects', 'profile_show_contents',
+        'profile_show_blocks',
+        'profile_show_badges', 'profile_show_activity', 'profile_show_discord', 'profile_music_url',
+        'profile_music_mime', 'profile_music_title', 'profile_music_artist', 'profile_show_audio_player',
+        'profile_effect', 'profile_show_characters', 'avatar_ring_enabled', 'avatar_ring_style',
+        'avatar_ring_color', 'profile_enter_text', 'profile_click_to_enter', 'profile_socials_style',
+        'profile_show_embeds', 'profile_sections_order', 'profile_badges_display', 'profile_badges_position',
+        'discord_server_invite', 'profile_font', 'profile_border_radius', 'profile_card_opacity',
+        'profile_card_blur', 'profile_border_opacity', 'profile_border_color', 'profile_border_width',
+        'profile_name_style', 'profile_ui_shape', 'profile_avatar_shape', 'profile_social_size',
+        'profile_icon_spacing', 'profile_badge_size', 'profile_button_size', 'profile_avatar_border',
+        'tilt_enabled', 'tilt_max', 'tilt_glare', 'tilt_zoom', 'tilt_speed', 'profile_tags_json',
+        'profile_tab_title', 'profile_tab_animation', 'profile_tab_animation_speed', 'profile_tab_animation_text',
+        'profile_corner_style', 'profile_corner_style_custom', 'profile_border_style'
+    ];
+
+    $profile = profile_get_edit_profile($mysqli, $targetUserId);
+    if (!$profile) {
+        return null;
+    }
+
+    $presetData = [];
+    foreach ($columnsToSave as $col) {
+        if (isset($_POST[$col])) {
+            $presetData[$col] = $_POST[$col];
+        } else {
+            $presetData[$col] = $profile[$col] ?? null;
+        }
+    }
+
+    // Checkbox values override (unchecked checkboxes are not present in POST payload)
+    $booleans = [
+        'tilt_enabled', 'avatar_ring_enabled', 'profile_avatar_border', 'profile_show_stats',
+        'profile_show_socials', 'profile_show_links', 'profile_show_projects', 'profile_show_contents',
+        'profile_show_blocks',
+        'profile_show_badges', 'profile_show_activity', 'profile_show_discord', 'profile_show_audio_player',
+        'profile_click_to_enter', 'profile_show_embeds', 'profile_show_characters'
+    ];
+    foreach ($booleans as $boolCol) {
+        $presetData[$boolCol] = isset($_POST[$boolCol]) ? (int)$_POST[$boolCol] : 0;
+    }
+
+    // Save layout structures as serialized lists
+    $presetData['socials_json'] = $_POST['socials_json'] ?? '[]';
+    $presetData['links_json'] = $_POST['links_json'] ?? '[]';
+    $presetData['projects_json'] = $_POST['projects_json'] ?? '[]';
+    $presetData['contents_json'] = $_POST['contents_json'] ?? '[]';
+    $presetData['blocks_json'] = $_POST['blocks_json'] ?? '[]';
+    $presetData['embeds_json'] = $_POST['embeds_json'] ?? '[]';
+    $presetData['badges_json'] = $_POST['badges_json'] ?? '[]';
+    $presetData['characters_json'] = $_POST['characters_json'] ?? '[]';
+
+    // Fetch media blobs from the database
+    $mediaStmt = $mysqli->prepare("SELECT profile_pic, profile_pic_type, profile_banner, profile_banner_type, profile_music_blob, profile_music_mime FROM utenti WHERE id = ? LIMIT 1");
+    $mediaStmt->bind_param('i', $targetUserId);
+    $mediaStmt->execute();
+    $mediaRow = $mediaStmt->get_result()->fetch_assoc();
+    $mediaStmt->close();
+
+    if ($mediaRow) {
+        $presetData['profile_pic_b64'] = $mediaRow['profile_pic'] ? base64_encode($mediaRow['profile_pic']) : null;
+        $presetData['profile_pic_type'] = $mediaRow['profile_pic_type'];
+        $presetData['profile_banner_b64'] = $mediaRow['profile_banner'] ? base64_encode($mediaRow['profile_banner']) : null;
+        $presetData['profile_banner_type'] = $mediaRow['profile_banner_type'];
+        $presetData['profile_music_b64'] = $mediaRow['profile_music_blob'] ? base64_encode($mediaRow['profile_music_blob']) : null;
+        $presetData['profile_music_mime'] = $mediaRow['profile_music_mime'];
+    } else {
+        $presetData['profile_pic_b64'] = null;
+        $presetData['profile_pic_type'] = null;
+        $presetData['profile_banner_b64'] = null;
+        $presetData['profile_banner_type'] = null;
+        $presetData['profile_music_b64'] = null;
+        $presetData['profile_music_mime'] = null;
+    }
+
+    return $presetData;
+}
+
 switch ($action) {
     case 'list':
         $stmt = $mysqli->prepare("SELECT id, nome, created_at, preset_data FROM utenti_presets WHERE utente_id = ? OR utente_id = ? ORDER BY created_at DESC");
@@ -61,89 +146,10 @@ switch ($action) {
             exit;
         }
 
-        // Columns representing all customizations & style tokens
-        $columnsToSave = [
-            'display_name', 'bio', 'profile_banner_type', 'accent_color', 'profile_secondary_color', 
-            'profile_card_color', 'profile_text_color', 'profile_link_style', 'profile_button_shape', 
-            'profile_theme', 'profile_layout', 'profile_visibility', 'profile_status', 'profile_show_stats', 
-            'profile_show_socials', 'profile_show_links', 'profile_show_projects', 'profile_show_contents', 
-            'profile_show_blocks', 
-            'profile_show_badges', 'profile_show_activity', 'profile_show_discord', 'profile_music_url', 
-            'profile_music_mime', 'profile_music_title', 'profile_music_artist', 'profile_show_audio_player', 
-            'profile_effect', 'profile_show_characters', 'avatar_ring_enabled', 'avatar_ring_style',  
-            'avatar_ring_color', 'profile_enter_text', 'profile_click_to_enter', 'profile_socials_style', 
-            'profile_show_embeds', 'profile_sections_order', 'profile_badges_display', 'profile_badges_position', 
-            'discord_server_invite', 'profile_font', 'profile_border_radius', 'profile_card_opacity', 
-            'profile_card_blur', 'profile_border_opacity', 'profile_border_color', 'profile_border_width', 
-            'profile_name_style', 'profile_ui_shape', 'profile_avatar_shape', 'profile_social_size', 
-            'profile_icon_spacing', 'profile_badge_size', 'profile_button_size', 'profile_avatar_border',
-            'tilt_enabled', 'tilt_max', 'tilt_glare', 'tilt_zoom', 'tilt_speed', 'profile_tags_json',
-            'profile_tab_title', 'profile_tab_animation', 'profile_tab_animation_speed', 'profile_tab_animation_text',
-            'profile_corner_style', 'profile_corner_style_custom', 'profile_border_style'
-        ];
-
-        $profile = profile_get_edit_profile($mysqli, $targetUserId);
-        if (!$profile) {
+        $presetData = profile_build_preset_data($mysqli, $targetUserId);
+        if (!$presetData) {
             echo json_encode(['ok' => false, 'message' => 'Profilo non trovato.']);
             exit;
-        }
-
-        $presetData = [];
-        foreach ($columnsToSave as $col) {
-            if (isset($_POST[$col])) {
-                $presetData[$col] = $_POST[$col];
-            } else {
-                $presetData[$col] = $profile[$col] ?? null;
-            }
-        }
-
-        // Checkbox values override (unchecked checkboxes are not present in POST payload)
-        $booleans = [
-            'tilt_enabled', 'avatar_ring_enabled', 'profile_avatar_border', 'profile_show_stats', 
-            'profile_show_socials', 'profile_show_links', 'profile_show_projects', 'profile_show_contents', 
-            'profile_show_blocks', 
-            'profile_show_badges', 'profile_show_activity', 'profile_show_discord', 'profile_show_audio_player', 
-            'profile_click_to_enter', 'profile_show_embeds', 'profile_show_characters'
-        ];
-        foreach ($booleans as $boolCol) {
-            if (isset($_POST[$boolCol])) {
-                $presetData[$boolCol] = (int)$_POST[$boolCol];
-            } else if (isset($_POST['preset_name'])) {
-                $presetData[$boolCol] = 0;
-            }
-        }
-
-        // Save layout structures as serialized lists
-        $presetData['socials_json'] = $_POST['socials_json'] ?? '[]';
-        $presetData['links_json'] = $_POST['links_json'] ?? '[]';
-        $presetData['projects_json'] = $_POST['projects_json'] ?? '[]';
-        $presetData['contents_json'] = $_POST['contents_json'] ?? '[]';
-        $presetData['blocks_json'] = $_POST['blocks_json'] ?? '[]';
-        $presetData['embeds_json'] = $_POST['embeds_json'] ?? '[]';
-        $presetData['badges_json'] = $_POST['badges_json'] ?? '[]';
-        $presetData['characters_json'] = $_POST['characters_json'] ?? '[]';
-
-        // Fetch media blobs from the database
-        $mediaStmt = $mysqli->prepare("SELECT profile_pic, profile_pic_type, profile_banner, profile_banner_type, profile_music_blob, profile_music_mime FROM utenti WHERE id = ? LIMIT 1");
-        $mediaStmt->bind_param('i', $targetUserId);
-        $mediaStmt->execute();
-        $mediaRow = $mediaStmt->get_result()->fetch_assoc();
-        $mediaStmt->close();
-
-        if ($mediaRow) {
-            $presetData['profile_pic_b64'] = $mediaRow['profile_pic'] ? base64_encode($mediaRow['profile_pic']) : null;
-            $presetData['profile_pic_type'] = $mediaRow['profile_pic_type'];
-            $presetData['profile_banner_b64'] = $mediaRow['profile_banner'] ? base64_encode($mediaRow['profile_banner']) : null;
-            $presetData['profile_banner_type'] = $mediaRow['profile_banner_type'];
-            $presetData['profile_music_b64'] = $mediaRow['profile_music_blob'] ? base64_encode($mediaRow['profile_music_blob']) : null;
-            $presetData['profile_music_mime'] = $mediaRow['profile_music_mime'];
-        } else {
-            $presetData['profile_pic_b64'] = null;
-            $presetData['profile_pic_type'] = null;
-            $presetData['profile_banner_b64'] = null;
-            $presetData['profile_banner_type'] = null;
-            $presetData['profile_music_b64'] = null;
-            $presetData['profile_music_mime'] = null;
         }
 
         $serialized = json_encode($presetData, JSON_UNESCAPED_UNICODE);
@@ -154,6 +160,41 @@ switch ($action) {
             echo json_encode(['ok' => true, 'message' => 'Preset salvato con successo!']);
         } else {
             echo json_encode(['ok' => false, 'message' => 'Errore nel salvataggio del preset.']);
+        }
+        $stmt->close();
+        break;
+
+    case 'update':
+        $presetId = (int)($_POST['preset_id'] ?? 0);
+        if ($presetId <= 0) {
+            echo json_encode(['ok' => false, 'message' => 'Preset ID non valido.']);
+            exit;
+        }
+
+        $stmt = $mysqli->prepare("SELECT id FROM utenti_presets WHERE id = ? AND (utente_id = ? OR utente_id = ?) LIMIT 1");
+        $stmt->bind_param('iii', $presetId, $targetUserId, $currentUserId);
+        $stmt->execute();
+        $presetRow = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        if (!$presetRow) {
+            echo json_encode(['ok' => false, 'message' => 'Preset non trovato.']);
+            exit;
+        }
+
+        $presetData = profile_build_preset_data($mysqli, $targetUserId);
+        if (!$presetData) {
+            echo json_encode(['ok' => false, 'message' => 'Profilo non trovato.']);
+            exit;
+        }
+
+        $serialized = json_encode($presetData, JSON_UNESCAPED_UNICODE);
+        $stmt = $mysqli->prepare("UPDATE utenti_presets SET preset_data = ? WHERE id = ? AND (utente_id = ? OR utente_id = ?)");
+        $stmt->bind_param('siii', $serialized, $presetId, $targetUserId, $currentUserId);
+        if ($stmt->execute()) {
+            echo json_encode(['ok' => true, 'message' => 'Preset aggiornato con successo!']);
+        } else {
+            echo json_encode(['ok' => false, 'message' => 'Errore nell\'aggiornamento del preset.']);
         }
         $stmt->close();
         break;

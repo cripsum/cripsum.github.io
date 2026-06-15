@@ -2135,9 +2135,10 @@
                     <small style="color: var(--muted); font-size: 0.8rem;">${isEnglish ? 'Created on:' : 'Creato il:'} ${escapeAttr(preset.created_at)}</small>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem;">
                         <button type="button" class="bio-button load-preset-btn" data-id="${preset.id}" style="padding: 0.4rem; font-size: 0.85rem;"><i class="fa-solid fa-upload"></i> ${isEnglish ? 'Load' : 'Carica'}</button>
+                        <button type="button" class="bio-button update-preset-btn" data-id="${preset.id}" data-name="${escapeAttr(preset.nome)}" style="padding: 0.4rem; font-size: 0.85rem; background: rgba(var(--accent-rgb), 0.15); color: var(--accent); border: 1px solid rgba(var(--accent-rgb), 0.28);"><i class="fa-solid fa-save"></i> ${isEnglish ? 'Update' : 'Aggiorna'}</button>
                         <button type="button" class="bio-button duplicate-preset-btn" data-id="${preset.id}" style="padding: 0.4rem; font-size: 0.85rem; background: rgba(255,255,255,0.05); color: #fff;"><i class="fa-solid fa-copy"></i> ${isEnglish ? 'Copy' : 'Duplica'}</button>
                         <button type="button" class="bio-button rename-preset-btn" data-id="${preset.id}" data-name="${escapeAttr(preset.nome)}" style="padding: 0.4rem; font-size: 0.85rem; background: rgba(255,255,255,0.05); color: #fff;"><i class="fa-solid fa-pen-to-square"></i> ${isEnglish ? 'Rename' : 'Rinomina'}</button>
-                        <button type="button" class="bio-button delete-preset-btn" data-id="${preset.id}" style="padding: 0.4rem; font-size: 0.85rem; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25);"><i class="fa-solid fa-trash"></i> ${isEnglish ? 'Delete' : 'Elimina'}</button>
+                        <button type="button" class="bio-button delete-preset-btn" data-id="${preset.id}" style="padding: 0.4rem; font-size: 0.85rem; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25); grid-column: 1 / -1;"><i class="fa-solid fa-trash"></i> ${isEnglish ? 'Delete' : 'Elimina'}</button>
                     </div>`;
                 grid.appendChild(card);
             });
@@ -2146,6 +2147,9 @@
 
             $$('.load-preset-btn', presetsListContainer).forEach(btn => {
                 btn.addEventListener('click', () => handleLoadPreset(btn.dataset.id));
+            });
+            $$('.update-preset-btn', presetsListContainer).forEach(btn => {
+                btn.addEventListener('click', () => handleUpdatePreset(btn.dataset.id, btn.dataset.name));
             });
             $$('.duplicate-preset-btn', presetsListContainer).forEach(btn => {
                 btn.addEventListener('click', () => handleDuplicatePreset(btn.dataset.id));
@@ -2162,6 +2166,22 @@
         }
     }
 
+    function buildPresetFormData() {
+        $('#socialsJson').value = JSON.stringify(collectRows('socials'));
+        $('#linksJson').value = JSON.stringify(collectRows('links'));
+        $('#embedsJson').value = JSON.stringify(collectRows('embeds'));
+        $('#projectsJson').value = JSON.stringify(collectRows('projects'));
+        $('#contentsJson').value = JSON.stringify(collectRows('contents'));
+        $('#blocksJson').value = JSON.stringify(collectRows('blocks'));
+        $('#badgesJson').value = JSON.stringify(collectBadges());
+        $('#charactersJson').value = JSON.stringify(collectCharacters());
+        $('#profileTagsJson').value = JSON.stringify(collectRows('tags'));
+
+        const formData = new FormData(form);
+        formData.append('target_user_id', targetUserId);
+        return formData;
+    }
+
     if (saveNewPresetBtn) {
         saveNewPresetBtn.addEventListener('click', async () => {
             const promptMsg = isEnglish ? 'Enter a name for this preset:' : 'Inserisci un nome per questo preset:';
@@ -2173,19 +2193,8 @@
                 return;
             }
 
-            $('#socialsJson').value = JSON.stringify(collectRows('socials'));
-            $('#linksJson').value = JSON.stringify(collectRows('links'));
-            $('#embedsJson').value = JSON.stringify(collectRows('embeds'));
-            $('#projectsJson').value = JSON.stringify(collectRows('projects'));
-            $('#contentsJson').value = JSON.stringify(collectRows('contents'));
-            $('#blocksJson').value = JSON.stringify(collectRows('blocks'));
-            $('#badgesJson').value = JSON.stringify(collectBadges());
-            $('#charactersJson').value = JSON.stringify(collectCharacters());
-            $('#profileTagsJson').value = JSON.stringify(collectRows('tags'));
-
-            const formData = new FormData(form);
+            const formData = buildPresetFormData();
             formData.append('preset_name', trimmedName);
-            formData.append('target_user_id', targetUserId);
 
             try {
                 const res = await fetch('/api/manage_presets.php?action=save', {
@@ -2200,6 +2209,28 @@
                 window.profileToast(err.message || (isEnglish ? 'Error saving preset.' : 'Errore salvataggio preset.'));
             }
         });
+    }
+
+    async function handleUpdatePreset(id, presetName) {
+        const confirmMsg = isEnglish
+            ? `Overwrite "${presetName || 'this preset'}" with the current editor setup?`
+            : `Vuoi sovrascrivere "${presetName || 'questo preset'}" con la configurazione attuale dell'editor?`;
+        if (!confirm(confirmMsg)) return;
+
+        try {
+            const formData = buildPresetFormData();
+            formData.append('preset_id', id);
+            const res = await fetch('/api/manage_presets.php?action=update', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (!res.ok || !data.ok) throw new Error(data.message || (isEnglish ? 'Error updating preset.' : 'Errore aggiornamento preset.'));
+            window.profileToast(data.message || (isEnglish ? 'Preset updated!' : 'Preset aggiornato!'));
+            loadPresets();
+        } catch(err) {
+            window.profileToast(err.message || (isEnglish ? 'Error updating preset.' : 'Errore aggiornamento preset.'));
+        }
     }
 
     async function handleLoadPreset(id) {
