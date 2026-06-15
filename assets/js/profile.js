@@ -26,6 +26,17 @@
         }
     };
 
+    const updateProfileViewportFit = () => {
+        if (!body.classList.contains('public-profile-body')) return;
+
+        const page = document.getElementById('bioPage') || document.querySelector('.public-profile-body .bio-page');
+        if (!page) return;
+
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+        const pageHeight = Math.ceil(page.getBoundingClientRect().height);
+        body.classList.toggle('profile-fits-viewport', pageHeight <= viewportHeight);
+    };
+
     const showToast = (message) => {
         if (!toast) return;
         toast.textContent = message;
@@ -1068,8 +1079,17 @@
         initProfileNavRedesign();
 
         updateStickyBehavior();
+        updateProfileViewportFit();
         window.addEventListener('resize', updateStickyBehavior);
+        window.addEventListener('resize', updateProfileViewportFit);
         window.addEventListener('load', updateStickyBehavior);
+        window.addEventListener('load', updateProfileViewportFit);
+        if (window.ResizeObserver) {
+            const profilePage = document.getElementById('bioPage');
+            if (profilePage) {
+                new ResizeObserver(updateProfileViewportFit).observe(profilePage);
+            }
+        }
         setInterval(updateActivityTimestamps, 1000);
         setInterval(refreshDiscordStatus, 30000);
 
