@@ -9087,17 +9087,20 @@ html:has(body.public-profile-body) {
 }
 
 body.public-profile-body {
-    display: grid !important;
-    place-content: center !important;
-    place-items: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
     min-height: 100vh !important;
     min-height: 100dvh !important;
+    width: 100% !important;
     height: auto !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
 }
 
 body.public-profile-body .bio-page {
+    flex: 0 1 auto !important;
     margin-block: auto !important;
     padding-top: clamp(0.85rem, 3dvh, 2rem) !important;
     padding-bottom: clamp(0.85rem, 3dvh, 2rem) !important;
