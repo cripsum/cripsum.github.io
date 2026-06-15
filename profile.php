@@ -264,7 +264,7 @@ $secColorRaw = $profile ? trim((string)($profile['profile_secondary_color'] ?? '
 $secondaryColor = (preg_match('/^#[0-9a-fA-F]{6}$/', $secColorRaw)) ? strtolower($secColorRaw) : $accent;
 $cardColor = $profile ? profile_optional_hex_color($profile['profile_card_color'] ?? '') : null;
 $textColor = $profile ? profile_optional_hex_color($profile['profile_text_color'] ?? '') : null;
-$linkStyle = $profile ? profile_allowed_value((string)($profile['profile_link_style'] ?? 'glass'), ['glass', 'solid', 'outline', 'neon', 'minimal', 'gradient'], 'glass') : 'glass';
+$linkStyle = $profile ? profile_allowed_value((string)($profile['profile_link_style'] ?? 'glass'), ['glass', 'solid', 'outline', 'neon'], 'glass') : 'glass';
 $buttonShape = $profile ? profile_allowed_value((string)($profile['profile_button_shape'] ?? 'pill'), ['pill', 'rounded', 'sharp'], 'pill') : 'pill';
 $cardColorCss = $cardColor ?: ($theme === 'light' ? '#ffffff' : '#080c18');
 $textColorCss = $textColor ?: 'var(--text)';
@@ -272,12 +272,19 @@ if ($theme === 'auto') $theme = 'dark';
 
 $rawLayout = $profile ? (string)($profile['profile_layout'] ?? 'standard') : 'standard';
 $layoutAliases = [
-    'compact' => 'left-tabs',
-    'showcase' => 'center-split',
-    'clean' => 'stacked',
+    'left-tabs' => 'compact',
+    'right-tabs' => 'showcase',
+    'stacked' => 'clean',
+    'center-split' => 'showcase',
 ];
 $rawLayout = $layoutAliases[$rawLayout] ?? $rawLayout;
-$layout = profile_allowed_value($rawLayout, ['standard', 'left-tabs', 'center-split', 'stacked'], 'standard');
+$layout = profile_allowed_value($rawLayout, ['standard', 'compact', 'showcase', 'clean'], 'standard');
+$layoutCss = [
+    'standard' => 'standard',
+    'compact' => 'left-tabs',
+    'showcase' => 'right-tabs',
+    'clean' => 'stacked',
+][$layout] ?? 'standard';
 $showEmbeds = $profile ? profile_flag($profile, 'profile_show_embeds', true) : false;
 $embeds = $showEmbeds ? profile_list_embeds($mysqli, $profileId, true) : [];
 $socialsStyle = $profile ? profile_allowed_value((string)($profile['profile_socials_style'] ?? 'cards'), ['cards', 'icons'], 'cards') : 'cards';
@@ -487,8 +494,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.8.8">
-    <script src="/assets/js/profile.js?v=4.8.8" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.8.9">
+    <script src="/assets/js/profile.js?v=4.8.9" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -584,7 +591,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     data-profile-link-style="<?php echo profile_h($linkStyle); ?>"
     data-profile-button-shape="<?php echo profile_h($buttonShape); ?>"
     data-profile-socials-style="<?php echo profile_h($socialsStyle); ?>"
-    data-profile-layout="<?php echo profile_h($layout); ?>"
+    data-profile-layout="<?php echo profile_h($layoutCss); ?>"
     data-avatar-shape="<?php echo profile_h($avatarShape); ?>"
     data-avatar-border="<?php echo $avatarBorder; ?>"
     data-tab-title="<?php echo profile_h($pageTitle); ?>"
@@ -629,7 +636,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                      'data-tilt-zoom="' . (float)($profile['tilt_zoom'] ?? 1.05) . '" ' .
                      'data-tilt-speed="' . (int)($profile['tilt_speed'] ?? 400) . '"';
         ?>
-        <main class="bio-page profile-smart-page <?php echo (!$hasRightContent || $layout === 'stacked') ? 'profile-smart-page--single' : ''; ?> layout-<?php echo profile_h($layout); ?>" id="bioPage">
+        <main class="bio-page profile-smart-page <?php echo (!$hasRightContent) ? 'profile-smart-page--single' : ''; ?> layout-<?php echo profile_h($layoutCss); ?>" id="bioPage">
             <div class="profile-smart-hero-wrapper">
                 <section class="bio-hero bio-card profile-smart-hero js-tilt-card js-reveal" aria-label="Public Profile" <?php echo $tiltAttrs; ?>>
                 <div class="profile-hero-actions-top">
@@ -1377,9 +1384,19 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     page.classList.remove(className);
                                 }
                             });
-                            const nextLayout = data.attributes['data-profile-layout'];
+                            const layoutMap = {
+                                compact: 'left-tabs',
+                                showcase: 'right-tabs',
+                                clean: 'stacked',
+                                'left-tabs': 'left-tabs',
+                                'right-tabs': 'right-tabs',
+                                stacked: 'stacked',
+                                'center-split': 'right-tabs',
+                                standard: 'standard'
+                            };
+                            const nextLayout = layoutMap[data.attributes['data-profile-layout']] || 'standard';
                             page.classList.add('layout-' + nextLayout);
-                            page.classList.toggle('profile-smart-page--single', nextLayout === 'stacked' || !document.querySelector('.profile-smart-content'));
+                            page.classList.toggle('profile-smart-page--single', !document.querySelector('.profile-smart-content'));
                         }
                     }
                     const cards = document.querySelectorAll('.js-tilt-card');

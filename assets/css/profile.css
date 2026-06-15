@@ -8686,7 +8686,10 @@ body[data-theme="light"] .profile-report-detail-group textarea {
 
 /* Profile layout, link and border fixes */
 .profile-smart-page.layout-standard,
-.profile-smart-page.layout-left-tabs {
+.profile-smart-page.layout-left-tabs,
+.profile-smart-page.layout-compact,
+.profile-smart-page.layout-right-tabs,
+.profile-smart-page.layout-showcase {
     width: min(1180px, calc(100% - 32px)) !important;
     display: grid !important;
     grid-template-columns: minmax(300px, 390px) minmax(0, 1fr) !important;
@@ -8694,8 +8697,26 @@ body[data-theme="light"] .profile-report-detail-group textarea {
     justify-content: center !important;
 }
 
-.profile-smart-page.layout-left-tabs {
+.profile-smart-page.layout-left-tabs,
+.profile-smart-page.layout-compact {
     grid-template-columns: minmax(280px, 360px) minmax(0, 760px) !important;
+}
+
+.profile-smart-page.layout-right-tabs,
+.profile-smart-page.layout-showcase {
+    grid-template-columns: minmax(0, 760px) minmax(280px, 360px) !important;
+}
+
+.layout-right-tabs .profile-smart-hero-wrapper,
+.layout-showcase .profile-smart-hero-wrapper {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+}
+
+.layout-right-tabs .profile-smart-content,
+.layout-showcase .profile-smart-content {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
 }
 
 .profile-smart-page.layout-center-split {
@@ -8733,7 +8754,9 @@ body[data-theme="light"] .profile-report-detail-group textarea {
 }
 
 .profile-smart-page.layout-stacked,
-.profile-smart-page.layout-stacked.profile-smart-page--single {
+.profile-smart-page.layout-clean,
+.profile-smart-page.layout-stacked.profile-smart-page--single,
+.profile-smart-page.layout-clean.profile-smart-page--single {
     width: min(660px, calc(100% - 32px)) !important;
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) !important;
@@ -8741,16 +8764,20 @@ body[data-theme="light"] .profile-report-detail-group textarea {
 }
 
 .layout-stacked .profile-smart-hero-wrapper,
-.layout-stacked .profile-smart-content {
+.layout-clean .profile-smart-hero-wrapper,
+.layout-stacked .profile-smart-content,
+.layout-clean .profile-smart-content {
     width: 100% !important;
 }
 
-.layout-stacked .profile-smart-hero-wrapper {
+.layout-stacked .profile-smart-hero-wrapper,
+.layout-clean .profile-smart-hero-wrapper {
     position: relative !important;
     top: auto !important;
 }
 
-.layout-stacked .profile-smart-content {
+.layout-stacked .profile-smart-content,
+.layout-clean .profile-smart-content {
     display: grid !important;
     gap: 0.85rem !important;
 }
@@ -8889,7 +8916,10 @@ body[data-profile-link-style="gradient"] .profile-link-icon-label {
 @media (max-width: 1180px) {
     .profile-smart-page.layout-center-split,
     .profile-smart-page.layout-standard,
-    .profile-smart-page.layout-left-tabs {
+    .profile-smart-page.layout-left-tabs,
+    .profile-smart-page.layout-compact,
+    .profile-smart-page.layout-right-tabs,
+    .profile-smart-page.layout-showcase {
         width: min(760px, calc(100% - 28px)) !important;
         grid-template-columns: minmax(0, 1fr) !important;
     }
@@ -8901,7 +8931,10 @@ body[data-profile-link-style="gradient"] .profile-link-icon-label {
 
     .layout-center-split .profile-smart-hero-wrapper,
     .layout-standard .profile-smart-hero-wrapper,
-    .layout-left-tabs .profile-smart-hero-wrapper {
+    .layout-left-tabs .profile-smart-hero-wrapper,
+    .layout-compact .profile-smart-hero-wrapper,
+    .layout-right-tabs .profile-smart-hero-wrapper,
+    .layout-showcase .profile-smart-hero-wrapper {
         position: relative !important;
         top: auto !important;
     }
@@ -8915,9 +8948,32 @@ body[data-profile-link-style="gradient"] .profile-link-icon-label {
 @media (max-width: 720px) {
     .profile-smart-page.layout-standard,
     .profile-smart-page.layout-left-tabs,
+    .profile-smart-page.layout-compact,
+    .profile-smart-page.layout-right-tabs,
+    .profile-smart-page.layout-showcase,
     .profile-smart-page.layout-center-split,
-    .profile-smart-page.layout-stacked {
+    .profile-smart-page.layout-stacked,
+    .profile-smart-page.layout-clean {
         width: min(100% - 22px, 620px) !important;
     }
+}
+
+.profile-smart-page.profile-smart-page--single {
+    width: min(580px, calc(100% - 32px)) !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    justify-content: center !important;
+}
+
+.profile-smart-page.profile-smart-page--single .profile-smart-hero-wrapper {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+    width: 100% !important;
+    position: relative !important;
+    top: auto !important;
+}
+
+.profile-smart-page.profile-smart-page--single .profile-smart-content {
+    display: none !important;
 }
 
