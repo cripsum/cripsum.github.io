@@ -9102,6 +9102,17 @@ body.public-profile-body .bio-page {
     padding-bottom: clamp(0.85rem, 3dvh, 2rem) !important;
 }
 
+/* Remove non-content body children from flex flow so the profile card
+   centres accurately.  The bio-page uses margin-block:auto; any sibling
+   that occupies flex space (navbar, modals, toasts, scripts, settings modal)
+   would eat from that auto-margin and shift the card upward.
+   position:absolute removes them from the flex flow without breaking their
+   own fixed/absolute positioning (overlays already use position:fixed inline). */
+body.public-profile-body > *:not(.bio-page):not(.bio-background):not(.profile-effects-layer):not(.profile-effects-foreground-layer) {
+    position: absolute !important;
+    pointer-events: auto;
+}
+
 body.public-profile-body.profile-fits-viewport {
     height: 100vh !important;
     height: 100dvh !important;
