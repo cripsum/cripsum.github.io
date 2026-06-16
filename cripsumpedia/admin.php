@@ -61,7 +61,7 @@ $title = cp_t('admin', $lang) . ' - Cripsumpedia';
                     <div>
                         <span class="cp-kicker"><i class="fa-solid fa-shield-halved"></i> Admin</span>
                         <h1><?= cp_h(cp_t('admin', $lang)) ?></h1>
-                        <p><?= cp_h($lang === 'en' ? 'Manage pages and links.' : 'Gestisci pagine e collegamenti.') ?></p>
+                        <p><?= cp_h($lang === 'en' ? 'Manage entries, relations, tags, aliases and quotes.' : 'Gestione voci, relazioni, tag, alias e citazioni.') ?></p>
                     </div>
                     <a class="cp-btn cp-btn--primary" href="<?= cp_h(cp_url('editor', [], $lang)) ?>">
                         <i class="fa-solid fa-pen-nib"></i>

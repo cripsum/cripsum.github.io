@@ -70,7 +70,11 @@ function cp_render_search_item(array $entry, string $query, string $lang, mysqli
         ]); ?>
 
         <section class="cp-search-hero cp-reveal">
+            <span class="cp-kicker"><i class="fa-solid fa-magnifying-glass-chart"></i> Search engine</span>
             <h1><?= cp_h(cp_t('search', $lang)) ?></h1>
+            <p><?= cp_h($lang === 'en'
+                ? 'Live suggestions across titles, descriptions, tags, aliases and quotes.'
+                : 'Suggerimenti live su titoli, descrizioni, tag, alias e citazioni.') ?></p>
             <?php cp_render_search_box($lang, $query); ?>
         </section>
 

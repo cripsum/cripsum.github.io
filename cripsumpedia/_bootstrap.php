@@ -56,8 +56,8 @@ function cp_translations(string $lang): array
             'latest' => 'Recenti',
             'trending' => 'In evidenza',
             'popular' => 'Popolari',
-            'event_day' => 'Evento',
-            'random_quote' => 'Citazione',
+            'event_day' => 'Evento del giorno',
+            'random_quote' => 'Citazione del giorno',
             'open' => 'Apri',
             'read' => 'Apri',
             'admin' => 'Admin lore',
@@ -83,7 +83,7 @@ function cp_translations(string $lang): array
             'quotes' => 'Citazioni',
             'created' => 'Creata',
             'updated' => 'Ultima modifica',
-            'views' => 'visite',
+            'views' => 'views',
             'importance' => 'Importanza',
             'lore_date' => 'Data lore',
             'real_date' => 'Data reale',
@@ -92,7 +92,7 @@ function cp_translations(string $lang): array
             'favorite' => 'Preferito',
             'reaction' => 'Reaction',
             'copy_link' => 'Copia link',
-            'random' => 'A caso',
+            'random' => 'Random',
             'no_results' => 'Nessun risultato',
             'install_title' => 'Cripsumpedia non installata',
             'install_text' => 'Importa lo schema SQL prima di usare questa sezione.',
@@ -123,8 +123,8 @@ function cp_translations(string $lang): array
             'latest' => 'Recent',
             'trending' => 'Featured',
             'popular' => 'Popular',
-            'event_day' => 'Event',
-            'random_quote' => 'Quote',
+            'event_day' => 'Event of the day',
+            'random_quote' => 'Quote of the day',
             'open' => 'Open',
             'read' => 'Open',
             'admin' => 'Lore admin',
@@ -160,7 +160,7 @@ function cp_translations(string $lang): array
             'reaction' => 'Reaction',
             'copy_link' => 'Copy link',
             'random' => 'Random',
-            'no_results' => 'No results',
+            'no_results' => 'No results found',
             'install_title' => 'Cripsumpedia is not installed',
             'install_text' => 'Import the SQL schema before using this section.',
             'back_home' => 'Back home',
@@ -1153,7 +1153,7 @@ function cp_render_head(string $title, string $description, string $lang, string
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css">
-    <link rel="stylesheet" href="/cripsumpedia/cripsumpedia.css?v=2.2">
+    <link rel="stylesheet" href="/cripsumpedia/cripsumpedia.css?v=2.3">
     <script>
         document.documentElement.classList.add('cp-js');
         window.Cripsumpedia = {
@@ -1164,7 +1164,7 @@ function cp_render_head(string $title, string $description, string $lang, string
             csrf: <?= json_encode(cp_csrf_token()) ?>
         };
     </script>
-    <script src="/cripsumpedia/cripsumpedia.js?v=2.2" defer></script>
+    <script src="/cripsumpedia/cripsumpedia.js?v=2.3" defer></script>
 <?php
 }
 

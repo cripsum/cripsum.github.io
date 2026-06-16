@@ -157,7 +157,7 @@ $adjacent = $entry ? cp_fetch_adjacent_entries($mysqli, (int)$entry['id'], (stri
                         if ($hasRels):
                         ?>
                             <section class="cp-content-block cp-connections-section">
-                                <h2><i class="fa-solid fa-circle-nodes"></i> <?= cp_h($lang === 'en' ? 'Links' : 'Collegamenti') ?></h2>
+                                <h2><i class="fa-solid fa-circle-nodes"></i> <?= cp_h($lang === 'en' ? 'Encyclopedic Connections' : 'Collegamenti Enciclopedici') ?></h2>
                                 <div class="cp-connections-container">
                                     <?php foreach (['person' => 'related_people', 'event' => 'related_events', 'meme' => 'related_memes'] as $gType => $tKey): ?>
                                         <?php if (!empty($groupedRelations[$gType])): ?>
@@ -188,7 +188,7 @@ $adjacent = $entry ? cp_fetch_adjacent_entries($mysqli, (int)$entry['id'], (stri
                         <!-- Automatic Related Pages Section -->
                         <?php if ($relatedEntries): ?>
                             <section class="cp-content-block cp-related-section">
-                                <h2><i class="fa-solid fa-wand-magic-sparkles"></i> <?= cp_h($lang === 'en' ? 'Related' : 'Correlate') ?></h2>
+                                <h2><i class="fa-solid fa-wand-magic-sparkles"></i> <?= cp_h($lang === 'en' ? 'Related Lore' : 'Voci correlate') ?></h2>
                                 <div class="cp-card-grid cp-card-grid--compact">
                                     <?php foreach ($relatedEntries as $rEntry): ?>
                                         <?php cp_render_entry_card($mysqli, $rEntry, $lang); ?>
@@ -199,7 +199,7 @@ $adjacent = $entry ? cp_fetch_adjacent_entries($mysqli, (int)$entry['id'], (stri
                     </article>
 
                     <!-- Previous / Next Navigation Footer -->
-                    <nav class="cp-entry-navigation cp-reveal" aria-label="<?= cp_h($lang === 'en' ? 'Page navigation' : 'Navigazione') ?>">
+                    <nav class="cp-entry-navigation cp-reveal" aria-label="<?= cp_h($lang === 'en' ? 'Entry navigation' : 'Navigazione voci') ?>">
                         <div class="cp-entry-navigation__prev">
                             <?php if ($adjacent['prev']): ?>
                                 <?php $prevItem = cp_entry_public($adjacent['prev'], $lang, $mysqli, false); ?>
@@ -209,7 +209,7 @@ $adjacent = $entry ? cp_fetch_adjacent_entries($mysqli, (int)$entry['id'], (stri
                                 </a>
                             <?php endif; ?>
                         </div>
-                        <button class="cp-btn cp-btn--ghost" type="button" data-cp-random title="<?= cp_h(cp_t('random', $lang)) ?>">
+                        <button class="cp-btn cp-btn--ghost" type="button" data-cp-random title="<?= cp_h($lang === 'en' ? 'Random entry' : 'Voce casuale') ?>">
                             <i class="fa-solid fa-shuffle"></i>
                             <span><?= cp_h(cp_t('random', $lang)) ?></span>
                         </button>
@@ -279,7 +279,7 @@ $adjacent = $entry ? cp_fetch_adjacent_entries($mysqli, (int)$entry['id'], (stri
                                     <td><?= cp_h(cp_safe_date($entry['updated_at'] ?? '')) ?></td>
                                 </tr>
                                 <tr>
-                                    <th><?= cp_h($lang === 'en' ? 'Views' : 'Visite') ?></th>
+                                    <th><?= cp_h($lang === 'en' ? 'Views' : 'Letture') ?></th>
                                     <td><?= (int)($entry['views_count'] ?? 0) ?></td>
                                 </tr>
                             </tbody>

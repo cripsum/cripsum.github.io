@@ -58,9 +58,13 @@ $description = cp_t('subtitle', $lang);
                 <?php endforeach; ?>
             </nav>
 
-            <section class="cp-category-hero cp-category-hero--minimal cp-reveal" style="--entry-accent: <?= cp_h($type === 'person' ? '#2f6bff' : ($type === 'event' ? '#60a5fa' : '#f97316')) ?>">
+            <section class="cp-category-hero cp-reveal" style="--entry-accent: <?= cp_h($type === 'person' ? '#2f6bff' : ($type === 'event' ? '#60a5fa' : '#f97316')) ?>">
                 <div>
+                    <span class="cp-kicker"><i class="fa-solid <?= cp_h(cp_type_icon($type)) ?>"></i> <?= cp_h(cp_type_plural($type, $lang)) ?></span>
                     <h1><?= cp_h(cp_type_plural($type, $lang)) ?></h1>
+                    <p><?= cp_h($type === 'event'
+                            ? ($lang === 'en' ? 'Browse events in chronological order, filter by date and importance.' : 'Sfoglia gli eventi in ordine cronologico, filtra per data e importanza.')
+                            : ($lang === 'en' ? 'Browse all entries with live search, tag and order filters.' : 'Sfoglia tutte le voci con ricerca live, filtri per tag e ordinamento.')) ?></p>
                     <div class="cp-category-hero__actions">
                         <a class="cp-btn cp-btn--primary" href="<?= cp_h(cp_url('search', ['type' => $type], $lang)) ?>">
                             <i class="fa-solid fa-magnifying-glass"></i>
@@ -74,7 +78,7 @@ $description = cp_t('subtitle', $lang);
                 </div>
                 <aside>
                     <strong><?= (int)$count ?></strong>
-                    <span><?= cp_h($lang === 'en' ? 'pages' : 'pagine') ?></span>
+                    <span><?= cp_h(cp_type_plural($type, $lang)) ?></span>
                 </aside>
             </section>
 
@@ -101,7 +105,7 @@ $description = cp_t('subtitle', $lang);
                             </select>
                         </label>
                         <label>
-                            <span><?= cp_h($lang === 'en' ? 'Sort' : 'Ordina') ?></span>
+                            <span><?= cp_h($lang === 'en' ? 'Sort by' : 'Ordina per') ?></span>
                             <select name="order" onchange="this.form.submit()">
                                 <option value="latest" <?= $order === 'latest' ? 'selected' : '' ?>><?= cp_h($lang === 'en' ? 'Latest' : 'Ultimi inseriti') ?></option>
                                 <option value="popular" <?= $order === 'popular' ? 'selected' : '' ?>><?= cp_h($lang === 'en' ? 'Popular' : 'Più visti') ?></option>

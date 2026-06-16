@@ -116,11 +116,11 @@ $pageTitle = ($entry ? cp_i18n($entry, 'title', $lang) : cp_t('new_entry', $lang
                     <div>
                         <span class="cp-kicker"><i class="fa-solid fa-pen-nib"></i> <?= cp_h(cp_t('editor', $lang)) ?></span>
                         <h1><?= cp_h($entry ? cp_i18n($entry, 'title', $lang) : cp_t('new_entry', $lang)) ?></h1>
-                        <p><?= cp_h($lang === 'en' ? 'Write, upload images and link pages.' : 'Scrivi, carica immagini e collega pagine.') ?></p>
+                        <p>Markdown, preview live, upload immagini, link lore automatici e relazioni bidirezionali.</p>
                     </div>
                     <div class="cp-editor-actions">
                         <?php if ($entry): ?>
-                            <a class="cp-btn" href="<?= cp_h(cp_entry_url($entry, $lang)) ?>"><i class="fa-solid fa-eye"></i><span><?= cp_h(cp_t('open', $lang)) ?></span></a>
+                            <a class="cp-btn" href="<?= cp_h(cp_entry_url($entry, $lang)) ?>"><i class="fa-solid fa-eye"></i><span>View</span></a>
                         <?php endif; ?>
                         <button class="cp-btn cp-btn--primary" type="submit"><i class="fa-solid fa-floppy-disk"></i><span><?= cp_h(cp_t('save', $lang)) ?></span></button>
                     </div>
