@@ -488,7 +488,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.8.19">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.8.20">
     <script src="/assets/js/profile.js?v=4.8.19" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
@@ -1119,11 +1119,13 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                         <?php elseif ($mediaUrl && $blockType === 'video'): ?>
                                             <video src="<?php echo profile_h($mediaUrl); ?>" controls playsinline preload="metadata"></video>
                                         <?php endif; ?>
+                                        <?php if (!empty($block['title']) || !empty($block['body']) || $isPinned): ?>
                                         <div class="profile-block-copy">
                                             <?php if (!empty($block['title'])): ?><strong><?php echo profile_h($block['title']); ?></strong><?php endif; ?>
                                             <?php if (!empty($block['body'])): ?><p><?php echo nl2br(profile_h($block['body'])); ?></p><?php endif; ?>
                                             <?php if ($isPinned): ?><small>Pin</small><?php endif; ?>
                                         </div>
+                                        <?php endif; ?>
                                     </article>
                                 <?php endforeach; ?>
                             </div>

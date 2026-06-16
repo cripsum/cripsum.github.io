@@ -2681,6 +2681,21 @@ body[data-theme="light"] .profile-row-grid select option {
     padding: 1rem;
 }
 
+/* When a block has media but no text, collapse the copy area */
+.profile-block-copy:empty {
+    display: none;
+}
+
+/* Media-only blocks: let the image/video fill the card cleanly */
+.profile-block-card:not(:has(.profile-block-copy)) {
+    min-height: auto;
+}
+
+.profile-block-card:not(:has(.profile-block-copy)) img,
+.profile-block-card:not(:has(.profile-block-copy)) video {
+    border-radius: inherit;
+}
+
 .profile-block-copy strong,
 .profile-block-copy p,
 .profile-block-copy small {
