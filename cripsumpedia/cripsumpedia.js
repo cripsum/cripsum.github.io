@@ -165,7 +165,7 @@
                 if (state.searchAbort) state.searchAbort.abort();
                 state.searchAbort = new AbortController();
                 box.hidden = false;
-                box.innerHTML = '<div class="cp-live-item"><span class="cp-live-thumb cp-live-thumb--ghost"><i class="fa-solid fa-magnifying-glass"></i></span><span><strong>Searching...</strong><small>Cripsumpedia scan</small></span></div>';
+                box.innerHTML = `<div class="cp-live-item"><span class="cp-live-thumb cp-live-thumb--ghost"><i class="fa-solid fa-magnifying-glass"></i></span><span><strong>${escapeHtml(cfg.lang === 'en' ? 'Searching...' : 'Cerco...')}</strong><small>Cripsumpedia</small></span></div>`;
                 try {
                     const data = await fetchJson(endpoint(cfg.searchEndpoint, {
                         q,
@@ -511,8 +511,8 @@
         const update = () => {
             if (previewCard) {
                 previewCard.innerHTML = `
-                    <h2>${escapeHtml(title?.value || (cfg.lang === 'en' ? 'New entry' : 'Nuova voce'))}</h2>
-                    <p>${escapeHtml(description?.value || 'Preview markdown live.')}</p>
+                    <h2>${escapeHtml(title?.value || (cfg.lang === 'en' ? 'New page' : 'Nuova pagina'))}</h2>
+                    <p>${escapeHtml(description?.value || '')}</p>
                 `;
             }
             if (previewMarkdown) previewMarkdown.innerHTML = markdownPreview(content?.value || '');
@@ -578,7 +578,7 @@
                     return;
                 }
                 results.hidden = false;
-                results.innerHTML = '<div class="cp-relation-result"><span><strong>Searching...</strong></span></div>';
+                results.innerHTML = `<div class="cp-relation-result"><span><strong>${escapeHtml(cfg.lang === 'en' ? 'Searching...' : 'Cerco...')}</strong></span></div>`;
                 try {
                     const data = await fetchJson(endpoint(cfg.relationsEndpoint, {
                         action: 'search',
@@ -591,7 +591,7 @@
                         <div class="cp-relation-result">
                             <img src="${escapeHtml(item.image)}" alt="" loading="lazy" onerror="this.remove()">
                             <span><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.type_label)}</small></span>
-                            <button type="button" data-cp-add-relation data-entry='${escapeHtml(JSON.stringify(item))}'>Add</button>
+                            <button type="button" data-cp-add-relation data-entry='${escapeHtml(JSON.stringify(item))}'>${escapeHtml(cfg.lang === 'en' ? 'Add' : 'Aggiungi')}</button>
                         </div>
                     `).join('') : '<div class="cp-empty" style="min-height:7rem">Nessun risultato.</div>';
                 } catch (err) {
