@@ -1,7 +1,7 @@
 <?php
-require_once '../config/session_init.php';
-require_once '../config/database.php';
-require_once '../includes/functions.php';
+require_once '../../config/session_init.php';
+require_once '../../config/database.php';
+require_once '../../includes/functions.php';
 checkBan($mysqli);
 
 if (!isLoggedIn()) {
@@ -101,7 +101,7 @@ $stmt->close();
 <html lang="it">
 
 <head>
-    <?php include '../includes/head-import.php'; ?>
+    <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ - Profilo</title>
     <style>
         .card {
@@ -122,8 +122,8 @@ $stmt->close();
 
 <body>
 
-    <?php include '../includes/navbar.php'; ?>
-    
+    <?php include '../../includes/navbar.php'; ?>
+
 
     <div class="container my-5 paginainterachisiamo testobianco" style="padding-top: 5rem; padding-bottom: 4rem;">
         <div class="row mb-4 fadeup">
@@ -164,7 +164,7 @@ $stmt->close();
         <div class="row mb-4">
             <div class="col-md-4 text-center fadeup">
                 <div style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin: 0 auto;" class="mb-3">
-                    <img src="../includes/get_pfp.php?id=<?php echo $user_id; ?>&t=<?php echo time(); ?>" alt="Foto Profilo"
+                    <img src="../../includes/get_pfp.php?id=<?php echo $user_id; ?>&t=<?php echo time(); ?>" alt="Foto Profilo"
                         style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
                 </div>
 
@@ -223,13 +223,13 @@ $stmt->close();
             <p id="popup-description"></p>
         </div>
     </div>
-    <?php include '../includes/footer.php'; ?>
+    <?php include '../../includes/footer.php'; ?>
 
     <script>
         function searchUser() {
             const username = document.getElementById('userSearch').value.trim();
             if (username) {
-                window.location.href = `../user/${encodeURIComponent(username.toLowerCase())}`;
+                window.location.href = `../../user/${encodeURIComponent(username.toLowerCase())}`;
             } else {
                 alert('Inserisci un nome utente per continuare');
             }
@@ -246,7 +246,7 @@ $stmt->close();
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
         crossorigin="anonymous"></script>
 
-    
+
 </body>
 
 </html>
