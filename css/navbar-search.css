@@ -404,15 +404,7 @@
     color: #ff453a !important;
 }
 
-/* Glassmorphism/blur background for all navbar dropdowns */
-body .navbarutenti .dropdown-menu,
-body .navbarutenti .dropdown-menu.show {
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04)) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3) !important;
-}
+
 
 /* Align language switcher on mobile to match nav-link padding */
 @media (max-width: 1199.98px) {
