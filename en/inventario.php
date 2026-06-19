@@ -41,7 +41,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <meta property="og:url" content="<?php echo inventario_h($ogUrl); ?>">
     <meta name="twitter:card" content="summary_large_image">
 
-    <link rel="stylesheet" href="/assets/inventario/inventario.css?v=2.9.3">
+    <link rel="stylesheet" href="/assets/inventario/inventario.css?v=2.9.4">
     <script src="/assets/inventario/inventario.js?v=3.0.3" defer></script>
 </head>
 

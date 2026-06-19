@@ -683,6 +683,10 @@ body.inv-page {
 }
 
 /* Dropdown navbar */
+body.inv-page .navbarutenti {
+    z-index: 10000;
+}
+
 body.inv-page .dropdown-menu {
     padding: 0.45rem;
     border: 1px solid rgba(255, 255, 255, 0.14) !important;
