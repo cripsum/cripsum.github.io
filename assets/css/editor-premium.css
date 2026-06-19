@@ -1217,7 +1217,7 @@ input[type="range"]::-moz-range-track {
     background: rgba(8, 5, 14, 0.75);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    z-index: 999999;
+    z-index: 999999999 !important;
     display: flex;
     align-items: center;
     justify-content: center;
