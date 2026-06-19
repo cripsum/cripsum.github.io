@@ -1530,4 +1530,232 @@
         }
     };
     initTabTitleAnimation();
+
+    const initScrollSnapPagination = () => {
+        const bioPage = document.getElementById('bioPage');
+        
+        // Helper to find all slide elements
+        const getSlides = () => {
+            if (!bioPage) return [];
+            const arr = [];
+            const heroWrapper = bioPage.querySelector('.profile-smart-hero-wrapper');
+            if (heroWrapper) arr.push(heroWrapper);
+
+            const contentWrapper = bioPage.querySelector('.profile-smart-content');
+            if (contentWrapper) {
+                const children = contentWrapper.querySelectorAll(':scope > section, :scope > div.bio-stats-grid, :scope > .profile-split-item');
+                children.forEach(child => arr.push(child));
+            }
+            return arr;
+        };
+
+        const slides = getSlides();
+
+        // Standard cleanup (if disabled or re-initializing)
+        if (bioPage) {
+            if (bioPage._snapWheelHandler) {
+                bioPage.removeEventListener('wheel', bioPage._snapWheelHandler, { passive: false });
+                bioPage._snapWheelHandler = null;
+            }
+            if (bioPage._snapTouchStartHandler) {
+                bioPage.removeEventListener('touchstart', bioPage._snapTouchStartHandler);
+                bioPage._snapTouchStartHandler = null;
+            }
+            if (bioPage._snapTouchMoveHandler) {
+                bioPage.removeEventListener('touchmove', bioPage._snapTouchMoveHandler, { passive: false });
+                bioPage._snapTouchMoveHandler = null;
+            }
+            if (bioPage._snapTouchEndHandler) {
+                bioPage.removeEventListener('touchend', bioPage._snapTouchEndHandler);
+                bioPage._snapTouchEndHandler = null;
+            }
+            if (bioPage._snapScrollHandler) {
+                bioPage.removeEventListener('scroll', bioPage._snapScrollHandler);
+                bioPage._snapScrollHandler = null;
+            }
+        }
+        if (window._snapKeyDownHandler) {
+            window.removeEventListener('keydown', window._snapKeyDownHandler);
+            window._snapKeyDownHandler = null;
+        }
+
+        const existingDots = document.querySelector('.profile-snap-dots');
+        if (existingDots) existingDots.remove();
+
+        slides.forEach(slide => {
+            slide.classList.remove('profile-snap-slide', 'slide-active', 'slide-before', 'slide-after', 'is-active');
+        });
+
+        // If data-layout-snap is not active, stop here!
+        if (body.getAttribute('data-layout-snap') !== '1') {
+            return;
+        }
+
+        if (slides.length <= 1) return;
+
+        // Add base class to all slides
+        slides.forEach(slide => {
+            slide.classList.add('profile-snap-slide');
+        });
+
+        let activeIndex = 0;
+        let lastTransitionTime = 0;
+        const transitionCooldown = 900; // ms matching CSS transitions
+
+        const dotsContainer = document.createElement('div');
+        dotsContainer.className = 'profile-snap-dots';
+        const dots = [];
+
+        const goToSlide = (index) => {
+            if (index < 0 || index >= slides.length) return;
+            
+            activeIndex = index;
+            lastTransitionTime = Date.now();
+
+            slides.forEach((slide, idx) => {
+                slide.classList.remove('slide-active', 'slide-before', 'slide-after', 'is-active');
+                if (idx === activeIndex) {
+                    slide.classList.add('slide-active', 'is-active');
+                } else if (idx < activeIndex) {
+                    slide.classList.add('slide-before');
+                } else {
+                    slide.classList.add('slide-after');
+                }
+            });
+
+            dots.forEach((dot, idx) => {
+                if (idx === activeIndex) {
+                    dot.classList.add('is-active');
+                } else {
+                    dot.classList.remove('is-active');
+                }
+            });
+        };
+
+        slides.forEach((slide, index) => {
+            const dot = document.createElement('button');
+            dot.type = 'button';
+            dot.className = 'profile-snap-dot';
+            
+            let label = '';
+            if (index === 0) {
+                label = document.documentElement.lang === 'it' ? 'Profilo' : 'Profile';
+            } else {
+                const titleEl = slide.querySelector('h2, h3, .section-title, .bio-card-title');
+                if (titleEl) {
+                    label = titleEl.textContent.trim();
+                } else {
+                    label = (document.documentElement.lang === 'it' ? 'Sezione ' : 'Section ') + index;
+                }
+            }
+            dot.setAttribute('data-label', label);
+
+            dot.addEventListener('click', () => {
+                const now = Date.now();
+                if (now - lastTransitionTime < transitionCooldown) return;
+                goToSlide(index);
+            });
+
+            dotsContainer.appendChild(dot);
+            dots.push(dot);
+        });
+
+        document.body.appendChild(dotsContainer);
+
+        // Set initial state
+        goToSlide(0);
+
+        // 1. Wheel Listener (Mouse & Trackpad)
+        const handleWheel = (e) => {
+            const now = Date.now();
+            if (now - lastTransitionTime < transitionCooldown) {
+                e.preventDefault();
+                return;
+            }
+
+            const delta = e.deltaY;
+            if (Math.abs(delta) < 30) {
+                // Ignore small movements / noise (trackpad fine scroll)
+                e.preventDefault();
+                return;
+            }
+
+            e.preventDefault();
+            if (delta > 0) {
+                goToSlide(activeIndex + 1);
+            } else {
+                goToSlide(activeIndex - 1);
+            }
+        };
+
+        bioPage._snapWheelHandler = handleWheel;
+        bioPage.addEventListener('wheel', handleWheel, { passive: false });
+
+        // 2. Touch/Swipe Listeners
+        let touchStartY = 0;
+        
+        const handleTouchStart = (e) => {
+            touchStartY = e.touches[0].clientY;
+        };
+
+        const handleTouchMove = (e) => {
+            // Prevent default page bounce/native scrolling
+            e.preventDefault();
+        };
+
+        const handleTouchEnd = (e) => {
+            const touchEndY = e.changedTouches[0].clientY;
+            const diffY = touchStartY - touchEndY;
+            
+            const now = Date.now();
+            if (now - lastTransitionTime < transitionCooldown) return;
+
+            if (Math.abs(diffY) > 50) {
+                if (diffY > 0) {
+                    goToSlide(activeIndex + 1);
+                } else {
+                    goToSlide(activeIndex - 1);
+                }
+            }
+        };
+
+        bioPage._snapTouchStartHandler = handleTouchStart;
+        bioPage._snapTouchMoveHandler = handleTouchMove;
+        bioPage._snapTouchEndHandler = handleTouchEnd;
+
+        bioPage.addEventListener('touchstart', handleTouchStart, { passive: true });
+        bioPage.addEventListener('touchmove', handleTouchMove, { passive: false });
+        bioPage.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+        // 3. Keydown Listener
+        const handleKeyDown = (e) => {
+            // Avoid scrolling if user is editing inputs/textarea
+            const activeEl = document.activeElement;
+            if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable)) {
+                return;
+            }
+
+            const now = Date.now();
+            if (now - lastTransitionTime < transitionCooldown) {
+                if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', ' '].includes(e.key)) {
+                    e.preventDefault();
+                }
+                return;
+            }
+
+            if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
+                e.preventDefault();
+                goToSlide(activeIndex + 1);
+            } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+                e.preventDefault();
+                goToSlide(activeIndex - 1);
+            }
+        };
+
+        window._snapKeyDownHandler = handleKeyDown;
+        window.addEventListener('keydown', handleKeyDown);
+    };
+
+    initScrollSnapPagination();
+    window.initScrollSnapPagination = initScrollSnapPagination;
 })();

@@ -488,8 +488,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.9.0">
-    <script src="/assets/js/profile.js?v=4.9.0" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.1.1">
+    <script src="/assets/js/profile.js?v=5.1.1" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -577,52 +577,94 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         body[data-layout-snap="1"] {
             overflow: hidden !important;
         }
+
         body[data-layout-snap="1"] #bioPage {
+            position: relative !important;
             height: 100vh !important;
             max-height: 100vh !important;
-            overflow-y: auto !important;
-            scroll-snap-type: y mandatory !important;
+            overflow: hidden !important;
             display: block !important;
-            scroll-behavior: smooth;
             padding: 0 !important;
         }
-        body[data-layout-snap="1"] .profile-smart-hero-wrapper {
+
+        body[data-layout-snap="1"] .profile-snap-slide {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
             height: 100vh !important;
             min-height: 100vh !important;
-            scroll-snap-align: start !important;
+            margin: 0 !important;
+            box-sizing: border-box !important;
             display: flex !important;
+            flex-direction: column !important;
             align-items: center !important;
             justify-content: center !important;
             padding: 2rem 1rem !important;
-            box-sizing: border-box !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            z-index: 1 !important;
+
+            /* Custom premium bezier easing transition */
+            transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            will-change: transform, opacity;
         }
-        body[data-layout-snap="1"] .profile-smart-hero-wrapper > .bio-hero {
+
+        /* Active State (Centered) */
+        body[data-layout-snap="1"] .profile-snap-slide.slide-active {
+            opacity: 1 !important;
+            transform: translateY(0) scale(1) !important;
+            pointer-events: auto !important;
+            z-index: 3 !important;
+        }
+
+        /* Before State (Moved up, scaled down slightly, faded) */
+        body[data-layout-snap="1"] .profile-snap-slide.slide-before {
+            opacity: 0 !important;
+            transform: translateY(-20vh) scale(0.95) !important;
+            pointer-events: none !important;
+            z-index: 1 !important;
+        }
+
+        /* After State (Moved down, scaled up slightly, faded) */
+        body[data-layout-snap="1"] .profile-snap-slide.slide-after {
+            opacity: 0 !important;
+            transform: translateY(100vh) scale(1.05) !important;
+            pointer-events: none !important;
+            z-index: 2 !important;
+        }
+
+        /* Layered Content Cards Transition */
+        body[data-layout-snap="1"] .profile-snap-slide .bio-card,
+        body[data-layout-snap="1"] .profile-snap-slide .bio-hero {
+            opacity: 0;
+            transform: translateY(30px) scale(0.98);
+            transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        body[data-layout-snap="1"] .profile-snap-slide.slide-active .bio-card,
+        body[data-layout-snap="1"] .profile-snap-slide.slide-active .bio-hero {
+            opacity: 1 !important;
+            transform: translateY(0) scale(1) !important;
+            transition-delay: 0.15s !important;
+        }
+
+        /* Content elements fallback limits */
+        body[data-layout-snap="1"] .profile-smart-hero-wrapper>.bio-hero {
             margin: 0 !important;
             width: 100% !important;
             max-width: 580px !important;
         }
+
         body[data-layout-snap="1"] .profile-smart-content {
             display: block !important;
             width: 100% !important;
             padding: 0 !important;
             margin: 0 !important;
         }
-        body[data-layout-snap="1"] .profile-smart-content > section,
-        body[data-layout-snap="1"] .profile-smart-content > div.bio-stats-grid,
-        body[data-layout-snap="1"] .profile-smart-content > .profile-split-item {
-            height: 100vh !important;
-            min-height: 100vh !important;
-            scroll-snap-align: start !important;
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: center !important;
-            padding: 2rem 1rem !important;
-            box-sizing: border-box !important;
-            margin: 0 !important;
-        }
-        body[data-layout-snap="1"] .profile-smart-content > section > .bio-card,
-        body[data-layout-snap="1"] .profile-smart-content > section.bio-card {
+
+        body[data-layout-snap="1"] .profile-smart-content>section>.bio-card,
+        body[data-layout-snap="1"] .profile-smart-content>section.bio-card {
             width: 100% !important;
             max-width: 580px !important;
             margin: 0 auto !important;
@@ -630,6 +672,94 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             max-height: 85vh !important;
             overflow-y: auto !important;
         }
+
+        /* Scroll Snap Pagination Dots */
+        .profile-snap-dots {
+            position: fixed !important;
+            right: 24px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            z-index: 99999 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 16px !important;
+            padding: 14px 10px !important;
+            border-radius: 100px !important;
+            background: rgba(8, 12, 24, 0.3) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+            transition: opacity 0.4s ease, transform 0.4s ease !important;
+            pointer-events: auto !important;
+        }
+
+        .profile-snap-dot {
+            width: 8px !important;
+            height: 8px !important;
+            border-radius: 50% !important;
+            background: rgba(255, 255, 255, 0.3) !important;
+            border: none !important;
+            padding: 0 !important;
+            cursor: pointer !important;
+            position: relative !important;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            opacity: 0.6 !important;
+        }
+
+        .profile-snap-dot:hover {
+            background: rgba(255, 255, 255, 0.8) !important;
+            opacity: 1 !important;
+            transform: scale(1.2) !important;
+        }
+
+        .profile-snap-dot.is-active {
+            background: var(--accent, #0f5bff) !important;
+            height: 22px !important;
+            border-radius: 100px !important;
+            opacity: 1 !important;
+            transform: scale(1) !important;
+            box-shadow: 0 0 12px var(--accent, #0f5bff) !important;
+        }
+
+        /* Tooltips */
+        .profile-snap-dot::after {
+            content: attr(data-label) !important;
+            position: absolute !important;
+            right: 24px !important;
+            top: 50% !important;
+            transform: translateY(-50%) translateX(10px) !important;
+            background: rgba(8, 12, 24, 0.85) !important;
+            color: #fff !important;
+            padding: 4px 10px !important;
+            border-radius: 6px !important;
+            font-size: 0.7rem !important;
+            font-weight: 600 !important;
+            white-space: nowrap !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        .profile-snap-dot:hover::after {
+            opacity: 1 !important;
+            transform: translateY(-50%) translateX(0) !important;
+        }
+
+        @media (max-width: 768px) {
+            .profile-snap-dots {
+                right: 12px !important;
+                gap: 12px !important;
+                padding: 10px 8px !important;
+            }
+
+            .profile-snap-dot::after {
+                display: none !important;
+            }
+        }
+
         body[data-layout-snap="1"] .bio-stats-grid {
             width: 100% !important;
             max-width: 580px !important;
@@ -657,17 +787,49 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             z-index: 99999;
             animation: grain-animation 8s steps(10) infinite;
         }
+
         @keyframes grain-animation {
-            0%, 100% { transform:translate(0, 0); }
-            10% { transform:translate(-5%, -10%); }
-            20% { transform:translate(-15%, 5%); }
-            30% { transform:translate(7%, -25%); }
-            40% { transform:translate(-5%, 25%); }
-            50% { transform:translate(-15%, 10%); }
-            60% { transform:translate(15%, 0%); }
-            70% { transform:translate(0%, 15%); }
-            80% { transform:translate(3%, 35%); }
-            90% { transform:translate(-10%, 10%); }
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            10% {
+                transform: translate(-5%, -10%);
+            }
+
+            20% {
+                transform: translate(-15%, 5%);
+            }
+
+            30% {
+                transform: translate(7%, -25%);
+            }
+
+            40% {
+                transform: translate(-5%, 25%);
+            }
+
+            50% {
+                transform: translate(-15%, 10%);
+            }
+
+            60% {
+                transform: translate(15%, 0%);
+            }
+
+            70% {
+                transform: translate(0%, 15%);
+            }
+
+            80% {
+                transform: translate(3%, 35%);
+            }
+
+            90% {
+                transform: translate(-10%, 10%);
+            }
         }
 
         /* Custom Cursor */
@@ -704,15 +866,18 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             color: #00ff00 !important;
             box-shadow: 0 0 10px rgba(0, 255, 0, 0.5) !important;
         }
+
         body[data-music-theme="retro"] .bio-audio strong,
         body[data-music-theme="retro"] .bio-audio small,
         body[data-music-theme="retro"] .bio-audio span {
             color: #00ff00 !important;
             text-transform: uppercase !important;
         }
+
         body[data-music-theme="retro"] .bio-audio input[type="range"]::-webkit-slider-runnable-track {
             background: #003300 !important;
         }
+
         body[data-music-theme="retro"] .bio-audio input[type="range"]::-webkit-slider-thumb {
             background: #00ff00 !important;
             border-radius: 0px !important;
@@ -728,14 +893,17 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             position: relative !important;
             box-shadow: 0 0 15px rgba(252, 238, 10, 0.3) !important;
         }
+
         body[data-music-theme="cyberpunk"] .bio-audio strong {
             color: #fcee0a !important;
             text-shadow: 0 0 5px #fcee0a !important;
         }
+
         body[data-music-theme="cyberpunk"] .bio-audio span,
         body[data-music-theme="cyberpunk"] .bio-audio small {
             color: #ff007f !important;
         }
+
         body[data-music-theme="cyberpunk"] .bio-audio input[type="range"]::-webkit-slider-thumb {
             background: #00ffff !important;
             border-radius: 0px !important;
@@ -749,15 +917,18 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             color: #00ffff !important;
             font-family: 'Montserrat', sans-serif !important;
         }
+
         body[data-music-theme="synthwave"] .bio-audio strong {
             color: #ff007f !important;
             text-shadow: 0 0 10px #ff007f, 0 0 20px #ff007f !important;
         }
+
         body[data-music-theme="synthwave"] .bio-audio span,
         body[data-music-theme="synthwave"] .bio-audio small {
             color: #00ffff !important;
             text-shadow: 0 0 8px #00ffff !important;
         }
+
         body[data-music-theme="synthwave"] .bio-audio input[type="range"]::-webkit-slider-thumb {
             background: #ff007f !important;
             box-shadow: 0 0 8px #ff007f !important;
@@ -820,307 +991,329 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <?php else: ?>
         <?php
         $tiltAttrs = 'data-tilt-enabled="' . (int)($profile['tilt_enabled'] ?? 1) . '" ' .
-                     'data-tilt-max="' . (int)($profile['tilt_max'] ?? 15) . '" ' .
-                     'data-tilt-glare="' . (float)($profile['tilt_glare'] ?? 0.0) . '" ' .
-                     'data-tilt-zoom="' . (float)($profile['tilt_zoom'] ?? 1.05) . '" ' .
-                     'data-tilt-speed="' . (int)($profile['tilt_speed'] ?? 400) . '"';
+            'data-tilt-max="' . (int)($profile['tilt_max'] ?? 15) . '" ' .
+            'data-tilt-glare="' . (float)($profile['tilt_glare'] ?? 0.0) . '" ' .
+            'data-tilt-zoom="' . (float)($profile['tilt_zoom'] ?? 1.05) . '" ' .
+            'data-tilt-speed="' . (int)($profile['tilt_speed'] ?? 400) . '"';
         ?>
         <main class="bio-page profile-smart-page <?php echo (!$hasRightContent) ? 'profile-smart-page--single' : ''; ?> layout-<?php echo profile_h($layoutCss); ?>" id="bioPage">
             <div class="profile-smart-hero-wrapper">
                 <section class="bio-hero bio-card profile-smart-hero js-tilt-card js-reveal" aria-label="Public Profile" <?php echo $tiltAttrs; ?>>
-                <div class="profile-hero-actions-top">
-                    <?php if ($showStats): ?>
-                        <?php if ($isOnline): ?>
-                            <span class="bio-pill bio-pill--live"><span class="bio-dot"></span>online</span>
-                        <?php elseif ($customStatus): ?>
-                            <span class="bio-pill"><i class="fa-solid fa-signal"></i><?php echo profile_h($customStatus); ?></span>
-                        <?php else: ?>
-                            <div></div>
-                        <?php endif; ?>
-                    <?php else: ?>
-                        <span class="bio-pill"><i class="fa-solid fa-eye"></i><?php echo profile_compact_number($profile['profile_views'] ?? 0); ?> <?php echo ($lang === 'it') ? 'visite' : 'views'; ?></span>
-                    <?php endif; ?>
-
-                    <?php if (!isset($_GET['preview_mode'])): ?>
-                    <div class="profile-dropdown-wrap">
-                        <button class="bio-small-button js-profile-dropdown-trigger" type="button" aria-label="Menu" aria-expanded="false">
-                            <i class="fa-solid fa-ellipsis-h"></i>
-                        </button>
-                        <div class="profile-dropdown-menu">
-                            <?php if ($canEdit): ?>
-                                <a class="profile-dropdown-item" href="/it/edit-profile<?php echo profile_is_staff() && !$isOwnProfile ? '?user_id=' . (int)$profile['id'] : ''; ?>">
-                                    <i class="fa-solid fa-pen"></i>
-                                    <span><?php echo ($lang === 'it') ? 'Modifica profilo' : 'Edit profile'; ?></span>
-                                </a>
+                    <div class="profile-hero-actions-top">
+                        <?php if ($showStats): ?>
+                            <?php if ($isOnline): ?>
+                                <span class="bio-pill bio-pill--live"><span class="bio-dot"></span>online</span>
+                            <?php elseif ($customStatus): ?>
+                                <span class="bio-pill"><i class="fa-solid fa-signal"></i><?php echo profile_h($customStatus); ?></span>
+                            <?php else: ?>
+                                <div></div>
                             <?php endif; ?>
-                            <a class="profile-dropdown-item" href="/<?php echo $lang; ?>/home">
-                                <i class="fa-solid fa-home"></i>
-                                <span>Home Page</span>
-                            </a>
-                            <button class="profile-dropdown-item js-open-search" type="button">
-                                <i class="fa-solid fa-search"></i>
-                                <span><?php echo ($lang === 'it') ? 'Cerca utenti' : 'Search users'; ?></span>
-                            </button>
-                            <button class="profile-dropdown-item js-open-navigation" type="button">
-                                <i class="fa-solid fa-compass"></i>
-                                <span><?php echo ($lang === 'it') ? 'Apri Navigazione' : 'Open Navigation'; ?></span>
-                            </button>
-                            <button class="profile-dropdown-item js-copy-profile" type="button">
-                                <i class="fa-solid fa-link"></i>
-                                <span><?php echo ($lang === 'it') ? 'Copia link' : 'Copy link'; ?></span>
-                            </button>
-                            <button class="profile-dropdown-item js-share-profile" type="button">
-                                <i class="fa-solid fa-share-nodes"></i>
-                                <span><?php echo ($lang === 'it') ? 'Condividi Profilo' : 'Share Profile'; ?></span>
-                            </button>
-                            <button class="profile-dropdown-item js-open-report" type="button">
-                                <i class="fa-solid fa-flag"></i>
-                                <span><?php echo ($lang === 'it') ? 'Segnala Profilo' : 'Report Profile'; ?></span>
-                            </button>
-                            <button class="profile-dropdown-item js-open-qr" type="button">
-                                <i class="fa-solid fa-qrcode"></i>
-                                <span><?php echo ($lang === 'it') ? 'Codice QR' : 'QR Code'; ?></span>
-                            </button>
-                            <button class="profile-dropdown-item js-theme-toggle" type="button">
-                                <i class="fa-solid fa-moon"></i>
-                                <span class="theme-label-text"><?php echo ($lang === 'it') ? 'Tema scuro' : 'Dark Mode'; ?></span>
-                            </button>
-                        </div>
+                        <?php else: ?>
+                            <span class="bio-pill"><i class="fa-solid fa-eye"></i><?php echo profile_compact_number($profile['profile_views'] ?? 0); ?> <?php echo ($lang === 'it') ? 'visite' : 'views'; ?></span>
+                        <?php endif; ?>
+
+                        <?php if (!isset($_GET['preview_mode'])): ?>
+                            <div class="profile-dropdown-wrap">
+                                <button class="bio-small-button js-profile-dropdown-trigger" type="button" aria-label="Menu" aria-expanded="false">
+                                    <i class="fa-solid fa-ellipsis-h"></i>
+                                </button>
+                                <div class="profile-dropdown-menu">
+                                    <?php if ($canEdit): ?>
+                                        <a class="profile-dropdown-item" href="/it/edit-profile<?php echo profile_is_staff() && !$isOwnProfile ? '?user_id=' . (int)$profile['id'] : ''; ?>">
+                                            <i class="fa-solid fa-pen"></i>
+                                            <span><?php echo ($lang === 'it') ? 'Modifica profilo' : 'Edit profile'; ?></span>
+                                        </a>
+                                    <?php endif; ?>
+                                    <a class="profile-dropdown-item" href="/<?php echo $lang; ?>/home">
+                                        <i class="fa-solid fa-home"></i>
+                                        <span>Home Page</span>
+                                    </a>
+                                    <button class="profile-dropdown-item js-open-search" type="button">
+                                        <i class="fa-solid fa-search"></i>
+                                        <span><?php echo ($lang === 'it') ? 'Cerca utenti' : 'Search users'; ?></span>
+                                    </button>
+                                    <button class="profile-dropdown-item js-open-navigation" type="button">
+                                        <i class="fa-solid fa-compass"></i>
+                                        <span><?php echo ($lang === 'it') ? 'Apri Navigazione' : 'Open Navigation'; ?></span>
+                                    </button>
+                                    <button class="profile-dropdown-item js-copy-profile" type="button">
+                                        <i class="fa-solid fa-link"></i>
+                                        <span><?php echo ($lang === 'it') ? 'Copia link' : 'Copy link'; ?></span>
+                                    </button>
+                                    <button class="profile-dropdown-item js-share-profile" type="button">
+                                        <i class="fa-solid fa-share-nodes"></i>
+                                        <span><?php echo ($lang === 'it') ? 'Condividi Profilo' : 'Share Profile'; ?></span>
+                                    </button>
+                                    <button class="profile-dropdown-item js-open-report" type="button">
+                                        <i class="fa-solid fa-flag"></i>
+                                        <span><?php echo ($lang === 'it') ? 'Segnala Profilo' : 'Report Profile'; ?></span>
+                                    </button>
+                                    <button class="profile-dropdown-item js-open-qr" type="button">
+                                        <i class="fa-solid fa-qrcode"></i>
+                                        <span><?php echo ($lang === 'it') ? 'Codice QR' : 'QR Code'; ?></span>
+                                    </button>
+                                    <button class="profile-dropdown-item js-theme-toggle" type="button">
+                                        <i class="fa-solid fa-moon"></i>
+                                        <span class="theme-label-text"><?php echo ($lang === 'it') ? 'Tema scuro' : 'Dark Mode'; ?></span>
+                                    </button>
+                                </div>
+                            </div>
+                        <?php endif; ?>
                     </div>
-                    <?php endif; ?>
-                </div>
 
-                <div class="bio-avatar-wrap profile-smart-avatar ring-style-<?php echo profile_h($avatarRingStyle); ?> <?php echo (!$avatarRingEnabled || $avatarRingStyle === 'none') ? 'ring-disabled' : ''; ?>" style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>;">
-                    <?php if ($avatarRingEnabled && $avatarRingStyle !== 'none'): ?><div class="bio-avatar-ring"></div><?php endif; ?>
-                    <img class="bio-avatar" src="<?php echo profile_h(profile_avatar_url($profile, 256)); ?>" alt="Avatar di <?php echo profile_h($profile['username']); ?>" loading="eager" data-richpresence-pfp>
-                </div>
-
-                <?php
-                $renderMiniBadgesHtml = '';
-                if ($visibleBadges && $showMiniBadges) {
-                    ob_start();
-                ?>
-                    <div class="profile-mini-badges badges-pos-<?php echo profile_h($badgesPosition); ?>" aria-label="Badge">
-                        <?php foreach (array_slice($visibleBadges, 0, 4) as $badge): ?>
-                            <?php
-                            $badgeName = ($lang === 'it' && !empty($badge['nome'])) ? $badge['nome'] : (!empty($badge['nome_en']) ? $badge['nome_en'] : $badge['nome']);
-                            $badgeImage = !empty($badge['img_url']) ? (preg_match('/^https?:\/\//i', $badge['img_url']) ? $badge['img_url'] : '/img/' . ltrim((string)$badge['img_url'], '/')) : null;
-
-                            $styleAttr = '';
-                            $extraClasses = '';
-                            if ($badge['badge_source'] === 'custom') {
-                                $extraClasses .= ' custom-badge-mini';
-                                if (!empty($badge['color'])) {
-                                    $rgb = function_exists('profile_hex_to_rgb') ? profile_hex_to_rgb($badge['color']) : null;
-                                    if ($rgb) {
-                                        $rgbStr = "{$rgb[0]}, {$rgb[1]}, {$rgb[2]}";
-                                        $styleAttr = 'style="--badge-color: ' . profile_h($badge['color']) . '; --badge-color-rgb: ' . $rgbStr . '; --badge-color-glow-alpha: rgba(' . $rgbStr . ', 0.15);"';
-                                    } else {
-                                        $styleAttr = 'style="--badge-color: ' . profile_h($badge['color']) . ';"';
-                                    }
-                                }
-                            }
-                            ?>
-                            <span class="profile-mini-badge<?php echo $extraClasses; ?>" <?php echo $styleAttr; ?> title="<?php echo profile_h($badgeName); ?>">
-                                <?php if ($badgeImage): ?>
-                                    <img src="<?php echo profile_h($badgeImage); ?>" alt="" loading="lazy">
-                                <?php elseif ($badge['badge_source'] === 'custom' && !empty($badge['icon'])): ?>
-                                    <i class="<?php echo profile_h($badge['icon']); ?>"></i>
-                                <?php else: ?>
-                                    <i class="fa-solid fa-medal"></i>
-                                <?php endif; ?>
-                            </span>
-                        <?php endforeach; ?>
+                    <div class="bio-avatar-wrap profile-smart-avatar ring-style-<?php echo profile_h($avatarRingStyle); ?> <?php echo (!$avatarRingEnabled || $avatarRingStyle === 'none') ? 'ring-disabled' : ''; ?>" style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>;">
+                        <?php if ($avatarRingEnabled && $avatarRingStyle !== 'none'): ?><div class="bio-avatar-ring"></div><?php endif; ?>
+                        <img class="bio-avatar" src="<?php echo profile_h(profile_avatar_url($profile, 256)); ?>" alt="Avatar di <?php echo profile_h($profile['username']); ?>" loading="eager" data-richpresence-pfp>
                     </div>
-                <?php
-                    $renderMiniBadgesHtml = ob_get_clean();
-                }
-                ?>
-
-                <div class="bio-name-block profile-smart-name">
-                    <div class="profile-name-row">
-                        <h1 class="profile-display-name"
-                            data-name-type="<?php echo profile_h($nameType); ?>"
-                            data-name-anim="<?php echo profile_h($nameAnim); ?>"
-                            data-text="<?php echo profile_h($displayName); ?>"
-                            style="--name-color1: <?php echo profile_h($nameSolidColor); ?>; --name-color2: <?php echo profile_h($nameGradColor1); ?>; --name-color3: <?php echo profile_h($nameGradColor2); ?>; --name-angle: <?php echo profile_h($nameGradAngle); ?>deg; --name-glow-color: <?php echo profile_h($nameGlowColor); ?>;">
-                            <?php echo profile_format_name($displayName, $nameStyle); ?>
-                        </h1>
-                        <?php if ($badgesPosition === 'right_of_name') echo $renderMiniBadgesHtml; ?>
-                    </div>
-                    <p class="bio-username">@<?php echo profile_h($profile['username']); ?></p>
-                    <?php if ($badgesPosition === 'below_username') echo $renderMiniBadgesHtml; ?>
-                    <?php if (!empty($profile['bio'])): ?>
-                        <p class="bio-tagline"><?php echo nl2br(profile_h($profile['bio'])); ?></p>
-                    <?php endif; ?>
 
                     <?php
-                    $profileTags = json_decode($profile['profile_tags_json'] ?? '[]', true) ?: [];
-                    if (!empty($profileTags)):
+                    $renderMiniBadgesHtml = '';
+                    if ($visibleBadges && $showMiniBadges) {
+                        ob_start();
                     ?>
-                        <div class="profile-tags-container" style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 0.75rem;">
-                            <?php foreach ($profileTags as $tag):
-                                $tagText = $tag['text'] ?? '';
-                                if (trim($tagText) === '') continue;
-                                $tagIcon = $tag['icon'] ?? '';
-                                $tagColor = $tag['color'] ?? '';
-                                $tagGradient = $tag['gradient'] ?? '';
+                        <div class="profile-mini-badges badges-pos-<?php echo profile_h($badgesPosition); ?>" aria-label="Badge">
+                            <?php foreach (array_slice($visibleBadges, 0, 4) as $badge): ?>
+                                <?php
+                                $badgeName = ($lang === 'it' && !empty($badge['nome'])) ? $badge['nome'] : (!empty($badge['nome_en']) ? $badge['nome_en'] : $badge['nome']);
+                                $badgeImage = !empty($badge['img_url']) ? (preg_match('/^https?:\/\//i', $badge['img_url']) ? $badge['img_url'] : '/img/' . ltrim((string)$badge['img_url'], '/')) : null;
 
-                                $tagStyle = '';
-                                if (!empty($tagColor)) {
-                                    if (!empty($tagGradient)) {
-                                        $tagStyle = 'background: linear-gradient(135deg, ' . $tagColor . ', ' . $tagGradient . ') !important; border-color: transparent !important; color: #fff !important;';
-                                    } else {
-                                        $tagStyle = 'background: ' . $tagColor . ' !important; border-color: transparent !important; color: #fff !important;';
+                                $styleAttr = '';
+                                $extraClasses = '';
+                                if ($badge['badge_source'] === 'custom') {
+                                    $extraClasses .= ' custom-badge-mini';
+                                    if (!empty($badge['color'])) {
+                                        $rgb = function_exists('profile_hex_to_rgb') ? profile_hex_to_rgb($badge['color']) : null;
+                                        if ($rgb) {
+                                            $rgbStr = "{$rgb[0]}, {$rgb[1]}, {$rgb[2]}";
+                                            $styleAttr = 'style="--badge-color: ' . profile_h($badge['color']) . '; --badge-color-rgb: ' . $rgbStr . '; --badge-color-glow-alpha: rgba(' . $rgbStr . ', 0.15);"';
+                                        } else {
+                                            $styleAttr = 'style="--badge-color: ' . profile_h($badge['color']) . ';"';
+                                        }
                                     }
                                 }
-                            ?>
-                                <span class="profile-tag-pill" style="<?php echo $tagStyle; ?>">
-                                    <?php if (!empty($tagIcon)): ?>
-                                        <i class="<?php echo profile_h($tagIcon); ?>" style="margin-right: 4px;"></i>
+                                ?>
+                                <span class="profile-mini-badge<?php echo $extraClasses; ?>" <?php echo $styleAttr; ?> title="<?php echo profile_h($badgeName); ?>">
+                                    <?php if ($badgeImage): ?>
+                                        <img src="<?php echo profile_h($badgeImage); ?>" alt="" loading="lazy">
+                                    <?php elseif ($badge['badge_source'] === 'custom' && !empty($badge['icon'])): ?>
+                                        <i class="<?php echo profile_h($badge['icon']); ?>"></i>
+                                    <?php else: ?>
+                                        <i class="fa-solid fa-medal"></i>
                                     <?php endif; ?>
-                                    <?php echo profile_h($tagText); ?>
                                 </span>
                             <?php endforeach; ?>
                         </div>
-                    <?php endif; ?>
-                </div>
-
-                <?php if ($badgesPosition === 'below_bio' || empty($badgesPosition)) echo $renderMiniBadgesHtml; ?>
-
-                <?php if ($visibleSocials): ?>
-                    <?php if ($socialsStyle === 'icons'): ?>
-                        <div class="bio-social-icons-row" aria-label="Social">
-                            <?php foreach ($visibleSocials as $social): ?>
-                                <a class="bio-social-icon bio-social-icon--<?php echo profile_h($social['platform']); ?>" href="<?php echo profile_h($social['url']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo profile_h($social['label'] ?: ucfirst($social['platform'])); ?>">
-                                    <i class="<?php echo profile_h(profile_social_icon_class($social['platform'])); ?>"></i>
-                                </a>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php else: ?>
-                        <div class="bio-social-grid profile-social-compact" aria-label="Social">
-                            <?php foreach ($visibleSocials as $social): ?>
-                                <a class="bio-social" href="<?php echo profile_h($social['url']); ?>" target="_blank" rel="noopener noreferrer">
-                                    <span class="bio-social__icon"><i class="<?php echo profile_h(profile_social_icon_class($social['platform'])); ?>"></i></span>
-                                    <span>
-                                        <strong><?php echo profile_h($social['label'] ?: ucfirst($social['platform'])); ?></strong>
-                                        <small><?php echo profile_h($social['display_username'] ?: profile_short_url_label($social['url'])); ?></small>
-                                    </span>
-                                    <i class="fa-solid fa-arrow-up-right-from-square bio-social__arrow"></i>
-                                </a>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php endif; ?>
-                <?php endif; ?> <?php if ($showDiscord && $discordId): ?>
-                    <div class="profile-discord-left js-reveal" aria-label="Attività Discord">
-                        <div class="profile-discord-left__title">
-                            <span><i class="fa-brands fa-discord"></i>Discord</span>
-                        </div>
-                        <div class="discord-box" id="discordBox">
-                            <?php $discordProfileId = $discordId;
-                                    require __DIR__ . '/includes/discord_status.php'; ?>
-                        </div>
-                    </div>
-                <?php endif; ?>
-
-                <?php if ($showDiscord && !empty($widgetData)): ?>
                     <?php
-                    $discordServerName = $widgetData['server_name'] ?? '';
-                    $discordServerIcon = $widgetData['icon_hash'] ?? null;
-                    $discordGuildId = $widgetData['guild_id'] ?? '';
-                    $discordOnline = (int)($widgetData['online_members'] ?? 0);
-                    $discordTotal = (int)($widgetData['total_members'] ?? 0);
-                    $discordCode = $widgetData['code'] ?? '';
-
-                    $discordJoinUrl = "https://discord.gg/" . rawurlencode($discordCode);
-
-                    $discordIconUrl = null;
-                    if ($discordServerIcon && $discordGuildId) {
-                        $format = strpos($discordServerIcon, 'a_') === 0 ? 'gif' : 'png';
-                        $discordIconUrl = "https://cdn.discordapp.com/icons/" . rawurlencode($discordGuildId) . "/" . rawurlencode($discordServerIcon) . "." . $format . "?size=128";
+                        $renderMiniBadgesHtml = ob_get_clean();
                     }
                     ?>
-                    <div class="profile-discord-left js-reveal" aria-label="Server Discord" style="margin-top: 1.25rem;">
-                        <div class="profile-discord-left__title">
-                            <span><i class="fa-brands fa-discord"></i><?php echo (isset($lang) && $lang === 'en') ? 'Discord Server' : 'Server Discord'; ?></span>
-                        </div>
-                        <div class="ds-card profile-discord-server-section" style="padding: 1.25rem;">
-                            <div class="profile-discord-server-card">
-                                <div class="profile-discord-server-left">
-                                    <?php if ($discordIconUrl): ?>
-                                        <img class="profile-discord-server-icon" src="<?php echo htmlspecialchars($discordIconUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($discordServerName, ENT_QUOTES, 'UTF-8'); ?>" loading="lazy">
-                                    <?php else: ?>
-                                        <div class="profile-discord-server-icon-fallback">
-                                            <i class="fa-brands fa-discord"></i>
-                                        </div>
-                                    <?php endif; ?>
 
-                                    <div class="profile-discord-server-info">
-                                        <span class="profile-discord-server-label"><?php echo (isset($lang) && $lang === 'en') ? 'DISCORD SERVER' : 'SERVER DISCORD'; ?></span>
-                                        <strong class="profile-discord-server-name"><?php echo htmlspecialchars($discordServerName, ENT_QUOTES, 'UTF-8'); ?></strong>
-                                        <div class="profile-discord-server-stats">
-                                            <span class="discord-stat-online"><span class="discord-stat-dot online"></span><?php echo number_format($discordOnline); ?> Online</span>
-                                            <span class="discord-stat-total"><span class="discord-stat-dot total"></span><?php echo number_format($discordTotal); ?> <?php echo (isset($lang) && $lang === 'en') ? 'Members' : 'Membri'; ?></span>
+                    <div class="bio-name-block profile-smart-name">
+                        <div class="profile-name-row">
+                            <h1 class="profile-display-name"
+                                data-name-type="<?php echo profile_h($nameType); ?>"
+                                data-name-anim="<?php echo profile_h($nameAnim); ?>"
+                                data-text="<?php echo profile_h($displayName); ?>"
+                                style="--name-color1: <?php echo profile_h($nameSolidColor); ?>; --name-color2: <?php echo profile_h($nameGradColor1); ?>; --name-color3: <?php echo profile_h($nameGradColor2); ?>; --name-angle: <?php echo profile_h($nameGradAngle); ?>deg; --name-glow-color: <?php echo profile_h($nameGlowColor); ?>;">
+                                <?php echo profile_format_name($displayName, $nameStyle); ?>
+                            </h1>
+                            <?php if ($badgesPosition === 'right_of_name') echo $renderMiniBadgesHtml; ?>
+                        </div>
+                        <p class="bio-username">@<?php echo profile_h($profile['username']); ?></p>
+                        <?php if ($badgesPosition === 'below_username') echo $renderMiniBadgesHtml; ?>
+                        <?php if (!empty($profile['bio'])): ?>
+                            <p class="bio-tagline"><?php echo nl2br(profile_h($profile['bio'])); ?></p>
+                        <?php endif; ?>
+
+                        <?php
+                        $profileTags = json_decode($profile['profile_tags_json'] ?? '[]', true) ?: [];
+                        if (!empty($profileTags)):
+                        ?>
+                            <div class="profile-tags-container" style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 0.75rem;">
+                                <?php foreach ($profileTags as $tag):
+                                    $tagText = $tag['text'] ?? '';
+                                    if (trim($tagText) === '') continue;
+                                    $tagIcon = $tag['icon'] ?? '';
+                                    $tagColor = $tag['color'] ?? '';
+                                    $tagGradient = $tag['gradient'] ?? '';
+
+                                    $tagStyle = '';
+                                    if (!empty($tagColor)) {
+                                        if (!empty($tagGradient)) {
+                                            $tagStyle = 'background: linear-gradient(135deg, ' . $tagColor . ', ' . $tagGradient . ') !important; border-color: transparent !important; color: #fff !important;';
+                                        } else {
+                                            $tagStyle = 'background: ' . $tagColor . ' !important; border-color: transparent !important; color: #fff !important;';
+                                        }
+                                    }
+                                ?>
+                                    <span class="profile-tag-pill" style="<?php echo $tagStyle; ?>">
+                                        <?php if (!empty($tagIcon)): ?>
+                                            <i class="<?php echo profile_h($tagIcon); ?>" style="margin-right: 4px;"></i>
+                                        <?php endif; ?>
+                                        <?php echo profile_h($tagText); ?>
+                                    </span>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
+                    <?php if ($badgesPosition === 'below_bio' || empty($badgesPosition)) echo $renderMiniBadgesHtml; ?>
+
+                    <?php if ($visibleSocials): ?>
+                        <?php if ($socialsStyle === 'icons'): ?>
+                            <div class="bio-social-icons-row" aria-label="Social">
+                                <?php foreach ($visibleSocials as $social): ?>
+                                    <a class="bio-social-icon bio-social-icon--<?php echo profile_h($social['platform']); ?>" href="<?php echo profile_h($social['url']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo profile_h($social['label'] ?: ucfirst($social['platform'])); ?>">
+                                        <i class="<?php echo profile_h(profile_social_icon_class($social['platform'])); ?>"></i>
+                                    </a>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="bio-social-grid profile-social-compact" aria-label="Social">
+                                <?php foreach ($visibleSocials as $social): ?>
+                                    <a class="bio-social" href="<?php echo profile_h($social['url']); ?>" target="_blank" rel="noopener noreferrer">
+                                        <span class="bio-social__icon"><i class="<?php echo profile_h(profile_social_icon_class($social['platform'])); ?>"></i></span>
+                                        <span>
+                                            <strong><?php echo profile_h($social['label'] ?: ucfirst($social['platform'])); ?></strong>
+                                            <small><?php echo profile_h($social['display_username'] ?: profile_short_url_label($social['url'])); ?></small>
+                                        </span>
+                                        <i class="fa-solid fa-arrow-up-right-from-square bio-social__arrow"></i>
+                                    </a>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                    <?php endif; ?> <?php if ($showDiscord && $discordId): ?>
+                        <div class="profile-discord-left js-reveal" aria-label="Attività Discord">
+                            <div class="profile-discord-left__title">
+                                <span><i class="fa-brands fa-discord"></i>Discord</span>
+                            </div>
+                            <div class="discord-box" id="discordBox">
+                                <?php $discordProfileId = $discordId;
+                                        require __DIR__ . '/includes/discord_status.php'; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ($showDiscord && !empty($widgetData)): ?>
+                        <?php
+                        $discordServerName = $widgetData['server_name'] ?? '';
+                        $discordServerIcon = $widgetData['icon_hash'] ?? null;
+                        $discordGuildId = $widgetData['guild_id'] ?? '';
+                        $discordOnline = (int)($widgetData['online_members'] ?? 0);
+                        $discordTotal = (int)($widgetData['total_members'] ?? 0);
+                        $discordCode = $widgetData['code'] ?? '';
+
+                        $discordJoinUrl = "https://discord.gg/" . rawurlencode($discordCode);
+
+                        $discordIconUrl = null;
+                        if ($discordServerIcon && $discordGuildId) {
+                            $format = strpos($discordServerIcon, 'a_') === 0 ? 'gif' : 'png';
+                            $discordIconUrl = "https://cdn.discordapp.com/icons/" . rawurlencode($discordGuildId) . "/" . rawurlencode($discordServerIcon) . "." . $format . "?size=128";
+                        }
+                        ?>
+                        <div class="profile-discord-left js-reveal" aria-label="Server Discord" style="margin-top: 1.25rem;">
+                            <div class="profile-discord-left__title">
+                                <span><i class="fa-brands fa-discord"></i><?php echo (isset($lang) && $lang === 'en') ? 'Discord Server' : 'Server Discord'; ?></span>
+                            </div>
+                            <div class="ds-card profile-discord-server-section" style="padding: 1.25rem;">
+                                <div class="profile-discord-server-card">
+                                    <div class="profile-discord-server-left">
+                                        <?php if ($discordIconUrl): ?>
+                                            <img class="profile-discord-server-icon" src="<?php echo htmlspecialchars($discordIconUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($discordServerName, ENT_QUOTES, 'UTF-8'); ?>" loading="lazy">
+                                        <?php else: ?>
+                                            <div class="profile-discord-server-icon-fallback">
+                                                <i class="fa-brands fa-discord"></i>
+                                            </div>
+                                        <?php endif; ?>
+
+                                        <div class="profile-discord-server-info">
+                                            <span class="profile-discord-server-label"><?php echo (isset($lang) && $lang === 'en') ? 'DISCORD SERVER' : 'SERVER DISCORD'; ?></span>
+                                            <strong class="profile-discord-server-name"><?php echo htmlspecialchars($discordServerName, ENT_QUOTES, 'UTF-8'); ?></strong>
+                                            <div class="profile-discord-server-stats">
+                                                <span class="discord-stat-online"><span class="discord-stat-dot online"></span><?php echo number_format($discordOnline); ?> Online</span>
+                                                <span class="discord-stat-total"><span class="discord-stat-dot total"></span><?php echo number_format($discordTotal); ?> <?php echo (isset($lang) && $lang === 'en') ? 'Members' : 'Membri'; ?></span>
+                                            </div>
                                         </div>
                                     </div>
+                                    <a href="<?php echo htmlspecialchars($discordJoinUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" class="bio-button bio-button--primary discord-join-button">
+                                        <i class="fa-brands fa-discord"></i>
+                                        <span><?php echo (isset($lang) && $lang === 'en') ? 'Join' : 'Entra'; ?></span>
+                                    </a>
                                 </div>
-                                <a href="<?php echo htmlspecialchars($discordJoinUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" class="bio-button bio-button--primary discord-join-button">
-                                    <i class="fa-brands fa-discord"></i>
-                                    <span><?php echo (isset($lang) && $lang === 'en') ? 'Join' : 'Entra'; ?></span>
-                                </a>
                             </div>
                         </div>
-                    </div>
-                <?php endif; ?>
-                <?php if (!$hasAnyPublicContent && $isOwnProfile && !isset($_GET['preview_mode'])): ?>
-                    <div class="profile-owner-nudge">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>Add links, badges, or content to fill out the bio.</span>
-                        <a href="/en/edit-profile">Edit</a>
-                    </div>
-                <?php endif; ?>
+                    <?php endif; ?>
+                    <?php if (!$hasAnyPublicContent && $isOwnProfile && !isset($_GET['preview_mode'])): ?>
+                        <div class="profile-owner-nudge">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Add links, badges, or content to fill out the bio.</span>
+                            <a href="/en/edit-profile">Edit</a>
+                        </div>
+                    <?php endif; ?>
 
-                <?php
-                $isPreview = isset($_GET['preview_mode']);
-                $hasClickToEnter = $profile && profile_flag($profile, 'profile_click_to_enter', false);
-                ?>
-                <?php if ($hasMusic && $showAudioPlayer): ?>
-                    <div class="bio-audio profile-audio-player" data-audio-player>
-                        <audio id="profileAudio" preload="metadata" src="<?php echo profile_h($musicUrl); ?>"></audio>
-                        <div class="bio-audio__header">
-                            <div>
-                                <small>Audio</small>
-                                <strong><i class="fa-solid fa-music"></i><?php echo profile_h($musicTitle ?: 'Profile Song'); ?></strong>
-                                <span class="profile-artist-span" style="<?php echo $musicArtist ? '' : 'display: none;'; ?>"><?php echo profile_h($musicArtist); ?></span>
-                            </div>
-                            <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i id="profileAudioIcon" class="fa-solid fa-play"></i></button>
-                        </div>
-                        <div class="bio-audio__progress">
-                            <span id="profileAudioCurrent">0:00</span>
-                            <input id="profileAudioProgress" type="range" min="0" max="100" step="0.1" value="0" aria-label="Audio progress">
-                            <span id="profileAudioTotal">0:00</span>
-                        </div>
-                        <div class="bio-audio__bottom">
-                            <button class="bio-small-button js-profile-volume-toggle" type="button" aria-label="Mute"><i id="profileVolumeIcon" class="fa-solid fa-volume-low"></i></button>
-                            <input id="profileVolumeSlider" type="range" min="0" max="1" step="0.01" value="0.18" aria-label="Volume">
-                        </div>
-                    </div>
-                <?php elseif ($hasMusic && !$showAudioPlayer): ?>
-                    <audio
-                        id="profileAudio"
-                        class="profile-hidden-audio"
-                        preload="auto"
-                        <?php if (!$hasClickToEnter): ?>autoplay<?php endif; ?>
-                        loop
-                        data-autoplay="1"
-                        src="<?php echo profile_h($musicUrl); ?>"></audio>
-                    <?php if ($isPreview): ?>
-                        <div class="bio-audio profile-audio-player" data-audio-player style="display: none;">
+                    <?php
+                    $isPreview = isset($_GET['preview_mode']);
+                    $hasClickToEnter = $profile && profile_flag($profile, 'profile_click_to_enter', false);
+                    ?>
+                    <?php if ($hasMusic && $showAudioPlayer): ?>
+                        <div class="bio-audio profile-audio-player" data-audio-player>
+                            <audio id="profileAudio" preload="metadata" src="<?php echo profile_h($musicUrl); ?>"></audio>
                             <div class="bio-audio__header">
                                 <div>
                                     <small>Audio</small>
                                     <strong><i class="fa-solid fa-music"></i><?php echo profile_h($musicTitle ?: 'Profile Song'); ?></strong>
                                     <span class="profile-artist-span" style="<?php echo $musicArtist ? '' : 'display: none;'; ?>"><?php echo profile_h($musicArtist); ?></span>
+                                </div>
+                                <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i id="profileAudioIcon" class="fa-solid fa-play"></i></button>
+                            </div>
+                            <div class="bio-audio__progress">
+                                <span id="profileAudioCurrent">0:00</span>
+                                <input id="profileAudioProgress" type="range" min="0" max="100" step="0.1" value="0" aria-label="Audio progress">
+                                <span id="profileAudioTotal">0:00</span>
+                            </div>
+                            <div class="bio-audio__bottom">
+                                <button class="bio-small-button js-profile-volume-toggle" type="button" aria-label="Mute"><i id="profileVolumeIcon" class="fa-solid fa-volume-low"></i></button>
+                                <input id="profileVolumeSlider" type="range" min="0" max="1" step="0.01" value="0.18" aria-label="Volume">
+                            </div>
+                        </div>
+                    <?php elseif ($hasMusic && !$showAudioPlayer): ?>
+                        <audio
+                            id="profileAudio"
+                            class="profile-hidden-audio"
+                            preload="auto"
+                            <?php if (!$hasClickToEnter): ?>autoplay<?php endif; ?>
+                            loop
+                            data-autoplay="1"
+                            src="<?php echo profile_h($musicUrl); ?>"></audio>
+                        <?php if ($isPreview): ?>
+                            <div class="bio-audio profile-audio-player" data-audio-player style="display: none;">
+                                <div class="bio-audio__header">
+                                    <div>
+                                        <small>Audio</small>
+                                        <strong><i class="fa-solid fa-music"></i><?php echo profile_h($musicTitle ?: 'Profile Song'); ?></strong>
+                                        <span class="profile-artist-span" style="<?php echo $musicArtist ? '' : 'display: none;'; ?>"><?php echo profile_h($musicArtist); ?></span>
+                                    </div>
+                                    <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i class="fa-solid fa-play"></i></button>
+                                </div>
+                                <div class="bio-audio__progress">
+                                    <span>0:00</span>
+                                    <input type="range" min="0" max="100" step="0.1" value="0" aria-label="Audio progress">
+                                    <span>0:00</span>
+                                </div>
+                                <div class="bio-audio__bottom">
+                                    <button class="bio-small-button js-profile-volume-toggle" type="button" aria-label="Mute"><i class="fa-solid fa-volume-low"></i></button>
+                                    <input type="range" min="0" max="1" step="0.01" value="0.18" aria-label="Volume">
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    <?php elseif ($isPreview): ?>
+                        <audio id="profileAudio" preload="metadata"></audio>
+                        <div class="bio-audio profile-audio-player" data-audio-player style="display: none;">
+                            <div class="bio-audio__header">
+                                <div>
+                                    <small>Audio</small>
+                                    <strong><i class="fa-solid fa-music"></i>Profile Song</strong>
+                                    <span class="profile-artist-span" style="display: none;"></span>
                                 </div>
                                 <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i class="fa-solid fa-play"></i></button>
                             </div>
@@ -1135,42 +1328,20 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                             </div>
                         </div>
                     <?php endif; ?>
-                <?php elseif ($isPreview): ?>
-                    <audio id="profileAudio" preload="metadata"></audio>
-                    <div class="bio-audio profile-audio-player" data-audio-player style="display: none;">
-                        <div class="bio-audio__header">
-                            <div>
-                                <small>Audio</small>
-                                <strong><i class="fa-solid fa-music"></i>Profile Song</strong>
-                                <span class="profile-artist-span" style="display: none;"></span>
-                            </div>
-                            <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i class="fa-solid fa-play"></i></button>
-                        </div>
-                        <div class="bio-audio__progress">
-                            <span>0:00</span>
-                            <input type="range" min="0" max="100" step="0.1" value="0" aria-label="Audio progress">
-                            <span>0:00</span>
-                        </div>
-                        <div class="bio-audio__bottom">
-                            <button class="bio-small-button js-profile-volume-toggle" type="button" aria-label="Mute"><i class="fa-solid fa-volume-low"></i></button>
-                            <input type="range" min="0" max="1" step="0.01" value="0.18" aria-label="Volume">
-                        </div>
-                    </div>
-                <?php endif; ?>
 
-                <div class="profile-small-meta">
-                    <?php if (!$showStats): ?>
-                        <?php if ($isOnline): ?>
-                            <span class="bio-pill bio-pill--live" style="margin-right: 0.4rem; padding: 0.2rem 0.5rem;"><span class="bio-dot"></span>online</span>
-                        <?php elseif ($customStatus): ?>
-                            <span class="bio-pill" style="margin-right: 0.4rem; padding: 0.2rem 0.5rem;"><i class="fa-solid fa-signal"></i><?php echo profile_h($customStatus); ?></span>
+                    <div class="profile-small-meta">
+                        <?php if (!$showStats): ?>
+                            <?php if ($isOnline): ?>
+                                <span class="bio-pill bio-pill--live" style="margin-right: 0.4rem; padding: 0.2rem 0.5rem;"><span class="bio-dot"></span>online</span>
+                            <?php elseif ($customStatus): ?>
+                                <span class="bio-pill" style="margin-right: 0.4rem; padding: 0.2rem 0.5rem;"><i class="fa-solid fa-signal"></i><?php echo profile_h($customStatus); ?></span>
+                            <?php endif; ?>
                         <?php endif; ?>
-                    <?php endif; ?>
-                    <span><i class="fa-solid fa-calendar"></i><?php echo date('d/m/Y', strtotime($profile['data_creazione'])); ?></span>
-                    <?php if (!$isOnline && $lastSeen): ?><span><i class="fa-solid fa-clock"></i><?php echo profile_h(profile_time_ago($lastSeen)); ?></span><?php endif; ?>
-                    <?php if ($showDiscord && $discordId): ?><span><i class="fa-brands fa-discord"></i>Discord</span><?php endif; ?>
-                </div>
-            </section>
+                        <span><i class="fa-solid fa-calendar"></i><?php echo date('d/m/Y', strtotime($profile['data_creazione'])); ?></span>
+                        <?php if (!$isOnline && $lastSeen): ?><span><i class="fa-solid fa-clock"></i><?php echo profile_h(profile_time_ago($lastSeen)); ?></span><?php endif; ?>
+                        <?php if ($showDiscord && $discordId): ?><span><i class="fa-brands fa-discord"></i>Discord</span><?php endif; ?>
+                    </div>
+                </section>
             </div>
 
             <?php if ($hasRightContent): ?>
@@ -1329,26 +1500,26 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                             <video src="<?php echo profile_h($mediaUrl); ?>" controls playsinline preload="metadata"></video>
                                         <?php endif; ?>
                                         <?php if (!empty($block['title']) || !empty($block['body']) || $isPinned || (!empty($block['card_tag_text']) && (int)($profile['is_premium'] ?? 0) === 1)): ?>
-                                        <div class="profile-block-copy">
-                                            <?php if (!empty($block['title'])): ?>
-                                                <strong>
-                                                    <?php echo profile_h($block['title']); ?>
-                                                    <?php if ((int)($profile['is_premium'] ?? 0) === 1 && !empty($block['card_tag_text'])): ?>
-                                                        <span class="profile-card-tag" style="background-color: <?php echo profile_h($block['card_tag_bg'] ?: 'rgba(255,255,255,0.1)'); ?>; color: <?php echo profile_h($block['card_tag_color'] ?: '#ffffff'); ?>;">
+                                            <div class="profile-block-copy">
+                                                <?php if (!empty($block['title'])): ?>
+                                                    <strong>
+                                                        <?php echo profile_h($block['title']); ?>
+                                                        <?php if ((int)($profile['is_premium'] ?? 0) === 1 && !empty($block['card_tag_text'])): ?>
+                                                            <span class="profile-card-tag" style="background-color: <?php echo profile_h($block['card_tag_bg'] ?: 'rgba(255,255,255,0.1)'); ?>; color: <?php echo profile_h($block['card_tag_color'] ?: '#ffffff'); ?>;">
+                                                                <?php echo profile_h($block['card_tag_text']); ?>
+                                                            </span>
+                                                        <?php endif; ?>
+                                                    </strong>
+                                                <?php elseif ((int)($profile['is_premium'] ?? 0) === 1 && !empty($block['card_tag_text'])): ?>
+                                                    <div style="margin-bottom: 0.4rem;">
+                                                        <span class="profile-card-tag" style="margin-left: 0; background-color: <?php echo profile_h($block['card_tag_bg'] ?: 'rgba(255,255,255,0.1)'); ?>; color: <?php echo profile_h($block['card_tag_color'] ?: '#ffffff'); ?>;">
                                                             <?php echo profile_h($block['card_tag_text']); ?>
                                                         </span>
-                                                    <?php endif; ?>
-                                                </strong>
-                                            <?php elseif ((int)($profile['is_premium'] ?? 0) === 1 && !empty($block['card_tag_text'])): ?>
-                                                <div style="margin-bottom: 0.4rem;">
-                                                    <span class="profile-card-tag" style="margin-left: 0; background-color: <?php echo profile_h($block['card_tag_bg'] ?: 'rgba(255,255,255,0.1)'); ?>; color: <?php echo profile_h($block['card_tag_color'] ?: '#ffffff'); ?>;">
-                                                        <?php echo profile_h($block['card_tag_text']); ?>
-                                                    </span>
-                                                </div>
-                                            <?php endif; ?>
-                                            <?php if (!empty($block['body'])): ?><p><?php echo nl2br(profile_h($block['body'])); ?></p><?php endif; ?>
-                                            <?php if ($isPinned): ?><small>Pin</small><?php endif; ?>
-                                        </div>
+                                                    </div>
+                                                <?php endif; ?>
+                                                <?php if (!empty($block['body'])): ?><p><?php echo nl2br(profile_h($block['body'])); ?></p><?php endif; ?>
+                                                <?php if ($isPinned): ?><small>Pin</small><?php endif; ?>
+                                            </div>
                                         <?php endif; ?>
                                     </article>
                                 <?php endforeach; ?>
@@ -1628,6 +1799,10 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                         body.style.setProperty('--cursor-custom-url', `url('${value}'), auto`);
                                     } else {
                                         body.style.removeProperty('--cursor-custom-url');
+                                    }
+                                } else if (key === 'data-layout-snap') {
+                                    if (window.initScrollSnapPagination) {
+                                        window.initScrollSnapPagination();
                                     }
                                 }
                             } else if (key === 'style') {
