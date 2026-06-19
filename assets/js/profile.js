@@ -1532,6 +1532,7 @@
     initTabTitleAnimation();
 
     const initScrollSnapPagination = () => {
+        const activeBody = document.body;
         const bioPage = document.getElementById('bioPage');
         
         // Helper to find all slide elements
@@ -1545,8 +1546,12 @@
             if (contentWrapper) {
                 const children = Array.from(contentWrapper.querySelectorAll(':scope > section, :scope > div.bio-stats-grid, .profile-split-item'));
                 children.sort((a, b) => {
-                    const orderA = parseInt(a.style.getPropertyValue('--profile-split-order') || 0, 10);
-                    const orderB = parseInt(b.style.getPropertyValue('--profile-split-order') || 0, 10);
+                    const styleA = a.style ? a.style.getPropertyValue('--profile-split-order') : '';
+                    const styleB = b.style ? b.style.getPropertyValue('--profile-split-order') : '';
+                    let orderA = parseInt(styleA, 10);
+                    let orderB = parseInt(styleB, 10);
+                    if (isNaN(orderA)) orderA = 0;
+                    if (isNaN(orderB)) orderB = 0;
                     return orderA - orderB;
                 });
                 children.forEach(child => arr.push(child));
@@ -1556,28 +1561,22 @@
 
         const slides = getSlides();
 
-        // Standard cleanup (if disabled or re-initializing)
-        if (bioPage) {
-            if (bioPage._snapWheelHandler) {
-                bioPage.removeEventListener('wheel', bioPage._snapWheelHandler, { passive: false });
-                bioPage._snapWheelHandler = null;
-            }
-            if (bioPage._snapTouchStartHandler) {
-                bioPage.removeEventListener('touchstart', bioPage._snapTouchStartHandler);
-                bioPage._snapTouchStartHandler = null;
-            }
-            if (bioPage._snapTouchMoveHandler) {
-                bioPage.removeEventListener('touchmove', bioPage._snapTouchMoveHandler, { passive: false });
-                bioPage._snapTouchMoveHandler = null;
-            }
-            if (bioPage._snapTouchEndHandler) {
-                bioPage.removeEventListener('touchend', bioPage._snapTouchEndHandler);
-                bioPage._snapTouchEndHandler = null;
-            }
-            if (bioPage._snapScrollHandler) {
-                bioPage.removeEventListener('scroll', bioPage._snapScrollHandler);
-                bioPage._snapScrollHandler = null;
-            }
+        // Standard cleanup (if disabled or re-initializing) - clear from window
+        if (window._snapWheelHandler) {
+            window.removeEventListener('wheel', window._snapWheelHandler, { passive: false });
+            window._snapWheelHandler = null;
+        }
+        if (window._snapTouchStartHandler) {
+            window.removeEventListener('touchstart', window._snapTouchStartHandler);
+            window._snapTouchStartHandler = null;
+        }
+        if (window._snapTouchMoveHandler) {
+            window.removeEventListener('touchmove', window._snapTouchMoveHandler, { passive: false });
+            window._snapTouchMoveHandler = null;
+        }
+        if (window._snapTouchEndHandler) {
+            window.removeEventListener('touchend', window._snapTouchEndHandler);
+            window._snapTouchEndHandler = null;
         }
         if (window._snapKeyDownHandler) {
             window.removeEventListener('keydown', window._snapKeyDownHandler);
@@ -1592,7 +1591,7 @@
         });
 
         // If data-layout-snap is not active, stop here!
-        if (body.getAttribute('data-layout-snap') !== '1') {
+        if (activeBody.getAttribute('data-layout-snap') !== '1') {
             return;
         }
 
@@ -1670,7 +1669,7 @@
         // Set initial state
         goToSlide(0);
 
-        // 1. Wheel Listener (Mouse & Trackpad)
+        // 1. Wheel Listener (Mouse & Trackpad) - Registered on window
         const handleWheel = (e) => {
             const now = Date.now();
             if (now - lastTransitionTime < transitionCooldown) {
@@ -1693,10 +1692,10 @@
             }
         };
 
-        bioPage._snapWheelHandler = handleWheel;
-        bioPage.addEventListener('wheel', handleWheel, { passive: false });
+        window._snapWheelHandler = handleWheel;
+        window.addEventListener('wheel', handleWheel, { passive: false });
 
-        // 2. Touch/Swipe Listeners
+        // 2. Touch/Swipe Listeners - Registered on window
         let touchStartY = 0;
         
         const handleTouchStart = (e) => {
@@ -1724,13 +1723,13 @@
             }
         };
 
-        bioPage._snapTouchStartHandler = handleTouchStart;
-        bioPage._snapTouchMoveHandler = handleTouchMove;
-        bioPage._snapTouchEndHandler = handleTouchEnd;
+        window._snapTouchStartHandler = handleTouchStart;
+        window._snapTouchMoveHandler = handleTouchMove;
+        window._snapTouchEndHandler = handleTouchEnd;
 
-        bioPage.addEventListener('touchstart', handleTouchStart, { passive: true });
-        bioPage.addEventListener('touchmove', handleTouchMove, { passive: false });
-        bioPage.addEventListener('touchend', handleTouchEnd, { passive: true });
+        window.addEventListener('touchstart', handleTouchStart, { passive: true });
+        window.addEventListener('touchmove', handleTouchMove, { passive: false });
+        window.addEventListener('touchend', handleTouchEnd, { passive: true });
 
         // 3. Keydown Listener
         const handleKeyDown = (e) => {

@@ -488,8 +488,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.1.2">
-    <script src="/assets/js/profile.js?v=5.1.2" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.1.3">
+    <script src="/assets/js/profile.js?v=5.1.3" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -634,18 +634,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             z-index: 2 !important;
         }
 
-        /* Layered Content Cards Transition */
-        body[data-layout-snap="1"] .profile-snap-slide .bio-card,
-        body[data-layout-snap="1"] .profile-snap-slide .bio-hero {
-            transform: translateY(30px) scale(0.98);
-            transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        }
 
-        body[data-layout-snap="1"] .profile-snap-slide.slide-active .bio-card,
-        body[data-layout-snap="1"] .profile-snap-slide.slide-active .bio-hero {
-            transform: translateY(0) scale(1) !important;
-            transition-delay: 0.15s !important;
-        }
 
         body[data-layout-snap="1"] .profile-split-column {
             display: contents !important;
