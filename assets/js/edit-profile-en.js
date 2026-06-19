@@ -3126,16 +3126,25 @@
     function initOnboardingPlanModal() {
         const planOverlay = document.getElementById('onboardingPlanOverlay');
         const selectFreeBtn = document.getElementById('selectFreeBtn');
-        if (planOverlay && selectFreeBtn) {
+        if (planOverlay) {
             const planSelected = localStorage.getItem('cripsum_profile_editor_plan_selected');
             if (!planSelected) {
                 planOverlay.classList.add('is-active');
             }
-            selectFreeBtn.addEventListener('click', () => {
-                localStorage.setItem('cripsum_profile_editor_plan_selected', 'true');
-                planOverlay.classList.remove('is-active');
-                setTimeout(launchOnboardingTour, 400);
-            });
+            if (selectFreeBtn) {
+                selectFreeBtn.addEventListener('click', () => {
+                    localStorage.setItem('cripsum_profile_editor_plan_selected', 'true');
+                    planOverlay.classList.remove('is-active');
+                    setTimeout(launchOnboardingTour, 400);
+                });
+            }
+            
+            const headerPremiumBtn = document.getElementById('headerPremiumBtn');
+            if (headerPremiumBtn) {
+                headerPremiumBtn.addEventListener('click', () => {
+                    planOverlay.classList.add('is-active');
+                });
+            }
         }
     }
 

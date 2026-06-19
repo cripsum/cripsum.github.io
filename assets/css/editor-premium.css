@@ -1397,3 +1397,152 @@ input[type="range"]::-moz-range-track {
     box-shadow: 0 4px 20px rgba(255, 255, 255, 0.25);
 }
 
+/* Premium Badge Tags & Mini Badges in Editor */
+.premium-badge-tag {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    color: #fff !important;
+    font-size: 0.65rem !important;
+    font-weight: 800 !important;
+    padding: 2px 6px !important;
+    border-radius: 6px !important;
+    margin-left: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    vertical-align: middle !important;
+    box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.premium-badge-mini {
+    background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%) !important;
+    color: #fff !important;
+    font-size: 0.68rem !important;
+    font-weight: 800 !important;
+    padding: 4px 10px !important;
+    border-radius: 99px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.premium-badge-tag i,
+.premium-badge-mini i {
+    font-size: 0.68rem !important;
+    color: #fbbf24 !important; /* Gold Crown */
+}
+
+/* Header Premium Button */
+.editor-sidebar-brand .editor-btn-premium {
+    background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%) !important;
+    color: #fff !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    font-weight: 700 !important;
+    padding: 8px 16px !important;
+    border-radius: 99px !important;
+    font-size: 0.82rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4) !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.editor-sidebar-brand .editor-btn-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.6), 0 0 0 3px rgba(124, 58, 237, 0.25) !important;
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%) !important;
+}
+
+.editor-sidebar-brand .editor-btn-premium:active {
+    transform: translateY(0);
+}
+
+/* Custom File Uploader */
+.profile-editor-shell input[type="file"] {
+    display: block;
+    width: 100%;
+    padding: 12px !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px dashed rgba(255, 255, 255, 0.15) !important;
+    border-radius: 12px !important;
+    color: #a8b0c7 !important;
+    font-size: 0.85rem !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+    margin-top: 6px !important;
+}
+
+.profile-editor-shell input[type="file"]:hover {
+    border-color: var(--editor-accent, #0f5bff) !important;
+    background: rgba(var(--editor-accent-rgb, 15, 91, 255), 0.03) !important;
+}
+
+.profile-editor-shell input[type="file"]::file-selector-button {
+    background: var(--editor-accent, #0f5bff) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
+    font-weight: 700 !important;
+    font-family: inherit !important;
+    font-size: 0.8rem !important;
+    margin-right: 12px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 4px 12px rgba(var(--editor-accent-rgb, 15, 91, 255), 0.2) !important;
+}
+
+.profile-editor-shell input[type="file"]::file-selector-button:hover {
+    background: #fff !important;
+    color: #080c18 !important;
+    box-shadow: 0 4px 16px rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Custom upload wrappers for repeater rows */
+.input-with-upload {
+    display: flex !important;
+    gap: 8px !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin-top: 4px !important;
+}
+
+.input-with-upload input {
+    flex-grow: 1 !important;
+}
+
+.btn-page-media-upload,
+.btn-row-media-upload {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #a8b0c7 !important;
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    flex-shrink: 0 !important;
+}
+
+.btn-page-media-upload:hover,
+.btn-row-media-upload:hover {
+    background: var(--editor-accent, #0f5bff) !important;
+    border-color: var(--editor-accent, #0f5bff) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 12px rgba(var(--editor-accent-rgb, 15, 91, 255), 0.3) !important;
+}
+
+

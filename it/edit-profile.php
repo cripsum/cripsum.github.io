@@ -168,6 +168,9 @@ function profile_json_script(string $id, array $data): void
                         <div class="editor-header-actions">
                             <button type="button" class="editor-btn editor-btn-icon" id="undoBtn" disabled title="Annulla (Ctrl+Z)"><i class="fa-solid fa-arrow-rotate-left"></i></button>
                             <button type="button" class="editor-btn editor-btn-icon" id="redoBtn" disabled title="Ripristina (Ctrl+Y)"><i class="fa-solid fa-arrow-rotate-right"></i></button>
+                            <?php if ((int)($profile['is_premium'] ?? 0) !== 1): ?>
+                                <button type="button" class="editor-btn editor-btn-premium" id="headerPremiumBtn"><i class="fa-solid fa-crown"></i> Premium</button>
+                            <?php endif; ?>
                             <button type="submit" name="salva" class="editor-btn editor-btn-primary" id="saveBtn"><i class="fa-solid fa-floppy-disk"></i> Salva</button>
                         </div>
                     </div>
@@ -824,20 +827,20 @@ function profile_json_script(string $id, array $data): void
                                 </div>
                             </div>
                             <div class="profile-field-grid three">
-                                <label class="profile-field"><span>Effetto Cursore</span><select name="profile_cursor_effect" id="cursorEffectInput">
+                                <label class="profile-field"><span>Effetto Cursore <span class="premium-badge-tag"><i class="fa-solid fa-crown"></i> Premium</span></span><select name="profile_cursor_effect" id="cursorEffectInput">
                                         <option value="none" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'none' ? 'selected' : ''; ?>>Nessuno</option>
                                         <option value="follower" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'follower' ? 'selected' : ''; ?>>Follower dot (Puntatore)</option>
                                         <option value="trail" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'trail' ? 'selected' : ''; ?>>Scia particelle (Trail)</option>
                                     </select></label>
                                 
-                                <label class="profile-field"><span>Tema Musicale</span><select name="profile_music_theme" id="musicThemeInput">
+                                <label class="profile-field"><span>Tema Musicale <span class="premium-badge-tag"><i class="fa-solid fa-crown"></i> Premium</span></span><select name="profile_music_theme" id="musicThemeInput">
                                         <option value="default" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'default' ? 'selected' : ''; ?>>Default</option>
                                         <option value="retro" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'retro' ? 'selected' : ''; ?>>Retro</option>
                                         <option value="cyberpunk" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'cyberpunk' ? 'selected' : ''; ?>>Cyberpunk</option>
                                         <option value="synthwave" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'synthwave' ? 'selected' : ''; ?>>Synthwave</option>
                                     </select></label>
 
-                                <label class="profile-field"><span>Cursore Personalizzato (Immagine)</span>
+                                <label class="profile-field"><span>Cursore Personalizzato (Immagine) <span class="premium-badge-tag"><i class="fa-solid fa-crown"></i> Premium</span></span>
                                     <div class="input-with-upload">
                                         <input type="text" name="profile_cursor_custom_url" id="cursorCustomUrlInput" value="<?php echo profile_h($profile['profile_cursor_custom_url'] ?? ''); ?>" placeholder="/uploads/... o url">
                                         <button type="button" class="btn-page-media-upload" data-upload-target="cursorCustomUrlInput"><i class="fa-solid fa-upload"></i></button>
@@ -845,8 +848,8 @@ function profile_json_script(string $id, array $data): void
                                 </label>
                             </div>
                             
-                            <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_layout_snap" value="0"><input type="checkbox" name="profile_layout_snap" id="layoutSnapInput" value="1" <?php echo (int)($profile['profile_layout_snap'] ?? 0) === 1 ? 'checked' : ''; ?>><span><i class="fa-solid fa-arrows-to-dot"></i>Layout Scroll Snap A Tutto Schermo</span></label>
-                            <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_bg_grain" value="0"><input type="checkbox" name="profile_bg_grain" id="bgGrainInput" value="1" <?php echo (int)($profile['profile_bg_grain'] ?? 0) === 1 ? 'checked' : ''; ?>><span><i class="fa-solid fa-circle-nodes"></i>Effetto Disturbo/Grana sullo sfondo</span></label>
+                            <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_layout_snap" value="0"><input type="checkbox" name="profile_layout_snap" id="layoutSnapInput" value="1" <?php echo (int)($profile['profile_layout_snap'] ?? 0) === 1 ? 'checked' : ''; ?>><span><i class="fa-solid fa-arrows-to-dot"></i>Layout Scroll Snap A Tutto Schermo <span class="premium-badge-tag"><i class="fa-solid fa-crown"></i> Premium</span></span></label>
+                            <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_bg_grain" value="0"><input type="checkbox" name="profile_bg_grain" id="bgGrainInput" value="1" <?php echo (int)($profile['profile_bg_grain'] ?? 0) === 1 ? 'checked' : ''; ?>><span><i class="fa-solid fa-circle-nodes"></i>Effetto Disturbo/Grana sullo sfondo <span class="premium-badge-tag"><i class="fa-solid fa-crown"></i> Premium</span></span></label>
 
                             <div class="bio-section-heading" style="margin-top: 1.8rem; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 1.5rem;">
                                 <div><span><i class="fa-solid fa-signature"></i> Personalizzazione Nome</span>
