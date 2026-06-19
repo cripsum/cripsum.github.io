@@ -103,8 +103,8 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Edit profile</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=5.0.3">
-    <link rel="stylesheet" href="/assets/css/editor-premium.css?v=5.0.3">
+    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=5.2.2">
+    <link rel="stylesheet" href="/assets/css/editor-premium.css?v=5.2.2">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Inter:wght@300..900&family=Roboto:wght@300..900&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Fira+Code:wght@300..700&family=PT+Mono&family=Cinzel:wght@400..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Bebas+Neue&family=Press+Start+2P&family=Bungee&family=Permanent+Marker&family=Creepster&family=Shojumaru&display=swap" rel="stylesheet">
@@ -112,8 +112,8 @@ function profile_json_script(string $id, array $data): void
     <script>
         window.isPremiumUser = <?php echo (int)($profile['is_premium'] ?? 0) === 1 ? 'true' : 'false'; ?>;
     </script>
-    <script src="/assets/js/profile.js?v=5.2.0" defer></script>
-    <script src="/assets/js/edit-profile-en.js?v=5.2.0" defer></script>
+    <script src="/assets/js/profile.js?v=5.2.2" defer></script>
+    <script src="/assets/js/edit-profile-en.js?v=5.2.2" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-effect="<?php echo profile_h($profile['profile_effect'] ?? 'none'); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" data-avatar-shape="<?php echo profile_h($avatarShape); ?>" data-avatar-border="<?php echo $avatarBorder; ?>" style="--accent: <?php echo profile_h($accent); ?>; --accent-rgb: <?php echo $accentRgbComma; ?>; --profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
@@ -180,6 +180,13 @@ function profile_json_script(string $id, array $data): void
                             <button type="button" class="editor-search-clear" id="editorSearchClear" style="display: none;"><i class="fa-solid fa-xmark"></i></button>
                         </div>
                     </div>
+                    
+                    <!-- Editor Tabs Navigation -->
+                    <div class="editor-tabs-nav">
+                        <button type="button" class="editor-tab-btn is-active" data-tab="profile"><i class="fa-solid fa-user"></i> Content</button>
+                        <button type="button" class="editor-tab-btn" data-tab="design"><i class="fa-solid fa-palette"></i> Design</button>
+                        <button type="button" class="editor-tab-btn" data-tab="advanced"><i class="fa-solid fa-crown" style="color: #fbbf24;"></i> Advanced</button>
+                    </div>
                 </div>
 
                 <div class="editor-sidebar-scroll">
@@ -190,7 +197,7 @@ function profile_json_script(string $id, array $data): void
                         </div>
                     <?php endif; ?>
 
-                    <div class="profile-edit-section editor-card" data-edit-section="identity">
+                    <div class="profile-edit-section editor-card" data-edit-section="identity" data-editor-category="profile">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-id-card"></i></span>
@@ -266,7 +273,7 @@ function profile_json_script(string $id, array $data): void
                         </div>
                     </div>
 
-                    <div class="profile-edit-section editor-card" data-edit-section="design">
+                    <div class="profile-edit-section editor-card" data-edit-section="design" data-editor-category="design">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-palette"></i></span>
@@ -544,7 +551,7 @@ function profile_json_script(string $id, array $data): void
                         </div>
                     </div>
 
-                    <div class="profile-edit-section editor-card" data-edit-section="discord">
+                    <div class="profile-edit-section editor-card" data-edit-section="discord" data-editor-category="profile">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-brands fa-discord"></i></span>
@@ -619,7 +626,7 @@ function profile_json_script(string $id, array $data): void
                         </div>
                     </div>
 
-                    <div class="profile-edit-section editor-card" data-edit-section="links">
+                    <div class="profile-edit-section editor-card" data-edit-section="links" data-editor-category="profile">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-link"></i></span>
@@ -650,7 +657,7 @@ function profile_json_script(string $id, array $data): void
                         </div>
                     </div>
 
-                    <div class="profile-edit-section editor-card" data-edit-section="embeds">
+                    <div class="profile-edit-section editor-card" data-edit-section="embeds" data-editor-category="profile">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-share-from-square"></i></span>
@@ -674,7 +681,7 @@ function profile_json_script(string $id, array $data): void
                         </div>
                     </div>
 
-                    <div class="profile-edit-section editor-card" data-edit-section="projects">
+                    <div class="profile-edit-section editor-card" data-edit-section="projects" data-editor-category="profile">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-cubes"></i></span>
@@ -697,7 +704,7 @@ function profile_json_script(string $id, array $data): void
                         </div>
                     </div>
 
-                    <div class="profile-edit-section editor-card" data-edit-section="content">
+                    <div class="profile-edit-section editor-card" data-edit-section="content" data-editor-category="profile">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-circle-play"></i></span>
@@ -721,7 +728,7 @@ function profile_json_script(string $id, array $data): void
                         </div>
                     </div>
 
-                    <div class="profile-edit-section editor-card" data-edit-section="custom">
+                    <div class="profile-edit-section editor-card" data-edit-section="custom" data-editor-category="advanced">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
@@ -745,7 +752,7 @@ function profile_json_script(string $id, array $data): void
                         </div>
                     </div>
 
-                    <div class="profile-edit-section editor-card" data-edit-section="effects">
+                    <div class="profile-edit-section editor-card" data-edit-section="effects" data-editor-category="design">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-magic"></i></span>
@@ -977,7 +984,7 @@ function profile_json_script(string $id, array $data): void
                         </div>
                     </div>
 
-                    <div class="profile-edit-section editor-card" data-edit-section="badges">
+                    <div class="profile-edit-section editor-card" data-edit-section="badges" data-editor-category="design">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-trophy"></i></span>
@@ -1003,7 +1010,7 @@ function profile_json_script(string $id, array $data): void
                         </div>
                     </div>
 
-                    <div class="profile-edit-section editor-card" data-edit-section="characters">
+                    <div class="profile-edit-section editor-card" data-edit-section="characters" data-editor-category="profile">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-user-astronaut"></i></span>
@@ -1090,7 +1097,7 @@ function profile_json_script(string $id, array $data): void
                         </div>
                     </div>
 
-                    <div class="profile-edit-section editor-card" data-edit-section="visibility">
+                    <div class="profile-edit-section editor-card" data-edit-section="visibility" data-editor-category="advanced">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-eye"></i></span>
@@ -1162,7 +1169,7 @@ function profile_json_script(string $id, array $data): void
                         </div>
                     </div>
 
-                    <div class="profile-edit-section editor-card" data-edit-section="presets">
+                    <div class="profile-edit-section editor-card" data-edit-section="presets" data-editor-category="advanced">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-magic"></i></span>
@@ -1279,7 +1286,10 @@ function profile_json_script(string $id, array $data): void
                             <li><i class="fa-solid fa-check"></i>Custom card tags & colors</li>
                             <li><i class="fa-solid fa-check"></i>Custom cursors & trails</li>
                             <li><i class="fa-solid fa-check"></i>100vh Scroll Snap layout</li>
-                            <li><i class="fa-solid fa-check"></i>Premium themes & grain</li>
+                            <li><i class="fa-solid fa-check"></i>Theme presets & Preset Saving</li>
+                            <li><i class="fa-solid fa-check"></i>Markdown & raw HTML custom blocks</li>
+                            <li><i class="fa-solid fa-check"></i>Custom icons & uploads everywhere</li>
+                            <li><i class="fa-solid fa-check"></i>Customizable section headings</li>
                         </ul>
                     </div>
                     <a href="/api/create_checkout_session.php" class="plan-select-btn">Upgrade to Premium</a>

@@ -173,6 +173,13 @@ switch ($action) {
         break;
 
     case 'update':
+        $profile = profile_get_edit_profile($mysqli, $targetUserId);
+        $isPremium = $profile && (int)($profile['is_premium'] ?? 0) === 1;
+        if (!$isPremium) {
+            echo json_encode(['ok' => false, 'message' => 'L\'aggiornamento dei preset personalizzati richiede un account Premium.']);
+            exit;
+        }
+
         $presetId = (int)($_POST['preset_id'] ?? 0);
         if ($presetId <= 0) {
             echo json_encode(['ok' => false, 'message' => 'Preset ID non valido.']);
@@ -208,6 +215,13 @@ switch ($action) {
         break;
 
     case 'load':
+        $profile = profile_get_edit_profile($mysqli, $targetUserId);
+        $isPremium = $profile && (int)($profile['is_premium'] ?? 0) === 1;
+        if (!$isPremium) {
+            echo json_encode(['ok' => false, 'message' => 'Il caricamento dei preset personalizzati richiede un account Premium.']);
+            exit;
+        }
+
         $presetId = (int)($_POST['preset_id'] ?? 0);
         if ($presetId <= 0) {
             echo json_encode(['ok' => false, 'message' => 'Preset ID non valido.']);
@@ -358,7 +372,7 @@ switch ($action) {
             // 1. Socials list restoration
             $mysqli->query("DELETE FROM utenti_social WHERE utente_id = " . $targetUserId);
             $socialRows = json_decode($presetData['socials_json'] ?? '[]', true) ?: [];
-            $insertSocial = $mysqli->prepare("INSERT INTO utenti_social (utente_id, platform, label, display_username, url, sort_order, is_visible) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $insertSocial = $mysqli->prepare("INSERT INTO utenti_social (utente_id, platform, label, display_username, url, sort_order, is_visible, icon) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
             $allowedPlatforms = ['tiktok', 'instagram', 'youtube', 'twitch', 'github', 'discord', 'telegram', 'x', 'spotify', 'soundcloud', 'steam', 'reddit', 'pinterest', 'snapchat', 'facebook', 'linkedin', 'paypal', 'patreon', 'kick', 'bluesky', 'threads', 'behance', 'dribbble', 'website', 'email', 'other'];
             foreach ($socialRows as $i => $row) {
                 $platform = strtolower(profile_clean_text($row['platform'] ?? 'other', 32));
@@ -368,8 +382,9 @@ switch ($action) {
                 $displayUsernameDb = $displayUsername !== '' ? $displayUsername : null;
                 $url = trim((string)($row['url'] ?? ''));
                 $visible = !empty($row['is_visible']) ? 1 : 0;
+                $icon = isset($row['icon']) ? profile_clean_text($row['icon'], 255) : null;
                 if ($url === '') continue;
-                $insertSocial->bind_param('issssii', $targetUserId, $platform, $label, $displayUsernameDb, $url, $i, $visible);
+                $insertSocial->bind_param('issssiis', $targetUserId, $platform, $label, $displayUsernameDb, $url, $i, $visible, $icon);
                 $insertSocial->execute();
             }
             $insertSocial->close();
@@ -382,7 +397,10 @@ switch ($action) {
                 $title = profile_clean_text($row['title'] ?? '', 60);
                 $description = profile_clean_text($row['description'] ?? '', 160);
                 $url = trim((string)($row['url'] ?? ''));
-                $icon = profile_clean_text($row['icon'] ?? 'fa-solid fa-link', 40);
+                $icon = profile_clean_text($row['icon'] ?? 'fa-solid fa-link', 255);
+                if (!$isPremium && (preg_match('/^https?:\/\//i', $icon) || str_starts_with($icon, '/uploads/') || str_contains($icon, '.'))) {
+                    $icon = 'fa-solid fa-link';
+                }
                 $buttonStyle = profile_allowed_value((string)($row['button_style'] ?? 'card'), ['card', 'compact', 'icon'], 'card');
                 $featured = !empty($row['is_featured']) ? 1 : 0;
                 $visible = !empty($row['is_visible']) ? 1 : 0;
@@ -598,6 +616,13 @@ switch ($action) {
         break;
 
     case 'rename':
+        $profile = profile_get_edit_profile($mysqli, $targetUserId);
+        $isPremium = $profile && (int)($profile['is_premium'] ?? 0) === 1;
+        if (!$isPremium) {
+            echo json_encode(['ok' => false, 'message' => 'La rinomina dei preset personalizzati richiede un account Premium.']);
+            exit;
+        }
+
         $presetId = (int)($_POST['preset_id'] ?? 0);
         $newName = trim($_POST['preset_name'] ?? '');
         if ($presetId <= 0 || $newName === '') {
@@ -616,6 +641,13 @@ switch ($action) {
         break;
 
     case 'delete':
+        $profile = profile_get_edit_profile($mysqli, $targetUserId);
+        $isPremium = $profile && (int)($profile['is_premium'] ?? 0) === 1;
+        if (!$isPremium) {
+            echo json_encode(['ok' => false, 'message' => 'L\'eliminazione dei preset personalizzati richiede un account Premium.']);
+            exit;
+        }
+
         $presetId = (int)($_POST['preset_id'] ?? 0);
         if ($presetId <= 0) {
             echo json_encode(['ok' => false, 'message' => 'Preset ID non valido.']);

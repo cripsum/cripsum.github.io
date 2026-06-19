@@ -80,9 +80,15 @@
         if (type === 'socials') {
             body = `
                 <div class="profile-row-grid">
-                    <label>${isEnglish ? 'Platform' : 'Platform'}<select data-field="platform">${options(platformOptions, data.platform || 'website')}</select></label>
-                    <label>${isEnglish ? 'Label' : 'Label'}<input data-field="label" maxlength="40" value="${escapeAttr(data.label || '')}" placeholder="TikTok"></label>
+                    <label>${isEnglish ? 'Platform' : 'Piattaforma'}<select data-field="platform">${options(platformOptions, data.platform || 'website')}</select></label>
+                    <label>${isEnglish ? 'Label' : 'Etichetta'}<input data-field="label" maxlength="40" value="${escapeAttr(data.label || '')}" placeholder="TikTok"></label>
                     <label>${isEnglish ? 'Display username' : 'Username da mostrare'}<input data-field="display_username" maxlength="60" value="${escapeAttr(data.display_username || '')}" placeholder="@username / nome"></label>
+                    <label class="profile-field-upload-wrapper">${isEnglish ? 'Custom Icon (Premium)' : 'Icona Personalizzata (Premium)'}
+                        <div class="input-with-upload">
+                            <input data-field="icon" maxlength="255" value="${escapeAttr(data.icon || '')}" placeholder="fa-brands fa-tiktok o /uploads/..." ${window.isPremiumUser ? '' : 'disabled'}>
+                            <button type="button" class="btn-row-media-upload" data-upload-target="icon" ${window.isPremiumUser ? '' : 'disabled'}><i class="fa-solid fa-upload"></i></button>
+                        </div>
+                    </label>
                     <label class="profile-row-grid full">URL<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://..."></label>
                     <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> ${isEnglish ? 'Visible' : 'Visibile'}</label>
                 </div>`;
@@ -95,7 +101,7 @@
                     <label class="profile-field-upload-wrapper">${isEnglish ? 'Icon (FontAwesome or Upload)' : 'Icona (FontAwesome o Carica)'}
                         <div class="input-with-upload">
                             <input data-field="icon" maxlength="255" value="${escapeAttr(data.icon || 'fa-solid fa-link')}" placeholder="fa-brands fa-link o /uploads/...">
-                            <button type="button" class="btn-row-media-upload" data-upload-target="icon"><i class="fa-solid fa-upload"></i></button>
+                            <button type="button" class="btn-row-media-upload" data-upload-target="icon" ${window.isPremiumUser ? '' : 'disabled'}><i class="fa-solid fa-upload"></i></button>
                         </div>
                     </label>
                     <label>${isEnglish ? 'Button type' : 'Tipo tasto'}<select data-field="button_style">${options(linkButtonStyles, data.button_style || 'card')}</select></label>
@@ -136,7 +142,7 @@
                     <label class="profile-field-upload-wrapper">${isEnglish ? 'Image URL' : 'Immagine URL'}
                         <div class="input-with-upload">
                             <input data-field="image_url" value="${escapeAttr(data.image_url || '')}" placeholder="https://... o carica">
-                            <button type="button" class="btn-row-media-upload" data-upload-target="image_url"><i class="fa-solid fa-upload"></i></button>
+                            <button type="button" class="btn-row-media-upload" data-upload-target="image_url" ${window.isPremiumUser ? '' : 'disabled'}><i class="fa-solid fa-upload"></i></button>
                         </div>
                     </label>
                     <label class="profile-row-grid full">Tech stack<input data-field="tech_stack" maxlength="160" value="${escapeAttr(data.tech_stack || '')}" placeholder="PHP, JS, MySQL"></label>
@@ -165,7 +171,7 @@
                     <label class="profile-field-upload-wrapper">Thumbnail URL
                         <div class="input-with-upload">
                             <input data-field="thumbnail_url" value="${escapeAttr(data.thumbnail_url || '')}" placeholder="https://... o carica">
-                            <button type="button" class="btn-row-media-upload" data-upload-target="thumbnail_url"><i class="fa-solid fa-upload"></i></button>
+                            <button type="button" class="btn-row-media-upload" data-upload-target="thumbnail_url" ${window.isPremiumUser ? '' : 'disabled'}><i class="fa-solid fa-upload"></i></button>
                         </div>
                     </label>
                     <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> ${isEnglish ? 'Featured' : 'In evidenza'}</label>
@@ -192,7 +198,7 @@
                     <label class="profile-field-upload-wrapper">${isEnglish ? 'Media URL' : 'Media URL'}
                         <div class="input-with-upload">
                             <input data-field="media_url" value="${escapeAttr(data.media_url || '')}" placeholder="https://... o carica">
-                            <button type="button" class="btn-row-media-upload" data-upload-target="media_url"><i class="fa-solid fa-upload"></i></button>
+                            <button type="button" class="btn-row-media-upload" data-upload-target="media_url" ${window.isPremiumUser ? '' : 'disabled'}><i class="fa-solid fa-upload"></i></button>
                         </div>
                     </label>
                     <label>${isEnglish ? 'Media type' : 'Media type'}<select data-field="media_type">${options(blockTypes, data.media_type || data.block_type || 'image')}</select></label>
@@ -1038,18 +1044,29 @@
         searchInput.addEventListener('input', () => {
             const query = searchInput.value.trim().toLowerCase();
             if (searchClear) searchClear.style.display = query !== '' ? 'block' : 'none';
+            const scrollContainer = document.querySelector('.editor-sidebar-scroll');
 
-            $$('.editor-sidebar-scroll .editor-card').forEach(card => {
-                removeSearchHighlights(card);
-
-                if (query === '') {
+            if (query === '') {
+                if (scrollContainer) scrollContainer.classList.remove('search-active');
+                $$('.editor-sidebar-scroll .editor-card').forEach(card => {
+                    removeSearchHighlights(card);
                     card.style.display = '';
                     card.classList.remove('is-expanded');
-                    if (card === $('.editor-sidebar-scroll .editor-card')) {
-                        card.classList.add('is-expanded');
+                    
+                    // Reset to active tab visibility
+                    const activeTab = document.querySelector('.editor-tab-btn.is-active')?.dataset.tab;
+                    if (card.dataset.editorCategory === activeTab) {
+                        card.classList.add('is-visible-tab');
+                    } else {
+                        card.classList.remove('is-visible-tab');
                     }
-                    return;
-                }
+                });
+                return;
+            }
+
+            if (scrollContainer) scrollContainer.classList.add('search-active');
+            $$('.editor-sidebar-scroll .editor-card').forEach(card => {
+                removeSearchHighlights(card);
 
                 const headerH3 = card.querySelector('.editor-card-text h3')?.textContent || '';
                 const headerP = card.querySelector('.editor-card-text p')?.textContent || '';
@@ -1075,6 +1092,54 @@
                 searchInput.dispatchEvent(new Event('input'));
             });
         }
+    }
+
+    function initEditorTabs() {
+        const tabBtns = $$('.editor-tab-btn');
+        const editorCards = $$('.editor-card[data-editor-category]');
+        if (tabBtns.length === 0) return;
+
+        function switchTab(tabName) {
+            tabBtns.forEach(btn => {
+                if (btn.dataset.tab === tabName) {
+                    btn.classList.add('is-active');
+                } else {
+                    btn.classList.remove('is-active');
+                }
+            });
+
+            editorCards.forEach(card => {
+                if (card.dataset.editorCategory === tabName) {
+                    card.classList.add('is-visible-tab');
+                } else {
+                    card.classList.remove('is-visible-tab');
+                }
+            });
+            
+            // Auto expand the first visible card in the tab
+            const firstVisible = $('.editor-card[data-editor-category="' + tabName + '"]');
+            $$('.editor-card').forEach(card => card.classList.remove('is-expanded'));
+            if (firstVisible) {
+                firstVisible.classList.add('is-expanded');
+            }
+        }
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                switchTab(btn.dataset.tab);
+                
+                // Clear search input when switching tabs
+                const searchInput = document.getElementById('editorSearch');
+                if (searchInput && searchInput.value !== '') {
+                    searchInput.value = '';
+                    searchInput.dispatchEvent(new Event('input'));
+                }
+            });
+        });
+
+        // Initialize default tab
+        switchTab('profile');
     }
 
     function applySearchHighlights(container, query) {
@@ -1190,7 +1255,7 @@
         card.addEventListener('click', () => {
             const themeKey = card.dataset.themePreset;
 
-            const allowedFreePresets = ['minimal', 'dark_premium', 'glass'];
+            const allowedFreePresets = [];
             if (!window.isPremiumUser && !allowedFreePresets.includes(themeKey)) {
                 if (typeof window.profileToast === 'function') {
                     window.profileToast(isEnglish ? 'This theme preset is for Premium users only.' : 'Questo preset di tema è riservato agli utenti Premium.');
@@ -1998,8 +2063,11 @@
                                     <input type="text" class="sec-title-input" value="${escapeAttr(config.title || '')}" placeholder="${info.name}" style="padding: 0.35rem; font-size: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #fff; border-radius: 4px; outline: none; margin-top: 0.2rem;">
                                 </label>
                                 <label style="display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.75rem; margin: 0;">
-                                    ${isEnglish ? 'Custom Icon Class' : 'Classe Icona Personalizzata'}
-                                    <input type="text" class="sec-icon-input" value="${escapeAttr(config.icon || '')}" placeholder="${info.icon}" style="padding: 0.35rem; font-size: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #fff; border-radius: 4px; outline: none; margin-top: 0.2rem;">
+                                    ${isEnglish ? 'Custom Icon (FontAwesome / Upload)' : 'Icona Personalizzata (FontAwesome / Carica)'}
+                                    <div class="input-with-upload" style="display: flex; align-items: center; gap: 0.25rem;">
+                                        <input type="text" class="sec-icon-input" value="${escapeAttr(config.icon || '')}" placeholder="${info.icon}" style="flex: 1; padding: 0.35rem; font-size: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #fff; border-radius: 4px; outline: none; margin-top: 0.2rem;">
+                                        <button type="button" class="btn-sec-icon-upload" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: #fff; padding: 0.35rem 0.5rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; height: 100%; margin-top: 0.2rem;"><i class="fa-solid fa-upload"></i></button>
+                                    </div>
                                 </label>
                             </div>
                         </div>
@@ -2060,6 +2128,16 @@
                             e.preventDefault();
                             const isHidden = settingsPanel.style.display === 'none';
                             settingsPanel.style.display = isHidden ? 'flex' : 'none';
+                        });
+                    }
+
+                    const secUploadBtn = item.querySelector('.btn-sec-icon-upload');
+                    if (secUploadBtn) {
+                        secUploadBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            if (iconInput) {
+                                handleRowMediaUpload(iconInput);
+                            }
                         });
                     }
 
@@ -2354,20 +2432,43 @@
             presetsListContainer.innerHTML = '';
             presetsListContainer.appendChild(grid);
 
+            const triggerPremiumOverlay = () => {
+                if (typeof window.profileToast === 'function') {
+                    window.profileToast(isEnglish ? 'Custom presets require a Premium account.' : 'I preset personalizzati richiedono un account Premium.');
+                }
+                const planOverlay = document.getElementById('onboardingPlanOverlay');
+                if (planOverlay) planOverlay.classList.add('is-active');
+            };
+
             $$('.load-preset-btn', presetsListContainer).forEach(btn => {
-                btn.addEventListener('click', () => handleLoadPreset(btn.dataset.id));
+                btn.addEventListener('click', () => {
+                    if (!window.isPremiumUser) return triggerPremiumOverlay();
+                    handleLoadPreset(btn.dataset.id);
+                });
             });
             $$('.update-preset-btn', presetsListContainer).forEach(btn => {
-                btn.addEventListener('click', () => handleUpdatePreset(btn.dataset.id, btn.dataset.name));
+                btn.addEventListener('click', () => {
+                    if (!window.isPremiumUser) return triggerPremiumOverlay();
+                    handleUpdatePreset(btn.dataset.id, btn.dataset.name);
+                });
             });
             $$('.duplicate-preset-btn', presetsListContainer).forEach(btn => {
-                btn.addEventListener('click', () => handleDuplicatePreset(btn.dataset.id));
+                btn.addEventListener('click', () => {
+                    if (!window.isPremiumUser) return triggerPremiumOverlay();
+                    handleDuplicatePreset(btn.dataset.id);
+                });
             });
             $$('.rename-preset-btn', presetsListContainer).forEach(btn => {
-                btn.addEventListener('click', () => handleRenamePreset(btn.dataset.id, btn.dataset.name));
+                btn.addEventListener('click', () => {
+                    if (!window.isPremiumUser) return triggerPremiumOverlay();
+                    handleRenamePreset(btn.dataset.id, btn.dataset.name);
+                });
             });
             $$('.delete-preset-btn', presetsListContainer).forEach(btn => {
-                btn.addEventListener('click', () => handleDeletePreset(btn.dataset.id));
+                btn.addEventListener('click', () => {
+                    if (!window.isPremiumUser) return triggerPremiumOverlay();
+                    handleDeletePreset(btn.dataset.id);
+                });
             });
 
         } catch (error) {
@@ -2393,6 +2494,14 @@
 
     if (saveNewPresetBtn) {
         saveNewPresetBtn.addEventListener('click', async () => {
+            if (!window.isPremiumUser) {
+                if (typeof window.profileToast === 'function') {
+                    window.profileToast(isEnglish ? 'Custom presets require a Premium account.' : 'Il salvataggio dei preset personalizzati richiede un account Premium.');
+                }
+                const planOverlay = document.getElementById('onboardingPlanOverlay');
+                if (planOverlay) planOverlay.classList.add('is-active');
+                return;
+            }
             const promptMsg = isEnglish ? 'Enter a name for this preset:' : 'Inserisci un nome per questo preset:';
             const name = prompt(promptMsg);
             if (name === null) return;
@@ -2636,6 +2745,7 @@
 
     initAccordion();
     initGlobalSearch();
+    initEditorTabs();
     initViewportSwitcher();
     updatePreview();
     pushHistoryState();

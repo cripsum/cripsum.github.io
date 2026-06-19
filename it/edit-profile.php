@@ -103,8 +103,8 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Modifica profilo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=5.0.3">
-    <link rel="stylesheet" href="/assets/css/editor-premium.css?v=5.0.3">
+    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=5.2.2">
+    <link rel="stylesheet" href="/assets/css/editor-premium.css?v=5.2.2">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Inter:wght@300..900&family=Roboto:wght@300..900&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Fira+Code:wght@300..700&family=PT+Mono&family=Cinzel:wght@400..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Bebas+Neue&family=Press+Start+2P&family=Bungee&family=Permanent+Marker&family=Creepster&family=Shojumaru&display=swap" rel="stylesheet">
@@ -112,8 +112,8 @@ function profile_json_script(string $id, array $data): void
     <script>
         window.isPremiumUser = <?php echo (int)($profile['is_premium'] ?? 0) === 1 ? 'true' : 'false'; ?>;
     </script>
-    <script src="/assets/js/profile.js?v=5.2.0" defer></script>
-    <script src="/assets/js/edit-profile.js?v=5.2.0" defer></script>
+    <script src="/assets/js/profile.js?v=5.2.2" defer></script>
+    <script src="/assets/js/edit-profile.js?v=5.2.2" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-effect="<?php echo profile_h($profile['profile_effect'] ?? 'none'); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" data-avatar-shape="<?php echo profile_h($avatarShape); ?>" data-avatar-border="<?php echo $avatarBorder; ?>" style="--accent: <?php echo profile_h($accent); ?>; --accent-rgb: <?php echo $accentRgbComma; ?>; --profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
@@ -182,6 +182,13 @@ function profile_json_script(string $id, array $data): void
                             <button type="button" class="editor-search-clear" id="editorSearchClear" style="display: none;"><i class="fa-solid fa-xmark"></i></button>
                         </div>
                     </div>
+
+                    <!-- Editor Tabs Navigation -->
+                    <div class="editor-tabs-nav">
+                        <button type="button" class="editor-tab-btn is-active" data-tab="profile"><i class="fa-solid fa-user"></i> Contenuto</button>
+                        <button type="button" class="editor-tab-btn" data-tab="design"><i class="fa-solid fa-palette"></i> Design</button>
+                        <button type="button" class="editor-tab-btn" data-tab="advanced"><i class="fa-solid fa-crown" style="color: #fbbf24;"></i> Avanzate</button>
+                    </div>
                 </div>
 
                 <div class="editor-sidebar-scroll">
@@ -193,7 +200,7 @@ function profile_json_script(string $id, array $data): void
                     <?php endif; ?>
 
                     <!-- Section 1: Identità -->
-                    <div class="profile-edit-section editor-card" data-edit-section="identity">
+                    <div class="profile-edit-section editor-card" data-edit-section="identity" data-editor-category="profile">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-id-card"></i></span>
@@ -270,7 +277,7 @@ function profile_json_script(string $id, array $data): void
                     </div>
 
                     <!-- Section 2: Stile e Colori -->
-                    <div class="profile-edit-section editor-card" data-edit-section="design">
+                    <div class="profile-edit-section editor-card" data-edit-section="design" data-editor-category="design">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-palette"></i></span>
@@ -550,7 +557,7 @@ function profile_json_script(string $id, array $data): void
                     </div>
 
                     <!-- Section 3: Discord -->
-                    <div class="profile-edit-section editor-card" data-edit-section="discord">
+                    <div class="profile-edit-section editor-card" data-edit-section="discord" data-editor-category="profile">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-brands fa-discord"></i></span>
@@ -626,7 +633,7 @@ function profile_json_script(string $id, array $data): void
                     </div>
 
                     <!-- Section 4: Social e Link -->
-                    <div class="profile-edit-section editor-card" data-edit-section="links">
+                    <div class="profile-edit-section editor-card" data-edit-section="links" data-editor-category="profile">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-link"></i></span>
@@ -658,7 +665,7 @@ function profile_json_script(string $id, array $data): void
                     </div>
 
                     <!-- Section 5: Embed -->
-                    <div class="profile-edit-section editor-card" data-edit-section="embeds">
+                    <div class="profile-edit-section editor-card" data-edit-section="embeds" data-editor-category="profile">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-share-from-square"></i></span>
@@ -683,7 +690,7 @@ function profile_json_script(string $id, array $data): void
                     </div>
 
                     <!-- Section 6: Progetti -->
-                    <div class="profile-edit-section editor-card" data-edit-section="projects">
+                    <div class="profile-edit-section editor-card" data-edit-section="projects" data-editor-category="profile">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-cubes"></i></span>
@@ -707,7 +714,7 @@ function profile_json_script(string $id, array $data): void
                     </div>
 
                     <!-- Section 7: Contenuti -->
-                    <div class="profile-edit-section editor-card" data-edit-section="content">
+                    <div class="profile-edit-section editor-card" data-edit-section="content" data-editor-category="profile">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-circle-play"></i></span>
@@ -732,7 +739,7 @@ function profile_json_script(string $id, array $data): void
                     </div>
 
                     <!-- Section 8: Blocchi custom -->
-                    <div class="profile-edit-section editor-card" data-edit-section="custom">
+                    <div class="profile-edit-section editor-card" data-edit-section="custom" data-editor-category="advanced">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
@@ -757,7 +764,7 @@ function profile_json_script(string $id, array $data): void
                     </div>
 
                     <!-- Section 9: Effetti e Audio -->
-                    <div class="profile-edit-section editor-card" data-edit-section="effects">
+                    <div class="profile-edit-section editor-card" data-edit-section="effects" data-editor-category="design">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-magic"></i></span>
@@ -990,7 +997,7 @@ function profile_json_script(string $id, array $data): void
                     </div>
 
                     <!-- Section 10: Badge -->
-                    <div class="profile-edit-section editor-card" data-edit-section="badges">
+                    <div class="profile-edit-section editor-card" data-edit-section="badges" data-editor-category="design">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-trophy"></i></span>
@@ -1017,7 +1024,7 @@ function profile_json_script(string $id, array $data): void
                     </div>
 
                     <!-- Section 11: Personaggi -->
-                    <div class="profile-edit-section editor-card" data-edit-section="characters">
+                    <div class="profile-edit-section editor-card" data-edit-section="characters" data-editor-category="profile">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-user-astronaut"></i></span>
@@ -1105,7 +1112,7 @@ function profile_json_script(string $id, array $data): void
                     </div>
 
                     <!-- Section 12: Visibilità e Ordinamento -->
-                    <div class="profile-edit-section editor-card" data-edit-section="visibility">
+                    <div class="profile-edit-section editor-card" data-edit-section="visibility" data-editor-category="advanced">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-eye"></i></span>
@@ -1178,7 +1185,7 @@ function profile_json_script(string $id, array $data): void
                     </div>
 
                     <!-- Section 13: Preset -->
-                    <div class="profile-edit-section editor-card" data-edit-section="presets">
+                    <div class="profile-edit-section editor-card" data-edit-section="presets" data-editor-category="advanced">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-magic"></i></span>
@@ -1297,7 +1304,10 @@ function profile_json_script(string $id, array $data): void
                             <li><i class="fa-solid fa-check"></i>Tag ed etichette personalizzate</li>
                             <li><i class="fa-solid fa-check"></i>Cursori ed effetti scia</li>
                             <li><i class="fa-solid fa-check"></i>Layout Scroll Snap 100vh</li>
-                            <li><i class="fa-solid fa-check"></i>Temi ed effetti di sfondo</li>
+                            <li><i class="fa-solid fa-check"></i>Preset temi & Salvataggio Preset</li>
+                            <li><i class="fa-solid fa-check"></i>Blocchi Markdown e codice HTML</li>
+                            <li><i class="fa-solid fa-check"></i>Icone custom e upload ovunque</li>
+                            <li><i class="fa-solid fa-check"></i>Intestazioni sezioni personalizzate</li>
                         </ul>
                     </div>
                     <a href="/api/create_checkout_session.php" class="plan-select-btn">Passa a Premium</a>

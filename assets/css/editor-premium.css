@@ -1545,4 +1545,65 @@ input[type="range"]::-moz-range-track {
     box-shadow: 0 4px 12px rgba(var(--editor-accent-rgb, 15, 91, 255), 0.3) !important;
 }
 
+/* Editor Sidebar Tab Navigation */
+.editor-tabs-nav {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0 1.5rem 0.5rem;
+    background: transparent;
+    margin-top: 0.25rem;
+}
+
+.editor-tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.45);
+    padding: 0.6rem 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.editor-tab-btn i {
+    font-size: 0.85rem;
+    transition: transform 0.2s ease;
+}
+
+.editor-tab-btn:hover {
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.editor-tab-btn.is-active {
+    color: #fff;
+    background: rgba(var(--editor-accent-rgb, 15, 91, 255), 0.15) !important;
+    border: 1px solid rgba(var(--editor-accent-rgb, 15, 91, 255), 0.25) !important;
+    box-shadow: 0 4px 12px rgba(var(--editor-accent-rgb, 15, 91, 255), 0.08);
+}
+
+.editor-tab-btn.is-active i {
+    transform: scale(1.1);
+}
+
+/* Hide cards based on active tab unless search is active */
+.editor-card[data-editor-category] {
+    display: none;
+}
+.editor-card[data-editor-category].is-visible-tab {
+    display: block;
+}
+
+.editor-sidebar-scroll.search-active .editor-card[data-editor-category] {
+    display: block !important;
+}
+
+
 

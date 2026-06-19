@@ -527,7 +527,7 @@ try {
     $stmt->execute();
     $stmt->close();
 
-    $insertSocial = $mysqli->prepare("INSERT INTO utenti_social (utente_id, platform, label, display_username, url, sort_order, is_visible) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $insertSocial = $mysqli->prepare("INSERT INTO utenti_social (utente_id, platform, label, display_username, url, sort_order, is_visible, icon) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
     foreach ($socialRows as $i => $row) {
         $platform = strtolower(profile_clean_text($row['platform'] ?? 'other', 32));
         $platform = in_array($platform, $allowedPlatforms, true) ? $platform : 'other';
@@ -536,9 +536,10 @@ try {
         $displayUsernameDb = $displayUsername !== '' ? $displayUsername : null;
         $url = trim((string)($row['url'] ?? ''));
         $visible = !empty($row['is_visible']) ? 1 : 0;
+        $icon = ($isPremium && isset($row['icon'])) ? profile_clean_text($row['icon'], 255) : null;
         if ($url === '') continue;
         if (!profile_is_safe_url($url, true)) throw new RuntimeException('Invalid social URL: ' . $label);
-        $insertSocial->bind_param('issssii', $targetUserId, $platform, $label, $displayUsernameDb, $url, $i, $visible);
+        $insertSocial->bind_param('issssiis', $targetUserId, $platform, $label, $displayUsernameDb, $url, $i, $visible, $icon);
         if (!$insertSocial->execute()) throw new RuntimeException('Error saving social.');
     }
     $insertSocial->close();
@@ -554,6 +555,9 @@ try {
         $description = profile_clean_text($row['description'] ?? '', 160);
         $url = trim((string)($row['url'] ?? ''));
         $icon = profile_clean_text($row['icon'] ?? 'fa-solid fa-link', 255);
+        if (!$isPremium && (preg_match('/^https?:\/\//i', $icon) || str_starts_with($icon, '/uploads/') || str_contains($icon, '.'))) {
+            $icon = 'fa-solid fa-link';
+        }
         $buttonStyle = profile_allowed_value((string)($row['button_style'] ?? 'card'), ['card', 'compact', 'icon'], 'card');
         $featured = !empty($row['is_featured']) ? 1 : 0;
         $visible = !empty($row['is_visible']) ? 1 : 0;

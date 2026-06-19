@@ -483,7 +483,7 @@ function profile_increment_views(mysqli $mysqli, int $profileId): void
 
 function profile_list_socials(mysqli $mysqli, int $userId, bool $onlyVisible = true): array
 {
-    $sql = "SELECT id, platform, label, display_username, url, sort_order, is_visible FROM utenti_social WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY sort_order ASC, id ASC";
+    $sql = "SELECT id, platform, label, display_username, url, sort_order, is_visible, icon FROM utenti_social WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY sort_order ASC, id ASC";
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param('i', $userId);
     $stmt->execute();
@@ -1225,3 +1225,21 @@ function profile_markdown_to_html(?string $markdown): string
 
     return $html;
 }
+
+function profile_render_icon(?string $icon, string $default = 'fa-solid fa-link', string $class = ''): string
+{
+    $icon = trim((string)$icon);
+    if ($icon === '') {
+        $icon = $default;
+    }
+    if ($icon === '') {
+        return '';
+    }
+    
+    if (preg_match('/^https?:\/\//i', $icon) || str_starts_with($icon, '/uploads/') || str_contains($icon, '.')) {
+        return '<img src="' . profile_h($icon) . '" class="profile-custom-icon ' . profile_h($class) . '" alt="icon" style="width: 1em; height: 1em; object-fit: contain; vertical-align: middle; border-radius: 4px;">';
+    }
+    
+    return '<i class="' . profile_h($icon) . ' ' . profile_h($class) . '"></i>';
+}
+

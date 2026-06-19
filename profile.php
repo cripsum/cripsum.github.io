@@ -287,7 +287,7 @@ function profile_render_section_heading(string $icon, string $title, ?string $su
         <div>
             <span>
                 <?php if (trim($customIcon) !== ''): ?>
-                    <i class="<?php echo profile_h($customIcon); ?>"></i>
+                    <?php echo profile_render_icon($customIcon, ''); ?>
                 <?php endif; ?>
                 <?php echo profile_h($customTitle); ?>
             </span>
@@ -528,8 +528,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.2.0">
-    <script src="/assets/js/profile.js?v=5.2.0" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.2.1">
+    <script src="/assets/js/profile.js?v=5.2.1" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -1354,16 +1354,22 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         <?php if ($socialsStyle === 'icons'): ?>
                             <div class="bio-social-icons-row" aria-label="Social">
                                 <?php foreach ($visibleSocials as $social): ?>
+                                    <?php
+                                    $socialIcon = ((int)($profile['is_premium'] ?? 0) === 1 && !empty($social['icon'])) ? $social['icon'] : profile_social_icon_class($social['platform']);
+                                    ?>
                                     <a class="bio-social-icon bio-social-icon--<?php echo profile_h($social['platform']); ?>" href="<?php echo profile_h($social['url']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo profile_h($social['label'] ?: ucfirst($social['platform'])); ?>">
-                                        <i class="<?php echo profile_h(profile_social_icon_class($social['platform'])); ?>"></i>
+                                        <?php echo profile_render_icon($socialIcon, 'fa-solid fa-link'); ?>
                                     </a>
                                 <?php endforeach; ?>
                             </div>
                         <?php else: ?>
                             <div class="bio-social-grid profile-social-compact" aria-label="Social">
                                 <?php foreach ($visibleSocials as $social): ?>
+                                    <?php
+                                    $socialIcon = ((int)($profile['is_premium'] ?? 0) === 1 && !empty($social['icon'])) ? $social['icon'] : profile_social_icon_class($social['platform']);
+                                    ?>
                                     <a class="bio-social" href="<?php echo profile_h($social['url']); ?>" target="_blank" rel="noopener noreferrer">
-                                        <span class="bio-social__icon"><i class="<?php echo profile_h(profile_social_icon_class($social['platform'])); ?>"></i></span>
+                                        <span class="bio-social__icon"><?php echo profile_render_icon($socialIcon, 'fa-solid fa-link'); ?></span>
                                         <span>
                                             <strong><?php echo profile_h($social['label'] ?: ucfirst($social['platform'])); ?></strong>
                                             <small><?php echo profile_h($social['display_username'] ?: profile_short_url_label($social['url'])); ?></small>
@@ -1544,7 +1550,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     ?>
                         <section class="bio-card bio-featured profile-spotlight js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
                             <a class="profile-spotlight-link" href="<?php echo profile_h($spotlight['url'] ?: '#'); ?>" <?php echo $spotlight['url'] ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
-                                <span class="profile-spotlight-icon"><i class="<?php echo profile_h($spotlight['icon']); ?>"></i></span>
+                                <span class="profile-spotlight-icon"><?php echo profile_render_icon($spotlight['icon'], 'fa-solid fa-star'); ?></span>
                                 <span class="profile-spotlight-content">
                                     <small><?php echo profile_h($spotlight['type']); ?> Featured</small>
                                     <strong><?php echo profile_h($spotlight['title']); ?></strong>
@@ -1574,7 +1580,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     $linkTitle = (string)($item['title'] ?? 'Link');
                                     ?>
                                     <a class="bio-featured-link profile-link-button button-style-<?php echo profile_h($buttonStyle); ?> <?php echo !empty($item['is_featured']) ? 'is-pinned' : ''; ?>" href="<?php echo profile_h($item['url']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo profile_h($linkTitle); ?>">
-                                        <span class="bio-featured-link__icon"><i class="<?php echo profile_h($item['icon'] ?: 'fa-solid fa-link'); ?>"></i></span>
+                                        <span class="bio-featured-link__icon"><?php echo profile_render_icon($item['icon'] ?? '', 'fa-solid fa-link'); ?></span>
                                         <?php if ($buttonStyle === 'icon'): ?>
                                             <span class="profile-link-icon-label"><?php echo profile_h($linkTitle); ?></span>
                                         <?php else: ?>
