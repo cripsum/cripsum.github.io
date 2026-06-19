@@ -179,10 +179,12 @@ if ($isLoggedIn) {
                     </a>
                 </li>
                 <?php if (!$isLoggedIn): ?>
-                    <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/accedi"><i class="fa-solid fa-right-to-bracket me-2"></i> <?= $t['login'] ?></a></li>
-                    <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/registrati"><i class="fa-solid fa-user-plus me-2"></i> <?= $t['register'] ?></a></li>
+                    <li class="nav-item nav-auth-group">
+                        <a class="nav-link" href="/<?= $lang ?>/accedi"><i class="fa-solid fa-right-to-bracket me-2"></i> <?= $t['login'] ?></a>
+                        <a class="nav-link" href="/<?= $lang ?>/registrati"><i class="fa-solid fa-user-plus me-2"></i> <?= $t['register'] ?></a>
+                    </li>
                 <?php else: ?>
-                    <li class="nav-item dropdown dropdownutenti">
+                    <li class="nav-item dropdown dropdownutenti dropdownprofilo">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
                             <img src="<?php echo htmlspecialchars($profilePic); ?>&t=<?php echo time(); ?>" alt="<?= $t['my_profile_alt'] ?>"
                                 class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;">
@@ -201,10 +203,10 @@ if ($isLoggedIn) {
                             <?php if ($ruolo === 'admin' || $ruolo === 'owner'): ?>
                                 <li><a class="dropdown-item" href="/<?= $lang ?>/admin"><i class="fa-solid fa-shield-halved me-2"></i><?= $t['admin_panel'] ?></a></li>
                             <?php endif; ?>
-                            <li>
+                            <li class="grid-span-2">
                                 <hr class="dropdown-divider">
                             </li>
-                            <li><a class="dropdown-item text-danger" href="https://cripsum.com/logout"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+                            <li class="grid-span-2"><a class="dropdown-item text-danger" href="https://cripsum.com/logout"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
                         </ul>
                     </li>
                 <?php endif; ?>

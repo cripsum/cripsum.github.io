@@ -338,3 +338,60 @@
         box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
     }
 }
+
+/* ── Mobile profile menu grid and auth group ──────────────── */
+@media (max-width: 1199.98px) {
+    .dropdownprofilo .dropdown-menu.show {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding: 12px !important;
+    }
+    
+    .dropdownprofilo .dropdown-menu li.grid-span-2 {
+        grid-column: span 2;
+    }
+    
+    .dropdownprofilo .dropdown-menu .dropdown-item {
+        padding: 10px 12px !important;
+        font-size: 0.9rem !important;
+        border: 1px solid rgba(128, 128, 128, 0.15);
+        background: rgba(128, 128, 128, 0.05);
+        border-radius: 10px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+    }
+
+    .nav-auth-group {
+        display: flex !important;
+        flex-direction: row !important;
+        width: 100%;
+        gap: 10px;
+        padding: 8px 0;
+    }
+    .nav-auth-group .nav-link {
+        flex: 1;
+        text-align: center;
+        justify-content: center;
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid rgba(128, 128, 128, 0.2);
+        border-radius: 12px;
+        padding: 10px 16px !important;
+        background: rgba(128, 128, 128, 0.08);
+        transition: all 0.2s;
+    }
+    .nav-auth-group .nav-link:hover {
+        background: rgba(128, 128, 128, 0.15);
+        border-color: rgba(128, 128, 128, 0.3);
+    }
+}
+
+@media (min-width: 1200px) {
+    .nav-auth-group {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+}
