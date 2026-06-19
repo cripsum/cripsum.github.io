@@ -4,6 +4,14 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 
 checkBan($mysqli);
+
+$isPremium = isset($_GET['type']) && $_GET['type'] === 'premium';
+if ($isPremium) {
+    header("Location: /api/create_checkout_session.php");
+    exit;
+}
+$orderTitle = $isPremium ? 'Cripsum™ Profile Premium' : 'Cripsum™';
+$priceLabel = $isPremium ? '2.99 €' : null;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -151,10 +159,10 @@ checkBan($mysqli);
                         </div>
 
                         <div class="form-actions">
-                            <a href="confirm" class="form-btn form-btn--primary form-btn--wide">
+                            <button type="submit" class="form-btn form-btn--primary form-btn--wide">
                                 <i class="fa-solid fa-lock"></i>
                                 <span>Continue</span>
-                            </a>
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -163,8 +171,14 @@ checkBan($mysqli);
                     <h2>Summary</h2>
                     <div class="summary-line">
                         <span>Order</span>
-                        <strong>Cripsum™</strong>
+                        <strong><?php echo htmlspecialchars($orderTitle); ?></strong>
                     </div>
+                    <?php if ($priceLabel): ?>
+                    <div class="summary-line">
+                        <span>Price</span>
+                        <strong><?php echo htmlspecialchars($priceLabel); ?></strong>
+                    </div>
+                    <?php endif; ?>
                     <div class="summary-line">
                         <span>Status</span>
                         <strong>Pending</strong>
@@ -177,6 +191,33 @@ checkBan($mysqli);
 
     <?php include '../includes/footer-en.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script>
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const isPremiumUpgrade = <?php echo $isPremium ? 'true' : 'false'; ?>;
+        
+        if (isPremiumUpgrade) {
+            fetch('/api/activate_premium_mock.php', {
+                method: 'POST'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) {
+                    window.location.href = 'confirm';
+                } else {
+                    alert(data.message || 'Error during activation.');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Network or server error.');
+            });
+        } else {
+            window.location.href = 'confirm';
+        }
+    });
+    </script>
 </body>
+</html>
 
 </html>

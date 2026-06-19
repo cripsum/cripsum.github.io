@@ -1,0 +1,2 @@
+# Ignore secret Stripe credentials config
+config/stripe_config.php

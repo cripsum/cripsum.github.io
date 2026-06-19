@@ -645,6 +645,144 @@
     };
     window.initProfileEffects = initProfileEffects;
 
+    const initCursorEffects = () => {
+        // Clean up previous elements and animation frames
+        if (window.currentFollowerEl) {
+            window.currentFollowerEl.remove();
+            window.currentFollowerEl = null;
+        }
+        if (window.followerRafId) {
+            cancelAnimationFrame(window.followerRafId);
+            window.followerRafId = null;
+        }
+        if (window.currentTrailCanvas) {
+            window.currentTrailCanvas.remove();
+            window.currentTrailCanvas = null;
+        }
+        if (window.trailRafId) {
+            cancelAnimationFrame(window.trailRafId);
+            window.trailRafId = null;
+        }
+        if (window.trailMoveHandler) {
+            window.removeEventListener('pointermove', window.trailMoveHandler);
+            window.trailMoveHandler = null;
+        }
+        if (window.followerMoveHandler) {
+            window.removeEventListener('pointermove', window.followerMoveHandler);
+            window.followerMoveHandler = null;
+        }
+
+        const cursorEffect = body.dataset.cursorEffect || 'none';
+        if (cursorEffect === 'none') return;
+
+        if (cursorEffect === 'follower') {
+            const follower = document.createElement('div');
+            follower.className = 'cursor-follower-dot';
+            follower.style.position = 'fixed';
+            follower.style.width = '20px';
+            follower.style.height = '20px';
+            follower.style.border = '2px solid var(--accent)';
+            follower.style.borderRadius = '50%';
+            follower.style.backgroundColor = 'rgba(var(--accent-rgb), 0.1)';
+            follower.style.pointerEvents = 'none';
+            follower.style.zIndex = '99999';
+            follower.style.transform = 'translate(-50%, -50%)';
+            follower.style.left = '-100px';
+            follower.style.top = '-100px';
+            document.body.appendChild(follower);
+            window.currentFollowerEl = follower;
+
+            let mouseX = -100, mouseY = -100;
+            let currentX = -100, currentY = -100;
+
+            window.followerMoveHandler = (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            };
+            window.addEventListener('pointermove', window.followerMoveHandler, { passive: true });
+
+            function tickFollower() {
+                if (currentX === -100 && currentY === -100) {
+                    currentX = mouseX;
+                    currentY = mouseY;
+                } else {
+                    currentX += (mouseX - currentX) * 0.15;
+                    currentY += (mouseY - currentY) * 0.15;
+                }
+                follower.style.left = `${currentX}px`;
+                follower.style.top = `${currentY}px`;
+                window.followerRafId = requestAnimationFrame(tickFollower);
+            }
+            tickFollower();
+        } else if (cursorEffect === 'trail') {
+            const canvas = document.createElement('canvas');
+            canvas.className = 'cursor-trail-canvas';
+            canvas.style.position = 'fixed';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+            canvas.style.width = '100vw';
+            canvas.style.height = '100vh';
+            canvas.style.pointerEvents = 'none';
+            canvas.style.zIndex = '99998';
+            document.body.appendChild(canvas);
+            window.currentTrailCanvas = canvas;
+
+            const ctx = canvas.getContext('2d');
+            let width = window.innerWidth;
+            let height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+
+            const handleResize = () => {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            };
+            window.addEventListener('resize', handleResize, { passive: true });
+
+            const particles = [];
+            window.trailMoveHandler = (e) => {
+                const accentColor = getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#0f5bff';
+                particles.push({
+                    x: e.clientX,
+                    y: e.clientY,
+                    size: Math.random() * 5 + 3,
+                    color: accentColor,
+                    alpha: 1,
+                    vx: (Math.random() - 0.5) * 1,
+                    vy: (Math.random() - 0.5) * 1
+                });
+            };
+            window.addEventListener('pointermove', window.trailMoveHandler, { passive: true });
+
+            function tickTrail() {
+                ctx.clearRect(0, 0, width, height);
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.alpha -= 0.025;
+                    p.size *= 0.96;
+                    if (p.alpha <= 0 || p.size <= 0.5) {
+                        particles.splice(i, 1);
+                        continue;
+                    }
+                    ctx.save();
+                    ctx.globalAlpha = p.alpha;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+                window.trailRafId = requestAnimationFrame(tickTrail);
+            }
+            tickTrail();
+        }
+    };
+    window.initCursorEffects = initCursorEffects;
+
     const persistDetailsState = () => {
         const details = document.querySelectorAll('.bio-details');
         details.forEach((detail, index) => {
@@ -1073,6 +1211,7 @@
         initProfileThreeDotsDropdown();
         initProfileAudio();
         initProfileEffects();
+        initCursorEffects();
         initActivityCarousel();
         updateActivityTimestamps();
         persistDetailsState();

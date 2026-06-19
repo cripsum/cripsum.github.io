@@ -141,8 +141,16 @@ switch ($action) {
         $count = (int)($cntRow['count'] ?? 0);
         $stmt->close();
 
-        if ($count >= 3) {
-            echo json_encode(['ok' => false, 'message' => 'Hai raggiunto il limite massimo di 3 preset.']);
+        $profile = profile_get_edit_profile($mysqli, $targetUserId);
+        $isPremium = $profile && (int)($profile['is_premium'] ?? 0) === 1;
+
+        if (!$isPremium) {
+            echo json_encode(['ok' => false, 'message' => 'Il salvataggio dei preset personalizzati richiede un account Premium.']);
+            exit;
+        }
+
+        if ($count >= 10) {
+            echo json_encode(['ok' => false, 'message' => 'Hai raggiunto il limite massimo di 10 preset.']);
             exit;
         }
 
@@ -544,8 +552,16 @@ switch ($action) {
         $count = (int)($cntRow['count'] ?? 0);
         $stmt->close();
 
-        if ($count >= 3) {
-            echo json_encode(['ok' => false, 'message' => 'Hai raggiunto il limite massimo di 3 preset.']);
+        $profile = profile_get_edit_profile($mysqli, $targetUserId);
+        $isPremium = $profile && (int)($profile['is_premium'] ?? 0) === 1;
+
+        if (!$isPremium) {
+            echo json_encode(['ok' => false, 'message' => 'La duplicazione dei preset personalizzati richiede un account Premium.']);
+            exit;
+        }
+
+        if ($count >= 10) {
+            echo json_encode(['ok' => false, 'message' => 'Hai raggiunto il limite massimo di 10 preset.']);
             exit;
         }
         $stmt = $mysqli->prepare("SELECT nome, preset_data FROM utenti_presets WHERE id = ? AND (utente_id = ? OR utente_id = ?) LIMIT 1");

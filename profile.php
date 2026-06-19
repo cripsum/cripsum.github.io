@@ -488,8 +488,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=4.8.20">
-    <script src="/assets/js/profile.js?v=4.8.19" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=4.9.0">
+    <script src="/assets/js/profile.js?v=4.9.0" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -572,6 +572,196 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             --badge-size: <?php echo $badgeSize; ?>px !important;
             --button-height: <?php echo $buttonSize; ?>px !important;
         }
+
+        /* Scroll Snap Layout */
+        body[data-layout-snap="1"] {
+            overflow: hidden !important;
+        }
+        body[data-layout-snap="1"] #bioPage {
+            height: 100vh !important;
+            max-height: 100vh !important;
+            overflow-y: auto !important;
+            scroll-snap-type: y mandatory !important;
+            display: block !important;
+            scroll-behavior: smooth;
+            padding: 0 !important;
+        }
+        body[data-layout-snap="1"] .profile-smart-hero-wrapper {
+            height: 100vh !important;
+            min-height: 100vh !important;
+            scroll-snap-align: start !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 2rem 1rem !important;
+            box-sizing: border-box !important;
+        }
+        body[data-layout-snap="1"] .profile-smart-hero-wrapper > .bio-hero {
+            margin: 0 !important;
+            width: 100% !important;
+            max-width: 580px !important;
+        }
+        body[data-layout-snap="1"] .profile-smart-content {
+            display: block !important;
+            width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        body[data-layout-snap="1"] .profile-smart-content > section,
+        body[data-layout-snap="1"] .profile-smart-content > div.bio-stats-grid,
+        body[data-layout-snap="1"] .profile-smart-content > .profile-split-item {
+            height: 100vh !important;
+            min-height: 100vh !important;
+            scroll-snap-align: start !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 2rem 1rem !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;
+        }
+        body[data-layout-snap="1"] .profile-smart-content > section > .bio-card,
+        body[data-layout-snap="1"] .profile-smart-content > section.bio-card {
+            width: 100% !important;
+            max-width: 580px !important;
+            margin: 0 auto !important;
+            box-sizing: border-box !important;
+            max-height: 85vh !important;
+            overflow-y: auto !important;
+        }
+        body[data-layout-snap="1"] .bio-stats-grid {
+            width: 100% !important;
+            max-width: 580px !important;
+            margin: 0 auto !important;
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 1rem !important;
+            justify-content: center !important;
+            align-content: center !important;
+        }
+
+        /* Background Grain Effect */
+        body[data-bg-grain="1"]::after {
+            content: "";
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            right: -50%;
+            bottom: -50%;
+            width: 200%;
+            height: 200%;
+            background: transparent url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.06"/%3E%3C/svg%3E') repeat;
+            opacity: 0.18;
+            pointer-events: none;
+            z-index: 99999;
+            animation: grain-animation 8s steps(10) infinite;
+        }
+        @keyframes grain-animation {
+            0%, 100% { transform:translate(0, 0); }
+            10% { transform:translate(-5%, -10%); }
+            20% { transform:translate(-15%, 5%); }
+            30% { transform:translate(7%, -25%); }
+            40% { transform:translate(-5%, 25%); }
+            50% { transform:translate(-15%, 10%); }
+            60% { transform:translate(15%, 0%); }
+            70% { transform:translate(0%, 15%); }
+            80% { transform:translate(3%, 35%); }
+            90% { transform:translate(-10%, 10%); }
+        }
+
+        /* Custom Cursor */
+        body[data-cursor-custom-url],
+        body[data-cursor-custom-url] a,
+        body[data-cursor-custom-url] button,
+        body[data-cursor-custom-url] select,
+        body[data-cursor-custom-url] input,
+        body[data-cursor-custom-url] textarea,
+        body[data-cursor-custom-url] [role="button"] {
+            cursor: var(--cursor-custom-url) !important;
+        }
+
+        /* Card Tags */
+        .profile-card-tag {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            line-height: 1;
+        }
+
+        /* Music Themes */
+        body[data-music-theme="retro"] .bio-audio {
+            background: #000000 !important;
+            border: 3px solid #00ff00 !important;
+            border-radius: 0px !important;
+            font-family: "Courier New", Courier, monospace !important;
+            color: #00ff00 !important;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5) !important;
+        }
+        body[data-music-theme="retro"] .bio-audio strong,
+        body[data-music-theme="retro"] .bio-audio small,
+        body[data-music-theme="retro"] .bio-audio span {
+            color: #00ff00 !important;
+            text-transform: uppercase !important;
+        }
+        body[data-music-theme="retro"] .bio-audio input[type="range"]::-webkit-slider-runnable-track {
+            background: #003300 !important;
+        }
+        body[data-music-theme="retro"] .bio-audio input[type="range"]::-webkit-slider-thumb {
+            background: #00ff00 !important;
+            border-radius: 0px !important;
+        }
+
+        body[data-music-theme="cyberpunk"] .bio-audio {
+            background: #000000 !important;
+            border: 2px solid #fcee0a !important;
+            border-radius: 8px 0px 8px 0px !important;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 90% 100%, 0 100%) !important;
+            font-family: "Impact", sans-serif !important;
+            color: #00ffff !important;
+            position: relative !important;
+            box-shadow: 0 0 15px rgba(252, 238, 10, 0.3) !important;
+        }
+        body[data-music-theme="cyberpunk"] .bio-audio strong {
+            color: #fcee0a !important;
+            text-shadow: 0 0 5px #fcee0a !important;
+        }
+        body[data-music-theme="cyberpunk"] .bio-audio span,
+        body[data-music-theme="cyberpunk"] .bio-audio small {
+            color: #ff007f !important;
+        }
+        body[data-music-theme="cyberpunk"] .bio-audio input[type="range"]::-webkit-slider-thumb {
+            background: #00ffff !important;
+            border-radius: 0px !important;
+        }
+
+        body[data-music-theme="synthwave"] .bio-audio {
+            background: linear-gradient(135deg, #2b0b3d, #0b071e) !important;
+            border: 2px solid #ff007f !important;
+            border-radius: 16px !important;
+            box-shadow: 0 0 20px rgba(255, 0, 127, 0.6), inset 0 0 10px rgba(0, 240, 255, 0.4) !important;
+            color: #00ffff !important;
+            font-family: 'Montserrat', sans-serif !important;
+        }
+        body[data-music-theme="synthwave"] .bio-audio strong {
+            color: #ff007f !important;
+            text-shadow: 0 0 10px #ff007f, 0 0 20px #ff007f !important;
+        }
+        body[data-music-theme="synthwave"] .bio-audio span,
+        body[data-music-theme="synthwave"] .bio-audio small {
+            color: #00ffff !important;
+            text-shadow: 0 0 8px #00ffff !important;
+        }
+        body[data-music-theme="synthwave"] .bio-audio input[type="range"]::-webkit-slider-thumb {
+            background: #ff007f !important;
+            box-shadow: 0 0 8px #ff007f !important;
+        }
     </style>
 </head>
 
@@ -592,7 +782,12 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     data-tab-animation="<?php echo profile_h($profile['profile_tab_animation'] ?? 'static'); ?>"
     data-tab-animation-speed="<?php echo (int)($profile['profile_tab_animation_speed'] ?? 1000); ?>"
     data-tab-animation-text="<?php echo profile_h($profile['profile_tab_animation_text'] ?? ''); ?>"
-    style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
+    data-cursor-effect="<?php echo (int)($profile['is_premium'] ?? 0) === 1 ? profile_h($profile['profile_cursor_effect'] ?? 'none') : 'none'; ?>"
+    data-layout-snap="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && (int)($profile['profile_layout_snap'] ?? 0) === 1 ? '1' : '0'; ?>"
+    data-bg-grain="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && (int)($profile['profile_bg_grain'] ?? 0) === 1 ? '1' : '0'; ?>"
+    data-music-theme="<?php echo (int)($profile['is_premium'] ?? 0) === 1 ? profile_h($profile['profile_music_theme'] ?? 'default') : 'default'; ?>"
+    data-cursor-custom-url="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && !empty($profile['profile_cursor_custom_url']) ? profile_h($profile['profile_cursor_custom_url']) : ''; ?>"
+    style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>; <?php if ((int)($profile['is_premium'] ?? 0) === 1 && !empty($profile['profile_cursor_custom_url'])): ?>--cursor-custom-url: url('<?php echo profile_h($profile['profile_cursor_custom_url']); ?>'), auto !important;<?php endif; ?>">
 
     <?php if ($profile && profile_flag($profile, 'profile_click_to_enter', false)): ?>
         <div id="clickToEnterOverlay" class="click-to-enter-overlay">
@@ -1023,7 +1218,14 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                         <?php else: ?>
                                             <span class="bio-featured-link__content">
                                                 <?php if (!empty($item['is_featured'])): ?><small>Pin</small><?php endif; ?>
-                                                <strong><?php echo profile_h($linkTitle); ?></strong>
+                                                <strong>
+                                                    <?php echo profile_h($linkTitle); ?>
+                                                    <?php if ((int)($profile['is_premium'] ?? 0) === 1 && !empty($item['card_tag_text'])): ?>
+                                                        <span class="profile-card-tag" style="background-color: <?php echo profile_h($item['card_tag_bg'] ?: 'rgba(255,255,255,0.1)'); ?>; color: <?php echo profile_h($item['card_tag_color'] ?: '#ffffff'); ?>;">
+                                                            <?php echo profile_h($item['card_tag_text']); ?>
+                                                        </span>
+                                                    <?php endif; ?>
+                                                </strong>
                                                 <?php if (!empty($item['description'])): ?><em><?php echo profile_h($item['description']); ?></em><?php else: ?><em><?php echo profile_h(profile_short_url_label($item['url'])); ?></em><?php endif; ?>
                                             </span>
                                             <i class="fa-solid fa-chevron-right"></i>
@@ -1092,7 +1294,14 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                         <?php else: ?>
                                             <span class="bio-project-card__icon"><i class="fa-solid fa-layer-group"></i></span>
                                         <?php endif; ?>
-                                        <strong><?php echo profile_h($project['title']); ?></strong>
+                                        <strong>
+                                            <?php echo profile_h($project['title']); ?>
+                                            <?php if ((int)($profile['is_premium'] ?? 0) === 1 && !empty($project['card_tag_text'])): ?>
+                                                <span class="profile-card-tag" style="background-color: <?php echo profile_h($project['card_tag_bg'] ?: 'rgba(255,255,255,0.1)'); ?>; color: <?php echo profile_h($project['card_tag_color'] ?: '#ffffff'); ?>;">
+                                                    <?php echo profile_h($project['card_tag_text']); ?>
+                                                </span>
+                                            <?php endif; ?>
+                                        </strong>
                                         <?php if (!empty($project['description'])): ?><p><?php echo profile_h($project['description']); ?></p><?php endif; ?>
                                         <small><?php echo profile_h($project['tech_stack'] ?: profile_status_label($project['status'])); ?></small>
                                     </a>
@@ -1119,9 +1328,24 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                         <?php elseif ($mediaUrl && $blockType === 'video'): ?>
                                             <video src="<?php echo profile_h($mediaUrl); ?>" controls playsinline preload="metadata"></video>
                                         <?php endif; ?>
-                                        <?php if (!empty($block['title']) || !empty($block['body']) || $isPinned): ?>
+                                        <?php if (!empty($block['title']) || !empty($block['body']) || $isPinned || (!empty($block['card_tag_text']) && (int)($profile['is_premium'] ?? 0) === 1)): ?>
                                         <div class="profile-block-copy">
-                                            <?php if (!empty($block['title'])): ?><strong><?php echo profile_h($block['title']); ?></strong><?php endif; ?>
+                                            <?php if (!empty($block['title'])): ?>
+                                                <strong>
+                                                    <?php echo profile_h($block['title']); ?>
+                                                    <?php if ((int)($profile['is_premium'] ?? 0) === 1 && !empty($block['card_tag_text'])): ?>
+                                                        <span class="profile-card-tag" style="background-color: <?php echo profile_h($block['card_tag_bg'] ?: 'rgba(255,255,255,0.1)'); ?>; color: <?php echo profile_h($block['card_tag_color'] ?: '#ffffff'); ?>;">
+                                                            <?php echo profile_h($block['card_tag_text']); ?>
+                                                        </span>
+                                                    <?php endif; ?>
+                                                </strong>
+                                            <?php elseif ((int)($profile['is_premium'] ?? 0) === 1 && !empty($block['card_tag_text'])): ?>
+                                                <div style="margin-bottom: 0.4rem;">
+                                                    <span class="profile-card-tag" style="margin-left: 0; background-color: <?php echo profile_h($block['card_tag_bg'] ?: 'rgba(255,255,255,0.1)'); ?>; color: <?php echo profile_h($block['card_tag_color'] ?: '#ffffff'); ?>;">
+                                                        <?php echo profile_h($block['card_tag_text']); ?>
+                                                    </span>
+                                                </div>
+                                            <?php endif; ?>
                                             <?php if (!empty($block['body'])): ?><p><?php echo nl2br(profile_h($block['body'])); ?></p><?php endif; ?>
                                             <?php if ($isPinned): ?><small>Pin</small><?php endif; ?>
                                         </div>
@@ -1154,7 +1378,14 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                             <span class="bio-preview-card__icon"><i class="fa-solid fa-play"></i></span>
                                         <?php endif; ?>
                                         <span class="bio-preview-card__label"><?php echo profile_h($content['content_type']); ?></span>
-                                        <strong><?php echo profile_h($content['title']); ?></strong>
+                                        <strong>
+                                            <?php echo profile_h($content['title']); ?>
+                                            <?php if ((int)($profile['is_premium'] ?? 0) === 1 && !empty($content['card_tag_text'])): ?>
+                                                <span class="profile-card-tag" style="background-color: <?php echo profile_h($content['card_tag_bg'] ?: 'rgba(255,255,255,0.1)'); ?>; color: <?php echo profile_h($content['card_tag_color'] ?: '#ffffff'); ?>;">
+                                                    <?php echo profile_h($content['card_tag_text']); ?>
+                                                </span>
+                                            <?php endif; ?>
+                                        </strong>
                                         <?php if (!empty($content['description'])): ?><p><?php echo profile_h($content['description']); ?></p><?php endif; ?>
                                     </a>
                                 <?php endforeach; ?>
@@ -1392,11 +1623,21 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         for (const [key, value] of Object.entries(data.attributes)) {
                             if (key.startsWith('data-') && !key.startsWith('data-tilt-')) {
                                 body.setAttribute(key, value);
+                                if (key === 'data-cursor-custom-url') {
+                                    if (value) {
+                                        body.style.setProperty('--cursor-custom-url', `url('${value}'), auto`);
+                                    } else {
+                                        body.style.removeProperty('--cursor-custom-url');
+                                    }
+                                }
                             } else if (key === 'style') {
                                 for (const [styleKey, styleVal] of Object.entries(value)) {
                                     body.style.setProperty(styleKey, styleVal);
                                 }
                             }
+                        }
+                        if (window.initCursorEffects) {
+                            window.initCursorEffects();
                         }
                         if (data.attributes['data-profile-border-style']) {
                             body.classList.forEach((className) => {

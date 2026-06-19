@@ -1206,3 +1206,194 @@ input[type="range"]::-moz-range-track {
         transform: rotate(360deg);
     }
 }
+
+/* Onboarding Plan Modal Overrides */
+.onboarding-plan-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(8, 5, 14, 0.75);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.onboarding-plan-overlay.is-active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.onboarding-plan-card {
+    background: rgba(20, 24, 38, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    padding: 2.5rem;
+    width: min(600px, 90vw);
+    text-align: center;
+    color: #fff;
+    transform: scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.onboarding-plan-overlay.is-active .onboarding-plan-card {
+    transform: scale(1);
+}
+
+.onboarding-plan-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fff 30%, var(--editor-accent, #0f5bff) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.onboarding-plan-subtitle {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 2rem;
+}
+
+.plan-options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 580px) {
+    .plan-options-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.plan-option-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.plan-option-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(var(--editor-accent-rgb), 0.3);
+    transform: translateY(-4px);
+}
+
+.plan-option-card.is-premium {
+    border-color: rgba(var(--editor-accent-rgb), 0.4);
+    background: radial-gradient(circle at 100% 0%, rgba(var(--editor-accent-rgb), 0.1) 0%, transparent 70%), rgba(255, 255, 255, 0.03);
+    box-shadow: 0 0 20px rgba(var(--editor-accent-rgb), 0.05);
+}
+
+.plan-option-card.is-premium:hover {
+    border-color: var(--editor-accent);
+    box-shadow: 0 0 30px rgba(var(--editor-accent-rgb), 0.15);
+}
+
+.plan-badge {
+    align-self: flex-start;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 1rem;
+}
+
+.plan-option-card.is-premium .plan-badge {
+    background: var(--editor-accent);
+    color: #fff;
+    box-shadow: 0 0 10px rgba(var(--editor-accent-rgb), 0.4);
+}
+
+.plan-price {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0.5rem 0;
+}
+
+.plan-price span {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 1.5rem 0;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.5;
+}
+
+.plan-features li {
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.plan-features li i {
+    color: var(--editor-accent);
+    font-size: 0.8rem;
+}
+
+.plan-features li i.fa-xmark {
+    color: rgba(255, 255, 255, 0.25);
+}
+
+.plan-select-btn {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 12px;
+    border: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    display: block;
+    text-decoration: none;
+}
+
+.plan-option-card .plan-select-btn {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.plan-option-card:hover .plan-select-btn {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.plan-option-card.is-premium .plan-select-btn {
+    background: var(--editor-accent);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(var(--editor-accent-rgb), 0.35);
+}
+
+.plan-option-card.is-premium:hover .plan-select-btn {
+    background: #fff;
+    color: #000;
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.25);
+}
+

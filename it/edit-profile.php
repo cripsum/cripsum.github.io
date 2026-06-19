@@ -103,14 +103,17 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Modifica profilo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=4.8.19">
-    <link rel="stylesheet" href="/assets/css/editor-premium.css?v=4.8.18">
+    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=4.9.0">
+    <link rel="stylesheet" href="/assets/css/editor-premium.css?v=4.9.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Inter:wght@300..900&family=Roboto:wght@300..900&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Fira+Code:wght@300..700&family=PT+Mono&family=Cinzel:wght@400..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Bebas+Neue&family=Press+Start+2P&family=Bungee&family=Permanent+Marker&family=Creepster&family=Shojumaru&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <script src="/assets/js/profile.js?v=4.8.19" defer></script>
-    <script src="/assets/js/edit-profile.js?v=4.8.18" defer></script>
+    <script>
+        window.isPremiumUser = <?php echo (int)($profile['is_premium'] ?? 0) === 1 ? 'true' : 'false'; ?>;
+    </script>
+    <script src="/assets/js/profile.js?v=4.9.0" defer></script>
+    <script src="/assets/js/edit-profile.js?v=4.9.0" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-effect="<?php echo profile_h($profile['profile_effect'] ?? 'none'); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" data-avatar-shape="<?php echo profile_h($avatarShape); ?>" data-avatar-border="<?php echo $avatarBorder; ?>" style="--accent: <?php echo profile_h($accent); ?>; --accent-rgb: <?php echo $accentRgbComma; ?>; --profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
@@ -816,6 +819,36 @@ function profile_json_script(string $id, array $data): void
                             <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_avatar_border" value="0"><input type="checkbox" name="profile_avatar_border" id="avatarBorderInput" value="1" <?php echo (int)($profile['profile_avatar_border'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fa-solid fa-border-style"></i>Mostra bordo della foto profilo</span></label>
 
                             <div class="bio-section-heading" style="margin-top: 1.8rem; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 1.5rem;">
+                                <div><span><i class="fa-solid fa-crown" style="color: #fbbf24;"></i> Personalizzazione Premium</span>
+                                    <p>Impostazioni esclusive per utenti Premium.</p>
+                                </div>
+                            </div>
+                            <div class="profile-field-grid three">
+                                <label class="profile-field"><span>Effetto Cursore</span><select name="profile_cursor_effect" id="cursorEffectInput">
+                                        <option value="none" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'none' ? 'selected' : ''; ?>>Nessuno</option>
+                                        <option value="follower" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'follower' ? 'selected' : ''; ?>>Follower dot (Puntatore)</option>
+                                        <option value="trail" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'trail' ? 'selected' : ''; ?>>Scia particelle (Trail)</option>
+                                    </select></label>
+                                
+                                <label class="profile-field"><span>Tema Musicale</span><select name="profile_music_theme" id="musicThemeInput">
+                                        <option value="default" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'default' ? 'selected' : ''; ?>>Default</option>
+                                        <option value="retro" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'retro' ? 'selected' : ''; ?>>Retro</option>
+                                        <option value="cyberpunk" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'cyberpunk' ? 'selected' : ''; ?>>Cyberpunk</option>
+                                        <option value="synthwave" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'synthwave' ? 'selected' : ''; ?>>Synthwave</option>
+                                    </select></label>
+
+                                <label class="profile-field"><span>Cursore Personalizzato (Immagine)</span>
+                                    <div class="input-with-upload">
+                                        <input type="text" name="profile_cursor_custom_url" id="cursorCustomUrlInput" value="<?php echo profile_h($profile['profile_cursor_custom_url'] ?? ''); ?>" placeholder="/uploads/... o url">
+                                        <button type="button" class="btn-page-media-upload" data-upload-target="cursorCustomUrlInput"><i class="fa-solid fa-upload"></i></button>
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_layout_snap" value="0"><input type="checkbox" name="profile_layout_snap" id="layoutSnapInput" value="1" <?php echo (int)($profile['profile_layout_snap'] ?? 0) === 1 ? 'checked' : ''; ?>><span><i class="fa-solid fa-arrows-to-dot"></i>Layout Scroll Snap A Tutto Schermo</span></label>
+                            <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_bg_grain" value="0"><input type="checkbox" name="profile_bg_grain" id="bgGrainInput" value="1" <?php echo (int)($profile['profile_bg_grain'] ?? 0) === 1 ? 'checked' : ''; ?>><span><i class="fa-solid fa-circle-nodes"></i>Effetto Disturbo/Grana sullo sfondo</span></label>
+
+                            <div class="bio-section-heading" style="margin-top: 1.8rem; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 1.5rem;">
                                 <div><span><i class="fa-solid fa-signature"></i> Personalizzazione Nome</span>
                                     <p>Modifica l'aspetto e le animazioni del tuo nome visualizzato.</p>
                                 </div>
@@ -1224,6 +1257,50 @@ function profile_json_script(string $id, array $data): void
 
     <?php // if (file_exists(__DIR__ . '/../includes/footer.php')) include __DIR__ . '/../includes/footer.php'; 
     ?>
+    <!-- Onboarding Plan Selection Overlay -->
+    <div id="onboardingPlanOverlay" class="onboarding-plan-overlay">
+        <div class="onboarding-plan-card">
+            <h3 class="onboarding-plan-title">Scegli il tuo piano Cripsum™</h3>
+            <p class="onboarding-plan-subtitle">Sblocca il massimo livello di personalizzazione per il tuo profilo.</p>
+            
+            <div class="plan-options-grid">
+                <!-- Free Plan -->
+                <div class="plan-option-card">
+                    <div>
+                        <span class="plan-badge">Base</span>
+                        <div class="plan-price">Gratis <span>/ sempre</span></div>
+                        <ul class="plan-features">
+                            <li><i class="fa-solid fa-check"></i>Fino a 5 link/social</li>
+                            <li><i class="fa-solid fa-check"></i>1 Blocco personalizzato</li>
+                            <li><i class="fa-solid fa-check"></i>Effetti e font di base</li>
+                            <li><i class="fa-solid fa-xmark"></i>Niente tag/badges sulle card</li>
+                            <li><i class="fa-solid fa-xmark"></i>Nessun cursore personalizzato</li>
+                            <li><i class="fa-solid fa-xmark"></i>Nessun layout a tutto schermo</li>
+                        </ul>
+                    </div>
+                    <button type="button" class="plan-select-btn" id="selectFreeBtn">Continua Gratis</button>
+                </div>
+                
+                <!-- Premium Plan -->
+                <div class="plan-option-card is-premium">
+                    <div>
+                        <span class="plan-badge">Premium</span>
+                        <div class="plan-price">€2.99 <span>/ una tantum</span></div>
+                        <ul class="plan-features">
+                            <li><i class="fa-solid fa-check"></i>Link e blocchi illimitati</li>
+                            <li><i class="fa-solid fa-check"></i>Caricamento file multimediali</li>
+                            <li><i class="fa-solid fa-check"></i>Tag ed etichette personalizzate</li>
+                            <li><i class="fa-solid fa-check"></i>Cursori ed effetti scia</li>
+                            <li><i class="fa-solid fa-check"></i>Layout Scroll Snap 100vh</li>
+                            <li><i class="fa-solid fa-check"></i>Temi ed effetti di sfondo</li>
+                        </ul>
+                    </div>
+                    <a href="/api/create_checkout_session.php" class="plan-select-btn">Passa a Premium</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="editor-loading-overlay" id="editorLoadingOverlay">
         <div class="editor-loading-spinner"></div>
         <div class="editor-loading-text" id="editorLoadingText">Salvataggio in corso...</div>

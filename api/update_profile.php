@@ -30,6 +30,7 @@ $profile = profile_get_edit_profile($mysqli, $targetUserId);
 if (!$profile) {
     profile_json_response(['ok' => false, 'message' => 'Profile not found.'], 404);
 }
+$isPremium = (int)($profile['is_premium'] ?? 0) === 1;
 
 $username = trim((string)($_POST['username'] ?? ''));
 $displayName = profile_clean_text($_POST['display_name'] ?? '', 40);
@@ -50,6 +51,10 @@ $font = profile_allowed_value((string)($_POST['profile_font'] ?? 'Poppins'), [
     'Cinzel', 'Rubik', 'Bebas Neue', 'Minecraft', 'Gang of Three',
     'Press Start 2P', 'Bungee', 'Permanent Marker', 'Creepster', 'Shojumaru'
 ], 'Poppins');
+$allowedFreeFonts = ['Poppins', 'Inter', 'Roboto', 'Outfit', 'Montserrat'];
+if (!$isPremium && !in_array($font, $allowedFreeFonts, true)) {
+    $font = 'Poppins';
+}
 $borderRadius = (int)($_POST['profile_border_radius'] ?? 30);
 if ($borderRadius < 0 || $borderRadius > 40) $borderRadius = 30;
 $cardOpacity = (int)($_POST['profile_card_opacity'] ?? 68);
@@ -98,6 +103,10 @@ $musicArtist = profile_clean_text($_POST['profile_music_artist'] ?? '', 80);
 $musicArtistDb = $musicArtist !== '' ? $musicArtist : null;
 $showAudioPlayer = profile_bool_from_post('profile_show_audio_player', true);
 $profileEffect = profile_allowed_value((string)($_POST['profile_effect'] ?? 'none'), ['none', 'cursor_glow', 'soft_particles', 'scanlines', 'ambient', 'aurora', 'gradient_waves', 'stars', 'spotlight', 'digital_noise', 'glass_rain', 'sakura_falling', 'cyber_grid'], 'none');
+$allowedFreeEffects = ['none', 'cursor_glow', 'stars'];
+if (!$isPremium && !in_array($profileEffect, $allowedFreeEffects, true)) {
+    $profileEffect = 'none';
+}
 $avatarRingEnabled = profile_bool_from_post('avatar_ring_enabled', true);
 $avatarRingStyle = profile_allowed_value((string)($_POST['avatar_ring_style'] ?? 'spin'), ['spin', 'pulse', 'orbit', 'glow', 'dual', 'rainbow', 'halo', 'neon', 'spark', 'glitch', 'none'], 'spin');
 $avatarRingColor = profile_normalize_hex_color($_POST['avatar_ring_color'] ?? $accentColor);
@@ -298,13 +307,29 @@ function profile_decode_rows(string $key): array
     return is_array($rows) ? $rows : [];
 }
 
-$socialRows = array_slice(profile_decode_rows('socials_json'), 0, 10);
-$linkRows = array_slice(profile_decode_rows('links_json'), 0, 12);
-$projectRows = array_slice(profile_decode_rows('projects_json'), 0, 8);
-$contentRows = array_slice(profile_decode_rows('contents_json'), 0, 8);
-$blockRows = array_slice(profile_decode_rows('blocks_json'), 0, 10);
-$badgeRows = array_slice(profile_decode_rows('badges_json'), 0, 8);
-$embedRows = array_slice(profile_decode_rows('embeds_json'), 0, 8);
+$socialRows = profile_decode_rows('socials_json');
+$linkRows = profile_decode_rows('links_json');
+$projectRows = profile_decode_rows('projects_json');
+$contentRows = profile_decode_rows('contents_json');
+$blockRows = profile_decode_rows('blocks_json');
+$badgeRows = profile_decode_rows('badges_json');
+$embedRows = profile_decode_rows('embeds_json');
+
+if (!$isPremium) {
+    $socialRows = array_slice($socialRows, 0, 5);
+    $linkRows = array_slice($linkRows, 0, 5);
+    $projectRows = array_slice($projectRows, 0, 3);
+    $contentRows = array_slice($contentRows, 0, 3);
+    $blockRows = array_slice($blockRows, 0, 1);
+    $embedRows = array_slice($embedRows, 0, 3);
+} else {
+    $socialRows = array_slice($socialRows, 0, 100);
+    $linkRows = array_slice($linkRows, 0, 100);
+    $projectRows = array_slice($projectRows, 0, 100);
+    $contentRows = array_slice($contentRows, 0, 100);
+    $blockRows = array_slice($blockRows, 0, 100);
+    $embedRows = array_slice($embedRows, 0, 100);
+}
 
 $allowedPlatforms = ['tiktok', 'instagram', 'youtube', 'twitch', 'github', 'discord', 'telegram', 'x', 'twitter', 'spotify', 'soundcloud', 'steam', 'reddit', 'pinterest', 'snapchat', 'facebook', 'linkedin', 'paypal', 'patreon', 'kick', 'bluesky', 'threads', 'behance', 'dribbble', 'website', 'email', 'other'];
 $allowedStatuses = ['active', 'paused', 'finished', 'idea'];
@@ -408,6 +433,33 @@ try {
     if (!$stmt->execute()) throw new RuntimeException('Error updating profile.');
     $stmt->close();
 
+    if ($isPremium) {
+        $layoutSnap = profile_bool_from_post('profile_layout_snap', false) ? 1 : 0;
+        $cursorEffect = profile_allowed_value((string)($_POST['profile_cursor_effect'] ?? 'none'), ['none', 'follower', 'trail'], 'none');
+        $cursorCustomUrl = isset($_POST['profile_cursor_custom_url']) ? trim((string)$_POST['profile_cursor_custom_url']) : '';
+        if ($cursorCustomUrl !== '' && !profile_is_safe_url($cursorCustomUrl, false)) {
+            $cursorCustomUrl = '';
+        }
+        $cursorCustomUrlDb = $cursorCustomUrl !== '' ? $cursorCustomUrl : null;
+        $bgGrain = profile_bool_from_post('profile_bg_grain', false) ? 1 : 0;
+        $musicTheme = profile_allowed_value((string)($_POST['profile_music_theme'] ?? 'default'), ['default', 'retro', 'cyberpunk', 'synthwave'], 'default');
+    } else {
+        $layoutSnap = 0;
+        $cursorEffect = 'none';
+        $cursorCustomUrlDb = null;
+        $bgGrain = 0;
+        $musicTheme = 'default';
+    }
+
+    $stmtPremium = $mysqli->prepare("
+        UPDATE utenti
+        SET profile_layout_snap = ?, profile_cursor_effect = ?, profile_cursor_custom_url = ?, profile_bg_grain = ?, profile_music_theme = ?
+        WHERE id = ?
+    ");
+    $stmtPremium->bind_param('issisi', $layoutSnap, $cursorEffect, $cursorCustomUrlDb, $bgGrain, $musicTheme, $targetUserId);
+    if (!$stmtPremium->execute()) throw new RuntimeException('Error updating premium settings.');
+    $stmtPremium->close();
+
     if (!empty($avatarUpload['has_file']) && isset($avatarUpload['blob'], $avatarUpload['mime'])) {
         $stmt = $mysqli->prepare("UPDATE utenti SET profile_pic = ?, profile_pic_type = ? WHERE id = ?");
         $null = null;
@@ -471,19 +523,33 @@ try {
     $stmt->execute();
     $stmt->close();
 
-    $insertLink = $mysqli->prepare("INSERT INTO utenti_links (utente_id, title, description, url, icon, button_style, is_featured, is_visible, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $insertLink = $mysqli->prepare("INSERT INTO utenti_links (utente_id, title, description, url, icon, button_style, is_featured, is_visible, sort_order, card_tag_text, card_tag_bg, card_tag_color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     foreach ($linkRows as $i => $row) {
         $title = profile_clean_text($row['title'] ?? '', 60);
         $description = profile_clean_text($row['description'] ?? '', 160);
         $url = trim((string)($row['url'] ?? ''));
-        $icon = profile_clean_text($row['icon'] ?? 'fa-solid fa-link', 40);
+        $icon = profile_clean_text($row['icon'] ?? 'fa-solid fa-link', 255);
         $buttonStyle = profile_allowed_value((string)($row['button_style'] ?? 'card'), ['card', 'compact', 'icon'], 'card');
         $featured = !empty($row['is_featured']) ? 1 : 0;
         $visible = !empty($row['is_visible']) ? 1 : 0;
         if ($title === '' && $url === '') continue;
         if ($title === '') throw new RuntimeException('A link must have a title.');
         if (!profile_is_safe_url($url, true)) throw new RuntimeException('Invalid link URL: ' . $title);
-        $insertLink->bind_param('isssssiii', $targetUserId, $title, $description, $url, $icon, $buttonStyle, $featured, $visible, $i);
+
+        $tagText = null;
+        $tagBg = null;
+        $tagColor = null;
+        if ($isPremium) {
+            $tagText = profile_clean_text($row['card_tag_text'] ?? '', 50);
+            if ($tagText === '') {
+                $tagText = null;
+            } else {
+                $tagBg = profile_optional_hex_color($row['card_tag_bg'] ?? '');
+                $tagColor = profile_optional_hex_color($row['card_tag_color'] ?? '');
+            }
+        }
+
+        $insertLink->bind_param('isssssiiisss', $targetUserId, $title, $description, $url, $icon, $buttonStyle, $featured, $visible, $i, $tagText, $tagBg, $tagColor);
         if (!$insertLink->execute()) throw new RuntimeException('Error saving link.');
     }
     $insertLink->close();
@@ -493,7 +559,7 @@ try {
     $stmt->execute();
     $stmt->close();
 
-    $insertProject = $mysqli->prepare("INSERT INTO utenti_projects (utente_id, title, description, url, image_url, tech_stack, status, is_featured, is_visible, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $insertProject = $mysqli->prepare("INSERT INTO utenti_projects (utente_id, title, description, url, image_url, tech_stack, status, is_featured, is_visible, sort_order, card_tag_text, card_tag_bg, card_tag_color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     foreach ($projectRows as $i => $row) {
         $title = profile_clean_text($row['title'] ?? '', 70);
         $description = profile_clean_text($row['description'] ?? '', 260);
@@ -506,7 +572,21 @@ try {
         if ($title === '') continue;
         if (!profile_is_safe_url($url, false)) throw new RuntimeException('Invalid project URL: ' . $title);
         if (!profile_is_safe_url($imageUrl, false)) throw new RuntimeException('Invalid project image: ' . $title);
-        $insertProject->bind_param('issssssiii', $targetUserId, $title, $description, $url, $imageUrl, $techStack, $status, $featured, $visible, $i);
+
+        $tagText = null;
+        $tagBg = null;
+        $tagColor = null;
+        if ($isPremium) {
+            $tagText = profile_clean_text($row['card_tag_text'] ?? '', 50);
+            if ($tagText === '') {
+                $tagText = null;
+            } else {
+                $tagBg = profile_optional_hex_color($row['card_tag_bg'] ?? '');
+                $tagColor = profile_optional_hex_color($row['card_tag_color'] ?? '');
+            }
+        }
+
+        $insertProject->bind_param('issssssiiisss', $targetUserId, $title, $description, $url, $imageUrl, $techStack, $status, $featured, $visible, $i, $tagText, $tagBg, $tagColor);
         if (!$insertProject->execute()) throw new RuntimeException('Error saving project.');
     }
     $insertProject->close();
@@ -516,7 +596,7 @@ try {
     $stmt->execute();
     $stmt->close();
 
-    $insertContent = $mysqli->prepare("INSERT INTO utenti_contents (utente_id, content_type, title, description, url, thumbnail_url, is_featured, is_visible, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $insertContent = $mysqli->prepare("INSERT INTO utenti_contents (utente_id, content_type, title, description, url, thumbnail_url, is_featured, is_visible, sort_order, card_tag_text, card_tag_bg, card_tag_color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     foreach ($contentRows as $i => $row) {
         $type = profile_allowed_value((string)($row['content_type'] ?? 'other'), $allowedContentTypes, 'other');
         $title = profile_clean_text($row['title'] ?? '', 70);
@@ -528,7 +608,21 @@ try {
         if ($title === '') continue;
         if (!profile_is_safe_url($url, false)) throw new RuntimeException('Invalid content URL: ' . $title);
         if (!profile_is_safe_url($thumb, false)) throw new RuntimeException('Invalid thumbnail: ' . $title);
-        $insertContent->bind_param('isssssiii', $targetUserId, $type, $title, $description, $url, $thumb, $featured, $visible, $i);
+
+        $tagText = null;
+        $tagBg = null;
+        $tagColor = null;
+        if ($isPremium) {
+            $tagText = profile_clean_text($row['card_tag_text'] ?? '', 50);
+            if ($tagText === '') {
+                $tagText = null;
+            } else {
+                $tagBg = profile_optional_hex_color($row['card_tag_bg'] ?? '');
+                $tagColor = profile_optional_hex_color($row['card_tag_color'] ?? '');
+            }
+        }
+
+        $insertContent->bind_param('isssssiiisss', $targetUserId, $type, $title, $description, $url, $thumb, $featured, $visible, $i, $tagText, $tagBg, $tagColor);
         if (!$insertContent->execute()) throw new RuntimeException('Error saving content.');
     }
     $insertContent->close();
@@ -538,7 +632,7 @@ try {
     $stmt->execute();
     $stmt->close();
 
-    $insertBlock = $mysqli->prepare("INSERT INTO utenti_profile_blocks (utente_id, block_type, title, body, media_url, media_type, is_featured, is_visible, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $insertBlock = $mysqli->prepare("INSERT INTO utenti_profile_blocks (utente_id, block_type, title, body, media_url, media_type, is_featured, is_visible, sort_order, card_tag_text, card_tag_bg, card_tag_color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     foreach ($blockRows as $i => $row) {
         $type = profile_allowed_value((string)($row['block_type'] ?? 'text'), $allowedBlockTypes, 'text');
         $title = profile_clean_text($row['title'] ?? '', 80);
@@ -558,7 +652,20 @@ try {
             $mediaType = 'text';
         }
 
-        $insertBlock->bind_param('isssssiii', $targetUserId, $type, $title, $body, $mediaUrl, $mediaType, $featured, $visible, $i);
+        $tagText = null;
+        $tagBg = null;
+        $tagColor = null;
+        if ($isPremium) {
+            $tagText = profile_clean_text($row['card_tag_text'] ?? '', 50);
+            if ($tagText === '') {
+                $tagText = null;
+            } else {
+                $tagBg = profile_optional_hex_color($row['card_tag_bg'] ?? '');
+                $tagColor = profile_optional_hex_color($row['card_tag_color'] ?? '');
+            }
+        }
+
+        $insertBlock->bind_param('isssssiiisss', $targetUserId, $type, $title, $body, $mediaUrl, $mediaType, $featured, $visible, $i, $tagText, $tagBg, $tagColor);
         if (!$insertBlock->execute()) throw new RuntimeException('Error saving custom blocks.');
     }
     $insertBlock->close();

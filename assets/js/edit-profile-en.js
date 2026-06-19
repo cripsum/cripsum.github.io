@@ -88,12 +88,27 @@
             body = `
                 <div class="profile-row-grid">
                     <label>${isEnglish ? 'Title' : 'Titolo'}<input data-field="title" maxlength="60" value="${escapeAttr(data.title || '')}" placeholder="Portfolio"></label>
-                    <label>${isEnglish ? 'FontAwesome Icon' : 'Icona FontAwesome'}<input data-field="icon" maxlength="40" value="${escapeAttr(data.icon || 'fa-solid fa-link')}" placeholder="fa-brands fa-spotify"></label>
+                    <label class="profile-field-upload-wrapper">${isEnglish ? 'Icon (FontAwesome or Upload)' : 'Icona (FontAwesome o Carica)'}
+                        <div class="input-with-upload">
+                            <input data-field="icon" maxlength="255" value="${escapeAttr(data.icon || 'fa-solid fa-link')}" placeholder="fa-brands fa-link o /uploads/...">
+                            <button type="button" class="btn-row-media-upload" data-upload-target="icon"><i class="fa-solid fa-upload"></i></button>
+                        </div>
+                    </label>
                     <label>${isEnglish ? 'Button type' : 'Tipo tasto'}<select data-field="button_style">${options(linkButtonStyles, data.button_style || 'card')}</select></label>
                     <label class="profile-row-grid full">${isEnglish ? 'Description' : 'Descrizione'}<input data-field="description" maxlength="160" value="${escapeAttr(data.description || '')}" placeholder="Una frase breve"></label>
                     <label class="profile-row-grid full">URL<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://..."></label>
                     <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> ${isEnglish ? 'Featured' : 'In evidenza'}</label>
                     <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> ${isEnglish ? 'Visible' : 'Visibile'}</label>
+                    <div class="row-card-tag-section full">
+                        <div class="row-card-tag-header">
+                            <span class="premium-badge-mini"><i class="fa-solid fa-crown"></i> ${isEnglish ? 'Premium Card Tag' : 'Tag Card Premium'}</span>
+                        </div>
+                        <div class="row-card-tag-grid">
+                            <label>${isEnglish ? 'Tag Text' : 'Testo Tag'}<input data-field="card_tag_text" maxlength="30" value="${escapeAttr(data.card_tag_text || '')}" placeholder="NEW" ${window.isPremiumUser ? '' : 'disabled'}></label>
+                            <label>${isEnglish ? 'Bg Color' : 'Colore Bg'}<input type="color" data-field="card_tag_bg" value="${escapeAttr(data.card_tag_bg || '#ef4444')}" ${window.isPremiumUser ? '' : 'disabled'}></label>
+                            <label>${isEnglish ? 'Text Color' : 'Colore Testo'}<input type="color" data-field="card_tag_color" value="${escapeAttr(data.card_tag_color || '#ffffff')}" ${window.isPremiumUser ? '' : 'disabled'}></label>
+                        </div>
+                    </div>
                 </div>`;
         }
 
@@ -114,10 +129,25 @@
                     <label>${isEnglish ? 'Status' : 'Stato'}<select data-field="status">${options(projectStatuses, data.status || 'active')}</select></label>
                     <label class="profile-row-grid full">${isEnglish ? 'Description' : 'Descrizione'}<textarea data-field="description" maxlength="260" placeholder="Cosa fa questo progetto">${escapeAttr(data.description || '')}</textarea></label>
                     <label>URL<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://..."></label>
-                    <label>${isEnglish ? 'Image URL' : 'Immagine URL'}<input data-field="image_url" value="${escapeAttr(data.image_url || '')}" placeholder="https://..."></label>
+                    <label class="profile-field-upload-wrapper">${isEnglish ? 'Image URL' : 'Immagine URL'}
+                        <div class="input-with-upload">
+                            <input data-field="image_url" value="${escapeAttr(data.image_url || '')}" placeholder="https://... o carica">
+                            <button type="button" class="btn-row-media-upload" data-upload-target="image_url"><i class="fa-solid fa-upload"></i></button>
+                        </div>
+                    </label>
                     <label class="profile-row-grid full">Tech stack<input data-field="tech_stack" maxlength="160" value="${escapeAttr(data.tech_stack || '')}" placeholder="PHP, JS, MySQL"></label>
                     <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> ${isEnglish ? 'Featured' : 'In evidenza'}</label>
                     <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> ${isEnglish ? 'Visible' : 'Visibile'}</label>
+                    <div class="row-card-tag-section full">
+                        <div class="row-card-tag-header">
+                            <span class="premium-badge-mini"><i class="fa-solid fa-crown"></i> ${isEnglish ? 'Premium Card Tag' : 'Tag Card Premium'}</span>
+                        </div>
+                        <div class="row-card-tag-grid">
+                            <label>${isEnglish ? 'Tag Text' : 'Testo Tag'}<input data-field="card_tag_text" maxlength="30" value="${escapeAttr(data.card_tag_text || '')}" placeholder="NEW" ${window.isPremiumUser ? '' : 'disabled'}></label>
+                            <label>${isEnglish ? 'Bg Color' : 'Colore Bg'}<input type="color" data-field="card_tag_bg" value="${escapeAttr(data.card_tag_bg || '#ef4444')}" ${window.isPremiumUser ? '' : 'disabled'}></label>
+                            <label>${isEnglish ? 'Text Color' : 'Colore Testo'}<input type="color" data-field="card_tag_color" value="${escapeAttr(data.card_tag_color || '#ffffff')}" ${window.isPremiumUser ? '' : 'disabled'}></label>
+                        </div>
+                    </div>
                 </div>`;
         }
 
@@ -128,9 +158,24 @@
                     <label>${isEnglish ? 'Title' : 'Titolo'}<input data-field="title" maxlength="70" value="${escapeAttr(data.title || '')}" placeholder="Titolo contenuto"></label>
                     <label class="profile-row-grid full">${isEnglish ? 'Description' : 'Descrizione'}<textarea data-field="description" maxlength="220" placeholder="Descrizione breve">${escapeAttr(data.description || '')}</textarea></label>
                     <label>URL<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://..."></label>
-                    <label>Thumbnail URL<input data-field="thumbnail_url" value="${escapeAttr(data.thumbnail_url || '')}" placeholder="https://..."></label>
+                    <label class="profile-field-upload-wrapper">Thumbnail URL
+                        <div class="input-with-upload">
+                            <input data-field="thumbnail_url" value="${escapeAttr(data.thumbnail_url || '')}" placeholder="https://... o carica">
+                            <button type="button" class="btn-row-media-upload" data-upload-target="thumbnail_url"><i class="fa-solid fa-upload"></i></button>
+                        </div>
+                    </label>
                     <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> ${isEnglish ? 'Featured' : 'In evidenza'}</label>
                     <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> ${isEnglish ? 'Visible' : 'Visibile'}</label>
+                    <div class="row-card-tag-section full">
+                        <div class="row-card-tag-header">
+                            <span class="premium-badge-mini"><i class="fa-solid fa-crown"></i> ${isEnglish ? 'Premium Card Tag' : 'Tag Card Premium'}</span>
+                        </div>
+                        <div class="row-card-tag-grid">
+                            <label>${isEnglish ? 'Tag Text' : 'Testo Tag'}<input data-field="card_tag_text" maxlength="30" value="${escapeAttr(data.card_tag_text || '')}" placeholder="NEW" ${window.isPremiumUser ? '' : 'disabled'}></label>
+                            <label>${isEnglish ? 'Bg Color' : 'Colore Bg'}<input type="color" data-field="card_tag_bg" value="${escapeAttr(data.card_tag_bg || '#ef4444')}" ${window.isPremiumUser ? '' : 'disabled'}></label>
+                            <label>${isEnglish ? 'Text Color' : 'Colore Testo'}<input type="color" data-field="card_tag_color" value="${escapeAttr(data.card_tag_color || '#ffffff')}" ${window.isPremiumUser ? '' : 'disabled'}></label>
+                        </div>
+                    </div>
                 </div>`;
         }
 
@@ -140,10 +185,25 @@
                     <label>${isEnglish ? 'Type' : 'Tipo'}<select data-field="block_type">${options(blockTypes, data.block_type || 'text')}</select></label>
                     <label>${isEnglish ? 'Title' : 'Titolo'}<input data-field="title" maxlength="80" value="${escapeAttr(data.title || '')}" placeholder="Titolo del post"></label>
                     <label class="profile-row-grid full">${isEnglish ? 'Text' : 'Testo'}<textarea data-field="body" maxlength="700" placeholder="Testo breve, nota, descrizione o quote">${escapeAttr(data.body || '')}</textarea></label>
-                    <label>${isEnglish ? 'Media URL' : 'Media URL'}<input data-field="media_url" value="${escapeAttr(data.media_url || '')}" placeholder="https://... immagine/gif/video"></label>
+                    <label class="profile-field-upload-wrapper">${isEnglish ? 'Media URL' : 'Media URL'}
+                        <div class="input-with-upload">
+                            <input data-field="media_url" value="${escapeAttr(data.media_url || '')}" placeholder="https://... o carica">
+                            <button type="button" class="btn-row-media-upload" data-upload-target="media_url"><i class="fa-solid fa-upload"></i></button>
+                        </div>
+                    </label>
                     <label>${isEnglish ? 'Media type' : 'Media type'}<select data-field="media_type">${options(blockTypes, data.media_type || data.block_type || 'image')}</select></label>
                     <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> Pin</label>
                     <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> ${isEnglish ? 'Visible' : 'Visibile'}</label>
+                    <div class="row-card-tag-section full">
+                        <div class="row-card-tag-header">
+                            <span class="premium-badge-mini"><i class="fa-solid fa-crown"></i> ${isEnglish ? 'Premium Card Tag' : 'Tag Card Premium'}</span>
+                        </div>
+                        <div class="row-card-tag-grid">
+                            <label>${isEnglish ? 'Tag Text' : 'Testo Tag'}<input data-field="card_tag_text" maxlength="30" value="${escapeAttr(data.card_tag_text || '')}" placeholder="NEW" ${window.isPremiumUser ? '' : 'disabled'}></label>
+                            <label>${isEnglish ? 'Bg Color' : 'Colore Bg'}<input type="color" data-field="card_tag_bg" value="${escapeAttr(data.card_tag_bg || '#ef4444')}" ${window.isPremiumUser ? '' : 'disabled'}></label>
+                            <label>${isEnglish ? 'Text Color' : 'Colore Testo'}<input type="color" data-field="card_tag_color" value="${escapeAttr(data.card_tag_color || '#ffffff')}" ${window.isPremiumUser ? '' : 'disabled'}></label>
+                        </div>
+                    </div>
                 </div>`;
         }
 
@@ -244,6 +304,16 @@
             input.addEventListener('change', () => {
                 updatePreview();
                 triggerAutosave(true);
+            });
+        });
+
+        $$('.btn-row-media-upload', row).forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const targetField = btn.dataset.uploadTarget;
+                const targetInput = row.querySelector(`[data-field="${targetField}"]`);
+                if (targetInput) {
+                    handleRowMediaUpload(targetInput);
+                }
             });
         });
 
@@ -391,6 +461,12 @@
     const borderOpacityInput = $('#borderOpacityInput');
     const borderColorInput = $('#borderColorInput');
     const borderWidthInput = $('#borderWidthInput');
+
+    const cursorEffectInput = $('#cursorEffectInput');
+    const musicThemeInput = $('#musicThemeInput');
+    const cursorCustomUrlInput = $('#cursorCustomUrlInput');
+    const layoutSnapInput = $('#layoutSnapInput');
+    const bgGrainInput = $('#bgGrainInput');
 
     const borderRadiusVal = $('#borderRadiusVal');
     const cardOpacityVal = $('#cardOpacityVal');
@@ -608,6 +684,13 @@
         if (tiltZoomInput) attributes['data-tilt-zoom'] = tiltZoomInput.value;
         if (tiltSpeedInput) attributes['data-tilt-speed'] = tiltSpeedInput.value;
 
+        // Premium Attributes
+        if (cursorEffectInput) attributes['data-cursor-effect'] = window.isPremiumUser ? cursorEffectInput.value : 'none';
+        if (musicThemeInput) attributes['data-music-theme'] = window.isPremiumUser ? musicThemeInput.value : 'default';
+        if (cursorCustomUrlInput) attributes['data-cursor-custom-url'] = window.isPremiumUser ? cursorCustomUrlInput.value : '';
+        if (layoutSnapInput) attributes['data-layout-snap'] = (window.isPremiumUser && layoutSnapInput.checked) ? '1' : '0';
+        if (bgGrainInput) attributes['data-bg-grain'] = (window.isPremiumUser && bgGrainInput.checked) ? '1' : '0';
+
         if (iframe && iframe.contentWindow) {
             iframe.contentWindow.postMessage({
                 type: 'update-attributes',
@@ -716,7 +799,8 @@
     }
 
     // Register simple inputs listeners for live updates and autosave
-    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, layoutInput, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput, musicUrlInput, musicTitleInput, musicArtistInput, showAudioPlayerInput, cornerStyleCustomInput, tiltMaxInput, tiltGlareInput, tiltZoomInput, tiltSpeedInput, profileTabAnimationSpeedInput, profileTabTitleInput, profileTabAnimationInput, profileTabAnimationTextInput, cornerStyleInput, borderStyleInput, discordServerInviteInput, removeMusicUploadInput].filter(Boolean);
+    // Register simple inputs listeners for live updates and autosave
+    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, layoutInput, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput, musicUrlInput, musicTitleInput, musicArtistInput, showAudioPlayerInput, cornerStyleCustomInput, tiltMaxInput, tiltGlareInput, tiltZoomInput, tiltSpeedInput, profileTabAnimationSpeedInput, profileTabTitleInput, profileTabAnimationInput, profileTabAnimationTextInput, cornerStyleInput, borderStyleInput, discordServerInviteInput, removeMusicUploadInput, cursorEffectInput, musicThemeInput, cursorCustomUrlInput, layoutSnapInput, bgGrainInput].filter(Boolean);
 
     simpleInputs.forEach((input) => {
         input.addEventListener('input', () => {
@@ -1076,6 +1160,17 @@
     $$('.theme-preset-card').forEach(card => {
         card.addEventListener('click', () => {
             const themeKey = card.dataset.themePreset;
+
+            const allowedFreePresets = ['minimal', 'dark_premium', 'glass'];
+            if (!window.isPremiumUser && !allowedFreePresets.includes(themeKey)) {
+                if (typeof window.profileToast === 'function') {
+                    window.profileToast(isEnglish ? 'This theme preset is for Premium users only.' : 'Questo preset di tema è riservato agli utenti Premium.');
+                }
+                const planOverlay = document.getElementById('onboardingPlanOverlay');
+                if (planOverlay) planOverlay.classList.add('is-active');
+                return;
+            }
+
             const themeObj = themes[themeKey];
             if (!themeObj) return;
 
@@ -2316,6 +2411,8 @@
     // ── ONBOARDING WALKTHROUGH TOUR ──────────────────────────────────────────
     function launchOnboardingTour() {
         if (localStorage.getItem('cripsum_profile_editor_guide_seen')) return;
+        const planOverlay = document.getElementById('onboardingPlanOverlay');
+        if (planOverlay && planOverlay.classList.contains('is-active')) return;
 
         const steps = isEnglish ? [
             {
@@ -2906,12 +3003,151 @@
         }
     });
 
+    function handleRowMediaUpload(targetInput) {
+        if (!window.isPremiumUser) {
+            if (typeof window.profileToast === 'function') {
+                window.profileToast(isEnglish ? 'Uploads require a Premium account.' : 'Il caricamento dei file richiede un account Premium.');
+            }
+            const planOverlay = document.getElementById('onboardingPlanOverlay');
+            if (planOverlay) planOverlay.classList.add('is-active');
+            return;
+        }
+
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/jpeg,image/png,image/webp,image/gif,image/svg+xml';
+        
+        fileInput.addEventListener('change', () => {
+            if (!fileInput.files || fileInput.files.length === 0) return;
+            const file = fileInput.files[0];
+            
+            if (typeof window.profileToast === 'function') {
+                window.profileToast(isEnglish ? 'Uploading file...' : 'Caricamento file in corso...');
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            fetch('/api/upload_profile_media.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok && data.url) {
+                    targetInput.value = data.url;
+                    targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    if (typeof window.profileToast === 'function') {
+                        window.profileToast(isEnglish ? 'Upload completed!' : 'Caricamento completato!');
+                    }
+                } else {
+                    alert(data.message || (isEnglish ? 'Upload failed.' : 'Errore nel caricamento.'));
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert(isEnglish ? 'Error uploading file.' : 'Errore durante il caricamento del file.');
+            });
+        });
+        
+        fileInput.click();
+    }
+
+    function initPremiumSettingsUploads() {
+        document.querySelectorAll('.btn-page-media-upload').forEach(btnPageUpload => {
+            btnPageUpload.addEventListener('click', () => {
+                const targetId = btnPageUpload.dataset.uploadTarget;
+                const targetInput = document.getElementById(targetId);
+                if (targetInput) {
+                    handleRowMediaUpload(targetInput);
+                }
+            });
+        });
+    }
+
+    function initPremiumFeatureLocks() {
+        if (window.isPremiumUser) return;
+
+        const allowedFreeEffects = ['none', 'cursor_glow', 'stars'];
+        if (profileEffectInput) {
+            profileEffectInput.addEventListener('change', (e) => {
+                if (!allowedFreeEffects.includes(profileEffectInput.value)) {
+                    profileEffectInput.value = 'none';
+                    profileEffectInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    if (typeof window.profileToast === 'function') {
+                        window.profileToast(isEnglish ? 'This effect requires Premium.' : 'Questo effetto richiede Premium.');
+                    }
+                    const planOverlay = document.getElementById('onboardingPlanOverlay');
+                    if (planOverlay) planOverlay.classList.add('is-active');
+                }
+            });
+        }
+
+        const allowedFreeFonts = ['Poppins', 'Inter', 'Roboto', 'Outfit', 'Montserrat'];
+        if (fontInput) {
+            fontInput.addEventListener('change', (e) => {
+                if (!allowedFreeFonts.includes(fontInput.value)) {
+                    fontInput.value = 'Poppins';
+                    fontInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    if (typeof window.profileToast === 'function') {
+                        window.profileToast(isEnglish ? 'This font is for Premium users only.' : 'Questo font è riservato agli utenti Premium.');
+                    }
+                    const planOverlay = document.getElementById('onboardingPlanOverlay');
+                    if (planOverlay) planOverlay.classList.add('is-active');
+                }
+            });
+        }
+
+        const premiumInputs = [
+            document.getElementById('cursorEffectInput'),
+            document.getElementById('musicThemeInput'),
+            document.getElementById('cursorCustomUrlInput'),
+            document.getElementById('layoutSnapInput'),
+            document.getElementById('bgGrainInput')
+        ];
+        premiumInputs.forEach(input => {
+            if (input) {
+                input.disabled = true;
+                if (input.type === 'checkbox') input.checked = false;
+                else if (input.tagName === 'SELECT') {
+                    if (input.id === 'musicThemeInput') input.value = 'default';
+                    else input.value = 'none';
+                }
+                const wrapper = input.closest('.input-with-upload');
+                if (wrapper) {
+                    const btn = wrapper.querySelector('button');
+                    if (btn) btn.disabled = true;
+                }
+            }
+        });
+    }
+
+    function initOnboardingPlanModal() {
+        const planOverlay = document.getElementById('onboardingPlanOverlay');
+        const selectFreeBtn = document.getElementById('selectFreeBtn');
+        if (planOverlay && selectFreeBtn) {
+            const planSelected = localStorage.getItem('cripsum_profile_editor_plan_selected');
+            if (!planSelected) {
+                planOverlay.classList.add('is-active');
+            }
+            selectFreeBtn.addEventListener('click', () => {
+                localStorage.setItem('cripsum_profile_editor_plan_selected', 'true');
+                planOverlay.classList.remove('is-active');
+                setTimeout(launchOnboardingTour, 400);
+            });
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         initProfileCustomSelects();
         initProfileCustomColorPickers();
         startProfileSelectObserver();
         setTimeout(refreshProfileCustomSelects, 0);
         setTimeout(refreshProfileCustomSelects, 100);
+        initOnboardingPlanModal();
+        initPremiumSettingsUploads();
+        initPremiumFeatureLocks();
     });
 
     if (document.readyState !== 'loading') {
@@ -2920,5 +3156,8 @@
         startProfileSelectObserver();
         setTimeout(refreshProfileCustomSelects, 0);
         setTimeout(refreshProfileCustomSelects, 100);
+        initOnboardingPlanModal();
+        initPremiumSettingsUploads();
+        initPremiumFeatureLocks();
     }
 })();

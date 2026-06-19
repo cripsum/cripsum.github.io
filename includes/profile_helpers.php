@@ -151,6 +151,9 @@ function profile_is_safe_url(?string $url, bool $required = false): bool
 {
     $url = trim((string)$url);
     if ($url === '') return !$required;
+    if (strpos($url, '/uploads/profile_media/') === 0) {
+        return strpos($url, '..') === false;
+    }
     if (!filter_var($url, FILTER_VALIDATE_URL)) return false;
     $scheme = strtolower(parse_url($url, PHP_URL_SCHEME) ?? '');
     return in_array($scheme, ['http', 'https'], true);
@@ -196,6 +199,12 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
         SELECT
             u.id,
             u.username,
+            u.is_premium,
+            u.profile_layout_snap,
+            u.profile_music_theme,
+            u.profile_cursor_effect,
+            u.profile_cursor_custom_url,
+            u.profile_bg_grain,
             u.display_name,
             u.bio,
             u.data_creazione,
@@ -322,6 +331,12 @@ function profile_get_public_profile_by_alias(mysqli $mysqli, string $alias): ?ar
         SELECT
             u.id,
             u.username,
+            u.is_premium,
+            u.profile_layout_snap,
+            u.profile_music_theme,
+            u.profile_cursor_effect,
+            u.profile_cursor_custom_url,
+            u.profile_bg_grain,
             u.display_name,
             u.bio,
             u.data_creazione,
@@ -439,7 +454,7 @@ function profile_get_public_profile_by_alias(mysqli $mysqli, string $alias): ?ar
 
 function profile_get_edit_profile(mysqli $mysqli, int $userId): ?array
 {
-    $stmt = $mysqli->prepare("SELECT id, username, display_name, bio, data_creazione, ruolo, profile_banner_type, accent_color, profile_secondary_color, profile_card_color, profile_text_color, profile_link_style, profile_button_shape, profile_theme, profile_layout, profile_visibility, discord_id, discord_username, discord_global_name, discord_avatar, discord_use_avatar, discord_use_display_name, discord_connected_at, profile_status, profile_show_stats, profile_show_socials, profile_show_links, profile_show_projects, profile_show_contents, profile_show_blocks, profile_show_badges, profile_show_activity, profile_show_discord, profile_music_url, profile_music_mime, profile_music_title, profile_music_artist, profile_show_audio_player, profile_effect, avatar_ring_enabled, avatar_ring_style, avatar_ring_color, profile_views, featured_badge_id, featured_project_id, featured_content_id, profile_show_characters, profile_updated_at, profile_enter_text, profile_click_to_enter, profile_socials_style, profile_show_embeds, profile_sections_order, profile_badges_display, profile_badges_position, discord_server_invite, discord_server_cache, discord_server_cache_time, profile_font, profile_border_radius, profile_card_opacity, profile_card_blur, profile_border_opacity, profile_border_color, profile_border_width, profile_name_style, profile_ui_shape, profile_avatar_shape, profile_social_size, profile_icon_spacing, profile_badge_size, profile_button_size, profile_avatar_border, custom_alias, tilt_enabled, tilt_max, tilt_glare, tilt_zoom, tilt_speed, profile_tags_json, profile_tab_title, profile_tab_animation, profile_tab_animation_speed, profile_tab_animation_text, profile_corner_style, profile_corner_style_custom, profile_border_style FROM utenti WHERE id = ? LIMIT 1");
+    $stmt = $mysqli->prepare("SELECT id, username, is_premium, profile_layout_snap, profile_music_theme, profile_cursor_effect, profile_cursor_custom_url, profile_bg_grain, display_name, bio, data_creazione, ruolo, profile_banner_type, accent_color, profile_secondary_color, profile_card_color, profile_text_color, profile_link_style, profile_button_shape, profile_theme, profile_layout, profile_visibility, discord_id, discord_username, discord_global_name, discord_avatar, discord_use_avatar, discord_use_display_name, discord_connected_at, profile_status, profile_show_stats, profile_show_socials, profile_show_links, profile_show_projects, profile_show_contents, profile_show_blocks, profile_show_badges, profile_show_activity, profile_show_discord, profile_music_url, profile_music_mime, profile_music_title, profile_music_artist, profile_show_audio_player, profile_effect, avatar_ring_enabled, avatar_ring_style, avatar_ring_color, profile_views, featured_badge_id, featured_project_id, featured_content_id, profile_show_characters, profile_updated_at, profile_enter_text, profile_click_to_enter, profile_socials_style, profile_show_embeds, profile_sections_order, profile_badges_display, profile_badges_position, discord_server_invite, discord_server_cache, discord_server_cache_time, profile_font, profile_border_radius, profile_card_opacity, profile_card_blur, profile_border_opacity, profile_border_color, profile_border_width, profile_name_style, profile_ui_shape, profile_avatar_shape, profile_social_size, profile_icon_spacing, profile_badge_size, profile_button_size, profile_avatar_border, custom_alias, tilt_enabled, tilt_max, tilt_glare, tilt_zoom, tilt_speed, profile_tags_json, profile_tab_title, profile_tab_animation, profile_tab_animation_speed, profile_tab_animation_text, profile_corner_style, profile_corner_style_custom, profile_border_style FROM utenti WHERE id = ? LIMIT 1");
     $stmt->bind_param('i', $userId);
     $stmt->execute();
     $profile = $stmt->get_result()->fetch_assoc();
@@ -477,7 +492,7 @@ function profile_list_socials(mysqli $mysqli, int $userId, bool $onlyVisible = t
 
 function profile_list_links(mysqli $mysqli, int $userId, bool $onlyVisible = true): array
 {
-    $sql = "SELECT id, title, description, url, icon, button_style, is_featured, sort_order, is_visible FROM utenti_links WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY is_featured DESC, sort_order ASC, id ASC";
+    $sql = "SELECT id, title, description, url, icon, button_style, is_featured, sort_order, is_visible, card_tag_text, card_tag_bg, card_tag_color FROM utenti_links WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY is_featured DESC, sort_order ASC, id ASC";
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param('i', $userId);
     $stmt->execute();
@@ -488,7 +503,7 @@ function profile_list_links(mysqli $mysqli, int $userId, bool $onlyVisible = tru
 
 function profile_list_projects(mysqli $mysqli, int $userId, bool $onlyVisible = true): array
 {
-    $sql = "SELECT id, title, description, url, image_url, tech_stack, status, is_featured, sort_order, is_visible FROM utenti_projects WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY is_featured DESC, sort_order ASC, id ASC";
+    $sql = "SELECT id, title, description, url, image_url, tech_stack, status, is_featured, sort_order, is_visible, card_tag_text, card_tag_bg, card_tag_color FROM utenti_projects WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY is_featured DESC, sort_order ASC, id ASC";
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param('i', $userId);
     $stmt->execute();
@@ -499,7 +514,7 @@ function profile_list_projects(mysqli $mysqli, int $userId, bool $onlyVisible = 
 
 function profile_list_contents(mysqli $mysqli, int $userId, bool $onlyVisible = true): array
 {
-    $sql = "SELECT id, content_type, title, description, url, thumbnail_url, is_featured, sort_order, is_visible FROM utenti_contents WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY is_featured DESC, sort_order ASC, id ASC";
+    $sql = "SELECT id, content_type, title, description, url, thumbnail_url, is_featured, sort_order, is_visible, card_tag_text, card_tag_bg, card_tag_color FROM utenti_contents WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY is_featured DESC, sort_order ASC, id ASC";
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param('i', $userId);
     $stmt->execute();
@@ -511,7 +526,7 @@ function profile_list_contents(mysqli $mysqli, int $userId, bool $onlyVisible = 
 
 function profile_list_blocks(mysqli $mysqli, int $userId, bool $onlyVisible = true): array
 {
-    $sql = "SELECT id, block_type, title, body, media_url, media_type, is_featured, sort_order, is_visible FROM utenti_profile_blocks WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY is_featured DESC, sort_order ASC, id ASC";
+    $sql = "SELECT id, block_type, title, body, media_url, media_type, is_featured, sort_order, is_visible, card_tag_text, card_tag_bg, card_tag_color FROM utenti_profile_blocks WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY is_featured DESC, sort_order ASC, id ASC";
     $stmt = $mysqli->prepare($sql);
     if (!$stmt) return [];
     $stmt->bind_param('i', $userId);
