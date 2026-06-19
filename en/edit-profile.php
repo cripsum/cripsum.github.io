@@ -104,7 +104,7 @@ function profile_json_script(string $id, array $data): void
     <title>Cripsum™ - Edit profile</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=5.2.3">
-    <link rel="stylesheet" href="/assets/css/editor-premium.css?v=5.2.9">
+    <link rel="stylesheet" href="/assets/css/editor-premium.css?v=5.3.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Inter:wght@300..900&family=Roboto:wght@300..900&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Fira+Code:wght@300..700&family=PT+Mono&family=Cinzel:wght@400..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Bebas+Neue&family=Press+Start+2P&family=Bungee&family=Permanent+Marker&family=Creepster&family=Shojumaru&display=swap" rel="stylesheet">
@@ -117,6 +117,53 @@ function profile_json_script(string $id, array $data): void
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-effect="<?php echo profile_h($profile['profile_effect'] ?? 'none'); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" data-avatar-shape="<?php echo profile_h($avatarShape); ?>" data-avatar-border="<?php echo $avatarBorder; ?>" style="--accent: <?php echo profile_h($accent); ?>; --accent-rgb: <?php echo $accentRgbComma; ?>; --profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
+    <!-- Onboarding Plan Selection Overlay -->
+    <div id="onboardingPlanOverlay" class="onboarding-plan-overlay">
+        <div class="onboarding-plan-card">
+            <h3 class="onboarding-plan-title">Choose your Cripsum™ Plan</h3>
+            <p class="onboarding-plan-subtitle">Unlock the maximum level of customization for your profile.</p>
+
+            <div class="plan-options-grid">
+                <!-- Free Plan -->
+                <div class="plan-option-card">
+                    <div>
+                        <span class="plan-badge">Base</span>
+                        <div class="plan-price">Free <span>/ forever</span></div>
+                        <ul class="plan-features">
+                            <li><i class="fa-solid fa-check"></i>Up to 5 links/socials</li>
+                            <li><i class="fa-solid fa-check"></i>1 Custom Block</li>
+                            <li><i class="fa-solid fa-check"></i>Basic effects and fonts</li>
+                            <li><i class="fa-solid fa-xmark"></i>No tags/badges on cards</li>
+                            <li><i class="fa-solid fa-xmark"></i>No custom cursors</li>
+                            <li><i class="fa-solid fa-xmark"></i>No full screen layout</li>
+                        </ul>
+                    </div>
+                    <button type="button" class="plan-select-btn" id="selectFreeBtn">Continue Free</button>
+                </div>
+
+                <!-- Premium Plan -->
+                <div class="plan-option-card is-premium">
+                    <div>
+                        <span class="plan-badge">Premium</span>
+                        <div class="plan-price">€2.99 <span>/ one-time</span></div>
+                        <ul class="plan-features">
+                            <li><i class="fa-solid fa-check"></i>Unlimited links and blocks</li>
+                            <li><i class="fa-solid fa-check"></i>Direct media uploads</li>
+                            <li><i class="fa-solid fa-check"></i>Custom card tags & colors</li>
+                            <li><i class="fa-solid fa-check"></i>Custom cursors & trails</li>
+                            <li><i class="fa-solid fa-check"></i>100vh Scroll Snap layout</li>
+                            <li><i class="fa-solid fa-check"></i>Theme presets & Preset Saving</li>
+                            <li><i class="fa-solid fa-check"></i>Markdown & raw HTML custom blocks</li>
+                            <li><i class="fa-solid fa-check"></i>Custom icons & uploads everywhere</li>
+                            <li><i class="fa-solid fa-check"></i>Customizable section headings</li>
+                        </ul>
+                    </div>
+                    <a href="/api/create_checkout_session.php" class="plan-select-btn">Upgrade to Premium</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <?php
     $isPublicProfilePage = false;
     if (file_exists(__DIR__ . '/../includes/navbar-bio.php')) {
@@ -462,7 +509,6 @@ function profile_json_script(string $id, array $data): void
                                 <label class="profile-field"><span>Text color</span><input type="color" name="profile_text_color" id="textColorInput" value="<?php echo profile_h($textColor ?: ($theme === 'light' ? '#111827' : '#f7f8ff')); ?>"></label>
                                 <label class="profile-field"><span>Link style</span><select name="profile_link_style" id="linkStyleInput"><?php foreach (['glass' => 'Glass', 'solid' => 'Solid', 'outline' => 'Outline', 'neon' => 'Neon'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo $linkStyle === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
                                 <label class="profile-field"><span>Button shape</span><select name="profile_button_shape" id="buttonShapeInput"><?php foreach (['pill' => 'Pill', 'rounded' => 'Rounded', 'sharp' => 'Sharp'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo $buttonShape === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
-                                <label class="profile-field"><span>Socials style</span><select name="profile_socials_style" id="socialsStyleInput"><?php foreach (['cards' => 'Large cards (2x row)', 'icons' => 'Clean icons only'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_socials_style'] ?? 'cards') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
                             </div>
 
                             <div class="bio-section-heading profile-mt">
@@ -693,7 +739,10 @@ function profile_json_script(string $id, array $data): void
                             <div class="bio-section-heading">
                                 <div><span><i class="fa-solid fa-link"></i> Socials</span>
                                     <p>Quick icons under profile details.</p>
-                                </div><button type="button" class="bio-button" data-add-row="socials">+ Social</button>
+                                </div><button type="button" class="bio-button" data-add-row="socials" style="margin: 0;">+ Social</button>
+                            </div>
+                            <div class="profile-field-grid single" style="margin-bottom: 1rem;">
+                                <label class="profile-field"><span>Socials Display Style</span><select name="profile_socials_style" id="socialsStyleInput"><?php foreach (['cards' => 'Large cards (2x row)', 'icons' => 'Clean icons only'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_socials_style'] ?? 'cards') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
                             </div>
                             <div class="profile-repeater" id="socialsRepeater"></div>
 
@@ -1311,52 +1360,7 @@ function profile_json_script(string $id, array $data): void
 
     <?php // if (file_exists(__DIR__ . '/../includes/footer-en.php')) include __DIR__ . '/../includes/footer-en.php'; 
     ?>
-    <!-- Onboarding Plan Selection Overlay -->
-    <div id="onboardingPlanOverlay" class="onboarding-plan-overlay">
-        <div class="onboarding-plan-card">
-            <h3 class="onboarding-plan-title">Choose your Cripsum™ Plan</h3>
-            <p class="onboarding-plan-subtitle">Unlock the maximum level of customization for your profile.</p>
 
-            <div class="plan-options-grid">
-                <!-- Free Plan -->
-                <div class="plan-option-card">
-                    <div>
-                        <span class="plan-badge">Base</span>
-                        <div class="plan-price">Free <span>/ forever</span></div>
-                        <ul class="plan-features">
-                            <li><i class="fa-solid fa-check"></i>Up to 5 links/socials</li>
-                            <li><i class="fa-solid fa-check"></i>1 Custom Block</li>
-                            <li><i class="fa-solid fa-check"></i>Basic effects and fonts</li>
-                            <li><i class="fa-solid fa-xmark"></i>No tags/badges on cards</li>
-                            <li><i class="fa-solid fa-xmark"></i>No custom cursors</li>
-                            <li><i class="fa-solid fa-xmark"></i>No full screen layout</li>
-                        </ul>
-                    </div>
-                    <button type="button" class="plan-select-btn" id="selectFreeBtn">Continue Free</button>
-                </div>
-
-                <!-- Premium Plan -->
-                <div class="plan-option-card is-premium">
-                    <div>
-                        <span class="plan-badge">Premium</span>
-                        <div class="plan-price">€2.99 <span>/ one-time</span></div>
-                        <ul class="plan-features">
-                            <li><i class="fa-solid fa-check"></i>Unlimited links and blocks</li>
-                            <li><i class="fa-solid fa-check"></i>Direct media uploads</li>
-                            <li><i class="fa-solid fa-check"></i>Custom card tags & colors</li>
-                            <li><i class="fa-solid fa-check"></i>Custom cursors & trails</li>
-                            <li><i class="fa-solid fa-check"></i>100vh Scroll Snap layout</li>
-                            <li><i class="fa-solid fa-check"></i>Theme presets & Preset Saving</li>
-                            <li><i class="fa-solid fa-check"></i>Markdown & raw HTML custom blocks</li>
-                            <li><i class="fa-solid fa-check"></i>Custom icons & uploads everywhere</li>
-                            <li><i class="fa-solid fa-check"></i>Customizable section headings</li>
-                        </ul>
-                    </div>
-                    <a href="/api/create_checkout_session.php" class="plan-select-btn">Upgrade to Premium</a>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="editor-loading-overlay" id="editorLoadingOverlay">
         <div class="editor-loading-spinner"></div>
