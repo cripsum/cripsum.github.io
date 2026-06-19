@@ -104,7 +104,7 @@ function profile_json_script(string $id, array $data): void
     <title>Cripsum™ - Edit profile</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=5.2.3">
-    <link rel="stylesheet" href="/assets/css/editor-premium.css?v=5.2.3">
+    <link rel="stylesheet" href="/assets/css/editor-premium.css?v=5.2.4">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Inter:wght@300..900&family=Roboto:wght@300..900&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Fira+Code:wght@300..700&family=PT+Mono&family=Cinzel:wght@400..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Bebas+Neue&family=Press+Start+2P&family=Bungee&family=Permanent+Marker&family=Creepster&family=Shojumaru&display=swap" rel="stylesheet">
@@ -180,7 +180,7 @@ function profile_json_script(string $id, array $data): void
                             <button type="button" class="editor-search-clear" id="editorSearchClear" style="display: none;"><i class="fa-solid fa-xmark"></i></button>
                         </div>
                     </div>
-                    
+
                     <!-- Editor Tabs Navigation -->
                     <div class="editor-tabs-nav">
                         <button type="button" class="editor-tab-btn is-active" data-tab="profile"><i class="fa-solid fa-user"></i> Content</button>
@@ -429,13 +429,13 @@ function profile_json_script(string $id, array $data): void
                                 <label class="profile-field"><span>Theme</span><select name="profile_theme" id="themeInput"><?php foreach (['dark' => 'Dark', 'light' => 'Light', 'auto' => 'Auto'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_theme'] ?? 'dark') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
                                 <label class="profile-field"><span>Layout</span>
                                     <select id="layoutInput">
-                                        <?php 
+                                        <?php
                                         $currentLayoutVal = ($profile['profile_layout'] ?? 'standard');
                                         $currentLayoutMapped = ['left-tabs' => 'standard', 'right-tabs' => 'showcase', 'stacked' => 'clean', 'center-split' => 'compact'][$currentLayoutVal] ?? $currentLayoutVal;
                                         if ((int)($profile['profile_layout_snap'] ?? 0) === 1) {
                                             $currentLayoutMapped = 'scrollsnap';
                                         }
-                                        
+
                                         $layoutOptions = [
                                             'standard' => 'Standard default',
                                             'compact' => 'Profile center, content on sides',
