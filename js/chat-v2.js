@@ -24,7 +24,8 @@
         gifNext: '',
         gifLoading: false,
         reactionPopover: null,
-        loadedOnce: false
+        loadedOnce: false,
+        initialLoadComplete: false
     };
 
     const el = {
@@ -93,6 +94,7 @@
     };
 
     const keepBottomAfterMediaLoad = (event) => {
+        if (!state.initialLoadComplete) return;
         const target = event.target;
         if (!target || target.tagName !== 'IMG') return;
         if (state.nearBottom || isAtBottom()) {
@@ -352,6 +354,7 @@
                     el.messages.style.opacity = '';
                     el.messages.style.scrollBehavior = '';
                     updateFloatingButtons();
+                    state.initialLoadComplete = true;
                 });
             });
             return;
@@ -413,6 +416,16 @@
 
     const loadInitial = async ({ silent = false } = {}) => {
         if (!cfg.endpoints?.messages || state.loading) return;
+
+        if (cfg.initialMessages && !state.loadedOnce) {
+            const initial = cfg.initialMessages;
+            delete cfg.initialMessages;
+            renderMessages(initial, 'replace');
+            if (el.loadOlder) el.loadOlder.hidden = initial.length < 40;
+            setSyncState('ok', 'Live');
+            return;
+        }
+
         state.loading = true;
         setSyncState('loading', 'Sync');
         if (!silent && !state.loadedOnce && el.messages) {

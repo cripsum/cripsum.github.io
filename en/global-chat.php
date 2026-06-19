@@ -39,6 +39,7 @@ if (!isset($_SESSION['lineeGuidaChat'])) {
 
 $lineeGuidaChat = (int)($_SESSION['lineeGuidaChat'] ?? 0);
 $onlineCount = $lineeGuidaChat === 1 ? chat_get_online_count($mysqli) : 0;
+$initialMessages = $lineeGuidaChat === 1 ? chat_fetch_messages($mysqli, $userId, ['limit' => 40]) : [];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -46,8 +47,8 @@ $onlineCount = $lineeGuidaChat === 1 ? chat_get_online_count($mysqli) : 0;
 <head>
     <?php include '../includes/head-import.php'; ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/css/chat-v2.css?v=2.5">
-    <script src="/js/chat-v2.js?v=2.5-notification-fix" defer></script>
+    <link rel="stylesheet" href="/css/chat-v2.css?v=2.6">
+    <script src="/js/chat-v2.js?v=2.6-preload-fix" defer></script>
     <title>Global Chat - Cripsum</title>
 </head>
 
@@ -198,6 +199,7 @@ $onlineCount = $lineeGuidaChat === 1 ? chat_get_online_count($mysqli) : 0;
                 maxLength: <?php echo (int)MAX_MESSAGE_LENGTH; ?>,
                 refreshInterval: <?php echo (int)AUTO_REFRESH_INTERVAL; ?>,
                 csrf: <?php echo json_encode($csrf); ?>,
+                initialMessages: <?php echo json_encode($initialMessages, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>,
                 endpoints: {
                     messages: '/api/chat/messages.php',
                     send: '/api/chat/send.php',

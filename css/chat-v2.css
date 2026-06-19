@@ -1120,7 +1120,7 @@ body {
     display: grid;
     gap: 0.45rem;
     margin: 0;
-    max-width: min(330px, 100%);
+    max-width: min(480px, 100%);
 }
 .chat-gif-message a {
     display: block;
@@ -1132,7 +1132,7 @@ body {
 .chat-gif-message img {
     display: block;
     width: 100%;
-    max-height: 280px;
+    max-height: 380px;
     object-fit: cover;
 }
 .chat-gif-message figcaption {
@@ -1408,10 +1408,10 @@ body {
         overflow: hidden;
     }
     .chat-gif-message {
-        max-width: min(260px, 100%);
+        max-width: min(340px, 100%);
     }
     .chat-gif-message img {
-        max-height: 220px;
+        max-height: 280px;
     }
     .chat-message-actions {
         display: inline-flex;
@@ -1745,11 +1745,11 @@ body {
     }
 
     .chat-gif-message {
-        max-width: min(220px, 100%);
+        max-width: min(340px, 100%);
     }
 
     .chat-gif-message img {
-        max-height: 190px;
+        max-height: 280px;
     }
 
     .chat-gif-message figcaption {
