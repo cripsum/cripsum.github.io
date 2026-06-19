@@ -15,6 +15,8 @@
 
 defined('ABSPATH') || define('ABSPATH', true);
 
+require_once __DIR__ . '/mission_generator.php';
+
 // ─────────────────────────────────────────────────────────────
 //  MAPPA DEGLI EVENTI SUPPORTATI
 //  Aggiungere qui nuovi eventi senza toccare altro codice.
@@ -68,6 +70,19 @@ function trackMissionProgress(mysqli $mysqli, int $userId, string $evento, int $
     if (!array_key_exists($evento, MISSION_EVENTS)) {
         // Evento non registrato — ignora silenziosamente
         return [];
+    }
+
+    // Inizializza le missioni per oggi/questa settimana se non ancora fatto in questa sessione
+    if (isset($_SESSION)) {
+        $initKey = 'missions_initialized_' . date('Ymd');
+        if (empty($_SESSION[$initKey])) {
+            ensureUserMissions($mysqli, $userId, 'daily');
+            ensureUserMissions($mysqli, $userId, 'weekly');
+            $_SESSION[$initKey] = true;
+        }
+    } else {
+        ensureUserMissions($mysqli, $userId, 'daily');
+        ensureUserMissions($mysqli, $userId, 'weekly');
     }
 
     $oggi       = date('Y-m-d');
