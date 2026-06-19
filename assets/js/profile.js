@@ -1543,7 +1543,12 @@
 
             const contentWrapper = bioPage.querySelector('.profile-smart-content');
             if (contentWrapper) {
-                const children = contentWrapper.querySelectorAll(':scope > section, :scope > div.bio-stats-grid, :scope > .profile-split-item');
+                const children = Array.from(contentWrapper.querySelectorAll(':scope > section, :scope > div.bio-stats-grid, .profile-split-item'));
+                children.sort((a, b) => {
+                    const orderA = parseInt(a.style.getPropertyValue('--profile-split-order') || 0, 10);
+                    const orderB = parseInt(b.style.getPropertyValue('--profile-split-order') || 0, 10);
+                    return orderA - orderB;
+                });
                 children.forEach(child => arr.push(child));
             }
             return arr;
