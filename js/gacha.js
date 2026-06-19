@@ -439,6 +439,7 @@
       // Mostra le pull una ad una (dati già pronti, niente fetch)
       await showMultiPulls(data.pulls, bannerId);
       updateBannerUI();
+      triggerAchievements(data);
 
     } catch(err) {
       console.error('[Gacha] Multi pull error:', err);

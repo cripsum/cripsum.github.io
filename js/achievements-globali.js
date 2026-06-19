@@ -87,6 +87,42 @@
         }
     }
 
+    async function checkCharacterAchievement() {
+        if (getCookie('achievement18Unlocked')) {
+            return;
+        }
+
+        try {
+            const response = await fetch('https://cripsum.com/api/get_unlocked_achievement', {
+                credentials: 'include'
+            });
+            if (response.ok) {
+                const unlocked = await response.json();
+                const isUnlocked = Array.isArray(unlocked) && unlocked.some(a => {
+                    const aid = Number.parseInt(a.id ?? a.achievement_id, 10);
+                    return aid === 18;
+                });
+                if (isUnlocked) {
+                    setCookie('achievement18Unlocked', true);
+                    return;
+                }
+            }
+
+            const invResponse = await fetch('https://cripsum.com/api/api_get_inventario', {
+                credentials: 'include'
+            });
+            if (invResponse.ok) {
+                const inv = await invResponse.json();
+                if (Array.isArray(inv) && inv.length >= 100) {
+                    safeUnlockAchievement(18);
+                    setCookie('achievement18Unlocked', true);
+                }
+            }
+        } catch (err) {
+            console.error('Errore in checkCharacterAchievement:', err);
+        }
+    }
+
     function checkTimeSpent() {
         const currentTimeSpent = Number.parseInt(getCookie('timeSpent'), 10) || 0;
         const nextTimeSpent = currentTimeSpent + 1;
@@ -121,6 +157,7 @@
     function initGlobalAchievements() {
         checkAllAchievementsUnlocked();
         checkNightAchievement();
+        checkCharacterAchievement();
         checkDaysVisited();
 
         window.setInterval(checkTimeSpent, 1000);
