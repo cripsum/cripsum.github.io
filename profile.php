@@ -488,8 +488,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.1.5">
-    <script src="/assets/js/profile.js?v=5.1.5" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.1.6">
+    <script src="/assets/js/profile.js?v=5.1.6" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -573,12 +573,14 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             --button-height: <?php echo $buttonSize; ?>px !important;
         }
 
-        /* Scroll Snap Layout */
-        body[data-layout-snap="1"] {
+        /* Scroll Snap Layout
+           body.snap-active is added by JS only when snap is on AND there are 2+ slides.
+           This prevents the single-card case from breaking the layout. */
+        body.snap-active {
             overflow: hidden !important;
         }
 
-        body[data-layout-snap="1"] #bioPage {
+        body.snap-active #bioPage {
             position: relative !important;
             height: 100vh !important;
             max-height: 100vh !important;
@@ -595,10 +597,10 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             scrollbar-width: none !important;
             -ms-overflow-style: none !important;
         }
-        body[data-layout-snap="1"] #bioPage::-webkit-scrollbar {
+        body.snap-active #bioPage::-webkit-scrollbar {
             display: none !important;
         }
-        body[data-layout-snap="1"] .profile-snap-slide-wrapper {
+        body.snap-active .profile-snap-slide-wrapper {
             height: 100vh !important;
             min-height: 100vh !important;
             width: 100% !important;
@@ -611,36 +613,36 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             padding: 2rem 1rem !important;
             position: relative !important;
         }
-        body[data-layout-snap="1"] .profile-split-column,
-        body[data-layout-snap="1"] .profile-smart-content {
+        body.snap-active .profile-split-column,
+        body.snap-active .profile-smart-content {
             display: contents !important;
         }
-        /* Constrain child cards/sections inside snap wrappers */
-        body[data-layout-snap="1"] .profile-snap-slide-wrapper > .bio-card,
-        body[data-layout-snap="1"] .profile-snap-slide-wrapper > section.bio-card,
-        body[data-layout-snap="1"] .profile-snap-slide-wrapper > .bio-stats-grid,
-        body[data-layout-snap="1"] .profile-snap-slide-wrapper > .profile-split-item,
-        body[data-layout-snap="1"] .profile-snap-slide-wrapper > section,
-        body[data-layout-snap="1"] .profile-snap-slide-wrapper > div {
-            width: 100% !important;
-            max-width: 580px !important;
+        /* Constrain child cards/sections inside snap wrappers – matches stacked layout width */
+        body.snap-active .profile-snap-slide-wrapper > .bio-card,
+        body.snap-active .profile-snap-slide-wrapper > section.bio-card,
+        body.snap-active .profile-snap-slide-wrapper > .bio-stats-grid,
+        body.snap-active .profile-snap-slide-wrapper > .profile-split-item,
+        body.snap-active .profile-snap-slide-wrapper > section,
+        body.snap-active .profile-snap-slide-wrapper > div {
+            width: min(660px, calc(100% - 32px)) !important;
+            max-width: 660px !important;
             margin: 0 auto !important;
             box-sizing: border-box !important;
         }
-        body[data-layout-snap="1"] .profile-snap-slide-wrapper > .bio-card,
-        body[data-layout-snap="1"] .profile-snap-slide-wrapper > section.bio-card,
-        body[data-layout-snap="1"] .profile-snap-slide-wrapper > section {
+        body.snap-active .profile-snap-slide-wrapper > .bio-card,
+        body.snap-active .profile-snap-slide-wrapper > section.bio-card,
+        body.snap-active .profile-snap-slide-wrapper > section {
             max-height: 85vh !important;
             overflow-y: auto !important;
         }
         /* Ensure embeds inside snap cards render at full width */
-        body[data-layout-snap="1"] .profile-embeds-grid {
+        body.snap-active .profile-embeds-grid {
             width: 100% !important;
         }
-        body[data-layout-snap="1"] .profile-embed-wrapper {
+        body.snap-active .profile-embed-wrapper {
             width: 100% !important;
         }
-        body[data-layout-snap="1"] .profile-embed-wrapper iframe {
+        body.snap-active .profile-embed-wrapper iframe {
             width: 100% !important;
         }
 
@@ -731,9 +733,9 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             }
         }
 
-        body[data-layout-snap="1"] .bio-stats-grid {
-            width: 100% !important;
-            max-width: 580px !important;
+        body.snap-active .bio-stats-grid {
+            width: min(660px, calc(100% - 32px)) !important;
+            max-width: 660px !important;
             margin: 0 auto !important;
             display: grid !important;
             grid-template-columns: repeat(2, 1fr) !important;

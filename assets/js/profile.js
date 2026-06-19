@@ -1615,11 +1615,18 @@
 
         // If data-layout-snap is not active, stop here!
         if (activeBody.getAttribute('data-layout-snap') !== '1') {
+            activeBody.classList.remove('snap-active');
             bioPage.scrollTop = 0;
             return;
         }
 
-        if (rawSlides.length <= 1) return;
+        if (rawSlides.length <= 1) {
+            activeBody.classList.remove('snap-active');
+            return;
+        }
+
+        // Activate snap mode – CSS depends on this class
+        activeBody.classList.add('snap-active');
 
         // Wrap slides in profile-snap-slide-wrapper
         const slides = [];
