@@ -248,12 +248,12 @@ function profile_render_background(?array $profile, ?string $backgroundUrl, stri
 function profile_render_section_heading(string $icon, string $title, ?string $subtitle = null, ?string $sectionKey = null): void
 {
     global $profile;
-    
+
     $isPremium = (int)($profile['is_premium'] ?? 0) === 1;
     $customTitle = $title;
     $customIcon = $icon;
     $isHidden = false;
-    
+
     if ($isPremium && $sectionKey !== null && !empty($profile['profile_sections_config'])) {
         $config = json_decode($profile['profile_sections_config'], true);
         if (is_array($config) && isset($config[$sectionKey])) {
@@ -269,16 +269,16 @@ function profile_render_section_heading(string $icon, string $title, ?string $su
             }
         }
     }
-    
+
     // If it's the blocks section and not customized, we don't render anything by default
     if ($sectionKey === 'blocks' && (!$isPremium || !isset($config['blocks']))) {
         return;
     }
-    
+
     if ($isHidden) {
         return;
     }
-    
+
     if (trim($customTitle) === '' && trim($customIcon) === '') {
         return;
     }
@@ -528,8 +528,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.2.1">
-    <script src="/assets/js/profile.js?v=5.2.1" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.2.3">
+    <script src="/assets/js/profile.js?v=5.2.3" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -637,9 +637,11 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             scrollbar-width: none !important;
             -ms-overflow-style: none !important;
         }
+
         body.snap-active #bioPage::-webkit-scrollbar {
             display: none !important;
         }
+
         body.snap-active .profile-snap-slide-wrapper {
             height: 100vh !important;
             min-height: 100vh !important;
@@ -653,41 +655,48 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             padding: 2rem 1rem !important;
             position: relative !important;
         }
+
         body.snap-active.public-profile-body #bioPage .profile-smart-hero-wrapper {
             top: 0 !important;
             position: relative !important;
             align-self: auto !important;
             margin: 0 !important;
         }
+
         body.snap-active .profile-split-column,
         body.snap-active .profile-smart-content {
             display: contents !important;
         }
+
         /* Constrain child cards/sections inside snap wrappers – matches stacked layout width */
-        body.snap-active .profile-snap-slide-wrapper > .bio-card,
-        body.snap-active .profile-snap-slide-wrapper > section.bio-card,
-        body.snap-active .profile-snap-slide-wrapper > .bio-stats-grid,
-        body.snap-active .profile-snap-slide-wrapper > .profile-split-item,
-        body.snap-active .profile-snap-slide-wrapper > section,
-        body.snap-active .profile-snap-slide-wrapper > div {
+        body.snap-active .profile-snap-slide-wrapper>.bio-card,
+        body.snap-active .profile-snap-slide-wrapper>section.bio-card,
+        body.snap-active .profile-snap-slide-wrapper>.bio-stats-grid,
+        body.snap-active .profile-snap-slide-wrapper>.profile-split-item,
+        body.snap-active .profile-snap-slide-wrapper>section,
+        body.snap-active .profile-snap-slide-wrapper>div {
             width: min(660px, calc(100% - 32px)) !important;
             max-width: 660px !important;
             margin: 0 auto !important;
             box-sizing: border-box !important;
         }
-        body.snap-active .profile-snap-slide-wrapper > .bio-card,
-        body.snap-active .profile-snap-slide-wrapper > section.bio-card,
-        body.snap-active .profile-snap-slide-wrapper > section {
+
+        body.snap-active .profile-snap-slide-wrapper>.bio-card,
+        body.snap-active .profile-snap-slide-wrapper>section.bio-card,
+        body.snap-active .profile-snap-slide-wrapper>section {
             max-height: 85vh !important;
             overflow-y: auto !important;
         }
+
         /* Ensure embeds inside snap cards render at full width */
         body.snap-active .profile-embeds-grid {
             width: 100% !important;
         }
+
         body.snap-active .profile-embed-wrapper {
             width: 100% !important;
         }
+
         body.snap-active .profile-embed-wrapper iframe {
             width: 100% !important;
         }
@@ -890,13 +899,13 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             display: contents !important;
         }
 
-        body[data-music-theme="retro"] .bio-audio__header > button.js-profile-audio-toggle {
+        body[data-music-theme="retro"] .bio-audio__header>button.js-profile-audio-toggle {
             grid-column: 1 !important;
             grid-row: 1 !important;
             margin: 0 !important;
         }
 
-        body[data-music-theme="retro"] .bio-audio__header > div {
+        body[data-music-theme="retro"] .bio-audio__header>div {
             grid-column: 2 !important;
             grid-row: 1 !important;
             display: flex !important;
@@ -906,23 +915,23 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             gap: 0.25rem 0.5rem !important;
         }
 
-        body[data-music-theme="retro"] .bio-audio__header > div small {
+        body[data-music-theme="retro"] .bio-audio__header>div small {
             display: none !important;
         }
 
-        body[data-music-theme="retro"] .bio-audio__header > div strong {
+        body[data-music-theme="retro"] .bio-audio__header>div strong {
             font-size: 0.85rem !important;
             margin: 0 !important;
         }
 
-        body[data-music-theme="retro"] .bio-audio__header > div span.profile-artist-span {
+        body[data-music-theme="retro"] .bio-audio__header>div span.profile-artist-span {
             font-size: 0.76rem !important;
             color: var(--muted) !important;
             margin: 0 !important;
             display: inline-block !important;
         }
 
-        body[data-music-theme="retro"] .bio-audio__header > div span.profile-artist-span::before {
+        body[data-music-theme="retro"] .bio-audio__header>div span.profile-artist-span::before {
             content: "• " !important;
             margin-right: 0.25rem !important;
             opacity: 0.6 !important;
@@ -966,24 +975,24 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             width: 100% !important;
         }
 
-        body[data-music-theme="cyberpunk"] .bio-audio__header > div {
+        body[data-music-theme="cyberpunk"] .bio-audio__header>div {
             display: flex !important;
             flex-direction: column !important;
             align-items: center !important;
             text-align: center !important;
         }
 
-        body[data-music-theme="cyberpunk"] .bio-audio__header > div small {
+        body[data-music-theme="cyberpunk"] .bio-audio__header>div small {
             margin-bottom: 0.35rem !important;
             letter-spacing: 0.12em !important;
         }
 
-        body[data-music-theme="cyberpunk"] .bio-audio__header > div strong {
+        body[data-music-theme="cyberpunk"] .bio-audio__header>div strong {
             font-size: 1.05rem !important;
             justify-content: center !important;
         }
 
-        body[data-music-theme="cyberpunk"] .bio-audio__header > button.js-profile-audio-toggle {
+        body[data-music-theme="cyberpunk"] .bio-audio__header>button.js-profile-audio-toggle {
             width: 52px !important;
             height: 52px !important;
             border-radius: 50% !important;
@@ -997,17 +1006,17 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             transition: all 0.3s ease !important;
         }
 
-        body[data-music-theme="cyberpunk"] .bio-audio__header > button.js-profile-audio-toggle:hover {
+        body[data-music-theme="cyberpunk"] .bio-audio__header>button.js-profile-audio-toggle:hover {
             background: rgba(var(--accent-rgb), 0.2) !important;
             transform: scale(1.05) !important;
         }
 
-        body[data-music-theme="cyberpunk"] .bio-audio__header > button.js-profile-audio-toggle i {
+        body[data-music-theme="cyberpunk"] .bio-audio__header>button.js-profile-audio-toggle i {
             font-size: 1.15rem !important;
             margin-left: 2px !important;
         }
-        
-        body[data-music-theme="cyberpunk"] .bio-audio__header > button.js-profile-audio-toggle:has(.fa-pause) i {
+
+        body[data-music-theme="cyberpunk"] .bio-audio__header>button.js-profile-audio-toggle:has(.fa-pause) i {
             margin-left: 0 !important;
         }
 
@@ -1042,18 +1051,17 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             width: 80px !important;
             height: 80px !important;
             border-radius: 50% !important;
-            background: radial-gradient(circle, 
-                var(--accent) 6%, 
-                #0b0c10 7%, 
-                #0b0c10 22%, 
-                #1f2833 23%, 
-                #0b0c10 38%, 
-                #1f2833 40%, 
-                #0b0c10 56%, 
-                rgba(var(--accent-rgb), 0.25) 57%, 
-                #0b0c10 70%,
-                rgba(255,255,255,0.05) 71%
-            ) !important;
+            background: radial-gradient(circle,
+                    var(--accent) 6%,
+                    #0b0c10 7%,
+                    #0b0c10 22%,
+                    #1f2833 23%,
+                    #0b0c10 38%,
+                    #1f2833 40%,
+                    #0b0c10 56%,
+                    rgba(var(--accent-rgb), 0.25) 57%,
+                    #0b0c10 70%,
+                    rgba(255, 255, 255, 0.05) 71%) !important;
             border: 2px solid rgba(255, 255, 255, 0.08) !important;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), 0 0 0 4px rgba(var(--accent-rgb), 0.05) !important;
             grid-column: 1 !important;
@@ -1067,8 +1075,13 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         }
 
         @keyframes spin-vinyl {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         body[data-music-theme="synthwave"] .bio-audio__header {
@@ -1096,27 +1109,31 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             width: 100% !important;
             max-width: 100px !important;
         }
-        
+
         @media (max-width: 480px) {
             body[data-music-theme="synthwave"] .bio-audio {
                 grid-template-columns: 1fr !important;
                 justify-items: center !important;
                 text-align: center !important;
             }
+
             body[data-music-theme="synthwave"] .bio-audio::before {
                 grid-column: 1 !important;
                 grid-row: 1 !important;
             }
+
             body[data-music-theme="synthwave"] .bio-audio__header {
                 grid-column: 1 !important;
                 grid-row: 2 !important;
                 width: 100% !important;
             }
+
             body[data-music-theme="synthwave"] .bio-audio__progress {
                 grid-column: 1 !important;
                 grid-row: 3 !important;
                 width: 100% !important;
             }
+
             body[data-music-theme="synthwave"] .bio-audio__bottom {
                 grid-column: 1 !important;
                 grid-row: 4 !important;
@@ -1687,74 +1704,52 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                             <div class="profile-block-grid">
                                 <?php foreach ($visibleBlocks as $block): ?>
                                     <?php
-                                    $allowedTypes = ['text', 'image', 'gif', 'video'];
-                                    if ((int)($profile['is_premium'] ?? 0) === 1) {
-                                        $allowedTypes[] = 'markdown';
-                                        $allowedTypes[] = 'html';
-                                    }
+                                    $allowedTypes = ['text', 'image', 'gif', 'video', 'markdown', 'html'];
                                     $blockType = profile_allowed_value((string)($block['block_type'] ?? 'text'), $allowedTypes, 'text');
                                     $mediaUrl = trim((string)($block['media_url'] ?? ''));
+                                    $mediaType = trim((string)($block['media_type'] ?? 'image'));
                                     $isPinned = !empty($block['is_featured']);
                                     $noCardStyleClass = (!empty($block['no_card_style']) && (int)($profile['is_premium'] ?? 0) === 1) ? 'no-card-style' : '';
                                     ?>
                                     <article class="profile-block-card profile-block-<?php echo profile_h($blockType); ?> <?php echo $isPinned ? 'is-pinned' : ''; ?> <?php echo $noCardStyleClass; ?>">
-                                        <?php if (in_array($blockType, ['markdown', 'html'], true) && (int)($profile['is_premium'] ?? 0) === 1): ?>
+                                        <?php if ($mediaUrl): ?>
+                                            <?php if ($mediaType === 'video' || $blockType === 'video'): ?>
+                                                <video src="<?php echo profile_h($mediaUrl); ?>" controls playsinline preload="metadata"></video>
+                                            <?php else: ?>
+                                                <img src="<?php echo profile_h($mediaUrl); ?>" alt="" loading="lazy">
+                                            <?php endif; ?>
+                                        <?php endif; ?>
+                                        <?php if (!empty($block['title']) || !empty($block['body']) || $isPinned || (!empty($block['card_tag_text']) && (int)($profile['is_premium'] ?? 0) === 1)): ?>
                                             <div class="profile-block-copy">
                                                 <?php if (!empty($block['title'])): ?>
                                                     <strong>
                                                         <?php echo profile_h($block['title']); ?>
-                                                        <?php if (!empty($block['card_tag_text'])): ?>
+                                                        <?php if ((int)($profile['is_premium'] ?? 0) === 1 && !empty($block['card_tag_text'])): ?>
                                                             <span class="profile-card-tag" style="background-color: <?php echo profile_h($block['card_tag_bg'] ?: 'rgba(255,255,255,0.1)'); ?>; color: <?php echo profile_h($block['card_tag_color'] ?: '#ffffff'); ?>;">
                                                                 <?php echo profile_h($block['card_tag_text']); ?>
                                                             </span>
                                                         <?php endif; ?>
                                                     </strong>
-                                                <?php elseif (!empty($block['card_tag_text'])): ?>
+                                                <?php elseif ((int)($profile['is_premium'] ?? 0) === 1 && !empty($block['card_tag_text'])): ?>
                                                     <div style="margin-bottom: 0.4rem;">
                                                         <span class="profile-card-tag" style="margin-left: 0; background-color: <?php echo profile_h($block['card_tag_bg'] ?: 'rgba(255,255,255,0.1)'); ?>; color: <?php echo profile_h($block['card_tag_color'] ?: '#ffffff'); ?>;">
                                                             <?php echo profile_h($block['card_tag_text']); ?>
                                                         </span>
                                                     </div>
                                                 <?php endif; ?>
-                                                
-                                                <div class="profile-block-custom-content">
-                                                    <?php if ($blockType === 'html'): ?>
-                                                        <?php echo $block['body']; ?>
-                                                    <?php else: ?>
-                                                        <?php echo profile_markdown_to_html($block['body']); ?>
-                                                    <?php endif; ?>
-                                                </div>
-                                                
+                                                <?php if (!empty($block['body'])): ?>
+                                                    <div class="profile-block-custom-content">
+                                                        <?php if ($blockType === 'html' && (int)($profile['is_premium'] ?? 0) === 1): ?>
+                                                            <?php echo $block['body']; ?>
+                                                        <?php elseif ($blockType === 'markdown' && (int)($profile['is_premium'] ?? 0) === 1): ?>
+                                                            <?php echo profile_markdown_to_html($block['body']); ?>
+                                                        <?php else: ?>
+                                                            <p><?php echo nl2br(profile_h($block['body'])); ?></p>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                <?php endif; ?>
                                                 <?php if ($isPinned): ?><small>Pin</small><?php endif; ?>
                                             </div>
-                                        <?php else: ?>
-                                            <?php if ($mediaUrl && in_array($blockType, ['image', 'gif'], true)): ?>
-                                                <img src="<?php echo profile_h($mediaUrl); ?>" alt="" loading="lazy">
-                                            <?php elseif ($mediaUrl && $blockType === 'video'): ?>
-                                                <video src="<?php echo profile_h($mediaUrl); ?>" controls playsinline preload="metadata"></video>
-                                            <?php endif; ?>
-                                            <?php if (!empty($block['title']) || !empty($block['body']) || $isPinned || (!empty($block['card_tag_text']) && (int)($profile['is_premium'] ?? 0) === 1)): ?>
-                                                <div class="profile-block-copy">
-                                                    <?php if (!empty($block['title'])): ?>
-                                                        <strong>
-                                                            <?php echo profile_h($block['title']); ?>
-                                                            <?php if ((int)($profile['is_premium'] ?? 0) === 1 && !empty($block['card_tag_text'])): ?>
-                                                                <span class="profile-card-tag" style="background-color: <?php echo profile_h($block['card_tag_bg'] ?: 'rgba(255,255,255,0.1)'); ?>; color: <?php echo profile_h($block['card_tag_color'] ?: '#ffffff'); ?>;">
-                                                                    <?php echo profile_h($block['card_tag_text']); ?>
-                                                                </span>
-                                                            <?php endif; ?>
-                                                        </strong>
-                                                    <?php elseif ((int)($profile['is_premium'] ?? 0) === 1 && !empty($block['card_tag_text'])): ?>
-                                                        <div style="margin-bottom: 0.4rem;">
-                                                            <span class="profile-card-tag" style="margin-left: 0; background-color: <?php echo profile_h($block['card_tag_bg'] ?: 'rgba(255,255,255,0.1)'); ?>; color: <?php echo profile_h($block['card_tag_color'] ?: '#ffffff'); ?>;">
-                                                                <?php echo profile_h($block['card_tag_text']); ?>
-                                                            </span>
-                                                        </div>
-                                                    <?php endif; ?>
-                                                    <?php if (!empty($block['body'])): ?><p><?php echo nl2br(profile_h($block['body'])); ?></p><?php endif; ?>
-                                                    <?php if ($isPinned): ?><small>Pin</small><?php endif; ?>
-                                                </div>
-                                            <?php endif; ?>
                                         <?php endif; ?>
                                     </article>
                                 <?php endforeach; ?>

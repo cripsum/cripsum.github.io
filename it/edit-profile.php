@@ -103,8 +103,8 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Modifica profilo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=5.2.2">
-    <link rel="stylesheet" href="/assets/css/editor-premium.css?v=5.2.2">
+    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=5.2.3">
+    <link rel="stylesheet" href="/assets/css/editor-premium.css?v=5.2.3">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Inter:wght@300..900&family=Roboto:wght@300..900&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Fira+Code:wght@300..700&family=PT+Mono&family=Cinzel:wght@400..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Bebas+Neue&family=Press+Start+2P&family=Bungee&family=Permanent+Marker&family=Creepster&family=Shojumaru&display=swap" rel="stylesheet">
@@ -112,8 +112,8 @@ function profile_json_script(string $id, array $data): void
     <script>
         window.isPremiumUser = <?php echo (int)($profile['is_premium'] ?? 0) === 1 ? 'true' : 'false'; ?>;
     </script>
-    <script src="/assets/js/profile.js?v=5.2.2" defer></script>
-    <script src="/assets/js/edit-profile.js?v=5.2.2" defer></script>
+    <script src="/assets/js/profile.js?v=5.2.3" defer></script>
+    <script src="/assets/js/edit-profile.js?v=5.2.3" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-effect="<?php echo profile_h($profile['profile_effect'] ?? 'none'); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" data-avatar-shape="<?php echo profile_h($avatarShape); ?>" data-avatar-border="<?php echo $avatarBorder; ?>" style="--accent: <?php echo profile_h($accent); ?>; --accent-rgb: <?php echo $accentRgbComma; ?>; --profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
@@ -239,13 +239,7 @@ function profile_json_script(string $id, array $data): void
 
                             <label class="profile-field"><span>Privacy profilo</span><select name="profile_visibility" id="visibilityInput"><?php foreach (['public' => 'Pubblico', 'logged_in' => 'Solo utenti loggati', 'private' => 'Privato'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_visibility'] ?? 'public') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
 
-                            <div class="bio-section-heading profile-mt" style="border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 1.5rem;">
-                                <div><span><i class="fa-solid fa-tags"></i> Tag / Pills Personalizzate</span>
-                                    <p>Aggiungi pillole colorate sotto la tua biografia (max 10).</p>
-                                </div>
-                                <button type="button" class="bio-button" data-add-row="tags">+ Aggiungi Tag</button>
-                            </div>
-                            <div class="profile-repeater" id="tagsRepeater"></div>
+
 
                             <div class="bio-section-heading profile-mt">
                                 <div><span><i class="fa-solid fa-music"></i> Audio profilo</span>
@@ -273,6 +267,32 @@ function profile_json_script(string $id, array $data): void
                                 <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_click_to_enter" value="0"><input type="checkbox" name="profile_click_to_enter" value="1" <?php echo (int)($profile['profile_click_to_enter'] ?? 0) === 1 ? 'checked' : ''; ?> id="clickToEnterInput"><span><i class="fa-solid fa-hand-pointer"></i>Abilita Click to Enter</span></label>
                                 <label class="profile-field"><span>Testo bottone d'ingresso</span><input type="text" name="profile_enter_text" id="enterTextInput" maxlength="80" value="<?php echo profile_h($profile['profile_enter_text'] ?? ''); ?>" placeholder="Es. Click to Enter / Entra"></label>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Section: Tag -->
+                    <div class="profile-edit-section editor-card" data-edit-section="tags" data-editor-category="profile">
+                        <div class="editor-card-header">
+                            <div class="editor-card-info">
+                                <span class="editor-card-icon"><i class="fa-solid fa-tags"></i></span>
+                                <div class="editor-card-text">
+                                    <h3>Tag / Pills Personalizzate</h3>
+                                    <p>Aggiungi pillole colorate sotto la tua biografia (max 10)</p>
+                                </div>
+                            </div>
+                            <div class="editor-card-actions">
+                                <span class="editor-status-badge is-active">Pills</span>
+                                <span class="editor-card-chevron"><i class="fa-solid fa-chevron-down"></i></span>
+                            </div>
+                        </div>
+                        <div class="editor-card-body">
+                            <div class="bio-section-heading">
+                                <div><span><i class="fa-solid fa-tags"></i> Gestione Tag</span>
+                                    <p>Aggiungi pillole colorate sotto la tua biografia (max 10).</p>
+                                </div>
+                                <button type="button" class="bio-button" data-add-row="tags">+ Aggiungi Tag</button>
+                            </div>
+                            <div class="profile-repeater" id="tagsRepeater"></div>
                         </div>
                     </div>
 
@@ -412,13 +432,41 @@ function profile_json_script(string $id, array $data): void
                                 <label class="profile-field"><span>Accent principale</span><input type="color" name="accent_color" id="accentInput" value="<?php echo profile_h($accent); ?>"></label>
                                 <label class="profile-field"><span>Accent secondario</span><input type="color" name="profile_secondary_color" id="secondaryColorInput" value="<?php echo profile_h($secondaryColor); ?>"></label>
                                 <label class="profile-field"><span>Tema</span><select name="profile_theme" id="themeInput"><?php foreach (['dark' => 'Scuro', 'light' => 'Chiaro', 'auto' => 'Auto'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_theme'] ?? 'dark') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
-                                <label class="profile-field"><span>Layout</span><select name="profile_layout" id="layoutInput"><?php $currentLayout = ['left-tabs' => 'standard', 'right-tabs' => 'showcase', 'stacked' => 'clean', 'center-split' => 'compact'][$profile['profile_layout'] ?? 'standard'] ?? ($profile['profile_layout'] ?? 'standard');
-                                                                                                                                foreach (['standard' => 'Standard default', 'compact' => 'Profilo centrale, contenuti ai lati', 'showcase' => 'Profilo destra, tab sinistra', 'clean' => 'Tutto centrale in colonna'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo $currentLayout === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
+                                <label class="profile-field"><span>Layout</span>
+                                    <select id="layoutInput">
+                                        <?php 
+                                        $currentLayoutVal = ($profile['profile_layout'] ?? 'standard');
+                                        $currentLayoutMapped = ['left-tabs' => 'standard', 'right-tabs' => 'showcase', 'stacked' => 'clean', 'center-split' => 'compact'][$currentLayoutVal] ?? $currentLayoutVal;
+                                        if ((int)($profile['profile_layout_snap'] ?? 0) === 1) {
+                                            $currentLayoutMapped = 'scrollsnap';
+                                        }
+                                        
+                                        $layoutOptions = [
+                                            'standard' => 'Standard default',
+                                            'compact' => 'Profilo centrale, contenuti ai lati',
+                                            'showcase' => 'Profilo destra, tab sinistra',
+                                            'clean' => 'Tutto centrale in colonna',
+                                            'scrollsnap' => 'Layout a scorrimento verticale (Scroll Snap) [Premium]'
+                                        ];
+                                        foreach ($layoutOptions as $val => $lbl) {
+                                            $selectedStr = ($currentLayoutMapped === $val) ? 'selected' : '';
+                                            echo "<option value=\"$val\" $selectedStr>$lbl</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                    <input type="hidden" name="profile_layout" id="profileLayoutHidden" value="<?php echo profile_h($profile['profile_layout'] ?? 'standard'); ?>">
+                                    <input type="hidden" name="profile_layout_snap" id="profileLayoutSnapHidden" value="<?php echo (int)($profile['profile_layout_snap'] ?? 0); ?>">
+                                </label>
+                                <label class="profile-field"><span>Stile del player musicale <span class="premium-badge-tag"><i class="fa-solid fa-crown"></i> Premium</span></span><select name="profile_music_theme" id="musicThemeInput">
+                                        <option value="default" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'default' ? 'selected' : ''; ?>>Default</option>
+                                        <option value="retro" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'retro' ? 'selected' : ''; ?>>Compatto (Riga)</option>
+                                        <option value="cyberpunk" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'cyberpunk' ? 'selected' : ''; ?>>Pillola Centrata</option>
+                                        <option value="synthwave" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'synthwave' ? 'selected' : ''; ?>>Vinyl Player (Disco)</option>
+                                    </select></label>
                                 <label class="profile-field"><span>Colore card</span><input type="color" name="profile_card_color" id="cardColorInput" value="<?php echo profile_h($cardColor ?: '#080c18'); ?>"><small>Lascia default per vetro trasparente.</small></label>
                                 <label class="profile-field"><span>Colore testo</span><input type="color" name="profile_text_color" id="textColorInput" value="<?php echo profile_h($textColor ?: ($theme === 'light' ? '#111827' : '#f7f8ff')); ?>"></label>
                                 <label class="profile-field"><span>Stile link</span><select name="profile_link_style" id="linkStyleInput"><?php foreach (['glass' => 'Glass', 'solid' => 'Pieno', 'outline' => 'Outline', 'neon' => 'Neon'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo $linkStyle === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
                                 <label class="profile-field"><span>Forma bottoni</span><select name="profile_button_shape" id="buttonShapeInput"><?php foreach (['pill' => 'Pill', 'rounded' => 'Rounded', 'sharp' => 'Squadrato'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo $buttonShape === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
-                                <label class="profile-field"><span>Stile Social</span><select name="profile_socials_style" id="socialsStyleInput"><?php foreach (['cards' => 'Card grandi (2x riga)', 'icons' => 'Solo icone clean'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_socials_style'] ?? 'cards') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
                             </div>
 
                             <div class="bio-section-heading profile-mt">
@@ -841,13 +889,6 @@ function profile_json_script(string $id, array $data): void
                                         <option value="trail" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'trail' ? 'selected' : ''; ?>>Scia particelle (Trail)</option>
                                     </select></label>
 
-                                <label class="profile-field"><span>Stile del player musicale <span class="premium-badge-tag"><i class="fa-solid fa-crown"></i> Premium</span></span><select name="profile_music_theme" id="musicThemeInput">
-                                        <option value="default" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'default' ? 'selected' : ''; ?>>Default</option>
-                                        <option value="retro" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'retro' ? 'selected' : ''; ?>>Compatto (Riga)</option>
-                                        <option value="cyberpunk" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'cyberpunk' ? 'selected' : ''; ?>>Pillola Centrata</option>
-                                        <option value="synthwave" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'synthwave' ? 'selected' : ''; ?>>Vinyl Player (Disco)</option>
-                                    </select></label>
-
                                 <label class="profile-field"><span>Cursore Personalizzato (Immagine) <span class="premium-badge-tag"><i class="fa-solid fa-crown"></i> Premium</span></span>
                                     <div class="input-with-upload">
                                         <input type="text" name="profile_cursor_custom_url" id="cursorCustomUrlInput" value="<?php echo profile_h($profile['profile_cursor_custom_url'] ?? ''); ?>" placeholder="/uploads/... o url">
@@ -856,7 +897,6 @@ function profile_json_script(string $id, array $data): void
                                 </label>
                             </div>
 
-                            <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_layout_snap" value="0"><input type="checkbox" name="profile_layout_snap" id="layoutSnapInput" value="1" <?php echo (int)($profile['profile_layout_snap'] ?? 0) === 1 ? 'checked' : ''; ?>><span><i class="fa-solid fa-arrows-to-dot"></i>Layout Scroll Snap A Tutto Schermo <span class="premium-badge-tag"><i class="fa-solid fa-crown"></i> Premium</span></span></label>
                             <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_bg_grain" value="0"><input type="checkbox" name="profile_bg_grain" id="bgGrainInput" value="1" <?php echo (int)($profile['profile_bg_grain'] ?? 0) === 1 ? 'checked' : ''; ?>><span><i class="fa-solid fa-circle-nodes"></i>Effetto Disturbo/Grana sullo sfondo <span class="premium-badge-tag"><i class="fa-solid fa-crown"></i> Premium</span></span></label>
 
                             <div class="bio-section-heading" style="margin-top: 1.8rem; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 1.5rem;">
@@ -964,40 +1004,11 @@ function profile_json_script(string $id, array $data): void
                                 </label>
                             </div>
 
-                            <div class="bio-section-heading" style="margin-top: 1.8rem; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 1.5rem;">
-                                <div><span><i class="fa-solid fa-window-maximize"></i> Titolo Scheda Browser (Tab)</span>
-                                    <p>Personalizza il titolo del browser e aggiungi effetti di animazione.</p>
-                                </div>
-                            </div>
-                            <div class="profile-field-grid two">
-                                <label class="profile-field"><span>Titolo personalizzato</span>
-                                    <input type="text" name="profile_tab_title" id="profileTabTitleInput" maxlength="80" value="<?php echo profile_h($profile['profile_tab_title'] ?? ''); ?>" placeholder="Lascia vuoto per usare il nome utente">
-                                </label>
-                                <label class="profile-field"><span>Animazione Titolo</span>
-                                    <select name="profile_tab_animation" id="profileTabAnimationInput">
-                                        <option value="static" <?php echo ($profile['profile_tab_animation'] ?? 'static') === 'static' ? 'selected' : ''; ?>>Statico</option>
-                                        <option value="marquee" <?php echo ($profile['profile_tab_animation'] ?? 'static') === 'marquee' ? 'selected' : ''; ?>>Scorrimento (Marquee)</option>
-                                        <option value="bounce" <?php echo ($profile['profile_tab_animation'] ?? 'static') === 'bounce' ? 'selected' : ''; ?>>Rimbalzo (Bounce)</option>
-                                        <option value="pulse" <?php echo ($profile['profile_tab_animation'] ?? 'static') === 'pulse' ? 'selected' : ''; ?>>Pulsante (Pulse)</option>
-                                    </select>
-                                </label>
-                            </div>
-                            <div class="profile-field-grid two" style="margin-top: 1rem;">
-                                <label class="profile-field"><span>Testo animato / Alternativo</span>
-                                    <input type="text" name="profile_tab_animation_text" id="profileTabAnimationTextInput" maxlength="120" value="<?php echo profile_h($profile['profile_tab_animation_text'] ?? ''); ?>" placeholder="Es. ★ Benvenuto ★">
-                                    <small>Usato come testo secondario per l'effetto marquee o per l'alternanza pulse.</small>
-                                </label>
-                                <label class="profile-field"><span>Velocità animazione (ms) (<span id="profileTabSpeedVal"><?php echo (int)($profile['profile_tab_animation_speed'] ?? 1000); ?></span>ms)</span>
-                                    <div style="display: flex; align-items: center; gap: 10px;">
-                                        <input type="range" name="profile_tab_animation_speed" id="profileTabAnimationSpeedInput" min="200" max="5000" step="100" value="<?php echo (int)($profile['profile_tab_animation_speed'] ?? 1000); ?>" style="flex: 1;">
-                                    </div>
-                                </label>
-                            </div>
                         </div>
                     </div>
 
                     <!-- Section 10: Badge -->
-                    <div class="profile-edit-section editor-card" data-edit-section="badges" data-editor-category="design">
+                    <div class="profile-edit-section editor-card" data-edit-section="badges" data-editor-category="profile">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
                                 <span class="editor-card-icon"><i class="fa-solid fa-trophy"></i></span>
@@ -1108,6 +1119,54 @@ function profile_json_script(string $id, array $data): void
                                     <p>Ottieni personaggi dalle lootbox per mostrarli qui.</p>
                                 </div>
                             <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <!-- Section: Titolo Scheda Browser -->
+                    <div class="profile-edit-section editor-card" data-edit-section="tab-title" data-editor-category="advanced">
+                        <div class="editor-card-header">
+                            <div class="editor-card-info">
+                                <span class="editor-card-icon"><i class="fa-solid fa-window-maximize"></i></span>
+                                <div class="editor-card-text">
+                                    <h3>Titolo Scheda Browser (Tab)</h3>
+                                    <p>Titolo del browser ed effetti di animazione per la scheda</p>
+                                </div>
+                            </div>
+                            <div class="editor-card-actions">
+                                <span class="editor-status-badge is-active">Configurato</span>
+                                <span class="editor-card-chevron"><i class="fa-solid fa-chevron-down"></i></span>
+                            </div>
+                        </div>
+                        <div class="editor-card-body">
+                            <div class="bio-section-heading">
+                                <div><span><i class="fa-solid fa-window-maximize"></i> Titolo Scheda Browser</span>
+                                    <p>Personalizza il titolo del browser e aggiungi effetti di animazione.</p>
+                                </div>
+                            </div>
+                            <div class="profile-field-grid two">
+                                <label class="profile-field"><span>Titolo personalizzato</span>
+                                    <input type="text" name="profile_tab_title" id="profileTabTitleInput" maxlength="80" value="<?php echo profile_h($profile['profile_tab_title'] ?? ''); ?>" placeholder="Lascia vuoto per usare il nome utente">
+                                </label>
+                                <label class="profile-field"><span>Animazione Titolo</span>
+                                    <select name="profile_tab_animation" id="profileTabAnimationInput">
+                                        <option value="static" <?php echo ($profile['profile_tab_animation'] ?? 'static') === 'static' ? 'selected' : ''; ?>>Statico</option>
+                                        <option value="marquee" <?php echo ($profile['profile_tab_animation'] ?? 'static') === 'marquee' ? 'selected' : ''; ?>>Scorrimento (Marquee)</option>
+                                        <option value="bounce" <?php echo ($profile['profile_tab_animation'] ?? 'static') === 'bounce' ? 'selected' : ''; ?>>Rimbalzo (Bounce)</option>
+                                        <option value="pulse" <?php echo ($profile['profile_tab_animation'] ?? 'static') === 'pulse' ? 'selected' : ''; ?>>Pulsante (Pulse)</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div class="profile-field-grid two" style="margin-top: 1rem;">
+                                <label class="profile-field"><span>Testo animato / Alternativo</span>
+                                    <input type="text" name="profile_tab_animation_text" id="profileTabAnimationTextInput" maxlength="120" value="<?php echo profile_h($profile['profile_tab_animation_text'] ?? ''); ?>" placeholder="Es. ★ Benvenuto ★">
+                                    <small>Usato come testo secondario per l'effetto marquee o per l'alternanza pulse.</small>
+                                </label>
+                                <label class="profile-field"><span>Velocità animazione (ms) (<span id="profileTabSpeedVal"><?php echo (int)($profile['profile_tab_animation_speed'] ?? 1000); ?></span>ms)</span>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="range" name="profile_tab_animation_speed" id="profileTabAnimationSpeedInput" min="200" max="5000" step="100" value="<?php echo (int)($profile['profile_tab_animation_speed'] ?? 1000); ?>" style="flex: 1;">
+                                    </div>
+                                </label>
+                            </div>
                         </div>
                     </div>
 

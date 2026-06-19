@@ -190,33 +190,71 @@
         }
 
         if (type === 'blocks') {
+            const isEng = isEnglish;
+            const isPrem = window.isPremiumUser;
+            const textFormatsOptions = isEng
+                ? [['text', 'Plain Text'], ['markdown', 'Markdown (Premium)'], ['html', 'HTML (Premium)']]
+                : [['text', 'Testo Semplice'], ['markdown', 'Markdown (Premium)'], ['html', 'HTML (Premium)']];
+
+            let blockTypeVal = data.block_type || 'text';
+            let mediaTypeVal = 'none';
+            
+            if (['image', 'gif'].includes(blockTypeVal)) {
+                blockTypeVal = 'text';
+                mediaTypeVal = 'image';
+            } else if (blockTypeVal === 'video') {
+                blockTypeVal = 'text';
+                mediaTypeVal = 'video';
+            } else if (data.media_url) {
+                mediaTypeVal = data.media_type === 'video' ? 'video' : 'image';
+            }
+
             body = `
                 <div class="profile-row-grid">
-                    <label>${isEnglish ? 'Type' : 'Tipo'}<select data-field="block_type">${options(blockTypes, data.block_type || 'text')}</select></label>
-                    <label>${isEnglish ? 'Title' : 'Titolo'}<input data-field="title" maxlength="80" value="${escapeAttr(data.title || '')}" placeholder="Titolo del post"></label>
-                    <label class="profile-row-grid full">${isEnglish ? 'Text' : 'Testo'}<textarea data-field="body" maxlength="${window.isPremiumUser ? 5000 : 700}" placeholder="Testo breve, nota, descrizione o quote">${escapeAttr(data.body || '')}</textarea></label>
-                    <label class="profile-field-upload-wrapper">${isEnglish ? 'Media URL' : 'Media URL'}
+                    <label>${isEng ? 'Text Format' : 'Formato Testo'}
+                        <select data-field="block_type" class="block-type-select">
+                            ${options(textFormatsOptions, blockTypeVal)}
+                        </select>
+                    </label>
+                    <label>${isEng ? 'Optional Media' : 'Media Opzionale'}
+                        <select class="media-type-ui-select">
+                            <option value="none" ${mediaTypeVal === 'none' ? 'selected' : ''}>${isEng ? 'None' : 'Nessuno'}</option>
+                            <option value="image" ${mediaTypeVal === 'image' ? 'selected' : ''}>${isEng ? 'Image / GIF' : 'Immagine / GIF'}</option>
+                            <option value="video" ${mediaTypeVal === 'video' ? 'selected' : ''}>${isEng ? 'Video' : 'Video'}</option>
+                        </select>
+                    </label>
+                    <label class="profile-row-grid full">${isEng ? 'Title' : 'Titolo'}<input data-field="title" maxlength="80" value="${escapeAttr(data.title || '')}" placeholder="${isEng ? 'Block Title' : 'Titolo del blocco'}"></label>
+                    
+                    <label class="profile-field-upload-wrapper block-media-url-container full" style="display: ${mediaTypeVal === 'none' ? 'none' : 'block'};">${isEng ? 'Media URL / Upload' : 'Media URL / Carica'}
                         <div class="input-with-upload">
-                            <input data-field="media_url" value="${escapeAttr(data.media_url || '')}" placeholder="https://... o carica">
-                            <button type="button" class="btn-row-media-upload" data-upload-target="media_url" ${window.isPremiumUser ? '' : 'disabled'}><i class="fa-solid fa-upload"></i></button>
+                            <input data-field="media_url" value="${escapeAttr(data.media_url || '')}" placeholder="${isEng ? 'E.g. /uploads/image.png or URL' : 'Es. /uploads/immagine.png o URL'}">
+                            <button type="button" class="btn-row-media-upload" data-upload-target="media_url" ${isPrem ? '' : 'disabled'}><i class="fa-solid fa-upload"></i></button>
                         </div>
                     </label>
-                    <label>${isEnglish ? 'Media type' : 'Media type'}<select data-field="media_type">${options(blockTypes, data.media_type || data.block_type || 'image')}</select></label>
+
+                    <label class="profile-row-grid full">${isEng ? 'Block Text' : 'Testo del Blocco'}
+                        <textarea data-field="body" class="block-body-textarea" maxlength="${isPrem ? 5000 : 700}" placeholder="${isEng ? 'Write text or code here...' : 'Scrivi il testo o il codice qui...'}">${escapeAttr(data.body || '')}</textarea>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 0.75rem; color: var(--muted-2);">
+                            <span class="block-body-hint"></span>
+                            <span class="block-body-counter">0 / ${isPrem ? 5000 : 700}</span>
+                        </div>
+                    </label>
+                    
                     <div style="display: flex; gap: 1.5rem; grid-column: 1 / -1; flex-wrap: wrap; margin-top: 5px;">
                         <label class="profile-check-line" style="margin: 0;"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> Pin</label>
-                        <label class="profile-check-line" style="margin: 0;"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> ${isEnglish ? 'Visible' : 'Visibile'}</label>
-                        ${window.isPremiumUser ? `
-                        <label class="profile-check-line" style="margin: 0;"><input type="checkbox" data-field="no_card_style" ${boolAttr(data.no_card_style)}> <span style="color: var(--accent); font-weight: 600;"><i class="fa-solid fa-crown"></i> ${isEnglish ? 'No background & border' : 'Rimuovi sfondo e bordo'}</span></label>
+                        <label class="profile-check-line" style="margin: 0;"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> ${isEng ? 'Visible' : 'Visibile'}</label>
+                        ${isPrem ? `
+                        <label class="profile-check-line" style="margin: 0;"><input type="checkbox" data-field="no_card_style" ${boolAttr(data.no_card_style)}> <span style="color: var(--accent); font-weight: 600;"><i class="fa-solid fa-crown"></i> ${isEng ? 'No background & border' : 'Rimuovi sfondo e bordo'}</span></label>
                         ` : ''}
                     </div>
                     <div class="row-card-tag-section full">
                         <div class="row-card-tag-header">
-                            <span class="premium-badge-mini"><i class="fa-solid fa-crown"></i> ${isEnglish ? 'Premium Card Tag' : 'Tag Card Premium'}</span>
+                            <span class="premium-badge-mini"><i class="fa-solid fa-crown"></i> ${isEng ? 'Premium Card Tag' : 'Tag Card Premium'}</span>
                         </div>
                         <div class="row-card-tag-grid">
-                            <label>${isEnglish ? 'Tag Text' : 'Testo Tag'}<input data-field="card_tag_text" maxlength="30" value="${escapeAttr(data.card_tag_text || '')}" placeholder="NEW" ${window.isPremiumUser ? '' : 'disabled'}></label>
-                            <label>${isEnglish ? 'Bg Color' : 'Colore Bg'}<input type="color" data-field="card_tag_bg" value="${escapeAttr(data.card_tag_bg || '#ef4444')}" ${window.isPremiumUser ? '' : 'disabled'}></label>
-                            <label>${isEnglish ? 'Text Color' : 'Colore Testo'}<input type="color" data-field="card_tag_color" value="${escapeAttr(data.card_tag_color || '#ffffff')}" ${window.isPremiumUser ? '' : 'disabled'}></label>
+                            <label>${isEng ? 'Tag Text' : 'Testo Tag'}<input data-field="card_tag_text" maxlength="30" value="${escapeAttr(data.card_tag_text || '')}" placeholder="NEW" ${isPrem ? '' : 'disabled'}></label>
+                            <label>${isEng ? 'Bg Color' : 'Colore Bg'}<input type="color" data-field="card_tag_bg" value="${escapeAttr(data.card_tag_bg || '#ef4444')}" ${isPrem ? '' : 'disabled'}></label>
+                            <label>${isEng ? 'Text Color' : 'Colore Testo'}<input type="color" data-field="card_tag_color" value="${escapeAttr(data.card_tag_color || '#ffffff')}" ${isPrem ? '' : 'disabled'}></label>
                         </div>
                     </div>
                 </div>`;
@@ -312,21 +350,73 @@
 
         if (type === 'blocks') {
             setTimeout(() => {
-                const blockTypeSelect = row.querySelector('[data-field="block_type"]');
-                const mediaUrlWrapper = row.querySelector('.profile-field-upload-wrapper');
-                const mediaTypeWrapper = mediaUrlWrapper ? mediaUrlWrapper.nextElementSibling : null;
+                const blockTypeSelect = row.querySelector('.block-type-select');
+                const mediaSelect = row.querySelector('.media-type-ui-select');
+                const mediaUrlContainer = row.querySelector('.block-media-url-container');
+                const mediaUrlInput = row.querySelector('[data-field="media_url"]');
+                const bodyTextarea = row.querySelector('.block-body-textarea');
+                const bodyHint = row.querySelector('.block-body-hint');
+                const bodyCounter = row.querySelector('.block-body-counter');
 
                 function toggleMediaFields() {
-                    const val = blockTypeSelect.value;
-                    const hide = ['text', 'markdown', 'html'].includes(val);
-                    if (mediaUrlWrapper) mediaUrlWrapper.style.display = hide ? 'none' : 'block';
-                    if (mediaTypeWrapper) mediaTypeWrapper.style.display = hide ? 'none' : 'block';
+                    if (mediaSelect && mediaUrlContainer) {
+                        const isNone = mediaSelect.value === 'none';
+                        mediaUrlContainer.style.display = isNone ? 'none' : 'block';
+                    }
+                }
+
+                function updateHintAndCounter() {
+                    if (blockTypeSelect && bodyHint) {
+                        const val = blockTypeSelect.value;
+                        let hint = '';
+                        if (val === 'text') {
+                            hint = isEnglish ? 'Plain text. No formatting allowed.' : 'Testo semplice. Nessuna formattazione consentita.';
+                        } else if (val === 'markdown') {
+                            hint = isEnglish ? 'Supports Markdown formatting (e.g. **bold**, *italic*, [link](url)).' : 'Supporta la formattazione Markdown (es. **grassetto**, *corsivo*, [link](url)).';
+                        } else if (val === 'html') {
+                            hint = isEnglish ? 'Supports custom HTML code.' : 'Supporta codice HTML personalizzato.';
+                        }
+                        bodyHint.textContent = hint;
+                    }
+                    if (bodyTextarea && bodyCounter) {
+                        const currentLen = bodyTextarea.value.length;
+                        const maxLen = window.isPremiumUser ? 5000 : 700;
+                        bodyCounter.textContent = `${currentLen} / ${maxLen}`;
+                    }
+                }
+
+                if (mediaSelect) {
+                    mediaSelect.addEventListener('change', () => {
+                        toggleMediaFields();
+                        updatePreview();
+                        triggerAutosave(true);
+                    });
+                    toggleMediaFields();
                 }
 
                 if (blockTypeSelect) {
-                    blockTypeSelect.addEventListener('change', toggleMediaFields);
-                    toggleMediaFields();
+                    blockTypeSelect.addEventListener('change', () => {
+                        const val = blockTypeSelect.value;
+                        if (['markdown', 'html'].includes(val) && !window.isPremiumUser) {
+                            if (typeof window.profileToast === 'function') {
+                                window.profileToast(isEnglish ? 'Markdown and HTML formats require a Premium account.' : 'I formati Markdown e HTML richiedono un account Premium.');
+                            }
+                            const planOverlay = document.getElementById('onboardingPlanOverlay');
+                            if (planOverlay) planOverlay.classList.add('is-active');
+                            blockTypeSelect.value = 'text';
+                            refreshProfileCustomSelects();
+                        }
+                        updateHintAndCounter();
+                        updatePreview();
+                        triggerAutosave(true);
+                    });
                 }
+
+                if (bodyTextarea) {
+                    bodyTextarea.addEventListener('input', updateHintAndCounter);
+                }
+
+                updateHintAndCounter();
             }, 0);
         }
 
@@ -394,6 +484,18 @@
             if (type === 'embeds' && !obj.url) return null;
             if (type === 'projects' && !obj.title) return null;
             if (type === 'contents' && !obj.title) return null;
+            if (type === 'blocks') {
+                const mediaSelect = row.querySelector('.media-type-ui-select');
+                if (mediaSelect) {
+                    if (mediaSelect.value === 'none') {
+                        obj['media_type'] = 'text';
+                        obj['media_url'] = '';
+                    } else {
+                        obj['media_type'] = mediaSelect.value;
+                    }
+                }
+            }
+
             if (type === 'blocks' && !obj.title && !obj.body && !obj.media_url) return null;
             if (type === 'tags' && !obj.text) return null;
 
@@ -500,7 +602,8 @@
     const cursorEffectInput = $('#cursorEffectInput');
     const musicThemeInput = $('#musicThemeInput');
     const cursorCustomUrlInput = $('#cursorCustomUrlInput');
-    const layoutSnapInput = $('#layoutSnapInput');
+    const profileLayoutHidden = $('#profileLayoutHidden');
+    const profileLayoutSnapHidden = $('#profileLayoutSnapHidden');
     const bgGrainInput = $('#bgGrainInput');
 
     const borderRadiusVal = $('#borderRadiusVal');
@@ -710,7 +813,7 @@
         if (linkStyleInput) attributes['data-profile-link-style'] = linkStyleInput.value;
         if (buttonShapeInput) attributes['data-profile-button-shape'] = buttonShapeInput.value;
         if (profileEffectInput) attributes['data-profile-effect'] = profileEffectInput.value;
-        if (layoutInput) attributes['data-profile-layout'] = layoutInput.value;
+        if (profileLayoutHidden) attributes['data-profile-layout'] = profileLayoutHidden.value;
         if (borderStyleInput) attributes['data-profile-border-style'] = borderStyleInput.value;
         if (socialsStyleInput) attributes['data-profile-socials-style'] = socialsStyleInput.value;
         if (tiltEnabledInput) attributes['data-tilt-enabled'] = tiltEnabledInput.checked ? '1' : '0';
@@ -723,7 +826,7 @@
         if (cursorEffectInput) attributes['data-cursor-effect'] = window.isPremiumUser ? cursorEffectInput.value : 'none';
         if (musicThemeInput) attributes['data-music-theme'] = window.isPremiumUser ? musicThemeInput.value : 'default';
         if (cursorCustomUrlInput) attributes['data-cursor-custom-url'] = window.isPremiumUser ? cursorCustomUrlInput.value : '';
-        if (layoutSnapInput) attributes['data-layout-snap'] = (window.isPremiumUser && layoutSnapInput.checked) ? '1' : '0';
+        if (profileLayoutSnapHidden) attributes['data-layout-snap'] = (window.isPremiumUser && profileLayoutSnapHidden.value === '1') ? '1' : '0';
         if (bgGrainInput) attributes['data-bg-grain'] = (window.isPremiumUser && bgGrainInput.checked) ? '1' : '0';
 
         if (iframe && iframe.contentWindow) {
@@ -834,7 +937,7 @@
     }
 
     // Register simple inputs listeners for live updates and autosave
-    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, layoutInput, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput, musicUrlInput, musicTitleInput, musicArtistInput, showAudioPlayerInput, cornerStyleCustomInput, tiltMaxInput, tiltGlareInput, tiltZoomInput, tiltSpeedInput, profileTabAnimationSpeedInput, profileTabTitleInput, profileTabAnimationInput, profileTabAnimationTextInput, cornerStyleInput, borderStyleInput, discordServerInviteInput, removeMusicUploadInput, cursorEffectInput, musicThemeInput, cursorCustomUrlInput, layoutSnapInput, bgGrainInput].filter(Boolean);
+    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, profileLayoutHidden, profileLayoutSnapHidden, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput, musicUrlInput, musicTitleInput, musicArtistInput, showAudioPlayerInput, cornerStyleCustomInput, tiltMaxInput, tiltGlareInput, tiltZoomInput, tiltSpeedInput, profileTabAnimationSpeedInput, profileTabTitleInput, profileTabAnimationInput, profileTabAnimationTextInput, cornerStyleInput, borderStyleInput, discordServerInviteInput, removeMusicUploadInput, cursorEffectInput, musicThemeInput, cursorCustomUrlInput, bgGrainInput].filter(Boolean);
 
     simpleInputs.forEach((input) => {
         input.addEventListener('input', () => {
@@ -852,6 +955,56 @@
             pushHistoryState();
         });
     });
+
+    if (layoutInput) {
+        layoutInput.addEventListener('change', () => {
+            const val = layoutInput.value;
+            if (val === 'scrollsnap') {
+                if (!window.isPremiumUser) {
+                    if (typeof window.profileToast === 'function') {
+                        window.profileToast(isEnglish ? 'Scroll Snap layout requires a Premium account.' : 'Il layout Scroll Snap richiede un account Premium.');
+                    }
+                    const planOverlay = document.getElementById('onboardingPlanOverlay');
+                    if (planOverlay) planOverlay.classList.add('is-active');
+                    
+                    // Reset dropdown to what is in hidden fields
+                    const currentLayout = profileLayoutHidden ? profileLayoutHidden.value : 'standard';
+                    const currentSnap = profileLayoutSnapHidden ? parseInt(profileLayoutSnapHidden.value, 10) : 0;
+                    layoutInput.value = currentSnap === 1 ? 'scrollsnap' : currentLayout;
+                    refreshProfileCustomSelects();
+                    return;
+                }
+                if (profileLayoutHidden) profileLayoutHidden.value = 'standard';
+                if (profileLayoutSnapHidden) profileLayoutSnapHidden.value = '1';
+            } else {
+                if (profileLayoutHidden) profileLayoutHidden.value = val;
+                if (profileLayoutSnapHidden) profileLayoutSnapHidden.value = '0';
+            }
+            if (profileLayoutHidden) {
+                profileLayoutHidden.dispatchEvent(new Event('input', { bubbles: true }));
+                profileLayoutHidden.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+    }
+
+    const syncLayoutDropdownFromHidden = () => {
+        if (!layoutInput || !profileLayoutHidden || !profileLayoutSnapHidden) return;
+        if (profileLayoutSnapHidden.value === '1') {
+            layoutInput.value = 'scrollsnap';
+        } else {
+            layoutInput.value = profileLayoutHidden.value;
+        }
+        refreshProfileCustomSelects();
+    };
+
+    if (profileLayoutHidden) {
+        profileLayoutHidden.addEventListener('change', syncLayoutDropdownFromHidden);
+        profileLayoutHidden.addEventListener('input', syncLayoutDropdownFromHidden);
+    }
+    if (profileLayoutSnapHidden) {
+        profileLayoutSnapHidden.addEventListener('change', syncLayoutDropdownFromHidden);
+        profileLayoutSnapHidden.addEventListener('input', syncLayoutDropdownFromHidden);
+    }
 
     // Listen to changes on visibility checkboxes and display select menus
     $$('.profile-toggle-grid input[type="checkbox"], #badgesDisplayInput, #badgesPositionInput').forEach((input) => {

@@ -669,15 +669,21 @@ try {
         $maxLen = ($isPremium && in_array($type, ['markdown', 'html'], true)) ? 5000 : 700;
         $body = mb_substr($body, 0, $maxLen, 'UTF-8');
         $mediaUrl = trim((string)($row['media_url'] ?? ''));
-        $mediaType = profile_media_type_from_url($mediaUrl, $type === 'gif' ? 'gif' : ($type === 'video' ? 'video' : 'image'));
         $featured = !empty($row['is_featured']) ? 1 : 0;
         $visible = !empty($row['is_visible']) ? 1 : 0;
 
         if ($title === '' && $body === '' && $mediaUrl === '') continue;
-        if (!in_array($type, ['text', 'markdown', 'html'], true) && !profile_is_safe_url($mediaUrl, true)) {
-            throw new RuntimeException('Invalid media URL in custom block.');
-        }
-        if (in_array($type, ['text', 'markdown', 'html'], true)) {
+
+        if ($mediaUrl !== '') {
+            if (!profile_is_safe_url($mediaUrl, true)) {
+                throw new RuntimeException('Invalid media URL in custom block.');
+            }
+            if (isset($row['media_type']) && in_array($row['media_type'], ['image', 'gif', 'video'], true)) {
+                $mediaType = $row['media_type'];
+            } else {
+                $mediaType = profile_media_type_from_url($mediaUrl, $type === 'gif' ? 'gif' : ($type === 'video' ? 'video' : 'image'));
+            }
+        } else {
             $mediaUrl = null;
             $mediaType = 'text';
         }
