@@ -111,7 +111,7 @@ if ($isLoggedIn) {
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item"><a class="nav-link" href="/<?= $lang ?>/home"><i class="fa-solid fa-home me-2"></i>Home page</a></li>
                 <li class="nav-item dropdown dropdownutenti">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fa-solid fa-image me-2"></i><?= $t['memes'] ?></a>
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" data-bs-display="static"><i class="fa-solid fa-image me-2"></i><?= $t['memes'] ?></a>
                     <ul class="dropdown-menu animate slideIn">
                         <li><a class="dropdown-item" href="/<?= $lang ?>/shitpost"><i class="fa-solid fa-fire me-2"></i>Shitpost</a></li>
                         <li><a class="dropdown-item" href="/<?= $lang ?>/tiktokpedia"><i class="fa-brands fa-tiktok me-2"></i>TikTokPedia</a></li>
@@ -120,7 +120,7 @@ if ($isLoggedIn) {
                     </ul>
                 </li>
                 <li class="nav-item dropdown dropdownutenti">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fa-solid fa-gamepad me-2"></i><?= $t['games'] ?></a>
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" data-bs-display="static"><i class="fa-solid fa-gamepad me-2"></i><?= $t['games'] ?></a>
                     <ul class="dropdown-menu animate slideIn">
                         <li><a class="dropdown-item " href="/<?= $lang ?>/gambling"><i class="fa-solid fa-dice me-2"></i>Gambling</a></li>
                         <li><a class="dropdown-item " href="/<?= $lang ?>/lootbox"><i class="fa-solid fa-box-open me-2"></i>Lootbox</a></li>
@@ -128,14 +128,14 @@ if ($isLoggedIn) {
                     </ul>
                 </li>
                 <li class="nav-item dropdown dropdownutenti">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fa-solid fa-cart-shopping me-2"></i><?= $t['shop'] ?></a>
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" data-bs-display="static"><i class="fa-solid fa-cart-shopping me-2"></i><?= $t['shop'] ?></a>
                     <ul class="dropdown-menu animate slideIn">
                         <li><a class="dropdown-item" href="/<?= $lang ?>/negozio"><i class="fa-solid fa-store me-2"></i><?= $t['store'] ?></a></li>
                         <li><a class="dropdown-item" href="/<?= $lang ?>/merch"><i class="fa-solid fa-shirt me-2"></i>Merch</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown dropdownutenti">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fa-solid fa-ellipsis-h me-2"></i><?= $t['other'] ?></a>
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" data-bs-display="static"><i class="fa-solid fa-ellipsis-h me-2"></i><?= $t['other'] ?></a>
                     <ul class="dropdown-menu animate slideIn">
                         <li><a class="dropdown-item" href="/<?= $lang ?>/download"><i class="fa-solid fa-download me-2"></i>Downloads</a></li>
                         <li><a class="dropdown-item" href="/<?= $lang ?>/donazioni"><i class="fa-solid fa-heart me-2"></i><?= $t['donations'] ?></a></li>
@@ -185,7 +185,7 @@ if ($isLoggedIn) {
                     </li>
                 <?php else: ?>
                     <li class="nav-item dropdown dropdownutenti dropdownprofilo">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" data-bs-display="static">
                             <img src="<?php echo htmlspecialchars($profilePic); ?>&t=<?php echo time(); ?>" alt="<?= $t['my_profile_alt'] ?>"
                                 class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;">
                             <span><?php echo htmlspecialchars($username); ?></span>
