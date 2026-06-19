@@ -39,7 +39,7 @@ if (!isset($_SESSION['lineeGuidaChat'])) {
 
 $lineeGuidaChat = (int)($_SESSION['lineeGuidaChat'] ?? 0);
 $onlineCount = $lineeGuidaChat === 1 ? chat_get_online_count($mysqli) : 0;
-$initialMessages = $lineeGuidaChat === 1 ? chat_fetch_messages($mysqli, $userId, ['limit' => 40]) : [];
+$initialMessages = $lineeGuidaChat === 1 ? chat_fetch_messages($mysqli, $userId, ['limit' => 15]) : [];
 ?>
 <!DOCTYPE html>
 <html lang="en">

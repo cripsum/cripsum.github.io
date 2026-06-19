@@ -360,20 +360,22 @@
             return;
         }
 
-        let html = '';
+        let addedAny = false;
         clean.forEach((msg) => {
             const id = Number(msg.id);
             if (state.messages.has(id)) return;
             state.messages.set(id, msg);
             state.lastId = Math.max(state.lastId, id);
             state.firstId = state.firstId === 0 ? id : Math.min(state.firstId, id);
-            html += messageHtml(msg);
+            addedAny = true;
         });
-        if (!html) return;
+        if (!addedAny) return;
+
+        const allMessages = Array.from(state.messages.values()).sort((a, b) => Number(a.id) - Number(b.id));
 
         if (mode === 'append') {
             if (el.messages.querySelector('.chat-empty')) el.messages.innerHTML = '';
-            el.messages.insertAdjacentHTML('beforeend', html);
+            el.messages.innerHTML = addDaySeparators(allMessages);
 
             const isMessageMine = (m) => m.is_mine || (Number(m.user_id) === Number(cfg.userId));
             const newIncomingMessages = clean.filter((m) => !isMessageMine(m) && !String(m.id).startsWith('tmp-'));
@@ -393,7 +395,7 @@
 
         if (mode === 'prepend') {
             const oldHeight = el.messages.scrollHeight;
-            el.messages.insertAdjacentHTML('afterbegin', html);
+            el.messages.innerHTML = addDaySeparators(allMessages);
             el.messages.scrollTop += el.messages.scrollHeight - oldHeight;
         }
     };
@@ -421,8 +423,13 @@
             const initial = cfg.initialMessages;
             delete cfg.initialMessages;
             renderMessages(initial, 'replace');
-            if (el.loadOlder) el.loadOlder.hidden = initial.length < 40;
+            if (el.loadOlder) el.loadOlder.hidden = initial.length < 15;
             setSyncState('ok', 'Live');
+
+            // Load older messages in background silently after page loads
+            setTimeout(() => {
+                loadOlder();
+            }, 1000);
             return;
         }
 
@@ -432,12 +439,17 @@
             el.messages.innerHTML = '<div class="chat-loading"><span></span><span></span><span></span></div>';
         }
         try {
-            const url = `${cfg.endpoints.messages}?limit=40${state.search ? `&search=${encodeURIComponent(state.search)}` : ''}`;
+            const url = `${cfg.endpoints.messages}?limit=15${state.search ? `&search=${encodeURIComponent(state.search)}` : ''}`;
             const data = await api(url);
             renderMessages(data.messages || [], 'replace');
             updateStatus(data);
-            if (el.loadOlder) el.loadOlder.hidden = (data.messages || []).length < 40;
+            if (el.loadOlder) el.loadOlder.hidden = (data.messages || []).length < 15;
             setSyncState('ok', 'Live');
+
+            // Load older messages in background silently
+            setTimeout(() => {
+                loadOlder();
+            }, 1000);
         } catch (error) {
             if (el.messages) el.messages.innerHTML = `<div class="chat-empty"><div class="chat-empty-inner"><i class="fa-solid fa-triangle-exclamation"></i><strong>Errore chat</strong><p>${escapeHtml(error.message)}</p></div></div>`;
             setSyncState('error', 'Errore');

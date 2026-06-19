@@ -1120,6 +1120,7 @@ body {
     display: grid;
     gap: 0.45rem;
     margin: 0;
+    min-width: 280px;
     max-width: min(480px, 100%);
 }
 .chat-gif-message a {
@@ -1408,6 +1409,7 @@ body {
         overflow: hidden;
     }
     .chat-gif-message {
+        min-width: 220px;
         max-width: min(340px, 100%);
     }
     .chat-gif-message img {
@@ -1745,6 +1747,7 @@ body {
     }
 
     .chat-gif-message {
+        min-width: 220px;
         max-width: min(340px, 100%);
     }
 
