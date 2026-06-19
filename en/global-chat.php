@@ -47,7 +47,7 @@ $onlineCount = $lineeGuidaChat === 1 ? chat_get_online_count($mysqli) : 0;
     <?php include '../includes/head-import.php'; ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/css/chat-v2.css?v=2.5">
-    <script src="/js/chat-v2.js?v=2.4-mobile-hardfix" defer></script>
+    <script src="/js/chat-v2.js?v=2.5-notification-fix" defer></script>
     <title>Global Chat - Cripsum</title>
 </head>
 

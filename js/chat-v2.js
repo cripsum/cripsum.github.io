@@ -166,7 +166,17 @@
 
     const scrollToBottom = (behavior = 'smooth') => {
         if (!el.messages) return;
-        el.messages.scrollTo({ top: el.messages.scrollHeight, behavior });
+        if (behavior === 'auto') {
+            const originalScrollBehavior = el.messages.style.scrollBehavior;
+            el.messages.style.scrollBehavior = 'auto';
+            el.messages.scrollTop = el.messages.scrollHeight;
+            // Force layout reflow to apply scroll immediately
+            // eslint-disable-next-line no-unused-expressions
+            el.messages.offsetHeight;
+            el.messages.style.scrollBehavior = originalScrollBehavior;
+        } else {
+            el.messages.scrollTo({ top: el.messages.scrollHeight, behavior });
+        }
         state.unread = 0;
         updateFloatingButtons();
     };
@@ -317,13 +327,32 @@
                 state.firstId = state.firstId === 0 ? Number(msg.id) : Math.min(state.firstId, Number(msg.id));
             });
             el.messages.classList.add('is-rendering');
+            
+            // Set opacity to 0 and scroll-behavior to auto to prevent smooth scroll animation and flickering on page load
+            el.messages.style.opacity = '0';
+            el.messages.style.scrollBehavior = 'auto';
+
             el.messages.innerHTML = clean.length ? addDaySeparators(clean) : emptyHtml();
             state.loadedOnce = true;
             el.app?.classList.add('is-loaded');
+
+            // Scroll immediately
+            el.messages.scrollTop = el.messages.scrollHeight;
+
             requestAnimationFrame(() => {
                 el.messages.classList.remove('is-rendering');
                 document.body.classList.add('chat-hydrated');
-                requestAnimationFrame(() => scrollToBottom('auto'));
+                
+                // Set scrollTop again in case elements have layout/dimensions calculated
+                el.messages.scrollTop = el.messages.scrollHeight;
+                
+                requestAnimationFrame(() => {
+                    el.messages.scrollTop = el.messages.scrollHeight;
+                    // Restore original styles
+                    el.messages.style.opacity = '';
+                    el.messages.style.scrollBehavior = '';
+                    updateFloatingButtons();
+                });
             });
             return;
         }
@@ -342,11 +371,18 @@
         if (mode === 'append') {
             if (el.messages.querySelector('.chat-empty')) el.messages.innerHTML = '';
             el.messages.insertAdjacentHTML('beforeend', html);
+
+            const isMessageMine = (m) => m.is_mine || (Number(m.user_id) === Number(cfg.userId));
+            const newIncomingMessages = clean.filter((m) => !isMessageMine(m) && !String(m.id).startsWith('tmp-'));
+
             if (shouldStick) {
                 requestAnimationFrame(() => scrollToBottom('smooth'));
             } else {
-                state.unread += clean.filter((m) => !m.is_mine).length;
+                state.unread += newIncomingMessages.length;
                 updateFloatingButtons();
+            }
+
+            if (newIncomingMessages.length > 0) {
                 playNotification(clean);
             }
             return;
@@ -369,7 +405,8 @@
 
     const playNotification = (messages) => {
         if (!state.soundEnabled || !el.notificationSound) return;
-        if (!messages.some((m) => !m.is_mine)) return;
+        const isMessageMine = (m) => m.is_mine || (Number(m.user_id) === Number(cfg.userId));
+        if (!messages.some((m) => !isMessageMine(m))) return;
         el.notificationSound.currentTime = 0;
         el.notificationSound.play().catch(() => {});
     };
