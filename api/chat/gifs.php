@@ -57,15 +57,16 @@ $items = [];
 foreach (($json['data'] ?? []) as $item) {
     $images = $item['images'] ?? [];
 
-    $gif = $images['downsized']['url']
-        ?? $images['fixed_height']['url']
-        ?? $images['fixed_width']['url']
-        ?? $images['original']['url']
+    $gif = $images['original']['url']
+        ?? $images['downsized_large']['url']
+        ?? $images['downsized_medium']['url']
+        ?? $images['downsized']['url']
         ?? null;
 
-    $preview = $images['fixed_width_small']['url']
-        ?? $images['fixed_height_small']['url']
-        ?? $images['preview_gif']['url']
+    $preview = $images['downsized_medium']['url']
+        ?? $images['downsized']['url']
+        ?? $images['fixed_height']['url']
+        ?? $images['fixed_width']['url']
         ?? $gif;
 
     if (!$gif || !$preview) continue;

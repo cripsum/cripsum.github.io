@@ -277,8 +277,20 @@
         const text = msg.message || '';
 
         if (msg.message_type === 'gif' && msg.media_url) {
-            const preview = safeUrl(msg.media_preview_url || msg.media_url);
+            let preview = safeUrl(msg.media_preview_url || msg.media_url);
             const full = safeUrl(msg.media_url);
+
+            if (preview.includes('giphy.com')) {
+                preview = preview
+                    .replace('/fixed_width_small.gif', '/giphy.gif')
+                    .replace('/fixed_height_small.gif', '/giphy.gif')
+                    .replace('/fixed_width_small.webp', '/giphy.webp')
+                    .replace('/fixed_height_small.webp', '/giphy.webp')
+                    .replace('/100w.gif', '/giphy.gif')
+                    .replace('/200w.gif', '/giphy.gif')
+                    .replace('/200.gif', '/giphy.gif');
+            }
+
             const title = msg.media_title || 'GIF';
             const caption = text ? `<figcaption>${linkify(text)}</figcaption>` : '';
             return `<figure class="chat-gif-message"><a href="${escapeHtml(full)}" target="_blank" rel="noopener noreferrer"><img src="${escapeHtml(preview)}" alt="${escapeHtml(title)}" loading="lazy"></a>${caption}</figure>`;
