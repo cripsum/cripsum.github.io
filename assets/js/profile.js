@@ -1536,6 +1536,25 @@
         const bioPage = document.getElementById('bioPage');
         if (!bioPage) return;
 
+        // Cleanup function to restore DOM to standard state
+        const cleanupSlides = () => {
+            const wrappers = Array.from(bioPage.querySelectorAll('.profile-snap-slide-wrapper'));
+            wrappers.forEach(wrapper => {
+                if (wrapper.classList.contains('profile-smart-hero-wrapper')) {
+                    wrapper.classList.remove('profile-snap-slide-wrapper');
+                } else {
+                    const parent = wrapper.parentNode;
+                    while (wrapper.firstChild) {
+                        parent.insertBefore(wrapper.firstChild, wrapper);
+                    }
+                    wrapper.remove();
+                }
+            });
+        };
+
+        // First, restore DOM to clean state before querying
+        cleanupSlides();
+
         // Helper to find all slide elements
         const getSlides = () => {
             const arr = [];
@@ -1559,7 +1578,7 @@
             return arr;
         };
 
-        const slides = getSlides();
+        const rawSlides = getSlides();
 
         // Cleanup global listeners - clear from window
         if (window._snapWheelHandler) {
@@ -1582,24 +1601,40 @@
             window.removeEventListener('keydown', window._snapKeyDownHandler);
             window._snapKeyDownHandler = null;
         }
+        if (window._snapResizeHandler) {
+            window.removeEventListener('resize', window._snapResizeHandler);
+            window._snapResizeHandler = null;
+        }
 
         const existingDots = document.querySelector('.profile-snap-dots');
         if (existingDots) existingDots.remove();
 
-        slides.forEach(slide => {
+        rawSlides.forEach(slide => {
             slide.classList.remove('profile-snap-slide', 'slide-active', 'slide-before', 'slide-after', 'is-active');
         });
 
         // If data-layout-snap is not active, stop here!
         if (activeBody.getAttribute('data-layout-snap') !== '1') {
+            bioPage.scrollTop = 0;
             return;
         }
 
-        if (slides.length <= 1) return;
+        if (rawSlides.length <= 1) return;
 
-        // Add base class to all slides
-        slides.forEach(slide => {
-            slide.classList.add('profile-snap-slide');
+        // Wrap slides in profile-snap-slide-wrapper
+        const slides = [];
+        rawSlides.forEach(slide => {
+            if (slide.classList.contains('profile-smart-hero-wrapper')) {
+                slide.classList.add('profile-snap-slide-wrapper');
+                slide.classList.add('profile-snap-slide');
+                slides.push(slide);
+            } else {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'profile-snap-slide-wrapper profile-snap-slide';
+                slide.parentNode.insertBefore(wrapper, slide);
+                wrapper.appendChild(slide);
+                slides.push(wrapper);
+            }
         });
 
         let activeIndex = 0;
@@ -1770,6 +1805,14 @@
 
         window._snapKeyDownHandler = handleKeyDown;
         window.addEventListener('keydown', handleKeyDown);
+
+        // 4. Resize Listener
+        const handleResize = () => {
+            const viewportHeight = bioPage.clientHeight || window.innerHeight;
+            bioPage.scrollTop = activeIndex * viewportHeight;
+        };
+        window._snapResizeHandler = handleResize;
+        window.addEventListener('resize', handleResize);
     };
 
     initScrollSnapPagination();

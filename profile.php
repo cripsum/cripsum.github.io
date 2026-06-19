@@ -488,8 +488,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.1.4">
-    <script src="/assets/js/profile.js?v=5.1.4" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.1.5">
+    <script src="/assets/js/profile.js?v=5.1.5" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -582,15 +582,26 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             position: relative !important;
             height: 100vh !important;
             max-height: 100vh !important;
-            overflow: hidden !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-y: scroll !important;
+            overflow-x: hidden !important;
             display: block !important;
             padding: 0 !important;
+            margin: 0 !important;
             scroll-behavior: auto !important;
+            grid-template-columns: none !important;
+            /* Hide scrollbar visually */
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
         }
-
-        body[data-layout-snap="1"] .profile-snap-slide {
+        body[data-layout-snap="1"] #bioPage::-webkit-scrollbar {
+            display: none !important;
+        }
+        body[data-layout-snap="1"] .profile-snap-slide-wrapper {
             height: 100vh !important;
             min-height: 100vh !important;
+            width: 100% !important;
             margin: 0 !important;
             box-sizing: border-box !important;
             display: flex !important;
@@ -598,36 +609,39 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             align-items: center !important;
             justify-content: center !important;
             padding: 2rem 1rem !important;
+            position: relative !important;
         }
-
-
-
-        body[data-layout-snap="1"] .profile-split-column {
+        body[data-layout-snap="1"] .profile-split-column,
+        body[data-layout-snap="1"] .profile-smart-content {
             display: contents !important;
         }
-
-        /* Content elements fallback limits */
-        body[data-layout-snap="1"] .profile-smart-hero-wrapper>.bio-hero {
-            margin: 0 !important;
-            width: 100% !important;
-            max-width: 580px !important;
-        }
-
-        body[data-layout-snap="1"] .profile-smart-content {
-            display: block !important;
-            width: 100% !important;
-            padding: 0 !important;
-            margin: 0 !important;
-        }
-
-        body[data-layout-snap="1"] .profile-smart-content>section>.bio-card,
-        body[data-layout-snap="1"] .profile-smart-content>section.bio-card {
+        /* Constrain child cards/sections inside snap wrappers */
+        body[data-layout-snap="1"] .profile-snap-slide-wrapper > .bio-card,
+        body[data-layout-snap="1"] .profile-snap-slide-wrapper > section.bio-card,
+        body[data-layout-snap="1"] .profile-snap-slide-wrapper > .bio-stats-grid,
+        body[data-layout-snap="1"] .profile-snap-slide-wrapper > .profile-split-item,
+        body[data-layout-snap="1"] .profile-snap-slide-wrapper > section,
+        body[data-layout-snap="1"] .profile-snap-slide-wrapper > div {
             width: 100% !important;
             max-width: 580px !important;
             margin: 0 auto !important;
             box-sizing: border-box !important;
+        }
+        body[data-layout-snap="1"] .profile-snap-slide-wrapper > .bio-card,
+        body[data-layout-snap="1"] .profile-snap-slide-wrapper > section.bio-card,
+        body[data-layout-snap="1"] .profile-snap-slide-wrapper > section {
             max-height: 85vh !important;
             overflow-y: auto !important;
+        }
+        /* Ensure embeds inside snap cards render at full width */
+        body[data-layout-snap="1"] .profile-embeds-grid {
+            width: 100% !important;
+        }
+        body[data-layout-snap="1"] .profile-embed-wrapper {
+            width: 100% !important;
+        }
+        body[data-layout-snap="1"] .profile-embed-wrapper iframe {
+            width: 100% !important;
         }
 
         /* Scroll Snap Pagination Dots */
