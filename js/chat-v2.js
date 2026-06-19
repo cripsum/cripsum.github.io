@@ -198,8 +198,23 @@
         if (el.counter) el.counter.textContent = `${el.input.value.length}/${cfg.maxLength || 500}`;
     };
 
+    const parseUtcDate = (dateString) => {
+        if (!dateString) return new Date(NaN);
+        let cleanStr = String(dateString).replace(' ', 'T');
+        if (!cleanStr.endsWith('Z') && !cleanStr.includes('+')) {
+            cleanStr += 'Z';
+        }
+        return new Date(cleanStr);
+    };
+
+    const formatLocalTime = (dateString) => {
+        const date = parseUtcDate(dateString);
+        if (Number.isNaN(date.getTime())) return '';
+        return date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+    };
+
     const dayLabel = (dateString) => {
-        const date = new Date(String(dateString || '').replace(' ', 'T'));
+        const date = parseUtcDate(dateString);
         if (Number.isNaN(date.getTime())) return '';
         const today = new Date();
         const yesterday = new Date();
@@ -278,6 +293,7 @@
         const msgId = String(msg.id);
         const bodyText = msg.message_type === 'gif' ? replyTextFor(msg) : (msg.message || '');
         const edited = msg.edited_at && !deleted ? '<span class="chat-edited">modificato</span>' : '';
+        const timeLabel = pending ? (msg.created_label || 'ora') : formatLocalTime(msg.created_at);
 
         const avatar = `<a class="chat-avatar-link" href="${escapeHtml(safeUrl(msg.profile_url || '#'))}" tabindex="-1"><img src="${escapeHtml(safeUrl(msg.avatar_url || '/img/abdul.jpg'))}" alt="" loading="lazy"></a>`;
         const main = `
@@ -286,7 +302,7 @@
                     <a class="chat-username" href="${escapeHtml(safeUrl(msg.profile_url || '#'))}">@${escapeHtml(msg.username || 'utente')}</a>
                     ${roleBadgeHtml(msg.role_badge)}
                     ${profileBadgeHtml(msg.badge)}
-                    <time class="chat-time" datetime="${escapeHtml(msg.created_at || '')}">${escapeHtml(msg.created_label || '')}${edited}</time>
+                    <time class="chat-time" datetime="${escapeHtml(msg.created_at || '')}">${escapeHtml(timeLabel || '')}${edited}</time>
                 </div>
                 <div class="chat-bubble-wrap">
                     <div class="chat-bubble">${replyHtml(msg.reply)}<div class="chat-message-content">${messageBodyHtml(msg)}</div></div>
