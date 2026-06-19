@@ -9146,3 +9146,38 @@ body.public-profile-body .profile-effects-foreground-layer {
     contain: layout paint !important;
 }
 
+/* Premium Custom Blocks & Card Style Reset */
+.profile-block-card.is-pinned,
+.profile-block-card.profile-block-markdown,
+.profile-block-card.profile-block-html {
+    grid-column: 1 / -1;
+}
+
+.profile-block-card.no-card-style {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    min-height: auto !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+.profile-block-card.no-card-style::before {
+    display: none !important;
+}
+
+.profile-block-card.no-card-style .profile-block-copy {
+    padding: 0 !important;
+}
+
+.profile-block-custom-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-sm);
+}
+
+.profile-block-custom-content iframe {
+    max-width: 100%;
+}
+
+

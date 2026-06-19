@@ -245,12 +245,52 @@ function profile_render_background(?array $profile, ?string $backgroundUrl, stri
 <?php
 }
 
-function profile_render_section_heading(string $icon, string $title, ?string $subtitle = null): void
+function profile_render_section_heading(string $icon, string $title, ?string $subtitle = null, ?string $sectionKey = null): void
 {
+    global $profile;
+    
+    $isPremium = (int)($profile['is_premium'] ?? 0) === 1;
+    $customTitle = $title;
+    $customIcon = $icon;
+    $isHidden = false;
+    
+    if ($isPremium && $sectionKey !== null && !empty($profile['profile_sections_config'])) {
+        $config = json_decode($profile['profile_sections_config'], true);
+        if (is_array($config) && isset($config[$sectionKey])) {
+            $secConf = $config[$sectionKey];
+            if (!empty($secConf['hidden'])) {
+                $isHidden = true;
+            }
+            if (isset($secConf['title']) && trim($secConf['title']) !== '') {
+                $customTitle = trim($secConf['title']);
+            }
+            if (isset($secConf['icon']) && trim($secConf['icon']) !== '') {
+                $customIcon = trim($secConf['icon']);
+            }
+        }
+    }
+    
+    // If it's the blocks section and not customized, we don't render anything by default
+    if ($sectionKey === 'blocks' && (!$isPremium || !isset($config['blocks']))) {
+        return;
+    }
+    
+    if ($isHidden) {
+        return;
+    }
+    
+    if (trim($customTitle) === '' && trim($customIcon) === '') {
+        return;
+    }
 ?>
     <div class="bio-section-heading profile-clean-heading">
         <div>
-            <span><i class="<?php echo profile_h($icon); ?>"></i><?php echo profile_h($title); ?></span>
+            <span>
+                <?php if (trim($customIcon) !== ''): ?>
+                    <i class="<?php echo profile_h($customIcon); ?>"></i>
+                <?php endif; ?>
+                <?php echo profile_h($customTitle); ?>
+            </span>
             <?php if ($subtitle): ?><p><?php echo profile_h($subtitle); ?></p><?php endif; ?>
         </div>
     </div>
@@ -488,8 +528,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.1.8">
-    <script src="/assets/js/profile.js?v=5.1.8" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.2.0">
+    <script src="/assets/js/profile.js?v=5.2.0" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -836,81 +876,253 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             line-height: 1;
         }
 
-        /* Music Themes */
+        /* Music Player Styles */
+        /* 1. COMPACT ROW STYLE (retro) */
         body[data-music-theme="retro"] .bio-audio {
-            background: #000000 !important;
-            border: 3px solid #00ff00 !important;
-            border-radius: 0px !important;
-            font-family: "Courier New", Courier, monospace !important;
-            color: #00ff00 !important;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5) !important;
+            display: grid !important;
+            grid-template-columns: auto 1fr auto !important;
+            align-items: center !important;
+            gap: 0.6rem 1rem !important;
+            padding: 0.75rem 1rem !important;
         }
 
-        body[data-music-theme="retro"] .bio-audio strong,
-        body[data-music-theme="retro"] .bio-audio small,
-        body[data-music-theme="retro"] .bio-audio span {
-            color: #00ff00 !important;
-            text-transform: uppercase !important;
+        body[data-music-theme="retro"] .bio-audio__header {
+            display: contents !important;
         }
 
-        body[data-music-theme="retro"] .bio-audio input[type="range"]::-webkit-slider-runnable-track {
-            background: #003300 !important;
+        body[data-music-theme="retro"] .bio-audio__header > button.js-profile-audio-toggle {
+            grid-column: 1 !important;
+            grid-row: 1 !important;
+            margin: 0 !important;
         }
 
-        body[data-music-theme="retro"] .bio-audio input[type="range"]::-webkit-slider-thumb {
-            background: #00ff00 !important;
-            border-radius: 0px !important;
+        body[data-music-theme="retro"] .bio-audio__header > div {
+            grid-column: 2 !important;
+            grid-row: 1 !important;
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            flex-wrap: wrap !important;
+            gap: 0.25rem 0.5rem !important;
         }
 
+        body[data-music-theme="retro"] .bio-audio__header > div small {
+            display: none !important;
+        }
+
+        body[data-music-theme="retro"] .bio-audio__header > div strong {
+            font-size: 0.85rem !important;
+            margin: 0 !important;
+        }
+
+        body[data-music-theme="retro"] .bio-audio__header > div span.profile-artist-span {
+            font-size: 0.76rem !important;
+            color: var(--muted) !important;
+            margin: 0 !important;
+            display: inline-block !important;
+        }
+
+        body[data-music-theme="retro"] .bio-audio__header > div span.profile-artist-span::before {
+            content: "• " !important;
+            margin-right: 0.25rem !important;
+            opacity: 0.6 !important;
+        }
+
+        body[data-music-theme="retro"] .bio-audio__progress {
+            grid-column: 1 / -1 !important;
+            grid-row: 2 !important;
+            margin: 0 !important;
+            width: 100% !important;
+        }
+
+        body[data-music-theme="retro"] .bio-audio__bottom {
+            grid-column: 3 !important;
+            grid-row: 1 !important;
+            margin: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+        }
+
+        body[data-music-theme="retro"] .bio-audio__bottom input[type="range"] {
+            width: 60px !important;
+        }
+
+        /* 2. CENTERED PILL STYLE (cyberpunk) */
         body[data-music-theme="cyberpunk"] .bio-audio {
-            background: #000000 !important;
-            border: 2px solid #fcee0a !important;
-            border-radius: 8px 0px 8px 0px !important;
-            clip-path: polygon(0 0, 100% 0, 100% 85%, 90% 100%, 0 100%) !important;
-            font-family: "Impact", sans-serif !important;
-            color: #00ffff !important;
-            position: relative !important;
-            box-shadow: 0 0 15px rgba(252, 238, 10, 0.3) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            text-align: center !important;
+            padding: 1.5rem !important;
+            border-radius: 28px !important;
         }
 
-        body[data-music-theme="cyberpunk"] .bio-audio strong {
-            color: #fcee0a !important;
-            text-shadow: 0 0 5px #fcee0a !important;
+        body[data-music-theme="cyberpunk"] .bio-audio__header {
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 0.75rem !important;
+            margin-bottom: 1rem !important;
+            width: 100% !important;
         }
 
-        body[data-music-theme="cyberpunk"] .bio-audio span,
-        body[data-music-theme="cyberpunk"] .bio-audio small {
-            color: #ff007f !important;
+        body[data-music-theme="cyberpunk"] .bio-audio__header > div {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            text-align: center !important;
         }
 
-        body[data-music-theme="cyberpunk"] .bio-audio input[type="range"]::-webkit-slider-thumb {
-            background: #00ffff !important;
-            border-radius: 0px !important;
+        body[data-music-theme="cyberpunk"] .bio-audio__header > div small {
+            margin-bottom: 0.35rem !important;
+            letter-spacing: 0.12em !important;
         }
 
+        body[data-music-theme="cyberpunk"] .bio-audio__header > div strong {
+            font-size: 1.05rem !important;
+            justify-content: center !important;
+        }
+
+        body[data-music-theme="cyberpunk"] .bio-audio__header > button.js-profile-audio-toggle {
+            width: 52px !important;
+            height: 52px !important;
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            background: rgba(var(--accent-rgb), 0.1) !important;
+            border: 1px solid rgba(var(--accent-rgb), 0.25) !important;
+            order: -1 !important;
+            margin-bottom: 0.5rem !important;
+            transition: all 0.3s ease !important;
+        }
+
+        body[data-music-theme="cyberpunk"] .bio-audio__header > button.js-profile-audio-toggle:hover {
+            background: rgba(var(--accent-rgb), 0.2) !important;
+            transform: scale(1.05) !important;
+        }
+
+        body[data-music-theme="cyberpunk"] .bio-audio__header > button.js-profile-audio-toggle i {
+            font-size: 1.15rem !important;
+            margin-left: 2px !important;
+        }
+        
+        body[data-music-theme="cyberpunk"] .bio-audio__header > button.js-profile-audio-toggle:has(.fa-pause) i {
+            margin-left: 0 !important;
+        }
+
+        body[data-music-theme="cyberpunk"] .bio-audio__progress {
+            width: 100% !important;
+            margin-bottom: 0.85rem !important;
+            justify-content: center !important;
+        }
+
+        body[data-music-theme="cyberpunk"] .bio-audio__bottom {
+            width: 100% !important;
+            justify-content: center !important;
+            gap: 0.5rem !important;
+        }
+
+        body[data-music-theme="cyberpunk"] .bio-audio__bottom input[type="range"] {
+            max-width: 110px !important;
+        }
+
+        /* 3. VINYL PLAYER STYLE (synthwave) */
         body[data-music-theme="synthwave"] .bio-audio {
-            background: linear-gradient(135deg, #2b0b3d, #0b071e) !important;
-            border: 2px solid #ff007f !important;
-            border-radius: 16px !important;
-            box-shadow: 0 0 20px rgba(255, 0, 127, 0.6), inset 0 0 10px rgba(0, 240, 255, 0.4) !important;
-            color: #00ffff !important;
-            font-family: 'Montserrat', sans-serif !important;
+            display: grid !important;
+            grid-template-columns: auto 1fr !important;
+            align-items: center !important;
+            gap: 1rem 1.25rem !important;
+            padding: 1.25rem !important;
         }
 
-        body[data-music-theme="synthwave"] .bio-audio strong {
-            color: #ff007f !important;
-            text-shadow: 0 0 10px #ff007f, 0 0 20px #ff007f !important;
+        body[data-music-theme="synthwave"] .bio-audio::before {
+            content: "" !important;
+            display: block !important;
+            width: 80px !important;
+            height: 80px !important;
+            border-radius: 50% !important;
+            background: radial-gradient(circle, 
+                var(--accent) 6%, 
+                #0b0c10 7%, 
+                #0b0c10 22%, 
+                #1f2833 23%, 
+                #0b0c10 38%, 
+                #1f2833 40%, 
+                #0b0c10 56%, 
+                rgba(var(--accent-rgb), 0.25) 57%, 
+                #0b0c10 70%,
+                rgba(255,255,255,0.05) 71%
+            ) !important;
+            border: 2px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), 0 0 0 4px rgba(var(--accent-rgb), 0.05) !important;
+            grid-column: 1 !important;
+            grid-row: 1 / span 3 !important;
+            animation: spin-vinyl 4s linear infinite !important;
+            animation-play-state: paused !important;
         }
 
-        body[data-music-theme="synthwave"] .bio-audio span,
-        body[data-music-theme="synthwave"] .bio-audio small {
-            color: #00ffff !important;
-            text-shadow: 0 0 8px #00ffff !important;
+        body[data-music-theme="synthwave"] .bio-audio.audio-playing::before {
+            animation-play-state: running !important;
         }
 
-        body[data-music-theme="synthwave"] .bio-audio input[type="range"]::-webkit-slider-thumb {
-            background: #ff007f !important;
-            box-shadow: 0 0 8px #ff007f !important;
+        @keyframes spin-vinyl {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        body[data-music-theme="synthwave"] .bio-audio__header {
+            grid-column: 2 !important;
+            grid-row: 1 !important;
+            margin-bottom: 0 !important;
+            align-items: center !important;
+        }
+
+        body[data-music-theme="synthwave"] .bio-audio__progress {
+            grid-column: 2 !important;
+            grid-row: 2 !important;
+            margin-bottom: 0 !important;
+            width: 100% !important;
+        }
+
+        body[data-music-theme="synthwave"] .bio-audio__bottom {
+            grid-column: 2 !important;
+            grid-row: 3 !important;
+            margin-bottom: 0 !important;
+            width: 100% !important;
+        }
+
+        body[data-music-theme="synthwave"] .bio-audio__bottom input[type="range"] {
+            width: 100% !important;
+            max-width: 100px !important;
+        }
+        
+        @media (max-width: 480px) {
+            body[data-music-theme="synthwave"] .bio-audio {
+                grid-template-columns: 1fr !important;
+                justify-items: center !important;
+                text-align: center !important;
+            }
+            body[data-music-theme="synthwave"] .bio-audio::before {
+                grid-column: 1 !important;
+                grid-row: 1 !important;
+            }
+            body[data-music-theme="synthwave"] .bio-audio__header {
+                grid-column: 1 !important;
+                grid-row: 2 !important;
+                width: 100% !important;
+            }
+            body[data-music-theme="synthwave"] .bio-audio__progress {
+                grid-column: 1 !important;
+                grid-row: 3 !important;
+                width: 100% !important;
+            }
+            body[data-music-theme="synthwave"] .bio-audio__bottom {
+                grid-column: 1 !important;
+                grid-row: 4 !important;
+                width: 100% !important;
+                justify-content: center !important;
+            }
         }
     </style>
 </head>
@@ -1354,7 +1566,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     ob_start();
                     if ($featuredLinks || $normalLinks): ?>
                         <section class="bio-card bio-featured js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
-                            <?php profile_render_section_heading('fa-solid fa-link', 'Link'); ?>
+                            <?php profile_render_section_heading('fa-solid fa-link', 'Link', null, 'links'); ?>
                             <div class="bio-featured-grid profile-link-grid profile-link-count-<?php echo count(array_merge($featuredLinks, $normalLinks)); ?>">
                                 <?php foreach (array_merge($featuredLinks, $normalLinks) as $item): ?>
                                     <?php
@@ -1391,7 +1603,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     ob_start();
                     if ($embeds): ?>
                         <section class="bio-card profile-embeds-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
-                            <?php profile_render_section_heading('fa-solid fa-share-from-square', 'Embed'); ?>
+                            <?php profile_render_section_heading('fa-solid fa-share-from-square', 'Embed', null, 'embeds'); ?>
                             <div class="profile-embeds-grid">
                                 <?php foreach ($embeds as $embed): ?>
                                     <?php
@@ -1428,7 +1640,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     ob_start();
                     if ($visibleProjects): ?>
                         <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
-                            <?php profile_render_section_heading('fa-solid fa-cubes', 'Projects'); ?>
+                            <?php profile_render_section_heading('fa-solid fa-cubes', 'Projects', null, 'projects'); ?>
                             <div class="bio-project-grid">
                                 <?php foreach ($visibleProjects as $project): ?>
                                     <?php
@@ -1465,40 +1677,78 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     ob_start();
                     if ($visibleBlocks): ?>
                         <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
+                            <?php profile_render_section_heading('', '', null, 'blocks'); ?>
                             <div class="profile-block-grid">
                                 <?php foreach ($visibleBlocks as $block): ?>
                                     <?php
-                                    $blockType = profile_allowed_value((string)($block['block_type'] ?? 'text'), ['text', 'image', 'gif', 'video'], 'text');
+                                    $allowedTypes = ['text', 'image', 'gif', 'video'];
+                                    if ((int)($profile['is_premium'] ?? 0) === 1) {
+                                        $allowedTypes[] = 'markdown';
+                                        $allowedTypes[] = 'html';
+                                    }
+                                    $blockType = profile_allowed_value((string)($block['block_type'] ?? 'text'), $allowedTypes, 'text');
                                     $mediaUrl = trim((string)($block['media_url'] ?? ''));
                                     $isPinned = !empty($block['is_featured']);
+                                    $noCardStyleClass = (!empty($block['no_card_style']) && (int)($profile['is_premium'] ?? 0) === 1) ? 'no-card-style' : '';
                                     ?>
-                                    <article class="profile-block-card profile-block-<?php echo profile_h($blockType); ?> <?php echo $isPinned ? 'is-pinned' : ''; ?>">
-                                        <?php if ($mediaUrl && in_array($blockType, ['image', 'gif'], true)): ?>
-                                            <img src="<?php echo profile_h($mediaUrl); ?>" alt="" loading="lazy">
-                                        <?php elseif ($mediaUrl && $blockType === 'video'): ?>
-                                            <video src="<?php echo profile_h($mediaUrl); ?>" controls playsinline preload="metadata"></video>
-                                        <?php endif; ?>
-                                        <?php if (!empty($block['title']) || !empty($block['body']) || $isPinned || (!empty($block['card_tag_text']) && (int)($profile['is_premium'] ?? 0) === 1)): ?>
+                                    <article class="profile-block-card profile-block-<?php echo profile_h($blockType); ?> <?php echo $isPinned ? 'is-pinned' : ''; ?> <?php echo $noCardStyleClass; ?>">
+                                        <?php if (in_array($blockType, ['markdown', 'html'], true) && (int)($profile['is_premium'] ?? 0) === 1): ?>
                                             <div class="profile-block-copy">
                                                 <?php if (!empty($block['title'])): ?>
                                                     <strong>
                                                         <?php echo profile_h($block['title']); ?>
-                                                        <?php if ((int)($profile['is_premium'] ?? 0) === 1 && !empty($block['card_tag_text'])): ?>
+                                                        <?php if (!empty($block['card_tag_text'])): ?>
                                                             <span class="profile-card-tag" style="background-color: <?php echo profile_h($block['card_tag_bg'] ?: 'rgba(255,255,255,0.1)'); ?>; color: <?php echo profile_h($block['card_tag_color'] ?: '#ffffff'); ?>;">
                                                                 <?php echo profile_h($block['card_tag_text']); ?>
                                                             </span>
                                                         <?php endif; ?>
                                                     </strong>
-                                                <?php elseif ((int)($profile['is_premium'] ?? 0) === 1 && !empty($block['card_tag_text'])): ?>
+                                                <?php elseif (!empty($block['card_tag_text'])): ?>
                                                     <div style="margin-bottom: 0.4rem;">
                                                         <span class="profile-card-tag" style="margin-left: 0; background-color: <?php echo profile_h($block['card_tag_bg'] ?: 'rgba(255,255,255,0.1)'); ?>; color: <?php echo profile_h($block['card_tag_color'] ?: '#ffffff'); ?>;">
                                                             <?php echo profile_h($block['card_tag_text']); ?>
                                                         </span>
                                                     </div>
                                                 <?php endif; ?>
-                                                <?php if (!empty($block['body'])): ?><p><?php echo nl2br(profile_h($block['body'])); ?></p><?php endif; ?>
+                                                
+                                                <div class="profile-block-custom-content">
+                                                    <?php if ($blockType === 'html'): ?>
+                                                        <?php echo $block['body']; ?>
+                                                    <?php else: ?>
+                                                        <?php echo profile_markdown_to_html($block['body']); ?>
+                                                    <?php endif; ?>
+                                                </div>
+                                                
                                                 <?php if ($isPinned): ?><small>Pin</small><?php endif; ?>
                                             </div>
+                                        <?php else: ?>
+                                            <?php if ($mediaUrl && in_array($blockType, ['image', 'gif'], true)): ?>
+                                                <img src="<?php echo profile_h($mediaUrl); ?>" alt="" loading="lazy">
+                                            <?php elseif ($mediaUrl && $blockType === 'video'): ?>
+                                                <video src="<?php echo profile_h($mediaUrl); ?>" controls playsinline preload="metadata"></video>
+                                            <?php endif; ?>
+                                            <?php if (!empty($block['title']) || !empty($block['body']) || $isPinned || (!empty($block['card_tag_text']) && (int)($profile['is_premium'] ?? 0) === 1)): ?>
+                                                <div class="profile-block-copy">
+                                                    <?php if (!empty($block['title'])): ?>
+                                                        <strong>
+                                                            <?php echo profile_h($block['title']); ?>
+                                                            <?php if ((int)($profile['is_premium'] ?? 0) === 1 && !empty($block['card_tag_text'])): ?>
+                                                                <span class="profile-card-tag" style="background-color: <?php echo profile_h($block['card_tag_bg'] ?: 'rgba(255,255,255,0.1)'); ?>; color: <?php echo profile_h($block['card_tag_color'] ?: '#ffffff'); ?>;">
+                                                                    <?php echo profile_h($block['card_tag_text']); ?>
+                                                                </span>
+                                                            <?php endif; ?>
+                                                        </strong>
+                                                    <?php elseif ((int)($profile['is_premium'] ?? 0) === 1 && !empty($block['card_tag_text'])): ?>
+                                                        <div style="margin-bottom: 0.4rem;">
+                                                            <span class="profile-card-tag" style="margin-left: 0; background-color: <?php echo profile_h($block['card_tag_bg'] ?: 'rgba(255,255,255,0.1)'); ?>; color: <?php echo profile_h($block['card_tag_color'] ?: '#ffffff'); ?>;">
+                                                                <?php echo profile_h($block['card_tag_text']); ?>
+                                                            </span>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                    <?php if (!empty($block['body'])): ?><p><?php echo nl2br(profile_h($block['body'])); ?></p><?php endif; ?>
+                                                    <?php if ($isPinned): ?><small>Pin</small><?php endif; ?>
+                                                </div>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                     </article>
                                 <?php endforeach; ?>
@@ -1511,7 +1761,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     ob_start();
                     if ($visibleContents): ?>
                         <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
-                            <?php profile_render_section_heading('fa-solid fa-circle-play', 'Content'); ?>
+                            <?php profile_render_section_heading('fa-solid fa-circle-play', 'Content', null, 'contents'); ?>
                             <div class="bio-preview-grid">
                                 <?php foreach ($visibleContents as $content): ?>
                                     <?php
@@ -1548,7 +1798,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     ob_start();
                     if ($visibleCharacters): ?>
                         <section class="bio-card profile-characters-section profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
-                            <?php profile_render_section_heading('fa-solid fa-user-astronaut', 'Characters'); ?>
+                            <?php profile_render_section_heading('fa-solid fa-user-astronaut', 'Characters', null, 'characters'); ?>
                             <div class="profile-character-grid">
                                 <?php foreach ($visibleCharacters as $char): ?>
                                     <?php
@@ -1592,7 +1842,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     ob_start();
                     if ($visibleBadges && $showBadgesSection): ?>
                         <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
-                            <?php profile_render_section_heading('fa-solid fa-trophy', 'Badge'); ?>
+                            <?php profile_render_section_heading('fa-solid fa-trophy', 'Badge', null, 'badges'); ?>
                             <div class="profile-badge-grid">
                                 <?php foreach ($visibleBadges as $badge): ?>
                                     <?php
@@ -1676,7 +1926,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     ob_start();
                     if ($visibleActivity): ?>
                         <section class="bio-card bio-about js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
-                            <?php profile_render_section_heading('fa-solid fa-clock', 'Activity'); ?>
+                            <?php profile_render_section_heading('fa-solid fa-clock', 'Activity', null, 'activity'); ?>
                             <div class="profile-activity-strip">
                                 <?php foreach (array_slice($visibleActivity, 0, 5) as $item): ?>
                                     <a class="profile-activity-pill" href="<?php echo !empty($item['url']) ? profile_h($item['url']) : '#'; ?>" <?php echo !empty($item['url']) ? 'target="_blank" rel="noopener noreferrer"' : 'aria-disabled="true"'; ?>>

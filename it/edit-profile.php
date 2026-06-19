@@ -112,8 +112,8 @@ function profile_json_script(string $id, array $data): void
     <script>
         window.isPremiumUser = <?php echo (int)($profile['is_premium'] ?? 0) === 1 ? 'true' : 'false'; ?>;
     </script>
-    <script src="/assets/js/profile.js?v=5.0.3" defer></script>
-    <script src="/assets/js/edit-profile.js?v=5.0.3" defer></script>
+    <script src="/assets/js/profile.js?v=5.2.0" defer></script>
+    <script src="/assets/js/edit-profile.js?v=5.2.0" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-effect="<?php echo profile_h($profile['profile_effect'] ?? 'none'); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" data-avatar-shape="<?php echo profile_h($avatarShape); ?>" data-avatar-border="<?php echo $avatarBorder; ?>" style="--accent: <?php echo profile_h($accent); ?>; --accent-rgb: <?php echo $accentRgbComma; ?>; --profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
@@ -834,11 +834,11 @@ function profile_json_script(string $id, array $data): void
                                         <option value="trail" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'trail' ? 'selected' : ''; ?>>Scia particelle (Trail)</option>
                                     </select></label>
 
-                                <label class="profile-field"><span>Tema Musicale <span class="premium-badge-tag"><i class="fa-solid fa-crown"></i> Premium</span></span><select name="profile_music_theme" id="musicThemeInput">
+                                <label class="profile-field"><span>Stile del player musicale <span class="premium-badge-tag"><i class="fa-solid fa-crown"></i> Premium</span></span><select name="profile_music_theme" id="musicThemeInput">
                                         <option value="default" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'default' ? 'selected' : ''; ?>>Default</option>
-                                        <option value="retro" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'retro' ? 'selected' : ''; ?>>Retro</option>
-                                        <option value="cyberpunk" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'cyberpunk' ? 'selected' : ''; ?>>Cyberpunk</option>
-                                        <option value="synthwave" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'synthwave' ? 'selected' : ''; ?>>Synthwave</option>
+                                        <option value="retro" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'retro' ? 'selected' : ''; ?>>Compatto (Riga)</option>
+                                        <option value="cyberpunk" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'cyberpunk' ? 'selected' : ''; ?>>Pillola Centrata</option>
+                                        <option value="synthwave" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'synthwave' ? 'selected' : ''; ?>>Vinyl Player (Disco)</option>
                                     </select></label>
 
                                 <label class="profile-field"><span>Cursore Personalizzato (Immagine) <span class="premium-badge-tag"><i class="fa-solid fa-crown"></i> Premium</span></span>
@@ -1170,6 +1170,7 @@ function profile_json_script(string $id, array $data): void
                                 </div>
                             </div>
                             <input type="hidden" name="profile_sections_order" id="sectionsOrderJson" value="<?php echo profile_h($profile['profile_sections_order'] ?? 'links,embeds,stats,projects,blocks,contents,characters,badges,activity'); ?>">
+                            <input type="hidden" name="profile_sections_config" id="sectionsConfigJson" value="<?php echo profile_h($profile['profile_sections_config'] ?? '{}'); ?>">
                             <div id="sectionsSortList" class="profile-sections-sort-list">
                                 <!-- Popolato via Javascript -->
                             </div>

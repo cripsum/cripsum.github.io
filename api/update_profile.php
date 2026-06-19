@@ -335,6 +335,10 @@ $allowedPlatforms = ['tiktok', 'instagram', 'youtube', 'twitch', 'github', 'disc
 $allowedStatuses = ['active', 'paused', 'finished', 'idea'];
 $allowedContentTypes = ['edit', 'video', 'game', 'post', 'other'];
 $allowedBlockTypes = ['text', 'image', 'gif', 'video'];
+if ($isPremium) {
+    $allowedBlockTypes[] = 'markdown';
+    $allowedBlockTypes[] = 'html';
+}
 
 try {
     $mysqli->begin_transaction();
@@ -443,20 +447,41 @@ try {
         $cursorCustomUrlDb = $cursorCustomUrl !== '' ? $cursorCustomUrl : null;
         $bgGrain = profile_bool_from_post('profile_bg_grain', false) ? 1 : 0;
         $musicTheme = profile_allowed_value((string)($_POST['profile_music_theme'] ?? 'default'), ['default', 'retro', 'cyberpunk', 'synthwave'], 'default');
+        
+        $sectionsConfig = isset($_POST['profile_sections_config']) ? trim((string)$_POST['profile_sections_config']) : '';
+        if ($sectionsConfig !== '') {
+            $decoded = json_decode($sectionsConfig, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $sectionsConfig = null;
+            } else {
+                $sanitized = [];
+                foreach ($decoded as $key => $conf) {
+                    $sanitized[$key] = [
+                        'hidden' => !empty($conf['hidden']) ? 1 : 0,
+                        'title' => isset($conf['title']) ? profile_clean_text($conf['title'], 80) : '',
+                        'icon' => isset($conf['icon']) ? profile_clean_text($conf['icon'], 50) : '',
+                    ];
+                }
+                $sectionsConfig = json_encode($sanitized);
+            }
+        } else {
+            $sectionsConfig = null;
+        }
     } else {
         $layoutSnap = 0;
         $cursorEffect = 'none';
         $cursorCustomUrlDb = null;
         $bgGrain = 0;
         $musicTheme = 'default';
+        $sectionsConfig = null;
     }
 
     $stmtPremium = $mysqli->prepare("
         UPDATE utenti
-        SET profile_layout_snap = ?, profile_cursor_effect = ?, profile_cursor_custom_url = ?, profile_bg_grain = ?, profile_music_theme = ?
+        SET profile_layout_snap = ?, profile_cursor_effect = ?, profile_cursor_custom_url = ?, profile_bg_grain = ?, profile_music_theme = ?, profile_sections_config = ?
         WHERE id = ?
     ");
-    $stmtPremium->bind_param('issisi', $layoutSnap, $cursorEffect, $cursorCustomUrlDb, $bgGrain, $musicTheme, $targetUserId);
+    $stmtPremium->bind_param('ississi', $layoutSnap, $cursorEffect, $cursorCustomUrlDb, $bgGrain, $musicTheme, $sectionsConfig, $targetUserId);
     if (!$stmtPremium->execute()) throw new RuntimeException('Error updating premium settings.');
     $stmtPremium->close();
 
@@ -632,22 +657,23 @@ try {
     $stmt->execute();
     $stmt->close();
 
-    $insertBlock = $mysqli->prepare("INSERT INTO utenti_profile_blocks (utente_id, block_type, title, body, media_url, media_type, is_featured, is_visible, sort_order, card_tag_text, card_tag_bg, card_tag_color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $insertBlock = $mysqli->prepare("INSERT INTO utenti_profile_blocks (utente_id, block_type, title, body, media_url, media_type, is_featured, is_visible, sort_order, card_tag_text, card_tag_bg, card_tag_color, no_card_style) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     foreach ($blockRows as $i => $row) {
         $type = profile_allowed_value((string)($row['block_type'] ?? 'text'), $allowedBlockTypes, 'text');
         $title = profile_clean_text($row['title'] ?? '', 80);
         $body = trim((string)($row['body'] ?? ''));
-        $body = mb_substr($body, 0, 700, 'UTF-8');
+        $maxLen = ($isPremium && in_array($type, ['markdown', 'html'], true)) ? 5000 : 700;
+        $body = mb_substr($body, 0, $maxLen, 'UTF-8');
         $mediaUrl = trim((string)($row['media_url'] ?? ''));
         $mediaType = profile_media_type_from_url($mediaUrl, $type === 'gif' ? 'gif' : ($type === 'video' ? 'video' : 'image'));
         $featured = !empty($row['is_featured']) ? 1 : 0;
         $visible = !empty($row['is_visible']) ? 1 : 0;
 
         if ($title === '' && $body === '' && $mediaUrl === '') continue;
-        if ($type !== 'text' && !profile_is_safe_url($mediaUrl, true)) {
+        if (!in_array($type, ['text', 'markdown', 'html'], true) && !profile_is_safe_url($mediaUrl, true)) {
             throw new RuntimeException('Invalid media URL in custom block.');
         }
-        if ($type === 'text') {
+        if (in_array($type, ['text', 'markdown', 'html'], true)) {
             $mediaUrl = null;
             $mediaType = 'text';
         }
@@ -664,8 +690,9 @@ try {
                 $tagColor = profile_optional_hex_color($row['card_tag_color'] ?? '');
             }
         }
+        $noCardStyle = (!empty($row['no_card_style']) && $isPremium) ? 1 : 0;
 
-        $insertBlock->bind_param('isssssiiisss', $targetUserId, $type, $title, $body, $mediaUrl, $mediaType, $featured, $visible, $i, $tagText, $tagBg, $tagColor);
+        $insertBlock->bind_param('isssssiiisssi', $targetUserId, $type, $title, $body, $mediaUrl, $mediaType, $featured, $visible, $i, $tagText, $tagBg, $tagColor, $noCardStyle);
         if (!$insertBlock->execute()) throw new RuntimeException('Error saving custom blocks.');
     }
     $insertBlock->close();

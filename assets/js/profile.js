@@ -391,7 +391,12 @@
         volumeSlider.value = String(audio.volume);
 
         const syncIcons = () => {
-            if (playIcon) playIcon.className = audio.paused ? 'fa-solid fa-play' : 'fa-solid fa-pause';
+            const isPaused = audio.paused;
+            const container = document.querySelector('.profile-audio-player');
+            if (container) {
+                container.classList.toggle('audio-playing', !isPaused);
+            }
+            if (playIcon) playIcon.className = isPaused ? 'fa-solid fa-play' : 'fa-solid fa-pause';
             if (volumeIcon) {
                 volumeIcon.className = audio.muted || audio.volume === 0
                     ? 'fa-solid fa-volume-xmark'

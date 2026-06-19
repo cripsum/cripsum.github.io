@@ -35,7 +35,7 @@ function profile_build_preset_data(mysqli $mysqli, int $targetUserId): ?array
         'profile_music_mime', 'profile_music_title', 'profile_music_artist', 'profile_show_audio_player',
         'profile_effect', 'profile_show_characters', 'avatar_ring_enabled', 'avatar_ring_style',
         'avatar_ring_color', 'profile_enter_text', 'profile_click_to_enter', 'profile_socials_style',
-        'profile_show_embeds', 'profile_sections_order', 'profile_badges_display', 'profile_badges_position',
+        'profile_show_embeds', 'profile_sections_order', 'profile_sections_config', 'profile_badges_display', 'profile_badges_position',
         'discord_server_invite', 'profile_font', 'profile_border_radius', 'profile_card_opacity',
         'profile_card_blur', 'profile_border_opacity', 'profile_border_color', 'profile_border_width',
         'profile_name_style', 'profile_ui_shape', 'profile_avatar_shape', 'profile_social_size',
@@ -241,7 +241,7 @@ switch ($action) {
             'profile_music_mime', 'profile_music_title', 'profile_music_artist', 'profile_show_audio_player', 
             'profile_effect', 'profile_show_characters', 'avatar_ring_enabled', 'avatar_ring_style', 
             'avatar_ring_color', 'profile_enter_text', 'profile_click_to_enter', 'profile_socials_style', 
-            'profile_show_embeds', 'profile_sections_order', 'profile_badges_display', 'profile_badges_position', 
+            'profile_show_embeds', 'profile_sections_order', 'profile_sections_config', 'profile_badges_display', 'profile_badges_position', 
             'discord_server_invite', 'profile_font', 'profile_border_radius', 'profile_card_opacity', 
             'profile_card_blur', 'profile_border_opacity', 'profile_border_color', 'profile_border_width', 
             'profile_name_style', 'profile_ui_shape', 'profile_avatar_shape', 'profile_social_size', 
@@ -434,18 +434,29 @@ switch ($action) {
             // 5. Blocks list restoration
             $mysqli->query("DELETE FROM utenti_profile_blocks WHERE utente_id = " . $targetUserId);
             $blockRows = json_decode($presetData['blocks_json'] ?? '[]', true) ?: [];
-            $insertBlock = $mysqli->prepare("INSERT INTO utenti_profile_blocks (utente_id, block_type, title, body, media_url, media_type, is_featured, is_visible, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $insertBlock = $mysqli->prepare("INSERT INTO utenti_profile_blocks (utente_id, block_type, title, body, media_url, media_type, is_featured, is_visible, sort_order, no_card_style) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $allowedBTypes = ['text', 'image', 'gif', 'video'];
+            if ($isPremium) {
+                $allowedBTypes[] = 'markdown';
+                $allowedBTypes[] = 'html';
+            }
             foreach ($blockRows as $i => $row) {
                 $bType = profile_allowed_value((string)($row['block_type'] ?? 'text'), $allowedBTypes, 'text');
                 $title = profile_clean_text($row['title'] ?? '', 80);
-                $body = profile_clean_text($row['body'] ?? '', 700);
+                $body = trim((string)($row['body'] ?? ''));
+                $maxLen = ($isPremium && in_array($bType, ['markdown', 'html'], true)) ? 5000 : 700;
+                if ($isPremium && in_array($bType, ['markdown', 'html'], true)) {
+                    $body = mb_substr($body, 0, $maxLen, 'UTF-8');
+                } else {
+                    $body = profile_clean_text($body, $maxLen);
+                }
                 $mediaUrl = trim((string)($row['media_url'] ?? ''));
                 $mType = profile_allowed_value((string)($row['media_type'] ?? $row['block_type'] ?? 'image'), $allowedBTypes, 'image');
                 $featured = !empty($row['is_featured']) ? 1 : 0;
                 $visible = !empty($row['is_visible']) ? 1 : 0;
                 if ($title === '' && $body === '' && $mediaUrl === '') continue;
-                $insertBlock->bind_param('isssssiii', $targetUserId, $bType, $title, $body, $mediaUrl, $mType, $featured, $visible, $i);
+                $noCardStyle = (!empty($row['no_card_style']) && $isPremium) ? 1 : 0;
+                $insertBlock->bind_param('isssssiiii', $targetUserId, $bType, $title, $body, $mediaUrl, $mType, $featured, $visible, $i, $noCardStyle);
                 $insertBlock->execute();
             }
             $insertBlock->close();

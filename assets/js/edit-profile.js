@@ -52,6 +52,10 @@
     const blockTypes = isEnglish
         ? [['text', 'Text'], ['image', 'Image'], ['gif', 'GIF'], ['video', 'Video']]
         : [['text', 'Testo'], ['image', 'Immagine'], ['gif', 'GIF'], ['video', 'Video']];
+    if (window.isPremiumUser) {
+        blockTypes.push(['markdown', 'Markdown']);
+        blockTypes.push(['html', 'HTML']);
+    }
     const linkButtonStyles = isEnglish
         ? [['card', 'Card'], ['compact', 'Compact'], ['icon', 'Icon only']]
         : [['card', 'Card'], ['compact', 'Compatto'], ['icon', 'Solo icona']];
@@ -184,7 +188,7 @@
                 <div class="profile-row-grid">
                     <label>${isEnglish ? 'Type' : 'Tipo'}<select data-field="block_type">${options(blockTypes, data.block_type || 'text')}</select></label>
                     <label>${isEnglish ? 'Title' : 'Titolo'}<input data-field="title" maxlength="80" value="${escapeAttr(data.title || '')}" placeholder="Titolo del post"></label>
-                    <label class="profile-row-grid full">${isEnglish ? 'Text' : 'Testo'}<textarea data-field="body" maxlength="700" placeholder="Testo breve, nota, descrizione o quote">${escapeAttr(data.body || '')}</textarea></label>
+                    <label class="profile-row-grid full">${isEnglish ? 'Text' : 'Testo'}<textarea data-field="body" maxlength="${window.isPremiumUser ? 5000 : 700}" placeholder="Testo breve, nota, descrizione o quote">${escapeAttr(data.body || '')}</textarea></label>
                     <label class="profile-field-upload-wrapper">${isEnglish ? 'Media URL' : 'Media URL'}
                         <div class="input-with-upload">
                             <input data-field="media_url" value="${escapeAttr(data.media_url || '')}" placeholder="https://... o carica">
@@ -192,8 +196,13 @@
                         </div>
                     </label>
                     <label>${isEnglish ? 'Media type' : 'Media type'}<select data-field="media_type">${options(blockTypes, data.media_type || data.block_type || 'image')}</select></label>
-                    <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> Pin</label>
-                    <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> ${isEnglish ? 'Visible' : 'Visibile'}</label>
+                    <div style="display: flex; gap: 1.5rem; grid-column: 1 / -1; flex-wrap: wrap; margin-top: 5px;">
+                        <label class="profile-check-line" style="margin: 0;"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> Pin</label>
+                        <label class="profile-check-line" style="margin: 0;"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> ${isEnglish ? 'Visible' : 'Visibile'}</label>
+                        ${window.isPremiumUser ? `
+                        <label class="profile-check-line" style="margin: 0;"><input type="checkbox" data-field="no_card_style" ${boolAttr(data.no_card_style)}> <span style="color: var(--accent); font-weight: 600;"><i class="fa-solid fa-crown"></i> ${isEnglish ? 'No background & border' : 'Rimuovi sfondo e bordo'}</span></label>
+                        ` : ''}
+                    </div>
                     <div class="row-card-tag-section full">
                         <div class="row-card-tag-header">
                             <span class="premium-badge-mini"><i class="fa-solid fa-crown"></i> ${isEnglish ? 'Premium Card Tag' : 'Tag Card Premium'}</span>
@@ -291,6 +300,26 @@
                     useGradientChk.addEventListener('change', () => {
                         gradientContainer.style.display = useGradientChk.checked ? 'block' : 'none';
                     });
+                }
+            }, 0);
+        }
+
+        if (type === 'blocks') {
+            setTimeout(() => {
+                const blockTypeSelect = row.querySelector('[data-field="block_type"]');
+                const mediaUrlWrapper = row.querySelector('.profile-field-upload-wrapper');
+                const mediaTypeWrapper = mediaUrlWrapper ? mediaUrlWrapper.nextElementSibling : null;
+
+                function toggleMediaFields() {
+                    const val = blockTypeSelect.value;
+                    const hide = ['text', 'markdown', 'html'].includes(val);
+                    if (mediaUrlWrapper) mediaUrlWrapper.style.display = hide ? 'none' : 'block';
+                    if (mediaTypeWrapper) mediaTypeWrapper.style.display = hide ? 'none' : 'block';
+                }
+
+                if (blockTypeSelect) {
+                    blockTypeSelect.addEventListener('change', toggleMediaFields);
+                    toggleMediaFields();
                 }
             }, 0);
         }
@@ -1927,6 +1956,7 @@
 
     function initSectionsSorting() {
         const sectionsOrderInput = document.getElementById('sectionsOrderJson');
+        const sectionsConfigInput = document.getElementById('sectionsConfigJson');
         const sectionsSortList = document.getElementById('sectionsSortList');
         if (!sectionsOrderInput || !sectionsSortList) return;
 
@@ -1937,22 +1967,65 @@
             if (!currentOrder.includes(s)) currentOrder.push(s);
         });
 
+        let sectionsConfig = {};
+        if (sectionsConfigInput && sectionsConfigInput.value) {
+            try {
+                sectionsConfig = JSON.parse(sectionsConfigInput.value);
+            } catch(e) {
+                sectionsConfig = {};
+            }
+        }
+
         function renderSectionsList() {
             sectionsSortList.innerHTML = '';
             currentOrder.forEach((secKey, index) => {
                 const info = sectionInfo[secKey] || { name: secKey, icon: 'fa-solid fa-folder' };
+                const config = sectionsConfig[secKey] || { hidden: 0, title: '', icon: '' };
                 const item = document.createElement('div');
-                item.className = 'profile-sort-item';
+                item.className = 'profile-sort-item-wrapper';
                 item.dataset.secKey = secKey;
+                item.style.marginBottom = '0.5rem';
+
+                let settingsBtnHtml = '';
+                let settingsPanelHtml = '';
+
+                if (window.isPremiumUser) {
+                    settingsBtnHtml = `
+                        <button type="button" class="profile-sec-settings-btn" title="${isEnglish ? 'Customize header' : 'Personalizza intestazione'}" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: #fff; padding: 0.35rem 0.5rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s;"><i class="fa-solid fa-cog"></i></button>
+                    `;
+                    settingsPanelHtml = `
+                        <div class="profile-sec-settings-panel" style="display: none; padding: 0.8rem; margin-top: 0.5rem; background: rgba(0,0,0,0.15); border: 1px dashed rgba(255,255,255,0.1); border-radius: 6px; gap: 0.6rem; flex-direction: column;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; cursor: pointer; user-select: none; margin: 0;">
+                                <input type="checkbox" class="sec-hide-checkbox" ${config.hidden ? 'checked' : ''}>
+                                ${isEnglish ? 'Hide section header' : 'Nascondi intestazione sezione'}
+                            </label>
+                            <div class="sec-fields" style="display: ${config.hidden ? 'none' : 'grid'}; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.3rem;">
+                                <label style="display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.75rem; margin: 0;">
+                                    ${isEnglish ? 'Custom Title' : 'Titolo Personalizzato'}
+                                    <input type="text" class="sec-title-input" value="${escapeAttr(config.title || '')}" placeholder="${info.name}" style="padding: 0.35rem; font-size: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #fff; border-radius: 4px; outline: none; margin-top: 0.2rem;">
+                                </label>
+                                <label style="display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.75rem; margin: 0;">
+                                    ${isEnglish ? 'Custom Icon Class' : 'Classe Icona Personalizzata'}
+                                    <input type="text" class="sec-icon-input" value="${escapeAttr(config.icon || '')}" placeholder="${info.icon}" style="padding: 0.35rem; font-size: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #fff; border-radius: 4px; outline: none; margin-top: 0.2rem;">
+                                </label>
+                            </div>
+                        </div>
+                    `;
+                }
+
                 item.innerHTML = `
-                    <div class="profile-sort-item-info">
-                        <i class="${info.icon}"></i>
-                        <span>${info.name}</span>
+                    <div class="profile-sort-item" style="display: flex; align-items: center; justify-content: space-between; padding: 0.62rem 0.8rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px;">
+                        <div class="profile-sort-item-info">
+                            <i class="${info.icon}"></i>
+                            <span>${info.name} ${config.hidden && window.isPremiumUser ? `<span style="font-size: 0.75rem; color: #ef4444; margin-left: 0.5rem; font-weight: bold;">(${isEnglish ? 'Hidden' : 'Nascosta'})</span>` : ''}</span>
+                        </div>
+                        <div class="profile-row-actions" style="display: flex; gap: 0.3rem;">
+                            ${settingsBtnHtml}
+                            <button type="button" class="profile-move-up-sec" title="${isEnglish ? 'Move up' : 'Sposta su'}" ${index === 0 ? 'disabled' : ''}><i class="fa-solid fa-arrow-up"></i></button>
+                            <button type="button" class="profile-move-down-sec" title="${isEnglish ? 'Move down' : 'Sposta giù'}" ${index === currentOrder.length - 1 ? 'disabled' : ''}><i class="fa-solid fa-arrow-down"></i></button>
+                        </div>
                     </div>
-                    <div class="profile-row-actions">
-                        <button type="button" class="profile-move-up-sec" title="${isEnglish ? 'Move up' : 'Sposta su'}" ${index === 0 ? 'disabled' : ''}><i class="fa-solid fa-arrow-up"></i></button>
-                        <button type="button" class="profile-move-down-sec" title="${isEnglish ? 'Move down' : 'Sposta giù'}" ${index === currentOrder.length - 1 ? 'disabled' : ''}><i class="fa-solid fa-arrow-down"></i></button>
-                    </div>
+                    ${settingsPanelHtml}
                 `;
 
                 item.querySelector('.profile-move-up-sec').addEventListener('click', (e) => {
@@ -1980,6 +2053,58 @@
                         triggerAutosave(true);
                     }
                 });
+
+                if (window.isPremiumUser) {
+                    const settingsBtn = item.querySelector('.profile-sec-settings-btn');
+                    const settingsPanel = item.querySelector('.profile-sec-settings-panel');
+                    const hideChk = item.querySelector('.sec-hide-checkbox');
+                    const secFields = item.querySelector('.sec-fields');
+                    const titleInput = item.querySelector('.sec-title-input');
+                    const iconInput = item.querySelector('.sec-icon-input');
+
+                    if (settingsBtn && settingsPanel) {
+                        settingsBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const isHidden = settingsPanel.style.display === 'none';
+                            settingsPanel.style.display = isHidden ? 'flex' : 'none';
+                        });
+                    }
+
+                    function saveSecConfig() {
+                        sectionsConfig[secKey] = {
+                            hidden: hideChk.checked ? 1 : 0,
+                            title: titleInput.value.trim(),
+                            icon: iconInput.value.trim()
+                        };
+                        if (sectionsConfigInput) {
+                            sectionsConfigInput.value = JSON.stringify(sectionsConfig);
+                        }
+                    }
+
+                    if (hideChk) {
+                        hideChk.addEventListener('change', () => {
+                            if (secFields) secFields.style.display = hideChk.checked ? 'none' : 'grid';
+                            saveSecConfig();
+                            updatePreview();
+                            triggerAutosave(true);
+                        });
+                    }
+
+                    [titleInput, iconInput].forEach(inp => {
+                        if (inp) {
+                            inp.addEventListener('input', () => {
+                                saveSecConfig();
+                                updatePreview();
+                                triggerAutosave(false);
+                            });
+                            inp.addEventListener('change', () => {
+                                saveSecConfig();
+                                updatePreview();
+                                triggerAutosave(true);
+                            });
+                        }
+                    });
+                }
 
                 sectionsSortList.appendChild(item);
             });
