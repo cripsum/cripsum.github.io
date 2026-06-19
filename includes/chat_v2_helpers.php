@@ -405,7 +405,7 @@ function chat_fetch_messages(mysqli $mysqli, int $currentUserId, array $options 
         $params[] = '%' . $search . '%';
     }
 
-    $order = $beforeId > 0 ? 'DESC' : 'ASC';
+    $order = ($beforeId > 0 || ($beforeId === 0 && $afterId === 0)) ? 'DESC' : 'ASC';
     $whereSql = implode(' AND ', $where);
     $sql = "
         SELECT
@@ -455,7 +455,7 @@ function chat_fetch_messages(mysqli $mysqli, int $currentUserId, array $options 
     }
     $stmt->close();
 
-    if ($beforeId > 0) {
+    if ($beforeId > 0 || ($beforeId === 0 && $afterId === 0)) {
         $rows = array_reverse($rows);
     }
 
