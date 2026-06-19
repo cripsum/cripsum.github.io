@@ -286,14 +286,17 @@
         return linkify(text);
     };
 
-    const messageHtml = (msg, pending = false, error = false) => {
+    const messageHtml = (msg, isConsecutive = false, pending = false, error = false) => {
         const mine = msg.is_mine || Number(msg.user_id) === Number(cfg.userId);
         const deleted = msg.is_deleted;
-        const classes = ['chat-message', mine ? 'is-mine' : '', deleted ? 'is-deleted' : '', pending ? 'is-pending' : '', error ? 'is-error' : ''].filter(Boolean).join(' ');
+        const classes = ['chat-message', mine ? 'is-mine' : '', deleted ? 'is-deleted' : '', pending ? 'is-pending' : '', error ? 'is-error' : '', isConsecutive ? 'is-consecutive' : ''].filter(Boolean).join(' ');
         const msgId = String(msg.id);
         const bodyText = msg.message_type === 'gif' ? replyTextFor(msg) : (msg.message || '');
         const edited = msg.edited_at && !deleted ? '<span class="chat-edited">modificato</span>' : '';
         const timeLabel = pending ? (msg.created_label || 'ora') : formatLocalTime(msg.created_at);
+
+        const isPureGif = msg.message_type === 'gif' && !msg.reply && !msg.message;
+        const bubbleClasses = ['chat-bubble', isPureGif ? 'chat-bubble--pure-gif' : ''].filter(Boolean).join(' ');
 
         const avatar = `<a class="chat-avatar-link" href="${escapeHtml(safeUrl(msg.profile_url || '#'))}" tabindex="-1"><img src="${escapeHtml(safeUrl(msg.avatar_url || '/img/abdul.jpg'))}" alt="" loading="lazy"></a>`;
         const main = `
@@ -305,7 +308,7 @@
                     <time class="chat-time" datetime="${escapeHtml(msg.created_at || '')}">${escapeHtml(timeLabel || '')}${edited}</time>
                 </div>
                 <div class="chat-bubble-wrap">
-                    <div class="chat-bubble">${replyHtml(msg.reply)}<div class="chat-message-content">${messageBodyHtml(msg)}</div></div>
+                    <div class="${bubbleClasses}">${replyHtml(msg.reply)}<div class="chat-message-content">${messageBodyHtml(msg)}</div></div>
                     ${messageActionsHtml(msg)}
                 </div>
                 ${reactionsHtml(msg.reactions)}
@@ -319,13 +322,26 @@
     const addDaySeparators = (messages) => {
         let html = '';
         let lastDay = null;
+        let prevMsg = null;
         messages.forEach((msg) => {
             const label = dayLabel(msg.created_at || '');
+            let isConsecutive = false;
             if (label && label !== lastDay) {
                 html += `<div class="chat-day"><span>${escapeHtml(label)}</span></div>`;
                 lastDay = label;
+                prevMsg = null;
             }
-            html += messageHtml(msg);
+            if (prevMsg && Number(prevMsg.user_id) === Number(msg.user_id)) {
+                const prevTime = parseUtcDate(prevMsg.created_at).getTime();
+                const currTime = parseUtcDate(msg.created_at).getTime();
+                if (!Number.isNaN(prevTime) && !Number.isNaN(currTime)) {
+                    if (Math.abs(currTime - prevTime) < 180000) {
+                        isConsecutive = true;
+                    }
+                }
+            }
+            html += messageHtml(msg, isConsecutive);
+            prevMsg = msg;
         });
         return html;
     };
@@ -419,9 +435,10 @@
     const replaceMessage = (msg) => {
         if (!msg) return;
         state.messages.set(Number(msg.id), msg);
-        const current = document.getElementById(`msg-${msg.id}`);
-        if (!current) return renderMessages([msg], 'append');
-        current.outerHTML = messageHtml(msg);
+        const allMessages = Array.from(state.messages.values()).sort((a, b) => Number(a.id) - Number(b.id));
+        if (el.messages) {
+            el.messages.innerHTML = addDaySeparators(allMessages);
+        }
     };
 
     const playNotification = (messages) => {
@@ -567,7 +584,7 @@
 
     const appendPending = (pendingMessage) => {
         if (el.messages?.querySelector('.chat-empty')) el.messages.innerHTML = '';
-        el.messages?.insertAdjacentHTML('beforeend', messageHtml(pendingMessage, true));
+        el.messages?.insertAdjacentHTML('beforeend', messageHtml(pendingMessage, false, true));
         scrollToBottom('smooth');
     };
 

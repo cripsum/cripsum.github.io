@@ -1120,8 +1120,8 @@ body {
     display: grid;
     gap: 0.45rem;
     margin: 0;
-    min-width: 280px;
-    max-width: min(480px, 100%);
+    width: 460px;
+    max-width: 100%;
 }
 .chat-gif-message a {
     display: block;
@@ -1133,8 +1133,17 @@ body {
 .chat-gif-message img {
     display: block;
     width: 100%;
-    max-height: 380px;
+    max-height: 400px;
     object-fit: cover;
+}
+.chat-bubble.chat-bubble--pure-gif {
+    padding: 0 !important;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+.chat-bubble.chat-bubble--pure-gif .chat-gif-message a {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
 }
 .chat-gif-message figcaption {
     color: var(--chat-text);
@@ -1409,11 +1418,11 @@ body {
         overflow: hidden;
     }
     .chat-gif-message {
-        min-width: 220px;
-        max-width: min(340px, 100%);
+        width: 290px;
+        max-width: 100%;
     }
     .chat-gif-message img {
-        max-height: 280px;
+        max-height: 290px;
     }
     .chat-message-actions {
         display: inline-flex;
@@ -1747,12 +1756,12 @@ body {
     }
 
     .chat-gif-message {
-        min-width: 220px;
-        max-width: min(340px, 100%);
+        width: 290px;
+        max-width: 100%;
     }
 
     .chat-gif-message img {
-        max-height: 280px;
+        max-height: 290px;
     }
 
     .chat-gif-message figcaption {
@@ -2542,5 +2551,25 @@ body {
         height: 36px;
         min-width: 36px;
         min-height: 36px;
+    }
+}
+
+/* Spacing and visibility rules for consecutive messages sent by the same user */
+.chat-message.is-consecutive {
+    margin-top: 0.08rem;
+    margin-bottom: 0.08rem;
+}
+.chat-message.is-consecutive .chat-avatar-link {
+    visibility: hidden;
+    pointer-events: none;
+}
+.chat-message.is-consecutive .chat-message-meta {
+    display: none;
+}
+
+@media (max-width: 760px) {
+    .chat-message.is-consecutive {
+        margin-top: 0.04rem;
+        margin-bottom: 0.04rem;
     }
 }
