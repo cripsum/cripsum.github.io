@@ -25,7 +25,8 @@
         gifLoading: false,
         reactionPopover: null,
         loadedOnce: false,
-        initialLoadComplete: false
+        initialLoadComplete: false,
+        reachedEnd: false
     };
 
     const el = {
@@ -323,14 +324,26 @@
         let html = '';
         let lastDay = null;
         let prevMsg = null;
+        let groupHtml = '';
+
+        if (state.reachedEnd && messages.length > 0) {
+            html += `<div class="chat-beginning"><i class="fa-solid fa-circle-info"></i><span>Hai raggiunto l'inizio della chat globale.</span></div>`;
+        }
+
         messages.forEach((msg) => {
             const label = dayLabel(msg.created_at || '');
             let isConsecutive = false;
+
             if (label && label !== lastDay) {
-                html += `<div class="chat-day"><span>${escapeHtml(label)}</span></div>`;
+                if (lastDay !== null) {
+                    html += `<div class="chat-day-group">${groupHtml}</div>`;
+                    groupHtml = '';
+                }
+                groupHtml += `<div class="chat-day"><span>${escapeHtml(label)}</span></div>`;
                 lastDay = label;
                 prevMsg = null;
             }
+
             if (prevMsg && Number(prevMsg.user_id) === Number(msg.user_id)) {
                 const prevTime = parseUtcDate(prevMsg.created_at).getTime();
                 const currTime = parseUtcDate(msg.created_at).getTime();
@@ -340,9 +353,15 @@
                     }
                 }
             }
-            html += messageHtml(msg, isConsecutive);
+
+            groupHtml += messageHtml(msg, isConsecutive);
             prevMsg = msg;
         });
+
+        if (groupHtml) {
+            html += `<div class="chat-day-group">${groupHtml}</div>`;
+        }
+
         return html;
     };
 
@@ -427,8 +446,14 @@
 
         if (mode === 'prepend') {
             const oldHeight = el.messages.scrollHeight;
+            const originalScrollBehavior = el.messages.style.scrollBehavior;
+            el.messages.style.scrollBehavior = 'auto';
             el.messages.innerHTML = addDaySeparators(allMessages);
             el.messages.scrollTop += el.messages.scrollHeight - oldHeight;
+            // Force layout reflow
+            // eslint-disable-next-line no-unused-expressions
+            el.messages.offsetHeight;
+            el.messages.style.scrollBehavior = originalScrollBehavior;
         }
     };
 
@@ -455,8 +480,9 @@
         if (cfg.initialMessages && !state.loadedOnce) {
             const initial = cfg.initialMessages;
             delete cfg.initialMessages;
+            state.reachedEnd = initial.length < 15;
             renderMessages(initial, 'replace');
-            if (el.loadOlder) el.loadOlder.hidden = initial.length < 15;
+            if (el.loadOlder) el.loadOlder.hidden = state.reachedEnd;
             setSyncState('ok', 'Live');
 
             // Load older messages in background silently after page loads
@@ -474,9 +500,10 @@
         try {
             const url = `${cfg.endpoints.messages}?limit=15${state.search ? `&search=${encodeURIComponent(state.search)}` : ''}`;
             const data = await api(url);
+            state.reachedEnd = (data.messages || []).length < 15;
             renderMessages(data.messages || [], 'replace');
             updateStatus(data);
-            if (el.loadOlder) el.loadOlder.hidden = (data.messages || []).length < 15;
+            if (el.loadOlder) el.loadOlder.hidden = state.reachedEnd;
             setSyncState('ok', 'Live');
 
             // Load older messages in background silently
@@ -506,15 +533,18 @@
     };
 
     const loadOlder = async () => {
-        if (state.olderLoading || !state.firstId) return;
+        if (state.olderLoading || state.reachedEnd || !state.firstId) return;
         state.olderLoading = true;
         if (el.loadOlder) el.loadOlder.disabled = true;
         try {
             const url = `${cfg.endpoints.messages}?before_id=${state.firstId}&limit=30${state.search ? `&search=${encodeURIComponent(state.search)}` : ''}`;
             const data = await api(url);
             const messages = (data.messages || []).filter((m) => !state.messages.has(Number(m.id)));
+            if (messages.length < 30) {
+                state.reachedEnd = true;
+            }
             if (messages.length) renderMessages(messages, 'prepend');
-            if (el.loadOlder) el.loadOlder.hidden = messages.length < 30;
+            if (el.loadOlder) el.loadOlder.hidden = state.reachedEnd;
         } catch (error) {
             showToast(error.message);
         } finally {
@@ -907,6 +937,16 @@
         el.soundButton.classList.toggle('is-active', state.soundEnabled);
     };
 
+    const handleScroll = () => {
+        updateFloatingButtons();
+        if (el.messages && el.messages.scrollTop < 60) {
+            const hasMoreOlder = el.loadOlder && !el.loadOlder.hidden;
+            if (hasMoreOlder && !state.olderLoading && state.initialLoadComplete) {
+                loadOlder();
+            }
+        }
+    };
+
     const initEvents = () => {
         el.form?.addEventListener('submit', sendTextMessage);
         el.input?.addEventListener('input', () => {
@@ -948,7 +988,7 @@
             }
         });
 
-        el.messages?.addEventListener('scroll', updateFloatingButtons, { passive: true });
+        el.messages?.addEventListener('scroll', handleScroll, { passive: true });
         el.scrollBottom?.addEventListener('click', () => scrollToBottom('smooth'));
         el.newMessages?.addEventListener('click', () => scrollToBottom('smooth'));
         el.loadOlder?.addEventListener('click', loadOlder);
