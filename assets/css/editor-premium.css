@@ -1229,6 +1229,7 @@ input[type="range"]::-moz-range-track {
 
 .onboarding-plan-overlay.is-active {
     display: flex !important;
+    opacity: 1 !important;
     animation: planOverlayFadeIn 0.3s ease forwards;
 }
 
@@ -1246,6 +1247,7 @@ input[type="range"]::-moz-range-track {
 }
 
 .onboarding-plan-overlay.is-active .onboarding-plan-card {
+    transform: scale(1) !important;
     animation: planCardScaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
