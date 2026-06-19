@@ -488,8 +488,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.1.7">
-    <script src="/assets/js/profile.js?v=5.1.7" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.1.8">
+    <script src="/assets/js/profile.js?v=5.1.8" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -613,9 +613,11 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             padding: 2rem 1rem !important;
             position: relative !important;
         }
-        body.snap-active .profile-smart-hero-wrapper {
+        body.snap-active.public-profile-body #bioPage .profile-smart-hero-wrapper {
             top: 0 !important;
             position: relative !important;
+            align-self: auto !important;
+            margin: 0 !important;
         }
         body.snap-active .profile-split-column,
         body.snap-active .profile-smart-content {
