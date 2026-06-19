@@ -528,7 +528,7 @@ function profile_list_contents(mysqli $mysqli, int $userId, bool $onlyVisible = 
 
 function profile_list_blocks(mysqli $mysqli, int $userId, bool $onlyVisible = true): array
 {
-    $sql = "SELECT id, block_type, title, body, media_url, media_type, is_featured, sort_order, is_visible, card_tag_text, card_tag_bg, card_tag_color, no_card_style FROM utenti_profile_blocks WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY is_featured DESC, sort_order ASC, id ASC";
+    $sql = "SELECT id, block_type, title, body, media_url, media_type, is_featured, sort_order, is_visible, card_tag_text, card_tag_bg, card_tag_color, no_card_style, media_position, text_align, media_align, media_fit FROM utenti_profile_blocks WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY is_featured DESC, sort_order ASC, id ASC";
     $stmt = $mysqli->prepare($sql);
     if (!$stmt) return [];
     $stmt->bind_param('i', $userId);

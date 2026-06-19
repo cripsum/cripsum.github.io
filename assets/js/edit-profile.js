@@ -247,6 +247,35 @@
                         <label class="profile-check-line" style="margin: 0;"><input type="checkbox" data-field="no_card_style" ${boolAttr(data.no_card_style)}> <span style="color: var(--accent); font-weight: 600;"><i class="fa-solid fa-crown"></i> ${isEng ? 'No background & border' : 'Rimuovi sfondo e bordo'}</span></label>
                         ` : ''}
                     </div>
+                    ${isPrem ? `
+                    <div class="row-block-layout-section full" style="margin-top: 8px;">
+                        <div class="row-card-tag-header">
+                            <span class="premium-badge-mini"><i class="fa-solid fa-crown"></i> ${isEng ? 'Premium Layout Options' : 'Opzioni Layout Premium'}</span>
+                        </div>
+                        <div class="profile-row-grid" style="margin-top: 6px;">
+                            <label>${isEng ? 'Media Position' : 'Posizione Media'}
+                                <select data-field="media_position">
+                                    ${options([['top', isEng ? 'Top (above text)' : 'Sopra (sopra il testo)'], ['bottom', isEng ? 'Bottom (below text)' : 'Sotto (sotto il testo)']], data.media_position || 'top')}
+                                </select>
+                            </label>
+                            <label>${isEng ? 'Media Fit' : 'Adattamento Media'}
+                                <select data-field="media_fit">
+                                    ${options([['cover', isEng ? 'Crop to fill' : 'Ritaglia e riempi'], ['contain', isEng ? 'Fit inside' : 'Adatta dentro'], ['original', isEng ? 'Original size' : 'Dimensione originale']], data.media_fit || 'cover')}
+                                </select>
+                            </label>
+                            <label>${isEng ? 'Text Alignment' : 'Allineamento Testo'}
+                                <select data-field="text_align">
+                                    ${options([['left', isEng ? 'Left' : 'Sinistra'], ['center', isEng ? 'Center' : 'Centro'], ['right', isEng ? 'Right' : 'Destra']], data.text_align || 'left')}
+                                </select>
+                            </label>
+                            <label>${isEng ? 'Media Alignment' : 'Allineamento Media'}
+                                <select data-field="media_align">
+                                    ${options([['left', isEng ? 'Left' : 'Sinistra'], ['center', isEng ? 'Center' : 'Centro'], ['right', isEng ? 'Right' : 'Destra']], data.media_align || 'center')}
+                                </select>
+                            </label>
+                        </div>
+                    </div>
+                    ` : ''}
                     <div class="row-card-tag-section full">
                         <div class="row-card-tag-header">
                             <span class="premium-badge-mini"><i class="fa-solid fa-crown"></i> ${isEng ? 'Premium Card Tag' : 'Tag Card Premium'}</span>

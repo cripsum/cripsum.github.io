@@ -661,7 +661,7 @@ try {
     $stmt->execute();
     $stmt->close();
 
-    $insertBlock = $mysqli->prepare("INSERT INTO utenti_profile_blocks (utente_id, block_type, title, body, media_url, media_type, is_featured, is_visible, sort_order, card_tag_text, card_tag_bg, card_tag_color, no_card_style) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $insertBlock = $mysqli->prepare("INSERT INTO utenti_profile_blocks (utente_id, block_type, title, body, media_url, media_type, is_featured, is_visible, sort_order, card_tag_text, card_tag_bg, card_tag_color, no_card_style, media_position, text_align, media_align, media_fit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     foreach ($blockRows as $i => $row) {
         $type = profile_allowed_value((string)($row['block_type'] ?? 'text'), $allowedBlockTypes, 'text');
         $title = profile_clean_text($row['title'] ?? '', 80);
@@ -702,7 +702,16 @@ try {
         }
         $noCardStyle = (!empty($row['no_card_style']) && $isPremium) ? 1 : 0;
 
-        $insertBlock->bind_param('isssssiiisssi', $targetUserId, $type, $title, $body, $mediaUrl, $mediaType, $featured, $visible, $i, $tagText, $tagBg, $tagColor, $noCardStyle);
+        $allowedMediaPos = ['top', 'bottom'];
+        $allowedTextAlign = ['left', 'center', 'right'];
+        $allowedMediaAlign = ['left', 'center', 'right'];
+        $allowedMediaFit = ['cover', 'contain', 'original'];
+        $mediaPosition = ($isPremium && isset($row['media_position']) && in_array($row['media_position'], $allowedMediaPos, true)) ? $row['media_position'] : 'top';
+        $textAlign = ($isPremium && isset($row['text_align']) && in_array($row['text_align'], $allowedTextAlign, true)) ? $row['text_align'] : 'left';
+        $mediaAlign = ($isPremium && isset($row['media_align']) && in_array($row['media_align'], $allowedMediaAlign, true)) ? $row['media_align'] : 'center';
+        $mediaFit = ($isPremium && isset($row['media_fit']) && in_array($row['media_fit'], $allowedMediaFit, true)) ? $row['media_fit'] : 'cover';
+
+        $insertBlock->bind_param('isssssiiisssissss', $targetUserId, $type, $title, $body, $mediaUrl, $mediaType, $featured, $visible, $i, $tagText, $tagBg, $tagColor, $noCardStyle, $mediaPosition, $textAlign, $mediaAlign, $mediaFit);
         if (!$insertBlock->execute()) throw new RuntimeException('Error saving custom blocks.');
     }
     $insertBlock->close();

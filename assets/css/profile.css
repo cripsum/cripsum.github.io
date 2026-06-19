@@ -9170,6 +9170,41 @@ body.public-profile-body .profile-effects-foreground-layer {
     padding: 0 !important;
 }
 
+/* Block media fit options */
+.profile-block-card.block-media-fit-contain img,
+.profile-block-card.block-media-fit-contain video {
+    object-fit: contain;
+    background: transparent;
+}
+
+.profile-block-card.block-media-fit-original img,
+.profile-block-card.block-media-fit-original video {
+    object-fit: none;
+    max-height: none;
+    height: auto;
+    width: auto;
+    max-width: 100%;
+}
+
+/* Block media alignment options */
+.profile-block-card.block-media-align-left img,
+.profile-block-card.block-media-align-left video {
+    margin-right: auto;
+    margin-left: 0;
+}
+
+.profile-block-card.block-media-align-center img,
+.profile-block-card.block-media-align-center video {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.profile-block-card.block-media-align-right img,
+.profile-block-card.block-media-align-right video {
+    margin-left: auto;
+    margin-right: 0;
+}
+
 .profile-block-custom-content img {
     max-width: 100%;
     height: auto;

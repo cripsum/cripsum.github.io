@@ -528,7 +528,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.2.3">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.3.0">
     <script src="/assets/js/profile.js?v=5.2.3" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
@@ -1710,17 +1710,31 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     $mediaType = trim((string)($block['media_type'] ?? 'image'));
                                     $isPinned = !empty($block['is_featured']);
                                     $noCardStyleClass = (!empty($block['no_card_style']) && (int)($profile['is_premium'] ?? 0) === 1) ? 'no-card-style' : '';
+                                    $blockMediaPos = ($block['media_position'] ?? 'top');
+                                    $blockTextAlign = ($block['text_align'] ?? 'left');
+                                    $blockMediaAlign = ($block['media_align'] ?? 'center');
+                                    $blockMediaFit = ($block['media_fit'] ?? 'cover');
+                                    $blockMediaFitClass = 'block-media-fit-' . profile_h($blockMediaFit);
+                                    $blockMediaAlignClass = 'block-media-align-' . profile_h($blockMediaAlign);
+                                    $blockTextAlignStyle = $blockTextAlign !== 'left' ? ' style="text-align: ' . profile_h($blockTextAlign) . ';"' : '';
                                     ?>
-                                    <article class="profile-block-card profile-block-<?php echo profile_h($blockType); ?> <?php echo $isPinned ? 'is-pinned' : ''; ?> <?php echo $noCardStyleClass; ?>">
-                                        <?php if ($mediaUrl): ?>
-                                            <?php if ($mediaType === 'video' || $blockType === 'video'): ?>
-                                                <video src="<?php echo profile_h($mediaUrl); ?>" controls playsinline preload="metadata"></video>
-                                            <?php else: ?>
-                                                <img src="<?php echo profile_h($mediaUrl); ?>" alt="" loading="lazy">
-                                            <?php endif; ?>
-                                        <?php endif; ?>
-                                        <?php if (!empty($block['title']) || !empty($block['body']) || $isPinned || (!empty($block['card_tag_text']) && (int)($profile['is_premium'] ?? 0) === 1)): ?>
-                                            <div class="profile-block-copy">
+                                    <article class="profile-block-card profile-block-<?php echo profile_h($blockType); ?> <?php echo $isPinned ? 'is-pinned' : ''; ?> <?php echo $noCardStyleClass; ?> <?php echo $blockMediaFitClass; ?> <?php echo $blockMediaAlignClass; ?>">
+                                        <?php
+                                        // Build media HTML
+                                        $mediaHtml = '';
+                                        if ($mediaUrl) {
+                                            if ($mediaType === 'video' || $blockType === 'video') {
+                                                $mediaHtml = '<video src="' . profile_h($mediaUrl) . '" controls playsinline preload="metadata"></video>';
+                                            } else {
+                                                $mediaHtml = '<img src="' . profile_h($mediaUrl) . '" alt="" loading="lazy">';
+                                            }
+                                        }
+                                        // Build copy HTML
+                                        $copyHtml = '';
+                                        if (!empty($block['title']) || !empty($block['body']) || $isPinned || (!empty($block['card_tag_text']) && (int)($profile['is_premium'] ?? 0) === 1)) {
+                                            ob_start();
+                                        ?>
+                                            <div class="profile-block-copy"<?php echo $blockTextAlignStyle; ?>>
                                                 <?php if (!empty($block['title'])): ?>
                                                     <strong>
                                                         <?php echo profile_h($block['title']); ?>
@@ -1750,7 +1764,18 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                                 <?php endif; ?>
                                                 <?php if ($isPinned): ?><small>Pin</small><?php endif; ?>
                                             </div>
-                                        <?php endif; ?>
+                                        <?php
+                                            $copyHtml = ob_get_clean();
+                                        }
+                                        // Render based on media_position
+                                        if ($blockMediaPos === 'bottom') {
+                                            echo $copyHtml;
+                                            echo $mediaHtml;
+                                        } else {
+                                            echo $mediaHtml;
+                                            echo $copyHtml;
+                                        }
+                                        ?>
                                     </article>
                                 <?php endforeach; ?>
                             </div>

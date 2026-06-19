@@ -452,7 +452,7 @@ switch ($action) {
             // 5. Blocks list restoration
             $mysqli->query("DELETE FROM utenti_profile_blocks WHERE utente_id = " . $targetUserId);
             $blockRows = json_decode($presetData['blocks_json'] ?? '[]', true) ?: [];
-            $insertBlock = $mysqli->prepare("INSERT INTO utenti_profile_blocks (utente_id, block_type, title, body, media_url, media_type, is_featured, is_visible, sort_order, no_card_style) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $insertBlock = $mysqli->prepare("INSERT INTO utenti_profile_blocks (utente_id, block_type, title, body, media_url, media_type, is_featured, is_visible, sort_order, no_card_style, media_position, text_align, media_align, media_fit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $allowedBTypes = ['text', 'image', 'gif', 'video'];
             if ($isPremium) {
                 $allowedBTypes[] = 'markdown';
@@ -474,7 +474,15 @@ switch ($action) {
                 $visible = !empty($row['is_visible']) ? 1 : 0;
                 if ($title === '' && $body === '' && $mediaUrl === '') continue;
                 $noCardStyle = (!empty($row['no_card_style']) && $isPremium) ? 1 : 0;
-                $insertBlock->bind_param('isssssiiii', $targetUserId, $bType, $title, $body, $mediaUrl, $mType, $featured, $visible, $i, $noCardStyle);
+                $allowedMPos = ['top', 'bottom'];
+                $allowedTAlign = ['left', 'center', 'right'];
+                $allowedMAlign = ['left', 'center', 'right'];
+                $allowedMFit = ['cover', 'contain', 'original'];
+                $mediaPosition = (isset($row['media_position']) && in_array($row['media_position'], $allowedMPos, true)) ? $row['media_position'] : 'top';
+                $textAlign = (isset($row['text_align']) && in_array($row['text_align'], $allowedTAlign, true)) ? $row['text_align'] : 'left';
+                $mediaAlign = (isset($row['media_align']) && in_array($row['media_align'], $allowedMAlign, true)) ? $row['media_align'] : 'center';
+                $mediaFit = (isset($row['media_fit']) && in_array($row['media_fit'], $allowedMFit, true)) ? $row['media_fit'] : 'cover';
+                $insertBlock->bind_param('isssssiiiissss', $targetUserId, $bType, $title, $body, $mediaUrl, $mType, $featured, $visible, $i, $noCardStyle, $mediaPosition, $textAlign, $mediaAlign, $mediaFit);
                 $insertBlock->execute();
             }
             $insertBlock->close();
