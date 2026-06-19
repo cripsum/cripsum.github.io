@@ -395,3 +395,11 @@
         gap: 4px;
     }
 }
+
+/* Force red text and icon for Logout button */
+.dropdownprofilo .dropdown-menu .dropdown-item.text-danger,
+.dropdownprofilo .dropdown-menu a.text-danger,
+.dropdownprofilo .dropdown-menu .dropdown-item.text-danger i,
+.dropdownprofilo .dropdown-menu a.text-danger i {
+    color: #ff453a !important;
+}
