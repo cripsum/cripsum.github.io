@@ -3508,6 +3508,12 @@
         ];
         premiumInputs.forEach(input => {
             if (input) {
+                // Add class to closest container to activate pseudo-element overlay
+                const container = input.closest('.profile-toggle-card') || input.closest('.profile-field') || input.closest('label');
+                if (container) {
+                    container.classList.add('premium-locked-container');
+                }
+
                 input.disabled = true;
                 if (input.type === 'checkbox') input.checked = false;
                 else if (input.tagName === 'SELECT') {
@@ -3521,6 +3527,33 @@
                 }
             }
         });
+
+        // Capture phase document listener to intercept clicks on disabled/premium inputs
+        document.addEventListener('click', (e) => {
+            if (window.isPremiumUser) return;
+
+            const isTagSection = e.target.closest('.row-card-tag-section');
+            const isBadgeTag = e.target.closest('.premium-badge-tag') || e.target.closest('.premium-badge-mini');
+            const isLockedContainer = e.target.closest('.premium-locked-container');
+
+            if (isTagSection || isBadgeTag || isLockedContainer) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                let msg = isEnglish ? 'This feature requires a Premium account.' : 'Questa funzione richiede un account Premium.';
+                if (isTagSection) {
+                    msg = isEnglish ? 'Card tags require a Premium account.' : 'Le tag delle card richiedono un account Premium.';
+                } else if (isBadgeTag && e.target.closest('.premium-badge-mini')) {
+                    msg = isEnglish ? 'Custom badges require a Premium account.' : 'I badge personalizzati richiedono un account Premium.';
+                }
+
+                if (typeof window.profileToast === 'function') {
+                    window.profileToast(msg);
+                }
+                const planOverlay = document.getElementById('onboardingPlanOverlay');
+                if (planOverlay) planOverlay.classList.add('is-active');
+            }
+        }, true);
     }
 
     function initOnboardingPlanModal() {
