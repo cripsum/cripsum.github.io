@@ -1534,10 +1534,10 @@
     const initScrollSnapPagination = () => {
         const activeBody = document.body;
         const bioPage = document.getElementById('bioPage');
-        
+        if (!bioPage) return;
+
         // Helper to find all slide elements
         const getSlides = () => {
-            if (!bioPage) return [];
             const arr = [];
             const heroWrapper = bioPage.querySelector('.profile-smart-hero-wrapper');
             if (heroWrapper) arr.push(heroWrapper);
@@ -1561,7 +1561,7 @@
 
         const slides = getSlides();
 
-        // Standard cleanup (if disabled or re-initializing) - clear from window
+        // Cleanup global listeners - clear from window
         if (window._snapWheelHandler) {
             window.removeEventListener('wheel', window._snapWheelHandler, { passive: false });
             window._snapWheelHandler = null;
@@ -1603,8 +1603,39 @@
         });
 
         let activeIndex = 0;
-        let lastTransitionTime = 0;
-        const transitionCooldown = 900; // ms matching CSS transitions
+        let isScrolling = false;
+        let scrollStartTime = 0;
+        let startScrollTop = 0;
+        let targetScrollTop = 0;
+        const scrollDuration = 750; // ms transition duration
+
+        const easeInOutCubic = (t) => {
+            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        };
+
+        const animateScroll = (timestamp) => {
+            if (!scrollStartTime) scrollStartTime = timestamp;
+            const elapsed = timestamp - scrollStartTime;
+            const progress = Math.min(elapsed / scrollDuration, 1);
+            const easedProgress = easeInOutCubic(progress);
+
+            bioPage.scrollTop = startScrollTop + (targetScrollTop - startScrollTop) * easedProgress;
+
+            if (progress < 1) {
+                requestAnimationFrame(animateScroll);
+            } else {
+                isScrolling = false;
+                scrollStartTime = 0;
+            }
+        };
+
+        const scrollToPosition = (pos) => {
+            startScrollTop = bioPage.scrollTop;
+            targetScrollTop = pos;
+            isScrolling = true;
+            scrollStartTime = 0;
+            requestAnimationFrame(animateScroll);
+        };
 
         const dotsContainer = document.createElement('div');
         dotsContainer.className = 'profile-snap-dots';
@@ -1614,25 +1645,18 @@
             if (index < 0 || index >= slides.length) return;
             
             activeIndex = index;
-            lastTransitionTime = Date.now();
+            
+            // Trigger smooth scroll animation
+            const viewportHeight = bioPage.clientHeight || window.innerHeight;
+            scrollToPosition(activeIndex * viewportHeight);
 
+            // Update active states
             slides.forEach((slide, idx) => {
-                slide.classList.remove('slide-active', 'slide-before', 'slide-after', 'is-active');
-                if (idx === activeIndex) {
-                    slide.classList.add('slide-active', 'is-active');
-                } else if (idx < activeIndex) {
-                    slide.classList.add('slide-before');
-                } else {
-                    slide.classList.add('slide-after');
-                }
+                slide.classList.toggle('is-active', idx === activeIndex);
             });
 
             dots.forEach((dot, idx) => {
-                if (idx === activeIndex) {
-                    dot.classList.add('is-active');
-                } else {
-                    dot.classList.remove('is-active');
-                }
+                dot.classList.toggle('is-active', idx === activeIndex);
             });
         };
 
@@ -1655,8 +1679,7 @@
             dot.setAttribute('data-label', label);
 
             dot.addEventListener('click', () => {
-                const now = Date.now();
-                if (now - lastTransitionTime < transitionCooldown) return;
+                if (isScrolling) return;
                 goToSlide(index);
             });
 
@@ -1671,20 +1694,12 @@
 
         // 1. Wheel Listener (Mouse & Trackpad) - Registered on window
         const handleWheel = (e) => {
-            const now = Date.now();
-            if (now - lastTransitionTime < transitionCooldown) {
-                e.preventDefault();
-                return;
-            }
+            e.preventDefault();
+            if (isScrolling) return;
 
             const delta = e.deltaY;
-            if (Math.abs(delta) < 30) {
-                // Ignore small movements / noise (trackpad fine scroll)
-                e.preventDefault();
-                return;
-            }
+            if (Math.abs(delta) < 5) return;
 
-            e.preventDefault();
             if (delta > 0) {
                 goToSlide(activeIndex + 1);
             } else {
@@ -1708,11 +1723,9 @@
         };
 
         const handleTouchEnd = (e) => {
+            if (isScrolling) return;
             const touchEndY = e.changedTouches[0].clientY;
             const diffY = touchStartY - touchEndY;
-            
-            const now = Date.now();
-            if (now - lastTransitionTime < transitionCooldown) return;
 
             if (Math.abs(diffY) > 50) {
                 if (diffY > 0) {
@@ -1739,8 +1752,7 @@
                 return;
             }
 
-            const now = Date.now();
-            if (now - lastTransitionTime < transitionCooldown) {
+            if (isScrolling) {
                 if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', ' '].includes(e.key)) {
                     e.preventDefault();
                 }

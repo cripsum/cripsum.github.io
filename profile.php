@@ -488,8 +488,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.1.3">
-    <script src="/assets/js/profile.js?v=5.1.3" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.1.4">
+    <script src="/assets/js/profile.js?v=5.1.4" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -585,13 +585,10 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             overflow: hidden !important;
             display: block !important;
             padding: 0 !important;
+            scroll-behavior: auto !important;
         }
 
         body[data-layout-snap="1"] .profile-snap-slide {
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
             height: 100vh !important;
             min-height: 100vh !important;
             margin: 0 !important;
@@ -601,37 +598,6 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             align-items: center !important;
             justify-content: center !important;
             padding: 2rem 1rem !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-            z-index: 1 !important;
-
-            /* Custom premium bezier easing transition */
-            transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1) !important;
-            will-change: transform, opacity;
-        }
-
-        /* Active State (Centered) */
-        body[data-layout-snap="1"] .profile-snap-slide.slide-active {
-            opacity: 1 !important;
-            transform: translateY(0) scale(1) !important;
-            pointer-events: auto !important;
-            z-index: 3 !important;
-        }
-
-        /* Before State (Moved up, scaled down slightly, faded) */
-        body[data-layout-snap="1"] .profile-snap-slide.slide-before {
-            opacity: 0 !important;
-            transform: translateY(-20vh) scale(0.95) !important;
-            pointer-events: none !important;
-            z-index: 1 !important;
-        }
-
-        /* After State (Moved down, scaled up slightly, faded) */
-        body[data-layout-snap="1"] .profile-snap-slide.slide-after {
-            opacity: 0 !important;
-            transform: translateY(100vh) scale(1.05) !important;
-            pointer-events: none !important;
-            z-index: 2 !important;
         }
 
 
