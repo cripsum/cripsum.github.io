@@ -6,6 +6,27 @@
     let toastTimer = null;
     let activityInterval = null;
 
+    const getResolvedVolume = (profileUrl, defaultVol) => {
+        const volumeKey = 'cripsum.profile.audioVolume.' + profileUrl;
+        const lastDefaultVolumeKey = 'cripsum.profile.lastDefaultVolume.' + profileUrl;
+        
+        const lastDefaultVolume = localStorage.getItem(lastDefaultVolumeKey) !== null
+            ? Number(localStorage.getItem(lastDefaultVolumeKey))
+            : null;
+            
+        let targetVolume;
+        if (lastDefaultVolume === null || lastDefaultVolume !== defaultVol) {
+            targetVolume = defaultVol;
+            localStorage.setItem(lastDefaultVolumeKey, String(defaultVol));
+            localStorage.setItem(volumeKey, String(defaultVol));
+        } else {
+            targetVolume = localStorage.getItem(volumeKey) !== null
+                ? Number(localStorage.getItem(volumeKey))
+                : defaultVol;
+        }
+        return Math.min(Math.max(targetVolume, 0), 1);
+    };
+
     const updateStickyBehavior = () => {
         const hero = document.querySelector('.public-profile-body .profile-smart-hero');
         const wrapper = document.querySelector('.public-profile-body .profile-smart-hero-wrapper');
@@ -372,18 +393,30 @@
         const audio = document.getElementById('profileAudio');
         if (!container || !audio) return;
 
+        // Force correct positioning inline to override cached CSS position issues
+        const btnPos = [...container.classList].find(c => c.startsWith('position-'))?.replace('position-', '') || 'bottom-right';
+        container.style.setProperty('position', 'fixed', 'important');
+        container.style.setProperty('z-index', '999999', 'important');
+        container.style.setProperty('transform', 'none', 'important');
+        container.style.setProperty('flex-direction', btnPos.includes('left') ? 'row' : 'row-reverse', 'important');
+        container.style.setProperty('display', 'flex', 'important');
+        container.style.setProperty('align-items', 'center', 'important');
+        
+        container.style.setProperty('top', btnPos.startsWith('top') ? '24px' : 'auto', 'important');
+        container.style.setProperty('bottom', btnPos.startsWith('bottom') ? '24px' : 'auto', 'important');
+        container.style.setProperty('left', btnPos.includes('left') ? '24px' : 'auto', 'important');
+        container.style.setProperty('right', btnPos.includes('right') ? '24px' : 'auto', 'important');
+
         const btn = container.querySelector('.profile-floating-audio-btn');
         const icon = btn.querySelector('i');
         const slider = container.querySelector('.profile-floating-audio-slider');
 
         // Set initial volume based on localStorage or default
         const defaultVolume = Number(container.dataset.defaultVolume || 0.18);
-        const volumeKey = 'cripsum.profile.audioVolume.' + (body.dataset.profileUrl || 'global');
-        const savedVolume = localStorage.getItem(volumeKey) !== null
-            ? Number(localStorage.getItem(volumeKey))
-            : defaultVolume;
+        const profileUrl = body.dataset.profileUrl || 'global';
+        const resolvedVolume = getResolvedVolume(profileUrl, defaultVolume);
         
-        audio.volume = Math.min(Math.max(savedVolume, 0), 1);
+        audio.volume = resolvedVolume;
         slider.value = String(audio.volume);
 
         const updateUI = () => {
@@ -492,11 +525,9 @@
 
         let dragging = false;
         const defaultVol = Number(audio.dataset.defaultVolume || 0.18);
-        const volumeKey = 'cripsum.profile.audioVolume.' + (body.dataset.profileUrl || 'global');
-        const savedVolume = localStorage.getItem(volumeKey) !== null
-            ? Number(localStorage.getItem(volumeKey))
-            : defaultVol;
-        audio.volume = Math.min(Math.max(Number.isFinite(savedVolume) ? savedVolume : defaultVol, 0), 1);
+        const profileUrl = body.dataset.profileUrl || 'global';
+        const resolvedVolume = getResolvedVolume(profileUrl, defaultVol);
+        audio.volume = resolvedVolume;
         volumeSlider.value = String(audio.volume);
 
         const syncIcons = () => {
@@ -1503,11 +1534,9 @@
         if (document.getElementById('clickToEnterOverlay')) return;
 
         const defaultVol = Number(audio.dataset.defaultVolume || 0.18);
-        const volumeKey = 'cripsum.profile.audioVolume.' + (document.body.dataset.profileUrl || 'global');
-        const savedVolume = localStorage.getItem(volumeKey) !== null
-            ? Number(localStorage.getItem(volumeKey))
-            : defaultVol;
-        audio.volume = Math.min(Math.max(Number.isFinite(savedVolume) ? savedVolume : defaultVol, 0), 1);
+        const profileUrl = document.body.dataset.profileUrl || 'global';
+        const resolvedVolume = getResolvedVolume(profileUrl, defaultVol);
+        audio.volume = resolvedVolume;
         audio.loop = true;
         audio.autoplay = true;
 

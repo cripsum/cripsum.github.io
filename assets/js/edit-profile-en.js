@@ -904,7 +904,8 @@
                 hasMusic: hasMusicSource,
                 title: musicTitle,
                 artist: musicArtist,
-                src: (cachedMusicData && !isMusicRemoved) ? cachedMusicData.url : musicUrl
+                src: (cachedMusicData && !isMusicRemoved) ? cachedMusicData.url : musicUrl,
+                defaultVolume: audioDefaultVolumeInput ? Number(audioDefaultVolumeInput.value) : 0.18
             }, '*');
         }
 
@@ -923,6 +924,10 @@
         if (tiltGlareInput) attributes['data-tilt-glare'] = tiltGlareInput.value;
         if (tiltZoomInput) attributes['data-tilt-zoom'] = tiltZoomInput.value;
         if (tiltSpeedInput) attributes['data-tilt-speed'] = tiltSpeedInput.value;
+
+        // Audio button attributes
+        if (showAudioBtnInput) attributes['data-show-audio-btn'] = showAudioBtnInput.checked ? '1' : '0';
+        if (audioBtnPositionInput) attributes['data-audio-btn-position'] = audioBtnPositionInput.value;
 
         // Premium Attributes
         if (cursorEffectInput) attributes['data-cursor-effect'] = window.isPremiumUser ? cursorEffectInput.value : 'none';

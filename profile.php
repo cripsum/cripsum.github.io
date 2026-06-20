@@ -552,7 +552,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.8.2">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.8.4">
     <style>
         .profile-dropdown-item--gift,
         .profile-dropdown-item--gift * {
@@ -590,7 +590,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             }
         }
     </style>
-    <script src="/assets/js/profile.js?v=5.8.3" defer></script>
+    <script src="/assets/js/profile.js?v=5.8.4" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -2111,9 +2111,9 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 
     <div class="bio-toast" id="bioToast" role="status" aria-live="polite"></div>
 
-    <?php if ($hasMusic && !$showAudioPlayer && $showAudioBtn): ?>
+    <?php if ($hasMusic): ?>
         <div class="profile-floating-audio-btn-container position-<?php echo profile_h($audioBtnPosition); ?>"
-             style="position: fixed !important; z-index: 999999 !important; display: flex !important; align-items: center !important; flex-direction: <?php echo (strpos($audioBtnPosition, 'left') !== false) ? 'row' : 'row-reverse'; ?> !important; <?php
+             style="position: fixed !important; z-index: 999999 !important; display: <?php echo (!$showAudioPlayer && $showAudioBtn) ? 'flex' : 'none'; ?> !important; align-items: center !important; flex-direction: <?php echo (strpos($audioBtnPosition, 'left') !== false) ? 'row' : 'row-reverse'; ?> !important; <?php
                  if ($audioBtnPosition === 'top-left') echo 'top: 24px !important; left: 24px !important;';
                  elseif ($audioBtnPosition === 'top-right') echo 'top: 24px !important; right: 24px !important;';
                  elseif ($audioBtnPosition === 'bottom-left') echo 'bottom: 24px !important; left: 24px !important;';
@@ -2163,6 +2163,33 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                 for (const [styleKey, styleVal] of Object.entries(value)) {
                                     body.style.setProperty(styleKey, styleVal);
                                 }
+                            }
+                        }
+                        
+                        // Real-time floating audio button updates in preview
+                        const showBtn = data.attributes['data-show-audio-btn'];
+                        const btnPos = data.attributes['data-audio-btn-position'];
+                        const container = document.querySelector('[data-floating-audio]');
+                        if (container) {
+                            if (showBtn === '0') {
+                                container.style.setProperty('display', 'none', 'important');
+                            } else if (showBtn === '1') {
+                                const mainPlayer = document.querySelector('[data-audio-player]');
+                                const isMainPlayerVisible = mainPlayer && mainPlayer.style.display !== 'none';
+                                container.style.setProperty('display', isMainPlayerVisible ? 'none' : 'flex', 'important');
+                            }
+                            
+                            if (btnPos) {
+                                container.className = 'profile-floating-audio-btn-container position-' + btnPos;
+                                container.style.setProperty('position', 'fixed', 'important');
+                                container.style.setProperty('z-index', '999999', 'important');
+                                container.style.setProperty('transform', 'none', 'important');
+                                container.style.setProperty('flex-direction', btnPos.includes('left') ? 'row' : 'row-reverse', 'important');
+                                
+                                container.style.setProperty('top', btnPos.startsWith('top') ? '24px' : 'auto', 'important');
+                                container.style.setProperty('bottom', btnPos.startsWith('bottom') ? '24px' : 'auto', 'important');
+                                container.style.setProperty('left', btnPos.includes('left') ? '24px' : 'auto', 'important');
+                                container.style.setProperty('right', btnPos.includes('right') ? '24px' : 'auto', 'important');
                             }
                         }
                         if (window.initCursorEffects) {
@@ -2283,6 +2310,22 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         if (audio.getAttribute('src') !== newSrc) {
                             audio.src = newSrc;
                             audio.load();
+                        }
+                    }
+                    if (audio && typeof data.defaultVolume !== 'undefined') {
+                        audio.volume = data.defaultVolume;
+                        const mainSlider = document.getElementById('profileVolumeSlider');
+                        if (mainSlider) mainSlider.value = String(data.defaultVolume);
+                        const floatSlider = document.querySelector('.profile-floating-audio-slider');
+                        if (floatSlider) floatSlider.value = String(data.defaultVolume);
+                    }
+                    const floatBtn = document.querySelector('[data-floating-audio]');
+                    if (floatBtn) {
+                        const showBtn = document.body.getAttribute('data-show-audio-btn') !== '0';
+                        if (data.hasMusic && !data.showPlayer && showBtn) {
+                            floatBtn.style.setProperty('display', 'flex', 'important');
+                        } else {
+                            floatBtn.style.setProperty('display', 'none', 'important');
                         }
                     }
                     const titleEl = document.querySelector('.profile-audio-player strong');
