@@ -375,7 +375,11 @@ if ($isLoggedIn) {
                      loading="lazy"
                      onerror="this.src='/img/default_pfp.png'">
                 <div class="search-result-info">
-                    <span class="search-result-username">${highlight(u.username, query)}</span>
+                    <span class="search-result-username">
+                        ${u.display_name && u.display_name.trim() ? highlight(u.display_name, query) : highlight(u.username, query)}
+                        ${u.is_premium ? `<i class="fa-solid fa-crown" style="color: #7c3aed; font-size: 0.78rem; margin-left: 4px;" title="Premium"></i>` : ''}
+                    </span>
+                    ${u.display_name && u.display_name.trim() && u.display_name !== u.username ? `<span class="search-result-handle" style="font-size: 0.75rem; opacity: 0.6; color: var(--ns-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px;">@${highlight(u.username, query)}</span>` : ''}
                     <span class="search-result-role ${escapeHtml(u.ruolo)}">${getRoleBadge(u.ruolo)}</span>
                 </div>
                 <i class="fa-solid fa-arrow-up-right-from-square search-result-arrow"></i>
@@ -476,9 +480,11 @@ if ($isLoggedIn) {
                     e.preventDefault();
                     if (focusedIndex >= 0 && items[focusedIndex]) {
                         items[focusedIndex].click();
-                    } else if (currentQuery.length >= MIN_CHARS) {
-                        // Fallback: vai alla pagina di ricerca se esiste
-                        window.location.href = `/${currentLang}/cerca?q=${encodeURIComponent(currentQuery)}`;
+                    } else {
+                        const firstItem = items[0];
+                        if (firstItem) {
+                            firstItem.click();
+                        }
                     }
                     break;
 

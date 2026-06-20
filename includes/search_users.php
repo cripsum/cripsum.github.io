@@ -60,30 +60,36 @@ if ($_SESSION[$key]['count'] > 30) {
 
 // — Query al DB —
 $search = '%' . $q . '%';
+$startsWith = $q . '%';
 
 $stmt = $mysqli->prepare("
-    SELECT id, username, ruolo
+    SELECT id, username, display_name, ruolo, is_premium
     FROM utenti
-    WHERE username LIKE ?
+    WHERE (username LIKE ? OR display_name LIKE ?)
       AND isBannato = 0
     ORDER BY 
-        CASE WHEN username LIKE ? THEN 0 ELSE 1 END, -- priorità match esatto all'inizio
+        CASE 
+            WHEN username LIKE ? THEN 0 
+            WHEN display_name LIKE ? THEN 1
+            ELSE 2 
+        END,
         username ASC
     LIMIT 6
 ");
 
-$startsWith = $q . '%'; // per il CASE di priorità
-$stmt->bind_param('ss', $search, $startsWith);
+$stmt->bind_param('ssss', $search, $search, $startsWith, $startsWith);
 $stmt->execute();
 $result = $stmt->get_result();
 
 $users = [];
 while ($row = $result->fetch_assoc()) {
     $users[] = [
-        'id'       => (int) $row['id'],
-        'username' => $row['username'],
-        'ruolo'    => $row['ruolo'],
-        'pfp'      => '/includes/get_pfp.php?id=' . (int) $row['id'],
+        'id'           => (int) $row['id'],
+        'username'     => $row['username'],
+        'display_name' => $row['display_name'],
+        'ruolo'        => $row['ruolo'],
+        'is_premium'   => (int)($row['is_premium'] ?? 0) === 1,
+        'pfp'          => '/includes/get_pfp.php?id=' . (int) $row['id'],
     ];
 }
 

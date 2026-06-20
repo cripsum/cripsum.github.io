@@ -1379,14 +1379,17 @@
                         return;
                     }
 
-                    // Render results in a nice scrollable list
                     searchResults.innerHTML = data.map((user) => {
                         let roleLabel = user.ruolo === 'owner' ? 'Owner' : (user.ruolo === 'admin' ? 'Admin' : (isIt ? 'Utente' : 'User'));
                         return `
                             <a href="/u/${encodeURIComponent(user.username)}" class="profile-search-item">
                                 <img src="${user.pfp}" alt="${user.username}" class="profile-search-avatar" onerror="this.src='/img/default_pfp.png'">
                                 <div class="profile-search-info">
-                                    <span class="profile-search-username">${user.username}</span>
+                                    <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+                                        <span class="profile-search-username">${user.display_name && user.display_name.trim() ? user.display_name : user.username}</span>
+                                        ${user.is_premium ? `<i class="fa-solid fa-crown" style="color: #7c3aed; font-size: 0.78rem;" title="Premium"></i>` : ''}
+                                    </div>
+                                    ${user.display_name && user.display_name.trim() && user.display_name !== user.username ? `<span class="profile-search-handle" style="font-size: 0.78rem; opacity: 0.6; margin-top: 1px;">@${user.username}</span>` : ''}
                                     <span class="profile-search-role ${user.ruolo}">${roleLabel}</span>
                                 </div>
                                 <i class="fa-solid fa-arrow-up-right-from-square profile-search-arrow"></i>
@@ -1417,6 +1420,16 @@
                 currentQuery = q;
 
                 debounceTimer = setTimeout(() => performSearch(q), 300);
+            });
+
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const firstItem = searchResults.querySelector('.profile-search-item');
+                    if (firstItem) {
+                        firstItem.click();
+                    }
+                }
             });
 
             searchClear?.addEventListener('click', () => {
