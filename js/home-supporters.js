@@ -48,10 +48,11 @@ document.addEventListener('DOMContentLoaded', () => {
             container.appendChild(clone);
         });
 
-        // Calculate transition wrap boundary using first clone offset
+        // Calculate transition wrap boundary using first clone and first card offset
+        const firstCard = originalChildren[0];
         const firstClone = container.querySelector('.supporter-clone');
-        if (firstClone) {
-            originalWidth = firstClone.offsetLeft - container.offsetLeft;
+        if (firstClone && firstCard) {
+            originalWidth = firstClone.offsetLeft - firstCard.offsetLeft;
         } else {
             originalWidth = originalScrollWidth;
         }
@@ -73,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Auto scroll speed configuration (pixels per frame)
-    const speed = 0.5;
+    const speed = 0.3;
 
     function scrollLoop() {
         if (autoScrollActive && !isDown) {
