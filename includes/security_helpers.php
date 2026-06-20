@@ -305,6 +305,7 @@ function auth_select_user_columns(mysqli $mysqli): string
     $columns[] = auth_column_exists($mysqli, 'utenti', 'twofa_secret') ? 'twofa_secret' : 'NULL AS twofa_secret';
     $columns[] = auth_column_exists($mysqli, 'utenti', 'twofa_enabled_at') ? 'twofa_enabled_at' : 'NULL AS twofa_enabled_at';
     $columns[] = auth_column_exists($mysqli, 'utenti', 'is_premium') ? 'is_premium' : '0 AS is_premium';
+    $columns[] = auth_column_exists($mysqli, 'utenti', 'banned_until') ? 'banned_until' : 'NULL AS banned_until';
 
     return implode(', ', $columns);
 }
@@ -403,8 +404,18 @@ function auth_start_password_login(mysqli $mysqli, string $identifier, string $p
     }
 
     if ((int)($user['isBannato'] ?? 0) === 1) {
-        auth_record_login_attempt($mysqli, (int)$user['id'], $identifier, false, 'banned');
-        return ['ok' => false, 'message' => 'Account bannato. Contatta il supporto.'];
+        $banned_until = $user['banned_until'] ?? null;
+        if ($banned_until !== null && strtotime($banned_until) <= time()) {
+            $stmt = $mysqli->prepare("UPDATE utenti SET isBannato = 0, banned_until = NULL, motivo_ban = NULL WHERE id = ?");
+            $stmt->bind_param("i", $user['id']);
+            $stmt->execute();
+            $stmt->close();
+            $user['isBannato'] = 0;
+            $user['banned_until'] = null;
+        } else {
+            auth_record_login_attempt($mysqli, (int)$user['id'], $identifier, false, 'banned');
+            return ['ok' => false, 'message' => 'Account bannato. Contatta il supporto.'];
+        }
     }
 
     if ((int)($user['twofa_enabled'] ?? 0) === 1 && !empty($user['twofa_secret'])) {

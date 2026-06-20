@@ -12,6 +12,7 @@ try {
 
     $sets = ['isBannato = 0'];
     if (admin_column_exists($mysqli, 'utenti', 'motivo_ban')) $sets[] = 'motivo_ban = NULL';
+    if (admin_column_exists($mysqli, 'utenti', 'banned_until')) $sets[] = 'banned_until = NULL';
     if (admin_column_exists($mysqli, 'utenti', 'banned_at')) $sets[] = 'banned_at = NULL';
     if (admin_column_exists($mysqli, 'utenti', 'banned_by')) $sets[] = 'banned_by = NULL';
     if (admin_column_exists($mysqli, 'utenti', 'updated_at')) $sets[] = 'updated_at = NOW()';

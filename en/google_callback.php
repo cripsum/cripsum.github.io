@@ -43,16 +43,26 @@ $google_id = $googleUser['id'];
 $email = strtolower(trim($googleUser['email']));
 $name = $googleUser['name'] ?? explode('@', $email)[0];
 
-$stmt = $mysqli->prepare("SELECT id, username, email, password, google_id, profile_pic, ruolo, nsfw, richpresence, twofa_enabled, twofa_secret, isBannato, is_premium FROM utenti WHERE email = ?");
+$stmt = $mysqli->prepare("SELECT id, username, email, password, google_id, profile_pic, ruolo, nsfw, richpresence, twofa_enabled, twofa_secret, isBannato, is_premium, banned_until FROM utenti WHERE email = ?");
 $stmt->bind_param("s", $email);
 $stmt->execute();
 $result = $stmt->get_result();
 
 if ($row = $result->fetch_assoc()) {
     if ((int)($row['isBannato'] ?? 0) === 1) {
-        auth_record_login_attempt($mysqli, (int)$row['id'], $email, false, 'google_login_banned');
-        header('Location: accedi.php?error=Account+bannato.+Contatta+il+supporto.');
-        exit();
+        $banned_until = $row['banned_until'] ?? null;
+        if ($banned_until !== null && strtotime($banned_until) <= time()) {
+            $stmt_unban = $mysqli->prepare("UPDATE utenti SET isBannato = 0, banned_until = NULL, motivo_ban = NULL WHERE id = ?");
+            $stmt_unban->bind_param("i", $row['id']);
+            $stmt_unban->execute();
+            $stmt_unban->close();
+            $row['isBannato'] = 0;
+            $row['banned_until'] = null;
+        } else {
+            auth_record_login_attempt($mysqli, (int)$row['id'], $email, false, 'google_login_banned');
+            header('Location: accedi.php?error=Account+bannato.+Contatta+il+supporto.');
+            exit();
+        }
     }
 
     if (empty($row['google_id'])) {

@@ -601,7 +601,7 @@ function checkBan($mysqli)
     if (!isLoggedIn()) return;
 
     $user_id = $_SESSION['user_id'];
-    $stmt = $mysqli->prepare("SELECT isBannato FROM utenti WHERE id = ?");
+    $stmt = $mysqli->prepare("SELECT isBannato, banned_until FROM utenti WHERE id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -610,6 +610,14 @@ function checkBan($mysqli)
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         if ($row['isBannato'] == 1) {
+            $banned_until = $row['banned_until'] ?? null;
+            if ($banned_until !== null && strtotime($banned_until) <= time()) {
+                $stmt2 = $mysqli->prepare("UPDATE utenti SET isBannato = 0, banned_until = NULL, motivo_ban = NULL WHERE id = ?");
+                $stmt2->bind_param("i", $user_id);
+                $stmt2->execute();
+                $stmt2->close();
+                return;
+            }
             header('Location: https://cripsum.com/it/banned');
             exit();
         }

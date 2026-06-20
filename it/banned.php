@@ -4,6 +4,7 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 
 $motivoBan = '';
+$bannedUntil = null;
 
 if (!isset($_COOKIE['banned']) || $_COOKIE['banned'] == '0') {
     if (!isLoggedIn()) {
@@ -13,7 +14,7 @@ if (!isset($_COOKIE['banned']) || $_COOKIE['banned'] == '0') {
 
     $user_id = (int)$_SESSION['user_id'];
 
-    $stmt = $mysqli->prepare("SELECT isBannato, motivo_ban FROM utenti WHERE id = ?");
+    $stmt = $mysqli->prepare("SELECT isBannato, motivo_ban, banned_until FROM utenti WHERE id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -26,6 +27,14 @@ if (!isset($_COOKIE['banned']) || $_COOKIE['banned'] == '0') {
 
     $row = $result->fetch_assoc();
     $motivoBan = $row['motivo_ban'] ?? '';
+    $bannedUntil = $row['banned_until'] ?? null;
+
+    if ($bannedUntil !== null && strtotime($bannedUntil) <= time()) {
+        $mysqli->query("UPDATE utenti SET isBannato = 0, banned_until = NULL, motivo_ban = NULL WHERE id = " . $user_id);
+        setcookie('banned', '0', time() + (10 * 365 * 24 * 60 * 60), '/');
+        header('Location: home');
+        exit();
+    }
 
     if ((int)$row['isBannato'] !== 1) {
         header('Location: home');
@@ -44,7 +53,7 @@ if (!isset($_COOKIE['banned']) || $_COOKIE['banned'] == '0') {
         exit();
     }
 
-    $stmt = $mysqli->prepare("SELECT isBannato, motivo_ban FROM utenti WHERE id = ?");
+    $stmt = $mysqli->prepare("SELECT isBannato, motivo_ban, banned_until FROM utenti WHERE id = ?");
     $stmt->bind_param("i", $utente_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -52,6 +61,14 @@ if (!isset($_COOKIE['banned']) || $_COOKIE['banned'] == '0') {
 
     $row = $result ? $result->fetch_assoc() : null;
     $motivoBan = $row ? ($row['motivo_ban'] ?? '') : '';
+    $bannedUntil = $row ? ($row['banned_until'] ?? null) : null;
+
+    if ($row && $bannedUntil !== null && strtotime($bannedUntil) <= time()) {
+        $mysqli->query("UPDATE utenti SET isBannato = 0, banned_until = NULL, motivo_ban = NULL WHERE id = " . $utente_id);
+        setcookie('banned', '0', time() + (10 * 365 * 24 * 60 * 60), '/');
+        header('Location: home');
+        exit();
+    }
 
     if (!$row || (int)$row['isBannato'] !== 1) {
         setcookie('banned', '0', time() + (10 * 365 * 24 * 60 * 60), '/');
@@ -84,33 +101,48 @@ if (!isset($_COOKIE['banned']) || $_COOKIE['banned'] == '0') {
 
     <main class="static-shell static-shell--narrow">
         <section class="static-ban-card static-reveal">
-            <div class="static-ban-icon">
-                <i class="fa-solid fa-ban"></i>
+            <div class="static-ban-icon-img" style="margin-bottom: 1rem;">
+                <img src="/img/Laughing_emoji_no_background.webp" alt="Laughing Emoji" style="width: 5rem; height: 5rem; object-fit: contain;">
             </div>
 
-            <span class="static-pill">Account</span>
             <h1>Account sospeso</h1>
             <p>Il tuo account è stato sospeso per violazione dei termini o delle regole del sito.</p>
 
-            <?php if (!empty($motivoBan)): ?>
-                <div class="static-alert" style="margin-top: 1rem; text-align: left; border-color: rgba(255, 45, 85, 0.2);">
-                    <i class="fa-solid fa-gavel" style="color: var(--static-red);"></i>
-                    <div>
-                        <strong style="color: #fff; font-size: 0.9rem;">Motivo della sospensione</strong>
-                        <p style="margin: 0.25rem 0 0; font-size: 0.85rem; color: var(--static-muted);"><?php echo htmlspecialchars($motivoBan); ?></p>
-                    </div>
+            <div class="static-alert" style="margin-top: 1rem; text-align: left; border-color: rgba(255, 45, 85, 0.2);">
+                <i class="fa-solid fa-gavel" style="color: var(--static-red);"></i>
+                <div style="flex: 1;">
+                    <strong style="color: #fff; font-size: 0.9rem; display: block;">Dettagli della sospensione</strong>
+                    <?php if (!empty($motivoBan)): ?>
+                        <p style="margin: 0.35rem 0 0; font-size: 0.85rem; color: var(--static-muted);">
+                            <strong>Motivo:</strong> <?php echo htmlspecialchars($motivoBan); ?>
+                        </p>
+                    <?php endif; ?>
+                    <p style="margin: 0.35rem 0 0; font-size: 0.85rem; color: var(--static-muted);">
+                        <strong>Durata:</strong> 
+                        <?php 
+                        if (empty($bannedUntil)) {
+                            echo "Permanente";
+                        } else {
+                            echo "Fino al " . date('d/m/Y \a\l\l\e H:i', strtotime($bannedUntil));
+                        }
+                        ?>
+                    </p>
                 </div>
-            <?php endif; ?>
+            </div>
 
             <div class="static-alert static-alert--danger" style="margin-top:1rem; text-align:left;">
                 <i class="fa-solid fa-circle-exclamation"></i>
-                <p>Se pensi sia un errore, contatta il supporto e includi username, email dell’account e una descrizione chiara.</p>
+                <p>Se pensi sia un errore, contatta il supporto all'indirizzo <a href="mailto:dio.covid@mail.com" style="color: #ff9ab8; text-decoration: underline;">dio.covid@mail.com</a> oppure su Discord su <a href="https://discord.com/users/963536045180350474" target="_blank" rel="noopener" style="color: #ff9ab8; text-decoration: underline;">discord.com</a>.</p>
             </div>
 
-            <div class="static-actions" style="justify-content:center;">
-                <a href="mailto:support@cripsum.com" class="static-btn static-btn--primary">
+            <div class="static-actions" style="justify-content:center; gap: 10px;">
+                <a href="mailto:dio.covid@mail.com" class="static-btn static-btn--primary">
                     <i class="fa-solid fa-envelope"></i>
-                    <span>Contatta supporto</span>
+                    <span>E-mail</span>
+                </a>
+                <a href="https://discord.com/users/963536045180350474" target="_blank" rel="noopener" class="static-btn static-btn--primary" style="background: #5865F2; border-color: #5865F2;">
+                    <i class="fa-brands fa-discord"></i>
+                    <span>Discord</span>
                 </a>
             </div>
         </section>

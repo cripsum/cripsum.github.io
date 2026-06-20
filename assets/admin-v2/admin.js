@@ -466,12 +466,46 @@
 
     const openBan = (id) => {
         confirmBox('Bannare utente?', `
-            <p class="admin-muted">Inserisci un motivo breve. Sarà salvato nei log.</p>
-            <div class="admin-field"><label>Motivo</label><textarea id="banReason" maxlength="255" placeholder="Spam, comportamento scorretto..."></textarea></div>
+            <p class="admin-muted">Inserisci la durata e il motivo del ban.</p>
+            <div class="admin-field">
+                <label>Durata</label>
+                <select id="banDuration" style="width: 100%; padding: 0.5rem; background: var(--admin-bg-dark); border: 1px solid var(--admin-border); color: #fff; border-radius: 4px; margin-bottom: 0.75rem;">
+                    <option value="permanent">Permanente</option>
+                    <option value="1h">1 ora</option>
+                    <option value="1d">1 giorno</option>
+                    <option value="3d">3 giorni</option>
+                    <option value="7d">7 giorni</option>
+                    <option value="30d">30 giorni</option>
+                    <option value="custom">Personalizzato...</option>
+                </select>
+            </div>
+            <div id="banCustomDateContainer" class="admin-field" style="display: none;">
+                <label>Data e Ora Unban</label>
+                <input type="datetime-local" id="banCustomDate" style="width: 100%; padding: 0.5rem; background: var(--admin-bg-dark); border: 1px solid var(--admin-border); color: #fff; border-radius: 4px; margin-bottom: 0.75rem;">
+            </div>
+            <div class="admin-field">
+                <label>Motivo</label>
+                <textarea id="banReason" maxlength="255" placeholder="Spam, comportamento scorretto..." style="width: 100%; padding: 0.5rem; background: var(--admin-bg-dark); border: 1px solid var(--admin-border); color: #fff; border-radius: 4px; height: 80px;"></textarea>
+            </div>
         `, async () => {
-            await api('ban_user.php', { method: 'POST', body: { id, reason: $('#banReason')?.value || '' } });
+            const duration = $('#banDuration')?.value || 'permanent';
+            const customDate = $('#banCustomDate')?.value || '';
+            const reason = $('#banReason')?.value || '';
+            await api('ban_user.php', { method: 'POST', body: { id, reason, duration, customDate } });
             showToast('Utente bannato.'); loadUsers(); loadDashboard();
         });
+
+        const select = $('#banDuration');
+        const customContainer = $('#banCustomDateContainer');
+        if (select && customContainer) {
+            select.addEventListener('change', (e) => {
+                if (e.target.value === 'custom') {
+                    customContainer.style.display = 'block';
+                } else {
+                    customContainer.style.display = 'none';
+                }
+            });
+        }
     };
 
     const runUnban = (id) => confirmBox('Sbannare utente?', '<p class="admin-muted">L’utente potrà accedere di nuovo.</p>', async () => {

@@ -41,7 +41,7 @@ if (isAdmin() && !isOwner()) {
     }
 }
 
-$stmt = $mysqli->prepare("UPDATE utenti SET isBannato = 1 WHERE id = ?");
+$stmt = $mysqli->prepare("UPDATE utenti SET isBannato = 1, banned_until = NULL, motivo_ban = NULL WHERE id = ?");
 $stmt->bind_param("i", $id_da_bannare);
 $stmt->execute();
 $stmt->close();
