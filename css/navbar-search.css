@@ -321,6 +321,9 @@
         max-width: 280px;
         margin: 10px auto 6px 0 !important;
         padding: 0 4px;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
     }
 
     .navbar-search-group,
