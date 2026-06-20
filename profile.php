@@ -382,8 +382,8 @@ $showCharacters = $profile ? profile_flag($profile, 'profile_show_characters', t
 $profileFont = $profile ? ($profile['profile_font'] ?? 'Poppins') : 'Poppins';
 $hideMeta = $isPremium && $profile ? profile_flag($profile, 'profile_hide_meta', false) : false;
 $showAudioBtn = $profile ? profile_flag($profile, 'profile_show_audio_btn', true) : true;
-$audioBtnPosition = $profile ? ($profile['profile_audio_btn_position'] ?? 'bottom-right') : 'bottom-right';
-$audioDefaultVolume = $profile ? (float)($profile['profile_audio_default_volume'] ?? 0.18) : 0.18;
+$audioBtnPosition = ($profile && !empty($profile['profile_audio_btn_position'])) ? $profile['profile_audio_btn_position'] : 'bottom-right';
+$audioDefaultVolume = ($profile && isset($profile['profile_audio_default_volume']) && $profile['profile_audio_default_volume'] !== '') ? (float)$profile['profile_audio_default_volume'] : 0.18;
 $borderRadius = $profile ? (int)($profile['profile_border_radius'] ?? 30) : 30;
 $cardOpacity = $profile ? (int)($profile['profile_card_opacity'] ?? 68) : 68;
 $cardBlur = $profile ? (int)($profile['profile_card_blur'] ?? 20) : 20;
