@@ -69,7 +69,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
     <meta name="twitter:card" content="summary_large_image">
 
     <link rel="preload" as="image" href="../img/amongus.jpg">
-    <link rel="stylesheet" href="/assets/home-v5/home.css?v=5.9">
+    <link rel="stylesheet" href="/assets/home-v5/home.css?v=6.0">
     <link rel="stylesheet" href="/assets/news/news-popup.css?v=1.0">
     <script src="/assets/home-v5/home.js?v=5.7" defer></script>
     <script src="/assets/news/news-popup.js?v=1.0" defer></script>
@@ -331,7 +331,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <?php if (!empty($supporters)): ?>
-        <script src="/js/home-supporters.js?v=1.4" defer></script>
+        <script src="/js/home-supporters.js?v=1.5" defer></script>
     <?php endif; ?>
 </body>
 

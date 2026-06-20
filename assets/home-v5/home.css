@@ -1124,6 +1124,13 @@ body.home-v5-body .dropdown-divider {
     text-decoration: none;
 }
 
+.social-icon-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
 /* .social-icon-wrapper {
     position: relative;
     display: grid;
@@ -1255,7 +1262,8 @@ body.home-v5-body .dropdown-divider {
     }
 
     .social-label {
-        font-size: 0.64rem;
+        font-size: 0.72rem;
+        font-weight: 700;
     }
 }
 
@@ -1546,7 +1554,8 @@ body.home-v5-body {
     }
 
     .social-label {
-        font-size: 0.61rem;
+        font-size: 0.72rem;
+        font-weight: 700;
     }
 
     .home-account {

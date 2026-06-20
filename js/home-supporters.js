@@ -172,13 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
         momentumAnimationFrame = requestAnimationFrame(step);
     }
 
-    // Detect user-initiated scrolling (like touch inertia, trackpad swipes, or mouse wheels)
-    container.addEventListener('scroll', () => {
-        if (!isAutoScrolling) {
-            pauseAutoScroll();
-        }
-        isAutoScrolling = false; // Reset flag
-    });
+    // Removed scroll listener to prevent collisions with asynchronous browser scroll updates
 
     // Mouse drag-to-scroll implementation
     container.addEventListener('mousedown', (e) => {
@@ -284,6 +278,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
 
     container.addEventListener('touchmove', () => {
+        pauseAutoScroll();
+    }, { passive: true });
+
+    container.addEventListener('touchend', () => {
+        pauseAutoScroll();
+    }, { passive: true });
+
+    container.addEventListener('touchcancel', () => {
         pauseAutoScroll();
     }, { passive: true });
 
