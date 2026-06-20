@@ -1289,13 +1289,13 @@ function profile_markdown_to_html(?string $markdown): string
                 $tableRows = [];
             }
             $tableRows[] = $matches[1];
-            $lines[$i] = ''; 
+            $lines[$i] = '__MARKDOWN_TABLE_ROW_PLACEHOLDER__'; 
             continue;
         } else {
             if ($inTable) {
                 $tableHtml = $renderTable($tableRows);
                 for ($k = $i - 1; $k >= 0; $k--) {
-                    if ($lines[$k] === '') {
+                    if ($lines[$k] === '__MARKDOWN_TABLE_ROW_PLACEHOLDER__') {
                         $lines[$k] = $tableHtml;
                         break;
                     }
@@ -1355,7 +1355,7 @@ function profile_markdown_to_html(?string $markdown): string
     if ($inTable) {
         $tableHtml = $renderTable($tableRows);
         for ($k = count($lines) - 1; $k >= 0; $k--) {
-            if ($lines[$k] === '') {
+            if ($lines[$k] === '__MARKDOWN_TABLE_ROW_PLACEHOLDER__') {
                 $lines[$k] = $tableHtml;
                 break;
             }
@@ -1368,7 +1368,7 @@ function profile_markdown_to_html(?string $markdown): string
         $lines[] = '</' . $inList . '>';
     }
 
-    $lines = array_filter($lines, function($l) { return $l !== ''; });
+    $lines = array_filter($lines, function($l) { return $l !== '__MARKDOWN_TABLE_ROW_PLACEHOLDER__'; });
     $html = implode("\n", $lines);
 
     $html = nl2br($html);
