@@ -378,8 +378,9 @@
 
         // Set initial volume based on localStorage or default
         const defaultVolume = Number(container.dataset.defaultVolume || 0.18);
-        const savedVolume = localStorage.getItem('cripsum.profile.audioVolume') !== null
-            ? Number(localStorage.getItem('cripsum.profile.audioVolume'))
+        const volumeKey = 'cripsum.profile.audioVolume.' + (body.dataset.profileUrl || 'global');
+        const savedVolume = localStorage.getItem(volumeKey) !== null
+            ? Number(localStorage.getItem(volumeKey))
             : defaultVolume;
         
         audio.volume = Math.min(Math.max(savedVolume, 0), 1);
@@ -468,7 +469,8 @@
             const val = Number(slider.value);
             audio.volume = val;
             audio.muted = val === 0;
-            localStorage.setItem('cripsum.profile.audioVolume', String(val));
+            const volumeKey = 'cripsum.profile.audioVolume.' + (body.dataset.profileUrl || 'global');
+            localStorage.setItem(volumeKey, String(val));
             updateUI();
         });
     };
@@ -490,8 +492,9 @@
 
         let dragging = false;
         const defaultVol = Number(audio.dataset.defaultVolume || 0.18);
-        const savedVolume = localStorage.getItem('cripsum.profile.audioVolume') !== null
-            ? Number(localStorage.getItem('cripsum.profile.audioVolume'))
+        const volumeKey = 'cripsum.profile.audioVolume.' + (body.dataset.profileUrl || 'global');
+        const savedVolume = localStorage.getItem(volumeKey) !== null
+            ? Number(localStorage.getItem(volumeKey))
             : defaultVol;
         audio.volume = Math.min(Math.max(Number.isFinite(savedVolume) ? savedVolume : defaultVol, 0), 1);
         volumeSlider.value = String(audio.volume);
@@ -546,7 +549,8 @@
             const value = Number(volumeSlider.value);
             audio.volume = value;
             audio.muted = value === 0;
-            localStorage.setItem('cripsum.profile.audioVolume', String(value));
+            const volumeKey = 'cripsum.profile.audioVolume.' + (body.dataset.profileUrl || 'global');
+            localStorage.setItem(volumeKey, String(value));
             syncIcons();
         });
 
@@ -1467,7 +1471,8 @@
                 const audio = document.getElementById('profileAudio');
                 if (audio && audio.src && audio.src !== window.location.href) {
                     try {
-                        const savedVolume = Number(localStorage.getItem('cripsum.profile.audioVolume') || 0.18);
+                        const volumeKey = 'cripsum.profile.audioVolume.' + (document.body.dataset.profileUrl || 'global');
+                        const savedVolume = Number(localStorage.getItem(volumeKey) || 0.18);
                         audio.volume = Math.min(Math.max(savedVolume, 0), 1);
                         await audio.play();
                         const playIcon = document.getElementById('profileAudioIcon');
@@ -1501,8 +1506,9 @@
         if (document.getElementById('clickToEnterOverlay')) return;
 
         const defaultVol = Number(audio.dataset.defaultVolume || 0.18);
-        const savedVolume = localStorage.getItem('cripsum.profile.audioVolume') !== null
-            ? Number(localStorage.getItem('cripsum.profile.audioVolume'))
+        const volumeKey = 'cripsum.profile.audioVolume.' + (document.body.dataset.profileUrl || 'global');
+        const savedVolume = localStorage.getItem(volumeKey) !== null
+            ? Number(localStorage.getItem(volumeKey))
             : defaultVol;
         audio.volume = Math.min(Math.max(Number.isFinite(savedVolume) ? savedVolume : defaultVol, 0), 1);
         audio.loop = true;
