@@ -114,7 +114,7 @@
         : '<span class="admin-badge admin-badge--success"><i class="fa-solid fa-check"></i>Attivo</span>';
 
     const premiumBadge = (isPremium) => Number(isPremium) === 1
-        ? '<span class="admin-badge admin-badge--warning" style="margin-left: 5px; font-size: 0.65rem; padding: 2px 6px;"><i class="fa-solid fa-crown" style="color: #eab308; margin-right: 4px;"></i>Premium</span>'
+        ? '<span class="admin-badge admin-badge--warning" style="margin-left: 5px; font-size: 0.65rem; padding: 2px 6px;"><i class="fa-solid fa-gem" style="color: #eab308; margin-right: 4px;"></i>Premium</span>'
         : '';
 
 
@@ -374,8 +374,8 @@
                         <div class="admin-row-actions" style="justify-content:center">${roleBadge(user.ruolo)}${statusBadge(user.isBannato)}</div>
                         <div class="admin-row-actions" style="justify-content:center; margin-top:10px;">
                             ${Number(user.is_premium) === 1
-                                ? `<button class="admin-btn admin-btn--small admin-btn--danger" id="btnTogglePremium" data-id="${Number(user.id)}" data-premium="0"><i class="fa-solid fa-crown"></i> Rimuovi Premium</button>`
-                                : `<button class="admin-btn admin-btn--small admin-btn--warning" id="btnTogglePremium" data-id="${Number(user.id)}" data-premium="1"><i class="fa-solid fa-crown"></i> Aggiungi Premium</button>`
+                                ? `<button class="admin-btn admin-btn--small admin-btn--danger" id="btnTogglePremium" data-id="${Number(user.id)}" data-premium="0"><i class="fa-solid fa-gem"></i> Rimuovi Premium</button>`
+                                : `<button class="admin-btn admin-btn--small admin-btn--warning" id="btnTogglePremium" data-id="${Number(user.id)}" data-premium="1"><i class="fa-solid fa-gem"></i> Aggiungi Premium</button>`
                             }
                         </div>
                         ${user.motivo_ban ? `<p class="admin-muted">Motivo ban: ${escapeHtml(user.motivo_ban)}</p>` : ''}

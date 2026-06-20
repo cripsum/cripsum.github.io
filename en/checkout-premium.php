@@ -306,6 +306,10 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
                         <span>Recipient</span>
                         <strong id="summaryRecipient"><?php echo htmlspecialchars($username); ?> (You)</strong>
                     </div>
+                    <div class="summary-line" id="summaryBadgeLine">
+                        <span>Badge Included</span>
+                        <strong id="summaryBadgeText" style="color: #eab308;"><i class="fa-solid fa-gem"></i> Premium Badge</strong>
+                    </div>
                     <div class="summary-line">
                         <span>Price</span>
                         <strong style="font-size: 1.2rem; color: #7c3aed;">€2.99 <span style="font-size:0.75rem; font-weight:normal; color:#a8b0c7;">one-time</span></strong>
@@ -373,6 +377,7 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
             });
 
             function togglePurchaseType(type) {
+                const summaryBadgeText = document.getElementById('summaryBadgeText');
                 if (type === 'self') {
                     optionSelfCard.classList.add('is-active');
                     optionGiftCard.classList.remove('is-active');
@@ -380,6 +385,9 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
                     giftUsernameInput.required = false;
                     summaryRecipient.textContent = <?php echo json_encode($username); ?> + ' (You)';
                     isRecipientValid = true;
+                    if (summaryBadgeText) {
+                        summaryBadgeText.innerHTML = '<i class="fa-solid fa-gem"></i> Premium Badge';
+                    }
                 } else {
                     optionGiftCard.classList.add('is-active');
                     optionSelfCard.classList.remove('is-active');
@@ -387,6 +395,9 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
                     giftUsernameInput.required = true;
                     summaryRecipient.textContent = giftUsernameInput.value ? giftUsernameInput.value : 'Enter username...';
                     validateRecipient(giftUsernameInput.value);
+                    if (summaryBadgeText) {
+                        summaryBadgeText.innerHTML = '<i class="fa-solid fa-gift"></i> Premium Gifter';
+                    }
                 }
             }
 
