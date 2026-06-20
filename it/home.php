@@ -69,7 +69,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <meta name="twitter:card" content="summary_large_image">
 
     <link rel="preload" as="image" href="../img/amongus.jpg">
-    <link rel="stylesheet" href="/assets/home-v5/home.css?v=5.8">
+    <link rel="stylesheet" href="/assets/home-v5/home.css?v=5.9">
     <link rel="stylesheet" href="/assets/news/news-popup.css?v=1.0">
     <script src="/assets/home-v5/home.js?v=5.7" defer></script>
     <script src="/assets/news/news-popup.js?v=1.0" defer></script>
@@ -212,16 +212,18 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                         <p>Un grazie speciale agli utenti che supportano Cripsum™!</p>
                     </div>
                 </div>
-                <div class="supporters-grid">
-                    <?php foreach ($supporters as $s): ?>
-                        <a href="/u/<?= rawurlencode(strtolower($s['username'])) ?>" class="supporter-card" title="<?= htmlspecialchars($s['username']) ?>">
-                            <div class="supporter-avatar-container">
-                                <img src="/includes/get_pfp.php?id=<?= (int)$s['id'] ?>" alt="" class="supporter-pfp">
-                                <div class="supporter-badge"><i class="fa-solid fa-gem"></i></div>
-                            </div>
-                            <span class="supporter-name">@<?= htmlspecialchars($s['username']) ?></span>
-                        </a>
-                    <?php endforeach; ?>
+                <div class="supporters-scroll-wrapper">
+                    <div class="supporters-grid">
+                        <?php foreach ($supporters as $s): ?>
+                            <a href="/u/<?= rawurlencode(strtolower($s['username'])) ?>" class="supporter-card" title="<?= htmlspecialchars($s['username']) ?>">
+                                <div class="supporter-avatar-container">
+                                    <img src="/includes/get_pfp.php?id=<?= (int)$s['id'] ?>" alt="" class="supporter-pfp">
+                                    <div class="supporter-badge"><i class="fa-solid fa-gem"></i></div>
+                                </div>
+                                <span class="supporter-name">@<?= htmlspecialchars($s['username']) ?></span>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             </section>
         <?php endif; ?>
@@ -323,6 +325,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <?php include '../includes/footer.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <?php if (!empty($supporters)): ?>
+        <script src="/js/home-supporters.js?v=1.0" defer></script>
+    <?php endif; ?>
 </body>
 
 </html>
