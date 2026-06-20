@@ -70,7 +70,7 @@ try {
     $select .= $hasBan ? ', u.isBannato' : ', 0 AS isBannato';
     $select .= admin_column_exists($mysqli, 'utenti', 'is_premium') ? ', u.is_premium' : ', 0 AS is_premium';
 
-    foreach (['motivo_ban', 'banned_at', 'banned_by', 'updated_at', 'email_verificata'] as $column) {
+    foreach (['motivo_ban', 'banned_until', 'banned_at', 'banned_by', 'updated_at', 'email_verificata'] as $column) {
         if (admin_column_exists($mysqli, 'utenti', $column)) {
             $select .= ', u.' . admin_qcol($column);
         }
