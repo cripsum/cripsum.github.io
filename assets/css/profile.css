@@ -9215,4 +9215,102 @@ body.public-profile-body .profile-effects-foreground-layer {
     max-width: 100%;
 }
 
+/* Extended Markdown & Premium Link Styles */
+.profile-block-custom-content a {
+    color: var(--accent, #0f5bff) !important;
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.profile-block-custom-content a:hover {
+    border-bottom-color: var(--accent, #0f5bff);
+    opacity: 0.85;
+}
+
+.profile-block-custom-content blockquote {
+    border-left: 4px solid var(--accent, #0f5bff);
+    padding-left: 1rem;
+    margin: 1rem 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-style: italic;
+    background: rgba(255, 255, 255, 0.03);
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-radius: 0 4px 4px 0;
+}
+
+.profile-block-custom-content code {
+    font-family: monospace;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.profile-block-custom-content pre {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+.profile-block-custom-content pre code {
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    font-size: 0.85em;
+    color: #eceff4;
+    display: block;
+}
+
+.profile-block-custom-content ul,
+.profile-block-custom-content ol {
+    padding-left: 1.5rem;
+    margin: 1rem 0;
+}
+
+.profile-block-custom-content li {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+
+.profile-block-custom-content hr {
+    border: none;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.15), transparent);
+    margin: 1.5rem 0;
+}
+
+.profile-markdown-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 1rem 0;
+}
+
+.profile-markdown-table th {
+    background: rgba(255, 255, 255, 0.05);
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.profile-markdown-table td {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px 12px;
+}
+
+.profile-markdown-table tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.profile-markdown-table tr:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
 

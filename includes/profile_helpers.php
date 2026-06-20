@@ -1179,8 +1179,18 @@ function profile_markdown_to_html(?string $markdown): string
         return '';
     }
 
+    // Convertiamo i fine riga nello standard \n
+    $markdown = str_replace(["\r\n", "\r"], "\n", $markdown);
+
+    // Escape dei caratteri HTML per sicurezza
     $html = htmlspecialchars($markdown, ENT_QUOTES, 'UTF-8');
 
+    // 1. Code Blocks (prima di altri tag, per evitare conflitti)
+    $html = preg_replace_callback('/```(?:[a-zA-Z0-9#+-]+)?\n(.*?)\n```/s', function($matches) {
+        return '<pre><code>' . $matches[1] . '</code></pre>';
+    }, $html);
+
+    // 2. Headings
     $html = preg_replace('/^######\s+(.*?)$/m', '<h6>$1</h6>', $html);
     $html = preg_replace('/^#####\s+(.*?)$/m', '<h5>$1</h5>', $html);
     $html = preg_replace('/^####\s+(.*?)$/m', '<h4>$1</h4>', $html);
@@ -1188,40 +1198,188 @@ function profile_markdown_to_html(?string $markdown): string
     $html = preg_replace('/^##\s+(.*?)$/m', '<h2>$1</h2>', $html);
     $html = preg_replace('/^#\s+(.*?)$/m', '<h1>$1</h1>', $html);
 
+    // 3. Strikethrough (Sbarrato)
+    $html = preg_replace('/~~(.*?)~~/', '<del>$1</del>', $html);
+
+    // 4. Bold, Italic, Images, Links, Inline Code
     $html = preg_replace('/(\*\*|__)(.*?)\1/', '<strong>$2</strong>', $html);
     $html = preg_replace('/(\*|_)(.*?)\1/', '<em>$2</em>', $html);
     $html = preg_replace('/!\[(.*?)\]\((.*?)\)/', '<img src="$2" alt="$1" style="max-width:100%; height:auto;">', $html);
     $html = preg_replace('/\[(.*?)\]\((.*?)\)/', '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>', $html);
     $html = preg_replace('/`(.*?)`/', '<code>$1</code>', $html);
 
+    // 5. Horizontal Rules (hr)
+    $html = preg_replace('/^\s*([-*_]){3,}\s*$/m', '<hr>', $html);
+
+    // 6. Tabelle, Liste, Citazioni (lavorando riga per riga)
     $lines = explode("\n", $html);
-    $inList = false;
+    $inList = false; // 'ul', 'ol' o false
+    $inBlockquote = false;
+    $inTable = false;
+    $tableRows = [];
+
+    // Helper per renderizzare una tabella accumulata
+    $renderTable = function(array $rows): string {
+        if (count($rows) === 0) return '';
+        $htmlTable = '<div style="overflow-x: auto; margin: 1rem 0;"><table class="profile-markdown-table" style="width: 100%; border-collapse: collapse; border: 1px solid rgba(255,255,255,0.1);">';
+        
+        $hasHeader = false;
+        if (count($rows) > 1) {
+            $separator = trim($rows[1]);
+            // Rimuoviamo caratteri di formattazione della riga separatore
+            $separator = str_replace(['-', ':', ' ', '|'], '', $separator);
+            if ($separator === '') {
+                $hasHeader = true;
+            }
+        }
+        
+        if ($hasHeader) {
+            // Intestazione
+            $htmlTable .= '<thead><tr>';
+            $cols = explode('|', $rows[0]);
+            foreach ($cols as $col) {
+                $htmlTable .= '<th style="border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; font-weight: 600; text-align: left;">' . trim($col) . '</th>';
+            }
+            $htmlTable .= '</tr></thead>';
+            
+            // Corpo
+            $htmlTable .= '<tbody>';
+            for ($r = 2; $r < count($rows); $r++) {
+                $htmlTable .= '<tr>';
+                $cols = explode('|', $rows[$r]);
+                foreach ($cols as $col) {
+                    $htmlTable .= '<td style="border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px;">' . trim($col) . '</td>';
+                }
+                $htmlTable .= '</tr>';
+            }
+            $htmlTable .= '</tbody>';
+        } else {
+            // Corpo semplice senza header
+            $htmlTable .= '<tbody>';
+            foreach ($rows as $row) {
+                $htmlTable .= '<tr>';
+                $cols = explode('|', $row);
+                foreach ($cols as $col) {
+                    $htmlTable .= '<td style="border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px;">' . trim($col) . '</td>';
+                }
+                $htmlTable .= '</tr>';
+            }
+            $htmlTable .= '</tbody>';
+        }
+        $htmlTable .= '</table></div>';
+        return $htmlTable;
+    };
+
     foreach ($lines as $i => $line) {
         $trimmed = trim($line);
+
+        // --- Gestione Tabelle ---
+        if (preg_match('/^\|(.*)\|$/', $trimmed, $matches)) {
+            if ($inList) {
+                $lines[$i - 1] .= '</' . $inList . '>';
+                $inList = false;
+            }
+            if ($inBlockquote) {
+                $lines[$i - 1] .= '</blockquote>';
+                $inBlockquote = false;
+            }
+
+            if (!$inTable) {
+                $inTable = true;
+                $tableRows = [];
+            }
+            $tableRows[] = $matches[1];
+            $lines[$i] = ''; 
+            continue;
+        } else {
+            if ($inTable) {
+                $tableHtml = $renderTable($tableRows);
+                for ($k = $i - 1; $k >= 0; $k--) {
+                    if ($lines[$k] === '') {
+                        $lines[$k] = $tableHtml;
+                        break;
+                    }
+                }
+                $inTable = false;
+            }
+        }
+
+        // --- Gestione Blockquote ---
+        if (preg_match('/^&gt;\s?(.*)$/', $trimmed, $matches)) {
+            if ($inList) {
+                $lines[$i] = '</' . $inList . '>' . $lines[$i];
+                $inList = false;
+            }
+            $bqContent = $matches[1];
+            if (!$inBlockquote) {
+                $lines[$i] = '<blockquote>' . $bqContent;
+                $inBlockquote = true;
+            } else {
+                $lines[$i] = $bqContent;
+            }
+            continue;
+        } else {
+            if ($inBlockquote) {
+                $lines[$i] = '</blockquote>' . $line;
+                $inBlockquote = false;
+            }
+        }
+
+        // --- Gestione Liste (ul e ol) ---
         if (preg_match('/^[\*\-]\s+(.*)$/', $trimmed, $matches)) {
             $li = $matches[1];
-            if (!$inList) {
-                $lines[$i] = '<ul><li>' . $li . '</li>';
-                $inList = true;
+            if ($inList !== 'ul') {
+                $prefix = $inList ? '</' . $inList . '>' : '';
+                $lines[$i] = $prefix . '<ul><li>' . $li . '</li>';
+                $inList = 'ul';
+            } else {
+                $lines[$i] = '<li>' . $li . '</li>';
+            }
+        } else if (preg_match('/^\d+\.\s+(.*)$/', $trimmed, $matches)) {
+            $li = $matches[1];
+            if ($inList !== 'ol') {
+                $prefix = $inList ? '</' . $inList . '>' : '';
+                $lines[$i] = $prefix . '<ol><li>' . $li . '</li>';
+                $inList = 'ol';
             } else {
                 $lines[$i] = '<li>' . $li . '</li>';
             }
         } else {
             if ($inList) {
-                $lines[$i] = '</ul>' . $line;
+                $lines[$i] = '</' . $inList . '>' . $line;
                 $inList = false;
             }
         }
     }
-    if ($inList) {
-        $lines[] = '</ul>';
+
+    if ($inTable) {
+        $tableHtml = $renderTable($tableRows);
+        for ($k = count($lines) - 1; $k >= 0; $k--) {
+            if ($lines[$k] === '') {
+                $lines[$k] = $tableHtml;
+                break;
+            }
+        }
     }
+    if ($inBlockquote) {
+        $lines[] = '</blockquote>';
+    }
+    if ($inList) {
+        $lines[] = '</' . $inList . '>';
+    }
+
+    $lines = array_filter($lines, function($l) { return $l !== ''; });
     $html = implode("\n", $lines);
 
     $html = nl2br($html);
+
     $html = preg_replace('/(<h[1-6]>.*?<\/h[1-6]>)<br\s*\/?>/', '$1', $html);
     $html = preg_replace('/(<\/?[u|o]l>)<br\s*\/?>/', '$1', $html);
     $html = preg_replace('/(<li>.*?<\/li>)<br\s*\/?>/', '$1', $html);
+    $html = preg_replace('/(<\/blockquote>)<br\s*\/?>/', '$1', $html);
+    $html = preg_replace('/(<hr>)<br\s*\/?>/', '$1', $html);
+    $html = preg_replace('/(<\/table>|<\/tr>|<\/thead>|<\/tbody>|<div style="overflow-x: auto; margin: 1rem 0;">)<br\s*\/?>/', '$1', $html);
+    $html = preg_replace('/(<\/pre>|<pre><code>|<\/code><\/pre>)<br\s*\/?>/', '$1', $html);
 
     return $html;
 }
