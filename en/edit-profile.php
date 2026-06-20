@@ -1379,6 +1379,8 @@ function profile_json_script(string $id, array $data): void
         <div class="editor-loading-text" id="editorLoadingText">Saving profile...</div>
         <div class="editor-loading-subtext" id="editorLoadingSubtext">Uploading media files, please do not close this page.</div>
     </div>
+    <!-- Bootstrap JS Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
 
 </html>
