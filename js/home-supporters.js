@@ -32,12 +32,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const originalChildren = Array.from(container.children);
         if (originalChildren.length === 0) return;
 
-        // Measure container and content widths
-        const originalScrollWidth = container.scrollWidth;
-        const containerWidth = container.clientWidth;
+        // Calculate exact content width programmatically to avoid scrollWidth bugs
+        let contentWidth = 0;
+        const gap = 20; // 1.25rem = 20px
+        originalChildren.forEach((child, index) => {
+            contentWidth += child.getBoundingClientRect().width;
+            if (index < originalChildren.length - 1) {
+                contentWidth += gap;
+            }
+        });
+        // Add padding (padding: 0.5rem 10px -> 10px left + 10px right = 20px)
+        contentWidth += 20;
+
+        const containerWidth = container.getBoundingClientRect().width;
 
         // If they do not overflow, center them and disable marquee behavior
-        if (originalScrollWidth <= containerWidth) {
+        if (contentWidth <= containerWidth) {
             container.style.cursor = 'default';
             container.style.justifyContent = 'center';
             autoScrollActive = false;
@@ -64,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (firstClone && firstCard) {
             originalWidth = firstClone.offsetLeft - firstCard.offsetLeft;
         } else {
-            originalWidth = originalScrollWidth;
+            originalWidth = contentWidth - 20; // fallback to computed width without container padding
         }
     }
 
@@ -76,10 +86,20 @@ document.addEventListener('DOMContentLoaded', () => {
         child.addEventListener('dragstart', (e) => e.preventDefault());
     });
 
-    // Also run init on window load to ensure all images are fully loaded and sized correctly
-    window.addEventListener('load', () => {
-        initSupportersMarquee();
+    // Re-run setup if images finish loading dynamically
+    const images = container.querySelectorAll('img');
+    images.forEach(img => {
+        if (!img.complete) {
+            img.addEventListener('load', initSupportersMarquee);
+        }
     });
+
+    // Execute immediately if window is already loaded, otherwise attach to load event
+    if (document.readyState === 'complete') {
+        initSupportersMarquee();
+    } else {
+        window.addEventListener('load', initSupportersMarquee);
+    }
 
     // Re-initialize on screen resizing
     let resizeTimeout;
@@ -89,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Auto scroll speed configuration (pixels per frame)
-    const speed = 0.3;
+    const speed = 0.4;
 
     function scrollLoop() {
         if (autoScrollActive && !isDown && !momentumActive) {
@@ -111,11 +131,9 @@ document.addEventListener('DOMContentLoaded', () => {
         autoScrollActive = false;
         clearTimeout(userTimeout);
         userTimeout = setTimeout(() => {
-            // Only resume if we still overflow
+            // Only resume if clones are present (meaning we overflow and initialized marquee)
             const clonesCount = container.querySelectorAll('.supporter-clone').length;
-            const divisor = clonesCount > 0 ? 2 : 1;
-            const originalScrollWidth = container.scrollWidth / divisor;
-            if (originalScrollWidth > container.clientWidth) {
+            if (clonesCount > 0) {
                 autoScrollActive = true;
             }
         }, 3000);

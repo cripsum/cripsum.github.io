@@ -29,7 +29,7 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
         }
     }
 
-    $stmtSupp = $mysqli->prepare("SELECT id, username FROM utenti WHERE is_premium = 1 ORDER BY id DESC");
+    $stmtSupp = $mysqli->prepare("SELECT id, username, display_name, discord_use_display_name, discord_global_name, discord_username, profile_updated_at FROM utenti WHERE is_premium = 1 ORDER BY id DESC");
     if ($stmtSupp) {
         $stmtSupp->execute();
         $resSupp = $stmtSupp->get_result();
@@ -214,13 +214,18 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                 </div>
                 <div class="supporters-scroll-wrapper">
                     <div class="supporters-grid">
-                        <?php foreach ($supporters as $s): ?>
-                            <a href="/u/<?= rawurlencode(strtolower($s['username'])) ?>" class="supporter-card" title="<?= htmlspecialchars($s['username']) ?>">
+                        <?php foreach ($supporters as $s): 
+                            $useDiscord = (int)($s['discord_use_display_name'] ?? 0) === 1;
+                            $discord = trim((string)($s['discord_global_name'] ?? '')) ?: trim((string)($s['discord_username'] ?? ''));
+                            $dispName = ($useDiscord && $discord !== '') ? $discord : (trim((string)($s['display_name'] ?? '')) ?: $s['username']);
+                            $stamp = !empty($s['profile_updated_at']) ? strtotime((string)$s['profile_updated_at']) : time();
+                        ?>
+                            <a href="/u/<?= rawurlencode(strtolower($s['username'])) ?>" class="supporter-card" title="<?= htmlspecialchars($dispName) ?>">
                                 <div class="supporter-avatar-container">
-                                    <img src="/includes/get_pfp.php?id=<?= (int)$s['id'] ?>" alt="" class="supporter-pfp">
+                                    <img src="/includes/get_pfp.php?id=<?= (int)$s['id'] ?>&t=<?= $stamp ?>" alt="" class="supporter-pfp">
                                     <div class="supporter-badge"><i class="fa-solid fa-gem"></i></div>
                                 </div>
-                                <span class="supporter-name">@<?= htmlspecialchars($s['username']) ?></span>
+                                <span class="supporter-name"><?= htmlspecialchars($dispName) ?></span>
                             </a>
                         <?php endforeach; ?>
                     </div>
@@ -326,7 +331,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <?php if (!empty($supporters)): ?>
-        <script src="/js/home-supporters.js?v=1.2" defer></script>
+        <script src="/js/home-supporters.js?v=1.4" defer></script>
     <?php endif; ?>
 </body>
 
