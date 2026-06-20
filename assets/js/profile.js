@@ -85,10 +85,7 @@
             if (icon) icon.className = nextTheme === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
             const labelText = btn.querySelector('.theme-label-text');
             if (labelText) {
-                const isIt = document.documentElement.lang === 'it';
-                labelText.textContent = nextTheme === 'light' 
-                    ? (isIt ? 'Modalità chiara' : 'Light Mode')
-                    : (isIt ? 'Modalità scura' : 'Dark Mode');
+                labelText.textContent = nextTheme === 'light' ? 'Light Mode' : 'Dark Mode';
             }
         });
     };
@@ -120,7 +117,7 @@
             button.addEventListener('click', async () => {
                 const text = button.dataset.copyProfile || body.dataset.profileUrl || window.location.href;
                 const ok = await copyText(text);
-                showToast(ok ? 'Link profilo copiato.' : 'Non sono riuscito a copiare il link.');
+                showToast(ok ? 'Profile link copied.' : 'Could not copy link.');
             });
         });
 
@@ -141,7 +138,7 @@
                     }
                 }
                 const ok = await copyText(shareData.url);
-                showToast(ok ? 'Share non disponibile: link copiato.' : 'Share non disponibile.');
+                showToast(ok ? 'Share not available: link copied.' : 'Share not available.');
             });
         });
 
@@ -149,7 +146,7 @@
             button.addEventListener('click', () => {
                 const nextTheme = body.dataset.theme === 'light' ? 'dark' : 'light';
                 setTheme(nextTheme, true);
-                showToast(nextTheme === 'light' ? 'Tema chiaro attivo.' : 'Tema scuro attivo.');
+                showToast(nextTheme === 'light' ? 'Light theme activated.' : 'Dark theme activated.');
             });
         });
     };
@@ -422,9 +419,9 @@
             if (audio.paused) {
                 try {
                     await audio.play();
-                    showToast('Audio avviato.');
+                    showToast('Audio started.');
                 } catch (error) {
-                    showToast('Il browser ha bloccato l’audio. Clicca di nuovo.');
+                    showToast('Browser blocked audio. Click again.');
                 }
             } else {
                 audio.pause();

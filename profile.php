@@ -531,7 +531,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo $lang; ?>" <?php echo ($profile && profile_flag($profile, 'profile_click_to_enter', false)) ? 'class="click-to-enter-active"' : ''; ?>>
+<html lang="en" <?php echo ($profile && profile_flag($profile, 'profile_click_to_enter', false)) ? 'class="click-to-enter-active"' : ''; ?>>
 
 <head>
     <?php include __DIR__ . '/includes/head-import.php'; ?>
@@ -544,8 +544,41 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.7.5">
-    <script src="/assets/js/profile.js?v=5.7.5" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.7.6">
+    <style>
+        .profile-dropdown-item--gift {
+            color: #eab308 !important;
+            font-weight: 700 !important;
+            background: rgba(234, 179, 8, 0.08) !important;
+            border: 1px dashed rgba(234, 179, 8, 0.4) !important;
+            margin: 6px 0 !important;
+            box-shadow: 0 0 12px rgba(234, 179, 8, 0.15);
+            animation: giftPulse 2s infinite ease-in-out;
+        }
+        .profile-dropdown-item--gift i {
+            color: #eab308 !important;
+            filter: drop-shadow(0 0 3px rgba(234, 179, 8, 0.5));
+        }
+        .profile-dropdown-item--gift:hover {
+            background: rgba(234, 179, 8, 0.16) !important;
+            color: #fff !important;
+            box-shadow: 0 0 16px rgba(234, 179, 8, 0.3) !important;
+        }
+        .profile-dropdown-item--gift:hover i {
+            color: #fff !important;
+        }
+        @keyframes giftPulse {
+            0%, 100% {
+                border-color: rgba(234, 179, 8, 0.4);
+                box-shadow: 0 0 12px rgba(234, 179, 8, 0.15);
+            }
+            50% {
+                border-color: rgba(234, 179, 8, 0.8);
+                box-shadow: 0 0 18px rgba(234, 179, 8, 0.35);
+            }
+        }
+    </style>
+    <script src="/assets/js/profile.js?v=5.7.6" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -1241,7 +1274,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     <?php if ($canEdit): ?>
                                         <a class="profile-dropdown-item" href="/it/edit-profile<?php echo profile_is_staff() && !$isOwnProfile ? '?user_id=' . (int)$profile['id'] : ''; ?>">
                                             <i class="fa-solid fa-pen"></i>
-                                            <span><?php echo ($lang === 'it') ? 'Modifica profilo' : 'Edit profile'; ?></span>
+                                            <span>Edit profile</span>
                                         </a>
                                     <?php endif; ?>
                                     <a class="profile-dropdown-item" href="/<?php echo $lang; ?>/home">
@@ -1250,37 +1283,37 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     </a>
                                     <button class="profile-dropdown-item js-open-search" type="button">
                                         <i class="fa-solid fa-search"></i>
-                                        <span><?php echo ($lang === 'it') ? 'Cerca utenti' : 'Search users'; ?></span>
+                                        <span>Search users</span>
                                     </button>
                                     <button class="profile-dropdown-item js-open-navigation" type="button">
                                         <i class="fa-solid fa-compass"></i>
-                                        <span><?php echo ($lang === 'it') ? 'Apri Navigazione' : 'Open Navigation'; ?></span>
+                                        <span>Open Navigation</span>
                                     </button>
                                     <button class="profile-dropdown-item js-copy-profile" type="button">
                                         <i class="fa-solid fa-link"></i>
-                                        <span><?php echo ($lang === 'it') ? 'Copia link' : 'Copy link'; ?></span>
+                                        <span>Copy link</span>
                                     </button>
                                     <button class="profile-dropdown-item js-share-profile" type="button">
                                         <i class="fa-solid fa-share-nodes"></i>
-                                        <span><?php echo ($lang === 'it') ? 'Condividi Profilo' : 'Share Profile'; ?></span>
+                                        <span>Share Profile</span>
                                     </button>
                                     <button class="profile-dropdown-item js-open-report" type="button">
                                         <i class="fa-solid fa-flag"></i>
-                                        <span><?php echo ($lang === 'it') ? 'Segnala Profilo' : 'Report Profile'; ?></span>
+                                        <span>Report Profile</span>
                                     </button>
                                     <button class="profile-dropdown-item js-open-qr" type="button">
                                         <i class="fa-solid fa-qrcode"></i>
-                                        <span><?php echo ($lang === 'it') ? 'Codice QR' : 'QR Code'; ?></span>
+                                        <span>QR Code</span>
                                     </button>
                                     <?php if (!$isPremium && !$isOwnProfile): ?>
-                                        <a class="profile-dropdown-item" href="/<?php echo $lang; ?>/checkout-premium.php?gift_to=<?php echo urlencode($profile['username']); ?>">
+                                        <a class="profile-dropdown-item profile-dropdown-item--gift" href="/<?php echo $lang; ?>/checkout-premium.php?gift_to=<?php echo urlencode($profile['username']); ?>">
                                             <i class="fa-solid fa-gift"></i>
-                                            <span><?php echo ($lang === 'it') ? 'Regala Premium' : 'Gift Premium'; ?></span>
+                                            <span>Gift Premium</span>
                                         </a>
                                     <?php endif; ?>
                                     <button class="profile-dropdown-item js-theme-toggle" type="button">
                                         <i class="fa-solid fa-moon"></i>
-                                        <span class="theme-label-text"><?php echo ($lang === 'it') ? 'Tema scuro' : 'Dark Mode'; ?></span>
+                                        <span class="theme-label-text">Dark Mode</span>
                                     </button>
                                 </div>
                             </div>
