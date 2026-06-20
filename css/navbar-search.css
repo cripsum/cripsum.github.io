@@ -309,16 +309,28 @@
 
 /* ── Mobile — dentro il menu collapse ────────────────────── */
 @media (max-width: 1199.98px) {
+    .navbar-collapse {
+        max-height: 75vh !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+
     .navbar-search-wrapper {
         position: relative; /* ancora per il dropdown */
-        width: 100%;
-        margin: 8px 0 4px;
+        width: 90%;
+        max-width: 280px;
+        margin: 10px auto 6px !important;
         padding: 0 4px;
     }
 
     .navbar-search-group,
     .navbar-search-group:focus-within {
         width: 100% !important;
+    }
+
+    .navbar-search-input {
+        padding: 10px 8px !important;
+        font-size: 0.9rem !important;
     }
 
     .navbar-search-dropdown {
@@ -342,6 +354,11 @@
 
 /* ── Mobile dropdown menu grid and auth group ──────────────── */
 @media (max-width: 1199.98px) {
+    .dropdownutenti .dropdown-menu {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
     .dropdownutenti .dropdown-menu.show {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr);
@@ -362,6 +379,7 @@
         height: 100%;
         display: flex;
         align-items: center;
+        white-space: normal !important;
     }
 
     .nav-auth-group {
@@ -386,6 +404,15 @@
     .nav-auth-group .nav-link:hover {
         background: rgba(128, 128, 128, 0.15);
         border-color: rgba(128, 128, 128, 0.3);
+    }
+}
+
+@media (max-width: 576px) {
+    .dropdownutenti .dropdown-menu.show {
+        grid-template-columns: 1fr !important;
+    }
+    .dropdownutenti .dropdown-menu li.grid-span-2 {
+        grid-column: span 1 !important;
     }
 }
 
