@@ -180,10 +180,12 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
         <?php if (!$isPremium): ?>
             <section class="home-premium-promo-card home-reveal">
                 <div class="promo-copy">
-                    <span class="promo-tag">Cripsum Premium</span>
-                    <h3>Sblocca l'esperienza Cripsum definitiva</h3>
+                    <span class="promo-tag">Cripsum™ Premium</span>
+                    <h3>Sblocca l'esperienza Cripsum™ definitiva</h3>
                     <p>Ottieni vantaggi esclusivi, raddoppia i tuoi punti e supporta la community.</p>
                     <div class="promo-benefits">
+                        <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>200k punti subito all'acquisto</span></div>
+                        <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Sblocco della personalizzazione premium nei profili</span></div>
                         <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Riscatto giornaliero di 500 punti Lootbox</span></div>
                         <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Doppio boost (2x) sui punti delle missioni</span></div>
                         <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Tag premium con diamante vicino al tuo nome</span></div>

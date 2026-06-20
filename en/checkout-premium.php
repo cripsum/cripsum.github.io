@@ -214,7 +214,7 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
         <section class="form-card form-reveal">
             <div class="form-card__header">
                 <h1>Cripsum™ Premium</h1>
-                <p>Customize your profile with animated layouts, music, custom badges, and instantly get 200,000 gacha money to pull!</p>
+                <p>Customize your profile with animated layouts, music and badges, instantly get 200,000 points, claim 500 bonus points every day in Lootboxes, and get a 2x points boost on all daily and weekly missions!</p>
             </div>
 
             <?php if ($errorMsg): ?>
@@ -248,7 +248,7 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
                                     <label for="purchaseGift" class="option-title">
                                         <i class="fa-solid fa-gift"></i> Gift to a friend
                                     </label>
-                                    <span class="option-desc">Send Premium activation and 200k money bonus to another member of the community.</span>
+                                    <span class="option-desc">Send Premium to another user. They will receive a special email and a gifter badge on their profile!</span>
                                 </div>
                             </div>
 
@@ -299,8 +299,20 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
                         <strong>Cripsum™ Premium</strong>
                     </div>
                     <div class="summary-line">
-                        <span>Lootboxes Bonus</span>
-                        <strong style="color: #eab308;">+200 pulls</strong>
+                        <span>Included Points</span>
+                        <strong style="color: #eab308;">200,000 pt</strong>
+                    </div>
+                    <div class="summary-line">
+                        <span>Lootbox Dailies</span>
+                        <strong style="color: #eab308;">500 pt / day</strong>
+                    </div>
+                    <div class="summary-line">
+                        <span>Missions Boost</span>
+                        <strong style="color: #eab308;">x2 (Daily & Weekly)</strong>
+                    </div>
+                    <div class="summary-line">
+                        <span>Customization</span>
+                        <strong style="color: #eab308;">Premium Profiles</strong>
                     </div>
                     <div class="summary-line">
                         <span>Recipient</span>

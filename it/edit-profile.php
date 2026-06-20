@@ -158,7 +158,8 @@ function profile_json_script(string $id, array $data): void
                             <li><i class="fa-solid fa-check"></i>Icone custom e upload ovunque</li>
                             <li><i class="fa-solid fa-check"></i>Intestazioni sezioni personalizzate</li>
                             <li><i class="fa-solid fa-check"></i>Effetti e font premium</li>
-                            <li><i class="fa-solid fa-check"></i>regalo di 200 pull per le lootbox</li>
+                            <li><i class="fa-solid fa-check"></i>200.000 punti inclusi subito</li>
+                            <li><i class="fa-solid fa-check"></i>Molti altri perks all'interno del sito...</li>
                         </ul>
                     </div>
                     <a href="/it/checkout-premium.php" class="plan-select-btn">Passa a Premium</a>
