@@ -529,7 +529,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
     <link rel="stylesheet" href="/assets/css/profile.css?v=5.3.0">
-    <script src="/assets/js/profile.js?v=5.2.3" defer></script>
+    <script src="/assets/js/profile.js?v=5.4.0" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -616,89 +616,102 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         /* Scroll Snap Layout
            body.snap-active is added by JS only when snap is on AND there are 2+ slides.
            This prevents the single-card case from breaking the layout. */
-        body.snap-active {
-            overflow: hidden !important;
-        }
+        @media (min-width: 768px) {
+            body.snap-active {
+                overflow: hidden !important;
+            }
 
-        body.snap-active #bioPage {
-            position: relative !important;
-            height: 100vh !important;
-            max-height: 100vh !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            overflow-y: scroll !important;
-            overflow-x: hidden !important;
-            display: block !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            scroll-behavior: auto !important;
-            grid-template-columns: none !important;
-            /* Hide scrollbar visually */
-            scrollbar-width: none !important;
-            -ms-overflow-style: none !important;
-        }
+            body.snap-active #bioPage {
+                position: relative !important;
+                height: 100vh !important;
+                max-height: 100vh !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                overflow-y: scroll !important;
+                overflow-x: hidden !important;
+                display: block !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                scroll-behavior: auto !important;
+                grid-template-columns: none !important;
+                /* Hide scrollbar visually */
+                scrollbar-width: none !important;
+                -ms-overflow-style: none !important;
+            }
 
-        body.snap-active #bioPage::-webkit-scrollbar {
-            display: none !important;
-        }
+            body.snap-active #bioPage::-webkit-scrollbar {
+                display: none !important;
+            }
 
-        body.snap-active .profile-snap-slide-wrapper {
-            height: 100vh !important;
-            min-height: 100vh !important;
-            width: 100% !important;
-            margin: 0 !important;
-            box-sizing: border-box !important;
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: center !important;
-            padding: 2rem 1rem !important;
-            position: relative !important;
-        }
+            body.snap-active .profile-snap-slide-wrapper {
+                min-height: 100vh !important;
+                height: auto !important;
+                width: 100% !important;
+                margin: 0 !important;
+                box-sizing: border-box !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                padding: 2rem 1rem !important;
+                position: relative !important;
+            }
 
-        body.snap-active.public-profile-body #bioPage .profile-smart-hero-wrapper {
-            top: 0 !important;
-            position: relative !important;
-            align-self: auto !important;
-            margin: 0 !important;
-        }
+            body.snap-active.public-profile-body #bioPage .profile-smart-hero-wrapper {
+                top: 0 !important;
+                position: relative !important;
+                align-self: auto !important;
+                margin: 0 !important;
+            }
 
-        body.snap-active .profile-split-column,
-        body.snap-active .profile-smart-content {
-            display: contents !important;
-        }
+            body.snap-active .profile-split-column,
+            body.snap-active .profile-smart-content {
+                display: contents !important;
+            }
 
-        /* Constrain child cards/sections inside snap wrappers – matches stacked layout width */
-        body.snap-active .profile-snap-slide-wrapper>.bio-card,
-        body.snap-active .profile-snap-slide-wrapper>section.bio-card,
-        body.snap-active .profile-snap-slide-wrapper>.bio-stats-grid,
-        body.snap-active .profile-snap-slide-wrapper>.profile-split-item,
-        body.snap-active .profile-snap-slide-wrapper>section,
-        body.snap-active .profile-snap-slide-wrapper>div {
-            width: min(660px, calc(100% - 32px)) !important;
-            max-width: 660px !important;
-            margin: 0 auto !important;
-            box-sizing: border-box !important;
-        }
+            /* Constrain child cards/sections inside snap wrappers – matches stacked layout width */
+            body.snap-active .profile-snap-slide-wrapper>.bio-card,
+            body.snap-active .profile-snap-slide-wrapper>section.bio-card,
+            body.snap-active .profile-snap-slide-wrapper>.bio-stats-grid,
+            body.snap-active .profile-snap-slide-wrapper>.profile-split-item,
+            body.snap-active .profile-snap-slide-wrapper>section,
+            body.snap-active .profile-snap-slide-wrapper>div {
+                width: min(660px, calc(100% - 32px)) !important;
+                max-width: 660px !important;
+                margin: 0 auto !important;
+                box-sizing: border-box !important;
+            }
 
-        body.snap-active .profile-snap-slide-wrapper>.bio-card,
-        body.snap-active .profile-snap-slide-wrapper>section.bio-card,
-        body.snap-active .profile-snap-slide-wrapper>section {
-            max-height: 85vh !important;
-            overflow-y: auto !important;
-        }
+            body.snap-active .profile-snap-slide-wrapper>.bio-card,
+            body.snap-active .profile-snap-slide-wrapper>section.bio-card,
+            body.snap-active .profile-snap-slide-wrapper>section {
+                max-height: none !important;
+                overflow-y: visible !important;
+            }
 
-        /* Ensure embeds inside snap cards render at full width */
-        body.snap-active .profile-embeds-grid {
-            width: 100% !important;
-        }
+            /* Ensure embeds inside snap cards render at full width */
+            body.snap-active .profile-embeds-grid {
+                width: 100% !important;
+            }
 
-        body.snap-active .profile-embed-wrapper {
-            width: 100% !important;
-        }
+            body.snap-active .profile-embed-wrapper {
+                width: 100% !important;
+            }
 
-        body.snap-active .profile-embed-wrapper iframe {
-            width: 100% !important;
+            body.snap-active .profile-embed-wrapper iframe {
+                width: 100% !important;
+            }
+
+            body.snap-active .bio-stats-grid {
+                width: min(660px, calc(100% - 32px)) !important;
+                max-width: 660px !important;
+                margin: 0 auto !important;
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 1rem !important;
+                justify-content: center !important;
+                align-content: center !important;
+            }
         }
 
         /* Scroll Snap Pagination Dots */
@@ -776,27 +789,10 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             transform: translateY(-50%) translateX(0) !important;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 767px) {
             .profile-snap-dots {
-                right: 12px !important;
-                gap: 12px !important;
-                padding: 10px 8px !important;
-            }
-
-            .profile-snap-dot::after {
                 display: none !important;
             }
-        }
-
-        body.snap-active .bio-stats-grid {
-            width: min(660px, calc(100% - 32px)) !important;
-            max-width: 660px !important;
-            margin: 0 auto !important;
-            display: grid !important;
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 1rem !important;
-            justify-content: center !important;
-            align-content: center !important;
         }
 
         /* Background Grain Effect */

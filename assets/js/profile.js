@@ -1618,10 +1618,24 @@
             slide.classList.remove('profile-snap-slide', 'slide-active', 'slide-before', 'slide-after', 'is-active');
         });
 
-        // If data-layout-snap is not active, stop here!
-        if (activeBody.getAttribute('data-layout-snap') !== '1') {
+        // 1. Mobile Check (< 768px)
+        const isMobileWidth = () => window.innerWidth < 768;
+
+        // If data-layout-snap is not active, OR we are on mobile, stop here!
+        if (activeBody.getAttribute('data-layout-snap') !== '1' || isMobileWidth()) {
             activeBody.classList.remove('snap-active');
             bioPage.scrollTop = 0;
+
+            // Keep the resize listener active so that if they resize back to desktop, it activates.
+            if (activeBody.getAttribute('data-layout-snap') === '1') {
+                const handleResize = () => {
+                    if (window.innerWidth >= 768) {
+                        initScrollSnapPagination();
+                    }
+                };
+                window._snapResizeHandler = handleResize;
+                window.addEventListener('resize', handleResize);
+            }
             return;
         }
 
@@ -1654,7 +1668,8 @@
         let scrollStartTime = 0;
         let startScrollTop = 0;
         let targetScrollTop = 0;
-        const scrollDuration = 750; // ms transition duration
+        let currentScrollDuration = 750; // ms transition duration
+        const scrollDuration = 750;
 
         const easeInOutCubic = (t) => {
             return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -1663,7 +1678,7 @@
         const animateScroll = (timestamp) => {
             if (!scrollStartTime) scrollStartTime = timestamp;
             const elapsed = timestamp - scrollStartTime;
-            const progress = Math.min(elapsed / scrollDuration, 1);
+            const progress = Math.min(elapsed / currentScrollDuration, 1);
             const easedProgress = easeInOutCubic(progress);
 
             bioPage.scrollTop = startScrollTop + (targetScrollTop - startScrollTop) * easedProgress;
@@ -1676,10 +1691,11 @@
             }
         };
 
-        const scrollToPosition = (pos) => {
+        const scrollToPosition = (pos, duration = 750) => {
             startScrollTop = bioPage.scrollTop;
             targetScrollTop = pos;
             isScrolling = true;
+            currentScrollDuration = duration;
             scrollStartTime = 0;
             requestAnimationFrame(animateScroll);
         };
@@ -1693,9 +1709,11 @@
             
             activeIndex = index;
             
-            // Trigger smooth scroll animation
-            const viewportHeight = bioPage.clientHeight || window.innerHeight;
-            scrollToPosition(activeIndex * viewportHeight);
+            // Trigger smooth scroll animation to the target slide's actual offsetTop
+            const targetSlide = slides[activeIndex];
+            if (targetSlide) {
+                scrollToPosition(targetSlide.offsetTop, scrollDuration);
+            }
 
             // Update active states
             slides.forEach((slide, idx) => {
@@ -1741,16 +1759,58 @@
 
         // 1. Wheel Listener (Mouse & Trackpad) - Registered on window
         const handleWheel = (e) => {
+            if (window.innerWidth < 768) return;
             e.preventDefault();
-            if (isScrolling) return;
 
             const delta = e.deltaY;
             if (Math.abs(delta) < 5) return;
 
-            if (delta > 0) {
-                goToSlide(activeIndex + 1);
+            const currentSlide = slides[activeIndex];
+            if (!currentSlide) return;
+
+            const viewportHeight = bioPage.clientHeight || window.innerHeight;
+            const currentSlideStart = currentSlide.offsetTop;
+            const currentSlideHeight = currentSlide.offsetHeight;
+            const currentSlideEnd = currentSlideStart + currentSlideHeight;
+
+            // If a slide-change scroll is currently active, don't interrupt
+            if (isScrolling) {
+                const isChangingSlide = targetScrollTop < currentSlideStart || targetScrollTop > (currentSlideEnd - viewportHeight + 5);
+                if (isChangingSlide) return;
+            }
+
+            if (currentSlideHeight > viewportHeight) {
+                // Slide is longer than viewport!
+                const maxScrollInside = currentSlideEnd - viewportHeight;
+                let currentPos = isScrolling ? targetScrollTop : bioPage.scrollTop;
+                
+                if (delta > 0) {
+                    // Scrolling down
+                    if (currentPos < maxScrollInside - 5) {
+                        const step = Math.min(150, maxScrollInside - currentPos);
+                        scrollToPosition(currentPos + step, 200); // Faster animation for internal scrolling
+                    } else {
+                        if (isScrolling) return;
+                        goToSlide(activeIndex + 1);
+                    }
+                } else {
+                    // Scrolling up
+                    if (currentPos > currentSlideStart + 5) {
+                        const step = Math.min(150, currentPos - currentSlideStart);
+                        scrollToPosition(currentPos - step, 200); // Faster animation for internal scrolling
+                    } else {
+                        if (isScrolling) return;
+                        goToSlide(activeIndex - 1);
+                    }
+                }
             } else {
-                goToSlide(activeIndex - 1);
+                // Standard height slide
+                if (isScrolling) return;
+                if (delta > 0) {
+                    goToSlide(activeIndex + 1);
+                } else {
+                    goToSlide(activeIndex - 1);
+                }
             }
         };
 
@@ -1759,26 +1819,90 @@
 
         // 2. Touch/Swipe Listeners - Registered on window
         let touchStartY = 0;
+        let touchStartScrollTop = 0;
         
         const handleTouchStart = (e) => {
+            if (window.innerWidth < 768) return;
             touchStartY = e.touches[0].clientY;
+            touchStartScrollTop = bioPage.scrollTop;
         };
 
         const handleTouchMove = (e) => {
-            // Prevent default page bounce/native scrolling
+            if (window.innerWidth < 768) return;
+            
+            const currentSlide = slides[activeIndex];
+            if (currentSlide) {
+                const viewportHeight = bioPage.clientHeight || window.innerHeight;
+                const currentSlideHeight = currentSlide.offsetHeight;
+                
+                if (currentSlideHeight > viewportHeight) {
+                    const touchCurrentY = e.touches[0].clientY;
+                    const diffY = touchStartY - touchCurrentY;
+                    
+                    const currentSlideStart = currentSlide.offsetTop;
+                    const currentSlideEnd = currentSlideStart + currentSlideHeight;
+                    const maxScrollInside = currentSlideEnd - viewportHeight;
+                    
+                    const targetPos = touchStartScrollTop + diffY;
+                    
+                    // If target position is inside the current tall slide, scroll naturally with finger
+                    if (targetPos >= currentSlideStart && targetPos <= maxScrollInside) {
+                        e.preventDefault();
+                        bioPage.scrollTop = targetPos;
+                        return;
+                    }
+                }
+            }
             e.preventDefault();
         };
 
         const handleTouchEnd = (e) => {
+            if (window.innerWidth < 768) return;
             if (isScrolling) return;
+
             const touchEndY = e.changedTouches[0].clientY;
             const diffY = touchStartY - touchEndY;
 
-            if (Math.abs(diffY) > 50) {
-                if (diffY > 0) {
-                    goToSlide(activeIndex + 1);
-                } else {
-                    goToSlide(activeIndex - 1);
+            const currentSlide = slides[activeIndex];
+            if (!currentSlide) return;
+
+            const viewportHeight = bioPage.clientHeight || window.innerHeight;
+            const currentSlideStart = currentSlide.offsetTop;
+            const currentSlideHeight = currentSlide.offsetHeight;
+            const currentSlideEnd = currentSlideStart + currentSlideHeight;
+
+            if (currentSlideHeight > viewportHeight) {
+                // Tall slide!
+                const maxScrollInside = currentSlideEnd - viewportHeight;
+                const currentPos = bioPage.scrollTop;
+
+                if (Math.abs(diffY) > 50) {
+                    if (diffY > 0) {
+                        // Swipe up (scroll down)
+                        if (currentPos < maxScrollInside - 5) {
+                            const step = Math.min(200, maxScrollInside - currentPos);
+                            scrollToPosition(currentPos + step, 300);
+                        } else {
+                            goToSlide(activeIndex + 1);
+                        }
+                    } else {
+                        // Swipe down (scroll up)
+                        if (currentPos > currentSlideStart + 5) {
+                            const step = Math.min(200, currentPos - currentSlideStart);
+                            scrollToPosition(currentPos - step, 300);
+                        } else {
+                            goToSlide(activeIndex - 1);
+                        }
+                    }
+                }
+            } else {
+                // Short slide
+                if (Math.abs(diffY) > 50) {
+                    if (diffY > 0) {
+                        goToSlide(activeIndex + 1);
+                    } else {
+                        goToSlide(activeIndex - 1);
+                    }
                 }
             }
         };
@@ -1793,7 +1917,7 @@
 
         // 3. Keydown Listener
         const handleKeyDown = (e) => {
-            // Avoid scrolling if user is editing inputs/textarea
+            if (window.innerWidth < 768) return;
             const activeEl = document.activeElement;
             if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable)) {
                 return;
@@ -1806,12 +1930,58 @@
                 return;
             }
 
-            if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
-                e.preventDefault();
-                goToSlide(activeIndex + 1);
-            } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-                e.preventDefault();
-                goToSlide(activeIndex - 1);
+            const currentSlide = slides[activeIndex];
+            if (!currentSlide) return;
+
+            const viewportHeight = bioPage.clientHeight || window.innerHeight;
+            const currentSlideStart = currentSlide.offsetTop;
+            const currentSlideHeight = currentSlide.offsetHeight;
+            const currentSlideEnd = currentSlideStart + currentSlideHeight;
+            const currentScrollTop = bioPage.scrollTop;
+
+            if (currentSlideHeight > viewportHeight) {
+                const maxScrollInside = currentSlideEnd - viewportHeight;
+                if (e.key === 'ArrowDown' || e.key === ' ') {
+                    e.preventDefault();
+                    if (currentScrollTop < maxScrollInside - 5) {
+                        const step = Math.min(150, maxScrollInside - currentScrollTop);
+                        scrollToPosition(currentScrollTop + step, 200);
+                    } else {
+                        goToSlide(activeIndex + 1);
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (currentScrollTop > currentSlideStart + 5) {
+                        const step = Math.min(150, currentScrollTop - currentSlideStart);
+                        scrollToPosition(currentScrollTop - step, 200);
+                    } else {
+                        goToSlide(activeIndex - 1);
+                    }
+                } else if (e.key === 'PageDown') {
+                    e.preventDefault();
+                    if (currentScrollTop < maxScrollInside - 5) {
+                        const step = Math.min(viewportHeight * 0.8, maxScrollInside - currentScrollTop);
+                        scrollToPosition(currentScrollTop + step, 300);
+                    } else {
+                        goToSlide(activeIndex + 1);
+                    }
+                } else if (e.key === 'PageUp') {
+                    e.preventDefault();
+                    if (currentScrollTop > currentSlideStart + 5) {
+                        const step = Math.min(viewportHeight * 0.8, currentScrollTop - currentSlideStart);
+                        scrollToPosition(currentScrollTop - step, 300);
+                    } else {
+                        goToSlide(activeIndex - 1);
+                    }
+                }
+            } else {
+                if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
+                    e.preventDefault();
+                    goToSlide(activeIndex + 1);
+                } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+                    e.preventDefault();
+                    goToSlide(activeIndex - 1);
+                }
             }
         };
 
@@ -1819,9 +1989,24 @@
         window.addEventListener('keydown', handleKeyDown);
 
         // 4. Resize Listener
+        let lastWidth = window.innerWidth;
         const handleResize = () => {
-            const viewportHeight = bioPage.clientHeight || window.innerHeight;
-            bioPage.scrollTop = activeIndex * viewportHeight;
+            const currentWidth = window.innerWidth;
+            // Re-init completely if we cross the mobile/desktop threshold
+            if ((lastWidth < 768 && currentWidth >= 768) || (lastWidth >= 768 && currentWidth < 768)) {
+                lastWidth = currentWidth;
+                initScrollSnapPagination();
+                return;
+            }
+            lastWidth = currentWidth;
+
+            // Otherwise adjust active position if on desktop
+            if (currentWidth >= 768) {
+                const targetSlide = slides[activeIndex];
+                if (targetSlide) {
+                    bioPage.scrollTop = targetSlide.offsetTop;
+                }
+            }
         };
         window._snapResizeHandler = handleResize;
         window.addEventListener('resize', handleResize);

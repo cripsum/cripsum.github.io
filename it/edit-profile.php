@@ -112,7 +112,7 @@ function profile_json_script(string $id, array $data): void
     <script>
         window.isPremiumUser = <?php echo (int)($profile['is_premium'] ?? 0) === 1 ? 'true' : 'false'; ?>;
     </script>
-    <script src="/assets/js/profile.js?v=5.2.3" defer></script>
+    <script src="/assets/js/profile.js?v=5.2.4" defer></script>
     <script src="/assets/js/edit-profile.js?v=5.3.0" defer></script>
 </head>
 
@@ -481,13 +481,13 @@ function profile_json_script(string $id, array $data): void
                                 <label class="profile-field"><span>Tema</span><select name="profile_theme" id="themeInput"><?php foreach (['dark' => 'Scuro', 'light' => 'Chiaro', 'auto' => 'Auto'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_theme'] ?? 'dark') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
                                 <label class="profile-field"><span>Layout</span>
                                     <select id="layoutInput">
-                                        <?php 
+                                        <?php
                                         $currentLayoutVal = ($profile['profile_layout'] ?? 'standard');
                                         $currentLayoutMapped = ['left-tabs' => 'standard', 'right-tabs' => 'showcase', 'stacked' => 'clean', 'center-split' => 'compact'][$currentLayoutVal] ?? $currentLayoutVal;
                                         if ((int)($profile['profile_layout_snap'] ?? 0) === 1) {
                                             $currentLayoutMapped = 'scrollsnap';
                                         }
-                                        
+
                                         $layoutOptions = [
                                             'standard' => 'Standard default',
                                             'compact' => 'Profilo centrale, contenuti ai lati',

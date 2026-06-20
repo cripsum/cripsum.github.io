@@ -112,7 +112,7 @@ function profile_json_script(string $id, array $data): void
     <script>
         window.isPremiumUser = <?php echo (int)($profile['is_premium'] ?? 0) === 1 ? 'true' : 'false'; ?>;
     </script>
-    <script src="/assets/js/profile.js?v=5.2.3" defer></script>
+    <script src="/assets/js/profile.js?v=5.2.4" defer></script>
     <script src="/assets/js/edit-profile-en.js?v=5.3.0" defer></script>
 </head>
 
