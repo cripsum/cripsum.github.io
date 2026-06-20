@@ -21,7 +21,11 @@ try {
     ];
 
     $latestUsers = [];
-    $stmt = $mysqli->prepare("SELECT id, username, ruolo, isBannato, data_creazione FROM utenti ORDER BY data_creazione DESC LIMIT 6");
+    $select = "id, username, ruolo, isBannato, data_creazione";
+    if (admin_column_exists($mysqli, 'utenti', 'is_premium')) {
+        $select .= ", is_premium";
+    }
+    $stmt = $mysqli->prepare("SELECT $select FROM utenti ORDER BY data_creazione DESC LIMIT 6");
     if ($stmt && $stmt->execute()) {
         $res = $stmt->get_result();
         while ($row = $res->fetch_assoc()) $latestUsers[] = $row;

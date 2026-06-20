@@ -249,7 +249,7 @@ function admin_require_access(mysqli $mysqli, bool $json = false): array
 function admin_fetch_user(mysqli $mysqli, int $userId): ?array
 {
     $select = "id, username, email, ruolo, isBannato, data_creazione";
-    foreach (['motivo_ban', 'banned_at', 'banned_by', 'updated_at', 'email_verificata', 'soldi', 'nsfw', 'richpresence', 'twofa_enabled'] as $column) {
+    foreach (['motivo_ban', 'banned_at', 'banned_by', 'updated_at', 'email_verificata', 'soldi', 'nsfw', 'richpresence', 'twofa_enabled', 'is_premium'] as $column) {
         if (admin_column_exists($mysqli, 'utenti', $column)) $select .= ", $column";
     }
 

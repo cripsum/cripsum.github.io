@@ -42,10 +42,54 @@ try {
     $nsfw = isset($input['nsfw']) ? (int)$input['nsfw'] : null;
     $richpresence = isset($input['richpresence']) ? (int)$input['richpresence'] : null;
     $twofa_enabled = isset($input['twofa_enabled']) ? (int)$input['twofa_enabled'] : null;
+    $is_premium = isset($input['is_premium']) ? (int)$input['is_premium'] : null;
 
     $sets = ['username = ?', 'email = ?', 'ruolo = ?'];
     $types = 'sss';
     $params = [$username, $email, $role];
+
+    if ($is_premium !== null && admin_column_exists($mysqli, 'utenti', 'is_premium')) {
+        $sets[] = 'is_premium = ?';
+        $types .= 'i';
+        $params[] = $is_premium;
+        
+        // Se abilitiamo il premium e l'utente non lo era
+        if ($is_premium === 1 && (int)($target['is_premium'] ?? 0) !== 1) {
+            // Aggiungi 200.000 soldi
+            $stmtSoldi = $mysqli->prepare("UPDATE utenti SET soldi = soldi + 200000 WHERE id = ?");
+            if ($stmtSoldi) {
+                $stmtSoldi->bind_param('i', $userId);
+                $stmtSoldi->execute();
+                $stmtSoldi->close();
+            }
+            
+            // Aggiungi Badge Premium ID 5
+            $stmtBadge = $mysqli->prepare("
+                INSERT INTO user_custom_badges (utente_id, badge_id, is_visible)
+                SELECT ?, 5, 1
+                FROM DUAL
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM user_custom_badges WHERE utente_id = ? AND badge_id = 5
+                )
+            ");
+            if ($stmtBadge) {
+                $stmtBadge->bind_param('ii', $userId, $userId);
+                $stmtBadge->execute();
+                $stmtBadge->close();
+            }
+        }
+        
+        // Se disabilitiamo il premium e lo era
+        if ($is_premium === 0 && (int)($target['is_premium'] ?? 0) === 1) {
+            // Rimuovi Badge Premium ID 5
+            $stmtBadgeRem = $mysqli->prepare("DELETE FROM user_custom_badges WHERE utente_id = ? AND badge_id = 5");
+            if ($stmtBadgeRem) {
+                $stmtBadgeRem->bind_param('i', $userId);
+                $stmtBadgeRem->execute();
+                $stmtBadgeRem->close();
+            }
+        }
+    }
 
     if ($soldi !== null && admin_column_exists($mysqli, 'utenti', 'soldi')) {
         $sets[] = 'soldi = ?';
@@ -105,6 +149,7 @@ try {
     if ($soldi !== null) $logPayload['soldi'] = $soldi;
     if ($data_creazione !== null) $logPayload['data_creazione'] = $data_creazione;
     if ($twofa_enabled !== null) $logPayload['twofa_enabled'] = $twofa_enabled;
+    if ($is_premium !== null) $logPayload['is_premium'] = $is_premium;
 
     admin_log($mysqli, (int)$adminUser['id'], 'update_user', $userId, $logPayload);
     admin_ok(['message' => 'Utente aggiornato.']);

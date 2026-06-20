@@ -113,6 +113,10 @@
         ? '<span class="admin-badge admin-badge--danger"><i class="fa-solid fa-ban"></i>Bannato</span>'
         : '<span class="admin-badge admin-badge--success"><i class="fa-solid fa-check"></i>Attivo</span>';
 
+    const premiumBadge = (isPremium) => Number(isPremium) === 1
+        ? '<span class="admin-badge admin-badge--warning" style="margin-left: 5px; font-size: 0.65rem; padding: 2px 6px;"><i class="fa-solid fa-crown" style="color: #eab308; margin-right: 4px;"></i>Premium</span>'
+        : '';
+
 
     const assetUrl = (value) => {
         value = String(value || '').trim();
@@ -267,7 +271,7 @@
                     <div class="admin-row-main">
                         <img class="admin-avatar" src="/includes/get_pfp.php?id=${Number(user.id)}" alt="">
                         <div class="admin-cell-text">
-                            <div class="admin-row-title">${escapeHtml(user.username)}</div>
+                            <div class="admin-row-title">${escapeHtml(user.username)} ${premiumBadge(user.is_premium)}</div>
                             <div class="admin-row-sub">#${Number(user.id)} · ${formatDate(user.data_creazione)}</div>
                         </div>
                     </div>
@@ -295,7 +299,7 @@
                 <div class="admin-cell-user">
                     <img class="admin-avatar" src="${escapeHtml(user.avatar_url)}" alt="">
                     <div class="admin-cell-text">
-                        <div class="admin-row-title">${escapeHtml(user.username)}</div>
+                        <div class="admin-row-title">${escapeHtml(user.username)} ${premiumBadge(user.is_premium)}</div>
                         <div class="admin-row-sub">#${Number(user.id)} · ${escapeHtml(user.email)}</div>
                     </div>
                 </div>
@@ -365,9 +369,15 @@
                 <div class="admin-detail-grid">
                     <aside class="admin-detail-side">
                         <img class="admin-detail-avatar" src="${escapeHtml(user.avatar_url)}" alt="">
-                        <h3>${escapeHtml(user.username)}</h3>
+                        <h3>${escapeHtml(user.username)} ${premiumBadge(user.is_premium)}</h3>
                         <p>${escapeHtml(user.email)}</p>
                         <div class="admin-row-actions" style="justify-content:center">${roleBadge(user.ruolo)}${statusBadge(user.isBannato)}</div>
+                        <div class="admin-row-actions" style="justify-content:center; margin-top:10px;">
+                            ${Number(user.is_premium) === 1
+                                ? `<button class="admin-btn admin-btn--small admin-btn--danger" id="btnTogglePremium" data-id="${Number(user.id)}" data-premium="0"><i class="fa-solid fa-crown"></i> Rimuovi Premium</button>`
+                                : `<button class="admin-btn admin-btn--small admin-btn--warning" id="btnTogglePremium" data-id="${Number(user.id)}" data-premium="1"><i class="fa-solid fa-crown"></i> Aggiungi Premium</button>`
+                            }
+                        </div>
                         ${user.motivo_ban ? `<p class="admin-muted">Motivo ban: ${escapeHtml(user.motivo_ban)}</p>` : ''}
                     </aside>
                     <div class="admin-detail-tabs">
@@ -382,6 +392,31 @@
             $('#quickAddAchievement')?.addEventListener('click', () => openAssignAchievement(user.id));
             $$('[data-remove-character]').forEach((btn) => btn.addEventListener('click', () => removeCharacter(user.id, Number(btn.dataset.removeCharacter))));
             $$('[data-remove-achievement]').forEach((btn) => btn.addEventListener('click', () => removeAchievement(user.id, Number(btn.dataset.removeAchievement))));
+            $('#btnTogglePremium')?.addEventListener('click', async () => {
+                const targetPremium = Number($('#btnTogglePremium').dataset.premium);
+                const confirmMsg = targetPremium === 1
+                    ? "Vuoi attivare il Premium per questo utente? Verranno assegnati anche 200.000 soldi e il badge premium."
+                    : "Vuoi rimuovere lo stato Premium per questo utente? Verrà rimosso anche il badge premium.";
+                
+                if (confirm(confirmMsg)) {
+                    try {
+                        const payload = {
+                            id: user.id,
+                            username: user.username,
+                            email: user.email,
+                            ruolo: user.ruolo,
+                            is_premium: targetPremium
+                        };
+                        await api('update_user.php', { method: 'POST', body: payload });
+                        closeModal();
+                        showToast('Stato Premium aggiornato.');
+                        loadUsers();
+                        loadDashboard();
+                    } catch (error) {
+                        showToast(error.message, true);
+                    }
+                }
+            });
         } catch (error) { showToast(error.message, true); }
     };
 
@@ -414,6 +449,10 @@
                 <div class="admin-field"><label>2FA Abilitato</label><select name="twofa_enabled">
                     <option value="1" ${Number(user.twofa_enabled) === 1 ? 'selected' : ''}>Sì (1)</option>
                     <option value="0" ${Number(user.twofa_enabled) === 0 ? 'selected' : ''}>No (0)</option>
+                </select></div>
+                <div class="admin-field"><label>Stato Premium</label><select name="is_premium">
+                    <option value="1" ${Number(user.is_premium) === 1 ? 'selected' : ''}>Attivo</option>
+                    <option value="0" ${Number(user.is_premium) === 0 ? 'selected' : ''}>Disattivato</option>
                 </select></div>
             </form>
         `, `<button class="admin-btn" data-admin-close="1">Annulla</button><button class="admin-btn admin-btn--primary" id="saveUserBtn">Salva</button>`);

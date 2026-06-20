@@ -70,7 +70,7 @@
     font-size: 0.855rem;
     font-family: "Poppins", sans-serif;
     font-weight: 500;
-    padding: 3.5px 8px !important;
+    padding: 7px 8px !important;
     line-height: 1.2 !important;
     width: 100%;
     caret-color: rgba(var(--ns-accent-rgb), 0.9);
@@ -348,11 +348,11 @@
         gap: 8px;
         padding: 12px !important;
     }
-    
+
     .dropdownutenti .dropdown-menu li.grid-span-2 {
         grid-column: span 2;
     }
-    
+
     .dropdownutenti .dropdown-menu .dropdown-item {
         padding: 10px 12px !important;
         font-size: 0.9rem !important;
@@ -404,10 +404,6 @@
 .dropdownutenti .dropdown-menu a.text-danger i {
     color: #ff453a !important;
 }
-
-
-
-
 
 /* Glassmorphism/blur background for all navbar dropdowns ONLY on mobile */
 @media (max-width: 1199.98px) {
