@@ -742,13 +742,15 @@ function profile_json_script(string $id, array $data): void
                             </div>
                         </div>
                         <div class="editor-card-body">
+                            <!-- Socials Display Style -->
+                            <div class="profile-field-grid two" style="margin-bottom: 1.5rem;">
+                                <label class="profile-field"><span>Socials Display Style</span><select name="profile_socials_style" id="socialsStyleInput"><?php foreach (['cards' => 'Large cards (2x row)', 'icons' => 'Clean icons only'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_socials_style'] ?? 'cards') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
+                            </div>
+
                             <div class="bio-section-heading">
                                 <div><span><i class="fa-solid fa-link"></i> Socials</span>
                                     <p>Quick icons under profile details.</p>
                                 </div><button type="button" class="bio-button" data-add-row="socials" style="margin: 0;">+ Social</button>
-                            </div>
-                            <div class="profile-field-grid single" style="margin-bottom: 1rem;">
-                                <label class="profile-field"><span>Socials Display Style</span><select name="profile_socials_style" id="socialsStyleInput"><?php foreach (['cards' => 'Large cards (2x row)', 'icons' => 'Clean icons only'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_socials_style'] ?? 'cards') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
                             </div>
                             <div class="profile-repeater" id="socialsRepeater"></div>
 
