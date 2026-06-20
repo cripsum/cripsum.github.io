@@ -324,6 +324,7 @@ function getMissionsPageData(mysqli $mysqli, int $userId, string $lang): array
     }
 
     return [
+        'is_premium' => $isPremium,
         'daily'  => [
             'reset_at'  => getDailyResetTimestamp(),
             'periodo'   => getMissionDailyPeriod(),

@@ -789,3 +789,35 @@ body.msn-page {
     }
     .msn-reveal { opacity: 1; transform: none; }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   PREMIUM BOOST BADGE
+───────────────────────────────────────────────────────────── */
+.msn-premium-boost {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    background: rgba(251, 113, 133, 0.15); /* pink/rose matching diamond theme */
+    color: #fb7185;
+    border: 1px solid rgba(251, 113, 133, 0.35);
+    font-size: 0.68rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-left: 0.45rem;
+    animation: msnPremiumGlow 2.5s ease-in-out infinite alternate;
+    vertical-align: middle;
+}
+
+@keyframes msnPremiumGlow {
+    from {
+        box-shadow: 0 0 4px rgba(251, 113, 133, 0.1);
+        border-color: rgba(251, 113, 133, 0.3);
+    }
+    to {
+        box-shadow: 0 0 10px rgba(251, 113, 133, 0.25);
+        border-color: rgba(251, 113, 133, 0.6);
+    }
+}

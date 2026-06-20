@@ -139,6 +139,7 @@
             state.weekly      = json.data.weekly.missions || [];
             state.dailyReset  = json.data.daily.reset_at  || 0;
             state.weeklyReset = json.data.weekly.reset_at || 0;
+            state.isPremium   = !!json.data.is_premium;
 
             renderAll();
             startCountdowns();
@@ -255,6 +256,7 @@
                 <div class="msn-reward">
                     <i class="fa-solid fa-coins"></i>
                     +${m.punti_reward} pt
+                    ${state.isPremium ? ' <span class="msn-premium-boost" title="Premium 2x Boost"><i class="fa-solid fa-gem"></i> Premium x2</span>' : ''}
                 </div>
                 <button
                     type="button"

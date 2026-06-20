@@ -3,6 +3,7 @@ require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/mission_generator.php';
+require_once __DIR__ . '/../includes/gacha_helpers.php';
 checkBan($mysqli);
 
 if (!isLoggedIn()) {
@@ -35,18 +36,21 @@ $lastPremiumClaim = $userData['last_premium_claim'] ?? null;
 
 // ── Banner evento attivi ──────────────────────────────────────────────
 $nowDt = date('Y-m-d H:i:s');
+$pCols = gacha_character_columns($mysqli);
+$beCols = gacha_event_columns($mysqli);
+
 $stmtBanners = $mysqli->prepare(
-    'SELECT be.id, be.slug, be.nome, be.descrizione, be.id_personaggio_rateup,
-            be.banner_img_url, be.costo_punti, be.data_fine,
-            p.nome AS rateup_nome, p.rarità AS rateup_rarità,
-            p.img_url AS rateup_img_url, p.descrizione AS rateup_desc,
-            p.caratteristiche AS rateup_chars
+    "SELECT be.id, be.{$beCols['slug']} AS slug, be.{$beCols['name']} AS nome, be.{$beCols['description']} AS descrizione, be.{$beCols['rateup']} AS id_personaggio_rateup,
+            be.{$beCols['image']} AS banner_img_url, be.{$beCols['cost']} AS costo_punti, be.{$beCols['ends']} AS data_fine,
+            p.{$pCols['name']} AS rateup_nome, p.{$pCols['rarity']} AS rateup_rarità,
+            p.{$pCols['image']} AS rateup_img_url, p.{$pCols['description']} AS rateup_desc,
+            p.{$pCols['features']} AS rateup_chars
      FROM banner_eventi be
-     INNER JOIN personaggi p ON p.id = be.id_personaggio_rateup
-     WHERE be.attivo = 1
-       AND (be.data_inizio IS NULL OR be.data_inizio <= ?)
-       AND (be.data_fine   IS NULL OR be.data_fine   >= ?)
-     ORDER BY be.id ASC'
+     INNER JOIN personaggi p ON p.id = be.{$beCols['rateup']}
+     WHERE be.{$beCols['active']} = 1
+       AND (be.{$beCols['starts']} IS NULL OR be.{$beCols['starts']} <= ?)
+       AND (be.{$beCols['ends']}   IS NULL OR be.{$beCols['ends']}   >= ?)
+     ORDER BY be.id ASC"
 );
 $stmtBanners->bind_param('ss', $nowDt, $nowDt);
 $stmtBanners->execute();
@@ -68,7 +72,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
 <head>
     <?php include '../includes/head-import.php'; ?>
     <link rel="stylesheet" href="/css/lootbox.css?v=8.2">
-    <link rel="stylesheet" href="/css/gacha.css?v=11">
+    <link rel="stylesheet" href="/css/gacha.css?v=12">
     <meta name="theme-color" content="#080810">
     <title>Cripsum™ — Lootbox</title>
 </head>

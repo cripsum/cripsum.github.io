@@ -12,6 +12,8 @@ declare(strict_types=1);
 require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/gacha_helpers.php';
+
 
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
@@ -87,29 +89,32 @@ $standard = [
 // ── Banner Evento attivi ──────────────────────────────────────────────────────
 $now = date('Y-m-d H:i:s');
 
+$pCols = gacha_character_columns($mysqli);
+$beCols = gacha_event_columns($mysqli);
+
 $stmtBanner = $mysqli->prepare(
-    'SELECT
+    "SELECT
         be.id,
-        be.slug,
-        be.nome,
-        be.descrizione,
-        be.id_personaggio_rateup,
-        be.banner_img_url,
-        be.costo_punti,
-        be.data_inizio,
-        be.data_fine,
-        p.nome         AS rateup_nome,
-        p.descrizione  AS rateup_descrizione,
-        p.rarità       AS rateup_rarità,
-        p.img_url      AS rateup_img_url,
-        p.video_url    AS rateup_video_url,
-        p.caratteristiche AS rateup_caratteristiche
+        be.{$beCols['slug']} AS slug,
+        be.{$beCols['name']} AS nome,
+        be.{$beCols['description']} AS descrizione,
+        be.{$beCols['rateup']} AS id_personaggio_rateup,
+        be.{$beCols['image']} AS banner_img_url,
+        be.{$beCols['cost']} AS costo_punti,
+        be.{$beCols['starts']} AS data_inizio,
+        be.{$beCols['ends']} AS data_fine,
+        p.{$pCols['name']}         AS rateup_nome,
+        p.{$pCols['description']}  AS rateup_descrizione,
+        p.{$pCols['rarity']}       AS rateup_rarità,
+        p.{$pCols['image']}      AS rateup_img_url,
+        p.{$pCols['video']}    AS rateup_video_url,
+        p.{$pCols['features']} AS rateup_caratteristiche
      FROM banner_eventi be
-     INNER JOIN personaggi p ON p.id = be.id_personaggio_rateup
-     WHERE be.attivo = 1
-       AND (be.data_inizio IS NULL OR be.data_inizio <= ?)
-       AND (be.data_fine   IS NULL OR be.data_fine   >= ?)
-     ORDER BY be.id ASC'
+     INNER JOIN personaggi p ON p.id = be.{$beCols['rateup']}
+     WHERE be.{$beCols['active']} = 1
+       AND (be.{$beCols['starts']} IS NULL OR be.{$beCols['starts']} <= ?)
+       AND (be.{$beCols['ends']}   IS NULL OR be.{$beCols['ends']}   >= ?)
+     ORDER BY be.id ASC"
 );
 if (!$stmtBanner) {
     http_response_code(500);

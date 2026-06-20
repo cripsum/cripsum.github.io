@@ -1196,6 +1196,7 @@ body.content-v2-body .dropdown-divider {
     margin-left: 4px;
     font-size: 0.75rem;
     filter: drop-shadow(0 0 2px rgba(251, 113, 133, 0.4));
-    display: inline-flex;
+    display: inline-flex !important;
     align-items: center;
+    vertical-align: middle;
 }
