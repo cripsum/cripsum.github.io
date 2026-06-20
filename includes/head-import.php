@@ -46,7 +46,7 @@
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="/css/style.css?v=27" />
         <link rel="stylesheet" href="/css/style-dark.css?v=24" />
-        <link rel="stylesheet" href="/css/navbar-search.css?v=2.7" />
+        <link rel="stylesheet" href="/css/navbar-search.css?v=2.8" />
         <link rel="stylesheet" href="/css/animations.css" />
         <link rel="stylesheet" href="/css/achievement-style.css" />
 
