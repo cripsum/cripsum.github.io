@@ -103,7 +103,7 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Modifica profilo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=5.8.2">
+    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=5.8.3">
     <link rel="stylesheet" href="/assets/css/editor-premium.css?v=5.8.1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -112,61 +112,61 @@ function profile_json_script(string $id, array $data): void
     <script>
         window.isPremiumUser = <?php echo (int)($profile['is_premium'] ?? 0) === 'true' || (int)($profile['is_premium'] ?? 0) === 1 ? 'true' : 'false'; ?>;
     </script>
-    <script src="/assets/js/profile.js?v=5.8.2" defer></script>
-    <script src="/assets/js/edit-profile.js?v=5.8.1" defer></script>
+    <script src="/assets/js/profile.js?v=5.8.3" defer></script>
+    <script src="/assets/js/edit-profile.js?v=5.8.3" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-effect="<?php echo profile_h($profile['profile_effect'] ?? 'none'); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" data-avatar-shape="<?php echo profile_h($avatarShape); ?>" data-avatar-border="<?php echo $avatarBorder; ?>" style="--accent: <?php echo profile_h($accent); ?>; --accent-rgb: <?php echo $accentRgbComma; ?>; --profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
     <?php if ((int)($profile['is_premium'] ?? 0) !== 1): ?>
-    <!-- Onboarding Plan Selection Overlay -->
-    <div id="onboardingPlanOverlay" class="onboarding-plan-overlay">
-        <div class="onboarding-plan-card">
-            <h3 class="onboarding-plan-title">Scegli il tuo piano Cripsum™</h3>
-            <p class="onboarding-plan-subtitle">Sblocca il massimo livello di personalizzazione per il tuo profilo.</p>
+        <!-- Onboarding Plan Selection Overlay -->
+        <div id="onboardingPlanOverlay" class="onboarding-plan-overlay">
+            <div class="onboarding-plan-card">
+                <h3 class="onboarding-plan-title">Scegli il tuo piano Cripsum™</h3>
+                <p class="onboarding-plan-subtitle">Sblocca il massimo livello di personalizzazione per il tuo profilo.</p>
 
-            <div class="plan-options-grid">
-                <!-- Free Plan -->
-                <div class="plan-option-card">
-                    <div>
-                        <span class="plan-badge">Base</span>
-                        <div class="plan-price">Gratis <span>/ sempre</span></div>
-                        <ul class="plan-features">
-                            <li><i class="fa-solid fa-check"></i>Fino a 5 link/social</li>
-                            <li><i class="fa-solid fa-check"></i>1 sezione custom</li>
-                            <li><i class="fa-solid fa-check"></i>Effetti e font di base</li>
-                            <li><i class="fa-solid fa-xmark"></i>Niente tag/badges sulle card</li>
-                            <li><i class="fa-solid fa-xmark"></i>Nessun cursore personalizzato</li>
-                            <li><i class="fa-solid fa-xmark"></i>Nessun layout a tutto schermo</li>
-                        </ul>
+                <div class="plan-options-grid">
+                    <!-- Free Plan -->
+                    <div class="plan-option-card">
+                        <div>
+                            <span class="plan-badge">Base</span>
+                            <div class="plan-price">Gratis <span>/ sempre</span></div>
+                            <ul class="plan-features">
+                                <li><i class="fa-solid fa-check"></i>Fino a 5 link/social</li>
+                                <li><i class="fa-solid fa-check"></i>1 sezione custom</li>
+                                <li><i class="fa-solid fa-check"></i>Effetti e font di base</li>
+                                <li><i class="fa-solid fa-xmark"></i>Niente tag/badges sulle card</li>
+                                <li><i class="fa-solid fa-xmark"></i>Nessun cursore personalizzato</li>
+                                <li><i class="fa-solid fa-xmark"></i>Nessun layout a tutto schermo</li>
+                            </ul>
+                        </div>
+                        <button type="button" class="plan-select-btn" id="selectFreeBtn">Continua Gratis</button>
                     </div>
-                    <button type="button" class="plan-select-btn" id="selectFreeBtn">Continua Gratis</button>
-                </div>
 
-                <!-- Premium Plan -->
-                <div class="plan-option-card is-premium">
-                    <div>
-                        <span class="plan-badge">Premium</span>
-                        <div class="plan-price">€2.99 <span>/ una tantum</span></div>
-                        <ul class="plan-features">
-                            <li><i class="fa-solid fa-check"></i>Link e blocchi illimitati</li>
-                            <li><i class="fa-solid fa-check"></i>Caricamento file multimediali</li>
-                            <li><i class="fa-solid fa-check"></i>Tag ed etichette personalizzate</li>
-                            <li><i class="fa-solid fa-check"></i>Cursori ed effetti scia</li>
-                            <li><i class="fa-solid fa-check"></i>Layout premium a schermo intero</li>
-                            <li><i class="fa-solid fa-check"></i>Preset temi & Salvataggio Preset</li>
-                            <li><i class="fa-solid fa-check"></i>Blocchi Markdown e codice HTML</li>
-                            <li><i class="fa-solid fa-check"></i>Icone custom e upload ovunque</li>
-                            <li><i class="fa-solid fa-check"></i>Intestazioni sezioni personalizzate</li>
-                            <li><i class="fa-solid fa-check"></i>Effetti e font premium</li>
-                            <li><i class="fa-solid fa-check"></i>200.000 punti inclusi subito</li>
-                            <li><i class="fa-solid fa-check"></i>Molti altri perks all'interno del sito...</li>
-                        </ul>
+                    <!-- Premium Plan -->
+                    <div class="plan-option-card is-premium">
+                        <div>
+                            <span class="plan-badge">Premium</span>
+                            <div class="plan-price">€2.99 <span>/ una tantum</span></div>
+                            <ul class="plan-features">
+                                <li><i class="fa-solid fa-check"></i>Link e blocchi illimitati</li>
+                                <li><i class="fa-solid fa-check"></i>Caricamento file multimediali</li>
+                                <li><i class="fa-solid fa-check"></i>Tag ed etichette personalizzate</li>
+                                <li><i class="fa-solid fa-check"></i>Cursori ed effetti scia</li>
+                                <li><i class="fa-solid fa-check"></i>Layout premium a schermo intero</li>
+                                <li><i class="fa-solid fa-check"></i>Preset temi & Salvataggio Preset</li>
+                                <li><i class="fa-solid fa-check"></i>Blocchi Markdown e codice HTML</li>
+                                <li><i class="fa-solid fa-check"></i>Icone custom e upload ovunque</li>
+                                <li><i class="fa-solid fa-check"></i>Intestazioni sezioni personalizzate</li>
+                                <li><i class="fa-solid fa-check"></i>Effetti e font premium</li>
+                                <li><i class="fa-solid fa-check"></i>200.000 punti inclusi subito</li>
+                                <li><i class="fa-solid fa-check"></i>Molti altri perks all'interno del sito...</li>
+                            </ul>
+                        </div>
+                        <a href="/it/checkout-premium.php" class="plan-select-btn">Passa a Premium</a>
                     </div>
-                    <a href="/it/checkout-premium.php" class="plan-select-btn">Passa a Premium</a>
                 </div>
             </div>
         </div>
-    </div>
     <?php endif; ?>
 
     <?php
@@ -310,11 +310,11 @@ function profile_json_script(string $id, array $data): void
                                 <?php endif; ?>
                                 <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_show_audio_btn" value="0"><input type="checkbox" name="profile_show_audio_btn" value="1" <?php echo (int)($profile['profile_show_audio_btn'] ?? 1) === 1 ? 'checked' : ''; ?> id="showAudioBtnInput"><span><i class="fa-solid fa-circle-play"></i>Pulsante audio fluttuante</span></label>
                                 <label class="profile-field"><span>Posizione pulsante fluttuante</span><select name="profile_audio_btn_position" id="audioBtnPositionInput">
-                                    <option value="bottom-right" <?php echo ($profile['profile_audio_btn_position'] ?? 'bottom-right') === 'bottom-right' ? 'selected' : ''; ?>>In basso a destra</option>
-                                    <option value="bottom-left" <?php echo ($profile['profile_audio_btn_position'] ?? 'bottom-right') === 'bottom-left' ? 'selected' : ''; ?>>In basso a sinistra</option>
-                                    <option value="top-right" <?php echo ($profile['profile_audio_btn_position'] ?? 'bottom-right') === 'top-right' ? 'selected' : ''; ?>>In alto a destra</option>
-                                    <option value="top-left" <?php echo ($profile['profile_audio_btn_position'] ?? 'bottom-right') === 'top-left' ? 'selected' : ''; ?>>In alto a sinistra</option>
-                                </select></label>
+                                        <option value="bottom-right" <?php echo ($profile['profile_audio_btn_position'] ?? 'bottom-right') === 'bottom-right' ? 'selected' : ''; ?>>In basso a destra</option>
+                                        <option value="bottom-left" <?php echo ($profile['profile_audio_btn_position'] ?? 'bottom-right') === 'bottom-left' ? 'selected' : ''; ?>>In basso a sinistra</option>
+                                        <option value="top-right" <?php echo ($profile['profile_audio_btn_position'] ?? 'bottom-right') === 'top-right' ? 'selected' : ''; ?>>In alto a destra</option>
+                                        <option value="top-left" <?php echo ($profile['profile_audio_btn_position'] ?? 'bottom-right') === 'top-left' ? 'selected' : ''; ?>>In alto a sinistra</option>
+                                    </select></label>
                                 <label class="profile-field" style="grid-column: span 2;"><span>Volume di default dell'audio (<span id="audioDefaultVolumeVal"><?php echo round((float)($profile['profile_audio_default_volume'] ?? 0.18) * 100); ?></span>%)</span>
                                     <input type="range" name="profile_audio_default_volume" id="audioDefaultVolumeInput" min="0" max="1" step="0.01" value="<?php echo (float)($profile['profile_audio_default_volume'] ?? 0.18); ?>" style="width: 100%;"></label>
                             </div>

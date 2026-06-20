@@ -590,7 +590,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             }
         }
     </style>
-    <script src="/assets/js/profile.js?v=5.8.2" defer></script>
+    <script src="/assets/js/profile.js?v=5.8.3" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -1604,8 +1604,22 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                 <button class="bio-small-button js-profile-volume-toggle" type="button" aria-label="Mute"><i class="fa-solid fa-volume-low"></i></button>
                                 <input type="range" min="0" max="1" step="0.01" value="0.18" aria-label="Volume">
                             </div>
-                        </div>
                     <?php endif; ?>
+
+                    <script>
+                    (() => {
+                        const audio = document.getElementById('profileAudio');
+                        if (audio) {
+                            const profileUrl = document.body.dataset.profileUrl || window.location.pathname || 'global';
+                            const volumeKey = 'cripsum.profile.audioVolume.' + profileUrl;
+                            const defaultVolume = <?php echo $audioDefaultVolume; ?>;
+                            const savedVolume = localStorage.getItem(volumeKey) !== null
+                                ? Number(localStorage.getItem(volumeKey))
+                                : defaultVolume;
+                            audio.volume = Math.min(Math.max(savedVolume, 0), 1);
+                        }
+                    })();
+                    </script>
 
                     <?php if (!$hideMeta): ?>
                     <div class="profile-small-meta">
@@ -2098,7 +2112,15 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <div class="bio-toast" id="bioToast" role="status" aria-live="polite"></div>
 
     <?php if ($hasMusic && !$showAudioPlayer && $showAudioBtn): ?>
-        <div class="profile-floating-audio-btn-container position-<?php echo profile_h($audioBtnPosition); ?>" data-floating-audio data-default-volume="<?php echo $audioDefaultVolume; ?>">
+        <div class="profile-floating-audio-btn-container position-<?php echo profile_h($audioBtnPosition); ?>"
+             style="position: fixed !important; z-index: 999999 !important; display: flex !important; align-items: center !important; flex-direction: <?php echo (strpos($audioBtnPosition, 'left') !== false) ? 'row' : 'row-reverse'; ?> !important; <?php
+                 if ($audioBtnPosition === 'top-left') echo 'top: 24px !important; left: 24px !important;';
+                 elseif ($audioBtnPosition === 'top-right') echo 'top: 24px !important; right: 24px !important;';
+                 elseif ($audioBtnPosition === 'bottom-left') echo 'bottom: 24px !important; left: 24px !important;';
+                 else echo 'bottom: 24px !important; right: 24px !important;'; // bottom-right
+             ?>"
+             data-floating-audio
+             data-default-volume="<?php echo $audioDefaultVolume; ?>">
             <button class="profile-floating-audio-btn" type="button" aria-label="Mute/Unmute">
                 <i class="fa-solid fa-volume-high"></i>
             </button>

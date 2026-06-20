@@ -1471,12 +1471,6 @@
                 const audio = document.getElementById('profileAudio');
                 if (audio && audio.src && audio.src !== window.location.href) {
                     try {
-                        const volumeKey = 'cripsum.profile.audioVolume.' + (document.body.dataset.profileUrl || 'global');
-                        const defaultVolume = Number(audio.dataset.defaultVolume || 0.18);
-                        const savedVolume = localStorage.getItem(volumeKey) !== null
-                            ? Number(localStorage.getItem(volumeKey))
-                            : defaultVolume;
-                        audio.volume = Math.min(Math.max(savedVolume, 0), 1);
                         await audio.play();
                         const playIcon = document.getElementById('profileAudioIcon');
                         if (playIcon) playIcon.className = 'fa-solid fa-pause';
