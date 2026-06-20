@@ -58,6 +58,7 @@ if ($customAlias !== null && $customAlias !== '') {
 $isNotFound = !$profile;
 $isOwnProfile = false;
 $canEdit = false;
+$isPremium = false;
 $isPrivateBlocked = false;
 $isLoginBlocked = false;
 $socials = $links = $projects = $contents = $blocks = $badges = $activity = [];
@@ -68,6 +69,7 @@ if ($profile) {
     $profileId = (int)$profile['id'];
     $isOwnProfile = $currentUserId === $profileId;
     $canEdit = profile_can_edit($profileId);
+    $isPremium = (int)($profile['is_premium'] ?? 0) === 1;
 
     if (($profile['profile_visibility'] ?? 'public') === 'private' && !$canEdit) {
         $isPrivateBlocked = true;
