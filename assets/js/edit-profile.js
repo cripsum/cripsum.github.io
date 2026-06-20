@@ -3074,9 +3074,9 @@
 
         const isPrem = selected.dataset.premium === '1' || selected.getAttribute('data-premium') === '1';
         if (isPrem) {
-            current.innerHTML = `${selected.textContent.trim()} <span class="premium-badge-tag" style="margin-left: 6px; display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 2px 6px; height: auto; position: static;"><i class="fa-solid fa-crown"></i> Premium</span>`;
+            current.innerHTML = `<span class="profile-select-current-text">${selected.textContent.trim()}</span> <span class="premium-badge-tag" style="margin-left: 6px; display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 2px 6px; height: auto; position: static;"><i class="fa-solid fa-crown"></i> Premium</span>`;
         } else {
-            current.textContent = selected.textContent.trim();
+            current.innerHTML = `<span class="profile-select-current-text">${selected.textContent.trim()}</span>`;
         }
 
         if (select.name === 'profile_font') {

@@ -1883,9 +1883,15 @@ input[type="range"]::-moz-range-track {
 /* Premium Card Tag section grid and inputs styling */
 .row-card-tag-grid {
     display: grid !important;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)) !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 12px !important;
     margin-top: 10px !important;
+}
+
+@media (max-width: 720px) {
+    .row-card-tag-grid {
+        grid-template-columns: 1fr !important;
+    }
 }
 
 .row-card-tag-grid label {
@@ -1933,4 +1939,74 @@ input[type="range"]::-moz-range-track {
 
 .row-card-tag-grid input[type="color"]::-webkit-color-swatch {
     border: none !important;
+}
+
+/* Force 3-column field grids to 2-columns for better usability and alignment */
+.profile-field-grid.three {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+@media (max-width: 720px) {
+    .profile-field-grid.three {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Dropdowns truncation safety & overflow prevention */
+.profile-select-trigger {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    width: 100% !important;
+    overflow: hidden !important;
+}
+
+.profile-select-current {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 6px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    flex-grow: 1 !important;
+    min-width: 0 !important;
+    max-width: calc(100% - 24px) !important;
+}
+
+.profile-select-current-text {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    flex-grow: 1 !important;
+    min-width: 0 !important;
+    text-align: left !important;
+}
+
+.profile-select-current .premium-badge-tag {
+    flex-shrink: 0 !important;
+}
+
+.profile-select-menu button {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    text-align: left !important;
+}
+
+.profile-select-menu button strong {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    flex-grow: 1 !important;
+    min-width: 0 !important;
+}
+
+.profile-select-menu button .premium-badge-tag {
+    flex-shrink: 0 !important;
+    margin-left: auto !important;
 }
