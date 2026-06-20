@@ -9381,22 +9381,22 @@ body.public-profile-body .profile-effects-foreground-layer {
         justify-content: center !important;
     }
 
-    /* Layouts: Left Profile (layout-standard) -> Align Right */
+    /* Layouts: Left Profile (layout-standard) -> Align Left */
     .layout-standard .profile-badge-grid,
     .layout-standard .bio-project-grid,
     .layout-standard .bio-preview-grid,
     .layout-standard .profile-character-grid,
     .layout-standard .profile-block-grid {
-        justify-content: flex-end !important;
+        justify-content: flex-start !important;
     }
 
-    /* Layouts: Right Profile (layout-right-tabs) -> Align Left */
+    /* Layouts: Right Profile (layout-right-tabs) -> Align Right */
     .layout-right-tabs .profile-badge-grid,
     .layout-right-tabs .bio-project-grid,
     .layout-right-tabs .bio-preview-grid,
     .layout-right-tabs .profile-character-grid,
     .layout-right-tabs .profile-block-grid {
-        justify-content: flex-start !important;
+        justify-content: flex-end !important;
     }
 }
 
