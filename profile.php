@@ -546,6 +546,10 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <?php cripsum_og_print($ogMeta); ?>
     <link rel="stylesheet" href="/assets/css/profile.css?v=5.7.6">
     <style>
+        .profile-dropdown-item--gift,
+        .profile-dropdown-item--gift * {
+            cursor: pointer !important;
+        }
         .profile-dropdown-item--gift {
             color: #eab308 !important;
             font-weight: 700 !important;
@@ -1277,6 +1281,12 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                             <span>Edit profile</span>
                                         </a>
                                     <?php endif; ?>
+                                    <?php if (!$isPremium && !$isOwnProfile): ?>
+                                        <a class="profile-dropdown-item profile-dropdown-item--gift" href="/<?php echo $lang; ?>/checkout-premium.php?gift_to=<?php echo urlencode($profile['username']); ?>">
+                                            <i class="fa-solid fa-gift"></i>
+                                            <span>Gift Premium</span>
+                                        </a>
+                                    <?php endif; ?>
                                     <a class="profile-dropdown-item" href="/<?php echo $lang; ?>/home">
                                         <i class="fa-solid fa-home"></i>
                                         <span>Home Page</span>
@@ -1305,12 +1315,6 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                         <i class="fa-solid fa-qrcode"></i>
                                         <span>QR Code</span>
                                     </button>
-                                    <?php if (!$isPremium && !$isOwnProfile): ?>
-                                        <a class="profile-dropdown-item profile-dropdown-item--gift" href="/<?php echo $lang; ?>/checkout-premium.php?gift_to=<?php echo urlencode($profile['username']); ?>">
-                                            <i class="fa-solid fa-gift"></i>
-                                            <span>Gift Premium</span>
-                                        </a>
-                                    <?php endif; ?>
                                     <button class="profile-dropdown-item js-theme-toggle" type="button">
                                         <i class="fa-solid fa-moon"></i>
                                         <span class="theme-label-text">Dark Mode</span>
