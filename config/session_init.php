@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('Europe/Rome');
 ini_set('session.gc_maxlifetime', 604800);
 ini_set('session.cookie_lifetime', 604800);
 ini_set('session.gc_probability', 1);

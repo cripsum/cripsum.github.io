@@ -123,7 +123,7 @@ if (!isset($_COOKIE['banned']) || $_COOKIE['banned'] == '0') {
                         if (empty($bannedUntil)) {
                             echo "Permanente";
                         } else {
-                            echo "Fino al " . date('d/m/Y \a\l\l\e H:i', strtotime($bannedUntil));
+                            echo "Fino al " . date('d/m/Y \a\l\l\e H:i (\U\T\C P)', strtotime($bannedUntil));
                         }
                         ?>
                     </p>
