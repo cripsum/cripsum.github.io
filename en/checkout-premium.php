@@ -26,6 +26,7 @@ if ($error === 'user_not_found') {
 } elseif ($error === 'already_premium') {
     $errorMsg = 'The recipient indicated already has a Premium account.';
 }
+$giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -255,7 +256,7 @@ if ($error === 'user_not_found') {
                             <div class="gift-container" id="giftInputContainer">
                                 <label class="form-field">
                                     <span>Friend's Username</span>
-                                    <input type="text" name="gift_to" id="giftUsernameInput" placeholder="Enter exact username">
+                                    <input type="text" name="gift_to" id="giftUsernameInput" placeholder="Enter exact username" value="<?php echo htmlspecialchars($giftTo); ?>">
                                 </label>
                                 <div class="validation-status" id="validationStatus" style="display:none;"></div>
                             </div>
@@ -348,11 +349,14 @@ if ($error === 'user_not_found') {
             let isRecipientValid = true;
             let debounceTimer;
 
-            // If current user is already premium, select gift automatically
+            // If current user is already premium or if there is a prefilled recipient, select gift automatically
             const userIsPremium = <?php echo $userIsPremium ? 'true' : 'false'; ?>;
-            if (userIsPremium) {
-                optionSelfCard.style.opacity = '0.5';
-                optionSelfCard.style.pointerEvents = 'none';
+            const prefilledGiftTo = <?php echo json_encode($giftTo); ?>;
+            if (userIsPremium || prefilledGiftTo !== '') {
+                if (userIsPremium) {
+                    optionSelfCard.style.opacity = '0.5';
+                    optionSelfCard.style.pointerEvents = 'none';
+                }
                 purchaseGift.checked = true;
                 togglePurchaseType('gift');
             }

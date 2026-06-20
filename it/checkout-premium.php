@@ -26,6 +26,7 @@ if ($error === 'user_not_found') {
 } elseif ($error === 'already_premium') {
     $errorMsg = 'Il destinatario indicato possiede già un account Premium.';
 }
+$giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -255,7 +256,7 @@ if ($error === 'user_not_found') {
                             <div class="gift-container" id="giftInputContainer">
                                 <label class="form-field">
                                     <span>Username dell'amico</span>
-                                    <input type="text" name="gift_to" id="giftUsernameInput" placeholder="Inserisci l'username esatto">
+                                    <input type="text" name="gift_to" id="giftUsernameInput" placeholder="Inserisci l'username esatto" value="<?php echo htmlspecialchars($giftTo); ?>">
                                 </label>
                                 <div class="validation-status" id="validationStatus" style="display:none;"></div>
                             </div>
@@ -348,11 +349,14 @@ if ($error === 'user_not_found') {
             let isRecipientValid = true; // Di default self è valido
             let debounceTimer;
 
-            // Se l'utente stesso è già premium, autoseleziona il regalo
+            // Se l'utente stesso è già premium o se c'è un destinatario precompilato, autoseleziona il regalo
             const userIsPremium = <?php echo $userIsPremium ? 'true' : 'false'; ?>;
-            if (userIsPremium) {
-                optionSelfCard.style.opacity = '0.5';
-                optionSelfCard.style.pointerEvents = 'none';
+            const prefilledGiftTo = <?php echo json_encode($giftTo); ?>;
+            if (userIsPremium || prefilledGiftTo !== '') {
+                if (userIsPremium) {
+                    optionSelfCard.style.opacity = '0.5';
+                    optionSelfCard.style.pointerEvents = 'none';
+                }
                 purchaseGift.checked = true;
                 togglePurchaseType('gift');
             }

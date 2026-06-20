@@ -531,7 +531,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="it" <?php echo ($profile && profile_flag($profile, 'profile_click_to_enter', false)) ? 'class="click-to-enter-active"' : ''; ?>>
+<html lang="<?php echo $lang; ?>" <?php echo ($profile && profile_flag($profile, 'profile_click_to_enter', false)) ? 'class="click-to-enter-active"' : ''; ?>>
 
 <head>
     <?php include __DIR__ . '/includes/head-import.php'; ?>
@@ -1272,6 +1272,12 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                         <i class="fa-solid fa-qrcode"></i>
                                         <span><?php echo ($lang === 'it') ? 'Codice QR' : 'QR Code'; ?></span>
                                     </button>
+                                    <?php if (!$isPremium && !$isOwnProfile): ?>
+                                        <a class="profile-dropdown-item" href="/<?php echo $lang; ?>/checkout-premium.php?gift_to=<?php echo urlencode($profile['username']); ?>">
+                                            <i class="fa-solid fa-gift"></i>
+                                            <span><?php echo ($lang === 'it') ? 'Regala Premium' : 'Gift Premium'; ?></span>
+                                        </a>
+                                    <?php endif; ?>
                                     <button class="profile-dropdown-item js-theme-toggle" type="button">
                                         <i class="fa-solid fa-moon"></i>
                                         <span class="theme-label-text"><?php echo ($lang === 'it') ? 'Tema scuro' : 'Dark Mode'; ?></span>
