@@ -9400,4 +9400,31 @@ body.public-profile-body .profile-effects-foreground-layer {
     }
 }
 
+/* Mobile pointer effects disabler to fix stuck/broken cursor effects */
+@media (hover: none), (pointer: coarse), (max-width: 767px) {
+    body[data-profile-effect="cursor_glow"] .profile-effects-layer::before,
+    body[data-profile-effect="spotlight"] .profile-effects-layer::before,
+    .cursor-follower-dot,
+    .cursor-trail-canvas,
+    .profile-cat-follower {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }
+}
+
+/* Custom Cursor Effects styles */
+.profile-cat-follower {
+    position: fixed;
+    font-size: 32px;
+    line-height: 1;
+    pointer-events: none;
+    z-index: 99999;
+    user-select: none;
+    will-change: transform, left, top;
+    transition: transform 0.1s ease-out;
+}
+
+
 

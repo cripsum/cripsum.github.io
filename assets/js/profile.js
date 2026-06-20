@@ -719,7 +719,7 @@
                 window.followerRafId = requestAnimationFrame(tickFollower);
             }
             tickFollower();
-        } else if (cursorEffect === 'trail') {
+        } else if (['trail', 'trail_stars', 'trail_hearts'].includes(cursorEffect)) {
             const canvas = document.createElement('canvas');
             canvas.className = 'cursor-trail-canvas';
             canvas.style.position = 'fixed';
@@ -749,17 +749,88 @@
             const particles = [];
             window.trailMoveHandler = (e) => {
                 const accentColor = getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#0f5bff';
-                particles.push({
-                    x: e.clientX,
-                    y: e.clientY,
-                    size: Math.random() * 5 + 3,
-                    color: accentColor,
-                    alpha: 1,
-                    vx: (Math.random() - 0.5) * 1,
-                    vy: (Math.random() - 0.5) * 1
-                });
+                if (cursorEffect === 'trail') {
+                    particles.push({
+                        x: e.clientX,
+                        y: e.clientY,
+                        size: Math.random() * 5 + 3,
+                        color: accentColor,
+                        alpha: 1,
+                        vx: (Math.random() - 0.5) * 1,
+                        vy: (Math.random() - 0.5) * 1
+                    });
+                } else if (cursorEffect === 'trail_stars') {
+                    const starColor = Math.random() > 0.4 ? accentColor : '#fbbf24';
+                    particles.push({
+                        x: e.clientX,
+                        y: e.clientY,
+                        size: Math.random() * 8 + 6,
+                        color: starColor,
+                        alpha: 1,
+                        vx: (Math.random() - 0.5) * 2,
+                        vy: Math.random() * 1.5 + 0.5,
+                        rotation: Math.random() * Math.PI * 2,
+                        vRotation: (Math.random() - 0.5) * 0.1
+                    });
+                } else if (cursorEffect === 'trail_hearts') {
+                    const heartColors = ['#ef4444', '#f43f5e', '#ec4899', accentColor];
+                    const randColor = heartColors[Math.floor(Math.random() * heartColors.length)];
+                    particles.push({
+                        x: e.clientX,
+                        y: e.clientY,
+                        size: Math.random() * 8 + 6,
+                        color: randColor,
+                        alpha: 1,
+                        vx: (Math.random() - 0.5) * 1.5,
+                        vy: -(Math.random() * 1.5 + 0.5)
+                    });
+                }
             };
             window.addEventListener('pointermove', window.trailMoveHandler, { passive: true });
+
+            function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius, color) {
+                let rot = Math.PI / 2 * 3;
+                let x = cx;
+                let y = cy;
+                let step = Math.PI / spikes;
+
+                ctx.beginPath();
+                ctx.moveTo(cx, cy - outerRadius);
+                for (let i = 0; i < spikes; i++) {
+                    x = cx + Math.cos(rot) * outerRadius;
+                    y = cy + Math.sin(rot) * outerRadius;
+                    ctx.lineTo(x, y);
+                    rot += step;
+
+                    x = cx + Math.cos(rot) * innerRadius;
+                    y = cy + Math.sin(rot) * innerRadius;
+                    ctx.lineTo(x, y);
+                    rot += step;
+                }
+                ctx.lineTo(cx, cy - outerRadius);
+                ctx.closePath();
+                ctx.fillStyle = color;
+                ctx.fill();
+            }
+
+            function drawHeart(ctx, x, y, size, color) {
+                ctx.beginPath();
+                const topCurveHeight = size * 0.3;
+                ctx.moveTo(x, y + topCurveHeight);
+                ctx.bezierCurveTo(
+                    x - size / 2, y - topCurveHeight,
+                    x - size, y + topCurveHeight,
+                    x, y + size
+                );
+                ctx.bezierCurveTo(
+                    x + size, y + topCurveHeight,
+                    x + size / 2, y - topCurveHeight,
+                    x, y + topCurveHeight
+                );
+                ctx.closePath();
+                ctx.fillStyle = color;
+                ctx.fill();
+            }
 
             function tickTrail() {
                 ctx.clearRect(0, 0, width, height);
@@ -767,23 +838,68 @@
                     const p = particles[i];
                     p.x += p.vx;
                     p.y += p.vy;
-                    p.alpha -= 0.025;
-                    p.size *= 0.96;
+                    p.alpha -= 0.02;
+                    p.size *= 0.97;
                     if (p.alpha <= 0 || p.size <= 0.5) {
                         particles.splice(i, 1);
                         continue;
                     }
                     ctx.save();
                     ctx.globalAlpha = p.alpha;
-                    ctx.fillStyle = p.color;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    ctx.fill();
+                    if (cursorEffect === 'trail') {
+                        ctx.fillStyle = p.color;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    } else if (cursorEffect === 'trail_stars') {
+                        ctx.translate(p.x, p.y);
+                        p.rotation += p.vRotation;
+                        ctx.rotate(p.rotation);
+                        drawStar(ctx, 0, 0, 5, p.size, p.size / 2, p.color);
+                    } else if (cursorEffect === 'trail_hearts') {
+                        drawHeart(ctx, p.x, p.y - p.size / 2, p.size, p.color);
+                    }
                     ctx.restore();
                 }
                 window.trailRafId = requestAnimationFrame(tickTrail);
             }
             tickTrail();
+        } else if (cursorEffect === 'cat_follower') {
+            const cat = document.createElement('div');
+            cat.className = 'profile-cat-follower';
+            cat.innerHTML = '🐈';
+            document.body.appendChild(cat);
+            window.currentFollowerEl = cat;
+
+            let mouseX = -100, mouseY = -100;
+            let currentX = -100, currentY = -100;
+
+            window.followerMoveHandler = (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            };
+            window.addEventListener('pointermove', window.followerMoveHandler, { passive: true });
+
+            function tickCat() {
+                if (currentX === -100 && currentY === -100) {
+                    currentX = mouseX;
+                    currentY = mouseY;
+                } else {
+                    const dx = mouseX - currentX;
+                    const dy = mouseY - currentY;
+                    currentX += dx * 0.06;
+                    currentY += dy * 0.06;
+                    let scaleX = 1;
+                    if (Math.abs(dx) > 0.5) {
+                        scaleX = dx > 0 ? 1 : -1;
+                    }
+                    cat.style.transform = `translate(-50%, -50%) scaleX(${scaleX})`;
+                }
+                cat.style.left = `${currentX}px`;
+                cat.style.top = `${currentY}px`;
+                window.followerRafId = requestAnimationFrame(tickCat);
+            }
+            tickCat();
         }
     };
     window.initCursorEffects = initCursorEffects;

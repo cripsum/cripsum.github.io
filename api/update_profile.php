@@ -439,7 +439,7 @@ try {
 
     if ($isPremium) {
         $layoutSnap = profile_bool_from_post('profile_layout_snap', false) ? 1 : 0;
-        $cursorEffect = profile_allowed_value((string)($_POST['profile_cursor_effect'] ?? 'none'), ['none', 'follower', 'trail'], 'none');
+        $cursorEffect = profile_allowed_value((string)($_POST['profile_cursor_effect'] ?? 'none'), ['none', 'follower', 'trail', 'trail_stars', 'cat_follower', 'trail_hearts'], 'none');
         $cursorCustomUrl = isset($_POST['profile_cursor_custom_url']) ? trim((string)$_POST['profile_cursor_custom_url']) : '';
         if ($cursorCustomUrl !== '' && !profile_is_safe_url($cursorCustomUrl, false)) {
             $cursorCustomUrl = '';
