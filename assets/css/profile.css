@@ -9340,6 +9340,12 @@ body.public-profile-body .profile-effects-foreground-layer {
         max-width: calc(50% - 0.4rem) !important;
         box-sizing: border-box !important;
     }
+    .profile-block-grid .profile-block-card.profile-block-markdown,
+    .profile-block-grid .profile-block-card.profile-block-html,
+    .profile-block-grid .profile-block-card.is-pinned {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
     .bio-project-grid .bio-project-card {
         flex: 0 0 calc(33.333% - 0.52rem) !important;
         max-width: calc(33.333% - 0.52rem) !important;
