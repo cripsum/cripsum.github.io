@@ -24,10 +24,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Flag to differentiate auto-scrolling from user-initiated scrolling
     let isAutoScrolling = false;
 
+    // Float accumulator for scroll position to prevent browser rounding bugs on 1x DPI screens
+    let currentScrollLeft = 0;
+
     function initSupportersMarquee() {
         // Clear any existing clones to reset measurements
         const clones = container.querySelectorAll('.supporter-clone');
         clones.forEach(c => c.remove());
+
+        // Reset scroll position and accumulator to avoid state issues on resize
+        container.scrollLeft = 0;
+        currentScrollLeft = 0;
 
         const originalChildren = Array.from(container.children);
         if (originalChildren.length === 0) return;
@@ -115,11 +122,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function scrollLoop() {
         if (autoScrollActive && !isDown && !momentumActive) {
             isAutoScrolling = true;
-            container.scrollLeft += speed;
+            currentScrollLeft += speed;
             // Seamless wrap around when hitting original width boundary
-            if (originalWidth > 0 && container.scrollLeft >= originalWidth) {
-                container.scrollLeft -= originalWidth;
+            if (originalWidth > 0 && currentScrollLeft >= originalWidth) {
+                currentScrollLeft -= originalWidth;
             }
+            container.scrollLeft = currentScrollLeft;
+        } else {
+            // Keep accumulator in sync with manual scrolls (wheel, drag, touch)
+            currentScrollLeft = container.scrollLeft;
         }
         requestAnimationFrame(scrollLoop);
     }
@@ -148,16 +159,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!momentumActive) return;
             
             isAutoScrolling = true;
-            container.scrollLeft -= velocity;
+            currentScrollLeft -= velocity;
             
             // Perform loop wrap boundary adjustments during momentum scroll
             if (originalWidth > 0) {
-                if (container.scrollLeft >= originalWidth) {
-                    container.scrollLeft -= originalWidth;
-                } else if (container.scrollLeft < 0) {
-                    container.scrollLeft += originalWidth;
+                if (currentScrollLeft >= originalWidth) {
+                    currentScrollLeft -= originalWidth;
+                } else if (currentScrollLeft < 0) {
+                    currentScrollLeft += originalWidth;
                 }
             }
+            container.scrollLeft = currentScrollLeft;
             
             // Apply friction decay
             velocity *= 0.95;
