@@ -1796,3 +1796,57 @@ input[type="range"]::-moz-range-track {
     padding: 1rem;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+
+/* Custom Blocks Section UI/UX Improvements */
+.block-textarea-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    margin-top: 16px !important;
+    margin-bottom: 8px !important;
+}
+
+.block-textarea-wrapper strong {
+    display: block !important;
+    text-align: center !important;
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    margin-bottom: 12px !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    position: relative !important;
+}
+
+.block-textarea-wrapper strong::after {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 3px;
+    background: var(--editor-accent, #8b5cf6);
+    margin: 8px auto 0 auto;
+    border-radius: 2px;
+}
+
+.block-body-textarea {
+    width: 100% !important;
+    min-height: 280px !important;
+    background: rgba(8, 8, 12, 0.7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #f1f5f9 !important;
+    border-radius: 12px !important;
+    padding: 18px 22px !important;
+    font-size: 1.05rem !important;
+    line-height: 1.65 !important;
+    font-family: 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace !important;
+    resize: vertical !important;
+    box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+    transition: all 0.25s ease !important;
+    outline: none !important;
+}
+
+.block-body-textarea:focus {
+    border-color: var(--editor-accent, #8b5cf6) !important;
+    background: rgba(12, 12, 18, 0.95) !important;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2), inset 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+}

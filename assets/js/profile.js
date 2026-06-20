@@ -1852,25 +1852,46 @@
             if (index === 0) {
                 label = 'Profile';
             } else {
-                const titleEl = slide.querySelector('h2, h3, .section-title, .bio-card-title, .bio-section-heading span, .profile-clean-heading span, .profile-spotlight-content strong, .profile-embed-header span');
-                if (titleEl) {
-                    label = titleEl.textContent.trim();
+                let sectionEl = slide.querySelector('[data-section-title]');
+                if (!sectionEl && slide.hasAttribute && slide.hasAttribute('data-section-title')) {
+                    sectionEl = slide;
+                }
+                if (sectionEl) {
+                    label = sectionEl.getAttribute('data-section-title') || '';
                 }
                 
                 if (!label) {
-                    if (slide.querySelector('.profile-characters-section, .profile-character-grid')) {
-                        label = 'Characters';
-                    } else if (slide.querySelector('.profile-embeds-section, .profile-embed-wrapper, iframe')) {
+                    const titleEl = slide.querySelector('h2, h3, .section-title, .bio-card-title, .bio-section-heading span, .profile-clean-heading span, .profile-spotlight-content strong, .profile-embed-header span');
+                    if (titleEl) {
+                        label = titleEl.textContent.trim();
+                    }
+                }
+                
+                if (!label) {
+                    let secType = '';
+                    if (sectionEl) {
+                        secType = sectionEl.getAttribute('data-section-type') || '';
+                    }
+                    
+                    if (secType === 'characters' || slide.querySelector('.profile-characters-section, .profile-character-grid')) {
+                        label = 'Character';
+                    } else if (secType === 'embeds' || slide.querySelector('.profile-embeds-section, .profile-embed-wrapper, iframe')) {
                         label = 'Embed';
-                    } else if (slide.querySelector('.profile-block-grid, .profile-block-card')) {
+                    } else if (secType === 'blocks' || slide.querySelector('.profile-block-grid, .profile-block-card')) {
                         label = 'Block';
-                    } else if (slide.querySelector('.bio-project-grid, .bio-project-card')) {
-                        label = 'Projects';
-                    } else if (slide.querySelector('.profile-link-grid, .bio-featured-link')) {
-                        label = 'Links';
-                    } else if (slide.querySelector('.profile-badge-grid, .custom-badge-card')) {
-                        label = 'Badges';
-                    } else if (slide.querySelector('.profile-spotlight')) {
+                    } else if (secType === 'projects' || slide.querySelector('.bio-project-grid, .bio-project-card')) {
+                        label = 'Project';
+                    } else if (secType === 'links' || slide.querySelector('.profile-link-grid, .bio-featured-link')) {
+                        label = 'Link';
+                    } else if (secType === 'badges' || slide.querySelector('.profile-badge-grid, .custom-badge-card')) {
+                        label = 'Badge';
+                    } else if (secType === 'stats' || slide.querySelector('.bio-stats-grid')) {
+                        label = 'Stats';
+                    } else if (secType === 'contents') {
+                        label = 'Content';
+                    } else if (secType === 'activity') {
+                        label = 'Activity';
+                    } else if (secType === 'featured' || slide.querySelector('.profile-spotlight')) {
                         label = 'Featured';
                     } else {
                         label = 'Section ' + index;

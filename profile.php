@@ -245,6 +245,22 @@ function profile_render_background(?array $profile, ?string $backgroundUrl, stri
 <?php
 }
 
+function profile_get_section_title(string $sectionKey, string $defaultTitle): string
+{
+    global $profile;
+    $isPremium = (int)($profile['is_premium'] ?? 0) === 1;
+    if ($isPremium && !empty($profile['profile_sections_config'])) {
+        $config = json_decode($profile['profile_sections_config'], true);
+        if (is_array($config) && isset($config[$sectionKey])) {
+            $secConf = $config[$sectionKey];
+            if (isset($secConf['title']) && trim($secConf['title']) !== '') {
+                return trim($secConf['title']);
+            }
+        }
+    }
+    return $defaultTitle;
+}
+
 function profile_render_section_heading(string $icon, string $title, ?string $subtitle = null, ?string $sectionKey = null): void
 {
     global $profile;
@@ -1561,7 +1577,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     if ($spotlight) {
                         ob_start();
                     ?>
-                        <section class="bio-card bio-featured profile-spotlight js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
+                        <section class="bio-card bio-featured profile-spotlight js-reveal js-tilt-card" <?php echo $tiltAttrs; ?> data-section-type="featured" data-section-title="<?php echo profile_h($spotlight['title'] ?: 'Featured'); ?>">
                             <a class="profile-spotlight-link" href="<?php echo profile_h($spotlight['url'] ?: '#'); ?>" <?php echo $spotlight['url'] ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
                                 <span class="profile-spotlight-icon"><?php echo profile_render_icon($spotlight['icon'], 'fa-solid fa-star'); ?></span>
                                 <span class="profile-spotlight-content">
@@ -1584,7 +1600,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     // 1. Links
                     ob_start();
                     if ($featuredLinks || $normalLinks): ?>
-                        <section class="bio-card bio-featured js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
+                        <section class="bio-card bio-featured js-reveal js-tilt-card" <?php echo $tiltAttrs; ?> data-section-type="links" data-section-title="<?php echo profile_h(profile_get_section_title('links', 'Link')); ?>">
                             <?php profile_render_section_heading('fa-solid fa-link', 'Link', null, 'links'); ?>
                             <div class="bio-featured-grid profile-link-grid profile-link-count-<?php echo count(array_merge($featuredLinks, $normalLinks)); ?>">
                                 <?php foreach (array_merge($featuredLinks, $normalLinks) as $item): ?>
@@ -1617,11 +1633,11 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         </section>
                     <?php endif;
                     $sectionsHtml['links'] = ob_get_clean();
-
+ 
                     // 2. Embeds
                     ob_start();
                     if ($embeds): ?>
-                        <section class="bio-card profile-embeds-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
+                        <section class="bio-card profile-embeds-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?> data-section-type="embeds" data-section-title="<?php echo profile_h(profile_get_section_title('embeds', 'Embed')); ?>">
                             <?php profile_render_section_heading('fa-solid fa-share-from-square', 'Embed', null, 'embeds'); ?>
                             <div class="profile-embeds-grid">
                                 <?php foreach ($embeds as $embed): ?>
@@ -1643,11 +1659,11 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         </section>
                     <?php endif;
                     $sectionsHtml['embeds'] = ob_get_clean();
-
+ 
                     // 3. Stats
                     ob_start();
                     if ($hasStats): ?>
-                        <div class="bio-stats-grid profile-stats-compact js-reveal">
+                        <div class="bio-stats-grid profile-stats-compact js-reveal" data-section-type="stats" data-section-title="<?php echo profile_h(profile_get_section_title('stats', 'Stats')); ?>">
                             <?php foreach (array_slice($stats, 0, 4) as $stat): ?>
                                 <article class="bio-stat-card"><i class="<?php echo profile_h($stat['icon']); ?>"></i><strong><?php echo profile_h($stat['value']); ?></strong><span><?php echo profile_h($stat['label']); ?></span></article>
                             <?php endforeach; ?>
@@ -1658,7 +1674,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     // 4. Projects
                     ob_start();
                     if ($visibleProjects): ?>
-                        <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
+                        <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?> data-section-type="projects" data-section-title="<?php echo profile_h(profile_get_section_title('projects', 'Projects')); ?>">
                             <?php profile_render_section_heading('fa-solid fa-cubes', 'Projects', null, 'projects'); ?>
                             <div class="bio-project-grid">
                                 <?php foreach ($visibleProjects as $project): ?>
@@ -1691,11 +1707,11 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         </section>
                     <?php endif;
                     $sectionsHtml['projects'] = ob_get_clean();
-
+ 
                     // 5. Blocks
                     ob_start();
                     if ($visibleBlocks): ?>
-                        <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
+                        <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?> data-section-type="blocks" data-section-title="<?php echo profile_h(profile_get_section_title('blocks', '')); ?>">
                             <?php profile_render_section_heading('', '', null, 'blocks'); ?>
                             <div class="profile-block-grid">
                                 <?php foreach ($visibleBlocks as $block): ?>
@@ -1782,7 +1798,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     // 6. Contents
                     ob_start();
                     if ($visibleContents): ?>
-                        <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
+                        <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?> data-section-type="contents" data-section-title="<?php echo profile_h(profile_get_section_title('contents', 'Content')); ?>">
                             <?php profile_render_section_heading('fa-solid fa-circle-play', 'Content', null, 'contents'); ?>
                             <div class="bio-preview-grid">
                                 <?php foreach ($visibleContents as $content): ?>
@@ -1815,11 +1831,11 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         </section>
                     <?php endif;
                     $sectionsHtml['contents'] = ob_get_clean();
-
+ 
                     // 7. Characters
                     ob_start();
                     if ($visibleCharacters): ?>
-                        <section class="bio-card profile-characters-section profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
+                        <section class="bio-card profile-characters-section profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?> data-section-type="characters" data-section-title="<?php echo profile_h(profile_get_section_title('characters', 'Characters')); ?>">
                             <?php profile_render_section_heading('fa-solid fa-user-astronaut', 'Characters', null, 'characters'); ?>
                             <div class="profile-character-grid">
                                 <?php foreach ($visibleCharacters as $char): ?>
@@ -1863,7 +1879,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     // 8. Badges
                     ob_start();
                     if ($visibleBadges && $showBadgesSection): ?>
-                        <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
+                        <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?> data-section-type="badges" data-section-title="<?php echo profile_h(profile_get_section_title('badges', 'Badge')); ?>">
                             <?php profile_render_section_heading('fa-solid fa-trophy', 'Badge', null, 'badges'); ?>
                             <div class="profile-badge-grid">
                                 <?php foreach ($visibleBadges as $badge): ?>
@@ -1947,7 +1963,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     // 9. Activity
                     ob_start();
                     if ($visibleActivity): ?>
-                        <section class="bio-card bio-about js-reveal js-tilt-card" <?php echo $tiltAttrs; ?>>
+                        <section class="bio-card bio-about js-reveal js-tilt-card" <?php echo $tiltAttrs; ?> data-section-type="activity" data-section-title="<?php echo profile_h(profile_get_section_title('activity', 'Activity')); ?>">
                             <?php profile_render_section_heading('fa-solid fa-clock', 'Activity', null, 'activity'); ?>
                             <div class="profile-activity-strip">
                                 <?php foreach (array_slice($visibleActivity, 0, 5) as $item): ?>
