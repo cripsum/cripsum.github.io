@@ -593,8 +593,13 @@ function setMessageTimeout()
 
 function checkBan($mysqli)
 {
+    $lang = 'it';
+    if (isset($_SERVER['REQUEST_URI']) && stripos($_SERVER['REQUEST_URI'], '/en/') !== false) {
+        $lang = 'en';
+    }
+
     if (isset($_COOKIE['banned']) && $_COOKIE['banned'] == '1') {
-        header('Location: https://cripsum.com/it/banned');
+        header('Location: https://cripsum.com/' . $lang . '/banned');
         exit();
     }
 
@@ -618,7 +623,7 @@ function checkBan($mysqli)
                 $stmt2->close();
                 return;
             }
-            header('Location: https://cripsum.com/it/banned');
+            header('Location: https://cripsum.com/' . $lang . '/banned');
             exit();
         }
     }

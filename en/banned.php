@@ -103,7 +103,7 @@ if (!isset($_COOKIE['banned']) || $_COOKIE['banned'] == '0') {
     <main class="static-shell static-shell--narrow">
         <section class="static-ban-card static-reveal">
             <div class="static-ban-icon-img" style="margin-bottom: 1rem;">
-                <img src="/img/Laughing_emoji_no_background.webp" alt="Laughing Emoji" style="width: 5rem; height: 5rem; object-fit: contain;">
+                <img src="/img/bannatogodo.png" alt="Banned" style="width: 15rem; height: 15rem; object-fit: contain;">
             </div>
 
             <h1>Account banned</h1>

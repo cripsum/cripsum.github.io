@@ -232,7 +232,11 @@ function admin_require_access(mysqli $mysqli, bool $json = false): array
 
     if ((int)($user['isBannato'] ?? 0) === 1) {
         if ($json) admin_fail('Account bannato.', 403);
-        header('Location: /it/banned');
+        $lang = 'it';
+        if (isset($_SERVER['REQUEST_URI']) && stripos($_SERVER['REQUEST_URI'], '/en/') !== false) {
+            $lang = 'en';
+        }
+        header('Location: /' . $lang . '/banned');
         exit;
     }
 
