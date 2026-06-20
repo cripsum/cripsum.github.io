@@ -68,14 +68,8 @@ document.addEventListener('DOMContentLoaded', () => {
             container.appendChild(clone);
         });
 
-        // Calculate transition wrap boundary using relative offset between first clone and first card
-        const firstCard = originalChildren[0];
-        const firstClone = container.querySelector('.supporter-clone');
-        if (firstClone && firstCard) {
-            originalWidth = firstClone.offsetLeft - firstCard.offsetLeft;
-        } else {
-            originalWidth = contentWidth - 20; // fallback to computed width without container padding
-        }
+        // Calculate transition wrap boundary mathematically to avoid layout race conditions during resizes
+        originalWidth = contentWidth - 20 + gap;
     }
 
     // Initialize marquee layout

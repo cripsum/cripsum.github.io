@@ -1716,6 +1716,7 @@ body.home-v5-body {
     gap: 0.5rem;
     padding: 1rem;
     width: 100px;
+    flex-shrink: 0;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 18px;
@@ -1726,8 +1727,8 @@ body.home-v5-body {
 .supporter-card:hover {
     transform: translateY(-4px) scale(1.03);
     background: rgba(255, 255, 255, 0.07);
-    border-color: rgba(219, 39, 119, 0.4);
-    box-shadow: 0 8px 24px rgba(219, 39, 119, 0.15);
+    border-color: color-mix(in srgb, var(--supporter-color, #db2777) 40%, transparent);
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--supporter-color, #db2777) 15%, transparent);
 }
 
 .supporter-avatar-container {
@@ -1741,7 +1742,7 @@ body.home-v5-body {
     height: 100%;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #db2777;
+    border: 2px solid var(--supporter-color, #db2777);
     background: rgba(255, 255, 255, 0.05);
 }
 
@@ -1749,7 +1750,7 @@ body.home-v5-body {
     position: absolute;
     bottom: -2px;
     right: -2px;
-    background: #db2777;
+    background: var(--supporter-color, #db2777);
     color: #fff;
     font-size: 0.65rem;
     width: 18px;

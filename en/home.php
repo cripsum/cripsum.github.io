@@ -29,7 +29,7 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
         }
     }
 
-    $stmtSupp = $mysqli->prepare("SELECT id, username, display_name, discord_use_display_name, discord_global_name, discord_username, profile_updated_at FROM utenti WHERE is_premium = 1 ORDER BY id DESC");
+    $stmtSupp = $mysqli->prepare("SELECT id, username, display_name, discord_use_display_name, discord_global_name, discord_username, profile_updated_at, accent_color, avatar_ring_color FROM utenti WHERE is_premium = 1 ORDER BY id DESC");
     if ($stmtSupp) {
         $stmtSupp->execute();
         $resSupp = $stmtSupp->get_result();
@@ -69,7 +69,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
     <meta name="twitter:card" content="summary_large_image">
 
     <link rel="preload" as="image" href="../img/amongus.jpg">
-    <link rel="stylesheet" href="/assets/home-v5/home.css?v=6.0">
+    <link rel="stylesheet" href="/assets/home-v5/home.css?v=6.2">
     <link rel="stylesheet" href="/assets/news/news-popup.css?v=1.0">
     <script src="/assets/home-v5/home.js?v=5.7" defer></script>
     <script src="/assets/news/news-popup.js?v=1.0" defer></script>
@@ -219,8 +219,11 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                             $discord = trim((string)($s['discord_global_name'] ?? '')) ?: trim((string)($s['discord_username'] ?? ''));
                             $dispName = ($useDiscord && $discord !== '') ? $discord : (trim((string)($s['display_name'] ?? '')) ?: $s['username']);
                             $stamp = !empty($s['profile_updated_at']) ? strtotime((string)$s['profile_updated_at']) : time();
+                            
+                            $accentColor = !empty($s['accent_color']) ? $s['accent_color'] : '#db2777';
+                            $suppColor = !empty($s['avatar_ring_color']) ? $s['avatar_ring_color'] : $accentColor;
                         ?>
-                            <a href="/u/<?= rawurlencode(strtolower($s['username'])) ?>" class="supporter-card" title="<?= htmlspecialchars($dispName) ?>">
+                            <a href="/u/<?= rawurlencode(strtolower($s['username'])) ?>" class="supporter-card" title="<?= htmlspecialchars($dispName) ?>" style="--supporter-color: <?= htmlspecialchars($suppColor) ?>;">
                                 <div class="supporter-avatar-container">
                                     <img src="/includes/get_pfp.php?id=<?= (int)$s['id'] ?>&t=<?= $stamp ?>" alt="" class="supporter-pfp">
                                     <div class="supporter-badge"><i class="fa-solid fa-gem"></i></div>
@@ -331,7 +334,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <?php if (!empty($supporters)): ?>
-        <script src="/js/home-supporters.js?v=1.5" defer></script>
+        <script src="/js/home-supporters.js?v=1.6" defer></script>
     <?php endif; ?>
 </body>
 
