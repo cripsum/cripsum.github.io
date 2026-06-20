@@ -11,10 +11,11 @@ try {
         $stmt = $mysqli->prepare("
             SELECT 
                 u.username,
+                COALESCE(u.is_premium, 0) AS is_premium,
                 SUM(up.quantità) as total_casse
             FROM utenti u
             JOIN utenti_personaggi up ON u.id = up.utente_id
-            GROUP BY u.id, u.username
+            GROUP BY u.id, u.username, u.is_premium
             ORDER BY total_casse DESC
             LIMIT 10
         ");
@@ -23,10 +24,11 @@ try {
         $stmt = $mysqli->prepare("
             SELECT 
                 u.username,
+                COALESCE(u.is_premium, 0) AS is_premium,
                 COUNT(DISTINCT up.personaggio_id) as personaggi_unici
             FROM utenti u
             JOIN utenti_personaggi up ON u.id = up.utente_id
-            GROUP BY u.id, u.username
+            GROUP BY u.id, u.username, u.is_premium
             ORDER BY personaggi_unici DESC
             LIMIT 10
         ");
@@ -45,6 +47,7 @@ try {
         $leaderboard[] = [
             'position' => $position++,
             'username' => htmlspecialchars($row['username']),
+            'is_premium' => (int)($row['is_premium'] ?? 0) === 1,
             'value' => (int)($row['total_casse'] ?? $row['personaggi_unici'] ?? 0)
         ];
     }

@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/mission_generator.php';
 checkBan($mysqli);
 
 if (!isLoggedIn()) {
@@ -17,7 +18,7 @@ $isAdmin = in_array($ruolo, ['admin', 'owner'], true);
 
 // ── Dati utente ───────────────────────────────────────────────────────
 $stmtUser = $mysqli->prepare(
-    'SELECT username, soldi, pity_standard, pity_evento, garantito_evento
+    'SELECT username, soldi, pity_standard, pity_evento, garantito_evento, is_premium, last_premium_claim
      FROM utenti WHERE id = ? LIMIT 1'
 );
 $stmtUser->bind_param('i', $_SESSION['user_id']);
@@ -29,6 +30,8 @@ $soldi        = (int)($userData['soldi']           ?? 0);
 $pityStandard = (int)($userData['pity_standard']   ?? 0);
 $pityEvento   = (int)($userData['pity_evento']     ?? 0);
 $garantito    = (int)($userData['garantito_evento'] ?? 0);
+$isPremium    = (int)($userData['is_premium']       ?? 0);
+$lastPremiumClaim = $userData['last_premium_claim'] ?? null;
 
 // ── Banner evento attivi ──────────────────────────────────────────────
 $nowDt = date('Y-m-d H:i:s');
@@ -65,7 +68,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
 <head>
     <?php include '../includes/head-import.php'; ?>
     <link rel="stylesheet" href="/css/lootbox.css?v=8.2">
-    <link rel="stylesheet" href="/css/gacha.css?v=10">
+    <link rel="stylesheet" href="/css/gacha.css?v=11">
     <meta name="theme-color" content="#080810">
     <title>Cripsum™ — Lootbox</title>
 </head>
@@ -329,6 +332,22 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                 <?php endforeach; ?>
 
             </div><!-- /gsb-banners -->
+
+            <?php if ($isPremium): ?>
+                <div class="gsb-premium-claim-box">
+                    <div class="gsb-premium-claim-header">
+                        <i class="fa-solid fa-gem premium-gem-icon"></i>
+                        <span>Premium Claim</span>
+                    </div>
+                    <?php 
+                    $today = getMissionDailyPeriod();
+                    $hasClaimedToday = ($lastPremiumClaim === $today);
+                    ?>
+                    <button id="premium-claim-btn" class="gsb-premium-claim-btn <?= $hasClaimedToday ? 'claimed' : '' ?>" <?= $hasClaimedToday ? 'disabled' : '' ?>>
+                        <span class="btn-text"><?= $hasClaimedToday ? 'Claimed today' : 'Claim 500 Points' ?></span>
+                    </button>
+                </div>
+            <?php endif; ?>
 
             <!-- Azioni -->
             <div class="gsb-actions">
@@ -638,6 +657,45 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                 window.GACHA_INIT.activeBannerId = card.dataset.bannerId;
             });
         });
+
+        const premiumBtn = document.getElementById('premium-claim-btn');
+        if (premiumBtn) {
+            premiumBtn.addEventListener('click', async () => {
+                try {
+                    premiumBtn.disabled = true;
+                    const res = await fetch('/api/premium_daily_claim.php', { method: 'POST' });
+                    const data = await res.json();
+                    if (data.success) {
+                        premiumBtn.classList.add('claimed');
+                        const btnText = premiumBtn.querySelector('.btn-text');
+                        if (btnText) btnText.textContent = 'Claimed today';
+                        if (window.GachaUI && typeof window.GachaUI.setSoldi === 'function') {
+                            window.GachaUI.setSoldi(data.new_soldi);
+                        }
+                        if (window.GachaUI && typeof window.GachaUI.showToast === 'function') {
+                            window.GachaUI.showToast(data.message, 'success');
+                        } else {
+                            alert(data.message);
+                        }
+                    } else {
+                        premiumBtn.disabled = false;
+                        if (window.GachaUI && typeof window.GachaUI.showToast === 'function') {
+                            window.GachaUI.showToast(data.error || 'Error during claim', 'error');
+                        } else {
+                            alert(data.error || 'Error during claim');
+                        }
+                    }
+                } catch (e) {
+                    premiumBtn.disabled = false;
+                    console.error(e);
+                    if (window.GachaUI && typeof window.GachaUI.showToast === 'function') {
+                        window.GachaUI.showToast('Network or server error', 'error');
+                    } else {
+                        alert('Network error');
+                    }
+                }
+            });
+        }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
@@ -698,7 +756,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                 } [item.position] ?? '';
                 return `<div class="leaderboard-entry ${cls}">
             <span class="entry-position testobianco">${medal}${item.position}</span>
-            <span class="entry-user-wrap"><span class="entry-username testobianco">${item.username}</span><small>${lbl}</small></span>
+            <span class="entry-user-wrap"><span class="entry-username testobianco">${item.username}${item.is_premium ? ' <span class="premium-badge-icon" title="Premium"><i class="fa-solid fa-gem"></i></span>' : ''}</span><small>${lbl}</small></span>
             <span class="entry-value">${item.value}</span>
         </div>`;
             }).join('');

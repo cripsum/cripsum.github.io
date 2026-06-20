@@ -27,6 +27,16 @@ $username = (string)($_SESSION['username'] ?? 'utente');
 $userRole = (string)($_SESSION['ruolo'] ?? 'utente');
 $csrf = chat_csrf_token();
 
+$isPremium = 0;
+$stmtPrem = $mysqli->prepare("SELECT is_premium FROM utenti WHERE id = ? LIMIT 1");
+if ($stmtPrem) {
+    $stmtPrem->bind_param('i', $userId);
+    $stmtPrem->execute();
+    $resPrem = $stmtPrem->get_result()->fetch_assoc();
+    $isPremium = (int)($resPrem['is_premium'] ?? 0);
+    $stmtPrem->close();
+}
+
 if (!isset($_SESSION['lineeGuidaChat'])) {
     $stmt = $mysqli->prepare('SELECT lineeGuidaChat FROM utenti WHERE id = ? LIMIT 1');
     $stmt->bind_param('i', $userId);
@@ -48,7 +58,7 @@ $initialMessages = $lineeGuidaChat === 1 ? chat_fetch_messages($mysqli, $userId,
     <?php include '../includes/head-import.php'; ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/css/chat-v2.css?v=3.0">
-    <script src="/js/chat-v2.js?v=3.2-gif-quality-fix" defer></script>
+    <script src="/js/chat-v2.js?v=3.3-premium-badges" defer></script>
     <title>Global Chat - Cripsum</title>
 </head>
 
@@ -196,6 +206,7 @@ $initialMessages = $lineeGuidaChat === 1 ? chat_fetch_messages($mysqli, $userId,
                 userId: <?php echo $userId; ?>,
                 username: <?php echo json_encode($username, JSON_UNESCAPED_UNICODE); ?>,
                 role: <?php echo json_encode($userRole, JSON_UNESCAPED_UNICODE); ?>,
+                isPremium: <?php echo $isPremium; ?>,
                 maxLength: <?php echo (int)MAX_MESSAGE_LENGTH; ?>,
                 refreshInterval: <?php echo (int)AUTO_REFRESH_INTERVAL; ?>,
                 csrf: <?php echo json_encode($csrf); ?>,

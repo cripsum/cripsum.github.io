@@ -72,7 +72,8 @@ try {
                 c.commento,
                 c.data_commento,
                 c.id_utente,
-                u.username
+                u.username,
+                COALESCE(u.is_premium, 0) AS is_premium
             FROM commenti_shitpost c
             JOIN utenti u ON c.id_utente = u.id
             WHERE c.id = ?
@@ -96,6 +97,7 @@ try {
                 'data_commento' => $comment['data_commento'],
                 'id_utente' => intval($comment['id_utente']),
                 'username' => $comment['username'],
+                'is_premium' => (int)($comment['is_premium'] ?? 0) === 1,
                 'profile_pic' => '../includes/get_pfp.php?id=' . $comment['id_utente']
             ],
             'message' => 'Commento aggiunto con successo'

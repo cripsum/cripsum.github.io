@@ -299,16 +299,40 @@ function getMissionsPageData(mysqli $mysqli, int $userId, string $lang): array
     $dailyRaw  = ensureUserMissions($mysqli, $userId, 'daily');
     $weeklyRaw = ensureUserMissions($mysqli, $userId, 'weekly');
 
+    $isPremium = 0;
+    $stmt = $mysqli->prepare("SELECT is_premium FROM utenti WHERE id = ? LIMIT 1");
+    if ($stmt) {
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $res = $stmt->get_result()->fetch_assoc();
+        $isPremium = (int)($res['is_premium'] ?? 0);
+        $stmt->close();
+    }
+
+    $daily = localizeMissions($dailyRaw, $lang);
+    $weekly = localizeMissions($weeklyRaw, $lang);
+
+    if ($isPremium === 1) {
+        foreach ($daily as &$m) {
+            $m['punti_reward'] = (int)$m['punti_reward'] * 2;
+        }
+        unset($m);
+        foreach ($weekly as &$m) {
+            $m['punti_reward'] = (int)$m['punti_reward'] * 2;
+        }
+        unset($m);
+    }
+
     return [
         'daily'  => [
             'reset_at'  => getDailyResetTimestamp(),
             'periodo'   => getMissionDailyPeriod(),
-            'missions'  => localizeMissions($dailyRaw, $lang),
+            'missions'  => $daily,
         ],
         'weekly' => [
             'reset_at'  => getWeeklyResetTimestamp(),
             'periodo'   => getMissionWeeklyPeriod(),
-            'missions'  => localizeMissions($weeklyRaw, $lang),
+            'missions'  => $weekly,
         ],
     ];
 }

@@ -67,9 +67,11 @@ try {
             um.riscattata,
             m.punti_reward,
             m.titolo,
-            m.slug
+            m.slug,
+            u.is_premium
         FROM user_missions um
         JOIN missions m ON m.id = um.mission_id
+        JOIN utenti u ON u.id = um.user_id
         WHERE um.id = ?
         FOR UPDATE
     ");
@@ -114,6 +116,9 @@ try {
     }
 
     $punti = (int)$mission['punti_reward'];
+    if ((int)($mission['is_premium'] ?? 0) === 1) {
+        $punti *= 2;
+    }
 
     // 2. Segna come riscattata
     $updateMission = $mysqli->prepare("

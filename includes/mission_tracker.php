@@ -99,9 +99,11 @@ function trackMissionProgress(mysqli $mysqli, int $userId, string $evento, int $
             m.obiettivo,
             m.punti_reward,
             m.titolo,
-            m.slug
+            m.slug,
+            u.is_premium
         FROM user_missions um
         JOIN missions m ON m.id = um.mission_id
+        JOIN utenti u ON u.id = um.user_id
         WHERE um.user_id     = ?
           AND m.evento_trigger = ?
           AND um.completata  = 0
@@ -159,10 +161,14 @@ function trackMissionProgress(mysqli $mysqli, int $userId, string $evento, int $
 
             // Se appena completata (non lo era prima) → aggiungi ai risultati
             if ($completata === 1 && (int)$mission['progresso'] < (int)$mission['obiettivo']) {
+                $punti = (int)$mission['punti_reward'];
+                if ((int)($mission['is_premium'] ?? 0) === 1) {
+                    $punti *= 2;
+                }
                 $newlyDone[] = [
                     'user_mission_id' => (int)$mission['user_mission_id'],
                     'titolo'          => $mission['titolo'],
-                    'punti_reward'    => (int)$mission['punti_reward'],
+                    'punti_reward'    => $punti,
                     'slug'            => $mission['slug'],
                 ];
             }

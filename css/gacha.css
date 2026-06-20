@@ -2500,3 +2500,83 @@ body.lootbox-page {
     text-shadow: none;
     filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
 }
+
+/* ── Premium Claim & Badge Styles ── */
+.gsb-premium-claim-box {
+    margin: 8px 10px;
+    padding: 12px;
+    background: linear-gradient(135deg, rgba(162, 28, 175, 0.15) 0%, rgba(219, 39, 119, 0.15) 100%);
+    border: 1px solid rgba(219, 39, 119, 0.35);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(219, 39, 119, 0.1);
+}
+
+.gsb-premium-claim-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #f472b6;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.premium-gem-icon {
+    color: #fb7185;
+    animation: gemGlow 2s infinite ease-in-out;
+}
+
+@keyframes gemGlow {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(251, 113, 133, 0.6)); }
+    50% { transform: scale(1.1); filter: drop-shadow(0 0 6px rgba(251, 113, 133, 0.9)); }
+}
+
+.gsb-premium-claim-btn {
+    width: 100%;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #a21caf 0%, #db2777 100%);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(219, 39, 119, 0.3);
+}
+
+.gsb-premium-claim-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(219, 39, 119, 0.5);
+    filter: brightness(1.1);
+}
+
+.gsb-premium-claim-btn:disabled {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.4);
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.gsb-premium-claim-btn.claimed {
+    background: rgba(16, 185, 129, 0.15) !important;
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+    color: #34d399 !important;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.premium-badge-icon {
+    color: #fb7185;
+    margin-left: 4px;
+    font-size: 0.75rem;
+    filter: drop-shadow(0 0 2px rgba(251, 113, 133, 0.4));
+    display: inline-flex;
+    align-items: center;
+}

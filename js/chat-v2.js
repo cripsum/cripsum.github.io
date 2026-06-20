@@ -311,11 +311,17 @@
         const isPureGif = msg.message_type === 'gif' && !msg.reply && !msg.message;
         const bubbleClasses = ['chat-bubble', isPureGif ? 'chat-bubble--pure-gif' : ''].filter(Boolean).join(' ');
 
+        const premiumBadgeHtml = (isPremium) => {
+            if (!isPremium) return '';
+            return `<span class="premium-badge-icon" title="Premium"><i class="fa-solid fa-gem"></i></span>`;
+        };
+
         const avatar = `<a class="chat-avatar-link" href="${escapeHtml(safeUrl(msg.profile_url || '#'))}" tabindex="-1"><img src="${escapeHtml(safeUrl(msg.avatar_url || '/img/abdul.jpg'))}" alt="" loading="lazy"></a>`;
         const main = `
             <div class="chat-message-main">
                 <div class="chat-message-meta">
                     <a class="chat-username" href="${escapeHtml(safeUrl(msg.profile_url || '#'))}">@${escapeHtml(msg.username || 'utente')}</a>
+                    ${premiumBadgeHtml(msg.is_premium)}
                     ${roleBadgeHtml(msg.role_badge)}
                     ${profileBadgeHtml(msg.badge)}
                     <time class="chat-time" datetime="${escapeHtml(msg.created_at || '')}">${escapeHtml(timeLabel || '')}${edited}</time>
@@ -609,6 +615,7 @@
         id: `tmp-${nonce}`,
         user_id: cfg.userId,
         username: cfg.username,
+        is_premium: cfg.isPremium === 1,
         profile_url: `/u/${encodeURIComponent(cfg.username || '')}`,
         avatar_url: `/includes/get_pfp.php?id=${cfg.userId}`,
         role_badge: cfg.role === 'owner' ? { label: 'Owner', class: 'owner' } : (cfg.role === 'admin' ? { label: 'Admin', class: 'admin' } : null),

@@ -241,7 +241,7 @@
                         <a class="cw-user" href="/u/${encodeURIComponent(post.username || '')}">
                             <img class="cw-avatar" src="/includes/get_pfp.php?id=${Number(post.id_utente)}" alt="">
                             <span>
-                                <strong>${escapeHtml(post.username || t.user_fallback)}</strong>
+                                <strong>${escapeHtml(post.username || t.user_fallback)}${Number(post.is_premium) === 1 ? ' <span class="premium-badge-icon" title="Premium"><i class="fa-solid fa-gem"></i></span>' : ''}</strong>
                                 <span>${formatDate(post.data_creazione)}</span>
                             </span>
                         </a>
@@ -460,7 +460,7 @@
                         <a class="cw-user" href="/u/${encodeURIComponent(post.username || '')}">
                             <img class="cw-avatar" src="/includes/get_pfp.php?id=${Number(post.id_utente)}" alt="">
                             <span>
-                                <strong>${escapeHtml(post.username || t.user_fallback)}</strong>
+                                <strong>${escapeHtml(post.username || t.user_fallback)}${Number(post.is_premium) === 1 ? ' <span class="premium-badge-icon" title="Premium"><i class="fa-solid fa-gem"></i></span>' : ''}</strong>
                                 <span>${formatDate(post.data_creazione)}</span>
                             </span>
                         </a>
@@ -700,7 +700,7 @@
                         <div class="cw-comment">
                             <img class="cw-avatar" src="/includes/get_pfp.php?id=${Number(comment.id_utente)}" alt="">
                             <div class="cw-comment__body">
-                                <strong>${escapeHtml(comment.username || t.user_fallback)}</strong>
+                                <strong>${escapeHtml(comment.username || t.user_fallback)}${Number(comment.is_premium) === 1 ? ' <span class="premium-badge-icon" title="Premium"><i class="fa-solid fa-gem"></i></span>' : ''}</strong>
                                 <small>${formatDate(comment.created_at)}</small>
                                 <span>${escapeHtml(comment.commento || '')}</span>
                             </div>

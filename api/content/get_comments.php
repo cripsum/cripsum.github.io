@@ -10,7 +10,7 @@ try {
         if (!cv2_table_exists($mysqli, 'commenti_shitpost')) cv2_ok(['comments' => []]);
 
         $stmt = $mysqli->prepare("
-            SELECT c.id, c.id_utente, c.commento, c.data_commento AS created_at, u.username
+            SELECT c.id, c.id_utente, c.commento, c.data_commento AS created_at, u.username, COALESCE(u.is_premium, 0) AS is_premium
             FROM commenti_shitpost c
             LEFT JOIN utenti u ON u.id = c.id_utente
             WHERE c.id_shitpost = ?
@@ -23,7 +23,7 @@ try {
         if (!cv2_table_exists($mysqli, 'content_comments')) cv2_ok(['comments' => []]);
 
         $stmt = $mysqli->prepare("
-            SELECT c.id, c.user_id AS id_utente, c.comment AS commento, c.created_at, u.username
+            SELECT c.id, c.user_id AS id_utente, c.comment AS commento, c.created_at, u.username, COALESCE(u.is_premium, 0) AS is_premium
             FROM content_comments c
             LEFT JOIN utenti u ON u.id = c.user_id
             WHERE c.content_type = 'rimasto' AND c.post_id = ?
@@ -37,7 +37,10 @@ try {
     if (!$stmt->execute()) cv2_fail('Errore caricamento commenti.', 500);
     $res = $stmt->get_result();
     $comments = [];
-    while ($row = $res->fetch_assoc()) $comments[] = $row;
+    while ($row = $res->fetch_assoc()) {
+        $row['is_premium'] = (int)($row['is_premium'] ?? 0);
+        $comments[] = $row;
+    }
     $stmt->close();
 
     cv2_ok(['comments' => $comments]);

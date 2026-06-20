@@ -156,7 +156,8 @@ try {
             $userLikedSql AS user_liked,
             $userSavedSql AS user_saved,
             u.username,
-            COALESCE(u.ruolo, 'utente') AS ruolo
+            COALESCE(u.ruolo, 'utente') AS ruolo,
+            COALESCE(u.is_premium, 0) AS is_premium
         FROM $table p
         LEFT JOIN utenti u ON u.id = p.$userCol
         $whereSql

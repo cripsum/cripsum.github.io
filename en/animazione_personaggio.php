@@ -34,7 +34,7 @@ $charJson = $charData ? json_encode($charData, JSON_HEX_TAG | JSON_HEX_APOS | JS
 <head>
     <?php include '../includes/head-import.php'; ?>
     <link rel="stylesheet" href="/css/lootbox.css?v=8.0.6" />
-    <link rel="stylesheet" href="/css/gacha.css?v=3.1" />
+    <link rel="stylesheet" href="/css/gacha.css?v=3.2" />
     <title>Cripsum™ – Character preview</title>
     <style>
         /* ── Override: la pagina è solo l'animazione, niente layout gacha ── */

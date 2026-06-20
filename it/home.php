@@ -14,6 +14,32 @@ if (function_exists('checkBan')) {
 $isLoggedIn = isset($_SESSION['user_id']) && (int)$_SESSION['user_id'] > 0;
 $currentUsername = $_SESSION['username'] ?? null;
 
+$isPremium = false;
+$supporters = [];
+
+if (isset($mysqli) && $mysqli instanceof mysqli) {
+    if ($isLoggedIn && isset($_SESSION['user_id'])) {
+        $stmtPrem = $mysqli->prepare("SELECT is_premium FROM utenti WHERE id = ? LIMIT 1");
+        if ($stmtPrem) {
+            $stmtPrem->bind_param('i', $_SESSION['user_id']);
+            $stmtPrem->execute();
+            $resPrem = $stmtPrem->get_result()->fetch_assoc();
+            $isPremium = ((int)($resPrem['is_premium'] ?? 0) === 1);
+            $stmtPrem->close();
+        }
+    }
+
+    $stmtSupp = $mysqli->prepare("SELECT id, username FROM utenti WHERE is_premium = 1 ORDER BY id DESC");
+    if ($stmtSupp) {
+        $stmtSupp->execute();
+        $resSupp = $stmtSupp->get_result();
+        while ($row = $resSupp->fetch_assoc()) {
+            $supporters[] = $row;
+        }
+        $stmtSupp->close();
+    }
+}
+
 function home_h($value): string
 {
     return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -43,7 +69,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <meta name="twitter:card" content="summary_large_image">
 
     <link rel="preload" as="image" href="../img/amongus.jpg">
-    <link rel="stylesheet" href="/assets/home-v5/home.css?v=5.7">
+    <link rel="stylesheet" href="/assets/home-v5/home.css?v=5.8">
     <link rel="stylesheet" href="/assets/news/news-popup.css?v=1.0">
     <script src="/assets/home-v5/home.js?v=5.7" defer></script>
     <script src="/assets/news/news-popup.js?v=1.0" defer></script>
@@ -149,6 +175,54 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                 <div class="home-slider__tabs" id="homeSliderTabs" aria-label="Seleziona contenuto"></div>
             </div>
         </section>
+
+        <!-- PREMIUM AD BLOCK & SUPPORTERS (ITALIAN) -->
+        <?php if (!$isPremium): ?>
+            <section class="home-premium-promo-card home-reveal">
+                <div class="promo-copy">
+                    <span class="promo-tag">Cripsum Premium</span>
+                    <h3>Sblocca l'esperienza Cripsum definitiva</h3>
+                    <p>Ottieni vantaggi esclusivi, raddoppia i tuoi punti e supporta la community.</p>
+                    <div class="promo-benefits">
+                        <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Riscatto giornaliero di 500 punti Lootbox</span></div>
+                        <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Doppio boost (2x) sui punti delle missioni</span></div>
+                        <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Tag premium con diamante vicino al tuo nome</span></div>
+                        <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Nome in evidenza nella lista sostenitori</span></div>
+                    </div>
+                    <div class="promo-actions">
+                        <a href="checkout-premium" class="promo-btn-primary">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                            <span>Diventa Premium</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="promo-art" aria-hidden="true">
+                    <i class="fa-solid fa-gem"></i>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <?php if (!empty($supporters)): ?>
+            <section class="home-supporters-section home-reveal">
+                <div class="home-supporters-title">
+                    <div>
+                        <h2>I nostri Supporter Premium</h2>
+                        <p>Un grazie speciale agli utenti che supportano Cripsum™!</p>
+                    </div>
+                </div>
+                <div class="supporters-grid">
+                    <?php foreach ($supporters as $s): ?>
+                        <a href="/u/<?= rawurlencode(strtolower($s['username'])) ?>" class="supporter-card" title="<?= htmlspecialchars($s['username']) ?>">
+                            <div class="supporter-avatar-container">
+                                <img src="/includes/get_pfp.php?id=<?= (int)$s['id'] ?>" alt="" class="supporter-pfp">
+                                <div class="supporter-badge"><i class="fa-solid fa-gem"></i></div>
+                            </div>
+                            <span class="supporter-name">@<?= htmlspecialchars($s['username']) ?></span>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        <?php endif; ?>
 
         <section class="home-social-section home-reveal">
             <div class="home-section-head home-section-head--center">
