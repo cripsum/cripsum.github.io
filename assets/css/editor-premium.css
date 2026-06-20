@@ -1850,3 +1850,87 @@ input[type="range"]::-moz-range-track {
     background: rgba(12, 12, 18, 0.95) !important;
     box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2), inset 0 4px 12px rgba(0, 0, 0, 0.5) !important;
 }
+
+/* Media Upload (block-media-url-container) UI styling */
+.block-media-url-container label {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.block-media-url-container input {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #fff !important;
+    border-radius: 8px !important;
+    padding: 0.7rem 0.9rem !important;
+    font-size: 0.9rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.block-media-url-container input:focus {
+    border-color: var(--editor-accent, #8b5cf6) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15) !important;
+    outline: none !important;
+}
+
+/* Premium Card Tag section grid and inputs styling */
+.row-card-tag-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)) !important;
+    gap: 12px !important;
+    margin-top: 10px !important;
+}
+
+.row-card-tag-grid label {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.row-card-tag-grid input {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #fff !important;
+    border-radius: 8px !important;
+    padding: 0.7rem 0.9rem !important;
+    font-size: 0.9rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.row-card-tag-grid input:focus {
+    border-color: var(--editor-accent, #8b5cf6) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15) !important;
+    outline: none !important;
+}
+
+/* Premium color inputs picker overrides */
+.row-card-tag-grid input[type="color"] {
+    padding: 0 !important;
+    height: 38px !important;
+    width: 100% !important;
+    cursor: pointer !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.row-card-tag-grid input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0 !important;
+}
+
+.row-card-tag-grid input[type="color"]::-webkit-color-swatch {
+    border: none !important;
+}

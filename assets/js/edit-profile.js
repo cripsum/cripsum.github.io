@@ -67,7 +67,8 @@
         return list.map((item) => {
             const value = Array.isArray(item) ? item[0] : item;
             const label = Array.isArray(item) ? item[1] : item;
-            return `<option value="${escapeAttr(value)}" ${String(selected || '') === String(value) ? 'selected' : ''}>${escapeAttr(label)}</option>`;
+            const isPrem = Array.isArray(item) && item[2] === true;
+            return `<option value="${escapeAttr(value)}" ${String(selected || '') === String(value) ? 'selected' : ''} ${isPrem ? 'data-premium="1"' : ''}>${escapeAttr(label)}</option>`;
         }).join('');
     }
 
@@ -193,8 +194,8 @@
             const isEng = isEnglish;
             const isPrem = window.isPremiumUser;
             const textFormatsOptions = isEng
-                ? [['text', 'Plain Text'], ['markdown', 'Markdown (Premium)'], ['html', 'HTML (Premium)']]
-                : [['text', 'Testo Semplice'], ['markdown', 'Markdown (Premium)'], ['html', 'HTML (Premium)']];
+                ? [['text', 'Plain Text'], ['markdown', 'Markdown', true], ['html', 'HTML', true]]
+                : [['text', 'Testo Semplice'], ['markdown', 'Markdown', true], ['html', 'HTML', true]];
 
             let blockTypeVal = data.block_type || 'text';
             let mediaTypeVal = 'none';
