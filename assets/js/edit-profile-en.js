@@ -210,73 +210,89 @@
             }
 
             body = `
-                <div class="profile-row-grid">
-                    <label>${isEng ? 'Text Format' : 'Formato Testo'}
-                        <select data-field="block_type" class="block-type-select">
-                            ${options(textFormatsOptions, blockTypeVal)}
-                        </select>
-                    </label>
-                    <label>${isEng ? 'Optional Media' : 'Media Opzionale'}
-                        <select class="media-type-ui-select">
-                            <option value="none" ${mediaTypeVal === 'none' ? 'selected' : ''}>${isEng ? 'None' : 'Nessuno'}</option>
-                            <option value="image" ${mediaTypeVal === 'image' ? 'selected' : ''}>${isEng ? 'Image / GIF' : 'Immagine / GIF'}</option>
-                            <option value="video" ${mediaTypeVal === 'video' ? 'selected' : ''}>${isEng ? 'Video' : 'Video'}</option>
-                        </select>
-                    </label>
-                    <label class="profile-row-grid full">${isEng ? 'Title' : 'Titolo'}<input data-field="title" maxlength="80" value="${escapeAttr(data.title || '')}" placeholder="${isEng ? 'Block Title' : 'Titolo del blocco'}"></label>
-                    
-                    <label class="profile-field-upload-wrapper block-media-url-container full" style="display: ${mediaTypeVal === 'none' ? 'none' : 'block'};">${isEng ? 'Media URL / Upload' : 'Media URL / Carica'}
-                        <div class="input-with-upload">
-                            <input data-field="media_url" value="${escapeAttr(data.media_url || '')}" placeholder="${isEng ? 'E.g. /uploads/image.png or URL' : 'Es. /uploads/immagine.png o URL'}">
-                            <button type="button" class="btn-row-media-upload" data-upload-target="media_url" ${isPrem ? '' : 'disabled'}><i class="fa-solid fa-upload"></i></button>
-                        </div>
-                    </label>
+                <div class="editor-row-content-group">
+                    <!-- Title & Format -->
+                    <div class="profile-row-grid">
+                        <label class="full">${isEng ? 'Title' : 'Titolo'}<input data-field="title" maxlength="80" value="${escapeAttr(data.title || '')}" placeholder="${isEng ? 'E.g. About me, My Setup...' : 'Es. Chi sono, Il mio Setup...'}"></label>
+                        
+                        <label>${isEng ? 'Text Format' : 'Formato Testo'}
+                            <select data-field="block_type" class="block-type-select">
+                                ${options(textFormatsOptions, blockTypeVal)}
+                            </select>
+                        </label>
+                        <label>${isEng ? 'Optional Media' : 'Media Opzionale'}
+                            <select class="media-type-ui-select">
+                                <option value="none" ${mediaTypeVal === 'none' ? 'selected' : ''}>${isEng ? 'None' : 'Nessuno'}</option>
+                                <option value="image" ${mediaTypeVal === 'image' ? 'selected' : ''}>${isEng ? 'Image / GIF' : 'Immagine / GIF'}</option>
+                                <option value="video" ${mediaTypeVal === 'video' ? 'selected' : ''}>${isEng ? 'Video' : 'Video'}</option>
+                            </select>
+                        </label>
+                    </div>
 
-                    <label class="profile-row-grid full">${isEng ? 'Block Text' : 'Testo del Blocco'}
-                        <textarea data-field="body" class="block-body-textarea" maxlength="${isPrem ? 5000 : 700}" placeholder="${isEng ? 'Write text or code here...' : 'Scrivi il testo o il codice qui...'}">${escapeAttr(data.body || '')}</textarea>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 0.75rem; color: var(--muted-2);">
-                            <span class="block-body-hint"></span>
-                            <span class="block-body-counter">0 / ${isPrem ? 5000 : 700}</span>
+                    <!-- Media Upload (conditional) -->
+                    <div class="editor-sub-card block-media-url-container" style="display: ${mediaTypeVal === 'none' ? 'none' : 'block'}; margin-top: 12px; padding: 12px; border-radius: 8px; background: rgba(255,255,255,0.015); border: 1px dashed rgba(255,255,255,0.08);">
+                        <label class="profile-field-upload-wrapper full">${isEng ? 'Media URL / Upload' : 'Media URL / Carica'}
+                            <div class="input-with-upload">
+                                <input data-field="media_url" value="${escapeAttr(data.media_url || '')}" placeholder="${isEng ? 'E.g. /uploads/image.png or URL' : 'Es. /uploads/immagine.png o URL'}">
+                                <button type="button" class="btn-row-media-upload" data-upload-target="media_url" ${isPrem ? '' : 'disabled'}><i class="fa-solid fa-upload"></i></button>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Textarea Content -->
+                    <div style="margin-top: 12px;">
+                        <label class="profile-row-grid full">${isEng ? 'Block Text' : 'Testo del Blocco'}
+                            <textarea data-field="body" class="block-body-textarea" maxlength="${isPrem ? 5000 : 700}" placeholder="${isEng ? 'Write text or code here...' : 'Scrivi il testo o il codice qui...'}">${escapeAttr(data.body || '')}</textarea>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 0.75rem; color: var(--muted-2);">
+                                <span class="block-body-hint"></span>
+                                <span class="block-body-counter">0 / ${isPrem ? 5000 : 700}</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Settings & Layout Options -->
+                    <div class="editor-sub-card" style="margin-top: 16px; padding: 12px; border-radius: 8px; background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.06);">
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 12px;">
+                            <label class="profile-check-line" style="margin: 0;"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> Pin</label>
+                            <label class="profile-check-line" style="margin: 0;"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> ${isEng ? 'Visible' : 'Visibile'}</label>
+                            ${isPrem ? `
+                            <label class="profile-check-line" style="margin: 0;"><input type="checkbox" data-field="no_card_style" ${boolAttr(data.no_card_style)}> <span style="color: var(--accent); font-weight: 600;"><i class="fa-solid fa-crown"></i> ${isEng ? 'No background & border' : 'Rimuovi sfondo e bordo'}</span></label>
+                            ` : ''}
                         </div>
-                    </label>
-                    
-                    <div style="display: flex; gap: 1.5rem; grid-column: 1 / -1; flex-wrap: wrap; margin-top: 5px;">
-                        <label class="profile-check-line" style="margin: 0;"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> Pin</label>
-                        <label class="profile-check-line" style="margin: 0;"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> ${isEng ? 'Visible' : 'Visibile'}</label>
+
                         ${isPrem ? `
-                        <label class="profile-check-line" style="margin: 0;"><input type="checkbox" data-field="no_card_style" ${boolAttr(data.no_card_style)}> <span style="color: var(--accent); font-weight: 600;"><i class="fa-solid fa-crown"></i> ${isEng ? 'No background & border' : 'Rimuovi sfondo e bordo'}</span></label>
+                        <div class="row-block-layout-section full" style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px;">
+                            <div class="row-card-tag-header" style="margin-bottom: 8px;">
+                                <span class="premium-badge-mini"><i class="fa-solid fa-crown"></i> ${isEng ? 'Premium Layout & Alignment' : 'Allineamento e Layout Premium'}</span>
+                            </div>
+                            <div class="profile-row-grid">
+                                <label>${isEng ? 'Media Position' : 'Posizione Media'}
+                                    <select data-field="media_position">
+                                        ${options([['top', isEng ? 'Top (above text)' : 'Sopra (sopra il testo)'], ['bottom', isEng ? 'Bottom (below text)' : 'Sotto (sotto il testo)']], data.media_position || 'top')}
+                                    </select>
+                                </label>
+                                <label>${isEng ? 'Media Fit' : 'Adattamento Media'}
+                                    <select data-field="media_fit">
+                                        ${options([['cover', isEng ? 'Crop to fill' : 'Ritaglia e riempi'], ['contain', isEng ? 'Fit inside' : 'Adatta dentro'], ['original', isEng ? 'Original size' : 'Dimensione originale']], data.media_fit || 'cover')}
+                                    </select>
+                                </label>
+                                <label>${isEng ? 'Text Alignment' : 'Allineamento Testo'}
+                                    <select data-field="text_align">
+                                        ${options([['left', isEng ? 'Left' : 'Sinistra'], ['center', isEng ? 'Center' : 'Centro'], ['right', isEng ? 'Right' : 'Destra']], data.text_align || 'left')}
+                                    </select>
+                                </label>
+                                <label>${isEng ? 'Media Alignment' : 'Allineamento Media'}
+                                    <select data-field="media_align">
+                                        ${options([['left', isEng ? 'Left' : 'Sinistra'], ['center', isEng ? 'Center' : 'Centro'], ['right', isEng ? 'Right' : 'Destra']], data.media_align || 'center')}
+                                    </select>
+                                </label>
+                            </div>
+                        </div>
                         ` : ''}
                     </div>
-                    ${isPrem ? `
-                    <div class="row-block-layout-section full" style="margin-top: 8px;">
-                        <div class="row-card-tag-header">
-                            <span class="premium-badge-mini"><i class="fa-solid fa-crown"></i> ${isEng ? 'Premium Layout Options' : 'Opzioni Layout Premium'}</span>
-                        </div>
-                        <div class="profile-row-grid" style="margin-top: 6px;">
-                            <label>${isEng ? 'Media Position' : 'Posizione Media'}
-                                <select data-field="media_position">
-                                    ${options([['top', isEng ? 'Top (above text)' : 'Sopra (sopra il testo)'], ['bottom', isEng ? 'Bottom (below text)' : 'Sotto (sotto il testo)']], data.media_position || 'top')}
-                                </select>
-                            </label>
-                            <label>${isEng ? 'Media Fit' : 'Adattamento Media'}
-                                <select data-field="media_fit">
-                                    ${options([['cover', isEng ? 'Crop to fill' : 'Ritaglia e riempi'], ['contain', isEng ? 'Fit inside' : 'Adatta dentro'], ['original', isEng ? 'Original size' : 'Dimensione originale']], data.media_fit || 'cover')}
-                                </select>
-                            </label>
-                            <label>${isEng ? 'Text Alignment' : 'Allineamento Testo'}
-                                <select data-field="text_align">
-                                    ${options([['left', isEng ? 'Left' : 'Sinistra'], ['center', isEng ? 'Center' : 'Centro'], ['right', isEng ? 'Right' : 'Destra']], data.text_align || 'left')}
-                                </select>
-                            </label>
-                            <label>${isEng ? 'Media Alignment' : 'Allineamento Media'}
-                                <select data-field="media_align">
-                                    ${options([['left', isEng ? 'Left' : 'Sinistra'], ['center', isEng ? 'Center' : 'Centro'], ['right', isEng ? 'Right' : 'Destra']], data.media_align || 'center')}
-                                </select>
-                            </label>
-                        </div>
-                    </div>
-                    ` : ''}
-                    <div class="row-card-tag-section full">
+
+                    <!-- Premium Card Tag -->
+                    <div class="row-card-tag-section full" style="margin-top: 12px;">
                         <div class="row-card-tag-header">
                             <span class="premium-badge-mini"><i class="fa-solid fa-crown"></i> ${isEng ? 'Premium Card Tag' : 'Tag Card Premium'}</span>
                         </div>
@@ -315,19 +331,24 @@
 
         row.innerHTML = `
             <div class="profile-row-head">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <div class="profile-row-handle" style="cursor: grab;"><i class="fa-solid fa-grip-vertical"></i></div>
-                    <strong>${labelText}</strong>
+                <div class="profile-row-title-container">
+                    <div class="profile-row-handle"><i class="fa-solid fa-grip-vertical"></i></div>
+                    <span class="profile-row-type-badge type-${type}">${labelText}</span>
+                    <strong class="profile-row-title-text">${labelText}</strong>
                 </div>
                 <div class="profile-row-actions">
                     <button type="button" class="profile-move-up" title="${isEnglish ? 'Move up' : 'Sposta su'}"><i class="fa-solid fa-arrow-up"></i></button>
                     <button type="button" class="profile-move-down" title="${isEnglish ? 'Move down' : 'Sposta giù'}"><i class="fa-solid fa-arrow-down"></i></button>
-                    <button type="button" class="profile-remove-row">${isEnglish ? 'Remove' : 'Rimuovi'}</button>
+                    <button type="button" class="profile-toggle-collapse" title="${isEnglish ? 'Expand/Collapse' : 'Espandi/Riduci'}"><i class="fa-solid fa-chevron-up"></i></button>
+                    <button type="button" class="profile-remove-row" title="${isEnglish ? 'Remove' : 'Rimuovi'}"><i class="fa-solid fa-trash"></i></button>
                 </div>
             </div>
-            ${body}`;
+            <div class="profile-row-body">
+                ${body}
+            </div>`;
 
-        $('.profile-remove-row', row).addEventListener('click', () => {
+        $('.profile-remove-row', row).addEventListener('click', (e) => {
+            e.stopPropagation();
             row.remove();
             updatePreview();
             triggerAutosave(true);
@@ -337,7 +358,8 @@
         const btnUp = $('.profile-move-up', row);
         const btnDown = $('.profile-move-down', row);
 
-        btnUp.addEventListener('click', () => {
+        btnUp.addEventListener('click', (e) => {
+            e.stopPropagation();
             const prev = row.previousElementSibling;
             if (prev && prev.classList.contains('profile-row-card')) {
                 row.parentNode.insertBefore(row, prev);
@@ -347,7 +369,8 @@
             }
         });
 
-        btnDown.addEventListener('click', () => {
+        btnDown.addEventListener('click', (e) => {
+            e.stopPropagation();
             const next = row.nextElementSibling;
             if (next && next.classList.contains('profile-row-card')) {
                 row.parentNode.insertBefore(next, row);
@@ -356,6 +379,48 @@
                 pushHistoryState();
             }
         });
+
+        // Collapse toggle functionality
+        const toggleBtn = $('.profile-toggle-collapse', row);
+        const collapseIcon = toggleBtn.querySelector('i');
+        const rowHead = $('.profile-row-head', row);
+
+        function toggleCollapse(e) {
+            if (e.target.closest('.profile-row-actions button:not(.profile-toggle-collapse)') || e.target.closest('.profile-row-handle')) {
+                return;
+            }
+            row.classList.toggle('is-collapsed');
+            if (row.classList.contains('is-collapsed')) {
+                collapseIcon.className = 'fa-solid fa-chevron-down';
+            } else {
+                collapseIcon.className = 'fa-solid fa-chevron-up';
+            }
+        }
+
+        toggleBtn.addEventListener('click', toggleCollapse);
+        rowHead.addEventListener('click', toggleCollapse);
+
+        // Dynamic Title synchronization
+        const titleInput = row.querySelector('[data-field="title"], [data-field="label"], [data-field="text"]');
+        const headerTitleElement = row.querySelector('.profile-row-title-text');
+        
+        function updateHeaderTitle() {
+            if (!headerTitleElement) return;
+            let currentTitle = '';
+            if (titleInput) {
+                currentTitle = titleInput.value.trim();
+            }
+            if (!currentTitle) {
+                headerTitleElement.textContent = labelText;
+            } else {
+                headerTitleElement.textContent = `${labelText}: ${currentTitle}`;
+            }
+        }
+        
+        if (titleInput) {
+            titleInput.addEventListener('input', updateHeaderTitle);
+            updateHeaderTitle();
+        }
 
         if (type === 'tags') {
             setTimeout(() => {

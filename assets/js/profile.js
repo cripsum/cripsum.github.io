@@ -1850,13 +1850,31 @@
             
             let label = '';
             if (index === 0) {
-                label = document.documentElement.lang === 'it' ? 'Profilo' : 'Profile';
+                label = 'Profile';
             } else {
-                const titleEl = slide.querySelector('h2, h3, .section-title, .bio-card-title');
+                const titleEl = slide.querySelector('h2, h3, .section-title, .bio-card-title, .bio-section-heading span, .profile-clean-heading span, .profile-spotlight-content strong, .profile-embed-header span');
                 if (titleEl) {
                     label = titleEl.textContent.trim();
-                } else {
-                    label = (document.documentElement.lang === 'it' ? 'Sezione ' : 'Section ') + index;
+                }
+                
+                if (!label) {
+                    if (slide.querySelector('.profile-characters-section, .profile-character-grid')) {
+                        label = 'Characters';
+                    } else if (slide.querySelector('.profile-embeds-section, .profile-embed-wrapper, iframe')) {
+                        label = 'Embed';
+                    } else if (slide.querySelector('.profile-block-grid, .profile-block-card')) {
+                        label = 'Block';
+                    } else if (slide.querySelector('.bio-project-grid, .bio-project-card')) {
+                        label = 'Projects';
+                    } else if (slide.querySelector('.profile-link-grid, .bio-featured-link')) {
+                        label = 'Links';
+                    } else if (slide.querySelector('.profile-badge-grid, .custom-badge-card')) {
+                        label = 'Badges';
+                    } else if (slide.querySelector('.profile-spotlight')) {
+                        label = 'Featured';
+                    } else {
+                        label = 'Section ' + index;
+                    }
                 }
             }
             dot.setAttribute('data-label', label);
