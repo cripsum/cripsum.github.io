@@ -367,6 +367,107 @@
         return `${minutes}:${remaining}`;
     };
 
+    const initFloatingAudioBtn = () => {
+        const container = document.querySelector('[data-floating-audio]');
+        const audio = document.getElementById('profileAudio');
+        if (!container || !audio) return;
+
+        const btn = container.querySelector('.profile-floating-audio-btn');
+        const icon = btn.querySelector('i');
+        const slider = container.querySelector('.profile-floating-audio-slider');
+
+        // Set initial volume based on localStorage or default
+        const defaultVolume = Number(container.dataset.defaultVolume || 0.18);
+        const savedVolume = localStorage.getItem('cripsum.profile.audioVolume') !== null
+            ? Number(localStorage.getItem('cripsum.profile.audioVolume'))
+            : defaultVolume;
+        
+        audio.volume = Math.min(Math.max(savedVolume, 0), 1);
+        slider.value = String(audio.volume);
+
+        const updateUI = () => {
+            const isMuted = audio.muted || audio.volume === 0;
+            if (isMuted) {
+                icon.className = 'fa-solid fa-volume-xmark';
+                slider.value = '0';
+            } else {
+                icon.className = audio.volume < 0.5 ? 'fa-solid fa-volume-low' : 'fa-solid fa-volume-high';
+                slider.value = String(audio.volume);
+            }
+        };
+
+        // Initialize state
+        updateUI();
+
+        // Sync on audio events (in case volume changes elsewhere or muted by browser)
+        audio.addEventListener('volumechange', updateUI);
+
+        // Click to mute/unmute
+        const toggleMute = async () => {
+            if (audio.muted) {
+                audio.muted = false;
+                if (audio.volume === 0) {
+                    audio.volume = defaultVolume;
+                }
+                if (audio.paused) {
+                    try { await audio.play(); } catch (err) {}
+                }
+            } else {
+                audio.muted = true;
+            }
+            updateUI();
+        };
+
+        // Mobile touch variables
+        let pressTimeout = null;
+        let longPressTriggered = false;
+
+        btn.addEventListener('click', (e) => {
+            if (longPressTriggered) {
+                longPressTriggered = false;
+                return;
+            }
+            toggleMute();
+        });
+
+        // Mobile Long Press Handling
+        btn.addEventListener('touchstart', (e) => {
+            longPressTriggered = false;
+            pressTimeout = setTimeout(() => {
+                longPressTriggered = true;
+                container.classList.add('show-slider');
+            }, 600); // 600ms hold
+        }, { passive: true });
+
+        btn.addEventListener('touchend', () => {
+            if (pressTimeout) {
+                clearTimeout(pressTimeout);
+            }
+        });
+
+        btn.addEventListener('touchmove', () => {
+            if (pressTimeout) {
+                clearTimeout(pressTimeout);
+            }
+        }, { passive: true });
+
+        // Hide slider when clicking outside container
+        document.addEventListener('click', (e) => {
+            if (!container.contains(e.target)) {
+                container.classList.remove('show-slider');
+            }
+        });
+
+        // Volume slider input
+        slider.addEventListener('input', () => {
+            const val = Number(slider.value);
+            audio.volume = val;
+            audio.muted = val === 0;
+            localStorage.setItem('cripsum.profile.audioVolume', String(val));
+            updateUI();
+        });
+    };
+
     const initProfileAudio = () => {
         const audio = document.getElementById('profileAudio');
         if (!audio) return;
@@ -383,8 +484,11 @@
         if (!playButton || !progressSlider || !volumeSlider) return;
 
         let dragging = false;
-        const savedVolume = Number(localStorage.getItem('cripsum.profile.audioVolume') || volumeSlider.value || 0.18);
-        audio.volume = Math.min(Math.max(savedVolume, 0), 1);
+        const defaultVol = Number(audio.dataset.defaultVolume || 0.18);
+        const savedVolume = localStorage.getItem('cripsum.profile.audioVolume') !== null
+            ? Number(localStorage.getItem('cripsum.profile.audioVolume'))
+            : defaultVol;
+        audio.volume = Math.min(Math.max(Number.isFinite(savedVolume) ? savedVolume : defaultVol, 0), 1);
         volumeSlider.value = String(audio.volume);
 
         const syncIcons = () => {
@@ -1328,6 +1432,7 @@
         initQrModal();
         initProfileThreeDotsDropdown();
         initProfileAudio();
+        initFloatingAudioBtn();
         initProfileEffects();
         initCursorEffects();
         initActivityCarousel();
@@ -1390,8 +1495,11 @@
         if (!audio || audio.dataset.autoplay !== '1') return;
         if (document.getElementById('clickToEnterOverlay')) return;
 
-        const savedVolume = Number(localStorage.getItem('cripsum.profile.audioVolume') || 0.18);
-        audio.volume = Math.min(Math.max(Number.isFinite(savedVolume) ? savedVolume : 0.18, 0), 1);
+        const defaultVol = Number(audio.dataset.defaultVolume || 0.18);
+        const savedVolume = localStorage.getItem('cripsum.profile.audioVolume') !== null
+            ? Number(localStorage.getItem('cripsum.profile.audioVolume'))
+            : defaultVol;
+        audio.volume = Math.min(Math.max(Number.isFinite(savedVolume) ? savedVolume : defaultVol, 0), 1);
         audio.loop = true;
         audio.autoplay = true;
 

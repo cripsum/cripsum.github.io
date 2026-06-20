@@ -102,6 +102,9 @@ $musicTitleDb = $musicTitle !== '' ? $musicTitle : null;
 $musicArtist = profile_clean_text($_POST['profile_music_artist'] ?? '', 80);
 $musicArtistDb = $musicArtist !== '' ? $musicArtist : null;
 $showAudioPlayer = profile_bool_from_post('profile_show_audio_player', true);
+$showAudioBtn = profile_bool_from_post('profile_show_audio_btn', true);
+$audioBtnPosition = profile_allowed_value((string)($_POST['profile_audio_btn_position'] ?? 'bottom-right'), ['top-left', 'top-right', 'bottom-left', 'bottom-right'], 'bottom-right');
+$audioDefaultVolume = min(max((float)($_POST['profile_audio_default_volume'] ?? 0.18), 0.0), 1.0);
 $profileEffect = profile_allowed_value((string)($_POST['profile_effect'] ?? 'none'), ['none', 'cursor_glow', 'soft_particles', 'scanlines', 'ambient', 'aurora', 'gradient_waves', 'stars', 'spotlight', 'digital_noise', 'glass_rain', 'sakura_falling', 'cyber_grid', 'bg_grain'], 'none');
 $allowedFreeEffects = ['none', 'cursor_glow', 'stars', 'soft_particles', 'scanlines', 'ambient', 'aurora', 'gradient_waves', 'cyber_grid'];
 if (!$isPremium && !in_array($profileEffect, $allowedFreeEffects, true)) {
@@ -354,11 +357,12 @@ try {
             profile_name_style = ?,
             profile_ui_shape = ?, profile_avatar_shape = ?, profile_social_size = ?, profile_icon_spacing = ?, profile_badge_size = ?, profile_button_size = ?, profile_avatar_border = ?,
             custom_alias = ?, tilt_enabled = ?, tilt_max = ?, tilt_glare = ?, tilt_zoom = ?, tilt_speed = ?, profile_tags_json = ?, profile_tab_title = ?, profile_tab_animation = ?, profile_tab_animation_speed = ?, profile_tab_animation_text = ?, profile_corner_style = ?, profile_corner_style_custom = ?, profile_border_style = ?,
+            profile_show_audio_btn = ?, profile_audio_btn_position = ?, profile_audio_default_volume = ?,
             profile_updated_at = NOW()
         WHERE id = ?
     ");
     $stmt->bind_param(
-        'sssssssssssssiisssssssiiiiiiiiiiiisisisssssisiiiisisssiiiiisiiddisssissisi',
+        'sssssssssssssiisssssssiiiiiiiiiiiisisisssssisiiiisisssiiiiisiiddisssissisiisdi',
         $username,
         $displayNameDb,
         $bioDb,
@@ -432,6 +436,9 @@ try {
         $profileCornerStyle,
         $profileCornerStyleCustom,
         $profileBorderStyle,
+        $showAudioBtn,
+        $audioBtnPosition,
+        $audioDefaultVolume,
         $targetUserId
     );
     if (!$stmt->execute()) throw new RuntimeException('Error updating profile.');
@@ -464,9 +471,7 @@ try {
                 }
                 $sectionsConfig = json_encode($sanitized);
             }
-        } else {
-            $sectionsConfig = null;
-        }
+        $hideMeta = profile_bool_from_post('profile_hide_meta', false) ? 1 : 0;
     } else {
         $layoutSnap = 0;
         $cursorEffect = 'none';
@@ -474,14 +479,15 @@ try {
         $bgGrain = 0;
         $musicTheme = 'default';
         $sectionsConfig = null;
+        $hideMeta = 0;
     }
 
     $stmtPremium = $mysqli->prepare("
         UPDATE utenti
-        SET profile_layout_snap = ?, profile_cursor_effect = ?, profile_cursor_custom_url = ?, profile_bg_grain = ?, profile_music_theme = ?, profile_sections_config = ?
+        SET profile_layout_snap = ?, profile_cursor_effect = ?, profile_cursor_custom_url = ?, profile_bg_grain = ?, profile_music_theme = ?, profile_sections_config = ?, profile_hide_meta = ?
         WHERE id = ?
     ");
-    $stmtPremium->bind_param('ississi', $layoutSnap, $cursorEffect, $cursorCustomUrlDb, $bgGrain, $musicTheme, $sectionsConfig, $targetUserId);
+    $stmtPremium->bind_param('ississii', $layoutSnap, $cursorEffect, $cursorCustomUrlDb, $bgGrain, $musicTheme, $sectionsConfig, $hideMeta, $targetUserId);
     if (!$stmtPremium->execute()) throw new RuntimeException('Error updating premium settings.');
     $stmtPremium->close();
 

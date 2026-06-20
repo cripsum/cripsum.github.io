@@ -42,7 +42,8 @@ function profile_build_preset_data(mysqli $mysqli, int $targetUserId): ?array
         'profile_icon_spacing', 'profile_badge_size', 'profile_button_size', 'profile_avatar_border',
         'tilt_enabled', 'tilt_max', 'tilt_glare', 'tilt_zoom', 'tilt_speed', 'profile_tags_json',
         'profile_tab_title', 'profile_tab_animation', 'profile_tab_animation_speed', 'profile_tab_animation_text',
-        'profile_corner_style', 'profile_corner_style_custom', 'profile_border_style'
+        'profile_corner_style', 'profile_corner_style_custom', 'profile_border_style',
+        'profile_hide_meta', 'profile_show_audio_btn', 'profile_audio_btn_position', 'profile_audio_default_volume'
     ];
 
     $profile = profile_get_edit_profile($mysqli, $targetUserId);
@@ -65,7 +66,8 @@ function profile_build_preset_data(mysqli $mysqli, int $targetUserId): ?array
         'profile_show_socials', 'profile_show_links', 'profile_show_projects', 'profile_show_contents',
         'profile_show_blocks',
         'profile_show_badges', 'profile_show_activity', 'profile_show_discord', 'profile_show_audio_player',
-        'profile_click_to_enter', 'profile_show_embeds', 'profile_show_characters'
+        'profile_click_to_enter', 'profile_show_embeds', 'profile_show_characters',
+        'profile_hide_meta', 'profile_show_audio_btn'
     ];
     foreach ($booleans as $boolCol) {
         $presetData[$boolCol] = isset($_POST[$boolCol]) ? (int)$_POST[$boolCol] : 0;
@@ -262,7 +264,8 @@ switch ($action) {
             'profile_icon_spacing', 'profile_badge_size', 'profile_button_size', 'profile_avatar_border',
             'tilt_enabled', 'tilt_max', 'tilt_glare', 'tilt_zoom', 'tilt_speed', 'profile_tags_json',
             'profile_tab_title', 'profile_tab_animation', 'profile_tab_animation_speed', 'profile_tab_animation_text',
-            'profile_corner_style', 'profile_corner_style_custom', 'profile_border_style'
+            'profile_corner_style', 'profile_corner_style_custom', 'profile_border_style',
+            'profile_hide_meta', 'profile_show_audio_btn', 'profile_audio_btn_position', 'profile_audio_default_volume'
         ];
 
         $setParts = [];

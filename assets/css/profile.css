@@ -9462,5 +9462,141 @@ body.public-profile-body.click-to-enter-active {
     touch-action: none !important;
 }
 
+/* Floating Audio Control Button */
+.profile-floating-audio-btn-container {
+    position: fixed;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    padding: 0.35rem;
+    background: var(--card);
+    backdrop-filter: blur(var(--profile-card-blur));
+    -webkit-backdrop-filter: blur(var(--profile-card-blur));
+    border: var(--profile-border-width) solid var(--border);
+    border-radius: var(--profile-corner-radius);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+    gap: 0;
+}
+
+.profile-floating-audio-btn-container.position-top-left {
+    top: 1.5rem;
+    left: 1.5rem;
+    flex-direction: row;
+}
+
+.profile-floating-audio-btn-container.position-top-right {
+    top: 1.5rem;
+    right: 1.5rem;
+    flex-direction: row-reverse;
+}
+
+.profile-floating-audio-btn-container.position-bottom-left {
+    bottom: 1.5rem;
+    left: 1.5rem;
+    flex-direction: row;
+}
+
+.profile-floating-audio-btn-container.position-bottom-right {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    flex-direction: row-reverse;
+}
+
+.profile-floating-audio-btn {
+    background: transparent;
+    border: none;
+    color: var(--profile-text-color);
+    width: 2.3rem;
+    height: 2.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.05rem;
+    padding: 0;
+    transition: transform 0.2s ease;
+    border-radius: var(--profile-corner-radius);
+}
+
+.profile-floating-audio-btn:hover {
+    transform: scale(1.05);
+}
+
+.profile-floating-audio-btn:active {
+    transform: scale(0.9);
+}
+
+.profile-floating-audio-slider-wrap {
+    width: 0;
+    overflow: hidden;
+    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease, margin 0.35s ease;
+    opacity: 0;
+    display: flex;
+    align-items: center;
+}
+
+/* Hover behaviors */
+@media (hover: hover) {
+    .profile-floating-audio-btn-container:hover .profile-floating-audio-slider-wrap,
+    .profile-floating-audio-btn-container.show-slider .profile-floating-audio-slider-wrap {
+        width: 85px;
+        opacity: 1;
+    }
+    .profile-floating-audio-btn-container.position-top-left:hover .profile-floating-audio-slider-wrap,
+    .profile-floating-audio-btn-container.position-bottom-left:hover .profile-floating-audio-slider-wrap {
+        margin-left: 0.4rem;
+        margin-right: 0.2rem;
+    }
+    .profile-floating-audio-btn-container.position-top-right:hover .profile-floating-audio-slider-wrap,
+    .profile-floating-audio-btn-container.position-bottom-right:hover .profile-floating-audio-slider-wrap {
+        margin-right: 0.4rem;
+        margin-left: 0.2rem;
+    }
+}
+
+/* Mobile active show-slider class */
+.profile-floating-audio-btn-container.show-slider .profile-floating-audio-slider-wrap {
+    width: 85px;
+    opacity: 1;
+}
+.profile-floating-audio-btn-container.position-top-left.show-slider .profile-floating-audio-slider-wrap,
+.profile-floating-audio-btn-container.position-bottom-left.show-slider .profile-floating-audio-slider-wrap {
+    margin-left: 0.4rem;
+    margin-right: 0.2rem;
+}
+.profile-floating-audio-btn-container.position-top-right.show-slider .profile-floating-audio-slider-wrap,
+.profile-floating-audio-btn-container.position-bottom-right.show-slider .profile-floating-audio-slider-wrap {
+    margin-right: 0.4rem;
+    margin-left: 0.2rem;
+}
+
+.profile-floating-audio-slider {
+    width: 80px;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: color-mix(in srgb, var(--profile-text-color) 20%, transparent);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+}
+
+.profile-floating-audio-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--profile-ring, var(--accent-2, #ffffff));
+    cursor: pointer;
+    transition: transform 0.1s ease;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.profile-floating-audio-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.25);
+}
+
 
 

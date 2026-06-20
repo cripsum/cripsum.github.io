@@ -116,7 +116,9 @@ if ($profile) {
                 'profile_show_audio_player',
                 'profile_click_to_enter',
                 'profile_show_embeds',
-                'profile_show_characters'
+                'profile_show_characters',
+                'profile_hide_meta',
+                'profile_show_audio_btn'
             ];
             foreach ($booleans as $boolCol) {
                 $profile[$boolCol] = isset($draft[$boolCol]) ? (int)$draft[$boolCol] : 0;
@@ -378,6 +380,10 @@ $showDiscord = $profile ? profile_flag($profile, 'profile_show_discord', true) :
 $showCharacters = $profile ? profile_flag($profile, 'profile_show_characters', true) : false;
 
 $profileFont = $profile ? ($profile['profile_font'] ?? 'Poppins') : 'Poppins';
+$hideMeta = $isPremium && $profile ? profile_flag($profile, 'profile_hide_meta', false) : false;
+$showAudioBtn = $profile ? profile_flag($profile, 'profile_show_audio_btn', true) : true;
+$audioBtnPosition = $profile ? ($profile['profile_audio_btn_position'] ?? 'bottom-right') : 'bottom-right';
+$audioDefaultVolume = $profile ? (float)($profile['profile_audio_default_volume'] ?? 0.18) : 0.18;
 $borderRadius = $profile ? (int)($profile['profile_border_radius'] ?? 30) : 30;
 $cardOpacity = $profile ? (int)($profile['profile_card_opacity'] ?? 68) : 68;
 $cardBlur = $profile ? (int)($profile['profile_card_blur'] ?? 20) : 20;
@@ -546,7 +552,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.7.6">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.7.7">
     <style>
         .profile-dropdown-item--gift,
         .profile-dropdown-item--gift * {
@@ -584,7 +590,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             }
         }
     </style>
-    <script src="/assets/js/profile.js?v=5.7.6" defer></script>
+    <script src="/assets/js/profile.js?v=5.7.7" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -1528,7 +1534,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     ?>
                     <?php if ($hasMusic && $showAudioPlayer): ?>
                         <div class="bio-audio profile-audio-player" data-audio-player>
-                            <audio id="profileAudio" preload="metadata" src="<?php echo profile_h($musicUrl); ?>"></audio>
+                            <audio id="profileAudio" preload="metadata" data-default-volume="<?php echo $audioDefaultVolume; ?>" src="<?php echo profile_h($musicUrl); ?>"></audio>
                             <div class="bio-audio__header">
                                 <div>
                                     <small>Audio</small>
@@ -1555,6 +1561,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                             <?php if (!$hasClickToEnter): ?>autoplay<?php endif; ?>
                             loop
                             data-autoplay="1"
+                            data-default-volume="<?php echo $audioDefaultVolume; ?>"
                             src="<?php echo profile_h($musicUrl); ?>"></audio>
                         <?php if ($isPreview): ?>
                             <div class="bio-audio profile-audio-player" data-audio-player style="display: none;">
@@ -1600,6 +1607,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         </div>
                     <?php endif; ?>
 
+                    <?php if (!$hideMeta): ?>
                     <div class="profile-small-meta">
                         <?php if (!$showStats): ?>
                             <?php if ($isOnline): ?>
@@ -1612,6 +1620,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         <?php if (!$isOnline && $lastSeen): ?><span><i class="fa-solid fa-clock"></i><?php echo profile_h(profile_time_ago($lastSeen)); ?></span><?php endif; ?>
                         <?php if ($showDiscord && $discordId): ?><span><i class="fa-brands fa-discord"></i>Discord</span><?php endif; ?>
                     </div>
+                    <?php endif; ?>
                 </section>
             </div>
 
@@ -2087,6 +2096,17 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     </div>
 
     <div class="bio-toast" id="bioToast" role="status" aria-live="polite"></div>
+
+    <?php if ($hasMusic && !$showAudioPlayer && $showAudioBtn): ?>
+        <div class="profile-floating-audio-btn-container position-<?php echo profile_h($audioBtnPosition); ?>" data-floating-audio data-default-volume="<?php echo $audioDefaultVolume; ?>">
+            <button class="profile-floating-audio-btn" type="button" aria-label="Mute/Unmute">
+                <i class="fa-solid fa-volume-high"></i>
+            </button>
+            <div class="profile-floating-audio-slider-wrap">
+                <input type="range" class="profile-floating-audio-slider" min="0" max="1" step="0.01" value="<?php echo $audioDefaultVolume; ?>" aria-label="Volume">
+            </div>
+        </div>
+    <?php endif; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <script>

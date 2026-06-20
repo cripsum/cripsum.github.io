@@ -682,6 +682,11 @@
     const iconSpacingInput = $('#iconSpacingInput');
     const badgeSizeInput = $('#badgeSizeInput');
     const buttonSizeInput = $('#buttonSizeInput');
+    const hideMetaInput = $('#hideMetaInput');
+    const showAudioBtnInput = $('#showAudioBtnInput');
+    const audioBtnPositionInput = $('#audioBtnPositionInput');
+    const audioDefaultVolumeInput = $('#audioDefaultVolumeInput');
+    const audioDefaultVolumeVal = $('#audioDefaultVolumeVal');
 
     const socialSizeVal = $('#socialSizeVal');
     const iconSpacingVal = $('#iconSpacingVal');
@@ -943,6 +948,9 @@
         if (tiltZoomVal && tiltZoomInput) tiltZoomVal.textContent = tiltZoomInput.value;
         if (tiltSpeedVal && tiltSpeedInput) tiltSpeedVal.textContent = tiltSpeedInput.value;
         if (cornerStyleCustomVal && cornerStyleCustomInput) cornerStyleCustomVal.textContent = cornerStyleCustomInput.value;
+        if (audioDefaultVolumeVal && audioDefaultVolumeInput) {
+            audioDefaultVolumeVal.textContent = Math.round(Number(audioDefaultVolumeInput.value) * 100);
+        }
         if (profileTabSpeedVal && profileTabAnimationSpeedInput) profileTabSpeedVal.textContent = profileTabAnimationSpeedInput.value + 'ms';
         if (bioCounter && bioInput) bioCounter.textContent = bioInput.value.length;
     }
@@ -1035,7 +1043,7 @@
 
     // Register simple inputs listeners for live updates and autosave
     // Register simple inputs listeners for live updates and autosave
-    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, profileLayoutHidden, profileLayoutSnapHidden, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput, musicUrlInput, musicTitleInput, musicArtistInput, showAudioPlayerInput, cornerStyleCustomInput, tiltMaxInput, tiltGlareInput, tiltZoomInput, tiltSpeedInput, profileTabAnimationSpeedInput, profileTabTitleInput, profileTabAnimationInput, profileTabAnimationTextInput, cornerStyleInput, borderStyleInput, discordServerInviteInput, removeMusicUploadInput, cursorEffectInput, musicThemeInput, cursorCustomUrlInput].filter(Boolean);
+    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, profileLayoutHidden, profileLayoutSnapHidden, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput, musicUrlInput, musicTitleInput, musicArtistInput, showAudioPlayerInput, cornerStyleCustomInput, tiltMaxInput, tiltGlareInput, tiltZoomInput, tiltSpeedInput, profileTabAnimationSpeedInput, profileTabTitleInput, profileTabAnimationInput, profileTabAnimationTextInput, cornerStyleInput, borderStyleInput, discordServerInviteInput, removeMusicUploadInput, cursorEffectInput, musicThemeInput, cursorCustomUrlInput, hideMetaInput, showAudioBtnInput, audioBtnPositionInput, audioDefaultVolumeInput].filter(Boolean);
 
     simpleInputs.forEach((input) => {
         input.addEventListener('input', () => {
@@ -3597,7 +3605,8 @@
             document.getElementById('cursorEffectInput'),
             document.getElementById('musicThemeInput'),
             document.getElementById('cursorCustomUrlInput'),
-            document.getElementById('layoutSnapInput')
+            document.getElementById('layoutSnapInput'),
+            document.getElementById('hideMetaInput')
         ];
         premiumInputs.forEach(input => {
             if (input) {
