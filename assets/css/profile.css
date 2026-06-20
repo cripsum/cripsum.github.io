@@ -9148,7 +9148,7 @@ body.public-profile-body .bio-page {
    would eat from that auto-margin and shift the card upward.
    position:absolute removes them from the flex flow without breaking their
    own fixed/absolute positioning (overlays already use position:fixed inline). */
-body.public-profile-body > *:not(.bio-page):not(.bio-background):not(.profile-effects-layer):not(.profile-effects-foreground-layer) {
+body.public-profile-body > *:not(.bio-page):not(.bio-background):not(.profile-effects-layer):not(.profile-effects-foreground-layer):not(.profile-floating-audio-btn-container) {
     position: absolute !important;
     pointer-events: auto;
 }
