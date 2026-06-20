@@ -77,6 +77,9 @@ try {
                 $stmtBadge->execute();
                 $stmtBadge->close();
             }
+
+            // Invia email premium regalato
+            sendPremiumGiftEmail($target['email'], $target['username'], $adminUser['username']);
         }
         
         // Se disabilitiamo il premium e lo era

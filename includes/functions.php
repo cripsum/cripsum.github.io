@@ -412,92 +412,103 @@ function sendPremiumGiftEmail($email, $recipientUsername, $senderUsername)
 
 function getPremiumGiftEmailTemplate($recipientUsername, $senderUsername)
 {
-    return "
-    <!DOCTYPE html>
-    <html lang='it'>
-    <head>
-        <meta charset='UTF-8'>
-        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-        <title>Un regalo per te! - " . SITE_NAME . "</title>
-        <style>
-            body {
-                font-family: 'Poppins', Arial, sans-serif;
-                line-height: 1.6;
-                color: #333;
-                max-width: 600px;
-                margin: 0 auto;
-                padding: 20px;
-                background-color: #f4f4f4;
-            }
-            .container {
-                background-color: #ffffff;
-                border-radius: 10px;
-                padding: 30px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            }
-            .header {
-                text-align: center;
-                margin-bottom: 30px;
-            }
-            .logo {
-                font-size: 24px;
-                font-weight: bold;
-                color: #7c3aed;
-            }
-            .gift-icon {
-                font-size: 48px;
-                color: #7c3aed;
-                margin: 20px 0;
-            }
-            .button {
-                display: inline-block;
-                padding: 15px 30px;
-                background-color: #7c3aed;
-                color: white;
-                text-decoration: none;
-                border-radius: 5px;
-                font-weight: bold;
-                margin: 20px 0;
-                text-align: center;
-            }
-            .footer {
-                margin-top: 30px;
-                padding-top: 20px;
-                border-top: 1px solid #eee;
-                font-size: 12px;
-                color: #666;
-                text-align: center;
-            }
-        </style>
-    </head>
-    <body>
-        <div class='container'>
-            <div class='header'>
-                <div class='logo'>" . SITE_NAME . "</div>
-                <div class='gift-icon'>🎁👑</div>
-            </div>
+    $siteName = SITE_NAME;
+    $siteUrl = SITE_URL;
+    $escRecipient = htmlspecialchars($recipientUsername);
+    $escSender = htmlspecialchars($senderUsername);
 
-            <h2>Ciao " . htmlspecialchars($recipientUsername) . "!</h2>
+    return <<<HTML
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Un regalo per te! - {$siteName}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0b0f19; font-family: 'Poppins', 'Segoe UI', Arial, sans-serif; -webkit-font-smoothing: antialiased; color: #f8fafc;">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #0b0f19; padding: 40px 10px;">
+        <tr>
+            <td align="center">
+                <!-- Card Container -->
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 550px; background-color: #121829; border-radius: 16px; border: 1px solid #1e294b; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                    <!-- Header Image / Accent -->
+                    <tr>
+                        <td align="center" style="background: linear-gradient(135deg, #7c3aed 0%, #d946ef 100%); padding: 35px 20px; text-align: center;">
+                            <div style="font-size: 32px; font-weight: 800; letter-spacing: 2px; color: #ffffff; margin-bottom: 10px; text-transform: uppercase;">
+                                {$siteName}
+                            </div>
+                            <div style="font-size: 64px; line-height: 1; margin: 15px 0;">🎁 💎</div>
+                            <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Un regalo speciale per te!</h1>
+                        </td>
+                    </tr>
+                    <!-- Main Body -->
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            <h2 style="color: #ffffff; font-size: 20px; margin-top: 0; margin-bottom: 20px; font-weight: 600;">Ciao {$escRecipient}!</h2>
+                            
+                            <p style="color: #94a3b8; font-size: 15px; line-height: 1.6; margin-bottom: 25px;">
+                                Abbiamo una splendida notizia! L'utente <strong style="color: #eab308; text-shadow: 0 0 10px rgba(234,179,8,0.2);">{$escSender}</strong> ti ha appena fatto un regalo speciale: ti ha donato l'abbonamento <strong style="color: #d946ef;">Cripsum™ Premium</strong>!
+                            </p>
 
-            <p>Abbiamo una splendida notizia per te!</p>
-            <p>L'utente <strong>" . htmlspecialchars($senderUsername) . "</strong> ti ha appena fatto un regalo speciale: ti ha donato l'abbonamento <strong>Cripsum™ Premium</strong>!</p>
+                            <!-- Perks Card -->
+                            <div style="background-color: #1a2238; border-radius: 12px; padding: 25px; border: 1px solid #2e3b5e; margin-bottom: 30px;">
+                                <h3 style="color: #ffffff; font-size: 16px; margin-top: 0; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: #eab308;">Cosa hai sbloccato:</h3>
+                                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                    <tr>
+                                        <td style="vertical-align: top; width: 30px; font-size: 18px; padding-bottom: 15px;">💎</td>
+                                        <td style="color: #f8fafc; font-size: 14px; padding-bottom: 15px; line-height: 1.5;">
+                                            <strong style="color: #ffffff;">Cripsum™ Premium Status</strong><br>
+                                            <span style="color: #94a3b8;">Personalizzazione totale del profilo con sfondi video, musiche, effetti cursori, layout personalizzati e altro!</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="vertical-align: top; width: 30px; font-size: 18px; padding-bottom: 15px;">🪙</td>
+                                        <td style="color: #f8fafc; font-size: 14px; padding-bottom: 15px; line-height: 1.5;">
+                                            <strong style="color: #ffffff;">Bonus di 200.000 Soldi</strong><br>
+                                            <span style="color: #94a3b8;">Aggiunti istantaneamente al tuo bilancio per pullare nel Gacha dei personaggi!</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="vertical-align: top; width: 30px; font-size: 18px;">🏅</td>
+                                        <td style="color: #f8fafc; font-size: 14px; line-height: 1.5;">
+                                            <strong style="color: #ffffff;">Badge Premium</strong><br>
+                                            <span style="color: #94a3b8;">Un luccicante badge Premium a forma di diamante visualizzato con orgoglio sul tuo profilo.</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
 
-            <p>Il tuo account è stato aggiornato. Ora hai accesso a tutte le funzionalità Premium ed hai ricevuto un bonus di <strong>200.000 soldi</strong> per pullare nel Gacha!</p>
+                            <!-- CTA Button -->
+                            <div style="text-align: center; margin-bottom: 30px;">
+                                <a href="{$siteUrl}/it/edit-profile" style="display: inline-block; background: linear-gradient(135deg, #7c3aed 0%, #d946ef 100%); color: #ffffff; font-weight: 700; font-size: 15px; text-decoration: none; padding: 16px 36px; border-radius: 30px; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4); text-transform: uppercase; letter-spacing: 1px;">
+                                    Personalizza Profilo
+                                </a>
+                            </div>
 
-            <div style='text-align: center;'>
-                <a href='" . SITE_URL . "/it/edit-profile' class='button'>Personalizza il tuo Profilo</a>
-            </div>
-
-            <p>Divertiti con le tue nuove feature Premium!</p>
-
-            <div class='footer'>
-                <p>Cordiali saluti,<br>Il team di " . SITE_NAME . "</p>
-                <p>Questa è una email automatica, non rispondere a questo messaggio.</p>
-            </div>
-        </div>
-    </body>
-    </html>
-    ";
+                            <p style="color: #94a3b8; font-size: 14px; line-height: 1.6; text-align: center; margin-bottom: 0;">
+                                Divertiti con le tue nuove feature Premium! ✨
+                            </p>
+                        </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #0d1220; padding: 25px 30px; text-align: center; border-top: 1px solid #1e294b;">
+                            <p style="color: #64748b; font-size: 12px; line-height: 1.5; margin: 0;">
+                                Cordiali saluti,<br>
+                                <strong style="color: #94a3b8;">Il team di {$siteName}</strong>
+                            </p>
+                            <p style="color: #475569; font-size: 11px; margin-top: 12px; margin-bottom: 0;">
+                                Questa è una email automatica, si prega di non rispondere direttamente a questo messaggio.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+HTML;
 }
 
 function loginUser($mysqli, $email_or_username, $password)
