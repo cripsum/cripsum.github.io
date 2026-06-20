@@ -14,6 +14,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let downX = 0;
     let downY = 0;
 
+    // Momentum scrolling variables for desktop dragging
+    let velocity = 0;
+    let lastX = 0;
+    let lastTime = Date.now();
+    let momentumActive = false;
+    let momentumAnimationFrame;
+
+    // Flag to differentiate auto-scrolling from user-initiated scrolling
+    let isAutoScrolling = false;
+
     function initSupportersMarquee() {
         // Clear any existing clones to reset measurements
         const clones = container.querySelectorAll('.supporter-clone');
@@ -48,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
             container.appendChild(clone);
         });
 
-        // Calculate transition wrap boundary using first clone and first card offset
+        // Calculate transition wrap boundary using relative offset between first clone and first card
         const firstCard = originalChildren[0];
         const firstClone = container.querySelector('.supporter-clone');
         if (firstClone && firstCard) {
@@ -66,6 +76,11 @@ document.addEventListener('DOMContentLoaded', () => {
         child.addEventListener('dragstart', (e) => e.preventDefault());
     });
 
+    // Also run init on window load to ensure all images are fully loaded and sized correctly
+    window.addEventListener('load', () => {
+        initSupportersMarquee();
+    });
+
     // Re-initialize on screen resizing
     let resizeTimeout;
     window.addEventListener('resize', () => {
@@ -77,7 +92,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const speed = 0.3;
 
     function scrollLoop() {
-        if (autoScrollActive && !isDown) {
+        if (autoScrollActive && !isDown && !momentumActive) {
+            isAutoScrolling = true;
             container.scrollLeft += speed;
             // Seamless wrap around when hitting original width boundary
             if (originalWidth > 0 && container.scrollLeft >= originalWidth) {
@@ -90,18 +106,61 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start auto-scroll
     requestAnimationFrame(scrollLoop);
 
-    // Pause auto-scroll on interaction and resume after 3 seconds
+    // Pause auto-scroll on interaction and resume after 3 seconds of absolute stillness
     function pauseAutoScroll() {
         autoScrollActive = false;
         clearTimeout(userTimeout);
         userTimeout = setTimeout(() => {
             // Only resume if we still overflow
-            const originalScrollWidth = container.scrollWidth / (container.querySelectorAll('.supporter-clone').length > 0 ? 2 : 1);
+            const clonesCount = container.querySelectorAll('.supporter-clone').length;
+            const divisor = clonesCount > 0 ? 2 : 1;
+            const originalScrollWidth = container.scrollWidth / divisor;
             if (originalScrollWidth > container.clientWidth) {
                 autoScrollActive = true;
             }
         }, 3000);
     }
+
+    // Custom decay momentum scrolling function (inertia)
+    function startMomentum() {
+        momentumActive = true;
+        
+        function step() {
+            if (!momentumActive) return;
+            
+            isAutoScrolling = true;
+            container.scrollLeft -= velocity;
+            
+            // Perform loop wrap boundary adjustments during momentum scroll
+            if (originalWidth > 0) {
+                if (container.scrollLeft >= originalWidth) {
+                    container.scrollLeft -= originalWidth;
+                } else if (container.scrollLeft < 0) {
+                    container.scrollLeft += originalWidth;
+                }
+            }
+            
+            // Apply friction decay
+            velocity *= 0.95;
+            
+            if (Math.abs(velocity) > 0.15) {
+                momentumAnimationFrame = requestAnimationFrame(step);
+            } else {
+                momentumActive = false;
+                pauseAutoScroll();
+            }
+        }
+        
+        momentumAnimationFrame = requestAnimationFrame(step);
+    }
+
+    // Detect user-initiated scrolling (like touch inertia, trackpad swipes, or mouse wheels)
+    container.addEventListener('scroll', () => {
+        if (!isAutoScrolling) {
+            pauseAutoScroll();
+        }
+        isAutoScrolling = false; // Reset flag
+    });
 
     // Mouse drag-to-scroll implementation
     container.addEventListener('mousedown', (e) => {
@@ -110,6 +169,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         isDown = true;
         isDragging = false;
+        momentumActive = false;
+        cancelAnimationFrame(momentumAnimationFrame);
+
         container.classList.add('active');
         container.style.cursor = 'grabbing';
         
@@ -118,6 +180,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         downX = e.pageX;
         downY = e.pageY;
+
+        lastX = e.pageX;
+        lastTime = Date.now();
+        velocity = 0;
         
         pauseAutoScroll();
     });
@@ -127,6 +193,13 @@ document.addEventListener('DOMContentLoaded', () => {
         isDown = false;
         container.classList.remove('active');
         container.style.cursor = 'grab';
+
+        // Apply remaining drag momentum on exit
+        if (Math.abs(velocity) > 0.5) {
+            startMomentum();
+        } else {
+            pauseAutoScroll();
+        }
     });
 
     container.addEventListener('mouseup', () => {
@@ -134,12 +207,31 @@ document.addEventListener('DOMContentLoaded', () => {
         isDown = false;
         container.classList.remove('active');
         container.style.cursor = 'grab';
+
+        // Apply remaining drag momentum
+        if (Math.abs(velocity) > 0.5) {
+            startMomentum();
+        } else {
+            pauseAutoScroll();
+        }
     });
 
     container.addEventListener('mousemove', (e) => {
         if (!isDown) return;
         e.preventDefault();
         pauseAutoScroll();
+
+        // Calculate drag velocity over time
+        const now = Date.now();
+        const dt = now - lastTime;
+        const dx = e.pageX - lastX;
+        
+        if (dt > 0) {
+            velocity = (dx / dt) * 16; // Normalise to pixels per frame (~16ms)
+        }
+        
+        lastX = e.pageX;
+        lastTime = now;
 
         // Detect drag gesture
         if (Math.abs(e.pageX - downX) > 5 || Math.abs(e.pageY - downY) > 5) {
@@ -162,11 +254,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 scrollLeftVal = newScrollLeft;
             }
         }
+        isAutoScrolling = false;
         container.scrollLeft = newScrollLeft;
     });
 
     // Touch events for mobile compatibility
     container.addEventListener('touchstart', () => {
+        momentumActive = false;
+        cancelAnimationFrame(momentumAnimationFrame);
         pauseAutoScroll();
     }, { passive: true });
 
@@ -200,6 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     newScrollLeft += originalWidth;
                 }
             }
+            isAutoScrolling = false;
             container.scrollLeft = newScrollLeft;
         }
     }, { passive: false });
