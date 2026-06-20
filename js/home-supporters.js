@@ -46,6 +46,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const containerWidth = container.getBoundingClientRect().width;
 
+        console.log('[Supporters Marquee Debug]', {
+            contentWidth: contentWidth,
+            containerWidth: containerWidth,
+            shouldAnimate: contentWidth > containerWidth,
+            originalChildrenCount: originalChildren.length
+        });
+
         // If they do not overflow, center them and disable marquee behavior
         if (contentWidth <= containerWidth) {
             container.style.cursor = 'default';
