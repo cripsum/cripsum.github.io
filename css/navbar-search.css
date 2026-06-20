@@ -70,7 +70,8 @@
     font-size: 0.855rem;
     font-family: "Poppins", sans-serif;
     font-weight: 500;
-    padding: 4.5px 8px !important;
+    padding: 3.5px 8px !important;
+    line-height: 1.2 !important;
     width: 100%;
     caret-color: rgba(var(--ns-accent-rgb), 0.9);
 }
@@ -430,6 +431,15 @@
 
 @media (min-width: 1200px) {
     .navbarutenti .navbar-nav {
+        align-items: center !important;
+    }
+    .navbarutenti .nav-item {
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+    .navbarutenti .nav-auth-group {
+        display: flex;
         align-items: center;
     }
 }
