@@ -471,6 +471,7 @@ try {
                 }
                 $sectionsConfig = json_encode($sanitized);
             }
+        }
         $hideMeta = profile_bool_from_post('profile_hide_meta', false) ? 1 : 0;
     } else {
         $layoutSnap = 0;

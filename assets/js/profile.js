@@ -402,18 +402,23 @@
         // Sync on audio events (in case volume changes elsewhere or muted by browser)
         audio.addEventListener('volumechange', updateUI);
 
-        // Click to mute/unmute
+        // Click to mute/unmute or play if paused
         const toggleMute = async () => {
-            if (audio.muted) {
+            if (audio.paused) {
                 audio.muted = false;
                 if (audio.volume === 0) {
                     audio.volume = defaultVolume;
                 }
-                if (audio.paused) {
-                    try { await audio.play(); } catch (err) {}
+                try {
+                    await audio.play();
+                } catch (err) {
+                    console.warn('Playback failed:', err);
                 }
             } else {
-                audio.muted = true;
+                audio.muted = !audio.muted;
+                if (!audio.muted && audio.volume === 0) {
+                    audio.volume = defaultVolume;
+                }
             }
             updateUI();
         };
@@ -1517,7 +1522,8 @@
             let armed = true;
             const events = ['pointerdown', 'click', 'keydown', 'touchstart'];
             const cleanup = () => events.forEach((eventName) => document.removeEventListener(eventName, unlock, true));
-            const unlock = async () => {
+            const unlock = async (e) => {
+                if (e && e.target && e.target.closest('[data-floating-audio]')) return;
                 if (!armed || !audio.paused) return;
                 armed = false;
                 const ok = await tryPlay(false);
