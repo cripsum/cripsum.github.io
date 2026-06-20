@@ -95,8 +95,10 @@ try {
 }
 
 $newSoldi = (int)$user['soldi'] + 500;
+$secondsLeft = strtotime('tomorrow') - time();
 echo json_encode([
     'success' => true,
     'message' => 'Hai riscattato 500 punti bonus Premium!',
-    'new_soldi' => $newSoldi
+    'new_soldi' => $newSoldi,
+    'seconds_left' => $secondsLeft
 ]);

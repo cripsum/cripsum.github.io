@@ -346,9 +346,16 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                     <?php 
                     $today = getMissionDailyPeriod();
                     $hasClaimedToday = ($lastPremiumClaim === $today);
+                    $secondsLeft = strtotime('tomorrow') - time();
                     ?>
-                    <button id="premium-claim-btn" class="gsb-premium-claim-btn <?= $hasClaimedToday ? 'claimed' : '' ?>" <?= $hasClaimedToday ? 'disabled' : '' ?>>
-                        <span class="btn-text"><?= $hasClaimedToday ? 'Claimed today' : 'Claim 500 Points' ?></span>
+                    <button id="premium-claim-btn" class="gsb-premium-claim-btn <?= $hasClaimedToday ? 'claimed' : '' ?>" <?= $hasClaimedToday ? 'disabled' : '' ?> data-seconds-left="<?= $secondsLeft ?>">
+                        <span class="btn-text">
+                            <?php if ($hasClaimedToday): ?>
+                                Claimed today (Reset in <span class="claim-countdown">--:--:--</span>)
+                            <?php else: ?>
+                                Claim 500 Points
+                            <?php endif; ?>
+                        </span>
                     </button>
                 </div>
             <?php endif; ?>
@@ -664,6 +671,55 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
 
         const premiumBtn = document.getElementById('premium-claim-btn');
         if (premiumBtn) {
+            function startPremiumClaimCountdown(btn, seconds) {
+                if (!btn) return;
+                
+                function formatTime(secs) {
+                    if (secs <= 0) return "00:00:00";
+                    const h = Math.floor(secs / 3600);
+                    const m = Math.floor((secs % 3600) / 60);
+                    const s = secs % 60;
+                    return [
+                        h.toString().padStart(2, '0'),
+                        m.toString().padStart(2, '0'),
+                        s.toString().padStart(2, '0')
+                    ].join(':');
+                }
+
+                if (btn._countdownInterval) {
+                    clearInterval(btn._countdownInterval);
+                }
+
+                const update = () => {
+                    if (seconds <= 0) {
+                        clearInterval(btn._countdownInterval);
+                        btn.classList.remove('claimed');
+                        btn.disabled = false;
+                        const btnText = btn.querySelector('.btn-text');
+                        if (btnText) {
+                            const isEn = window.location.pathname.includes('/en/');
+                            btnText.textContent = isEn ? 'Claim 500 Points' : 'Riscatta 500 Punti';
+                        }
+                        return;
+                    }
+
+                    const countdownSpan = btn.querySelector('.claim-countdown');
+                    if (countdownSpan) {
+                        countdownSpan.textContent = formatTime(seconds);
+                    }
+                    seconds--;
+                };
+
+                update();
+                btn._countdownInterval = setInterval(update, 1000);
+            }
+
+            // Init countdown on load if already claimed
+            const secondsLeft = parseInt(premiumBtn.dataset.secondsLeft || 0, 10);
+            if (premiumBtn.classList.contains('claimed')) {
+                startPremiumClaimCountdown(premiumBtn, secondsLeft);
+            }
+
             premiumBtn.addEventListener('click', async () => {
                 try {
                     premiumBtn.disabled = true;
@@ -671,8 +727,17 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                     const data = await res.json();
                     if (data.success) {
                         premiumBtn.classList.add('claimed');
+                        const isEn = window.location.pathname.includes('/en/');
                         const btnText = premiumBtn.querySelector('.btn-text');
-                        if (btnText) btnText.textContent = 'Claimed today';
+                        if (btnText) {
+                            btnText.innerHTML = isEn 
+                                ? 'Claimed today (Reset in <span class="claim-countdown">--:--:--</span>)' 
+                                : 'Riscattato oggi (Ricarica tra <span class="claim-countdown">--:--:--</span>)';
+                        }
+                        
+                        const secs = parseInt(data.seconds_left || 86400, 10);
+                        startPremiumClaimCountdown(premiumBtn, secs);
+
                         if (window.GachaUI && typeof window.GachaUI.setSoldi === 'function') {
                             window.GachaUI.setSoldi(data.new_soldi);
                         }
@@ -695,7 +760,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                     if (window.GachaUI && typeof window.GachaUI.showToast === 'function') {
                         window.GachaUI.showToast('Network or server error', 'error');
                     } else {
-                        alert('Network error');
+                        alert('Network or server error');
                     }
                 }
             });
