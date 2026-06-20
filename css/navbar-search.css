@@ -319,7 +319,7 @@
         position: relative; /* ancora per il dropdown */
         width: 90%;
         max-width: 280px;
-        margin: 10px auto 6px !important;
+        margin: 10px auto 6px 0 !important;
         padding: 0 4px;
     }
 
@@ -407,14 +407,7 @@
     }
 }
 
-@media (max-width: 576px) {
-    .dropdownutenti .dropdown-menu.show {
-        grid-template-columns: 1fr !important;
-    }
-    .dropdownutenti .dropdown-menu li.grid-span-2 {
-        grid-column: span 1 !important;
-    }
-}
+
 
 @media (min-width: 1200px) {
     .nav-auth-group {
