@@ -544,8 +544,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.7.4">
-    <script src="/assets/js/profile.js?v=5.7.4" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.7.5">
+    <script src="/assets/js/profile.js?v=5.7.5" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -1633,7 +1633,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         </section>
                     <?php endif;
                     $sectionsHtml['links'] = ob_get_clean();
- 
+
                     // 2. Embeds
                     ob_start();
                     if ($embeds): ?>
@@ -1659,7 +1659,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         </section>
                     <?php endif;
                     $sectionsHtml['embeds'] = ob_get_clean();
- 
+
                     // 3. Stats
                     ob_start();
                     if ($hasStats): ?>
@@ -1707,7 +1707,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         </section>
                     <?php endif;
                     $sectionsHtml['projects'] = ob_get_clean();
- 
+
                     // 5. Blocks
                     ob_start();
                     if ($visibleBlocks): ?>
@@ -1831,7 +1831,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         </section>
                     <?php endif;
                     $sectionsHtml['contents'] = ob_get_clean();
- 
+
                     // 7. Characters
                     ob_start();
                     if ($visibleCharacters): ?>
