@@ -364,6 +364,9 @@
 .profile-select-menu span {
     display: none !important;
 }
+.profile-select-menu .premium-badge-tag {
+    display: inline-flex !important;
+}
 .profile-select-current {
     white-space: nowrap;
     overflow: hidden;

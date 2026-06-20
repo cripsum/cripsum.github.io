@@ -102,7 +102,7 @@ $musicTitleDb = $musicTitle !== '' ? $musicTitle : null;
 $musicArtist = profile_clean_text($_POST['profile_music_artist'] ?? '', 80);
 $musicArtistDb = $musicArtist !== '' ? $musicArtist : null;
 $showAudioPlayer = profile_bool_from_post('profile_show_audio_player', true);
-$profileEffect = profile_allowed_value((string)($_POST['profile_effect'] ?? 'none'), ['none', 'cursor_glow', 'soft_particles', 'scanlines', 'ambient', 'aurora', 'gradient_waves', 'stars', 'spotlight', 'digital_noise', 'glass_rain', 'sakura_falling', 'cyber_grid'], 'none');
+$profileEffect = profile_allowed_value((string)($_POST['profile_effect'] ?? 'none'), ['none', 'cursor_glow', 'soft_particles', 'scanlines', 'ambient', 'aurora', 'gradient_waves', 'stars', 'spotlight', 'digital_noise', 'glass_rain', 'sakura_falling', 'cyber_grid', 'bg_grain'], 'none');
 $allowedFreeEffects = ['none', 'cursor_glow', 'stars', 'soft_particles', 'scanlines', 'ambient', 'aurora', 'gradient_waves', 'cyber_grid'];
 if (!$isPremium && !in_array($profileEffect, $allowedFreeEffects, true)) {
     $profileEffect = 'none';
@@ -445,7 +445,7 @@ try {
             $cursorCustomUrl = '';
         }
         $cursorCustomUrlDb = $cursorCustomUrl !== '' ? $cursorCustomUrl : null;
-        $bgGrain = profile_bool_from_post('profile_bg_grain', false) ? 1 : 0;
+        $bgGrain = ($profileEffect === 'bg_grain') ? 1 : 0;
         $musicTheme = profile_allowed_value((string)($_POST['profile_music_theme'] ?? 'default'), ['default', 'retro', 'cyberpunk', 'synthwave'], 'default');
         
         $sectionsConfig = isset($_POST['profile_sections_config']) ? trim((string)$_POST['profile_sections_config']) : '';

@@ -103,8 +103,8 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Modifica profilo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=5.6.0">
-    <link rel="stylesheet" href="/assets/css/editor-premium.css?v=5.6.0">
+    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=5.6.1">
+    <link rel="stylesheet" href="/assets/css/editor-premium.css?v=5.6.1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Inter:wght@300..900&family=Roboto:wght@300..900&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Fira+Code:wght@300..700&family=PT+Mono&family=Cinzel:wght@400..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Bebas+Neue&family=Press+Start+2P&family=Bungee&family=Permanent+Marker&family=Creepster&family=Shojumaru&display=swap" rel="stylesheet">
@@ -112,8 +112,8 @@ function profile_json_script(string $id, array $data): void
     <script>
         window.isPremiumUser = <?php echo (int)($profile['is_premium'] ?? 0) === 1 ? 'true' : 'false'; ?>;
     </script>
-    <script src="/assets/js/profile.js?v=5.6.0" defer></script>
-    <script src="/assets/js/edit-profile.js?v=5.6.0" defer></script>
+    <script src="/assets/js/profile.js?v=5.6.1" defer></script>
+    <script src="/assets/js/edit-profile.js?v=5.6.1" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-effect="<?php echo profile_h($profile['profile_effect'] ?? 'none'); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" data-avatar-shape="<?php echo profile_h($avatarShape); ?>" data-avatar-border="<?php echo $avatarBorder; ?>" style="--accent: <?php echo profile_h($accent); ?>; --accent-rgb: <?php echo $accentRgbComma; ?>; --profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
@@ -497,7 +497,8 @@ function profile_json_script(string $id, array $data): void
                                         ];
                                         foreach ($layoutOptions as $val => $lbl) {
                                             $selectedStr = ($currentLayoutMapped === $val) ? 'selected' : '';
-                                            echo "<option value=\"$val\" $selectedStr>$lbl</option>";
+                                            $premStr = ($val === 'scrollsnap') ? 'data-premium="1"' : '';
+                                            echo "<option value=\"$val\" $selectedStr $premStr>$lbl</option>";
                                         }
                                         ?>
                                     </select>
@@ -506,9 +507,9 @@ function profile_json_script(string $id, array $data): void
                                 </label>
                                 <label class="profile-field"><span>Stile del player musicale</span><select name="profile_music_theme" id="musicThemeInput">
                                         <option value="default" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'default' ? 'selected' : ''; ?>>Default</option>
-                                        <option value="retro" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'retro' ? 'selected' : ''; ?>>Compatto (Riga)</option>
-                                        <option value="cyberpunk" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'cyberpunk' ? 'selected' : ''; ?>>Pillola Centrata</option>
-                                        <option value="synthwave" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'synthwave' ? 'selected' : ''; ?>>Vinyl Player (Disco)</option>
+                                        <option value="retro" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'retro' ? 'selected' : ''; ?> data-premium="1">Compatto (Riga)</option>
+                                        <option value="cyberpunk" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'cyberpunk' ? 'selected' : ''; ?> data-premium="1">Pillola Centrata</option>
+                                        <option value="synthwave" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'synthwave' ? 'selected' : ''; ?> data-premium="1">Vinyl Player (Disco)</option>
                                     </select></label>
                                 <label class="profile-field"><span>Colore card</span><input type="color" name="profile_card_color" id="cardColorInput" value="<?php echo profile_h($cardColor ?: '#080c18'); ?>"><small>Lascia default per vetro trasparente.</small></label>
                                 <label class="profile-field"><span>Colore testo</span><input type="color" name="profile_text_color" id="textColorInput" value="<?php echo profile_h($textColor ?: ($theme === 'light' ? '#111827' : '#f7f8ff')); ?>"></label>
@@ -566,6 +567,7 @@ function profile_json_script(string $id, array $data): void
                                         <span id="badgeSizeVal" style="font-weight: 700; min-width: 40px; text-align: right;"><?php echo (int)($profile['profile_badge_size'] ?? 24); ?>px</span>
                                     </div>
                                 </label>
+
                                 <label class="profile-field"><span>Altezza Pulsanti (Media/Link)</span>
                                     <div style="display: flex; align-items: center; gap: 10px;">
                                         <input type="range" name="profile_button_size" id="buttonSizeInput" min="32" max="80" value="<?php echo (int)($profile['profile_button_size'] ?? 48); ?>" style="flex: 1;">
@@ -597,9 +599,11 @@ function profile_json_script(string $id, array $data): void
                                             'Creepster' => 'Creepster (Horror)',
                                             'Shojumaru' => 'Shojumaru (Asian Style)'
                                         ];
+                                        $allowedFreeFonts = ['Poppins', 'Inter', 'Roboto', 'Outfit', 'Montserrat'];
                                         foreach ($fonts as $fontVal => $fontLabel): 
+                                            $isPrem = !in_array($fontVal, $allowedFreeFonts, true);
                                         ?>
-                                            <option value="<?php echo $fontVal; ?>" <?php echo ($profile['profile_font'] ?? 'Poppins') === $fontVal ? 'selected' : ''; ?>><?php echo $fontLabel; ?></option>
+                                            <option value="<?php echo $fontVal; ?>" <?php echo ($profile['profile_font'] ?? 'Poppins') === $fontVal ? 'selected' : ''; ?> <?php echo $isPrem ? 'data-premium="1"' : ''; ?>><?php echo $fontLabel; ?></option>
                                         <?php endforeach; ?>
                                     </select></label>
 
@@ -895,15 +899,17 @@ function profile_json_script(string $id, array $data): void
                                             'aurora' => 'Aurora',
                                             'gradient_waves' => 'Onde gradient',
                                             'stars' => 'Stelle leggere',
+                                            'cyber_grid' => 'Griglia cyber',
                                             'spotlight' => 'Spotlight mouse',
                                             'digital_noise' => 'Digital noise',
                                             'glass_rain' => 'Glass rain',
                                             'sakura_falling' => 'Petali di sakura',
-                                            'cyber_grid' => 'Griglia cyber'
+                                            'bg_grain' => 'Grana sullo sfondo'
                                         ];
                                         foreach ($effectsList as $value => $label): 
+                                            $isPrem = in_array($value, ['spotlight', 'digital_noise', 'glass_rain', 'sakura_falling', 'bg_grain'], true);
                                         ?>
-                                            <option value="<?php echo $value; ?>" <?php echo ($profile['profile_effect'] ?? 'none') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option>
+                                            <option value="<?php echo $value; ?>" <?php echo ($profile['profile_effect'] ?? 'none') === $value ? 'selected' : ''; ?> <?php echo $isPrem ? 'data-premium="1"' : ''; ?>><?php echo $label; ?></option>
                                         <?php endforeach; ?>
                                     </select><small id="glassRainWarning" class="profile-effect-warning" style="display:<?php echo ($profile['profile_effect'] ?? 'none') === 'glass_rain' ? 'flex' : 'none'; ?>"><i class="fa-solid fa-circle-info"></i> Glass rain supporta solo sfondi statici (immagini).</small></label>
                                 <label class="profile-field"><span>Effetto anello PFP</span><select name="avatar_ring_style" id="ringStyleInput">
@@ -932,18 +938,18 @@ function profile_json_script(string $id, array $data): void
                             <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_avatar_border" value="0"><input type="checkbox" name="profile_avatar_border" id="avatarBorderInput" value="1" <?php echo (int)($profile['profile_avatar_border'] ?? 1) === 1 ? 'checked' : ''; ?>><span><i class="fa-solid fa-border-style"></i>Mostra bordo della foto profilo</span></label>
 
                             <div class="bio-section-heading" style="margin-top: 1.8rem; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 1.5rem;">
-                                <div><span><i class="fa-solid fa-crown" style="color: #fbbf24;"></i> Personalizzazione Premium</span>
-                                    <p>Impostazioni esclusive per utenti Premium.</p>
+                                <div><span><i class="fa-solid fa-mouse-pointer"></i> Personalizzazione Cursore</span>
+                                    <p>Impostazioni per il puntatore e l'effetto cursore del profilo.</p>
                                 </div>
                             </div>
                             <div class="profile-field-grid three">
                                 <label class="profile-field"><span>Effetto Cursore</span><select name="profile_cursor_effect" id="cursorEffectInput">
                                         <option value="none" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'none' ? 'selected' : ''; ?>>Nessuno</option>
-                                        <option value="follower" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'follower' ? 'selected' : ''; ?>>Follower dot (Puntatore)</option>
-                                        <option value="trail" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'trail' ? 'selected' : ''; ?>>Scia particelle (Trail)</option>
-                                        <option value="trail_stars" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'trail_stars' ? 'selected' : ''; ?>>Stelline (Trail Stars)</option>
-                                        <option value="cat_follower" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'cat_follower' ? 'selected' : ''; ?>>Gattino (Cat Follower)</option>
-                                        <option value="trail_hearts" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'trail_hearts' ? 'selected' : ''; ?>>Cuoricini (Trail Hearts)</option>
+                                        <option value="follower" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'follower' ? 'selected' : ''; ?> data-premium="1">Follower dot (Puntatore)</option>
+                                        <option value="trail" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'trail' ? 'selected' : ''; ?> data-premium="1">Scia particelle (Trail)</option>
+                                        <option value="trail_stars" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'trail_stars' ? 'selected' : ''; ?> data-premium="1">Stelline (Trail Stars)</option>
+                                        <option value="cat_follower" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'cat_follower' ? 'selected' : ''; ?> data-premium="1">Gattino (Cat Follower)</option>
+                                        <option value="trail_hearts" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'trail_hearts' ? 'selected' : ''; ?> data-premium="1">Cuoricini (Trail Hearts)</option>
                                     </select></label>
 
                                 <label class="profile-field"><span>Cursore Personalizzato (Immagine)</span>
@@ -953,8 +959,6 @@ function profile_json_script(string $id, array $data): void
                                     </div>
                                 </label>
                             </div>
-
-                            <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_bg_grain" value="0"><input type="checkbox" name="profile_bg_grain" id="bgGrainInput" value="1" <?php echo (int)($profile['profile_bg_grain'] ?? 0) === 1 ? 'checked' : ''; ?>><span><i class="fa-solid fa-circle-nodes"></i>Effetto Disturbo/Grana sullo sfondo <span class="premium-badge-tag"><i class="fa-solid fa-crown"></i> Premium</span></span></label>
 
                             <div class="bio-section-heading" style="margin-top: 1.8rem; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 1.5rem;">
                                 <div><span><i class="fa-solid fa-signature"></i> Personalizzazione Nome</span>

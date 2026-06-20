@@ -856,7 +856,7 @@
         if (musicThemeInput) attributes['data-music-theme'] = window.isPremiumUser ? musicThemeInput.value : 'default';
         if (cursorCustomUrlInput) attributes['data-cursor-custom-url'] = window.isPremiumUser ? cursorCustomUrlInput.value : '';
         if (profileLayoutSnapHidden) attributes['data-layout-snap'] = (window.isPremiumUser && profileLayoutSnapHidden.value === '1') ? '1' : '0';
-        if (bgGrainInput) attributes['data-bg-grain'] = (window.isPremiumUser && bgGrainInput.checked) ? '1' : '0';
+        attributes['data-bg-grain'] = (window.isPremiumUser && profileEffectInput && profileEffectInput.value === 'bg_grain') ? '1' : '0';
 
         if (iframe && iframe.contentWindow) {
             iframe.contentWindow.postMessage({
@@ -966,7 +966,7 @@
     }
 
     // Register simple inputs listeners for live updates and autosave
-    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, profileLayoutHidden, profileLayoutSnapHidden, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput, musicUrlInput, musicTitleInput, musicArtistInput, showAudioPlayerInput, cornerStyleCustomInput, tiltMaxInput, tiltGlareInput, tiltZoomInput, tiltSpeedInput, profileTabAnimationSpeedInput, profileTabTitleInput, profileTabAnimationInput, profileTabAnimationTextInput, cornerStyleInput, borderStyleInput, discordServerInviteInput, removeMusicUploadInput, cursorEffectInput, musicThemeInput, cursorCustomUrlInput, bgGrainInput].filter(Boolean);
+    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, profileLayoutHidden, profileLayoutSnapHidden, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput, musicUrlInput, musicTitleInput, musicArtistInput, showAudioPlayerInput, cornerStyleCustomInput, tiltMaxInput, tiltGlareInput, tiltZoomInput, tiltSpeedInput, profileTabAnimationSpeedInput, profileTabTitleInput, profileTabAnimationInput, profileTabAnimationTextInput, cornerStyleInput, borderStyleInput, discordServerInviteInput, removeMusicUploadInput, cursorEffectInput, musicThemeInput, cursorCustomUrlInput].filter(Boolean);
 
     simpleInputs.forEach((input) => {
         input.addEventListener('input', () => {
@@ -3004,7 +3004,13 @@
         const selected = select.options[select.selectedIndex] || select.options[0];
         if (!selected) return;
 
-        current.textContent = selected.textContent.trim();
+        const isPrem = selected.dataset.premium === '1' || selected.getAttribute('data-premium') === '1';
+        if (isPrem) {
+            current.innerHTML = `${selected.textContent.trim()} <span class="premium-badge-tag" style="margin-left: 6px; display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 2px 6px; height: auto; position: static;"><i class="fa-solid fa-crown"></i> Premium</span>`;
+        } else {
+            current.textContent = selected.textContent.trim();
+        }
+
         if (select.name === 'profile_font') {
             current.style.fontFamily = `'${selected.value}', sans-serif`;
         }
@@ -3051,9 +3057,10 @@
             button.type = 'button';
             button.dataset.value = option.value;
             button.setAttribute('role', 'option');
+            const isPrem = option.dataset.premium === '1' || option.getAttribute('data-premium') === '1';
             button.innerHTML = `
                 <strong>${option.textContent.trim()}</strong>
-                <span>${shortLabel(option.textContent)}</span>
+                ${isPrem ? `<span class="premium-badge-tag"><i class="fa-solid fa-crown"></i> Premium</span>` : `<span>${shortLabel(option.textContent)}</span>`}
             `;
             if (select.name === 'profile_font') {
                 button.style.fontFamily = `'${option.value}', sans-serif`;
@@ -3532,8 +3539,7 @@
             document.getElementById('cursorEffectInput'),
             document.getElementById('musicThemeInput'),
             document.getElementById('cursorCustomUrlInput'),
-            document.getElementById('layoutSnapInput'),
-            document.getElementById('bgGrainInput')
+            document.getElementById('layoutSnapInput')
         ];
         premiumInputs.forEach(input => {
             if (input) {

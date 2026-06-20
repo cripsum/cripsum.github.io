@@ -341,7 +341,7 @@ $musicTitle = $profile ? trim((string)($profile['profile_music_title'] ?? '')) :
 $musicArtist = $profile ? trim((string)($profile['profile_music_artist'] ?? '')) : '';
 $showAudioPlayer = $profile ? ((int)($profile['profile_show_audio_player'] ?? 1) === 1) : false;
 $hasMusic = $hasUploadedMusic || ($musicExternalUrl !== '' && profile_is_safe_url($musicExternalUrl, true));
-$profileEffect = $profile ? profile_allowed_value((string)($profile['profile_effect'] ?? 'none'), ['none', 'cursor_glow', 'soft_particles', 'scanlines', 'ambient', 'aurora', 'gradient_waves', 'stars', 'spotlight', 'digital_noise', 'glass_rain', 'sakura_falling', 'cyber_grid'], 'none') : 'none';
+$profileEffect = $profile ? profile_allowed_value((string)($profile['profile_effect'] ?? 'none'), ['none', 'cursor_glow', 'soft_particles', 'scanlines', 'ambient', 'aurora', 'gradient_waves', 'stars', 'spotlight', 'digital_noise', 'glass_rain', 'sakura_falling', 'cyber_grid', 'bg_grain'], 'none') : 'none';
 $avatarRingEnabled = $profile ? ((int)($profile['avatar_ring_enabled'] ?? 1) === 1) : true;
 $avatarRingStyle = $profile ? profile_allowed_value((string)($profile['avatar_ring_style'] ?? 'spin'), ['spin', 'pulse', 'orbit', 'glow', 'dual', 'rainbow', 'halo', 'neon', 'spark', 'glitch', 'none'], 'spin') : 'spin';
 $avatarRingColor = $profile ? profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent) : $accent;
@@ -528,8 +528,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.6.0">
-    <script src="/assets/js/profile.js?v=5.6.0" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.6.1">
+    <script src="/assets/js/profile.js?v=5.6.1" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -1159,7 +1159,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     data-tab-animation-text="<?php echo profile_h($profile['profile_tab_animation_text'] ?? ''); ?>"
     data-cursor-effect="<?php echo (int)($profile['is_premium'] ?? 0) === 1 ? profile_h($profile['profile_cursor_effect'] ?? 'none') : 'none'; ?>"
     data-layout-snap="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && (int)($profile['profile_layout_snap'] ?? 0) === 1 ? '1' : '0'; ?>"
-    data-bg-grain="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && (int)($profile['profile_bg_grain'] ?? 0) === 1 ? '1' : '0'; ?>"
+    data-bg-grain="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && ((int)($profile['profile_bg_grain'] ?? 0) === 1 || $profileEffect === 'bg_grain') ? '1' : '0'; ?>"
     data-music-theme="<?php echo (int)($profile['is_premium'] ?? 0) === 1 ? profile_h($profile['profile_music_theme'] ?? 'default') : 'default'; ?>"
     data-cursor-custom-url="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && !empty($profile['profile_cursor_custom_url']) ? profile_h($profile['profile_cursor_custom_url']) : ''; ?>"
     style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>; <?php if ((int)($profile['is_premium'] ?? 0) === 1 && !empty($profile['profile_cursor_custom_url'])): ?>--cursor-custom-url: url('<?php echo profile_h($profile['profile_cursor_custom_url']); ?>'), auto !important;<?php endif; ?>">
