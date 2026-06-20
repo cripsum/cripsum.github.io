@@ -69,7 +69,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
     <meta name="twitter:card" content="summary_large_image">
 
     <link rel="preload" as="image" href="../img/amongus.jpg">
-    <link rel="stylesheet" href="/assets/home-v5/home.css?v=6.2">
+    <link rel="stylesheet" href="/assets/home-v5/home.css?v=6.3">
     <link rel="stylesheet" href="/assets/news/news-popup.css?v=1.0">
     <script src="/assets/home-v5/home.js?v=5.7" defer></script>
     <script src="/assets/news/news-popup.js?v=1.0" defer></script>
@@ -220,8 +220,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                             $dispName = ($useDiscord && $discord !== '') ? $discord : (trim((string)($s['display_name'] ?? '')) ?: $s['username']);
                             $stamp = !empty($s['profile_updated_at']) ? strtotime((string)$s['profile_updated_at']) : time();
                             
-                            $accentColor = !empty($s['accent_color']) ? $s['accent_color'] : '#db2777';
-                            $suppColor = !empty($s['avatar_ring_color']) ? $s['avatar_ring_color'] : $accentColor;
+                            $suppColor = !empty($s['accent_color']) ? $s['accent_color'] : '#db2777';
                         ?>
                             <a href="/u/<?= rawurlencode(strtolower($s['username'])) ?>" class="supporter-card" title="<?= htmlspecialchars($dispName) ?>" style="--supporter-color: <?= htmlspecialchars($suppColor) ?>;">
                                 <div class="supporter-avatar-container">

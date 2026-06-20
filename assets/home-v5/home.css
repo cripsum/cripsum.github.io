@@ -1769,17 +1769,18 @@ body.home-v5-body {
 .supporter-name {
     font-size: 0.75rem;
     font-weight: 700;
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--supporter-color, rgba(255, 255, 255, 0.85));
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
-    transition: color 0.2s ease;
+    transition: all 0.2s ease;
 }
 
 .supporter-card:hover .supporter-name {
-    color: #f472b6;
+    color: #fff;
+    text-shadow: 0 0 8px var(--supporter-color, #db2777);
 }
 
 /* Premium Promo Card */
