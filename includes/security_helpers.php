@@ -304,6 +304,7 @@ function auth_select_user_columns(mysqli $mysqli): string
     $columns[] = auth_column_exists($mysqli, 'utenti', 'twofa_enabled') ? 'twofa_enabled' : '0 AS twofa_enabled';
     $columns[] = auth_column_exists($mysqli, 'utenti', 'twofa_secret') ? 'twofa_secret' : 'NULL AS twofa_secret';
     $columns[] = auth_column_exists($mysqli, 'utenti', 'twofa_enabled_at') ? 'twofa_enabled_at' : 'NULL AS twofa_enabled_at';
+    $columns[] = auth_column_exists($mysqli, 'utenti', 'is_premium') ? 'is_premium' : '0 AS is_premium';
 
     return implode(', ', $columns);
 }
@@ -359,6 +360,7 @@ function auth_complete_login(array $user): void
     $_SESSION['ruolo'] = $user['ruolo'] ?? 'utente';
     $_SESSION['nsfw'] = (int)($user['nsfw'] ?? 0);
     $_SESSION['richpresence'] = (int)($user['richpresence'] ?? 0);
+    $_SESSION['is_premium'] = (int)($user['is_premium'] ?? 0);
 
     if (empty($user['password'])) {
         $_SESSION['needs_password'] = true;

@@ -20,7 +20,19 @@ if ($stmt->execute()) {
     if (function_exists('profile_record_activity')) {
         profile_record_activity($mysqli, $userId, 'premium_upgrade', 'Upgraded to Premium tier');
     }
-    echo json_encode(['ok' => true, 'message' => 'Premium attivato con successo!']);
+
+    // Bonus Premium: aggiungi 200.000 soldi per pullare
+    $stmtSoldi = $mysqli->prepare("UPDATE utenti SET soldi = soldi + 200000 WHERE id = ?");
+    if ($stmtSoldi) {
+        $stmtSoldi->bind_param('i', $userId);
+        $stmtSoldi->execute();
+        $stmtSoldi->close();
+    }
+
+    // Aggiorna lo stato premium nella sessione
+    $_SESSION['is_premium'] = 1;
+
+    echo json_encode(['ok' => true, 'message' => 'Premium attivato con successo! Hai ricevuto 200.000 soldi bonus!']);
 } else {
     echo json_encode(['ok' => false, 'message' => 'Errore durante l\'attivazione: ' . $mysqli->error]);
 }

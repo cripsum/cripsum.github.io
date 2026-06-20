@@ -43,7 +43,7 @@ $google_id = $googleUser['id'];
 $email = strtolower(trim($googleUser['email']));
 $name = $googleUser['name'] ?? explode('@', $email)[0];
 
-$stmt = $mysqli->prepare("SELECT id, username, email, password, google_id, profile_pic, ruolo, nsfw, richpresence, twofa_enabled, twofa_secret, isBannato FROM utenti WHERE email = ?");
+$stmt = $mysqli->prepare("SELECT id, username, email, password, google_id, profile_pic, ruolo, nsfw, richpresence, twofa_enabled, twofa_secret, isBannato, is_premium FROM utenti WHERE email = ?");
 $stmt->bind_param("s", $email);
 $stmt->execute();
 $result = $stmt->get_result();

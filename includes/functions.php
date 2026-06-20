@@ -423,6 +423,11 @@ function isOwner()
     return isset($_SESSION['ruolo']) && $_SESSION['ruolo'] === 'owner';
 }
 
+function isPremium()
+{
+    return isset($_SESSION['is_premium']) && (int)$_SESSION['is_premium'] === 1;
+}
+
 
 function requireLogin()
 {

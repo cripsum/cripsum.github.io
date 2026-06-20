@@ -99,6 +99,15 @@ if ($eventType === 'checkout.session.completed') {
                 $stmtBadge->close();
                 error_log("[Stripe Webhook] Assegnato badge ID 5 all'utente ID {$userId}.");
             }
+
+            // Bonus Premium: aggiungi 200.000 soldi per pullare
+            $stmtSoldi = $mysqli->prepare("UPDATE utenti SET soldi = soldi + 200000 WHERE id = ?");
+            if ($stmtSoldi) {
+                $stmtSoldi->bind_param('i', $userId);
+                $stmtSoldi->execute();
+                $stmtSoldi->close();
+                error_log("[Stripe Webhook] Aggiunti 200.000 soldi bonus all'utente ID {$userId}.");
+            }
         } else {
             http_response_code(500);
             echo "Errore database query.";
