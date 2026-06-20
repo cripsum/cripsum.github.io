@@ -515,7 +515,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" <?php echo ($profile && profile_flag($profile, 'profile_click_to_enter', false)) ? 'class="click-to-enter-active"' : ''; ?>>
 
 <head>
     <?php include __DIR__ . '/includes/head-import.php'; ?>
@@ -528,8 +528,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.6.1">
-    <script src="/assets/js/profile.js?v=5.6.1" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.7.0">
+    <script src="/assets/js/profile.js?v=5.7.0" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -1141,7 +1141,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 </head>
 
 <body
-    class="bio-v2-body public-profile-body profile-border-style-<?php echo profile_h($profile['profile_border_style'] ?? 'thin'); ?>"
+    class="bio-v2-body public-profile-body profile-border-style-<?php echo profile_h($profile['profile_border_style'] ?? 'thin'); ?><?php echo ($profile && profile_flag($profile, 'profile_click_to_enter', false)) ? ' click-to-enter-active' : ''; ?>"
     data-theme="<?php echo profile_h($theme); ?>"
     data-accent="<?php echo profile_h($accent); ?>"
     data-profile-url="<?php echo profile_h($profileUrl); ?>"

@@ -5801,6 +5801,14 @@ body[data-theme="light"] .profile-select-menu {
     box-shadow: 0 8px 20px color-mix(in srgb, var(--profile-accent) 40%, transparent);
 }
 
+.click-to-enter-active,
+body.click-to-enter-active {
+    overflow: hidden !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    touch-action: none !important;
+}
+
 .click-to-enter-overlay {
     position: fixed !important;
     top: 0 !important;

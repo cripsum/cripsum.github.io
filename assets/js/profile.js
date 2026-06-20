@@ -1369,6 +1369,8 @@
                         console.warn('Autoplay via click to enter skipped:', e.message);
                     }
                 }
+                document.documentElement.classList.remove('click-to-enter-active');
+                document.body.classList.remove('click-to-enter-active');
                 overlay.classList.add('is-hidden');
                 overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
             });
