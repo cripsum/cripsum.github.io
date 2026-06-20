@@ -9313,4 +9313,85 @@ body.public-profile-body .profile-effects-foreground-layer {
     background: rgba(255, 255, 255, 0.04);
 }
 
+/* Grids Item Alignment based on Profile Layout */
+@media (min-width: 768px) {
+    .profile-badge-grid,
+    .bio-project-grid,
+    .bio-preview-grid,
+    .profile-character-grid,
+    .profile-block-grid {
+        display: flex !important;
+        flex-wrap: wrap !important;
+    }
+
+    /* Column Widths (Gap Detracted) */
+    .profile-badge-grid .profile-badge-card {
+        flex: 0 0 calc(50% - 0.36rem) !important;
+        max-width: calc(50% - 0.36rem) !important;
+        box-sizing: border-box !important;
+    }
+    .bio-preview-grid .bio-preview-card {
+        flex: 0 0 calc(50% - 0.39rem) !important;
+        max-width: calc(50% - 0.39rem) !important;
+        box-sizing: border-box !important;
+    }
+    .profile-block-grid .profile-block-card {
+        flex: 0 0 calc(50% - 0.4rem) !important;
+        max-width: calc(50% - 0.4rem) !important;
+        box-sizing: border-box !important;
+    }
+    .bio-project-grid .bio-project-card {
+        flex: 0 0 calc(33.333% - 0.52rem) !important;
+        max-width: calc(33.333% - 0.52rem) !important;
+        box-sizing: border-box !important;
+    }
+    .profile-character-grid .profile-character-card {
+        flex: 0 0 calc(25% - 0.54rem) !important;
+        max-width: calc(25% - 0.54rem) !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Single column override for center-split (compact) layout */
+    .layout-center-split .profile-badge-card,
+    .layout-center-split .bio-project-card,
+    .layout-center-split .bio-preview-card,
+    .layout-center-split .profile-character-card,
+    .layout-center-split .profile-block-card {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Layouts: Central (stacked / center-split / snap-active) -> Align Center */
+    .layout-stacked .profile-badge-grid,
+    .layout-stacked .bio-project-grid,
+    .layout-stacked .bio-preview-grid,
+    .layout-stacked .profile-character-grid,
+    .layout-stacked .profile-block-grid,
+    body.snap-active .profile-badge-grid,
+    body.snap-active .bio-project-grid,
+    body.snap-active .bio-preview-grid,
+    body.snap-active .profile-character-grid,
+    body.snap-active .profile-block-grid {
+        justify-content: center !important;
+    }
+
+    /* Layouts: Left Profile (layout-standard) -> Align Right */
+    .layout-standard .profile-badge-grid,
+    .layout-standard .bio-project-grid,
+    .layout-standard .bio-preview-grid,
+    .layout-standard .profile-character-grid,
+    .layout-standard .profile-block-grid {
+        justify-content: flex-end !important;
+    }
+
+    /* Layouts: Right Profile (layout-right-tabs) -> Align Left */
+    .layout-right-tabs .profile-badge-grid,
+    .layout-right-tabs .bio-project-grid,
+    .layout-right-tabs .bio-preview-grid,
+    .layout-right-tabs .profile-character-grid,
+    .layout-right-tabs .profile-block-grid {
+        justify-content: flex-start !important;
+    }
+}
+
 
