@@ -374,7 +374,7 @@ $totalEdits = count($edits);
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Edits</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/edits.css?v=3.5">
+    <link rel="stylesheet" href="/css/edits.css?v=3.6">
     <script src="/js/edits.js?v=3.4" defer></script>
 </head>
 

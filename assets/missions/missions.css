@@ -770,6 +770,8 @@ body.msn-page {
     .msn-shell { width: 90%; padding-top: 5.4rem; padding-bottom: 2.4rem; }
     .msn-hero { padding: 0.95rem; border-radius: 22px; }
     .msn-hero h1 { font-size: clamp(2.2rem, 12vw, 3.4rem); }
+    .msn-hero__stats { flex-direction: column; width: 100%; gap: 0.6rem; }
+    .msn-hero__stat { width: 100%; min-width: unset; text-align: center; padding: 0.75rem 1rem; }
     .msn-tabs { flex-wrap: wrap; }
     .msn-toast { bottom: 1.2rem; right: 1.2rem; left: 1.2rem; max-width: 100%; }
     .msn-card__top { gap: 0.75rem; padding: 0.85rem 0.85rem 0.5rem; }

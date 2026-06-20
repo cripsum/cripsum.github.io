@@ -60,7 +60,7 @@ function msn_h(mixed $v): string
     <meta property="og:url" content="<?php echo msn_h($ogUrl); ?>">
     <meta name="twitter:card" content="summary_large_image">
 
-    <link rel="stylesheet" href="/assets/missions/missions.css?v=1.1">
+    <link rel="stylesheet" href="/assets/missions/missions.css?v=1.2">
     <script>
         window.CRIPSUM_LANG = '<?php echo $lang; ?>';
     </script>
