@@ -280,12 +280,14 @@ if ($exists) {
     profile_json_response(['ok' => false, 'message' => 'Username already in use.'], 409);
 }
 
-$avatarUpload = profile_handle_image_upload($_FILES['avatar'] ?? ['error' => UPLOAD_ERR_NO_FILE], 2 * 1024 * 1024);
+$avatarLimit = $isPremium ? 10 * 1024 * 1024 : 2 * 1024 * 1024;
+$avatarUpload = profile_handle_image_upload($_FILES['avatar'] ?? ['error' => UPLOAD_ERR_NO_FILE], $avatarLimit);
 if (!empty($avatarUpload['error'])) {
     profile_json_response(['ok' => false, 'message' => 'Avatar: ' . $avatarUpload['error']], 422);
 }
 
-$bannerUpload = profile_handle_background_upload($_FILES['banner'] ?? ['error' => UPLOAD_ERR_NO_FILE], 12 * 1024 * 1024);
+$bannerLimit = $isPremium ? 50 * 1024 * 1024 : 12 * 1024 * 1024;
+$bannerUpload = profile_handle_background_upload($_FILES['banner'] ?? ['error' => UPLOAD_ERR_NO_FILE], $bannerLimit);
 if (!empty($bannerUpload['error'])) {
     profile_json_response(['ok' => false, 'message' => 'Profile background: ' . $bannerUpload['error']], 422);
 }

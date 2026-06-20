@@ -26,6 +26,7 @@ if (!$profile) {
     http_response_code(404);
     exit('Profilo non trovato.');
 }
+$isPremium = (int)($profile['is_premium'] ?? 0) === 1;
 $nameStyle = [];
 if ($profile && !empty($profile['profile_name_style'])) {
     $nameStyle = json_decode($profile['profile_name_style'], true);
@@ -149,7 +150,10 @@ function profile_json_script(string $id, array $data): void
                             <div class="plan-price">€2.99 <span>/ una tantum</span></div>
                             <ul class="plan-features">
                                 <li><i class="fa-solid fa-check"></i>Link e blocchi illimitati</li>
-                                <li><i class="fa-solid fa-check"></i>Caricamento file multimediali</li>
+                                <li><i class="fa-solid fa-check"></i>Caricamento file multimediali (fino a 25MB anziché 5MB)</li>
+                                <li><i class="fa-solid fa-check"></i>Upload Sfondi fino a 50MB (anziché 12MB)</li>
+                                <li><i class="fa-solid fa-check"></i>Upload Foto Profilo fino a 10MB (anziché 2MB)</li>
+                                <li><i class="fa-solid fa-check"></i>Nascondi info (Discord, ultimo accesso, ecc.) sotto al profilo</li>
                                 <li><i class="fa-solid fa-check"></i>Tag ed etichette personalizzate</li>
                                 <li><i class="fa-solid fa-check"></i>Cursori ed effetti scia</li>
                                 <li><i class="fa-solid fa-check"></i>Layout premium a schermo intero</li>
@@ -285,8 +289,8 @@ function profile_json_script(string $id, array $data): void
                             <label class="profile-field"><span>Stato breve</span><input type="text" name="profile_status" id="statusInput" maxlength="60" value="<?php echo profile_h($profile['profile_status'] ?? ''); ?>" placeholder="editing, gaming, busy..."><small>Appare vicino al nome se non sei online.</small></label>
 
                             <div class="profile-field-grid two">
-                                <label class="profile-field"><span>Avatar</span><input type="file" name="avatar" id="avatarInput" accept="image/jpeg,image/png,image/webp,image/gif"><small>Max 2MB. JPG, PNG, WEBP o GIF.</small></label>
-                                <label class="profile-field"><span>Sfondo profilo</span><input type="file" name="banner" id="bannerInput" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"><small>Max 12MB. Foto, GIF o video. Cambia lo sfondo della pagina.</small></label>
+                                <label class="profile-field"><span>Avatar</span><input type="file" name="avatar" id="avatarInput" accept="image/jpeg,image/png,image/webp,image/gif"><small>Max <?php echo $isPremium ? '10MB' : '2MB'; ?>. JPG, PNG, WEBP o GIF.</small></label>
+                                <label class="profile-field"><span>Sfondo profilo</span><input type="file" name="banner" id="bannerInput" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"><small>Max <?php echo $isPremium ? '50MB' : '12MB'; ?>. Foto, GIF o video. Cambia lo sfondo della pagina.</small></label>
                             </div>
 
                             <label class="profile-field"><span>Privacy profilo</span><select name="profile_visibility" id="visibilityInput"><?php foreach (['public' => 'Pubblico', 'logged_in' => 'Solo utenti loggati', 'private' => 'Privato'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_visibility'] ?? 'public') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>

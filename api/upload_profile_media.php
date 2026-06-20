@@ -27,10 +27,10 @@ if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
 }
 
 $file = $_FILES['file'];
-$maxBytes = 5 * 1024 * 1024; // 5 MB
+$maxBytes = 25 * 1024 * 1024; // 25 MB
 
 if ($file['size'] <= 0 || $file['size'] > $maxBytes) {
-    echo json_encode(['ok' => false, 'message' => 'Il file è troppo pesante. Il limite massimo è 5MB.']);
+    echo json_encode(['ok' => false, 'message' => 'Il file è troppo pesante. Il limite massimo è 25MB.']);
     exit;
 }
 
