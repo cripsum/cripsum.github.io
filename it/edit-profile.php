@@ -517,6 +517,7 @@ function profile_json_script(string $id, array $data): void
                                 <label class="profile-field"><span>Colore testo</span><input type="color" name="profile_text_color" id="textColorInput" value="<?php echo profile_h($textColor ?: ($theme === 'light' ? '#111827' : '#f7f8ff')); ?>"></label>
                                 <label class="profile-field"><span>Stile link</span><select name="profile_link_style" id="linkStyleInput"><?php foreach (['glass' => 'Glass', 'solid' => 'Pieno', 'outline' => 'Outline', 'neon' => 'Neon'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo $linkStyle === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
                                 <label class="profile-field"><span>Forma bottoni</span><select name="profile_button_shape" id="buttonShapeInput"><?php foreach (['pill' => 'Pill', 'rounded' => 'Rounded', 'sharp' => 'Squadrato'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo $buttonShape === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
+                                <label class="profile-field"><span>Visualizzazione Link Social</span><select name="profile_socials_style" id="socialsStyleInput"><?php foreach (['cards' => 'Card grandi (2 per riga)', 'icons' => 'Solo icone pulite'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_socials_style'] ?? 'cards') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
                             </div>
 
                             <div class="bio-section-heading profile-mt">
@@ -750,11 +751,6 @@ function profile_json_script(string $id, array $data): void
                             </div>
                         </div>
                         <div class="editor-card-body">
-                            <!-- Visualizzazione Link Social -->
-                            <div class="profile-field-grid two" style="margin-bottom: 1.5rem;">
-                                <label class="profile-field"><span>Visualizzazione Link Social</span><select name="profile_socials_style" id="socialsStyleInput"><?php foreach (['cards' => 'Card grandi (2 per riga)', 'icons' => 'Solo icone pulite'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_socials_style'] ?? 'cards') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
-                            </div>
-
                             <div class="bio-section-heading">
                                 <div><span><i class="fa-solid fa-link"></i> Social</span>
                                     <p>Icone rapide sotto il profilo.</p>
