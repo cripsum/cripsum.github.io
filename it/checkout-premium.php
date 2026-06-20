@@ -1,0 +1,516 @@
+<?php
+require_once '../config/session_init.php';
+require_once '../config/database.php';
+require_once '../includes/functions.php';
+require_once '../config/paypal_config.php';
+
+checkBan($mysqli);
+requireLogin();
+
+$userId = (int)$_SESSION['user_id'];
+$username = $_SESSION['username'] ?? '';
+
+// Controlla se l'utente loggato è già premium (solo per dare una notifica, ma permettiamo l'accesso se vuole regalare)
+$stmt = $mysqli->prepare("SELECT is_premium FROM utenti WHERE id = ? LIMIT 1");
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$res = $stmt->get_result();
+$currUser = $res->fetch_assoc();
+$stmt->close();
+$userIsPremium = $currUser && (int)($currUser['is_premium'] ?? 0) === 1;
+
+$error = $_GET['error'] ?? '';
+$errorMsg = '';
+if ($error === 'user_not_found') {
+    $errorMsg = 'L\'utente indicato come destinatario non esiste.';
+} elseif ($error === 'already_premium') {
+    $errorMsg = 'Il destinatario indicato possiede già un account Premium.';
+}
+?>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <?php include '../includes/head-import.php'; ?>
+    <meta charset="UTF-8">
+    <title>Abbonamento Cripsum™ Premium</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="stylesheet" href="/assets/forms/forms.css?v=1.0-unified">
+    <script src="/assets/forms/forms.js?v=1.0-unified" defer></script>
+    <style>
+        .checkout-option-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        .checkout-option-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+        .checkout-option-card.is-active {
+            background: rgba(124, 58, 237, 0.08);
+            border-color: #7c3aed;
+            box-shadow: 0 0 15px rgba(124, 58, 237, 0.15);
+        }
+        .checkout-option-card input[type="radio"] {
+            margin-top: 0.25rem;
+            accent-color: #7c3aed;
+        }
+        .option-details {
+            flex: 1;
+        }
+        .option-title {
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.25rem;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .option-desc {
+            font-size: 0.88rem;
+            color: #a8b0c7;
+            line-height: 1.4;
+        }
+        .gift-container {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: none;
+        }
+        .gift-container.is-visible {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        .validation-status {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .status-loading { color: #a8b0c7; }
+        .status-success { color: #10b981; }
+        .status-error { color: #ef4444; }
+        
+        .payment-method-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .payment-method-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            color: #a8b0c7;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .payment-method-btn:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+        }
+        .payment-method-btn.is-active {
+            border-color: #7c3aed;
+            background: rgba(124, 58, 237, 0.08);
+            color: #fff;
+        }
+        .payment-method-btn i {
+            font-size: 1.5rem;
+        }
+        .paypal-logo-color {
+            color: #003087;
+        }
+        .payment-method-btn.is-active .paypal-logo-color {
+            color: #0079c1;
+        }
+        
+        #paypal-button-container {
+            margin-top: 1.5rem;
+            display: none;
+        }
+        #paypal-button-container.is-visible {
+            display: block;
+        }
+        #stripe-submit-btn {
+            display: block;
+        }
+        #stripe-submit-btn.is-hidden {
+            display: none;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+
+<body class="form-page">
+    <?php include '../includes/navbar.php'; ?>
+
+    <div class="form-bg" aria-hidden="true">
+        <span class="form-orb form-orb--one"></span>
+        <span class="form-orb form-orb--two"></span>
+        <span class="form-grid-bg"></span>
+    </div>
+
+    <main class="form-shell form-shell--checkout">
+        <section class="form-card form-reveal">
+            <div class="form-card__header">
+                <span class="form-pill"><i class="fa-solid fa-crown" style="color:#d97706;"></i> Premium</span>
+                <h1>Cripsum™ Premium</h1>
+                <p>Personalizza il tuo profilo con layout animati, musica, badge e ricevi subito 200.000 soldi per pullare!</p>
+            </div>
+
+            <?php if ($errorMsg): ?>
+                <div class="form-message form-message--error" style="display:flex; margin-bottom:1.5rem;">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span><?php echo htmlspecialchars($errorMsg); ?></span>
+                </div>
+            <?php endif; ?>
+
+            <div class="checkout-layout">
+                <div class="form-panel">
+                    <form id="premiumCheckoutForm" action="/api/create_checkout_session.php" method="POST">
+                        <div class="form-section">
+                            <h2>1. Destinatario dell'attivazione</h2>
+                            
+                            <!-- Opzione 1: Per me stesso -->
+                            <div class="checkout-option-card is-active" id="optionSelfCard">
+                                <input type="radio" name="purchase_type" value="self" id="purchaseSelf" checked>
+                                <div class="option-details">
+                                    <label for="purchaseSelf" class="option-title">
+                                        <i class="fa-solid fa-user"></i> Attiva sul mio account
+                                    </label>
+                                    <span class="option-desc">Aggiorna il tuo profilo (<strong><?php echo htmlspecialchars($username); ?></strong>) ed ottieni subito tutti i vantaggi e il bonus di soldi.</span>
+                                </div>
+                            </div>
+
+                            <!-- Opzione 2: Regalo per un amico -->
+                            <div class="checkout-option-card" id="optionGiftCard">
+                                <input type="radio" name="purchase_type" value="gift" id="purchaseGift">
+                                <div class="option-details">
+                                    <label for="purchaseGift" class="option-title">
+                                        <i class="fa-solid fa-gift"></i> Regala ad un amico
+                                    </label>
+                                    <span class="option-desc">Invia l'attivazione Premium e i 200k soldi a un altro utente della community.</span>
+                                </div>
+                            </div>
+
+                            <!-- Input username regalo (mostrato dinamicamente) -->
+                            <div class="gift-container" id="giftInputContainer">
+                                <label class="form-field">
+                                    <span>Username dell'amico</span>
+                                    <input type="text" name="gift_to" id="giftUsernameInput" placeholder="Inserisci l'username esatto">
+                                </label>
+                                <div class="validation-status" id="validationStatus" style="display:none;"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h2>2. Scegli il metodo di pagamento</h2>
+                            
+                            <div class="payment-method-selector">
+                                <div class="payment-method-btn is-active" id="payMethodStripe" data-method="stripe">
+                                    <i class="fa-solid fa-credit-card"></i>
+                                    <span>Carta di Credito (Stripe)</span>
+                                </div>
+                                <div class="payment-method-btn" id="payMethodPaypal" data-method="paypal">
+                                    <i class="fa-brands fa-paypal paypal-logo-color"></i>
+                                    <span>PayPal</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="payment_method" id="selectedPaymentMethod" value="stripe">
+
+                        <div class="form-actions">
+                            <!-- Bottone Stripe -->
+                            <button type="submit" id="stripe-submit-btn" class="form-btn form-btn--primary form-btn--wide">
+                                <i class="fa-solid fa-lock"></i>
+                                <span>Completa con Stripe (€2.99)</span>
+                            </button>
+                            
+                            <!-- Container per Bottoni PayPal JS SDK -->
+                            <div id="paypal-button-container"></div>
+                        </div>
+                    </form>
+                </div>
+
+                <aside class="form-panel checkout-summary">
+                    <h2>Il tuo Ordine</h2>
+                    <div class="summary-line">
+                        <span>Pacchetto</span>
+                        <strong>Cripsum™ Premium</strong>
+                    </div>
+                    <div class="summary-line">
+                        <span>Bonus Gacha</span>
+                        <strong style="color: #eab308;">+200.000 Soldi</strong>
+                    </div>
+                    <div class="summary-line">
+                        <span>Destinatario</span>
+                        <strong id="summaryRecipient"><?php echo htmlspecialchars($username); ?> (Tu)</strong>
+                    </div>
+                    <div class="summary-line">
+                        <span>Prezzo</span>
+                        <strong style="font-size: 1.2rem; color: #7c3aed;">€2.99 <span style="font-size:0.75rem; font-weight:normal; color:#a8b0c7;">una tantum</span></strong>
+                    </div>
+                    <div class="summary-line">
+                        <span>Metodo</span>
+                        <strong id="summaryPaymentMethod">Stripe (Carta)</strong>
+                    </div>
+                    <p class="form-muted" style="margin-top:1rem;">Nessun abbonamento ricorrente. Paghi una volta e mantieni il Premium per sempre.</p>
+                </aside>
+            </div>
+        </section>
+    </main>
+
+    <?php include '../includes/footer.php'; ?>
+
+    <!-- Carica PayPal SDK JS -->
+    <script src="https://www.paypal.com/sdk/js?client-id=<?php echo urlencode(PAYPAL_CLIENT_ID); ?>&currency=EUR&locale=it_IT"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const optionSelfCard = document.getElementById('optionSelfCard');
+        const optionGiftCard = document.getElementById('optionGiftCard');
+        const purchaseSelf = document.getElementById('purchaseSelf');
+        const purchaseGift = document.getElementById('purchaseGift');
+        const giftInputContainer = document.getElementById('giftInputContainer');
+        const giftUsernameInput = document.getElementById('giftUsernameInput');
+        const validationStatus = document.getElementById('validationStatus');
+        
+        const payMethodStripe = document.getElementById('payMethodStripe');
+        const payMethodPaypal = document.getElementById('payMethodPaypal');
+        const selectedPaymentMethod = document.getElementById('selectedPaymentMethod');
+        
+        const stripeSubmitBtn = document.getElementById('stripe-submit-btn');
+        const paypalButtonContainer = document.getElementById('paypal-button-container');
+        
+        const summaryRecipient = document.getElementById('summaryRecipient');
+        const summaryPaymentMethod = document.getElementById('summaryPaymentMethod');
+        const premiumCheckoutForm = document.getElementById('premiumCheckoutForm');
+
+        let isRecipientValid = true; // Di default self è valido
+        let debounceTimer;
+
+        // Se l'utente stesso è già premium, autoseleziona il regalo
+        const userIsPremium = <?php echo $userIsPremium ? 'true' : 'false'; ?>;
+        if (userIsPremium) {
+            optionSelfCard.style.opacity = '0.5';
+            optionSelfCard.style.pointerEvents = 'none';
+            purchaseGift.checked = true;
+            togglePurchaseType('gift');
+        }
+
+        // Selettori Tipo Acquisto
+        optionSelfCard.addEventListener('click', function() {
+            if (userIsPremium) return;
+            purchaseSelf.checked = true;
+            togglePurchaseType('self');
+        });
+
+        optionGiftCard.addEventListener('click', function() {
+            purchaseGift.checked = true;
+            togglePurchaseType('gift');
+        });
+
+        function togglePurchaseType(type) {
+            if (type === 'self') {
+                optionSelfCard.classList.add('is-active');
+                optionGiftCard.classList.remove('is-active');
+                giftInputContainer.classList.remove('is-visible');
+                giftUsernameInput.required = false;
+                summaryRecipient.textContent = <?php echo json_encode($username); ?> + ' (Tu)';
+                isRecipientValid = true;
+            } else {
+                optionGiftCard.classList.add('is-active');
+                optionSelfCard.classList.remove('is-active');
+                giftInputContainer.classList.add('is-visible');
+                giftUsernameInput.required = true;
+                summaryRecipient.textContent = giftUsernameInput.value ? giftUsernameInput.value : 'Inserisci username...';
+                validateRecipient(giftUsernameInput.value);
+            }
+        }
+
+        // Validazione Username Destinatario (con Debounce)
+        giftUsernameInput.addEventListener('input', function() {
+            const val = this.value.trim();
+            summaryRecipient.textContent = val ? val : 'Inserisci username...';
+            
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                validateRecipient(val);
+            }, 500);
+        });
+
+        function validateRecipient(usernameVal) {
+            if (!usernameVal) {
+                validationStatus.style.display = 'none';
+                isRecipientValid = false;
+                return;
+            }
+
+            validationStatus.style.display = 'flex';
+            validationStatus.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span class="status-loading">Verifica in corso...</span>';
+
+            fetch(`/api/check_recipient.php?username=${encodeURIComponent(usernameVal)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.ok) {
+                        if (data.exists) {
+                            if (data.is_premium) {
+                                validationStatus.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span class="status-error">${data.message}</span>`;
+                                isRecipientValid = false;
+                            } else if (data.is_self) {
+                                validationStatus.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span class="status-error">${data.message}</span>`;
+                                isRecipientValid = false;
+                            } else {
+                                validationStatus.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span class="status-success">${data.message}</span>`;
+                                isRecipientValid = true;
+                                summaryRecipient.textContent = `${data.username} (Regalo)`;
+                            }
+                        } else {
+                            validationStatus.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> <span class="status-error">${data.message}</span>`;
+                            isRecipientValid = false;
+                        }
+                    } else {
+                        validationStatus.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> <span class="status-error">Errore di validazione.</span>`;
+                        isRecipientValid = false;
+                    }
+                })
+                .catch(err => {
+                    validationStatus.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> <span class="status-error">Connessione fallita.</span>`;
+                    isRecipientValid = false;
+                });
+        }
+
+        // Selettori Metodo Pagamento
+        payMethodStripe.addEventListener('click', function() {
+            setActivePaymentMethod('stripe');
+        });
+
+        payMethodPaypal.addEventListener('click', function() {
+            setActivePaymentMethod('paypal');
+        });
+
+        function setActivePaymentMethod(method) {
+            if (method === 'stripe') {
+                payMethodStripe.classList.add('is-active');
+                payMethodPaypal.classList.remove('is-active');
+                selectedPaymentMethod.value = 'stripe';
+                summaryPaymentMethod.textContent = 'Stripe (Carta)';
+                
+                stripeSubmitBtn.classList.remove('is-hidden');
+                paypalButtonContainer.classList.remove('is-visible');
+            } else {
+                payMethodPaypal.classList.add('is-active');
+                payMethodStripe.classList.remove('is-active');
+                selectedPaymentMethod.value = 'paypal';
+                summaryPaymentMethod.textContent = 'PayPal';
+                
+                stripeSubmitBtn.classList.add('is-hidden');
+                paypalButtonContainer.classList.add('is-visible');
+            }
+        }
+
+        // Gestione form submit (per Stripe)
+        premiumCheckoutForm.addEventListener('submit', function(e) {
+            if (selectedPaymentMethod.value === 'paypal') {
+                e.preventDefault();
+                return false;
+            }
+            if (!isRecipientValid) {
+                e.preventDefault();
+                alert('Inserisci un destinatario valido prima di continuare.');
+                return false;
+            }
+        });
+
+        // Configurazione e rendering dei Bottoni PayPal SDK
+        paypal.Buttons({
+            createOrder: function(data, actions) {
+                if (!isRecipientValid) {
+                    alert('Inserisci un destinatario valido prima di procedere con PayPal.');
+                    return Promise.reject(new Error('Destinatario non valido'));
+                }
+                
+                return fetch('/api/create_paypal_order.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        is_gift: purchaseGift.checked,
+                        recipient_username: purchaseGift.checked ? giftUsernameInput.value.trim() : ''
+                    })
+                })
+                .then(function(res) {
+                    return res.json();
+                })
+                .then(function(orderData) {
+                    if (orderData.ok && orderData.id) {
+                        return orderData.id;
+                    } else {
+                        alert(orderData.message || 'Errore durante la creazione dell\'ordine PayPal.');
+                        return Promise.reject(new Error(orderData.message));
+                    }
+                });
+            },
+            onApprove: function(data, actions) {
+                return fetch('/api/capture_paypal_order.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        orderID: data.orderID,
+                        is_gift: purchaseGift.checked,
+                        recipient_username: purchaseGift.checked ? giftUsernameInput.value.trim() : ''
+                    })
+                })
+                .then(function(res) {
+                    return res.json();
+                })
+                .then(function(details) {
+                    if (details.ok) {
+                        alert(details.message);
+                        window.location.href = '/it/edit-profile?payment=success';
+                    } else {
+                        alert('Errore transazione: ' + details.message);
+                    }
+                })
+                .catch(function(err) {
+                    console.error(err);
+                    alert('Errore di rete durante la cattura dell\'ordine.');
+                });
+            },
+            onError: function(err) {
+                console.error('PayPal Error:', err);
+                alert('Si è verificato un errore con PayPal. Se il Client ID è placeholder, configurare le credenziali reali in paypal_config.php.');
+            }
+        }).render('#paypal-button-container');
+    });
+    </script>
+</body>
+</html>

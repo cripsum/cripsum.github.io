@@ -7,11 +7,12 @@ checkBan($mysqli);
 
 $isPremium = isset($_GET['type']) && $_GET['type'] === 'premium';
 if ($isPremium) {
-    header("Location: /api/create_checkout_session.php");
+    header("Location: /it/checkout-premium.php");
     exit;
 }
 $orderTitle = $isPremium ? 'Cripsum™ Profilo Premium' : 'Cripsum™';
 $priceLabel = $isPremium ? '2,99 €' : null;
+
 ?>
 <!DOCTYPE html>
 <html lang="it">

@@ -389,6 +389,117 @@ function getWelcomeEmailTemplate($username)
     ";
 }
 
+function sendPremiumGiftEmail($email, $recipientUsername, $senderUsername)
+{
+    $subject = $senderUsername . ' ti ha regalato il Premium su ' . SITE_NAME . '!';
+    $htmlBody = getPremiumGiftEmailTemplate($recipientUsername, $senderUsername);
+
+    $headers = array();
+    $headers[] = 'MIME-Version: 1.0';
+    $headers[] = 'Content-type: text/html; charset=UTF-8';
+    $headers[] = 'From: ' . FROM_NAME . ' <' . FROM_EMAIL . '>';
+    $headers[] = 'Reply-To: ' . FROM_EMAIL;
+    $headers[] = 'Return-Path: ' . FROM_EMAIL;
+    $headers[] = 'X-Mailer: PHP/' . phpversion();
+
+    if (mail($email, $subject, $htmlBody, implode("\r\n", $headers))) {
+        return true;
+    } else {
+        error_log("Errore invio email regalo a: $email");
+        return false;
+    }
+}
+
+function getPremiumGiftEmailTemplate($recipientUsername, $senderUsername)
+{
+    return "
+    <!DOCTYPE html>
+    <html lang='it'>
+    <head>
+        <meta charset='UTF-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <title>Un regalo per te! - " . SITE_NAME . "</title>
+        <style>
+            body {
+                font-family: 'Poppins', Arial, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f4f4f4;
+            }
+            .container {
+                background-color: #ffffff;
+                border-radius: 10px;
+                padding: 30px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+            .logo {
+                font-size: 24px;
+                font-weight: bold;
+                color: #7c3aed;
+            }
+            .gift-icon {
+                font-size: 48px;
+                color: #7c3aed;
+                margin: 20px 0;
+            }
+            .button {
+                display: inline-block;
+                padding: 15px 30px;
+                background-color: #7c3aed;
+                color: white;
+                text-decoration: none;
+                border-radius: 5px;
+                font-weight: bold;
+                margin: 20px 0;
+                text-align: center;
+            }
+            .footer {
+                margin-top: 30px;
+                padding-top: 20px;
+                border-top: 1px solid #eee;
+                font-size: 12px;
+                color: #666;
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <div class='logo'>" . SITE_NAME . "</div>
+                <div class='gift-icon'>🎁👑</div>
+            </div>
+
+            <h2>Ciao " . htmlspecialchars($recipientUsername) . "!</h2>
+
+            <p>Abbiamo una splendida notizia per te!</p>
+            <p>L'utente <strong>" . htmlspecialchars($senderUsername) . "</strong> ti ha appena fatto un regalo speciale: ti ha donato l'abbonamento <strong>Cripsum™ Premium</strong>!</p>
+
+            <p>Il tuo account è stato aggiornato. Ora hai accesso a tutte le funzionalità Premium ed hai ricevuto un bonus di <strong>200.000 soldi</strong> per pullare nel Gacha!</p>
+
+            <div style='text-align: center;'>
+                <a href='" . SITE_URL . "/it/edit-profile' class='button'>Personalizza il tuo Profilo</a>
+            </div>
+
+            <p>Divertiti con le tue nuove feature Premium!</p>
+
+            <div class='footer'>
+                <p>Cordiali saluti,<br>Il team di " . SITE_NAME . "</p>
+                <p>Questa è una email automatica, non rispondere a questo messaggio.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    ";
+}
+
 function loginUser($mysqli, $email_or_username, $password)
 {
     $result = auth_start_password_login($mysqli, $email_or_username, $password);

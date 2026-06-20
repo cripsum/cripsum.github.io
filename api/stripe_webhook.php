@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/stripe_config.php';
+require_once __DIR__ . '/../includes/functions.php';
 
-// Retrieve the raw request body
 $payload = file_get_contents('php://input');
 $sigHeader = $_SERVER['HTTP_STRIPE_SIGNATURE'] ?? '';
 
@@ -13,7 +13,6 @@ if (empty($sigHeader)) {
     exit;
 }
 
-// Parse signature header (format: t=TIMESTAMP,v1=SIGNATURE,v0=SIGNATURE_OLD...)
 $parts = explode(',', $sigHeader);
 $timestamp = 0;
 $signatures = [];
@@ -37,14 +36,12 @@ if ($timestamp === 0 || empty($signatures)) {
     exit;
 }
 
-// Prevent replay attacks (max 5 minutes timestamp tolerance)
 if (abs(time() - $timestamp) > 300) {
     http_response_code(400);
     echo "Firma scaduta.";
     exit;
 }
 
-// Compute expected HMAC-SHA256 signature
 $signedPayload = $timestamp . '.' . $payload;
 $expectedSignature = hash_hmac('sha256', $signedPayload, STRIPE_WEBHOOK_SECRET);
 
@@ -62,7 +59,6 @@ if (!$verified) {
     exit;
 }
 
-// Process Stripe Event
 $event = json_decode($payload, true);
 if (json_last_error() !== JSON_ERROR_NONE) {
     http_response_code(400);
@@ -107,6 +103,55 @@ if ($eventType === 'checkout.session.completed') {
                 $stmtSoldi->execute();
                 $stmtSoldi->close();
                 error_log("[Stripe Webhook] Aggiunti 200.000 soldi bonus all'utente ID {$userId}.");
+            }
+
+            // Gestione Regalo: salva in premium_gifts e invia l'email se applicabile
+            $isGift = isset($session['metadata']['is_gift']) && (int)$session['metadata']['is_gift'] === 1;
+            $buyerId = isset($session['metadata']['buyer_id']) ? (int)$session['metadata']['buyer_id'] : 0;
+            $paymentOrderId = $session['id'] ?? null;
+
+            if ($isGift && $buyerId > 0 && $buyerId !== $userId) {
+                // Registra il regalo nella tabella premium_gifts
+                $stmtGift = $mysqli->prepare("INSERT INTO premium_gifts (sender_id, recipient_id, payment_gateway, payment_order_id) VALUES (?, ?, 'stripe', ?)");
+                if ($stmtGift) {
+                    $stmtGift->bind_param("iis", $buyerId, $userId, $paymentOrderId);
+                    $stmtGift->execute();
+                    $stmtGift->close();
+                }
+
+                // Trova gli username e l'email del destinatario
+                $senderUsername = 'Un utente';
+                $recipientUsername = '';
+                $recipientEmail = '';
+
+                // Mittente
+                $stmtSender = $mysqli->prepare("SELECT username FROM utenti WHERE id = ? LIMIT 1");
+                if ($stmtSender) {
+                    $stmtSender->bind_param("i", $buyerId);
+                    $stmtSender->execute();
+                    $resSender = $stmtSender->get_result()->fetch_assoc();
+                    if ($resSender) {
+                        $senderUsername = $resSender['username'];
+                    }
+                    $stmtSender->close();
+                }
+
+                // Destinatario
+                $stmtRecipient = $mysqli->prepare("SELECT username, email FROM utenti WHERE id = ? LIMIT 1");
+                if ($stmtRecipient) {
+                    $stmtRecipient->bind_param("i", $userId);
+                    $stmtRecipient->execute();
+                    $resRecipient = $stmtRecipient->get_result()->fetch_assoc();
+                    if ($resRecipient) {
+                        $recipientUsername = $resRecipient['username'];
+                        $recipientEmail = $resRecipient['email'];
+                    }
+                    $stmtRecipient->close();
+                }
+
+                if (!empty($recipientEmail)) {
+                    sendPremiumGiftEmail($recipientEmail, $recipientUsername, $senderUsername);
+                }
             }
         } else {
             http_response_code(500);

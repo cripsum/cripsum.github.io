@@ -1,2 +1,4 @@
 # Ignore secret Stripe credentials config
 config/stripe_config.php
+config/paypal_config.php
+

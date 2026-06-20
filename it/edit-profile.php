@@ -158,7 +158,7 @@ function profile_json_script(string $id, array $data): void
                             <li><i class="fa-solid fa-check"></i>Intestazioni sezioni personalizzate</li>
                         </ul>
                     </div>
-                    <a href="/api/create_checkout_session.php" class="plan-select-btn">Passa a Premium</a>
+                    <a href="/it/checkout-premium.php" class="plan-select-btn">Passa a Premium</a>
                 </div>
             </div>
         </div>

@@ -19,6 +19,48 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 }
 
 $userId = (int)$_SESSION['user_id'];
+$recipientId = $userId;
+$isGift = false;
+$giftTo = isset($_REQUEST['gift_to']) ? trim($_REQUEST['gift_to']) : '';
+
+if (!empty($giftTo)) {
+    $stmt = $mysqli->prepare("SELECT id, is_premium FROM utenti WHERE username = ? LIMIT 1");
+    if ($stmt) {
+        $stmt->bind_param("s", $giftTo);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $recipient = $res->fetch_assoc();
+        $stmt->close();
+        
+        if (!$recipient) {
+            header("Location: /{$lang}/checkout-premium.php?error=user_not_found");
+            exit;
+        }
+        
+        if ((int)($recipient['is_premium'] ?? 0) === 1) {
+            header("Location: /{$lang}/checkout-premium.php?error=already_premium");
+            exit;
+        }
+        
+        $recipientId = (int)$recipient['id'];
+        $isGift = true;
+    }
+} else {
+    // Se acquista per sé, verifica che non sia già premium
+    $stmt = $mysqli->prepare("SELECT is_premium FROM utenti WHERE id = ? LIMIT 1");
+    if ($stmt) {
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $currUser = $res->fetch_assoc();
+        $stmt->close();
+        
+        if ($currUser && (int)($currUser['is_premium'] ?? 0) === 1) {
+            header("Location: /{$lang}/edit-profile?error=already_premium");
+            exit;
+        }
+    }
+}
 
 // Dynamically adjust success/cancel URLs for language localization
 $successUrl = str_replace('/it/', '/' . $lang . '/', STRIPE_SUCCESS_URL);
@@ -29,9 +71,11 @@ $postData = http_build_query([
     'line_items[0][price]' => STRIPE_PRICE_ID,
     'line_items[0][quantity]' => 1,
     'mode' => 'payment',
-    'client_reference_id' => $userId,
+    'client_reference_id' => $recipientId,
     'success_url' => $successUrl,
     'cancel_url' => $cancelUrl,
+    'metadata[is_gift]' => $isGift ? '1' : '0',
+    'metadata[buyer_id]' => $userId,
 ]);
 
 // Call Stripe API using standard PHP cURL

@@ -158,7 +158,7 @@ function profile_json_script(string $id, array $data): void
                             <li><i class="fa-solid fa-check"></i>Customizable section headings</li>
                         </ul>
                     </div>
-                    <a href="/api/create_checkout_session.php" class="plan-select-btn">Upgrade to Premium</a>
+                    <a href="/en/checkout-premium.php" class="plan-select-btn">Upgrade to Premium</a>
                 </div>
             </div>
         </div>
