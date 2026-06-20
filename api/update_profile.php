@@ -103,7 +103,7 @@ $musicArtist = profile_clean_text($_POST['profile_music_artist'] ?? '', 80);
 $musicArtistDb = $musicArtist !== '' ? $musicArtist : null;
 $showAudioPlayer = profile_bool_from_post('profile_show_audio_player', true);
 $profileEffect = profile_allowed_value((string)($_POST['profile_effect'] ?? 'none'), ['none', 'cursor_glow', 'soft_particles', 'scanlines', 'ambient', 'aurora', 'gradient_waves', 'stars', 'spotlight', 'digital_noise', 'glass_rain', 'sakura_falling', 'cyber_grid'], 'none');
-$allowedFreeEffects = ['none', 'cursor_glow', 'stars'];
+$allowedFreeEffects = ['none', 'cursor_glow', 'stars', 'soft_particles', 'scanlines', 'ambient', 'aurora', 'gradient_waves', 'cyber_grid'];
 if (!$isPremium && !in_array($profileEffect, $allowedFreeEffects, true)) {
     $profileEffect = 'none';
 }

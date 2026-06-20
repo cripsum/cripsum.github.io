@@ -232,7 +232,7 @@ function profile_json_script(string $id, array $data): void
                     <div class="editor-tabs-nav">
                         <button type="button" class="editor-tab-btn is-active" data-tab="profile"><i class="fa-solid fa-user"></i> Content</button>
                         <button type="button" class="editor-tab-btn" data-tab="design"><i class="fa-solid fa-palette"></i> Design</button>
-                        <button type="button" class="editor-tab-btn" data-tab="advanced"><i class="fa-solid fa-crown" style="color: #fbbf24;"></i> Advanced</button>
+                        <button type="button" class="editor-tab-btn" data-tab="advanced"><i class="fa-solid fa-sliders"></i> Advanced</button>
                     </div>
                 </div>
 
@@ -488,7 +488,7 @@ function profile_json_script(string $id, array $data): void
                                             'compact' => 'Profile center, content on sides',
                                             'showcase' => 'Profile right, tabs left',
                                             'clean' => 'Centered column',
-                                            'scrollsnap' => 'Vertical Scroll Snap Layout (👑 Premium)'
+                                            'scrollsnap' => 'Vertical Scroll Snap Layout'
                                         ];
                                         foreach ($layoutOptions as $val => $lbl) {
                                             $selectedStr = ($currentLayoutMapped === $val) ? 'selected' : '';
@@ -499,11 +499,11 @@ function profile_json_script(string $id, array $data): void
                                     <input type="hidden" name="profile_layout" id="profileLayoutHidden" value="<?php echo profile_h($profile['profile_layout'] ?? 'standard'); ?>">
                                     <input type="hidden" name="profile_layout_snap" id="profileLayoutSnapHidden" value="<?php echo (int)($profile['profile_layout_snap'] ?? 0); ?>">
                                 </label>
-                                <label class="profile-field"><span>Music Player Style <span class="premium-badge-tag"><i class="fa-solid fa-crown"></i> Premium</span></span><select name="profile_music_theme" id="musicThemeInput">
+                                <label class="profile-field"><span>Music Player Style</span><select name="profile_music_theme" id="musicThemeInput">
                                         <option value="default" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'default' ? 'selected' : ''; ?>>Default</option>
-                                        <option value="retro" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'retro' ? 'selected' : ''; ?>>Compact Row (👑 Premium)</option>
-                                        <option value="cyberpunk" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'cyberpunk' ? 'selected' : ''; ?>>Centered Pill (👑 Premium)</option>
-                                        <option value="synthwave" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'synthwave' ? 'selected' : ''; ?>>Vinyl Player (Disc) (👑 Premium)</option>
+                                        <option value="retro" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'retro' ? 'selected' : ''; ?>>Compact Row</option>
+                                        <option value="cyberpunk" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'cyberpunk' ? 'selected' : ''; ?>>Centered Pill</option>
+                                        <option value="synthwave" <?php echo ($profile['profile_music_theme'] ?? 'default') === 'synthwave' ? 'selected' : ''; ?>>Vinyl Player (Disc)</option>
                                     </select></label>
                                 <label class="profile-field"><span>Card color</span><input type="color" name="profile_card_color" id="cardColorInput" value="<?php echo profile_h($cardColor ?: '#080c18'); ?>"><small>Leave default for classic glassmorphism.</small></label>
                                 <label class="profile-field"><span>Text color</span><input type="color" name="profile_text_color" id="textColorInput" value="<?php echo profile_h($textColor ?: ($theme === 'light' ? '#111827' : '#f7f8ff')); ?>"></label>
@@ -537,7 +537,7 @@ function profile_json_script(string $id, array $data): void
                                     </div>
                                 </label>
                                 <label class="profile-field"><span>Card & Button Borders Style</span><select name="profile_border_style" id="borderStyleInput">
-                                        <?php foreach (['none' => 'No border', 'thin' => 'Thin border', 'glow' => 'Glow border', 'gradient' => 'Gradient border (Premium)'] as $val => $lbl): ?>
+                                        <?php foreach (['none' => 'No border', 'thin' => 'Thin border', 'glow' => 'Glow border', 'gradient' => 'Gradient border'] as $val => $lbl): ?>
                                             <option value="<?php echo $val; ?>" <?php echo ($profile['profile_border_style'] ?? 'thin') === $val ? 'selected' : ''; ?>><?php echo $lbl; ?></option>
                                         <?php endforeach; ?>
                                     </select></label>
@@ -586,18 +586,15 @@ function profile_json_script(string $id, array $data): void
                                             'Bebas Neue' => 'Bebas Neue',
                                             'Minecraft' => 'Minecraft (Gaming)',
                                             'Gang of Three' => 'Gang of Three (Kung-Fu Brush)',
-                                            'Press Start 2P' => 'Press Start 2P (Retro Retro)',
+                                            'Press Start 2P' => 'Press Start 2P',
                                             'Bungee' => 'Bungee (Arcade Heavy)',
                                             'Permanent Marker' => 'Permanent Marker (Graffiti)',
                                             'Creepster' => 'Creepster (Horror)',
                                             'Shojumaru' => 'Shojumaru (Asian Style)'
                                         ];
-                                        $freeFonts = ['Poppins', 'Inter', 'Roboto', 'Outfit', 'Montserrat'];
                                         foreach ($fonts as $fontVal => $fontLabel): 
-                                            $isPremiumFont = !in_array($fontVal, $freeFonts);
-                                            $displayFontLabel = $fontLabel . ($isPremiumFont ? ' (👑 Premium)' : '');
                                         ?>
-                                            <option value="<?php echo $fontVal; ?>" <?php echo ($profile['profile_font'] ?? 'Poppins') === $fontVal ? 'selected' : ''; ?>><?php echo $displayFontLabel; ?></option>
+                                            <option value="<?php echo $fontVal; ?>" <?php echo ($profile['profile_font'] ?? 'Poppins') === $fontVal ? 'selected' : ''; ?>><?php echo $fontLabel; ?></option>
                                         <?php endforeach; ?>
                                     </select></label>
 
@@ -833,7 +830,7 @@ function profile_json_script(string $id, array $data): void
                     <div class="profile-edit-section editor-card" data-edit-section="custom" data-editor-category="advanced">
                         <div class="editor-card-header">
                             <div class="editor-card-info">
-                                <span class="editor-card-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+                                <span class="editor-card-icon"><i class="fa-solid fa-sliders"></i></span>
                                 <div class="editor-card-text">
                                     <h3>Custom Blocks</h3>
                                     <p>Free custom blocks with text, images, GIFs or videos</p>
@@ -892,12 +889,9 @@ function profile_json_script(string $id, array $data): void
                                             'sakura_falling' => 'Sakura petals',
                                             'cyber_grid' => 'Cyber grid'
                                         ];
-                                        $freeEffects = ['none', 'cursor_glow', 'stars'];
                                         foreach ($effectsList as $value => $label): 
-                                            $isPremiumEffect = !in_array($value, $freeEffects);
-                                            $displayEffectLabel = $label . ($isPremiumEffect ? ' (👑 Premium)' : '');
                                         ?>
-                                            <option value="<?php echo $value; ?>" <?php echo ($profile['profile_effect'] ?? 'none') === $value ? 'selected' : ''; ?>><?php echo $displayEffectLabel; ?></option>
+                                            <option value="<?php echo $value; ?>" <?php echo ($profile['profile_effect'] ?? 'none') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option>
                                         <?php endforeach; ?>
                                     </select><small id="glassRainWarning" class="profile-effect-warning" style="display:<?php echo ($profile['profile_effect'] ?? 'none') === 'glass_rain' ? 'flex' : 'none'; ?>"><i class="fa-solid fa-circle-info"></i> Glass rain only supports static backgrounds (images).</small></label>
                                 <label class="profile-field"><span>PFP Ring style</span><select name="avatar_ring_style" id="ringStyleInput">
@@ -933,11 +927,11 @@ function profile_json_script(string $id, array $data): void
                             <div class="profile-field-grid three">
                                 <label class="profile-field"><span>Cursor Effect <span class="premium-badge-tag"><i class="fa-solid fa-crown"></i> Premium</span></span><select name="profile_cursor_effect" id="cursorEffectInput">
                                         <option value="none" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'none' ? 'selected' : ''; ?>>None</option>
-                                        <option value="follower" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'follower' ? 'selected' : ''; ?>>Follower dot (👑 Premium)</option>
-                                        <option value="trail" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'trail' ? 'selected' : ''; ?>>Particle trail (👑 Premium)</option>
-                                        <option value="trail_stars" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'trail_stars' ? 'selected' : ''; ?>>Falling stars trail (👑 Premium)</option>
-                                        <option value="cat_follower" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'cat_follower' ? 'selected' : ''; ?>>Cat follower (👑 Premium)</option>
-                                        <option value="trail_hearts" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'trail_hearts' ? 'selected' : ''; ?>>Hearts trail (👑 Premium)</option>
+                                        <option value="follower" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'follower' ? 'selected' : ''; ?>>Follower dot</option>
+                                        <option value="trail" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'trail' ? 'selected' : ''; ?>>Particle trail</option>
+                                        <option value="trail_stars" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'trail_stars' ? 'selected' : ''; ?>>Falling stars trail</option>
+                                        <option value="cat_follower" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'cat_follower' ? 'selected' : ''; ?>>Cat follower</option>
+                                        <option value="trail_hearts" <?php echo ($profile['profile_cursor_effect'] ?? 'none') === 'trail_hearts' ? 'selected' : ''; ?>>Hearts trail</option>
                                     </select></label>
 
                                 <label class="profile-field"><span>Custom Cursor Image <span class="premium-badge-tag"><i class="fa-solid fa-crown"></i> Premium</span></span>

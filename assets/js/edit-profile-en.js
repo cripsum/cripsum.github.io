@@ -3486,7 +3486,7 @@
     function initPremiumFeatureLocks() {
         if (window.isPremiumUser) return;
 
-        const allowedFreeEffects = ['none', 'cursor_glow', 'stars'];
+        const allowedFreeEffects = ['none', 'cursor_glow', 'stars', 'soft_particles', 'scanlines', 'ambient', 'aurora', 'gradient_waves', 'cyber_grid'];
         if (profileEffectInput) {
             profileEffectInput.addEventListener('change', (e) => {
                 if (!allowedFreeEffects.includes(profileEffectInput.value)) {
