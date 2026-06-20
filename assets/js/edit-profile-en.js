@@ -2895,6 +2895,8 @@
     // ── ONBOARDING WALKTHROUGH TOUR ──────────────────────────────────────────
     function launchOnboardingTour() {
         if (localStorage.getItem('cripsum_profile_editor_guide_seen')) return;
+        if (document.querySelector('.onboarding-overlay')) return;
+        if (!localStorage.getItem('cripsum_profile_editor_plan_selected') && !window.isPremiumUser) return;
         const planOverlay = document.getElementById('onboardingPlanOverlay');
         if (planOverlay && planOverlay.classList.contains('is-active')) return;
 
@@ -3650,6 +3652,14 @@
     function initOnboardingPlanModal() {
         const planOverlay = document.getElementById('onboardingPlanOverlay');
         const selectFreeBtn = document.getElementById('selectFreeBtn');
+        if (window.isPremiumUser) {
+            localStorage.setItem('cripsum_profile_editor_plan_selected', 'true');
+            if (planOverlay) {
+                planOverlay.classList.remove('is-active');
+            }
+            setTimeout(launchOnboardingTour, 400);
+            return;
+        }
         if (planOverlay) {
             const planSelected = localStorage.getItem('cripsum_profile_editor_plan_selected');
             if (!planSelected) {
@@ -3672,7 +3682,10 @@
         }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    function initAll() {
+        if (window.__editorInitialized) return;
+        window.__editorInitialized = true;
+
         initProfileCustomSelects();
         initProfileCustomColorPickers();
         startProfileSelectObserver();
@@ -3681,16 +3694,11 @@
         initOnboardingPlanModal();
         initPremiumSettingsUploads();
         initPremiumFeatureLocks();
-    });
+    }
 
     if (document.readyState !== 'loading') {
-        initProfileCustomSelects();
-        initProfileCustomColorPickers();
-        startProfileSelectObserver();
-        setTimeout(refreshProfileCustomSelects, 0);
-        setTimeout(refreshProfileCustomSelects, 100);
-        initOnboardingPlanModal();
-        initPremiumSettingsUploads();
-        initPremiumFeatureLocks();
+        initAll();
+    } else {
+        document.addEventListener('DOMContentLoaded', initAll);
     }
 })();

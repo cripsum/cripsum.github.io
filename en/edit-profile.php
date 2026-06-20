@@ -113,58 +113,60 @@ function profile_json_script(string $id, array $data): void
         window.isPremiumUser = <?php echo (int)($profile['is_premium'] ?? 0) === 'true' || (int)($profile['is_premium'] ?? 0) === 1 ? 'true' : 'false'; ?>;
     </script>
     <script src="/assets/js/profile.js?v=5.7.5" defer></script>
-    <script src="/assets/js/edit-profile-en.js?v=5.7.9" defer></script>
+    <script src="/assets/js/edit-profile-en.js?v=5.7.10" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-effect="<?php echo profile_h($profile['profile_effect'] ?? 'none'); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" data-avatar-shape="<?php echo profile_h($avatarShape); ?>" data-avatar-border="<?php echo $avatarBorder; ?>" style="--accent: <?php echo profile_h($accent); ?>; --accent-rgb: <?php echo $accentRgbComma; ?>; --profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
-    <!-- Onboarding Plan Selection Overlay -->
-    <div id="onboardingPlanOverlay" class="onboarding-plan-overlay">
-        <div class="onboarding-plan-card">
-            <h3 class="onboarding-plan-title">Choose your Cripsum™ Plan</h3>
-            <p class="onboarding-plan-subtitle">Unlock the maximum level of customization for your profile.</p>
+    <?php if ((int)($profile['is_premium'] ?? 0) !== 1): ?>
+        <!-- Onboarding Plan Selection Overlay -->
+        <div id="onboardingPlanOverlay" class="onboarding-plan-overlay">
+            <div class="onboarding-plan-card">
+                <h3 class="onboarding-plan-title">Choose your Cripsum™ Plan</h3>
+                <p class="onboarding-plan-subtitle">Unlock the maximum level of customization for your profile.</p>
 
-            <div class="plan-options-grid">
-                <!-- Free Plan -->
-                <div class="plan-option-card">
-                    <div>
-                        <span class="plan-badge">Base</span>
-                        <div class="plan-price">Free <span>/ forever</span></div>
-                        <ul class="plan-features">
-                            <li><i class="fa-solid fa-check"></i>Up to 5 links/socials</li>
-                            <li><i class="fa-solid fa-check"></i>1 Custom Block</li>
-                            <li><i class="fa-solid fa-check"></i>Basic effects and fonts</li>
-                            <li><i class="fa-solid fa-xmark"></i>No tags/badges on cards</li>
-                            <li><i class="fa-solid fa-xmark"></i>No custom cursors</li>
-                            <li><i class="fa-solid fa-xmark"></i>No full screen layout</li>
-                        </ul>
+                <div class="plan-options-grid">
+                    <!-- Free Plan -->
+                    <div class="plan-option-card">
+                        <div>
+                            <span class="plan-badge">Base</span>
+                            <div class="plan-price">Free <span>/ forever</span></div>
+                            <ul class="plan-features">
+                                <li><i class="fa-solid fa-check"></i>Up to 5 links/socials</li>
+                                <li><i class="fa-solid fa-check"></i>1 Custom Block</li>
+                                <li><i class="fa-solid fa-check"></i>Basic effects and fonts</li>
+                                <li><i class="fa-solid fa-xmark"></i>No tags/badges on cards</li>
+                                <li><i class="fa-solid fa-xmark"></i>No custom cursors</li>
+                                <li><i class="fa-solid fa-xmark"></i>No full screen layout</li>
+                            </ul>
+                        </div>
+                        <button type="button" class="plan-select-btn" id="selectFreeBtn">Continue Free</button>
                     </div>
-                    <button type="button" class="plan-select-btn" id="selectFreeBtn">Continue Free</button>
-                </div>
 
-                <!-- Premium Plan -->
-                <div class="plan-option-card is-premium">
-                    <div>
-                        <span class="plan-badge">Premium</span>
-                        <div class="plan-price">€2.99 <span>/ one-time</span></div>
-                        <ul class="plan-features">
-                            <li><i class="fa-solid fa-check"></i>Unlimited links and blocks</li>
-                            <li><i class="fa-solid fa-check"></i>Direct media uploads</li>
-                            <li><i class="fa-solid fa-check"></i>Custom card tags & colors</li>
-                            <li><i class="fa-solid fa-check"></i>Custom cursors & trails</li>
-                            <li><i class="fa-solid fa-check"></i>Premium full screen layout</li>
-                            <li><i class="fa-solid fa-check"></i>Theme presets & Preset Saving</li>
-                            <li><i class="fa-solid fa-check"></i>Markdown & raw HTML custom blocks</li>
-                            <li><i class="fa-solid fa-check"></i>Custom icons & uploads everywhere</li>
-                            <li><i class="fa-solid fa-check"></i>Customizable section headings</li>
-                            <li><i class="fa-solid fa-check"></i>Premium effects and fonts</li>
-                            <li><i class="fa-solid fa-check"></i>Gift of 200 pulls for lootboxes</li>
-                        </ul>
+                    <!-- Premium Plan -->
+                    <div class="plan-option-card is-premium">
+                        <div>
+                            <span class="plan-badge">Premium</span>
+                            <div class="plan-price">€2.99 <span>/ one-time</span></div>
+                            <ul class="plan-features">
+                                <li><i class="fa-solid fa-check"></i>Unlimited links and blocks</li>
+                                <li><i class="fa-solid fa-check"></i>Direct media uploads</li>
+                                <li><i class="fa-solid fa-check"></i>Custom card tags & colors</li>
+                                <li><i class="fa-solid fa-check"></i>Custom cursors & trails</li>
+                                <li><i class="fa-solid fa-check"></i>Premium full screen layout</li>
+                                <li><i class="fa-solid fa-check"></i>Theme presets & Preset Saving</li>
+                                <li><i class="fa-solid fa-check"></i>Markdown & raw HTML custom blocks</li>
+                                <li><i class="fa-solid fa-check"></i>Custom icons & uploads everywhere</li>
+                                <li><i class="fa-solid fa-check"></i>Customizable section headings</li>
+                                <li><i class="fa-solid fa-check"></i>Premium effects and fonts</li>
+                                <li><i class="fa-solid fa-check"></i>Gift of 200 pulls for lootboxes</li>
+                            </ul>
+                        </div>
+                        <a href="/en/checkout-premium.php" class="plan-select-btn">Upgrade to Premium</a>
                     </div>
-                    <a href="/en/checkout-premium.php" class="plan-select-btn">Upgrade to Premium</a>
                 </div>
             </div>
         </div>
-    </div>
+    <?php endif; ?>
 
     <?php
     $isPublicProfilePage = false;
