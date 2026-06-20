@@ -151,11 +151,13 @@ function profile_json_script(string $id, array $data): void
                             <li><i class="fa-solid fa-check"></i>Direct media uploads</li>
                             <li><i class="fa-solid fa-check"></i>Custom card tags & colors</li>
                             <li><i class="fa-solid fa-check"></i>Custom cursors & trails</li>
-                            <li><i class="fa-solid fa-check"></i>100vh Scroll Snap layout</li>
+                            <li><i class="fa-solid fa-check"></i>Premium full screen layout</li>
                             <li><i class="fa-solid fa-check"></i>Theme presets & Preset Saving</li>
                             <li><i class="fa-solid fa-check"></i>Markdown & raw HTML custom blocks</li>
                             <li><i class="fa-solid fa-check"></i>Custom icons & uploads everywhere</li>
                             <li><i class="fa-solid fa-check"></i>Customizable section headings</li>
+                            <li><i class="fa-solid fa-check"></i>Premium effects and fonts</li>
+                            <li><i class="fa-solid fa-check"></i>Gift of 200 pulls for lootboxes</li>
                         </ul>
                     </div>
                     <a href="/en/checkout-premium.php" class="plan-select-btn">Upgrade to Premium</a>

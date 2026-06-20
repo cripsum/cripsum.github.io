@@ -141,6 +141,21 @@ try {
             $stmtGift->close();
         }
 
+        // Assegna il badge donatore (ID 11) al mittente (colui che fa il regalo) se non già presente
+        $stmtGiverBadge = $mysqli->prepare("
+            INSERT INTO user_custom_badges (utente_id, badge_id, is_visible)
+            SELECT ?, 11, 1
+            FROM DUAL
+            WHERE NOT EXISTS (
+                SELECT 1 FROM user_custom_badges WHERE utente_id = ? AND badge_id = 11
+            )
+        ");
+        if ($stmtGiverBadge) {
+            $stmtGiverBadge->bind_param("ii", $userId, $userId);
+            $stmtGiverBadge->execute();
+            $stmtGiverBadge->close();
+        }
+
         // Recupera i dettagli del destinatario (username ed email)
         $stmtDetails = $mysqli->prepare("SELECT username, email FROM utenti WHERE id = ? LIMIT 1");
         if ($stmtDetails) {

@@ -131,7 +131,7 @@ function profile_json_script(string $id, array $data): void
                         <div class="plan-price">Gratis <span>/ sempre</span></div>
                         <ul class="plan-features">
                             <li><i class="fa-solid fa-check"></i>Fino a 5 link/social</li>
-                            <li><i class="fa-solid fa-check"></i>1 Blocco personalizzato</li>
+                            <li><i class="fa-solid fa-check"></i>1 sezione custom</li>
                             <li><i class="fa-solid fa-check"></i>Effetti e font di base</li>
                             <li><i class="fa-solid fa-xmark"></i>Niente tag/badges sulle card</li>
                             <li><i class="fa-solid fa-xmark"></i>Nessun cursore personalizzato</li>
@@ -151,11 +151,13 @@ function profile_json_script(string $id, array $data): void
                             <li><i class="fa-solid fa-check"></i>Caricamento file multimediali</li>
                             <li><i class="fa-solid fa-check"></i>Tag ed etichette personalizzate</li>
                             <li><i class="fa-solid fa-check"></i>Cursori ed effetti scia</li>
-                            <li><i class="fa-solid fa-check"></i>Layout Scroll Snap 100vh</li>
+                            <li><i class="fa-solid fa-check"></i>Layout premium a schermo intero</li>
                             <li><i class="fa-solid fa-check"></i>Preset temi & Salvataggio Preset</li>
                             <li><i class="fa-solid fa-check"></i>Blocchi Markdown e codice HTML</li>
                             <li><i class="fa-solid fa-check"></i>Icone custom e upload ovunque</li>
                             <li><i class="fa-solid fa-check"></i>Intestazioni sezioni personalizzate</li>
+                            <li><i class="fa-solid fa-check"></i>Effetti e font premium</li>
+                            <li><i class="fa-solid fa-check"></i>regalo di 200 pull per le lootbox</li>
                         </ul>
                     </div>
                     <a href="/it/checkout-premium.php" class="plan-select-btn">Passa a Premium</a>
@@ -600,7 +602,7 @@ function profile_json_script(string $id, array $data): void
                                             'Shojumaru' => 'Shojumaru (Asian Style)'
                                         ];
                                         $allowedFreeFonts = ['Poppins', 'Inter', 'Roboto', 'Outfit', 'Montserrat'];
-                                        foreach ($fonts as $fontVal => $fontLabel): 
+                                        foreach ($fonts as $fontVal => $fontLabel):
                                             $isPrem = !in_array($fontVal, $allowedFreeFonts, true);
                                         ?>
                                             <option value="<?php echo $fontVal; ?>" <?php echo ($profile['profile_font'] ?? 'Poppins') === $fontVal ? 'selected' : ''; ?> <?php echo $isPrem ? 'data-premium="1"' : ''; ?>><?php echo $fontLabel; ?></option>
@@ -889,7 +891,7 @@ function profile_json_script(string $id, array $data): void
                             </div>
                             <div class="profile-field-grid three">
                                 <label class="profile-field"><span>Effetto pagina</span><select name="profile_effect" id="profileEffectInput">
-                                        <?php 
+                                        <?php
                                         $effectsList = [
                                             'none' => 'Nessuno',
                                             'cursor_glow' => 'Mouse glow',
@@ -906,7 +908,7 @@ function profile_json_script(string $id, array $data): void
                                             'sakura_falling' => 'Petali di sakura',
                                             'bg_grain' => 'Grana sullo sfondo'
                                         ];
-                                        foreach ($effectsList as $value => $label): 
+                                        foreach ($effectsList as $value => $label):
                                             $isPrem = in_array($value, ['spotlight', 'digital_noise', 'glass_rain', 'sakura_falling', 'bg_grain'], true);
                                         ?>
                                             <option value="<?php echo $value; ?>" <?php echo ($profile['profile_effect'] ?? 'none') === $value ? 'selected' : ''; ?> <?php echo $isPrem ? 'data-premium="1"' : ''; ?>><?php echo $label; ?></option>

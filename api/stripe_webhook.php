@@ -119,6 +119,21 @@ if ($eventType === 'checkout.session.completed') {
                     $stmtGift->close();
                 }
 
+                // Assegna il badge donatore (ID 11) al mittente (buyerId) se non già presente
+                $stmtGiverBadge = $mysqli->prepare("
+                    INSERT INTO user_custom_badges (utente_id, badge_id, is_visible)
+                    SELECT ?, 11, 1
+                    FROM DUAL
+                    WHERE NOT EXISTS (
+                        SELECT 1 FROM user_custom_badges WHERE utente_id = ? AND badge_id = 11
+                    )
+                ");
+                if ($stmtGiverBadge) {
+                    $stmtGiverBadge->bind_param("ii", $buyerId, $buyerId);
+                    $stmtGiverBadge->execute();
+                    $stmtGiverBadge->close();
+                }
+
                 // Trova gli username e l'email del destinatario
                 $senderUsername = 'Un utente';
                 $recipientUsername = '';
