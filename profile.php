@@ -528,8 +528,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.7.3">
-    <script src="/assets/js/profile.js?v=5.7.3" defer></script>
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.7.4">
+    <script src="/assets/js/profile.js?v=5.7.4" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -1730,7 +1730,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                         if (!empty($block['title']) || !empty($block['body']) || $isPinned || (!empty($block['card_tag_text']) && (int)($profile['is_premium'] ?? 0) === 1)) {
                                             ob_start();
                                         ?>
-                                            <div class="profile-block-copy"<?php echo $blockTextAlignStyle; ?>>
+                                            <div class="profile-block-copy" <?php echo $blockTextAlignStyle; ?>>
                                                 <?php if (!empty($block['title'])): ?>
                                                     <strong>
                                                         <?php echo profile_h($block['title']); ?>
