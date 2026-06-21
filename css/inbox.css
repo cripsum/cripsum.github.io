@@ -51,7 +51,8 @@
 /* ══ CATEGORIES SIDEBAR ══ */
 .inbox-sidebar {
     gap: 10px;
-    height: 100%;
+    height: auto;
+    align-self: start;
 }
 
 .inbox-sidebar h3 {
@@ -394,6 +395,17 @@
     color: var(--home-muted-2);
     text-align: center;
     gap: 12px;
+}
+
+.inbox-view-empty h4 {
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 700;
+    margin: 0;
+}
+
+.inbox-view-empty p {
+    color: rgba(255, 255, 255, 0.55) !important;
+    margin: 0;
 }
 
 .inbox-view-empty i {

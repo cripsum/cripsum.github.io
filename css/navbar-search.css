@@ -552,12 +552,13 @@
 }
 
 .navbarutenti .nav-inbox-link .badge {
-    font-size: 0.58rem !important;
-    padding: 0.22em 0.4em !important;
-    top: -2px !important;
-    right: -2px !important;
+    font-size: 0.68rem !important;
+    padding: 0.25em 0.5em !important;
+    top: 1px !important;
+    right: 1px !important;
     border: 1.5px solid rgba(13, 17, 28, 0.95);
-    box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.7);
+    font-weight: 700 !important;
 }
 
 /* Narrow Desktop Breakpoints to prevent item wrapping */
