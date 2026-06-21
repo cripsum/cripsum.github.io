@@ -3441,19 +3441,7 @@ body[data-profile-button-shape="sharp"] .bio-icon-button {
     z-index: 18000 !important;
 }
 
-/* Ensure the bio mobile collapse menu has a premium transparent background and glassmorphism styling */
-@media (max-width: 1199.98px) {
-    .bio-v2-body .navbarutenti .navbar-collapse {
-        background: rgba(255, 255, 255, 0.03) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-        border-radius: 14px !important;
-        padding: 18px !important;
-        margin-top: 10px !important;
-        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3) !important;
-        backdrop-filter: blur(25px) !important;
-        -webkit-backdrop-filter: blur(25px) !important;
-    }
-}
+
 
 .bio-v2-body .navbar .dropdown-menu,
 .bio-v2-body .navbarutenti .dropdown-menu,
