@@ -462,3 +462,100 @@
         align-items: center;
     }
 }
+
+/* ============================================================
+   Navbar Overhaul - Mobile & Responsive Layout additions
+   ============================================================ */
+
+/* Mobile header actions container */
+.navbar-mobile-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-left: auto;
+    margin-right: 14px;
+}
+
+.navbar-mobile-actions .lang-switch {
+    margin: 0 !important;
+    padding: 5px 10px !important;
+    font-size: 0.76rem !important;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Mobile inbox envelope link */
+.nav-inbox-link-mobile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 1.35rem;
+    text-decoration: none;
+    transition: color 0.2s ease, transform 0.2s ease;
+    padding: 6px;
+}
+
+.nav-inbox-link-mobile:hover,
+.nav-inbox-link-mobile:focus {
+    color: #fff;
+    transform: scale(1.08);
+}
+
+.nav-inbox-link-mobile .badge {
+    font-size: 0.6rem !important;
+    padding: 0.25em 0.45em !important;
+    top: 4px !important;
+    right: -4px !important;
+    border: 1.5px solid rgba(13, 17, 28, 0.95);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.45);
+}
+
+/* Narrow Desktop Breakpoints to prevent item wrapping */
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+    .navbarutenti {
+        margin: 0 16px !important;
+        top: 12px !important;
+    }
+    
+    .navbarutenti .nav-link {
+        padding: 6px 10px !important;
+        font-size: 0.88rem !important;
+    }
+    
+    .navbar-search-wrapper {
+        margin: 0 4px !important;
+    }
+    
+    .navbar-search-group {
+        width: 155px !important;
+    }
+    
+    .navbar-search-group:focus-within {
+        width: 195px !important;
+    }
+    
+    .navbar-brand {
+        margin-right: 0.4rem !important;
+    }
+    
+    .navbar-brand span {
+        font-size: 1.05rem !important;
+        margin-left: 8px !important;
+    }
+    
+    .lang-switch {
+        padding: 3px 8px !important;
+        font-size: 0.72rem !important;
+    }
+    
+    /* Truncate long username to prevent layout push */
+    .dropdownprofilo .nav-link span {
+        max-width: 85px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+        vertical-align: middle;
+    }
+}
+

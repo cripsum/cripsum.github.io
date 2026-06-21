@@ -99,6 +99,27 @@ if ($isLoggedIn) {
             <span class="align-middle ms-3 fw-bold testobianco">Cripsum™</span>
         </a>
 
+        <!-- Mobile actions (visible on mobile, hidden on desktop) -->
+        <div class="navbar-mobile-actions d-xl-none">
+            <a href="<?= htmlspecialchars($switchUrl) ?>"
+                class="lang-switch"
+                aria-label="Switch language to <?= $altLabel ?>"
+                title="Switch to <?= $altLabel ?>">
+                <span class="lang-switch__cur"><?= $curLabel ?></span>
+                <span class="lang-switch__sep">·</span>
+                <span class="lang-switch__alt"><?= $altLabel ?></span>
+            </a>
+
+            <?php if ($isLoggedIn): ?>
+                <a href="/<?= $lang ?>/inbox" class="nav-inbox-link-mobile position-relative" aria-label="Inbox" title="Inbox">
+                    <i class="fa-solid fa-envelope"></i>
+                    <span id="inbox-unread-count-mobile" class="badge bg-danger position-absolute translate-middle rounded-pill <?= ($unreadCount > 0) ? '' : 'd-none' ?>">
+                        <?= $unreadCount ?>
+                    </span>
+                </a>
+            <?php endif; ?>
+        </div>
+
         <button
             class="navbar-toggler"
             type="button"
@@ -172,7 +193,7 @@ if ($isLoggedIn) {
 
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                <li class="nav-item d-flex align-items-center me-2">
+                <li class="nav-item d-none d-xl-flex align-items-center me-2">
                     <a href="<?= htmlspecialchars($switchUrl) ?>"
                         class="lang-switch"
                         aria-label="Switch language to <?= $altLabel ?>"
@@ -189,7 +210,7 @@ if ($isLoggedIn) {
                     </li>
                 <?php else: ?>
                     <!-- ══ CENTRO MESSAGGI (INBOX) ══ -->
-                    <li class="nav-item d-flex align-items-center me-3" style="position: relative;">
+                    <li class="nav-item d-none d-xl-flex align-items-center me-3" style="position: relative;">
                         <a href="/<?= $lang ?>/inbox" class="nav-link nav-inbox-link d-flex align-items-center position-relative" aria-label="Inbox" title="Inbox" style="padding: 6px;">
                             <i class="fa-solid fa-envelope" style="font-size: 1.25rem;"></i>
                             <span id="inbox-unread-count" class="badge bg-danger position-absolute translate-middle rounded-pill <?= ($unreadCount > 0) ? '' : 'd-none' ?>" 
@@ -540,5 +561,37 @@ if ($isLoggedIn) {
             setTimeout(hideDropdown, 120);
         });
 
+    })();
+</script>
+
+<script>
+    // Safeguard: Load Bootstrap JS bundle dynamically if it's missing on the page
+    window.addEventListener('DOMContentLoaded', function() {
+        if (typeof bootstrap === 'undefined') {
+            console.log('Bootstrap JS missing, loading dynamically...');
+            var script = document.createElement('script');
+            script.src = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js";
+            script.crossOrigin = "anonymous";
+            document.head.appendChild(script);
+        }
+    });
+
+    // Sync desktop and mobile inbox unread badges
+    (function() {
+        const desktopBadge = document.getElementById('inbox-unread-count');
+        const mobileBadge = document.getElementById('inbox-unread-count-mobile');
+        if (desktopBadge && mobileBadge) {
+            const syncBadges = () => {
+                mobileBadge.textContent = desktopBadge.textContent;
+                if (desktopBadge.classList.contains('d-none')) {
+                    mobileBadge.classList.add('d-none');
+                } else {
+                    mobileBadge.classList.remove('d-none');
+                }
+            };
+            syncBadges();
+            const observer = new MutationObserver(syncBadges);
+            observer.observe(desktopBadge, { attributes: true, childList: true, characterData: true });
+        }
     })();
 </script>
