@@ -732,7 +732,7 @@ function getCurrentUser($mysqli)
     }
 
     $stmt = $mysqli->prepare("
-        SELECT id, username, email, profile_pic, data_creazione, ruolo, soldi, isBannato, nswf
+        SELECT id, username, email, profile_pic, data_creazione, ruolo, soldi, isBannato, nsfw
         FROM utenti 
         WHERE id = ?
     ");
@@ -747,7 +747,7 @@ function getCurrentUser($mysqli)
 function getUserProfile($mysqli, $userId)
 {
     $stmt = $mysqli->prepare("
-        SELECT id, username, email, profile_pic, data_creazione, ruolo, soldi, isBannato, nswf
+        SELECT id, username, email, profile_pic, data_creazione, ruolo, soldi, isBannato, nsfw
         FROM utenti 
         WHERE id = ?
     ");
