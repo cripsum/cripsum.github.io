@@ -32,7 +32,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
     <meta name="description" content="<?php echo htmlspecialchars($ogDescription); ?>">
 
     <!-- Custom styling for inbox -->
-    <link rel="stylesheet" href="/css/inbox.css?v=2.0">
+    <link rel="stylesheet" href="/css/inbox.css?v=3.0">
     <link rel="stylesheet" href="/css/style-dark.css?v=5.0">
 </head>
 
@@ -79,7 +79,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                 <span class="inbox-category-badge" id="badge-rewards">0</span>
             </button>
             <button type="button" class="inbox-category-btn" data-cat="special">
-                <span><i class="fa-solid fa-calendar-star"></i>Eventi speciali</span>
+                <span><i class="fa-solid fa-calendar-days"></i>Eventi speciali</span>
                 <span class="inbox-category-badge" id="badge-special">0</span>
             </button>
             <button type="button" class="inbox-category-btn" data-cat="staff">
@@ -403,7 +403,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                 const dateFormatted = formatMessageDateTime(msg.created_at);
 
                 const starClass = isStarred ? 'is-active' : '';
-                const archiveText = isArchived ? '<i class="fa-solid fa-box-open"></i>Ripristina' : '<i class="fa-solid fa-archive"></i>Archivia';
+                const archiveText = isArchived ? '<i class="fa-solid fa-box-open"></i> <span>Ripristina</span>' : '<i class="fa-solid fa-archive"></i> <span>Archivia</span>';
 
                 // Rewards Markup
                 let rewardsHtml = '';
@@ -478,9 +478,9 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                             <span class="inbox-card-date">${dateFormatted}</span>
                         </div>
                         <div class="inbox-view-actions">
-                            <button type="button" class="inbox-action-btn ${starClass}" id="btnStar" data-id="${msg.message_id}"><i class="fa-solid fa-star"></i> Importante</button>
+                            <button type="button" class="inbox-action-btn ${starClass}" id="btnStar" data-id="${msg.message_id}"><i class="fa-solid fa-star"></i> <span>Importante</span></button>
                             <button type="button" class="inbox-action-btn" id="btnArchive" data-id="${msg.message_id}">${archiveText}</button>
-                            <button type="button" class="inbox-action-btn inbox-action-btn--danger" id="btnDelete" data-id="${msg.message_id}"><i class="fa-solid fa-trash"></i> Elimina</button>
+                            <button type="button" class="inbox-action-btn inbox-action-btn--danger" id="btnDelete" data-id="${msg.message_id}"><i class="fa-solid fa-trash"></i> <span>Elimina</span></button>
                         </div>
                     </div>
                     
