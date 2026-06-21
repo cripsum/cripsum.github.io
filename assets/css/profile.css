@@ -1908,10 +1908,10 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
 }
 
 .navbarutenti {
-    background: rgba(8, 12, 24, 0.62) !important;
-    border: 1px solid rgba(var(--accent-rgb), 0.38) !important;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(var(--accent-rgb), 0.22) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
 }
 
 @media (max-width: 1080px) {
@@ -3448,19 +3448,18 @@ body[data-profile-button-shape="sharp"] .bio-icon-button {
 .bio-v2-body .navbar,
 .bio-v2-body .navbarutenti,
 .bio-v2-body header {
-    isolation: isolate;
     z-index: 18000 !important;
 }
 
-/* Ensure the bio mobile collapse menu has a premium opaque background and glassmorphism styling */
+/* Ensure the bio mobile collapse menu has a premium transparent background and glassmorphism styling */
 @media (max-width: 1199.98px) {
     .bio-v2-body .navbarutenti .navbar-collapse {
-        background: linear-gradient(135deg, rgba(13, 17, 28, 0.98), rgba(8, 10, 18, 0.99)) !important;
-        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        background: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
         border-radius: 14px !important;
         padding: 18px !important;
         margin-top: 10px !important;
-        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6) !important;
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3) !important;
         backdrop-filter: blur(25px) !important;
         -webkit-backdrop-filter: blur(25px) !important;
     }

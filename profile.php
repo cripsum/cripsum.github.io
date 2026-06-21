@@ -552,7 +552,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.8.7">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.8.8">
     <style>
         .profile-dropdown-item--gift,
         .profile-dropdown-item--gift * {
@@ -590,7 +590,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             }
         }
     </style>
-    <script src="/assets/js/profile.js?v=5.8.7" defer></script>
+    <script src="/assets/js/profile.js?v=5.8.8" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
