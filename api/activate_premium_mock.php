@@ -32,6 +32,9 @@ if ($stmt->execute()) {
     // Aggiorna lo stato premium nella sessione
     $_SESSION['is_premium'] = 1;
 
+    // Invia notifica inbox premium
+    sendPremiumUpgradeNotification($mysqli, $userId, null);
+
     echo json_encode(['ok' => true, 'message' => 'Premium attivato con successo! Hai ricevuto 200.000 soldi bonus!']);
 } else {
     echo json_encode(['ok' => false, 'message' => 'Errore durante l\'attivazione: ' . $mysqli->error]);

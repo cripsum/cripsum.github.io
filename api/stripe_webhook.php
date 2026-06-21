@@ -167,6 +167,12 @@ if ($eventType === 'checkout.session.completed') {
                 if (!empty($recipientEmail)) {
                     sendPremiumGiftEmail($recipientEmail, $recipientUsername, $senderUsername);
                 }
+
+                // Invia notifica inbox premium regalo
+                sendPremiumUpgradeNotification($mysqli, $userId, $senderUsername);
+            } else {
+                // Invia notifica inbox premium acquisto personale
+                sendPremiumUpgradeNotification($mysqli, $userId, null);
             }
         } else {
             http_response_code(500);

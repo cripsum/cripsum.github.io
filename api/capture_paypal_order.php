@@ -170,6 +170,9 @@ try {
         }
     }
     
+    // 6. Invia notifica inbox premium/regalo
+    sendPremiumUpgradeNotification($mysqli, $recipientId, $isGift ? $_SESSION['username'] : null);
+    
     $mysqli->commit();
     
     // Se l'utente loggato è colui che ha ricevuto il premium, aggiorna la sessione attiva

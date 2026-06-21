@@ -1157,3 +1157,79 @@ function sendSecurityInboxMessage($mysqli, $recipientId, $titleIt, $titleEn, $co
     return false;
 }
 
+function sendPremiumUpgradeNotification($mysqli, $recipientId, $senderUsername = null)
+{
+    $isGift = !empty($senderUsername);
+
+    if ($isGift) {
+        $titleIt = "Hai ricevuto un regalo: Cripsum Premium!";
+        $titleEn = "You received a gift: Cripsum Premium!";
+
+        $contentIt = "![Cripsum Premium Gift](https://cripsum.com/assets/inbox_update_banner.png)\n\n" .
+                     "Sorpresa! **" . $senderUsername . "** ti ha regalato **Cripsum Premium**! 🎁\n\n" .
+                     "Tutti i vantaggi premium sono già stati sbloccati ed attivati sul tuo account:\n" .
+                     "- **Badge Premium (ID 5)**: Un badge esclusivo sul tuo profilo per mostrare a tutti il tuo supporto.\n" .
+                     "- **Bonus di 200.000 soldi**: Aggiunti direttamente al tuo bilancio per effettuare pull nel gacha.\n" .
+                     "- **Riscatto Lootbox**: Riscatta 500 soldi extra bonus ogni giorno nelle Lootbox.\n" .
+                     "- **Boost Missioni**: Guadagni raddoppiati (x2) su tutti i punti delle missioni Giornaliere e Settimanali (Daily & Weekly).\n" .
+                     "- **Effetti e Cursori Personalizzati**: Personalizza il cursore del mouse nel tuo profilo.\n" .
+                     "- **Layout Snap & Background Grain**: Nuovi stili grafici e grana di sfondo avanzata per il tuo profilo.\n" .
+                     "- **Temi Musicali Personalizzati**: Aggiungi colonne sonore personalizzate alla tua pagina profilo.\n" .
+                     "- **Icone Social Personalizzate**: Mostra i tuoi link social con icone premium stilizzate.\n" .
+                     "- **Tag sulle Card dei Progetti**: Evidenzia i tuoi progetti con tag dedicati.\n" .
+                     "- **Blocchi Profilo Personalizzati**: Personalizza il tuo profilo con codice HTML e Markdown personalizzato.\n\n" .
+                     "Corri a personalizzare il tuo account nella sezione **Impostazioni Profilo**! Ringrazia **" . $senderUsername . "** appena puoi!";
+
+        $contentEn = "![Cripsum Premium Gift](https://cripsum.com/assets/inbox_update_banner.png)\n\n" .
+                     "Surprise! **" . $senderUsername . "** has gifted you **Cripsum Premium**! 🎁\n\n" .
+                     "All premium perks have already been unlocked and activated on your account:\n" .
+                     "- **Premium Badge (ID 5)**: An exclusive badge on your profile to showcase your support.\n" .
+                     "- **200,000 Soldi Bonus**: Added directly to your balance to pull in the gacha.\n" .
+                     "- **Lootbox Daily Claim**: Redeem 500 extra bonus soldi every day in your Lootbox.\n" .
+                     "- **Mission Boost**: Double points (x2) earned on all Daily & Weekly missions.\n" .
+                     "- **Custom Mouse Cursors & Effects**: Customize the cursor on your profile page.\n" .
+                     "- **Layout Snap & Background Grain**: New advanced styling grids and background effects.\n" .
+                     "- **Custom Music Themes**: Add background soundtracks to your profile page.\n" .
+                     "- **Custom Social Icons**: Display your social media links with styled premium icons.\n" .
+                     "- **Project Card Tags**: Highlight your projects with dedicated tags.\n" .
+                     "- **Custom Profile Blocks**: Design your profile page with custom HTML/Markdown blocks.\n\n" .
+                     "Go customize your account right away in your **Profile Settings**! Don't forget to thank **" . $senderUsername . "**!";
+    } else {
+        $titleIt = "Cripsum Premium Attivato!";
+        $titleEn = "Cripsum Premium Activated!";
+
+        $contentIt = "![Cripsum Premium](https://cripsum.com/assets/inbox_update_banner.png)\n\n" .
+                     "Grazie mille per aver acquistato **Cripsum Premium**! Il tuo supporto ci aiuta a mantenere il sito attivo e a sviluppare nuove funzionalità.\n\n" .
+                     "Tutti i vantaggi premium sono già stati attivati sul tuo account:\n" .
+                     "- **Badge Premium (ID 5)**: Un badge esclusivo sul tuo profilo per mostrare a tutti il tuo supporto.\n" .
+                     "- **Bonus di 200.000 soldi**: Aggiunti direttamente al tuo bilancio per effettuare pull nel gacha.\n" .
+                     "- **Riscatto Lootbox**: Riscatta 500 soldi extra bonus ogni giorno nelle Lootbox.\n" .
+                     "- **Boost Missioni**: Guadagni raddoppiati (x2) su tutti i punti delle missioni Giornaliere e Settimanali (Daily & Weekly).\n" .
+                     "- **Effetti e Cursori Personalizzati**: Personalizza il cursore del mouse nel tuo profilo.\n" .
+                     "- **Layout Snap & Background Grain**: Nuovi stili grafici e grana di sfondo avanzata per il tuo profilo.\n" .
+                     "- **Temi Musicali Personalizzati**: Aggiungi colonne sonore personalizzate alla tua pagina profilo.\n" .
+                     "- **Icone Social Personalizzate**: Mostra i tuoi link social con icone premium stilizzate.\n" .
+                     "- **Tag sulle Card dei Progetti**: Evidenzia i tuoi progetti con tag dedicati.\n" .
+                     "- **Blocchi Profilo Personalizzati**: Personalizza il tuo profilo con codice HTML e Markdown personalizzato.\n\n" .
+                     "Puoi configurare tutte le tue nuove impostazioni premium direttamente nella sezione **Impostazioni Profilo**. Grazie ancora per far parte della community!";
+
+        $contentEn = "![Cripsum Premium](https://cripsum.com/assets/inbox_update_banner.png)\n\n" .
+                     "Thank you so much for purchasing **Cripsum Premium**! Your support helps us keep the site running and develop new features.\n\n" .
+                     "All premium perks have already been activated on your account:\n" .
+                     "- **Premium Badge (ID 5)**: An exclusive badge on your profile to showcase your support.\n" .
+                     "- **200,000 Soldi Bonus**: Added directly to your balance to pull in the gacha.\n" .
+                     "- **Lootbox Daily Claim**: Redeem 500 extra bonus soldi every day in your Lootbox.\n" .
+                     "- **Mission Boost**: Double points (x2) earned on all Daily & Weekly missions.\n" .
+                     "- **Custom Mouse Cursors & Effects**: Customize the cursor on your profile page.\n" .
+                     "- **Layout Snap & Background Grain**: New advanced styling grids and background effects.\n" .
+                     "- **Custom Music Themes**: Add background soundtracks to your profile page.\n" .
+                     "- **Custom Social Icons**: Display your social media links with styled premium icons.\n" .
+                     "- **Project Card Tags**: Highlight your projects with dedicated tags.\n" .
+                     "- **Custom Profile Blocks**: Design your profile page with custom HTML/Markdown blocks.\n\n" .
+                     "You can configure all of your new premium settings directly in your **Profile Settings**. Thank you again for being part of the community!";
+    }
+
+    return sendSecurityInboxMessage($mysqli, $recipientId, $titleIt, $titleEn, $contentIt, $contentEn, 'special');
+}
+
+
