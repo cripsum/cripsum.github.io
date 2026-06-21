@@ -36,17 +36,6 @@
     display: none !important;
 }
 
-.profile-editor-shell .navbar,
-.profile-editor-shell .navbarutenti {
-    display: flex !important;
-    position: fixed !important;
-    top: 10px !important;
-    left: 10px !important;
-    right: 10px !important;
-    height: 72px !important;
-    z-index: 15000 !important;
-    border-radius: 16px !important;
-}
 
 .profile-editor-shell .bio-background,
 .profile-editor-shell .profile-effects-layer {

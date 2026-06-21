@@ -1323,12 +1323,7 @@ body[data-theme="light"] .ds-status-dot {
     }
 }
 
-.navbarutenti {
-    background: rgba(8, 12, 24, 0.62);
-    border: 1px solid rgba(var(--accent-rgb), 0.38);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-}
+
 
 .dropdownutenti .dropdown-menu {
     background: rgba(8, 12, 24, 0.92);
@@ -1907,12 +1902,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
     font-size: clamp(2rem, 4vw, 3.2rem);
 }
 
-.navbarutenti {
-    background: rgba(255, 255, 255, 0.03) !important;
-    border: 1px solid rgba(var(--accent-rgb), 0.22) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-}
+
 
 @media (max-width: 1080px) {
     .profile-edit-grid {
@@ -2831,7 +2821,7 @@ body.bio-v2-body {
 }
 
 .bio-v2-body {
-    isolation: isolate;
+    /* isolation: isolate; removed to restore backdrop-filter blur */
 }
 
 .bio-v2-body > .bio-background {
