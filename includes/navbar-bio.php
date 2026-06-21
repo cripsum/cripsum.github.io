@@ -190,7 +190,7 @@ if ($isLoggedIn) {
             </ul>
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                <li class="nav-item d-flex align-items-center me-2">
+                <li class="nav-item d-none d-xl-flex align-items-center me-2">
                     <?php if (preg_match('#^/(it|en)/edit-profile\b#', $uri)): ?>
                         <a href="<?= htmlspecialchars($switchUrl) ?>"
                             class="lang-switch"
