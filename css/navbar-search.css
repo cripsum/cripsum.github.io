@@ -635,7 +635,6 @@
 /* Mobile Navbar Wrapping Prevention and Spacing Scaling */
 @media (max-width: 480px) {
     .navbarutenti .container-fluid {
-        flex-wrap: nowrap !important;
         padding-left: 10px !important;
         padding-right: 10px !important;
     }

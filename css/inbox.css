@@ -204,12 +204,14 @@
 }
 
 .inbox-filters {
-    display: flex;
+    display: flex !important;
+    flex-wrap: nowrap !important;
     gap: 6px;
     padding: 12px 16px;
     border-bottom: 1px solid var(--home-border);
     background: rgba(0, 0, 0, 0.12);
-    overflow-x: auto;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
     scrollbar-width: none; /* Hide scrollbar Firefox */
 }
 
@@ -230,6 +232,7 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     white-space: nowrap;
+    flex-shrink: 0 !important;
 }
 
 .inbox-filter-tab:hover {
@@ -696,6 +699,7 @@
         height: 38px;
         box-sizing: border-box;
         transition: var(--home-transition);
+        flex-shrink: 0 !important;
     }
     
     .inbox-category-btn:hover {
