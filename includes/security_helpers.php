@@ -350,9 +350,11 @@ function auth_get_user_by_id(mysqli $mysqli, int $userId): ?array
     return $user;
 }
 
-function auth_complete_login(array $user): void
+function auth_complete_login(array $user, ?mysqli $mysqli = null): void
 {
-    global $mysqli;
+    if ($mysqli === null) {
+        global $mysqli;
+    }
 
     if (isset($mysqli) && auth_table_exists($mysqli, 'login_attempts')) {
         $currentIp = auth_client_ip();
@@ -365,12 +367,17 @@ function auth_complete_login(array $user): void
             ORDER BY created_at DESC 
             LIMIT 1
         ");
-        if ($stmt) {
+        if (!$stmt) {
+            @error_log("[" . date('Y-m-d H:i:s') . "] auth_complete_login SELECT prepare error: " . $mysqli->error . "\n", 3, __DIR__ . '/../inbox_errors.log');
+        } else {
             $stmt->bind_param("i", $userId);
             $stmt->execute();
             $res = $stmt->get_result();
             $lastLogin = $res->fetch_assoc();
             $stmt->close();
+
+            $lastIp = $lastLogin ? $lastLogin['ip_address'] : 'none';
+            @error_log("[" . date('Y-m-d H:i:s') . "] auth_complete_login debug: userId=" . $userId . ", currentIp=" . $currentIp . ", lastLoginIp=" . $lastIp . "\n", 3, __DIR__ . '/../inbox_errors.log');
 
             if ($lastLogin && $lastLogin['ip_address'] !== $currentIp) {
                 $currentTime = date('d/m/Y H:i:s');
@@ -394,10 +401,16 @@ function auth_complete_login(array $user): void
                              "If this was you, you can ignore this message. If you do not recognize this activity, we recommend changing your password immediately in your settings.";
 
                 if (function_exists('sendSecurityInboxMessage')) {
-                    sendSecurityInboxMessage($mysqli, $userId, $titleIt, $titleEn, $contentIt, $contentEn);
+                    $sent = sendSecurityInboxMessage($mysqli, $userId, $titleIt, $titleEn, $contentIt, $contentEn);
+                    @error_log("[" . date('Y-m-d H:i:s') . "] auth_complete_login trigger message: " . ($sent ? 'SUCCEEDED' : 'FAILED') . "\n", 3, __DIR__ . '/../inbox_errors.log');
+                } else {
+                    @error_log("[" . date('Y-m-d H:i:s') . "] auth_complete_login error: sendSecurityInboxMessage function does not exist!\n", 3, __DIR__ . '/../inbox_errors.log');
                 }
             }
         }
+    } else {
+        $mysqli_status = isset($mysqli) ? 'SET' : 'NOT SET';
+        @error_log("[" . date('Y-m-d H:i:s') . "] auth_complete_login skipped: mysqli=" . $mysqli_status . "\n", 3, __DIR__ . '/../inbox_errors.log');
     }
 
     session_regenerate_id(true);
@@ -477,7 +490,7 @@ function auth_start_password_login(mysqli $mysqli, string $identifier, string $p
         return ['ok' => false, 'twofa_required' => true, 'redirect' => 'verifica-2fa'];
     }
 
-    auth_complete_login($user);
+    auth_complete_login($user, $mysqli);
     auth_record_login_attempt($mysqli, (int)$user['id'], $identifier, true, 'login_ok');
 
     return ['ok' => true];
@@ -523,7 +536,7 @@ function auth_verify_2fa_login(mysqli $mysqli, string $code): array
         return ['ok' => false, 'message' => 'Codice non valido.'];
     }
 
-    auth_complete_login($user);
+    auth_complete_login($user, $mysqli);
 
     $redirect = $_SESSION['pending_2fa_redirect'] ?? 'home';
     unset($_SESSION['pending_2fa_user_id'], $_SESSION['pending_2fa_started_at'], $_SESSION['pending_2fa_identifier'], $_SESSION['pending_2fa_redirect'], $_SESSION['redirect_after_login']);

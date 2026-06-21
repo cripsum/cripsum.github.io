@@ -83,7 +83,7 @@ if ($row = $result->fetch_assoc()) {
         exit();
     }
 
-    auth_complete_login($row);
+    auth_complete_login($row, $mysqli);
     auth_record_login_attempt($mysqli, (int)$row['id'], $email, true, 'google_login_ok');
 } else {
     $base_username = strtolower(preg_replace('/[^a-zA-Z0-9_]/', '', $name));
@@ -114,7 +114,7 @@ if ($row = $result->fetch_assoc()) {
         'richpresence' => 0,
         'password' => ''
     ];
-    auth_complete_login($user_data);
+    auth_complete_login($user_data, $mysqli);
     auth_record_login_attempt($mysqli, $new_user_id, $email, true, 'google_register_ok');
 }
 
