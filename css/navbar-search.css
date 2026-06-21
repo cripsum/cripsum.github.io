@@ -368,6 +368,7 @@
         padding: 12px !important;
         max-height: 240px !important;
         overflow-y: auto !important;
+        overflow-x: hidden !important;
     }
 
     .dropdownutenti .dropdown-menu li.grid-span-2 {
@@ -375,8 +376,8 @@
     }
 
     .dropdownutenti .dropdown-menu .dropdown-item {
-        padding: 10px 12px !important;
-        font-size: 0.9rem !important;
+        padding: 10px 8px !important;
+        font-size: 0.88rem !important;
         border: 1px solid rgba(128, 128, 128, 0.15);
         background: rgba(128, 128, 128, 0.05);
         border-radius: 10px;
@@ -384,6 +385,10 @@
         display: flex;
         align-items: center;
         white-space: normal !important;
+    }
+
+    .dropdownutenti .dropdown-menu .dropdown-item i {
+        margin-right: 6px !important;
     }
 
     .nav-auth-group {
