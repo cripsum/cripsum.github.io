@@ -32,7 +32,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
     <meta name="description" content="<?php echo htmlspecialchars($ogDescription); ?>">
 
     <!-- Custom styling for inbox -->
-    <link rel="stylesheet" href="/css/inbox.css?v=4.3">
+    <link rel="stylesheet" href="/css/inbox.css?v=4.4">
     <link rel="stylesheet" href="/css/style-dark.css?v=5.0">
 </head>
 
@@ -51,7 +51,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
         <!-- Sidebar Categorie -->
         <aside class="inbox-panel inbox-sidebar" aria-label="Categorie messaggi">
             <h3 style="font-weight: 800; color: #fff; margin-bottom: 15px; font-size: 1.25rem;">
-                <i class="fa-solid fa-inbox me-2" style="color: #0f5bff;"></i>Posta interna
+                <i class="fa-solid fa-inbox me-2" style="color: #0f5bff;"></i>Messaggi
             </h3>
 
             <button type="button" class="inbox-category-btn is-active" data-cat="">
