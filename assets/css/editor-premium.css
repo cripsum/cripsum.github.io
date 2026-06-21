@@ -2059,14 +2059,18 @@ input[type="range"]::-moz-range-track {
 @container sidebar (max-width: 480px) {
     .profile-field-grid.two,
     .profile-field-grid.three,
+    .profile-field-grid,
     .profile-row-grid,
     .row-card-tag-grid,
-    .profile-badge-picker {
-        grid-template-columns: minmax(0, 1fr) !important;
+    .profile-badge-picker,
+    .theme-presets-gallery {
+        display: flex !important;
+        flex-direction: column !important;
     }
     
     .profile-toggle-card.profile-inline-toggle {
         min-height: auto !important;
+        width: 100% !important;
     }
 }
 
@@ -2074,14 +2078,18 @@ input[type="range"]::-moz-range-track {
 @media (max-width: 767px) {
     .profile-field-grid.two,
     .profile-field-grid.three,
+    .profile-field-grid,
     .profile-row-grid,
     .row-card-tag-grid,
-    .profile-badge-picker {
-        grid-template-columns: minmax(0, 1fr) !important;
+    .profile-badge-picker,
+    .theme-presets-gallery {
+        display: flex !important;
+        flex-direction: column !important;
     }
     
     .profile-toggle-card.profile-inline-toggle {
         min-height: auto !important;
+        width: 100% !important;
     }
 }
 
