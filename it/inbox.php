@@ -32,7 +32,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
     <meta name="description" content="<?php echo htmlspecialchars($ogDescription); ?>">
 
     <!-- Custom styling for inbox -->
-    <link rel="stylesheet" href="/css/inbox.css?v=3.0">
+    <link rel="stylesheet" href="/css/inbox.css?v=4.0">
     <link rel="stylesheet" href="/css/style-dark.css?v=5.0">
 </head>
 
