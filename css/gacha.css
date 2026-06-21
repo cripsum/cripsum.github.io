@@ -1615,10 +1615,10 @@ body.lootbox-page {
 
     .gacha-main {
         /* Lascia spazio al strip in basso */
-        padding-bottom: 165px;
+        padding-bottom: 148px;
     }
     body.has-premium .gacha-main {
-        padding-bottom: 250px;
+        padding-bottom: 230px;
     }
 
     .gacha-banner-view {
@@ -1633,8 +1633,8 @@ body.lootbox-page {
         right: 0;
         top: auto;
         width: 100%;
-        height: auto;
-        max-height: 150px;
+        height: 148px;
+        max-height: 148px;
         border-left: none;
         border-top: 1px solid rgba(255, 255, 255, 0.08);
         flex-direction: column;
@@ -1644,7 +1644,8 @@ body.lootbox-page {
         overflow: hidden;
     }
     .gacha-sidebar.has-premium {
-        max-height: 235px;
+        height: 230px;
+        max-height: 230px;
     }
 
     /* Compatta box riscatto premium su mobile */
@@ -1839,6 +1840,9 @@ body.lootbox-page {
         /* Spazio per sidebar mobile fissa in basso */
         padding-bottom: 148px;
     }
+    body.has-premium .gacha-main {
+        padding-bottom: 230px;
+    }
 
     .gacha-banner-view {
         min-height: 0; /* flex:1 gestisce il sizing; JS sovrascrive con il calcolo corretto */
@@ -1860,6 +1864,10 @@ body.lootbox-page {
         border-top: 1px solid rgba(255, 255, 255, 0.09);
         overflow: hidden;
         z-index: 150;
+    }
+    .gacha-sidebar.has-premium {
+        height: 230px !important;
+        max-height: 230px !important;
     }
 }
 
