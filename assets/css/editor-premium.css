@@ -2037,12 +2037,26 @@ input[type="range"]::-moz-range-track {
     }
 }
 
-/* Ensure all form inputs, selects and textareas fit inside their parent container */
-.profile-editor-shell input,
+/* Ensure all form inputs, selects and textareas fit inside their parent container and can shrink */
+.profile-editor-shell input[type="text"],
+.profile-editor-shell input[type="url"],
+.profile-editor-shell input[type="number"],
+.profile-editor-shell input[type="email"],
+.profile-editor-shell input[type="password"],
+.profile-editor-shell input[type="file"],
 .profile-editor-shell select,
 .profile-editor-shell textarea {
+    width: 100% !important;
     max-width: 100% !important;
+    min-width: 0 !important;
     box-sizing: border-box !important;
+}
+
+/* Ensure grid/flex labels can shrink and take full width */
+.profile-row-grid label,
+.profile-field-grid label {
+    min-width: 0 !important;
+    width: 100% !important;
 }
 
 /* Allow input inside flex container to shrink correctly */
