@@ -893,3 +893,188 @@ function getUltimoAccesso($mysqli, $user_id)
 
     return $ultimo_accesso;
 }
+
+function getUnreadMessagesCount($mysqli, $userId)
+{
+    $userId = (int)$userId;
+    $stmt = $mysqli->prepare("
+        SELECT COUNT(*) AS c 
+        FROM site_message_recipients 
+        WHERE recipient_id = ? AND is_read = 0 AND is_archived = 0
+    ");
+    if (!$stmt) return 0;
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $stmt->close();
+    return (int)($row['c'] ?? 0);
+}
+
+function claimMessageRewards($mysqli, $userId, $messageId)
+{
+    $userId = (int)$userId;
+    $messageId = (int)$messageId;
+    
+    // Controlla se la riga del destinatario esiste ed i premi non sono ancora stati riscattati
+    $stmt = $mysqli->prepare("
+        SELECT id, claimed_at 
+        FROM site_message_recipients 
+        WHERE recipient_id = ? AND message_id = ?
+    ");
+    if (!$stmt) return ['ok' => false, 'error' => 'Errore nel database.'];
+    
+    $stmt->bind_param("ii", $userId, $messageId);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $recipient = $res->fetch_assoc();
+    $stmt->close();
+    
+    if (!$recipient) {
+        return ['ok' => false, 'error' => 'Messaggio non trovato.'];
+    }
+    
+    if ($recipient['claimed_at'] !== null) {
+        return ['ok' => false, 'error' => 'Premi già riscattati.'];
+    }
+    
+    // Recupera i premi associati al messaggio
+    $stmtRewards = $mysqli->prepare("
+        SELECT reward_type, reward_value, quantity 
+        FROM site_message_rewards 
+        WHERE message_id = ?
+    ");
+    if (!$stmtRewards) return ['ok' => false, 'error' => 'Errore nel recupero dei premi.'];
+    
+    $stmtRewards->bind_param("i", $messageId);
+    $stmtRewards->execute();
+    $resRewards = $stmtRewards->get_result();
+    $rewards = $resRewards->fetch_all(MYSQLI_ASSOC);
+    $stmtRewards->close();
+    
+    if (empty($rewards)) {
+        return ['ok' => false, 'error' => 'Questo messaggio non contiene premi.'];
+    }
+    
+    $mysqli->begin_transaction();
+    
+    $claimedList = [];
+    
+    try {
+        foreach ($rewards as $reward) {
+            $type = $reward['reward_type'];
+            $val = $reward['reward_value'];
+            $qty = (int)$reward['quantity'];
+            
+            if ($type === 'points') {
+                $points = (int)$val * $qty;
+                $stmt = $mysqli->prepare("UPDATE utenti SET soldi = soldi + ? WHERE id = ?");
+                $stmt->bind_param("ii", $points, $userId);
+                $stmt->execute();
+                $stmt->close();
+                $claimedList[] = [
+                    'type' => 'points',
+                    'amount' => $points,
+                    'label' => $points . ' punti'
+                ];
+            } elseif ($type === 'character') {
+                $charId = (int)$val;
+                
+                if (!function_exists('gacha_add_character_to_inventory')) {
+                    require_once __DIR__ . '/gacha_helpers.php';
+                }
+                
+                $charName = "Personaggio #$charId";
+                $stmtChar = $mysqli->prepare("SELECT nome FROM personaggi WHERE id = ?");
+                if ($stmtChar) {
+                    $stmtChar->bind_param("i", $charId);
+                    $stmtChar->execute();
+                    $stmtChar->bind_result($charName);
+                    $stmtChar->fetch();
+                    $stmtChar->close();
+                }
+                
+                gacha_add_character_to_inventory($mysqli, $userId, $charId);
+                
+                $claimedList[] = [
+                    'type' => 'character',
+                    'id' => $charId,
+                    'label' => $charName
+                ];
+            } elseif ($type === 'badge') {
+                $badgeId = (int)$val;
+                
+                $badgeName = "Badge #$badgeId";
+                $stmtBadge = $mysqli->prepare("SELECT name FROM custom_badges WHERE id = ?");
+                if ($stmtBadge) {
+                    $stmtBadge->bind_param("i", $badgeId);
+                    $stmtBadge->execute();
+                    $stmtBadge->bind_result($badgeName);
+                    $stmtBadge->fetch();
+                    $stmtBadge->close();
+                }
+                
+                $stmtAdd = $mysqli->prepare("
+                    INSERT INTO user_custom_badges (utente_id, badge_id, is_visible)
+                    SELECT ?, ?, 1
+                    FROM DUAL
+                    WHERE NOT EXISTS (
+                        SELECT 1 FROM user_custom_badges WHERE utente_id = ? AND badge_id = ?
+                    )
+                ");
+                $stmtAdd->bind_param("iiii", $userId, $badgeId, $userId, $badgeId);
+                $stmtAdd->execute();
+                $stmtAdd->close();
+                
+                $claimedList[] = [
+                    'type' => 'badge',
+                    'id' => $badgeId,
+                    'label' => $badgeName
+                ];
+            } elseif ($type === 'premium') {
+                $stmtPrem = $mysqli->prepare("UPDATE utenti SET is_premium = 1 WHERE id = ?");
+                $stmtPrem->bind_param("i", $userId);
+                $stmtPrem->execute();
+                $stmtPrem->close();
+                
+                $stmtBadge = $mysqli->prepare("
+                    INSERT INTO user_custom_badges (utente_id, badge_id, is_visible)
+                    SELECT ?, 5, 1
+                    FROM DUAL
+                    WHERE NOT EXISTS (
+                        SELECT 1 FROM user_custom_badges WHERE utente_id = ? AND badge_id = 5
+                    )
+                ");
+                $stmtBadge->bind_param("ii", $userId, $userId);
+                $stmtBadge->execute();
+                $stmtBadge->close();
+                
+                if (isset($_SESSION['user_id']) && (int)$_SESSION['user_id'] === $userId) {
+                    $_SESSION['is_premium'] = 1;
+                }
+                
+                $claimedList[] = [
+                    'type' => 'premium',
+                    'label' => 'Premium'
+                ];
+            }
+        }
+        
+        $stmtUpdate = $mysqli->prepare("
+            UPDATE site_message_recipients 
+            SET claimed_at = NOW(), is_read = 1, read_at = COALESCE(read_at, NOW()) 
+            WHERE recipient_id = ? AND message_id = ?
+        ");
+        $stmtUpdate->bind_param("ii", $userId, $messageId);
+        $stmtUpdate->execute();
+        $stmtUpdate->close();
+        
+        $mysqli->commit();
+        return ['ok' => true, 'rewards' => $claimedList];
+        
+    } catch (Exception $e) {
+        $mysqli->rollback();
+        return ['ok' => false, 'error' => 'Impossibile riscattare i premi: ' . $e->getMessage()];
+    }
+}
+

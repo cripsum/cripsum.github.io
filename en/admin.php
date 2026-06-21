@@ -47,6 +47,7 @@ $csrfToken = admin_csrf_token();
                 <button type="button" data-section="users"><i class="fa-solid fa-users"></i><span>Utenti</span></button>
                 <button type="button" data-section="characters"><i class="fa-solid fa-box-open"></i><span>Personaggi</span></button>
                 <button type="button" data-section="achievements"><i class="fa-solid fa-trophy"></i><span>Achievement</span></button>
+                <button type="button" data-section="messages"><i class="fa-solid fa-envelope"></i><span>Inbox</span></button>
                 <button type="button" data-section="shitposts"><i class="fa-solid fa-image"></i><span>Shitpost</span></button>
                 <button type="button" data-section="toprimasti"><i class="fa-solid fa-ranking-star"></i><span>Top Rimasti</span></button>
                 <button type="button" data-section="reports"><i class="fa-solid fa-flag"></i><span>Segnalazioni</span></button>
@@ -207,6 +208,19 @@ $csrfToken = admin_csrf_token();
                 </div>
                 <div id="logsTable" class="admin-table-card"></div>
             </section>
+
+            <section class="admin-section" id="section-messages" data-section-panel="messages">
+                <div class="admin-toolbar">
+                    <div>
+                        <strong>Inbox Center</strong>
+                        <small>Send official system announcements and award rewards to users.</small>
+                    </div>
+                    <button type="button" class="admin-btn admin-btn--primary" id="sendNewMessageBtn">
+                        <i class="fa-solid fa-paper-plane"></i> Send Message
+                    </button>
+                </div>
+                <div id="messagesTable" class="admin-table-card"></div>
+            </section>
         </section>
     </main>
 
@@ -245,7 +259,7 @@ $csrfToken = admin_csrf_token();
     <div class="admin-toast" id="adminToast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script src="/assets/admin-v2/admin.js?v=2.6"></script>
+    <script src="/assets/admin-v2/admin.js?v=2.7"></script>
 </body>
 
 </html>

@@ -2,9 +2,13 @@
 require_once __DIR__ . '/mission_tracker.php';
 $isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
 
+$unreadCount = 0;
 if (isLoggedIn()) {
     trackDailyLogin($mysqli, (int)$_SESSION['user_id']);
     trackMissionProgress($mysqli, (int)$_SESSION['user_id'], 'view_page');
+    if (isset($mysqli)) {
+        $unreadCount = getUnreadMessagesCount($mysqli, $_SESSION['user_id']);
+    }
 }
 
 
@@ -184,6 +188,16 @@ if ($isLoggedIn) {
                         <a class="nav-link" href="/<?= $lang ?>/registrati"><i class="fa-solid fa-user-plus me-2"></i><?= $t['register'] ?></a>
                     </li>
                 <?php else: ?>
+                    <!-- ══ CENTRO MESSAGGI (INBOX) ══ -->
+                    <li class="nav-item d-flex align-items-center me-3" style="position: relative;">
+                        <a href="/<?= $lang ?>/inbox" class="nav-link nav-inbox-link d-flex align-items-center position-relative" aria-label="Inbox" title="Inbox" style="padding: 6px;">
+                            <i class="fa-solid fa-envelope" style="font-size: 1.25rem;"></i>
+                            <span id="inbox-unread-count" class="badge bg-danger position-absolute translate-middle rounded-pill <?= ($unreadCount > 0) ? '' : 'd-none' ?>" 
+                                  style="font-size: 0.625rem; padding: 0.25em 0.45em; top: 4px; left: 24px;">
+                                <?= $unreadCount ?>
+                            </span>
+                        </a>
+                    </li>
                     <li class="nav-item dropdown dropdownutenti dropdownprofilo">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
                             <img src="<?php echo htmlspecialchars($profilePic); ?>&t=<?php echo time(); ?>" alt="<?= $t['my_profile_alt'] ?>"

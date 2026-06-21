@@ -12,10 +12,11 @@
         users: { page: 1, status: 'all', role: 'all', sort: 'data_creazione', dir: 'DESC' },
         characters: { page: 1 },
         achievements: { page: 1 },
+        messages: { page: 1 },
         shitposts: { page: 1, status: 'all' },
         toprimasti: { page: 1, status: 'all' },
         reports: { page: 1, source: 'all', status: 'open' },
-        cache: { users: [], characters: [], achievements: [], shitposts: [], toprimasti: [], reports: [] }
+        cache: { users: [], characters: [], achievements: [], messages: [], shitposts: [], toprimasti: [], reports: [], customBadges: [] }
     };
 
     let toastTimer = null;
@@ -942,6 +943,233 @@
         }
     };
 
+    const loadMessages = async () => {
+        const box = $('#messagesTable'); setLoading(box);
+        try {
+            const data = await api('messages.php');
+            state.cache.messages = data.messages || [];
+            
+            box.innerHTML = state.cache.messages.length ? `
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Titolo (IT)</th>
+                            <th>Titolo (EN)</th>
+                            <th>Categoria</th>
+                            <th>Target</th>
+                            <th>Destinatari</th>
+                            <th>Data</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${state.cache.messages.map((m) => `
+                            <tr>
+                                <td data-label="Titolo (IT)"><b>${escapeHtml(m.title_it)}</b></td>
+                                <td data-label="Titolo (EN)">${escapeHtml(m.title_en)}</td>
+                                <td data-label="Categoria"><span class="admin-badge cat-${m.category}">${escapeHtml(m.category)}</span></td>
+                                <td data-label="Target"><b>${escapeHtml(m.target_type)}</b></td>
+                                <td data-label="Destinatari">${Number(m.recipient_count)} utent${Number(m.recipient_count) === 1 ? 'e' : 'i'} ${Number(m.reward_count) > 0 ? `<span class="badge bg-purple ms-2" style="background:#8b5cf6;"><i class="fa-solid fa-gift"></i> ${Number(m.reward_count)} premi</span>` : ''}</td>
+                                <td data-label="Data">${formatDateTime(m.created_at)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            ` : emptyState('fa-solid fa-envelope', 'Nessun messaggio inviato');
+        } catch (error) {
+            box.innerHTML = emptyState('fa-solid fa-triangle-exclamation', 'Errore messaggi', error.message);
+        }
+    };
+
+    const loadCustomBadges = async () => {
+        if (state.cache.customBadges && state.cache.customBadges.length) return state.cache.customBadges;
+        try {
+            const data = await api('get_custom_badges.php');
+            state.cache.customBadges = data.badges || [];
+            return state.cache.customBadges;
+        } catch (error) {
+            console.error(error);
+            return [];
+        }
+    };
+
+    const openMessageForm = async () => {
+        if (!state.cache.characters.length) {
+            try {
+                const charData = await api('get_characters.php?limit=1000');
+                state.cache.characters = charData.characters || [];
+            } catch (e) { console.error(e); }
+        }
+        const badgesList = await loadCustomBadges();
+        
+        const html = `
+            <form id="messageForm" class="admin-form-grid" style="gap: 15px;">
+                <div class="admin-field" style="grid-column: span 1;"><label>Destinatari (Target)</label>
+                    <select name="target_type" id="msgTargetType" required>
+                        <option value="single">Singolo utente</option>
+                        <option value="group">Gruppo utenti (nomi separati da virgola)</option>
+                        <option value="all">Tutti gli utenti</option>
+                        <option value="premium">Utenti premium</option>
+                    </select>
+                </div>
+                <div class="admin-field" id="msgTargetUserField" style="grid-column: span 1;"><label>Username destinatario/i</label>
+                    <input name="target_user" id="msgTargetUser" placeholder="Inserisci username..." required>
+                </div>
+                <div class="admin-field" style="grid-column: span 1;"><label>Categoria</label>
+                    <select name="category" required>
+                        <option value="system">Notifiche di sistema</option>
+                        <option value="changelog">Aggiornamenti e changelog</option>
+                        <option value="security">Avvisi di sicurezza / Login</option>
+                        <option value="moderation">Moderazione / Segnalazioni</option>
+                        <option value="rewards">Ricompense / Punti</option>
+                        <option value="special">Eventi speciali</option>
+                        <option value="staff">Messaggi Staff</option>
+                    </select>
+                </div>
+                
+                <div class="admin-field" style="grid-column: span 1;"><label>Titolo (Italiano)</label>
+                    <input name="title_it" placeholder="Titolo in italiano..." required maxlength="100">
+                </div>
+                <div class="admin-field" style="grid-column: span 1;"><label>Titolo (Inglese)</label>
+                    <input name="title_en" placeholder="Titolo in inglese..." required maxlength="100">
+                </div>
+                
+                <div class="admin-field admin-field--full"><label>Contenuto (Italiano)</label>
+                    <textarea name="content_it" rows="4" placeholder="Contenuto in italiano..." required></textarea>
+                </div>
+                <div class="admin-field admin-field--full"><label>Contenuto (Inglese)</label>
+                    <textarea name="content_en" rows="4" placeholder="Contenuto in inglese..." required></textarea>
+                </div>
+                
+                <div class="admin-field admin-field--full" style="border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px; background: rgba(0,0,0,0.15);">
+                    <label style="font-weight: 700; color: #a78bfa; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; cursor: default;">
+                        <span><i class="fa-solid fa-gift me-2"></i>Premi allegati (Opzionale)</span>
+                        <button type="button" class="admin-btn admin-btn--small" id="btnAddReward" style="margin:0;"><i class="fa-solid fa-plus"></i> Aggiungi Premio</button>
+                    </label>
+                    
+                    <div id="rewardsListContainer" style="display:flex; flex-direction:column; gap:10px; margin-bottom: 10px;"></div>
+                </div>
+            </form>
+        `;
+
+        openModal('Invia nuovo messaggio', 'Centro Messaggi', html, `<button class="admin-btn" data-admin-close="1">Annulla</button><button class="admin-btn admin-btn--primary" id="sendMessageSubmitBtn"><i class="fa-solid fa-paper-plane"></i> Invia</button>`);
+        
+        const targetTypeSel = $('#msgTargetType');
+        const targetUserField = $('#msgTargetUserField');
+        const targetUserInput = $('#msgTargetUser');
+        
+        targetTypeSel.addEventListener('change', () => {
+            const val = targetTypeSel.value;
+            if (val === 'all' || val === 'premium') {
+                targetUserField.style.display = 'none';
+                targetUserInput.required = false;
+            } else {
+                targetUserField.style.display = 'block';
+                targetUserInput.required = true;
+                if (val === 'group') {
+                    targetUserInput.placeholder = 'es. user1, user2, user3';
+                } else {
+                    targetUserInput.placeholder = 'Inserisci username...';
+                }
+            }
+        });
+
+        const rewardsContainer = $('#rewardsListContainer');
+        let rewardIndex = 0;
+
+        $('#btnAddReward').addEventListener('click', () => {
+            const index = rewardIndex++;
+            const row = document.createElement('div');
+            row.className = 'admin-reward-row';
+            row.style = 'display: grid; grid-template-columns: 150px 1fr 100px 40px; gap: 10px; align-items: center; background: rgba(255,255,255,0.03); padding: 8px; border-radius: 6px;';
+            row.id = `reward-row-${index}`;
+            
+            const charOptions = state.cache.characters.map(c => `<option value="${Number(c.id)}">${escapeHtml(c.nome)}</option>`).join('');
+            const badgeOptions = badgesList.map(b => `<option value="${Number(b.id)}">${escapeHtml(b.name)}</option>`).join('');
+
+            row.innerHTML = `
+                <div>
+                    <select class="admin-input rew-type" style="padding: 6px 10px;" data-row-idx="${index}">
+                        <option value="points">Punti</option>
+                        <option value="character">Personaggio</option>
+                        <option value="badge">Badge</option>
+                        <option value="premium">Premium</option>
+                    </select>
+                </div>
+                <div class="rew-val-container" id="rew-val-container-${index}">
+                    <input type="number" class="admin-input rew-val" placeholder="Quantità punti..." required min="1">
+                </div>
+                <div>
+                    <input type="number" class="admin-input rew-qty" value="1" min="1" max="999" required placeholder="Moltiplicatore">
+                </div>
+                <button type="button" class="admin-btn admin-btn--danger btn-remove-reward" data-row-idx="${index}" style="padding:6px; margin:0;"><i class="fa-solid fa-trash"></i></button>
+            `;
+            
+            rewardsContainer.appendChild(row);
+            
+            row.querySelector('.btn-remove-reward').addEventListener('click', () => {
+                row.remove();
+            });
+
+            row.querySelector('.rew-type').addEventListener('change', (e) => {
+                const type = e.target.value;
+                const valContainer = $(`#rew-val-container-${index}`);
+                if (type === 'points') {
+                    valContainer.innerHTML = `<input type="number" class="admin-input rew-val" placeholder="Quantità punti..." required min="1">`;
+                } else if (type === 'character') {
+                    valContainer.innerHTML = charOptions ? `<select class="admin-input rew-val" required>${charOptions}</select>` : `<input type="number" class="admin-input rew-val" placeholder="ID personaggio..." required min="1">`;
+                } else if (type === 'badge') {
+                    valContainer.innerHTML = badgeOptions ? `<select class="admin-input rew-val" required>${badgeOptions}</select>` : `<input type="number" class="admin-input rew-val" placeholder="ID badge..." required min="1">`;
+                } else if (type === 'premium') {
+                    valContainer.innerHTML = `<input type="number" class="admin-input rew-val" value="30" placeholder="Giorni..." required min="1">`;
+                }
+            });
+        });
+
+        $('#sendMessageSubmitBtn').addEventListener('click', async () => {
+            const form = $('#messageForm');
+            if (!form.reportValidity()) return;
+            
+            const formData = new FormData(form);
+            const payload = {
+                title_it: formData.get('title_it'),
+                title_en: formData.get('title_en'),
+                content_it: formData.get('content_it'),
+                content_en: formData.get('content_en'),
+                category: formData.get('category'),
+                target_type: formData.get('target_type'),
+                target_user: formData.get('target_user') || '',
+                rewards: []
+            };
+
+            $$('.admin-reward-row').forEach(row => {
+                const type = row.querySelector('.rew-type').value;
+                const value = row.querySelector('.rew-val').value;
+                const quantity = row.querySelector('.rew-qty').value;
+                
+                payload.rewards.push({
+                    type: type,
+                    value: value,
+                    quantity: quantity
+                });
+            });
+
+            const submitBtn = $('#sendMessageSubmitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-2"></i>Invio in corso...`;
+
+            try {
+                await api('messages.php', { method: 'POST', body: payload });
+                closeModal();
+                showToast('Messaggio inviato con successo!');
+                loadMessages();
+            } catch (error) {
+                showToast(error.message, true);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Invia`;
+            }
+        });
+    };
+
     const switchSection = (section) => {
         state.section = section;
         $$('[data-admin-nav] button').forEach((b) => b.classList.toggle('is-active', b.dataset.section === section));
@@ -950,6 +1178,7 @@
         if (section === 'users') loadUsers();
         if (section === 'characters') loadCharacters();
         if (section === 'achievements') loadAchievements();
+        if (section === 'messages') loadMessages();
         if (section === 'shitposts') loadShitposts();
         if (section === 'toprimasti') loadToprimasti();
         if (section === 'reports') loadReports();
@@ -984,6 +1213,7 @@
             $('#adminRefreshBtn')?.addEventListener('click', reloadCurrent);
             $('#createCharacterBtn')?.addEventListener('click', () => openCharacterForm());
             $('#createAchievementBtn')?.addEventListener('click', () => openAchievementForm());
+            $('#sendNewMessageBtn')?.addEventListener('click', () => openMessageForm());
             $('#usersStatusFilter')?.addEventListener('change', (e) => { state.users.status = e.target.value; state.users.page = 1; loadUsers(); });
             $('#usersRoleFilter')?.addEventListener('change', (e) => { state.users.role = e.target.value; state.users.page = 1; loadUsers(); });
             $('#shitpostsStatusFilter')?.addEventListener('change', (e) => { state.shitposts.status = e.target.value; state.shitposts.page = 1; loadShitposts(); });

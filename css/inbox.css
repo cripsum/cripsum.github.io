@@ -1,0 +1,647 @@
+/* inbox.css - Centro Messaggi UI Styles */
+
+.inbox-container {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 20px;
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 0 20px;
+    min-height: calc(100vh - 180px);
+}
+
+/* Glassmorphism Panel Base */
+.inbox-panel {
+    background: rgba(18, 18, 24, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Sidebar Styling */
+.inbox-sidebar {
+    gap: 15px;
+}
+
+.inbox-category-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: transparent;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    text-align: left;
+}
+
+.inbox-category-btn i {
+    width: 20px;
+    margin-right: 12px;
+    font-size: 1.1rem;
+}
+
+.inbox-category-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.inbox-category-btn.is-active {
+    background: linear-gradient(135deg, #0f5bff, #8b5cf6);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(15, 91, 255, 0.3);
+}
+
+.inbox-category-badge {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.inbox-category-btn.is-active .inbox-category-badge {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* Two-column Inner Container */
+.inbox-main-layout {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(18, 18, 24, 0.4);
+}
+
+/* List Column styling */
+.inbox-list-pane {
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(10, 10, 12, 0.5);
+    display: flex;
+    flex-direction: column;
+    height: 700px;
+}
+
+.inbox-search-bar {
+    padding: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.inbox-search-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.inbox-search-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 10px 15px 10px 40px;
+    color: #fff;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.inbox-search-input:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #0f5bff;
+    outline: none;
+    box-shadow: 0 0 10px rgba(15, 91, 255, 0.2);
+}
+
+.inbox-search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.95rem;
+}
+
+.inbox-filters {
+    display: flex;
+    gap: 8px;
+    padding: 10px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.inbox-filter-tab {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.inbox-filter-tab:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.inbox-filter-tab.is-active {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Message Cards List */
+.inbox-cards-scroll {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Custom Scrollbar */
+.inbox-cards-scroll::-webkit-scrollbar,
+.inbox-view-pane::-webkit-scrollbar {
+    width: 6px;
+}
+
+.inbox-cards-scroll::-webkit-scrollbar-track,
+.inbox-view-pane::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.inbox-cards-scroll::-webkit-scrollbar-thumb,
+.inbox-view-pane::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.inbox-cards-scroll::-webkit-scrollbar-thumb:hover,
+.inbox-view-pane::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.inbox-card {
+    padding: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.inbox-card:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.inbox-card.is-active {
+    background: rgba(15, 91, 255, 0.08);
+    border-left: 3px solid #0f5bff;
+}
+
+.inbox-card.is-unread {
+    background: rgba(255, 255, 255, 0.01);
+}
+
+.inbox-card.is-unread::after {
+    content: '';
+    position: absolute;
+    top: 20px;
+    right: 16px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ef4444;
+    box-shadow: 0 0 8px #ef4444;
+}
+
+.inbox-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.inbox-card-category {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+/* Category Badge Colors */
+.cat-system { background: rgba(15, 91, 255, 0.15); color: #3b82f6; border: 1px solid rgba(15, 91, 255, 0.25); }
+.cat-security { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25); }
+.cat-changelog { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.25); }
+.cat-moderation { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.25); }
+.cat-rewards { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.25); }
+.cat-special { background: rgba(236, 72, 153, 0.15); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.25); }
+.cat-staff { background: rgba(20, 184, 166, 0.15); color: #2dd4bf; border: 1px solid rgba(20, 184, 166, 0.25); }
+
+.inbox-card-date {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.inbox-card-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 15px;
+}
+
+.inbox-card.is-unread .inbox-card-title {
+    font-weight: 700;
+}
+
+.inbox-card-excerpt {
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.inbox-card-footer {
+    display: flex;
+    justify-content: flex-start;
+    gap: 8px;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.inbox-card-icon {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.inbox-card-icon.is-active {
+    color: #f59e0b;
+}
+
+/* Detail View Pane */
+.inbox-view-pane {
+    background: rgba(10, 10, 12, 0.2);
+    display: flex;
+    flex-direction: column;
+    height: 700px;
+    overflow-y: auto;
+    padding: 30px;
+}
+
+.inbox-view-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: rgba(255, 255, 255, 0.3);
+    text-align: center;
+}
+
+.inbox-view-empty i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.inbox-view-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 20px;
+    margin-bottom: 25px;
+}
+
+.inbox-view-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.inbox-view-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.inbox-action-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.inbox-action-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.inbox-action-btn.is-active {
+    color: #f59e0b;
+    border-color: rgba(245, 158, 11, 0.4);
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.inbox-action-btn--danger:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+}
+
+.inbox-view-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.3;
+}
+
+.inbox-view-content {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    margin-bottom: 30px;
+    white-space: pre-wrap;
+}
+
+/* Rewards section inside message detail */
+.inbox-rewards-box {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(15, 91, 255, 0.12));
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.inbox-rewards-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    color: #a78bfa;
+    font-size: 1.05rem;
+}
+
+.inbox-rewards-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.inbox-reward-item {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.inbox-reward-icon {
+    font-size: 1.25rem;
+}
+
+.inbox-reward-icon.points { color: #f59e0b; }
+.inbox-reward-icon.character { color: #10b981; }
+.inbox-reward-icon.badge { color: #3b82f6; }
+.inbox-reward-icon.premium { color: #ec4899; }
+
+.inbox-reward-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.inbox-reward-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #fff;
+}
+
+.inbox-reward-sub {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.inbox-claim-btn {
+    align-self: flex-start;
+    background: linear-gradient(135deg, #8b5cf6, #0f5bff);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 600;
+    padding: 10px 24px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.inbox-claim-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+
+.inbox-claim-btn:disabled {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.35);
+    box-shadow: none;
+    cursor: not-allowed;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.inbox-claimed-badge {
+    align-self: flex-start;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #10b981;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 8px 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Mobile Back Button */
+.inbox-mobile-back {
+    display: none;
+    margin-bottom: 20px;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1024px) {
+    .inbox-container {
+        grid-template-columns: 1fr;
+        padding: 0 15px;
+    }
+    .inbox-main-layout {
+        grid-template-columns: 320px 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .inbox-main-layout {
+        grid-template-columns: 1fr;
+        height: 600px;
+    }
+    
+    .inbox-list-pane {
+        height: 600px;
+    }
+    
+    .inbox-view-pane {
+        height: 600px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 10;
+        background: rgba(10, 10, 12, 0.98);
+        display: none;
+    }
+    
+    .inbox-view-pane.is-open {
+        display: flex;
+    }
+    
+    .inbox-mobile-back {
+        display: inline-flex;
+    }
+    
+    .inbox-main-layout {
+        position: relative;
+    }
+}
+
+/* Reward Animation Modal */
+.inbox-reward-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.inbox-reward-modal-backdrop.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.inbox-reward-modal {
+    background: rgba(20, 20, 28, 0.95);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    border-radius: 24px;
+    padding: 40px;
+    width: 90%;
+    max-width: 480px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(139, 92, 246, 0.2);
+    transform: scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.inbox-reward-modal-backdrop.is-visible .inbox-reward-modal {
+    transform: scale(1);
+}
+
+.inbox-reward-modal-icon {
+    font-size: 4rem;
+    color: #f59e0b;
+    margin-bottom: 20px;
+    animation: bounceReward 1.5s infinite;
+}
+
+.inbox-reward-modal-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.inbox-reward-modal-sub {
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 25px;
+    font-size: 0.95rem;
+}
+
+.inbox-reward-modal-list {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.inbox-reward-modal-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 700;
+    color: #a78bfa;
+}
+
+.inbox-reward-modal-close {
+    background: linear-gradient(135deg, #0f5bff, #8b5cf6);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-weight: 700;
+    padding: 12px 35px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.inbox-reward-modal-close:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(15, 91, 255, 0.4);
+}
+
+@keyframes bounceReward {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-10px) scale(1.05); }
+}
