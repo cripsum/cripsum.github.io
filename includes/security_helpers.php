@@ -350,7 +350,7 @@ function auth_get_user_by_id(mysqli $mysqli, int $userId): ?array
     return $user;
 }
 
-function auth_complete_login(array $user, ?mysqli $mysqli = null): void
+function auth_complete_login(array $user, $mysqli = null)
 {
     if ($mysqli === null) {
         global $mysqli;
@@ -399,6 +399,7 @@ function auth_complete_login(array $user, ?mysqli $mysqli = null): void
                     sendSecurityInboxMessage($mysqli, $userId, $titleIt, $titleEn, $contentIt, $contentEn);
                 }
             }
+        }
     }
 
     session_regenerate_id(true);
