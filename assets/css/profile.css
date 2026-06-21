@@ -3452,6 +3452,20 @@ body[data-profile-button-shape="sharp"] .bio-icon-button {
     z-index: 18000 !important;
 }
 
+/* Ensure the bio mobile collapse menu has a premium opaque background and glassmorphism styling */
+@media (max-width: 1199.98px) {
+    .bio-v2-body .navbarutenti .navbar-collapse {
+        background: linear-gradient(135deg, rgba(13, 17, 28, 0.98), rgba(8, 10, 18, 0.99)) !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        border-radius: 14px !important;
+        padding: 18px !important;
+        margin-top: 10px !important;
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6) !important;
+        backdrop-filter: blur(25px) !important;
+        -webkit-backdrop-filter: blur(25px) !important;
+    }
+}
+
 .bio-v2-body .navbar .dropdown-menu,
 .bio-v2-body .navbarutenti .dropdown-menu,
 .bio-v2-body .dropdown-menu.profile-dropdown-safe {
@@ -5491,6 +5505,7 @@ body[data-theme="light"] .profile-select-menu {
     justify-content: center;
     gap: 0.38rem;
     margin-top: 0.3rem;
+    flex-wrap: wrap;
 }
 
 .profile-character-rarity {
@@ -5504,6 +5519,7 @@ body[data-theme="light"] .profile-select-menu {
     background: rgba(var(--accent-rgb), 0.12);
     color: var(--accent);
     border: 1px solid rgba(var(--accent-rgb), 0.24);
+    flex-shrink: 0;
 }
 
 .rarity-legendary .profile-character-rarity {
@@ -5533,6 +5549,7 @@ body[data-theme="light"] .profile-select-menu {
     color: var(--muted);
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid var(--border);
+    flex-shrink: 0;
 }
 
 /* ── Editor: character picker ─────────────────────────────── */

@@ -701,19 +701,7 @@
     }
 }
 
-/* Ensure the mobile collapse menu has a premium opaque background and glassmorphism styling */
-@media (max-width: 1199.98px) {
-    .navbarutenti .navbar-collapse {
-        background: linear-gradient(135deg, rgba(13, 17, 28, 0.98), rgba(8, 10, 18, 0.99)) !important;
-        border: 1px solid rgba(255, 255, 255, 0.12) !important;
-        border-radius: 14px !important;
-        padding: 18px !important;
-        margin-top: 10px !important;
-        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6) !important;
-        backdrop-filter: blur(25px) !important;
-        -webkit-backdrop-filter: blur(25px) !important;
-    }
-}
+
 
 
 
