@@ -2117,3 +2117,68 @@ input[type="range"]::-moz-range-track {
     }
 }
 
+/* ==========================================================================
+   INFALLIBLE MOBILE OVERFLOW RECOVERY (PREVENTS SIDEBAR EXPANSION)
+   ========================================================================== */
+.profile-editor-shell,
+.profile-editor-shell *,
+.editor-sidebar,
+.editor-sidebar *,
+.profile-row-card,
+.profile-row-card *,
+.profile-row-grid,
+.profile-row-grid *,
+.profile-repeater,
+.profile-repeater * {
+    box-sizing: border-box !important;
+}
+
+/* Force layout blocks and input elements to never exceed their parent container width */
+.profile-row-card,
+.profile-row-body,
+.editor-row-content-group,
+.profile-row-grid,
+.profile-field-grid,
+.editor-sub-card,
+.block-media-url-container,
+.block-textarea-wrapper,
+.input-with-upload,
+.profile-custom-select,
+.profile-select-trigger,
+.profile-select-current,
+.profile-select-current-text,
+.profile-editor-shell label,
+.profile-editor-shell input,
+.profile-editor-shell select,
+.profile-editor-shell textarea {
+    max-width: 100% !important;
+    min-width: 0 !important;
+}
+
+/* Specific fix for label elements inside repeaters that contain flex/grid/block children */
+.profile-editor-shell label:not(.profile-check-line):not(.profile-toggle-card) {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 4px !important;
+}
+
+/* Specific fix for file uploads / inline inputs and buttons */
+.input-with-upload {
+    display: flex !important;
+    flex-direction: row !important;
+    width: 100% !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.input-with-upload input {
+    flex: 1 1 0% !important;
+    width: 0 !important; /* Allow flexbox to scale down to 0 */
+    min-width: 0 !important;
+}
+
+.input-with-upload button {
+    flex-shrink: 0 !important;
+}
+
