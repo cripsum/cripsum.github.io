@@ -847,6 +847,54 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
     }
 
     if ($stmt->execute()) {
+        $currentTime = date('d/m/Y H:i:s');
+        $currentIp = function_exists('auth_client_ip') ? auth_client_ip() : ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'Dispositivo sconosciuto';
+
+        if (!empty($password)) {
+            $titleIt = "Sicurezza: Password modificata";
+            $titleEn = "Security: Password changed";
+            
+            $contentIt = "La password del tuo account Cripsum™ è stata modificata con successo.\n\n" .
+                         "**Dettagli dell'operazione:**\n" .
+                         "- **Data e ora:** " . $currentTime . "\n" .
+                         "- **Indirizzo IP:** " . $currentIp . "\n" .
+                         "- **Dispositivo:** " . $userAgent . "\n\n" .
+                         "Se sei stato tu, puoi ignorare questo messaggio. Se non riconosci questa operazione, ti consigliamo di contattare immediatamente il supporto.";
+            
+            $contentEn = "The password for your Cripsum™ account has been successfully changed.\n\n" .
+                         "**Details of the Operation:**\n" .
+                         "- **Date and Time:** " . $currentTime . "\n" .
+                         "- **IP Address:** " . $currentIp . "\n" .
+                         "- **Device:** " . $userAgent . "\n\n" .
+                         "If this was you, you can ignore this message. If you do not recognize this operation, we recommend contacting support immediately.";
+            
+            sendSecurityInboxMessage($mysqli, $userId, $titleIt, $titleEn, $contentIt, $contentEn);
+        }
+
+        if ($emailChanged) {
+            $titleIt = "Sicurezza: Indirizzo email modificato";
+            $titleEn = "Security: Email address changed";
+            
+            $contentIt = "L'indirizzo email associato al tuo account Cripsum™ è stato modificato.\n\n" .
+                         "**Dettagli dell'operazione:**\n" .
+                         "- **Nuovo indirizzo:** " . $email . "\n" .
+                         "- **Data e ora:** " . $currentTime . "\n" .
+                         "- **Indirizzo IP:** " . $currentIp . "\n" .
+                         "- **Dispositivo:** " . $userAgent . "\n\n" .
+                         "Se sei stato tu, ti preghiamo di verificare il nuovo indirizzo tramite il link inviato alla tua casella di posta. Se non riconosci questa operazione, contatta immediatamente il supporto.";
+            
+            $contentEn = "The email address associated with your Cripsum™ account has been changed.\n\n" .
+                         "**Details of the Operation:**\n" .
+                         "- **New Email:** " . $email . "\n" .
+                         "- **Date and Time:** " . $currentTime . "\n" .
+                         "- **IP Address:** " . $currentIp . "\n" .
+                         "- **Device:** " . $userAgent . "\n\n" .
+                         "If this was you, please verify the new address using the link sent to your inbox. If you do not recognize this operation, contact support immediately.";
+            
+            sendSecurityInboxMessage($mysqli, $userId, $titleIt, $titleEn, $contentIt, $contentEn);
+        }
+
         if ($emailChanged) {
             $_SESSION['username'] = $username;
             $_SESSION['email'] = $email;
@@ -1076,5 +1124,36 @@ function claimMessageRewards($mysqli, $userId, $messageId)
         $mysqli->rollback();
         return ['ok' => false, 'error' => 'Impossibile riscattare i premi: ' . $e->getMessage()];
     }
+}
+
+function sendSecurityInboxMessage($mysqli, $recipientId, $titleIt, $titleEn, $contentIt, $contentEn, $category = 'security')
+{
+    $senderId = null;
+    $targetType = 'single';
+
+    $stmt = $mysqli->prepare("
+        INSERT INTO site_messages (sender_id, title_it, title_en, content_it, content_en, category, target_type)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ");
+    if (!$stmt) return false;
+
+    $stmt->bind_param("issssss", $senderId, $titleIt, $titleEn, $contentIt, $contentEn, $category, $targetType);
+    $ok = $stmt->execute();
+    $messageId = $mysqli->insert_id;
+    $stmt->close();
+
+    if ($ok && $messageId) {
+        $stmtRec = $mysqli->prepare("
+            INSERT IGNORE INTO site_message_recipients (message_id, recipient_id)
+            VALUES (?, ?)
+        ");
+        if ($stmtRec) {
+            $stmtRec->bind_param("ii", $messageId, $recipientId);
+            $stmtRec->execute();
+            $stmtRec->close();
+            return true;
+        }
+    }
+    return false;
 }
 

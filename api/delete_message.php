@@ -40,7 +40,7 @@ $userRole = $_SESSION['ruolo'] ?? 'utente';
 
 try {
     // Verifica se l'utente può eliminare il messaggio
-    $stmt = $mysqli->prepare("SELECT user_id FROM messages WHERE id = ?");
+    $stmt = $mysqli->prepare("SELECT user_id, message, created_at FROM messages WHERE id = ?");
     $stmt->bind_param("i", $messageId);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -64,6 +64,31 @@ try {
     $deleteStmt->bind_param("i", $messageId);
     
     if ($deleteStmt->execute()) {
+        if ($messageUserId != $userId) {
+            $currentTime = date('d/m/Y H:i:s');
+            $recipientId = (int)$messageUserId;
+            $origContent = $message['message'];
+            $origCreated = date('d/m/Y H:i:s', strtotime($message['created_at']));
+            
+            $titleIt = "Messaggio rimosso dalla Chat Globale";
+            $titleEn = "Message removed from Global Chat";
+            
+            $contentIt = "Un moderatore ha rimosso un tuo messaggio inviato nella Chat Globale per violazione delle linee guida.\n\n" .
+                         "**Dettagli del messaggio:**\n" .
+                         "- **Inviato il:** " . $origCreated . "\n" .
+                         "- **Rimosso il:** " . $currentTime . "\n" .
+                         "- **Contenuto originale:** \"" . $origContent . "\"\n\n" .
+                         "Ti invitiamo a rispettare le linee guida della community.";
+                         
+            $contentEn = "A moderator has removed a message you sent in the Global Chat for guidelines violation.\n\n" .
+                         "**Message Details:**\n" .
+                         "- **Sent on:** " . $origCreated . "\n" .
+                         "- **Removed on:** " . $currentTime . "\n" .
+                         "- **Original Content:** \"" . $origContent . "\"\n\n" .
+                         "Please follow the community guidelines.";
+                         
+            sendSecurityInboxMessage($mysqli, $recipientId, $titleIt, $titleEn, $contentIt, $contentEn, 'system');
+        }
         echo json_encode(['success' => true, 'message' => 'Messaggio eliminato con successo']);
     } else {
         echo json_encode(['error' => 'Errore durante l\'eliminazione del messaggio']);

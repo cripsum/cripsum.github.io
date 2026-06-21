@@ -352,6 +352,54 @@ function auth_get_user_by_id(mysqli $mysqli, int $userId): ?array
 
 function auth_complete_login(array $user): void
 {
+    global $mysqli;
+
+    if (isset($mysqli) && auth_table_exists($mysqli, 'login_attempts')) {
+        $currentIp = auth_client_ip();
+        $userId = (int)$user['id'];
+
+        $stmt = $mysqli->prepare("
+            SELECT ip_address 
+            FROM login_attempts 
+            WHERE user_id = ? AND success = 1 AND reason = 'login_ok'
+            ORDER BY created_at DESC 
+            LIMIT 1
+        ");
+        if ($stmt) {
+            $stmt->bind_param("i", $userId);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            $lastLogin = $res->fetch_assoc();
+            $stmt->close();
+
+            if ($lastLogin && $lastLogin['ip_address'] !== $currentIp) {
+                $currentTime = date('d/m/Y H:i:s');
+                $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'Dispositivo sconosciuto';
+
+                $titleIt = "Sicurezza: Nuovo accesso rilevato";
+                $titleEn = "Security: New login detected";
+
+                $contentIt = "Abbiamo rilevato un nuovo accesso al tuo account Cripsum™ da un dispositivo o indirizzo IP differente rispetto all'ultimo accesso.\n\n" .
+                             "**Dettagli dell'accesso:**\n" .
+                             "- **Data e ora:** " . $currentTime . "\n" .
+                             "- **Indirizzo IP:** " . $currentIp . "\n" .
+                             "- **Dispositivo:** " . $userAgent . "\n\n" .
+                             "Se sei stato tu, puoi ignorare questo messaggio. Se non riconosci questa attività, ti consigliamo di cambiare immediatamente la tua password nella sezione impostazioni.";
+
+                $contentEn = "We detected a new login to your Cripsum™ account from a device or IP address different from your last session.\n\n" .
+                             "**Login Details:**\n" .
+                             "- **Date and Time:** " . $currentTime . "\n" .
+                             "- **IP Address:** " . $currentIp . "\n" .
+                             "- **Device:** " . $userAgent . "\n\n" .
+                             "If this was you, you can ignore this message. If you do not recognize this activity, we recommend changing your password immediately in your settings.";
+
+                if (function_exists('sendSecurityInboxMessage')) {
+                    sendSecurityInboxMessage($mysqli, $userId, $titleIt, $titleEn, $contentIt, $contentEn);
+                }
+            }
+        }
+    }
+
     session_regenerate_id(true);
 
     $_SESSION['user_id'] = (int)$user['id'];
