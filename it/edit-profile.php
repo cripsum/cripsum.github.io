@@ -293,29 +293,7 @@ function profile_json_script(string $id, array $data): void
                                 <label class="profile-field"><span>Sfondo profilo</span><input type="file" name="banner" id="bannerInput" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"><small>Max <?php echo $isPremium ? '50MB' : '12MB'; ?>. Foto, GIF o video. Cambia lo sfondo della pagina.</small></label>
                             </div>
 
-                            <div class="profile-field-grid three">
-                                <label class="profile-field"><span>Opacità overlay sfondo</span>
-                                    <div style="display: flex; align-items: center; gap: 10px;">
-                                        <input type="range" name="profile_bg_overlay_opacity" id="bgOverlayOpacityInput" min="0" max="1" step="0.05" value="<?php echo (float)($profile['profile_bg_overlay_opacity'] ?? 1.0); ?>" style="flex: 1;">
-                                        <span id="bgOverlayOpacityVal" style="font-weight: 700; min-width: 40px; text-align: right;"><?php echo round((float)($profile['profile_bg_overlay_opacity'] ?? 1.0) * 100); ?>%</span>
-                                    </div>
-                                    <small>Regola la trasparenza del layer nero sopra lo sfondo.</small>
-                                </label>
-                                <label class="profile-field"><span>Sfocatura sfondo (Blur)</span>
-                                    <div style="display: flex; align-items: center; gap: 10px;">
-                                        <input type="range" name="profile_bg_blur" id="bgBlurInput" min="0" max="40" step="1" value="<?php echo (int)($profile['profile_bg_blur'] ?? 0); ?>" style="flex: 1;">
-                                        <span id="bgBlurVal" style="font-weight: 700; min-width: 40px; text-align: right;"><?php echo (int)($profile['profile_bg_blur'] ?? 0); ?>px</span>
-                                    </div>
-                                    <small>Sfoca l'immagine o il video di sfondo.</small>
-                                </label>
-                                <label class="profile-field"><span>Opacità cerchi laterali</span>
-                                    <div style="display: flex; align-items: center; gap: 10px;">
-                                        <input type="range" name="profile_bg_orbs_opacity" id="bgOrbsOpacityInput" min="0" max="1" step="0.05" value="<?php echo (float)($profile['profile_bg_orbs_opacity'] ?? 0.45); ?>" style="flex: 1;">
-                                        <span id="bgOrbsOpacityVal" style="font-weight: 700; min-width: 40px; text-align: right;"><?php echo round((float)($profile['profile_bg_orbs_opacity'] ?? 0.45) * 100); ?>%</span>
-                                    </div>
-                                    <small>Regola l'opacità dei 2 bagliori colorati ai lati.</small>
-                                </label>
-                            </div>
+
 
                             <label class="profile-field"><span>Privacy profilo</span><select name="profile_visibility" id="visibilityInput"><?php foreach (['public' => 'Pubblico', 'logged_in' => 'Solo utenti loggati', 'private' => 'Privato'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_visibility'] ?? 'public') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
 
@@ -691,6 +669,34 @@ function profile_json_script(string $id, array $data): void
                                     <small>Ignorato se lo spessore del bordo è 0.</small>
                                 </label>
                             </div>
+
+                            <div class="bio-section-heading profile-mt">
+                                <div><span><i class="fa-solid fa-image"></i> Personalizzazione Sfondo</span></div>
+                            </div>
+                            <div class="profile-field-grid three">
+                                <label class="profile-field"><span>Opacità overlay sfondo</span>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="range" name="profile_bg_overlay_opacity" id="bgOverlayOpacityInput" min="0" max="1" step="0.05" value="<?php echo (float)($profile['profile_bg_overlay_opacity'] ?? 1.0); ?>" style="flex: 1;">
+                                        <span id="bgOverlayOpacityVal" style="font-weight: 700; min-width: 40px; text-align: right;"><?php echo round((float)($profile['profile_bg_overlay_opacity'] ?? 1.0) * 100); ?>%</span>
+                                    </div>
+                                    <small>Regola la trasparenza del layer nero sopra lo sfondo.</small>
+                                </label>
+                                <label class="profile-field"><span>Sfocatura sfondo (Blur)</span>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="range" name="profile_bg_blur" id="bgBlurInput" min="0" max="40" step="1" value="<?php echo (int)($profile['profile_bg_blur'] ?? 0); ?>" style="flex: 1;">
+                                        <span id="bgBlurVal" style="font-weight: 700; min-width: 40px; text-align: right;"><?php echo (int)($profile['profile_bg_blur'] ?? 0); ?>px</span>
+                                    </div>
+                                    <small>Sfoca l'immagine o il video di sfondo.</small>
+                                </label>
+                                <label class="profile-field"><span>Opacità cerchi laterali</span>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="range" name="profile_bg_orbs_opacity" id="bgOrbsOpacityInput" min="0" max="1" step="0.05" value="<?php echo (float)($profile['profile_bg_orbs_opacity'] ?? 0.45); ?>" style="flex: 1;">
+                                        <span id="bgOrbsOpacityVal" style="font-weight: 700; min-width: 40px; text-align: right;"><?php echo round((float)($profile['profile_bg_orbs_opacity'] ?? 0.45) * 100); ?>%</span>
+                                    </div>
+                                    <small>Regola l'opacità dei 2 bagliori colorati ai lati.</small>
+                                </label>
+                            </div>
+
                             <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 1.5rem;">
                                 <button type="button" id="resetDesignBtn" class="bio-button" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25); display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.9rem;">
                                     <i class="fa-solid fa-arrow-rotate-left"></i> Ripristina valori di default
