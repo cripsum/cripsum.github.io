@@ -64,11 +64,7 @@ try {
         $contentEn = "Your Top Rimasti post titled \"" . $postTitle . "\" has been removed by moderators on " . $currentTime . " for violation of the community guidelines.\n\n" .
                      "Please follow the rules to avoid further action on your account.";
                      
-        $sent = sendSecurityInboxMessage($mysqli, $recipientId, $titleIt, $titleEn, $contentIt, $contentEn, 'system');
-        @error_log("[" . date('Y-m-d H:i:s') . "] delete_toprimasti_admin: post_id=" . $id . ", author=" . $recipientId . ", msg_sent=" . ($sent ? 'SUCCEEDED' : 'FAILED') . "\n", 3, __DIR__ . '/../../inbox_errors.log');
-    } else {
-        $hasPostData = $postData ? 'FOUND' : 'NOT FOUND';
-        @error_log("[" . date('Y-m-d H:i:s') . "] delete_toprimasti_admin info: postData=" . $hasPostData . ", deleted=" . $deleted . "\n", 3, __DIR__ . '/../../inbox_errors.log');
+        sendSecurityInboxMessage($mysqli, $recipientId, $titleIt, $titleEn, $contentIt, $contentEn, 'system');
     }
 
     admin_log($mysqli, (int)$adminUser['id'], 'delete_toprimasti', null, ['post_id' => $id]);

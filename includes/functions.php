@@ -1135,18 +1135,10 @@ function sendSecurityInboxMessage($mysqli, $recipientId, $titleIt, $titleEn, $co
         INSERT INTO site_messages (sender_id, title_it, title_en, content_it, content_en, category, target_type)
         VALUES (?, ?, ?, ?, ?, ?, ?)
     ");
-    if (!$stmt) {
-        @error_log("[" . date('Y-m-d H:i:s') . "] sendSecurityInboxMessage INSERT prepare failed: " . $mysqli->error . "\n", 3, __DIR__ . '/../inbox_errors.log');
-        return false;
-    }
+    if (!$stmt) return false;
 
     $stmt->bind_param("issssss", $senderId, $titleIt, $titleEn, $contentIt, $contentEn, $category, $targetType);
     $ok = $stmt->execute();
-    if (!$ok) {
-        @error_log("[" . date('Y-m-d H:i:s') . "] sendSecurityInboxMessage INSERT execute failed: " . $stmt->error . "\n", 3, __DIR__ . '/../inbox_errors.log');
-        $stmt->close();
-        return false;
-    }
     $messageId = $mysqli->insert_id;
     $stmt->close();
 
@@ -1158,13 +1150,8 @@ function sendSecurityInboxMessage($mysqli, $recipientId, $titleIt, $titleEn, $co
         if ($stmtRec) {
             $stmtRec->bind_param("ii", $messageId, $recipientId);
             $recOk = $stmtRec->execute();
-            if (!$recOk) {
-                @error_log("[" . date('Y-m-d H:i:s') . "] sendSecurityInboxMessage RECIPIENT execute failed: " . $stmtRec->error . "\n", 3, __DIR__ . '/../inbox_errors.log');
-            }
             $stmtRec->close();
             return $recOk;
-        } else {
-            @error_log("[" . date('Y-m-d H:i:s') . "] sendSecurityInboxMessage RECIPIENT prepare failed: " . $mysqli->error . "\n", 3, __DIR__ . '/../inbox_errors.log');
         }
     }
     return false;

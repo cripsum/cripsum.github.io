@@ -367,17 +367,12 @@ function auth_complete_login(array $user, ?mysqli $mysqli = null): void
             ORDER BY created_at DESC 
             LIMIT 1
         ");
-        if (!$stmt) {
-            @error_log("[" . date('Y-m-d H:i:s') . "] auth_complete_login SELECT prepare error: " . $mysqli->error . "\n", 3, __DIR__ . '/../inbox_errors.log');
-        } else {
+        if ($stmt) {
             $stmt->bind_param("i", $userId);
             $stmt->execute();
             $res = $stmt->get_result();
             $lastLogin = $res->fetch_assoc();
             $stmt->close();
-
-            $lastIp = $lastLogin ? $lastLogin['ip_address'] : 'none';
-            @error_log("[" . date('Y-m-d H:i:s') . "] auth_complete_login debug: userId=" . $userId . ", currentIp=" . $currentIp . ", lastLoginIp=" . $lastIp . "\n", 3, __DIR__ . '/../inbox_errors.log');
 
             if ($lastLogin && $lastLogin['ip_address'] !== $currentIp) {
                 $currentTime = date('d/m/Y H:i:s');
@@ -401,16 +396,9 @@ function auth_complete_login(array $user, ?mysqli $mysqli = null): void
                              "If this was you, you can ignore this message. If you do not recognize this activity, we recommend changing your password immediately in your settings.";
 
                 if (function_exists('sendSecurityInboxMessage')) {
-                    $sent = sendSecurityInboxMessage($mysqli, $userId, $titleIt, $titleEn, $contentIt, $contentEn);
-                    @error_log("[" . date('Y-m-d H:i:s') . "] auth_complete_login trigger message: " . ($sent ? 'SUCCEEDED' : 'FAILED') . "\n", 3, __DIR__ . '/../inbox_errors.log');
-                } else {
-                    @error_log("[" . date('Y-m-d H:i:s') . "] auth_complete_login error: sendSecurityInboxMessage function does not exist!\n", 3, __DIR__ . '/../inbox_errors.log');
+                    sendSecurityInboxMessage($mysqli, $userId, $titleIt, $titleEn, $contentIt, $contentEn);
                 }
             }
-        }
-    } else {
-        $mysqli_status = isset($mysqli) ? 'SET' : 'NOT SET';
-        @error_log("[" . date('Y-m-d H:i:s') . "] auth_complete_login skipped: mysqli=" . $mysqli_status . "\n", 3, __DIR__ . '/../inbox_errors.log');
     }
 
     session_regenerate_id(true);
