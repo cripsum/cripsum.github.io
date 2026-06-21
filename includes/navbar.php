@@ -193,7 +193,7 @@ if ($isLoggedIn) {
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 <!-- ══ LANGUAGE SWITCH ══ -->
-                <li class="nav-item d-none d-xl-flex align-items-center me-2">
+                <li class="nav-item d-none d-xl-flex align-items-center me-2 lang-switch-item">
                     <a href="<?= htmlspecialchars($switchUrl) ?>"
                         class="lang-switch"
                         aria-label="Switch language to <?= $altLabel ?>"
@@ -210,7 +210,7 @@ if ($isLoggedIn) {
                     </li>
                 <?php else: ?>
                     <!-- ══ CENTRO MESSAGGI (INBOX) ══ -->
-                    <li class="nav-item d-none d-xl-flex align-items-center ms-2 me-1" style="position: relative;">
+                    <li class="nav-item d-none d-xl-flex align-items-center ms-2 me-1 inbox-item" style="position: relative;">
                         <a href="/<?= $lang ?>/inbox" class="nav-link nav-inbox-link d-flex align-items-center position-relative" aria-label="Inbox" title="Inbox">
                             <i class="fa-solid fa-envelope"></i>
                             <span id="inbox-unread-count" class="badge bg-danger position-absolute translate-middle rounded-pill <?= ($unreadCount > 0) ? '' : 'd-none' ?>">

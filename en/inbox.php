@@ -168,6 +168,7 @@ $ogUrl = 'https://cripsum.com/en/inbox';
                         btn.classList.add('is-active');
                         filterCategory = btn.dataset.cat;
                         currentMessageId = null;
+                        renderEmptyDetails();
                         loadMessages();
                     });
                 });
@@ -178,6 +179,7 @@ $ogUrl = 'https://cripsum.com/en/inbox';
                         tab.classList.add('is-active');
                         filterStatus = tab.dataset.status;
                         currentMessageId = null;
+                        renderEmptyDetails();
                         loadMessages();
                     });
                 });
@@ -351,13 +353,15 @@ $ogUrl = 'https://cripsum.com/en/inbox';
             }
 
             function renderEmptyDetails() {
-                $('#inboxDetailContainer').innerHTML = `
+                const pane = $('#inboxDetailContainer');
+                pane.innerHTML = `
                     <div class="inbox-view-empty">
                         <i class="fa-solid fa-envelope-open"></i>
                         <h4>Select a message</h4>
                         <p class="text-muted" style="font-size: 0.9rem;">Click on a message in the list on the left to read it.</p>
                     </div>
                 `;
+                pane.classList.remove('is-open');
             }
 
             function renderMessageDetails(msg) {
@@ -522,6 +526,8 @@ $ogUrl = 'https://cripsum.com/en/inbox';
             }
 
             async function toggleArchive(messageId) {
+                currentMessageId = null;
+                renderEmptyDetails();
                 try {
                     const response = await fetch(API_ENDPOINT, {
                         method: 'POST',
@@ -529,11 +535,14 @@ $ogUrl = 'https://cripsum.com/en/inbox';
                     });
                     const res = await response.json();
                     if (res.ok) {
-                        currentMessageId = null;
+                        loadMessages();
+                    } else {
+                        alert("Error: " + res.error);
                         loadMessages();
                     }
                 } catch (e) {
                     alert("Could not archive/restore message.");
+                    loadMessages();
                 }
             }
 
@@ -542,6 +551,9 @@ $ogUrl = 'https://cripsum.com/en/inbox';
                     return;
                 }
                 
+                currentMessageId = null;
+                renderEmptyDetails();
+                
                 try {
                     const response = await fetch(API_ENDPOINT, {
                         method: 'POST',
@@ -549,13 +561,14 @@ $ogUrl = 'https://cripsum.com/en/inbox';
                     });
                     const res = await response.json();
                     if (res.ok) {
-                        currentMessageId = null;
                         loadMessages();
                     } else {
                         alert(res.error);
+                        loadMessages();
                     }
                 } catch (e) {
                     alert("Could not delete message.");
+                    loadMessages();
                 }
             }
 

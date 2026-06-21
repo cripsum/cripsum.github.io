@@ -617,3 +617,19 @@
     }
 }
 
+/* Spacing alignment for language switcher, inbox, and profile picture */
+@media (min-width: 1200px) {
+    .navbarutenti .lang-switch-item {
+        margin-right: 7px !important;
+        margin-left: 0 !important;
+    }
+    .navbarutenti .inbox-item {
+        margin-left: 7px !important;
+        margin-right: 14px !important;
+    }
+    .navbarutenti .dropdownprofilo > .nav-link {
+        padding-left: 0 !important;
+    }
+}
+
+
