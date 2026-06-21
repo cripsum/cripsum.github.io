@@ -687,6 +687,12 @@
     const audioBtnPositionInput = $('#audioBtnPositionInput');
     const audioDefaultVolumeInput = $('#audioDefaultVolumeInput');
     const audioDefaultVolumeVal = $('#audioDefaultVolumeVal');
+    const bgOverlayOpacityInput = $('#bgOverlayOpacityInput');
+    const bgOverlayOpacityVal = $('#bgOverlayOpacityVal');
+    const bgBlurInput = $('#bgBlurInput');
+    const bgBlurVal = $('#bgBlurVal');
+    const bgOrbsOpacityInput = $('#bgOrbsOpacityInput');
+    const bgOrbsOpacityVal = $('#bgOrbsOpacityVal');
 
     const socialSizeVal = $('#socialSizeVal');
     const iconSpacingVal = $('#iconSpacingVal');
@@ -795,6 +801,9 @@
         const radiusVal = borderRadiusInput ? parseInt(borderRadiusInput.value, 10) : 30;
         const borderWVal = borderWidthInput ? parseInt(borderWidthInput.value, 10) : 1;
         const fontVal = fontInput?.value || 'Poppins';
+        const bgOverlayOpacity = bgOverlayOpacityInput ? parseFloat(bgOverlayOpacityInput.value) : 1.0;
+        const bgBlur = bgBlurInput ? parseInt(bgBlurInput.value, 10) : 0;
+        const bgOrbsOpacity = bgOrbsOpacityInput ? parseFloat(bgOrbsOpacityInput.value) : 0.45;
 
         const variables = {
             '--accent': accentVal,
@@ -812,7 +821,11 @@
             '--card': `color-mix(in srgb, ${cardCol} ${opacityVal}%, transparent)`,
             '--profile-card-color': `color-mix(in srgb, ${cardCol} ${opacityVal}%, transparent)`,
             '--card-strong': `color-mix(in srgb, ${cardCol} ${Math.min(100, opacityVal + 20)}%, transparent)`,
-            '--profile-border-width': `${borderWVal}px`
+            '--profile-border-width': `${borderWVal}px`,
+            '--profile-bg-overlay-opacity': bgOverlayOpacity,
+            '--profile-bg-blur': `${bgBlur}px`,
+            '--profile-bg-scale': 1 + (bgBlur * 0.005),
+            '--profile-bg-orbs-opacity': bgOrbsOpacity
         };
 
         if (borderColorInput && borderColorInput.value) {
@@ -945,6 +958,15 @@
 
         if (borderRadiusVal && borderRadiusInput) borderRadiusVal.textContent = borderRadiusInput.value + 'px';
         if (cardOpacityVal && cardOpacityInput) cardOpacityVal.textContent = cardOpacityInput.value + '%';
+        if (bgOverlayOpacityVal && bgOverlayOpacityInput) {
+            bgOverlayOpacityVal.textContent = Math.round(parseFloat(bgOverlayOpacityInput.value) * 100) + '%';
+        }
+        if (bgBlurVal && bgBlurInput) {
+            bgBlurVal.textContent = bgBlurInput.value + 'px';
+        }
+        if (bgOrbsOpacityVal && bgOrbsOpacityInput) {
+            bgOrbsOpacityVal.textContent = Math.round(parseFloat(bgOrbsOpacityInput.value) * 100) + '%';
+        }
         if (cardBlurVal && cardBlurInput) cardBlurVal.textContent = cardBlurInput.value + 'px';
         if (borderOpacityVal && borderOpacityInput) borderOpacityVal.textContent = borderOpacityInput.value + '%';
         if (borderWidthVal && borderWidthInput) borderWidthVal.textContent = borderWidthInput.value + 'px';
@@ -1047,7 +1069,7 @@
     }
 
     // Register simple inputs listeners for live updates and autosave
-    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, profileLayoutHidden, profileLayoutSnapHidden, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput, musicUrlInput, musicTitleInput, musicArtistInput, showAudioPlayerInput, cornerStyleCustomInput, tiltMaxInput, tiltGlareInput, tiltZoomInput, tiltSpeedInput, profileTabAnimationSpeedInput, profileTabTitleInput, profileTabAnimationInput, profileTabAnimationTextInput, cornerStyleInput, borderStyleInput, discordServerInviteInput, removeMusicUploadInput, cursorEffectInput, musicThemeInput, cursorCustomUrlInput, hideMetaInput, showAudioBtnInput, audioBtnPositionInput, audioDefaultVolumeInput].filter(Boolean);
+    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, profileLayoutHidden, profileLayoutSnapHidden, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput, musicUrlInput, musicTitleInput, musicArtistInput, showAudioPlayerInput, cornerStyleCustomInput, tiltMaxInput, tiltGlareInput, tiltZoomInput, tiltSpeedInput, profileTabAnimationSpeedInput, profileTabTitleInput, profileTabAnimationInput, profileTabAnimationTextInput, cornerStyleInput, borderStyleInput, discordServerInviteInput, removeMusicUploadInput, cursorEffectInput, musicThemeInput, cursorCustomUrlInput, hideMetaInput, showAudioBtnInput, audioBtnPositionInput, audioDefaultVolumeInput, bgOverlayOpacityInput, bgBlurInput, bgOrbsOpacityInput].filter(Boolean);
 
     simpleInputs.forEach((input) => {
         input.addEventListener('input', () => {
@@ -1556,9 +1578,12 @@
             if (uiShapeInput) uiShapeInput.value = themeObj.ui_shape;
             if (avatarShapeInput) avatarShapeInput.value = themeObj.avatar_shape;
             if (profileEffectInput) profileEffectInput.value = themeObj.effect;
+            if (bgOverlayOpacityInput) bgOverlayOpacityInput.value = themeObj.bg_overlay_opacity !== undefined ? themeObj.bg_overlay_opacity : 1.0;
+            if (bgBlurInput) bgBlurInput.value = themeObj.bg_blur !== undefined ? themeObj.bg_blur : 0;
+            if (bgOrbsOpacityInput) bgOrbsOpacityInput.value = themeObj.bg_orbs_opacity !== undefined ? themeObj.bg_orbs_opacity : 0.45;
 
             // Trigger sync of custom controls
-            [accentInput, secondaryColorInput, cardColorInput, textColorInput, themeInput, layoutInput, linkStyleInput, buttonShapeInput, socialsStyleInput, fontInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderRadiusInput, borderWidthInput, borderColorInput, uiShapeInput, avatarShapeInput, profileEffectInput].filter(Boolean).forEach(input => {
+            [accentInput, secondaryColorInput, cardColorInput, textColorInput, themeInput, layoutInput, linkStyleInput, buttonShapeInput, socialsStyleInput, fontInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderRadiusInput, borderWidthInput, borderColorInput, uiShapeInput, avatarShapeInput, profileEffectInput, bgOverlayOpacityInput, bgBlurInput, bgOrbsOpacityInput].filter(Boolean).forEach(input => {
                 input.dispatchEvent(new Event('input', { bubbles: true }));
                 input.dispatchEvent(new Event('change', { bubbles: true }));
             });
@@ -1693,14 +1718,17 @@
                 borderOpacityInput: '100',
                 borderRadiusInput: '30',
                 borderWidthInput: '1',
-                borderColorInput: '#ffffff'
+                borderColorInput: '#ffffff',
+                bgOverlayOpacityInput: '1',
+                bgBlurInput: '0',
+                bgOrbsOpacityInput: '0.45'
             };
 
             const inputsMap = {
                 accentInput, secondaryColorInput, themeInput, layoutInput, cardColorInput,
                 textColorInput, linkStyleInput, buttonShapeInput, socialsStyleInput, fontInput,
                 cardOpacityInput, cardBlurInput, borderOpacityInput, borderRadiusInput,
-                borderWidthInput, borderColorInput
+                borderWidthInput, borderColorInput, bgOverlayOpacityInput, bgBlurInput, bgOrbsOpacityInput
             };
 
             Object.entries(defaults).forEach(([key, val]) => {

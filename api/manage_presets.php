@@ -43,7 +43,8 @@ function profile_build_preset_data(mysqli $mysqli, int $targetUserId): ?array
         'tilt_enabled', 'tilt_max', 'tilt_glare', 'tilt_zoom', 'tilt_speed', 'profile_tags_json',
         'profile_tab_title', 'profile_tab_animation', 'profile_tab_animation_speed', 'profile_tab_animation_text',
         'profile_corner_style', 'profile_corner_style_custom', 'profile_border_style',
-        'profile_hide_meta', 'profile_show_audio_btn', 'profile_audio_btn_position', 'profile_audio_default_volume'
+        'profile_hide_meta', 'profile_show_audio_btn', 'profile_audio_btn_position', 'profile_audio_default_volume',
+        'profile_bg_overlay_opacity', 'profile_bg_blur', 'profile_bg_orbs_opacity'
     ];
 
     $profile = profile_get_edit_profile($mysqli, $targetUserId);
@@ -265,7 +266,8 @@ switch ($action) {
             'tilt_enabled', 'tilt_max', 'tilt_glare', 'tilt_zoom', 'tilt_speed', 'profile_tags_json',
             'profile_tab_title', 'profile_tab_animation', 'profile_tab_animation_speed', 'profile_tab_animation_text',
             'profile_corner_style', 'profile_corner_style_custom', 'profile_border_style',
-            'profile_hide_meta', 'profile_show_audio_btn', 'profile_audio_btn_position', 'profile_audio_default_volume'
+            'profile_hide_meta', 'profile_show_audio_btn', 'profile_audio_btn_position', 'profile_audio_default_volume',
+            'profile_bg_overlay_opacity', 'profile_bg_blur', 'profile_bg_orbs_opacity'
         ];
 
         $setParts = [];

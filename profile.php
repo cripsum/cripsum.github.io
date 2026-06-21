@@ -552,7 +552,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.8.4">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.8.6">
     <style>
         .profile-dropdown-item--gift,
         .profile-dropdown-item--gift * {
@@ -590,7 +590,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             }
         }
     </style>
-    <script src="/assets/js/profile.js?v=5.8.5" defer></script>
+    <script src="/assets/js/profile.js?v=5.8.6" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -672,6 +672,10 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             --social-icon-spacing: <?php echo $iconSpacing; ?>px !important;
             --badge-size: <?php echo $badgeSize; ?>px !important;
             --button-height: <?php echo $buttonSize; ?>px !important;
+            --profile-bg-overlay-opacity: <?php echo (float)($profile['profile_bg_overlay_opacity'] ?? 1.0); ?> !important;
+            --profile-bg-blur: <?php echo (int)($profile['profile_bg_blur'] ?? 0); ?>px !important;
+            --profile-bg-scale: <?php echo 1 + ((int)($profile['profile_bg_blur'] ?? 0) * 0.005); ?> !important;
+            --profile-bg-orbs-opacity: <?php echo (float)($profile['profile_bg_orbs_opacity'] ?? 0.45); ?> !important;
         }
 
         /* Scroll Snap Layout

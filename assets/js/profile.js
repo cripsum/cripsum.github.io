@@ -1387,7 +1387,7 @@
                                 <div class="profile-search-info">
                                     <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
                                         <span class="profile-search-username">${user.display_name && user.display_name.trim() ? user.display_name : user.username}</span>
-                                        ${user.is_premium ? `<i class="fa-solid fa-crown" style="color: #7c3aed; font-size: 0.78rem;" title="Premium"></i>` : ''}
+                                        ${user.is_premium ? `<i class="fa-solid fa-gem" style="color: #fbbf24; font-size: 0.78rem;" title="Premium"></i>` : ''}
                                     </div>
                                     ${user.display_name && user.display_name.trim() && user.display_name !== user.username ? `<span class="profile-search-handle" style="font-size: 0.78rem; opacity: 0.6; margin-top: 1px;">@${user.username}</span>` : ''}
                                     <span class="profile-search-role ${user.ruolo}">${roleLabel}</span>

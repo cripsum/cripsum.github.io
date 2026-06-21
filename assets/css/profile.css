@@ -78,7 +78,9 @@ html {
     height: 100%;
     object-fit: cover;
     opacity: 0.45;
-    filter: saturate(1.2) contrast(1.08) brightness(0.72);
+    filter: saturate(1.2) contrast(1.08) brightness(0.72) blur(var(--profile-bg-blur, 0px));
+    transform: scale(var(--profile-bg-scale, 1));
+    transition: filter 0.3s ease, transform 0.3s ease;
 }
 
 .bio-background__media {
@@ -93,12 +95,14 @@ html {
     position: absolute;
     inset: 0;
     background: linear-gradient(180deg, rgba(0, 0, 0, 0.34), rgba(0, 0, 0, 0.78)), radial-gradient(circle at 50% 20%, rgba(var(--accent-rgb), 0.2), transparent 28rem);
+    opacity: var(--profile-bg-overlay-opacity, 1.0);
+    transition: opacity 0.3s ease;
 }
 
 body[data-theme="light"] .bio-background video,
 body[data-theme="light"] .bio-background__media {
     opacity: 0.22;
-    filter: saturate(1.1) contrast(1) brightness(1.16);
+    filter: saturate(1.1) contrast(1) brightness(1.16) blur(var(--profile-bg-blur, 0px));
 }
 
 body[data-theme="light"] .bio-background__overlay {
@@ -116,7 +120,7 @@ body[data-theme="light"] .bio-background__overlay {
     height: 26rem;
     border-radius: var(--ui-shape-button, 999px);
     filter: blur(60px);
-    opacity: 0.45;
+    opacity: var(--profile-bg-orbs-opacity, 0.45) !important;
     animation: bioFloat 9s ease-in-out infinite alternate;
 }
 
@@ -1998,12 +2002,23 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
     object-fit: cover !important;
     object-position: center center !important;
     z-index: 1 !important;
+    filter: saturate(1.2) contrast(1.08) brightness(0.72) blur(var(--profile-bg-blur, 0px)) !important;
+    transform: scale(var(--profile-bg-scale, 1)) !important;
+    transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+body[data-theme="light"] .bio-background video,
+body[data-theme="light"] .bio-background__media,
+body[data-theme="light"] .bio-background img.bio-background__media {
+    filter: saturate(1.1) contrast(1) brightness(1.16) blur(var(--profile-bg-blur, 0px)) !important;
 }
 
 .bio-background__overlay {
     position: absolute !important;
     inset: 0 !important;
     z-index: 2 !important;
+    opacity: var(--profile-bg-overlay-opacity, 1.0) !important;
+    transition: opacity 0.3s ease;
 }
 
 .bio-background .bio-orb,

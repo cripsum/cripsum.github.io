@@ -377,7 +377,7 @@ if ($isLoggedIn) {
                 <div class="search-result-info">
                     <span class="search-result-username">
                         ${u.display_name && u.display_name.trim() ? highlight(u.display_name, query) : highlight(u.username, query)}
-                        ${u.is_premium ? `<i class="fa-solid fa-crown" style="color: #7c3aed; font-size: 0.78rem; margin-left: 4px;" title="Premium"></i>` : ''}
+                        ${u.is_premium ? `<i class="fa-solid fa-gem" style="color: #fbbf24; font-size: 0.78rem; margin-left: 4px;" title="Premium"></i>` : ''}
                     </span>
                     ${u.display_name && u.display_name.trim() && u.display_name !== u.username ? `<span class="search-result-handle" style="font-size: 0.75rem; opacity: 0.6; color: var(--ns-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px;">@${highlight(u.username, query)}</span>` : ''}
                     <span class="search-result-role ${escapeHtml(u.ruolo)}">${getRoleBadge(u.ruolo)}</span>
