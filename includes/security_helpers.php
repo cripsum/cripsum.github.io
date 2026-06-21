@@ -361,7 +361,7 @@ function auth_complete_login(array $user): void
         $stmt = $mysqli->prepare("
             SELECT ip_address 
             FROM login_attempts 
-            WHERE user_id = ? AND success = 1 AND reason = 'login_ok'
+            WHERE user_id = ? AND success = 1 AND reason IN ('login_ok', '2fa_ok', '2fa_backup_ok', 'google_login_ok', 'google_register_ok')
             ORDER BY created_at DESC 
             LIMIT 1
         ");

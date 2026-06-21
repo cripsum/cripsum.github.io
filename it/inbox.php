@@ -32,7 +32,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
     <meta name="description" content="<?php echo htmlspecialchars($ogDescription); ?>">
 
     <!-- Custom styling for inbox -->
-    <link rel="stylesheet" href="/css/inbox.css?v=4.4">
+    <link rel="stylesheet" href="/css/inbox.css?v=4.5">
     <link rel="stylesheet" href="/css/style-dark.css?v=5.0">
 </head>
 
@@ -490,7 +490,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                     </div>
                     
                     <h2 class="inbox-view-title">${htmlEscape(msg.title_it)}</h2>
-                    <div class="inbox-view-content">${htmlEscape(msg.content_it)}</div>
+                    <div class="inbox-view-content">${parseMarkdown(msg.content_it)}</div>
                     
                     ${rewardsHtml}
                 `;
@@ -726,6 +726,38 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                     .replace(/>/g, '&gt;')
                     .replace(/"/g, '&quot;')
                     .replace(/'/g, '&#039;');
+            }
+
+            function parseMarkdown(text) {
+                let html = htmlEscape(text);
+                
+                // Headings
+                html = html.replace(/^### (.*?)$/gm, '<h3 style="color:#c084fc; margin:16px 0 8px 0; font-weight:750; font-size:1.2rem;">$1</h3>');
+                html = html.replace(/^## (.*?)$/gm, '<h2 style="color:#c084fc; margin:20px 0 10px 0; font-weight:800; font-size:1.4rem;">$1</h2>');
+                html = html.replace(/^# (.*?)$/gm, '<h1 style="color:#c084fc; margin:24px 0 12px 0; font-weight:900; font-size:1.6rem;">$1</h1>');
+                
+                // Blockquotes
+                html = html.replace(/^&gt;\s+(.*?)$/gm, '<blockquote style="border-left: 4px solid #8b5cf6; padding-left: 12px; margin: 12px 0; color: rgba(255,255,255,0.7); font-style: italic;">$1</blockquote>');
+                
+                // Bullet list items
+                html = html.replace(/^(?:-|\*)\s+(.*?)$/gm, '<li style="margin-left: 20px; list-style-type: disc; margin-bottom: 4px;">$1</li>');
+                
+                // Images: ![alt](url)
+                html = html.replace(/!\[(.*?)\]\(([^)]+)\)/g, function(match, alt, url) {
+                    const cleanUrl = url.replace(/&amp;/g, '&');
+                    return `<img src="${cleanUrl}" alt="${alt}" class="inbox-embedded-img">`;
+                });
+                
+                // Links: [text](url)
+                html = html.replace(/\[(.*?)\]\(([^)]+)\)/g, function(match, label, url) {
+                    const cleanUrl = url.replace(/&amp;/g, '&');
+                    return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" style="color:#8b5cf6; text-decoration:underline; font-weight:600; transition:color 0.2s;" onmouseover="this.style.color=\'#a78bfa\'" onmouseout="this.style.color=\'#8b5cf6\'">${label}</a>`;
+                });
+                
+                // Bold: **text**
+                html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                
+                return html;
             }
 
         })();

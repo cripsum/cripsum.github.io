@@ -8,6 +8,14 @@ try {
 
     $mysqli->begin_transaction();
 
+    // Recupera autore e titolo prima dell'eliminazione
+    $stmt = $mysqli->prepare("SELECT id_utente, titolo FROM shitposts WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $postData = $result ? $result->fetch_assoc() : null;
+    $stmt->close();
+
     if (admin_table_exists($mysqli, 'commenti_shitpost')) {
         $stmt = $mysqli->prepare("DELETE FROM commenti_shitpost WHERE id_shitpost = ?");
         if ($stmt) {
@@ -31,6 +39,23 @@ try {
     $stmt->close();
 
     $mysqli->commit();
+
+    if ($postData && $deleted > 0) {
+        $currentTime = date('d/m/Y H:i:s');
+        $recipientId = (int)$postData['id_utente'];
+        $postTitle = $postData['titolo'];
+        
+        $titleIt = "Contenuto rimosso: Violazione linee guida";
+        $titleEn = "Content removed: Guidelines violation";
+        
+        $contentIt = "Il tuo shitpost intitolato \"" . $postTitle . "\" è stato rimosso dai moderatori in data " . $currentTime . " per violazione delle linee guida della community.\n\n" .
+                     "Ti invitiamo a rispettare le regole per evitare ulteriori provvedimenti sul tuo account.";
+                     
+        $contentEn = "Your shitpost titled \"" . $postTitle . "\" has been removed by moderators on " . $currentTime . " for violation of the community guidelines.\n\n" .
+                     "Please follow the rules to avoid further action on your account.";
+                     
+        sendSecurityInboxMessage($mysqli, $recipientId, $titleIt, $titleEn, $contentIt, $contentEn, 'system');
+    }
 
     admin_log($mysqli, (int)$adminUser['id'], 'delete_shitpost', null, ['post_id' => $id]);
     admin_ok(['message' => $deleted > 0 ? 'Shitpost eliminato.' : 'Shitpost non trovato.']);
