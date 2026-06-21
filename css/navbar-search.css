@@ -356,7 +356,8 @@
 /* ── Mobile dropdown menu grid and auth group ──────────────── */
 @media (max-width: 1199.98px) {
     .dropdownutenti .dropdown-menu {
-        max-width: 100% !important;
+        min-width: 290px !important;
+        max-width: calc(100vw - 24px) !important;
         box-sizing: border-box !important;
     }
 
