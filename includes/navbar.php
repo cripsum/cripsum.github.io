@@ -210,7 +210,7 @@ if ($isLoggedIn) {
                     </li>
                 <?php else: ?>
                     <!-- ══ CENTRO MESSAGGI (INBOX) ══ -->
-                    <li class="nav-item d-none d-xl-flex align-items-center ms-3 me-1" style="position: relative;">
+                    <li class="nav-item d-none d-xl-flex align-items-center ms-4 me-1" style="position: relative;">
                         <a href="/<?= $lang ?>/inbox" class="nav-link nav-inbox-link d-flex align-items-center position-relative" aria-label="Inbox" title="Inbox">
                             <i class="fa-solid fa-envelope"></i>
                             <span id="inbox-unread-count" class="badge bg-danger position-absolute translate-middle rounded-pill <?= ($unreadCount > 0) ? '' : 'd-none' ?>">

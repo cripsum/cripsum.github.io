@@ -515,12 +515,15 @@
 }
 
 .nav-inbox-link-mobile .badge {
-    font-size: 0.58rem !important;
-    padding: 0.22em 0.4em !important;
-    top: -2px !important;
-    right: -2px !important;
+    position: absolute !important;
+    top: -3px !important;
+    right: -3px !important;
+    transform: none !important;
+    font-size: 0.65rem !important;
+    padding: 2.5px 5.5px !important;
     border: 1.5px solid rgba(13, 17, 28, 0.95);
     box-shadow: 0 0 8px rgba(239, 68, 68, 0.45);
+    font-weight: 700 !important;
 }
 
 /* Desktop inbox envelope link styled as a circular button */
@@ -532,17 +535,19 @@
     height: 34px !important;
     width: 34px !important;
     border-radius: 50% !important;
-    color: rgba(255, 255, 255, 0.75) !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.11) !important;
     transition: all 0.2s ease !important;
     position: relative !important;
     overflow: visible !important;
-    background: transparent !important;
 }
 
 .navbarutenti .nav-inbox-link:hover,
 .navbarutenti .nav-inbox-link:focus {
     color: #fff !important;
-    background: rgba(255, 255, 255, 0.08) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
     transform: scale(1.05) !important;
 }
 
@@ -552,10 +557,12 @@
 }
 
 .navbarutenti .nav-inbox-link .badge {
-    font-size: 0.68rem !important;
-    padding: 0.25em 0.5em !important;
-    top: 1px !important;
-    right: 1px !important;
+    position: absolute !important;
+    top: -3px !important;
+    right: -3px !important;
+    transform: none !important;
+    font-size: 0.65rem !important;
+    padding: 2.5px 5.5px !important;
     border: 1.5px solid rgba(13, 17, 28, 0.95);
     box-shadow: 0 0 10px rgba(239, 68, 68, 0.7);
     font-weight: 700 !important;
