@@ -2,9 +2,14 @@
 session_start();
 require_once __DIR__ . '/mission_tracker.php';
 $isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+
+$unreadCount = 0;
 if (isLoggedIn()) {
     trackDailyLogin($mysqli, (int)$_SESSION['user_id']);
     trackMissionProgress($mysqli, (int)$_SESSION['user_id'], 'view_page');
+    if (isset($mysqli)) {
+        $unreadCount = getUnreadMessagesCount($mysqli, $_SESSION['user_id']);
+    }
 }
 $uri = $_SERVER['REQUEST_URI'];
 $lang = explode('/', trim($uri, '/'))[0];
@@ -91,6 +96,27 @@ if ($isLoggedIn) {
             <img src="/img/amongus-logo.jpg" height="40px" style="border-radius: 4px" class="d-inline-block align-middle" />
             <span class="align-middle ms-3 fw-bold testobianco">Cripsum™</span>
         </a>
+
+        <!-- Mobile actions (visible on mobile, hidden on desktop) -->
+        <div class="navbar-mobile-actions d-xl-none">
+            <a href="<?= htmlspecialchars($switchUrl) ?>"
+                class="lang-switch"
+                aria-label="Switch language to <?= $altLabel ?>"
+                title="Switch to <?= $altLabel ?>">
+                <span class="lang-switch__cur"><?= $curLabel ?></span>
+                <span class="lang-switch__sep">·</span>
+                <span class="lang-switch__alt"><?= $altLabel ?></span>
+            </a>
+
+            <?php if ($isLoggedIn): ?>
+                <a href="/<?= $lang ?>/inbox" class="nav-inbox-link-mobile position-relative" aria-label="Inbox" title="Inbox">
+                    <i class="fa-solid fa-envelope"></i>
+                    <span id="inbox-unread-count-mobile" class="badge bg-danger position-absolute translate-middle rounded-pill <?= ($unreadCount > 0) ? '' : 'd-none' ?>">
+                        <?= $unreadCount ?>
+                    </span>
+                </a>
+            <?php endif; ?>
+        </div>
 
         <button
             class="navbar-toggler"
@@ -182,6 +208,15 @@ if ($isLoggedIn) {
                         <a class="nav-link" href="/<?= $lang ?>/registrati"><i class="fa-solid fa-user-plus me-2"></i><?= $t['register'] ?></a>
                     </li>
                 <?php else: ?>
+                    <!-- ══ CENTRO MESSAGGI (INBOX) ══ -->
+                    <li class="nav-item d-none d-xl-flex align-items-center ms-2 me-1 inbox-item" style="position: relative;">
+                        <a href="/<?= $lang ?>/inbox" class="nav-link nav-inbox-link d-flex align-items-center position-relative" aria-label="Inbox" title="Inbox">
+                            <i class="fa-solid fa-envelope"></i>
+                            <span id="inbox-unread-count" class="badge bg-danger position-absolute translate-middle rounded-pill <?= ($unreadCount > 0) ? '' : 'd-none' ?>">
+                                <?= $unreadCount ?>
+                            </span>
+                        </a>
+                    </li>
                     <li class="nav-item dropdown dropdownutenti dropdownprofilo">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
                             <img src="<?php echo htmlspecialchars($profilePic); ?>&t=<?php echo time(); ?>" alt="<?= $t['my_profile_alt'] ?>"
@@ -681,4 +716,36 @@ if ($isPublicProfilePage):
         </form>
     </div>
 </div>
-<?php endif; ?>
+<?php endif; ?>
+
+<script>
+    // Safeguard: Load Bootstrap JS bundle dynamically if it's missing on the page
+    window.addEventListener('DOMContentLoaded', function() {
+        if (typeof bootstrap === 'undefined') {
+            console.log('Bootstrap JS missing, loading dynamically...');
+            var script = document.createElement('script');
+            script.src = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js";
+            script.crossOrigin = "anonymous";
+            document.head.appendChild(script);
+        }
+    });
+
+    // Sync desktop and mobile inbox unread badges
+    (function() {
+        const desktopBadge = document.getElementById('inbox-unread-count');
+        const mobileBadge = document.getElementById('inbox-unread-count-mobile');
+        if (desktopBadge && mobileBadge) {
+            const syncBadges = () => {
+                mobileBadge.textContent = desktopBadge.textContent;
+                if (desktopBadge.classList.contains('d-none')) {
+                    mobileBadge.classList.add('d-none');
+                } else {
+                    mobileBadge.classList.remove('d-none');
+                }
+            };
+            syncBadges();
+            const observer = new MutationObserver(syncBadges);
+            observer.observe(desktopBadge, { attributes: true, childList: true, characterData: true });
+        }
+    })();
+</script>

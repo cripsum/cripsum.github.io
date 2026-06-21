@@ -1615,7 +1615,7 @@ body.lootbox-page {
 
     .gacha-main {
         /* Lascia spazio al strip in basso */
-        padding-bottom: 140px;
+        padding-bottom: 240px;
     }
 
     .gacha-banner-view {
@@ -1631,7 +1631,7 @@ body.lootbox-page {
         top: auto;
         width: 100%;
         height: auto;
-        max-height: 160px;
+        max-height: 230px;
         border-left: none;
         border-top: 1px solid rgba(255, 255, 255, 0.08);
         flex-direction: column;
@@ -1639,6 +1639,23 @@ body.lootbox-page {
         z-index: 150;
         padding-bottom: var(--safe-bot, 0px);
         overflow: hidden;
+    }
+
+    /* Compatta box riscatto premium su mobile */
+    .gsb-premium-claim-box {
+        margin: 4px 10px !important;
+        padding: 8px 10px !important;
+        gap: 6px !important;
+        border-radius: 8px !important;
+    }
+    .gsb-premium-claim-header {
+        font-size: 0.72rem !important;
+        gap: 6px !important;
+    }
+    .gsb-premium-claim-btn {
+        padding: 6px 10px !important;
+        font-size: 0.7rem !important;
+        border-radius: 6px !important;
     }
 
     /* Nascondi label su mobile */
