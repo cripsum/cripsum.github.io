@@ -1,4 +1,6 @@
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
@@ -28,7 +30,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
     <title>Centro Messaggi - Cripsum™</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="<?php echo htmlspecialchars($ogDescription); ?>">
-    
+
     <!-- Custom styling for inbox -->
     <link rel="stylesheet" href="/css/inbox.css?v=1.0">
     <link rel="stylesheet" href="/css/style-dark.css?v=5.0">
@@ -51,7 +53,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
             <h3 style="font-weight: 800; color: #fff; margin-bottom: 15px; font-size: 1.25rem;">
                 <i class="fa-solid fa-inbox me-2" style="color: #0f5bff;"></i>Posta interna
             </h3>
-            
+
             <button type="button" class="inbox-category-btn is-active" data-cat="">
                 <span><i class="fa-solid fa-mail-bulk"></i>Tutti i messaggi</span>
                 <span class="inbox-category-badge" id="badge-all">0</span>
@@ -88,7 +90,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
 
         <!-- Main Layout: Messaggi + Dettaglio -->
         <section class="inbox-panel inbox-main-layout">
-            
+
             <!-- Lista Messaggi -->
             <div class="inbox-list-pane">
                 <div class="inbox-search-bar">
@@ -97,19 +99,19 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                         <input type="text" class="inbox-search-input" id="inboxSearchInput" placeholder="Cerca nei messaggi..." autocomplete="off">
                     </div>
                 </div>
-                
+
                 <div class="inbox-filters">
                     <button type="button" class="inbox-filter-tab is-active" data-status="">Entrate</button>
                     <button type="button" class="inbox-filter-tab" data-status="unread">Non letti</button>
                     <button type="button" class="inbox-filter-tab" data-status="important">Importanti</button>
                     <button type="button" class="inbox-filter-tab" data-status="archived">Archivio</button>
                 </div>
-                
+
                 <div class="inbox-cards-scroll" id="inboxCardsContainer">
                     <!-- Cards renderizzate in JS -->
                 </div>
             </div>
-            
+
             <!-- Vista Dettaglio -->
             <div class="inbox-view-pane" id="inboxDetailContainer">
                 <div class="inbox-view-empty">
@@ -118,7 +120,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                     <p class="text-muted" style="font-size: 0.9rem;">Clicca su un messaggio nella lista a sinistra per leggerlo.</p>
                 </div>
             </div>
-            
+
         </section>
     </main>
 
@@ -130,11 +132,11 @@ $ogUrl = 'https://cripsum.com/it/inbox';
             </div>
             <div class="inbox-reward-modal-title">Premio Riscattato!</div>
             <div class="inbox-reward-modal-sub">Hai aggiunto con successo i seguenti oggetti al tuo account:</div>
-            
+
             <div class="inbox-reward-modal-list" id="rewardModalList">
                 <!-- Premi riscattati in JS -->
             </div>
-            
+
             <button type="button" class="inbox-reward-modal-close" id="rewardModalCloseBtn">Ottimo</button>
         </div>
     </div>
@@ -148,7 +150,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
             const API_ENDPOINT = '/api/inbox.php';
             let messagesCache = [];
             let currentMessageId = null;
-            
+
             let filterCategory = '';
             let filterStatus = '';
             let filterSearch = '';
@@ -204,32 +206,32 @@ $ogUrl = 'https://cripsum.com/it/inbox';
             async function loadMessages() {
                 const container = $('#inboxCardsContainer');
                 container.innerHTML = `<div style="padding: 30px; text-align: center; color: rgba(255,255,255,0.4);"><i class="fa-solid fa-spinner fa-spin me-2"></i>Caricamento...</div>`;
-                
+
                 try {
                     const params = new URLSearchParams({
                         category: filterCategory,
                         status: filterStatus,
                         q: filterSearch
                     });
-                    
+
                     const response = await fetch(`${API_ENDPOINT}?${params}`);
                     const res = await response.json();
-                    
+
                     if (!res.ok) {
                         container.innerHTML = `<div style="padding: 20px; text-align: center; color: #ef4444;">${res.error}</div>`;
                         return;
                     }
-                    
+
                     messagesCache = res.messages || [];
-                    
+
                     // Aggiorna contatore Navbar se presente
                     updateNavbarBadge(res.unread_count);
-                    
+
                     // Aggiorna contatori categorie
                     updateCategoryCounters(messagesCache);
-                    
+
                     renderMessageList();
-                    
+
                     if (currentMessageId) {
                         const activeMsg = messagesCache.find(m => m.message_id === currentMessageId);
                         if (activeMsg) {
@@ -241,7 +243,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                     } else {
                         renderEmptyDetails();
                     }
-                    
+
                 } catch (error) {
                     container.innerHTML = `<div style="padding: 20px; text-align: center; color: #ef4444;">Impossibile caricare i messaggi.</div>`;
                 }
@@ -267,16 +269,18 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                     const el = document.getElementById(`badge-${cat}`);
                     if (el) el.textContent = '0';
                 });
-                
+
                 // Popola i badge in base alla cache di tutti i messaggi della vista corrente
                 // (Nota: per un conteggio globale accurato sarebbe meglio caricarlo separatamente, 
                 // ma contare gli elementi filtrati o mostrare il conteggio dei non letti va benissimo)
-                let counts = { all: messagesCache.length };
+                let counts = {
+                    all: messagesCache.length
+                };
                 messagesCache.forEach(m => {
                     const cat = m.category;
                     counts[cat] = (counts[cat] || 0) + 1;
                 });
-                
+
                 Object.keys(counts).forEach(cat => {
                     const el = document.getElementById(`badge-${cat}`);
                     if (el) el.textContent = counts[cat];
@@ -285,7 +289,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
 
             function renderMessageList() {
                 const container = $('#inboxCardsContainer');
-                
+
                 if (messagesCache.length === 0) {
                     container.innerHTML = `
                         <div style="padding: 50px 20px; text-align: center; color: rgba(255,255,255,0.3);">
@@ -295,32 +299,46 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                     `;
                     return;
                 }
-                
+
                 container.innerHTML = messagesCache.map(msg => {
                     const isUnread = parseInt(msg.is_read) === 0 ? 'is-unread' : '';
                     const isActive = msg.message_id === currentMessageId ? 'is-active' : '';
                     const isStarred = parseInt(msg.is_important) === 1;
                     const dateFormatted = formatMessageDate(msg.created_at);
-                    
+
                     const starIcon = isStarred ? '<i class="fa-solid fa-star text-warning inbox-card-icon is-active"></i>' : '';
                     const giftIcon = parseInt(msg.has_rewards) > 0 ? '<i class="fa-solid fa-gift text-purple inbox-card-icon" style="color:#a78bfa;"></i>' : '';
-                    
+
                     // Titolo ed estratto
                     const title = htmlEscape(msg.title_it);
                     const contentPlain = msg.content_it.replace(/<[^>]+>/g, '');
                     const excerpt = htmlEscape(contentPlain.substring(0, 60) + (contentPlain.length > 60 ? '...' : ''));
-                    
+
                     let catLabel = 'Sistema';
-                    switch(msg.category) {
-                        case 'system': catLabel = 'Sistema'; break;
-                        case 'changelog': catLabel = 'Novità'; break;
-                        case 'security': catLabel = 'Sicurezza'; break;
-                        case 'moderation': catLabel = 'Moderazione'; break;
-                        case 'rewards': catLabel = 'Premio'; break;
-                        case 'special': catLabel = 'Speciale'; break;
-                        case 'staff': catLabel = 'Staff'; break;
+                    switch (msg.category) {
+                        case 'system':
+                            catLabel = 'Sistema';
+                            break;
+                        case 'changelog':
+                            catLabel = 'Novità';
+                            break;
+                        case 'security':
+                            catLabel = 'Sicurezza';
+                            break;
+                        case 'moderation':
+                            catLabel = 'Moderazione';
+                            break;
+                        case 'rewards':
+                            catLabel = 'Premio';
+                            break;
+                        case 'special':
+                            catLabel = 'Speciale';
+                            break;
+                        case 'staff':
+                            catLabel = 'Staff';
+                            break;
                     }
-                    
+
                     return `
                         <div class="inbox-card ${isUnread} ${isActive}" data-id="${msg.message_id}">
                             <div class="inbox-card-header">
@@ -336,7 +354,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                         </div>
                     `;
                 }).join('');
-                
+
                 // Add click events to cards
                 $$('.inbox-card').forEach(card => {
                     card.addEventListener('click', () => {
@@ -348,7 +366,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
 
             function selectMessage(messageId) {
                 currentMessageId = messageId;
-                
+
                 // Aggiorna classi active
                 $$('.inbox-card').forEach(c => {
                     c.classList.remove('is-active');
@@ -356,11 +374,11 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                         c.classList.add('is-active');
                     }
                 });
-                
+
                 const msg = messagesCache.find(m => m.message_id === messageId);
                 if (msg) {
                     renderMessageDetails(msg);
-                    
+
                     // Se il messaggio era non letto, lo segna come letto sul server
                     if (parseInt(msg.is_read) === 0) {
                         markAsRead(messageId);
@@ -383,43 +401,43 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                 const isStarred = parseInt(msg.is_important) === 1;
                 const isArchived = parseInt(msg.is_archived) === 1;
                 const dateFormatted = formatMessageDateTime(msg.created_at);
-                
+
                 const starClass = isStarred ? 'is-active' : '';
                 const archiveText = isArchived ? '<i class="fa-solid fa-box-open"></i>Ripristina' : '<i class="fa-solid fa-archive"></i>Archivia';
-                
+
                 // Rewards Markup
                 let rewardsHtml = '';
                 if (parseInt(msg.has_rewards) > 0 && msg.rewards && msg.rewards.length) {
                     const isClaimed = msg.claimed_at !== null;
-                    
+
                     const rewardsListHtml = msg.rewards.map(rew => {
                         let icon = '🎁';
                         let label = '';
                         let sub = '';
-                        
-                        switch(rew.reward_type) {
-                            case 'points': 
-                                icon = '🪙'; 
-                                label = `+${parseInt(rew.reward_value) * parseInt(rew.quantity)} Punti`; 
+
+                        switch (rew.reward_type) {
+                            case 'points':
+                                icon = '🪙';
+                                label = `+${parseInt(rew.reward_value) * parseInt(rew.quantity)} Punti`;
                                 sub = 'Valuta del sito';
                                 break;
-                            case 'character': 
-                                icon = '👤'; 
-                                label = `Personaggio ID: ${rew.reward_value}`; 
+                            case 'character':
+                                icon = '👤';
+                                label = `Personaggio ID: ${rew.reward_value}`;
                                 sub = 'Aggiunto all\'inventario';
                                 break;
-                            case 'badge': 
-                                icon = '🏆'; 
-                                label = `Badge personalizzato ID: ${rew.reward_value}`; 
+                            case 'badge':
+                                icon = '🏆';
+                                label = `Badge personalizzato ID: ${rew.reward_value}`;
                                 sub = 'Profilo sbloccato';
                                 break;
-                            case 'premium': 
-                                icon = '⭐'; 
-                                label = 'Status Premium'; 
+                            case 'premium':
+                                icon = '⭐';
+                                label = 'Status Premium';
                                 sub = 'Vantaggi VIP attivati';
                                 break;
                         }
-                        
+
                         return `
                             <div class="inbox-reward-item">
                                 <span class="inbox-reward-icon ${rew.reward_type}">${icon}</span>
@@ -430,13 +448,13 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                             </div>
                         `;
                     }).join('');
-                    
-                    const actionButton = isClaimed 
-                        ? `<div class="inbox-claimed-badge"><i class="fa-solid fa-circle-check"></i>Premi Riscattati</div>`
-                        : `<button type="button" class="inbox-claim-btn" id="claimRewardsBtn" data-id="${msg.message_id}">
+
+                    const actionButton = isClaimed ?
+                        `<div class="inbox-claimed-badge"><i class="fa-solid fa-circle-check"></i>Premi Riscattati</div>` :
+                        `<button type="button" class="inbox-claim-btn" id="claimRewardsBtn" data-id="${msg.message_id}">
                                 <i class="fa-solid fa-gift"></i>Riscatta premi
                            </button>`;
-                    
+
                     rewardsHtml = `
                         <div class="inbox-rewards-box">
                             <div class="inbox-rewards-header">
@@ -449,7 +467,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                         </div>
                     `;
                 }
-                
+
                 pane.innerHTML = `
                     <!-- Pulsante indietro mobile -->
                     <button class="inbox-action-btn inbox-mobile-back" id="inboxMobileBackBtn"><i class="fa-solid fa-arrow-left"></i> Indietro</button>
@@ -471,12 +489,12 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                     
                     ${rewardsHtml}
                 `;
-                
+
                 // Add event listeners on details actions
                 $('#btnStar').addEventListener('click', () => toggleImportant(msg.message_id));
                 $('#btnArchive').addEventListener('click', () => toggleArchive(msg.message_id));
                 $('#btnDelete').addEventListener('click', () => deleteMessage(msg.message_id));
-                
+
                 const claimBtn = $('#claimRewardsBtn');
                 if (claimBtn) {
                     claimBtn.addEventListener('click', () => claimRewards(msg.message_id));
@@ -489,7 +507,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                         pane.classList.remove('is-open');
                     });
                 }
-                
+
                 // Su mobile, apri il pane dettagli
                 if (window.innerWidth <= 768) {
                     pane.classList.add('is-open');
@@ -500,7 +518,10 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                 try {
                     const response = await fetch(API_ENDPOINT, {
                         method: 'POST',
-                        body: JSON.stringify({ action: 'read', message_id: messageId })
+                        body: JSON.stringify({
+                            action: 'read',
+                            message_id: messageId
+                        })
                     });
                     const res = await response.json();
                     if (res.ok) {
@@ -508,11 +529,11 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                         const msg = messagesCache.find(m => m.message_id === messageId);
                         if (msg && parseInt(msg.is_read) === 0) {
                             msg.is_read = 1;
-                            
+
                             // Aggiorna classe card
                             const card = $(`.inbox-card[data-id="${messageId}"]`);
                             if (card) card.classList.remove('is-unread');
-                            
+
                             // Ricalcola contatori
                             // Aggiorna il contatore della navbar riducendo di 1
                             const badge = document.getElementById('inbox-unread-count');
@@ -536,13 +557,16 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                 try {
                     const response = await fetch(API_ENDPOINT, {
                         method: 'POST',
-                        body: JSON.stringify({ action: 'toggle_important', message_id: messageId })
+                        body: JSON.stringify({
+                            action: 'toggle_important',
+                            message_id: messageId
+                        })
                     });
                     const res = await response.json();
                     if (res.ok) {
                         const msg = messagesCache.find(m => m.message_id === messageId);
                         if (msg) msg.is_important = res.is_important;
-                        
+
                         // Aggiorna la vista
                         loadMessages();
                     }
@@ -555,7 +579,10 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                 try {
                     const response = await fetch(API_ENDPOINT, {
                         method: 'POST',
-                        body: JSON.stringify({ action: 'toggle_archive', message_id: messageId })
+                        body: JSON.stringify({
+                            action: 'toggle_archive',
+                            message_id: messageId
+                        })
                     });
                     const res = await response.json();
                     if (res.ok) {
@@ -571,11 +598,14 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                 if (!confirm("Sei sicuro di voler eliminare questo messaggio? Questa azione non può essere annullata.")) {
                     return;
                 }
-                
+
                 try {
                     const response = await fetch(API_ENDPOINT, {
                         method: 'POST',
-                        body: JSON.stringify({ action: 'delete', message_id: messageId })
+                        body: JSON.stringify({
+                            action: 'delete',
+                            message_id: messageId
+                        })
                     });
                     const res = await response.json();
                     if (res.ok) {
@@ -592,24 +622,27 @@ $ogUrl = 'https://cripsum.com/it/inbox';
             async function claimRewards(messageId) {
                 const btn = $('#claimRewardsBtn');
                 if (!btn) return;
-                
+
                 btn.disabled = true;
                 btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-2"></i>Riscatto in corso...`;
-                
+
                 try {
                     const response = await fetch(API_ENDPOINT, {
                         method: 'POST',
-                        body: JSON.stringify({ action: 'claim_rewards', message_id: messageId })
+                        body: JSON.stringify({
+                            action: 'claim_rewards',
+                            message_id: messageId
+                        })
                     });
                     const res = await response.json();
-                    
+
                     if (!res.ok) {
                         btn.disabled = false;
                         btn.innerHTML = `<i class="fa-solid fa-gift"></i>Riscatta premi`;
                         alert(res.error || "Impossibile riscattare i premi.");
                         return;
                     }
-                    
+
                     // Mostra la modale di riscatto avvenuto con successo
                     const listContainer = $('#rewardModalList');
                     listContainer.innerHTML = res.rewards.map(rew => {
@@ -618,7 +651,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                         else if (rew.type === 'character') icon = '👤';
                         else if (rew.type === 'badge') icon = '🏆';
                         else if (rew.type === 'premium') icon = '⭐';
-                        
+
                         return `
                             <div class="inbox-reward-modal-item">
                                 <span>${icon}</span>
@@ -626,12 +659,12 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                             </div>
                         `;
                     }).join('');
-                    
+
                     $('#rewardModalBackdrop').classList.add('is-visible');
-                    
+
                     // Ricarica la lista dei messaggi per aggiornare lo stato di riscattato
                     loadMessages();
-                    
+
                 } catch (e) {
                     btn.disabled = false;
                     btn.innerHTML = `<i class="fa-solid fa-gift"></i>Riscatta premi`;
@@ -643,21 +676,33 @@ $ogUrl = 'https://cripsum.com/it/inbox';
             function formatMessageDate(dateStr) {
                 const date = new Date(dateStr.replace(' ', 'T'));
                 if (isNaN(date.getTime())) return dateStr;
-                
+
                 const now = new Date();
                 const isToday = date.toDateString() === now.toDateString();
-                
+
                 if (isToday) {
-                    return date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+                    return date.toLocaleTimeString('it-IT', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
                 } else {
-                    return date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
+                    return date.toLocaleDateString('it-IT', {
+                        day: '2-digit',
+                        month: '2-digit'
+                    });
                 }
             }
 
             function formatMessageDateTime(dateStr) {
                 const date = new Date(dateStr.replace(' ', 'T'));
                 if (isNaN(date.getTime())) return dateStr;
-                return date.toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                return date.toLocaleString('it-IT', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
             }
 
             function htmlEscape(str) {
