@@ -471,9 +471,10 @@
 .navbar-mobile-actions {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     margin-left: auto;
     margin-right: 14px;
+    height: 100%;
 }
 
 .navbar-mobile-actions .lang-switch {
@@ -483,31 +484,80 @@
     background: rgba(255, 255, 255, 0.05);
 }
 
-/* Mobile inbox envelope link */
+/* Mobile inbox envelope link styled as a circular glass button */
 .nav-inbox-link-mobile {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 1.35rem;
-    text-decoration: none;
-    transition: color 0.2s ease, transform 0.2s ease;
-    padding: 6px;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    height: 34px !important;
+    width: 34px !important;
+    border-radius: 50% !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+    position: relative !important;
 }
 
 .nav-inbox-link-mobile:hover,
 .nav-inbox-link-mobile:focus {
-    color: #fff;
-    transform: scale(1.08);
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    transform: scale(1.05) !important;
+}
+
+.nav-inbox-link-mobile i {
+    font-size: 1.1rem !important;
+    margin: 0 !important;
 }
 
 .nav-inbox-link-mobile .badge {
-    font-size: 0.6rem !important;
-    padding: 0.25em 0.45em !important;
-    top: 4px !important;
-    right: -4px !important;
+    font-size: 0.58rem !important;
+    padding: 0.22em 0.4em !important;
+    top: -2px !important;
+    right: -2px !important;
     border: 1.5px solid rgba(13, 17, 28, 0.95);
     box-shadow: 0 0 8px rgba(239, 68, 68, 0.45);
+}
+
+/* Desktop inbox envelope link styled as a circular button */
+.navbarutenti .nav-inbox-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    height: 34px !important;
+    width: 34px !important;
+    border-radius: 50% !important;
+    color: rgba(255, 255, 255, 0.75) !important;
+    transition: all 0.2s ease !important;
+    position: relative !important;
+    overflow: visible !important;
+    background: transparent !important;
+}
+
+.navbarutenti .nav-inbox-link:hover,
+.navbarutenti .nav-inbox-link:focus {
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    transform: scale(1.05) !important;
+}
+
+.navbarutenti .nav-inbox-link i {
+    font-size: 1.12rem !important;
+    margin: 0 !important;
+}
+
+.navbarutenti .nav-inbox-link .badge {
+    font-size: 0.58rem !important;
+    padding: 0.22em 0.4em !important;
+    top: -2px !important;
+    right: -2px !important;
+    border: 1.5px solid rgba(13, 17, 28, 0.95);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
 }
 
 /* Narrow Desktop Breakpoints to prevent item wrapping */

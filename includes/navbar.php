@@ -211,10 +211,9 @@ if ($isLoggedIn) {
                 <?php else: ?>
                     <!-- ══ CENTRO MESSAGGI (INBOX) ══ -->
                     <li class="nav-item d-none d-xl-flex align-items-center me-3" style="position: relative;">
-                        <a href="/<?= $lang ?>/inbox" class="nav-link nav-inbox-link d-flex align-items-center position-relative" aria-label="Inbox" title="Inbox" style="padding: 6px;">
-                            <i class="fa-solid fa-envelope" style="font-size: 1.25rem;"></i>
-                            <span id="inbox-unread-count" class="badge bg-danger position-absolute translate-middle rounded-pill <?= ($unreadCount > 0) ? '' : 'd-none' ?>" 
-                                  style="font-size: 0.625rem; padding: 0.25em 0.45em; top: 4px; left: 24px;">
+                        <a href="/<?= $lang ?>/inbox" class="nav-link nav-inbox-link d-flex align-items-center position-relative" aria-label="Inbox" title="Inbox">
+                            <i class="fa-solid fa-envelope"></i>
+                            <span id="inbox-unread-count" class="badge bg-danger position-absolute translate-middle rounded-pill <?= ($unreadCount > 0) ? '' : 'd-none' ?>">
                                 <?= $unreadCount ?>
                             </span>
                         </a>
