@@ -29,7 +29,7 @@ $ogUrl = 'https://cripsum.com/en/inbox';
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="<?php echo htmlspecialchars($ogDescription); ?>">
     
-    <link rel="stylesheet" href="/css/inbox.css?v=1.0">
+    <link rel="stylesheet" href="/css/inbox.css?v=2.0">
     <link rel="stylesheet" href="/css/style-dark.css?v=5.0">
 </head>
 
