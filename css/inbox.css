@@ -712,7 +712,7 @@
     }
     
     .inbox-category-btn i {
-        margin-right: 0; /* Align perfectly with gap */
+        margin-right: 8px;
     }
 
     .inbox-category-badge {
