@@ -242,8 +242,9 @@
       const vhMinusNav = `calc(100dvh - ${h}px)`;
       if (layout) layout.style.minHeight = vhMinusNav;
 
-      // Su mobile la sidebar è fixed in basso (148px): sottraiamo anche quella
-      const mobileSidebarH = window.innerWidth < 768 ? 148 : 0;
+      // Su mobile la sidebar è fixed in basso: sottraiamo la sua altezza corretta
+      const hasPremium = document.body.classList.contains('has-premium');
+      const mobileSidebarH = window.innerWidth < 768 ? (hasPremium ? 230 : 148) : 0;
       const bannerMinH = mobileSidebarH
         ? `calc(100dvh - ${h}px - ${mobileSidebarH}px)`
         : vhMinusNav;
