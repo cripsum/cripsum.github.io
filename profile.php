@@ -590,7 +590,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             }
         }
     </style>
-    <script src="/assets/js/profile.js?v=5.9.7" defer></script>
+    <script src="/assets/js/profile.js?v=5.9.8" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -1239,7 +1239,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     data-bg-grain="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && ((int)($profile['profile_bg_grain'] ?? 0) === 1 || $profileEffect === 'bg_grain') ? '1' : '0'; ?>"
     data-music-theme="<?php echo (int)($profile['is_premium'] ?? 0) === 1 ? profile_h($profile['profile_music_theme'] ?? 'default') : 'default'; ?>"
     data-cursor-custom-url="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && !empty($profile['profile_cursor_custom_url']) ? profile_h($profile['profile_cursor_custom_url']) : ''; ?>"
-    style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>; <?php if ((int)($profile['is_premium'] ?? 0) === 1 && !empty($profile['profile_cursor_custom_url'])): ?>--cursor-custom-url: url('<?php echo profile_h($profile['profile_cursor_custom_url']); ?>'), auto !important;<?php endif; ?>">
+    data-cursor-custom-center="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && (int)($profile['profile_cursor_custom_center'] ?? 0) === 1 ? '1' : '0'; ?>"
+    style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>; <?php if ((int)($profile['is_premium'] ?? 0) === 1 && !empty($profile['profile_cursor_custom_url'])): ?>--cursor-custom-url: url('<?php echo profile_h($profile['profile_cursor_custom_url']); ?>')<?php echo (int)($profile['profile_cursor_custom_center'] ?? 0) === 1 ? ' 32 32' : ''; ?>, auto !important;<?php endif; ?>">
 
     <?php if ($profile && profile_flag($profile, 'profile_click_to_enter', false)): ?>
         <div id="clickToEnterOverlay" class="click-to-enter-overlay">
@@ -2164,9 +2165,12 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         for (const [key, value] of Object.entries(data.attributes)) {
                             if (key.startsWith('data-') && !key.startsWith('data-tilt-')) {
                                 body.setAttribute(key, value);
-                                if (key === 'data-cursor-custom-url') {
-                                    if (value) {
-                                        body.style.setProperty('--cursor-custom-url', `url('${value}'), auto`);
+                                if (key === 'data-cursor-custom-url' || key === 'data-cursor-custom-center') {
+                                    const urlVal = body.getAttribute('data-cursor-custom-url');
+                                    const centerVal = body.getAttribute('data-cursor-custom-center') === '1';
+                                    if (urlVal) {
+                                        const hotspot = centerVal ? ' 32 32' : '';
+                                        body.style.setProperty('--cursor-custom-url', `url('${urlVal}')${hotspot}, auto`);
                                     } else {
                                         body.style.removeProperty('--cursor-custom-url');
                                     }

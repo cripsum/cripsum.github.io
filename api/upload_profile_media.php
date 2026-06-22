@@ -154,12 +154,12 @@ if ($purpose === 'cursor') {
             $errorMessage = $res['error'] ?? 'Errore nella conversione del file .ani.';
         }
     } else {
-        // Standard image, resize to 32x32 and save as PNG
+        // Standard image, resize to 64x64 and save as PNG
         $ext = 'png';
         $fileName = 'cursor_' . $randomHash . '.png';
         $targetPath = $uploadDir . '/' . $fileName;
 
-        if (cursor_resize_image($tmpPath, $mimeType, $targetPath, 32)) {
+        if (cursor_resize_image($tmpPath, $mimeType, $targetPath, 64)) {
             $success = true;
         } else {
             $errorMessage = 'Errore durante il ridimensionamento dell\'immagine del cursore.';

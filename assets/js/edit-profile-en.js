@@ -710,6 +710,7 @@
     const cursorEffectInput = $('#cursorEffectInput');
     const musicThemeInput = $('#musicThemeInput');
     const cursorCustomUrlInput = $('#cursorCustomUrlInput');
+    const cursorCustomCenterInput = $('#cursorCustomCenterInput');
     const profileLayoutHidden = $('#profileLayoutHidden');
     const profileLayoutSnapHidden = $('#profileLayoutSnapHidden');
     const bgGrainInput = $('#bgGrainInput');
@@ -946,6 +947,7 @@
         if (cursorEffectInput) attributes['data-cursor-effect'] = window.isPremiumUser ? cursorEffectInput.value : 'none';
         if (musicThemeInput) attributes['data-music-theme'] = window.isPremiumUser ? musicThemeInput.value : 'default';
         if (cursorCustomUrlInput) attributes['data-cursor-custom-url'] = window.isPremiumUser ? cursorCustomUrlInput.value : '';
+        if (cursorCustomCenterInput) attributes['data-cursor-custom-center'] = window.isPremiumUser && cursorCustomCenterInput.checked ? '1' : '0';
         if (profileLayoutSnapHidden) attributes['data-layout-snap'] = (window.isPremiumUser && profileLayoutSnapHidden.value === '1') ? '1' : '0';
         attributes['data-bg-grain'] = (window.isPremiumUser && profileEffectInput && profileEffectInput.value === 'bg_grain') ? '1' : '0';
 
@@ -1070,7 +1072,7 @@
 
     // Register simple inputs listeners for live updates and autosave
     // Register simple inputs listeners for live updates and autosave
-    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, profileLayoutHidden, profileLayoutSnapHidden, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput, musicUrlInput, musicTitleInput, musicArtistInput, showAudioPlayerInput, cornerStyleCustomInput, tiltMaxInput, tiltGlareInput, tiltZoomInput, tiltSpeedInput, profileTabAnimationSpeedInput, profileTabTitleInput, profileTabAnimationInput, profileTabAnimationTextInput, cornerStyleInput, borderStyleInput, discordServerInviteInput, removeMusicUploadInput, cursorEffectInput, musicThemeInput, cursorCustomUrlInput, hideMetaInput, showAudioBtnInput, audioBtnPositionInput, audioDefaultVolumeInput, bgOverlayOpacityInput, bgBlurInput, bgOrbsOpacityInput].filter(Boolean);
+    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, profileLayoutHidden, profileLayoutSnapHidden, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput, musicUrlInput, musicTitleInput, musicArtistInput, showAudioPlayerInput, cornerStyleCustomInput, tiltMaxInput, tiltGlareInput, tiltZoomInput, tiltSpeedInput, profileTabAnimationSpeedInput, profileTabTitleInput, profileTabAnimationInput, profileTabAnimationTextInput, cornerStyleInput, borderStyleInput, discordServerInviteInput, removeMusicUploadInput, cursorEffectInput, musicThemeInput, cursorCustomUrlInput, cursorCustomCenterInput, hideMetaInput, showAudioBtnInput, audioBtnPositionInput, audioDefaultVolumeInput, bgOverlayOpacityInput, bgBlurInput, bgOrbsOpacityInput].filter(Boolean);
 
     simpleInputs.forEach((input) => {
         input.addEventListener('input', () => {
@@ -3650,6 +3652,7 @@
             document.getElementById('cursorEffectInput'),
             document.getElementById('musicThemeInput'),
             document.getElementById('cursorCustomUrlInput'),
+            document.getElementById('cursorCustomCenterInput'),
             document.getElementById('layoutSnapInput'),
             document.getElementById('hideMetaInput')
         ];

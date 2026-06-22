@@ -1061,9 +1061,9 @@
             window.customCursorMoveHandler = null;
         }
         // Remove previous cursor-none class
-        document.body.classList.remove('custom-cursor-js-active');
+        body.classList.remove('custom-cursor-js-active');
 
-        const cursorUrl = document.body.dataset.cursorCustomUrl;
+        const cursorUrl = body.dataset.cursorCustomUrl;
         if (!cursorUrl) return;
 
         // Only use JS follower for animated formats (GIF)
@@ -1072,12 +1072,15 @@
         if (!isAnimated) return;
 
         // Hide native cursor
-        document.body.classList.add('custom-cursor-js-active');
+        body.classList.add('custom-cursor-js-active');
+
+        const isCentered = body.dataset.cursorCustomCenter === '1';
+        const transformVal = isCentered ? 'translate(-50%, -50%)' : 'translate(0, 0)';
 
         const cursorEl = document.createElement('img');
         cursorEl.src = cursorUrl;
-        cursorEl.style.cssText = 'position:fixed;pointer-events:none;z-index:999999;width:32px;height:32px;image-rendering:pixelated;left:-100px;top:-100px;transform:translate(0,0);will-change:transform;';
-        document.body.appendChild(cursorEl);
+        cursorEl.style.cssText = `position:fixed;pointer-events:none;z-index:999999;width:64px;height:64px;image-rendering:pixelated;left:-100px;top:-100px;transform:${transformVal};will-change:transform;`;
+        body.appendChild(cursorEl);
         window.customCursorEl = cursorEl;
 
         let mouseX = -100, mouseY = -100;

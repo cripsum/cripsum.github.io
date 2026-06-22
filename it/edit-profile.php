@@ -113,8 +113,8 @@ function profile_json_script(string $id, array $data): void
     <script>
         window.isPremiumUser = <?php echo (int)($profile['is_premium'] ?? 0) === 'true' || (int)($profile['is_premium'] ?? 0) === 1 ? 'true' : 'false'; ?>;
     </script>
-    <script src="/assets/js/profile.js?v=5.9.7" defer></script>
-    <script src="/assets/js/edit-profile.js?v=5.9.6" defer></script>
+    <script src="/assets/js/profile.js?v=5.9.8" defer></script>
+    <script src="/assets/js/edit-profile.js?v=5.9.8" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-effect="<?php echo profile_h($profile['profile_effect'] ?? 'none'); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" data-avatar-shape="<?php echo profile_h($avatarShape); ?>" data-avatar-border="<?php echo $avatarBorder; ?>" style="--accent: <?php echo profile_h($accent); ?>; --accent-rgb: <?php echo $accentRgbComma; ?>; --profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
@@ -1003,8 +1003,16 @@ function profile_json_script(string $id, array $data): void
                                         <input type="text" name="profile_cursor_custom_url" id="cursorCustomUrlInput" value="<?php echo profile_h($profile['profile_cursor_custom_url'] ?? ''); ?>" placeholder="/uploads/... o url">
                                         <button type="button" class="btn-page-media-upload" data-upload-target="cursorCustomUrlInput"><i class="fa-solid fa-upload"></i></button>
                                     </div>
-                                    <small style="opacity: 0.7; font-size: 0.75rem; margin-top: 4px; display: block;">PNG, JPG, WEBP, GIF, CUR, ANI. Le immagini standard vengono ridimensionate a 32×32. I file .ani/GIF animati mantengono l'animazione.</small>
+                                    <small style="opacity: 0.7; font-size: 0.75rem; margin-top: 4px; display: block;">PNG, JPG, WEBP, GIF, CUR, ANI. Immagini ridimensionate a 64×64. Cursori .ani/GIF mantengono l'animazione.</small>
                                 </label>
+
+                                <div class="profile-field" style="display: flex; flex-direction: column; justify-content: flex-end; height: 100%;">
+                                    <label class="profile-toggle-card profile-inline-toggle" style="margin: 0; width: 100%;">
+                                        <input type="hidden" name="profile_cursor_custom_center" value="0">
+                                        <input type="checkbox" name="profile_cursor_custom_center" id="cursorCustomCenterInput" value="1" <?php echo (int)($profile['profile_cursor_custom_center'] ?? 0) === 1 ? 'checked' : ''; ?>>
+                                        <span><i class="fa-solid fa-crosshairs"></i>Centra Cursore</span>
+                                    </label>
+                                </div>
                             </div>
 
                             <div class="bio-section-heading" style="margin-top: 1.8rem; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 1.5rem;">

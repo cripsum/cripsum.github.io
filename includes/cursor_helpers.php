@@ -17,7 +17,7 @@
  * @param int    $size       Target width and height (default 32)
  * @return bool True on success, false on failure
  */
-function cursor_resize_image(string $tmpPath, string $mimeType, string $outputPath, int $size = 32): bool
+function cursor_resize_image(string $tmpPath, string $mimeType, string $outputPath, int $size = 64): bool
 {
     // Create GD image resource from the source file
     $src = null;
@@ -203,7 +203,7 @@ function cursor_convert_ani_to_gif(string $aniPath, string $outputPath): array
 
     // --- Extract GD images from each unique frame ---
     $frameImages = []; // index => GdImage
-    $frameSize   = 32;
+    $frameSize   = ($cx > 0 && $cx <= 256) ? min(128, max(32, $cx)) : 64;
 
     foreach ($iconChunks as $idx => $icoData) {
         $img = _cursor_ico_to_gd($icoData, $frameSize);
@@ -466,6 +466,24 @@ function _cursor_bmp_to_gd(string $bmpData, int $w, int $h): ?\GdImage
 
     $hasAndMask = ($andOffset + $andRowStride * $imgH) <= strlen($bmpData);
 
+    // Scan if the 32-bit alpha channel is actually used (i.e. has any non-zero value)
+    $hasRealAlpha = false;
+    if ($bpp === 32) {
+        for ($y = 0; $y < $imgH; $y++) {
+            $srcY = $imgH - 1 - $y;
+            $rowOffset = $pixelDataOffset + $srcY * $rowStride;
+            for ($x = 0; $x < $imgW; $x++) {
+                $pOff = $rowOffset + $x * 4;
+                if ($pOff + 3 < strlen($bmpData)) {
+                    if (ord($bmpData[$pOff + 3]) > 0) {
+                        $hasRealAlpha = true;
+                        break 2;
+                    }
+                }
+            }
+        }
+    }
+
     // BMP rows are stored bottom-up
     for ($y = 0; $y < $imgH; $y++) {
         $srcY = $imgH - 1 - $y; // flip vertically
@@ -475,7 +493,7 @@ function _cursor_bmp_to_gd(string $bmpData, int $w, int $h): ?\GdImage
             $alpha = 0; // opaque
 
             // Check AND mask for transparency
-            if ($hasAndMask) {
+            if ($hasAndMask && ($bpp < 32 || !$hasRealAlpha)) {
                 $andByteOff = $andOffset + $srcY * $andRowStride + intdiv($x, 8);
                 if ($andByteOff < strlen($bmpData)) {
                     $andBit = (ord($bmpData[$andByteOff]) >> (7 - ($x % 8))) & 1;
@@ -494,9 +512,10 @@ function _cursor_bmp_to_gd(string $bmpData, int $w, int $h): ?\GdImage
                     $b = ord($bmpData[$pOff]);
                     $g = ord($bmpData[$pOff + 1]);
                     $r = ord($bmpData[$pOff + 2]);
-                    $a = ord($bmpData[$pOff + 3]); // alpha channel (0=transparent, 255=opaque)
-                    // 32-bit ICO uses per-pixel alpha; override AND mask
-                    $alpha = (int)(127 - ($a * 127 / 255));
+                    if ($hasRealAlpha) {
+                        $a = ord($bmpData[$pOff + 3]); // alpha channel (0=transparent, 255=opaque)
+                        $alpha = (int)(127 - ($a * 127 / 255));
+                    }
                 }
             } elseif ($bpp === 24) {
                 $pOff = $rowOffset + $x * 3;
@@ -623,23 +642,36 @@ function _cursor_encode_animated_gif(array $frames, array $delays, int $size): s
         $frame = $frames[$i];
         $delay = $delays[$i] ?? 10;
 
-        // Convert truecolor to palette (256 colors) via GD
-        // First, create a copy so we don't modify the original
+        // Convert truecolor to palette (256 colors) via GD using placeholder color
         $palImg = imagecreatetruecolor($size, $size);
-        imagesavealpha($palImg, true);
         imagealphablending($palImg, false);
-        $trans = imagecolorallocatealpha($palImg, 0, 0, 0, 127);
-        imagefill($palImg, 0, 0, $trans);
-        imagealphablending($palImg, true);
-        imagecopy($palImg, $frame, 0, 0, 0, 0, $size, $size);
 
-        // Convert to palette with dithering, up to 255 colors to leave room for transparency
+        $transR = 255;
+        $transG = 0;
+        $transB = 255;
+        $placeholderColor = imagecolorallocate($palImg, $transR, $transG, $transB);
+
+        for ($y = 0; $y < $size; $y++) {
+            for ($x = 0; $x < $size; $x++) {
+                $rgba = imagecolorat($frame, $x, $y);
+                $alpha = ($rgba >> 24) & 0x7F;
+
+                if ($alpha >= 100) {
+                    imagesetpixel($palImg, $x, $y, $placeholderColor);
+                } else {
+                    $r = ($rgba >> 16) & 0xFF;
+                    $g = ($rgba >> 8) & 0xFF;
+                    $b = $rgba & 0xFF;
+                    $opaqueColor = imagecolorallocate($palImg, $r, $g, $b);
+                    imagesetpixel($palImg, $x, $y, $opaqueColor);
+                }
+            }
+        }
+
         imagetruecolortopalette($palImg, true, 255);
-        imagecolortransparent($palImg, imagecolorallocatealpha($palImg, 0, 0, 0, 127));
-
-        // Get the transparent color index
-        $transIdx = imagecolortransparent($palImg);
-        $hasTransparency = ($transIdx >= 0);
+        $transIdx = imagecolorresolve($palImg, $transR, $transG, $transB);
+        imagecolortransparent($palImg, $transIdx);
+        $hasTransparency = true;
 
         // Graphic Control Extension
         $gif .= "\x21\xF9\x04";
