@@ -1042,6 +1042,7 @@
             }
             tickCat();
         }
+    };
     window.initCursorEffects = initCursorEffects;
 
     // Custom cursor image follower (for animated GIF cursors that CSS can't animate)
