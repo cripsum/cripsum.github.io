@@ -3560,9 +3560,14 @@
             return;
         }
 
+        const isCursor = targetInput.id === 'cursorCustomUrlInput';
         const fileInput = document.createElement('input');
         fileInput.type = 'file';
-        fileInput.accept = 'image/jpeg,image/png,image/webp,image/gif,image/svg+xml';
+        if (isCursor) {
+            fileInput.accept = 'image/jpeg,image/png,image/webp,image/gif,.cur,.ani';
+        } else {
+            fileInput.accept = 'image/jpeg,image/png,image/webp,image/gif,image/svg+xml';
+        }
         
         fileInput.addEventListener('change', () => {
             if (!fileInput.files || fileInput.files.length === 0) return;
@@ -3574,6 +3579,9 @@
             
             const formData = new FormData();
             formData.append('file', file);
+            if (isCursor) {
+                formData.append('purpose', 'cursor');
+            }
             
             fetch('/api/upload_profile_media.php', {
                 method: 'POST',
@@ -3586,7 +3594,11 @@
                     targetInput.dispatchEvent(new Event('input', { bubbles: true }));
                     targetInput.dispatchEvent(new Event('change', { bubbles: true }));
                     if (typeof window.profileToast === 'function') {
-                        window.profileToast(isEnglish ? 'Upload completed!' : 'Caricamento completato!');
+                        if (isCursor && data.url.toLowerCase().endsWith('.png')) {
+                            window.profileToast(isEnglish ? 'Upload completed! Image auto-resized to 32x32.' : 'Caricamento completato! Immagine ridimensionata a 32x32.');
+                        } else {
+                            window.profileToast(isEnglish ? 'Upload completed!' : 'Caricamento completato!');
+                        }
                     }
                 } else {
                     alert(data.message || (isEnglish ? 'Upload failed.' : 'Errore nel caricamento.'));

@@ -113,8 +113,8 @@ function profile_json_script(string $id, array $data): void
     <script>
         window.isPremiumUser = <?php echo (int)($profile['is_premium'] ?? 0) === 'true' || (int)($profile['is_premium'] ?? 0) === 1 ? 'true' : 'false'; ?>;
     </script>
-    <script src="/assets/js/profile.js?v=5.9.5" defer></script>
-    <script src="/assets/js/edit-profile.js?v=5.9.5" defer></script>
+    <script src="/assets/js/profile.js?v=5.9.6" defer></script>
+    <script src="/assets/js/edit-profile.js?v=5.9.6" defer></script>
 </head>
 
 <body class="bio-v2-body profile-editor-shell" data-theme="<?php echo profile_h($theme); ?>" data-accent="<?php echo profile_h($accent); ?>" data-profile-link-style="<?php echo profile_h($linkStyle); ?>" data-profile-button-shape="<?php echo profile_h($buttonShape); ?>" data-profile-effect="<?php echo profile_h($profile['profile_effect'] ?? 'none'); ?>" data-profile-url="https://cripsum.com/u/<?php echo rawurlencode(strtolower($profile['username'])); ?>" data-avatar-shape="<?php echo profile_h($avatarShape); ?>" data-avatar-border="<?php echo $avatarBorder; ?>" style="--accent: <?php echo profile_h($accent); ?>; --accent-rgb: <?php echo $accentRgbComma; ?>; --profile-ring: <?php echo profile_h(profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent)); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>;">
@@ -1003,6 +1003,7 @@ function profile_json_script(string $id, array $data): void
                                         <input type="text" name="profile_cursor_custom_url" id="cursorCustomUrlInput" value="<?php echo profile_h($profile['profile_cursor_custom_url'] ?? ''); ?>" placeholder="/uploads/... o url">
                                         <button type="button" class="btn-page-media-upload" data-upload-target="cursorCustomUrlInput"><i class="fa-solid fa-upload"></i></button>
                                     </div>
+                                    <small style="opacity: 0.7; font-size: 0.75rem; margin-top: 4px; display: block;">PNG, JPG, WEBP, GIF, CUR, ANI. Le immagini standard vengono ridimensionate a 32×32. I file .ani/GIF animati mantengono l'animazione.</small>
                                 </label>
                             </div>
 

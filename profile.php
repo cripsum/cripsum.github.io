@@ -590,7 +590,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             }
         }
     </style>
-    <script src="/assets/js/profile.js?v=5.9.5" defer></script>
+    <script src="/assets/js/profile.js?v=5.9.6" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -931,6 +931,18 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         body[data-cursor-custom-url] [role="button"] {
             cursor: var(--cursor-custom-url) !important;
         }
+
+        /* JS cursor follower for animated cursors (GIF) */
+        body.custom-cursor-js-active,
+        body.custom-cursor-js-active *,
+        body.custom-cursor-js-active a,
+        body.custom-cursor-js-active button,
+        body.custom-cursor-js-active select,
+        body.custom-cursor-js-active input,
+        body.custom-cursor-js-active textarea {
+            cursor: none !important;
+        }
+
 
         /* Card Tags */
         .profile-card-tag {
@@ -2157,6 +2169,9 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                         body.style.setProperty('--cursor-custom-url', `url('${value}'), auto`);
                                     } else {
                                         body.style.removeProperty('--cursor-custom-url');
+                                    }
+                                    if (window.initCustomCursorImage) {
+                                        window.initCustomCursorImage();
                                     }
                                 } else if (key === 'data-layout-snap') {
                                     if (window.initScrollSnapPagination) {

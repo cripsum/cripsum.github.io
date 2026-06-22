@@ -1042,8 +1042,60 @@
             }
             tickCat();
         }
-    };
     window.initCursorEffects = initCursorEffects;
+
+    // Custom cursor image follower (for animated GIF cursors that CSS can't animate)
+    const initCustomCursorImage = () => {
+        // Clean up previous custom cursor follower
+        if (window.customCursorEl) {
+            window.customCursorEl.remove();
+            window.customCursorEl = null;
+        }
+        if (window.customCursorRafId) {
+            cancelAnimationFrame(window.customCursorRafId);
+            window.customCursorRafId = null;
+        }
+        if (window.customCursorMoveHandler) {
+            window.removeEventListener('pointermove', window.customCursorMoveHandler);
+            window.customCursorMoveHandler = null;
+        }
+        // Remove previous cursor-none class
+        document.body.classList.remove('custom-cursor-js-active');
+
+        const cursorUrl = document.body.dataset.cursorCustomUrl;
+        if (!cursorUrl) return;
+
+        // Only use JS follower for animated formats (GIF)
+        // Static images (.png, .cur, .jpg, etc.) work fine with CSS cursor: url()
+        const isAnimated = /\.(gif)$/i.test(cursorUrl);
+        if (!isAnimated) return;
+
+        // Hide native cursor
+        document.body.classList.add('custom-cursor-js-active');
+
+        const cursorEl = document.createElement('img');
+        cursorEl.src = cursorUrl;
+        cursorEl.style.cssText = 'position:fixed;pointer-events:none;z-index:999999;width:32px;height:32px;image-rendering:pixelated;left:-100px;top:-100px;transform:translate(0,0);will-change:transform;';
+        document.body.appendChild(cursorEl);
+        window.customCursorEl = cursorEl;
+
+        let mouseX = -100, mouseY = -100;
+
+        window.customCursorMoveHandler = (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        };
+        window.addEventListener('pointermove', window.customCursorMoveHandler, { passive: true });
+
+        function tickCursor() {
+            cursorEl.style.left = mouseX + 'px';
+            cursorEl.style.top = mouseY + 'px';
+            window.customCursorRafId = requestAnimationFrame(tickCursor);
+        }
+        tickCursor();
+    };
+    window.initCustomCursorImage = initCustomCursorImage;
+
 
     const persistDetailsState = () => {
         const details = document.querySelectorAll('.bio-details');
@@ -1488,6 +1540,7 @@
         initFloatingAudioBtn();
         initProfileEffects();
         initCursorEffects();
+        initCustomCursorImage();
         initActivityCarousel();
         updateActivityTimestamps();
         persistDetailsState();
