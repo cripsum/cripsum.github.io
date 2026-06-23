@@ -464,7 +464,7 @@ function getPremiumGiftEmailTemplate($recipientUsername, $senderUsername)
                                     <tr>
                                         <td style="vertical-align: top; width: 30px; font-size: 18px; padding-bottom: 15px;">🪙</td>
                                         <td style="color: #f8fafc; font-size: 14px; padding-bottom: 15px; line-height: 1.5;">
-                                            <strong style="color: #ffffff;">Bonus di 200.000 Soldi</strong><br>
+                                            <strong style="color: #ffffff;">Bonus di 20.000 Soldi</strong><br>
                                             <span style="color: #94a3b8;">Aggiunti istantaneamente al tuo bilancio per pullare nel Gacha dei personaggi!</span>
                                         </td>
                                     </tr>
@@ -854,44 +854,44 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
         if (!empty($password)) {
             $titleIt = "Sicurezza: Password modificata";
             $titleEn = "Security: Password changed";
-            
+
             $contentIt = "La password del tuo account Cripsum™ è stata modificata con successo.\n\n" .
-                         "**Dettagli dell'operazione:**\n" .
-                         "- **Data e ora:** " . $currentTime . "\n" .
-                         "- **Indirizzo IP:** " . $currentIp . "\n" .
-                         "- **Dispositivo:** " . $userAgent . "\n\n" .
-                         "Se sei stato tu, puoi ignorare questo messaggio. Se non riconosci questa operazione, ti consigliamo di contattare immediatamente il supporto.";
-            
+                "**Dettagli dell'operazione:**\n" .
+                "- **Data e ora:** " . $currentTime . "\n" .
+                "- **Indirizzo IP:** " . $currentIp . "\n" .
+                "- **Dispositivo:** " . $userAgent . "\n\n" .
+                "Se sei stato tu, puoi ignorare questo messaggio. Se non riconosci questa operazione, ti consigliamo di contattare immediatamente il supporto.";
+
             $contentEn = "The password for your Cripsum™ account has been successfully changed.\n\n" .
-                         "**Details of the Operation:**\n" .
-                         "- **Date and Time:** " . $currentTime . "\n" .
-                         "- **IP Address:** " . $currentIp . "\n" .
-                         "- **Device:** " . $userAgent . "\n\n" .
-                         "If this was you, you can ignore this message. If you do not recognize this operation, we recommend contacting support immediately.";
-            
+                "**Details of the Operation:**\n" .
+                "- **Date and Time:** " . $currentTime . "\n" .
+                "- **IP Address:** " . $currentIp . "\n" .
+                "- **Device:** " . $userAgent . "\n\n" .
+                "If this was you, you can ignore this message. If you do not recognize this operation, we recommend contacting support immediately.";
+
             sendSecurityInboxMessage($mysqli, $userId, $titleIt, $titleEn, $contentIt, $contentEn);
         }
 
         if ($emailChanged) {
             $titleIt = "Sicurezza: Indirizzo email modificato";
             $titleEn = "Security: Email address changed";
-            
+
             $contentIt = "L'indirizzo email associato al tuo account Cripsum™ è stato modificato.\n\n" .
-                         "**Dettagli dell'operazione:**\n" .
-                         "- **Nuovo indirizzo:** " . $email . "\n" .
-                         "- **Data e ora:** " . $currentTime . "\n" .
-                         "- **Indirizzo IP:** " . $currentIp . "\n" .
-                         "- **Dispositivo:** " . $userAgent . "\n\n" .
-                         "Se sei stato tu, ti preghiamo di verificare il nuovo indirizzo tramite il link inviato alla tua casella di posta. Se non riconosci questa operazione, contatta immediatamente il supporto.";
-            
+                "**Dettagli dell'operazione:**\n" .
+                "- **Nuovo indirizzo:** " . $email . "\n" .
+                "- **Data e ora:** " . $currentTime . "\n" .
+                "- **Indirizzo IP:** " . $currentIp . "\n" .
+                "- **Dispositivo:** " . $userAgent . "\n\n" .
+                "Se sei stato tu, ti preghiamo di verificare il nuovo indirizzo tramite il link inviato alla tua casella di posta. Se non riconosci questa operazione, contatta immediatamente il supporto.";
+
             $contentEn = "The email address associated with your Cripsum™ account has been changed.\n\n" .
-                         "**Details of the Operation:**\n" .
-                         "- **New Email:** " . $email . "\n" .
-                         "- **Date and Time:** " . $currentTime . "\n" .
-                         "- **IP Address:** " . $currentIp . "\n" .
-                         "- **Device:** " . $userAgent . "\n\n" .
-                         "If this was you, please verify the new address using the link sent to your inbox. If you do not recognize this operation, contact support immediately.";
-            
+                "**Details of the Operation:**\n" .
+                "- **New Email:** " . $email . "\n" .
+                "- **Date and Time:** " . $currentTime . "\n" .
+                "- **IP Address:** " . $currentIp . "\n" .
+                "- **Device:** " . $userAgent . "\n\n" .
+                "If this was you, please verify the new address using the link sent to your inbox. If you do not recognize this operation, contact support immediately.";
+
             sendSecurityInboxMessage($mysqli, $userId, $titleIt, $titleEn, $contentIt, $contentEn);
         }
 
@@ -963,7 +963,7 @@ function claimMessageRewards($mysqli, $userId, $messageId)
 {
     $userId = (int)$userId;
     $messageId = (int)$messageId;
-    
+
     // Controlla se la riga del destinatario esiste ed i premi non sono ancora stati riscattati
     $stmt = $mysqli->prepare("
         SELECT id, claimed_at 
@@ -971,21 +971,21 @@ function claimMessageRewards($mysqli, $userId, $messageId)
         WHERE recipient_id = ? AND message_id = ?
     ");
     if (!$stmt) return ['ok' => false, 'error' => 'Errore nel database.'];
-    
+
     $stmt->bind_param("ii", $userId, $messageId);
     $stmt->execute();
     $res = $stmt->get_result();
     $recipient = $res->fetch_assoc();
     $stmt->close();
-    
+
     if (!$recipient) {
         return ['ok' => false, 'error' => 'Messaggio non trovato.'];
     }
-    
+
     if ($recipient['claimed_at'] !== null) {
         return ['ok' => false, 'error' => 'Premi già riscattati.'];
     }
-    
+
     // Recupera i premi associati al messaggio
     $stmtRewards = $mysqli->prepare("
         SELECT reward_type, reward_value, quantity 
@@ -993,27 +993,27 @@ function claimMessageRewards($mysqli, $userId, $messageId)
         WHERE message_id = ?
     ");
     if (!$stmtRewards) return ['ok' => false, 'error' => 'Errore nel recupero dei premi.'];
-    
+
     $stmtRewards->bind_param("i", $messageId);
     $stmtRewards->execute();
     $resRewards = $stmtRewards->get_result();
     $rewards = $resRewards->fetch_all(MYSQLI_ASSOC);
     $stmtRewards->close();
-    
+
     if (empty($rewards)) {
         return ['ok' => false, 'error' => 'Questo messaggio non contiene premi.'];
     }
-    
+
     $mysqli->begin_transaction();
-    
+
     $claimedList = [];
-    
+
     try {
         foreach ($rewards as $reward) {
             $type = $reward['reward_type'];
             $val = $reward['reward_value'];
             $qty = (int)$reward['quantity'];
-            
+
             if ($type === 'points') {
                 $points = (int)$val * $qty;
                 $stmt = $mysqli->prepare("UPDATE utenti SET soldi = soldi + ? WHERE id = ?");
@@ -1027,11 +1027,11 @@ function claimMessageRewards($mysqli, $userId, $messageId)
                 ];
             } elseif ($type === 'character') {
                 $charId = (int)$val;
-                
+
                 if (!function_exists('gacha_add_character_to_inventory')) {
                     require_once __DIR__ . '/gacha_helpers.php';
                 }
-                
+
                 $charName = "Personaggio #$charId";
                 $stmtChar = $mysqli->prepare("SELECT nome FROM personaggi WHERE id = ?");
                 if ($stmtChar) {
@@ -1041,9 +1041,9 @@ function claimMessageRewards($mysqli, $userId, $messageId)
                     $stmtChar->fetch();
                     $stmtChar->close();
                 }
-                
+
                 gacha_add_character_to_inventory($mysqli, $userId, $charId);
-                
+
                 $claimedList[] = [
                     'type' => 'character',
                     'id' => $charId,
@@ -1051,7 +1051,7 @@ function claimMessageRewards($mysqli, $userId, $messageId)
                 ];
             } elseif ($type === 'badge') {
                 $badgeId = (int)$val;
-                
+
                 $badgeName = "Badge #$badgeId";
                 $stmtBadge = $mysqli->prepare("SELECT name FROM custom_badges WHERE id = ?");
                 if ($stmtBadge) {
@@ -1061,7 +1061,7 @@ function claimMessageRewards($mysqli, $userId, $messageId)
                     $stmtBadge->fetch();
                     $stmtBadge->close();
                 }
-                
+
                 $stmtAdd = $mysqli->prepare("
                     INSERT INTO user_custom_badges (utente_id, badge_id, is_visible)
                     SELECT ?, ?, 1
@@ -1073,7 +1073,7 @@ function claimMessageRewards($mysqli, $userId, $messageId)
                 $stmtAdd->bind_param("iiii", $userId, $badgeId, $userId, $badgeId);
                 $stmtAdd->execute();
                 $stmtAdd->close();
-                
+
                 $claimedList[] = [
                     'type' => 'badge',
                     'id' => $badgeId,
@@ -1084,7 +1084,7 @@ function claimMessageRewards($mysqli, $userId, $messageId)
                 $stmtPrem->bind_param("i", $userId);
                 $stmtPrem->execute();
                 $stmtPrem->close();
-                
+
                 $stmtBadge = $mysqli->prepare("
                     INSERT INTO user_custom_badges (utente_id, badge_id, is_visible)
                     SELECT ?, 5, 1
@@ -1096,18 +1096,18 @@ function claimMessageRewards($mysqli, $userId, $messageId)
                 $stmtBadge->bind_param("ii", $userId, $userId);
                 $stmtBadge->execute();
                 $stmtBadge->close();
-                
+
                 if (isset($_SESSION['user_id']) && (int)$_SESSION['user_id'] === $userId) {
                     $_SESSION['is_premium'] = 1;
                 }
-                
+
                 $claimedList[] = [
                     'type' => 'premium',
                     'label' => 'Premium'
                 ];
             }
         }
-        
+
         $stmtUpdate = $mysqli->prepare("
             UPDATE site_message_recipients 
             SET claimed_at = NOW(), is_read = 1, read_at = COALESCE(read_at, NOW()) 
@@ -1116,10 +1116,9 @@ function claimMessageRewards($mysqli, $userId, $messageId)
         $stmtUpdate->bind_param("ii", $userId, $messageId);
         $stmtUpdate->execute();
         $stmtUpdate->close();
-        
+
         $mysqli->commit();
         return ['ok' => true, 'rewards' => $claimedList];
-        
     } catch (Exception $e) {
         $mysqli->rollback();
         return ['ok' => false, 'error' => 'Impossibile riscattare i premi: ' . $e->getMessage()];
@@ -1166,70 +1165,68 @@ function sendPremiumUpgradeNotification($mysqli, $recipientId, $senderUsername =
         $titleEn = "You received a gift: Cripsum Premium!";
 
         $contentIt = "![Cripsum Premium Gift](https://cripsum.com/assets/inbox_update_banner.png)\n\n" .
-                     "Sorpresa! **" . $senderUsername . "** ti ha regalato **Cripsum Premium**! 🎁\n\n" .
-                     "Tutti i vantaggi premium sono già stati sbloccati ed attivati sul tuo account:\n" .
-                     "- **Badge Premium (ID 5)**: Un badge esclusivo sul tuo profilo per mostrare a tutti il tuo supporto.\n" .
-                     "- **Bonus di 200.000 soldi**: Aggiunti direttamente al tuo bilancio per effettuare pull nel gacha.\n" .
-                     "- **Riscatto Lootbox**: Riscatta 500 soldi extra bonus ogni giorno nelle Lootbox.\n" .
-                     "- **Boost Missioni**: Guadagni raddoppiati (x2) su tutti i punti delle missioni Giornaliere e Settimanali (Daily & Weekly).\n" .
-                     "- **Effetti e Cursori Personalizzati**: Personalizza il cursore del mouse nel tuo profilo.\n" .
-                     "- **Layout Snap & Background Grain**: Nuovi stili grafici e grana di sfondo avanzata per il tuo profilo.\n" .
-                     "- **Temi Musicali Personalizzati**: Aggiungi colonne sonore personalizzate alla tua pagina profilo.\n" .
-                     "- **Icone Social Personalizzate**: Mostra i tuoi link social con icone premium stilizzate.\n" .
-                     "- **Tag sulle Card dei Progetti**: Evidenzia i tuoi progetti con tag dedicati.\n" .
-                     "- **Blocchi Profilo Personalizzati**: Personalizza il tuo profilo con codice HTML e Markdown personalizzato.\n\n" .
-                     "Corri a personalizzare il tuo account nella sezione **Impostazioni Profilo**! Ringrazia **" . $senderUsername . "** appena puoi!";
+            "Sorpresa! **" . $senderUsername . "** ti ha regalato **Cripsum Premium**! 🎁\n\n" .
+            "Tutti i vantaggi premium sono già stati sbloccati ed attivati sul tuo account:\n" .
+            "- **Badge Premium (ID 5)**: Un badge esclusivo sul tuo profilo per mostrare a tutti il tuo supporto.\n" .
+            "- **Bonus di 20.000 soldi**: Aggiunti direttamente al tuo bilancio per effettuare pull nel gacha.\n" .
+            "- **Riscatto Lootbox**: Riscatta 500 soldi extra bonus ogni giorno nelle Lootbox.\n" .
+            "- **Boost Missioni**: Guadagni raddoppiati (x2) su tutti i punti delle missioni Giornaliere e Settimanali (Daily & Weekly).\n" .
+            "- **Effetti e Cursori Personalizzati**: Personalizza il cursore del mouse nel tuo profilo.\n" .
+            "- **Layout Snap & Background Grain**: Nuovi stili grafici e grana di sfondo avanzata per il tuo profilo.\n" .
+            "- **Temi Musicali Personalizzati**: Aggiungi colonne sonore personalizzate alla tua pagina profilo.\n" .
+            "- **Icone Social Personalizzate**: Mostra i tuoi link social con icone premium stilizzate.\n" .
+            "- **Tag sulle Card dei Progetti**: Evidenzia i tuoi progetti con tag dedicati.\n" .
+            "- **Blocchi Profilo Personalizzati**: Personalizza il tuo profilo con codice HTML e Markdown personalizzato.\n\n" .
+            "Corri a personalizzare il tuo account nella sezione **Impostazioni Profilo**! Ringrazia **" . $senderUsername . "** appena puoi!";
 
         $contentEn = "![Cripsum Premium Gift](https://cripsum.com/assets/inbox_update_banner.png)\n\n" .
-                     "Surprise! **" . $senderUsername . "** has gifted you **Cripsum Premium**! 🎁\n\n" .
-                     "All premium perks have already been unlocked and activated on your account:\n" .
-                     "- **Premium Badge (ID 5)**: An exclusive badge on your profile to showcase your support.\n" .
-                     "- **200,000 Soldi Bonus**: Added directly to your balance to pull in the gacha.\n" .
-                     "- **Lootbox Daily Claim**: Redeem 500 extra bonus soldi every day in your Lootbox.\n" .
-                     "- **Mission Boost**: Double points (x2) earned on all Daily & Weekly missions.\n" .
-                     "- **Custom Mouse Cursors & Effects**: Customize the cursor on your profile page.\n" .
-                     "- **Layout Snap & Background Grain**: New advanced styling grids and background effects.\n" .
-                     "- **Custom Music Themes**: Add background soundtracks to your profile page.\n" .
-                     "- **Custom Social Icons**: Display your social media links with styled premium icons.\n" .
-                     "- **Project Card Tags**: Highlight your projects with dedicated tags.\n" .
-                     "- **Custom Profile Blocks**: Design your profile page with custom HTML/Markdown blocks.\n\n" .
-                     "Go customize your account right away in your **Profile Settings**! Don't forget to thank **" . $senderUsername . "**!";
+            "Surprise! **" . $senderUsername . "** has gifted you **Cripsum Premium**! 🎁\n\n" .
+            "All premium perks have already been unlocked and activated on your account:\n" .
+            "- **Premium Badge (ID 5)**: An exclusive badge on your profile to showcase your support.\n" .
+            "- **20.000 Soldi Bonus**: Added directly to your balance to pull in the gacha.\n" .
+            "- **Lootbox Daily Claim**: Redeem 500 extra bonus soldi every day in your Lootbox.\n" .
+            "- **Mission Boost**: Double points (x2) earned on all Daily & Weekly missions.\n" .
+            "- **Custom Mouse Cursors & Effects**: Customize the cursor on your profile page.\n" .
+            "- **Layout Snap & Background Grain**: New advanced styling grids and background effects.\n" .
+            "- **Custom Music Themes**: Add background soundtracks to your profile page.\n" .
+            "- **Custom Social Icons**: Display your social media links with styled premium icons.\n" .
+            "- **Project Card Tags**: Highlight your projects with dedicated tags.\n" .
+            "- **Custom Profile Blocks**: Design your profile page with custom HTML/Markdown blocks.\n\n" .
+            "Go customize your account right away in your **Profile Settings**! Don't forget to thank **" . $senderUsername . "**!";
     } else {
         $titleIt = "Cripsum Premium Attivato!";
         $titleEn = "Cripsum Premium Activated!";
 
         $contentIt = "![Cripsum Premium](https://cripsum.com/assets/inbox_update_banner.png)\n\n" .
-                     "Grazie mille per aver acquistato **Cripsum Premium**! Il tuo supporto ci aiuta a mantenere il sito attivo e a sviluppare nuove funzionalità.\n\n" .
-                     "Tutti i vantaggi premium sono già stati attivati sul tuo account:\n" .
-                     "- **Badge Premium (ID 5)**: Un badge esclusivo sul tuo profilo per mostrare a tutti il tuo supporto.\n" .
-                     "- **Bonus di 200.000 soldi**: Aggiunti direttamente al tuo bilancio per effettuare pull nel gacha.\n" .
-                     "- **Riscatto Lootbox**: Riscatta 500 soldi extra bonus ogni giorno nelle Lootbox.\n" .
-                     "- **Boost Missioni**: Guadagni raddoppiati (x2) su tutti i punti delle missioni Giornaliere e Settimanali (Daily & Weekly).\n" .
-                     "- **Effetti e Cursori Personalizzati**: Personalizza il cursore del mouse nel tuo profilo.\n" .
-                     "- **Layout Snap & Background Grain**: Nuovi stili grafici e grana di sfondo avanzata per il tuo profilo.\n" .
-                     "- **Temi Musicali Personalizzati**: Aggiungi colonne sonore personalizzate alla tua pagina profilo.\n" .
-                     "- **Icone Social Personalizzate**: Mostra i tuoi link social con icone premium stilizzate.\n" .
-                     "- **Tag sulle Card dei Progetti**: Evidenzia i tuoi progetti con tag dedicati.\n" .
-                     "- **Blocchi Profilo Personalizzati**: Personalizza il tuo profilo con codice HTML e Markdown personalizzato.\n\n" .
-                     "Puoi configurare tutte le tue nuove impostazioni premium direttamente nella sezione **Impostazioni Profilo**. Grazie ancora per far parte della community!";
+            "Grazie mille per aver acquistato **Cripsum Premium**! Il tuo supporto ci aiuta a mantenere il sito attivo e a sviluppare nuove funzionalità.\n\n" .
+            "Tutti i vantaggi premium sono già stati attivati sul tuo account:\n" .
+            "- **Badge Premium (ID 5)**: Un badge esclusivo sul tuo profilo per mostrare a tutti il tuo supporto.\n" .
+            "- **Bonus di 20.000 soldi**: Aggiunti direttamente al tuo bilancio per effettuare pull nel gacha.\n" .
+            "- **Riscatto Lootbox**: Riscatta 500 soldi extra bonus ogni giorno nelle Lootbox.\n" .
+            "- **Boost Missioni**: Guadagni raddoppiati (x2) su tutti i punti delle missioni Giornaliere e Settimanali (Daily & Weekly).\n" .
+            "- **Effetti e Cursori Personalizzati**: Personalizza il cursore del mouse nel tuo profilo.\n" .
+            "- **Layout Snap & Background Grain**: Nuovi stili grafici e grana di sfondo avanzata per il tuo profilo.\n" .
+            "- **Temi Musicali Personalizzati**: Aggiungi colonne sonore personalizzate alla tua pagina profilo.\n" .
+            "- **Icone Social Personalizzate**: Mostra i tuoi link social con icone premium stilizzate.\n" .
+            "- **Tag sulle Card dei Progetti**: Evidenzia i tuoi progetti con tag dedicati.\n" .
+            "- **Blocchi Profilo Personalizzati**: Personalizza il tuo profilo con codice HTML e Markdown personalizzato.\n\n" .
+            "Puoi configurare tutte le tue nuove impostazioni premium direttamente nella sezione **Impostazioni Profilo**. Grazie ancora per far parte della community!";
 
         $contentEn = "![Cripsum Premium](https://cripsum.com/assets/inbox_update_banner.png)\n\n" .
-                     "Thank you so much for purchasing **Cripsum Premium**! Your support helps us keep the site running and develop new features.\n\n" .
-                     "All premium perks have already been activated on your account:\n" .
-                     "- **Premium Badge (ID 5)**: An exclusive badge on your profile to showcase your support.\n" .
-                     "- **200,000 Soldi Bonus**: Added directly to your balance to pull in the gacha.\n" .
-                     "- **Lootbox Daily Claim**: Redeem 500 extra bonus soldi every day in your Lootbox.\n" .
-                     "- **Mission Boost**: Double points (x2) earned on all Daily & Weekly missions.\n" .
-                     "- **Custom Mouse Cursors & Effects**: Customize the cursor on your profile page.\n" .
-                     "- **Layout Snap & Background Grain**: New advanced styling grids and background effects.\n" .
-                     "- **Custom Music Themes**: Add background soundtracks to your profile page.\n" .
-                     "- **Custom Social Icons**: Display your social media links with styled premium icons.\n" .
-                     "- **Project Card Tags**: Highlight your projects with dedicated tags.\n" .
-                     "- **Custom Profile Blocks**: Design your profile page with custom HTML/Markdown blocks.\n\n" .
-                     "You can configure all of your new premium settings directly in your **Profile Settings**. Thank you again for being part of the community!";
+            "Thank you so much for purchasing **Cripsum Premium**! Your support helps us keep the site running and develop new features.\n\n" .
+            "All premium perks have already been activated on your account:\n" .
+            "- **Premium Badge (ID 5)**: An exclusive badge on your profile to showcase your support.\n" .
+            "- **20.000 Soldi Bonus**: Added directly to your balance to pull in the gacha.\n" .
+            "- **Lootbox Daily Claim**: Redeem 500 extra bonus soldi every day in your Lootbox.\n" .
+            "- **Mission Boost**: Double points (x2) earned on all Daily & Weekly missions.\n" .
+            "- **Custom Mouse Cursors & Effects**: Customize the cursor on your profile page.\n" .
+            "- **Layout Snap & Background Grain**: New advanced styling grids and background effects.\n" .
+            "- **Custom Music Themes**: Add background soundtracks to your profile page.\n" .
+            "- **Custom Social Icons**: Display your social media links with styled premium icons.\n" .
+            "- **Project Card Tags**: Highlight your projects with dedicated tags.\n" .
+            "- **Custom Profile Blocks**: Design your profile page with custom HTML/Markdown blocks.\n\n" .
+            "You can configure all of your new premium settings directly in your **Profile Settings**. Thank you again for being part of the community!";
     }
 
     return sendSecurityInboxMessage($mysqli, $recipientId, $titleIt, $titleEn, $contentIt, $contentEn, 'special');
 }
-
-

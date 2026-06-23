@@ -52,17 +52,17 @@ try {
         $sets[] = 'is_premium = ?';
         $types .= 'i';
         $params[] = $is_premium;
-        
+
         // Se abilitiamo il premium e l'utente non lo era
         if ($is_premium === 1 && (int)($target['is_premium'] ?? 0) !== 1) {
-            // Aggiungi 200.000 soldi
-            $stmtSoldi = $mysqli->prepare("UPDATE utenti SET soldi = soldi + 200000 WHERE id = ?");
+            // Aggiungi 20.000 soldi
+            $stmtSoldi = $mysqli->prepare("UPDATE utenti SET soldi = soldi + 20000 WHERE id = ?");
             if ($stmtSoldi) {
                 $stmtSoldi->bind_param('i', $userId);
                 $stmtSoldi->execute();
                 $stmtSoldi->close();
             }
-            
+
             // Aggiungi Badge Premium ID 5
             $stmtBadge = $mysqli->prepare("
                 INSERT INTO user_custom_badges (utente_id, badge_id, is_visible)
@@ -81,7 +81,7 @@ try {
             // Invia email premium regalato
             sendPremiumGiftEmail($target['email'], $target['username'], $adminUser['username']);
         }
-        
+
         // Se disabilitiamo il premium e lo era
         if ($is_premium === 0 && (int)($target['is_premium'] ?? 0) === 1) {
             // Rimuovi Badge Premium ID 5
@@ -128,7 +128,7 @@ try {
         $sets[] = 'twofa_enabled = ?';
         $types .= 'i';
         $params[] = $twofa_enabled;
-        
+
         if ($twofa_enabled === 0 && admin_column_exists($mysqli, 'utenti', 'twofa_secret')) {
             $sets[] = 'twofa_secret = NULL';
         }

@@ -29,24 +29,24 @@ if ($isGift) {
         echo json_encode(['ok' => false, 'message' => 'Specificare il destinatario del regalo.']);
         exit;
     }
-    
+
     $stmt = $mysqli->prepare("SELECT id, is_premium FROM utenti WHERE username = ? LIMIT 1");
     $stmt->bind_param("s", $giftTo);
     $stmt->execute();
     $res = $stmt->get_result();
     $recipient = $res->fetch_assoc();
     $stmt->close();
-    
+
     if (!$recipient) {
         echo json_encode(['ok' => false, 'message' => 'Utente destinatario non trovato.']);
         exit;
     }
-    
+
     if ((int)($recipient['is_premium'] ?? 0) === 1) {
         echo json_encode(['ok' => false, 'message' => 'L\'utente selezionato è già premium.']);
         exit;
     }
-    
+
     $recipientId = (int)$recipient['id'];
 }
 
@@ -62,10 +62,10 @@ $paymentVerified = false;
 if (strpos($orderId, 'MOCK_ORDER_') === 0 || strpos($token, 'MOCK_TOKEN_') === 0) {
     $paymentVerified = true;
 } else {
-    $url = PAYPAL_MODE === 'live' 
-        ? "https://api-m.paypal.com/v2/checkout/orders/{$orderId}/capture" 
+    $url = PAYPAL_MODE === 'live'
+        ? "https://api-m.paypal.com/v2/checkout/orders/{$orderId}/capture"
         : "https://api-m.sandbox.paypal.com/v2/checkout/orders/{$orderId}/capture";
-        
+
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -74,11 +74,11 @@ if (strpos($orderId, 'MOCK_ORDER_') === 0 || strpos($token, 'MOCK_TOKEN_') === 0
         'Content-Type: application/json',
         'Authorization: Bearer ' . $token
     ]);
-    
+
     $response = curl_exec($ch);
     $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
-    
+
     if ($status === 200 || $status === 201) {
         $resJson = json_decode($response, true);
         if (($resJson['status'] ?? '') === 'COMPLETED') {
@@ -100,13 +100,13 @@ try {
     $stmt->bind_param("i", $recipientId);
     $stmt->execute();
     $stmt->close();
-    
+
     // 2. Aggiungi il bonus di 200k soldi per pullare
-    $stmtSoldi = $mysqli->prepare("UPDATE utenti SET soldi = soldi + 200000 WHERE id = ?");
+    $stmtSoldi = $mysqli->prepare("UPDATE utenti SET soldi = soldi + 20000 WHERE id = ?");
     $stmtSoldi->bind_param("i", $recipientId);
     $stmtSoldi->execute();
     $stmtSoldi->close();
-    
+
     // 3. Assegna il badge custom ID 5 (Premium Badge) se non già presente
     $stmtBadge = $mysqli->prepare("
         INSERT INTO user_custom_badges (utente_id, badge_id, is_visible)
@@ -119,14 +119,14 @@ try {
     $stmtBadge->bind_param("ii", $recipientId, $recipientId);
     $stmtBadge->execute();
     $stmtBadge->close();
-    
+
     // 4. Registra l'attività se applicabile
     if (function_exists('profile_record_activity')) {
-        $activityMsg = $isGift 
-            ? "Ricevuto Cripsum Premium in regalo dall'utente {$_SESSION['username']}" 
+        $activityMsg = $isGift
+            ? "Ricevuto Cripsum Premium in regalo dall'utente {$_SESSION['username']}"
             : "Acquistato Cripsum Premium";
         profile_record_activity($mysqli, $recipientId, 'premium_upgrade', $activityMsg);
-        
+
         if ($isGift) {
             profile_record_activity($mysqli, $userId, 'premium_gift', "Regalato Cripsum Premium all'utente {$giftTo}");
         }
@@ -169,22 +169,22 @@ try {
             }
         }
     }
-    
+
     // 6. Invia notifica inbox premium/regalo
     sendPremiumUpgradeNotification($mysqli, $recipientId, $isGift ? $_SESSION['username'] : null);
-    
+
     $mysqli->commit();
-    
+
     // Se l'utente loggato è colui che ha ricevuto il premium, aggiorna la sessione attiva
     if ($recipientId === $userId) {
         $_SESSION['is_premium'] = 1;
     }
-    
+
     echo json_encode([
-        'ok' => true, 
-        'message' => $isGift 
-            ? 'Regalo inviato con successo! Il tuo amico ha ricevuto 200.000 soldi e il Premium!'
-            : 'Premium attivato con successo! Hai ricevuto 200.000 soldi bonus!'
+        'ok' => true,
+        'message' => $isGift
+            ? 'Regalo inviato con successo! Il tuo amico ha ricevuto 20.000 soldi e il Premium!'
+            : 'Premium attivato con successo! Hai ricevuto 20.000 soldi bonus!'
     ]);
 } catch (Exception $e) {
     $mysqli->rollback();
@@ -192,17 +192,18 @@ try {
 }
 exit;
 
-function getPayPalAccessToken() {
+function getPayPalAccessToken()
+{
     $clientId = PAYPAL_CLIENT_ID;
     $clientSecret = PAYPAL_CLIENT_SECRET;
     $mode = PAYPAL_MODE;
-    
+
     if ($clientId === 'placeholder_your_paypal_client_id' || $clientSecret === 'placeholder_your_paypal_client_secret') {
         return 'MOCK_TOKEN_' . time();
     }
-    
+
     $url = $mode === 'live' ? 'https://api-m.paypal.com/v1/oauth2/token' : 'https://api-m.sandbox.paypal.com/v1/oauth2/token';
-    
+
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_HEADER, false);
@@ -211,15 +212,15 @@ function getPayPalAccessToken() {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_USERPWD, $clientId . ":" . $clientSecret);
     curl_setopt($ch, CURLOPT_POSTFIELDS, "grant_type=client_credentials");
-    
+
     $result = curl_exec($ch);
     $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
-    
+
     if ($status === 200) {
         $json = json_decode($result, true);
         return $json['access_token'] ?? null;
     }
-    
+
     return null;
 }

@@ -71,7 +71,7 @@ $eventType = $event['type'] ?? '';
 if ($eventType === 'checkout.session.completed') {
     $session = $event['data']['object'] ?? [];
     $userId = (int)($session['client_reference_id'] ?? 0);
-    
+
     if ($userId > 0) {
         $stmt = $mysqli->prepare("UPDATE utenti SET is_premium = 1 WHERE id = ?");
         if ($stmt) {
@@ -79,7 +79,7 @@ if ($eventType === 'checkout.session.completed') {
             $stmt->execute();
             $stmt->close();
             error_log("[Stripe Webhook] Utente ID {$userId} attivato come PREMIUM.");
-            
+
             // Assegna il badge custom ID 5 (Premium Badge) se non già assegnato
             $stmtBadge = $mysqli->prepare("
                 INSERT INTO user_custom_badges (utente_id, badge_id, is_visible)
@@ -96,13 +96,13 @@ if ($eventType === 'checkout.session.completed') {
                 error_log("[Stripe Webhook] Assegnato badge ID 5 all'utente ID {$userId}.");
             }
 
-            // Bonus Premium: aggiungi 200.000 soldi per pullare
-            $stmtSoldi = $mysqli->prepare("UPDATE utenti SET soldi = soldi + 200000 WHERE id = ?");
+            // Bonus Premium: aggiungi 20.000 soldi per pullare
+            $stmtSoldi = $mysqli->prepare("UPDATE utenti SET soldi = soldi + 20000 WHERE id = ?");
             if ($stmtSoldi) {
                 $stmtSoldi->bind_param('i', $userId);
                 $stmtSoldi->execute();
                 $stmtSoldi->close();
-                error_log("[Stripe Webhook] Aggiunti 200.000 soldi bonus all'utente ID {$userId}.");
+                error_log("[Stripe Webhook] Aggiunti 20.000 soldi bonus all'utente ID {$userId}.");
             }
 
             // Gestione Regalo: salva in premium_gifts e invia l'email se applicabile

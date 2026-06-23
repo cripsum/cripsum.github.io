@@ -21,8 +21,8 @@ if ($stmt->execute()) {
         profile_record_activity($mysqli, $userId, 'premium_upgrade', 'Upgraded to Premium tier');
     }
 
-    // Bonus Premium: aggiungi 200.000 soldi per pullare
-    $stmtSoldi = $mysqli->prepare("UPDATE utenti SET soldi = soldi + 200000 WHERE id = ?");
+    // Bonus Premium: aggiungi 20.000 soldi per pullare
+    $stmtSoldi = $mysqli->prepare("UPDATE utenti SET soldi = soldi + 20000 WHERE id = ?");
     if ($stmtSoldi) {
         $stmtSoldi->bind_param('i', $userId);
         $stmtSoldi->execute();
@@ -35,7 +35,7 @@ if ($stmt->execute()) {
     // Invia notifica inbox premium
     sendPremiumUpgradeNotification($mysqli, $userId, null);
 
-    echo json_encode(['ok' => true, 'message' => 'Premium attivato con successo! Hai ricevuto 200.000 soldi bonus!']);
+    echo json_encode(['ok' => true, 'message' => 'Premium attivato con successo! Hai ricevuto 20.000 soldi bonus!']);
 } else {
     echo json_encode(['ok' => false, 'message' => 'Errore durante l\'attivazione: ' . $mysqli->error]);
 }

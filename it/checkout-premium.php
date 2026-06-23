@@ -214,7 +214,7 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
         <section class="form-card form-reveal">
             <div class="form-card__header">
                 <h1>Cripsum™ Premium</h1>
-                <p>Personalizza il tuo profilo con layout animati, musica e badge, ricevi subito 200.000 punti, riscatta 500 punti bonus ogni giorno nelle Lootbox e raddoppia (x2) i punti di tutte le missioni daily e weekly!</p>
+                <p>Personalizza il tuo profilo con layout animati, musica e badge, ricevi subito 20.000 punti, riscatta 500 punti bonus ogni giorno nelle Lootbox e raddoppia (x2) i punti di tutte le missioni daily e weekly!</p>
             </div>
 
             <?php if ($errorMsg): ?>
@@ -300,7 +300,7 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
                     </div>
                     <div class="summary-line">
                         <span>Punti inclusi</span>
-                        <strong style="color: #eab308;">200.000 pt</strong>
+                        <strong style="color: #eab308;">20.000 pt</strong>
                     </div>
                     <div class="summary-line">
                         <span>Riscatto Lootbox</span>
