@@ -39,8 +39,8 @@ defined('BASE_WEIGHTS_M') || define('BASE_WEIGHTS_M', [
     'raro'        => 28.00,
     'epico'       => 13.00,
     'leggendario' =>  5.999,
-    'speciale'    =>  10.80,
-    'segreto'     =>  0.20,
+    'speciale'    =>  1.80,
+    'segreto'     =>  5.20,
     'theone'      =>  0.001,
 ]);
 
