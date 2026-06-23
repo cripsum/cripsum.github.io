@@ -40,7 +40,7 @@ defined('BASE_WEIGHTS_M') || define('BASE_WEIGHTS_M', [
     'epico'       => 13.00,
     'leggendario' =>  5.999,
     'speciale'    =>  1.80,
-    'segreto'     =>  5.20,
+    'segreto'     =>  0.20,
     'theone'      =>  0.001,
 ]);
 
