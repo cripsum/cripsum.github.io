@@ -328,7 +328,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                         <i class="fa-solid fa-gem premium-gem-icon"></i>
                         <span>Riscatto Premium</span>
                     </div>
-                    <?php 
+                    <?php
                     $today = getMissionDailyPeriod();
                     $hasClaimedToday = ($lastPremiumClaim === $today);
                     $secondsLeft = strtotime('tomorrow') - time();
@@ -641,7 +641,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
         if (premiumBtn) {
             function startPremiumClaimCountdown(btn, seconds) {
                 if (!btn) return;
-                
+
                 function formatTime(secs) {
                     if (secs <= 0) return "00:00:00";
                     const h = Math.floor(secs / 3600);
@@ -691,18 +691,20 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
             premiumBtn.addEventListener('click', async () => {
                 try {
                     premiumBtn.disabled = true;
-                    const res = await fetch('/api/premium_daily_claim.php', { method: 'POST' });
+                    const res = await fetch('/api/premium_daily_claim.php', {
+                        method: 'POST'
+                    });
                     const data = await res.json();
                     if (data.success) {
                         premiumBtn.classList.add('claimed');
                         const isEn = window.location.pathname.includes('/en/');
                         const btnText = premiumBtn.querySelector('.btn-text');
                         if (btnText) {
-                            btnText.innerHTML = isEn 
-                                ? 'Claimed today (Reset in <span class="claim-countdown">--:--:--</span>)' 
-                                : 'Riscattato oggi (Ricarica tra <span class="claim-countdown">--:--:--</span>)';
+                            btnText.innerHTML = isEn ?
+                                'Claimed today (Reset in <span class="claim-countdown">--:--:--</span>)' :
+                                'Riscattato oggi (Ricarica tra <span class="claim-countdown">--:--:--</span>)';
                         }
-                        
+
                         const secs = parseInt(data.seconds_left || 86400, 10);
                         startPremiumClaimCountdown(premiumBtn, secs);
 
@@ -739,7 +741,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
         crossorigin="anonymous"></script>
     <script src="/js/unlockAchievement-it.js"></script>
     <script src="/js/gacha-effects.js?v=5"></script>
-    <script src="/js/gacha.js?v=30"></script>
+    <script src="/js/gacha.js?v=31"></script>
 
     <script>
         function openCurrentHistory() {

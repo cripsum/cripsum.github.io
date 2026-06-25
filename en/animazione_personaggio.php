@@ -283,7 +283,7 @@ $charJson = $charData ? json_encode($charData, JSON_HEX_TAG | JSON_HEX_APOS | JS
                 /* ── Configurazione ────────────────────────────────────────────────── */
                 const RARITY_VIDEO = new Set(['segreto', 'theone']);
                 const RARITY_EFFECTS = new Set(['leggendario', 'speciale', 'epico', 'raro']);
-                const VIDEO_CARD_DELAY_MS = 12000; // card appare sopra il video dopo 12s
+                const VIDEO_CARD_DELAY_MS = 15000; // card appare sopra il video dopo 12s
 
                 const RARITY_COLORS = {
                     comune: '#9ca3af',

@@ -122,7 +122,7 @@
      CONFIG
   ══════════════════════════════════════════════════════ */
   const API_PULL = '/api/api_gacha_pull';
-  const VIDEO_CARD_DELAY_MS = 12000; // ms dopo cui card appare sopra video (#1)
+  const VIDEO_CARD_DELAY_MS = 15000; // ms dopo cui card appare sopra video (#1)
 
   const RARITY_VIDEO   = new Set(['segreto', 'theone']);
   const RARITY_NO_SKIP = new Set(['segreto', 'theone', 'speciale']); // non skippabili con F
@@ -660,7 +660,7 @@
     videoEl.load();
     videoUnmuteBtn.style.display = 'none';
 
-    const MULTI_VIDEO_CARD_DELAY = 12000;
+    const MULTI_VIDEO_CARD_DELAY = 15000;
 
     return new Promise(resolve => {
       let resolved  = false;
