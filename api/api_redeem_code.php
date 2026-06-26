@@ -113,6 +113,16 @@ $codici = [
         'punti'       => 3000,
         'descrizione' => ['it' => '+30 pull da parte di netanyahu', 'en' => '+30 pulls from netanyahu'],
     ],
+    'isekaiglzer' => [
+        'tipo'        => 'punti',
+        'punti'       => 1000,
+        'descrizione' => ['it' => '+10 pull', 'en' => '+10 pulls'],
+    ],
+    'sticazziminecraftdungeonplayerzestyahhh' => [
+        'tipo'        => 'punti',
+        'punti'       => 3000,
+        'descrizione' => ['it' => '+30 pull', 'en' => '+30 pulls'],
+    ],
 
 ];
 
