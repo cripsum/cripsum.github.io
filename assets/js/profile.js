@@ -411,7 +411,15 @@
         container.style.setProperty('z-index', '999999', 'important');
         container.style.setProperty('transform', 'none', 'important');
         container.style.setProperty('flex-direction', btnPos.includes('left') ? 'row' : 'row-reverse', 'important');
-        container.style.setProperty('display', 'flex', 'important');
+        
+        const mainPlayer = document.querySelector('[data-audio-player]');
+        const isMainPlayerVisible = mainPlayer && getComputedStyle(mainPlayer).display !== 'none';
+        const showBtn = container.dataset.showAudioBtn === '1';
+        const useBgVideoAudio = container.dataset.bgUseVideoAudio === '1';
+        const isBgVideo = !!document.getElementById('profileBgVideo');
+        
+        const shouldShow = !isMainPlayerVisible && (showBtn || (useBgVideoAudio && isBgVideo));
+        container.style.setProperty('display', shouldShow ? 'flex' : 'none', 'important');
         container.style.setProperty('align-items', 'center', 'important');
         
         container.style.setProperty('top', btnPos.startsWith('top') ? '24px' : 'auto', 'important');

@@ -118,7 +118,8 @@ if ($profile) {
                 'profile_show_embeds',
                 'profile_show_characters',
                 'profile_hide_meta',
-                'profile_show_audio_btn'
+                'profile_show_audio_btn',
+                'profile_bg_use_video_audio'
             ];
             foreach ($booleans as $boolCol) {
                 $profile[$boolCol] = isset($draft[$boolCol]) ? (int)$draft[$boolCol] : 0;
@@ -361,6 +362,9 @@ $musicTitle = $profile ? trim((string)($profile['profile_music_title'] ?? '')) :
 $musicArtist = $profile ? trim((string)($profile['profile_music_artist'] ?? '')) : '';
 $showAudioPlayer = $profile ? ((int)($profile['profile_show_audio_player'] ?? 1) === 1) : false;
 
+$backgroundUrl = $profile && !empty($profile['profile_banner_type']) ? '/includes/get_profile_banner.php?id=' . (int)$profile['id'] . '&t=' . $stamp : null;
+$backgroundType = $profile && !empty($profile['profile_banner_type']) ? (string)$profile['profile_banner_type'] : 'video/mp4';
+
 $bgUseVideoAudio = $profile ? ((int)($profile['profile_bg_use_video_audio'] ?? 0) === 1) : false;
 $isBgVideo = str_starts_with($backgroundType, 'video/');
 $hasMusic = $hasUploadedMusic || ($musicExternalUrl !== '' && profile_is_safe_url($musicExternalUrl, true)) || ($bgUseVideoAudio && $isBgVideo);
@@ -375,8 +379,6 @@ $profileEffect = $profile ? profile_allowed_value((string)($profile['profile_eff
 $avatarRingEnabled = $profile ? ((int)($profile['avatar_ring_enabled'] ?? 1) === 1) : true;
 $avatarRingStyle = $profile ? profile_allowed_value((string)($profile['avatar_ring_style'] ?? 'spin'), ['spin', 'pulse', 'orbit', 'glow', 'dual', 'rainbow', 'halo', 'neon', 'spark', 'glitch', 'none'], 'spin') : 'spin';
 $avatarRingColor = $profile ? profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent) : $accent;
-$backgroundUrl = $profile && !empty($profile['profile_banner_type']) ? '/includes/get_profile_banner.php?id=' . (int)$profile['id'] . '&t=' . $stamp : null;
-$backgroundType = $profile && !empty($profile['profile_banner_type']) ? (string)$profile['profile_banner_type'] : 'video/mp4';
 
 $showStats = $profile ? profile_flag($profile, 'profile_show_stats', true) : false;
 $showSocials = $profile ? profile_flag($profile, 'profile_show_socials', true) : false;
@@ -600,7 +602,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             }
         }
     </style>
-    <script src="/assets/js/profile.js?v=5.9.9" defer></script>
+    <script src="/assets/js/profile.js?v=5.9.10" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -2157,14 +2159,16 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 
     <?php if ($hasMusic): ?>
         <div class="profile-floating-audio-btn-container position-<?php echo profile_h($audioBtnPosition); ?>"
-             style="position: fixed !important; z-index: 999999 !important; display: <?php echo (!$showAudioPlayer && $showAudioBtn) ? 'flex' : 'none'; ?> !important; align-items: center !important; flex-direction: <?php echo (strpos($audioBtnPosition, 'left') !== false) ? 'row' : 'row-reverse'; ?> !important; <?php
+             style="position: fixed !important; z-index: 999999 !important; display: <?php echo (!$showAudioPlayer && ($showAudioBtn || ($bgUseVideoAudio && $isBgVideo))) ? 'flex' : 'none'; ?> !important; align-items: center !important; flex-direction: <?php echo (strpos($audioBtnPosition, 'left') !== false) ? 'row' : 'row-reverse'; ?> !important; <?php
                  if ($audioBtnPosition === 'top-left') echo 'top: 24px !important; left: 24px !important;';
                  elseif ($audioBtnPosition === 'top-right') echo 'top: 24px !important; right: 24px !important;';
                  elseif ($audioBtnPosition === 'bottom-left') echo 'bottom: 24px !important; left: 24px !important;';
                  else echo 'bottom: 24px !important; right: 24px !important;'; // bottom-right
              ?>"
              data-floating-audio
-             data-default-volume="<?php echo $audioDefaultVolume; ?>">
+             data-default-volume="<?php echo $audioDefaultVolume; ?>"
+             data-show-audio-btn="<?php echo $showAudioBtn ? '1' : '0'; ?>"
+             data-bg-use-video-audio="<?php echo $bgUseVideoAudio ? '1' : '0'; ?>">
             <button class="profile-floating-audio-btn" type="button" aria-label="Mute/Unmute">
                 <i class="fa-solid fa-volume-high"></i>
             </button>
@@ -2228,16 +2232,25 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         
                         // Real-time floating audio button updates in preview
                         const showBtn = data.attributes['data-show-audio-btn'];
+                        const useVideoAudio = data.attributes['data-bg-use-video-audio'];
                         const btnPos = data.attributes['data-audio-btn-position'];
                         const container = document.querySelector('[data-floating-audio]');
                         if (container) {
-                            if (showBtn === '0') {
-                                container.style.setProperty('display', 'none', 'important');
-                            } else if (showBtn === '1') {
-                                const mainPlayer = document.querySelector('[data-audio-player]');
-                                const isMainPlayerVisible = mainPlayer && mainPlayer.style.display !== 'none';
-                                container.style.setProperty('display', isMainPlayerVisible ? 'none' : 'flex', 'important');
+                            const isBgVideo = !!document.getElementById('profileBgVideo');
+                            const currentShowBtn = showBtn !== undefined ? showBtn : (body.getAttribute('data-show-audio-btn') || '1');
+                            const currentUseVideoAudio = useVideoAudio !== undefined ? useVideoAudio : (body.getAttribute('data-bg-use-video-audio') || '0');
+                            
+                            const shouldShowFloatingBtn = (currentShowBtn === '1' || (currentUseVideoAudio === '1' && isBgVideo));
+                            
+                            const mainPlayer = document.querySelector('[data-audio-player]');
+                            const isMainPlayerVisible = mainPlayer && mainPlayer.style.display !== 'none';
+                            
+                            container.style.setProperty('display', (shouldShowFloatingBtn && !isMainPlayerVisible) ? 'flex' : 'none', 'important');
+                            
+                            if (useVideoAudio !== undefined) {
+                                container.setAttribute('data-bg-use-video-audio', useVideoAudio);
                             }
+                        }
                             
                             if (btnPos) {
                                 container.className = 'profile-floating-audio-btn-container position-' + btnPos;
