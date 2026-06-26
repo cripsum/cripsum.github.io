@@ -885,14 +885,25 @@ function profile_handle_image_upload(array $file, int $maxBytes): array
     }
 
     $allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    if (!in_array($info['mime'], $allowed, true)) {
+    $mime = $info['mime'];
+    if (!in_array($mime, $allowed, true)) {
         return ['has_file' => true, 'error' => 'Unsupported format. Use JPG, PNG, WEBP, or GIF.'];
+    }
+
+    $ext = 'png';
+    if ($mime === 'image/jpeg' || $mime === 'image/jpg') {
+        $ext = 'jpg';
+    } elseif ($mime === 'image/webp') {
+        $ext = 'webp';
+    } elseif ($mime === 'image/gif') {
+        $ext = 'gif';
     }
 
     return [
         'has_file' => true,
-        'blob' => file_get_contents($tmp),
-        'mime' => $info['mime'],
+        'tmp_path' => $tmp,
+        'mime' => $mime,
+        'ext' => $ext
     ];
 }
 
@@ -936,10 +947,22 @@ function profile_handle_background_upload(array $file, int $maxBytes): array
         return ['has_file' => true, 'error' => 'Formato non supportato. Usa JPG, PNG, WEBP, GIF, MP4 o WEBM.'];
     }
 
+    $exts = [
+        'image/jpeg' => 'jpg',
+        'image/jpg' => 'jpg',
+        'image/png' => 'png',
+        'image/webp' => 'webp',
+        'image/gif' => 'gif',
+        'video/mp4' => 'mp4',
+        'video/webm' => 'webm'
+    ];
+    $ext = $exts[$mime] ?? $extension;
+
     return [
         'has_file' => true,
-        'blob' => file_get_contents($tmp),
+        'tmp_path' => $tmp,
         'mime' => $mime,
+        'ext' => $ext
     ];
 }
 
@@ -1419,5 +1442,122 @@ function profile_render_icon(?string $icon, string $default = 'fa-solid fa-link'
     }
     
     return '<i class="' . profile_h($icon) . ' ' . profile_h($class) . '"></i>';
+}
+
+function profile_cleanup_unused_media(mysqli $mysqli, int $userId): void
+{
+    $uploadDir = __DIR__ . '/../uploads/profile_media/user_' . $userId;
+    if (!is_dir($uploadDir)) {
+        return;
+    }
+
+    // Get all files on disk
+    $filesOnDisk = [];
+    $dirIter = new DirectoryIterator($uploadDir);
+    foreach ($dirIter as $fileInfo) {
+        if ($fileInfo->isFile()) {
+            $filesOnDisk[] = $fileInfo->getFilename();
+        }
+    }
+
+    if (empty($filesOnDisk)) {
+        return;
+    }
+
+    // Collect all referenced files
+    $referencedFiles = [];
+
+    $addRef = function(?string $url) use (&$referencedFiles, $userId) {
+        $url = trim((string)$url);
+        if ($url === '') return;
+        
+        $pattern = "/\/uploads\/profile_media\/user_" . $userId . "\/([a-zA-Z0-9_.-]+)/i";
+        if (preg_match($pattern, $url, $matches)) {
+            $referencedFiles[strtolower($matches[1])] = true;
+        }
+    };
+
+    // A. Active profile fields
+    $stmt = $mysqli->prepare("SELECT profile_pic, profile_banner, profile_cursor_custom_url, profile_cursor_custom_hover_url FROM utenti WHERE id = ? LIMIT 1");
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $userRow = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if ($userRow) {
+        $addRef($userRow['profile_pic']);
+        $addRef($userRow['profile_banner']);
+        $addRef($userRow['profile_cursor_custom_url']);
+        $addRef($userRow['profile_cursor_custom_hover_url']);
+    }
+
+    // B. Custom blocks media
+    $stmt = $mysqli->prepare("SELECT media_url FROM utenti_profile_blocks WHERE utente_id = ?");
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    while ($row = $res->fetch_assoc()) {
+        $addRef($row['media_url']);
+    }
+    $stmt->close();
+
+    // C. Links, projects, contents
+    $stmt = $mysqli->prepare("SELECT url, icon FROM utenti_links WHERE utente_id = ?");
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    while ($row = $res->fetch_assoc()) {
+        $addRef($row['url']);
+        $addRef($row['icon']);
+    }
+    $stmt->close();
+
+    $stmt = $mysqli->prepare("SELECT url, image_url FROM utenti_projects WHERE utente_id = ?");
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    while ($row = $res->fetch_assoc()) {
+        $addRef($row['url']);
+        $addRef($row['image_url']);
+    }
+    $stmt->close();
+
+    $stmt = $mysqli->prepare("SELECT url, thumbnail_url FROM utenti_contents WHERE utente_id = ?");
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    while ($row = $res->fetch_assoc()) {
+        $addRef($row['url']);
+        $addRef($row['thumbnail_url']);
+    }
+    $stmt->close();
+
+    // D. Presets data (regex scanning JSON data to preserve files referenced in presets)
+    $stmt = $mysqli->prepare("SELECT preset_data FROM utenti_presets WHERE utente_id = ?");
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    while ($row = $res->fetch_assoc()) {
+        $presetJson = $row['preset_data'];
+        if ($presetJson) {
+            $pattern = "/\/uploads\/profile_media\/user_" . $userId . "\/([a-zA-Z0-9_.-]+)/i";
+            if (preg_match_all($pattern, $presetJson, $matches)) {
+                if (!empty($matches[1])) {
+                    foreach ($matches[1] as $filename) {
+                        $referencedFiles[strtolower($filename)] = true;
+                    }
+                }
+            }
+        }
+    }
+    $stmt->close();
+
+    // Delete unreferenced files
+    foreach ($filesOnDisk as $file) {
+        $lowerFile = strtolower($file);
+        if (!isset($referencedFiles[$lowerFile])) {
+            @unlink($uploadDir . '/' . $file);
+        }
+    }
 }
 

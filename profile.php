@@ -232,13 +232,13 @@ function profile_render_background(?array $profile, ?string $backgroundUrl, stri
 ?>
     <div class="bio-background" aria-hidden="true">
         <?php if ($isVideo): ?>
-            <video class="bio-background__media" autoplay muted loop playsinline poster="">
+            <video class="bio-background__media" id="profileBgVideo" autoplay muted loop playsinline poster="">
                 <source src="<?php echo profile_h($url); ?>" type="<?php echo profile_h($type); ?>">
             </video>
         <?php elseif ($isImage): ?>
             <img class="bio-background__media" src="<?php echo profile_h($url); ?>" alt="" loading="eager">
         <?php else: ?>
-            <video class="bio-background__media" autoplay muted loop playsinline poster="">
+            <video class="bio-background__media" id="profileBgVideo" autoplay muted loop playsinline poster="">
                 <source src="<?php echo profile_h($defaultBackgroundVideo); ?>" type="video/mp4">
             </video>
         <?php endif; ?>
@@ -360,7 +360,17 @@ $musicUrl = $hasUploadedMusic ? '/includes/get_profile_music.php?id=' . (int)$pr
 $musicTitle = $profile ? trim((string)($profile['profile_music_title'] ?? '')) : '';
 $musicArtist = $profile ? trim((string)($profile['profile_music_artist'] ?? '')) : '';
 $showAudioPlayer = $profile ? ((int)($profile['profile_show_audio_player'] ?? 1) === 1) : false;
-$hasMusic = $hasUploadedMusic || ($musicExternalUrl !== '' && profile_is_safe_url($musicExternalUrl, true));
+
+$bgUseVideoAudio = $profile ? ((int)($profile['profile_bg_use_video_audio'] ?? 0) === 1) : false;
+$isBgVideo = str_starts_with($backgroundType, 'video/');
+$hasMusic = $hasUploadedMusic || ($musicExternalUrl !== '' && profile_is_safe_url($musicExternalUrl, true)) || ($bgUseVideoAudio && $isBgVideo);
+
+if ($hasMusic && $musicTitle === '') {
+    if ($bgUseVideoAudio && $isBgVideo) {
+        $musicTitle = 'Background Video';
+        $musicArtist = 'Video Audio';
+    }
+}
 $profileEffect = $profile ? profile_allowed_value((string)($profile['profile_effect'] ?? 'none'), ['none', 'cursor_glow', 'soft_particles', 'scanlines', 'ambient', 'aurora', 'gradient_waves', 'stars', 'spotlight', 'digital_noise', 'glass_rain', 'sakura_falling', 'cyber_grid', 'bg_grain'], 'none') : 'none';
 $avatarRingEnabled = $profile ? ((int)($profile['avatar_ring_enabled'] ?? 1) === 1) : true;
 $avatarRingStyle = $profile ? profile_allowed_value((string)($profile['avatar_ring_style'] ?? 'spin'), ['spin', 'pulse', 'orbit', 'glow', 'dual', 'rainbow', 'halo', 'neon', 'spark', 'glitch', 'none'], 'spin') : 'spin';
@@ -1248,6 +1258,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     data-tab-animation="<?php echo profile_h($profile['profile_tab_animation'] ?? 'static'); ?>"
     data-tab-animation-speed="<?php echo (int)($profile['profile_tab_animation_speed'] ?? 1000); ?>"
     data-tab-animation-text="<?php echo profile_h($profile['profile_tab_animation_text'] ?? ''); ?>"
+    data-bg-use-video-audio="<?php echo (int)($profile['profile_bg_use_video_audio'] ?? 0) === 1 ? '1' : '0'; ?>"
     data-cursor-effect="<?php echo (int)($profile['is_premium'] ?? 0) === 1 ? profile_h($profile['profile_cursor_effect'] ?? 'none') : 'none'; ?>"
     data-layout-snap="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && (int)($profile['profile_layout_snap'] ?? 0) === 1 ? '1' : '0'; ?>"
     data-bg-grain="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && ((int)($profile['profile_bg_grain'] ?? 0) === 1 || $profileEffect === 'bg_grain') ? '1' : '0'; ?>"

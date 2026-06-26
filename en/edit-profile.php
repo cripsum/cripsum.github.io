@@ -312,6 +312,7 @@ function profile_json_script(string $id, array $data): void
 
                                 <!-- floating button options -->
                                 <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_show_audio_btn" value="0"><input type="checkbox" name="profile_show_audio_btn" value="1" <?php echo (int)($profile['profile_show_audio_btn'] ?? 1) === 1 ? 'checked' : ''; ?> id="showAudioBtnInput"><span><i class="fa-solid fa-circle-play"></i>Floating audio button</span></label>
+                                <label class="profile-toggle-card profile-inline-toggle"><input type="hidden" name="profile_bg_use_video_audio" value="0"><input type="checkbox" name="profile_bg_use_video_audio" value="1" <?php echo (int)($profile['profile_bg_use_video_audio'] ?? 0) === 1 ? 'checked' : ''; ?> id="bgUseVideoAudioInput"><span><i class="fa-solid fa-video"></i>Use background video audio</span></label>
                                 <label class="profile-field"><span>Floating button position</span><select name="profile_audio_btn_position" id="audioBtnPositionInput">
                                         <option value="bottom-right" <?php echo ($profile['profile_audio_btn_position'] ?? 'bottom-right') === 'bottom-right' ? 'selected' : ''; ?>>Bottom Right</option>
                                         <option value="bottom-left" <?php echo ($profile['profile_audio_btn_position'] ?? 'bottom-right') === 'bottom-left' ? 'selected' : ''; ?>>Bottom Left</option>

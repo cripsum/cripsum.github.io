@@ -14,13 +14,24 @@ $stmt->execute();
 $stmt->store_result();
 
 if ($stmt->num_rows === 1) {
-    $stmt->bind_result($blob, $mime);
+    $stmt->bind_result($picValue, $mime);
     $stmt->fetch();
 
-    if ($blob && $mime) {
-        header("Content-Type: $mime");
-        echo $blob;
-        exit;
+    if ($picValue && $mime) {
+        if (str_starts_with($picValue, '/uploads/')) {
+            $filePath = __DIR__ . '/..' . $picValue;
+            if (file_exists($filePath)) {
+                header("Content-Type: $mime");
+                header('Content-Length: ' . filesize($filePath));
+                header('Cache-Control: public, max-age=86400');
+                readfile($filePath);
+                exit;
+            }
+        } else {
+            header("Content-Type: $mime");
+            echo $picValue;
+            exit;
+        }
     }
 }
 

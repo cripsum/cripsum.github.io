@@ -139,6 +139,7 @@ $showActivity = profile_bool_from_post('profile_show_activity', true);
 $showDiscord = profile_bool_from_post('profile_show_discord', true);
 $showCharacters = profile_bool_from_post('profile_show_characters', true);
 $clickToEnter = profile_bool_from_post('profile_click_to_enter', false);
+$bgUseVideoAudio = profile_bool_from_post('profile_bg_use_video_audio', false) ? 1 : 0;
 $enterText = profile_clean_text($_POST['profile_enter_text'] ?? '', 80);
 $enterTextDb = $enterText !== '' ? $enterText : null;
 $socialsStyle = profile_allowed_value((string)($_POST['profile_socials_style'] ?? 'cards'), ['cards', 'icons'], 'cards');
@@ -364,11 +365,12 @@ try {
             custom_alias = ?, tilt_enabled = ?, tilt_max = ?, tilt_glare = ?, tilt_zoom = ?, tilt_speed = ?, profile_tags_json = ?, profile_tab_title = ?, profile_tab_animation = ?, profile_tab_animation_speed = ?, profile_tab_animation_text = ?, profile_corner_style = ?, profile_corner_style_custom = ?, profile_border_style = ?,
             profile_show_audio_btn = ?, profile_audio_btn_position = ?, profile_audio_default_volume = ?,
             profile_bg_overlay_opacity = ?, profile_bg_blur = ?, profile_bg_orbs_opacity = ?,
+            profile_bg_use_video_audio = ?,
             profile_updated_at = NOW()
         WHERE id = ?
     ");
     $stmt->bind_param(
-        'sssssssssssssiisssssssiiiiiiiiiiiisisisssssisiiiisisssiiiiisiiddisssissisisddidi',
+        'sssssssssssssiisssssssiiiiiiiiiiiisisisssssisiiiisisssiiiiisiiddisssissisisddidii',
         $username,
         $displayNameDb,
         $bioDb,
@@ -448,6 +450,7 @@ try {
         $bgOverlayOpacity,
         $bgBlur,
         $bgOrbsOpacity,
+        $bgUseVideoAudio,
         $targetUserId
     );
     if (!$stmt->execute()) throw new RuntimeException('Error updating profile.');
@@ -512,27 +515,59 @@ try {
     if (!$stmtPremium->execute()) throw new RuntimeException('Error updating premium settings.');
     $stmtPremium->close();
 
-    if (!empty($avatarUpload['has_file']) && isset($avatarUpload['blob'], $avatarUpload['mime'])) {
-        $stmt = $mysqli->prepare("UPDATE utenti SET profile_pic = ?, profile_pic_type = ? WHERE id = ?");
-        $null = null;
-        $stmt->bind_param('bsi', $null, $avatarUpload['mime'], $targetUserId);
-        $stmt->send_long_data(0, $avatarUpload['blob']);
-        if (!$stmt->execute()) throw new RuntimeException('Error saving avatar.');
-        $stmt->close();
-
-        if (function_exists('profile_unlock_achievement')) {
-            profile_unlock_achievement($mysqli, $targetUserId, 2);
+    if (!empty($avatarUpload['has_file']) && isset($avatarUpload['tmp_path'], $avatarUpload['mime'], $avatarUpload['ext'])) {
+        $uploadDir = __DIR__ . '/../uploads/profile_media/user_' . $targetUserId;
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
         }
-        profile_record_activity($mysqli, $targetUserId, 'profile_update', 'Updated profile picture');
+
+        foreach (glob($uploadDir . '/avatar_*') as $oldFile) {
+            @unlink($oldFile);
+        }
+
+        $randomHash = bin2hex(random_bytes(16));
+        $fileName = 'avatar_' . $randomHash . '.' . $avatarUpload['ext'];
+        $targetPath = $uploadDir . '/' . $fileName;
+
+        if (move_uploaded_file($avatarUpload['tmp_path'], $targetPath)) {
+            $relativeUrl = '/uploads/profile_media/user_' . $targetUserId . '/' . $fileName;
+            $stmt = $mysqli->prepare("UPDATE utenti SET profile_pic = ?, profile_pic_type = ? WHERE id = ?");
+            $stmt->bind_param('ssi', $relativeUrl, $avatarUpload['mime'], $targetUserId);
+            if (!$stmt->execute()) throw new RuntimeException('Error saving avatar.');
+            $stmt->close();
+
+            if (function_exists('profile_unlock_achievement')) {
+                profile_unlock_achievement($mysqli, $targetUserId, 2);
+            }
+            profile_record_activity($mysqli, $targetUserId, 'profile_update', 'Updated profile picture');
+        } else {
+            throw new RuntimeException('Error saving avatar file on server.');
+        }
     }
 
-    if (!empty($bannerUpload['has_file']) && isset($bannerUpload['blob'], $bannerUpload['mime'])) {
-        $stmt = $mysqli->prepare("UPDATE utenti SET profile_banner = ?, profile_banner_type = ? WHERE id = ?");
-        $null = null;
-        $stmt->bind_param('bsi', $null, $bannerUpload['mime'], $targetUserId);
-        $stmt->send_long_data(0, $bannerUpload['blob']);
-        if (!$stmt->execute()) throw new RuntimeException('Error saving profile background.');
-        $stmt->close();
+    if (!empty($bannerUpload['has_file']) && isset($bannerUpload['tmp_path'], $bannerUpload['mime'], $bannerUpload['ext'])) {
+        $uploadDir = __DIR__ . '/../uploads/profile_media/user_' . $targetUserId;
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        foreach (glob($uploadDir . '/banner_*') as $oldFile) {
+            @unlink($oldFile);
+        }
+
+        $randomHash = bin2hex(random_bytes(16));
+        $fileName = 'banner_' . $randomHash . '.' . $bannerUpload['ext'];
+        $targetPath = $uploadDir . '/' . $fileName;
+
+        if (move_uploaded_file($bannerUpload['tmp_path'], $targetPath)) {
+            $relativeUrl = '/uploads/profile_media/user_' . $targetUserId . '/' . $fileName;
+            $stmt = $mysqli->prepare("UPDATE utenti SET profile_banner = ?, profile_banner_type = ? WHERE id = ?");
+            $stmt->bind_param('ssi', $relativeUrl, $bannerUpload['mime'], $targetUserId);
+            if (!$stmt->execute()) throw new RuntimeException('Error saving profile background.');
+            $stmt->close();
+        } else {
+            throw new RuntimeException('Error saving background file on server.');
+        }
     }
 
     if (!empty($musicUpload['has_file']) && isset($musicUpload['blob'], $musicUpload['mime'])) {
@@ -853,6 +888,9 @@ try {
     profile_record_activity($mysqli, $targetUserId, 'profile_update', 'Updated profile');
 
     $mysqli->commit();
+
+    // Clean up unused media files on server
+    profile_cleanup_unused_media($mysqli, $targetUserId);
 
     // ── MISSION TRACKING ─────────────────────────────────────────────────────
     // Traccia solo quando l'utente modifica il PROPRIO profilo.

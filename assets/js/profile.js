@@ -2,6 +2,17 @@
     'use strict';
 
     const body = document.body;
+    
+    const getActiveAudioElement = () => {
+        const useBgVideoAudio = body.dataset.bgUseVideoAudio === '1';
+        if (useBgVideoAudio) {
+            const video = document.getElementById('profileBgVideo');
+            if (video) return video;
+        }
+        return document.getElementById('profileAudio');
+    };
+    window.getActiveAudioElement = getActiveAudioElement;
+
     const toast = document.getElementById('bioToast') || document.getElementById('profileToast');
     let toastTimer = null;
     let activityInterval = null;
@@ -391,7 +402,8 @@
     const initFloatingAudioBtn = () => {
         const container = document.querySelector('[data-floating-audio]');
         const audio = document.getElementById('profileAudio');
-        if (!container || !audio) return;
+        const video = document.getElementById('profileBgVideo');
+        if (!container) return;
 
         // Force correct positioning inline to override cached CSS position issues
         const btnPos = [...container.classList].find(c => c.startsWith('position-'))?.replace('position-', '') || 'bottom-right';
@@ -416,17 +428,20 @@
         const profileUrl = body.dataset.profileUrl || 'global';
         const resolvedVolume = getResolvedVolume(profileUrl, defaultVolume);
         
-        audio.volume = resolvedVolume;
-        slider.value = String(audio.volume);
+        if (audio) audio.volume = resolvedVolume;
+        if (video) video.volume = resolvedVolume;
+        slider.value = String(resolvedVolume);
 
         const updateUI = () => {
-            const isMuted = audio.muted || audio.volume === 0;
+            const activeAudio = window.getActiveAudioElement();
+            if (!activeAudio) return;
+            const isMuted = activeAudio.muted || activeAudio.volume === 0;
             if (isMuted) {
                 icon.className = 'fa-solid fa-volume-xmark';
                 slider.value = '0';
             } else {
-                icon.className = audio.volume < 0.5 ? 'fa-solid fa-volume-low' : 'fa-solid fa-volume-high';
-                slider.value = String(audio.volume);
+                icon.className = activeAudio.volume < 0.5 ? 'fa-solid fa-volume-low' : 'fa-solid fa-volume-high';
+                slider.value = String(activeAudio.volume);
             }
         };
 
@@ -434,24 +449,31 @@
         updateUI();
 
         // Sync on audio events (in case volume changes elsewhere or muted by browser)
-        audio.addEventListener('volumechange', updateUI);
+        if (audio) audio.addEventListener('volumechange', updateUI);
+        if (video) video.addEventListener('volumechange', updateUI);
 
         // Click to mute/unmute or play if paused
         const toggleMute = async () => {
-            if (audio.paused) {
-                audio.muted = false;
-                if (audio.volume === 0) {
-                    audio.volume = defaultVolume;
+            const activeAudio = window.getActiveAudioElement();
+            if (!activeAudio) return;
+            if (activeAudio.paused) {
+                activeAudio.muted = false;
+                if (activeAudio.volume === 0) {
+                    activeAudio.volume = defaultVolume;
                 }
                 try {
-                    await audio.play();
+                    const otherAudio = activeAudio === video ? audio : video;
+                    if (otherAudio && typeof otherAudio.pause === 'function') {
+                        otherAudio.pause();
+                    }
+                    await activeAudio.play();
                 } catch (err) {
                     console.warn('Playback failed:', err);
                 }
             } else {
-                audio.muted = !audio.muted;
-                if (!audio.muted && audio.volume === 0) {
-                    audio.volume = defaultVolume;
+                activeAudio.muted = !activeAudio.muted;
+                if (!activeAudio.muted && activeAudio.volume === 0) {
+                    activeAudio.volume = defaultVolume;
                 }
             }
             updateUI();
@@ -499,9 +521,11 @@
 
         // Volume slider input
         slider.addEventListener('input', () => {
+            const activeAudio = window.getActiveAudioElement();
+            if (!activeAudio) return;
             const val = Number(slider.value);
-            audio.volume = val;
-            audio.muted = val === 0;
+            activeAudio.volume = val;
+            activeAudio.muted = val === 0;
             const volumeKey = 'cripsum.profile.audioVolume.' + (body.dataset.profileUrl || 'global');
             localStorage.setItem(volumeKey, String(val));
             updateUI();
@@ -510,7 +534,9 @@
 
     const initProfileAudio = () => {
         const audio = document.getElementById('profileAudio');
-        if (!audio) return;
+        const video = document.getElementById('profileBgVideo');
+        const elements = [audio, video].filter(Boolean);
+        if (elements.length === 0) return;
 
         const playButton = document.querySelector('.js-profile-audio-toggle');
         const playIcon = document.getElementById('profileAudioIcon');
@@ -524,62 +550,98 @@
         if (!playButton || !progressSlider || !volumeSlider) return;
 
         let dragging = false;
-        const defaultVol = Number(audio.dataset.defaultVolume || 0.18);
+        const defaultVol = Number((audio || video).dataset.defaultVolume || 0.18);
         const profileUrl = body.dataset.profileUrl || 'global';
         const resolvedVolume = getResolvedVolume(profileUrl, defaultVol);
-        audio.volume = resolvedVolume;
-        volumeSlider.value = String(audio.volume);
+        
+        elements.forEach(el => {
+            el.volume = resolvedVolume;
+        });
+        volumeSlider.value = String(resolvedVolume);
 
         const syncIcons = () => {
-            const isPaused = audio.paused;
+            const activeAudio = window.getActiveAudioElement();
+            if (!activeAudio) return;
+            const isPaused = activeAudio.paused;
             const container = document.querySelector('.profile-audio-player');
             if (container) {
                 container.classList.toggle('audio-playing', !isPaused);
             }
             if (playIcon) playIcon.className = isPaused ? 'fa-solid fa-play' : 'fa-solid fa-pause';
             if (volumeIcon) {
-                volumeIcon.className = audio.muted || audio.volume === 0
+                volumeIcon.className = activeAudio.muted || activeAudio.volume === 0
                     ? 'fa-solid fa-volume-xmark'
-                    : audio.volume < 0.5 ? 'fa-solid fa-volume-low' : 'fa-solid fa-volume-high';
+                    : activeAudio.volume < 0.5 ? 'fa-solid fa-volume-low' : 'fa-solid fa-volume-high';
             }
         };
 
         const syncProgress = () => {
-            if (!dragging && Number.isFinite(audio.duration) && audio.duration > 0) {
-                progressSlider.value = String((audio.currentTime / audio.duration) * 100);
-                if (currentTime) currentTime.textContent = formatTime(audio.currentTime);
+            const activeAudio = window.getActiveAudioElement();
+            if (!activeAudio) return;
+            if (!dragging && Number.isFinite(activeAudio.duration) && activeAudio.duration > 0) {
+                progressSlider.value = String((activeAudio.currentTime / activeAudio.duration) * 100);
+                if (currentTime) currentTime.textContent = formatTime(activeAudio.currentTime);
             }
         };
 
-        audio.addEventListener('loadedmetadata', () => {
-            if (totalTime) totalTime.textContent = formatTime(audio.duration);
+        elements.forEach(el => {
+            el.addEventListener('loadedmetadata', () => {
+                if (el === window.getActiveAudioElement() && totalTime) {
+                    totalTime.textContent = formatTime(el.duration);
+                }
+            });
+            el.addEventListener('timeupdate', () => {
+                if (el === window.getActiveAudioElement()) {
+                    syncProgress();
+                }
+            });
+            el.addEventListener('play', () => {
+                if (el === window.getActiveAudioElement()) {
+                    syncIcons();
+                }
+            });
+            el.addEventListener('pause', () => {
+                if (el === window.getActiveAudioElement()) {
+                    syncIcons();
+                }
+            });
         });
-        audio.addEventListener('timeupdate', syncProgress);
-        audio.addEventListener('play', syncIcons);
-        audio.addEventListener('pause', syncIcons);
 
         playButton.addEventListener('click', async () => {
-            if (audio.paused) {
+            const activeAudio = window.getActiveAudioElement();
+            if (!activeAudio) return;
+            if (activeAudio.paused) {
                 try {
-                    await audio.play();
+                    const otherAudio = activeAudio === video ? audio : video;
+                    if (otherAudio && typeof otherAudio.pause === 'function') {
+                        otherAudio.pause();
+                    }
+                    if (activeAudio === video) {
+                        activeAudio.muted = false;
+                    }
+                    await activeAudio.play();
                     showToast('Audio started.');
                 } catch (error) {
                     showToast('Browser blocked audio. Click again.');
                 }
             } else {
-                audio.pause();
+                activeAudio.pause();
             }
         });
 
         volumeButton?.addEventListener('click', () => {
-            audio.muted = !audio.muted;
+            const activeAudio = window.getActiveAudioElement();
+            if (!activeAudio) return;
+            activeAudio.muted = !activeAudio.muted;
             syncIcons();
         });
 
         volumeSlider.addEventListener('input', () => {
+            const activeAudio = window.getActiveAudioElement();
+            if (!activeAudio) return;
             const value = Number(volumeSlider.value);
-            audio.volume = value;
-            audio.muted = value === 0;
+            activeAudio.volume = value;
+            activeAudio.muted = value === 0;
             const volumeKey = 'cripsum.profile.audioVolume.' + (body.dataset.profileUrl || 'global');
             localStorage.setItem(volumeKey, String(value));
             syncIcons();
@@ -587,8 +649,10 @@
 
         progressSlider.addEventListener('pointerdown', () => { dragging = true; });
         const seek = () => {
-            if (Number.isFinite(audio.duration) && audio.duration > 0) {
-                audio.currentTime = (Number(progressSlider.value) / 100) * audio.duration;
+            const activeAudio = window.getActiveAudioElement();
+            if (!activeAudio) return;
+            if (Number.isFinite(activeAudio.duration) && activeAudio.duration > 0) {
+                activeAudio.currentTime = (Number(progressSlider.value) / 100) * activeAudio.duration;
             }
             dragging = false;
             syncProgress();
@@ -596,9 +660,17 @@
         progressSlider.addEventListener('pointerup', seek);
         progressSlider.addEventListener('change', seek);
         progressSlider.addEventListener('input', () => {
-            if (!Number.isFinite(audio.duration) || audio.duration <= 0) return;
-            if (currentTime) currentTime.textContent = formatTime((Number(progressSlider.value) / 100) * audio.duration);
+            const activeAudio = window.getActiveAudioElement();
+            if (!activeAudio) return;
+            if (!Number.isFinite(activeAudio.duration) || activeAudio.duration <= 0) return;
+            if (currentTime) currentTime.textContent = formatTime((Number(progressSlider.value) / 100) * activeAudio.duration);
         });
+
+        // Initialize duration if metadata is already loaded
+        const currentActive = window.getActiveAudioElement();
+        if (currentActive && Number.isFinite(currentActive.duration) && totalTime) {
+            totalTime.textContent = formatTime(currentActive.duration);
+        }
 
         syncIcons();
     };
@@ -1616,9 +1688,12 @@
         const overlay = document.getElementById('clickToEnterOverlay');
         if (overlay) {
             overlay.addEventListener('click', async () => {
-                const audio = document.getElementById('profileAudio');
-                if (audio && audio.src && audio.src !== window.location.href) {
+                const audio = window.getActiveAudioElement();
+                if (audio) {
                     try {
+                        if (audio === document.getElementById('profileBgVideo')) {
+                            audio.muted = false;
+                        }
                         await audio.play();
                         const playIcon = document.getElementById('profileAudioIcon');
                         if (playIcon) playIcon.className = 'fa-solid fa-pause';
@@ -1646,8 +1721,10 @@
     };
 
     document.addEventListener('DOMContentLoaded', () => {
-        const audio = document.getElementById('profileAudio');
-        if (!audio || audio.dataset.autoplay !== '1') return;
+        const audio = window.getActiveAudioElement();
+        const useBgVideoAudio = document.body.dataset.bgUseVideoAudio === '1';
+        const hasAutoplay = (audio && audio.dataset && audio.dataset.autoplay === '1') || useBgVideoAudio;
+        if (!audio || !hasAutoplay) return;
         if (document.getElementById('clickToEnterOverlay')) return;
 
         const defaultVol = Number(audio.dataset.defaultVolume || 0.18);
@@ -1655,11 +1732,19 @@
         const resolvedVolume = getResolvedVolume(profileUrl, defaultVol);
         audio.volume = resolvedVolume;
         audio.loop = true;
-        audio.autoplay = true;
+        
+        if (audio === document.getElementById('profileBgVideo')) {
+            audio.muted = false;
+        }
 
         const tryPlay = async (showMessage = false) => {
+            const currentActive = window.getActiveAudioElement();
+            if (!currentActive) return false;
             try {
-                await audio.play();
+                if (currentActive === document.getElementById('profileBgVideo')) {
+                    currentActive.muted = false;
+                }
+                await currentActive.play();
                 return true;
             } catch (error) {
                 if (showMessage) showProfileToast('Tocca la pagina per avviare l’audio.');
@@ -1673,7 +1758,9 @@
             const cleanup = () => events.forEach((eventName) => document.removeEventListener(eventName, unlock, true));
             const unlock = async (e) => {
                 if (e && e.target && e.target.closest('[data-floating-audio]')) return;
-                if (!armed || !audio.paused) return;
+                const currentActive = window.getActiveAudioElement();
+                if (!currentActive) return;
+                if (!armed || !currentActive.paused) return;
                 armed = false;
                 const ok = await tryPlay(false);
                 if (ok) {

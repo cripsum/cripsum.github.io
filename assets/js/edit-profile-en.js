@@ -684,6 +684,7 @@
     const buttonSizeInput = $('#buttonSizeInput');
     const hideMetaInput = $('#hideMetaInput');
     const showAudioBtnInput = $('#showAudioBtnInput');
+    const bgUseVideoAudioInput = $('#bgUseVideoAudioInput');
     const audioBtnPositionInput = $('#audioBtnPositionInput');
     const audioDefaultVolumeInput = $('#audioDefaultVolumeInput');
     const audioDefaultVolumeVal = $('#audioDefaultVolumeVal');
@@ -943,6 +944,7 @@
 
         // Audio button attributes
         if (showAudioBtnInput) attributes['data-show-audio-btn'] = showAudioBtnInput.checked ? '1' : '0';
+        if (bgUseVideoAudioInput) attributes['data-bg-use-video-audio'] = bgUseVideoAudioInput.checked ? '1' : '0';
         if (audioBtnPositionInput) attributes['data-audio-btn-position'] = audioBtnPositionInput.value;
 
         // Premium Attributes
@@ -1076,7 +1078,7 @@
 
     // Register simple inputs listeners for live updates and autosave
     // Register simple inputs listeners for live updates and autosave
-    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, profileLayoutHidden, profileLayoutSnapHidden, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput, musicUrlInput, musicTitleInput, musicArtistInput, showAudioPlayerInput, cornerStyleCustomInput, tiltMaxInput, tiltGlareInput, tiltZoomInput, tiltSpeedInput, profileTabAnimationSpeedInput, profileTabTitleInput, profileTabAnimationInput, profileTabAnimationTextInput, cornerStyleInput, borderStyleInput, discordServerInviteInput, removeMusicUploadInput, cursorEffectInput, musicThemeInput, cursorCustomUrlInput, cursorCustomCenterInput, cursorCustomHoverUrlInput, cursorCustomHoverCenterInput, hideMetaInput, showAudioBtnInput, audioBtnPositionInput, audioDefaultVolumeInput, bgOverlayOpacityInput, bgBlurInput, bgOrbsOpacityInput].filter(Boolean);
+    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, profileLayoutHidden, profileLayoutSnapHidden, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput, musicUrlInput, musicTitleInput, musicArtistInput, showAudioPlayerInput, cornerStyleCustomInput, tiltMaxInput, tiltGlareInput, tiltZoomInput, tiltSpeedInput, profileTabAnimationSpeedInput, profileTabTitleInput, profileTabAnimationInput, profileTabAnimationTextInput, cornerStyleInput, borderStyleInput, discordServerInviteInput, removeMusicUploadInput, cursorEffectInput, musicThemeInput, cursorCustomUrlInput, cursorCustomCenterInput, cursorCustomHoverUrlInput, cursorCustomHoverCenterInput, hideMetaInput, showAudioBtnInput, bgUseVideoAudioInput, audioBtnPositionInput, audioDefaultVolumeInput, bgOverlayOpacityInput, bgBlurInput, bgOrbsOpacityInput].filter(Boolean);
 
     simpleInputs.forEach((input) => {
         input.addEventListener('input', () => {

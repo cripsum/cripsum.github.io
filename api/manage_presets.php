@@ -44,7 +44,7 @@ function profile_build_preset_data(mysqli $mysqli, int $targetUserId): ?array
         'profile_tab_title', 'profile_tab_animation', 'profile_tab_animation_speed', 'profile_tab_animation_text',
         'profile_corner_style', 'profile_corner_style_custom', 'profile_border_style',
         'profile_hide_meta', 'profile_show_audio_btn', 'profile_audio_btn_position', 'profile_audio_default_volume',
-        'profile_bg_overlay_opacity', 'profile_bg_blur', 'profile_bg_orbs_opacity'
+        'profile_bg_overlay_opacity', 'profile_bg_blur', 'profile_bg_orbs_opacity', 'profile_bg_use_video_audio'
     ];
 
     $profile = profile_get_edit_profile($mysqli, $targetUserId);
@@ -68,7 +68,7 @@ function profile_build_preset_data(mysqli $mysqli, int $targetUserId): ?array
         'profile_show_blocks',
         'profile_show_badges', 'profile_show_activity', 'profile_show_discord', 'profile_show_audio_player',
         'profile_click_to_enter', 'profile_show_embeds', 'profile_show_characters',
-        'profile_hide_meta', 'profile_show_audio_btn'
+        'profile_hide_meta', 'profile_show_audio_btn', 'profile_bg_use_video_audio'
     ];
     foreach ($booleans as $boolCol) {
         $presetData[$boolCol] = isset($_POST[$boolCol]) ? (int)$_POST[$boolCol] : 0;
@@ -92,10 +92,35 @@ function profile_build_preset_data(mysqli $mysqli, int $targetUserId): ?array
     $mediaStmt->close();
 
     if ($mediaRow) {
-        $presetData['profile_pic_b64'] = $mediaRow['profile_pic'] ? base64_encode($mediaRow['profile_pic']) : null;
+        // Read file contents if path is relative server path, else fallback to raw binary
+        $picData = null;
+        if ($mediaRow['profile_pic']) {
+            if (str_starts_with($mediaRow['profile_pic'], '/uploads/')) {
+                $filePath = __DIR__ . '/..' . $mediaRow['profile_pic'];
+                if (file_exists($filePath)) {
+                    $picData = base64_encode(file_get_contents($filePath));
+                }
+            } else {
+                $picData = base64_encode($mediaRow['profile_pic']);
+            }
+        }
+        $presetData['profile_pic_b64'] = $picData;
         $presetData['profile_pic_type'] = $mediaRow['profile_pic_type'];
-        $presetData['profile_banner_b64'] = $mediaRow['profile_banner'] ? base64_encode($mediaRow['profile_banner']) : null;
+
+        $bannerData = null;
+        if ($mediaRow['profile_banner']) {
+            if (str_starts_with($mediaRow['profile_banner'], '/uploads/')) {
+                $filePath = __DIR__ . '/..' . $mediaRow['profile_banner'];
+                if (file_exists($filePath)) {
+                    $bannerData = base64_encode(file_get_contents($filePath));
+                }
+            } else {
+                $bannerData = base64_encode($mediaRow['profile_banner']);
+            }
+        }
+        $presetData['profile_banner_b64'] = $bannerData;
         $presetData['profile_banner_type'] = $mediaRow['profile_banner_type'];
+        
         $presetData['profile_music_b64'] = $mediaRow['profile_music_blob'] ? base64_encode($mediaRow['profile_music_blob']) : null;
         $presetData['profile_music_mime'] = $mediaRow['profile_music_mime'];
     } else {
@@ -267,7 +292,7 @@ switch ($action) {
             'profile_tab_title', 'profile_tab_animation', 'profile_tab_animation_speed', 'profile_tab_animation_text',
             'profile_corner_style', 'profile_corner_style_custom', 'profile_border_style',
             'profile_hide_meta', 'profile_show_audio_btn', 'profile_audio_btn_position', 'profile_audio_default_volume',
-            'profile_bg_overlay_opacity', 'profile_bg_blur', 'profile_bg_orbs_opacity'
+            'profile_bg_overlay_opacity', 'profile_bg_blur', 'profile_bg_orbs_opacity', 'profile_bg_use_video_audio'
         ];
 
         $setParts = [];
@@ -318,17 +343,48 @@ switch ($action) {
             if ($presetData['profile_pic_b64'] !== null) {
                 $picBlob = base64_decode($presetData['profile_pic_b64']);
                 $picMime = $presetData['profile_pic_type'] ?? 'image/png';
-                $stmt = $mysqli->prepare("UPDATE utenti SET profile_pic = ?, profile_pic_type = ? WHERE id = ?");
-                $null = null;
-                $stmt->bind_param('bsi', $null, $picMime, $targetUserId);
-                $stmt->send_long_data(0, $picBlob);
-                $stmt->execute();
-                $stmt->close();
+                
+                $exts = [
+                    'image/jpeg' => 'jpg',
+                    'image/jpg' => 'jpg',
+                    'image/png' => 'png',
+                    'image/webp' => 'webp',
+                    'image/gif' => 'gif'
+                ];
+                $ext = $exts[$picMime] ?? 'png';
+                
+                $uploadDir = __DIR__ . '/../uploads/profile_media/user_' . $targetUserId;
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+                
+                foreach (glob($uploadDir . '/avatar_*') as $oldFile) {
+                    @unlink($oldFile);
+                }
+                
+                $randomHash = bin2hex(random_bytes(16));
+                $fileName = 'avatar_' . $randomHash . '.' . $ext;
+                $targetPath = $uploadDir . '/' . $fileName;
+                
+                if (file_put_contents($targetPath, $picBlob) !== false) {
+                    $relativeUrl = '/uploads/profile_media/user_' . $targetUserId . '/' . $fileName;
+                    $stmt = $mysqli->prepare("UPDATE utenti SET profile_pic = ?, profile_pic_type = ? WHERE id = ?");
+                    $stmt->bind_param('ssi', $relativeUrl, $picMime, $targetUserId);
+                    $stmt->execute();
+                    $stmt->close();
+                }
             } else {
                 $stmt = $mysqli->prepare("UPDATE utenti SET profile_pic = NULL, profile_pic_type = NULL WHERE id = ?");
                 $stmt->bind_param('i', $targetUserId);
                 $stmt->execute();
                 $stmt->close();
+                
+                $uploadDir = __DIR__ . '/../uploads/profile_media/user_' . $targetUserId;
+                if (is_dir($uploadDir)) {
+                    foreach (glob($uploadDir . '/avatar_*') as $oldFile) {
+                        @unlink($oldFile);
+                    }
+                }
             }
         }
 
@@ -337,17 +393,50 @@ switch ($action) {
             if ($presetData['profile_banner_b64'] !== null) {
                 $bannerBlob = base64_decode($presetData['profile_banner_b64']);
                 $bannerMime = $presetData['profile_banner_type'] ?? 'image/png';
-                $stmt = $mysqli->prepare("UPDATE utenti SET profile_banner = ?, profile_banner_type = ? WHERE id = ?");
-                $null = null;
-                $stmt->bind_param('bsi', $null, $bannerMime, $targetUserId);
-                $stmt->send_long_data(0, $bannerBlob);
-                $stmt->execute();
-                $stmt->close();
+                
+                $exts = [
+                    'image/jpeg' => 'jpg',
+                    'image/jpg' => 'jpg',
+                    'image/png' => 'png',
+                    'image/webp' => 'webp',
+                    'image/gif' => 'gif',
+                    'video/mp4' => 'mp4',
+                    'video/webm' => 'webm'
+                ];
+                $ext = $exts[$bannerMime] ?? 'png';
+                
+                $uploadDir = __DIR__ . '/../uploads/profile_media/user_' . $targetUserId;
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+                
+                foreach (glob($uploadDir . '/banner_*') as $oldFile) {
+                    @unlink($oldFile);
+                }
+                
+                $randomHash = bin2hex(random_bytes(16));
+                $fileName = 'banner_' . $randomHash . '.' . $ext;
+                $targetPath = $uploadDir . '/' . $fileName;
+                
+                if (file_put_contents($targetPath, $bannerBlob) !== false) {
+                    $relativeUrl = '/uploads/profile_media/user_' . $targetUserId . '/' . $fileName;
+                    $stmt = $mysqli->prepare("UPDATE utenti SET profile_banner = ?, profile_banner_type = ? WHERE id = ?");
+                    $stmt->bind_param('ssi', $relativeUrl, $bannerMime, $targetUserId);
+                    $stmt->execute();
+                    $stmt->close();
+                }
             } else {
                 $stmt = $mysqli->prepare("UPDATE utenti SET profile_banner = NULL, profile_banner_type = NULL WHERE id = ?");
                 $stmt->bind_param('i', $targetUserId);
                 $stmt->execute();
                 $stmt->close();
+                
+                $uploadDir = __DIR__ . '/../uploads/profile_media/user_' . $targetUserId;
+                if (is_dir($uploadDir)) {
+                    foreach (glob($uploadDir . '/banner_*') as $oldFile) {
+                        @unlink($oldFile);
+                    }
+                }
             }
         }
 
@@ -572,6 +661,7 @@ switch ($action) {
             if ($insertCharacter) $insertCharacter->close();
 
             $mysqli->commit();
+            profile_cleanup_unused_media($mysqli, $targetUserId);
             echo json_encode(['ok' => true, 'message' => 'Preset caricato con successo!']);
         } catch (Exception $e) {
             $mysqli->rollback();
@@ -670,6 +760,7 @@ switch ($action) {
         $stmt = $mysqli->prepare("DELETE FROM utenti_presets WHERE id = ? AND (utente_id = ? OR utente_id = ?)");
         $stmt->bind_param('iii', $presetId, $targetUserId, $currentUserId);
         if ($stmt->execute()) {
+            profile_cleanup_unused_media($mysqli, $targetUserId);
             echo json_encode(['ok' => true, 'message' => 'Preset eliminato.']);
         } else {
             echo json_encode(['ok' => false, 'message' => 'Errore nell\'eliminazione del preset.']);
