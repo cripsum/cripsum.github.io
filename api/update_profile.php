@@ -483,6 +483,13 @@ try {
         }
         $hideMeta = profile_bool_from_post('profile_hide_meta', false) ? 1 : 0;
         $cursorCustomCenter = profile_bool_from_post('profile_cursor_custom_center', false) ? 1 : 0;
+        
+        $cursorCustomHoverUrl = isset($_POST['profile_cursor_custom_hover_url']) ? trim((string)$_POST['profile_cursor_custom_hover_url']) : '';
+        if ($cursorCustomHoverUrl !== '' && !profile_is_safe_url($cursorCustomHoverUrl, false)) {
+            $cursorCustomHoverUrl = '';
+        }
+        $cursorCustomHoverUrlDb = $cursorCustomHoverUrl !== '' ? $cursorCustomHoverUrl : null;
+        $cursorCustomHoverCenter = profile_bool_from_post('profile_cursor_custom_hover_center', false) ? 1 : 0;
     } else {
         $layoutSnap = 0;
         $cursorEffect = 'none';
@@ -492,14 +499,16 @@ try {
         $sectionsConfig = null;
         $hideMeta = 0;
         $cursorCustomCenter = 0;
+        $cursorCustomHoverUrlDb = null;
+        $cursorCustomHoverCenter = 0;
     }
 
     $stmtPremium = $mysqli->prepare("
         UPDATE utenti
-        SET profile_layout_snap = ?, profile_cursor_effect = ?, profile_cursor_custom_url = ?, profile_bg_grain = ?, profile_music_theme = ?, profile_sections_config = ?, profile_hide_meta = ?, profile_cursor_custom_center = ?
+        SET profile_layout_snap = ?, profile_cursor_effect = ?, profile_cursor_custom_url = ?, profile_bg_grain = ?, profile_music_theme = ?, profile_sections_config = ?, profile_hide_meta = ?, profile_cursor_custom_center = ?, profile_cursor_custom_hover_url = ?, profile_cursor_custom_hover_center = ?
         WHERE id = ?
     ");
-    $stmtPremium->bind_param('ississiii', $layoutSnap, $cursorEffect, $cursorCustomUrlDb, $bgGrain, $musicTheme, $sectionsConfig, $hideMeta, $cursorCustomCenter, $targetUserId);
+    $stmtPremium->bind_param('ississiisii', $layoutSnap, $cursorEffect, $cursorCustomUrlDb, $bgGrain, $musicTheme, $sectionsConfig, $hideMeta, $cursorCustomCenter, $cursorCustomHoverUrlDb, $cursorCustomHoverCenter, $targetUserId);
     if (!$stmtPremium->execute()) throw new RuntimeException('Error updating premium settings.');
     $stmtPremium->close();
 

@@ -711,6 +711,8 @@
     const musicThemeInput = $('#musicThemeInput');
     const cursorCustomUrlInput = $('#cursorCustomUrlInput');
     const cursorCustomCenterInput = $('#cursorCustomCenterInput');
+    const cursorCustomHoverUrlInput = $('#cursorCustomHoverUrlInput');
+    const cursorCustomHoverCenterInput = $('#cursorCustomHoverCenterInput');
     const profileLayoutHidden = $('#profileLayoutHidden');
     const profileLayoutSnapHidden = $('#profileLayoutSnapHidden');
     const bgGrainInput = $('#bgGrainInput');
@@ -948,6 +950,8 @@
         if (musicThemeInput) attributes['data-music-theme'] = window.isPremiumUser ? musicThemeInput.value : 'default';
         if (cursorCustomUrlInput) attributes['data-cursor-custom-url'] = window.isPremiumUser ? cursorCustomUrlInput.value : '';
         if (cursorCustomCenterInput) attributes['data-cursor-custom-center'] = window.isPremiumUser && cursorCustomCenterInput.checked ? '1' : '0';
+        if (cursorCustomHoverUrlInput) attributes['data-cursor-custom-hover-url'] = window.isPremiumUser ? cursorCustomHoverUrlInput.value : '';
+        if (cursorCustomHoverCenterInput) attributes['data-cursor-custom-hover-center'] = window.isPremiumUser && cursorCustomHoverCenterInput.checked ? '1' : '0';
         if (profileLayoutSnapHidden) attributes['data-layout-snap'] = (window.isPremiumUser && profileLayoutSnapHidden.value === '1') ? '1' : '0';
         attributes['data-bg-grain'] = (window.isPremiumUser && profileEffectInput && profileEffectInput.value === 'bg_grain') ? '1' : '0';
 
@@ -1072,7 +1076,7 @@
 
     // Register simple inputs listeners for live updates and autosave
     // Register simple inputs listeners for live updates and autosave
-    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, profileLayoutHidden, profileLayoutSnapHidden, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput, musicUrlInput, musicTitleInput, musicArtistInput, showAudioPlayerInput, cornerStyleCustomInput, tiltMaxInput, tiltGlareInput, tiltZoomInput, tiltSpeedInput, profileTabAnimationSpeedInput, profileTabTitleInput, profileTabAnimationInput, profileTabAnimationTextInput, cornerStyleInput, borderStyleInput, discordServerInviteInput, removeMusicUploadInput, cursorEffectInput, musicThemeInput, cursorCustomUrlInput, cursorCustomCenterInput, hideMetaInput, showAudioBtnInput, audioBtnPositionInput, audioDefaultVolumeInput, bgOverlayOpacityInput, bgBlurInput, bgOrbsOpacityInput].filter(Boolean);
+    const simpleInputs = [displayNameInput, usernameInput, bioInput, statusInput, accentInput, secondaryColorInput, cardColorInput, textColorInput, linkStyleInput, buttonShapeInput, themeInput, profileEffectInput, ringEnabledInput, avatarBorderInput, ringStyleInput, ringColorInput, discordUseNameInput, discordUseAvatarInput, socialsStyleInput, profileLayoutHidden, profileLayoutSnapHidden, clickToEnterInput, enterTextInput, fontInput, borderRadiusInput, cardOpacityInput, cardBlurInput, borderOpacityInput, borderColorInput, borderWidthInput, nameColorTypeInput, nameSolidColorInput, nameGradColor1Input, nameGradColor2Input, nameGradAngleInput, nameAnimationInput, nameGlowColorInput, uiShapeInput, avatarShapeInput, socialSizeInput, iconSpacingInput, badgeSizeInput, buttonSizeInput, musicUrlInput, musicTitleInput, musicArtistInput, showAudioPlayerInput, cornerStyleCustomInput, tiltMaxInput, tiltGlareInput, tiltZoomInput, tiltSpeedInput, profileTabAnimationSpeedInput, profileTabTitleInput, profileTabAnimationInput, profileTabAnimationTextInput, cornerStyleInput, borderStyleInput, discordServerInviteInput, removeMusicUploadInput, cursorEffectInput, musicThemeInput, cursorCustomUrlInput, cursorCustomCenterInput, cursorCustomHoverUrlInput, cursorCustomHoverCenterInput, hideMetaInput, showAudioBtnInput, audioBtnPositionInput, audioDefaultVolumeInput, bgOverlayOpacityInput, bgBlurInput, bgOrbsOpacityInput].filter(Boolean);
 
     simpleInputs.forEach((input) => {
         input.addEventListener('input', () => {
@@ -3550,7 +3554,7 @@
             return;
         }
 
-        const isCursor = targetInput.id === 'cursorCustomUrlInput';
+        const isCursor = targetInput.id === 'cursorCustomUrlInput' || targetInput.id === 'cursorCustomHoverUrlInput';
         const fileInput = document.createElement('input');
         fileInput.type = 'file';
         if (isCursor) {
@@ -3653,6 +3657,8 @@
             document.getElementById('musicThemeInput'),
             document.getElementById('cursorCustomUrlInput'),
             document.getElementById('cursorCustomCenterInput'),
+            document.getElementById('cursorCustomHoverUrlInput'),
+            document.getElementById('cursorCustomHoverCenterInput'),
             document.getElementById('layoutSnapInput'),
             document.getElementById('hideMetaInput')
         ];

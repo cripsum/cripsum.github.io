@@ -642,14 +642,16 @@ function _cursor_encode_animated_gif(array $frames, array $delays, int $size): s
         $frame = $frames[$i];
         $delay = $delays[$i] ?? 10;
 
-        // Convert truecolor to palette (256 colors) via GD using placeholder color
-        $palImg = imagecreatetruecolor($size, $size);
-        imagealphablending($palImg, false);
+        // Create a palette image directly (8-bit)
+        $palImg = imagecreate($size, $size);
 
+        // The first color allocated to a palette image is index 0 (the transparent color)
         $transR = 255;
         $transG = 0;
         $transB = 255;
-        $placeholderColor = imagecolorallocate($palImg, $transR, $transG, $transB);
+        $transIdx = imagecolorallocate($palImg, $transR, $transG, $transB); // index 0
+        imagecolortransparent($palImg, $transIdx);
+        $hasTransparency = true;
 
         for ($y = 0; $y < $size; $y++) {
             for ($x = 0; $x < $size; $x++) {
@@ -657,21 +659,27 @@ function _cursor_encode_animated_gif(array $frames, array $delays, int $size): s
                 $alpha = ($rgba >> 24) & 0x7F;
 
                 if ($alpha >= 100) {
-                    imagesetpixel($palImg, $x, $y, $placeholderColor);
+                    // Transparent pixel: use the transparent index (0)
+                    imagesetpixel($palImg, $x, $y, $transIdx);
                 } else {
                     $r = ($rgba >> 16) & 0xFF;
                     $g = ($rgba >> 8) & 0xFF;
                     $b = $rgba & 0xFF;
-                    $opaqueColor = imagecolorallocate($palImg, $r, $g, $b);
-                    imagesetpixel($palImg, $x, $y, $opaqueColor);
+
+                    // If color matches magenta exactly, change slightly to prevent transparency leak
+                    if ($r === $transR && $g === $transG && $b === $transB) {
+                        $r = 254;
+                    }
+
+                    $colorIdx = imagecolorallocate($palImg, $r, $g, $b);
+                    if ($colorIdx === -1 || $colorIdx === false) {
+                        // Palette full, find closest color
+                        $colorIdx = imagecolorclosest($palImg, $r, $g, $b);
+                    }
+                    imagesetpixel($palImg, $x, $y, $colorIdx);
                 }
             }
         }
-
-        imagetruecolortopalette($palImg, true, 255);
-        $transIdx = imagecolorresolve($palImg, $transR, $transG, $transB);
-        imagecolortransparent($palImg, $transIdx);
-        $hasTransparency = true;
 
         // Graphic Control Extension
         $gif .= "\x21\xF9\x04";
