@@ -1,9 +1,11 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/mission_tracker.php';
 $isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
 
-if (isLoggedIn()) {
+if ($isLoggedIn && isset($mysqli)) {
     trackDailyLogin($mysqli, (int)$_SESSION['user_id']);
     trackMissionProgress($mysqli, (int)$_SESSION['user_id'], 'view_page');
 }
