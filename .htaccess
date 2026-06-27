@@ -7,6 +7,10 @@ php_value session.gc_maxlifetime 604800
 php_value session.cookie_lifetime 604800
 php_value session.gc_probability 1
 php_value session.gc_divisor 1000
+php_value session.name "cripsum_session"
+php_value session.cookie_path "/"
+php_value session.cookie_httponly 1
+php_value session.cookie_samesite "Lax"
 
 RewriteEngine On
 

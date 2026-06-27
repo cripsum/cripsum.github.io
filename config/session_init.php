@@ -33,6 +33,7 @@ session_set_cookie_params([
 ]);
 
 if (session_status() === PHP_SESSION_NONE) {
+    session_name('cripsum_session');
     session_start();
 }
 
