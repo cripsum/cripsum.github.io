@@ -2400,3 +2400,117 @@ body.lootbox-page .loading-text.is-error {
         font-size: 0.72rem !important;
     }
 }
+
+/* Floating Audio/Volume Controller */
+.profile-floating-audio-btn-container {
+    position: fixed;
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    padding: 0.35rem;
+    background: var(--lootbox-panel, rgba(9, 12, 24, 0.84));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--lootbox-border, rgba(255, 255, 255, 0.14));
+    border-radius: 12px;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+    gap: 0;
+}
+
+.profile-floating-audio-btn-container.position-bottom-left {
+    bottom: 1.5rem;
+    left: 1.5rem;
+    flex-direction: row;
+}
+
+.profile-floating-audio-btn {
+    background: transparent;
+    border: none;
+    color: var(--lootbox-text, #f8fbff);
+    width: 2.3rem;
+    height: 2.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.05rem;
+    padding: 0;
+    transition: transform 0.2s ease;
+    border-radius: 8px;
+}
+
+.profile-floating-audio-btn:hover {
+    transform: scale(1.05);
+}
+
+.profile-floating-audio-btn:active {
+    transform: scale(0.9);
+}
+
+.profile-floating-audio-slider-wrap {
+    width: 0;
+    overflow: hidden;
+    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease, margin 0.35s ease;
+    opacity: 0;
+    display: flex;
+    align-items: center;
+}
+
+/* Hover behaviors */
+@media (hover: hover) {
+    .profile-floating-audio-btn-container:hover .profile-floating-audio-slider-wrap,
+    .profile-floating-audio-btn-container.show-slider .profile-floating-audio-slider-wrap {
+        width: 85px;
+        opacity: 1;
+    }
+    .profile-floating-audio-btn-container.position-bottom-left:hover .profile-floating-audio-slider-wrap {
+        margin-left: 0.4rem;
+        margin-right: 0.2rem;
+    }
+}
+
+/* Mobile active show-slider class */
+.profile-floating-audio-btn-container.show-slider .profile-floating-audio-slider-wrap {
+    width: 85px;
+    opacity: 1;
+}
+.profile-floating-audio-btn-container.position-bottom-left.show-slider .profile-floating-audio-slider-wrap {
+    margin-left: 0.4rem;
+    margin-right: 0.2rem;
+}
+
+.profile-floating-audio-slider {
+    width: 80px;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: color-mix(in srgb, var(--lootbox-text, #f8fbff) 20%, transparent);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+}
+
+.profile-floating-audio-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--lootbox-text, #f8fbff);
+    cursor: pointer;
+    transition: transform 0.1s ease;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.profile-floating-audio-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.25);
+}
+
+/* Hide on mobile devices (phones) */
+@media (max-width: 768px) {
+    .profile-floating-audio-btn-container {
+        display: none !important;
+    }
+}
+

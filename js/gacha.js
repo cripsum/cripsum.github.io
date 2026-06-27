@@ -160,6 +160,16 @@
     _videoAbortFn:    null,   // funzione per interrompere il video in corso
   };
 
+  const volumeKey = 'cripsum.lootbox.volume';
+  const muteKey = 'cripsum.lootbox.muted';
+
+  let globalVolume = localStorage.getItem(volumeKey) !== null
+    ? Number(localStorage.getItem(volumeKey))
+    : 0.8;
+  globalVolume = isNaN(globalVolume) ? 0.8 : Math.min(Math.max(globalVolume, 0), 1);
+
+  let isMuted = localStorage.getItem(muteKey) === 'true';
+
   /* ══════════════════════════════════════════════════════
      DOM REFS
   ══════════════════════════════════════════════════════ */
@@ -216,6 +226,7 @@
     initLeaderboard();
     injectHistoryModal();
     injectMultiModal(); // #4
+    initFloatingAudioBtn();
   }
 
   /* ════════════════════════════════════════════════════
@@ -655,8 +666,8 @@
     setTimeout(() => velo.remove(), 600);
 
     videoEl.src    = p.video_url.startsWith('/') ? p.video_url : `/vid/${p.video_url}`;
-    videoEl.muted  = false;
-    videoEl.volume = 1;
+    videoEl.muted  = isMuted;
+    videoEl.volume = globalVolume;
     videoEl.load();
     videoUnmuteBtn.style.display = 'none';
 
@@ -1007,8 +1018,8 @@
 
   async function playRevealVideoWithEarlyCard(videoUrl, data) {
     videoEl.src    = videoUrl.startsWith('/') ? videoUrl : `/vid/${videoUrl}`;
-    videoEl.muted  = false;
-    videoEl.volume = 1;
+    videoEl.muted  = isMuted;
+    videoEl.volume = globalVolume;
     videoEl.load();
     videoUnmuteBtn.style.display = 'none';
 
@@ -1445,9 +1456,65 @@
     stopAudio();
     try {
       audioEl.src = url.startsWith('/') ? url : `/audio/${url}`;
-      audioEl.currentTime = 0; audioEl.volume = 0.8;
+      audioEl.currentTime = 0;
+      audioEl.volume = globalVolume;
+      audioEl.muted = isMuted;
       audioEl.play().catch(() => {});
     } catch(e) {}
+  }
+
+  function initFloatingAudioBtn() {
+    const container = document.querySelector('[data-floating-audio]');
+    if (!container) return;
+
+    const btn = container.querySelector('.profile-floating-audio-btn');
+    const icon = btn.querySelector('i');
+    const slider = container.querySelector('.profile-floating-audio-slider');
+
+    const updateUI = () => {
+      if (isMuted || globalVolume === 0) {
+        icon.className = 'fa-solid fa-volume-xmark';
+        slider.value = '0';
+      } else {
+        icon.className = globalVolume < 0.5 ? 'fa-solid fa-volume-low' : 'fa-solid fa-volume-high';
+        slider.value = String(globalVolume);
+      }
+      if (audioEl) {
+        audioEl.volume = globalVolume;
+        audioEl.muted = isMuted;
+      }
+      if (videoEl) {
+        videoEl.volume = globalVolume;
+        videoEl.muted = isMuted;
+      }
+    };
+
+    updateUI();
+
+    const toggleMute = () => {
+      isMuted = !isMuted;
+      localStorage.setItem(muteKey, String(isMuted));
+      updateUI();
+    };
+
+    btn.addEventListener('click', () => {
+      toggleMute();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!container.contains(e.target)) {
+        container.classList.remove('show-slider');
+      }
+    });
+
+    slider.addEventListener('input', () => {
+      const val = Number(slider.value);
+      globalVolume = val;
+      isMuted = (val === 0);
+      localStorage.setItem(volumeKey, String(val));
+      localStorage.setItem(muteKey, String(isMuted));
+      updateUI();
+    });
   }
 
   /* ════════════════════════════════════════════════════

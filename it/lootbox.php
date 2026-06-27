@@ -441,6 +441,17 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
 
     <audio id="gacha-audio" preload="none"></audio>
 
+    <!-- Controlli Audio/Volume Floating -->
+    <div class="profile-floating-audio-btn-container position-bottom-left"
+         data-floating-audio>
+        <button class="profile-floating-audio-btn" type="button" aria-label="Mute/Unmute">
+            <i class="fa-solid fa-volume-high"></i>
+        </button>
+        <div class="profile-floating-audio-slider-wrap">
+            <input type="range" class="profile-floating-audio-slider" min="0" max="1" step="0.01" value="0.8" aria-label="Volume">
+        </div>
+    </div>
+
     <div class="modal fade lootbox-settings-modal" id="impostazioniModal"
         tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable lootbox-settings-dialog">
