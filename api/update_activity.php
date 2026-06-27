@@ -4,7 +4,7 @@ ini_set('display_startup_errors',1);
 ini_set('log_errors', 1);
 error_reporting(1);
 
-session_start();
+require_once __DIR__ . '/../config/session_init.php';
 if(!isset($_SESSION['user_id'])) exit;
 
 require_once __DIR__ . '/../config/database.php';

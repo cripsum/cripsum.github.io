@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/mission_tracker.php';
 $isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
 
