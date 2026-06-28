@@ -500,7 +500,7 @@ function gd_check_and_trigger_resurrect(mysqli $m, int $mid, int $uid, array $de
             $c_char = $c['character'] ?? gd_character($m, (int)$c['personaggio_id']) ?? ['nome' => 'Personaggio', 'rarita' => 'comune'];
             $cfg = gd_get_character_config((int)$c['personaggio_id'], $c_char['rarita'], $c_char['nome']);
             if (isset($cfg['passive_effect']['type']) && $cfg['passive_effect']['type'] === 'destiny_resurrect') {
-                $effects = json_decode($c['status_effects'] ?: '[]', true);
+                $effects = is_array($c['status_effects']) ? $c['status_effects'] : json_decode($c['status_effects'] ?: '[]', true);
                 $used = false;
                 foreach ($effects as $eff) {
                     if ($eff['type'] === 'resurrect_used') {
@@ -548,7 +548,7 @@ function gd_transition_turn(mysqli $m, array $match, int $next_uid): void {
     
     if ($active) {
         $active_id = (int)$active['id'];
-        $effects = json_decode($active['status_effects'] ?: '[]', true);
+        $effects = is_array($active['status_effects']) ? $active['status_effects'] : json_decode($active['status_effects'] ?: '[]', true);
         $new_effects = [];
         $hp_change = 0;
         
@@ -787,7 +787,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
     $dmg_already_applied = false;
     
     // Controlla se il turno extra è attivo
-    $actor_effects = json_decode($actor['status_effects'] ?: '[]', true);
+    $actor_effects = is_array($actor['status_effects']) ? $actor['status_effects'] : json_decode($actor['status_effects'] ?: '[]', true);
     foreach ($actor_effects as $idx => $eff) {
         if ($eff['type'] === 'double_turn') {
             $double_turn_active = true;
@@ -808,7 +808,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
         gd_set_active($m, $mid, $uid, (int)$new['id']);
         
         // Rimuove provocazione sul vecchio attivo
-        $old_effects = json_decode($actor['status_effects'] ?: '[]', true);
+        $old_effects = is_array($actor['status_effects']) ? $actor['status_effects'] : json_decode($actor['status_effects'] ?: '[]', true);
         $old_effects = array_filter($old_effects, function($e) { return $e['type'] !== 'taunt'; });
         $m->query("UPDATE game_match_cards SET status_effects='" . $m->escape_string(json_encode(array_values($old_effects))) . "', is_defending=0 WHERE id={$actorId}");
         
@@ -830,7 +830,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
     } elseif ($act === 'charge') {
         $en = min((int)$actor['max_energy'], (int)$actor['energy'] + 2);
         
-        $effects = json_decode($actor['status_effects'] ?: '[]', true);
+        $effects = is_array($actor['status_effects']) ? $actor['status_effects'] : json_decode($actor['status_effects'] ?: '[]', true);
         $effects[] = ['type' => 'buff_spd', 'value' => 20, 'duration' => 1, 'name' => 'Velocità +20%'];
         $status_json = json_encode($effects);
         
@@ -910,7 +910,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
         
         // Controlla Immunità (per immunizzazioni totali temporanee da mosse o ruoli)
         $target_immune = false;
-        $t_effects = json_decode($t['status_effects'] ?: '[]', true);
+        $t_effects = is_array($t['status_effects']) ? $t['status_effects'] : json_decode($t['status_effects'] ?: '[]', true);
         foreach ($t_effects as $eff) {
             if ($eff['type'] === 'immunity') {
                 $target_immune = true;
@@ -1282,7 +1282,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                     $allies = gd_cards($m, $mid);
                     foreach ($allies as $ally) {
                         if ((int)$ally['user_id'] === $uid && !(int)$ally['is_ko']) {
-                            $a_effects = json_decode($ally['status_effects'] ?: '[]', true);
+                            $a_effects = is_array($ally['status_effects']) ? $ally['status_effects'] : json_decode($ally['status_effects'] ?: '[]', true);
                             $a_effects[] = ['type' => 'buff_atk', 'value' => 25, 'duration' => 2, 'name' => 'Attacco +25%'];
                             $a_effects[] = ['type' => 'buff_spd', 'value' => 20, 'duration' => 2, 'name' => 'Velocità +20%'];
                             
@@ -1345,7 +1345,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                             $heal = (int)round($ally['max_hp'] * 0.40);
                             $new_hp = min((int)$ally['max_hp'], (int)$ally['current_hp'] + $heal);
                             
-                            $ally_effs = json_decode($ally['status_effects'] ?: '[]', true);
+                            $ally_effs = is_array($ally['status_effects']) ? $ally['status_effects'] : json_decode($ally['status_effects'] ?: '[]', true);
                             $ally_effs[] = ['type' => 'buff_crit_rate', 'value' => 25, 'duration' => 3, 'name' => 'Crit Rate +25%'];
                             $ally_effs[] = ['type' => 'buff_crit_dmg', 'value' => 50, 'duration' => 3, 'name' => 'Crit Dmg +50%'];
                             
@@ -1543,7 +1543,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                         if ((int)$ally['user_id'] === $uid && !(int)$ally['is_ko']) {
                             $new_shield = (int)$ally['shield'] + $shield_val;
                             
-                            $ally_effs = json_decode($ally['status_effects'] ?: '[]', true);
+                            $ally_effs = is_array($ally['status_effects']) ? $ally['status_effects'] : json_decode($ally['status_effects'] ?: '[]', true);
                             $ally_effs = array_filter($ally_effs, function($e) {
                                 return !in_array($e['type'], ['poison', 'bleed', 'stun', 'freeze', 'debuff_atk', 'debuff_def', 'debuff_spd', 'silence'], true);
                             });
@@ -1698,7 +1698,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
         // Dante - Stile Elegantissimo (accumulo stile all'attacco)
         if ((int)($actor['personaggio_id'] ?? 0) === 141) {
             $style_stacks = 0;
-            $a_effects = json_decode($actor['status_effects'] ?: '[]', true);
+            $a_effects = is_array($actor['status_effects']) ? $actor['status_effects'] : json_decode($actor['status_effects'] ?: '[]', true);
             foreach ($a_effects as $e) {
                 if ($e['type'] === 'dante_style') $style_stacks = (int)$e['value'];
             }
@@ -1786,7 +1786,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                 $allies = gd_cards($m, $mid);
                 foreach ($allies as $ally) {
                     if ((int)$ally['user_id'] === $opp && !(int)$ally['is_ko']) {
-                        $a_effects = json_decode($ally['status_effects'] ?: '[]', true);
+                        $a_effects = is_array($ally['status_effects']) ? $ally['status_effects'] : json_decode($ally['status_effects'] ?: '[]', true);
                         $sossio_buffs = 0;
                         foreach ($a_effects as $e) {
                             if ($e['type'] === 'sossio_speed') $sossio_buffs++;
