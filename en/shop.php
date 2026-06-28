@@ -293,7 +293,10 @@ $successPackage = $_GET['package_id'] ?? '';
         let currentPackageId = '';
         let currentPackagePrice = '';
 
-        const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+        let paymentModal;
+        document.addEventListener('DOMContentLoaded', () => {
+            paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+        });
 
         function openPaymentModal(pid, name, price) {
             currentPackageId = pid;
@@ -379,7 +382,10 @@ $successPackage = $_GET['package_id'] ?? '';
 
         // Godos converter slider logic
         let userGodos = <?= (int)$soldi ?>;
-        const godosConverterModal = new bootstrap.Modal(document.getElementById('godosConversionModal'));
+        let godosConverterModal;
+        document.addEventListener('DOMContentLoaded', () => {
+            godosConverterModal = new bootstrap.Modal(document.getElementById('godosConversionModal'));
+        });
         const godosSlider = document.getElementById('godos-slider');
         const sliderShardsVal = document.getElementById('slider-shards-val');
         const sliderGodosCost = document.getElementById('slider-godos-cost');
