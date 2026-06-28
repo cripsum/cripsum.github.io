@@ -571,48 +571,86 @@
                     if (parts.length >= 3) ultName = parts[2].replace(/[!:]/g, '').trim();
                 }
 
-                // Theme colors
-                const roleColors = {
-                    'Tank':'#fbbf24','Bruiser':'#f97316','DPS':'#ef4444','Burst DPS':'#ec4899',
-                    'Healer':'#10b981','Support':'#8b5cf6','Controller':'#06b6d4'
+                // ============ PER-CHARACTER CUSTOM THEMES ============
+                const charThemes = {
+                    46:  { glow:'#ffd700', bg:'radial-gradient(ellipse at 30% 40%,rgba(60,45,0,0.95),rgba(10,8,0,0.98))', particles:['👑','💰','📋','💼','🏛️'], flash:'#ffd700' },
+                    48:  { glow:'#38bdf8', bg:'radial-gradient(ellipse at 70% 30%,rgba(10,30,60,0.96),rgba(2,6,23,0.98))', particles:['🌊','✨','🐚','💎','🔱'], flash:'#38bdf8' },
+                    49:  { glow:'#facc15', bg:'radial-gradient(ellipse at 50% 50%,rgba(50,40,5,0.95),rgba(8,6,0,0.98))', particles:['⭐','🌟','💫','✨','🚗'], flash:'#facc15' },
+                    50:  { glow:'#a855f7', bg:'radial-gradient(ellipse at 40% 60%,rgba(40,10,70,0.95),rgba(10,2,20,0.98))', particles:['🎵','🎤','🔊','💥','🎶'], flash:'#a855f7' },
+                    64:  { glow:'#ef4444', bg:'radial-gradient(ellipse at 60% 40%,rgba(50,5,5,0.96),rgba(10,0,0,0.98))', particles:['🗣️','📢','🇺🇸','💬','🔥'], flash:'#ef4444' },
+                    75:  { glow:'#22c55e', bg:'radial-gradient(ellipse at 50% 50%,rgba(0,30,10,0.96),rgba(0,5,2,0.98))', particles:['💀','🖥️','👾','🔒','⚠️'], flash:'#22c55e' },
+                    76:  { glow:'#ec4899', bg:'radial-gradient(ellipse at 40% 50%,rgba(50,5,30,0.96),rgba(15,0,10,0.98))', particles:['👿','💜','🔥','😈','💀'], flash:'#ec4899' },
+                    86:  { glow:'#f97316', bg:'radial-gradient(ellipse at 60% 30%,rgba(50,20,0,0.96),rgba(10,5,0,0.98))', particles:['🎯','⚔️','💣','🔫','💀'], flash:'#f97316' },
+                    87:  { glow:'#06b6d4', bg:'radial-gradient(ellipse at 50% 60%,rgba(0,30,50,0.96),rgba(0,8,15,0.98))', particles:['🌊','💧','🐳','💚','🩹'], flash:'#06b6d4' },
+                    88:  { glow:'#94a3b8', bg:'radial-gradient(ellipse at 50% 40%,rgba(30,30,35,0.96),rgba(5,5,8,0.98))', particles:['⚡','🔩','💎','⛓️','💥'], flash:'#e2e8f0' },
+                    98:  { glow:'#f8fafc', bg:'radial-gradient(ellipse at 50% 50%,rgba(60,60,65,0.96),rgba(15,15,18,0.98))', particles:['❄️','🏠','🔒','👁️','💀'], flash:'#f8fafc' },
+                    138: { glow:'#a78bfa', bg:'radial-gradient(ellipse at 30% 30%,rgba(30,10,60,0.96),rgba(5,2,15,0.98))', particles:['🌌','🛡️','✨','💫','🔮'], flash:'#a78bfa' },
+                    139: { glow:'#f472b6', bg:'radial-gradient(ellipse at 70% 40%,rgba(60,10,40,0.96),rgba(15,2,10,0.98))', particles:['💫','🌟','💖','⭐','🔥'], flash:'#f472b6' },
+                    140: { glow:'#38bdf8', bg:'radial-gradient(ellipse at 50% 20%,rgba(10,35,60,0.96),rgba(2,8,18,0.98))', particles:['🦅','💨','☁️','⚡','🌪️'], flash:'#38bdf8' },
+                    141: { glow:'#dc2626', bg:'radial-gradient(ellipse at 40% 60%,rgba(80,5,5,0.96),rgba(15,0,0,0.98))', particles:['😈','🔥','⚔️','💀','👹'], flash:'#dc2626' },
+                    142: { glow:'#60a5fa', bg:'radial-gradient(ellipse at 60% 40%,rgba(10,20,50,0.96),rgba(2,5,15,0.98))', particles:['🗡️','❄️','🌀','💠','⚡'], flash:'#60a5fa' },
+                    143: { glow:'#a3a3a3', bg:'radial-gradient(ellipse at 50% 50%,rgba(25,25,25,0.97),rgba(5,5,5,0.99))', particles:['🛡️','⚖️','🔥','💣','🏛️'], flash:'#a3a3a3' },
+                    144: { glow:'#f97316', bg:'radial-gradient(ellipse at 50% 70%,rgba(60,20,0,0.96),rgba(12,4,0,0.98))', particles:['☄️','🔥','💥','🌋','💀'], flash:'#f97316' }
                 };
-                const roleSymbols = {
-                    'Tank':'🛡️','Bruiser':'🔥','DPS':'⚔️','Burst DPS':'⚡',
-                    'Healer':'✨','Support':'🔮','Controller':'❄️'
+                const roleDefaults = {
+                    'Tank':      { glow:'#fbbf24', particles:['🛡️','⚔️','💪'], flash:'#fbbf24' },
+                    'Bruiser':   { glow:'#f97316', particles:['🔥','⚔️','💥'], flash:'#f97316' },
+                    'DPS':       { glow:'#ef4444', particles:['⚔️','💀','🔥'], flash:'#ef4444' },
+                    'Burst DPS': { glow:'#ec4899', particles:['⚡','💥','🔥'], flash:'#ec4899' },
+                    'Healer':    { glow:'#10b981', particles:['✨','💚','🩹'], flash:'#10b981' },
+                    'Support':   { glow:'#8b5cf6', particles:['🔮','✨','💫'], flash:'#8b5cf6' },
+                    'Controller':{ glow:'#06b6d4', particles:['❄️','🌀','⚡'], flash:'#06b6d4' }
                 };
-                const glowColor = roleColors[role] || '#ef4444';
-                const symbol = roleSymbols[role] || '⚔️';
+                const t = charThemes[charId] || roleDefaults[role] || roleDefaults['DPS'];
+                const glowColor = t.glow;
+                const bgGrad = t.bg || 'radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0.95),rgba(0,0,0,0.98))';
+                const flashColor = t.flash || '#fff';
+                const particleSet = t.particles || ['⚔️','🔥','💥'];
 
-                // ============ BUILD CUTIN OVERLAY WITH ALL INLINE STYLES ============
+                // ============ BUILD CUTIN OVERLAY ============
                 const overlay = document.createElement('div');
                 overlay.id = 'ult-cinematic-overlay';
                 overlay.style.cssText = 'position:fixed;inset:0;z-index:999999;pointer-events:none;overflow:hidden;';
 
-                // Dark background
+                // Dark themed background
                 const bg = document.createElement('div');
-                bg.style.cssText = 'position:absolute;inset:0;background:radial-gradient(circle,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.98) 100%);opacity:0;transition:opacity 0.25s ease;';
+                bg.style.cssText = 'position:absolute;inset:0;background:' + bgGrad + ';opacity:0;transition:opacity 0.3s ease;';
                 overlay.appendChild(bg);
+
+                // Animated border glow (top + bottom lines)
+                const lineTop = document.createElement('div');
+                lineTop.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,transparent,' + glowColor + ',transparent);opacity:0;z-index:10;';
+                overlay.appendChild(lineTop);
+                const lineBot = document.createElement('div');
+                lineBot.style.cssText = 'position:absolute;bottom:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,transparent,' + glowColor + ',transparent);opacity:0;z-index:10;';
+                overlay.appendChild(lineBot);
 
                 // Diagonal slash
                 const slash = document.createElement('div');
-                slash.style.cssText = 'position:absolute;width:250%;height:120px;top:50%;left:-75%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.9) 30%,#fff 50%,rgba(255,255,255,0.9) 70%,transparent);box-shadow:0 0 60px ' + glowColor + ',0 0 120px ' + glowColor + ';transform:rotate(-12deg) translateY(-800px);opacity:0;';
+                slash.style.cssText = 'position:absolute;width:250%;height:100px;top:50%;left:-75%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.8) 30%,#fff 50%,rgba(255,255,255,0.8) 70%,transparent);box-shadow:0 0 50px ' + glowColor + ',0 0 100px ' + glowColor + ';transform:rotate(-12deg) translateY(-800px);opacity:0;z-index:3;';
                 overlay.appendChild(slash);
 
-                // Character image
+                // Character image (centered-right, big, with glow pulse)
                 if (imgUrl) {
                     const img = document.createElement('img');
                     img.src = imgUrl;
                     img.alt = charName;
-                    img.style.cssText = 'position:absolute;right:3%;bottom:-30px;height:110%;max-height:850px;object-fit:contain;z-index:4;opacity:0;transform:scale(1.3) translateX(300px) rotate(5deg);filter:drop-shadow(0 0 40px ' + glowColor + ') blur(12px);';
+                    img.style.cssText = 'position:absolute;right:5%;top:50%;transform:translateY(-50%) scale(1.4) translateX(350px) rotate(3deg);height:90%;max-height:800px;object-fit:contain;z-index:4;opacity:0;filter:drop-shadow(0 0 50px ' + glowColor + ') drop-shadow(0 0 100px ' + glowColor + ') blur(15px);';
                     overlay.appendChild(img);
                 }
 
-                // Text banner
-                const banner = document.createElement('div');
-                banner.style.cssText = 'position:absolute;left:8%;top:50%;transform:translateY(-50%) skewX(-12deg) translateX(-200px);z-index:5;opacity:0;display:flex;flex-direction:column;gap:12px;';
-                banner.innerHTML = '<div style="font-size:2.5rem;font-weight:900;text-transform:uppercase;color:#fff;text-shadow:0 0 20px rgba(255,255,255,0.5);letter-spacing:5px;font-family:sans-serif;">' + esc(charName) + '</div>'
-                    + '<div style="font-size:4rem;font-weight:900;text-transform:uppercase;color:' + glowColor + ';text-shadow:0 0 30px ' + glowColor + ',0 0 60px rgba(0,0,0,0.5);letter-spacing:7px;font-family:sans-serif;">' + esc(ultName) + '</div>';
-                overlay.appendChild(banner);
+                // Character name - TOP LEFT
+                const nameTag = document.createElement('div');
+                nameTag.style.cssText = 'position:absolute;top:8%;left:6%;z-index:7;opacity:0;transform:translateX(-100px);';
+                nameTag.innerHTML = '<div style="font-size:1.2rem;font-weight:700;text-transform:uppercase;color:' + glowColor + ';letter-spacing:6px;font-family:sans-serif;opacity:0.7;">ULTIMATE</div>'
+                    + '<div style="font-size:2.8rem;font-weight:900;text-transform:uppercase;color:#fff;text-shadow:0 0 20px rgba(255,255,255,0.4),0 4px 20px rgba(0,0,0,0.8);letter-spacing:3px;font-family:sans-serif;margin-top:6px;">' + esc(charName) + '</div>';
+                overlay.appendChild(nameTag);
+
+                // Ultimate name - BOTTOM CENTER
+                const ultTag = document.createElement('div');
+                ultTag.style.cssText = 'position:absolute;bottom:10%;left:50%;transform:translateX(-50%) translateY(60px);z-index:7;opacity:0;text-align:center;';
+                ultTag.innerHTML = '<div style="font-size:3.5rem;font-weight:900;text-transform:uppercase;color:' + glowColor + ';text-shadow:0 0 30px ' + glowColor + ',0 0 60px ' + glowColor + '44,0 6px 30px rgba(0,0,0,0.7);letter-spacing:8px;font-family:sans-serif;white-space:nowrap;">' + esc(ultName) + '</div>';
+                overlay.appendChild(ultTag);
 
                 // Particles container
                 const particles = document.createElement('div');
@@ -620,111 +658,120 @@
                 overlay.appendChild(particles);
 
                 document.body.appendChild(overlay);
-                console.log('[ANIM] Overlay appended to body. ID: ult-cinematic-overlay');
 
                 // ============ ANIMATION TIMELINE ============
-                
-                // T=0: Fade in background
+
+                // T=0: BG + border lines fade in
                 requestAnimationFrame(() => {
                     bg.style.opacity = '1';
-                    console.log('[ANIM] T=0: BG fade in');
+                    lineTop.style.transition = 'opacity 0.3s ease';
+                    lineBot.style.transition = 'opacity 0.3s ease';
+                    lineTop.style.opacity = '0.8';
+                    lineBot.style.opacity = '0.8';
                 });
 
-                // T=100ms: Slash starts moving
+                // T=80ms: Character name slides in from left
                 setTimeout(() => {
-                    slash.style.transition = 'transform 1.2s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease';
+                    nameTag.style.transition = 'transform 0.7s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease';
+                    nameTag.style.opacity = '1';
+                    nameTag.style.transform = 'translateX(0)';
+                }, 80);
+
+                // T=100ms: Slash sweeps across
+                setTimeout(() => {
+                    slash.style.transition = 'transform 1.2s cubic-bezier(0.16,1,0.3,1), opacity 0.25s ease';
                     slash.style.opacity = '1';
                     slash.style.transform = 'rotate(-12deg) translateY(0px)';
-                    console.log('[ANIM] T=100ms: Slash starts');
                 }, 100);
 
-                // T=150ms: Character image slides in
+                // T=150ms: Character image slides in with deblur
                 if (imgUrl) {
                     const img = overlay.querySelector('img');
                     setTimeout(() => {
-                        img.style.transition = 'transform 1.0s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease, filter 0.5s ease';
+                        img.style.transition = 'transform 1.0s cubic-bezier(0.16,1,0.3,1), opacity 0.35s ease, filter 0.6s ease';
                         img.style.opacity = '1';
-                        img.style.transform = 'scale(1.05) translateX(0px) rotate(1deg)';
-                        img.style.filter = 'drop-shadow(0 0 40px ' + glowColor + ') blur(0px)';
-                        console.log('[ANIM] T=150ms: Character image slides in');
+                        img.style.transform = 'translateY(-50%) scale(1.05) translateX(0px) rotate(0deg)';
+                        img.style.filter = 'drop-shadow(0 0 50px ' + glowColor + ') drop-shadow(0 0 100px ' + glowColor + ') blur(0px)';
                     }, 150);
+                    // T=600ms: Pulsing glow on character
+                    setTimeout(() => {
+                        img.style.transition = 'filter 0.4s ease';
+                        img.style.filter = 'drop-shadow(0 0 70px ' + glowColor + ') drop-shadow(0 0 140px ' + glowColor + ') blur(0px)';
+                    }, 600);
+                    setTimeout(() => {
+                        img.style.filter = 'drop-shadow(0 0 40px ' + glowColor + ') drop-shadow(0 0 80px ' + glowColor + ') blur(0px)';
+                    }, 900);
                 }
 
-                // T=200ms: Banner text slides in
+                // T=250ms: Ultimate name rises from bottom
                 setTimeout(() => {
-                    banner.style.transition = 'transform 0.8s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease';
-                    banner.style.opacity = '1';
-                    banner.style.transform = 'translateY(-50%) skewX(-12deg) translateX(0px)';
-                    console.log('[ANIM] T=200ms: Banner slides in');
-                }, 200);
+                    ultTag.style.transition = 'transform 0.8s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease';
+                    ultTag.style.opacity = '1';
+                    ultTag.style.transform = 'translateX(-50%) translateY(0)';
+                }, 250);
 
-                // T=100-400ms: Spawn particles
-                for (let i = 0; i < 30; i++) {
+                // T=100-500ms: Spawn particles (character-specific emojis)
+                for (let i = 0; i < 35; i++) {
                     setTimeout(() => {
                         const p = document.createElement('div');
-                        p.textContent = symbol;
+                        p.textContent = particleSet[Math.floor(Math.random() * particleSet.length)];
                         const startX = Math.random() * 100;
                         const startY = Math.random() * 100;
-                        const dx = (Math.random() - 0.5) * 500;
-                        const dy = (Math.random() - 0.5) * 500;
-                        p.style.cssText = 'position:absolute;left:' + startX + '%;top:' + startY + '%;font-size:' + (15 + Math.random() * 20) + 'px;opacity:0;pointer-events:none;user-select:none;transition:transform 1s ease-out,opacity 0.8s ease;transform:translate(0,0) scale(0.3);';
+                        const dx = (Math.random() - 0.5) * 600;
+                        const dy = (Math.random() - 0.5) * 600;
+                        p.style.cssText = 'position:absolute;left:' + startX + '%;top:' + startY + '%;font-size:' + (16 + Math.random() * 22) + 'px;opacity:0;pointer-events:none;user-select:none;transition:transform 1.1s ease-out,opacity 0.9s ease;transform:translate(0,0) scale(0.2);';
                         particles.appendChild(p);
                         requestAnimationFrame(() => {
-                            p.style.opacity = '0.85';
-                            p.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(1.3) rotate(360deg)';
+                            p.style.opacity = '0.9';
+                            p.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(1.4) rotate(' + (Math.random() * 720 - 360) + 'deg)';
                         });
-                        setTimeout(() => { p.style.opacity = '0'; }, 700);
-                    }, 100 + Math.random() * 300);
+                        setTimeout(() => { p.style.opacity = '0'; }, 800);
+                    }, 80 + Math.random() * 420);
                 }
 
-                // T=600ms: Camera shake on arena
+                // T=700ms: Camera shake
                 setTimeout(() => {
                     if (arena) {
-                        arena.style.transition = 'none';
-                        arena.style.animation = 'none';
-                        let shakeCount = 0;
-                        const shakeInterval = setInterval(() => {
-                            const x = (Math.random() - 0.5) * 12;
-                            const y = (Math.random() - 0.5) * 12;
-                            arena.style.transform = 'translate(' + x + 'px,' + y + 'px)';
-                            shakeCount++;
-                            if (shakeCount > 15) {
-                                clearInterval(shakeInterval);
-                                arena.style.transform = '';
-                            }
-                        }, 40);
+                        let ct = 0;
+                        const si = setInterval(() => {
+                            arena.style.transform = 'translate(' + ((Math.random()-0.5)*14) + 'px,' + ((Math.random()-0.5)*14) + 'px)';
+                            if (++ct > 16) { clearInterval(si); arena.style.transform = ''; }
+                        }, 35);
                     }
-                    console.log('[ANIM] T=600ms: Camera shake');
-                }, 600);
+                }, 700);
 
-                // T=1200ms: Flash screen white
+                // T=1200ms: Flash screen with character glow color
                 setTimeout(() => {
-                    const flash = document.createElement('div');
-                    flash.style.cssText = 'position:fixed;inset:0;z-index:9999999;background:#fff;opacity:0.85;pointer-events:none;transition:opacity 0.4s ease;';
-                    document.body.appendChild(flash);
-                    setTimeout(() => { flash.style.opacity = '0'; }, 50);
-                    setTimeout(() => { flash.remove(); }, 500);
-                    console.log('[ANIM] T=1200ms: Screen flash');
+                    const fl = document.createElement('div');
+                    fl.style.cssText = 'position:fixed;inset:0;z-index:9999999;background:' + flashColor + ';opacity:0.8;pointer-events:none;transition:opacity 0.4s ease;';
+                    document.body.appendChild(fl);
+                    setTimeout(() => { fl.style.opacity = '0'; }, 60);
+                    setTimeout(() => { fl.remove(); }, 500);
                 }, 1200);
 
-                // T=1400ms: Begin fade out
+                // T=1400ms: Everything fades out
                 setTimeout(() => {
                     bg.style.opacity = '0';
                     slash.style.opacity = '0';
-                    banner.style.opacity = '0';
+                    nameTag.style.opacity = '0';
+                    nameTag.style.transform = 'translateX(50px)';
+                    ultTag.style.opacity = '0';
+                    ultTag.style.transform = 'translateX(-50%) translateY(40px)';
+                    lineTop.style.opacity = '0';
+                    lineBot.style.opacity = '0';
                     if (imgUrl) {
                         const img = overlay.querySelector('img');
-                        if (img) { img.style.opacity = '0'; img.style.transform = 'scale(1.1) translateX(-100px) rotate(0deg)'; }
+                        if (img) {
+                            img.style.opacity = '0';
+                            img.style.transform = 'translateY(-50%) scale(1.15) translateX(-120px) rotate(-2deg)';
+                            img.style.filter = 'drop-shadow(0 0 50px ' + glowColor + ') blur(12px)';
+                        }
                     }
-                    console.log('[ANIM] T=1400ms: Fade out starts');
                 }, 1400);
 
-                // T=1800ms: Show damage/heal, remove overlay, resume polling
+                // T=1800ms: Remove overlay, show damage
                 setTimeout(() => {
                     overlay.remove();
-                    console.log('[ANIM] T=1800ms: Overlay removed. Showing damage.');
-
-                    // Show the action banner and damage
                     showActionBanner(a, ultName);
                     if (target && Number(a.damage) > 0) {
                         flashCard(target, isCrit ? 'fx-crit-hit' : 'fx-hit', '-' + a.damage, true, isCrit);
@@ -733,14 +780,13 @@
                     }
                 }, 1800);
 
-                // T=2200ms: Resolve promise and resume polling
+                // T=2200ms: Resume polling
                 setTimeout(() => {
-                    console.log('[ANIM] T=2200ms: Animation complete. Resuming polling.');
                     startPolling();
                     resolve();
                 }, 2200);
 
-                return; // Don't fall through to normal animation
+                return;
             }
 
             // ============ NORMAL ANIMATION (non-ultimate) ============
