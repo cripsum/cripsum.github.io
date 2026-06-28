@@ -27,6 +27,7 @@ $t = [
         'duels'        => 'Duelli',
         'shop'         => 'Shop',
         'store'        => 'Negozio',
+        'gacha_shop'   => 'Shop Gacha',
         'other'        => 'Altro',
         'donations'    => 'Donazioni',
         'about'        => 'Chi siamo',
@@ -54,6 +55,7 @@ $t = [
         'duels'        => 'Duels',
         'shop'         => 'Shop',
         'store'        => 'Store',
+        'gacha_shop'   => 'Gacha Shop',
         'other'        => 'More',
         'donations'    => 'Donate',
         'about'        => 'About us',
@@ -157,6 +159,7 @@ if ($isLoggedIn) {
                     <ul class="dropdown-menu animate slideIn">
                         <li><a class="dropdown-item" href="/<?= $lang ?>/negozio"><i class="fa-solid fa-store me-2"></i><?= $t['store'] ?></a></li>
                         <li><a class="dropdown-item" href="/<?= $lang ?>/merch"><i class="fa-solid fa-shirt me-2"></i>Merch</a></li>
+                        <li><a class="dropdown-item" href="/<?= $lang ?>/shop"><i class="fa-solid fa-gem me-2"></i><?= $t['gacha_shop'] ?></a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown dropdownutenti">
