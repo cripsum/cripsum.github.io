@@ -253,6 +253,10 @@
     cursor: pointer;
     transition: transform 0.1s, box-shadow 0.15s;
     width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
 }
 
 .card-btn:hover {
@@ -302,15 +306,324 @@
     gap: 0.5rem;
     cursor: pointer;
     transition: background 0.15s;
+    text-decoration: none;
 }
 
 .payment-stripe-btn:hover {
     background: #7a73ff;
+    color: #fff;
 }
 
 .payment-paypal-container {
     width: 100%;
     min-height: 50px;
+}
+
+/* Standalone shop controller modals. These deliberately do not use Bootstrap's
+   modal runtime, so checkout and conversion cannot be broken by bundle timing. */
+.shop-action-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.shop-action-modal.is-open,
+.shop-action-modal:target {
+    display: flex;
+}
+
+.shop-action-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(3, 5, 13, 0.78);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.shop-action-modal__panel {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 500px);
+    max-height: calc(100vh - 40px);
+    overflow: auto;
+    color: #fff;
+    background:
+        linear-gradient(145deg, rgba(17, 14, 31, 0.98), rgba(7, 10, 21, 0.99)) padding-box,
+        linear-gradient(135deg, rgba(167, 139, 250, 0.5), rgba(59, 130, 246, 0.15), rgba(255, 255, 255, 0.08)) border-box;
+    border: 1px solid transparent;
+    border-radius: 24px;
+    box-shadow: 0 30px 100px rgba(0, 0, 0, 0.65), 0 0 45px rgba(99, 102, 241, 0.13);
+    outline: none;
+}
+
+.shop-action-modal.is-open .shop-action-modal__panel,
+.shop-action-modal:target .shop-action-modal__panel {
+    animation: shopModalIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.shop-action-modal__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 25px 26px 16px;
+}
+
+.shop-action-modal__header h2 {
+    margin: 4px 0 0;
+    color: #fff;
+    font-size: 1.55rem;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+}
+
+.shop-action-modal__kicker {
+    color: #a78bfa;
+    font-size: 0.67rem;
+    font-weight: 800;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+}
+
+.shop-action-modal__close {
+    display: grid;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    color: rgba(255, 255, 255, 0.65);
+    background: rgba(255, 255, 255, 0.055);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 50%;
+    text-decoration: none;
+    transition: 0.18s ease;
+}
+
+.shop-action-modal__close:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.11);
+    transform: rotate(5deg);
+}
+
+.shop-action-modal__body,
+.shop-conversion-form {
+    padding: 0 26px 26px;
+}
+
+.shop-action-modal__summary {
+    margin: 0 0 20px;
+    color: rgba(226, 232, 240, 0.67);
+    line-height: 1.6;
+}
+
+.shop-action-modal__summary strong {
+    color: #fff;
+}
+
+.shop-payment-separator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: rgba(255, 255, 255, 0.38);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+}
+
+.shop-payment-separator::before,
+.shop-payment-separator::after {
+    content: '';
+    height: 1px;
+    flex: 1;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.shop-payment-status {
+    margin: 0;
+    padding: 13px;
+    color: rgba(226, 232, 240, 0.6);
+    background: rgba(255, 255, 255, 0.035);
+    border-radius: 12px;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    text-align: center;
+}
+
+.shop-conversion-amount {
+    display: grid;
+    justify-items: center;
+    margin: 4px 0 22px;
+}
+
+.shop-conversion-amount img {
+    width: 58px;
+    height: 58px;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 18px rgba(59, 130, 246, 0.28));
+}
+
+.shop-conversion-amount strong {
+    margin-top: 5px;
+    color: #7dd3fc;
+    font-size: 2.8rem;
+    font-weight: 850;
+    line-height: 1;
+}
+
+.shop-conversion-amount span {
+    margin-top: 4px;
+    color: rgba(226, 232, 240, 0.52);
+    font-size: 0.78rem;
+}
+
+.shop-conversion-slider {
+    margin-bottom: 18px;
+}
+
+.shop-conversion-slider input {
+    width: 100%;
+    accent-color: #7c3aed;
+}
+
+.shop-conversion-slider > div {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 7px;
+    color: rgba(226, 232, 240, 0.45);
+    font-size: 0.7rem;
+}
+
+.shop-conversion-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 18px;
+    padding: 14px 15px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.065);
+    border-radius: 13px;
+}
+
+.shop-conversion-total > span {
+    color: rgba(226, 232, 240, 0.58);
+    font-size: 0.84rem;
+}
+
+.shop-conversion-total strong {
+    color: #c4b5fd;
+    white-space: nowrap;
+}
+
+.shop-form-error {
+    margin: -4px 0 16px;
+    padding: 10px 12px;
+    color: #fecaca;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 10px;
+    font-size: 0.78rem;
+}
+
+.shop-action-modal__actions {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: 10px;
+}
+
+.shop-action-secondary,
+.shop-action-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 16px;
+    border-radius: 13px;
+    font-size: 0.87rem;
+    font-weight: 750;
+    text-decoration: none;
+    transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.shop-action-secondary {
+    color: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.045);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.shop-action-secondary:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.085);
+}
+
+.shop-action-primary {
+    color: #fff;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5 60%, #2563eb);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.28);
+}
+
+.shop-action-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 32px rgba(79, 70, 229, 0.4);
+}
+
+.shop-action-primary:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
+body.shop-modal-open {
+    overflow: hidden;
+}
+
+.shop-toast.is-leaving {
+    opacity: 0;
+    transform: translateX(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+@keyframes shopModalIn {
+    from { opacity: 0; transform: translateY(14px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 520px) {
+    .shop-action-modal {
+        align-items: flex-end;
+        padding: 12px;
+    }
+
+    .shop-action-modal__panel {
+        max-height: calc(100vh - 24px);
+        border-radius: 21px;
+    }
+
+    .shop-action-modal__header {
+        padding: 22px 20px 14px;
+    }
+
+    .shop-action-modal__body,
+    .shop-conversion-form {
+        padding: 0 20px 20px;
+    }
+
+    .shop-action-modal__actions {
+        grid-template-columns: 1fr;
+    }
+
+    .shop-action-primary {
+        grid-row: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .shop-action-modal__panel {
+        animation: none !important;
+    }
 }
 
 .back-to-lootbox-btn {

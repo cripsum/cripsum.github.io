@@ -703,11 +703,6 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                         </div>
                     </div>
 
-                    <div class="gacha-conversion-note">
-                        <i class="fa-solid fa-bolt" aria-hidden="true"></i>
-                        <span>La conversione è immediata e avvierà la pull da <strong class="conversion-pull-qty">10</strong>.</span>
-                    </div>
-
                     <div class="gacha-conversion-actions">
                         <button type="button" class="gacha-conversion-btn gacha-conversion-btn--ghost" data-bs-dismiss="modal">Annulla</button>
                         <button type="button" class="gacha-conversion-btn gacha-conversion-btn--primary btn-confirm-conversion">

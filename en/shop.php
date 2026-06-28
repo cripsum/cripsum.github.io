@@ -62,6 +62,8 @@ function formatEquivalence($shards) {
 
 $paymentStatus = $_GET['payment'] ?? '';
 $successPackage = $_GET['package_id'] ?? '';
+$conversionStatus = $_GET['conversion'] ?? '';
+$convertedShards = max(0, (int)($_GET['shards'] ?? 0));
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -71,7 +73,7 @@ $successPackage = $_GET['package_id'] ?? '';
     <meta charset="UTF-8">
     <title>Godo Shards Shop - Cripsum™</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/shop.css?v=1.9">
+    <link rel="stylesheet" href="/css/shop.css?v=2.0">
     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo urlencode(PAYPAL_CLIENT_ID); ?>&currency=EUR&locale=en_US"></script>
     <style>
         .shop-toast {
@@ -102,7 +104,7 @@ $successPackage = $_GET['package_id'] ?? '';
     </style>
 </head>
 
-<body class="shop-shards-body">
+<body class="shop-shards-body" data-shards-shop data-lang="en" data-user-godos="<?= $soldi ?>" data-user-shards="<?= $godoshards ?>">
     <?php include '../includes/navbar.php'; ?>
 
     <?php if ($paymentStatus === 'success'): ?>
@@ -117,6 +119,18 @@ $successPackage = $_GET['package_id'] ?? '';
         </div>
     <?php endif; ?>
 
+    <?php if ($conversionStatus === 'success'): ?>
+        <div class="shop-toast" id="conversion-toast">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>Conversion completed<?= $convertedShards > 0 ? ': +' . number_format($convertedShards) . ' Godo Shards' : '' ?>.</span>
+        </div>
+    <?php elseif ($conversionStatus === 'error'): ?>
+        <div class="shop-toast is-error" id="conversion-toast">
+            <i class="fa-solid fa-circle-xmark"></i>
+            <span>Conversion failed. Check your balance and try again.</span>
+        </div>
+    <?php endif; ?>
+
     <div class="shop-container">
         <header class="shop-header">
             <h1 class="shop-title"><img src="/img/godoshards.png" alt="Logo" class="shop-title-logo"> Godo Shards Shop <img src="/img/godoshards.png" alt="Logo" class="shop-title-logo"></h1>
@@ -125,12 +139,12 @@ $successPackage = $_GET['package_id'] ?? '';
                 <div class="shop-balance-item" title="Free currency obtained by using the website." data-bs-toggle="tooltip">
                     <span class="shop-balance-icon"><img src="/img/godos.png" alt="Godos" class="currency-icon-img"></span>
                     <span class="shop-balance-label">Godos:</span>
-                    <span class="shop-balance-val"><?= number_format($soldi) ?></span>
+                    <span class="shop-balance-val" data-shop-balance="godos"><?= number_format($soldi) ?></span>
                 </div>
                 <div class="shop-balance-item" title="Premium currency used to pull." data-bs-toggle="tooltip">
                     <span class="shop-balance-icon"><img src="/img/godoshards.png" alt="Godo Shards" class="currency-icon-img"></span>
                     <span class="shop-balance-label">Godo Shards:</span>
-                    <span class="shop-balance-val"><?= number_format($godoshards) ?></span>
+                    <span class="shop-balance-val" data-shop-balance="shards"><?= number_format($godoshards) ?></span>
                 </div>
             </div>
             <div>
@@ -205,12 +219,13 @@ $successPackage = $_GET['package_id'] ?? '';
                             €<?= number_format($price, 2, '.', ',') ?>
                         </div>
 
-                        <button type="button" class="card-btn js-buy-shards"
+                        <a class="card-btn js-buy-shards" data-shop-buy
+                            href="/api/create_shard_checkout_session.php?package_id=<?= rawurlencode($pid) ?>"
                             data-package-id="<?= htmlspecialchars($pid, ENT_QUOTES, 'UTF-8') ?>"
                             data-package-name="<?= htmlspecialchars($pkg['name'], ENT_QUOTES, 'UTF-8') ?>"
                             data-package-price="<?= htmlspecialchars((string)$price, ENT_QUOTES, 'UTF-8') ?>">
                             Buy
-                        </button>
+                        </a>
                     </div>
                 <?php endforeach; ?>
             </main>
@@ -241,44 +256,35 @@ $successPackage = $_GET['package_id'] ?? '';
                         Cost: 100 Godos / each
                     </div>
 
-                    <button type="button" class="card-btn" id="open-godos-converter" style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); border: none;">
+                    <a class="card-btn" id="open-godos-converter" data-shop-convert href="#godosConversionModal" style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); border: none;">
                         Convert Points
-                    </button>
+                    </a>
                 </div>
             </main>
         </div>
     </div>
 
-    <!-- Payment Choice Modal -->
-    <div class="modal fade shop-modal" id="paymentModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="paymentModalLabel">Select Payment Method</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="text-center text-secondary mb-4">You are purchasing <strong id="modal-pkg-name" class="text-white"></strong> for <strong id="modal-pkg-price" class="text-white"></strong>.</p>
-                    
-                    <div class="payment-options-grid">
-                        <!-- Stripe Button -->
-                        <button class="payment-stripe-btn" id="stripe-checkout-btn">
-                            <i class="fa-solid fa-credit-card"></i>
-                            <span>Pay with Card (Stripe)</span>
-                        </button>
-                        
-                        <div class="text-center my-2 text-secondary">- OR -</div>
-                        
-                        <!-- PayPal Button -->
-                        <div id="paypal-button-container" class="payment-paypal-container"></div>
-                    </div>
+    <!-- Standalone controller: no Bootstrap modal dependency -->
+    <div class="shop-action-modal" id="paymentModal" aria-hidden="true">
+        <a class="shop-action-modal__backdrop" href="#" data-shop-close aria-label="Close"></a>
+        <section class="shop-action-modal__panel" role="dialog" aria-modal="true" aria-labelledby="paymentModalLabel" tabindex="-1">
+            <header class="shop-action-modal__header">
+                <div><span class="shop-action-modal__kicker">Secure checkout</span><h2 id="paymentModalLabel">Choose how to pay</h2></div>
+                <a class="shop-action-modal__close" href="#" data-shop-close aria-label="Close"><i class="fa-solid fa-xmark"></i></a>
+            </header>
+            <div class="shop-action-modal__body">
+                <p class="shop-action-modal__summary">You are purchasing <strong id="modal-pkg-name"></strong> for <strong id="modal-pkg-price"></strong>.</p>
+                <div class="payment-options-grid">
+                    <a class="payment-stripe-btn" id="stripe-checkout-btn" href="/api/create_shard_checkout_session.php"><i class="fa-solid fa-credit-card"></i><span>Pay by card</span></a>
+                    <div class="shop-payment-separator"><span>or</span></div>
+                    <div id="paypal-button-container" class="payment-paypal-container"><p class="shop-payment-status">Loading PayPal…</p></div>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script>
+    <script type="application/x-legacy-shop-disabled">
         // Open shop modals explicitly so clicks do not depend on Bootstrap's
         // Data API being ready at exactly the right time.
         function showShopModal(modalId) {
@@ -572,49 +578,30 @@ $successPackage = $_GET['package_id'] ?? '';
         }
     </script>
 
-    <!-- Modal Slider Conversione Godos -> Shards -->
-    <div class="modal fade shop-modal" id="godosConversionModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="background: rgba(13, 10, 24, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; color: #fff;">
-                <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                    <h5 class="modal-title">Purchase Godo Shards</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="shop-action-modal" id="godosConversionModal" aria-hidden="true">
+        <a class="shop-action-modal__backdrop" href="#" data-shop-close aria-label="Close"></a>
+        <section class="shop-action-modal__panel" role="dialog" aria-modal="true" aria-labelledby="godosConversionTitle" tabindex="-1">
+            <header class="shop-action-modal__header">
+                <div><span class="shop-action-modal__kicker">100 Godos = 1 Shard</span><h2 id="godosConversionTitle">Convert Godos</h2></div>
+                <a class="shop-action-modal__close" href="#" data-shop-close aria-label="Close"><i class="fa-solid fa-xmark"></i></a>
+            </header>
+            <form class="shop-conversion-form" id="godos-conversion-form" action="/api/convert_godos_to_shards.php" method="post">
+                <input type="hidden" name="return_to" value="/en/shop.php">
+                <div class="shop-conversion-amount"><img src="/img/godoshards.png" alt=""><strong id="slider-shards-val">10</strong><span>Godo Shards</span></div>
+                <div class="shop-conversion-slider">
+                    <input type="range" class="form-range" id="godos-slider" name="shards" min="1" max="100" value="10">
+                    <div><span>Min: 1</span><span id="slider-max-label">Max: 100</span></div>
                 </div>
-                <div class="modal-body text-center py-4">
-                    <p class="mb-3 text-secondary">Choose how many Godo Shards to purchase with your Godos:</p>
-                    
-                    <div style="margin-bottom: 2rem;">
-                        <span style="font-size: 3rem; font-weight: 800; color: #3b82f6; display: block;" id="slider-shards-val">10</span>
-                        <span style="font-size: 0.9rem; color: #aab3c8;">Godo Shards</span>
-                    </div>
-
-                    <div style="padding: 0 1.5rem; margin-bottom: 2rem;">
-                        <input type="range" class="form-range" id="godos-slider" min="1" max="100" value="10" style="accent-color: #7c3aed;">
-                        <div class="d-flex justify-content-between mt-2 text-secondary" style="font-size: 0.8rem;">
-                            <span>Min: 1</span>
-                            <span id="slider-max-label">Max: 100</span>
-                        </div>
-                    </div>
-
-                    <div style="background: rgba(255,255,255,0.03); border-radius: 12px; padding: 1rem; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.05);">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-secondary">Unit Price:</span>
-                            <span>100 Godos</span>
-                        </div>
-                        <div class="d-flex justify-content-between" style="font-size: 1.1rem; font-weight: 700;">
-                            <span class="text-white">Total Cost:</span>
-                            <span style="color: #a855f7;"><span id="slider-godos-cost">1,000</span> Godos</span>
-                        </div>
-                    </div>
-
-                    <div class="d-grid gap-2 col-8 mx-auto">
-                        <button type="button" class="btn btn-primary" id="btn-confirm-godos-buy" style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); border: none; font-weight: 700; padding: 0.75rem;">Confirm Purchase</button>
-                        <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
-                    </div>
+                <div class="shop-conversion-total"><span>Total cost</span><strong><span id="slider-godos-cost">1,000</span> Godos</strong></div>
+                <p class="shop-form-error" data-shop-form-error hidden></p>
+                <div class="shop-action-modal__actions">
+                    <a class="shop-action-secondary" href="#" data-shop-close>Cancel</a>
+                    <button type="submit" class="shop-action-primary" id="btn-confirm-godos-buy">Confirm conversion</button>
                 </div>
-            </div>
-        </div>
+            </form>
+        </section>
     </div>
+    <script src="/assets/shop/shards-shop.js?v=1.1" defer></script>
 </body>
 
 </html>
