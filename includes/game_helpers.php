@@ -970,19 +970,26 @@ function gd_transition_turn(mysqli $m, array $match, int $next_uid): void
 
 function gd_insert_team_cards(mysqli $m, int $mid, int $uid, array $team): void
 {
+    $match = gd_match($m, $mid);
+    $is_bot = $match && gd_is_bot_match($match);
+
     $ins = $m->prepare('INSERT INTO game_match_cards (match_id,user_id,personaggio_id,slot_index,current_hp,max_hp,attack,defense,speed,energy,max_energy,special_name,special_cost,special_cooldown_max,special_cooldown,is_active,role,shield,crit_rate,crit_dmg,status_effects,livello) VALUES (?,?,?,?,?,?,?,?,?,1,?,?,?,?,0,?,?,?,?,?,?,?)');
     if (!$ins) throw new Exception($m->error);
     foreach ($team as $idx => $pid) {
         $pid = (int)$pid;
 
-        $lvl_st = $m->prepare('SELECT livello FROM utenti_personaggi WHERE utente_id=? AND personaggio_id=? LIMIT 1');
         $level = 1;
-        if ($lvl_st) {
-            $lvl_st->bind_param('ii', $uid, $pid);
-            $lvl_st->execute();
-            $lvl_row = $lvl_st->get_result()->fetch_assoc();
-            $lvl_st->close();
-            if ($lvl_row) $level = (int)$lvl_row['livello'];
+        if ($is_bot) {
+            $level = 6;
+        } else {
+            $lvl_st = $m->prepare('SELECT livello FROM utenti_personaggi WHERE utente_id=? AND personaggio_id=? LIMIT 1');
+            if ($lvl_st) {
+                $lvl_st->bind_param('ii', $uid, $pid);
+                $lvl_st->execute();
+                $lvl_row = $lvl_st->get_result()->fetch_assoc();
+                $lvl_st->close();
+                if ($lvl_row) $level = (int)$lvl_row['livello'];
+            }
         }
 
         $s = gd_stats($m, $pid, $level);
