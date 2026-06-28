@@ -531,168 +531,227 @@
     async function submitBattle(action,target=null){try{const p={match_id:state.matchId,action}; if(target)p.target_card_id=target; await api('/api/game/submit_action.php',p); await pollState(false)}catch(e){showToast(e.message)}}
     function animateAction(a){
         return new Promise((resolve) => {
-            injectUltimateStyles();
-            console.log('animateAction triggered:', a.action_type || a.action, a);
-            const actor=Number(a.actor_card_id), target=Number(a.target_card_id);
-            const type=a.action_type || a.action;
+            const type = a.action_type || a.action || '';
+            const actor = Number(a.actor_card_id);
+            const target = Number(a.target_card_id);
             const isCrit = (a.message || '').toLowerCase().includes('critico');
 
+            console.log('[ANIM] animateAction called. type=' + type, 'actor=' + actor, 'full action:', JSON.stringify(a));
+
             if (type === 'ultimate') {
+                console.log('[ANIM] >>> ULTIMATE DETECTED! Starting cinematic...');
+                
+                // STOP polling to prevent DOM rebuild during animation
+                stopPolling();
+
                 const arena = $('#arenaPanel');
-                let actorCard = actor ? document.querySelector(`[data-card-id="${actor}"]`) : null;
+                let actorCard = actor ? document.querySelector('[data-card-id="' + actor + '"]') : null;
                 if (!actorCard) {
                     const isMyAction = Number(a.user_id) === Number(state.match?.viewer_id);
                     actorCard = isMyAction ? $('#playerActive') : $('#opponentActive');
                 }
-                
-                if (arena && actorCard) {
-                    // Trova l'ID, nome, immagine e ruolo del personaggio per la regia
-                    const cardObj = state.match && state.match.cards
-                        ? state.match.cards.find(c => Number(c.id) === actor)
-                        : null;
-                    
-                    const charId = cardObj ? Number(cardObj.personaggio_id) : 0;
-                    const charName = cardObj && cardObj.character ? cardObj.character.nome : 'Eroe';
-                    const imgUrl = cardObj && cardObj.character ? cardObj.character.img_url : '';
-                    const role = cardObj ? cardObj.role : 'DPS';
-                    
-                    let label = 'ULTIMATE';
-                    if (a.message && a.message.includes('**')) {
-                        const parts = a.message.split('**');
-                        if (parts.length >= 3) {
-                            label = parts[2].replace(/[!:]/g, '').trim();
-                        }
-                    }
 
-                    // Configurazione temi per ruolo/personaggio
-                    const themes = {
-                        'Tank': { glow: '#fbbf24', bg: 'radial-gradient(circle, rgba(45, 35, 10, 0.95) 0%, rgba(10, 5, 0, 0.98) 100%)', symbol: '🛡️' },
-                        'Bruiser': { glow: '#f97316', bg: 'radial-gradient(circle, rgba(50, 20, 5, 0.95) 0%, rgba(15, 5, 0, 0.98) 100%)', symbol: '🔥' },
-                        'DPS': { glow: '#ef4444', bg: 'radial-gradient(circle, rgba(60, 10, 10, 0.95) 0%, rgba(15, 0, 0, 0.98) 100%)', symbol: '⚔️' },
-                        'Burst DPS': { glow: '#ec4899', bg: 'radial-gradient(circle, rgba(60, 10, 40, 0.95) 0%, rgba(20, 0, 10, 0.98) 100%)', symbol: '⚡' },
-                        'Healer': { glow: '#10b981', bg: 'radial-gradient(circle, rgba(10, 45, 30, 0.95) 0%, rgba(0, 10, 5, 0.98) 100%)', symbol: '✨' },
-                        'Support': { glow: '#8b5cf6', bg: 'radial-gradient(circle, rgba(35, 15, 60, 0.95) 0%, rgba(10, 0, 20, 0.98) 100%)', symbol: '🔮' },
-                        'Controller': { glow: '#06b6d4', bg: 'radial-gradient(circle, rgba(10, 40, 50, 0.95) 0%, rgba(0, 10, 15, 0.98) 100%)', symbol: '❄️' }
-                    };
-                    
-                    // Temi specifici per ID
-                    const charThemes = {
-                        48: { glow: '#38bdf8', bg: 'radial-gradient(circle, rgba(15, 23, 42, 0.96) 0%, rgba(2, 6, 23, 0.98) 100%)', symbol: '🌌' }, // Shorekeeper
-                        87: { glow: '#0ea5e9', bg: 'radial-gradient(circle, rgba(3, 45, 76, 0.96) 0%, rgba(1, 10, 25, 0.98) 100%)', symbol: '🌊' },  // Nauz Tricheco
-                        88: { glow: '#a855f7', bg: 'radial-gradient(circle, rgba(40, 10, 65, 0.96) 0%, rgba(10, 2, 20, 0.98) 100%)', symbol: '🪐' },  // Nauz Cosmic
-                        141: { glow: '#ef4444', bg: 'radial-gradient(circle, rgba(80, 5, 5, 0.96) 0%, rgba(10, 0, 0, 0.98) 100%)', symbol: '😈' },    // Dante
-                        142: { glow: '#60a5fa', bg: 'radial-gradient(circle, rgba(15, 23, 42, 0.96) 0%, rgba(3, 7, 18, 0.98) 100%)', symbol: '🌀' },   // Vergil
-                        144: { glow: '#f97316', bg: 'radial-gradient(circle, rgba(85, 25, 0, 0.96) 0%, rgba(15, 5, 0, 0.98) 100%)', symbol: '☄️' }    // Protagonista
-                    };
+                // Get character info
+                const cardObj = (state.match && state.match.cards)
+                    ? state.match.cards.find(c => Number(c.id) === actor)
+                    : null;
+                const charName = (cardObj && cardObj.character) ? cardObj.character.nome : 'Eroe';
+                const imgUrl = (cardObj && cardObj.character) ? cardObj.character.img_url : '';
+                const role = cardObj ? (cardObj.role || 'DPS') : 'DPS';
+                const charId = cardObj ? Number(cardObj.personaggio_id) : 0;
 
-                    const theme = charThemes[charId] || themes[role] || themes['DPS'];
-
-                    // 1. Crea il contenitore del Cut-In cinematografico a tutto schermo
-                    const cutin = document.createElement('div');
-                    cutin.className = `ult-cutin-container ult-cutin-${charId}`;
-                    cutin.style.setProperty('--theme-glow', theme.glow);
-                    
-                    cutin.innerHTML = `
-                        <div class="ult-cutin-bg" style="background: ${theme.bg};"></div>
-                        <div class="ult-cutin-particles"></div>
-                        <div class="ult-cutin-slash"></div>
-                        ${imgUrl ? `<img src="${imgUrl}" class="ult-cutin-char-img" alt="${charName}">` : ''}
-                        <div class="ult-cutin-banner">
-                            <div class="ult-cutin-char-name">${esc(charName)}</div>
-                            <div class="ult-cutin-ult-name">${esc(label)}</div>
-                        </div>
-                    `;
-                    
-                    document.body.appendChild(cutin);
-                    
-                    // Generazione particelle animate
-                    const partContainer = cutin.querySelector('.ult-cutin-particles');
-                    if (partContainer) {
-                        for (let i = 0; i < 35; i++) {
-                            const p = document.createElement('div');
-                            p.className = 'ult-particle';
-                            p.innerText = theme.symbol;
-                            p.style.fontSize = `${Math.random() * 20 + 15}px`;
-                            p.style.left = `${Math.random() * 100}%`;
-                            p.style.top = `${Math.random() * 100}%`;
-                            p.style.setProperty('--dx', `${(Math.random() - 0.5) * 600}px`);
-                            p.style.setProperty('--dy', `${(Math.random() - 0.5) * 600}px`);
-                            p.style.animationDelay = `${Math.random() * 0.5}s`;
-                            p.style.animationDuration = `${Math.random() * 1.0 + 0.8}s`;
-                            partContainer.appendChild(p);
-                        }
-                    }
-                    
-                    // Attiva la transizione di ingresso
-                    setTimeout(() => cutin.classList.add('active'), 20);
-                    
-                    // Avvio dello zoom cinematografico sulla carta in background
-                    arena.classList.add('fx-ultimate-bg');
-                    arena.classList.add('active-cinema');
-                    actorCard.classList.add('fx-ultimate-cinema');
-
-                    // Riferimento al flash overlay
-                    let flash = $('.fx-ultimate-flash');
-                    if (!flash) {
-                        flash = document.createElement('div');
-                        flash.className = 'fx-ultimate-flash';
-                        document.body.appendChild(flash);
-                    }
-
-                    // Impatto cinematografico (1400ms): Flash, Terremoto, Rimozione Cut-In e Danni
-                    setTimeout(() => {
-                        // Rimozione fluida del Cut-In
-                        cutin.classList.remove('active');
-                        setTimeout(() => cutin.remove(), 400);
-
-                        // Flash dello schermo ad alto impatto
-                        flash.classList.remove('flash-active');
-                        void flash.offsetWidth;
-                        flash.classList.add('flash-active');
-                        
-                        // Camera Shake violento
-                        arena.classList.add('fx-camera-shake');
-                        
-                        // Ripristino camera e telecamera
-                        actorCard.classList.remove('fx-ultimate-cinema');
-                        arena.classList.remove('active-cinema');
-                        arena.classList.remove('fx-ultimate-bg');
-                        
-                        // Mostra il banner del danno/cura
-                        showActionBanner(a, label);
-
-                        // Esecuzione effetti di danno/cura
-                        if (target && Number(a.damage) > 0) {
-                            flashCard(target, isCrit ? 'fx-crit-hit' : 'fx-hit', `-${a.damage}`, true, isCrit);
-                        } else if (target) {
-                            flashCard(target, 'fx-charge', 'UPGRADE!', false, false);
-                        }
-                    }, 1400);
-                    
-                    // Cleanup del camera shake
-                    setTimeout(() => {
-                        arena.classList.remove('fx-camera-shake');
-                        flash.classList.remove('flash-active');
-                        resolve();
-                    }, 2000);
-                    
-                    return;
+                let ultName = 'ULTIMATE';
+                if (a.message && a.message.includes('**')) {
+                    const parts = a.message.split('**');
+                    if (parts.length >= 3) ultName = parts[2].replace(/[!:]/g, '').trim();
                 }
+
+                // Theme colors
+                const roleColors = {
+                    'Tank':'#fbbf24','Bruiser':'#f97316','DPS':'#ef4444','Burst DPS':'#ec4899',
+                    'Healer':'#10b981','Support':'#8b5cf6','Controller':'#06b6d4'
+                };
+                const roleSymbols = {
+                    'Tank':'🛡️','Bruiser':'🔥','DPS':'⚔️','Burst DPS':'⚡',
+                    'Healer':'✨','Support':'🔮','Controller':'❄️'
+                };
+                const glowColor = roleColors[role] || '#ef4444';
+                const symbol = roleSymbols[role] || '⚔️';
+
+                // ============ BUILD CUTIN OVERLAY WITH ALL INLINE STYLES ============
+                const overlay = document.createElement('div');
+                overlay.id = 'ult-cinematic-overlay';
+                overlay.style.cssText = 'position:fixed;inset:0;z-index:999999;pointer-events:none;overflow:hidden;';
+
+                // Dark background
+                const bg = document.createElement('div');
+                bg.style.cssText = 'position:absolute;inset:0;background:radial-gradient(circle,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.98) 100%);opacity:0;transition:opacity 0.25s ease;';
+                overlay.appendChild(bg);
+
+                // Diagonal slash
+                const slash = document.createElement('div');
+                slash.style.cssText = 'position:absolute;width:250%;height:120px;top:50%;left:-75%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.9) 30%,#fff 50%,rgba(255,255,255,0.9) 70%,transparent);box-shadow:0 0 60px ' + glowColor + ',0 0 120px ' + glowColor + ';transform:rotate(-12deg) translateY(-800px);opacity:0;';
+                overlay.appendChild(slash);
+
+                // Character image
+                if (imgUrl) {
+                    const img = document.createElement('img');
+                    img.src = imgUrl;
+                    img.alt = charName;
+                    img.style.cssText = 'position:absolute;right:3%;bottom:-30px;height:110%;max-height:850px;object-fit:contain;z-index:4;opacity:0;transform:scale(1.3) translateX(300px) rotate(5deg);filter:drop-shadow(0 0 40px ' + glowColor + ') blur(12px);';
+                    overlay.appendChild(img);
+                }
+
+                // Text banner
+                const banner = document.createElement('div');
+                banner.style.cssText = 'position:absolute;left:8%;top:50%;transform:translateY(-50%) skewX(-12deg) translateX(-200px);z-index:5;opacity:0;display:flex;flex-direction:column;gap:12px;';
+                banner.innerHTML = '<div style="font-size:2.5rem;font-weight:900;text-transform:uppercase;color:#fff;text-shadow:0 0 20px rgba(255,255,255,0.5);letter-spacing:5px;font-family:sans-serif;">' + esc(charName) + '</div>'
+                    + '<div style="font-size:4rem;font-weight:900;text-transform:uppercase;color:' + glowColor + ';text-shadow:0 0 30px ' + glowColor + ',0 0 60px rgba(0,0,0,0.5);letter-spacing:7px;font-family:sans-serif;">' + esc(ultName) + '</div>';
+                overlay.appendChild(banner);
+
+                // Particles container
+                const particles = document.createElement('div');
+                particles.style.cssText = 'position:absolute;inset:0;z-index:6;pointer-events:none;';
+                overlay.appendChild(particles);
+
+                document.body.appendChild(overlay);
+                console.log('[ANIM] Overlay appended to body. ID: ult-cinematic-overlay');
+
+                // ============ ANIMATION TIMELINE ============
+                
+                // T=0: Fade in background
+                requestAnimationFrame(() => {
+                    bg.style.opacity = '1';
+                    console.log('[ANIM] T=0: BG fade in');
+                });
+
+                // T=100ms: Slash starts moving
+                setTimeout(() => {
+                    slash.style.transition = 'transform 1.2s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease';
+                    slash.style.opacity = '1';
+                    slash.style.transform = 'rotate(-12deg) translateY(0px)';
+                    console.log('[ANIM] T=100ms: Slash starts');
+                }, 100);
+
+                // T=150ms: Character image slides in
+                if (imgUrl) {
+                    const img = overlay.querySelector('img');
+                    setTimeout(() => {
+                        img.style.transition = 'transform 1.0s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease, filter 0.5s ease';
+                        img.style.opacity = '1';
+                        img.style.transform = 'scale(1.05) translateX(0px) rotate(1deg)';
+                        img.style.filter = 'drop-shadow(0 0 40px ' + glowColor + ') blur(0px)';
+                        console.log('[ANIM] T=150ms: Character image slides in');
+                    }, 150);
+                }
+
+                // T=200ms: Banner text slides in
+                setTimeout(() => {
+                    banner.style.transition = 'transform 0.8s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease';
+                    banner.style.opacity = '1';
+                    banner.style.transform = 'translateY(-50%) skewX(-12deg) translateX(0px)';
+                    console.log('[ANIM] T=200ms: Banner slides in');
+                }, 200);
+
+                // T=100-400ms: Spawn particles
+                for (let i = 0; i < 30; i++) {
+                    setTimeout(() => {
+                        const p = document.createElement('div');
+                        p.textContent = symbol;
+                        const startX = Math.random() * 100;
+                        const startY = Math.random() * 100;
+                        const dx = (Math.random() - 0.5) * 500;
+                        const dy = (Math.random() - 0.5) * 500;
+                        p.style.cssText = 'position:absolute;left:' + startX + '%;top:' + startY + '%;font-size:' + (15 + Math.random() * 20) + 'px;opacity:0;pointer-events:none;user-select:none;transition:transform 1s ease-out,opacity 0.8s ease;transform:translate(0,0) scale(0.3);';
+                        particles.appendChild(p);
+                        requestAnimationFrame(() => {
+                            p.style.opacity = '0.85';
+                            p.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(1.3) rotate(360deg)';
+                        });
+                        setTimeout(() => { p.style.opacity = '0'; }, 700);
+                    }, 100 + Math.random() * 300);
+                }
+
+                // T=600ms: Camera shake on arena
+                setTimeout(() => {
+                    if (arena) {
+                        arena.style.transition = 'none';
+                        arena.style.animation = 'none';
+                        let shakeCount = 0;
+                        const shakeInterval = setInterval(() => {
+                            const x = (Math.random() - 0.5) * 12;
+                            const y = (Math.random() - 0.5) * 12;
+                            arena.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+                            shakeCount++;
+                            if (shakeCount > 15) {
+                                clearInterval(shakeInterval);
+                                arena.style.transform = '';
+                            }
+                        }, 40);
+                    }
+                    console.log('[ANIM] T=600ms: Camera shake');
+                }, 600);
+
+                // T=1200ms: Flash screen white
+                setTimeout(() => {
+                    const flash = document.createElement('div');
+                    flash.style.cssText = 'position:fixed;inset:0;z-index:9999999;background:#fff;opacity:0.85;pointer-events:none;transition:opacity 0.4s ease;';
+                    document.body.appendChild(flash);
+                    setTimeout(() => { flash.style.opacity = '0'; }, 50);
+                    setTimeout(() => { flash.remove(); }, 500);
+                    console.log('[ANIM] T=1200ms: Screen flash');
+                }, 1200);
+
+                // T=1400ms: Begin fade out
+                setTimeout(() => {
+                    bg.style.opacity = '0';
+                    slash.style.opacity = '0';
+                    banner.style.opacity = '0';
+                    if (imgUrl) {
+                        const img = overlay.querySelector('img');
+                        if (img) { img.style.opacity = '0'; img.style.transform = 'scale(1.1) translateX(-100px) rotate(0deg)'; }
+                    }
+                    console.log('[ANIM] T=1400ms: Fade out starts');
+                }, 1400);
+
+                // T=1800ms: Show damage/heal, remove overlay, resume polling
+                setTimeout(() => {
+                    overlay.remove();
+                    console.log('[ANIM] T=1800ms: Overlay removed. Showing damage.');
+
+                    // Show the action banner and damage
+                    showActionBanner(a, ultName);
+                    if (target && Number(a.damage) > 0) {
+                        flashCard(target, isCrit ? 'fx-crit-hit' : 'fx-hit', '-' + a.damage, true, isCrit);
+                    } else if (target) {
+                        flashCard(target, 'fx-charge', 'UPGRADE!', false, false);
+                    }
+                }, 1800);
+
+                // T=2200ms: Resolve promise and resume polling
+                setTimeout(() => {
+                    console.log('[ANIM] T=2200ms: Animation complete. Resuming polling.');
+                    startPolling();
+                    resolve();
+                }, 2200);
+
+                return; // Don't fall through to normal animation
             }
 
+            // ============ NORMAL ANIMATION (non-ultimate) ============
             const actorCls=type==='special_attack'?'fx-special':type==='defend'?'fx-defend':type==='charge'?'fx-charge':type==='switch'?'fx-switch':'fx-attack';
             const label=type==='charge'?'+ energia':type==='defend'?'difesa':type==='special_attack'?'speciale':type==='switch'?'cambio':'attacco';
             showActionBanner(a, label);
             if(actor) flashCard(actor,actorCls,label);
             if(target&&Number(a.damage)>0) {
-                flashCard(target, isCrit ? 'fx-crit-hit' : 'fx-hit', `-${a.damage}`, true, isCrit);
+                flashCard(target, isCrit ? 'fx-crit-hit' : 'fx-hit', '-' + a.damage, true, isCrit);
             }
             const fx=$('#gameFx');
             if(fx&&type==='special_attack'){
                 fx.classList.remove('is-special');void fx.offsetWidth;fx.classList.add('is-special');
                 setTimeout(()=>fx.classList.remove('is-special'),700);
             }
-            setTimeout(resolve, 1000);
+            setTimeout(resolve, 600);
         });
     }
 
