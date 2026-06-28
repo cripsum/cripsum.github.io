@@ -221,19 +221,56 @@
         const chatForm = $('#chatForm');
         if (chatForm) chatForm.hidden = spectator;
         const specBtn = $('[data-battle-action="special_attack"]');
-        if (specBtn) {
-            const myActive = activeOf(sides.rightUid);
-            const cost = myActive ? Number(myActive.special_cost || 2) : 2;
+        const ultBtn = $('[data-battle-action="ultimate"]');
+        const myActive = activeOf(sides.rightUid);
+        const isEn = window.location.pathname.includes('/en/');
+
+        // 1. Applica disabilitazione generica per il turno e lo stato del match
+        $$('[data-battle-action]').forEach(b => {
+            b.disabled = spectator || !myTurn || m.status !== 'active';
+        });
+
+        // 2. Gestione specifica pulsante Speciale
+        if (specBtn && myActive) {
+            const cost = Number(myActive.special_cost || 2);
             const span = specBtn.querySelector('span');
             if (span) {
-                const isEn = window.location.pathname.includes('/en/');
                 span.textContent = isEn 
                     ? `More dmg · costs ${cost} energy` 
                     : `Più danno · costa ${cost} energia`;
             }
+            // Disabilita se manca energia o è in cooldown
+            if (Number(myActive.energy) < cost || Number(myActive.special_cooldown) > 0) {
+                specBtn.disabled = true;
+            }
         }
 
-        $$('[data-battle-action]').forEach(b=>b.disabled=spectator||!myTurn||m.status!=='active');
+        // 3. Gestione specifica pulsante Ultimate
+        if (ultBtn) {
+            if (myActive && myActive.ultimate_name) {
+                ultBtn.style.display = '';
+                const strong = ultBtn.querySelector('strong');
+                const span = ultBtn.querySelector('span');
+                if (strong) strong.textContent = myActive.ultimate_name;
+                if (span) span.textContent = myActive.ultimate_desc || (isEn ? 'Devastating final move' : 'Mossa finale devastante');
+                
+                // Condizioni Ultimate
+                const canUseUlt = !spectator && myTurn && m.status === 'active' && 
+                                  Number(m.turn_number) >= 6 && 
+                                  Number(myActive.energy) >= Number(myActive.max_energy) && 
+                                  Number(myActive.ultimate_used || 0) === 0;
+                                  
+                ultBtn.disabled = !canUseUlt;
+                if (!canUseUlt) {
+                    ultBtn.classList.add('is-disabled');
+                } else {
+                    ultBtn.classList.remove('is-disabled');
+                }
+            } else {
+                ultBtn.style.display = 'none';
+            }
+        }
+
         if(m.status==='finished' && !spectator)showResult();
     }
     function roleBadge(role) {
@@ -431,6 +468,67 @@
         const actor=Number(a.actor_card_id), target=Number(a.target_card_id);
         const type=a.action_type;
         const isCrit = (a.message || '').toLowerCase().includes('critico');
+
+        if (type === 'ultimate') {
+            const arena = $('#arenaPanel');
+            const actorCard = actor ? document.querySelector(`[data-card-id="${actor}"].game-active-card`) : null;
+            
+            if (arena && actorCard) {
+                // Avvio Regia Cinematografica: Zoom + Oscuramento Sfondo
+                arena.classList.add('fx-ultimate-bg');
+                arena.classList.add('active-cinema');
+                actorCard.classList.add('fx-ultimate-cinema');
+                
+                // Overlay Flash
+                let flash = $('.fx-ultimate-flash');
+                if (!flash) {
+                    flash = document.createElement('div');
+                    flash.className = 'fx-ultimate-flash';
+                    document.body.appendChild(flash);
+                }
+                
+                // Mostra Banner con nome abilità o 'ULTIMATE'
+                setTimeout(() => {
+                    let label = 'ULTIMATE';
+                    if (a.message && a.message.includes('**')) {
+                        const parts = a.message.split('**');
+                        if (parts.length >= 3) {
+                            label = parts[2].replace(/[!:]/g, '').trim();
+                        }
+                    }
+                    showActionBanner(a, label);
+                }, 200);
+                
+                // Impatto (1000ms): Flash Dorato + Camera Shake + Rilascio Zoom
+                setTimeout(() => {
+                    flash.classList.remove('flash-active');
+                    void flash.offsetWidth;
+                    flash.classList.add('flash-active');
+                    
+                    arena.classList.add('fx-camera-shake');
+                    
+                    actorCard.classList.remove('fx-ultimate-cinema');
+                    arena.classList.remove('active-cinema');
+                    arena.classList.remove('fx-ultimate-bg');
+                    
+                    if (target && Number(a.damage) > 0) {
+                        flashCard(target, isCrit ? 'fx-crit-hit' : 'fx-hit', `-${a.damage}`, true, isCrit);
+                    } else if (target) {
+                        // Se cura o scudo, mostra feedback verde/azzurro
+                        flashCard(target, 'fx-charge', 'UPGRADE!', false, false);
+                    }
+                }, 1000);
+                
+                // Cleanup camera shake (1500ms)
+                setTimeout(() => {
+                    arena.classList.remove('fx-camera-shake');
+                    flash.classList.remove('flash-active');
+                }, 1500);
+                
+                return;
+            }
+        }
+
         const actorCls=type==='special_attack'?'fx-special':type==='defend'?'fx-defend':type==='charge'?'fx-charge':type==='switch'?'fx-switch':'fx-attack';
         const label=type==='charge'?'+ energia':type==='defend'?'difesa':type==='special_attack'?'speciale':type==='switch'?'cambio':'attacco';
         showActionBanner(a, label);

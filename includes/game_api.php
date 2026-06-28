@@ -214,7 +214,7 @@ function gd_api_action(mysqli $mysqli): void {
     $mid = (int)($in['match_id'] ?? 0);
     $act = (string)($in['action'] ?? '');
     $target = (int)($in['target_card_id'] ?? 0);
-    if (!in_array($act, ['basic_attack','special_attack','defend','charge','switch'], true)) gd_fail('Azione non valida.');
+    if (!in_array($act, ['basic_attack','special_attack','ultimate','defend','charge','switch'], true)) gd_fail('Azione non valida.');
 
     $mysqli->begin_transaction();
     try {

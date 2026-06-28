@@ -225,6 +225,8 @@ function gd_stats(mysqli $m, int $pid, int $level = 1): array {
     $st['special_cooldown'] = $cfg['special_cooldown'];
     $st['passive_name'] = $cfg['passive_name'];
     $st['passive_desc'] = $cfg['passive_desc'];
+    $st['ultimate_name'] = $cfg['ultimate_name'] ?? null;
+    $st['ultimate_desc'] = $cfg['ultimate_desc'] ?? null;
     
     $q = $m->prepare('SELECT hp,attack,defense,speed,max_energy,special_name,special_cost,special_cooldown FROM game_card_stats WHERE personaggio_id=? LIMIT 1');
     if ($q) {
@@ -274,6 +276,11 @@ function gd_cards(mysqli $m, int $mid): array {
         $r['crit_rate'] = (int)($r['crit_rate'] ?? 5);
         $r['crit_dmg'] = (int)($r['crit_dmg'] ?? 150);
         $r['status_effects'] = json_decode($r['status_effects'] ?: '[]', true);
+        
+        $cfg = gd_get_character_config((int)$r['personaggio_id'], $r['character']['rarita'] ?? 'comune', $r['character']['nome'] ?? '', $r['character']['ruolo'] ?? 'DPS');
+        $r['ultimate_name'] = $cfg['ultimate_name'] ?? null;
+        $r['ultimate_desc'] = $cfg['ultimate_desc'] ?? null;
+        
         $out[] = $r;
     }
     $st->close(); return $out;
@@ -510,12 +517,6 @@ function gd_get_modified_stats(array $card): array {
     $atk_mult = 1.0;
     $def_mult = 1.0;
     $spd_mult = 1.0;
-    $def_flat_bonus = 0;
-    
-    // Nauz u Trichecu (87) - Spesso Strato di Grasso (+15% degli HP max come difesa flat)
-    if ((int)($card['personaggio_id'] ?? 0) === 87) {
-        $def_flat_bonus = (int)round((int)$card['max_hp'] * 0.15);
-    }
     
     $effects = is_array($card['status_effects']) ? $card['status_effects'] : json_decode($card['status_effects'] ?: '[]', true);
     if (is_array($effects)) {
@@ -548,7 +549,7 @@ function gd_get_modified_stats(array $card): array {
     
     return [
         'attack' => max(1, (int)round((int)$card['attack'] * $atk_mult)),
-        'defense' => max(0, (int)round((int)$card['defense'] * $def_mult) + $def_flat_bonus),
+        'defense' => max(0, (int)round((int)$card['defense'] * $def_mult)),
         'speed' => max(1, (int)round((int)$card['speed'] * $spd_mult)),
     ];
 }
@@ -658,9 +659,28 @@ function gd_transition_turn(mysqli $m, array $match, int $next_uid): void {
             }
             if ($lowest_ally) {
                 $heal = (int)round($active['max_hp'] * 0.10);
+                if ((int)$lowest_ally['personaggio_id'] === 87) {
+                    $heal = (int)round($heal * 1.30);
+                }
                 $new_hp = min((int)$lowest_ally['max_hp'], (int)$lowest_ally['current_hp'] + $heal);
                 $m->query("UPDATE game_match_cards SET current_hp={$new_hp} WHERE id={$lowest_ally['id']}");
                 gd_log($m, $mid, $next_uid, $turn, 'system', $active_id, (int)$lowest_ally['id'], 0, "Polvere di Stelle cura {$lowest_ally['character']['nome']} di {$heal} HP.");
+            }
+        }
+
+        // Nauz u Trichecu - Pelle Impermeabile (cura tutti gli alleati del 6% HP max a inizio turno)
+        if (isset($ch_cfg['passive_effect']['type']) && $ch_cfg['passive_effect']['type'] === 'nauz_tricheco_passive') {
+            $allies = gd_cards($m, $mid);
+            foreach ($allies as $ally) {
+                if ((int)$ally['user_id'] === $next_uid && !(int)$ally['is_ko']) {
+                    $heal = (int)round($ally['max_hp'] * 0.06);
+                    if ((int)$ally['personaggio_id'] === 87) {
+                        $heal = (int)round($heal * 1.30);
+                    }
+                    $new_hp = min((int)$ally['max_hp'], (int)$ally['current_hp'] + $heal);
+                    $m->query("UPDATE game_match_cards SET current_hp={$new_hp} WHERE id={$ally['id']}");
+                    gd_log($m, $mid, $next_uid, $turn, 'system', $active_id, (int)$ally['id'], 0, "Pelle Impermeabile cura {$ally['character']['nome']} di {$heal} HP.");
+                }
             }
         }
         
@@ -671,6 +691,9 @@ function gd_transition_turn(mysqli $m, array $match, int $next_uid): void {
             foreach ($allies as $ally) {
                 if ((int)$ally['user_id'] === $next_uid && !(int)$ally['is_ko']) {
                     $heal = (int)round($ally['max_hp'] * $pct);
+                    if ((int)$ally['personaggio_id'] === 87) {
+                        $heal = (int)round($heal * 1.30);
+                    }
                     $new_hp = min((int)$ally['max_hp'], (int)$ally['current_hp'] + $heal);
                     $m->query("UPDATE game_match_cards SET current_hp={$new_hp} WHERE id={$ally['id']}");
                     gd_log($m, $mid, $next_uid, $turn, 'system', $active_id, (int)$ally['id'], 0, "Aura Curativa cura {$ally['character']['nome']} di {$heal} HP.");
@@ -701,6 +724,9 @@ function gd_transition_turn(mysqli $m, array $match, int $next_uid): void {
                     break;
                 case 'regen':
                     $heal = (int)round($active['max_hp'] * ($eff['value'] / 100));
+                    if ((int)$active['personaggio_id'] === 87) {
+                        $heal = (int)round($heal * 1.30);
+                    }
                     $hp_change += $heal;
                     gd_log($m, $mid, $next_uid, $turn, 'system', null, $active_id, 0, "Rigenerazione cura {$char_name} di {$heal} HP.");
                     break;
@@ -867,7 +893,7 @@ function gd_prepare_bot_team(mysqli $m, int $mid, array $fallback = []): void {
 }
 
 function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, int $target = 0): array {
-    if (!in_array($act, ['basic_attack','special_attack','defend','charge','switch'], true)) gd_fail('Azione non valida.');
+    if (!in_array($act, ['basic_attack','special_attack','ultimate','defend','charge','switch'], true)) gd_fail('Azione non valida.');
     $mid = (int)$match['id'];
     $turn = (int)$match['turn_number'];
     $opp = gd_opponent_id($match, $uid);
@@ -1175,27 +1201,48 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                 }
             }
         } else {
-            // SPECIALE
-            if ((int)$actor['energy'] < (int)$actor['special_cost']) gd_fail('Energia insufficiente per la mossa speciale.');
-            if ((int)$actor['special_cooldown'] > 0) gd_fail('Mossa speciale in ricarica.');
-            
-            // Controlla Silenzio
-            foreach ($actor_effects as $eff) {
-                if ($eff['type'] === 'silence') {
-                    gd_fail('Il tuo personaggio è silenziato e non può usare mosse speciali!');
+            // SPECIALE o ULTIMATE
+            if ($act === 'ultimate') {
+                $rKey = strtolower(trim($actor_char['rarita'] ?? ''));
+                $is_eligible_for_ult = (strpos($rKey, 'secret') !== false || strpos($rKey, 'segreto') !== false || strpos($rKey, 'limited') !== false || strpos($rKey, 'one') !== false || (int)$actor['personaggio_id'] === 87);
+                if (!$is_eligible_for_ult) gd_fail('Questo personaggio non possiede un\'abilità Ultimate.');
+                if ((int)$actor['energy'] < (int)$actor['max_energy']) gd_fail('Energia insufficiente per la mossa Ultimate (richiesto 100%).');
+                if ($turn < 6) gd_fail('La mossa Ultimate non può essere utilizzata nei primi 5 turni.');
+                if (isset($actor['ultimate_used']) && (int)$actor['ultimate_used'] === 1) gd_fail('La mossa Ultimate può essere utilizzata una sola volta per match.');
+                
+                // Controlla Silenzio
+                foreach ($actor_effects as $eff) {
+                    if ($eff['type'] === 'silence') {
+                        gd_fail('Il tuo personaggio è silenziato e non può usare mosse Ultimate!');
+                    }
                 }
+                
+                $eff_type = $actor_cfg['ultimate_effect']['type'] ?? '';
+                $actor_level = isset($actor['livello']) ? (int)$actor['livello'] : 1;
+                $skill_mult = gd_get_skill_multiplier($actor_char['rarita'] ?? 'comune', $actor_level);
+                
+                $m->query("UPDATE game_match_cards SET energy=0, ultimate_used=1 WHERE id={$actorId}");
+                $msg = "{$char_name} attiva l'**ULTIMATE**: **{$actor_cfg['ultimate_name']}**!!! ";
+            } else {
+                if ((int)$actor['energy'] < (int)$actor['special_cost']) gd_fail('Energia insufficiente per la mossa speciale.');
+                if ((int)$actor['special_cooldown'] > 0) gd_fail('Mossa speciale in ricarica.');
+                
+                // Controlla Silenzio
+                foreach ($actor_effects as $eff) {
+                    if ($eff['type'] === 'silence') {
+                        gd_fail('Il tuo personaggio è silenziato e non può usare mosse speciali!');
+                    }
+                }
+                
+                $eff_type = $actor_cfg['special_effect']['type'] ?? '';
+                $actor_level = isset($actor['livello']) ? (int)$actor['livello'] : 1;
+                $skill_mult = gd_get_skill_multiplier($actor_char['rarita'] ?? 'comune', $actor_level);
+                
+                $en = max(0, (int)$actor['energy'] - (int)$actor['special_cost']);
+                $cd = max(1, (int)$actor['special_cooldown_max']);
+                $m->query("UPDATE game_match_cards SET energy={$en}, special_cooldown={$cd} WHERE id={$actorId}");
+                $msg = "{$char_name} usa la speciale: **{$actor_cfg['special_name']}**! ";
             }
-            
-            $eff_type = $actor_cfg['special_effect']['type'] ?? '';
-            
-            $actor_level = isset($actor['livello']) ? (int)$actor['livello'] : 1;
-            $skill_mult = gd_get_skill_multiplier($actor_char['rarita'] ?? 'comune', $actor_level);
-            
-            $en = max(0, (int)$actor['energy'] - (int)$actor['special_cost']);
-            $cd = max(1, (int)$actor['special_cooldown_max']);
-            $m->query("UPDATE game_match_cards SET energy={$en}, special_cooldown={$cd} WHERE id={$actorId}");
-            
-            $msg = "{$char_name} usa la speciale: **{$actor_cfg['special_name']}**! ";
             switch ($eff_type) {
                 case 'taunt_self':
                 case 'taunt_self_heavy':
@@ -1588,32 +1635,401 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                     break;
 
                 case 'nauz_trichecu_special':
+                    $heal_val = (int)round($actor['max_hp'] * 0.45);
+                    if ((int)$actor['personaggio_id'] === 87) {
+                        $heal_val = (int)round($heal_val * 1.30);
+                    }
+                    $new_hp = min((int)$actor['max_hp'], (int)$actor['current_hp'] + $heal_val);
+                    $shield_val = (int)round($actor['max_hp'] * 0.25);
+                    $new_shield = (int)$actor['shield'] + $shield_val;
+                    
+                    $m->query("UPDATE game_match_cards SET current_hp={$new_hp}, shield={$new_shield} WHERE id={$actorId}");
+                    $msg .= "Rigenera {$heal_val} HP su se stesso e ottiene uno Scudo di {$shield_val} HP.";
+                    break;
+
+                // --- ULTIMATES PERSONAGGI PRINCIPALI ---
+                case 'shorekeeper_ultimate':
+                    $allies = gd_cards($m, $mid);
+                    foreach ($allies as $ally) {
+                        if ((int)$ally['user_id'] === $uid && !(int)$ally['is_ko']) {
+                            $heal_val = (int)round($ally['max_hp'] * 0.60);
+                            $new_hp = min((int)$ally['max_hp'], (int)$ally['current_hp'] + $heal_val);
+                            $shield_val = (int)round($ally['max_hp'] * 0.45);
+                            $new_shield = (int)$ally['shield'] + $shield_val;
+                            
+                            $ally_effs = is_array($ally['status_effects']) ? $ally['status_effects'] : json_decode($ally['status_effects'] ?: '[]', true);
+                            $ally_effs[] = ['type' => 'buff_crit_rate', 'value' => 35, 'duration' => 3, 'name' => 'Crit Rate +35%'];
+                            $ally_effs[] = ['type' => 'buff_crit_dmg', 'value' => 75, 'duration' => 3, 'name' => 'Crit Dmg +75%'];
+                            
+                            $m->query("UPDATE game_match_cards SET current_hp={$new_hp}, shield={$new_shield}, status_effects='" . $m->escape_string(json_encode(array_values($ally_effs))) . "' WHERE id={$ally['id']}");
+                        }
+                    }
+                    $msg .= "Cura il team del 60% degli HP max, applica uno Scudo del 45% e aumenta Crit Rate/Dmg per 3 turni!";
+                    break;
+
+                case 'nauz_cosmic_ultimate':
+                    $shield_val = (int)round($actor['max_hp'] * 0.50);
+                    $allies = gd_cards($m, $mid);
+                    foreach ($allies as $ally) {
+                        if ((int)$ally['user_id'] === $uid && !(int)$ally['is_ko']) {
+                            $new_shield = (int)$ally['shield'] + $shield_val;
+                            $ally_effs = is_array($ally['status_effects']) ? $ally['status_effects'] : json_decode($ally['status_effects'] ?: '[]', true);
+                            $ally_effs[] = ['type' => 'immunity', 'value' => 1, 'duration' => 2, 'name' => 'Immunità'];
+                            
+                            $m->query("UPDATE game_match_cards SET shield={$new_shield}, status_effects='" . $m->escape_string(json_encode(array_values($ally_effs))) . "' WHERE id={$ally['id']}");
+                        }
+                    }
+                    $heal_val = (int)round($actor['max_hp'] * 0.40);
+                    $new_hp = min((int)$actor['max_hp'], (int)$actor['current_hp'] + $heal_val);
+                    $m->query("UPDATE game_match_cards SET current_hp={$new_hp} WHERE id={$actorId}");
+                    $msg .= "Fornisce uno Scudo e Immunità al team, e cura {$char_name} di {$heal_val} HP.";
+                    break;
+
+                case 'cripsum_cosmic_ultimate':
+                    $enemies = gd_cards($m, $mid);
+                    $atk_val = $a_stats['attack'] * 3.0;
+                    foreach ($enemies as $e) {
+                        if ((int)$e['user_id'] === $opp && !(int)$e['is_ko']) {
+                            $e_stats = gd_get_modified_stats($e);
+                            $def_reduction = $e_stats['defense'] * 0.45;
+                            $dmg = max(20, (int)round($atk_val - $def_reduction));
+                            if (random_int(1, 100) <= $crit_chance) {
+                                $dmg = (int)round($dmg * $crit_dmg_mult);
+                            }
+                            $new_hp = max(0, (int)$e['current_hp'] - $dmg);
+                            $ko = $new_hp <= 0 ? 1 : 0;
+                            $m->query("UPDATE game_match_cards SET current_hp={$new_hp}, is_ko={$ko}, is_active=IF({$ko}=1,0,is_active) WHERE id={$e['id']}");
+                        }
+                    }
+                    $allies = gd_cards($m, $mid);
+                    foreach ($allies as $ally) {
+                        if ((int)$ally['user_id'] === $uid && !(int)$ally['is_ko']) {
+                            $heal_val = (int)round($ally['max_hp'] * 0.40);
+                            $new_hp = min((int)$ally['max_hp'], (int)$ally['current_hp'] + $heal_val);
+                            $new_energy = min((int)$ally['max_energy'], (int)$ally['energy'] + 3);
+                            $m->query("UPDATE game_match_cards SET current_hp={$new_hp}, energy={$new_energy} WHERE id={$ally['id']}");
+                        }
+                    }
+                    $msg .= "Infligge danni pesanti a tutti i nemici, cura il team del 40% degli HP max e fornisce 3 Energia a tutti!";
+                    break;
+
+                case 'dante_ultimate':
                     if ($target_immune) {
                         $msg .= "Ma l'attacco viene annullato dall'Immunità di {$target_name}!";
                     } else {
-                        $base_dmg = ($a_stats['attack'] * 1.2) + ($a_stats['defense'] * 0.15);
+                        $base_dmg = $a_stats['attack'] * 3.5;
+                        $def_reduction = ($t_stats['defense'] * 0.50) * 0.45;
+                        $dmg = max(20, (int)round($base_dmg - $def_reduction));
+                        if (random_int(1, 100) <= $crit_chance) {
+                            $dmg = (int)round($dmg * $crit_dmg_mult);
+                        }
+                        $heal = (int)round($dmg * 0.50);
+                        $new_hp = min((int)$actor['max_hp'], (int)$actor['current_hp'] + $heal);
+                        
+                        $actor_effects[] = ['type' => 'immunity', 'value' => 1, 'duration' => 2, 'name' => 'Immunità'];
+                        $m->query("UPDATE game_match_cards SET current_hp={$new_hp}, status_effects='" . $m->escape_string(json_encode(array_values($actor_effects))) . "' WHERE id={$actorId}");
+                        
+                        $new_target_hp = max(0, (int)$t['current_hp'] - $dmg);
+                        $target_ko = $new_target_hp <= 0 ? 1 : 0;
+                        $m->query("UPDATE game_match_cards SET current_hp={$new_target_hp}, is_ko={$target_ko}, is_active=IF({$target_ko}=1,0,is_active) WHERE id={$target}");
+                        
+                        $msg .= "Sferra un colpo devastante da {$dmg} danni, si cura di {$heal} HP e guadagna Immunità per 2 turni.";
+                    }
+                    break;
+
+                case 'vergil_ultimate':
+                    if ($target_immune) {
+                        $msg .= "Ma l'attacco viene annullato dall'Immunità di {$target_name}!";
+                    } else {
+                        $base_dmg = $a_stats['attack'] * 3.2;
                         $def_reduction = $t_stats['defense'] * 0.45;
-                        $dmg = max(10, (int)round($base_dmg - $def_reduction));
+                        $dmg = max(20, (int)round($base_dmg - $def_reduction));
+                        if (random_int(1, 100) <= $crit_chance) {
+                            $dmg = (int)round($dmg * $crit_dmg_mult);
+                        }
+                        
+                        $t_effects[] = ['type' => 'freeze', 'value' => 1, 'duration' => 1, 'name' => 'Congelamento'];
+                        $m->query("UPDATE game_match_cards SET status_effects='" . $m->escape_string(json_encode(array_values($t_effects))) . "' WHERE id={$target}");
+                        
+                        $actor_effects[] = ['type' => 'buff_crit_rate', 'value' => 40, 'duration' => 3, 'name' => 'Crit Rate +40%'];
+                        $actor_effects[] = ['type' => 'buff_crit_dmg', 'value' => 80, 'duration' => 3, 'name' => 'Crit Dmg +80%'];
+                        $m->query("UPDATE game_match_cards SET status_effects='" . $m->escape_string(json_encode(array_values($actor_effects))) . "' WHERE id={$actorId}");
+                        
+                        $new_target_hp = max(0, (int)$t['current_hp'] - $dmg);
+                        $target_ko = $new_target_hp <= 0 ? 1 : 0;
+                        $m->query("UPDATE game_match_cards SET current_hp={$new_target_hp}, is_ko={$target_ko}, is_active=IF({$target_ko}=1,0,is_active) WHERE id={$target}");
+                        
+                        $msg .= "Infligge {$dmg} danni, Congela il bersaglio al 100% per 1 turno e Vergil ottiene +40% Crit Rate e +80% Crit Dmg per 3 turni.";
+                    }
+                    break;
+
+                case 'netanyahu_ultimate':
+                    $shield_val = (int)round($actor['max_hp'] * 0.80);
+                    $new_shield = (int)$actor['shield'] + $shield_val;
+                    $actor_effects[] = ['type' => 'taunt', 'value' => 1, 'duration' => 3, 'name' => 'Provocazione'];
+                    $m->query("UPDATE game_match_cards SET shield={$new_shield}, status_effects='" . $m->escape_string(json_encode(array_values($actor_effects))) . "' WHERE id={$actorId}");
+                    
+                    $enemies = gd_cards($m, $mid);
+                    foreach ($enemies as $e) {
+                        if ((int)$e['user_id'] === $opp && !(int)$e['is_ko']) {
+                            $e_effs = is_array($e['status_effects']) ? $e['status_effects'] : json_decode($e['status_effects'] ?: '[]', true);
+                            $e_effs[] = ['type' => 'debuff_atk', 'value' => 45, 'duration' => 3, 'name' => 'Attacco -45%'];
+                            $m->query("UPDATE game_match_cards SET status_effects='" . $m->escape_string(json_encode(array_values($e_effs))) . "' WHERE id={$e['id']}");
+                        }
+                    }
+                    $msg .= "Si fornisce uno Scudo colossale di {$shield_val} HP, attiva Provocazione per 3 turni e riduce l'Attacco di tutti i nemici del 45% per 3 turni.";
+                    break;
+
+                case 'protagonista_ultimate':
+                    if ($target_immune) {
+                        $msg .= "Ma l'attacco viene annullato dall'Immunità di {$target_name}!";
+                    } else {
+                        $mult = 3.0;
+                        $under_50 = false;
+                        if ((int)$actor['max_hp'] > 0 && ((int)$actor['current_hp'] / (int)$actor['max_hp']) < 0.5) {
+                            $mult = 6.0;
+                            $under_50 = true;
+                        }
+                        $base_dmg = $a_stats['attack'] * $mult;
+                        $def_reduction = $t_stats['defense'] * 0.45;
+                        $dmg = max(20, (int)round($base_dmg - $def_reduction));
+                        if (random_int(1, 100) <= $crit_chance) {
+                            $dmg = (int)round($dmg * $crit_dmg_mult);
+                        }
+                        
+                        $new_hp = (int)$actor['max_hp'];
+                        $m->query("UPDATE game_match_cards SET current_hp={$new_hp} WHERE id={$actorId}");
+                        
+                        $new_target_hp = max(0, (int)$t['current_hp'] - $dmg);
+                        $target_ko = $new_target_hp <= 0 ? 1 : 0;
+                        $m->query("UPDATE game_match_cards SET current_hp={$new_target_hp}, is_ko={$target_ko}, is_active=IF({$target_ko}=1,0,is_active) WHERE id={$target}");
+                        
+                        $msg .= ($under_50 ? "Sotto il 50% HP, infligge il doppio dei danni ({$dmg} danni)!" : "Infligge {$dmg} danni.") . " Si cura completamente al 100% degli HP max.";
+                    }
+                    break;
+
+                case 'nauz_tricheco_ultimate':
+                    $allies = gd_cards($m, $mid);
+                    foreach ($allies as $ally) {
+                        if ((int)$ally['user_id'] === $uid && !(int)$ally['is_ko']) {
+                            $heal_val = (int)round($ally['max_hp'] * 0.60);
+                            if ((int)$ally['personaggio_id'] === 87) {
+                                $heal_val = (int)round($heal_val * 1.30);
+                            }
+                            $new_hp = min((int)$ally['max_hp'], (int)$ally['current_hp'] + $heal_val);
+                            
+                            $ally_effs = is_array($ally['status_effects']) ? $ally['status_effects'] : json_decode($ally['status_effects'] ?: '[]', true);
+                            $ally_effs = array_filter($ally_effs, function($e) {
+                                return !in_array($e['type'], ['poison', 'bleed', 'stun', 'freeze', 'debuff_atk', 'debuff_def', 'debuff_spd', 'silence'], true);
+                            });
+                            $ally_effs[] = ['type' => 'immunity', 'value' => 1, 'duration' => 3, 'name' => 'Immunità'];
+                            $ally_effs[] = ['type' => 'regen', 'value' => 15, 'duration' => 3, 'name' => 'Rigenerazione'];
+                            
+                            $m->query("UPDATE game_match_cards SET current_hp={$new_hp}, status_effects='" . $m->escape_string(json_encode(array_values($ally_effs))) . "' WHERE id={$ally['id']}");
+                        }
+                    }
+                    $msg .= "Cura il team del 60% degli HP max, rimuove tutti i debuff e applica Immunità e Rigenerazione per 3 turni!";
+                    break;
+
+                // --- ULTIMATES GENERICHE DEI RUOLI ---
+                case 'generic_tank_ultimate':
+                    $shield_val = (int)round($actor['max_hp'] * 0.60);
+                    $allies = gd_cards($m, $mid);
+                    foreach ($allies as $ally) {
+                        if ((int)$ally['user_id'] === $uid && !(int)$ally['is_ko']) {
+                            $new_shield = (int)$ally['shield'] + $shield_val;
+                            $m->query("UPDATE game_match_cards SET shield={$new_shield} WHERE id={$ally['id']}");
+                        }
+                    }
+                    $actor_effects[] = ['type' => 'taunt', 'value' => 1, 'duration' => 3, 'name' => 'Provocazione'];
+                    $m->query("UPDATE game_match_cards SET status_effects='" . $m->escape_string(json_encode(array_values($actor_effects))) . "' WHERE id={$actorId}");
+                    $msg .= "Fornisce uno Scudo pari al 60% HP a tutto il team e attiva Provocazione per 3 turni.";
+                    break;
+
+                case 'generic_bruiser_ultimate':
+                    if ($target_immune) {
+                        $msg .= "Ma l'attacco viene annullato dall'Immunità di {$target_name}!";
+                    } else {
+                        $base_dmg = $a_stats['attack'] * 2.8;
+                        $def_reduction = $t_stats['defense'] * 0.45;
+                        $dmg = max(20, (int)round($base_dmg - $def_reduction));
+                        if (random_int(1, 100) <= $crit_chance) {
+                            $dmg = (int)round($dmg * $crit_dmg_mult);
+                        }
+                        
+                        $t_effects[] = ['type' => 'bleed', 'value' => 20, 'duration' => 3, 'name' => 'Sanguinamento'];
+                        $m->query("UPDATE game_match_cards SET status_effects='" . $m->escape_string(json_encode(array_values($t_effects))) . "' WHERE id={$target}");
+                        
+                        $actor_effects[] = ['type' => 'buff_atk', 'value' => 40, 'duration' => 3, 'name' => 'Attacco +40%'];
+                        $m->query("UPDATE game_match_cards SET status_effects='" . $m->escape_string(json_encode(array_values($actor_effects))) . "' WHERE id={$actorId}");
+                        
+                        $new_target_hp = max(0, (int)$t['current_hp'] - $dmg);
+                        $target_ko = $new_target_hp <= 0 ? 1 : 0;
+                        $m->query("UPDATE game_match_cards SET current_hp={$new_target_hp}, is_ko={$target_ko}, is_active=IF({$target_ko}=1,0,is_active) WHERE id={$target}");
+                        
+                        $msg .= "Infligge {$dmg} danni a {$target_name}, applica Sanguinamento pesante e aumenta l'Attacco del 40% per 3 turni.";
+                    }
+                    break;
+
+                case 'generic_dps_ultimate':
+                    if ($target_immune) {
+                        $msg .= "Ma l'attacco viene annullato dall'Immunità di {$target_name}!";
+                    } else {
+                        $base_dmg = $a_stats['attack'] * 3.2;
+                        $def_reduction = $t_stats['defense'] * 0.45;
+                        $dmg = max(20, (int)round($base_dmg - $def_reduction));
+                        
+                        $is_crit = false;
                         if (random_int(1, 100) <= $crit_chance) {
                             $dmg = (int)round($dmg * $crit_dmg_mult);
                             $is_crit = true;
                         }
                         
-                        $congelato = false;
-                        if (random_int(1, 100) <= 50) {
-                            $t_effects[] = ['type' => 'freeze', 'value' => 1, 'duration' => 1, 'name' => 'Congelamento'];
-                            $congelato = true;
+                        if ($is_crit) {
+                            $new_energy = (int)$actor['max_energy'];
+                            $m->query("UPDATE game_match_cards SET energy={$new_energy} WHERE id={$actorId}");
                         }
-                        if ((int)($t['personaggio_id'] ?? 0) === 75) {
-                            $t_effects = array_filter($t_effects, function($e) { return !in_array($e['type'], ['poison', 'bleed', 'stun', 'freeze', 'debuff_atk', 'debuff_def', 'debuff_spd', 'silence'], true); });
-                        }
-                        $m->query("UPDATE game_match_cards SET status_effects='" . $m->escape_string(json_encode($t_effects)) . "' WHERE id={$target}");
                         
-                        $actor_effects[] = ['type' => 'taunt', 'value' => 1, 'duration' => 2, 'name' => 'Provocazione'];
-                        $m->query("UPDATE game_match_cards SET status_effects='" . $m->escape_string(json_encode($actor_effects)) . "' WHERE id={$actorId}");
+                        $new_target_hp = max(0, (int)$t['current_hp'] - $dmg);
+                        $target_ko = $new_target_hp <= 0 ? 1 : 0;
+                        $m->query("UPDATE game_match_cards SET current_hp={$new_target_hp}, is_ko={$target_ko}, is_active=IF({$target_ko}=1,0,is_active) WHERE id={$target}");
                         
-                        $msg .= "Colpisce {$target_name} con {$dmg} danni (scalandoli con la sua Difesa), attiva la Provocazione su se stesso per 2 turni" . ($congelato ? " e lo Congela!" : "") . ".";
+                        $msg .= "Infligge {$dmg} danni a {$target_name}." . ($is_crit ? " Colpo Critico! Ricarica al massimo l'Energia!" : "");
                     }
+                    break;
+
+                case 'generic_burstdps_ultimate':
+                    if ($target_immune) {
+                        $msg .= "Ma l'attacco viene annullato dall'Immunità di {$target_name}!";
+                    } else {
+                        $base_dmg = $a_stats['attack'] * 3.8;
+                        $def_reduction = ($t_stats['defense'] * 0.60) * 0.45;
+                        $dmg = max(20, (int)round($base_dmg - $def_reduction));
+                        if (random_int(1, 100) <= $crit_chance) {
+                            $dmg = (int)round($dmg * $crit_dmg_mult);
+                        }
+                        
+                        $new_target_hp = max(0, (int)$t['current_hp'] - $dmg);
+                        $target_ko = $new_target_hp <= 0 ? 1 : 0;
+                        $m->query("UPDATE game_match_cards SET current_hp={$new_target_hp}, is_ko={$target_ko}, is_active=IF({$target_ko}=1,0,is_active) WHERE id={$target}");
+                        
+                        $msg .= "Infligge {$dmg} danni a {$target_name} ignorando il 40% della Difesa nemica.";
+                    }
+                    break;
+
+                case 'generic_subdps_ultimate':
+                    if ($target_immune) {
+                        $msg .= "Ma l'attacco viene annullato dall'Immunità di {$target_name}!";
+                    } else {
+                        $has_debuff = false;
+                        foreach ($t_effects as $eff) {
+                            if (in_array($eff['type'], ['poison', 'bleed', 'stun', 'freeze', 'debuff_atk', 'debuff_def', 'debuff_spd', 'silence'], true)) {
+                                $has_debuff = true;
+                                break;
+                            }
+                        }
+                        $mult = $has_debuff ? 3.9 : 2.6;
+                        $base_dmg = $a_stats['attack'] * $mult;
+                        $def_reduction = $t_stats['defense'] * 0.45;
+                        $dmg = max(20, (int)round($base_dmg - $def_reduction));
+                        if (random_int(1, 100) <= $crit_chance) {
+                            $dmg = (int)round($dmg * $crit_dmg_mult);
+                        }
+                        
+                        $t_effects[] = ['type' => 'debuff_spd', 'value' => 50, 'duration' => 3, 'name' => 'Velocità -50%'];
+                        $m->query("UPDATE game_match_cards SET status_effects='" . $m->escape_string(json_encode(array_values($t_effects))) . "' WHERE id={$target}");
+                        
+                        $new_target_hp = max(0, (int)$t['current_hp'] - $dmg);
+                        $target_ko = $new_target_hp <= 0 ? 1 : 0;
+                        $m->query("UPDATE game_match_cards SET current_hp={$new_target_hp}, is_ko={$target_ko}, is_active=IF({$target_ko}=1,0,is_active) WHERE id={$target}");
+                        
+                        $msg .= ($has_debuff ? "Danni aumentati per debuff nemici ({$dmg} danni)" : "Infligge {$dmg} danni") . " e riduce la Velocità del bersaglio del 50% per 3 turni.";
+                    }
+                    break;
+
+                case 'generic_support_ultimate':
+                    $shield_val = (int)round($actor['max_hp'] * 0.50);
+                    $allies = gd_cards($m, $mid);
+                    foreach ($allies as $ally) {
+                        if ((int)$ally['user_id'] === $uid && !(int)$ally['is_ko']) {
+                            $new_shield = (int)$ally['shield'] + $shield_val;
+                            $ally_effs = is_array($ally['status_effects']) ? $ally['status_effects'] : json_decode($ally['status_effects'] ?: '[]', true);
+                            $ally_effs[] = ['type' => 'buff_def', 'value' => 40, 'duration' => 3, 'name' => 'Difesa +40%'];
+                            $m->query("UPDATE game_match_cards SET shield={$new_shield}, status_effects='" . $m->escape_string(json_encode(array_values($ally_effs))) . "' WHERE id={$ally['id']}");
+                        }
+                    }
+                    $msg .= "Fornisce a tutto il team uno Scudo del 50% HP e aumenta la Difesa del 40% per 3 turni.";
+                    break;
+
+                case 'generic_healer_ultimate':
+                    $allies = gd_cards($m, $mid);
+                    foreach ($allies as $ally) {
+                        if ((int)$ally['user_id'] === $uid) {
+                            if ((int)$ally['is_ko'] === 1) {
+                                $heal_val = (int)round($ally['max_hp'] * 0.30);
+                                $ally_effs = [];
+                                $ally_effs[] = ['type' => 'regen', 'value' => 15, 'duration' => 3, 'name' => 'Rigenerazione'];
+                                $m->query("UPDATE game_match_cards SET current_hp={$heal_val}, is_ko=0, is_active=0, status_effects='" . $m->escape_string(json_encode($ally_effs)) . "' WHERE id={$ally['id']}");
+                            } else {
+                                $heal_val = (int)round($ally['max_hp'] * 0.50);
+                                $new_hp = min((int)$ally['max_hp'], (int)$ally['current_hp'] + $heal_val);
+                                $ally_effs = is_array($ally['status_effects']) ? $ally['status_effects'] : json_decode($ally['status_effects'] ?: '[]', true);
+                                $ally_effs[] = ['type' => 'regen', 'value' => 15, 'duration' => 3, 'name' => 'Rigenerazione'];
+                                $m->query("UPDATE game_match_cards SET current_hp={$new_hp}, status_effects='" . $m->escape_string(json_encode(array_values($ally_effs))) . "' WHERE id={$ally['id']}");
+                            }
+                        }
+                    }
+                    $msg .= "Cura il team del 50% HP, resuscita i caduti al 30% HP e applica Rigenerazione per 3 turni.";
+                    break;
+
+                case 'generic_controller_ultimate':
+                    if ($target_immune) {
+                        $msg .= "Ma l'attacco viene annullato dall'Immunità di {$target_name}!";
+                    } else {
+                        $base_dmg = $a_stats['attack'] * 2.2;
+                        $def_reduction = $t_stats['defense'] * 0.45;
+                        $dmg = max(20, (int)round($base_dmg - $def_reduction));
+                        if (random_int(1, 100) <= $crit_chance) {
+                            $dmg = (int)round($dmg * $crit_dmg_mult);
+                        }
+                        
+                        $t_effects[] = ['type' => 'freeze', 'value' => 1, 'duration' => 2, 'name' => 'Congelamento'];
+                        $new_target_energy = max(0, (int)$t['energy'] - 3);
+                        $m->query("UPDATE game_match_cards SET energy={$new_target_energy}, status_effects='" . $m->escape_string(json_encode(array_values($t_effects))) . "' WHERE id={$target}");
+                        
+                        $new_target_hp = max(0, (int)$t['current_hp'] - $dmg);
+                        $target_ko = $new_target_hp <= 0 ? 1 : 0;
+                        $m->query("UPDATE game_match_cards SET current_hp={$new_target_hp}, is_ko={$target_ko}, is_active=IF({$target_ko}=1,0,is_active) WHERE id={$target}");
+                        
+                        $msg .= "Infligge {$dmg} danni, Congela il bersaglio al 100% per 2 turni e gli sottrae 3 Energia.";
+                    }
+                    break;
+
+                case 'generic_debuffer_ultimate':
+                    if ($target_immune) {
+                        $msg .= "Ma l'attacco viene annullato dall'Immunità di {$target_name}!";
+                    } else {
+                        $t_effects[] = ['type' => 'debuff_atk', 'value' => 40, 'duration' => 3, 'name' => 'Attacco -40%'];
+                        $t_effects[] = ['type' => 'debuff_def', 'value' => 40, 'duration' => 3, 'name' => 'Difesa -40%'];
+                        $t_effects[] = ['type' => 'poison', 'value' => 20, 'duration' => 3, 'name' => 'Veleno'];
+                        $m->query("UPDATE game_match_cards SET status_effects='" . $m->escape_string(json_encode(array_values($t_effects))) . "' WHERE id={$target}");
+                        $msg .= "Riduce l'Attacco e la Difesa nemica del 40% e applica Veleno pesante per 3 turni.";
+                    }
+                    break;
+
+                case 'generic_buffer_ultimate':
+                    $allies = gd_cards($m, $mid);
+                    foreach ($allies as $ally) {
+                        if ((int)$ally['user_id'] === $uid && !(int)$ally['is_ko']) {
+                            $ally_effs = is_array($ally['status_effects']) ? $ally['status_effects'] : json_decode($ally['status_effects'] ?: '[]', true);
+                            $ally_effs[] = ['type' => 'buff_atk', 'value' => 40, 'duration' => 3, 'name' => 'Attacco +40%'];
+                            $ally_effs[] = ['type' => 'buff_spd', 'value' => 30, 'duration' => 3, 'name' => 'Velocità +30%'];
+                            
+                            $new_energy = min((int)$ally['max_energy'], (int)$ally['energy'] + 3);
+                            $m->query("UPDATE game_match_cards SET energy={$new_energy}, status_effects='" . $m->escape_string(json_encode(array_values($ally_effs))) . "' WHERE id={$ally['id']}");
+                        }
+                    }
+                    $msg .= "Aumenta l'Attacco del team del 40%, la Velocità del 30% per 3 turni e fornisce 3 Energia a ciascuno.";
                     break;
 
                 case 'carmelo_special':

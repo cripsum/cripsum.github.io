@@ -20,8 +20,8 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
     <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ Duel - Game</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/css/game.css?v=2.6-strategic-duels">
-    <script src="/assets/js/game.js?v=2.6-strategic-duels" defer></script>
+    <link rel="stylesheet" href="/assets/css/game.css?v=2.7-ultimate-update">
+    <script src="/assets/js/game.js?v=2.7-ultimate-update" defer></script>
 </head>
 <body class="game-page" data-page="duel-arena" data-match-id="<?php echo htmlspecialchars((string)$matchId, ENT_QUOTES, 'UTF-8'); ?>">
     <?php include '../../includes/navbar.php'; ?>
@@ -110,6 +110,7 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
                 <button class="game-move game-move-special" data-battle-action="special_attack" type="button"><i class="fa-solid fa-wand-magic-sparkles"></i><strong>Speciale</strong><span>Più danno · costa energia</span></button>
                 <button class="game-move game-move-defend" data-battle-action="defend" type="button"><i class="fa-solid fa-shield"></i><strong>Difesa</strong><span>Riduce danno · +1 energia</span></button>
                 <button class="game-move game-move-charge" data-battle-action="charge" type="button"><i class="fa-solid fa-battery-full"></i><strong>Carica</strong><span>Recupera +2 energia</span></button>
+                <button class="game-move game-move-ultimate" data-battle-action="ultimate" type="button" style="display:none;"><i class="fa-solid fa-bolt"></i><strong>Ultimate</strong><span>Devastating final move</span></button>
             </div>
             <div class="game-sub-actions"><span><i class="fa-solid fa-repeat"></i> Per cambiare carta clicca una tua carta sotto.</span><button class="game-btn game-btn-ghost" data-action="forfeit" type="button">Abbandona</button></div>
             <div class="game-arena-bottom">
