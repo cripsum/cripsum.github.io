@@ -240,6 +240,7 @@
         
         if(!list.length){grid.innerHTML='<p class="game-hint">' + gt.no_chars_found + '</p>';return}
         grid.innerHTML='';
+        $$('.game-card-details-hover').forEach(m=>m.remove());
         list.forEach(card=>{
             const selected=state.selectedTeam.includes(card.id);
             const el=document.createElement('div');
@@ -329,7 +330,7 @@
                 });
             }
             
-            const closeBtn = el.querySelector('.game-hover-close-btn');
+            const closeBtn = hover ? hover.querySelector('.game-hover-close-btn') : null;
             if (closeBtn && hover) {
                 closeBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -337,6 +338,7 @@
                 });
             }
             
+            if (hover) document.body.appendChild(hover);
             grid.appendChild(el);
         });
         renderSelectedTeam();
