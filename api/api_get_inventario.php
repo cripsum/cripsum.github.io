@@ -18,7 +18,7 @@ $user_id = $_SESSION['user_id'] ?? 0;
         $row['livello'] = $lvl;
         $row['stats'] = gd_stats($mysqli, (int)$row['id'], $lvl);
         $row['stats_next'] = ($lvl < 6) ? gd_stats($mysqli, (int)$row['id'], $lvl + 1) : null;
-        $row['required_next'] = ($lvl < 6) ? gd_get_upgrade_requirement($row['rarità'] ?? 'comune', $lvl) : 0;
+        $row['required_next'] = ($lvl < 6) ? gd_get_upgrade_requirement($row['rarità'] ?? 'comune', $lvl, $row['categoria'] ?? '') : 0;
         $characters[] = $row;
     }
     

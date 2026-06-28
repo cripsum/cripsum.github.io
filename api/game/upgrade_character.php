@@ -14,7 +14,7 @@ try {
     }
 
     // 1. Recupera informazioni sul personaggio
-    $stmt = $mysqli->prepare('SELECT id, nome, rarità FROM personaggi WHERE id = ? LIMIT 1');
+    $stmt = $mysqli->prepare('SELECT id, nome, rarità, categoria FROM personaggi WHERE id = ? LIMIT 1');
     if (!$stmt) {
         gd_fail('Database non disponibile.');
     }
@@ -28,6 +28,7 @@ try {
     }
 
     $rarity = $char['rarità'] ?? 'comune';
+    $category = $char['categoria'] ?? '';
 
     // 2. Recupera l'ownership, quantità e livello corrente dall'inventario utente
     $stmt = $mysqli->prepare('SELECT quantità, livello FROM utenti_personaggi WHERE utente_id = ? AND personaggio_id = ? LIMIT 1');
@@ -48,7 +49,7 @@ try {
     }
 
     // 3. Calcola il costo in copie per il livello successivo
-    $requiredCopies = gd_get_upgrade_requirement($rarity, $currentLevel);
+    $requiredCopies = gd_get_upgrade_requirement($rarity, $currentLevel, $category);
 
     // Controlla se l'utente ha abbastanza copie extra (deve rimanere almeno la copia base, quindi quantità - 1)
     $availableDuplicates = $quantity - 1;
@@ -99,7 +100,7 @@ try {
         // 5. Ricalcola le statistiche attuali e del prossimo livello per inviarle al client
         $statsNow = gd_stats($mysqli, $characterId, $nextLevel);
         $statsNext = ($nextLevel < 6) ? gd_stats($mysqli, $characterId, $nextLevel + 1) : null;
-        $requiredNext = ($nextLevel < 6) ? gd_get_upgrade_requirement($rarity, $nextLevel) : 0;
+        $requiredNext = ($nextLevel < 6) ? gd_get_upgrade_requirement($rarity, $nextLevel, $category) : 0;
 
         gd_ok([
             'ok' => true,
