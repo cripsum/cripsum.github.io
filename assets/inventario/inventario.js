@@ -397,6 +397,7 @@
 
                     <div class="character-meta">
                         <span class="character-badge character-badge--rarity">${escapeHtml(rarityLabel)}</span>
+                        ${entry.stats && entry.stats.role ? `<span class="character-badge character-badge--role" style="background: rgba(47, 107, 255, 0.12); border-color: rgba(47, 107, 255, 0.3); color: #82baff; font-weight: bold;">${escapeHtml(entry.stats.role)}</span>` : ''}
                         ${entry.category ? `<span class="character-badge">${escapeHtml(entry.category)}</span>` : ''}
                     </div>
 
@@ -593,6 +594,13 @@
                             x${entry.quantity}
                         </span>
 
+                        ${statsNow.role ? `
+                            <span class="character-badge" style="background: rgba(47, 107, 255, 0.12); border-color: rgba(47, 107, 255, 0.3); color: #82baff; font-weight: bold;">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                ${escapeHtml(statsNow.role)}
+                            </span>
+                        ` : ''}
+
                         ${entry.category ? `
                             <span class="character-badge">
                                 <i class="fa-solid fa-tag"></i>
@@ -614,6 +622,39 @@
                         <strong>${t.traits_title}</strong><br>
                         ${traits.length ? traits.map((trait) => `- ${escapeHtml(trait)}`).join('<br>') : t.no_traits}
                     </div>
+
+                    <!-- Sezione Kit Personaggio Duello -->
+                    ${statsNow.role ? `
+                    <div class="character-kit" style="margin-top: 1.25rem; padding: 1.1rem; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 14px;">
+                        <h4 style="margin: 0 0 0.85rem; font-size: 0.95rem; color: var(--inv-gold); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem; font-weight: 800;">
+                            <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--inv-gold);"></i>
+                            Kit Duello Tattico
+                        </h4>
+                        
+                        <div class="kit-ability" style="margin-bottom: 0.85rem;">
+                            <div style="font-weight: 700; color: var(--inv-text); font-size: 0.88rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="background: rgba(139, 92, 246, 0.16); border: 1px solid rgba(139, 92, 246, 0.3); color: #c084fc; padding: 2px 6px; border-radius: 6px; font-size: 0.72rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">Passiva</span>
+                                ${escapeHtml(statsNow.passive_name || 'Nessuna')}
+                            </div>
+                            <div style="font-size: 0.82rem; color: var(--inv-muted); margin-top: 4px; line-height: 1.45;">
+                                ${escapeHtml(statsNow.passive_desc || 'Nessun effetto passivo speciale.')}
+                            </div>
+                        </div>
+                        
+                        <div class="kit-ability">
+                            <div style="font-weight: 700; color: var(--inv-text); font-size: 0.88rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="background: rgba(47, 107, 255, 0.16); border: 1px solid rgba(47, 107, 255, 0.3); color: #60a5fa; padding: 2px 6px; border-radius: 6px; font-size: 0.72rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">Speciale</span>
+                                ${escapeHtml(statsNow.special_name || 'Colpo Speciale')}
+                                <span style="font-size: 0.75rem; color: var(--inv-muted-2); font-weight: normal; margin-left: auto;">
+                                    Costo: <strong>${statsNow.special_cost || 0} E</strong> · CD: <strong>${statsNow.special_cooldown || 0}t</strong>
+                                </span>
+                            </div>
+                            <div style="font-size: 0.82rem; color: var(--inv-muted); margin-top: 4px; line-height: 1.45;">
+                                ${escapeHtml(statsNow.special_desc || 'Un potente attacco speciale.')}
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
 
                     <!-- Sezione Progressione Livelli -->
                     <div class="character-progression">

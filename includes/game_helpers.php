@@ -220,6 +220,7 @@ function gd_stats(mysqli $m, int $pid, int $level = 1): array {
     
     $st['role'] = $role;
     $st['special_name'] = $cfg['special_name'];
+    $st['special_desc'] = $cfg['special_desc'];
     $st['special_cost'] = $cfg['special_cost'];
     $st['special_cooldown'] = $cfg['special_cooldown'];
     $st['passive_name'] = $cfg['passive_name'];
