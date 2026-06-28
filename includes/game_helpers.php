@@ -1049,7 +1049,7 @@ function gd_insert_team_cards(mysqli $m, int $mid, int $uid, array $team): void
     if ($total_support_shield_pct > 0) {
         foreach ($user_cards as $c) {
             $extra_shield = (int)round((int)$c['max_hp'] * ($total_support_shield_pct / 100));
-            $new_shield = (int)$c['shield'] + $extra_shield;
+            $new_shield = min((int)$c['max_hp'], (int)$c['shield'] + $extra_shield);
             $m->query("UPDATE game_match_cards SET shield={$new_shield} WHERE id={$c['id']}");
         }
     }
@@ -1136,7 +1136,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
     } elseif ($act === 'defend') {
         $en = min((int)$actor['max_energy'], (int)$actor['energy'] + 1);
         $shield_val = (int)round($actor['max_hp'] * 0.20);
-        $new_shield = (int)$actor['shield'] + $shield_val;
+        $new_shield = min((int)$actor['max_hp'], (int)$actor['shield'] + $shield_val);
 
         $q = $m->prepare('UPDATE game_match_cards SET is_defending=1, energy=?, shield=? WHERE id=?');
         $q->bind_param('iii', $en, $new_shield, $actorId);
@@ -1444,7 +1444,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                 case 'taunt_self_heavy':
                     $mult = ($eff_type === 'taunt_self_heavy') ? 0.75 : 0.40;
                     $shield_val = (int)round($actor['max_hp'] * $mult);
-                    $new_shield = (int)$actor['shield'] + $shield_val;
+                    $new_shield = min((int)$actor['max_hp'], (int)$actor['shield'] + $shield_val);
 
                     $actor_effects[] = ['type' => 'taunt', 'value' => 1, 'duration' => 2, 'name' => 'Provocazione'];
                     $status_json = json_encode($actor_effects);
@@ -1564,7 +1564,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                     $allies = gd_cards($m, $mid);
                     foreach ($allies as $ally) {
                         if ((int)$ally['user_id'] === $uid && !(int)$ally['is_ko']) {
-                            $new_shield = (int)$ally['shield'] + $shield_val;
+                            $new_shield = min((int)$ally['max_hp'], (int)$ally['shield'] + $shield_val);
                             $m->query("UPDATE game_match_cards SET shield={$new_shield} WHERE id={$ally['id']}");
                         }
                     }
@@ -1814,7 +1814,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                         $heal = (int)round($dmg * 0.50);
                         $new_hp = min((int)$actor['max_hp'], (int)$actor['current_hp'] + $heal);
                         $shield_val = (int)round($actor['max_hp'] * 0.20);
-                        $new_shield = (int)$actor['shield'] + $shield_val;
+                        $new_shield = min((int)$actor['max_hp'], (int)$actor['shield'] + $shield_val);
 
                         $m->query("UPDATE game_match_cards SET current_hp={$new_hp}, shield={$new_shield} WHERE id={$actorId}");
 
@@ -1853,7 +1853,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                     }
                     $new_hp = min((int)$actor['max_hp'], (int)$actor['current_hp'] + $heal_val);
                     $shield_val = (int)round($actor['max_hp'] * 0.25);
-                    $new_shield = (int)$actor['shield'] + $shield_val;
+                    $new_shield = min((int)$actor['max_hp'], (int)$actor['shield'] + $shield_val);
 
                     $m->query("UPDATE game_match_cards SET current_hp={$new_hp}, shield={$new_shield} WHERE id={$actorId}");
                     $msg .= "Rigenera {$heal_val} HP su se stesso e ottiene uno Scudo di {$shield_val} HP.";
@@ -1867,7 +1867,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                             $heal_val = (int)round($ally['max_hp'] * 0.60);
                             $new_hp = min((int)$ally['max_hp'], (int)$ally['current_hp'] + $heal_val);
                             $shield_val = (int)round($ally['max_hp'] * 0.45);
-                            $new_shield = (int)$ally['shield'] + $shield_val;
+                            $new_shield = min((int)$ally['max_hp'], (int)$ally['shield'] + $shield_val);
 
                             $ally_effs = is_array($ally['status_effects']) ? $ally['status_effects'] : json_decode($ally['status_effects'] ?: '[]', true);
                             $ally_effs[] = ['type' => 'buff_crit_rate', 'value' => 35, 'duration' => 3, 'name' => 'Crit Rate +35%'];
@@ -1884,7 +1884,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                     $allies = gd_cards($m, $mid);
                     foreach ($allies as $ally) {
                         if ((int)$ally['user_id'] === $uid && !(int)$ally['is_ko']) {
-                            $new_shield = (int)$ally['shield'] + $shield_val;
+                            $new_shield = min((int)$ally['max_hp'], (int)$ally['shield'] + $shield_val);
                             $ally_effs = is_array($ally['status_effects']) ? $ally['status_effects'] : json_decode($ally['status_effects'] ?: '[]', true);
                             $ally_effs[] = ['type' => 'immunity', 'value' => 1, 'duration' => 2, 'name' => 'Immunità'];
 

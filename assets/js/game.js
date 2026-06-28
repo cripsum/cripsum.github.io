@@ -113,7 +113,7 @@
     }[lang];
 
     const page = document.body?.dataset.page || '';
-    const state = { matchId: Number(document.body?.dataset.matchId || 0) || null, roomCode:null, inventory:[], selectedTeam:[], match:null, poll:null, lastActionId:0, resultShown:false, lastChatId:0, lastReactionId:0 };
+    const state = { matchId: Number(document.body?.dataset.matchId || 0) || null, roomCode:null, inventory:[], selectedTeam:[], match:null, poll:null, lastActionId:0, resultShown:false, lastChatId:0, lastReactionId:0, isPolling:false };
     const $ = (s,r=document)=>r.querySelector(s);
     const $$ = (s,r=document)=>Array.from(r.querySelectorAll(s));
     let toastTimer=null;
@@ -350,26 +350,39 @@
     function startPolling(){stopPolling(); pollState(true); state.poll=setInterval(()=>{if(!document.hidden)pollState(false)},1500)}
     function stopPolling(){if(state.poll)clearInterval(state.poll); state.poll=null;}
     async function pollState(first=false){
-        if(!state.matchId)return; 
+        if(!state.matchId || state.isPolling)return; 
+        state.isPolling = true;
         try{
             const d=await api('/api/game/get_match_state.php',{match_id:state.matchId},'GET'); 
             const oldLast=state.lastActionId; 
-            state.match=d.match; 
-            renderMatch(first); 
-            const actions=state.match.actions||[]; 
+            
+            const actions=d.match.actions||[]; 
             const newest=actions.length?Number(actions[actions.length-1].id):0; 
-            if(!first && newest>oldLast){
+            const hasNewActions = !first && newest > oldLast;
+
+            if (first || !hasNewActions) {
+                state.match = d.match;
+                renderMatch(first);
+            }
+
+            if(hasNewActions){
                 const newActions=actions.filter(a=>Number(a.id)>oldLast); 
                 for(const act of newActions){
                     await animateAction(act);
                 }
+                // Once animations are completed, update state and render new UI
+                state.match = d.match;
+                renderMatch(false);
             } 
+            
             state.lastActionId=Math.max(oldLast,newest);
             if(state.match.status==='finished' && state.match.viewer_role !== 'spectator'){
                 showResult();
             }
         }catch(e){
             showToast(e.message);
+        }finally{
+            state.isPolling = false;
         }
     }
     function myId(){return state.match?.viewer_id}
