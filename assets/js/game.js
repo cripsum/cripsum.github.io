@@ -120,7 +120,82 @@
         $$('[data-battle-action]').forEach(b=>b.disabled=spectator||!myTurn||m.status!=='active');
         if(m.status==='finished' && !spectator)showResult();
     }
-    function renderActive(sel,card){const el=$(sel); if(!el)return; if(!card){el.innerHTML='<p class="game-hint">Nessuna carta.</p>';return} const ch=card.character||{}; el.dataset.cardId=card.id; el.innerHTML=`${cardImg(ch.img_url,ch.nome)}<div class="game-active-name"><strong>${esc(ch.nome||'Carta')}</strong><span>${esc(ch.rarita||'comune')}</span></div><div class="game-hpbar"><span style="--value:${pct(card.current_hp,card.max_hp)}%"></span></div><small>HP ${card.current_hp}/${card.max_hp}</small><div class="game-energybar"><span style="--value:${pct(card.energy,card.max_energy)}%"></span></div><small>Energia ${card.energy}/${card.max_energy} · CD ${card.special_cooldown}</small><div class="game-card-stats"><span>ATK ${card.attack}</span><span>DEF ${card.defense}</span><span>SPD ${card.speed}</span><span>${Number(card.is_defending)?'Difesa':'Pronto'}</span></div>`}
+    function roleBadge(role) {
+        const emojis = {
+            'Tank': '🛡️ Tank',
+            'Bruiser': '⚔️🛡️ Bruiser',
+            'DPS': '⚔️ DPS',
+            'Burst DPS': '💥 Burst',
+            'Sub DPS': '🗡️ Sub DPS',
+            'Support': '🔮 Support',
+            'Healer': '💚 Healer',
+            'Controller': '🌀 Control',
+            'Debuffer': '💀 Debuff',
+            'Buffer': '✨ Buffer'
+        };
+        return `<span class="game-role-badge" data-role="${role || 'DPS'}">${emojis[role] || role || 'DPS'}</span>`;
+    }
+    function renderActive(sel,card){
+        const el=$(sel); if(!el)return;
+        if(!card){el.innerHTML='<p class="game-hint">Nessuna carta.</p>';return}
+        const ch=card.character||{};
+        el.dataset.cardId=card.id;
+        
+        const hpPct = pct(card.current_hp, card.max_hp);
+        const shieldPct = Math.min(100, Math.round(((card.shield || 0) / card.max_hp) * 100));
+        
+        const effectsHtml = (card.status_effects || []).map(eff => {
+            const icons = {
+                'poison': '🤢',
+                'bleed': '🩸',
+                'regen': '🩹',
+                'stun': '⚡',
+                'freeze': '❄️',
+                'buff_atk': '⚔️+',
+                'debuff_atk': '⚔️-',
+                'buff_def': '🛡️+',
+                'debuff_def': '🛡️-',
+                'buff_spd': '👟+',
+                'debuff_spd': '👟-',
+                'buff_crit_rate': '💥+',
+                'buff_crit_dmg': '🔥+',
+                'taunt': '🎯',
+                'immunity': '🌟',
+                'counter': '🔄'
+            };
+            const icon = icons[eff.type] || '❓';
+            const isDebuff = ['poison', 'bleed', 'stun', 'freeze', 'debuff_atk', 'debuff_def', 'debuff_spd'].includes(eff.type);
+            const cls = isDebuff ? 'is-debuff' : 'is-buff';
+            return `<span class="game-status-badge ${cls}" title="${esc(eff.name)}: ${eff.value} (${eff.duration} turni)">${icon} <small>${eff.duration}t</small></span>`;
+        }).join('');
+
+        el.innerHTML=`
+            ${cardImg(ch.img_url,ch.nome)}
+            <div class="game-active-name">
+                <strong>${esc(ch.nome||'Carta')}</strong>
+                <div class="game-active-meta">
+                    <span>${esc(ch.rarita||'comune')}</span>
+                    ${roleBadge(card.role)}
+                </div>
+            </div>
+            <div class="game-hpbar">
+                <span class="hp-fill" style="--value:${hpPct}%"></span>
+                ${card.shield > 0 ? `<span class="shield-fill" style="--value:${shieldPct}%"></span>` : ''}
+            </div>
+            <small>HP ${card.current_hp}/${card.max_hp} ${card.shield > 0 ? ` (+${card.shield})` : ''}</small>
+            <div class="game-energybar">
+                <span style="--value:${pct(card.energy,card.max_energy)}%"></span>
+            </div>
+            <small>Energia ${card.energy}/${card.max_energy} · CD ${card.special_cooldown}</small>
+            <div class="game-active-effects">${effectsHtml}</div>
+            <div class="game-card-stats">
+                <span>ATK ${card.attack}</span>
+                <span>DEF ${card.defense}</span>
+                <span>SPD ${card.speed}</span>
+                <span>${Number(card.is_defending)?'Difesa':'Pronto'}</span>
+            </div>
+        `;
+    }
     function renderTeam(sel,cards,mine){const el=$(sel); if(!el)return; el.innerHTML=cards.map(c=>{const ch=c.character||{};return `<button class="game-mini-card ${Number(c.is_active)?'is-active':''} ${Number(c.is_ko)?'is-ko':''}" data-card-id="${c.id}" type="button" ${mine&&!Number(c.is_ko)?'':'disabled'}>${cardImg(ch.img_url,ch.nome)}<strong>${esc(ch.nome||'Carta')}</strong><small>${c.current_hp}/${c.max_hp} HP</small></button>`}).join(''); if(mine && state.match?.viewer_role !== 'spectator')$$('.game-mini-card',el).forEach(btn=>btn.addEventListener('click',()=>submitBattle('switch',Number(btn.dataset.cardId))))}
     function renderLog(actions){const log=$('#battleLog'); if(!log)return; if(!actions.length){log.innerHTML='<p class="game-hint">Il log apparirà qui.</p>';return} log.innerHTML=actions.map(a=>`<div class="game-log-row"><strong>T${a.turn_number}</strong> ${esc(a.message)} ${Number(a.damage)>0?`· ${a.damage} danni`:''}</div>`).join(''); log.scrollTop=log.scrollHeight;}
     
@@ -224,7 +299,23 @@
     }
 
     async function submitBattle(action,target=null){try{const p={match_id:state.matchId,action}; if(target)p.target_card_id=target; await api('/api/game/submit_action.php',p); await pollState(false)}catch(e){showToast(e.message)}}
-    function animateAction(a){const actor=Number(a.actor_card_id), target=Number(a.target_card_id); const type=a.action_type; const actorCls=type==='special_attack'?'fx-special':type==='defend'?'fx-defend':type==='charge'?'fx-charge':type==='switch'?'fx-switch':'fx-attack'; const label=type==='charge'?'+ energia':type==='defend'?'difesa':type==='special_attack'?'speciale':type==='switch'?'cambio':'attacco'; showActionBanner(a, label); if(actor)flashCard(actor,actorCls,label); if(target&&Number(a.damage)>0)flashCard(target,'fx-hit',`-${a.damage}`,true); const fx=$('#gameFx'); if(fx&&type==='special_attack'){fx.classList.remove('is-special');void fx.offsetWidth;fx.classList.add('is-special');setTimeout(()=>fx.classList.remove('is-special'),700)}}
+    function animateAction(a){
+        const actor=Number(a.actor_card_id), target=Number(a.target_card_id);
+        const type=a.action_type;
+        const isCrit = (a.message || '').toLowerCase().includes('critico');
+        const actorCls=type==='special_attack'?'fx-special':type==='defend'?'fx-defend':type==='charge'?'fx-charge':type==='switch'?'fx-switch':'fx-attack';
+        const label=type==='charge'?'+ energia':type==='defend'?'difesa':type==='special_attack'?'speciale':type==='switch'?'cambio':'attacco';
+        showActionBanner(a, label);
+        if(actor) flashCard(actor,actorCls,label);
+        if(target&&Number(a.damage)>0) {
+            flashCard(target, isCrit ? 'fx-crit-hit' : 'fx-hit', `-${a.damage}`, true, isCrit);
+        }
+        const fx=$('#gameFx');
+        if(fx&&type==='special_attack'){
+            fx.classList.remove('is-special');void fx.offsetWidth;fx.classList.add('is-special');
+            setTimeout(()=>fx.classList.remove('is-special'),700);
+        }
+    }
     
     function showActionBanner(a,label){
         const arena = $('#arenaPanel');
@@ -243,7 +334,16 @@
         setTimeout(() => banner.remove(), 1300);
     }
 
-    function flashCard(id,cls,label,damage=false){$$(`[data-card-id="${id}"]`).forEach(el=>{el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls); const tag=document.createElement('span'); tag.className=`game-floating-feedback ${damage?'is-damage':'is-buff'}`; tag.textContent=label; el.appendChild(tag); setTimeout(()=>{el.classList.remove(cls);tag.remove()},1050)})}
+    function flashCard(id,cls,label,damage=false,isCrit=false){
+        $$(`[data-card-id="${id}"]`).forEach(el=>{
+            el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls);
+            const tag=document.createElement('span');
+            tag.className=`game-floating-feedback ${damage?'is-damage':'is-buff'} ${isCrit?'is-crit':''}`;
+            tag.textContent=label;
+            el.appendChild(tag);
+            setTimeout(()=>{el.classList.remove(cls);tag.remove()},1050);
+        });
+    }
     function showResult(){if(state.resultShown)return; state.resultShown=true; const m=state.match, modal=$('#resultModal'); if(!modal)return; const win=Number(m.winner_id)===Number(myId()); $('#resultKicker').textContent=m.mode==='ranked'?'Ranked conclusa':(m.mode==='bot'?'Offline conclusa':'Partita conclusa'); $('#resultTitle').textContent=win?'Hai vinto':'Hai perso'; $('#resultText').textContent=m.mode==='bot'?(win?'Hai battuto il bot.':'Il bot ti ha mandato KO.'):(win?'Team avversario KO.':'Il tuo team è andato KO.'); const box=$('#rankedFeedback'); if(m.mode==='ranked'&&m.ranked_result&&box){const rr=m.ranked_result; box.hidden=false; box.innerHTML=`<div class="${rr.viewer_delta>=0?'is-plus':'is-minus'}"><strong>Tu</strong><b>${rr.viewer_delta>=0?'+':''}${rr.viewer_delta}</b>${rankBadge(rr.viewer_rank_after)}</div><div class="${rr.opponent_delta>=0?'is-plus':'is-minus'}"><strong>Avversario</strong><b>${rr.opponent_delta>=0?'+':''}${rr.opponent_delta}</b>${rankBadge(rr.opponent_rank_after)}</div>`} modal.hidden=false;}
     async function forfeit(){if(!state.matchId){window.location.href='/it/game/lobby.php';return} if(!confirm('Vuoi abbandonare?'))return; try{await api('/api/game/forfeit_match.php',{match_id:state.matchId}); window.location.href='/it/game/lobby.php'}catch(e){showToast(e.message)}}
 

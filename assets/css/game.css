@@ -467,11 +467,116 @@ body.game-page {
     border-radius: 999px;
     background: rgba(255, 255, 255, .08);
     margin-top: .55rem;
+    position: relative;
 }
 .game-hpbar span,
-.game-energybar span { display: block; height: 100%; width: var(--value, 100%); transition: width .28s ease; }
-.game-hpbar span { background: linear-gradient(90deg, var(--game-red), var(--game-orange)); }
-.game-energybar span { background: linear-gradient(90deg, var(--game-blue), var(--game-accent)); }
+.game-energybar span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    height: 100%;
+    width: var(--value, 100%);
+    transition: width .28s ease;
+}
+.game-hpbar .hp-fill {
+    background: linear-gradient(90deg, var(--game-red), var(--game-orange));
+    z-index: 1;
+}
+.game-hpbar .shield-fill {
+    background: linear-gradient(90deg, rgba(56, 189, 248, 0.8), rgba(14, 165, 233, 0.8));
+    box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+    z-index: 2;
+}
+.game-energybar span {
+    background: linear-gradient(90deg, var(--game-blue), var(--game-accent));
+}
+
+/* Stili del Nuovo Sistema di Ruoli ed Effetti di Stato */
+.game-active-meta {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin-top: .25rem;
+}
+.game-role-badge {
+    display: inline-block;
+    font-size: 0.68rem;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 800;
+    text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,0.12);
+}
+.game-role-badge[data-role="Tank"] { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border-color: rgba(59, 130, 246, 0.4); }
+.game-role-badge[data-role="Bruiser"] { background: rgba(100, 116, 139, 0.2); color: #cbd5e1; border-color: rgba(100, 116, 139, 0.4); }
+.game-role-badge[data-role="DPS"] { background: rgba(239, 68, 68, 0.2); color: #f87171; border-color: rgba(239, 68, 68, 0.4); }
+.game-role-badge[data-role="Burst DPS"] { background: rgba(249, 115, 22, 0.2); color: #fb923c; border-color: rgba(249, 115, 22, 0.4); }
+.game-role-badge[data-role="Sub DPS"] { background: rgba(234, 179, 8, 0.2); color: #facc15; border-color: rgba(234, 179, 8, 0.4); }
+.game-role-badge[data-role="Support"] { background: rgba(168, 85, 247, 0.2); color: #c084fc; border-color: rgba(168, 85, 247, 0.4); }
+.game-role-badge[data-role="Healer"] { background: rgba(16, 185, 129, 0.2); color: #34d399; border-color: rgba(16, 185, 129, 0.4); }
+.game-role-badge[data-role="Controller"] { background: rgba(6, 182, 212, 0.2); color: #22d3ee; border-color: rgba(6, 182, 212, 0.4); }
+.game-role-badge[data-role="Debuffer"] { background: rgba(99, 102, 241, 0.2); color: #818cf8; border-color: rgba(99, 102, 241, 0.4); }
+.game-role-badge[data-role="Buffer"] { background: rgba(236, 72, 153, 0.2); color: #f472b6; border-color: rgba(236, 72, 153, 0.4); }
+
+.game-active-effects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 8px 0;
+    min-height: 24px;
+}
+.game-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.68rem;
+    padding: 1px 6px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.game-status-badge.is-buff {
+    border-color: rgba(16, 185, 129, 0.35);
+    color: #34d399;
+}
+.game-status-badge.is-debuff {
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #f87171;
+}
+.game-status-badge small {
+    font-size: 0.6rem;
+    opacity: 0.85;
+}
+
+/* Animazioni Colpo Critico */
+.game-floating-feedback.is-crit {
+    font-size: 1.65rem;
+    font-weight: 900;
+    color: #facc15 !important;
+    text-shadow: 0 0 12px #eab308, 0 0 4px #000;
+    animation: critFloat 1.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    z-index: 99;
+}
+@keyframes critFloat {
+    0% { transform: translateY(15px) scale(0.4) rotate(-12deg); opacity: 0; }
+    18% { transform: translateY(-18px) scale(1.35) rotate(6deg); opacity: 1; }
+    40% { transform: translateY(-24px) scale(1.15) rotate(-4deg); }
+    100% { transform: translateY(-50px) scale(1.0) rotate(0deg); opacity: 0; }
+}
+.game-active-card.fx-crit-hit {
+    animation: critShake 0.45s ease-in-out;
+}
+@keyframes critShake {
+    0%, 100% { transform: translateX(0); }
+    15% { transform: translateX(-8px) rotate(-1.5deg); }
+    30% { transform: translateX(8px) rotate(1.5deg); }
+    45% { transform: translateX(-6px) rotate(-0.8deg); }
+    60% { transform: translateX(6px) rotate(0.8deg); }
+    75% { transform: translateX(-3px); }
+    90% { transform: translateX(3px); }
+}
+
 
 .game-vs { display: grid; place-items: center; color: #fff; font-size: 1.4rem; font-weight: 950; }
 .game-vs span {
