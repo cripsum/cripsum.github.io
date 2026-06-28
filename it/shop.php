@@ -71,7 +71,7 @@ $successPackage = $_GET['package_id'] ?? '';
     <meta charset="UTF-8">
     <title>Shop Godo Shards - Cripsum™</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/shop.css?v=1.4">
+    <link rel="stylesheet" href="/css/shop.css?v=1.5">
     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo urlencode(PAYPAL_CLIENT_ID); ?>&currency=EUR&locale=it_IT"></script>
     <style>
         .shop-toast {
@@ -189,11 +189,18 @@ $successPackage = $_GET['package_id'] ?? '';
                             <?php if ($isBonusAvailable): ?>
                                 <span class="card-amount-original"><?= $shards ?></span>
                             <?php endif; ?>
-                            <span class="card-amount"><?= $displayShards ?> Godo Shards</span>
+                            <span class="card-amount"><?= $displayShards ?></span>
+                            <?php if ($isBonusAvailable): ?>
+                                <small class="card-amount-bonus-note">+<?= $shards ?> Shards Gratis!</small>
+                            <?php endif; ?>
                         </div>
 
-                        <div class="card-price-wrap">
-                            <span class="card-price">€ <?= number_format($price, 2, ',', '.') ?></span>
+                        <div class="card-equivalence">
+                            <?= htmlspecialchars(formatEquivalence($displayShards)) ?>
+                        </div>
+
+                        <div class="card-price">
+                            €<?= number_format($price, 2, ',', '.') ?>
                         </div>
 
                         <button class="card-btn" onclick="openPaymentModal('<?= $pid ?>', '<?= $pkg['name'] ?>', '<?= $price ?>')">
@@ -211,24 +218,31 @@ $successPackage = $_GET['package_id'] ?? '';
                     <div class="card-badges">
                         <span class="shop-badge badge-value">100 Punti = 1 Shard</span>
                     </div>
+
                     <div class="card-shards-icon">
                         <img src="/img/godoshards.png" alt="Godo Shards" style="width: 60px; height: 60px; object-fit: contain;">
                     </div>
-                    <div class="card-amount-wrap" style="margin-top: 1rem;">
+
+                    <div class="card-amount-wrap">
                         <span class="card-amount">Godo Shards</span>
-                        <div class="card-description" style="color: #94a3b8; font-size: 0.85rem; margin-top: 0.5rem; min-height: 40px;">
-                            Converti i tuoi Godos in Godo Shards per pullare nei banner gacha.
-                        </div>
+                        <small class="card-amount-bonus-note" style="display: block; min-height: 28px;">Converti Godos in Shards</small>
                     </div>
-                    <div class="card-price-wrap" style="margin-top: 1.5rem;">
-                        <span class="card-price" style="font-size: 1.3rem; color: #a855f7;">Costo: 100 Godos / cad</span>
+
+                    <div class="card-equivalence">
+                        Gacha Pulls
                     </div>
-                    <button class="card-btn" onclick="openGodosConverter()" style="margin-top: 1.5rem; background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); border: none;">
+
+                    <div class="card-price" style="font-size: 1.15rem; color: #a855f7;">
+                        Costo: 100 Godos / cad
+                    </div>
+
+                    <button class="card-btn" onclick="openGodosConverter()" style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); border: none;">
                         Converti Punti
                     </button>
                 </div>
             </main>
-        </div> </main>
+        </div>
+    </main>
     </div>
 
     <!-- Modal Scelta Pagamento -->
