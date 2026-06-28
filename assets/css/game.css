@@ -2373,7 +2373,8 @@ body.game-page .dropdown-menu button:focus { color: #fff !important; background:
     box-shadow: 0 0 15px rgba(var(--rarity-color), 0.12);
 }
 
-.game-card-wrapper[class*="rarity-"]:not(.rarity-comune) .game-card-rarity-badge {
+.game-card-wrapper[class*="rarity-"]:not(.rarity-comune) .game-card-rarity-badge,
+.game-card-details-hover[class*="rarity-"]:not(.rarity-comune) .game-card-rarity-badge {
     background: rgba(var(--rarity-color), 0.1);
     color: rgb(var(--rarity-color));
     border-color: rgba(var(--rarity-color), 0.2);

@@ -270,7 +270,7 @@
                     </div>
                 </button>
                 <button type="button" class="game-card-info-btn" aria-label="Info"><i class="fa-solid fa-circle-info"></i></button>
-                <div class="game-card-details-hover">
+                <div class="game-card-details-hover rarity-${rarKey}">
                     <div class="game-hover-body">
                         <div class="game-hover-header">
                             <h4>${esc(card.nome)}</h4>
