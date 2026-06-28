@@ -213,7 +213,7 @@
 
         renderActive('#playerActive',activeOf(sides.rightUid));
         renderActive('#opponentActive',activeOf(sides.leftUid));
-        renderTeam('#playerTeam',cardsOf(sides.rightUid),!spectator && Number(sides.rightUid)===Number(myId()));
+        renderTeam('#playerTeam',cardsOf(sides.rightUid),!spectator && Number(sides.rightUid)===Number(myId()) && myTurn);
         renderTeam('#opponentTeam',cardsOf(sides.leftUid),false);
         renderLog(m.actions||[]);
         renderChat(m.chat||[]);
