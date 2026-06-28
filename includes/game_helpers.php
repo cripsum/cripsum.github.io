@@ -1535,7 +1535,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                     $status_json = json_encode($actor_effects);
                     
                     $m->query("UPDATE game_match_cards SET current_hp={$new_hp}, energy={$new_en}, status_effects='" . $m->escape_string($status_json) . "' WHERE id={$actorId}");
-                    $msg .= "Sossio si esibisce: cura se stesso di {$heal} HP, ottiene +35% Attacco per 2 turni e guadagna 1 Energia!";
+                    $msg .= "Sossio lancia un Guscio Blu Fulminante: cura se stesso di {$heal} HP, ottiene +35% Attacco per 2 turni e guadagna 1 Energia!";
                     break;
 
                 case 'manuel_beatboxer_special':
@@ -2561,7 +2561,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                 $msg .= " **[Lega di Tungsteno]** Riflette {$reflected_dmg} danni a {$char_name}!";
             }
             
-            // Sossio - Ballo del Trash (Velocità +10% a tutto il team quando subisce danni)
+            // Sossio - Mariokartare Tattico (Velocità +10% a tutto il team quando subisce danni)
             if ((int)($t['personaggio_id'] ?? 0) === 49 && $dmg_taken > 0) {
                 $allies = gd_cards($m, $mid);
                 foreach ($allies as $ally) {
@@ -2572,12 +2572,12 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                             if ($e['type'] === 'sossio_speed') $sossio_buffs++;
                         }
                         if ($sossio_buffs < 3) {
-                            $a_effects[] = ['type' => 'sossio_speed', 'value' => 10, 'duration' => 2, 'name' => 'Ballo del Trash +10% Spd'];
+                            $a_effects[] = ['type' => 'sossio_speed', 'value' => 10, 'duration' => 2, 'name' => 'Triplo Guscio Rosso +10% Spd'];
                             $m->query("UPDATE game_match_cards SET status_effects='" . $m->escape_string(json_encode(array_values($a_effects))) . "' WHERE id={$ally['id']}");
                         }
                     }
                 }
-                $msg .= " **[Ballo del Trash]** Il ritmo di Sossio aumenta la Velocità del suo team!";
+                $msg .= " **[Triplo Guscio Rosso]** I gusci rossi rotanti aumentano la Velocità del suo team!";
             }
             
             // Dante - Stile Elegantissimo (Perde lo stile se subisce danni)

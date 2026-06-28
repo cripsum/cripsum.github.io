@@ -106,16 +106,16 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
         ],
         49 => [
             'role' => $role,
-            'passive_name' => 'Snaking Selvaggio',
-            'passive_desc' => 'Ogni volta che subisce danni, esegue uno snaking perfetto che aumenta la Velocità di tutti gli alleati del 10% (max 30%) per 2 turni.',
+            'passive_name' => 'Triplo Guscio Rosso',
+            'passive_desc' => 'Ogni volta che subisce danni, usa un guscio rosso che aumenta la Velocità di tutti gli alleati del 10% (max 30% con il Triplo Guscio) per 2 turni.',
             'passive_effect' => ['type' => 'sossio_trash_passive'],
-            'special_name' => 'Shock Run Perfetta',
-            'special_desc' => 'Attiva una run leggendaria con un fulmine: cura l\'alleato attivo del 30% degli HP max, ne aumenta l\'Attacco del 35% per 2 turni e gli fornisce 1 Energia.',
+            'special_name' => 'Guscio Blu Fulminante',
+            'special_desc' => 'Cura l\'alleato attivo del 30% degli HP max, ne aumenta l\'Attacco del 35% per 2 turni e gli fornisce 1 Energia.',
             'special_effect' => ['type' => 'sossio_trash_special'],
             'special_cost' => 2,
             'special_cooldown' => 2,
             'ultimate_name' => 'Dodge con la Stella',
-            'ultimate_desc' => 'Usa la Stella per evitare ogni minaccia: cura tutto il team del 45% degli HP max, aumenta l\'Attacco del 40% per 3 turni e fornisce 3 Energia a tutti gli alleati.',
+            'ultimate_desc' => 'Cura tutto il team del 45% degli HP max, aumenta l\'Attacco del 40% per 3 turni e fornisce 3 Energia a tutti gli alleati.',
             'ultimate_effect' => ['type' => 'sossio_trash_ultimate']
         ],
         50 => [
