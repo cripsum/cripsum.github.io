@@ -432,6 +432,7 @@ body.game-page {
 .game-arena.fx-charge { box-shadow: 0 0 42px rgba(6, 182, 212, .18), 0 24px 72px rgba(0, 0, 0, .34); }
 
 .game-board {
+    position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     gap: 1rem;
@@ -870,7 +871,7 @@ body.game-page .dropdown-menu button:focus { color: #fff !important; background:
     --rank-campione: #a78bfa;
     --rank-leggenda: #fb7185;
 }
-.game-lobby-shell,.game-arena-shell{width:min(1240px,calc(100% - 32px));}
+.game-lobby-shell,.game-arena-shell{position:relative;width:min(1240px,calc(100% - 32px));}
 .game-lobby-grid{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:1rem;margin-top:1rem;align-items:start;}
 .game-profile-card{border:1px solid var(--game-border);border-radius:28px;background:rgba(255,255,255,.055);padding:1rem;min-width:280px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.035)}
 .game-profile-top{display:flex;align-items:center;gap:.8rem}.game-profile-top img{width:58px;height:58px;border-radius:18px;object-fit:cover;background:rgba(0,0,0,.25)}
@@ -1439,7 +1440,7 @@ body.game-page .dropdown-menu button:focus { color: #fff !important; background:
 
 .game-reaction-float {
     position: absolute;
-    top: 48%;
+    bottom: 10%;
     z-index: 70;
     display: grid;
     justify-items: center;

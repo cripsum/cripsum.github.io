@@ -469,8 +469,8 @@ function gd_check_and_trigger_resurrect(mysqli $m, int $mid, int $uid, array $de
     $dead_id = (int)$dead_card['id'];
     
     // Prima verifichiamo la rianimazione di "The One" (rianimazione personale)
-    $dead_char = gd_character($m, (int)$dead_card['personaggio_id']) ?? ['nome' => 'Personaggio', 'rarita' => 'comune'];
-    $dead_cfg = gd_get_character_config((int)$dead_card['personaggio_id'], $dead_char['rarita'], $dead_char['nome']);
+    $dead_char = gd_character($m, (int)$dead_card['personaggio_id']);
+    $dead_cfg = gd_get_character_config((int)$dead_card['personaggio_id'], $dead_char['rarita'], $dead_char['nome'], $dead_char['ruolo'] ?? 'DPS');
     if (isset($dead_cfg['passive_effect']['type']) && $dead_cfg['passive_effect']['type'] === 'the_one_passive') {
         $effects = is_array($dead_card['status_effects']) ? $dead_card['status_effects'] : json_decode($dead_card['status_effects'] ?: '[]', true);
         $used = false;
@@ -497,8 +497,8 @@ function gd_check_and_trigger_resurrect(mysqli $m, int $mid, int $uid, array $de
     $cards = gd_cards($m, $mid);
     foreach ($cards as $c) {
         if ((int)$c['user_id'] === $uid && !(int)$c['is_ko']) {
-            $c_char = $c['character'] ?? gd_character($m, (int)$c['personaggio_id']) ?? ['nome' => 'Personaggio', 'rarita' => 'comune'];
-            $cfg = gd_get_character_config((int)$c['personaggio_id'], $c_char['rarita'], $c_char['nome']);
+            $c_char = gd_character($m, (int)$c['personaggio_id']);
+            $cfg = gd_get_character_config((int)$c['personaggio_id'], $c_char['rarita'] ?? 'comune', $c_char['nome'] ?? '', $c_char['ruolo'] ?? 'DPS');
             if (isset($cfg['passive_effect']['type']) && $cfg['passive_effect']['type'] === 'destiny_resurrect') {
                 $effects = is_array($c['status_effects']) ? $c['status_effects'] : json_decode($c['status_effects'] ?: '[]', true);
                 $used = false;
@@ -552,9 +552,9 @@ function gd_transition_turn(mysqli $m, array $match, int $next_uid): void {
         $new_effects = [];
         $hp_change = 0;
         
-        $active_char = gd_character($m, (int)$active['personaggio_id']) ?? ['nome' => 'Personaggio', 'rarita' => 'comune'];
-        $char_name = $active_char['nome'];
-        $ch_cfg = gd_get_character_config((int)$active['personaggio_id'], $active_char['rarita'], $active_char['nome']);
+        $active_char = gd_character($m, (int)$active['personaggio_id']);
+        $ch_cfg = gd_get_character_config((int)$active['personaggio_id'], $active_char['rarita'] ?? 'comune', $active_char['nome'] ?? '', $active_char['ruolo'] ?? 'DPS');
+        $char_name = $active_char['nome'] ?? 'Personaggio';
         
         // Nauz Principessa Cosmica - Polvere di Stelle (cura l'alleato con meno HP)
         if (isset($ch_cfg['passive_effect']['type']) && $ch_cfg['passive_effect']['type'] === 'nauz_cosmic_passive') {
@@ -706,7 +706,7 @@ function gd_insert_team_cards(mysqli $m, int $mid, int $uid, array $team): void 
         
         // Controlla scudo passivo iniziale
         $ch = gd_character($m, $pid);
-        $cfg = gd_get_character_config($pid, $ch['rarita'] ?? 'comune', $ch['nome'] ?? '');
+        $cfg = gd_get_character_config($pid, $ch['rarita'] ?? 'comune', $ch['nome'] ?? '', $ch['ruolo'] ?? 'DPS');
         $shield = 0;
         if (isset($cfg['passive_effect']['type']) && $cfg['passive_effect']['type'] === 'shield_at_start') {
             $shield = (int)round($hp * ($cfg['passive_effect']['pct'] / 100));
@@ -728,8 +728,8 @@ function gd_insert_team_cards(mysqli $m, int $mid, int $uid, array $team): void 
     });
     $total_support_shield_pct = 0;
     foreach ($user_cards as $c) {
-        $c_char = $c['character'];
-        $c_cfg = gd_get_character_config((int)$c['personaggio_id'], $c_char['rarita'] ?? 'comune', $c_char['nome'] ?? '');
+        $c_char = gd_character($m, (int)$c['personaggio_id']);
+        $c_cfg = gd_get_character_config((int)$c['personaggio_id'], $c_char['rarita'] ?? 'comune', $c_char['nome'] ?? '', $c_char['ruolo'] ?? 'DPS');
         if (isset($c_cfg['passive_effect']['type']) && $c_cfg['passive_effect']['type'] === 'shield_team_at_start') {
             $total_support_shield_pct += (int)$c_cfg['passive_effect']['pct'];
         }
@@ -776,9 +776,9 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
     if (!$actor) gd_fail('Nessuna carta attiva.');
     $actorId = (int)$actor['id'];
     
-    $actor_char = gd_character($m, (int)$actor['personaggio_id']) ?? ['nome' => 'Personaggio', 'rarita' => 'comune'];
-    $char_name = $actor_char['nome'];
-    $actor_cfg = gd_get_character_config((int)$actor['personaggio_id'], $actor_char['rarita'] ?? 'comune', $actor_char['nome'] ?? '');
+    $actor_char = gd_character($m, (int)$actor['personaggio_id']);
+    $actor_cfg = gd_get_character_config((int)$actor['personaggio_id'], $actor_char['rarita'] ?? 'comune', $actor_char['nome'] ?? '', $actor_char['ruolo'] ?? 'DPS');
+    $char_name = $actor_char['nome'] ?? 'Personaggio';
     
     $dmg = 0;
     $msg = '';
@@ -876,10 +876,9 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
         $a_stats = gd_get_modified_stats($actor);
         $t_stats = gd_get_modified_stats($t);
         
-        $target_char = gd_character($m, (int)$t['personaggio_id']) ?? ['nome' => 'Personaggio', 'rarita' => 'comune'];
-        $target_name = $target_char['nome'];
-        
-        $target_cfg = gd_get_character_config((int)$t['personaggio_id'], $target_char['rarita'] ?? 'comune', $target_char['nome'] ?? '');
+        $target_char = gd_character($m, (int)$t['personaggio_id']);
+        $target_cfg = gd_get_character_config((int)$t['personaggio_id'], $target_char['rarita'] ?? 'comune', $target_char['nome'] ?? '', $target_char['ruolo'] ?? 'DPS');
+        $target_name = $target_char['nome'] ?? 'Personaggio';
         
         // Charlie Kirk - Fatti e Logica (ignora il 30% della difesa nemica)
         if ((int)($actor['personaggio_id'] ?? 0) === 64) {
@@ -937,8 +936,8 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
         $team_cards = gd_cards($m, $mid);
         foreach ($team_cards as $tc) {
             if ((int)$tc['user_id'] === $uid && !(int)$tc['is_ko']) {
-                $tc_char = $tc['character'] ?? gd_character($m, (int)$tc['personaggio_id']) ?? ['nome' => 'Personaggio', 'rarita' => 'comune'];
-                $tc_cfg = gd_get_character_config((int)$tc['personaggio_id'], $tc_char['rarita'], $tc_char['nome']);
+                $tc_char = gd_character($m, (int)$tc['personaggio_id']);
+                $tc_cfg = gd_get_character_config((int)$tc['personaggio_id'], $tc_char['rarita'] ?? 'comune', $tc_char['nome'] ?? '', $tc_char['ruolo'] ?? 'DPS');
                 if (isset($tc_cfg['passive_effect']['type']) && $tc_cfg['passive_effect']['type'] === 'the_one_passive') {
                     $has_the_one_passive = true;
                     break;
@@ -980,8 +979,8 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
         $buffer_bonus = 0;
         foreach ($team_cards as $tc) {
             if ((int)$tc['user_id'] === $uid && !(int)$tc['is_ko'] && (int)$tc['is_active'] === 1) {
-                $tc_char = $tc['character'] ?? gd_character($m, (int)$tc['personaggio_id']) ?? ['nome' => 'Personaggio', 'rarita' => 'comune'];
-                $tc_cfg = gd_get_character_config((int)$tc['personaggio_id'], $tc_char['rarita'], $tc_char['nome']);
+                $tc_char = gd_character($m, (int)$tc['personaggio_id']);
+                $tc_cfg = gd_get_character_config((int)$tc['personaggio_id'], $tc_char['rarita'] ?? 'comune', $tc_char['nome'] ?? '', $tc_char['ruolo'] ?? 'DPS');
                 if (isset($tc_cfg['passive_effect']['type']) && ($tc_cfg['passive_effect']['type'] === 'team_atk_buff' || $tc_cfg['passive_effect']['type'] === 'team_atk_buff_heavy')) {
                     $has_buffer_passive = true;
                     $buffer_bonus = ($tc_cfg['passive_effect']['type'] === 'team_atk_buff_heavy') ? 15 : 10;

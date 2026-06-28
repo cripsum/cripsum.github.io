@@ -178,7 +178,7 @@
         renderTeam('#opponentTeam',cardsOf(sides.leftUid),false);
         renderLog(m.actions||[]);
         renderChat(m.chat||[]);
-        renderReactions(m.reactions||[]);
+        renderReactions(m.reactions||[], first);
         renderSpectators();
 
         const specBox = $('#spectatorMode');
@@ -232,7 +232,11 @@
                 'taunt': '🎯',
                 'immunity': '🌟',
                 'counter': '🔄',
-                'silence': '🔇'
+                'silence': '🔇',
+                'the_one_resurrect_used': '👼',
+                'resurrect_used': '👼',
+                'plot_armor_used': '🎬',
+                'crit_ramp': '📈'
             };
             const icon = icons[eff.type] || '❓';
             const isDebuff = ['poison', 'bleed', 'stun', 'freeze', 'debuff_atk', 'debuff_def', 'debuff_spd', 'silence'].includes(eff.type);
@@ -314,17 +318,19 @@
         }
     }
 
-    function renderReactions(reactions){
-        const arena = $('#arenaPanel');
+    function renderReactions(reactions, first){
+        const arena = $('.game-board');
         if (!arena || !reactions.length) return;
 
         const newest = Number(reactions[reactions.length - 1].id || 0);
 
-        reactions
-            .filter(r => Number(r.id) > Number(state.lastReactionId || 0))
-            .forEach((r, i) => {
-                setTimeout(() => showReactionFloat(r.reaction, r.username), i * 140);
-            });
+        if (!first) {
+            reactions
+                .filter(r => Number(r.id) > Number(state.lastReactionId || 0))
+                .forEach((r, i) => {
+                    setTimeout(() => showReactionFloat(r.reaction, r.username), i * 140);
+                });
+        }
 
         if (newest > Number(state.lastReactionId || 0)) {
             state.lastReactionId = newest;
@@ -332,13 +338,13 @@
     }
 
     function showReactionFloat(reaction, username){
-        const arena = $('#arenaPanel');
+        const arena = $('.game-board');
         if (!arena) return;
 
         const bubble = document.createElement('div');
         bubble.className = 'game-reaction-float';
         bubble.innerHTML = `<span>${esc(reaction)}</span><small>${esc(username || 'Spettatore')}</small>`;
-        bubble.style.left = `${20 + Math.random() * 60}%`;
+        bubble.style.left = `${15 + Math.random() * 70}%`;
         arena.appendChild(bubble);
 
         setTimeout(() => bubble.remove(), 1700);
