@@ -2809,6 +2809,382 @@ body.game-page .dropdown-menu button:focus { color: #fff !important; background:
     }
 }
 
+/* Premium Post-Game Recap Styles */
+.game-result-modal .game-result-card {
+    width: min(920px, 95%) !important;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    padding: 1.8rem !important;
+    overflow: hidden !important;
+    text-align: center;
+}
+
+.game-recap-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.game-recap-header {
+    margin-bottom: 1.2rem;
+}
+
+.recap-title-row {
+    margin-bottom: 0.5rem;
+}
+
+.recap-kicker {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #facc15;
+}
+
+.recap-title {
+    font-size: clamp(2rem, 5vw, 3rem) !important;
+    font-weight: 900;
+    margin: 0.2rem 0;
+    letter-spacing: -1px;
+}
+
+.recap-title.is-win {
+    color: #10b981 !important;
+    text-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+}
+
+.recap-title.is-loss {
+    color: #ef4444 !important;
+    text-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+}
+
+.recap-title.is-spectator {
+    color: #38bdf8 !important;
+    text-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+}
+
+.recap-subtitle {
+    font-size: 0.95rem;
+    color: #94a3b8;
+    margin: 0;
+}
+
+/* Tabs */
+.game-recap-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 0.5rem;
+}
+
+.recap-tab-btn {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #94a3b8;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.6rem 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 12px;
+}
+
+.recap-tab-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.recap-tab-btn.is-active {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.05);
+}
+
+/* Tab Content */
+.game-recap-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 4px;
+    margin-bottom: 1.5rem;
+    min-height: 250px;
+}
+
+/* MVP Card */
+.recap-mvp-card {
+    background: radial-gradient(circle at 50% 0%, rgba(253, 224, 71, 0.15), rgba(0,0,0,0) 70%),
+                linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+    border: 1px solid rgba(253, 224, 71, 0.25);
+    border-radius: 24px;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    text-align: left;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    animation: mvpGlowPulse 4s infinite ease-in-out;
+}
+
+@keyframes mvpGlowPulse {
+    0%, 100% { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), 0 0 20px rgba(253, 224, 71, 0.05); }
+    50% { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), 0 0 40px rgba(253, 224, 71, 0.15); }
+}
+
+.mvp-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #fef08a, #facc15);
+    color: #1c1917;
+    font-weight: 900;
+    font-size: 0.8rem;
+    padding: 0.35rem 1rem;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    box-shadow: 0 4px 10px rgba(250, 204, 21, 0.3);
+}
+
+.mvp-portrait-wrapper {
+    position: relative;
+    width: 130px;
+    height: 130px;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 2px solid #facc15;
+    background: rgba(0,0,0,0.3);
+    flex-shrink: 0;
+}
+
+.mvp-portrait {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.mvp-info {
+    flex: 1;
+}
+
+.mvp-name {
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin: 0 0 0.4rem 0;
+    color: #fff;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+.mvp-role-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1.2rem;
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+}
+
+.mvp-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.mvp-stat-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 0.6rem;
+    text-align: center;
+}
+
+.mvp-stat-label {
+    display: block;
+    font-size: 0.7rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.25rem;
+}
+
+.mvp-stat-value {
+    display: block;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+/* Detailed Stats */
+.recap-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    text-align: left;
+}
+
+.recap-team-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.recap-team-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 0.5rem 0;
+    border-left: 3px solid rgba(255,255,255,0.3);
+    padding-left: 0.6rem;
+}
+
+.recap-team-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.recap-char-row {
+    display: flex;
+    gap: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 16px;
+    padding: 0.8rem;
+    align-items: center;
+}
+
+.recap-char-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    object-fit: cover;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.1);
+    flex-shrink: 0;
+}
+
+.recap-char-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.recap-char-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.recap-char-name {
+    color: #fff;
+}
+
+.recap-char-level {
+    color: #94a3b8;
+    font-size: 0.8rem;
+}
+
+.recap-bar-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.recap-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: #94a3b8;
+}
+
+.recap-bar-label strong {
+    color: #fff;
+}
+
+.recap-progress-bar-bg {
+    height: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.recap-progress-bar {
+    height: 100%;
+    border-radius: 999px;
+}
+
+.recap-progress-bar.dealt {
+    background: linear-gradient(90deg, #f87171, #ef4444);
+}
+
+.recap-progress-bar.taken {
+    background: linear-gradient(90deg, #818cf8, #4f46e5);
+}
+
+/* Battle Log */
+.recap-log-wrapper {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 1.2rem;
+    height: 320px;
+    overflow-y: auto;
+    text-align: left;
+    font-family: monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.recap-log-line {
+    display: flex;
+    gap: 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.02);
+    padding: 0.35rem 0;
+}
+
+.recap-log-line:last-child {
+    border-bottom: none;
+}
+
+.recap-log-turn {
+    color: #facc15;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.recap-log-text {
+    color: #e2e8f0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .recap-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    .recap-mvp-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.5rem;
+        gap: 1.2rem;
+    }
+    .mvp-info {
+        width: 100%;
+    }
+}
+
+
 /* Ultimate Cinematic Styles */
 #ult-cinematic-overlay {
     position: fixed;

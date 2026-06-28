@@ -376,7 +376,7 @@
             } 
             
             state.lastActionId=Math.max(oldLast,newest);
-            if(state.match.status==='finished' && state.match.viewer_role !== 'spectator'){
+            if(state.match.status==='finished'){
                 showResult();
             }
         }catch(e){
@@ -1318,8 +1318,286 @@
             setTimeout(()=>{el.classList.remove(cls);tag.remove()},1050);
         });
     }
-    function showResult(){if(state.resultShown)return; state.resultShown=true; const m=state.match, modal=$('#resultModal'); if(!modal)return; const win=Number(m.winner_id)===Number(myId()); $('#resultKicker').textContent=m.mode==='ranked'?gt.ranked_finished:(m.mode==='bot'?gt.offline_finished:gt.match_finished); $('#resultTitle').textContent=win?gt.viewer_win:gt.viewer_loss; $('#resultText').textContent=m.mode==='bot'?(win?gt.bot_win:gt.bot_loss):(win?gt.pvp_win:gt.pvp_loss); const box=$('#rankedFeedback'); if(m.mode==='ranked'&&m.ranked_result&&box){const rr=m.ranked_result; box.hidden=false; box.innerHTML=`<div class="${rr.viewer_delta>=0?'is-plus':'is-minus'}"><strong>${gt.you}</strong><b>${rr.viewer_delta>=0?'+':''}${rr.viewer_delta}</b>${rankBadge(rr.viewer_rank_after)}</div><div class="${rr.opponent_delta>=0?'is-plus':'is-minus'}"><strong>${gt.opponent}</strong><b>${rr.opponent_delta>=0?'+':''}${rr.opponent_delta}</b>${rankBadge(rr.opponent_rank_after)}</div>`} modal.hidden=false;}
-    async function forfeit(){const lang=window.location.pathname.includes('/en/')?'en':'it';if(!state.matchId){window.location.href=`/${lang}/game/lobby.php`;return} if(!confirm(gt.forfeit_confirm))return; try{await api('/api/game/forfeit_match.php',{match_id:state.matchId}); window.location.href=`/${lang}/game/lobby.php`}catch(e){showToast(e.message)}}
+    function showResult(){
+        if(state.resultShown)return; 
+        state.resultShown=true; 
+        const m=state.match, modal=$('#resultModal'); 
+        if(!modal)return; 
+        
+        const viewerRole = m.viewer_role;
+        const isSpectator = viewerRole === 'spectator';
+        const myIdVal = myId();
+        const win = !isSpectator && Number(m.winner_id) === Number(myIdVal);
+        
+        // Kicker Text
+        const kickerText = m.mode==='ranked' ? gt[lang].ranked_finished : (m.mode==='bot' ? gt[lang].offline_finished : gt[lang].match_finished);
+        
+        // Title & Subtitle Text
+        let titleText = '';
+        let titleClass = '';
+        let subtitleText = '';
+        
+        if (isSpectator) {
+            const winnerUser = Number(m.winner_id) === Number(m.player1_id) ? (m.players?.player1?.username || 'Player 1') : (m.players?.player2?.username || 'Player 2');
+            titleText = lang === 'en' ? `${winnerUser} Wins!` : `${winnerUser} vince!`;
+            titleClass = 'is-spectator';
+            subtitleText = lang === 'en' ? 'Spectator Mode - Match Ended' : 'Modalità Spettatore - Partita Conclusa';
+        } else {
+            titleText = win ? gt[lang].viewer_win : gt[lang].viewer_loss;
+            titleClass = win ? 'is-win' : 'is-loss';
+            subtitleText = m.mode === 'bot' 
+                ? (win ? gt[lang].bot_win : gt[lang].bot_loss) 
+                : (win ? gt[lang].pvp_win : gt[lang].pvp_loss);
+        }
+
+        // Ranked Feedback Box
+        let rankedFeedbackHtml = '';
+        if (m.mode==='ranked' && m.ranked_result) {
+            const rr = m.ranked_result;
+            rankedFeedbackHtml = `
+                <div class="game-ranked-feedback" id="rankedFeedback">
+                    <div class="${rr.viewer_delta>=0?'is-plus':'is-minus'}">
+                        <strong>${gt[lang].you}</strong>
+                        <b>${rr.viewer_delta>=0?'+':''}${rr.viewer_delta}</b>
+                        ${rankBadge(rr.viewer_rank_after)}
+                    </div>
+                    <div class="${rr.opponent_delta>=0?'is-plus':'is-minus'}">
+                        <strong>${gt[lang].opponent}</strong>
+                        <b>${rr.opponent_delta>=0?'+':''}${rr.opponent_delta}</b>
+                        ${rankBadge(rr.opponent_rank_after)}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Calculate card statistics
+        const cardStats = {};
+        (m.cards || []).forEach(c => {
+            cardStats[c.id] = {
+                id: c.id,
+                charId: c.personaggio_id,
+                name: c.character?.nome || 'Eroe',
+                img: img(c.character?.img_url || ''),
+                rarity: c.character?.rarita || 'comune',
+                role: c.role || 'DPS',
+                level: c.livello || 1,
+                userId: c.user_id,
+                damageDealt: 0,
+                damageTaken: 0,
+                actionsCount: 0
+            };
+        });
+
+        // Process actions
+        (m.actions || []).forEach(a => {
+            const actorId = Number(a.actor_card_id);
+            const targetId = Number(a.target_card_id);
+            const damage = Number(a.damage) || 0;
+
+            if (actorId && cardStats[actorId]) {
+                cardStats[actorId].actionsCount++;
+                if (damage > 0) {
+                    cardStats[actorId].damageDealt += damage;
+                }
+            }
+            if (targetId && cardStats[targetId]) {
+                if (damage > 0) {
+                    cardStats[targetId].damageTaken += damage;
+                }
+            }
+        });
+
+        // Find MVP (from the winning team)
+        const winnerId = Number(m.winner_id);
+        let mvpCard = null;
+        let maxMvpScore = -1;
+
+        Object.values(cardStats).forEach(c => {
+            const isWinnerTeam = !winnerId || Number(c.userId) === winnerId;
+            if (isWinnerTeam) {
+                const score = c.damageDealt + (c.damageTaken * 0.4) + (c.actionsCount * 10);
+                if (score > maxMvpScore) {
+                    maxMvpScore = score;
+                    mvpCard = c;
+                }
+            }
+        });
+
+        if (!mvpCard && Object.keys(cardStats).length > 0) {
+            Object.values(cardStats).forEach(c => {
+                const score = c.damageDealt + (c.damageTaken * 0.4) + (c.actionsCount * 10);
+                if (score > maxMvpScore) {
+                    maxMvpScore = score;
+                    mvpCard = c;
+                }
+            });
+        }
+
+        let mvpHtml = '';
+        if (mvpCard) {
+            mvpHtml = `
+                <div class="recap-mvp-card">
+                    <div class="mvp-badge">
+                        👑 MVP
+                    </div>
+                    <div class="mvp-portrait-wrapper">
+                        <img src="${mvpCard.img}" alt="${esc(mvpCard.name)}" class="mvp-portrait">
+                    </div>
+                    <div class="mvp-info">
+                        <h3 class="mvp-name">${esc(mvpCard.name)}</h3>
+                        <span class="mvp-role-badge">${esc(mvpCard.role)}</span>
+                        <div class="mvp-stats-grid">
+                            <div class="mvp-stat-item">
+                                <span class="mvp-stat-label">${lang === 'en' ? 'Damage Dealt' : 'Danni Causati'}</span>
+                                <span class="mvp-stat-value">${mvpCard.damageDealt}</span>
+                            </div>
+                            <div class="mvp-stat-item">
+                                <span class="mvp-stat-label">${lang === 'en' ? 'Damage Taken' : 'Danni Subiti'}</span>
+                                <span class="mvp-stat-value">${mvpCard.damageTaken}</span>
+                            </div>
+                            <div class="mvp-stat-item">
+                                <span class="mvp-stat-label">${lang === 'en' ? 'Actions' : 'Mosse'}</span>
+                                <span class="mvp-stat-value">${mvpCard.actionsCount}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            mvpHtml = `<p class="recap-subtitle">${lang === 'en' ? 'No battle actions recorded.' : 'Nessuna azione di battaglia registrata.'}</p>`;
+        }
+
+        // Detailed Stats
+        const p1Name = m.players?.player1?.username || (lang === 'en' ? 'Player 1' : 'Giocatore 1');
+        const p2Name = m.players?.player2?.username || (lang === 'en' ? 'Player 2' : 'Giocatore 2');
+
+        const p1Cards = Object.values(cardStats).filter(c => Number(c.userId) === Number(m.player1_id));
+        const p2Cards = Object.values(cardStats).filter(c => Number(c.userId) === Number(m.player2_id));
+
+        const maxDamageDealt = Math.max(...Object.values(cardStats).map(c => c.damageDealt), 1);
+        const maxDamageTaken = Math.max(...Object.values(cardStats).map(c => c.damageTaken), 1);
+
+        const renderTeamStats = (teamName, cards) => {
+            return `
+                <div class="recap-team-column">
+                    <h4 class="recap-team-title">${esc(teamName)}</h4>
+                    <div class="recap-team-cards">
+                        ${cards.map(c => {
+                            const dealtPct = (c.damageDealt / maxDamageDealt) * 100;
+                            const takenPct = (c.damageTaken / maxDamageTaken) * 100;
+                            return `
+                                <div class="recap-char-row">
+                                    <img src="${c.img}" alt="${esc(c.name)}" class="recap-char-avatar">
+                                    <div class="recap-char-info">
+                                        <div class="recap-char-header">
+                                            <span class="recap-char-name">${esc(c.name)}</span>
+                                            <span class="recap-char-level">Lv.${c.level}</span>
+                                        </div>
+                                        <div class="recap-bar-group">
+                                            <div class="recap-bar-label">
+                                                <span>${lang === 'en' ? 'Damage Dealt' : 'Danni Causati'}</span>
+                                                <strong>${c.damageDealt}</strong>
+                                            </div>
+                                            <div class="recap-progress-bar-bg">
+                                                <div class="recap-progress-bar dealt" style="width: ${dealtPct}%"></div>
+                                            </div>
+                                        </div>
+                                        <div class="recap-bar-group">
+                                            <div class="recap-bar-label">
+                                                <span>${lang === 'en' ? 'Damage Taken' : 'Danni Subiti'}</span>
+                                                <strong>${c.damageTaken}</strong>
+                                            </div>
+                                            <div class="recap-progress-bar-bg">
+                                                <div class="recap-progress-bar taken" style="width: ${takenPct}%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        };
+
+        const statsHtml = `
+            <div class="recap-stats-grid">
+                ${renderTeamStats(p1Name, p1Cards)}
+                ${renderTeamStats(p2Name, p2Cards)}
+            </div>
+        `;
+
+        // Battle Log
+        const logHtml = (m.actions || []).map(a => {
+            const cleanMsg = esc(a.message || '').replace(/\*\*/g, '');
+            return `
+                <div class="recap-log-line">
+                    <span class="recap-log-turn">[T.${a.turn_number}]</span>
+                    <span class="recap-log-text">${cleanMsg}</span>
+                </div>
+            `;
+        }).join('');
+
+        modal.innerHTML = `
+            <div class="game-result-card">
+                <div class="game-recap-container">
+                    <div class="game-recap-header">
+                        <div class="recap-title-row">
+                            <span class="recap-kicker">${esc(kickerText)}</span>
+                            <h2 class="recap-title ${titleClass}">${titleText}</h2>
+                            <p class="recap-subtitle">${subtitleText}</p>
+                        </div>
+                        ${rankedFeedbackHtml}
+                    </div>
+
+                    <div class="game-recap-tabs">
+                        <button class="recap-tab-btn is-active" data-tab="summary">${lang === 'en' ? 'Summary' : 'Sommario'}</button>
+                        <button class="recap-tab-btn" data-tab="stats">${lang === 'en' ? 'Detailed Stats' : 'Statistiche'}</button>
+                        <button class="recap-tab-btn" data-tab="log">${lang === 'en' ? 'Battle Log' : 'Log Battaglia'}</button>
+                    </div>
+
+                    <div class="game-recap-content">
+                        <!-- SUMMARY TAB -->
+                        <div class="recap-tab-pane is-active" id="pane-summary">
+                            ${mvpHtml}
+                        </div>
+
+                        <!-- STATS TAB -->
+                        <div class="recap-tab-pane" id="pane-stats" style="display:none;">
+                            ${statsHtml}
+                        </div>
+
+                        <!-- LOG TAB -->
+                        <div class="recap-tab-pane" id="pane-log" style="display:none;">
+                            <div class="recap-log-wrapper">
+                                ${logHtml || `<p class="recap-subtitle">${lang === 'en' ? 'No logs recorded.' : 'Nessun log registrato.'}</p>`}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="game-recap-footer">
+                        <a class="game-btn game-btn-main" href="/${lang}/game/lobby.php">${lang === 'en' ? 'Back to Lobby' : 'Torna alla Lobby'}</a>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Bind tabs
+        modal.querySelectorAll('.recap-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                modal.querySelectorAll('.recap-tab-btn').forEach(b => b.classList.remove('is-active'));
+                modal.querySelectorAll('.recap-tab-pane').forEach(p => p.style.display = 'none');
+
+                btn.classList.add('is-active');
+                const paneId = 'pane-' + btn.dataset.tab;
+                const pane = modal.querySelector('#' + paneId);
+                if (pane) pane.style.display = 'block';
+            });
+        });
+
+        modal.hidden = false;
+    }
+    async function forfeit(){const lang=window.location.pathname.includes('/en/')?'en':'it';if(!state.matchId){window.location.href=`/${lang}/game/lobby.php`;return} if(!confirm(gt[lang].forfeit_confirm))return; try{await api('/api/game/forfeit_match.php',{match_id:state.matchId}); window.location.href=`/${lang}/game/lobby.php`}catch(e){showToast(e.message)}}
 
     function bindCommon(){ $$('[data-action="find-match"]').forEach(b=>b.addEventListener('click',()=>findMatch(b.dataset.mode||'casual'))); $('[data-action="create-bot"]')?.addEventListener('click',createBotMatch); $('[data-action="create-private"]')?.addEventListener('click',createPrivate); $('[data-action="join-code"]')?.addEventListener('click',joinCode); $('[data-action="active-match"]')?.addEventListener('click',activeMatch); $('[data-action="load-ranking"]')?.addEventListener('click',loadRanking); $('[data-action="load-live"]')?.addEventListener('click',loadLiveMatches); $$('[data-action="forfeit"]').forEach(b=>b.addEventListener('click',forfeit)); }
     document.addEventListener('DOMContentLoaded',()=>{bindCommon(); if(page==='duel-lobby'){loadProfile();loadRanking();loadLiveMatches();setInterval(loadRanking,30000);setInterval(loadLiveMatches,10000)} if(page==='duel-arena'){if(!state.matchId){showToast(gt.match_missing);return} $('#cardSearch')?.addEventListener('input',renderInventory); $('[data-action="submit-team"]')?.addEventListener('click',submitTeam); $$('[data-battle-action]').forEach(b=>b.addEventListener('click',()=>submitBattle(b.dataset.battleAction))); $('#chatForm')?.addEventListener('submit',(e)=>{e.preventDefault();sendChat();}); $$('[data-reaction]').forEach(b=>b.addEventListener('click',()=>sendReaction(b.dataset.reaction))); startPolling();
