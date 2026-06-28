@@ -1385,8 +1385,8 @@
                 role: c.role || 'DPS',
                 level: c.livello || 1,
                 userId: c.user_id,
-                damageDealt: 0,
-                damageTaken: 0,
+                damageDealt: Number(c.damage_dealt) || 0,
+                damageTaken: Number(c.damage_taken) || 0,
                 actionsCount: 0
             };
         });
@@ -1394,19 +1394,8 @@
         // Process actions
         (m.actions || []).forEach(a => {
             const actorId = Number(a.actor_card_id);
-            const targetId = Number(a.target_card_id);
-            const damage = Number(a.damage) || 0;
-
             if (actorId && cardStats[actorId]) {
                 cardStats[actorId].actionsCount++;
-                if (damage > 0) {
-                    cardStats[actorId].damageDealt += damage;
-                }
-            }
-            if (targetId && cardStats[targetId]) {
-                if (damage > 0) {
-                    cardStats[targetId].damageTaken += damage;
-                }
             }
         });
 

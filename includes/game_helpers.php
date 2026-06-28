@@ -330,6 +330,13 @@ function gd_match(mysqli $m, int $mid): ?array
         if (!in_array('max_level', $cols, true)) {
             $m->query("ALTER TABLE game_matches ADD COLUMN max_level TINYINT DEFAULT 0");
         }
+        $card_cols = gd_cols($m, 'game_match_cards');
+        if (!in_array('damage_dealt', $card_cols, true)) {
+            $m->query("ALTER TABLE game_match_cards ADD COLUMN damage_dealt INT DEFAULT 0");
+        }
+        if (!in_array('damage_taken', $card_cols, true)) {
+            $m->query("ALTER TABLE game_match_cards ADD COLUMN damage_taken INT DEFAULT 0");
+        }
         $checked = true;
     }
 
@@ -424,6 +431,16 @@ function gd_log(mysqli $m, int $mid, int $uid, int $turn, string $type, ?int $ac
         $st->bind_param('iiisiiis', $mid, $uid, $turn, $type, $actor, $target, $dmg, $msg);
         $st->execute();
         $st->close();
+    }
+}
+function gd_add_damage_stats(mysqli $m, int $actorId, int $targetId, int $dmg): void
+{
+    if ($dmg <= 0) return;
+    if ($actorId > 0) {
+        $m->query("UPDATE game_match_cards SET damage_dealt = damage_dealt + {$dmg} WHERE id={$actorId}");
+    }
+    if ($targetId > 0) {
+        $m->query("UPDATE game_match_cards SET damage_taken = damage_taken + {$dmg} WHERE id={$targetId}");
     }
 }
 function gd_ensure_stats_row(mysqli $m, int $uid): array
@@ -892,11 +909,13 @@ function gd_transition_turn(mysqli $m, array $match, int $next_uid): void
                 case 'poison':
                     $dmg = (int)round($active['max_hp'] * ($eff['value'] / 100));
                     $hp_change -= $dmg;
+                    gd_add_damage_stats($m, 0, $active_id, $dmg);
                     gd_log($m, $mid, $next_uid, $turn, 'system', null, $active_id, $dmg, "{$char_name} subisce {$dmg} danni da Veleno.");
                     break;
                 case 'bleed':
                     $dmg = (int)round($active['max_hp'] * ($eff['value'] / 100));
                     $hp_change -= $dmg;
+                    gd_add_damage_stats($m, 0, $active_id, $dmg);
                     gd_log($m, $mid, $next_uid, $turn, 'system', null, $active_id, $dmg, "{$char_name} perde {$dmg} HP per Sanguinamento.");
                     break;
                 case 'regen':
@@ -1911,6 +1930,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                             $new_hp = max(0, (int)$e['current_hp'] - $dmg);
                             $ko = $new_hp <= 0 ? 1 : 0;
                             $m->query("UPDATE game_match_cards SET current_hp={$new_hp}, is_ko={$ko}, is_active=IF({$ko}=1,0,is_active) WHERE id={$e['id']}");
+                            gd_add_damage_stats($m, $actorId, (int)$e['id'], $dmg);
                         }
                     }
                     $allies = gd_cards($m, $mid);
@@ -2114,6 +2134,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                             }
 
                             $m->query("UPDATE game_match_cards SET current_hp={$new_hp}, is_ko={$ko}, is_active=IF({$ko}=1,0,is_active), status_effects='" . $m->escape_string(json_encode(array_values($e_effs))) . "' WHERE id={$e['id']}");
+                            gd_add_damage_stats($m, $actorId, (int)$e['id'], $dmg);
                         }
                     }
                     $msg .= "Infligge danni ad area, Silenzia tutti i nemici per 2 turni" . ($stun_count > 0 ? " e stordisce {$stun_count} nemici per 1 turno!" : "!");
@@ -2737,6 +2758,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
 
             $hp = max(0, (int)$t['current_hp'] - $dmg_taken);
             $ko = $hp <= 0 ? 1 : 0;
+            gd_add_damage_stats($m, $actorId, $target, $dmg_taken);
 
             // Il Protagonista - Scudo di Trama (Plot Armor)
             if ($ko === 1 && (int)($t['personaggio_id'] ?? 0) === 144) {
@@ -2855,6 +2877,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                 $q->close();
 
                 gd_log($m, $mid, $opp, $turn, 'system', $target, $actorId, $counter_dmg, "Contrattacco! {$target_name} restituisce {$counter_dmg} danni a {$char_name}.");
+                gd_add_damage_stats($m, $target, $actorId, $counter_dmg);
 
                 if ($actor_ko) {
                     gd_log($m, $mid, $uid, $turn, 'system', null, $actorId, 0, "{$char_name} è andato KO per il contrattacco.");
