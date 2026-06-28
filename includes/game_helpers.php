@@ -184,7 +184,7 @@ function gd_get_upgrade_requirement(string $rarity, int $current_level, string $
         return $costs[$lvl] ?? 1;
     }
     if (strpos($rKey, 'secret') !== false || strpos($rKey, 'segreto') !== false) {
-        $costs = [1 => 2, 2 => 2, 3 => 3, 4 => 4, 5 => 5];
+        $costs = [1 => 2, 2 => 3, 3 => 4, 4 => 5, 5 => 6];
         return $costs[$lvl] ?? 2;
     }
     if (strpos($rKey, 'leggendario') !== false || strpos($rKey, 'legendary') !== false) {
