@@ -20,8 +20,8 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
     <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ Duel - Game</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/css/game.css?v=4.4">
-    <script src="/assets/js/game.js?v=4.4" defer></script>
+    <link rel="stylesheet" href="/assets/css/game.css?v=4.5">
+    <script src="/assets/js/game.js?v=4.5" defer></script>
 </head>
 <body class="game-page" data-page="duel-arena" data-match-id="<?php echo htmlspecialchars((string)$matchId, ENT_QUOTES, 'UTF-8'); ?>">
     <?php include '../../includes/navbar.php'; ?>
@@ -104,6 +104,7 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
                 <div class="game-side game-side-opponent"><h3 id="opponentName">Avversario</h3><div class="game-active-card" id="opponentActive"></div><div class="game-team-row" id="opponentTeam"></div></div>
                 <div class="game-vs"><span>VS</span></div>
                 <div class="game-side game-side-player"><h3 id="playerName">Tu</h3><div class="game-active-card" id="playerActive"></div><div class="game-team-row" id="playerTeam"></div></div>
+                <div class="game-combat-kit-panel" id="combatKitPanel"></div>
             </div>
             <div class="game-action-bar" id="actionBar" aria-label="Azioni battaglia">
                 <button class="game-move game-move-attack" data-battle-action="basic_attack" type="button"><i class="fa-solid fa-hand-fist"></i><strong>Attacco</strong><span>Danno base · +1 energia</span></button>

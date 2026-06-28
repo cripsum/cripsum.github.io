@@ -278,6 +278,9 @@ function gd_cards(mysqli $m, int $mid): array {
         $r['status_effects'] = json_decode($r['status_effects'] ?: '[]', true);
         
         $cfg = gd_get_character_config((int)$r['personaggio_id'], $r['character']['rarita'] ?? 'comune', $r['character']['nome'] ?? '', $r['character']['ruolo'] ?? 'DPS');
+        $r['special_desc'] = $cfg['special_desc'] ?? '';
+        $r['passive_name'] = $cfg['passive_name'] ?? '';
+        $r['passive_desc'] = $cfg['passive_desc'] ?? '';
         $r['ultimate_name'] = $cfg['ultimate_name'] ?? null;
         $r['ultimate_desc'] = $cfg['ultimate_desc'] ?? null;
         
@@ -946,6 +949,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
         $new = $q->get_result()->fetch_assoc();
         $q->close();
         if (!$new) gd_fail('Cambio non valido.');
+        if ((int)$new['id'] === $actorId) gd_fail('Questo personaggio è già attivo.');
         gd_set_active($m, $mid, $uid, (int)$new['id']);
         
         // Rimuove provocazione sul vecchio attivo

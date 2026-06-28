@@ -855,11 +855,38 @@
                                 });
                             }
 
-                            await loadInventory();
+                            // Update local state entry
+                            const localEntry = state.entries.find(item => String(item.id) === String(entry.id));
+                            if (localEntry) {
+                                localEntry.level = data.level;
+                                localEntry.quantity = data.quantity;
+                                localEntry.required_next = data.required_next;
+                                localEntry.stats = data.stats;
+                                localEntry.stats_next = data.stats_next;
+                            }
+
+                            // Update only the card DOM in the grid
+                            const cardEl = document.querySelector(`.character-card[data-character-id="${entry.id}"]`);
+                            if (cardEl && localEntry) {
+                                const parser = new DOMParser();
+                                const doc = parser.parseFromString(renderCard(localEntry), 'text/html');
+                                const newCardEl = doc.body.firstElementChild;
+                                newCardEl.classList.add('is-visible');
+                                cardEl.replaceWith(newCardEl);
+                                
+                                newCardEl.addEventListener('click', () => {
+                                    openCharacterModal(localEntry);
+                                });
+                                newCardEl.addEventListener('keydown', (event) => {
+                                    if (event.key === 'Enter' || event.key === ' ') {
+                                        event.preventDefault();
+                                        openCharacterModal(localEntry);
+                                    }
+                                });
+                            }
                             
-                            const updatedEntry = state.entries.find(item => String(item.id) === String(entry.id));
-                            if (updatedEntry) {
-                                setTimeout(() => openCharacterModal(updatedEntry, 'upgrade'), 500);
+                            if (localEntry) {
+                                setTimeout(() => openCharacterModal(localEntry, 'upgrade'), 500);
                             } else {
                                 closeCharacterModal();
                             }

@@ -242,9 +242,9 @@
         grid.innerHTML='';
         list.forEach(card=>{
             const selected=state.selectedTeam.includes(card.id);
-            const el=document.createElement('button');
-            el.type='button';
-            el.className=`game-card-option ${selected?'is-selected':''}`;
+            const el=document.createElement('div');
+            const rarKey = card.rarita || 'comune';
+            el.className=`game-card-wrapper rarity-${rarKey} ${selected?'is-selected':''}`;
             
             const stats = card.stats || {};
             const defValue = stats.defense !== undefined ? stats.defense : (stats.def !== undefined ? stats.def : 0);
@@ -252,33 +252,82 @@
             const levelText = levelVal === 6 ? 'MAX' : levelVal;
             
             el.innerHTML=`
-                ${cardImg(card.img_url,card.nome)}
-                <strong>${esc(card.nome)} <small style="color:var(--inv-gold);font-weight:normal;">Lv.${levelText}</small></strong>
-                <span class="game-card-role-badge">${esc(stats.role || 'DPS')}</span>
-                <div class="game-card-stats">
-                    <span>HP ${stats.hp || 0}</span>
-                    <span>ATK ${stats.attack || 0}</span>
-                    <span>DEF ${defValue}</span>
-                    <span>SPD ${stats.speed || 0}</span>
-                </div>
+                <button type="button" class="game-card-option" aria-label="${esc(card.nome)}">
+                    ${cardImg(card.img_url,card.nome)}
+                    <div class="game-card-main-info">
+                        <strong>${esc(card.nome)} <span class="card-level-badge">Lv.${levelText}</span></strong>
+                        <div class="game-card-badges">
+                            <span class="game-card-rarity-badge">${esc(rarKey)}</span>
+                            <span class="game-card-role-badge" data-role="${esc(stats.role || 'DPS')}">${esc(stats.role || 'DPS')}</span>
+                        </div>
+                    </div>
+                    <div class="game-card-stats">
+                        <span>HP ${stats.hp || 0}</span>
+                        <span>ATK ${stats.attack || 0}</span>
+                        <span>DEF ${defValue}</span>
+                        <span>SPD ${stats.speed || 0}</span>
+                    </div>
+                </button>
+                <button type="button" class="game-card-info-btn" aria-label="Info"><i class="fa-solid fa-circle-info"></i></button>
                 <div class="game-card-details-hover">
-                    <div class="game-detail-section">
-                        <strong>${gt.passive_label}: ${esc(stats.passive_name || (lang === 'en' ? 'None' : 'Nessuna'))}</strong>
-                        <p>${esc(stats.passive_desc || gt.no_passive_effect)}</p>
+                    <div class="game-hover-header">
+                        <h4>${esc(card.nome)}</h4>
+                        <button type="button" class="game-hover-close-btn">&times;</button>
+                        <div class="game-hover-badges">
+                            <span class="game-card-rarity-badge">${esc(rarKey)}</span>
+                            <span class="game-card-role-badge" data-role="${esc(stats.role || 'DPS')}">${esc(stats.role || 'DPS')}</span>
+                        </div>
                     </div>
-                    <div class="game-detail-section">
-                        <strong>${gt.special_label}: ${esc(stats.special_name || (lang === 'en' ? 'Skill' : 'Colpo'))} (E: ${stats.special_cost || 0})</strong>
-                        <p>${esc(stats.special_desc || gt.default_special_desc)}</p>
+                    <div class="game-hover-body">
+                        <div class="game-detail-section">
+                            <div class="game-detail-header">
+                                <span class="game-detail-label passive">${gt.passive_label}</span>
+                                <strong>${esc(stats.passive_name || (lang === 'en' ? 'None' : 'Nessuna'))}</strong>
+                            </div>
+                            <p>${esc(stats.passive_desc || gt.no_passive_effect)}</p>
+                        </div>
+                        <div class="game-detail-section">
+                            <div class="game-detail-header">
+                                <span class="game-detail-label special">${gt.special_label}</span>
+                                <strong>${esc(stats.special_name || (lang === 'en' ? 'Skill' : 'Colpo'))}</strong>
+                                <span class="game-detail-cost">E: ${stats.special_cost || 0}</span>
+                            </div>
+                            <p>${esc(stats.special_desc || gt.default_special_desc)}</p>
+                        </div>
+                        ${stats.ultimate_name ? `
+                        <div class="game-detail-section ultimate">
+                            <div class="game-detail-header">
+                                <span class="game-detail-label ultimate">${gt.ultimate_label}</span>
+                                <strong>${esc(stats.ultimate_name)}</strong>
+                            </div>
+                            <p>${esc(stats.ultimate_desc || gt.default_ultimate_desc)}</p>
+                        </div>
+                        ` : ''}
                     </div>
-                    ${stats.ultimate_name ? `
-                    <div class="game-detail-section" style="border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 0.35rem; margin-top: 0.35rem;">
-                        <strong style="color: #fbbf24;">${gt.ultimate_label}: ${esc(stats.ultimate_name)}</strong>
-                        <p>${esc(stats.ultimate_desc || gt.default_ultimate_desc)}</p>
-                    </div>
-                    ` : ''}
                 </div>
             `;
-            el.addEventListener('click',()=>toggleTeam(card.id));
+            el.querySelector('.game-card-option').addEventListener('click',()=>toggleTeam(card.id));
+            
+            const infoBtn = el.querySelector('.game-card-info-btn');
+            const hover = el.querySelector('.game-card-details-hover');
+            if (infoBtn && hover) {
+                infoBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    $$('.game-card-details-hover.is-active').forEach(h => {
+                        if (h !== hover) h.classList.remove('is-active');
+                    });
+                    hover.classList.toggle('is-active');
+                });
+            }
+            
+            const closeBtn = el.querySelector('.game-hover-close-btn');
+            if (closeBtn && hover) {
+                closeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    hover.classList.remove('is-active');
+                });
+            }
+            
             grid.appendChild(el);
         });
         renderSelectedTeam();
@@ -322,6 +371,7 @@
 
         renderActive('#playerActive',activeOf(sides.rightUid));
         renderActive('#opponentActive',activeOf(sides.leftUid));
+        renderCombatKit(activeOf(sides.rightUid));
         renderTeam('#playerTeam',cardsOf(sides.rightUid),!spectator && Number(sides.rightUid)===Number(myId()) && myTurn);
         renderTeam('#opponentTeam',cardsOf(sides.leftUid),false);
         renderLog(m.actions||[]);
@@ -512,7 +562,88 @@
             </div>
         `;
     }
-    function renderTeam(sel,cards,mine){const el=$(sel); if(!el)return; el.innerHTML=cards.map(c=>{const ch=c.character||{}; const lvlVal = c.livello || c.level || 1; const lvlText = lvlVal === 6 ? 'MAX' : lvlVal; return `<button class="game-mini-card ${Number(c.is_active)?'is-active':''} ${Number(c.is_ko)?'is-ko':''}" data-card-id="${c.id}" type="button" ${mine&&!Number(c.is_ko)?'':'disabled'}>${cardImg(ch.img_url,ch.nome)}<strong>${esc(ch.nome||'Carta')} <small style="color:var(--inv-gold);font-weight:normal;">Lv.${lvlText}</small></strong><small>${c.current_hp}/${c.max_hp} HP</small></button>`}).join(''); if(mine && state.match?.viewer_role !== 'spectator')$$('.game-mini-card',el).forEach(btn=>btn.addEventListener('click',()=>submitBattle('switch',Number(btn.dataset.cardId))))}
+    function renderCombatKit(card) {
+        const panel = $('#combatKitPanel');
+        if (!panel) return;
+        if (!card) {
+            panel.innerHTML = `<div class="game-combat-kit-empty">${lang === 'en' ? 'No active character' : 'Nessun personaggio attivo'}</div>`;
+            return;
+        }
+        
+        const ch = card.character || {};
+        const stats = card.stats || {};
+        
+        // Cooldown and Energy Cost details
+        const specCost = card.special_cost || 0;
+        const specCdMax = card.special_cooldown_max || 0;
+        const specCdCur = card.special_cooldown !== undefined ? card.special_cooldown : 0;
+        
+        // Status effects mapping
+        const effectsHtml = (card.status_effects || []).map(eff => {
+            const valSuffix = eff.value ? ` (${eff.value > 0 ? '+' : ''}${eff.value}%)` : '';
+            return `<div class="game-kit-effect-item"><strong>${esc(eff.name)}${valSuffix}</strong>: ${eff.duration} ${lang === 'en' ? (eff.duration > 1 ? 'turns left' : 'turn left') : (eff.duration > 1 ? 'turni rimasti' : 'turno rimasto')}</div>`;
+        }).join('');
+        
+        panel.innerHTML = `
+            <div class="game-kit-panel-title">
+                <i class="fa-solid fa-address-card"></i> ${lang === 'en' ? 'ACTIVE CHARACTER KIT' : 'KIT PERSONAGGIO IN CAMPO'}
+            </div>
+            
+            <div class="game-kit-profile">
+                <strong>${esc(ch.nome || 'Carta')}</strong>
+                <span class="game-kit-badge-role" data-role="${esc(card.role || 'DPS')}">${esc(card.role || 'DPS')}</span>
+            </div>
+            
+            <div class="game-kit-stats-grid">
+                <div class="game-kit-stat-box">HP: <span>${card.current_hp}/${card.max_hp}</span></div>
+                <div class="game-kit-stat-box">ATK: <span>${card.attack}</span></div>
+                <div class="game-kit-stat-box">DEF: <span>${card.defense}</span></div>
+                <div class="game-kit-stat-box">SPD: <span>${card.speed}</span></div>
+                <div class="game-kit-stat-box">${lang === 'en' ? 'Crit Rate' : 'Critico'}: <span>${card.crit_rate}%</span></div>
+                <div class="game-kit-stat-box">${lang === 'en' ? 'Crit Dmg' : 'Danno Crit'}: <span>${card.crit_dmg}%</span></div>
+            </div>
+            
+            <div class="game-kit-skills">
+                <div class="game-kit-skill-section">
+                    <div class="game-kit-skill-header">
+                        <span class="game-kit-skill-type passive">${lang === 'en' ? 'PASSIVE' : 'PASSIVA'}</span>
+                        <strong>${esc(card.passive_name || (lang === 'en' ? 'None' : 'Nessuna'))}</strong>
+                    </div>
+                    <p class="game-kit-skill-desc">${esc(card.passive_desc || gt.no_passive_effect)}</p>
+                </div>
+                
+                <div class="game-kit-skill-section">
+                    <div class="game-kit-skill-header">
+                        <span class="game-kit-skill-type special">${lang === 'en' ? 'SPECIAL' : 'SPECIALE'}</span>
+                        <strong>${esc(card.special_name || (lang === 'en' ? 'Skill' : 'Colpo'))}</strong>
+                    </div>
+                    <div class="game-kit-skill-meta">
+                        <span>E: ${specCost}</span>
+                        <span>CD: ${specCdCur}/${specCdMax}</span>
+                    </div>
+                    <p class="game-kit-skill-desc">${esc(card.special_desc || gt.default_special_desc)}</p>
+                </div>
+                
+                ${card.ultimate_name ? `
+                <div class="game-kit-skill-section ultimate">
+                    <div class="game-kit-skill-header">
+                        <span class="game-kit-skill-type ultimate">${lang === 'en' ? 'ULTIMATE' : 'ULTIMATE'}</span>
+                        <strong>${esc(card.ultimate_name)}</strong>
+                    </div>
+                    <p class="game-kit-skill-desc">${esc(card.ultimate_desc || gt.default_ultimate_desc)}</p>
+                </div>
+                ` : ''}
+            </div>
+            
+            ${effectsHtml ? `
+            <div class="game-kit-effects">
+                <div class="game-kit-effects-title">${lang === 'en' ? 'Active Effects' : 'Effetti Attivi'}</div>
+                <div class="game-kit-effects-list">${effectsHtml}</div>
+            </div>
+            ` : ''}
+        `;
+    }
+    function renderTeam(sel,cards,mine){const el=$(sel); if(!el)return; el.innerHTML=cards.map(c=>{const ch=c.character||{}; const lvlVal = c.livello || c.level || 1; const lvlText = lvlVal === 6 ? 'MAX' : lvlVal; return `<button class="game-mini-card ${Number(c.is_active)?'is-active':''} ${Number(c.is_ko)?'is-ko':''}" data-card-id="${c.id}" type="button" ${mine&&!Number(c.is_ko)&&!Number(c.is_active)?'':'disabled'}>${cardImg(ch.img_url,ch.nome)}<strong>${esc(ch.nome||'Carta')} <small style="color:var(--inv-gold);font-weight:normal;">Lv.${lvlText}</small></strong><small>${c.current_hp}/${c.max_hp} HP</small></button>`}).join(''); if(mine && state.match?.viewer_role !== 'spectator')$$('.game-mini-card',el).forEach(btn=>btn.addEventListener('click',()=>submitBattle('switch',Number(btn.dataset.cardId))))}
     function renderLog(actions){const log=$('#battleLog'); if(!log)return; if(!actions.length){log.innerHTML='<p class="game-hint">' + gt.log_empty + '</p>';return} log.innerHTML=actions.map(a=>`<div class="game-log-row"><strong>T${a.turn_number}</strong> ${esc(a.message)} ${Number(a.damage)>0?`· ${a.damage} ${lang === 'en' ? 'damage' : 'danni'}`:''}</div>`).join(''); log.scrollTop=log.scrollHeight;}
     
     function renderChat(messages){
@@ -1082,5 +1213,6 @@
     async function forfeit(){const lang=window.location.pathname.includes('/en/')?'en':'it';if(!state.matchId){window.location.href=`/${lang}/game/lobby.php`;return} if(!confirm(gt.forfeit_confirm))return; try{await api('/api/game/forfeit_match.php',{match_id:state.matchId}); window.location.href=`/${lang}/game/lobby.php`}catch(e){showToast(e.message)}}
 
     function bindCommon(){ $$('[data-action="find-match"]').forEach(b=>b.addEventListener('click',()=>findMatch(b.dataset.mode||'casual'))); $('[data-action="create-bot"]')?.addEventListener('click',createBotMatch); $('[data-action="create-private"]')?.addEventListener('click',createPrivate); $('[data-action="join-code"]')?.addEventListener('click',joinCode); $('[data-action="active-match"]')?.addEventListener('click',activeMatch); $('[data-action="load-ranking"]')?.addEventListener('click',loadRanking); $('[data-action="load-live"]')?.addEventListener('click',loadLiveMatches); $$('[data-action="forfeit"]').forEach(b=>b.addEventListener('click',forfeit)); }
-    document.addEventListener('DOMContentLoaded',()=>{bindCommon(); if(page==='duel-lobby'){loadProfile();loadRanking();loadLiveMatches();setInterval(loadRanking,30000);setInterval(loadLiveMatches,10000)} if(page==='duel-arena'){if(!state.matchId){showToast(gt.match_missing);return} $('#cardSearch')?.addEventListener('input',renderInventory); $('[data-action="submit-team"]')?.addEventListener('click',submitTeam); $$('[data-battle-action]').forEach(b=>b.addEventListener('click',()=>submitBattle(b.dataset.battleAction))); $('#chatForm')?.addEventListener('submit',(e)=>{e.preventDefault();sendChat();}); $$('[data-reaction]').forEach(b=>b.addEventListener('click',()=>sendReaction(b.dataset.reaction))); startPolling();}});
+    document.addEventListener('DOMContentLoaded',()=>{bindCommon(); if(page==='duel-lobby'){loadProfile();loadRanking();loadLiveMatches();setInterval(loadRanking,30000);setInterval(loadLiveMatches,10000)} if(page==='duel-arena'){if(!state.matchId){showToast(gt.match_missing);return} $('#cardSearch')?.addEventListener('input',renderInventory); $('[data-action="submit-team"]')?.addEventListener('click',submitTeam); $$('[data-battle-action]').forEach(b=>b.addEventListener('click',()=>submitBattle(b.dataset.battleAction))); $('#chatForm')?.addEventListener('submit',(e)=>{e.preventDefault();sendChat();}); $$('[data-reaction]').forEach(b=>b.addEventListener('click',()=>sendReaction(b.dataset.reaction))); startPolling();
+    document.addEventListener('click', (e) => { if (!e.target.closest('.game-card-wrapper')) { $$('.game-card-details-hover.is-active').forEach(h => h.classList.remove('is-active')); } });}});
 })();

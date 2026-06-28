@@ -2245,3 +2245,626 @@ body.game-page .dropdown-menu button:focus { color: #fff !important; background:
 }
 
 
+
+
+/* --- PREMIUM CARD WRAPPER & HOVER REFINEMENTS --- */
+.game-card-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, .045);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.game-card-wrapper.is-selected {
+    box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.15);
+}
+
+.game-card-option {
+    border: 1px solid var(--game-border);
+    border-radius: 22px;
+    background: transparent;
+    padding: .8rem;
+    text-align: left;
+    color: var(--game-text);
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.22s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.game-card-option:hover {
+    border-color: rgba(6, 182, 212, .4);
+    background: rgba(255, 255, 255, .015);
+}
+
+.game-card-wrapper.is-selected .game-card-option {
+    border-color: rgba(6, 182, 212, .65);
+    background: rgba(6, 182, 212, .03);
+}
+
+.game-card-main-info {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 0.6rem;
+    gap: 0.25rem;
+}
+
+.game-card-main-info strong {
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: #fff;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.card-level-badge {
+    font-size: 0.72rem;
+    color: var(--game-gold);
+    font-weight: 700;
+}
+
+.game-card-badges {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.game-card-rarity-badge {
+    font-size: 0.62rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--game-muted);
+    padding: 2px 7px;
+    border-radius: 99px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.game-card-role-badge {
+    font-size: 0.62rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    background: rgba(6, 182, 212, 0.12);
+    color: var(--game-blue);
+    padding: 2px 7px;
+    border-radius: 99px;
+    border: 1px solid rgba(6, 182, 212, 0.2);
+    letter-spacing: 0.5px;
+}
+
+.game-card-stats {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.35rem;
+    margin-top: 0.6rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 0.6rem;
+}
+
+.game-card-stats span {
+    font-size: 0.72rem;
+    color: var(--game-muted);
+    background: rgba(0, 0, 0, 0.25);
+    padding: 3px 6px;
+    border-radius: 6px;
+    display: block;
+    text-align: center;
+}
+
+/* Info Icon Button (Mobile Detail View) */
+.game-card-info-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.95rem;
+    z-index: 10;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.game-card-info-btn:hover {
+    background: var(--game-cyan);
+    color: #000;
+    border-color: var(--game-cyan);
+    transform: scale(1.1);
+}
+
+/* Rarity specific borders and colors */
+.rarity-raro { --rarity-color: 59, 130, 246; }
+.rarity-epico { --rarity-color: 168, 85, 247; }
+.rarity-leggendario { --rarity-color: 234, 179, 8; }
+.rarity-speciale { --rarity-color: 239, 68, 68; }
+.rarity-segreto, .rarity-segreto_limited { --rarity-color: 6, 182, 212; }
+.rarity-theone { --rarity-color: 244, 63, 94; }
+
+.game-card-wrapper.rarity-raro, .game-card-wrapper.rarity-epico,
+.game-card-wrapper.rarity-leggendario, .game-card-wrapper.rarity-speciale,
+.game-card-wrapper.rarity-segreto, .game-card-wrapper.rarity-segreto_limited,
+.game-card-wrapper.rarity-theone {
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.game-card-wrapper[class*="rarity-"]:not(.rarity-comune) .game-card-option {
+    border-color: rgba(var(--rarity-color), 0.15);
+}
+
+.game-card-wrapper[class*="rarity-"]:not(.rarity-comune):hover {
+    box-shadow: 0 0 15px rgba(var(--rarity-color), 0.12);
+}
+
+.game-card-wrapper[class*="rarity-"]:not(.rarity-comune) .game-card-rarity-badge {
+    background: rgba(var(--rarity-color), 0.1);
+    color: rgb(var(--rarity-color));
+    border-color: rgba(var(--rarity-color), 0.2);
+}
+
+/* Tooltip Hover Box (Desktop) */
+.game-card-details-hover {
+    position: absolute;
+    bottom: 105%;
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    width: 280px;
+    background: rgba(10, 15, 26, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(6, 182, 212, 0.4);
+    border-radius: 16px;
+    padding: 1rem;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.game-card-wrapper:hover .game-card-details-hover {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+}
+
+.game-hover-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 0.50rem;
+    position: relative;
+}
+
+.game-hover-header h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #fff;
+}
+
+.game-hover-close-btn {
+    display: none;
+}
+
+.game-hover-badges {
+    display: flex;
+    gap: 0.35rem;
+}
+
+.game-hover-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.game-detail-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.game-detail-header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.game-detail-label {
+    font-size: 0.6rem;
+    font-weight: 900;
+    padding: 1px 5px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.game-detail-label.passive { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+.game-detail-label.special { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+.game-detail-label.ultimate { background: rgba(234, 179, 8, 0.2); color: #facc15; }
+
+.game-detail-cost {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--game-muted);
+    margin-left: auto;
+}
+
+.game-detail-section strong {
+    font-size: 0.82rem;
+    color: #fff;
+    font-weight: 700;
+}
+
+.game-detail-section p {
+    font-size: 0.72rem;
+    color: rgba(248, 251, 255, 0.85);
+    margin: 0;
+    line-height: 1.35;
+}
+
+/* --- COMBAT KIT PANEL SIDEBAR (DESKTOP) --- */
+.game-combat-kit-panel {
+    display: none;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--game-border);
+    border-radius: 22px;
+    padding: 1.25rem;
+    color: var(--game-text);
+    overflow-y: auto;
+    box-shadow: 0 12px 42px rgba(0, 0, 0, 0.45);
+    grid-column: span 1;
+}
+
+@media (min-width: 921px) {
+    .game-board {
+        grid-template-columns: minmax(0, 1.2fr) auto minmax(0, 1.2fr) 300px !important;
+    }
+    .game-combat-kit-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+        height: auto;
+    }
+}
+
+.game-kit-panel-title {
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--game-muted);
+    font-weight: 850;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.game-kit-profile {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.game-kit-profile strong {
+    font-size: 1.15rem;
+    color: #fff;
+    font-weight: 900;
+}
+
+.game-kit-badge-role {
+    font-size: 0.6rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    background: rgba(34, 211, 238, 0.12);
+    color: var(--game-cyan);
+    padding: 2px 7px;
+    border-radius: 99px;
+    border: 1px solid rgba(34, 211, 238, 0.22);
+}
+
+.game-kit-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.4rem;
+    background: rgba(0, 0, 0, 0.22);
+    padding: 0.55rem;
+    border-radius: 12px;
+}
+
+.game-kit-stat-box {
+    font-size: 0.72rem;
+    color: var(--game-muted);
+}
+
+.game-kit-stat-box span {
+    color: #fff;
+    font-weight: 700;
+}
+
+.game-kit-skills {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.game-kit-skill-section {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 0.55rem;
+}
+
+.game-kit-skill-header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.2rem;
+}
+
+.game-kit-skill-type {
+    font-size: 0.58rem;
+    font-weight: 900;
+    padding: 1px 5px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.game-kit-skill-type.passive { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+.game-kit-skill-type.special { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+.game-kit-skill-type.ultimate { background: rgba(234, 179, 8, 0.2); color: #facc15; }
+
+.game-kit-skill-meta {
+    font-size: 0.65rem;
+    color: var(--game-muted);
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.2rem;
+}
+
+.game-kit-skill-desc {
+    font-size: 0.7rem;
+    color: rgba(248, 251, 255, 0.88);
+    margin: 0;
+    line-height: 1.35;
+}
+
+.game-kit-effects {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 0.55rem;
+}
+
+.game-kit-effects-title {
+    font-size: 0.72rem;
+    color: var(--game-muted);
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.game-kit-effects-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.game-kit-effect-item {
+    font-size: 0.68rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* --- MOBILE RESPONSIVENESS AND UX FIXES --- */
+@media (max-width: 768px) {
+    /* Toolbar and select alignment */
+    .game-inventory-toolbar {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        gap: 0.4rem !important;
+        margin-bottom: 0.6rem !important;
+    }
+    
+    .game-inventory-toolbar input,
+    .game-inventory-toolbar select {
+        flex: 1 1 calc(50% - 0.2rem) !important;
+        min-height: 2.3rem !important;
+        height: 2.3rem !important;
+        padding: 0.35rem 0.55rem !important;
+        font-size: 0.76rem !important;
+        border-radius: 10px !important;
+    }
+    
+    .game-inventory-toolbar input {
+        flex: 1 1 100% !important; /* Full width search */
+    }
+    
+    #teamCounter {
+        width: 100% !important;
+        text-align: right !important;
+        font-size: 0.8rem !important;
+        margin-top: 0.1rem !important;
+    }
+    
+    /* Character grid details popup as bottom sheet modal */
+    .game-card-details-hover {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        transform: none !important;
+        background: rgba(6, 10, 18, 0.86) !important;
+        backdrop-filter: blur(8px) !important;
+        border: none !important;
+        border-radius: 0 !important;
+        padding: 1.5rem !important;
+        box-shadow: none !important;
+        z-index: 99999 !important;
+        pointer-events: none !important;
+        opacity: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: opacity 0.22s ease !important;
+    }
+    
+    .game-card-details-hover.is-active {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+    
+    .game-hover-header {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        padding-bottom: 0.6rem !important;
+    }
+    
+    .game-hover-close-btn {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 28px !important;
+        height: 28px !important;
+        border-radius: 50% !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+        border: none !important;
+        color: #fff !important;
+        font-size: 1.25rem !important;
+        cursor: pointer !important;
+        margin-left: auto;
+    }
+    
+    .game-hover-body {
+        width: 100% !important;
+        max-width: 420px !important;
+        background: #0f172a !important;
+        border: 1px solid rgba(6, 182, 212, 0.35) !important;
+        border-radius: 18px !important;
+        padding: 1.25rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 1rem !important;
+        max-height: 76vh !important;
+        overflow-y: auto !important;
+    }
+}
+
+@media (max-width: 600px) {
+    /* 2 columns picker grid */
+    .game-card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
+        gap: 0.5rem !important;
+        max-height: 480px !important;
+        padding-right: 0.1rem !important;
+    }
+    
+    .game-card-option {
+        padding: 0.45rem !important;
+        border-radius: 16px !important;
+    }
+    
+    .game-card-option img {
+        border-radius: 12px !important;
+    }
+    
+    .game-card-main-info strong {
+        font-size: 0.8rem !important;
+        margin-top: 0.35rem !important;
+    }
+    
+    .card-level-badge {
+        font-size: 0.65rem !important;
+    }
+    
+    .game-card-rarity-badge,
+    .game-card-role-badge {
+        font-size: 0.52rem !important;
+        padding: 1px 4px !important;
+    }
+    
+    .game-card-stats {
+        margin-top: 0.45rem !important;
+        gap: 0.2rem !important;
+        padding-top: 0.45rem !important;
+    }
+    
+    .game-card-stats span {
+        font-size: 0.6rem !important;
+        padding: 1px 3px !important;
+        border-radius: 4px !important;
+    }
+    
+    .game-card-info-btn {
+        width: 22px !important;
+        height: 22px !important;
+        font-size: 0.72rem !important;
+        top: 6px !important;
+        right: 6px !important;
+    }
+}
+
+@media (max-width: 680px) {
+    /* Compact Battle Action Bar */
+    .game-action-bar {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.35rem !important;
+    }
+    
+    .game-move {
+        padding: 0.45rem !important;
+        min-height: auto !important;
+        border-radius: 12px !important;
+    }
+    
+    .game-move i {
+        font-size: 0.95rem !important;
+    }
+    
+    .game-move strong {
+        font-size: 0.8rem !important;
+    }
+    
+    .game-move span {
+        display: none !important;
+    }
+    
+    /* Compact Active Card details to avoid vertical scroll overflow */
+    .game-active-card img {
+        width: 105px !important;
+        height: 105px !important;
+        margin: 0 auto 0.4rem !important;
+    }
+    
+    .game-active-card {
+        padding: 0.5rem !important;
+        border-radius: 16px !important;
+    }
+    
+    .game-active-name strong {
+        font-size: 0.9rem !important;
+    }
+}
