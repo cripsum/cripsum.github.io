@@ -561,7 +561,7 @@
                     ? state.match.cards.find(c => Number(c.id) === actor)
                     : null;
                 const charName = (cardObj && cardObj.character) ? cardObj.character.nome : 'Eroe';
-                const imgUrl = (cardObj && cardObj.character) ? cardObj.character.img_url : '';
+                const imgUrl = (cardObj && cardObj.character) ? img(cardObj.character.img_url) : '';
                 const role = cardObj ? (cardObj.role || 'DPS') : 'DPS';
                 const charId = cardObj ? Number(cardObj.personaggio_id) : 0;
 
