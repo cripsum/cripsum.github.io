@@ -30,6 +30,7 @@
 
     var paymentModal = document.getElementById('paymentModal');
     var conversionModal = document.getElementById('godosConversionModal');
+    var successModal = document.getElementById('purchaseSuccessModal');
     var conversionForm = document.getElementById('godos-conversion-form');
     var slider = document.getElementById('godos-slider');
     var sliderValue = document.getElementById('slider-shards-val');
@@ -53,6 +54,22 @@
             currency: 'EUR',
             minimumFractionDigits: 2
         });
+    }
+
+    function hexToRgb(hex) {
+        hex = hex.replace('#', '');
+        if (hex.length === 3) {
+            var r = parseInt(hex.substring(0, 1) + hex.substring(0, 1), 16);
+            var g = parseInt(hex.substring(1, 2) + hex.substring(1, 2), 16);
+            var b = parseInt(hex.substring(2, 3) + hex.substring(2, 3), 16);
+            return [r, g, b];
+        } else if (hex.length === 6) {
+            var r = parseInt(hex.substring(0, 2), 16);
+            var g = parseInt(hex.substring(2, 4), 16);
+            var b = parseInt(hex.substring(4, 6), 16);
+            return [r, g, b];
+        }
+        return null;
     }
 
     function clearHash() {
@@ -246,23 +263,142 @@
             return;
         }
 
+        // Custom Godos Item Purchase handler
+        var buyItemBtn = target.closest('[data-shop-buy-item]');
+        if (buyItemBtn && successModal) {
+            event.preventDefault();
+            event.stopPropagation();
+            var itemId = buyItemBtn.getAttribute('data-shop-buy-item');
+            var price = parseInt(buyItemBtn.getAttribute('data-item-price') || '0', 10);
+            var itemName = buyItemBtn.getAttribute('data-item-name') || '';
+
+            if (price > userGodos) {
+                showToast(lang === 'en' ? 'Insufficient Godos points!' : 'Punti Godos insufficienti!', true);
+                return;
+            }
+
+            var confirmMsg = lang === 'en' 
+                ? 'Are you sure you want to purchase "' + itemName + '" for ' + price + ' Godos?' 
+                : 'Confermi l\'acquisto di "' + itemName + '" per ' + price + ' Godos?';
+            if (!window.confirm(confirmMsg)) return;
+
+            buyItemBtn.disabled = true;
+            var originalText = buyItemBtn.textContent;
+            buyItemBtn.textContent = lang === 'en' ? 'Processing...' : 'Elaborazione...';
+
+            fetchJson('/api/purchase_godos_item.php', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({ item_id: parseInt(itemId, 10) })
+            }).then(function (data) {
+                if (data.status !== 'success') throw new Error(data.message);
+
+                // Update balances
+                updateBalances({ soldi_rimasti: data.soldi_rimasti, shards_rimaste: userShards });
+
+                // Set owned state on button
+                buyItemBtn.disabled = true;
+                buyItemBtn.textContent = lang === 'en' ? 'Owned' : 'Posseduto';
+                buyItemBtn.style.background = 'rgba(255, 255, 255, 0.08)';
+                buyItemBtn.style.color = 'rgba(255, 255, 255, 0.3)';
+                buyItemBtn.style.border = '1px solid rgba(255, 255, 255, 0.05)';
+
+                // Update availability
+                if (data.availability_left !== null) {
+                    var availSpan = document.querySelector('[data-item-availability="' + itemId + '"]');
+                    if (availSpan) {
+                        availSpan.textContent = lang === 'en' 
+                            ? 'Only ' + data.availability_left + ' left!' 
+                            : 'Solo ' + data.availability_left + ' rimasti!';
+                    }
+                }
+
+                // Render success reveal modal details
+                if (data.item_type === 'badge' && data.badge) {
+                    var nameNode = document.getElementById('success-reveal-badge-name');
+                    var descNode = document.getElementById('success-reveal-badge-desc');
+                    var boxNode = document.getElementById('success-reveal-badge-box');
+                    var titleNode = document.getElementById('success-modal-title');
+                    var subtitleNode = document.getElementById('success-modal-subtitle');
+                    
+                    if (titleNode) titleNode.textContent = lang === 'en' ? 'Unlocked!' : 'Sbloccato!';
+                    if (subtitleNode) subtitleNode.textContent = lang === 'en' ? 'You have successfully purchased this badge.' : 'Hai acquistato correttamente il badge.';
+
+                    if (nameNode) nameNode.textContent = lang === 'en' ? (data.badge.name_en || data.badge.name) : data.badge.name;
+                    var description = lang === 'en' ? (data.badge.description_en || data.badge.descrizione) : data.badge.descrizione;
+                    if (descNode) descNode.textContent = description;
+
+                    if (boxNode) {
+                        boxNode.innerHTML = '';
+                        var img = document.createElement('img');
+                        img.src = data.badge.image_url;
+                        img.alt = data.badge.name;
+                        boxNode.appendChild(img);
+                        
+                        boxNode.style.borderColor = data.badge.color || '#fbbf24';
+                        if (data.badge.color) {
+                            var rgb = hexToRgb(data.badge.color);
+                            if (rgb) {
+                                boxNode.style.boxShadow = '0 0 25px rgba(' + rgb.join(',') + ', 0.35)';
+                            }
+                        }
+                    }
+                }
+
+                openModal(successModal, buyItemBtn);
+                showToast(lang === 'en' ? 'Purchase completed!' : 'Acquisto completato!', false);
+                
+            }).catch(function (error) {
+                showToast(error.message || (lang === 'en' ? 'An error occurred.' : 'Si è verificato un errore.'), true);
+                buyItemBtn.disabled = false;
+                buyItemBtn.textContent = originalText;
+            });
+            return;
+        }
+
         var close = target.closest('[data-shop-close]');
         if (close) {
             event.preventDefault();
             event.stopPropagation();
-            closeModal(close.closest('.shop-action-modal'));
+            closeModal(close.closest('.shop-modal') || close.closest('.shop-action-modal'));
             return;
         }
 
         var tabButton = target.closest('.shop-tab-btn[data-tab]');
         if (tabButton) {
             event.preventDefault();
+            var currentActiveBtn = document.querySelector('.shop-tab-btn.active');
+            if (currentActiveBtn === tabButton) return;
+
             document.querySelectorAll('.shop-tab-btn').forEach(function (button) {
                 button.classList.toggle('active', button === tabButton);
             });
-            document.querySelectorAll('.shop-tab-content').forEach(function (content) {
-                content.classList.toggle('active', content.id === tabButton.getAttribute('data-tab'));
-            });
+
+            var targetTabId = tabButton.getAttribute('data-tab');
+            var newContent = document.getElementById(targetTabId);
+            var activeContent = document.querySelector('.shop-tab-content.show');
+
+            if (activeContent) {
+                activeContent.classList.remove('show');
+                window.setTimeout(function () {
+                    activeContent.classList.remove('active');
+                    if (newContent) {
+                        newContent.classList.add('active');
+                        newContent.offsetHeight;
+                        newContent.classList.add('show');
+                    }
+                }, 300);
+            } else {
+                document.querySelectorAll('.shop-tab-content').forEach(function (content) {
+                    content.classList.remove('active', 'show');
+                });
+                if (newContent) {
+                    newContent.classList.add('active');
+                    newContent.offsetHeight;
+                    newContent.classList.add('show');
+                }
+            }
         }
     }, true);
 
@@ -310,6 +446,15 @@
             window.setTimeout(function () { toast.remove(); }, 350);
         }, 5000);
     });
+
+    // Initialize active tab animation on load
+    var initialActive = document.querySelector('.shop-tab-content.active');
+    if (initialActive) {
+        window.requestAnimationFrame(function () {
+            initialActive.offsetHeight;
+            initialActive.classList.add('show');
+        });
+    }
 
     if (window.location.hash === '#godosConversionModal' && prepareConversion()) {
         openModal(conversionModal, document.querySelector('[data-shop-convert]'));

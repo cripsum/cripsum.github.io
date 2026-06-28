@@ -90,8 +90,8 @@
 /* Grid of Cards */
 .shop-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
     margin-bottom: 4rem;
 }
 
@@ -106,14 +106,23 @@
     box-shadow: 0 22px 70px rgba(0, 0, 0, 0.35);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
-                box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
-                border-color 0.2s;
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), 
+                box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), 
+                border-color 0.4s ease;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     overflow: hidden;
     isolation: isolate;
+    max-width: 320px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.shop-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(124, 58, 237, 0.4);
+    box-shadow: 0 30px 60px rgba(124, 58, 237, 0.12), 0 0 15px rgba(124, 58, 237, 0.1);
 }
 
 /* style-dark.css adds a full-card ::before layer with z-index: 1. Without this
@@ -265,7 +274,7 @@
     padding: 0.85rem;
     font-size: 0.95rem;
     cursor: pointer;
-    transition: transform 0.1s, box-shadow 0.15s;
+    transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.2s ease, filter 0.2s ease;
     width: 100%;
     display: inline-flex;
     align-items: center;
@@ -274,11 +283,13 @@
 }
 
 .card-btn:hover {
-    box-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+    transform: translateY(-2px) scale(1.02);
+    filter: brightness(1.1);
 }
 
 .card-btn:active {
-    transform: scale(0.98);
+    transform: scale(0.97);
 }
 
 /* Modal Styling overrides (for payment modal) */
@@ -709,10 +720,19 @@ body.shop-modal-open {
 
 .shop-tab-content {
     display: none;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .shop-tab-content.active {
     display: block;
+}
+
+.shop-tab-content.show {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 /* Form Slider Override */
@@ -727,3 +747,151 @@ input[type="range"].form-range {
     vertical-align: middle;
     margin-right: 6px;
 }
+
+/* Badge Preview in Shop Card */
+.shop-badge-preview {
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 1.5rem auto;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    transition: transform 0.3s ease;
+}
+
+.shop-badge-preview .profile-badge-art {
+    width: 58px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: var(--badge-color-bg-alpha, rgba(255, 255, 255, 0.05));
+    border: 1px solid var(--badge-color-border-alpha, rgba(255, 255, 255, 0.1));
+    color: var(--badge-color, #7c3aed);
+}
+
+.shop-badge-preview .profile-badge-art img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+}
+
+/* Glow */
+.shop-badge-preview.badge-glow {
+    box-shadow: 0 0 15px var(--badge-color-glow-alpha, rgba(124, 58, 237, 0.2));
+}
+
+/* Micro-Animations in Shop */
+.shop-badge-preview.badge-anim-pulse .profile-badge-art {
+    animation: badge-pulse 2s infinite ease-in-out;
+}
+
+.shop-badge-preview.badge-anim-float .profile-badge-art {
+    animation: badge-float 2.5s infinite ease-in-out;
+}
+
+.shop-badge-preview.badge-anim-shine {
+    position: relative;
+    overflow: hidden;
+}
+.shop-badge-preview.badge-anim-shine::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    transform: skewX(-25deg);
+    animation: badge-shine 3.5s infinite ease-in-out;
+    pointer-events: none;
+    z-index: 2;
+}
+
+@keyframes badge-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+}
+
+@keyframes badge-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+@keyframes badge-shine {
+    0% { left: -120%; }
+    100% { left: 220%; }
+}
+
+/* Purchase Success Reveal Modal */
+.success-glow-ring {
+    margin-bottom: 1rem;
+    animation: success-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes success-pop {
+    0% { transform: scale(0.3); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.reveal-card-wrap {
+    position: relative;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 2rem 1.5rem;
+    overflow: hidden;
+    animation: card-reveal-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes card-reveal-in {
+    0% { transform: scale(0.85) translateY(20px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* Light rays effect */
+.reveal-light-rays {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 300px;
+    height: 300px;
+    margin-top: -150px;
+    margin-left: -150px;
+    background: radial-gradient(circle, rgba(251, 191, 36, 0.15) 0%, transparent 70%);
+    z-index: 0;
+    pointer-events: none;
+    animation: spin-rays 12s linear infinite;
+}
+
+@keyframes spin-rays {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.reveal-badge-box {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    padding: 1.2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    border: 2px solid #fbbf24;
+    box-shadow: 0 0 25px rgba(251, 191, 36, 0.35);
+    animation: float-reveal 3s infinite ease-in-out;
+}
+
+@keyframes float-reveal {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-8px) scale(1.05); }
+}
+
+.reveal-badge-box img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+}
+

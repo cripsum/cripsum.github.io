@@ -20,6 +20,45 @@ $stmtUser->close();
 $soldi = (int)($resUser['soldi'] ?? 0);
 $godoshards = (int)($resUser['godoshards_balance'] ?? 0);
 
+// Carica oggetti dello shop dei Godos
+$godosItems = [];
+$queryGodosItems = "
+    SELECT gsi.*, cb.color, cb.glow, cb.animation, cb.badge_type, cb.name as badge_name, cb.name_en as badge_name_en
+    FROM godos_shop_items gsi
+    LEFT JOIN custom_badges cb ON cb.id = CAST(gsi.item_value AS UNSIGNED) AND gsi.item_type = 'badge'
+    WHERE gsi.active = 1
+    ORDER BY gsi.price_godos ASC
+";
+$resItems = $mysqli->query($queryGodosItems);
+if ($resItems) {
+    $godosItems = $resItems->fetch_all(MYSQLI_ASSOC);
+}
+
+// Carica badge posseduti dall'utente
+$ownedBadges = [];
+$resOwned = $mysqli->query("SELECT badge_id FROM user_custom_badges WHERE utente_id = " . $userId);
+if ($resOwned) {
+    while ($row = $resOwned->fetch_assoc()) {
+        $ownedBadges[] = (int)$row['badge_id'];
+    }
+}
+
+if (!function_exists('shop_hex_to_rgb')) {
+    function shop_hex_to_rgb($hex) {
+        $hex = str_replace('#', '', $hex);
+        if (strlen($hex) == 3) {
+            $r = hexdec(substr($hex, 0, 1) . substr($hex, 0, 1));
+            $g = hexdec(substr($hex, 1, 1) . substr($hex, 1, 1));
+            $b = hexdec(substr($hex, 2, 1) . substr($hex, 2, 1));
+        } else {
+            $r = hexdec(substr($hex, 0, 2));
+            $g = hexdec(substr($hex, 2, 2));
+            $b = hexdec(substr($hex, 4, 2));
+        }
+        return [$r, $g, $b];
+    }
+}
+
 // Carica bonus primo acquisto consumati
 $stmtB = $mysqli->prepare("SELECT package_id FROM first_purchase_bonuses WHERE user_id = ? AND first_purchase_bonus_used = 1");
 $stmtB->bind_param("i", $userId);
@@ -258,6 +297,64 @@ $convertedShards = max(0, (int)($_GET['shards'] ?? 0));
                         Converti Punti
                     </a>
                 </div>
+
+                <!-- Database items -->
+                <?php foreach ($godosItems as $item): 
+                    $isLimited = ($item['availability'] !== null);
+                    $owned = in_array((int)$item['item_value'], $ownedBadges, true);
+                    $name = ($lang === 'it') ? $item['name_it'] : $item['name_en'];
+                    $desc = ($lang === 'it') ? $item['description_it'] : $item['description_en'];
+                ?>
+                    <div class="shop-card <?= $owned ? 'is-owned' : '' ?> <?= $isLimited ? 'is-limited' : '' ?>">
+                        <div class="card-badges">
+                            <?php if ($isLimited): ?>
+                                <span class="shop-badge badge-value" data-item-availability="<?= $item['id'] ?>">
+                                    Solo <?= $item['availability'] ?> rimasti!
+                                </span>
+                            <?php else: ?>
+                                <span class="shop-badge badge-value">Disponibilità Illimitata</span>
+                            <?php endif; ?>
+                        </div>
+
+                        <!-- Badge Preview inside Card -->
+                        <div class="shop-badge-preview <?= !empty($item['glow']) && (int)$item['glow'] === 1 ? 'badge-glow' : '' ?> badge-anim-<?= htmlspecialchars($item['animation'] ?: 'none') ?>" style="--badge-color: <?= htmlspecialchars($item['color'] ?: '#7c3aed') ?>; <?php
+                            if (!empty($item['color'])) {
+                                $rgb = shop_hex_to_rgb($item['color']);
+                                if ($rgb) {
+                                    $rgbStr = "{$rgb[0]}, {$rgb[1]}, {$rgb[2]}";
+                                    echo "--badge-color-glow-alpha: rgba({$rgbStr}, 0.15); --badge-color-bg-alpha: rgba({$rgbStr}, 0.08); --badge-color-border-alpha: rgba({$rgbStr}, 0.25);";
+                                }
+                            }
+                        ?>">
+                            <div class="profile-badge-art">
+                                <img src="<?= htmlspecialchars($item['image_url'] ?: '') ?>" alt="<?= htmlspecialchars($name) ?>">
+                            </div>
+                        </div>
+
+                        <div class="card-amount-wrap">
+                            <span class="card-amount"><?= htmlspecialchars($name) ?></span>
+                            <small class="card-amount-bonus-note" style="display: block; min-height: 28px;"><?= htmlspecialchars($desc) ?></small>
+                        </div>
+
+                        <div class="card-equivalence">
+                            Badge Esclusivo
+                        </div>
+
+                        <div class="card-price" style="font-size: 1.15rem; color: #a855f7;">
+                            Costo: <?= number_format($item['price_godos'], 0, ',', '.') ?> Godos
+                        </div>
+
+                        <button class="card-btn js-buy-item" 
+                                data-shop-buy-item="<?= $item['id'] ?>" 
+                                data-item-price="<?= $item['price_godos'] ?>"
+                                data-item-type="<?= $item['item_type'] ?>"
+                                data-item-name="<?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8') ?>"
+                                <?= $owned ? 'disabled' : '' ?>
+                                style="<?= $owned ? 'background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.05); cursor: not-allowed; transform: none; box-shadow: none; filter: none;' : '' ?>">
+                            <?= $owned ? 'Posseduto' : 'Acquista' ?>
+                        </button>
+                    </div>
+                <?php endforeach; ?>
             </main>
         </div>
     </div>
@@ -602,7 +699,42 @@ $convertedShards = max(0, (int)($_GET['shards'] ?? 0));
             </form>
         </section>
     </div>
-    <script src="/assets/shop/shards-shop.js?v=1.1" defer></script>
+
+    <!-- Modal Successo Acquisto Godos -->
+    <div class="shop-action-modal" id="purchaseSuccessModal" aria-hidden="true">
+        <a class="shop-action-modal__backdrop" href="#" data-shop-close aria-label="Chiudi"></a>
+        <section class="shop-action-modal__panel" role="dialog" aria-modal="true" aria-labelledby="successModalTitle" tabindex="-1">
+            <header class="shop-action-modal__header">
+                <div><span class="shop-action-modal__kicker" id="success-modal-title">Oggetto Sbloccato!</span><h2 id="successModalTitle">Acquisto Completato</h2></div>
+                <a class="shop-action-modal__close" href="#" data-shop-close aria-label="Chiudi"><i class="fa-solid fa-xmark"></i></a>
+            </header>
+            <div class="shop-action-modal__body text-center p-3">
+                <div class="success-glow-ring">
+                    <i class="fa-solid fa-circle-check" style="font-size: 3rem; color: #fbbf24; filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.5));"></i>
+                </div>
+                
+                <p class="text-secondary" id="success-modal-subtitle">Hai acquistato correttamente il badge.</p>
+                
+                <!-- Card Reveal Container -->
+                <div class="reveal-card-wrap my-3">
+                    <div class="reveal-light-rays"></div>
+                    <div class="reveal-badge-box" id="success-reveal-badge-box">
+                        <!-- L'immagine del badge comparirà qui -->
+                    </div>
+                    <div class="reveal-badge-name mt-2" id="success-reveal-badge-name" style="font-size: 1.3rem; font-weight: 800; color: #fff;"></div>
+                    <div class="reveal-badge-desc text-secondary px-3 mt-1" id="success-reveal-badge-desc" style="font-size: 0.9rem;"></div>
+                </div>
+                
+                <div class="shop-action-modal__actions" style="justify-content: center; margin-top: 1.5rem;">
+                    <button type="button" class="card-btn" data-shop-close style="background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); max-width: 200px; color: #000; border: none;">
+                        Fantastico!
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="/assets/shop/shards-shop.js?v=1.2" defer></script>
 </body>
 
 </html>
