@@ -264,15 +264,17 @@ try {
     $costoTotalePunti  = $costoSingolaPunti * $quantity;
     $costoTotaleShards = (int)ceil($costoTotalePunti / 100);
 
-    $payWith = null;
+    $shardsToUse = 0;
+    $pointsToUse = 0;
+
     if ($costoTotalePunti > 0) {
-        if ($godoshards >= $costoTotaleShards) {
-            $payWith = 'shards';
-        } elseif ($soldi >= $costoTotalePunti) {
-            $payWith = 'points';
-        } else {
+        $shardsToUse = min($costoTotaleShards, $godoshards);
+        $shardsRemaining = $costoTotaleShards - $shardsToUse;
+        $pointsToUse = $shardsRemaining * 100;
+
+        if ($soldi < $pointsToUse) {
             throw new RuntimeException(
-                "Valute insufficienti! Hai {$soldi} Godos e {$godoshards} Godo Shards, ne servono {$costoTotalePunti} Godos o {$costoTotaleShards} Godo Shards.",
+                "Valute insufficienti! Hai {$soldi} Godos e {$godoshards} Godo Shards, ne servono {$pointsToUse} Godos e {$shardsToUse} Godo Shards per questa pull.",
                 402
             );
         }
@@ -373,22 +375,23 @@ try {
     }
 
     // Scala valuta una volta sola
-    if ($payWith === 'shards') {
+    if ($shardsToUse > 0) {
         $stmtShards = $mysqli->prepare(
             'UPDATE utenti SET godoshards_balance = godoshards_balance - ? WHERE id = ? AND godoshards_balance >= ?'
         );
-        $stmtShards->bind_param('iii', $costoTotaleShards, $userId, $costoTotaleShards);
+        $stmtShards->bind_param('iii', $shardsToUse, $userId, $shardsToUse);
         $stmtShards->execute();
         if ($stmtShards->affected_rows === 0) {
             $stmtShards->close();
             throw new RuntimeException('Shards insufficienti (race condition).', 402);
         }
         $stmtShards->close();
-    } elseif ($payWith === 'points') {
+    }
+    if ($pointsToUse > 0) {
         $stmtMoney = $mysqli->prepare(
             'UPDATE utenti SET soldi = soldi - ? WHERE id = ? AND soldi >= ?'
         );
-        $stmtMoney->bind_param('iii', $costoTotalePunti, $userId, $costoTotalePunti);
+        $stmtMoney->bind_param('iii', $pointsToUse, $userId, $pointsToUse);
         $stmtMoney->execute();
         if ($stmtMoney->affected_rows === 0) {
             $stmtMoney->close();
@@ -459,11 +462,13 @@ try {
         'pulls'          => $pulls,
         'soldi_rimasti'  => $soldiRimasti,
         'shards_rimaste' => $shardsRimaste,
-        'valuta_usata'   => $payWith,
+        'valuta_usata'   => ($shardsToUse > 0 && $pointsToUse > 0) ? 'mixed' : ($shardsToUse > 0 ? 'shards' : 'points'),
         'pity_standard'  => $pityStandard,
         'pity_evento'    => $pityEvento,
         'garantito'      => (bool)$garantito,
-        'costo_totale'   => ($payWith === 'shards' ? $costoTotaleShards : $costoTotalePunti),
+        'costo_totale'   => $pointsToUse,
+        'shards_spese'   => $shardsToUse,
+        'punti_spesi'    => $pointsToUse,
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 } catch (RuntimeException $e) {
     $mysqli->rollback();

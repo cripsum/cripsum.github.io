@@ -345,3 +345,50 @@
     vertical-align: middle;
     margin: 0 8px;
 }
+
+/* Tabs Styling */
+.shop-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+}
+
+.shop-tab-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 30px;
+    padding: 0.6rem 1.8rem;
+    color: #aab3c8;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    font-family: inherit;
+}
+
+.shop-tab-btn:hover {
+    background: rgba(255, 255, 255, 0.07);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.shop-tab-btn.active {
+    background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+}
+
+.shop-tab-content {
+    display: none;
+}
+
+.shop-tab-content.active {
+    display: block;
+}
+
+/* Form Slider Override */
+input[type="range"].form-range {
+    accent-color: #7c3aed;
+}

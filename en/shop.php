@@ -71,7 +71,7 @@ $successPackage = $_GET['package_id'] ?? '';
     <meta charset="UTF-8">
     <title>Godo Shards Shop - Cripsum™</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/shop.css?v=1.3">
+    <link rel="stylesheet" href="/css/shop.css?v=1.4">
     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo urlencode(PAYPAL_CLIENT_ID); ?>&currency=EUR&locale=en_US"></script>
     <style>
         .shop-toast {
@@ -140,70 +140,97 @@ $successPackage = $_GET['package_id'] ?? '';
             </div>
         </header>
 
-        <main class="shop-grid">
-            <?php foreach ($packages as $pid => $pkg):
-                $price = $pkg['price'];
-                $shards = $pkg['shards'];
-                $isBonusAvailable = !in_array($pid, $usedBonuses);
-                
-                // Calculate savings value compared to €0.99 (10 shards)
-                $currentRate = $shards / $price;
-                $savingsPercent = round(($currentRate / $baseRate - 1) * 100);
-                
-                // Visual Shards amount (doubled if x2 active)
-                $displayShards = $isBonusAvailable ? ($shards * 2) : $shards;
-                
-                // Special classes for highlighted cards
-                $specialClass = '';
-                if ($pid === 'shards_80') {
-                    $specialClass = 'is-pity';
-                } elseif ($pid === 'shards_400' || $pid === 'shards_1200') {
-                    $specialClass = 'is-best';
-                }
-            ?>
-                <div class="shop-card <?= $specialClass ?>">
+        <!-- Tabs Nav -->
+        <div class="shop-tabs">
+            <button type="button" class="shop-tab-btn active" data-tab="tab-premium">💎 Buy Shards</button>
+            <button type="button" class="shop-tab-btn" data-tab="tab-godos">🪙 Godos Shop</button>
+        </div>
+
+        <div id="tab-premium" class="shop-tab-content active">
+            <main class="shop-grid">
+                <?php foreach ($packages as $pid => $pkg):
+                    $price = $pkg['price'];
+                    $shards = $pkg['shards'];
+                    $isBonusAvailable = !in_array($pid, $usedBonuses);
+                    
+                    // Calculate savings value compared to €0.99 (10 shards)
+                    $currentRate = $shards / $price;
+                    $savingsPercent = round(($currentRate / $baseRate - 1) * 100);
+                    
+                    // Visual Shards amount (doubled if x2 active)
+                    $displayShards = $isBonusAvailable ? ($shards * 2) : $shards;
+                    
+                    // Special classes for highlighted cards
+                    $specialClass = '';
+                    if ($pid === 'shards_80') {
+                        $specialClass = 'is-pity';
+                    } elseif ($pid === 'shards_400' || $pid === 'shards_1200') {
+                        $specialClass = 'is-best';
+                    }
+                ?>
+                    <div class="shop-card <?= $specialClass ?>">
+                        <div class="card-badges">
+                            <?php if ($isBonusAvailable): ?>
+                                <span class="shop-badge badge-x2" title="The first purchase of this package doubles the shards!">x2 Bonus</span>
+                            <?php endif; ?>
+
+                            <?php if ($pid === 'shards_80'): ?>
+                                <span class="shop-badge badge-pity">⭐ Full pity</span>
+                            <?php elseif ($pid === 'shards_400' || $pid === 'shards_1200'): ?>
+                                <span class="shop-badge badge-best">Best offer</span>
+                            <?php endif; ?>
+
+                            <?php if ($savingsPercent > 0): ?>
+                                <span class="shop-badge badge-value">+<?= $savingsPercent ?>% value</span>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="card-shards-icon"><img src="/img/godoshards.png" alt="Godo Shards" style="width: 60px; height: 60px; object-fit: contain;"></div>
+
+                        <div class="card-amount-wrap">
+                            <?php if ($isBonusAvailable): ?>
+                                <span class="card-amount-original"><?= $shards ?></span>
+                            <?php endif; ?>
+                            <span class="card-amount"><?= $displayShards ?> Godo Shards</span>
+                        </div>
+
+                        <div class="card-price-wrap">
+                            <span class="card-price">€ <?= number_format($price, 2, '.', ',') ?></span>
+                        </div>
+
+                        <button class="card-btn" onclick="openPaymentModal('<?= $pid ?>', '<?= $pkg['name'] ?>', '<?= $price ?>')">
+                            Buy
+                        </button>
+                    </div>
+                <?php endforeach; ?>
+            </main>
+        </div>
+
+        <div id="tab-godos" class="shop-tab-content">
+            <main class="shop-grid">
+                <!-- Godos to Shards card -->
+                <div class="shop-card is-pity">
                     <div class="card-badges">
-                        <?php if ($isBonusAvailable): ?>
-                            <span class="shop-badge badge-x2" title="The first purchase of this package doubles the shards!">x2 Bonus</span>
-                        <?php endif; ?>
-
-                        <?php if ($pid === 'shards_80'): ?>
-                            <span class="shop-badge badge-pity">⭐ Full pity</span>
-                        <?php elseif ($pid === 'shards_400' || $pid === 'shards_1200'): ?>
-                            <span class="shop-badge badge-best">Best offer</span>
-                        <?php endif; ?>
-
-                        <?php if ($savingsPercent > 0): ?>
-                            <span class="shop-badge badge-value">+<?= $savingsPercent ?>% value</span>
-                        <?php endif; ?>
+                        <span class="shop-badge badge-value">100 Points = 1 Shard</span>
                     </div>
-
-                    <div class="card-shards-icon"><img src="/img/godoshards.png" alt="Godo Shards" style="width: 60px; height: 60px; object-fit: contain;"></div>
-
-                    <div class="card-amount-wrap">
-                        <?php if ($isBonusAvailable): ?>
-                            <span class="card-amount-original"><?= $shards ?></span>
-                        <?php endif; ?>
-                        <span class="card-amount"><?= $displayShards ?></span>
-                        <?php if ($isBonusAvailable): ?>
-                            <small class="card-amount-bonus-note">+<?= $shards ?> Free Shards!</small>
-                        <?php endif; ?>
+                    <div class="card-shards-icon">
+                        <img src="/img/godoshards.png" alt="Godo Shards" style="width: 60px; height: 60px; object-fit: contain;">
                     </div>
-
-                    <div class="card-equivalence">
-                        <?= htmlspecialchars(formatEquivalence($displayShards)) ?>
+                    <div class="card-amount-wrap" style="margin-top: 1rem;">
+                        <span class="card-amount">Godo Shards</span>
+                        <div class="card-description" style="color: #94a3b8; font-size: 0.85rem; margin-top: 0.5rem; min-height: 40px;">
+                            Convert your Godos into Godo Shards to perform pulls on the gacha banners.
+                        </div>
                     </div>
-
-                    <div class="card-price">
-                        €<?= number_format($price, 2, '.', ',') ?>
+                    <div class="card-price-wrap" style="margin-top: 1.5rem;">
+                        <span class="card-price" style="font-size: 1.3rem; color: #a855f7;">Cost: 100 Godos / each</span>
                     </div>
-
-                    <button class="card-btn" onclick="openPaymentModal('<?= $pid ?>', '<?= $pkg['name'] ?>', '<?= $price ?>')">
-                        Buy
+                    <button class="card-btn" onclick="openGodosConverter()" style="margin-top: 1.5rem; background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); border: none;">
+                        Convert Points
                     </button>
                 </div>
-            <?php endforeach; ?>
-        </main>
+            </main>
+        </div>
     </div>
 
     <!-- Payment Choice Modal -->
@@ -325,7 +352,150 @@ $successPackage = $_GET['package_id'] ?? '';
 
             paymentModal.show();
         }
+
+        // Gestione Tab
+        document.querySelectorAll('.shop-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.shop-tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.shop-tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                const tabId = btn.dataset.tab;
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Godos converter slider logic
+        let userGodos = <?= (int)$soldi ?>;
+        const godosConverterModal = new bootstrap.Modal(document.getElementById('godosConversionModal'));
+        const godosSlider = document.getElementById('godos-slider');
+        const sliderShardsVal = document.getElementById('slider-shards-val');
+        const sliderGodosCost = document.getElementById('slider-godos-cost');
+        const sliderMaxLabel = document.getElementById('slider-max-label');
+
+        function openGodosConverter() {
+            const maxBuyable = Math.floor(userGodos / 100);
+            if (maxBuyable <= 0) {
+                alert("You do not have enough Godos to purchase Godo Shards! (Cost: 100 Godos per Shard)");
+                return;
+            }
+            godosSlider.max = maxBuyable;
+            godosSlider.value = Math.min(10, maxBuyable);
+            sliderMaxLabel.textContent = "Max: " + maxBuyable;
+            updateSliderDisplay();
+            godosConverterModal.show();
+        }
+
+        function updateSliderDisplay() {
+            const qty = parseInt(godosSlider.value);
+            sliderShardsVal.textContent = qty;
+            sliderGodosCost.textContent = (qty * 100).toLocaleString();
+        }
+
+        godosSlider.addEventListener('input', updateSliderDisplay);
+
+        document.getElementById('btn-confirm-godos-buy').addEventListener('click', async () => {
+            const qty = parseInt(godosSlider.value);
+            if (qty <= 0) return;
+            
+            try {
+                const btn = document.getElementById('btn-confirm-godos-buy');
+                btn.disabled = true;
+                btn.textContent = "Processing...";
+
+                const res = await fetch('/api/convert_godos_to_shards.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ shards: qty })
+                });
+                const data = await res.json();
+                
+                btn.disabled = false;
+                btn.textContent = "Confirm Purchase";
+
+                if (data.status === 'success') {
+                    godosConverterModal.hide();
+                    // Update balances in DOM
+                    userGodos = data.soldi_rimasti;
+                    document.querySelectorAll('.shop-balance-val').forEach((el, index) => {
+                        if (index === 0) el.textContent = data.soldi_rimasti.toLocaleString();
+                        if (index === 1) el.textContent = data.shards_rimaste.toLocaleString();
+                    });
+                    
+                    // Show success toast
+                    showSuccessToast(qty, data.costo_punti);
+                } else {
+                    alert(data.message || "Error during conversion.");
+                }
+            } catch(e) {
+                console.error(e);
+                alert("Network error.");
+                document.getElementById('btn-confirm-godos-buy').disabled = false;
+                document.getElementById('btn-confirm-godos-buy').textContent = "Confirm Purchase";
+            }
+        });
+
+        function showSuccessToast(shards, godos) {
+            const toastDiv = document.createElement('div');
+            toastDiv.className = 'shop-toast';
+            toastDiv.style.position = 'fixed';
+            toastDiv.style.top = '5rem';
+            toastDiv.style.right = '2rem';
+            toastDiv.innerHTML = `
+                <i class="fa-solid fa-circle-check"></i>
+                <span>Purchased ${shards} Godo Shards for ${godos} Godos!</span>
+            `;
+            document.body.appendChild(toastDiv);
+            setTimeout(() => {
+                toastDiv.style.transition = 'opacity 0.5s ease';
+                toastDiv.style.opacity = '0';
+                setTimeout(() => toastDiv.remove(), 500);
+            }, 4000);
+        }
     </script>
+
+    <!-- Modal Slider Conversione Godos -> Shards -->
+    <div class="modal fade shop-modal" id="godosConversionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: rgba(13, 10, 24, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; color: #fff;">
+                <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                    <h5 class="modal-title">Purchase Godo Shards</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <p class="mb-3 text-secondary">Choose how many Godo Shards to purchase with your Godos:</p>
+                    
+                    <div style="margin-bottom: 2rem;">
+                        <span style="font-size: 3rem; font-weight: 800; color: #3b82f6; display: block;" id="slider-shards-val">10</span>
+                        <span style="font-size: 0.9rem; color: #aab3c8;">Godo Shards</span>
+                    </div>
+
+                    <div style="padding: 0 1.5rem; margin-bottom: 2rem;">
+                        <input type="range" class="form-range" id="godos-slider" min="1" max="100" value="10" style="accent-color: #7c3aed;">
+                        <div class="d-flex justify-content-between mt-2 text-secondary" style="font-size: 0.8rem;">
+                            <span>Min: 1</span>
+                            <span id="slider-max-label">Max: 100</span>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.03); border-radius: 12px; padding: 1rem; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.05);">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Unit Price:</span>
+                            <span>100 Godos</span>
+                        </div>
+                        <div class="d-flex justify-content-between" style="font-size: 1.1rem; font-weight: 700;">
+                            <span class="text-white">Total Cost:</span>
+                            <span style="color: #a855f7;"><span id="slider-godos-cost">1,000</span> Godos</span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 col-8 mx-auto">
+                        <button type="button" class="btn btn-primary" id="btn-confirm-godos-buy" style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); border: none; font-weight: 700; padding: 0.75rem;">Confirm Purchase</button>
+                        <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

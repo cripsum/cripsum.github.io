@@ -334,15 +334,17 @@ try {
     $costoPunti = ($bannerType === 'standard') ? 0 : (int)$bannerData['costo_punti'];
     $costoShards = (int)ceil($costoPunti / 100);
 
-    $payWith = null; // 'shards' or 'points'
+    $shardsToUse = 0;
+    $pointsToUse = 0;
+
     if ($costoPunti > 0) {
-        if ($godoshards >= $costoShards) {
-            $payWith = 'shards';
-        } elseif ($soldi >= $costoPunti) {
-            $payWith = 'points';
-        } else {
+        $shardsToUse = min($costoShards, $godoshards);
+        $shardsRemaining = $costoShards - $shardsToUse;
+        $pointsToUse = $shardsRemaining * 100;
+
+        if ($soldi < $pointsToUse) {
             throw new RuntimeException(
-                "Valute insufficienti! Hai {$soldi} Godos e {$godoshards} Godo Shards, ne servono {$costoPunti} Godos o {$costoShards} Godo Shards.",
+                "Valute insufficienti! Hai {$soldi} Godos e {$godoshards} Godo Shards, ne servono {$pointsToUse} Godos e {$shardsToUse} Godo Shards per questa pull.",
                 402
             );
         }
@@ -425,28 +427,29 @@ try {
     $personaggioId = (int) $personaggio['id'];
 
     // ── [6] Scala valuta ──────────────────────────────────────────────────────
-    if ($payWith === 'shards') {
+    if ($shardsToUse > 0) {
         $stmtShards = $mysqli->prepare(
             'UPDATE utenti
              SET godoshards_balance = godoshards_balance - ?
              WHERE id = ? AND godoshards_balance >= ?'
         );
         if (!$stmtShards) throw new RuntimeException('Prepare shards update fallito');
-        $stmtShards->bind_param('iii', $costoShards, $userId, $costoShards);
+        $stmtShards->bind_param('iii', $shardsToUse, $userId, $shardsToUse);
         $stmtShards->execute();
         if ($stmtShards->affected_rows === 0) {
             $stmtShards->close();
             throw new RuntimeException('Shards insufficienti (race condition).', 402);
         }
         $stmtShards->close();
-    } elseif ($payWith === 'points') {
+    }
+    if ($pointsToUse > 0) {
         $stmtMoney = $mysqli->prepare(
             'UPDATE utenti
              SET soldi = soldi - ?
              WHERE id = ? AND soldi >= ?'
         );
         if (!$stmtMoney) throw new RuntimeException('Prepare money update fallito');
-        $stmtMoney->bind_param('iii', $costoPunti, $userId, $costoPunti);
+        $stmtMoney->bind_param('iii', $pointsToUse, $userId, $pointsToUse);
         $stmtMoney->execute();
         if ($stmtMoney->affected_rows === 0) {
             $stmtMoney->close();
@@ -586,10 +589,12 @@ try {
         'pity_evento'    => $pityEvento,
         'garantito'      => (bool) $garantito,
         'vinto_50_50'    => $vinto50_50,
-        'costo_scalato'  => ($payWith === 'shards' ? $costoShards : $costoPunti),
+        'costo_scalato'  => $pointsToUse,
+        'shards_spese'   => $shardsToUse,
+        'punti_spesi'    => $pointsToUse,
         'soldi_rimasti'  => $soldiRimasti,
         'shards_rimaste' => $shardsRimaste,
-        'valuta_usata'   => $payWith,
+        'valuta_usata'   => ($shardsToUse > 0 && $pointsToUse > 0) ? 'mixed' : ($shardsToUse > 0 ? 'shards' : 'points'),
         'tipo_banner'    => $bannerType,
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 } catch (RuntimeException $e) {

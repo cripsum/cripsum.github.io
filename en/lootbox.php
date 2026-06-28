@@ -486,6 +486,36 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
 
     </div><!-- /gacha-overlay -->
 
+    <!-- Currency Conversion Modal -->
+    <div class="modal fade shop-modal" id="gachaConversionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: rgba(13, 10, 24, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; color: #fff;">
+                <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                    <h5 class="modal-title">Currency Conversion</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <div style="margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 1rem;">
+                        <div class="conversion-item">
+                            <span style="font-size: 2.2rem; display: block;"><img src="/img/godos.png" alt="Godos" style="width: 48px; height: 48px; object-fit: contain;"></span>
+                            <span class="conversion-godos-cost" style="font-weight: 700; font-size: 1.1rem; color: #a855f7;">400</span>
+                        </div>
+                        <div style="font-size: 1.5rem; color: rgba(255,255,255,0.4);"><i class="fa-solid fa-arrow-right-long"></i></div>
+                        <div class="conversion-item">
+                            <span style="font-size: 2.2rem; display: block;"><img src="/img/godoshards.png" alt="Godo Shards" style="width: 48px; height: 48px; object-fit: contain;"></span>
+                            <span style="font-weight: 700; font-size: 1.1rem; color: #3b82f6;">+<span class="conversion-shards-count">4</span></span>
+                        </div>
+                    </div>
+                    <p class="mb-4">Do you want to convert <strong class="conversion-godos-cost">400</strong> Godos into <strong class="conversion-shards-count">4</strong> Godo Shards to complete this <span class="conversion-pull-qty">10</span>-pull?</p>
+                    <div class="d-grid gap-2 col-8 mx-auto">
+                        <button type="button" class="btn btn-primary btn-confirm-conversion" style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); border: none; font-weight: 700; padding: 0.75rem;">Convert & Pull</button>
+                        <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast -->
     <div class="gacha-toast" id="gacha-toast" role="alert" aria-live="assertive"></div>
 
