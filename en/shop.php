@@ -205,7 +205,10 @@ $successPackage = $_GET['package_id'] ?? '';
                             €<?= number_format($price, 2, '.', ',') ?>
                         </div>
 
-                        <button class="card-btn" data-bs-toggle="modal" data-bs-target="#paymentModal" onclick="preparePaymentModal('<?= $pid ?>', '<?= $pkg['name'] ?>', '<?= $price ?>')">
+                        <button type="button" class="card-btn js-buy-shards"
+                            data-package-id="<?= htmlspecialchars($pid, ENT_QUOTES, 'UTF-8') ?>"
+                            data-package-name="<?= htmlspecialchars($pkg['name'], ENT_QUOTES, 'UTF-8') ?>"
+                            data-package-price="<?= htmlspecialchars((string)$price, ENT_QUOTES, 'UTF-8') ?>">
                             Buy
                         </button>
                     </div>
@@ -238,7 +241,7 @@ $successPackage = $_GET['package_id'] ?? '';
                         Cost: 100 Godos / each
                     </div>
 
-                    <button class="card-btn" data-bs-toggle="modal" data-bs-target="#godosConversionModal" onclick="prepareGodosConverter()" style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); border: none;">
+                    <button type="button" class="card-btn" id="open-godos-converter" style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); border: none;">
                         Convert Points
                     </button>
                 </div>
@@ -276,9 +279,50 @@ $successPackage = $_GET['package_id'] ?? '';
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script>
-        // Init Bootstrap tooltips
-        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+        // Open shop modals explicitly so clicks do not depend on Bootstrap's
+        // Data API being ready at exactly the right time.
+        function showShopModal(modalId) {
+            const modalEl = document.getElementById(modalId);
+            if (!modalEl) return;
+
+            if (window.bootstrap?.Modal) {
+                bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                return;
+            }
+
+            modalEl.style.display = 'block';
+            modalEl.classList.add('show');
+            modalEl.removeAttribute('aria-hidden');
+            modalEl.setAttribute('aria-modal', 'true');
+            modalEl.setAttribute('role', 'dialog');
+            document.body.classList.add('modal-open');
+
+            const backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop fade show shop-modal-backdrop';
+            backdrop.addEventListener('click', () => hideShopModal(modalId));
+            document.body.appendChild(backdrop);
+        }
+
+        function hideShopModal(modalId) {
+            const modalEl = document.getElementById(modalId);
+            if (!modalEl) return;
+
+            if (window.bootstrap?.Modal) {
+                const instance = bootstrap.Modal.getInstance(modalEl);
+                if (instance) {
+                    instance.hide();
+                    return;
+                }
+            }
+
+            modalEl.classList.remove('show');
+            modalEl.style.display = 'none';
+            modalEl.setAttribute('aria-hidden', 'true');
+            modalEl.removeAttribute('aria-modal');
+            modalEl.removeAttribute('role');
+            document.body.classList.remove('modal-open');
+            document.querySelectorAll('.shop-modal-backdrop').forEach(el => el.remove());
+        }
 
         // Auto-hide toast after 5s
         const toast = document.getElementById('payment-toast');
@@ -309,7 +353,13 @@ $successPackage = $_GET['package_id'] ?? '';
             const container = document.getElementById('paypal-button-container');
             container.innerHTML = '';
             
-            paypal.Buttons({
+            if (!window.paypal?.Buttons) {
+                container.innerHTML = '<p class="text-center text-secondary mb-0">PayPal is temporarily unavailable. You can still pay by card.</p>';
+                return;
+            }
+
+            try {
+                const renderResult = paypal.Buttons({
                 createOrder: function(data, actions) {
                     return fetch('/api/create_paypal_shard_order.php', {
                         method: 'POST',
@@ -348,9 +398,7 @@ $successPackage = $_GET['package_id'] ?? '';
                     })
                     .then(function(details) {
                         if (details.ok) {
-                            const modalEl = document.getElementById('paymentModal');
-                            const modalInst = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                            modalInst.hide();
+                            hideShopModal('paymentModal');
                             window.location.href = '/en/shop.php?payment=success&package_id=' + currentPackageId;
                         } else {
                             alert(details.message || 'Error capturing payment.');
@@ -361,7 +409,16 @@ $successPackage = $_GET['package_id'] ?? '';
                     console.error('[PayPal Error]', err);
                     alert('An error occurred with PayPal.');
                 }
-            }).render('#paypal-button-container');
+                }).render('#paypal-button-container');
+
+                if (renderResult?.catch) {
+                    renderResult.catch(() => {
+                        container.innerHTML = '<p class="text-center text-secondary mb-0">PayPal is temporarily unavailable. You can still pay by card.</p>';
+                    });
+                }
+            } catch (error) {
+                container.innerHTML = '<p class="text-center text-secondary mb-0">PayPal is temporarily unavailable. You can still pay by card.</p>';
+            }
         }
 
         // Gestione Tab
@@ -383,6 +440,10 @@ $successPackage = $_GET['package_id'] ?? '';
         let sliderMaxLabel;
 
         document.addEventListener('DOMContentLoaded', () => {
+            if (window.bootstrap?.Tooltip) {
+                document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
+            }
+
             godosSlider = document.getElementById('godos-slider');
             sliderShardsVal = document.getElementById('slider-shards-val');
             sliderGodosCost = document.getElementById('slider-godos-cost');
@@ -396,13 +457,34 @@ $successPackage = $_GET['package_id'] ?? '';
             if (btnConfirm) {
                 btnConfirm.addEventListener('click', handleGodosConversion);
             }
+
+            document.querySelectorAll('.js-buy-shards').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    showShopModal('paymentModal');
+                    preparePaymentModal(btn.dataset.packageId, btn.dataset.packageName, btn.dataset.packagePrice);
+                });
+            });
+
+            document.getElementById('open-godos-converter')?.addEventListener('click', () => {
+                if (prepareGodosConverter()) {
+                    showShopModal('godosConversionModal');
+                }
+            });
+
+            document.querySelectorAll('.shop-modal [data-bs-dismiss="modal"]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (!window.bootstrap?.Modal) {
+                        hideShopModal(btn.closest('.shop-modal')?.id);
+                    }
+                });
+            });
         });
 
         function prepareGodosConverter() {
             const maxBuyable = Math.floor(userGodos / 100);
             if (maxBuyable <= 0) {
                 alert("You do not have enough Godos to purchase Godo Shards! (Cost: 100 Godos per Shard)");
-                return;
+                return false;
             }
             if (godosSlider) {
                 godosSlider.max = maxBuyable;
@@ -412,6 +494,7 @@ $successPackage = $_GET['package_id'] ?? '';
                 sliderMaxLabel.textContent = "Max: " + maxBuyable;
             }
             updateSliderDisplay();
+            return true;
         }
 
         function updateSliderDisplay() {
@@ -446,9 +529,7 @@ $successPackage = $_GET['package_id'] ?? '';
                 }
 
                 if (data.status === 'success') {
-                    const modalEl = document.getElementById('godosConversionModal');
-                    const modalInst = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                    modalInst.hide();
+                    hideShopModal('godosConversionModal');
                     
                     // Update balances in DOM
                     userGodos = data.soldi_rimasti;
