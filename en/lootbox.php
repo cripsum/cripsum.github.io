@@ -73,7 +73,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
 <head>
     <?php include '../includes/head-import.php'; ?>
     <link rel="stylesheet" href="/css/lootbox.css?v=8.3">
-    <link rel="stylesheet" href="/css/gacha.css?v=17">
+    <link rel="stylesheet" href="/css/gacha.css?v=18">
     <meta name="theme-color" content="#080810">
     <title>Cripsum™ — Lootbox</title>
 </head>
@@ -101,7 +101,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                 data-banner-type="standard"
                 data-pity-hard="<?= PITY_STANDARD_HARD ?>"
                 data-pity-soft="<?= PITY_STANDARD_SOFT ?>"
-                data-costo="100"
+                data-costo="0"
                 aria-label="Banner Standard">
                 <div class="gacha-banner-bg has-img" id="banner-bg-standard"
                     style="background-image:url('/img/banner_standard_bg.jpg')"></div>
@@ -152,27 +152,24 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                                 <span class="balance-label">Godo Shards:</span>
                                 <span class="balance-value user-shards-val"><?= number_format($godoshards) ?></span>
                             </div>
+                            <a href="shop" class="balance-shop-btn" title="Buy Godo Shards" data-bs-toggle="tooltip">
+                                <i class="fa-solid fa-plus"></i>
+                            </a>
                         </div>
-                        <span class="gacha-cost">• Cost: 100 Godos or 1 Shard</span>
+                        <span class="gacha-cost">• Free</span>
                     </div>
 
                     <div class="gacha-pull-row">
                         <button class="gacha-pull-btn" id="pull-btn-standard"
                             aria-label="Open 1x standard banner" data-banner-id="standard">
                             <i class="fa-solid fa-box-open gacha-pull-btn-icon"></i>
-                            <div class="gacha-pull-btn-text">
-                                <span>Open 1×</span>
-                                <small class="gacha-pull-btn-cost">100 <img src="/img/godos.png" alt="Godos" class="cost-icon-img"> / 1 <img src="/img/godoshards.png" alt="Shards" class="cost-icon-img"></small>
-                            </div>
+                            <span>Open 1×</span>
                         </button>
                         <button class="gacha-pull-btn gacha-pull-btn--multi"
                             aria-label="Open 10x standard banner"
                             data-banner-id="standard" data-pull-qty="10">
                             <i class="fa-solid fa-boxes-stacked gacha-pull-btn-icon"></i>
-                            <div class="gacha-pull-btn-text">
-                                <span>Open 10×</span>
-                                <small class="gacha-pull-btn-cost">1000 <img src="/img/godos.png" alt="Godos" class="cost-icon-img"> / 10 <img src="/img/godoshards.png" alt="Shards" class="cost-icon-img"></small>
-                            </div>
+                            <span>Open 10×</span>
                         </button>
                     </div>
                     <!-- <p class="gacha-pull-hint"><i class="fa-solid fa-bolt"></i> <kbd>F</kbd> quick open &nbsp;|&nbsp; <kbd>Space</kbd> normal pull</p> -->
@@ -284,6 +281,9 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                                     <span class="balance-label">Godo Shards:</span>
                                     <span class="balance-value user-shards-val"><?= number_format($godoshards) ?></span>
                                 </div>
+                                <a href="shop" class="balance-shop-btn" title="Buy Godo Shards" data-bs-toggle="tooltip">
+                                    <i class="fa-solid fa-plus"></i>
+                                </a>
                             </div>
                             <span class="gacha-cost">• Cost: <?= number_format($costo) ?> Godos or <?= (int)ceil($costo / 100) ?> Shard</span>
                         </div>

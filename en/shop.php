@@ -71,7 +71,7 @@ $successPackage = $_GET['package_id'] ?? '';
     <meta charset="UTF-8">
     <title>Godo Shards Shop - Cripsum™</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/shop.css?v=1.1">
+    <link rel="stylesheet" href="/css/shop.css?v=1.2">
     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo urlencode(PAYPAL_CLIENT_ID); ?>&currency=EUR&locale=en_US"></script>
     <style>
         .shop-toast {
@@ -170,9 +170,11 @@ $successPackage = $_GET['package_id'] ?? '';
 
                         <?php if ($pid === 'shards_80'): ?>
                             <span class="shop-badge badge-pity">⭐ Full pity</span>
-                        <?php elseif ($savingsPercent > 0 && ($pid === 'shards_400' || $pid === 'shards_1200')): ?>
+                        <?php elseif ($pid === 'shards_400' || $pid === 'shards_1200'): ?>
                             <span class="shop-badge badge-best">Best offer</span>
-                        <?php elseif ($savingsPercent > 0): ?>
+                        <?php endif; ?>
+
+                        <?php if ($savingsPercent > 0): ?>
                             <span class="shop-badge badge-value">+<?= $savingsPercent ?>% value</span>
                         <?php endif; ?>
                     </div>

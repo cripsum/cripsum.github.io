@@ -3,9 +3,9 @@
  */
 
 .shop-shards-body {
-    background: #08050e;
-    color: #f1f3f9;
-    font-family: 'Outfit', 'Poppins', sans-serif;
+    background: radial-gradient(circle at 8% 6%, rgba(109, 93, 252, 0.22), transparent 30rem), radial-gradient(circle at 92% 18%, rgba(139, 92, 246, 0.13), transparent 28rem), linear-gradient(135deg, #05070d, #0b1020);
+    color: #f7f8ff;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
     margin: 0;
     padding: 0;
     min-height: 100vh;
@@ -95,13 +95,14 @@
 /* Package Card */
 .shop-card {
     position: relative;
-    background: rgba(255, 255, 255, 0.02);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    padding: 2rem 1.5rem 1.5rem 1.5rem;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.025)), rgba(10, 14, 27, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    padding: 2.2rem 1.5rem 1.5rem 1.5rem;
     text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    box-shadow: 0 22px 70px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
     transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
                 box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
                 border-color 0.2s;

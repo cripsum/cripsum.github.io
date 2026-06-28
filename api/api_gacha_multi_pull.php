@@ -260,20 +260,22 @@ try {
     $garantito    = (int)$user['garantito_evento'];
 
     // Verifica costo totale
-    $costoSingolaPunti = ($bannerType === 'standard') ? 100 : (int)$bannerData['costo_punti'];
+    $costoSingolaPunti = ($bannerType === 'standard') ? 0 : (int)$bannerData['costo_punti'];
     $costoTotalePunti  = $costoSingolaPunti * $quantity;
     $costoTotaleShards = (int)ceil($costoTotalePunti / 100);
 
     $payWith = null;
-    if ($godoshards >= $costoTotaleShards) {
-        $payWith = 'shards';
-    } elseif ($soldi >= $costoTotalePunti) {
-        $payWith = 'points';
-    } else {
-        throw new RuntimeException(
-            "Valute insufficienti! Hai {$soldi} Godos e {$godoshards} Godo Shards, ne servono {$costoTotalePunti} Godos o {$costoTotaleShards} Godo Shards.",
-            402
-        );
+    if ($costoTotalePunti > 0) {
+        if ($godoshards >= $costoTotaleShards) {
+            $payWith = 'shards';
+        } elseif ($soldi >= $costoTotalePunti) {
+            $payWith = 'points';
+        } else {
+            throw new RuntimeException(
+                "Valute insufficienti! Hai {$soldi} Godos e {$godoshards} Godo Shards, ne servono {$costoTotalePunti} Godos o {$costoTotaleShards} Godo Shards.",
+                402
+            );
+        }
     }
 
     // Prepara statement riutilizzabili
@@ -382,7 +384,7 @@ try {
             throw new RuntimeException('Shards insufficienti (race condition).', 402);
         }
         $stmtShards->close();
-    } else {
+    } elseif ($payWith === 'points') {
         $stmtMoney = $mysqli->prepare(
             'UPDATE utenti SET soldi = soldi - ? WHERE id = ? AND soldi >= ?'
         );

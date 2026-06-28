@@ -2720,3 +2720,26 @@ body.lootbox-page {
     object-fit: contain;
     vertical-align: middle;
 }
+
+.balance-shop-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 0.65rem;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    margin-left: 0.5rem;
+}
+
+.balance-shop-btn:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 8px rgba(124, 58, 237, 0.7);
+    color: #fff;
+}

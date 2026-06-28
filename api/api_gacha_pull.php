@@ -331,19 +331,21 @@ try {
     $garantito     = (int) $user['garantito_evento'];
 
     // ── [2] Verifica e scala punti/shards ──────────────────────────────────────
-    $costoPunti = ($bannerType === 'standard') ? 100 : (int)$bannerData['costo_punti'];
+    $costoPunti = ($bannerType === 'standard') ? 0 : (int)$bannerData['costo_punti'];
     $costoShards = (int)ceil($costoPunti / 100);
 
     $payWith = null; // 'shards' or 'points'
-    if ($godoshards >= $costoShards) {
-        $payWith = 'shards';
-    } elseif ($soldi >= $costoPunti) {
-        $payWith = 'points';
-    } else {
-        throw new RuntimeException(
-            "Valute insufficienti! Hai {$soldi} Godos e {$godoshards} Godo Shards, ne servono {$costoPunti} Godos o {$costoShards} Godo Shards.",
-            402
-        );
+    if ($costoPunti > 0) {
+        if ($godoshards >= $costoShards) {
+            $payWith = 'shards';
+        } elseif ($soldi >= $costoPunti) {
+            $payWith = 'points';
+        } else {
+            throw new RuntimeException(
+                "Valute insufficienti! Hai {$soldi} Godos e {$godoshards} Godo Shards, ne servono {$costoPunti} Godos o {$costoShards} Godo Shards.",
+                402
+            );
+        }
     }
 
     // ── [3] Seleziona rarità con pity ─────────────────────────────────────────
@@ -437,7 +439,7 @@ try {
             throw new RuntimeException('Shards insufficienti (race condition).', 402);
         }
         $stmtShards->close();
-    } else {
+    } elseif ($payWith === 'points') {
         $stmtMoney = $mysqli->prepare(
             'UPDATE utenti
              SET soldi = soldi - ?
