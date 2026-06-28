@@ -457,7 +457,13 @@ body.game-page {
 @keyframes gameHit { 0%, 100% { transform: translateX(0); } 30% { transform: translateX(-6px); } 60% { transform: translateX(6px); } }
 @keyframes gameAct { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-8px) scale(1.015); } }
 
-.game-active-card img { max-height: none; }
+.game-active-card img {
+    width: 180px;
+    height: 180px;
+    max-height: none;
+    margin: 0 auto 1rem;
+    display: block;
+}
 .game-active-name { display: flex; align-items: center; justify-content: space-between; gap: .65rem; }
 .game-active-name span { color: var(--game-muted); font-size: .82rem; font-weight: 850; }
 
@@ -688,7 +694,7 @@ body.game-page {
 
 .game-action-bar {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
     gap: .65rem;
     margin-top: 1rem;
 }
@@ -714,6 +720,19 @@ body.game-page {
 .game-move-special i { color: #c4b5fd; }
 .game-move-defend i { color: var(--game-green); }
 .game-move-charge i { color: var(--game-orange); }
+
+/* Allineamento specifico per Ultimate senza descrizione */
+.game-move-ultimate {
+    grid-template-rows: 1fr;
+    align-content: center;
+}
+.game-move-ultimate i {
+    grid-row: 1 !important;
+    align-self: center;
+}
+.game-move-ultimate strong {
+    align-self: center;
+}
 
 .game-sub-actions {
     align-items: center;

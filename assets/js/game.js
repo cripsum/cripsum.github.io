@@ -161,6 +161,12 @@
                         <strong>Speciale: ${esc(stats.special_name || 'Colpo')} (E: ${stats.special_cost || 0})</strong>
                         <p>${esc(stats.special_desc || 'Un potente attacco speciale.')}</p>
                     </div>
+                    ${stats.ultimate_name ? `
+                    <div class="game-detail-section" style="border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 0.35rem; margin-top: 0.35rem;">
+                        <strong style="color: #fbbf24;">Ultimate: ${esc(stats.ultimate_name)}</strong>
+                        <p>${esc(stats.ultimate_desc || 'Una mossa finale devastante.')}</p>
+                    </div>
+                    ` : ''}
                 </div>
             `;
             el.addEventListener('click',()=>toggleTeam(card.id));

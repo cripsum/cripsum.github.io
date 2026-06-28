@@ -670,6 +670,18 @@
                                     ${escapeHtml(statsNow.special_desc || 'Un potente attacco speciale.')}
                                 </div>
                             </div>
+                            
+                            ${statsNow.ultimate_name ? `
+                            <div class="kit-ability" style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px dashed rgba(255, 255, 255, 0.08);">
+                                <div style="font-weight: 700; color: var(--inv-text); font-size: 0.88rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <span style="background: rgba(212, 175, 55, 0.16); border: 1px solid rgba(212, 175, 55, 0.3); color: #fbbf24; padding: 2px 6px; border-radius: 6px; font-size: 0.72rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">Ultimate</span>
+                                    ${escapeHtml(statsNow.ultimate_name)}
+                                </div>
+                                <div style="font-size: 0.82rem; color: var(--inv-muted); margin-top: 4px; line-height: 1.45;">
+                                    ${escapeHtml(statsNow.ultimate_desc || 'Una mossa finale devastante.')}
+                                </div>
+                            </div>
+                            ` : ''}
                         </div>
                         ` : ''}
 
