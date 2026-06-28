@@ -80,7 +80,10 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
             'special_desc' => 'Infligge il 150% ATK come danno, assorbe il 15% degli HP attuali del bersaglio per curarsi e riduce l\'Attacco nemico del 30% per 2 turni.',
             'special_effect' => ['type' => 'cripsum_unemployed_special'],
             'special_cost' => 2,
-            'special_cooldown' => 2
+            'special_cooldown' => 2,
+            'ultimate_name' => 'Sussidio Statale Supremo',
+            'ultimate_desc' => 'Ruba 3 Energia al bersaglio, gli infligge il 240% ATK come danno e si cura del 100% del danno inflitto.',
+            'ultimate_effect' => ['type' => 'cripsum_unemployed_ultimate']
         ],
         48 => [
             'role' => $role,
@@ -98,14 +101,17 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
         ],
         49 => [
             'role' => $role,
-            'passive_name' => 'Ballo del Trash',
-            'passive_desc' => 'Ogni volta che subisce danni, aumenta la Velocità di tutti gli alleati del 10% (max 30%) per 2 turni.',
+            'passive_name' => 'Snaking Selvaggio',
+            'passive_desc' => 'Ogni volta che subisce danni, esegue uno snaking perfetto che aumenta la Velocità di tutti gli alleati del 10% (max 30%) per 2 turni.',
             'passive_effect' => ['type' => 'sossio_trash_passive'],
-            'special_name' => 'Spettacolo di Sossio',
-            'special_desc' => 'Cura l\'alleato attivo del 30% degli HP max, ne aumenta l\'Attacco del 35% per 2 turni e gli fornisce 1 Energia.',
+            'special_name' => 'Shock Run Perfetta',
+            'special_desc' => 'Attiva una run leggendaria con un fulmine: cura l\'alleato attivo del 30% degli HP max, ne aumenta l\'Attacco del 35% per 2 turni e gli fornisce 1 Energia.',
             'special_effect' => ['type' => 'sossio_trash_special'],
             'special_cost' => 2,
-            'special_cooldown' => 2
+            'special_cooldown' => 2,
+            'ultimate_name' => 'Dodge con la Stella',
+            'ultimate_desc' => 'Usa la Stella per evitare ogni minaccia: cura tutto il team del 45% degli HP max, aumenta l\'Attacco del 40% per 3 turni e fornisce 3 Energia a tutti gli alleati.',
+            'ultimate_effect' => ['type' => 'sossio_trash_ultimate']
         ],
         50 => [
             'role' => $role,
@@ -116,7 +122,10 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
             'special_desc' => 'Infligge il 140% ATK come danno e applica Silenzio al bersaglio per 2 turni (impedendogli di usare mosse speciali).',
             'special_effect' => ['type' => 'manuel_beatbox_special'],
             'special_cost' => 2,
-            'special_cooldown' => 3
+            'special_cooldown' => 3,
+            'ultimate_name' => 'Beatbox della Distruzione',
+            'ultimate_desc' => 'Infligge il 220% ATK a tutti i nemici, Silenzia tutti i nemici per 2 turni e ha il 50% di probabilità di Stordirli per 1 turno.',
+            'ultimate_effect' => ['type' => 'manuel_beatbox_ultimate']
         ],
         64 => [
             'role' => $role,
@@ -127,7 +136,10 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
             'special_desc' => 'Infligge il 160% ATK come danno, attiva Provocazione su se stesso per 2 turni e riduce la Difesa del bersaglio del 35% per 2 turni.',
             'special_effect' => ['type' => 'charlie_kirk_special'],
             'special_cost' => 2,
-            'special_cooldown' => 3
+            'special_cooldown' => 3,
+            'ultimate_name' => 'Dibattito Devastante',
+            'ultimate_desc' => 'Riduce la Difesa di tutti i nemici del 50% per 3 turni, attiva Provocazione su se stesso per 3 turni e si fornisce uno Scudo pari al 60% dei suoi HP max.',
+            'ultimate_effect' => ['type' => 'charlie_kirk_ultimate']
         ],
         75 => [
             'role' => $role,
@@ -138,7 +150,10 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
             'special_desc' => 'Esegue un attacco fulmineo (240% ATK) che ignora completamente qualsiasi Scudo attivo sul bersaglio.',
             'special_effect' => ['type' => 'zakator_opsec_special'],
             'special_cost' => 3,
-            'special_cooldown' => 3
+            'special_cooldown' => 3,
+            'ultimate_name' => 'Cyber Apocalypse',
+            'ultimate_desc' => 'Sferra un attacco cybernetico (300% ATK) a bersaglio singolo che ignora la Difesa e gli Scudi, e Silenzia il bersaglio per 3 turni.',
+            'ultimate_effect' => ['type' => 'zakator_opsec_ultimate']
         ],
         76 => [
             'role' => $role,
@@ -149,7 +164,10 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
             'special_desc' => 'Infligge il 180% ATK come danno, si cura del 50% del danno inflitto e ottiene uno Scudo pari al 20% dei suoi HP max.',
             'special_effect' => ['type' => 'christian_gooner_special'],
             'special_cost' => 2,
-            'special_cooldown' => 2
+            'special_cooldown' => 2,
+            'ultimate_name' => 'Gooning Infinito',
+            'ultimate_desc' => 'Cura se stesso del 50% degli HP max, ottiene uno Scudo pari al 40% degli HP max e aumenta il proprio Attacco del 50% per 3 turni.',
+            'ultimate_effect' => ['type' => 'christian_gooner_ultimate']
         ],
         86 => [
             'role' => $role,
@@ -160,7 +178,10 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
             'special_desc' => 'Esegue 3 colpi rapidi da 70% ATK (210% totale) e applica Sanguinamento per 2 turni (15% HP a turno).',
             'special_effect' => ['type' => 'aldrich_mercenary_special'],
             'special_cost' => 2,
-            'special_cooldown' => 2
+            'special_cooldown' => 2,
+            'ultimate_name' => 'Esecuzione Tattica',
+            'ultimate_desc' => 'Infligge il 350% ATK a bersaglio singolo. Se il bersaglio ha meno del 50% HP, il danno è raddoppiato. Se sconfigge il bersaglio, si cura al 100% HP.',
+            'ultimate_effect' => ['type' => 'aldrich_mercenary_ultimate']
         ],
         87 => [
             'role' => 'Healer',
@@ -185,18 +206,24 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
             'special_desc' => 'Colpisce il nemico (140% ATK), lo Stordisce per 1 turno e si fornisce uno Scudo pari al 50% dei suoi HP max.',
             'special_effect' => ['type' => 'tung_god_special'],
             'special_cost' => 2,
-            'special_cooldown' => 3
+            'special_cooldown' => 3,
+            'ultimate_name' => 'Cataclisma del Tungsteno',
+            'ultimate_desc' => 'Infligge il 250% ATK a tutti i nemici, Stordisce tutti i nemici per 1 turno e fornisce a Tung God uno Scudo pari al 70% dei suoi HP max.',
+            'ultimate_effect' => ['type' => 'tung_god_ultimate']
         ],
         98 => [
             'role' => $role,
-            'passive_name' => 'Contrattacco Furbo',
-            'passive_desc' => 'Ha il 35% di probabilità di rispondere con un attacco base immediato quando viene colpito.',
+            'passive_name' => 'Calcolo della Marionetta',
+            'passive_desc' => 'Manipola il flusso del combattimento: ha il 35% di probabilità di rispondere con un contrattacco base immediato quando viene colpito.',
             'passive_effect' => ['type' => 'carmelo_passive'],
-            'special_name' => 'Colpo a Sorpresa',
-            'special_desc' => 'Infligge il 160% ATK come danno. Se il bersaglio è Stordito o Congelato, infligge il doppio dei danni.',
+            'special_name' => 'Stratega dell\'Ombra',
+            'special_desc' => 'Esegue un piano segreto che infligge il 160% ATK come danno. Se il bersaglio è Stordito o Congelato, il danno è raddoppiato (colpo calcolato).',
             'special_effect' => ['type' => 'carmelo_special'],
             'special_cost' => 2,
-            'special_cooldown' => 2
+            'special_cooldown' => 2,
+            'ultimate_name' => 'Stanza Bianca',
+            'ultimate_desc' => 'Rinchiude il bersaglio nella Stanza Bianca: infligge il 300% ATK a bersaglio singolo. Se il bersaglio è Stordito o Congelato, infligge il 150% di danni in più e rimuove tutti i suoi buff.',
+            'ultimate_effect' => ['type' => 'carmelo_ultimate']
         ],
         138 => [
             'role' => $role,
@@ -235,7 +262,10 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
             'special_desc' => 'Infligge il 170% ATK come danno, aumenta la propria Velocità del 30% e riduce quella del bersaglio del 30% per 2 turni.',
             'special_effect' => ['type' => 'flight_special'],
             'special_cost' => 2,
-            'special_cooldown' => 2
+            'special_cooldown' => 2,
+            'ultimate_name' => 'Super-Picchiata Stratosferica',
+            'ultimate_desc' => 'Infligge il 280% ATK al bersaglio, riduce la sua Velocità del 50% per 3 turni, e fornisce a Flight un turno extra immediato.',
+            'ultimate_effect' => ['type' => 'flight_ultimate']
         ],
         141 => [
             'role' => $role,
@@ -281,16 +311,16 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
         ],
         144 => [
             'role' => $role,
-            'passive_name' => 'Scudo di Trama',
-            'passive_desc' => 'Se subisce un colpo fatale, sopravvive con 1 HP e ottiene uno Scudo pari al 50% dei suoi HP max (una volta per match).',
+            'passive_name' => 'Pelle del Tirannosauro Isekai',
+            'passive_desc' => 'Rianimato in un altro mondo con la pelle d\'acciaio del T-Rex: se subisce un colpo fatale, sopravvive con 1 HP e ottiene uno Scudo pari al 50% dei suoi HP max (una volta per match).',
             'passive_effect' => ['type' => 'protagonista_passive'],
-            'special_name' => 'Colpo del Protagonista',
-            'special_desc' => 'Infligge il 190% ATK. Se i suoi HP sono sotto il 50%, infligge il 50% di danni in più e si cura del 30% dei suoi HP max.',
+            'special_name' => 'Carica del Triceratopo',
+            'special_desc' => 'Carica con la forza di un Triceratopo corazzato infliggendo il 190% ATK. Se i suoi HP sono sotto il 50%, il danno aumenta del 50% e si cura del 30% degli HP max.',
             'special_effect' => ['type' => 'protagonista_special'],
             'special_cost' => 2,
             'special_cooldown' => 2,
-            'ultimate_name' => 'Risveglio dell\'Eroe',
-            'ultimate_desc' => 'Sferra il colpo finale (300% ATK). Se i suoi HP sono sotto il 50%, il danno è raddoppiato (+100%) e si cura al 100% degli HP max.',
+            'ultimate_name' => 'Meteora del Cratere Cretaceo',
+            'ultimate_desc' => 'Evoca l\'estinzione di massa dei dinosauri: sferra un colpo apocalittico (300% ATK). Se i suoi HP sono sotto il 50%, il danno è raddoppiato e si cura al 100% degli HP max.',
             'ultimate_effect' => ['type' => 'protagonista_ultimate']
         ],
     ];
@@ -565,6 +595,114 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
                 $ultimate_desc = 'Aumenta l\'Attacco di tutti gli alleati del 40%, la loro Velocità del 30% per 3 turni, e fornisce 3 Energia a ciascuno.';
                 $ultimate_effect = ['type' => 'generic_buffer_ultimate'];
                 break;
+        }
+    }
+
+    // Se è un personaggio di rarità Speciale (tier 4), sovrascrivi i nomi con abilità a tema
+    if ($tier === 4) {
+        $custom_speciali = [
+            4 => [
+                'passive' => 'Debug in Produzione',
+                'special' => 'Patch d\'Emergenza'
+            ],
+            34 => [
+                'passive' => 'Riciclo Creativo',
+                'special' => 'Lancio del Cestino'
+            ],
+            40 => [
+                'passive' => 'Riscaldamento Muscolare',
+                'special' => 'Capriola Acrobatica'
+            ],
+            43 => [
+                'passive' => 'Scatto del Cossu',
+                'special' => 'Fendente del Cossu'
+            ],
+            51 => [
+                'passive' => 'Entrata in Scena',
+                'special' => 'Spettacolo Pirotecnico'
+            ],
+            77 => [
+                'passive' => 'Ragebait Professionale',
+                'special' => 'Provocazione di Massa'
+            ],
+            89 => [
+                'passive' => 'Fusa Protettive',
+                'special' => 'Graffio Fulmineo'
+            ],
+            90 => [
+                'passive' => 'Presenza Misteriosa',
+                'special' => 'Colpo di Mantello'
+            ],
+            92 => [
+                'passive' => 'Vibrazione Sonora',
+                'special' => 'Urlo Melodico'
+            ],
+            103 => [
+                'passive' => 'Innesco Rapido',
+                'special' => 'Carica Esplosiva'
+            ],
+            112 => [
+                'passive' => 'Portamento Reale',
+                'special' => 'Tributo del Re'
+            ],
+            136 => [
+                'passive' => 'Flusso Sburevole',
+                'special' => 'Colpo Incontenibile'
+            ]
+        ];
+        
+        if (isset($custom_speciali[$pid])) {
+            $passive_name = $custom_speciali[$pid]['passive'];
+            $special_name = $custom_speciali[$pid]['special'];
+        } else {
+            // Fallback tematico basato sul ruolo
+            $role_templates = [
+                'Tank' => [
+                    'passive' => 'Egida di ' . $nome,
+                    'special' => 'Scudo Supremo di ' . $nome
+                ],
+                'Bruiser' => [
+                    'passive' => 'Ira Incontenibile di ' . $nome,
+                    'special' => 'Fendente Cruento di ' . $nome
+                ],
+                'DPS' => [
+                    'passive' => 'Focalizzazione di ' . $nome,
+                    'special' => 'Raffica Letale di ' . $nome
+                ],
+                'Burst DPS' => [
+                    'passive' => 'Sovraccarico di ' . $nome,
+                    'special' => 'Impatto Devastante di ' . $nome
+                ],
+                'Sub DPS' => [
+                    'passive' => 'Opportunismo Letale di ' . $nome,
+                    'special' => 'Colpo Rapido di ' . $nome
+                ],
+                'Support' => [
+                    'passive' => 'Aura Protettiva di ' . $nome,
+                    'special' => 'Barriera di Luce di ' . $nome
+                ],
+                'Healer' => [
+                    'passive' => 'Sorgente Vitale di ' . $nome,
+                    'special' => 'Cura Miracolosa di ' . $nome
+                ],
+                'Controller' => [
+                    'passive' => 'Presenza Rallentante di ' . $nome,
+                    'special' => 'Gelo di ' . $nome
+                ],
+                'Debuffer' => [
+                    'passive' => 'Tossina Letale di ' . $nome,
+                    'special' => 'Maledizione di ' . $nome
+                ],
+                'Buffer' => [
+                    'passive' => 'Ispirazione di ' . $nome,
+                    'special' => 'Canto della Vittoria di ' . $nome
+                ]
+            ];
+            
+            if (isset($role_templates[$role])) {
+                $passive_name = $role_templates[$role]['passive'];
+                $special_name = $role_templates[$role]['special'];
+            }
         }
     }
 

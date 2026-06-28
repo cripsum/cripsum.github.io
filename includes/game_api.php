@@ -384,8 +384,21 @@ function gd_api_send_reaction(mysqli $mysqli): void {
     $reaction = trim((string)($input['reaction'] ?? ''));
 
     $allowed = ['🔥', '💀', '👏', '😳', '⚡', '👀'];
+    $isValid = in_array($reaction, $allowed, true);
 
-    if (!in_array($reaction, $allowed, true)) {
+    if (!$isValid) {
+        $st = $mysqli->prepare('SELECT id FROM game_emojis WHERE code = ? LIMIT 1');
+        if ($st) {
+            $st->bind_param('s', $reaction);
+            $st->execute();
+            if ($st->get_result()->fetch_assoc()) {
+                $isValid = true;
+            }
+            $st->close();
+        }
+    }
+
+    if (!$isValid) {
         gd_fail('Reazione non valida.');
     }
 
@@ -413,23 +426,15 @@ function gd_api_send_reaction(mysqli $mysqli): void {
         $ins->close();
     }
 
-    $st = $mysqli->prepare('
-        SELECT COUNT(*) total
-        FROM game_match_reactions
-        WHERE match_id = ?
-          AND user_id = ?
-          AND created_at >= DATE_SUB(NOW(), INTERVAL 5 SECOND)
-    ');
-    if ($st) {
-        $st->bind_param('ii', $mid, $uid);
-        $st->execute();
-        $recent = (int)($st->get_result()->fetch_assoc()['total'] ?? 0);
-        $st->close();
-
-        if ($recent >= 3) {
-            gd_fail('Aspetta un attimo prima di reagire ancora.');
-        }
+    // Cooldown di 0.5s basato su sessione microtime
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
     }
+    $now = microtime(true);
+    if (isset($_SESSION['last_reaction_time']) && ($now - $_SESSION['last_reaction_time']) < 0.5) {
+        gd_fail('Aspetta un attimo prima di reagire ancora.');
+    }
+    $_SESSION['last_reaction_time'] = $now;
 
     $st = $mysqli->prepare('INSERT INTO game_match_reactions (match_id, user_id, reaction) VALUES (?, ?, ?)');
     if (!$st) {

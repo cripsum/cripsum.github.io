@@ -217,7 +217,43 @@
         const specBox = $('#spectatorMode');
         if (specBox) specBox.hidden = !spectator;
         const reactionPanel = $('#reactionPanel');
-        if (reactionPanel) reactionPanel.hidden = !spectator;
+        if (reactionPanel) {
+            reactionPanel.hidden = !spectator;
+            if (spectator && !reactionPanel.dataset.populated && m.available_emojis) {
+                reactionPanel.innerHTML = '';
+                
+                // Emoji standard
+                const standard = ['🔥', '💀', '👏', '😳', '⚡', '👀'];
+                standard.forEach(emoji => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.dataset.reaction = emoji;
+                    btn.textContent = emoji;
+                    btn.addEventListener('click', () => sendReaction(emoji));
+                    reactionPanel.appendChild(btn);
+                });
+                
+                // Emoji custom
+                m.available_emojis.forEach(emoji => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.dataset.reaction = emoji.code;
+                    btn.className = 'custom-emoji-btn';
+                    
+                    const img = document.createElement('img');
+                    img.src = emoji.url;
+                    img.alt = emoji.code;
+                    img.title = emoji.code;
+                    img.loading = 'lazy';
+                    
+                    btn.appendChild(img);
+                    btn.addEventListener('click', () => sendReaction(emoji.code));
+                    reactionPanel.appendChild(btn);
+                });
+                
+                reactionPanel.dataset.populated = 'true';
+            }
+        }
         const chatForm = $('#chatForm');
         if (chatForm) chatForm.hidden = spectator;
         const specBtn = $('[data-battle-action="special_attack"]');
@@ -429,15 +465,38 @@
 
         const bubble = document.createElement('div');
         bubble.className = 'game-reaction-float';
-        bubble.innerHTML = `<span>${esc(reaction)}</span><small>${esc(username || 'Spettatore')}</small>`;
+
+        const custom = state.match && state.match.available_emojis
+            ? state.match.available_emojis.find(e => e.code === reaction)
+            : null;
+
+        let content = `<span>${esc(reaction)}</span>`;
+        if (custom) {
+            content = `<img src="${custom.url}" class="float-emoji-img" alt="${esc(reaction)}" />`;
+        }
+
+        bubble.innerHTML = `${content}<small>${esc(username || 'Spettatore')}</small>`;
         bubble.style.left = `${15 + Math.random() * 70}%`;
         arena.appendChild(bubble);
 
         setTimeout(() => bubble.remove(), 1700);
     }
 
+    let lastReactionSent = 0;
     async function sendReaction(reaction){
         if (!state.matchId) return;
+
+        const now = Date.now();
+        if (now - lastReactionSent < 500) {
+            return;
+        }
+        lastReactionSent = now;
+
+        const panel = $('#reactionPanel');
+        if (panel) {
+            panel.classList.add('cooldown-active');
+            setTimeout(() => panel.classList.remove('cooldown-active'), 500);
+        }
 
         try {
             await api('/api/game/send_reaction.php', { match_id: state.matchId, reaction });
