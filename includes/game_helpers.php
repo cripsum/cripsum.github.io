@@ -428,7 +428,7 @@ function gd_get_modified_stats(array $card): array {
         $def_flat_bonus = (int)round((int)$card['max_hp'] * 0.15);
     }
     
-    $effects = json_decode($card['status_effects'] ?: '[]', true);
+    $effects = is_array($card['status_effects']) ? $card['status_effects'] : json_decode($card['status_effects'] ?: '[]', true);
     if (is_array($effects)) {
         foreach ($effects as $eff) {
             switch ($eff['type']) {
@@ -472,7 +472,7 @@ function gd_check_and_trigger_resurrect(mysqli $m, int $mid, int $uid, array $de
     $dead_char = gd_character($m, (int)$dead_card['personaggio_id']) ?? ['nome' => 'Personaggio', 'rarita' => 'comune'];
     $dead_cfg = gd_get_character_config((int)$dead_card['personaggio_id'], $dead_char['rarita'], $dead_char['nome']);
     if (isset($dead_cfg['passive_effect']['type']) && $dead_cfg['passive_effect']['type'] === 'the_one_passive') {
-        $effects = json_decode($dead_card['status_effects'] ?: '[]', true);
+        $effects = is_array($dead_card['status_effects']) ? $dead_card['status_effects'] : json_decode($dead_card['status_effects'] ?: '[]', true);
         $used = false;
         foreach ($effects as $eff) {
             if ($eff['type'] === 'the_one_resurrect_used') {
@@ -849,7 +849,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
         $taunting_enemy = null;
         foreach ($enemies as $e) {
             if ((int)$e['user_id'] === $opp && !(int)$e['is_ko']) {
-                $e_effects = json_decode($e['status_effects'] ?: '[]', true);
+                $e_effects = is_array($e['status_effects']) ? $e['status_effects'] : json_decode($e['status_effects'] ?: '[]', true);
                 foreach ($e_effects as $eff) {
                     if ($eff['type'] === 'taunt') {
                         $taunting_enemy = $e;
