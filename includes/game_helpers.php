@@ -120,7 +120,88 @@ function gd_character(mysqli $m, int $pid): ?array {
     $st->bind_param('i', $pid); $st->execute(); $row = $st->get_result()->fetch_assoc(); $st->close();
     return $row ?: null;
 }
-function gd_stats(mysqli $m, int $pid): array {
+function gd_get_upgrade_requirement(string $rarity, int $current_level): int {
+    $lvl = max(1, min(5, $current_level));
+    $rKey = strtolower(trim($rarity));
+    
+    if (strpos($rKey, 'one') !== false) {
+        return 1;
+    }
+    if (strpos($rKey, 'limited') !== false) {
+        $costs = [1 => 1, 2 => 2, 3 => 2, 4 => 3, 5 => 3];
+        return $costs[$lvl] ?? 1;
+    }
+    if (strpos($rKey, 'secret') !== false || strpos($rKey, 'segreto') !== false) {
+        $costs = [1 => 2, 2 => 3, 3 => 4, 4 => 5, 5 => 6];
+        return $costs[$lvl] ?? 2;
+    }
+    if (strpos($rKey, 'leggendario') !== false || strpos($rKey, 'legendary') !== false) {
+        $costs = [1 => 5, 2 => 8, 3 => 12, 4 => 16, 5 => 20];
+        return $costs[$lvl] ?? 5;
+    }
+    if (strpos($rKey, 'speciale') !== false || strpos($rKey, 'special') !== false) {
+        $costs = [1 => 6, 2 => 10, 3 => 15, 4 => 20, 5 => 25];
+        return $costs[$lvl] ?? 6;
+    }
+    if (strpos($rKey, 'epico') !== false || strpos($rKey, 'epic') !== false) {
+        $costs = [1 => 10, 2 => 15, 3 => 20, 4 => 25, 5 => 30];
+        return $costs[$lvl] ?? 10;
+    }
+    if (strpos($rKey, 'raro') !== false || strpos($rKey, 'rare') !== false) {
+        $costs = [1 => 15, 2 => 25, 3 => 35, 4 => 45, 5 => 60];
+        return $costs[$lvl] ?? 15;
+    }
+    $costs = [1 => 25, 2 => 50, 3 => 75, 4 => 100, 5 => 150];
+    return $costs[$lvl] ?? 25;
+}
+
+function gd_get_stat_multiplier(string $rarity, int $level): float {
+    $lvl = max(1, min(6, $level));
+    $steps = $lvl - 1;
+    $rKey = strtolower(trim($rarity));
+    
+    if (strpos($rKey, 'one') !== false) {
+        return 1.0 + ($steps * 0.15);
+    }
+    if (strpos($rKey, 'limited') !== false) {
+        return 1.0 + ($steps * 0.10);
+    }
+    if (strpos($rKey, 'secret') !== false || strpos($rKey, 'segreto') !== false) {
+        return 1.0 + ($steps * 0.08);
+    }
+    if (strpos($rKey, 'leggendario') !== false || strpos($rKey, 'legendary') !== false) {
+        return 1.0 + ($steps * 0.08);
+    }
+    if (strpos($rKey, 'speciale') !== false || strpos($rKey, 'special') !== false) {
+        return 1.0 + ($steps * 0.08);
+    }
+    if (strpos($rKey, 'epico') !== false || strpos($rKey, 'epic') !== false) {
+        return 1.0 + ($steps * 0.07);
+    }
+    if (strpos($rKey, 'raro') !== false || strpos($rKey, 'rare') !== false) {
+        return 1.0 + ($steps * 0.07);
+    }
+    return 1.0 + ($steps * 0.06);
+}
+
+function gd_get_skill_multiplier(string $rarity, int $level): float {
+    $lvl = max(1, min(6, $level));
+    $steps = $lvl - 1;
+    $rKey = strtolower(trim($rarity));
+    
+    if (strpos($rKey, 'one') !== false) {
+        return 1.0 + ($steps * 0.12);
+    }
+    if (strpos($rKey, 'limited') !== false) {
+        return 1.0 + ($steps * 0.08);
+    }
+    if (strpos($rKey, 'secret') !== false || strpos($rKey, 'segreto') !== false) {
+        return 1.0 + ($steps * 0.05);
+    }
+    return 1.0;
+}
+
+function gd_stats(mysqli $m, int $pid, int $level = 1): array {
     $ch = gd_character($m, $pid);
     $nome = $ch['nome'] ?? 'Personaggio';
     $rarity = $ch['rarita'] ?? 'comune';
@@ -154,6 +235,13 @@ function gd_stats(mysqli $m, int $pid): array {
             if (!empty($row['special_name'])) $st['special_name'] = $row['special_name'];
         }
     }
+    
+    $mult = gd_get_stat_multiplier($rarity, $level);
+    $st['hp'] = (int)round($st['hp'] * $mult);
+    $st['attack'] = (int)round($st['attack'] * $mult);
+    $st['defense'] = (int)round($st['defense'] * $mult);
+    $st['speed'] = (int)round($st['speed'] * $mult);
+    
     return $st;
 }
 function gd_owns(mysqli $m, int $uid, int $pid): bool {
@@ -686,11 +774,22 @@ function gd_transition_turn(mysqli $m, array $match, int $next_uid): void {
 }
 
 function gd_insert_team_cards(mysqli $m, int $mid, int $uid, array $team): void {
-    $ins = $m->prepare('INSERT INTO game_match_cards (match_id,user_id,personaggio_id,slot_index,current_hp,max_hp,attack,defense,speed,energy,max_energy,special_name,special_cost,special_cooldown_max,special_cooldown,is_active,role,shield,crit_rate,crit_dmg,status_effects) VALUES (?,?,?,?,?,?,?,?,?,1,?,?,?,?,0,?,?,?,?,?,?)');
+    $ins = $m->prepare('INSERT INTO game_match_cards (match_id,user_id,personaggio_id,slot_index,current_hp,max_hp,attack,defense,speed,energy,max_energy,special_name,special_cost,special_cooldown_max,special_cooldown,is_active,role,shield,crit_rate,crit_dmg,status_effects,livello) VALUES (?,?,?,?,?,?,?,?,?,1,?,?,?,?,0,?,?,?,?,?,?,?)');
     if (!$ins) throw new Exception($m->error);
     foreach ($team as $idx => $pid) {
         $pid = (int)$pid;
-        $s = gd_stats($m, $pid);
+        
+        $lvl_st = $m->prepare('SELECT livello FROM utenti_personaggi WHERE utente_id=? AND personaggio_id=? LIMIT 1');
+        $level = 1;
+        if ($lvl_st) {
+            $lvl_st->bind_param('ii', $uid, $pid);
+            $lvl_st->execute();
+            $lvl_row = $lvl_st->get_result()->fetch_assoc();
+            $lvl_st->close();
+            if ($lvl_row) $level = (int)$lvl_row['livello'];
+        }
+        
+        $s = gd_stats($m, $pid, $level);
         $slot = $idx + 1;
         $active = $idx === 0 ? 1 : 0;
         $hp = (int)$s['hp'];
@@ -716,7 +815,7 @@ function gd_insert_team_cards(mysqli $m, int $mid, int $uid, array $team): void 
         $crit_dmg = (int)$s['crit_dmg'];
         $status_effects = json_encode([]);
         
-        $ins->bind_param('iiiiiiiiiisiiisiiis', $mid, $uid, $pid, $slot, $hp, $hp, $atk, $def, $spd, $en, $name, $cost, $cd, $active, $role, $shield, $crit_rate, $crit_dmg, $status_effects);
+        $ins->bind_param('iiiiiiiiiisiiisiiisi', $mid, $uid, $pid, $slot, $hp, $hp, $atk, $def, $spd, $en, $name, $cost, $cd, $active, $role, $shield, $crit_rate, $crit_dmg, $status_effects, $level);
         $ins->execute();
     }
     $ins->close();
@@ -1088,6 +1187,9 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
             
             $eff_type = $actor_cfg['special_effect']['type'] ?? '';
             
+            $actor_level = isset($actor['livello']) ? (int)$actor['livello'] : 1;
+            $skill_mult = gd_get_skill_multiplier($actor_char['rarita'] ?? 'comune', $actor_level);
+            
             $en = max(0, (int)$actor['energy'] - (int)$actor['special_cost']);
             $cd = max(1, (int)$actor['special_cooldown_max']);
             $m->query("UPDATE game_match_cards SET energy={$en}, special_cooldown={$cd} WHERE id={$actorId}");
@@ -1328,7 +1430,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                     if ($target_immune) {
                         $msg .= "Ma l'attacco viene annullato dall'Immunità di {$target_name}!";
                     } else {
-                        $base_dmg = $a_stats['attack'] * 2.2;
+                        $base_dmg = $a_stats['attack'] * (2.2 * $skill_mult);
                         $def_reduction = $t_stats['defense'] * 0.45;
                         $dmg = max(10, (int)round($base_dmg - $def_reduction));
                         if (random_int(1, 100) <= $crit_chance) {
@@ -1341,17 +1443,20 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                     $allies = gd_cards($m, $mid);
                     foreach ($allies as $ally) {
                         if ((int)$ally['user_id'] === $uid && !(int)$ally['is_ko']) {
-                            $heal = (int)round($ally['max_hp'] * 0.40);
+                            $heal = (int)round($ally['max_hp'] * (0.40 * $skill_mult));
                             $new_hp = min((int)$ally['max_hp'], (int)$ally['current_hp'] + $heal);
                             
+                            $crit_rate_val = (int)round(25 * $skill_mult);
+                            $crit_dmg_val = (int)round(50 * $skill_mult);
+                            
                             $ally_effs = is_array($ally['status_effects']) ? $ally['status_effects'] : json_decode($ally['status_effects'] ?: '[]', true);
-                            $ally_effs[] = ['type' => 'buff_crit_rate', 'value' => 25, 'duration' => 3, 'name' => 'Crit Rate +25%'];
-                            $ally_effs[] = ['type' => 'buff_crit_dmg', 'value' => 50, 'duration' => 3, 'name' => 'Crit Dmg +50%'];
+                            $ally_effs[] = ['type' => 'buff_crit_rate', 'value' => $crit_rate_val, 'duration' => 3, 'name' => "Crit Rate +{$crit_rate_val}%"];
+                            $ally_effs[] = ['type' => 'buff_crit_dmg', 'value' => $crit_dmg_val, 'duration' => 3, 'name' => "Crit Dmg +{$crit_dmg_val}%"];
                             
                             $m->query("UPDATE game_match_cards SET current_hp={$new_hp}, status_effects='" . $m->escape_string(json_encode($ally_effs)) . "' WHERE id={$ally['id']}");
                         }
                     }
-                    $msg .= "Cura il team del 40% HP max e infonde energia cosmica (+25% Crit Rate, +50% Crit Dmg per 3 turni)!";
+                    $msg .= "Cura il team del " . round(40 * $skill_mult) . "% HP max e infonde energia cosmica (+" . round(25 * $skill_mult) . "% Crit Rate, +" . round(50 * $skill_mult) . "% Crit Dmg per 3 turni)!";
                     break;
 
                 case 'sossio_trash_special':

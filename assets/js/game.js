@@ -139,10 +139,12 @@
             
             const stats = card.stats || {};
             const defValue = stats.defense !== undefined ? stats.defense : (stats.def !== undefined ? stats.def : 0);
+            const levelVal = card.livello || card.level || 1;
+            const levelText = levelVal === 6 ? 'MAX' : levelVal;
             
             el.innerHTML=`
                 ${cardImg(card.img_url,card.nome)}
-                <strong>${esc(card.nome)}</strong>
+                <strong>${esc(card.nome)} <small style="color:var(--inv-gold);font-weight:normal;">Lv.${levelText}</small></strong>
                 <span class="game-card-role-badge">${esc(stats.role || 'DPS')}</span>
                 <div class="game-card-stats">
                     <span>HP ${stats.hp || 0}</span>
@@ -290,10 +292,13 @@
             return `<span class="game-status-badge ${cls}" data-type="${eff.type}" data-tooltip="${tooltipText}">${icon} <small>${eff.duration}t</small></span>`;
         }).join('');
 
+        const lvlVal = card.livello || card.level || 1;
+        const lvlText = lvlVal === 6 ? 'MAX' : lvlVal;
+
         el.innerHTML=`
             ${cardImg(ch.img_url,ch.nome)}
             <div class="game-active-name">
-                <strong>${esc(ch.nome||'Carta')}</strong>
+                <strong>${esc(ch.nome||'Carta')} <small style="color:var(--inv-gold);font-weight:normal;">Lv.${lvlText}</small></strong>
                 <div class="game-active-meta">
                     <span>${esc(ch.rarita||'comune')}</span>
                     ${roleBadge(card.role)}
@@ -317,7 +322,7 @@
             </div>
         `;
     }
-    function renderTeam(sel,cards,mine){const el=$(sel); if(!el)return; el.innerHTML=cards.map(c=>{const ch=c.character||{};return `<button class="game-mini-card ${Number(c.is_active)?'is-active':''} ${Number(c.is_ko)?'is-ko':''}" data-card-id="${c.id}" type="button" ${mine&&!Number(c.is_ko)?'':'disabled'}>${cardImg(ch.img_url,ch.nome)}<strong>${esc(ch.nome||'Carta')}</strong><small>${c.current_hp}/${c.max_hp} HP</small></button>`}).join(''); if(mine && state.match?.viewer_role !== 'spectator')$$('.game-mini-card',el).forEach(btn=>btn.addEventListener('click',()=>submitBattle('switch',Number(btn.dataset.cardId))))}
+    function renderTeam(sel,cards,mine){const el=$(sel); if(!el)return; el.innerHTML=cards.map(c=>{const ch=c.character||{}; const lvlVal = c.livello || c.level || 1; const lvlText = lvlVal === 6 ? 'MAX' : lvlVal; return `<button class="game-mini-card ${Number(c.is_active)?'is-active':''} ${Number(c.is_ko)?'is-ko':''}" data-card-id="${c.id}" type="button" ${mine&&!Number(c.is_ko)?'':'disabled'}>${cardImg(ch.img_url,ch.nome)}<strong>${esc(ch.nome||'Carta')} <small style="color:var(--inv-gold);font-weight:normal;">Lv.${lvlText}</small></strong><small>${c.current_hp}/${c.max_hp} HP</small></button>`}).join(''); if(mine && state.match?.viewer_role !== 'spectator')$$('.game-mini-card',el).forEach(btn=>btn.addEventListener('click',()=>submitBattle('switch',Number(btn.dataset.cardId))))}
     function renderLog(actions){const log=$('#battleLog'); if(!log)return; if(!actions.length){log.innerHTML='<p class="game-hint">Il log apparirà qui.</p>';return} log.innerHTML=actions.map(a=>`<div class="game-log-row"><strong>T${a.turn_number}</strong> ${esc(a.message)} ${Number(a.damage)>0?`· ${a.damage} danni`:''}</div>`).join(''); log.scrollTop=log.scrollHeight;}
     
     function renderChat(messages){

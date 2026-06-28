@@ -242,6 +242,10 @@
                 traits: getTraits(source) || getTraits(base),
                 date: getDate(owned),
                 quantity: owned ? getQuantity(owned) || 1 : 0,
+                level: owned ? toInt(owned.livello ?? owned.level ?? 1) : 1,
+                stats: owned ? owned.stats : null,
+                stats_next: owned ? owned.stats_next : null,
+                required_next: owned ? toInt(owned.required_next) : 0,
                 owned: Boolean(owned),
                 raw: source
             };
@@ -385,6 +389,7 @@
                     <span class="character-count ${isDuplicate ? 'is-duplicate' : ''}">
                         ${entry.owned ? `x${entry.quantity}` : '?'}
                     </span>
+                    ${entry.owned ? `<span class="character-level-badge">Lv. ${entry.level === 6 ? 'MAX' : entry.level}</span>` : ''}
                 </div>
 
                 <div class="character-info">
@@ -472,6 +477,9 @@
             ? entry.traits.split(';').map((trait) => trait.trim()).filter(Boolean)
             : [];
 
+        const statsNow = entry.stats || {};
+        const statsNext = entry.stats_next || {};
+
         content.innerHTML = `
             <div class="modal-character rarity-${escapeHtml(entry.rarity)}">
                 <div class="modal-character__image">
@@ -512,6 +520,66 @@
                         ${traits.length ? traits.map((trait) => `- ${escapeHtml(trait)}`).join('<br>') : t.no_traits}
                     </div>
 
+                    <!-- Sezione Progressione Livelli -->
+                    <div class="character-progression">
+                        <div class="progression-header">
+                            <span class="progression-level">Livello: <strong class="progression-level-val">${entry.level === 6 ? 'MAX' : entry.level}</strong></span>
+                            ${entry.level < 6 ? `
+                                <span class="progression-copies">Duplicati: <strong>${Math.max(0, entry.quantity - 1)} / ${entry.required_next}</strong></span>
+                            ` : `
+                                <span class="progression-copies progression-copies--max">MAX</span>
+                            `}
+                        </div>
+                        
+                        ${entry.level < 6 ? `
+                            <div class="progression-bar">
+                                <div class="progression-bar-fill" style="width: ${Math.min(100, (Math.max(0, entry.quantity - 1) / entry.required_next) * 100)}%"></div>
+                            </div>
+                        ` : ''}
+
+                        <div class="progression-stats">
+                            <div class="progression-stat-row">
+                                <span class="stat-name">HP</span>
+                                <span class="stat-value">${statsNow.hp || 0}</span>
+                                ${statsNext.hp ? `<span class="stat-arrow">→</span><span class="stat-value-next">${statsNext.hp}</span>` : ''}
+                            </div>
+                            <div class="progression-stat-row">
+                                <span class="stat-name">ATK</span>
+                                <span class="stat-value">${statsNow.attack || 0}</span>
+                                ${statsNext.attack ? `<span class="stat-arrow">→</span><span class="stat-value-next">${statsNext.attack}</span>` : ''}
+                            </div>
+                            <div class="progression-stat-row">
+                                <span class="stat-name">DEF</span>
+                                <span class="stat-value">${statsNow.defense || 0}</span>
+                                ${statsNext.defense ? `<span class="stat-arrow">→</span><span class="stat-value-next">${statsNext.defense}</span>` : ''}
+                            </div>
+                            <div class="progression-stat-row">
+                                <span class="stat-name">SPD</span>
+                                <span class="stat-value">${statsNow.speed || 0}</span>
+                                ${statsNext.speed ? `<span class="stat-arrow">→</span><span class="stat-value-next">${statsNext.speed}</span>` : ''}
+                            </div>
+                        </div>
+
+                        <div class="progression-upgrade-action">
+                            ${entry.level < 6 ? `
+                                <button type="button" class="inv-btn inv-btn--upgrade" id="btnUpgradeCharacter" ${Math.max(0, entry.quantity - 1) < entry.required_next ? 'disabled' : ''}>
+                                    <i class="fa-solid fa-angles-up"></i>
+                                    <span>Potenzia</span>
+                                </button>
+                                ${Math.max(0, entry.quantity - 1) < entry.required_next ? `
+                                    <small class="progression-hint">Ti mancano ${entry.required_next - Math.max(0, entry.quantity - 1)} copie duplicate per sbloccare il prossimo livello.</small>
+                                ` : `
+                                    <small class="progression-hint progression-hint--ready">Pronto per il potenziamento!</small>
+                                `}
+                            ` : `
+                                <div class="progression-max-badge">
+                                    <i class="fa-solid fa-crown"></i>
+                                    <span>POTENZA MASSIMA RAGGIUNTA</span>
+                                </div>
+                            `}
+                        </div>
+                    </div>
+
                     <div class="modal-character__actions">
                         <a class="inv-btn inv-btn--primary" href="animazione_personaggio?id_personaggio=${encodeURIComponent(entry.id)}">
                             <i class="fa-solid fa-wand-magic-sparkles"></i>
@@ -521,6 +589,46 @@
                 </div>
             </div>
         `;
+
+        const btnUpgrade = $('#btnUpgradeCharacter');
+        if (btnUpgrade) {
+            btnUpgrade.addEventListener('click', async () => {
+                const copiesText = entry.required_next === 1 ? '1 copia' : `${entry.required_next} copie`;
+                if (confirm(`Sei sicuro di voler consumare ${copiesText} di ${entry.name} per potenziarlo al livello ${entry.level + 1 === 6 ? 'MAX' : entry.level + 1}?`)) {
+                    btnUpgrade.disabled = true;
+                    try {
+                        const res = await fetch('/api/game/upgrade_character.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ character_id: entry.id })
+                        });
+                        const data = await res.json();
+                        if (data.ok) {
+                            const panel = $('.inv-modal__panel');
+                            if (panel) {
+                                panel.classList.add('level-up-animating');
+                                setTimeout(() => panel.classList.remove('level-up-animating'), 1200);
+                            }
+                            
+                            await loadInventory();
+                            
+                            const updatedEntry = state.entries.find(item => String(item.id) === String(entry.id));
+                            if (updatedEntry) {
+                                setTimeout(() => openCharacterModal(updatedEntry), 500);
+                            } else {
+                                closeCharacterModal();
+                            }
+                        } else {
+                            alert(data.message || 'Errore durante il potenziamento');
+                            btnUpgrade.disabled = false;
+                        }
+                    } catch (e) {
+                        alert('Errore durante il potenziamento: ' + e.message);
+                        btnUpgrade.disabled = false;
+                    }
+                }
+            });
+        }
 
         modal.hidden = false;
         document.body.style.overflow = 'hidden';

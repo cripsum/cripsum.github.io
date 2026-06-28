@@ -2124,3 +2124,221 @@ body.inv-page .rarity-section.rarity-segreto_limited .rarity-title strong::after
         pointer-events: auto;
     }
 }
+
+/* --- PROGRESSIONE PERSONAGGI (LEVEL UP SYSTEM) --- */
+.character-level-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(10, 14, 27, 0.76);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: var(--inv-gold);
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.character-progression {
+    margin: 1.5rem 0;
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
+}
+
+.progression-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+}
+
+.progression-level {
+    color: var(--inv-text);
+}
+
+.progression-level-val {
+    color: var(--inv-gold);
+    font-size: 1.1rem;
+}
+
+.progression-copies {
+    color: var(--inv-muted);
+}
+
+.progression-copies strong {
+    color: var(--inv-text);
+}
+
+.progression-copies--max {
+    color: var(--inv-gold);
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.progression-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.progression-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--inv-accent), var(--inv-purple));
+    border-radius: 99px;
+    transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 0 8px rgba(47, 107, 255, 0.5);
+}
+
+.progression-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.progression-stat-row {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 0.6rem 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.stat-name {
+    color: var(--inv-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.stat-value {
+    color: var(--inv-text);
+    font-weight: 700;
+    margin-left: auto;
+}
+
+.stat-arrow {
+    color: var(--inv-muted-2);
+    font-weight: 900;
+    margin: 0 0.4rem;
+}
+
+.stat-value-next {
+    color: var(--inv-green);
+    font-weight: 700;
+}
+
+.progression-upgrade-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.inv-btn--upgrade {
+    background: linear-gradient(135deg, var(--inv-purple), var(--inv-accent));
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 0.8rem 1.5rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+    width: 100%;
+}
+
+.inv-btn--upgrade:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.6);
+    filter: brightness(1.1);
+}
+
+.inv-btn--upgrade:not(:disabled):active {
+    transform: translateY(1px);
+}
+
+.inv-btn--upgrade:disabled {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--inv-muted-2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.progression-hint {
+    font-size: 0.75rem;
+    color: var(--inv-muted);
+    text-align: center;
+    margin-top: 0.25rem;
+}
+
+.progression-hint--ready {
+    color: var(--inv-green);
+    font-weight: 600;
+    animation: readyPulse 2s infinite alternate;
+}
+
+.progression-max-badge {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(251, 191, 36, 0.24));
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    color: var(--inv-gold);
+    font-weight: 800;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 0.8rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.15);
+}
+
+@keyframes readyPulse {
+    0% { opacity: 0.7; }
+    100% { opacity: 1; text-shadow: 0 0 6px rgba(52, 211, 153, 0.4); }
+}
+
+/* Animazione di Level Up per la modale */
+@keyframes levelUpFlash {
+    0% {
+        box-shadow: 0 0 0 0 rgba(251, 191, 36, 0);
+        transform: scale(1);
+    }
+    15% {
+        box-shadow: 0 0 50px 15px rgba(251, 191, 36, 0.6);
+        transform: scale(1.015);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(251, 191, 36, 0);
+        transform: scale(1);
+    }
+}
+
+.inv-modal__panel.level-up-animating {
+    animation: levelUpFlash 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    border-color: rgba(251, 191, 36, 0.8) !important;
+}
+

@@ -144,9 +144,9 @@ function gd_api_join_match(mysqli $mysqli): void {
 }
 function gd_api_inventory(mysqli $mysqli): void {
     $uid=gd_require_login(); $c=gd_char_cols($mysqli); $i=gd_inv_cols($mysqli); if(!$c['id']||!$c['name']||!$i['user']||!$i['character']) gd_fail('Schema inventario non compatibile.',500);
-    $fields=['p.'.gd_qcol($c['id']).' id','p.'.gd_qcol($c['name']).' nome']; $fields[]=$c['image']?'p.'.gd_qcol($c['image']).' img_url':"'' img_url"; $fields[]=$c['rarity']?'p.'.gd_qcol($c['rarity']).' rarita':"'comune' rarita"; $fields[]=$c['category']?'p.'.gd_qcol($c['category']).' categoria':"'' categoria"; $fields[]=$i['qty']?'up.'.gd_qcol($i['qty']).' quantita':'1 quantita';
+    $fields=['p.'.gd_qcol($c['id']).' id','p.'.gd_qcol($c['name']).' nome']; $fields[]=$c['image']?'p.'.gd_qcol($c['image']).' img_url':"'' img_url"; $fields[]=$c['rarity']?'p.'.gd_qcol($c['rarity']).' rarita':"'comune' rarita"; $fields[]=$c['category']?'p.'.gd_qcol($c['category']).' categoria':"'' categoria"; $fields[]=$i['qty']?'up.'.gd_qcol($i['qty']).' quantita':'1 quantita'; $fields[]='up.livello livello';
     $sql='SELECT '.implode(',',$fields).' FROM utenti_personaggi up INNER JOIN personaggi p ON p.'.gd_qcol($c['id']).'=up.'.gd_qcol($i['character']).' WHERE up.'.gd_qcol($i['user']).'=? ORDER BY p.'.gd_qcol($c['name']);
-    $st=$mysqli->prepare($sql); if(!$st){error_log($mysqli->error.' SQL '.$sql);gd_fail('Query inventario non valida.',500);} $st->bind_param('i',$uid); $st->execute(); $res=$st->get_result(); $cards=[]; while($r=$res->fetch_assoc()){ $s=gd_stats($mysqli,(int)$r['id']); $r['id']=(int)$r['id']; $r['quantita']=(int)($r['quantita']??1); $r['stats']=$s; $cards[]=$r; } $st->close(); gd_ok(['cards'=>$cards]);
+    $st=$mysqli->prepare($sql); if(!$st){error_log($mysqli->error.' SQL '.$sql);gd_fail('Query inventario non valida.',500);} $st->bind_param('i',$uid); $st->execute(); $res=$st->get_result(); $cards=[]; while($r=$res->fetch_assoc()){ $r['id']=(int)$r['id']; $r['quantita']=(int)($r['quantita']??1); $r['livello']=(int)($r['livello']??1); $s=gd_stats($mysqli,$r['id'],$r['livello']); $r['stats']=$s; $cards[]=$r; } $st->close(); gd_ok(['cards'=>$cards]);
 }
 function gd_api_select_team(mysqli $mysqli): void {
     $uid = gd_require_login();
