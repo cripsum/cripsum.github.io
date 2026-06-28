@@ -71,7 +71,7 @@ $successPackage = $_GET['package_id'] ?? '';
     <meta charset="UTF-8">
     <title>Shop Godo Shards - Cripsum™</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/shop.css?v=1.7">
+    <link rel="stylesheet" href="/css/shop.css?v=1.9">
     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo urlencode(PAYPAL_CLIENT_ID); ?>&currency=EUR&locale=it_IT"></script>
     <style>
         .shop-toast {
@@ -140,8 +140,8 @@ $successPackage = $_GET['package_id'] ?? '';
             </div>
         </header>        <!-- Tabs Nav -->
         <div class="shop-tabs">
-            <button type="button" class="shop-tab-btn active" data-tab="tab-premium">💎 Acquista Shards</button>
-            <button type="button" class="shop-tab-btn" data-tab="tab-godos">🪙 Negozio Godos</button>
+            <button type="button" class="shop-tab-btn active" data-tab="tab-premium"><img src="/img/godoshards.png" alt="Shards" class="tab-icon-img"> Acquista Shards</button>
+            <button type="button" class="shop-tab-btn" data-tab="tab-godos"><img src="/img/godos.png" alt="Godos" class="tab-icon-img"> Negozio Godos</button>
         </div>
 
         <div id="tab-premium" class="shop-tab-content active">
@@ -203,7 +203,7 @@ $successPackage = $_GET['package_id'] ?? '';
                             €<?= number_format($price, 2, ',', '.') ?>
                         </div>
 
-                        <button class="card-btn" onclick="openPaymentModal('<?= $pid ?>', '<?= $pkg['name'] ?>', '<?= $price ?>')">
+                        <button class="card-btn" data-bs-toggle="modal" data-bs-target="#paymentModal" onclick="preparePaymentModal('<?= $pid ?>', '<?= $pkg['name'] ?>', '<?= $price ?>')">
                             Acquista
                         </button>
                     </div>
@@ -236,7 +236,7 @@ $successPackage = $_GET['package_id'] ?? '';
                         Costo: 100 Godos / cad
                     </div>
 
-                    <button class="card-btn" onclick="openGodosConverter()" style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); border: none;">
+                    <button class="card-btn" data-bs-toggle="modal" data-bs-target="#godosConversionModal" onclick="prepareGodosConverter()" style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); border: none;">
                         Converti Punti
                     </button>
                 </div>
@@ -292,19 +292,7 @@ $successPackage = $_GET['package_id'] ?? '';
         let currentPackagePrice = '';
         let paypalButtonsInstance = null;
 
-        let paymentModal;
-
-        function openPaymentModal(pid, name, price) {
-            if (!paymentModal) {
-                const el = document.getElementById('paymentModal');
-                if (el) {
-                    try {
-                        paymentModal = new bootstrap.Modal(el);
-                    } catch (e) {
-                        console.error("Failed to initialize paymentModal:", e);
-                    }
-                }
-            }
+        function preparePaymentModal(pid, name, price) {
             currentPackageId = pid;
             currentPackagePrice = price;
 
@@ -359,7 +347,9 @@ $successPackage = $_GET['package_id'] ?? '';
                     })
                     .then(function(details) {
                         if (details.ok) {
-                            paymentModal.hide();
+                            const modalEl = document.getElementById('paymentModal');
+                            const modalInst = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                            modalInst.hide();
                             // Ricarica la pagina con parametro di successo
                             window.location.href = '/it/shop.php?payment=success&package_id=' + currentPackageId;
                         } else {
@@ -372,8 +362,6 @@ $successPackage = $_GET['package_id'] ?? '';
                     alert('Si è verificato un errore con PayPal.');
                 }
             }).render('#paypal-button-container');
-
-            paymentModal.show();
         }
 
         // Gestione Tab
@@ -389,7 +377,6 @@ $successPackage = $_GET['package_id'] ?? '';
 
         // Godos converter slider logic
         let userGodos = <?= (int)$soldi ?>;
-        let godosConverterModal;
         let godosSlider;
         let sliderShardsVal;
         let sliderGodosCost;
@@ -411,17 +398,7 @@ $successPackage = $_GET['package_id'] ?? '';
             }
         });
 
-        function openGodosConverter() {
-            if (!godosConverterModal) {
-                const el = document.getElementById('godosConversionModal');
-                if (el) {
-                    try {
-                        godosConverterModal = new bootstrap.Modal(el);
-                    } catch (e) {
-                        console.error("Failed to initialize godosConverterModal:", e);
-                    }
-                }
-            }
+        function prepareGodosConverter() {
             const maxBuyable = Math.floor(userGodos / 100);
             if (maxBuyable <= 0) {
                 alert("Non hai abbastanza Godos per acquistare Godo Shards! (Costo: 100 Godos per Shard)");
@@ -435,9 +412,6 @@ $successPackage = $_GET['package_id'] ?? '';
                 sliderMaxLabel.textContent = "Max: " + maxBuyable;
             }
             updateSliderDisplay();
-            if (godosConverterModal) {
-                godosConverterModal.show();
-            }
         }
 
         function updateSliderDisplay() {
@@ -472,9 +446,10 @@ $successPackage = $_GET['package_id'] ?? '';
                 }
 
                 if (data.status === 'success') {
-                    if (godosConverterModal) {
-                        godosConverterModal.hide();
-                    }
+                    const modalEl = document.getElementById('godosConversionModal');
+                    const modalInst = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modalInst.hide();
+                    
                     // Aggiorna balances visivamente nel DOM
                     userGodos = data.soldi_rimasti;
                     document.querySelectorAll('.shop-balance-val').forEach((el, index) => {
