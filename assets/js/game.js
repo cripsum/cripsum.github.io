@@ -230,12 +230,15 @@
                 'buff_crit_dmg': '🔥+',
                 'taunt': '🎯',
                 'immunity': '🌟',
-                'counter': '🔄'
+                'counter': '🔄',
+                'silence': '🔇'
             };
             const icon = icons[eff.type] || '❓';
-            const isDebuff = ['poison', 'bleed', 'stun', 'freeze', 'debuff_atk', 'debuff_def', 'debuff_spd'].includes(eff.type);
+            const isDebuff = ['poison', 'bleed', 'stun', 'freeze', 'debuff_atk', 'debuff_def', 'debuff_spd', 'silence'].includes(eff.type);
             const cls = isDebuff ? 'is-debuff' : 'is-buff';
-            return `<span class="game-status-badge ${cls}" title="${esc(eff.name)}: ${eff.value} (${eff.duration} turni)">${icon} <small>${eff.duration}t</small></span>`;
+            const valSuffix = eff.value ? ` (${eff.value > 0 ? '+' : ''}${eff.value}%)` : '';
+            const tooltipText = `${esc(eff.name)}${valSuffix} · ${eff.duration} turn${eff.duration > 1 ? 'i' : 'o'}`;
+            return `<span class="game-status-badge ${cls}" data-type="${eff.type}" data-tooltip="${tooltipText}">${icon} <small>${eff.duration}t</small></span>`;
         }).join('');
 
         el.innerHTML=`

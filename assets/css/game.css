@@ -531,11 +531,23 @@ body.game-page {
     align-items: center;
     gap: 4px;
     font-size: 0.68rem;
-    padding: 1px 6px;
+    padding: 2px 8px;
     border-radius: 12px;
-    background: rgba(0, 0, 0, 0.45);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
 }
+
+.game-status-badge:hover,
+.game-status-badge:active {
+    transform: scale(1.08);
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 5;
+}
+
 .game-status-badge.is-buff {
     border-color: rgba(16, 185, 129, 0.35);
     color: #34d399;
@@ -546,7 +558,74 @@ body.game-page {
 }
 .game-status-badge small {
     font-size: 0.6rem;
-    opacity: 0.85;
+    font-weight: 800;
+    opacity: 0.9;
+}
+
+/* Tooltip in puro CSS (funziona sia al passaggio del mouse che al tocco su mobile) */
+.game-status-badge::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: rgba(15, 23, 42, 0.96);
+    backdrop-filter: blur(6px);
+    border: 1px solid currentColor;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.game-status-badge:hover::after,
+.game-status-badge:active::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Animazioni ed effetti grafici per singoli status critici */
+@keyframes statusPulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+    70% { transform: scale(1.04); box-shadow: 0 0 0 5px rgba(239, 68, 68, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+@keyframes freezeGlow {
+    0% { box-shadow: 0 0 4px rgba(6, 182, 212, 0.4); border-color: rgba(6, 182, 212, 0.5); }
+    50% { box-shadow: 0 0 10px rgba(6, 182, 212, 0.8); border-color: rgba(6, 182, 212, 0.9); }
+    100% { box-shadow: 0 0 4px rgba(6, 182, 212, 0.4); border-color: rgba(6, 182, 212, 0.5); }
+}
+
+.game-status-badge[data-type="stun"] {
+    animation: statusPulse 1.5s infinite;
+    background: rgba(239, 68, 68, 0.22) !important;
+    border-color: rgba(239, 68, 68, 0.6) !important;
+}
+
+.game-status-badge[data-type="freeze"] {
+    animation: freezeGlow 2s infinite;
+    background: rgba(6, 182, 212, 0.22) !important;
+    color: #22d3ee !important;
+}
+
+.game-status-badge[data-type="poison"] {
+    border-color: rgba(16, 185, 129, 0.5) !important;
+    color: #34d399 !important;
+    background: rgba(16, 185, 129, 0.12) !important;
+}
+
+.game-status-badge[data-type="bleed"] {
+    border-color: rgba(239, 68, 68, 0.5) !important;
+    color: #f87171 !important;
+    background: rgba(239, 68, 68, 0.12) !important;
 }
 
 /* Animazioni Colpo Critico */

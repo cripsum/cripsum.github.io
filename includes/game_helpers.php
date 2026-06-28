@@ -129,6 +129,14 @@ function gd_stats(mysqli $m, int $pid): array {
     $cfg = gd_get_character_config($pid, $rarity, $nome, $role);
     $st = gd_calculate_character_stats($rarity, $role);
     
+    $rKey = strtolower(trim($rarity));
+    $max_energy = 5;
+    if (strpos($rKey, 'one') !== false) $max_energy = 6;
+    elseif (strpos($rKey, 'secret') !== false || strpos($rKey, 'segreto') !== false) $max_energy = 6;
+    elseif (strpos($rKey, 'comune') !== false) $max_energy = 4;
+    elseif (strpos($rKey, 'raro') !== false) $max_energy = 4;
+    $st['max_energy'] = $max_energy;
+    
     $st['role'] = $role;
     $st['special_name'] = $cfg['special_name'];
     $st['special_cost'] = $cfg['special_cost'];
@@ -649,7 +657,7 @@ function gd_transition_turn(mysqli $m, array $match, int $next_uid): void {
     
     if ($stunned_this_turn && !$ko) {
         $opp = gd_opponent_id($match, $next_uid);
-        gd_log($m, $mid, $next_uid, $turn, 'system', (int)$active['id'], null, 0, "{$active['character']['nome']} è stordito/congelato e salta il turno!");
+        gd_log($m, $mid, $next_uid, $turn, 'system', (int)$active['id'], null, 0, "{$char_name} è stordito/congelato e salta il turno!");
         
         $q = $m->prepare('UPDATE game_matches SET current_turn_user_id=?, turn_number=turn_number+1, updated_at=NOW() WHERE id=?');
         $q->bind_param('ii', $opp, $mid);
@@ -1875,7 +1883,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
     }
     
     if ($double_turn_active && gd_alive_count($m, $mid, $uid) > 0) {
-        gd_log($m, $mid, $uid, $turn, 'system', $actorId, null, 0, "{$actor['character']['nome']} agisce di nuovo grazie al turno extra!");
+        gd_log($m, $mid, $uid, $turn, 'system', $actorId, null, 0, "{$char_name} agisce di nuovo grazie al turno extra!");
         $m->query("UPDATE game_matches SET turn_number=turn_number+1, updated_at=NOW() WHERE id={$mid}");
     } else {
         $updated_match = gd_match($m, $mid);
