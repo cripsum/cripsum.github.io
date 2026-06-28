@@ -473,7 +473,8 @@ function gd_check_and_trigger_resurrect(mysqli $m, int $mid, int $uid, array $de
     $dead_id = (int)$dead_card['id'];
     
     // Prima verifichiamo la rianimazione di "The One" (rianimazione personale)
-    $dead_cfg = gd_get_character_config((int)$dead_card['personaggio_id'], $dead_card['character']['rarita'] ?? 'comune', $dead_card['character']['nome'] ?? '');
+    $dead_char = gd_character($m, (int)$dead_card['personaggio_id']) ?? ['nome' => 'Personaggio', 'rarita' => 'comune'];
+    $dead_cfg = gd_get_character_config((int)$dead_card['personaggio_id'], $dead_char['rarita'], $dead_char['nome']);
     if (isset($dead_cfg['passive_effect']['type']) && $dead_cfg['passive_effect']['type'] === 'the_one_passive') {
         $effects = json_decode($dead_card['status_effects'] ?: '[]', true);
         $used = false;
@@ -491,7 +492,7 @@ function gd_check_and_trigger_resurrect(mysqli $m, int $mid, int $uid, array $de
             $status_json = json_encode($effects);
             $m->query("UPDATE game_match_cards SET status_effects='" . $m->escape_string($status_json) . "' WHERE id={$dead_id}");
             
-            gd_log($m, $mid, $uid, 0, 'system', $dead_id, $dead_id, 0, "Orgoglio Divino! {$dead_card['character']['nome']} si rianima con il 100% di HP!");
+            gd_log($m, $mid, $uid, 0, 'system', $dead_id, $dead_id, 0, "Orgoglio Divino! {$dead_char['nome']} si rianima con il 100% di HP!");
             return true;
         }
     }
@@ -500,7 +501,8 @@ function gd_check_and_trigger_resurrect(mysqli $m, int $mid, int $uid, array $de
     $cards = gd_cards($m, $mid);
     foreach ($cards as $c) {
         if ((int)$c['user_id'] === $uid && !(int)$c['is_ko']) {
-            $cfg = gd_get_character_config((int)$c['personaggio_id'], $c['character']['rarita'], $c['character']['nome']);
+            $c_char = $c['character'] ?? gd_character($m, (int)$c['personaggio_id']) ?? ['nome' => 'Personaggio', 'rarita' => 'comune'];
+            $cfg = gd_get_character_config((int)$c['personaggio_id'], $c_char['rarita'], $c_char['nome']);
             if (isset($cfg['passive_effect']['type']) && $cfg['passive_effect']['type'] === 'destiny_resurrect') {
                 $effects = json_decode($c['status_effects'] ?: '[]', true);
                 $used = false;
@@ -550,8 +552,9 @@ function gd_transition_turn(mysqli $m, array $match, int $next_uid): void {
         $new_effects = [];
         $hp_change = 0;
         
-        $char_name = $active['character']['nome'] ?? 'Personaggio';
-        $ch_cfg = gd_get_character_config((int)$active['personaggio_id'], $active['character']['rarita'], $char_name);
+        $active_char = gd_character($m, (int)$active['personaggio_id']) ?? ['nome' => 'Personaggio', 'rarita' => 'comune'];
+        $char_name = $active_char['nome'];
+        $ch_cfg = gd_get_character_config((int)$active['personaggio_id'], $active_char['rarita'], $active_char['nome']);
         
         // 1. Aura Curativa (Healer passive)
         if (isset($ch_cfg['passive_effect']['type']) && $ch_cfg['passive_effect']['type'] === 'regen_all_allies') {
@@ -859,7 +862,8 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
         $team_cards = gd_cards($m, $mid);
         foreach ($team_cards as $tc) {
             if ((int)$tc['user_id'] === $uid && !(int)$tc['is_ko']) {
-                $tc_cfg = gd_get_character_config((int)$tc['personaggio_id'], $tc['character']['rarita'], $tc['character']['nome']);
+                $tc_char = $tc['character'] ?? gd_character($m, (int)$tc['personaggio_id']) ?? ['nome' => 'Personaggio', 'rarita' => 'comune'];
+                $tc_cfg = gd_get_character_config((int)$tc['personaggio_id'], $tc_char['rarita'], $tc_char['nome']);
                 if (isset($tc_cfg['passive_effect']['type']) && $tc_cfg['passive_effect']['type'] === 'the_one_passive') {
                     $has_the_one_passive = true;
                     break;
@@ -964,7 +968,8 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
             if ((int)$actor['energy'] < (int)$actor['special_cost']) gd_fail('Energia insufficiente per la mossa speciale.');
             if ((int)$actor['special_cooldown'] > 0) gd_fail('Mossa speciale in ricarica.');
             
-            $cfg = gd_get_character_config((int)$actor['personaggio_id'], $actor['character']['rarita'], $char_name);
+            $actor_char = gd_character($m, (int)$actor['personaggio_id']) ?? ['nome' => 'Personaggio', 'rarita' => 'comune'];
+            $cfg = gd_get_character_config((int)$actor['personaggio_id'], $actor_char['rarita'], $actor_char['nome']);
             $eff_type = $cfg['special_effect']['type'] ?? '';
             
             $en = max(0, (int)$actor['energy'] - (int)$actor['special_cost']);
