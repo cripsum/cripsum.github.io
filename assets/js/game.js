@@ -64,7 +64,76 @@
     async function activeMatch(){try{const d=await api('/api/game/active_match.php',{},'GET'); if(!d.match){showToast('Nessuna partita attiva');return} goArena(d.match.id)}catch(e){showToast(e.message)}}
 
     async function loadInventory(){const d=await api('/api/game/get_inventory_cards.php',{},'GET'); state.inventory=d.cards||[]; renderInventory();}
-    function renderInventory(){const grid=$('#inventoryGrid'); if(!grid)return; const q=($('#cardSearch')?.value||'').toLowerCase(); const list=state.inventory.filter(c=>`${c.nome} ${c.rarita} ${c.categoria}`.toLowerCase().includes(q)); if(!list.length){grid.innerHTML='<p class="game-hint">Nessun personaggio trovato.</p>';return} grid.innerHTML=''; list.forEach(card=>{const selected=state.selectedTeam.includes(card.id); const el=document.createElement('button'); el.type='button'; el.className=`game-card-option ${selected?'is-selected':''}`; el.innerHTML=`${cardImg(card.img_url,card.nome)}<strong>${esc(card.nome)}</strong><div class="game-card-stats"><span>HP ${card.stats.hp}</span><span>ATK ${card.stats.attack}</span><span>DEF ${card.stats.defense}</span><span>EN ${card.stats.max_energy}</span></div>`; el.addEventListener('click',()=>toggleTeam(card.id)); grid.appendChild(el);}); renderSelectedTeam();}
+    function initInventoryFilters() {
+        ['#cardSearch', '#filterRarity', '#filterRole', '#sortInventory'].forEach(selector => {
+            const el = $(selector);
+            if (el && !el.dataset.listenerBound) {
+                el.dataset.listenerBound = '1';
+                el.addEventListener('input', renderInventory);
+                el.addEventListener('change', renderInventory);
+            }
+        });
+    }
+    function renderInventory(){
+        const grid=$('#inventoryGrid'); if(!grid)return;
+        initInventoryFilters();
+        
+        const q=($('#cardSearch')?.value||'').toLowerCase();
+        const rarity = ($('#filterRarity')?.value||'').toLowerCase();
+        const role = ($('#filterRole')?.value||'');
+        const sortBy = ($('#sortInventory')?.value||'nome');
+        
+        let list = state.inventory.filter(c => {
+            const matchQ = `${c.nome} ${c.rarita} ${c.categoria}`.toLowerCase().includes(q);
+            const matchRarity = !rarity || c.rarita.toLowerCase() === rarity;
+            const matchRole = !role || (c.stats && c.stats.role === role);
+            return matchQ && matchRarity && matchRole;
+        });
+        
+        list.sort((a, b) => {
+            if (sortBy === 'nome') return a.nome.localeCompare(b.nome);
+            const valA = a.stats ? (Number(a.stats[sortBy]) || 0) : 0;
+            const valB = b.stats ? (Number(b.stats[sortBy]) || 0) : 0;
+            return valB - valA;
+        });
+        
+        if(!list.length){grid.innerHTML='<p class="game-hint">Nessun personaggio trovato.</p>';return}
+        grid.innerHTML='';
+        list.forEach(card=>{
+            const selected=state.selectedTeam.includes(card.id);
+            const el=document.createElement('button');
+            el.type='button';
+            el.className=`game-card-option ${selected?'is-selected':''}`;
+            
+            const stats = card.stats || {};
+            const defValue = stats.defense !== undefined ? stats.defense : (stats.def !== undefined ? stats.def : 0);
+            
+            el.innerHTML=`
+                ${cardImg(card.img_url,card.nome)}
+                <strong>${esc(card.nome)}</strong>
+                <span class="game-card-role-badge">${esc(stats.role || 'DPS')}</span>
+                <div class="game-card-stats">
+                    <span>HP ${stats.hp || 0}</span>
+                    <span>ATK ${stats.attack || 0}</span>
+                    <span>DEF ${defValue}</span>
+                    <span>SPD ${stats.speed || 0}</span>
+                </div>
+                <div class="game-card-details-hover">
+                    <div class="game-detail-section">
+                        <strong>Passiva: ${esc(stats.passive_name || 'Nessuna')}</strong>
+                        <p>${esc(stats.passive_desc || 'Nessun effetto passivo speciale.')}</p>
+                    </div>
+                    <div class="game-detail-section">
+                        <strong>Speciale: ${esc(stats.special_name || 'Colpo')} (E: ${stats.special_cost || 0})</strong>
+                        <p>${esc(stats.special_desc || 'Un potente attacco speciale.')}</p>
+                    </div>
+                </div>
+            `;
+            el.addEventListener('click',()=>toggleTeam(card.id));
+            grid.appendChild(el);
+        });
+        renderSelectedTeam();
+    }
     function toggleTeam(id){const i=state.selectedTeam.indexOf(id); if(i>=0)state.selectedTeam.splice(i,1); else{if(state.selectedTeam.length>=3){showToast('Puoi scegliere solo 3 personaggi');return} state.selectedTeam.push(id)} renderInventory();}
     function renderSelectedTeam(){const wrap=$('#selectedTeam'), c=$('#teamCounter'); if(c)c.textContent=`${state.selectedTeam.length}/3`; if(!wrap)return; wrap.innerHTML=state.selectedTeam.map(id=>`<span class="game-selected-pill">${esc(state.inventory.find(x=>x.id===id)?.nome||'Carta')}</span>`).join('')}
     async function submitTeam(){if(state.selectedTeam.length!==3){showToast('Scegli 3 personaggi');return} try{await api('/api/game/select_team.php',{match_id:state.matchId,team:state.selectedTeam}); showToast('Team confermato'); pollState()}catch(e){showToast(e.message)}}

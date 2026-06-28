@@ -20,8 +20,8 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
     <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ Duel - Game</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/css/game.css?v=1.7-strategic-duels">
-    <script src="/assets/js/game.js?v=1.7-strategic-duels" defer></script>
+    <link rel="stylesheet" href="/assets/css/game.css?v=1.8-strategic-duels">
+    <script src="/assets/js/game.js?v=1.8-strategic-duels" defer></script>
 </head>
 <body class="game-page" data-page="duel-arena" data-match-id="<?php echo htmlspecialchars((string)$matchId, ENT_QUOTES, 'UTF-8'); ?>">
     <?php include '../../includes/navbar.php'; ?>
@@ -56,7 +56,37 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
             </div>
             <div class="game-guide"><i class="fa-solid fa-circle-info"></i><span>Seleziona 3 carte. La prima sarà quella attiva all’inizio.</span></div>
             <div class="game-team-selected" id="selectedTeam"></div>
-            <div class="game-inventory-toolbar"><input type="search" id="cardSearch" placeholder="Cerca personaggio..."><span id="teamCounter">0/3</span></div>
+            <div class="game-inventory-toolbar">
+                <input type="search" id="cardSearch" placeholder="Search character...">
+                <select id="filterRarity">
+                    <option value="">All rarities</option>
+                    <option value="comune">Common</option>
+                    <option value="raro">Rare</option>
+                    <option value="epico">Epic</option>
+                    <option value="leggendario">Legendary</option>
+                    <option value="speciale">Special</option>
+                    <option value="segreto">Secret</option>
+                    <option value="theone">The One</option>
+                </select>
+                <select id="filterRole">
+                    <option value="">All roles</option>
+                    <option value="Tank">Tank</option>
+                    <option value="Bruiser">Bruiser</option>
+                    <option value="DPS">DPS</option>
+                    <option value="Burst DPS">Burst DPS</option>
+                    <option value="Healer">Healer</option>
+                    <option value="Buffer">Buffer</option>
+                    <option value="Controller">Controller</option>
+                </select>
+                <select id="sortInventory">
+                    <option value="nome">Sort by: Name</option>
+                    <option value="hp">Sort by: HP</option>
+                    <option value="attack">Sort by: ATK</option>
+                    <option value="defense">Sort by: DEF</option>
+                    <option value="speed">Sort by: SPD</option>
+                </select>
+                <span id="teamCounter">0/3</span>
+            </div>
             <div class="game-card-grid" id="inventoryGrid"></div>
             <div class="game-actions"><button class="game-btn game-btn-main" data-action="submit-team" type="button"><i class="fa-solid fa-check"></i> Conferma team</button><button class="game-btn game-btn-ghost" data-action="forfeit" type="button">Abbandona</button></div>
         </section>
