@@ -19,8 +19,8 @@ if (!isLoggedIn()) {
     <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ Duel - Lobby</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/css/game.css?v=5.2">
-    <script src="/assets/js/game.js?v=5.2" defer></script>
+    <link rel="stylesheet" href="/assets/css/game.css?v=5.3">
+    <script src="/assets/js/game.js?v=5.3" defer></script>
 </head>
 
 <body class="game-page" data-page="duel-lobby">
@@ -82,18 +82,22 @@ if (!isLoggedIn()) {
                     </div>
 
                     <div class="game-private-box" style="margin-top: 0;">
-                        <div>
-                            <strong>Crea stanza</strong>
-                            <span>Genera una stanza protetta da password.</span>
+                        <div class="game-private-main-row">
+                            <div>
+                                <strong>Crea stanza</strong>
+                                <span>Genera una stanza protetta da password.</span>
+                            </div>
+                            <input id="privatePasswordInput" type="password" maxlength="64" placeholder="Password stanza">
+                            <button class="game-btn game-btn-special" data-action="create-private" type="button">
+                                <i class="fa-solid fa-lock"></i> Crea privata
+                            </button>
                         </div>
-                        <input id="privatePasswordInput" type="password" maxlength="64" placeholder="Password stanza">
-                        <label class="game-checkbox-label" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; cursor: pointer; color: var(--game-text-secondary); margin-top: 0.25rem; width: fit-content;">
-                            <input id="privateMaxLevelCheckbox" type="checkbox" style="accent-color: var(--game-accent); margin: 0; width: 16px; height: 16px; cursor: pointer;">
-                            Personaggi al livello massimo (Lv. 6)
-                        </label>
-                        <button class="game-btn game-btn-special" data-action="create-private" type="button" style="margin-top: 0.5rem;">
-                            <i class="fa-solid fa-lock"></i> Crea privata
-                        </button>
+                        <div class="game-private-settings-row">
+                            <label class="game-checkbox-label" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; cursor: pointer; color: var(--game-text-secondary); width: fit-content; user-select: none;">
+                                <input id="privateMaxLevelCheckbox" type="checkbox" style="accent-color: var(--game-accent); margin: 0; width: 16px; height: 16px; cursor: pointer;">
+                                Personaggi al livello massimo
+                            </label>
+                        </div>
                     </div>
 
                     <div style="margin: 1.2rem 0; display: flex; align-items: center; justify-content: center; gap: 1rem; opacity: 0.35;">

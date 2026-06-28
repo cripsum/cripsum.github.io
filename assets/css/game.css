@@ -961,15 +961,28 @@ body.game-page .dropdown-menu button:focus { color: #fff !important; background:
 }
 
 .game-private-box {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(180px, 260px) auto;
-    gap: .65rem;
-    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
     margin-top: .8rem;
-    padding: .75rem;
+    padding: 1.15rem;
     border: 1px solid var(--game-border);
     border-radius: 22px;
     background: rgba(255, 255, 255, .045);
+}
+
+.game-private-main-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(180px, 260px) auto;
+    gap: .75rem;
+    align-items: center;
+}
+
+.game-private-settings-row {
+    border-top: 1px solid rgba(255, 255, 255, .06);
+    padding-top: .75rem;
+    display: flex;
+    align-items: center;
 }
 
 .game-private-box strong {
@@ -1259,7 +1272,7 @@ body.game-page .dropdown-menu button:focus { color: #fff !important; background:
 }
 
 @media (max-width: 920px) {
-    .game-private-box,
+    .game-private-main-row,
     .game-arena-bottom {
         grid-template-columns: 1fr;
     }
@@ -1270,19 +1283,19 @@ body.game-page .dropdown-menu button:focus { color: #fff !important; background:
 }
 
 @media (max-width: 680px) {
-    .game-private-box,
+    .game-private-main-row,
     .game-matchmaking-wait,
     .game-waiting-box {
         align-items: stretch;
         flex-direction: column;
     }
 
-    .game-private-box {
+    .game-private-main-row {
         display: flex;
     }
 
-    .game-private-box input,
-    .game-private-box .game-btn,
+    .game-private-main-row input,
+    .game-private-main-row .game-btn,
     .game-join-row-v13 input,
     .game-join-row-v13 .game-btn {
         width: 100%;
