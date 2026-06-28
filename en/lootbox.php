@@ -73,7 +73,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
 <head>
     <?php include '../includes/head-import.php'; ?>
     <link rel="stylesheet" href="/css/lootbox.css?v=8.3">
-    <link rel="stylesheet" href="/css/gacha.css?v=19">
+    <link rel="stylesheet" href="/css/gacha.css?v=20">
     <meta name="theme-color" content="#080810">
     <title>Cripsum™ — Lootbox</title>
 </head>
@@ -487,29 +487,57 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
     </div><!-- /gacha-overlay -->
 
     <!-- Currency Conversion Modal -->
-    <div class="modal fade shop-modal" id="gachaConversionModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="background: rgba(13, 10, 24, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; color: #fff;">
-                <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                    <h5 class="modal-title">Currency Conversion</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal fade" id="gachaConversionModal" tabindex="-1" aria-labelledby="gachaConversionTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered gacha-conversion-dialog">
+            <div class="modal-content gacha-conversion-card">
+                <div class="gacha-conversion-glow" aria-hidden="true"></div>
+                <div class="gacha-conversion-header">
+                    <div>
+                        <span class="gacha-conversion-kicker"><i class="fa-solid fa-wand-magic-sparkles"></i> Confirm pull</span>
+                        <h5 class="gacha-conversion-title" id="gachaConversionTitle">Complete your pull</h5>
+                    </div>
+                    <button type="button" class="gacha-conversion-close" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
                 </div>
-                <div class="modal-body text-center py-4">
-                    <div style="margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 1rem;">
-                        <div class="conversion-item">
-                            <span style="font-size: 2.2rem; display: block;"><img src="/img/godos.png" alt="Godos" style="width: 48px; height: 48px; object-fit: contain;"></span>
-                            <span class="conversion-godos-cost" style="font-weight: 700; font-size: 1.1rem; color: #a855f7;">400</span>
+
+                <div class="gacha-conversion-body">
+                    <p class="gacha-conversion-copy">
+                        You need <strong><span class="conversion-shards-count">4</span> more Godo Shards</strong>.
+                        Create them instantly using your Godos.
+                    </p>
+
+                    <div class="gacha-conversion-flow" aria-label="Conversion summary">
+                        <div class="gacha-conversion-currency gacha-conversion-currency--godos">
+                            <span class="gacha-conversion-label">Spend</span>
+                            <img src="/img/godos.png" alt="" class="gacha-conversion-icon">
+                            <strong class="conversion-godos-cost">400</strong>
+                            <small>Godos</small>
                         </div>
-                        <div style="font-size: 1.5rem; color: rgba(255,255,255,0.4);"><i class="fa-solid fa-arrow-right-long"></i></div>
-                        <div class="conversion-item">
-                            <span style="font-size: 2.2rem; display: block;"><img src="/img/godoshards.png" alt="Godo Shards" style="width: 48px; height: 48px; object-fit: contain;"></span>
-                            <span style="font-weight: 700; font-size: 1.1rem; color: #3b82f6;">+<span class="conversion-shards-count">4</span></span>
+
+                        <div class="gacha-conversion-arrow" aria-hidden="true">
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </div>
+
+                        <div class="gacha-conversion-currency gacha-conversion-currency--shards">
+                            <span class="gacha-conversion-label">Receive</span>
+                            <img src="/img/godoshards.png" alt="" class="gacha-conversion-icon">
+                            <strong>+<span class="conversion-shards-count">4</span></strong>
+                            <small>Godo Shards</small>
                         </div>
                     </div>
-                    <p class="mb-4">Do you want to convert <strong class="conversion-godos-cost">400</strong> Godos into <strong class="conversion-shards-count">4</strong> Godo Shards to complete this <span class="conversion-pull-qty">10</span>-pull?</p>
-                    <div class="d-grid gap-2 col-8 mx-auto">
-                        <button type="button" class="btn btn-primary btn-confirm-conversion" style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); border: none; font-weight: 700; padding: 0.75rem;">Convert & Pull</button>
-                        <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+
+                    <div class="gacha-conversion-note">
+                        <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+                        <span>The conversion is instant and will start your <strong class="conversion-pull-qty">10</strong>-pull.</span>
+                    </div>
+
+                    <div class="gacha-conversion-actions">
+                        <button type="button" class="gacha-conversion-btn gacha-conversion-btn--ghost" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="gacha-conversion-btn gacha-conversion-btn--primary btn-confirm-conversion">
+                            <span>Convert & pull</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
                     </div>
                 </div>
             </div>

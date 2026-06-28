@@ -2721,6 +2721,346 @@ body.lootbox-page {
     vertical-align: middle;
 }
 
+/* ── Currency conversion modal ─────────────────────────────── */
+.gacha-conversion-dialog {
+    width: min(92vw, 510px);
+    max-width: 510px;
+    margin-inline: auto;
+}
+
+.gacha-conversion-card {
+    position: relative;
+    overflow: hidden;
+    color: #f8fafc;
+    background:
+        linear-gradient(145deg, rgba(19, 17, 35, 0.98), rgba(8, 10, 21, 0.99)) padding-box,
+        linear-gradient(135deg, rgba(167, 139, 250, 0.55), rgba(96, 165, 250, 0.18), rgba(255, 255, 255, 0.06)) border-box;
+    border: 1px solid transparent;
+    border-radius: 24px;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.58), 0 0 45px rgba(99, 102, 241, 0.12);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+}
+
+#gachaConversionModal.show .gacha-conversion-card {
+    animation: conversionModalIn 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.gacha-conversion-glow {
+    position: absolute;
+    top: -150px;
+    right: -120px;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.2), transparent 67%);
+    pointer-events: none;
+}
+
+.gacha-conversion-header {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 26px 28px 18px;
+}
+
+.gacha-conversion-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 7px;
+    color: #a78bfa;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+}
+
+.gacha-conversion-title {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(1.35rem, 5vw, 1.75rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+}
+
+.gacha-conversion-close {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.62);
+    background: rgba(255, 255, 255, 0.055);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 50%;
+    transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.gacha-conversion-close:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.11);
+    transform: rotate(5deg);
+}
+
+.gacha-conversion-body {
+    position: relative;
+    padding: 0 28px 28px;
+}
+
+.gacha-conversion-copy {
+    max-width: 410px;
+    margin: 0 0 22px;
+    color: rgba(226, 232, 240, 0.68);
+    font-size: 0.93rem;
+    line-height: 1.6;
+}
+
+.gacha-conversion-copy strong {
+    color: #f8fafc;
+    font-weight: 700;
+}
+
+.gacha-conversion-flow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 42px minmax(0, 1fr);
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.gacha-conversion-currency {
+    position: relative;
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+    padding: 17px 12px 15px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.075);
+    border-radius: 17px;
+}
+
+#gachaConversionModal.show .gacha-conversion-currency--godos {
+    animation: conversionItemIn 0.42s 0.08s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+#gachaConversionModal.show .gacha-conversion-currency--shards {
+    animation: conversionItemIn 0.42s 0.16s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.gacha-conversion-currency--shards {
+    background: linear-gradient(145deg, rgba(59, 130, 246, 0.09), rgba(124, 58, 237, 0.07));
+    border-color: rgba(96, 165, 250, 0.2);
+}
+
+.gacha-conversion-label {
+    align-self: flex-start;
+    margin-bottom: 8px;
+    color: rgba(226, 232, 240, 0.46);
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+}
+
+.gacha-conversion-icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 8px;
+    object-fit: contain;
+    filter: drop-shadow(0 7px 12px rgba(0, 0, 0, 0.3));
+}
+
+.gacha-conversion-currency strong {
+    overflow: hidden;
+    max-width: 100%;
+    color: #c4b5fd;
+    font-size: 1.28rem;
+    font-weight: 850;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+}
+
+.gacha-conversion-currency--shards strong {
+    color: #7dd3fc;
+}
+
+.gacha-conversion-currency small {
+    margin-top: 2px;
+    color: rgba(226, 232, 240, 0.46);
+    font-size: 0.7rem;
+}
+
+.gacha-conversion-arrow {
+    display: grid;
+    place-items: center;
+    align-self: center;
+    width: 38px;
+    height: 38px;
+    color: #a78bfa;
+    background: rgba(124, 58, 237, 0.12);
+    border: 1px solid rgba(167, 139, 250, 0.2);
+    border-radius: 50%;
+}
+
+#gachaConversionModal.show .gacha-conversion-arrow i {
+    animation: conversionArrowIn 0.45s 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.gacha-conversion-note {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 22px;
+    padding: 11px 13px;
+    color: rgba(226, 232, 240, 0.67);
+    background: rgba(255, 255, 255, 0.025);
+    border-radius: 12px;
+    font-size: 0.78rem;
+    line-height: 1.45;
+}
+
+.gacha-conversion-note > i {
+    color: #fbbf24;
+}
+
+.gacha-conversion-note strong {
+    color: #fff;
+}
+
+.gacha-conversion-actions {
+    display: grid;
+    grid-template-columns: minmax(110px, 0.7fr) minmax(180px, 1.3fr);
+    gap: 10px;
+}
+
+.gacha-conversion-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 48px;
+    padding: 0 18px;
+    overflow: hidden;
+    color: #fff;
+    border-radius: 13px;
+    font-size: 0.88rem;
+    font-weight: 750;
+    transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gacha-conversion-btn--ghost {
+    color: rgba(248, 250, 252, 0.72);
+    background: rgba(255, 255, 255, 0.045);
+    border: 1px solid rgba(255, 255, 255, 0.085);
+}
+
+.gacha-conversion-btn--ghost:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.085);
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+.gacha-conversion-btn--primary {
+    background: linear-gradient(135deg, #7c3aed, #4f46e5 58%, #2563eb);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.28);
+}
+
+.gacha-conversion-btn--primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.2) 50%, transparent 70%);
+    transform: translateX(-120%);
+    transition: transform 0.55s ease;
+}
+
+.gacha-conversion-btn--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 32px rgba(79, 70, 229, 0.4);
+}
+
+.gacha-conversion-btn--primary:hover::before {
+    transform: translateX(120%);
+}
+
+.gacha-conversion-btn:active {
+    transform: translateY(0) scale(0.985);
+}
+
+.gacha-conversion-btn > * {
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes conversionModalIn {
+    from { opacity: 0; transform: translateY(18px) scale(0.965); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes conversionItemIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes conversionArrowIn {
+    from { opacity: 0; transform: translateX(-9px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@media (max-width: 480px) {
+    .gacha-conversion-header {
+        padding: 22px 20px 15px;
+    }
+
+    .gacha-conversion-body {
+        padding: 0 20px 20px;
+    }
+
+    .gacha-conversion-flow {
+        grid-template-columns: minmax(0, 1fr) 30px minmax(0, 1fr);
+        gap: 6px;
+    }
+
+    .gacha-conversion-currency {
+        padding-inline: 8px;
+    }
+
+    .gacha-conversion-arrow {
+        width: 30px;
+        height: 30px;
+        font-size: 0.75rem;
+    }
+
+    .gacha-conversion-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .gacha-conversion-btn--primary {
+        grid-row: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #gachaConversionModal .gacha-conversion-card,
+    #gachaConversionModal .gacha-conversion-currency,
+    #gachaConversionModal .gacha-conversion-arrow i {
+        animation: none !important;
+    }
+
+    .gacha-conversion-btn,
+    .gacha-conversion-close,
+    .gacha-conversion-btn--primary::before {
+        transition: none !important;
+    }
+}
+
 .balance-shop-btn {
     display: inline-flex;
     align-items: center;
