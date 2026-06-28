@@ -1389,7 +1389,10 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         ob_start();
                     ?>
                         <div class="profile-mini-badges badges-pos-<?php echo profile_h($badgesPosition); ?>" aria-label="Badge">
-                            <?php foreach (array_slice($visibleBadges, 0, 4) as $badge): ?>
+                            <?php 
+                            $badgesToDisplay = $isPremium ? $visibleBadges : array_slice($visibleBadges, 0, 4);
+                            foreach ($badgesToDisplay as $badge): 
+                            ?>
                                 <?php
                                 $badgeName = ($lang === 'it' && !empty($badge['nome'])) ? $badge['nome'] : (!empty($badge['nome_en']) ? $badge['nome_en'] : $badge['nome']);
                                 $badgeImage = !empty($badge['img_url']) ? (preg_match('/^https?:\/\//i', $badge['img_url']) ? $badge['img_url'] : '/img/' . ltrim((string)$badge['img_url'], '/')) : null;

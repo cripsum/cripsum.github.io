@@ -619,6 +619,18 @@ function profile_hex_to_rgb(string $hex): ?array
 
 function profile_list_visible_badges(mysqli $mysqli, int $userId): array
 {
+    $isPremium = false;
+    $stmtPrem = $mysqli->prepare("SELECT is_premium FROM utenti WHERE id = ? LIMIT 1");
+    if ($stmtPrem) {
+        $stmtPrem->bind_param("i", $userId);
+        $stmtPrem->execute();
+        $resPrem = $stmtPrem->get_result()->fetch_assoc();
+        $isPremium = (int)($resPrem['is_premium'] ?? 0) === 1;
+        $stmtPrem->close();
+    }
+
+    $limitClause = $isPremium ? "" : "LIMIT 8";
+
     $stmt = $mysqli->prepare("
         (SELECT 'achievement' AS badge_source,
                 a.id,
@@ -657,7 +669,7 @@ function profile_list_visible_badges(mysqli $mysqli, int $userId): array
          INNER JOIN custom_badges cb ON cb.id = ucb.badge_id
          WHERE ucb.utente_id = ? AND ucb.is_visible = 1)
         ORDER BY sort_order ASC, id ASC
-        LIMIT 8
+        $limitClause
     ");
     if (!$stmt) {
         return [];

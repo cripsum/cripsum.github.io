@@ -1161,7 +1161,11 @@ function profile_json_script(string $id, array $data): void
                         <div class="editor-card-body">
                             <div class="bio-section-heading">
                                 <div><span><i class="fa-solid fa-trophy"></i> Badge visibili</span>
-                                    <p>Scegli quali badge mostrare sul tuo profilo (massimo 8) e ordinali.</p>
+                                    <?php if ($isPremium): ?>
+                                        <p>Scegli quali badge mostrare sul tuo profilo (<strong>illimitati</strong> con il tuo piano Premium) e ordinali.</p>
+                                    <?php else: ?>
+                                        <p>Scegli quali badge mostrare sul tuo profilo (massimo 8 - <strong>illimitati</strong> con <a href="/it/shop.php" style="color: var(--accent); text-decoration: underline;">Premium</a>) e ordinali.</p>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                             <div class="profile-sortable-list" id="badgeSortList" data-badges="<?php echo profile_h(json_encode($availableBadges)); ?>">

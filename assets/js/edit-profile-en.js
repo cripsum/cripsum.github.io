@@ -609,7 +609,8 @@
     }
 
     function collectBadges() {
-        return $$('#badgeSortList .badge-select-chk:checked').map(chk => chk.dataset.id).slice(0, 8);
+        const checked = $$('#badgeSortList .badge-select-chk:checked').map(chk => chk.dataset.id);
+        return window.isPremiumUser ? checked : checked.slice(0, 8);
     }
 
     const displayNameInput = $('#displayNameInput');
@@ -2601,9 +2602,9 @@
         function saveBadgesState() {
             const selectedBadges = badges
                 .filter(b => Number(b.selected) === 1)
-                .map(b => b.badge_source + '_' + b.id)
-                .slice(0, 8);
-            badgesJsonInput.value = JSON.stringify(selectedBadges);
+                .map(b => b.badge_source + '_' + b.id);
+            const limitedBadges = window.isPremiumUser ? selectedBadges : selectedBadges.slice(0, 8);
+            badgesJsonInput.value = JSON.stringify(limitedBadges);
         }
 
         badges.sort((a, b) => {
