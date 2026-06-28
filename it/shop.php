@@ -73,7 +73,7 @@ $convertedShards = max(0, (int)($_GET['shards'] ?? 0));
     <meta charset="UTF-8">
     <title>Shop Godo Shards - Cripsum™</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/shop.css?v=2.0">
+    <link rel="stylesheet" href="/css/shop.css?v=2.1">
     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo urlencode(PAYPAL_CLIENT_ID); ?>&currency=EUR&locale=it_IT"></script>
     <style>
         .shop-toast {

@@ -113,6 +113,20 @@
     flex-direction: column;
     justify-content: space-between;
     overflow: hidden;
+    isolation: isolate;
+}
+
+/* style-dark.css adds a full-card ::before layer with z-index: 1. Without this
+   override that invisible layer becomes the click target and every CTA below it
+   appears dead while producing no console error. */
+.shop-shards-body .shop-card::before {
+    pointer-events: none !important;
+}
+
+.shop-shards-body .shop-card .card-btn {
+    position: relative;
+    z-index: 2;
+    pointer-events: auto;
 }
 
 .shop-card:hover {
