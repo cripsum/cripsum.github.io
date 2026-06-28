@@ -1632,6 +1632,7 @@ body.game-page .dropdown-menu button:focus { color: #fff !important; background:
     align-items: center;
 }
 
+
 .game-card-role-badge {
     font-size: 0.65rem;
     font-weight: 900;
@@ -1645,48 +1646,7 @@ body.game-page .dropdown-menu button:focus { color: #fff !important; background:
     letter-spacing: 0.5px;
 }
 
-.game-card-details-hover {
-    position: absolute;
-    bottom: 105%;
-    left: 50%;
-    transform: translateX(-50%) translateY(8px);
-    width: 260px;
-    background: rgba(15, 23, 42, 0.96);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(6, 182, 212, 0.35);
-    border-radius: 12px;
-    padding: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.65);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.18s ease, transform 0.18s ease;
-    z-index: 100;
-    text-align: left;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
 
-.game-card-option:hover .game-card-details-hover {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-    pointer-events: auto;
-}
-
-.game-detail-section {
-    font-size: 0.76rem;
-    color: var(--game-text);
-    line-height: 1.4;
-}
-
-.game-detail-section strong {
-    color: var(--game-blue);
-    display: block;
-    margin-bottom: 2px;
-    font-size: 0.8rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-    padding-bottom: 2px;
-}
 
 .game-detail-section p {
     margin: 0;
@@ -2433,16 +2393,18 @@ body.game-page .dropdown-menu button:focus { color: #fff !important; background:
     z-index: 99999;
     pointer-events: none;
     opacity: 0;
+    visibility: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: opacity 0.22s ease;
+    transition: opacity 0.22s ease, visibility 0.22s ease;
     padding: 1.5rem;
     box-sizing: border-box;
 }
 
 .game-card-details-hover.is-active {
     opacity: 1 !important;
+    visibility: visible !important;
     pointer-events: auto !important;
 }
 
