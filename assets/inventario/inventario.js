@@ -495,12 +495,23 @@
 
         text.innerHTML = message;
         modal.hidden = false;
+        modal.classList.remove('is-leaving');
+        // Forza il reflow del browser per avviare l'animazione di entrata
+        void modal.offsetWidth;
+        modal.classList.add('is-active');
 
         const cleanup = () => {
-            modal.hidden = true;
+            modal.classList.remove('is-active');
+            modal.classList.add('is-leaving');
+            
             btnConfirm.removeEventListener('click', handleConfirm);
             btnCancel.removeEventListener('click', cleanup);
             if (backdrop) backdrop.removeEventListener('click', cleanup);
+
+            setTimeout(() => {
+                modal.hidden = true;
+                modal.classList.remove('is-leaving');
+            }, 250);
         };
 
         const handleConfirm = () => {
@@ -511,6 +522,41 @@
         btnConfirm.addEventListener('click', handleConfirm);
         btnCancel.addEventListener('click', cleanup);
         if (backdrop) backdrop.addEventListener('click', cleanup);
+    };
+
+    const triggerLevelUpEffects = (panel) => {
+        if (!panel) return;
+        const imgWrap = panel.querySelector('.modal-character__image');
+        if (imgWrap) {
+            // Onde d'urto radiali
+            const shockwave = document.createElement('div');
+            shockwave.className = 'level-up-shockwave';
+            imgWrap.appendChild(shockwave);
+            setTimeout(() => shockwave.remove(), 800);
+
+            // Particelle magiche
+            const particleCount = 24;
+            for (let i = 0; i < particleCount; i++) {
+                const p = document.createElement('div');
+                p.className = 'level-up-particle';
+                
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 40 + Math.random() * 110;
+                const tx = Math.cos(angle) * speed;
+                const ty = Math.sin(angle) * speed;
+                
+                p.style.setProperty('--tx', `${tx}px`);
+                p.style.setProperty('--ty', `${ty}px`);
+                
+                const size = 5 + Math.random() * 7;
+                p.style.width = `${size}px`;
+                p.style.height = `${size}px`;
+                p.style.animationDelay = `${Math.random() * 0.12}s`;
+                
+                imgWrap.appendChild(p);
+                setTimeout(() => p.remove(), 950);
+            }
+        }
     };
 
     const openCharacterModal = (entry) => {
@@ -659,6 +705,7 @@
                             const panel = $('.inv-modal__panel');
                             if (panel) {
                                 panel.classList.add('level-up-animating');
+                                triggerLevelUpEffects(panel);
                                 
                                 const lvlUpTxt = document.createElement('div');
                                 lvlUpTxt.className = 'level-up-text';
