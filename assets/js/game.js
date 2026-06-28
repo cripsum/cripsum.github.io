@@ -530,13 +530,19 @@
 
     async function submitBattle(action,target=null){try{const p={match_id:state.matchId,action}; if(target)p.target_card_id=target; await api('/api/game/submit_action.php',p); await pollState(false)}catch(e){showToast(e.message)}}
     function animateAction(a){
+        injectUltimateStyles();
+        console.log('animateAction triggered:', a.action_type || a.action, a);
         const actor=Number(a.actor_card_id), target=Number(a.target_card_id);
-        const type=a.action_type;
+        const type=a.action_type || a.action;
         const isCrit = (a.message || '').toLowerCase().includes('critico');
 
         if (type === 'ultimate') {
             const arena = $('#arenaPanel');
-            const actorCard = actor ? document.querySelector(`[data-card-id="${actor}"].game-active-card`) : null;
+            let actorCard = actor ? document.querySelector(`[data-card-id="${actor}"]`) : null;
+            if (!actorCard) {
+                const isMyAction = Number(a.user_id) === Number(state.match?.viewer_id);
+                actorCard = isMyAction ? $('#playerActive') : $('#opponentActive');
+            }
             
             if (arena && actorCard) {
                 // Trova l'ID, nome, immagine e ruolo del personaggio per la regia
@@ -685,7 +691,141 @@
             setTimeout(()=>fx.classList.remove('is-special'),700);
         }
     }
-    
+
+    function injectUltimateStyles() {
+        if ($('#ult-injected-styles')) return;
+        const style = document.createElement('style');
+        style.id = 'ult-injected-styles';
+        style.innerHTML = `
+            .ult-cutin-container {
+                position: fixed;
+                inset: 0;
+                z-index: 99999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            }
+            .ult-cutin-container.active {
+                opacity: 1;
+            }
+            .ult-cutin-bg {
+                position: absolute;
+                inset: 0;
+                z-index: 1;
+                animation: cutinBgFade 1.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            }
+            @keyframes cutinBgFade {
+                0% { opacity: 0; }
+                15% { opacity: 1; }
+                85% { opacity: 1; }
+                100% { opacity: 0; }
+            }
+            .ult-cutin-particles {
+                position: absolute;
+                inset: 0;
+                z-index: 2;
+                pointer-events: none;
+            }
+            .ult-cutin-slash {
+                position: absolute;
+                width: 250%;
+                height: 150px;
+                background: linear-gradient(90deg, transparent, #fff 30%, #fff 70%, transparent);
+                box-shadow: 0 0 50px var(--theme-glow, #d4af37), 0 0 100px var(--theme-glow, #d4af37);
+                transform: rotate(-12deg) translateY(-600px);
+                z-index: 3;
+                opacity: 0;
+            }
+            .ult-cutin-container.active .ult-cutin-slash {
+                animation: cutinSlash 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+            @keyframes cutinSlash {
+                0% { transform: rotate(-12deg) translateY(-500px); opacity: 0; }
+                15% { opacity: 0.9; }
+                45% { opacity: 1; }
+                80% { opacity: 0.9; }
+                100% { transform: rotate(-12deg) translateY(500px); opacity: 0; }
+            }
+            .ult-cutin-char-img {
+                position: absolute;
+                height: 115%;
+                max-height: 900px;
+                object-fit: contain;
+                right: 5%;
+                bottom: -50px;
+                z-index: 4;
+                opacity: 0;
+                transform: scale(1.25) translateX(250px) rotate(4deg);
+                filter: drop-shadow(0 0 35px var(--theme-glow, #d4af37)) blur(10px);
+            }
+            .ult-cutin-container.active .ult-cutin-char-img {
+                animation: cutinImg 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards;
+            }
+            @keyframes cutinImg {
+                0% { opacity: 0; transform: scale(1.25) translateX(250px) rotate(4deg); filter: drop-shadow(0 0 35px var(--theme-glow, #d4af37)) blur(15px); }
+                20% { opacity: 1; filter: drop-shadow(0 0 35px var(--theme-glow, #d4af37)) blur(0); }
+                80% { opacity: 1; filter: drop-shadow(0 0 35px var(--theme-glow, #d4af37)) blur(0); }
+                100% { opacity: 0; transform: scale(1.1) translateX(-80px) rotate(1deg); filter: drop-shadow(0 0 35px var(--theme-glow, #d4af37)) blur(10px); }
+            }
+            .ult-cutin-banner {
+                position: absolute;
+                left: 10%;
+                top: 50%;
+                transform: translateY(-50%) skewX(-12deg) translateX(-150px);
+                z-index: 5;
+                opacity: 0;
+                display: flex;
+                flex-direction: column;
+            }
+            .ult-cutin-container.active .ult-cutin-banner {
+                animation: cutinText 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+            }
+            @keyframes cutinText {
+                0% { opacity: 0; transform: translateY(-50%) skewX(-12deg) translateX(-150px); }
+                20% { opacity: 1; transform: translateY(-50%) skewX(-12deg) translateX(0); }
+                80% { opacity: 1; transform: translateY(-50%) skewX(-12deg) translateX(0); }
+                100% { opacity: 0; transform: translateY(-50%) skewX(-12deg) translateX(80px); }
+            }
+            .ult-cutin-char-name {
+                font-size: 2.8rem;
+                font-weight: 900;
+                text-transform: uppercase;
+                color: #ffffff;
+                text-shadow: 0 0 15px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.3);
+                letter-spacing: 5px;
+                line-height: 1;
+            }
+            .ult-cutin-ult-name {
+                font-size: 4.5rem;
+                font-weight: 900;
+                text-transform: uppercase;
+                color: var(--theme-glow, #d4af37);
+                text-shadow: 0 0 25px var(--theme-glow, #d4af37), 0 0 50px rgba(0, 0, 0, 0.5);
+                letter-spacing: 7px;
+                margin-top: 15px;
+                line-height: 1.1;
+            }
+            .ult-particle {
+                position: absolute;
+                pointer-events: none;
+                user-select: none;
+                z-index: 6;
+                animation: particleFly 1.4s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+            }
+            @keyframes particleFly {
+                0% { transform: translate(0, 0) rotate(0deg) scale(0.2); opacity: 0; }
+                15% { opacity: 0.9; }
+                80% { opacity: 0.9; }
+                100% { transform: translate(var(--dx), var(--dy)) rotate(360deg) scale(1.5); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
     function showActionBanner(a,label){
         const arena = $('#arenaPanel');
         if (!arena) return;
