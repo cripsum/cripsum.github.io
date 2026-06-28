@@ -465,7 +465,7 @@
       state.garantito    = data.garantito     ?? state.garantito;
       state.multiResults = data.pulls;
 
-      showPaymentNotice(data.valuta_usata, data.costo_totale);
+      // Notice banner removed
 
       // FIX 4: animazione intro prima delle pull
       await showMultiIntro(data.pulls);
