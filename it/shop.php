@@ -700,6 +700,36 @@ $convertedShards = max(0, (int)($_GET['shards'] ?? 0));
         </section>
     </div>
 
+    <!-- Modal Conferma Acquisto Godos -->
+    <div class="shop-action-modal" id="godosPurchaseConfirmModal" aria-hidden="true">
+        <a class="shop-action-modal__backdrop" href="#" data-shop-close aria-label="Chiudi"></a>
+        <section class="shop-action-modal__panel" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle" tabindex="-1">
+            <header class="shop-action-modal__header">
+                <div><span class="shop-action-modal__kicker">Conferma Acquisto</span><h2 id="confirmModalTitle">Sei sicuro?</h2></div>
+                <a class="shop-action-modal__close" href="#" data-shop-close aria-label="Chiudi"><i class="fa-solid fa-xmark"></i></a>
+            </header>
+            <div class="shop-action-modal__body text-center p-3">
+                <p class="text-secondary">Vuoi acquistare questo oggetto per il tuo profilo?</p>
+                
+                <div class="reveal-card-wrap my-3" style="background: rgba(255, 255, 255, 0.02);">
+                    <div class="reveal-badge-box" id="confirm-reveal-badge-box" style="box-shadow: none; border-color: rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05); animation: none;">
+                        <!-- Immagine dell'oggetto -->
+                    </div>
+                    <div class="reveal-badge-name mt-2" id="confirm-reveal-badge-name" style="font-size: 1.3rem; font-weight: 800; color: #fff;"></div>
+                    <div class="reveal-badge-desc text-secondary px-3 mt-1" id="confirm-reveal-badge-desc" style="font-size: 0.9rem;"></div>
+                    <div class="mt-3" style="font-size: 1.2rem; font-weight: 700; color: #a855f7;">
+                        Prezzo: <span id="confirm-reveal-badge-price"></span> Godos
+                    </div>
+                </div>
+
+                <div class="shop-action-modal__actions" style="margin-top: 1.5rem;">
+                    <a class="shop-action-secondary" href="#" data-shop-close>Annulla</a>
+                    <button type="button" class="shop-action-primary" id="btn-confirm-godos-purchase">Conferma Acquisto</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
     <!-- Modal Successo Acquisto Godos -->
     <div class="shop-action-modal" id="purchaseSuccessModal" aria-hidden="true">
         <a class="shop-action-modal__backdrop" href="#" data-shop-close aria-label="Chiudi"></a>
@@ -734,7 +764,7 @@ $convertedShards = max(0, (int)($_GET['shards'] ?? 0));
         </section>
     </div>
 
-    <script src="/assets/shop/shards-shop.js?v=1.3" defer></script>
+    <script src="/assets/shop/shards-shop.js?v=1.4" defer></script>
 </body>
 
 </html>

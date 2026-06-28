@@ -31,6 +31,7 @@
     var paymentModal = document.getElementById('paymentModal');
     var conversionModal = document.getElementById('godosConversionModal');
     var successModal = document.getElementById('purchaseSuccessModal');
+    var confirmModal = document.getElementById('godosPurchaseConfirmModal');
     var conversionForm = document.getElementById('godos-conversion-form');
     var slider = document.getElementById('godos-slider');
     var sliderValue = document.getElementById('slider-shards-val');
@@ -42,6 +43,9 @@
     var lastTrigger = null;
     var userGodos = parseInt(root.getAttribute('data-user-godos') || '0', 10) || 0;
     var userShards = parseInt(root.getAttribute('data-user-shards') || '0', 10) || 0;
+
+    var pendingPurchaseItemId = null;
+    var pendingPurchaseBtn = null;
 
     function formatNumber(value) {
         return Number(value || 0).toLocaleString(lang === 'en' ? 'en-US' : 'it-IT');
@@ -265,7 +269,7 @@
 
         // Custom Godos Item Purchase handler
         var buyItemBtn = target.closest('[data-shop-buy-item]');
-        if (buyItemBtn && successModal) {
+        if (buyItemBtn && confirmModal && successModal) {
             event.preventDefault();
             event.stopPropagation();
             var itemId = buyItemBtn.getAttribute('data-shop-buy-item');
@@ -277,36 +281,74 @@
                 return;
             }
 
-            var confirmMsg = lang === 'en' 
-                ? 'Are you sure you want to purchase "' + itemName + '" for ' + price + ' Godos?' 
-                : 'Confermi l\'acquisto di "' + itemName + '" per ' + price + ' Godos?';
-            if (!window.confirm(confirmMsg)) return;
+            pendingPurchaseItemId = itemId;
+            pendingPurchaseBtn = buyItemBtn;
 
-            buyItemBtn.disabled = true;
-            var originalText = buyItemBtn.textContent;
-            buyItemBtn.textContent = lang === 'en' ? 'Processing...' : 'Elaborazione...';
+            // Populate Confirm Modal
+            var confirmNameNode = document.getElementById('confirm-reveal-badge-name');
+            var confirmDescNode = document.getElementById('confirm-reveal-badge-desc');
+            var confirmPriceNode = document.getElementById('confirm-reveal-badge-price');
+            var confirmBoxNode = document.getElementById('confirm-reveal-badge-box');
+
+            if (confirmNameNode) confirmNameNode.textContent = itemName;
+            
+            // Find card description
+            var cardElement = buyItemBtn.closest('.shop-card');
+            var cardDescText = '';
+            var cardImgSrc = '';
+            if (cardElement) {
+                var descElement = cardElement.querySelector('.card-amount-bonus-note');
+                if (descElement) cardDescText = descElement.textContent;
+                var imgElement = cardElement.querySelector('.shop-badge-preview img');
+                if (imgElement) cardImgSrc = imgElement.src;
+            }
+            if (confirmDescNode) confirmDescNode.textContent = cardDescText;
+            if (confirmPriceNode) confirmPriceNode.textContent = formatNumber(price);
+            if (confirmBoxNode) {
+                confirmBoxNode.innerHTML = '';
+                if (cardImgSrc) {
+                    var img = document.createElement('img');
+                    img.src = cardImgSrc;
+                    img.alt = itemName;
+                    confirmBoxNode.appendChild(img);
+                }
+            }
+
+            openModal(confirmModal, buyItemBtn);
+            return;
+        }
+
+        // Click on Confirm button inside the confirmation modal
+        var btnConfirmPurchase = target.closest('#btn-confirm-godos-purchase');
+        if (btnConfirmPurchase && pendingPurchaseItemId && pendingPurchaseBtn) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            var originalText = btnConfirmPurchase.textContent;
+            btnConfirmPurchase.disabled = true;
+            btnConfirmPurchase.textContent = lang === 'en' ? 'Processing...' : 'Elaborazione...';
 
             fetchJson('/api/purchase_godos_item.php', {
                 method: 'POST',
                 credentials: 'same-origin',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({ item_id: parseInt(itemId, 10) })
+                body: JSON.stringify({ item_id: parseInt(pendingPurchaseItemId, 10) })
             }).then(function (data) {
                 if (data.status !== 'success') throw new Error(data.message);
 
                 // Update balances
                 updateBalances({ soldi_rimasti: data.soldi_rimasti, shards_rimaste: userShards });
 
-                // Set owned state on button
-                buyItemBtn.disabled = true;
-                buyItemBtn.textContent = lang === 'en' ? 'Owned' : 'Posseduto';
-                buyItemBtn.style.background = 'rgba(255, 255, 255, 0.08)';
-                buyItemBtn.style.color = 'rgba(255, 255, 255, 0.3)';
-                buyItemBtn.style.border = '1px solid rgba(255, 255, 255, 0.05)';
+                // Set owned state on the shop list button
+                pendingPurchaseBtn.disabled = true;
+                pendingPurchaseBtn.textContent = lang === 'en' ? 'Owned' : 'Posseduto';
+                pendingPurchaseBtn.style.background = 'rgba(255, 255, 255, 0.08)';
+                pendingPurchaseBtn.style.color = 'rgba(255, 255, 255, 0.3)';
+                pendingPurchaseBtn.style.border = '1px solid rgba(255, 255, 255, 0.05)';
 
                 // Update availability
                 if (data.availability_left !== null) {
-                    var availSpan = document.querySelector('[data-item-availability="' + itemId + '"]');
+                    var availSpan = document.querySelector('[data-item-availability="' + pendingPurchaseItemId + '"]');
                     if (availSpan) {
                         availSpan.textContent = lang === 'en' 
                             ? 'Only ' + data.availability_left + ' left!' 
@@ -346,13 +388,18 @@
                     }
                 }
 
-                openModal(successModal, buyItemBtn);
+                closeModal(confirmModal, false);
+                openModal(successModal, pendingPurchaseBtn);
                 showToast(lang === 'en' ? 'Purchase completed!' : 'Acquisto completato!', false);
                 
             }).catch(function (error) {
                 showToast(error.message || (lang === 'en' ? 'An error occurred.' : 'Si è verificato un errore.'), true);
-                buyItemBtn.disabled = false;
-                buyItemBtn.textContent = originalText;
+                closeModal(confirmModal, true);
+            }).finally(function () {
+                btnConfirmPurchase.disabled = false;
+                btnConfirmPurchase.textContent = originalText;
+                pendingPurchaseItemId = null;
+                pendingPurchaseBtn = null;
             });
             return;
         }
