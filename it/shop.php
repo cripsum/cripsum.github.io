@@ -71,7 +71,7 @@ $successPackage = $_GET['package_id'] ?? '';
     <meta charset="UTF-8">
     <title>Shop Godo Shards - Cripsum™</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/shop.css?v=1.2">
+    <link rel="stylesheet" href="/css/shop.css?v=1.3">
     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo urlencode(PAYPAL_CLIENT_ID); ?>&currency=EUR&locale=it_IT"></script>
     <style>
         .shop-toast {
@@ -119,8 +119,7 @@ $successPackage = $_GET['package_id'] ?? '';
 
     <div class="shop-container">
         <header class="shop-header">
-            <h1 class="shop-title">💎 Shop Godo Shards 💎</h1>
-            <p class="shop-subtitle">Acquista Godo Shards premium per sbloccare pull gacha sul sito.</p>
+            <h1 class="shop-title"><img src="/img/godoshards.png" alt="Logo" class="shop-title-logo"> Shop Godo Shards <img src="/img/godoshards.png" alt="Logo" class="shop-title-logo"></h1>
 
             <div class="shop-balance-bar">
                 <div class="shop-balance-item" title="Valuta gratuita ottenibile usando il sito." data-bs-toggle="tooltip">

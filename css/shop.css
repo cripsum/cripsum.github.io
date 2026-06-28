@@ -4,6 +4,9 @@
 
 .shop-shards-body {
     background: radial-gradient(circle at 8% 6%, rgba(109, 93, 252, 0.22), transparent 30rem), radial-gradient(circle at 92% 18%, rgba(139, 92, 246, 0.13), transparent 28rem), linear-gradient(135deg, #05070d, #0b1020);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
     color: #f7f8ff;
     font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
     margin: 0;
@@ -15,7 +18,7 @@
 
 .shop-container {
     max-width: 1200px;
-    margin: 6rem auto 3rem auto;
+    margin: 8rem auto 3rem auto;
     padding: 0 1.5rem;
     width: 100%;
     box-sizing: border-box;
@@ -313,14 +316,32 @@
 .back-to-lootbox-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    color: #7c3aed;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 50px;
+    padding: 0.6rem 1.5rem;
+    color: #f1f3f9;
     text-decoration: none;
     font-weight: 600;
-    margin-top: 1rem;
-    transition: color 0.15s;
+    font-size: 0.9rem;
+    margin-top: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
 .back-to-lootbox-btn:hover {
-    color: #9061f9;
+    background: rgba(124, 58, 237, 0.15);
+    border-color: rgba(168, 85, 247, 0.5);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.25);
+}
+
+.shop-title-logo {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    vertical-align: middle;
+    margin: 0 8px;
 }
