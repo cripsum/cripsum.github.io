@@ -187,6 +187,19 @@
         if (reactionPanel) reactionPanel.hidden = !spectator;
         const chatForm = $('#chatForm');
         if (chatForm) chatForm.hidden = spectator;
+        const specBtn = $('[data-battle-action="special_attack"]');
+        if (specBtn) {
+            const myActive = activeOf(sides.rightUid);
+            const cost = myActive ? Number(myActive.special_cost || 2) : 2;
+            const span = specBtn.querySelector('span');
+            if (span) {
+                const isEn = window.location.pathname.includes('/en/');
+                span.textContent = isEn 
+                    ? `More dmg · costs ${cost} energy` 
+                    : `Più danno · costa ${cost} energia`;
+            }
+        }
+
         $$('[data-battle-action]').forEach(b=>b.disabled=spectator||!myTurn||m.status!=='active');
         if(m.status==='finished' && !spectator)showResult();
     }
