@@ -180,7 +180,7 @@
     function showOnly(id){['#waitingPanel','#teamPanel','#arenaPanel'].forEach(s=>{const el=$(s); if(el)el.hidden=(s!==id)})}
     function startPolling(){stopPolling(); pollState(true); state.poll=setInterval(()=>{if(!document.hidden)pollState(false)},1500)}
     function stopPolling(){if(state.poll)clearInterval(state.poll); state.poll=null;}
-    async function pollState(first=false){if(!state.matchId)return; try{const d=await api('/api/game/get_match_state.php',{match_id:state.matchId},'GET'); const oldLast=state.lastActionId; state.match=d.match; renderMatch(first); const actions=state.match.actions||[]; const newest=actions.length?Number(actions[actions.length-1].id):0; if(!first && newest>oldLast){actions.filter(a=>Number(a.id)>oldLast).forEach((a,i)=>setTimeout(()=>animateAction(a),i*220));} state.lastActionId=Math.max(oldLast,newest);}catch(e){showToast(e.message)}}
+    async function pollState(first=false){if(!state.matchId)return; try{const d=await api('/api/game/get_match_state.php',{match_id:state.matchId},'GET'); const oldLast=state.lastActionId; state.match=d.match; renderMatch(first); const actions=state.match.actions||[]; const newest=actions.length?Number(actions[actions.length-1].id):0; if(!first && newest>oldLast){const newActions=actions.filter(a=>Number(a.id)>oldLast); (async()=>{for(const act of newActions){await animateAction(act)}})();} state.lastActionId=Math.max(oldLast,newest);}catch(e){showToast(e.message)}}
     function myId(){return state.match?.viewer_id}
     function isSpectator(){return state.match?.viewer_role === 'spectator'}
     function playerById(uid){const m=state.match;if(!m||uid===null||uid===undefined)return null; if(Number(m.player1_id)===Number(uid))return m.players?.player1||null; if(Number(m.player2_id)===Number(uid))return m.players?.player2||null; return null;}
@@ -530,166 +530,170 @@
 
     async function submitBattle(action,target=null){try{const p={match_id:state.matchId,action}; if(target)p.target_card_id=target; await api('/api/game/submit_action.php',p); await pollState(false)}catch(e){showToast(e.message)}}
     function animateAction(a){
-        injectUltimateStyles();
-        console.log('animateAction triggered:', a.action_type || a.action, a);
-        const actor=Number(a.actor_card_id), target=Number(a.target_card_id);
-        const type=a.action_type || a.action;
-        const isCrit = (a.message || '').toLowerCase().includes('critico');
+        return new Promise((resolve) => {
+            injectUltimateStyles();
+            console.log('animateAction triggered:', a.action_type || a.action, a);
+            const actor=Number(a.actor_card_id), target=Number(a.target_card_id);
+            const type=a.action_type || a.action;
+            const isCrit = (a.message || '').toLowerCase().includes('critico');
 
-        if (type === 'ultimate') {
-            const arena = $('#arenaPanel');
-            let actorCard = actor ? document.querySelector(`[data-card-id="${actor}"]`) : null;
-            if (!actorCard) {
-                const isMyAction = Number(a.user_id) === Number(state.match?.viewer_id);
-                actorCard = isMyAction ? $('#playerActive') : $('#opponentActive');
+            if (type === 'ultimate') {
+                const arena = $('#arenaPanel');
+                let actorCard = actor ? document.querySelector(`[data-card-id="${actor}"]`) : null;
+                if (!actorCard) {
+                    const isMyAction = Number(a.user_id) === Number(state.match?.viewer_id);
+                    actorCard = isMyAction ? $('#playerActive') : $('#opponentActive');
+                }
+                
+                if (arena && actorCard) {
+                    // Trova l'ID, nome, immagine e ruolo del personaggio per la regia
+                    const cardObj = state.match && state.match.cards
+                        ? state.match.cards.find(c => Number(c.id) === actor)
+                        : null;
+                    
+                    const charId = cardObj ? Number(cardObj.personaggio_id) : 0;
+                    const charName = cardObj && cardObj.character ? cardObj.character.nome : 'Eroe';
+                    const imgUrl = cardObj && cardObj.character ? cardObj.character.img_url : '';
+                    const role = cardObj ? cardObj.role : 'DPS';
+                    
+                    let label = 'ULTIMATE';
+                    if (a.message && a.message.includes('**')) {
+                        const parts = a.message.split('**');
+                        if (parts.length >= 3) {
+                            label = parts[2].replace(/[!:]/g, '').trim();
+                        }
+                    }
+
+                    // Configurazione temi per ruolo/personaggio
+                    const themes = {
+                        'Tank': { glow: '#fbbf24', bg: 'radial-gradient(circle, rgba(45, 35, 10, 0.95) 0%, rgba(10, 5, 0, 0.98) 100%)', symbol: '🛡️' },
+                        'Bruiser': { glow: '#f97316', bg: 'radial-gradient(circle, rgba(50, 20, 5, 0.95) 0%, rgba(15, 5, 0, 0.98) 100%)', symbol: '🔥' },
+                        'DPS': { glow: '#ef4444', bg: 'radial-gradient(circle, rgba(60, 10, 10, 0.95) 0%, rgba(15, 0, 0, 0.98) 100%)', symbol: '⚔️' },
+                        'Burst DPS': { glow: '#ec4899', bg: 'radial-gradient(circle, rgba(60, 10, 40, 0.95) 0%, rgba(20, 0, 10, 0.98) 100%)', symbol: '⚡' },
+                        'Healer': { glow: '#10b981', bg: 'radial-gradient(circle, rgba(10, 45, 30, 0.95) 0%, rgba(0, 10, 5, 0.98) 100%)', symbol: '✨' },
+                        'Support': { glow: '#8b5cf6', bg: 'radial-gradient(circle, rgba(35, 15, 60, 0.95) 0%, rgba(10, 0, 20, 0.98) 100%)', symbol: '🔮' },
+                        'Controller': { glow: '#06b6d4', bg: 'radial-gradient(circle, rgba(10, 40, 50, 0.95) 0%, rgba(0, 10, 15, 0.98) 100%)', symbol: '❄️' }
+                    };
+                    
+                    // Temi specifici per ID
+                    const charThemes = {
+                        48: { glow: '#38bdf8', bg: 'radial-gradient(circle, rgba(15, 23, 42, 0.96) 0%, rgba(2, 6, 23, 0.98) 100%)', symbol: '🌌' }, // Shorekeeper
+                        87: { glow: '#0ea5e9', bg: 'radial-gradient(circle, rgba(3, 45, 76, 0.96) 0%, rgba(1, 10, 25, 0.98) 100%)', symbol: '🌊' },  // Nauz Tricheco
+                        88: { glow: '#a855f7', bg: 'radial-gradient(circle, rgba(40, 10, 65, 0.96) 0%, rgba(10, 2, 20, 0.98) 100%)', symbol: '🪐' },  // Nauz Cosmic
+                        141: { glow: '#ef4444', bg: 'radial-gradient(circle, rgba(80, 5, 5, 0.96) 0%, rgba(10, 0, 0, 0.98) 100%)', symbol: '😈' },    // Dante
+                        142: { glow: '#60a5fa', bg: 'radial-gradient(circle, rgba(15, 23, 42, 0.96) 0%, rgba(3, 7, 18, 0.98) 100%)', symbol: '🌀' },   // Vergil
+                        144: { glow: '#f97316', bg: 'radial-gradient(circle, rgba(85, 25, 0, 0.96) 0%, rgba(15, 5, 0, 0.98) 100%)', symbol: '☄️' }    // Protagonista
+                    };
+
+                    const theme = charThemes[charId] || themes[role] || themes['DPS'];
+
+                    // 1. Crea il contenitore del Cut-In cinematografico a tutto schermo
+                    const cutin = document.createElement('div');
+                    cutin.className = `ult-cutin-container ult-cutin-${charId}`;
+                    cutin.style.setProperty('--theme-glow', theme.glow);
+                    
+                    cutin.innerHTML = `
+                        <div class="ult-cutin-bg" style="background: ${theme.bg};"></div>
+                        <div class="ult-cutin-particles"></div>
+                        <div class="ult-cutin-slash"></div>
+                        ${imgUrl ? `<img src="${imgUrl}" class="ult-cutin-char-img" alt="${charName}">` : ''}
+                        <div class="ult-cutin-banner">
+                            <div class="ult-cutin-char-name">${esc(charName)}</div>
+                            <div class="ult-cutin-ult-name">${esc(label)}</div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(cutin);
+                    
+                    // Generazione particelle animate
+                    const partContainer = cutin.querySelector('.ult-cutin-particles');
+                    if (partContainer) {
+                        for (let i = 0; i < 35; i++) {
+                            const p = document.createElement('div');
+                            p.className = 'ult-particle';
+                            p.innerText = theme.symbol;
+                            p.style.fontSize = `${Math.random() * 20 + 15}px`;
+                            p.style.left = `${Math.random() * 100}%`;
+                            p.style.top = `${Math.random() * 100}%`;
+                            p.style.setProperty('--dx', `${(Math.random() - 0.5) * 600}px`);
+                            p.style.setProperty('--dy', `${(Math.random() - 0.5) * 600}px`);
+                            p.style.animationDelay = `${Math.random() * 0.5}s`;
+                            p.style.animationDuration = `${Math.random() * 1.0 + 0.8}s`;
+                            partContainer.appendChild(p);
+                        }
+                    }
+                    
+                    // Attiva la transizione di ingresso
+                    setTimeout(() => cutin.classList.add('active'), 20);
+                    
+                    // Avvio dello zoom cinematografico sulla carta in background
+                    arena.classList.add('fx-ultimate-bg');
+                    arena.classList.add('active-cinema');
+                    actorCard.classList.add('fx-ultimate-cinema');
+
+                    // Riferimento al flash overlay
+                    let flash = $('.fx-ultimate-flash');
+                    if (!flash) {
+                        flash = document.createElement('div');
+                        flash.className = 'fx-ultimate-flash';
+                        document.body.appendChild(flash);
+                    }
+
+                    // Impatto cinematografico (1400ms): Flash, Terremoto, Rimozione Cut-In e Danni
+                    setTimeout(() => {
+                        // Rimozione fluida del Cut-In
+                        cutin.classList.remove('active');
+                        setTimeout(() => cutin.remove(), 400);
+
+                        // Flash dello schermo ad alto impatto
+                        flash.classList.remove('flash-active');
+                        void flash.offsetWidth;
+                        flash.classList.add('flash-active');
+                        
+                        // Camera Shake violento
+                        arena.classList.add('fx-camera-shake');
+                        
+                        // Ripristino camera e telecamera
+                        actorCard.classList.remove('fx-ultimate-cinema');
+                        arena.classList.remove('active-cinema');
+                        arena.classList.remove('fx-ultimate-bg');
+                        
+                        // Mostra il banner del danno/cura
+                        showActionBanner(a, label);
+
+                        // Esecuzione effetti di danno/cura
+                        if (target && Number(a.damage) > 0) {
+                            flashCard(target, isCrit ? 'fx-crit-hit' : 'fx-hit', `-${a.damage}`, true, isCrit);
+                        } else if (target) {
+                            flashCard(target, 'fx-charge', 'UPGRADE!', false, false);
+                        }
+                    }, 1400);
+                    
+                    // Cleanup del camera shake
+                    setTimeout(() => {
+                        arena.classList.remove('fx-camera-shake');
+                        flash.classList.remove('flash-active');
+                        resolve();
+                    }, 2000);
+                    
+                    return;
+                }
             }
-            
-            if (arena && actorCard) {
-                // Trova l'ID, nome, immagine e ruolo del personaggio per la regia
-                const cardObj = state.match && state.match.cards
-                    ? state.match.cards.find(c => Number(c.id) === actor)
-                    : null;
-                
-                const charId = cardObj ? Number(cardObj.personaggio_id) : 0;
-                const charName = cardObj && cardObj.character ? cardObj.character.nome : 'Eroe';
-                const imgUrl = cardObj && cardObj.character ? cardObj.character.img_url : '';
-                const role = cardObj ? cardObj.role : 'DPS';
-                
-                let label = 'ULTIMATE';
-                if (a.message && a.message.includes('**')) {
-                    const parts = a.message.split('**');
-                    if (parts.length >= 3) {
-                        label = parts[2].replace(/[!:]/g, '').trim();
-                    }
-                }
 
-                // Configurazione temi per ruolo/personaggio
-                const themes = {
-                    'Tank': { glow: '#fbbf24', bg: 'radial-gradient(circle, rgba(45, 35, 10, 0.95) 0%, rgba(10, 5, 0, 0.98) 100%)', symbol: '🛡️' },
-                    'Bruiser': { glow: '#f97316', bg: 'radial-gradient(circle, rgba(50, 20, 5, 0.95) 0%, rgba(15, 5, 0, 0.98) 100%)', symbol: '🔥' },
-                    'DPS': { glow: '#ef4444', bg: 'radial-gradient(circle, rgba(60, 10, 10, 0.95) 0%, rgba(15, 0, 0, 0.98) 100%)', symbol: '⚔️' },
-                    'Burst DPS': { glow: '#ec4899', bg: 'radial-gradient(circle, rgba(60, 10, 40, 0.95) 0%, rgba(20, 0, 10, 0.98) 100%)', symbol: '⚡' },
-                    'Healer': { glow: '#10b981', bg: 'radial-gradient(circle, rgba(10, 45, 30, 0.95) 0%, rgba(0, 10, 5, 0.98) 100%)', symbol: '✨' },
-                    'Support': { glow: '#8b5cf6', bg: 'radial-gradient(circle, rgba(35, 15, 60, 0.95) 0%, rgba(10, 0, 20, 0.98) 100%)', symbol: '🔮' },
-                    'Controller': { glow: '#06b6d4', bg: 'radial-gradient(circle, rgba(10, 40, 50, 0.95) 0%, rgba(0, 10, 15, 0.98) 100%)', symbol: '❄️' }
-                };
-                
-                // Temi specifici per ID
-                const charThemes = {
-                    48: { glow: '#38bdf8', bg: 'radial-gradient(circle, rgba(15, 23, 42, 0.96) 0%, rgba(2, 6, 23, 0.98) 100%)', symbol: '🌌' }, // Shorekeeper
-                    87: { glow: '#0ea5e9', bg: 'radial-gradient(circle, rgba(3, 45, 76, 0.96) 0%, rgba(1, 10, 25, 0.98) 100%)', symbol: '🌊' },  // Nauz Tricheco
-                    88: { glow: '#a855f7', bg: 'radial-gradient(circle, rgba(40, 10, 65, 0.96) 0%, rgba(10, 2, 20, 0.98) 100%)', symbol: '🪐' },  // Nauz Cosmic
-                    141: { glow: '#ef4444', bg: 'radial-gradient(circle, rgba(80, 5, 5, 0.96) 0%, rgba(10, 0, 0, 0.98) 100%)', symbol: '😈' },    // Dante
-                    142: { glow: '#60a5fa', bg: 'radial-gradient(circle, rgba(15, 23, 42, 0.96) 0%, rgba(3, 7, 18, 0.98) 100%)', symbol: '🌀' },   // Vergil
-                    144: { glow: '#f97316', bg: 'radial-gradient(circle, rgba(85, 25, 0, 0.96) 0%, rgba(15, 5, 0, 0.98) 100%)', symbol: '☄️' }    // Protagonista
-                };
-
-                const theme = charThemes[charId] || themes[role] || themes['DPS'];
-
-                // 1. Crea il contenitore del Cut-In cinematografico a tutto schermo
-                const cutin = document.createElement('div');
-                cutin.className = `ult-cutin-container ult-cutin-${charId}`;
-                cutin.style.setProperty('--theme-glow', theme.glow);
-                
-                cutin.innerHTML = `
-                    <div class="ult-cutin-bg" style="background: ${theme.bg};"></div>
-                    <div class="ult-cutin-particles"></div>
-                    <div class="ult-cutin-slash"></div>
-                    ${imgUrl ? `<img src="${imgUrl}" class="ult-cutin-char-img" alt="${charName}">` : ''}
-                    <div class="ult-cutin-banner">
-                        <div class="ult-cutin-char-name">${esc(charName)}</div>
-                        <div class="ult-cutin-ult-name">${esc(label)}</div>
-                    </div>
-                `;
-                
-                document.body.appendChild(cutin);
-                
-                // Generazione particelle animate
-                const partContainer = cutin.querySelector('.ult-cutin-particles');
-                if (partContainer) {
-                    for (let i = 0; i < 35; i++) {
-                        const p = document.createElement('div');
-                        p.className = 'ult-particle';
-                        p.innerText = theme.symbol;
-                        p.style.fontSize = `${Math.random() * 20 + 15}px`;
-                        p.style.left = `${Math.random() * 100}%`;
-                        p.style.top = `${Math.random() * 100}%`;
-                        p.style.setProperty('--dx', `${(Math.random() - 0.5) * 600}px`);
-                        p.style.setProperty('--dy', `${(Math.random() - 0.5) * 600}px`);
-                        p.style.animationDelay = `${Math.random() * 0.5}s`;
-                        p.style.animationDuration = `${Math.random() * 1.0 + 0.8}s`;
-                        partContainer.appendChild(p);
-                    }
-                }
-                
-                // Attiva la transizione di ingresso
-                setTimeout(() => cutin.classList.add('active'), 20);
-                
-                // Avvio dello zoom cinematografico sulla carta in background
-                arena.classList.add('fx-ultimate-bg');
-                arena.classList.add('active-cinema');
-                actorCard.classList.add('fx-ultimate-cinema');
-
-                // Riferimento al flash overlay
-                let flash = $('.fx-ultimate-flash');
-                if (!flash) {
-                    flash = document.createElement('div');
-                    flash.className = 'fx-ultimate-flash';
-                    document.body.appendChild(flash);
-                }
-
-                // Impatto cinematografico (1400ms): Flash, Terremoto, Rimozione Cut-In e Danni
-                setTimeout(() => {
-                    // Rimozione fluida del Cut-In
-                    cutin.classList.remove('active');
-                    setTimeout(() => cutin.remove(), 400);
-
-                    // Flash dello schermo ad alto impatto
-                    flash.classList.remove('flash-active');
-                    void flash.offsetWidth;
-                    flash.classList.add('flash-active');
-                    
-                    // Camera Shake violento
-                    arena.classList.add('fx-camera-shake');
-                    
-                    // Ripristino camera e telecamera
-                    actorCard.classList.remove('fx-ultimate-cinema');
-                    arena.classList.remove('active-cinema');
-                    arena.classList.remove('fx-ultimate-bg');
-                    
-                    // Mostra il banner del danno/cura
-                    showActionBanner(a, label);
-
-                    // Esecuzione effetti di danno/cura
-                    if (target && Number(a.damage) > 0) {
-                        flashCard(target, isCrit ? 'fx-crit-hit' : 'fx-hit', `-${a.damage}`, true, isCrit);
-                    } else if (target) {
-                        flashCard(target, 'fx-charge', 'UPGRADE!', false, false);
-                    }
-                }, 1400);
-                
-                // Cleanup del camera shake
-                setTimeout(() => {
-                    arena.classList.remove('fx-camera-shake');
-                    flash.classList.remove('flash-active');
-                }, 2000);
-                
-                return;
+            const actorCls=type==='special_attack'?'fx-special':type==='defend'?'fx-defend':type==='charge'?'fx-charge':type==='switch'?'fx-switch':'fx-attack';
+            const label=type==='charge'?'+ energia':type==='defend'?'difesa':type==='special_attack'?'speciale':type==='switch'?'cambio':'attacco';
+            showActionBanner(a, label);
+            if(actor) flashCard(actor,actorCls,label);
+            if(target&&Number(a.damage)>0) {
+                flashCard(target, isCrit ? 'fx-crit-hit' : 'fx-hit', `-${a.damage}`, true, isCrit);
             }
-        }
-
-        const actorCls=type==='special_attack'?'fx-special':type==='defend'?'fx-defend':type==='charge'?'fx-charge':type==='switch'?'fx-switch':'fx-attack';
-        const label=type==='charge'?'+ energia':type==='defend'?'difesa':type==='special_attack'?'speciale':type==='switch'?'cambio':'attacco';
-        showActionBanner(a, label);
-        if(actor) flashCard(actor,actorCls,label);
-        if(target&&Number(a.damage)>0) {
-            flashCard(target, isCrit ? 'fx-crit-hit' : 'fx-hit', `-${a.damage}`, true, isCrit);
-        }
-        const fx=$('#gameFx');
-        if(fx&&type==='special_attack'){
-            fx.classList.remove('is-special');void fx.offsetWidth;fx.classList.add('is-special');
-            setTimeout(()=>fx.classList.remove('is-special'),700);
-        }
+            const fx=$('#gameFx');
+            if(fx&&type==='special_attack'){
+                fx.classList.remove('is-special');void fx.offsetWidth;fx.classList.add('is-special');
+                setTimeout(()=>fx.classList.remove('is-special'),700);
+            }
+            setTimeout(resolve, 1000);
+        });
     }
 
     function injectUltimateStyles() {
