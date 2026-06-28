@@ -1330,7 +1330,7 @@
         const win = !isSpectator && Number(m.winner_id) === Number(myIdVal);
         
         // Kicker Text
-        const kickerText = m.mode==='ranked' ? gt[lang].ranked_finished : (m.mode==='bot' ? gt[lang].offline_finished : gt[lang].match_finished);
+        const kickerText = m.mode==='ranked' ? gt.ranked_finished : (m.mode==='bot' ? gt.offline_finished : gt.match_finished);
         
         // Title & Subtitle Text
         let titleText = '';
@@ -1343,11 +1343,11 @@
             titleClass = 'is-spectator';
             subtitleText = lang === 'en' ? 'Spectator Mode - Match Ended' : 'Modalità Spettatore - Partita Conclusa';
         } else {
-            titleText = win ? gt[lang].viewer_win : gt[lang].viewer_loss;
+            titleText = win ? gt.viewer_win : gt.viewer_loss;
             titleClass = win ? 'is-win' : 'is-loss';
             subtitleText = m.mode === 'bot' 
-                ? (win ? gt[lang].bot_win : gt[lang].bot_loss) 
-                : (win ? gt[lang].pvp_win : gt[lang].pvp_loss);
+                ? (win ? gt.bot_win : gt.bot_loss) 
+                : (win ? gt.pvp_win : gt.pvp_loss);
         }
 
         // Ranked Feedback Box
@@ -1357,12 +1357,12 @@
             rankedFeedbackHtml = `
                 <div class="game-ranked-feedback" id="rankedFeedback">
                     <div class="${rr.viewer_delta>=0?'is-plus':'is-minus'}">
-                        <strong>${gt[lang].you}</strong>
+                        <strong>${gt.you}</strong>
                         <b>${rr.viewer_delta>=0?'+':''}${rr.viewer_delta}</b>
                         ${rankBadge(rr.viewer_rank_after)}
                     </div>
                     <div class="${rr.opponent_delta>=0?'is-plus':'is-minus'}">
-                        <strong>${gt[lang].opponent}</strong>
+                        <strong>${gt.opponent}</strong>
                         <b>${rr.opponent_delta>=0?'+':''}${rr.opponent_delta}</b>
                         ${rankBadge(rr.opponent_rank_after)}
                     </div>
@@ -1597,7 +1597,7 @@
 
         modal.hidden = false;
     }
-    async function forfeit(){const lang=window.location.pathname.includes('/en/')?'en':'it';if(!state.matchId){window.location.href=`/${lang}/game/lobby.php`;return} if(!confirm(gt[lang].forfeit_confirm))return; try{await api('/api/game/forfeit_match.php',{match_id:state.matchId}); window.location.href=`/${lang}/game/lobby.php`}catch(e){showToast(e.message)}}
+    async function forfeit(){const lang=window.location.pathname.includes('/en/')?'en':'it';if(!state.matchId){window.location.href=`/${lang}/game/lobby.php`;return} if(!confirm(gt.forfeit_confirm))return; try{await api('/api/game/forfeit_match.php',{match_id:state.matchId}); window.location.href=`/${lang}/game/lobby.php`}catch(e){showToast(e.message)}}
 
     function bindCommon(){ $$('[data-action="find-match"]').forEach(b=>b.addEventListener('click',()=>findMatch(b.dataset.mode||'casual'))); $('[data-action="create-bot"]')?.addEventListener('click',createBotMatch); $('[data-action="create-private"]')?.addEventListener('click',createPrivate); $('[data-action="join-code"]')?.addEventListener('click',joinCode); $('[data-action="active-match"]')?.addEventListener('click',activeMatch); $('[data-action="load-ranking"]')?.addEventListener('click',loadRanking); $('[data-action="load-live"]')?.addEventListener('click',loadLiveMatches); $$('[data-action="forfeit"]').forEach(b=>b.addEventListener('click',forfeit)); }
     document.addEventListener('DOMContentLoaded',()=>{bindCommon(); if(page==='duel-lobby'){loadProfile();loadRanking();loadLiveMatches();setInterval(loadRanking,30000);setInterval(loadLiveMatches,10000)} if(page==='duel-arena'){if(!state.matchId){showToast(gt.match_missing);return} $('#cardSearch')?.addEventListener('input',renderInventory); $('[data-action="submit-team"]')?.addEventListener('click',submitTeam); $$('[data-battle-action]').forEach(b=>b.addEventListener('click',()=>submitBattle(b.dataset.battleAction))); $('#chatForm')?.addEventListener('submit',(e)=>{e.preventDefault();sendChat();}); $$('[data-reaction]').forEach(b=>b.addEventListener('click',()=>sendReaction(b.dataset.reaction))); startPolling();
