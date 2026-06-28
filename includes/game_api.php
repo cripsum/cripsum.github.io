@@ -239,11 +239,8 @@ function gd_api_action(mysqli $mysqli): void {
 
         if (gd_is_bot_match($match)) {
             $bot = gd_bot_id();
-            // Incrementa il turn_number poiché il turno è passato al bot
-            $q = $mysqli->prepare('UPDATE game_matches SET turn_number=turn_number+1, updated_at=NOW() WHERE id=? AND current_turn_user_id=?');
-            $q->bind_param('ii', $mid, $bot);
-            $q->execute();
-            $q->close();
+            // Incrementa il turn_number poiché il giocatore ha agito
+            $mysqli->query("UPDATE game_matches SET turn_number=turn_number+1, updated_at=NOW() WHERE id={$mid}");
 
             // Ciclo per far agire il bot (gestisce anche turni extra del bot)
             while (true) {
@@ -255,19 +252,17 @@ function gd_api_action(mysqli $mysqli): void {
                 if (!$botRes['acted']) {
                     break;
                 }
-                // Se il bot ha ancora il turno (es. turno extra), incrementiamo il turn_number per il prossimo turno del bot
-                $botMatch2 = gd_match($mysqli, $mid);
-                if ($botMatch2 && (int)$botMatch2['current_turn_user_id'] === $bot && $botMatch2['status'] === 'active') {
-                    $mysqli->query("UPDATE game_matches SET turn_number=turn_number+1, updated_at=NOW() WHERE id={$mid}");
-                }
+                // Se il bot ha agito, incrementiamo il turn_number per il turno del bot
+                $mysqli->query("UPDATE game_matches SET turn_number=turn_number+1, updated_at=NOW() WHERE id={$mid}");
             }
 
             $mysqli->commit();
             gd_ok(['finished'=>false,'message'=>'Azione inviata.']);
         }
 
-        $q = $mysqli->prepare('UPDATE game_matches SET current_turn_user_id=?, turn_number=turn_number+1, updated_at=NOW() WHERE id=?');
-        $q->bind_param('ii', $opp, $mid);
+        // Se è PVP, incrementiamo solo il turn_number (il turn_user è già stato deciso da gd_apply_battle_action)
+        $q = $mysqli->prepare('UPDATE game_matches SET turn_number=turn_number+1, updated_at=NOW() WHERE id=?');
+        $q->bind_param('i', $mid);
         $q->execute();
         $q->close();
         $mysqli->commit();

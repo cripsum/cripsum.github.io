@@ -1901,7 +1901,8 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                         if ((int)$ally['user_id'] === $uid && !(int)$ally['is_ko']) {
                             $heal_val = (int)round($ally['max_hp'] * 0.40);
                             $new_hp = min((int)$ally['max_hp'], (int)$ally['current_hp'] + $heal_val);
-                            $new_energy = min((int)$ally['max_energy'], (int)$ally['energy'] + 3);
+                            $current_en = ((int)$ally['id'] === $actorId) ? 0 : (int)$ally['energy'];
+                            $new_energy = min((int)$ally['max_energy'], $current_en + 3);
                             $m->query("UPDATE game_match_cards SET current_hp={$new_hp}, energy={$new_energy} WHERE id={$ally['id']}");
                         }
                     }
@@ -2040,7 +2041,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
 
                         $stolen_en = min(3, (int)$t['energy']);
                         $new_t_en = max(0, (int)$t['energy'] - $stolen_en);
-                        $new_a_en = min((int)$actor['max_energy'], (int)$actor['energy'] + $stolen_en);
+                        $new_a_en = min((int)$actor['max_energy'], $stolen_en);
 
                         $new_hp = min((int)$actor['max_hp'], (int)$actor['current_hp'] + $dmg);
 
@@ -2061,7 +2062,8 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                         if ((int)$ally['user_id'] === $uid && !(int)$ally['is_ko']) {
                             $heal_val = (int)round($ally['max_hp'] * 0.45);
                             $new_hp = min((int)$ally['max_hp'], (int)$ally['current_hp'] + $heal_val);
-                            $new_energy = min((int)$ally['max_energy'], (int)$ally['energy'] + 3);
+                            $current_en = ((int)$ally['id'] === $actorId) ? 0 : (int)$ally['energy'];
+                            $new_energy = min((int)$ally['max_energy'], $current_en + 3);
 
                             $ally_effs = is_array($ally['status_effects']) ? $ally['status_effects'] : json_decode($ally['status_effects'] ?: '[]', true);
                             $ally_effs[] = ['type' => 'buff_atk', 'value' => 40, 'duration' => 3, 'name' => 'Attacco +40%'];
@@ -2460,7 +2462,8 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                             $ally_effs[] = ['type' => 'buff_atk', 'value' => 40, 'duration' => 3, 'name' => 'Attacco +40%'];
                             $ally_effs[] = ['type' => 'buff_spd', 'value' => 30, 'duration' => 3, 'name' => 'Velocità +30%'];
 
-                            $new_energy = min((int)$ally['max_energy'], (int)$ally['energy'] + 3);
+                            $current_en = ((int)$ally['id'] === $actorId) ? 0 : (int)$ally['energy'];
+                            $new_energy = min((int)$ally['max_energy'], $current_en + 3);
                             $m->query("UPDATE game_match_cards SET energy={$new_energy}, status_effects='" . $m->escape_string(json_encode(array_values($ally_effs))) . "' WHERE id={$ally['id']}");
                         }
                     }
@@ -2530,8 +2533,8 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                         if ((int)$ally['user_id'] === $uid && !(int)$ally['is_ko']) {
                             $heal = (int)round($ally['max_hp'] * 0.25);
                             $new_hp = min((int)$ally['max_hp'], (int)$ally['current_hp'] + $heal);
-                            $new_energy = min((int)$ally['max_energy'], (int)$ally['energy'] + 2);
-
+                            $current_en = ((int)$ally['id'] === $actorId) ? $en : (int)$ally['energy'];
+                            $new_energy = min((int)$ally['max_energy'], $current_en + 2);
                             $m->query("UPDATE game_match_cards SET current_hp={$new_hp}, energy={$new_energy} WHERE id={$ally['id']}");
                         }
                     }
@@ -2631,7 +2634,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                 $stolen_en = min(1, (int)$t['energy']);
                 if ($stolen_en > 0) {
                     $new_t_en = max(0, (int)$t['energy'] - 1);
-                    $new_a_en = min((int)$actor['max_energy'], (int)$actor['energy'] + 1);
+                    $new_a_en = min((int)$actor['max_energy'], (int)$actor['energy'] + 1 + $stolen_en);
                     $m->query("UPDATE game_match_cards SET energy={$new_t_en} WHERE id={$target}");
                     $m->query("UPDATE game_match_cards SET energy={$new_a_en} WHERE id={$actorId}");
                     $msg .= " **[Sussidio]** Ruba 1 Energia a {$target_name}!";
@@ -2876,7 +2879,6 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
 
     if ($double_turn_active && gd_alive_count($m, $mid, $uid) > 0) {
         gd_log($m, $mid, $uid, $turn, 'system', $actorId, null, 0, "{$char_name} agisce di nuovo grazie al turno extra!");
-        $m->query("UPDATE game_matches SET turn_number=turn_number+1, updated_at=NOW() WHERE id={$mid}");
     } else {
         $updated_match = gd_match($m, $mid);
         gd_transition_turn($m, $updated_match, $opp);

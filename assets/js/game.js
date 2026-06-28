@@ -664,7 +664,17 @@
         `;
     }
     function renderTeam(sel,cards,mine){const el=$(sel); if(!el)return; el.innerHTML=cards.map(c=>{const ch=c.character||{}; const lvlVal = c.livello || c.level || 1; const lvlText = lvlVal === 6 ? 'MAX' : lvlVal; return `<button class="game-mini-card ${Number(c.is_active)?'is-active':''} ${Number(c.is_ko)?'is-ko':''}" data-card-id="${c.id}" type="button" ${mine&&!Number(c.is_ko)&&!Number(c.is_active)?'':'disabled'}>${cardImg(ch.img_url,ch.nome)}<strong>${esc(ch.nome||'Carta')} <small style="color:var(--inv-gold);font-weight:normal;">Lv.${lvlText}</small></strong><small>${c.current_hp}/${c.max_hp} HP</small></button>`}).join(''); if(mine && state.match?.viewer_role !== 'spectator')$$('.game-mini-card',el).forEach(btn=>btn.addEventListener('click',()=>submitBattle('switch',Number(btn.dataset.cardId))))}
-    function renderLog(actions){const log=$('#battleLog'); if(!log)return; if(!actions.length){log.innerHTML='<p class="game-hint">' + gt.log_empty + '</p>';return} log.innerHTML=actions.map(a=>`<div class="game-log-row"><strong>T${a.turn_number}</strong> ${esc(a.message)} ${Number(a.damage)>0?`· ${a.damage} ${lang === 'en' ? 'damage' : 'danni'}`:''}</div>`).join(''); log.scrollTop=log.scrollHeight;}
+    function renderLog(actions){
+        const log=$('#battleLog');
+        if(!log)return;
+        if(!actions.length){log.innerHTML='<p class="game-hint">' + gt.log_empty + '</p>';return}
+        const isAtBottom = (!log.dataset.initialized) || (log.scrollHeight - log.clientHeight - log.scrollTop < 40);
+        log.innerHTML=actions.map(a=>`<div class="game-log-row"><strong>T${a.turn_number}</strong> ${esc(a.message)} ${Number(a.damage)>0?`· ${a.damage} ${lang === 'en' ? 'damage' : 'danni'}`:''}</div>`).join('');
+        if(isAtBottom){
+            log.scrollTop=log.scrollHeight;
+        }
+        log.dataset.initialized = 'true';
+    }
     
     function renderChat(messages){
         const wrap = $('#chatMessages');
@@ -674,6 +684,8 @@
             wrap.innerHTML = '<p class="game-hint">' + (lang === 'en' ? 'No messages.' : 'Nessun messaggio.') + '</p>';
             return;
         }
+
+        const isAtBottom = (!wrap.dataset.initialized) || (wrap.scrollHeight - wrap.clientHeight - wrap.scrollTop < 40);
 
         wrap.innerHTML = messages.map(m => {
             const mine = Number(m.user_id) === Number(myId());
@@ -685,9 +697,12 @@
 
         const newest = messages.length ? Number(messages[messages.length - 1].id) : 0;
         if (newest > state.lastChatId) {
-            wrap.scrollTop = wrap.scrollHeight;
+            if (isAtBottom) {
+                wrap.scrollTop = wrap.scrollHeight;
+            }
             state.lastChatId = newest;
         }
+        wrap.dataset.initialized = 'true';
     }
 
     
