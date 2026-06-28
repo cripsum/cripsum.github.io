@@ -2342,3 +2342,163 @@ body.inv-page .rarity-section.rarity-segreto_limited .rarity-title strong::after
     border-color: rgba(251, 191, 36, 0.8) !important;
 }
 
+/* --- MAX LEVEL GOLD BORDER & GLOW --- */
+.character-card.is-max-level {
+    border: 2px solid var(--inv-gold) !important;
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.4), var(--inv-shadow) !important;
+    animation: goldGlowPulse 2.5s infinite alternate ease-in-out;
+}
+
+@keyframes goldGlowPulse {
+    0% {
+        box-shadow: 0 0 8px rgba(251, 191, 36, 0.25), var(--inv-shadow);
+        border-color: rgba(251, 191, 36, 0.65);
+    }
+    100% {
+        box-shadow: 0 0 20px rgba(251, 191, 36, 0.55), var(--inv-shadow);
+        border-color: rgba(251, 191, 36, 1);
+    }
+}
+
+/* --- ANIMAZIONE POTENZIAMENTO LIVELLO --- */
+.level-up-text {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    color: var(--inv-gold);
+    font-size: 2.75rem;
+    font-weight: 900;
+    text-shadow: 0 0 20px rgba(251, 191, 36, 0.9), 0 0 40px rgba(251, 191, 36, 0.5);
+    letter-spacing: 2px;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0;
+    animation: levelUpTextAnim 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes levelUpTextAnim {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.3);
+    }
+    35% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.15);
+    }
+    45% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    75% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -20%) scale(0.75);
+    }
+}
+
+/* Sweeping Light effect on Upgrade */
+.modal-character__image {
+    position: relative;
+    overflow: hidden;
+}
+
+.modal-character__image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 30%, rgba(255, 255, 255, 0.45) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: none;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.level-up-animating .modal-character__image::after {
+    animation: sweepLight 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes sweepLight {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.level-up-animating .modal-character__image img {
+    animation: cardUpgradeShake 0.8s ease-in-out;
+}
+
+@keyframes cardUpgradeShake {
+    0% { transform: scale(1); }
+    15% { transform: scale(0.92) rotate(-2deg); }
+    30% { transform: scale(1.08) rotate(2deg); }
+    45% { transform: scale(1.12) rotate(-2deg); }
+    60% { transform: scale(1.08) rotate(2deg); }
+    75% { transform: scale(1.03) rotate(-1deg); }
+    100% { transform: scale(1) rotate(0); }
+}
+
+/* --- POPUP DI CONFERMA PERSONALIZZATO --- */
+.inv-modal__panel--confirm {
+    max-width: 420px;
+    margin: auto;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(10, 14, 27, 0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 20px;
+    padding: 1.75rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    position: relative;
+    z-index: 2000;
+}
+
+.confirm-upgrade-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.confirm-upgrade-icon {
+    font-size: 2.5rem;
+    color: var(--inv-accent);
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 0 10px rgba(47, 107, 255, 0.4));
+    animation: pulseIcon 2s infinite alternate ease-in-out;
+}
+
+@keyframes pulseIcon {
+    0% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(47, 107, 255, 0.3)); }
+    100% { transform: scale(1.08); filter: drop-shadow(0 0 15px rgba(47, 107, 255, 0.6)); }
+}
+
+.confirm-upgrade-content h3 {
+    margin: 0 0 0.75rem;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--inv-text);
+}
+
+.confirm-upgrade-content p {
+    font-size: 0.95rem;
+    color: var(--inv-muted);
+    line-height: 1.5;
+    margin: 0 0 1.5rem;
+}
+
+.confirm-upgrade-content p strong {
+    color: var(--inv-text);
+}
+
+.confirm-upgrade-actions {
+    display: flex;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.confirm-upgrade-actions button {
+    flex: 1;
+}
+

@@ -375,7 +375,7 @@
         const displayName = entry.owned ? entry.name : t.unknown;
 
         return `
-            <article class="character-card rarity-${escapeHtml(entry.rarity)}${isSecretLimited(entry) ? ' rarity-segreto_limited' : ''} ${entry.owned ? 'is-owned' : 'is-missing'}"
+            <article class="character-card rarity-${escapeHtml(entry.rarity)}${isSecretLimited(entry) ? ' rarity-segreto_limited' : ''} ${entry.owned ? 'is-owned' : 'is-missing'} ${entry.owned && entry.level === 6 ? 'is-max-level' : ''}"
                      data-character-id="${entry.id}"
                      ${entry.owned ? 'tabindex="0" role="button"' : ''}
                      aria-label="${entry.owned ? escapeHtml(t.open_character(entry.name)) : t.not_found}">
@@ -462,6 +462,55 @@
         $$('.character-card.is-missing', container).forEach((card, index) => {
             window.setTimeout(() => card.classList.add('is-visible'), index * 18);
         });
+    };
+
+    const confirmTexts = {
+        it: {
+            title: "Conferma Potenziamento",
+            cancel: "Annulla",
+            confirm: "Potenzia",
+            confirmMsg: (copies, name, nextLvl) => `Sei sicuro di voler consumare <strong>${copies}</strong> di <strong>${name}</strong> per potenziarlo al livello <strong>${nextLvl}</strong>?`
+        },
+        en: {
+            title: "Confirm Upgrade",
+            cancel: "Cancel",
+            confirm: "Upgrade",
+            confirmMsg: (copies, name, nextLvl) => `Are you sure you want to consume <strong>${copies}</strong> of <strong>${name}</strong> to upgrade them to level <strong>${nextLvl}</strong>?`
+        }
+    }[lang] || {
+        title: "Conferma Potenziamento",
+        cancel: "Annulla",
+        confirm: "Potenzia",
+        confirmMsg: (copies, name, nextLvl) => `Sei sicuro di voler consumare <strong>${copies}</strong> di <strong>${name}</strong> per potenziarlo al livello <strong>${nextLvl}</strong>?`
+    };
+
+    const showCustomConfirm = (message, onConfirm) => {
+        const modal = $('#confirmUpgradeModal');
+        const text = $('#confirmUpgradeText');
+        const btnCancel = $('#btnCancelUpgrade');
+        const btnConfirm = $('#btnConfirmUpgrade');
+        const backdrop = $('#closeConfirmUpgrade');
+
+        if (!modal || !text || !btnConfirm || !btnCancel) return;
+
+        text.innerHTML = message;
+        modal.hidden = false;
+
+        const cleanup = () => {
+            modal.hidden = true;
+            btnConfirm.removeEventListener('click', handleConfirm);
+            btnCancel.removeEventListener('click', cleanup);
+            if (backdrop) backdrop.removeEventListener('click', cleanup);
+        };
+
+        const handleConfirm = () => {
+            onConfirm();
+            cleanup();
+        };
+
+        btnConfirm.addEventListener('click', handleConfirm);
+        btnCancel.addEventListener('click', cleanup);
+        if (backdrop) backdrop.addEventListener('click', cleanup);
     };
 
     const openCharacterModal = (entry) => {
@@ -592,9 +641,12 @@
 
         const btnUpgrade = $('#btnUpgradeCharacter');
         if (btnUpgrade) {
-            btnUpgrade.addEventListener('click', async () => {
-                const copiesText = entry.required_next === 1 ? '1 copia' : `${entry.required_next} copie`;
-                if (confirm(`Sei sicuro di voler consumare ${copiesText} di ${entry.name} per potenziarlo al livello ${entry.level + 1 === 6 ? 'MAX' : entry.level + 1}?`)) {
+            btnUpgrade.addEventListener('click', () => {
+                const copiesText = entry.required_next === 1 ? (lang === 'en' ? '1 copy' : '1 copia') : `${entry.required_next} ${lang === 'en' ? 'copies' : 'copie'}`;
+                const nextLvlText = entry.level + 1 === 6 ? 'MAX' : entry.level + 1;
+                const message = confirmTexts.confirmMsg(copiesText, entry.name, nextLvlText);
+                
+                showCustomConfirm(message, async () => {
                     btnUpgrade.disabled = true;
                     try {
                         const res = await fetch('/api/game/upgrade_character.php', {
@@ -607,7 +659,16 @@
                             const panel = $('.inv-modal__panel');
                             if (panel) {
                                 panel.classList.add('level-up-animating');
-                                setTimeout(() => panel.classList.remove('level-up-animating'), 1200);
+                                
+                                const lvlUpTxt = document.createElement('div');
+                                lvlUpTxt.className = 'level-up-text';
+                                lvlUpTxt.textContent = 'LEVEL UP!';
+                                panel.appendChild(lvlUpTxt);
+                                
+                                setTimeout(() => {
+                                    panel.classList.remove('level-up-animating');
+                                    lvlUpTxt.remove();
+                                }, 1200);
                             }
                             
                             await loadInventory();
@@ -626,7 +687,7 @@
                         alert('Errore durante il potenziamento: ' + e.message);
                         btnUpgrade.disabled = false;
                     }
-                }
+                });
             });
         }
 
@@ -809,6 +870,24 @@
     };
 
     document.addEventListener('DOMContentLoaded', () => {
+        const confirmModalHtml = `
+            <div class="inv-modal" id="confirmUpgradeModal" hidden>
+                <div class="inv-modal__backdrop" id="closeConfirmUpgrade"></div>
+                <article class="inv-modal__panel inv-modal__panel--confirm" role="dialog">
+                    <div class="confirm-upgrade-content">
+                        <div class="confirm-upgrade-icon"><i class="fa-solid fa-circle-question"></i></div>
+                        <h3>${confirmTexts.title}</h3>
+                        <p id="confirmUpgradeText"></p>
+                        <div class="confirm-upgrade-actions">
+                            <button type="button" class="inv-btn inv-btn--soft" id="btnCancelUpgrade">${confirmTexts.cancel}</button>
+                            <button type="button" class="inv-btn inv-btn--primary" id="btnConfirmUpgrade">${confirmTexts.confirm}</button>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', confirmModalHtml);
+
         document.body.classList.add('rarity-animations-ready');
         initNavbarDropdownFallback();
         initReveal();
