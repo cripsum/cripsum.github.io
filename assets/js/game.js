@@ -539,10 +539,22 @@
             const actorCard = actor ? document.querySelector(`[data-card-id="${actor}"].game-active-card`) : null;
             
             if (arena && actorCard) {
+                // Trova l'ID del personaggio per iniettare l'overlay dedicato
+                const cardObj = state.match && state.match.cards
+                    ? state.match.cards.find(c => Number(c.id) === actor)
+                    : null;
+                const charId = cardObj ? Number(cardObj.personaggio_id) : 0;
+
                 // Avvio Regia Cinematografica: Zoom + Oscuramento Sfondo
                 arena.classList.add('fx-ultimate-bg');
                 arena.classList.add('active-cinema');
                 actorCard.classList.add('fx-ultimate-cinema');
+                
+                // Crea overlay animato unico per il personaggio
+                const overlay = document.createElement('div');
+                overlay.className = `ult-overlay ult-overlay-${charId}`;
+                arena.appendChild(overlay);
+                setTimeout(() => overlay.remove(), 1500);
                 
                 // Overlay Flash
                 let flash = $('.fx-ultimate-flash');

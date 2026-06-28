@@ -19,8 +19,8 @@ if (!isLoggedIn()) {
     <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ Duel - Lobby</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/css/game.css?v=2.9-ultimate-alignment">
-    <script src="/assets/js/game.js?v=2.9-ultimate-alignment" defer></script>
+    <link rel="stylesheet" href="/assets/css/game.css?v=3.0-cinematic-ultimates">
+    <script src="/assets/js/game.js?v=3.0-cinematic-ultimates" defer></script>
 </head>
 
 <body class="game-page" data-page="duel-lobby">
