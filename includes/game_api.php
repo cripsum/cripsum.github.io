@@ -186,6 +186,20 @@ function gd_api_select_team(mysqli $mysqli): void {
         $mysqli->commit();
 
         gd_start_if_ready($mysqli, $mid);
+
+        if ($isBot) {
+            while (true) {
+                $botMatch = gd_match($mysqli, $mid);
+                if (!$botMatch || $botMatch['status'] !== 'active' || (int)$botMatch['current_turn_user_id'] !== gd_bot_id()) {
+                    break;
+                }
+                $botRes = gd_bot_take_turn($mysqli, $botMatch);
+                if (!$botRes['acted']) {
+                    break;
+                }
+            }
+        }
+
         gd_ok(['message' => $isBot ? 'Team scelto. Il bot è pronto.' : 'Team scelto.']);
     } catch(Throwable $e) {
         $mysqli->rollback();
@@ -225,19 +239,27 @@ function gd_api_action(mysqli $mysqli): void {
 
         if (gd_is_bot_match($match)) {
             $bot = gd_bot_id();
-            $q = $mysqli->prepare('UPDATE game_matches SET current_turn_user_id=?, turn_number=turn_number+1, updated_at=NOW() WHERE id=?');
-            $q->bind_param('ii', $bot, $mid);
+            // Incrementa il turn_number poiché il turno è passato al bot
+            $q = $mysqli->prepare('UPDATE game_matches SET turn_number=turn_number+1, updated_at=NOW() WHERE id=? AND current_turn_user_id=?');
+            $q->bind_param('ii', $mid, $bot);
             $q->execute();
             $q->close();
 
-            $st = $mysqli->prepare('SELECT * FROM game_matches WHERE id=? LIMIT 1 FOR UPDATE');
-            $st->bind_param('i', $mid);
-            $st->execute();
-            $botMatch = $st->get_result()->fetch_assoc();
-            $st->close();
-
-            if ($botMatch && $botMatch['status'] === 'active') {
-                gd_bot_take_turn($mysqli, $botMatch);
+            // Ciclo per far agire il bot (gestisce anche turni extra del bot)
+            while (true) {
+                $botMatch = gd_match($mysqli, $mid);
+                if (!$botMatch || $botMatch['status'] !== 'active' || (int)$botMatch['current_turn_user_id'] !== $bot) {
+                    break;
+                }
+                $botRes = gd_bot_take_turn($mysqli, $botMatch);
+                if (!$botRes['acted']) {
+                    break;
+                }
+                // Se il bot ha ancora il turno (es. turno extra), incrementiamo il turn_number per il prossimo turno del bot
+                $botMatch2 = gd_match($mysqli, $mid);
+                if ($botMatch2 && (int)$botMatch2['current_turn_user_id'] === $bot && $botMatch2['status'] === 'active') {
+                    $mysqli->query("UPDATE game_matches SET turn_number=turn_number+1, updated_at=NOW() WHERE id={$mid}");
+                }
             }
 
             $mysqli->commit();
@@ -323,8 +345,6 @@ function gd_api_live_matches(mysqli $mysqli): void {
           AND m.mode <> 'bot'
           AND m.player2_id IS NOT NULL
           AND m.spectator_allowed = 1
-          AND m.player1_id <> ?
-          AND (m.player2_id IS NULL OR m.player2_id <> ?)
         ORDER BY m.updated_at DESC
         LIMIT 12
     ";
@@ -334,7 +354,6 @@ function gd_api_live_matches(mysqli $mysqli): void {
         gd_fail('Query partite live non valida.', 500);
     }
 
-    $st->bind_param('ii', $uid, $uid);
     $st->execute();
     $res = $st->get_result();
     $matches = [];

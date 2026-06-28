@@ -24,7 +24,7 @@
     function rankIcon(rank){const key=typeof rank==='string'?rank:(rank?.key||''); const icons={bronzo:'fa-shield',argento:'fa-medal',oro:'fa-crown',diamante:'fa-gem',campione:'fa-trophy',leggenda:'fa-dragon'}; return icons[key]||'fa-shield';}
     function rankBadge(rank){if(!rank)return'';return `<span class="game-rank-badge" data-rank="${esc(rank.key)}"><i class="fa-solid ${rankIcon(rank)}"></i>${esc(rank.label)}</span>`}
     function playerTitle(player,fallback='Player'){return `${esc(player?.username||fallback)} ${rankBadge(player?.rank)}`;}
-    function goArena(matchId){window.location.href=`/it/game/arena.php?match_id=${encodeURIComponent(matchId)}`;}
+    function goArena(matchId){const lang=window.location.pathname.includes('/en/')?'en':'it';window.location.href=`/${lang}/game/arena.php?match_id=${encodeURIComponent(matchId)}`;}
     function modeLabel(mode){return mode==='ranked'?'Ranked':mode==='bot'?'Offline vs Bot':'Partita';}
 
     async function loadProfile(){const box=$('#profileSummary'); if(!box)return; try{const d=await api('/api/game/profile_summary.php',{},'GET'); const u=d.profile.user, inv=d.profile.inventory; box.innerHTML=`<div class="game-profile-top"><img src="${esc(u.pfp_url)}" alt="${esc(u.username)}" onerror="this.src='/img/Susremaster.png'"><div><strong>${esc(u.username)} ${rankBadge(u.rank)}</strong></div></div><div class="game-profile-stats"><div><b>${u.rating}</b><small>Punti ranked</small></div><div><b>${inv.unique}</b><small>Personaggi</small></div><div><b>${u.wins}/${u.losses}</b><small>W/L</small></div></div>`}catch(e){box.innerHTML='<p class="game-hint">Profilo non caricato.</p>'}}
@@ -43,8 +43,9 @@
                 return;
             }
 
+            const lang = window.location.pathname.includes('/en/') ? 'en' : 'it';
             wrap.innerHTML = rows.map(m => `
-                <a class="game-live-row" href="/it/game/arena.php?match_id=${encodeURIComponent(m.id)}">
+                <a class="game-live-row" href="/${lang}/game/arena.php?match_id=${encodeURIComponent(m.id)}">
                     <div>
                         <strong>${esc(m.player1)} vs ${esc(m.player2)}</strong>
                         <span>${esc(m.mode)} · turno ${m.turn_number}</span>
@@ -417,7 +418,7 @@
         });
     }
     function showResult(){if(state.resultShown)return; state.resultShown=true; const m=state.match, modal=$('#resultModal'); if(!modal)return; const win=Number(m.winner_id)===Number(myId()); $('#resultKicker').textContent=m.mode==='ranked'?'Ranked conclusa':(m.mode==='bot'?'Offline conclusa':'Partita conclusa'); $('#resultTitle').textContent=win?'Hai vinto':'Hai perso'; $('#resultText').textContent=m.mode==='bot'?(win?'Hai battuto il bot.':'Il bot ti ha mandato KO.'):(win?'Team avversario KO.':'Il tuo team è andato KO.'); const box=$('#rankedFeedback'); if(m.mode==='ranked'&&m.ranked_result&&box){const rr=m.ranked_result; box.hidden=false; box.innerHTML=`<div class="${rr.viewer_delta>=0?'is-plus':'is-minus'}"><strong>Tu</strong><b>${rr.viewer_delta>=0?'+':''}${rr.viewer_delta}</b>${rankBadge(rr.viewer_rank_after)}</div><div class="${rr.opponent_delta>=0?'is-plus':'is-minus'}"><strong>Avversario</strong><b>${rr.opponent_delta>=0?'+':''}${rr.opponent_delta}</b>${rankBadge(rr.opponent_rank_after)}</div>`} modal.hidden=false;}
-    async function forfeit(){if(!state.matchId){window.location.href='/it/game/lobby.php';return} if(!confirm('Vuoi abbandonare?'))return; try{await api('/api/game/forfeit_match.php',{match_id:state.matchId}); window.location.href='/it/game/lobby.php'}catch(e){showToast(e.message)}}
+    async function forfeit(){const lang=window.location.pathname.includes('/en/')?'en':'it';if(!state.matchId){window.location.href=`/${lang}/game/lobby.php`;return} if(!confirm('Vuoi abbandonare?'))return; try{await api('/api/game/forfeit_match.php',{match_id:state.matchId}); window.location.href=`/${lang}/game/lobby.php`}catch(e){showToast(e.message)}}
 
     function bindCommon(){ $$('[data-action="find-match"]').forEach(b=>b.addEventListener('click',()=>findMatch(b.dataset.mode||'casual'))); $('[data-action="create-bot"]')?.addEventListener('click',createBotMatch); $('[data-action="create-private"]')?.addEventListener('click',createPrivate); $('[data-action="join-code"]')?.addEventListener('click',joinCode); $('[data-action="active-match"]')?.addEventListener('click',activeMatch); $('[data-action="load-ranking"]')?.addEventListener('click',loadRanking); $('[data-action="load-live"]')?.addEventListener('click',loadLiveMatches); $$('[data-action="forfeit"]').forEach(b=>b.addEventListener('click',forfeit)); }
     document.addEventListener('DOMContentLoaded',()=>{bindCommon(); if(page==='duel-lobby'){loadProfile();loadRanking();loadLiveMatches();setInterval(loadRanking,30000);setInterval(loadLiveMatches,10000)} if(page==='duel-arena'){if(!state.matchId){showToast('Match mancante');return} $('#cardSearch')?.addEventListener('input',renderInventory); $('[data-action="submit-team"]')?.addEventListener('click',submitTeam); $$('[data-battle-action]').forEach(b=>b.addEventListener('click',()=>submitBattle(b.dataset.battleAction))); $('#chatForm')?.addEventListener('submit',(e)=>{e.preventDefault();sendChat();}); $$('[data-reaction]').forEach(b=>b.addEventListener('click',()=>sendReaction(b.dataset.reaction))); startPolling();}});
