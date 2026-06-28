@@ -3309,3 +3309,95 @@ body.game-page .dropdown-menu button:focus { color: #fff !important; background:
     pointer-events: none;
 }
 
+/* Post-Game Recap Enhancements */
+.game-result-modal {
+    animation: fadeInModal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInModal {
+    from { background: rgba(0, 0, 0, 0); }
+    to { background: rgba(0, 0, 0, 0.75); }
+}
+
+.game-result-modal .game-result-card {
+    transform: scale(0.92) translateY(40px);
+    opacity: 0;
+    animation: slideUpScaleModal 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s forwards;
+    transition: box-shadow 0.3s, border-color 0.3s;
+}
+
+@keyframes slideUpScaleModal {
+    to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* Outcome Border & Glow Effects */
+.game-result-card.outcome-win {
+    border: 1px solid rgba(16, 185, 129, 0.35) !important;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.65), 0 0 40px rgba(16, 185, 129, 0.15) !important;
+}
+
+.game-result-card.outcome-loss {
+    border: 1px solid rgba(239, 68, 68, 0.35) !important;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.65), 0 0 40px rgba(239, 68, 68, 0.15) !important;
+}
+
+.game-result-card.outcome-spectator {
+    border: 1px solid rgba(56, 189, 248, 0.35) !important;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.65), 0 0 40px rgba(56, 189, 248, 0.15) !important;
+}
+
+/* Custom Scrollbars */
+.game-recap-content::-webkit-scrollbar,
+.recap-log-wrapper::-webkit-scrollbar {
+    width: 6px;
+}
+
+.game-recap-content::-webkit-scrollbar-track,
+.recap-log-wrapper::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 999px;
+}
+
+.game-recap-content::-webkit-scrollbar-thumb,
+.recap-log-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 999px;
+}
+
+.game-recap-content::-webkit-scrollbar-thumb:hover,
+.recap-log-wrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Prevents Crown Clipping */
+.game-recap-content {
+    padding-top: 18px !important;
+}
+
+/* MVP Portrait contain fix */
+.mvp-portrait {
+    object-fit: contain !important;
+    background: rgba(0, 0, 0, 0.25);
+}
+
+/* MVP Crown Float Animation */
+.mvp-badge {
+    animation: floatingCrown 3s ease-in-out infinite;
+}
+
+@keyframes floatingCrown {
+    0%, 100% { transform: translate(-50%, 0px); }
+    50% { transform: translate(-50%, -5px); }
+}
+
+/* Tab Pane Fade-In */
+.recap-tab-pane {
+    animation: paneFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes paneFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+

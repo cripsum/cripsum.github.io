@@ -20,8 +20,8 @@ $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
     <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ Duel - Game</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/css/game.css?v=5.8">
-    <script src="/assets/js/game.js?v=5.8" defer></script>
+    <link rel="stylesheet" href="/assets/css/game.css?v=5.9">
+    <script src="/assets/js/game.js?v=5.9" defer></script>
 </head>
 <body class="game-page" data-page="duel-arena" data-match-id="<?php echo htmlspecialchars((string)$matchId, ENT_QUOTES, 'UTF-8'); ?>">
     <?php include '../../includes/navbar.php'; ?>

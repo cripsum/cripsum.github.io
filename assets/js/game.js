@@ -1336,18 +1336,21 @@
         let titleText = '';
         let titleClass = '';
         let subtitleText = '';
+        let cardOutcomeClass = '';
         
         if (isSpectator) {
             const winnerUser = Number(m.winner_id) === Number(m.player1_id) ? (m.players?.player1?.username || 'Player 1') : (m.players?.player2?.username || 'Player 2');
             titleText = lang === 'en' ? `${winnerUser} Wins!` : `${winnerUser} vince!`;
             titleClass = 'is-spectator';
             subtitleText = lang === 'en' ? 'Spectator Mode - Match Ended' : 'Modalità Spettatore - Partita Conclusa';
+            cardOutcomeClass = 'outcome-spectator';
         } else {
             titleText = win ? gt.viewer_win : gt.viewer_loss;
             titleClass = win ? 'is-win' : 'is-loss';
             subtitleText = m.mode === 'bot' 
                 ? (win ? gt.bot_win : gt.bot_loss) 
                 : (win ? gt.pvp_win : gt.pvp_loss);
+            cardOutcomeClass = win ? 'outcome-win' : 'outcome-loss';
         }
 
         // Ranked Feedback Box
@@ -1539,7 +1542,7 @@
         }).join('');
 
         modal.innerHTML = `
-            <div class="game-result-card">
+            <div class="game-result-card ${cardOutcomeClass}">
                 <div class="game-recap-container">
                     <div class="game-recap-header">
                         <div class="recap-title-row">

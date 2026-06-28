@@ -660,7 +660,7 @@ function gd_state(mysqli $m, array $match, int $viewer): array
 {
     $mid = (int)$match['id'];
     $cards = gd_cards($m, $mid);
-    $st = $m->prepare('SELECT a.*, u.username FROM game_match_actions a LEFT JOIN utenti u ON u.id=a.user_id WHERE a.match_id=? ORDER BY a.id DESC LIMIT 24');
+    $st = $m->prepare('SELECT a.*, u.username FROM game_match_actions a LEFT JOIN utenti u ON u.id=a.user_id WHERE a.match_id=? ORDER BY a.id DESC');
     $actions = [];
     if ($st) {
         $st->bind_param('i', $mid);
