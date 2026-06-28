@@ -531,7 +531,12 @@
     async function submitBattle(action,target=null){try{const p={match_id:state.matchId,action}; if(target)p.target_card_id=target; await api('/api/game/submit_action.php',p); await pollState(false)}catch(e){showToast(e.message)}}
     function animateAction(a){
         return new Promise((resolve) => {
-            const type = a.action_type || a.action || '';
+            let type = a.action_type || a.action || '';
+            // FALLBACK: se il DB non supporta ancora il valore 'ultimate' nell'ENUM,
+            // action_type arriva come stringa vuota. Rileva l'ultimate dal messaggio.
+            if (!type && a.message && a.message.includes("l'**ULTIMATE**")) {
+                type = 'ultimate';
+            }
             const actor = Number(a.actor_card_id);
             const target = Number(a.target_card_id);
             const isCrit = (a.message || '').toLowerCase().includes('critico');
