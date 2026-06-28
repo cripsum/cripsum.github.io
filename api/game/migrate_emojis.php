@@ -1,9 +1,6 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
 
-if (php_sapi_name() !== 'cli' && !gd_is_admin()) {
-    die("Accesso negato.");
-}
 
 $mysqli->query("
     CREATE TABLE IF NOT EXISTS `game_emojis` (
