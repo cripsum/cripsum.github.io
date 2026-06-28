@@ -41,11 +41,16 @@ function gd_calculate_character_stats(string $rarity, string $role): array {
         'theone'      => ['hp' => 240, 'atk' => 75, 'def' => 48, 'spd' => 30]
     ];
     $rKey = strtolower(trim($rarity));
-    if (strpos($rKey, 'limited') !== false) $rKey = 'secret_limited';
-    elseif (strpos($rKey, 'secret') !== false) $rKey = 'secret';
+    if (strpos($rKey, 'limited') !== false || strpos($rKey, 'limitato') !== false) $rKey = 'secret_limited';
+    elseif (strpos($rKey, 'secret') !== false || strpos($rKey, 'segreto') !== false) $rKey = 'secret';
     elseif (strpos($rKey, 'one') !== false) $rKey = 'theone';
+    elseif (strpos($rKey, 'speciale') !== false || strpos($rKey, 'special') !== false) $rKey = 'speciale';
+    elseif (strpos($rKey, 'leggendario') !== false || strpos($rKey, 'legendary') !== false) $rKey = 'leggendario';
+    elseif (strpos($rKey, 'epico') !== false || strpos($rKey, 'epic') !== false) $rKey = 'epico';
+    elseif (strpos($rKey, 'raro') !== false || strpos($rKey, 'rare') !== false) $rKey = 'raro';
+    else $rKey = 'comune';
 
-    $b = $base[$rKey] ?? $base['comune'];
+    $b = $base[$rKey];
     $mult = gd_role_multipliers();
     $m = $mult[$role] ?? ['hp' => 1.0, 'atk' => 1.0, 'def' => 1.0, 'spd' => 1.0, 'crit_rate' => 5, 'crit_dmg' => 150];
 
@@ -65,8 +70,8 @@ function gd_calculate_character_stats(string $rarity, string $role): array {
 function gd_get_character_config(int $pid, string $rarity, string $nome, string $role = 'DPS'): array {
     $nomeLower = strtolower($nome);
     $rKey = strtolower(trim($rarity));
-    if (strpos($rKey, 'limited') !== false) $rKey = 'secret_limited';
-    elseif (strpos($rKey, 'secret') !== false) $rKey = 'secret';
+    if (strpos($rKey, 'limited') !== false || strpos($rKey, 'limitato') !== false) $rKey = 'secret_limited';
+    elseif (strpos($rKey, 'secret') !== false || strpos($rKey, 'segreto') !== false) $rKey = 'secret';
     elseif (strpos($rKey, 'one') !== false) $rKey = 'theone';
 
     // 1. Definizioni specifiche e uniche per i 18 personaggi speciali
@@ -333,12 +338,12 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
 
     $rKeyNorm = 'comune';
     if (strpos($rKey, 'one') !== false) $rKeyNorm = 'theone';
-    elseif (strpos($rKey, 'limited') !== false) $rKeyNorm = 'secret_limited';
+    elseif (strpos($rKey, 'limited') !== false || strpos($rKey, 'limitato') !== false) $rKeyNorm = 'secret_limited';
     elseif (strpos($rKey, 'secret') !== false || strpos($rKey, 'segreto') !== false) $rKeyNorm = 'secret';
-    elseif (strpos($rKey, 'speciale') !== false) $rKeyNorm = 'speciale';
-    elseif (strpos($rKey, 'leggendario') !== false) $rKeyNorm = 'leggendario';
-    elseif (strpos($rKey, 'epico') !== false) $rKeyNorm = 'epico';
-    elseif (strpos($rKey, 'raro') !== false) $rKeyNorm = 'raro';
+    elseif (strpos($rKey, 'speciale') !== false || strpos($rKey, 'special') !== false) $rKeyNorm = 'speciale';
+    elseif (strpos($rKey, 'leggendario') !== false || strpos($rKey, 'legendary') !== false) $rKeyNorm = 'leggendario';
+    elseif (strpos($rKey, 'epico') !== false || strpos($rKey, 'epic') !== false) $rKeyNorm = 'epico';
+    elseif (strpos($rKey, 'raro') !== false || strpos($rKey, 'rare') !== false) $rKeyNorm = 'raro';
 
     $rarity_scales = [
         'comune' => 0,

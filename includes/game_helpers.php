@@ -127,7 +127,7 @@ function gd_get_upgrade_requirement(string $rarity, int $current_level): int {
     if (strpos($rKey, 'one') !== false) {
         return 1;
     }
-    if (strpos($rKey, 'limited') !== false) {
+    if (strpos($rKey, 'limited') !== false || strpos($rKey, 'limitato') !== false) {
         $costs = [1 => 1, 2 => 2, 3 => 2, 4 => 3, 5 => 3];
         return $costs[$lvl] ?? 1;
     }
@@ -163,7 +163,7 @@ function gd_get_stat_multiplier(string $rarity, int $level): float {
     if (strpos($rKey, 'one') !== false) {
         return 1.0 + ($steps * 0.15);
     }
-    if (strpos($rKey, 'limited') !== false) {
+    if (strpos($rKey, 'limited') !== false || strpos($rKey, 'limitato') !== false) {
         return 1.0 + ($steps * 0.10);
     }
     if (strpos($rKey, 'secret') !== false || strpos($rKey, 'segreto') !== false) {
@@ -192,7 +192,7 @@ function gd_get_skill_multiplier(string $rarity, int $level): float {
     if (strpos($rKey, 'one') !== false) {
         return 1.0 + ($steps * 0.12);
     }
-    if (strpos($rKey, 'limited') !== false) {
+    if (strpos($rKey, 'limited') !== false || strpos($rKey, 'limitato') !== false) {
         return 1.0 + ($steps * 0.08);
     }
     if (strpos($rKey, 'secret') !== false || strpos($rKey, 'segreto') !== false) {
