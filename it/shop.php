@@ -71,7 +71,7 @@ $successPackage = $_GET['package_id'] ?? '';
     <meta charset="UTF-8">
     <title>Shop Godo Shards - Cripsum™</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/shop.css?v=1.5">
+    <link rel="stylesheet" href="/css/shop.css?v=1.6">
     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo urlencode(PAYPAL_CLIENT_ID); ?>&currency=EUR&locale=it_IT"></script>
     <style>
         .shop-toast {
@@ -384,13 +384,27 @@ $successPackage = $_GET['package_id'] ?? '';
         // Godos converter slider logic
         let userGodos = <?= (int)$soldi ?>;
         let godosConverterModal;
+        let godosSlider;
+        let sliderShardsVal;
+        let sliderGodosCost;
+        let sliderMaxLabel;
+
         document.addEventListener('DOMContentLoaded', () => {
             godosConverterModal = new bootstrap.Modal(document.getElementById('godosConversionModal'));
+            godosSlider = document.getElementById('godos-slider');
+            sliderShardsVal = document.getElementById('slider-shards-val');
+            sliderGodosCost = document.getElementById('slider-godos-cost');
+            sliderMaxLabel = document.getElementById('slider-max-label');
+
+            if (godosSlider) {
+                godosSlider.addEventListener('input', updateSliderDisplay);
+            }
+
+            const btnConfirm = document.getElementById('btn-confirm-godos-buy');
+            if (btnConfirm) {
+                btnConfirm.addEventListener('click', handleGodosConversion);
+            }
         });
-        const godosSlider = document.getElementById('godos-slider');
-        const sliderShardsVal = document.getElementById('slider-shards-val');
-        const sliderGodosCost = document.getElementById('slider-godos-cost');
-        const sliderMaxLabel = document.getElementById('slider-max-label');
 
         function openGodosConverter() {
             const maxBuyable = Math.floor(userGodos / 100);
@@ -398,29 +412,37 @@ $successPackage = $_GET['package_id'] ?? '';
                 alert("Non hai abbastanza Godos per acquistare Godo Shards! (Costo: 100 Godos per Shard)");
                 return;
             }
-            godosSlider.max = maxBuyable;
-            godosSlider.value = Math.min(10, maxBuyable);
-            sliderMaxLabel.textContent = "Max: " + maxBuyable;
+            if (godosSlider) {
+                godosSlider.max = maxBuyable;
+                godosSlider.value = Math.min(10, maxBuyable);
+            }
+            if (sliderMaxLabel) {
+                sliderMaxLabel.textContent = "Max: " + maxBuyable;
+            }
             updateSliderDisplay();
-            godosConverterModal.show();
+            if (godosConverterModal) {
+                godosConverterModal.show();
+            }
         }
 
         function updateSliderDisplay() {
+            if (!godosSlider || !sliderShardsVal || !sliderGodosCost) return;
             const qty = parseInt(godosSlider.value);
             sliderShardsVal.textContent = qty;
             sliderGodosCost.textContent = (qty * 100).toLocaleString();
         }
 
-        godosSlider.addEventListener('input', updateSliderDisplay);
-
-        document.getElementById('btn-confirm-godos-buy').addEventListener('click', async () => {
+        async function handleGodosConversion() {
+            if (!godosSlider) return;
             const qty = parseInt(godosSlider.value);
             if (qty <= 0) return;
             
+            const btn = document.getElementById('btn-confirm-godos-buy');
             try {
-                const btn = document.getElementById('btn-confirm-godos-buy');
-                btn.disabled = true;
-                btn.textContent = "Elaborazione...";
+                if (btn) {
+                    btn.disabled = true;
+                    btn.textContent = "Elaborazione...";
+                }
 
                 const res = await fetch('/api/convert_godos_to_shards.php', {
                     method: 'POST',
@@ -429,11 +451,15 @@ $successPackage = $_GET['package_id'] ?? '';
                 });
                 const data = await res.json();
                 
-                btn.disabled = false;
-                btn.textContent = "Conferma Acquisto";
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = "Conferma Acquisto";
+                }
 
                 if (data.status === 'success') {
-                    godosConverterModal.hide();
+                    if (godosConverterModal) {
+                        godosConverterModal.hide();
+                    }
                     // Aggiorna balances visivamente nel DOM
                     userGodos = data.soldi_rimasti;
                     document.querySelectorAll('.shop-balance-val').forEach((el, index) => {
@@ -449,10 +475,12 @@ $successPackage = $_GET['package_id'] ?? '';
             } catch(e) {
                 console.error(e);
                 alert("Errore di rete.");
-                document.getElementById('btn-confirm-godos-buy').disabled = false;
-                document.getElementById('btn-confirm-godos-buy').textContent = "Conferma Acquisto";
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = "Conferma Acquisto";
+                }
             }
-        });
+        }
 
         function showSuccessToast(shards, godos) {
             const toastDiv = document.createElement('div');
