@@ -144,6 +144,7 @@
     isFastPull:       false,  // #2: modalità apertura veloce
     overlayOpen:      false,
     soldi:            window.GACHA_INIT?.soldi        ?? 0,
+    godoshards:       window.GACHA_INIT?.godoshards   ?? 0,
     pityStandard:     window.GACHA_INIT?.pityStandard ?? 0,
     pityEvento:       window.GACHA_INIT?.pityEvento   ?? 0,
     garantito:        window.GACHA_INIT?.garantito     ?? false,
@@ -347,6 +348,17 @@
   ════════════════════════════════════════════════════ */
   async function startPull(bannerId, fastMode = false) {
     if (state.isPulling) return;
+
+    const bannerView = document.getElementById('banner-view-' + bannerId) || document.getElementById('banner-view-standard');
+    const costPunti = bannerView ? parseInt(bannerView.dataset.costo || '100') : 100;
+    const costShards = Math.ceil(costPunti / 100);
+
+    if (state.soldi < costPunti && state.godoshards < costShards) {
+      const redirectModal = new bootstrap.Modal(document.getElementById('gachaShopRedirectModal'));
+      redirectModal.show();
+      return;
+    }
+
     state.isPulling  = true;
     state.isFastPull = fastMode;
 
@@ -375,10 +387,13 @@
       if (data.status !== 'success') throw new Error(data.message ?? t.err_unknown);
 
       state.soldi        = data.soldi_rimasti ?? state.soldi;
+      state.godoshards   = data.shards_rimaste ?? state.godoshards;
       state.pityStandard = data.pity_standard ?? state.pityStandard;
       state.pityEvento   = data.pity_evento   ?? state.pityEvento;
       state.garantito    = data.garantito     ?? state.garantito;
       window._lastPullData = data;
+
+      showPaymentNotice(data.valuta_usata, data.costo_scalato);
 
       const rarity = normalizeRarity(data.personaggio.rarità);
       state.canSkip = !data.is_new && !RARITY_NO_SKIP.has(rarity);
@@ -409,6 +424,17 @@
 
   async function startMultiPull(bannerId) {
     if (state.isPulling) return;
+
+    const bannerView = document.getElementById('banner-view-' + bannerId) || document.getElementById('banner-view-standard');
+    const costPunti = bannerView ? parseInt(bannerView.dataset.costo || '100') : 100;
+    const costTotalePunti = costPunti * 10;
+    const costTotaleShards = Math.ceil(costTotalePunti / 100);
+
+    if (state.soldi < costTotalePunti && state.godoshards < costTotaleShards) {
+      const redirectModal = new bootstrap.Modal(document.getElementById('gachaShopRedirectModal'));
+      redirectModal.show();
+      return;
+    }
 
     state.isMulti       = true;
     state.multiResults  = [];
@@ -441,10 +467,13 @@
 
       // Aggiorna stato globale con i dati finali del server
       state.soldi        = data.soldi_rimasti ?? state.soldi;
+      state.godoshards   = data.shards_rimaste ?? state.godoshards;
       state.pityStandard = data.pity_standard ?? state.pityStandard;
       state.pityEvento   = data.pity_evento   ?? state.pityEvento;
       state.garantito    = data.garantito     ?? state.garantito;
       state.multiResults = data.pulls;
+
+      showPaymentNotice(data.valuta_usata, data.costo_totale);
 
       // FIX 4: animazione intro prima delle pull
       await showMultiIntro(data.pulls);
@@ -1327,6 +1356,18 @@
 
   async function pullAgainFromOverlay() {
     if (state.isPulling) return;
+
+    const bannerView = document.getElementById('banner-view-' + state.activeBannerId) || document.getElementById('banner-view-standard');
+    const costPunti = bannerView ? parseInt(bannerView.dataset.costo || '100') : 100;
+    const costShards = Math.ceil(costPunti / 100);
+
+    if (state.soldi < costPunti && state.godoshards < costShards) {
+      closeOverlay();
+      const redirectModal = new bootstrap.Modal(document.getElementById('gachaShopRedirectModal'));
+      redirectModal.show();
+      return;
+    }
+
     state.isPulling  = true;
     state.isFastPull = false;
     stopAudio();
@@ -1348,10 +1389,13 @@
       if (data.status !== 'success') throw new Error(data.message);
 
       state.soldi        = data.soldi_rimasti ?? state.soldi;
+      state.godoshards   = data.shards_rimaste ?? state.godoshards;
       state.pityStandard = data.pity_standard ?? state.pityStandard;
       state.pityEvento   = data.pity_evento   ?? state.pityEvento;
       state.garantito    = data.garantito     ?? state.garantito;
       window._lastPullData = data;
+
+      showPaymentNotice(data.valuta_usata, data.costo_scalato);
 
       const rarity = normalizeRarity(data.personaggio.rarità);
       state.canSkip = !data.is_new && !RARITY_NO_SKIP.has(rarity);
@@ -1388,14 +1432,21 @@
       state.soldi = nuoviSoldi;
       updateBannerUI();
     },
+    setShards: (nuoviShards) => {
+      state.godoshards = nuoviShards;
+      updateBannerUI();
+    },
   };
 
   /* ════════════════════════════════════════════════════
      UPDATE BANNER UI
   ════════════════════════════════════════════════════ */
   function updateBannerUI() {
-    $$('#user-points-std,.user-points-evt').forEach(el =>
+    $$('.user-points-val').forEach(el =>
       el.textContent = state.soldi.toLocaleString(t.locale)
+    );
+    $$('.user-shards-val').forEach(el =>
+      el.textContent = state.godoshards.toLocaleString(t.locale)
     );
     const pHS = window.GACHA_INIT?.pityHardStd ?? 90;
     const pSS = window.GACHA_INIT?.pitySoftStd ?? 70;
@@ -1669,6 +1720,26 @@
       const seg=data.pulls.filter(p=>['segreto','theone'].includes(normalizeRarity(p.rarità))).length;
       $('gacha-history-stats').textContent=t.history_stats(data.total??data.pulls.length, seg);
     }catch{$('gacha-history-list').innerHTML=`<div style="text-align:center;color:#f87171;padding:32px">${t.err_history}</div>`;}
+  }
+
+  function showPaymentNotice(valuta, costo) {
+    const notice = document.createElement('div');
+    notice.className = 'gacha-payment-notice-banner';
+    const isShards = valuta === 'shards';
+    const iconImg = isShards ? '/img/godoshards.png' : '/img/godos.png';
+    const icon = `<img src="${iconImg}" alt="icon" class="notice-icon-img">`;
+    const curName = isShards ? 'Godo Shards' : 'Godos';
+    notice.innerHTML = `<span class="gpn-icon">${icon}</span> ${lang === 'it' ? 'Pagato con' : 'Paid with'} ${costo} ${curName}`;
+    
+    const overlay = document.getElementById('gacha-overlay');
+    if (overlay) {
+      overlay.querySelectorAll('.gacha-payment-notice-banner').forEach(el => el.remove());
+      overlay.appendChild(notice);
+      setTimeout(() => {
+        notice.classList.add('is-fadeout');
+        setTimeout(() => notice.remove(), 500);
+      }, 2500);
+    }
   }
 
   window.GachaHistory = { open: openHistoryModal };

@@ -385,7 +385,7 @@ $ogUrl = 'https://cripsum.com/en/inbox';
                         switch(rew.reward_type) {
                             case 'points': 
                                 icon = '🪙'; 
-                                label = `+${parseInt(rew.reward_value) * parseInt(rew.quantity)} Points`; 
+                                label = `+${parseInt(rew.reward_value) * parseInt(rew.quantity)} Godos`; 
                                 sub = 'Site currency';
                                 break;
                             case 'character': 

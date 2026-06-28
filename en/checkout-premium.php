@@ -214,7 +214,7 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
         <section class="form-card form-reveal">
             <div class="form-card__header">
                 <h1>Cripsum™ Premium</h1>
-                <p>Customize your profile with animated layouts, music and badges, instantly get 20.000 points, claim 500 bonus points every day in Lootboxes, and get a 2x points boost on all daily and weekly missions!</p>
+                <p>Customize your profile with animated layouts, music and badges, instantly get 20,000 Godos, claim 500 bonus Godos every day in Lootboxes, and get a 2x Godos boost on all daily and weekly missions!</p>
             </div>
 
             <?php if ($errorMsg): ?>
@@ -237,7 +237,7 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
                                     <label for="purchaseSelf" class="option-title">
                                         <i class="fa-solid fa-user"></i> Activate on my account
                                     </label>
-                                    <span class="option-desc">Upgrade your own profile (<strong><?php echo htmlspecialchars($username); ?></strong>) and instantly get all benefits and your money bonus.</span>
+                                    <span class="option-desc">Upgrade your own profile (<strong><?php echo htmlspecialchars($username); ?></strong>) and instantly get all benefits and your Godos bonus.</span>
                                 </div>
                             </div>
 
@@ -299,12 +299,12 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
                         <strong>Cripsum™ Premium</strong>
                     </div>
                     <div class="summary-line">
-                        <span>Included Points</span>
-                        <strong style="color: #eab308;">20.000 pt</strong>
+                        <span>Included Godos</span>
+                        <strong style="color: #eab308;">20,000 Godos</strong>
                     </div>
                     <div class="summary-line">
                         <span>Lootbox Dailies</span>
-                        <strong style="color: #eab308;">500 pt / day</strong>
+                        <strong style="color: #eab308;">500 Godos / day</strong>
                     </div>
                     <div class="summary-line">
                         <span>Missions Boost</span>

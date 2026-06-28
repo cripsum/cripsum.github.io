@@ -18,7 +18,7 @@ $ruolo   = $_SESSION['ruolo'] ?? 'utente';
 $isAdmin = in_array($ruolo, ['admin', 'owner'], true);
 
 $stmtUser = $mysqli->prepare(
-    'SELECT username, soldi, pity_standard, pity_evento, garantito_evento, is_premium, last_premium_claim
+    'SELECT username, soldi, godoshards_balance, pity_standard, pity_evento, garantito_evento, is_premium, last_premium_claim
      FROM utenti WHERE id = ? LIMIT 1'
 );
 $stmtUser->bind_param('i', $_SESSION['user_id']);
@@ -27,6 +27,7 @@ $userData = $stmtUser->get_result()->fetch_assoc();
 $stmtUser->close();
 
 $soldi        = (int)($userData['soldi']           ?? 0);
+$godoshards   = (int)($userData['godoshards_balance'] ?? 0);
 $pityStandard = (int)($userData['pity_standard']   ?? 0);
 $pityEvento   = (int)($userData['pity_evento']     ?? 0);
 $garantito    = (int)($userData['garantito_evento'] ?? 0);
@@ -70,7 +71,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
 <head>
     <?php include '../includes/head-import.php'; ?>
     <link rel="stylesheet" href="/css/lootbox.css?v=8.3">
-    <link rel="stylesheet" href="/css/gacha.css?v=16">
+    <link rel="stylesheet" href="/css/gacha.css?v=17">
     <meta name="theme-color" content="#080810">
     <title>Cripsum™ — Lootbox</title>
 </head>
@@ -92,7 +93,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                 data-banner-type="standard"
                 data-pity-hard="<?= PITY_STANDARD_HARD ?>"
                 data-pity-soft="<?= PITY_STANDARD_SOFT ?>"
-                data-costo="0"
+                data-costo="100"
                 aria-label="Banner Standard">
                 <div class="gacha-banner-bg has-img" id="banner-bg-standard"
                     style="background-image:url('/img/banner_standard_bg.jpg')"></div>
@@ -132,24 +133,38 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                     </div>
 
                     <div class="gacha-economy-row">
-                        <span class="gacha-points">
-                            <i class="fa-solid fa-coins"></i>
-                            <span id="user-points-std"><?= number_format($soldi) ?></span>
-                        </span>
-                        <span class="gacha-cost">• Gratuito</span>
+                        <div class="gacha-user-balance-panel">
+                            <div class="balance-item" title="Valuta gratuita ottenibile usando il sito." data-bs-toggle="tooltip">
+                                <span class="balance-icon"><img src="/img/godos.png" alt="Godos" class="currency-icon-img"></span>
+                                <span class="balance-label">Godos:</span>
+                                <span class="balance-value user-points-val"><?= number_format($soldi) ?></span>
+                            </div>
+                            <div class="balance-item" title="Valuta premium usata per pullare." data-bs-toggle="tooltip">
+                                <span class="balance-icon"><img src="/img/godoshards.png" alt="Godo Shards" class="currency-icon-img"></span>
+                                <span class="balance-label">Godo Shards:</span>
+                                <span class="balance-value user-shards-val"><?= number_format($godoshards) ?></span>
+                            </div>
+                        </div>
+                        <span class="gacha-cost">• Costo: 100 Godos o 1 Shard</span>
                     </div>
 
                     <div class="gacha-pull-row">
                         <button class="gacha-pull-btn" id="pull-btn-standard"
                             aria-label="Apri 1x banner standard" data-banner-id="standard">
                             <i class="fa-solid fa-box-open gacha-pull-btn-icon"></i>
-                            <span>Apri 1×</span>
+                            <div class="gacha-pull-btn-text">
+                                <span>Apri 1×</span>
+                                <small class="gacha-pull-btn-cost">100 <img src="/img/godos.png" alt="Godos" class="cost-icon-img"> / 1 <img src="/img/godoshards.png" alt="Shards" class="cost-icon-img"></small>
+                            </div>
                         </button>
                         <button class="gacha-pull-btn gacha-pull-btn--multi"
                             aria-label="Apri 10x banner standard"
                             data-banner-id="standard" data-pull-qty="10">
                             <i class="fa-solid fa-boxes-stacked gacha-pull-btn-icon"></i>
-                            <span>Apri 10×</span>
+                            <div class="gacha-pull-btn-text">
+                                <span>Apri 10×</span>
+                                <small class="gacha-pull-btn-cost">1000 <img src="/img/godos.png" alt="Godos" class="cost-icon-img"> / 10 <img src="/img/godoshards.png" alt="Shards" class="cost-icon-img"></small>
+                            </div>
                         </button>
                     </div>
                 </div>
@@ -248,26 +263,38 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                         <?php endif; ?>
 
                         <div class="gacha-economy-row">
-                            <span class="gacha-points">
-                                <i class="fa-solid fa-coins"></i>
-                                <span class="user-points-evt"><?= number_format($soldi) ?></span>
-                            </span>
-                            <span class="gacha-cost">• <?= number_format($costo) ?> punti / pull</span>
+                            <div class="gacha-user-balance-panel">
+                                <div class="balance-item" title="Valuta gratuita ottenibile usando il sito." data-bs-toggle="tooltip">
+                                    <span class="balance-icon"><img src="/img/godos.png" alt="Godos" class="currency-icon-img"></span>
+                                    <span class="balance-label">Godos:</span>
+                                    <span class="balance-value user-points-val"><?= number_format($soldi) ?></span>
+                                </div>
+                                <div class="balance-item" title="Valuta premium usata per pullare." data-bs-toggle="tooltip">
+                                    <span class="balance-icon"><img src="/img/godoshards.png" alt="Godo Shards" class="currency-icon-img"></span>
+                                    <span class="balance-label">Godo Shards:</span>
+                                    <span class="balance-value user-shards-val"><?= number_format($godoshards) ?></span>
+                                </div>
+                            </div>
+                            <span class="gacha-cost">• Costo: <?= number_format($costo) ?> Godos o <?= (int)ceil($costo / 100) ?> Shard</span>
                         </div>
 
                         <div class="gacha-pull-row">
                             <button class="gacha-pull-btn" id="pull-btn-<?= $bid ?>"
                                 aria-label="Apri 1x <?= $safeName ?>" data-banner-id="<?= $bid ?>">
                                 <i class="fa-solid fa-star gacha-pull-btn-icon"></i>
-                                <span>Apri 1×</span>
-                                <span class="gacha-pull-cost-badge"><?= number_format($costo) ?></span>
+                                <div class="gacha-pull-btn-text">
+                                    <span>Apri 1×</span>
+                                    <small class="gacha-pull-btn-cost"><?= number_format($costo) ?> <img src="/img/godos.png" alt="Godos" class="cost-icon-img"> / <?= (int)ceil($costo / 100) ?> <img src="/img/godoshards.png" alt="Shards" class="cost-icon-img"></small>
+                                </div>
                             </button>
                             <button class="gacha-pull-btn gacha-pull-btn--multi"
                                 aria-label="Apri 10x <?= $safeName ?>"
                                 data-banner-id="<?= $bid ?>" data-pull-qty="10">
                                 <i class="fa-solid fa-boxes-stacked gacha-pull-btn-icon"></i>
-                                <span>Multi 10×</span>
-                                <span class="gacha-pull-cost-badge"><?= number_format($costo * 10) ?></span>
+                                <div class="gacha-pull-btn-text">
+                                    <span>Multi 10×</span>
+                                    <small class="gacha-pull-btn-cost"><?= number_format($costo * 10) ?> <img src="/img/godos.png" alt="Godos" class="cost-icon-img"> / <?= (int)ceil($costo / 10) ?> <img src="/img/godoshards.png" alt="Shards" class="cost-icon-img"></small>
+                                </div>
                             </button>
                         </div>
                     </div>
@@ -615,12 +642,33 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
         </div>
     </div>
 
+    <!-- Modal Insufficient Godo Shards / Godos -->
+    <div class="modal fade shop-modal" id="gachaShopRedirectModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: rgba(13, 10, 24, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; color: #fff;">
+                <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                    <h5 class="modal-title">Valute Insufficienti</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <div style="margin-bottom: 1rem;"><img src="/img/godoshards.png" alt="Godo Shards" style="width: 80px; height: 80px; object-fit: contain;"></div>
+                    <p class="mb-4">Non hai abbastanza Godos o Godo Shards per completare questa pull.</p>
+                    <div class="d-grid gap-2 col-8 mx-auto">
+                        <a href="/it/shop.php" class="btn btn-primary" style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); border: none; font-weight: 700; padding: 0.75rem;">Visita lo Shop</a>
+                        <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Chiudi</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         window.GACHA_INIT = <?= json_encode([
                                 'userId'      => (int)$_SESSION['user_id'],
                                 'ruolo'       => $ruolo,
                                 'isAdmin'     => $isAdmin,
                                 'soldi'       => $soldi,
+                                'godoshards'  => $godoshards,
                                 'pityStandard' => $pityStandard,
                                 'pityEvento'  => $pityEvento,
                                 'garantito'   => (bool)$garantito,
@@ -752,7 +800,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
         crossorigin="anonymous"></script>
     <script src="/js/unlockAchievement-it.js"></script>
     <script src="/js/gacha-effects.js?v=5"></script>
-    <script src="/js/gacha.js?v=32"></script>
+    <script src="/js/gacha.js?v=33"></script>
 
     <script>
         function openCurrentHistory() {

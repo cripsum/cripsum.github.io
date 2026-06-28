@@ -70,9 +70,89 @@ $eventType = $event['type'] ?? '';
 
 if ($eventType === 'checkout.session.completed') {
     $session = $event['data']['object'] ?? [];
-    $userId = (int)($session['client_reference_id'] ?? 0);
+    $metadata = $session['metadata'] ?? [];
+    $purchaseType = $metadata['type'] ?? 'premium';
 
-    if ($userId > 0) {
+    if ($purchaseType === 'shards') {
+        $userId = (int)($metadata['user_id'] ?? 0);
+        $packageId = $metadata['package_id'] ?? '';
+
+        $packages = [
+            'shards_5' => ['price' => 0.59, 'shards' => 5],
+            'shards_10' => ['price' => 0.99, 'shards' => 10],
+            'shards_25' => ['price' => 1.99, 'shards' => 25],
+            'shards_45' => ['price' => 2.99, 'shards' => 45],
+            'shards_80' => ['price' => 4.99, 'shards' => 80],
+            'shards_180' => ['price' => 9.99, 'shards' => 180],
+            'shards_400' => ['price' => 19.99, 'shards' => 400],
+            'shards_1200' => ['price' => 49.99, 'shards' => 1200],
+        ];
+
+        if ($userId > 0 && isset($packages[$packageId])) {
+            $package = $packages[$packageId];
+            $baseShards = $package['shards'];
+
+            $mysqli->begin_transaction();
+            try {
+                // Check if first purchase bonus is used
+                $stmtBonus = $mysqli->prepare("
+                    SELECT first_purchase_bonus_used 
+                    FROM first_purchase_bonuses 
+                    WHERE user_id = ? AND package_id = ? 
+                    LIMIT 1
+                ");
+                if ($stmtBonus) {
+                    $stmtBonus->bind_param('is', $userId, $packageId);
+                    $stmtBonus->execute();
+                    $resBonus = $stmtBonus->get_result();
+                    $bonusRow = $resBonus->fetch_assoc();
+                    $stmtBonus->close();
+                } else {
+                    $bonusRow = null;
+                }
+
+                $isFirstPurchase = !$bonusRow || (int)($bonusRow['first_purchase_bonus_used'] ?? 0) === 0;
+                $finalShards = $isFirstPurchase ? ($baseShards * 2) : $baseShards;
+
+                // Credit Godo Shards
+                $stmtCredit = $mysqli->prepare("UPDATE utenti SET godoshards_balance = godoshards_balance + ? WHERE id = ?");
+                if ($stmtCredit) {
+                    $stmtCredit->bind_param('ii', $finalShards, $userId);
+                    $stmtCredit->execute();
+                    $stmtCredit->close();
+                }
+
+                // Save first purchase bonus as used
+                $stmtSaveBonus = $mysqli->prepare("
+                    INSERT INTO first_purchase_bonuses (user_id, package_id, first_purchase_bonus_used) 
+                    VALUES (?, ?, 1)
+                    ON DUPLICATE KEY UPDATE first_purchase_bonus_used = 1
+                ");
+                if ($stmtSaveBonus) {
+                    $stmtSaveBonus->bind_param('is', $userId, $packageId);
+                    $stmtSaveBonus->execute();
+                    $stmtSaveBonus->close();
+                }
+
+                // Record activity
+                if (function_exists('profile_record_activity')) {
+                    $activityMsg = "Acquistato pacchetto {$packageId} (" . ($isFirstPurchase ? ($baseShards . "x2") : $baseShards) . " Godo Shards)";
+                    profile_record_activity($mysqli, $userId, 'shards_purchase', $activityMsg);
+                }
+
+                $mysqli->commit();
+                error_log("[Stripe Webhook] Accreditate {$finalShards} Shards all'utente ID {$userId} (Bonus x2: " . ($isFirstPurchase ? 'SI' : 'NO') . ")");
+            } catch (Exception $e) {
+                $mysqli->rollback();
+                error_log("[Stripe Webhook] Errore accreditamento shards: " . $e->getMessage());
+                http_response_code(500);
+                echo "Errore database.";
+                exit;
+            }
+        }
+    } else {
+        $userId = (int)($session['client_reference_id'] ?? 0);
+        if ($userId > 0) {
         $stmt = $mysqli->prepare("UPDATE utenti SET is_premium = 1 WHERE id = ?");
         if ($stmt) {
             $stmt->bind_param('i', $userId);
@@ -178,6 +258,7 @@ if ($eventType === 'checkout.session.completed') {
             http_response_code(500);
             echo "Errore database query.";
             exit;
+        }
         }
     }
 }

@@ -31,8 +31,8 @@ $isEn      = $lang === 'en';
 $pageTitle  = $isEn ? 'Missions'        : 'Missioni';
 $heroSub    = $isEn ? 'Daily & Weekly'  : 'Giornaliere & Settimanali';
 $heroDesc   = $isEn
-    ? 'Complete missions, earn points, unlock rewards. New challenges every day.'
-    : 'Completa le missioni, guadagna punti, sblocca ricompense. Nuove sfide ogni giorno.';
+    ? 'Complete missions, earn Godos, unlock rewards. New challenges every day.'
+    : 'Completa le missioni, guadagna Godos, sblocca ricompense. Nuove sfide ogni giorno.';
 
 $ogDescription = $isEn
     ? 'Your daily and weekly missions on Cripsum™.'
@@ -101,7 +101,7 @@ function msn_h(mixed $v): string
                 </div>
                 <div class="msn-hero__stat">
                     <strong id="msnStatPoints">0</strong>
-                    <span><?php echo $isEn ? 'Points earned' : 'Punti earned'; ?></span>
+                    <span><?php echo $isEn ? 'Godos earned' : 'Godos guadagnati'; ?></span>
                 </div>
             </div>
         </section>

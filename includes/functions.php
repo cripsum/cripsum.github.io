@@ -1023,7 +1023,7 @@ function claimMessageRewards($mysqli, $userId, $messageId)
                 $claimedList[] = [
                     'type' => 'points',
                     'amount' => $points,
-                    'label' => $points . ' punti'
+                    'label' => $points . ' Godos'
                 ];
             } elseif ($type === 'character') {
                 $charId = (int)$val;
@@ -1168,9 +1168,9 @@ function sendPremiumUpgradeNotification($mysqli, $recipientId, $senderUsername =
             "Sorpresa! **" . $senderUsername . "** ti ha regalato **Cripsum Premium**! 🎁\n\n" .
             "Tutti i vantaggi premium sono già stati sbloccati ed attivati sul tuo account:\n" .
             "- **Badge Premium (ID 5)**: Un badge esclusivo sul tuo profilo per mostrare a tutti il tuo supporto.\n" .
-            "- **Bonus di 20.000 soldi**: Aggiunti direttamente al tuo bilancio per effettuare pull nel gacha.\n" .
-            "- **Riscatto Lootbox**: Riscatta 500 soldi extra bonus ogni giorno nelle Lootbox.\n" .
-            "- **Boost Missioni**: Guadagni raddoppiati (x2) su tutti i punti delle missioni Giornaliere e Settimanali (Daily & Weekly).\n" .
+            "- **Bonus di 20.000 Godos**: Aggiunti direttamente al tuo bilancio per effettuare pull nel gacha.\n" .
+            "- **Riscatto Lootbox**: Riscatta 500 Godos extra bonus ogni giorno nelle Lootbox.\n" .
+            "- **Boost Missioni**: Guadagni raddoppiati (x2) su tutti i Godos delle missioni Giornaliere e Settimanali (Daily & Weekly).\n" .
             "- **Effetti e Cursori Personalizzati**: Personalizza il cursore del mouse nel tuo profilo.\n" .
             "- **Layout Snap & Background Grain**: Nuovi stili grafici e grana di sfondo avanzata per il tuo profilo.\n" .
             "- **Temi Musicali Personalizzati**: Aggiungi colonne sonore personalizzate alla tua pagina profilo.\n" .
@@ -1183,9 +1183,9 @@ function sendPremiumUpgradeNotification($mysqli, $recipientId, $senderUsername =
             "Surprise! **" . $senderUsername . "** has gifted you **Cripsum Premium**! 🎁\n\n" .
             "All premium perks have already been unlocked and activated on your account:\n" .
             "- **Premium Badge (ID 5)**: An exclusive badge on your profile to showcase your support.\n" .
-            "- **20.000 Soldi Bonus**: Added directly to your balance to pull in the gacha.\n" .
-            "- **Lootbox Daily Claim**: Redeem 500 extra bonus soldi every day in your Lootbox.\n" .
-            "- **Mission Boost**: Double points (x2) earned on all Daily & Weekly missions.\n" .
+            "- **20,000 Godos Bonus**: Added directly to your balance to pull in the gacha.\n" .
+            "- **Lootbox Daily Claim**: Redeem 500 extra bonus Godos every day in your Lootbox.\n" .
+            "- **Mission Boost**: Double Godos (x2) earned on all Daily & Weekly missions.\n" .
             "- **Custom Mouse Cursors & Effects**: Customize the cursor on your profile page.\n" .
             "- **Layout Snap & Background Grain**: New advanced styling grids and background effects.\n" .
             "- **Custom Music Themes**: Add background soundtracks to your profile page.\n" .
@@ -1201,9 +1201,9 @@ function sendPremiumUpgradeNotification($mysqli, $recipientId, $senderUsername =
             "Grazie mille per aver acquistato **Cripsum Premium**! Il tuo supporto ci aiuta a mantenere il sito attivo e a sviluppare nuove funzionalità.\n\n" .
             "Tutti i vantaggi premium sono già stati attivati sul tuo account:\n" .
             "- **Badge Premium (ID 5)**: Un badge esclusivo sul tuo profilo per mostrare a tutti il tuo supporto.\n" .
-            "- **Bonus di 20.000 soldi**: Aggiunti direttamente al tuo bilancio per effettuare pull nel gacha.\n" .
-            "- **Riscatto Lootbox**: Riscatta 500 soldi extra bonus ogni giorno nelle Lootbox.\n" .
-            "- **Boost Missioni**: Guadagni raddoppiati (x2) su tutti i punti delle missioni Giornaliere e Settimanali (Daily & Weekly).\n" .
+            "- **Bonus di 20.000 Godos**: Aggiunti direttamente al tuo bilancio per effettuare pull nel gacha.\n" .
+            "- **Riscatto Lootbox**: Riscatta 500 Godos extra bonus ogni giorno nelle Lootbox.\n" .
+            "- **Boost Missioni**: Guadagni raddoppiati (x2) su tutti i Godos delle missioni Giornaliere e Settimanali (Daily & Weekly).\n" .
             "- **Effetti e Cursori Personalizzati**: Personalizza il cursore del mouse nel tuo profilo.\n" .
             "- **Layout Snap & Background Grain**: Nuovi stili grafici e grana di sfondo avanzata per il tuo profilo.\n" .
             "- **Temi Musicali Personalizzati**: Aggiungi colonne sonore personalizzate alla tua pagina profilo.\n" .
@@ -1216,9 +1216,9 @@ function sendPremiumUpgradeNotification($mysqli, $recipientId, $senderUsername =
             "Thank you so much for purchasing **Cripsum Premium**! Your support helps us keep the site running and develop new features.\n\n" .
             "All premium perks have already been activated on your account:\n" .
             "- **Premium Badge (ID 5)**: An exclusive badge on your profile to showcase your support.\n" .
-            "- **20.000 Soldi Bonus**: Added directly to your balance to pull in the gacha.\n" .
-            "- **Lootbox Daily Claim**: Redeem 500 extra bonus soldi every day in your Lootbox.\n" .
-            "- **Mission Boost**: Double points (x2) earned on all Daily & Weekly missions.\n" .
+            "- **20,000 Godos Bonus**: Added directly to your balance to pull in the gacha.\n" .
+            "- **Lootbox Daily Claim**: Redeem 500 extra bonus Godos every day in your Lootbox.\n" .
+            "- **Mission Boost**: Double Godos (x2) earned on all Daily & Weekly missions.\n" .
             "- **Custom Mouse Cursors & Effects**: Customize the cursor on your profile page.\n" .
             "- **Layout Snap & Background Grain**: New advanced styling grids and background effects.\n" .
             "- **Custom Music Themes**: Add background soundtracks to your profile page.\n" .

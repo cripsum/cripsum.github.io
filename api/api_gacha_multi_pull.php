@@ -243,7 +243,7 @@ $mysqli->begin_transaction();
 try {
     // Blocca riga utente per tutta la durata delle 10 pull
     $stmtLock = $mysqli->prepare(
-        'SELECT soldi, pity_standard, pity_evento, garantito_evento
+        'SELECT soldi, godoshards_balance, pity_standard, pity_evento, garantito_evento
          FROM utenti WHERE id = ? LIMIT 1 FOR UPDATE'
     );
     if (!$stmtLock) throw new RuntimeException('Prepare lock fallito');
@@ -254,16 +254,24 @@ try {
     if (!$user) throw new RuntimeException('Utente non trovato', 404);
 
     $soldi        = (int)$user['soldi'];
+    $godoshards   = (int)$user['godoshards_balance'];
     $pityStandard = (int)$user['pity_standard'];
     $pityEvento   = (int)$user['pity_evento'];
     $garantito    = (int)$user['garantito_evento'];
 
     // Verifica costo totale
-    $costoSingola = ($bannerType === 'evento') ? (int)$bannerData['costo_punti'] : 0;
-    $costoTotale  = $costoSingola * $quantity;
-    if ($costoTotale > 0 && $soldi < $costoTotale) {
+    $costoSingolaPunti = ($bannerType === 'standard') ? 100 : (int)$bannerData['costo_punti'];
+    $costoTotalePunti  = $costoSingolaPunti * $quantity;
+    $costoTotaleShards = (int)ceil($costoTotalePunti / 100);
+
+    $payWith = null;
+    if ($godoshards >= $costoTotaleShards) {
+        $payWith = 'shards';
+    } elseif ($soldi >= $costoTotalePunti) {
+        $payWith = 'points';
+    } else {
         throw new RuntimeException(
-            "Punti insufficienti! Hai {$soldi} punti, servono {$costoTotale} per la multi.",
+            "Valute insufficienti! Hai {$soldi} Godos e {$godoshards} Godo Shards, ne servono {$costoTotalePunti} Godos o {$costoTotaleShards} Godo Shards.",
             402
         );
     }
@@ -362,16 +370,27 @@ try {
         ];
     }
 
-    // Scala punti una volta sola
-    if ($costoTotale > 0) {
+    // Scala valuta una volta sola
+    if ($payWith === 'shards') {
+        $stmtShards = $mysqli->prepare(
+            'UPDATE utenti SET godoshards_balance = godoshards_balance - ? WHERE id = ? AND godoshards_balance >= ?'
+        );
+        $stmtShards->bind_param('iii', $costoTotaleShards, $userId, $costoTotaleShards);
+        $stmtShards->execute();
+        if ($stmtShards->affected_rows === 0) {
+            $stmtShards->close();
+            throw new RuntimeException('Shards insufficienti (race condition).', 402);
+        }
+        $stmtShards->close();
+    } else {
         $stmtMoney = $mysqli->prepare(
             'UPDATE utenti SET soldi = soldi - ? WHERE id = ? AND soldi >= ?'
         );
-        $stmtMoney->bind_param('iii', $costoTotale, $userId, $costoTotale);
+        $stmtMoney->bind_param('iii', $costoTotalePunti, $userId, $costoTotalePunti);
         $stmtMoney->execute();
         if ($stmtMoney->affected_rows === 0) {
             $stmtMoney->close();
-            throw new RuntimeException('Punti insufficienti (race condition).', 402);
+            throw new RuntimeException('Godos insufficienti (race condition).', 402);
         }
         $stmtMoney->close();
     }
@@ -424,21 +443,25 @@ try {
     }
     // ── /MISSION TRACKING ────────────────────────────────────────────────────
 
-    // Leggi soldi aggiornati
-    $stmtS = $mysqli->prepare('SELECT soldi FROM utenti WHERE id=? LIMIT 1');
+    // Leggi valute aggiornate
+    $stmtS = $mysqli->prepare('SELECT soldi, godoshards_balance FROM utenti WHERE id=? LIMIT 1');
     $stmtS->bind_param('i', $userId);
     $stmtS->execute();
-    $soldiRimasti = (int)($stmtS->get_result()->fetch_assoc()['soldi'] ?? ($soldi - $costoTotale));
+    $resS = $stmtS->get_result()->fetch_assoc();
+    $soldiRimasti = (int)($resS['soldi'] ?? $soldi);
+    $shardsRimaste = (int)($resS['godoshards_balance'] ?? $godoshards);
     $stmtS->close();
 
     echo json_encode([
-        'status'        => 'success',
-        'pulls'         => $pulls,
-        'soldi_rimasti' => $soldiRimasti,
-        'pity_standard' => $pityStandard,
-        'pity_evento'   => $pityEvento,
-        'garantito'     => (bool)$garantito,
-        'costo_totale'  => $costoTotale,
+        'status'         => 'success',
+        'pulls'          => $pulls,
+        'soldi_rimasti'  => $soldiRimasti,
+        'shards_rimaste' => $shardsRimaste,
+        'valuta_usata'   => $payWith,
+        'pity_standard'  => $pityStandard,
+        'pity_evento'    => $pityEvento,
+        'garantito'      => (bool)$garantito,
+        'costo_totale'   => ($payWith === 'shards' ? $costoTotaleShards : $costoTotalePunti),
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 } catch (RuntimeException $e) {
     $mysqli->rollback();

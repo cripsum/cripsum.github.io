@@ -162,7 +162,7 @@ function profile_json_script(string $id, array $data): void
                                 <li><i class="fa-solid fa-check"></i>Custom icons & uploads everywhere</li>
                                 <li><i class="fa-solid fa-check"></i>Customizable section headings</li>
                                 <li><i class="fa-solid fa-check"></i>Premium effects and fonts</li>
-                                <li><i class="fa-solid fa-check"></i>20.000 points included instantly</li>
+                                <li><i class="fa-solid fa-check"></i>20,000 Godos included instantly</li>
                                 <li><i class="fa-solid fa-check"></i>Many other perks inside the site...</li>
                             </ul>
                         </div>
