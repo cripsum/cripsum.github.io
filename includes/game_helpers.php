@@ -693,7 +693,7 @@ function gd_insert_team_cards(mysqli $m, int $mid, int $uid, array $team): void 
         $crit_dmg = (int)$s['crit_dmg'];
         $status_effects = json_encode([]);
         
-        $ins->bind_param('iiiiiiiiiisiiisiiiiis', $mid, $uid, $pid, $slot, $hp, $hp, $atk, $def, $spd, $en, $name, $cost, $cd, $active, $role, $shield, $crit_rate, $crit_dmg, $status_effects);
+        $ins->bind_param('iiiiiiiiiisiiisiiis', $mid, $uid, $pid, $slot, $hp, $hp, $atk, $def, $spd, $en, $name, $cost, $cd, $active, $role, $shield, $crit_rate, $crit_dmg, $status_effects);
         $ins->execute();
     }
     $ins->close();
