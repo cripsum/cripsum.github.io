@@ -2590,3 +2590,45 @@ body.inv-page .rarity-section.rarity-segreto_limited .rarity-title strong::after
     }
 }
 
+/* --- TABS SYSTEM PER MODALE DETTAGLI --- */
+.modal-tab-btn {
+    border-bottom: 2px solid transparent !important;
+    outline: none;
+}
+
+.modal-tab-btn:hover {
+    color: var(--inv-text) !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+
+.modal-tab-btn.active {
+    color: var(--inv-text) !important;
+    border-bottom: 2.5px solid var(--inv-purple) !important;
+}
+
+.modal-tab-content {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+}
+
+.modal-tab-content.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.tab-ready-indicator {
+    animation: readyGlow 1.5s infinite alternate ease-in-out;
+}
+
+@keyframes readyGlow {
+    0% {
+        opacity: 0.6;
+        box-shadow: 0 0 4px var(--inv-green);
+    }
+    100% {
+        opacity: 1;
+        box-shadow: 0 0 10px var(--inv-green);
+    }
+}
+

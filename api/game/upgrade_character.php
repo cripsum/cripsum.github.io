@@ -77,18 +77,23 @@ try {
         $cnt_stmt->close();
 
         $maxLvlCount = (int)($cnt_row['max_lvl_count'] ?? 0);
+        $unlockedAchievements = [];
 
         if ($maxLvlCount >= 1) {
-            gd_award_achievement_by_name($mysqli, $uid, 'Massimo Splendore I');
+            $aid = gd_award_achievement_by_name($mysqli, $uid, 'Massimo Splendore I');
+            if ($aid !== null) $unlockedAchievements[] = $aid;
         }
         if ($maxLvlCount >= 5) {
-            gd_award_achievement_by_name($mysqli, $uid, 'Massimo Splendore V');
+            $aid = gd_award_achievement_by_name($mysqli, $uid, 'Massimo Splendore V');
+            if ($aid !== null) $unlockedAchievements[] = $aid;
         }
         if ($maxLvlCount >= 10) {
-            gd_award_achievement_by_name($mysqli, $uid, 'Massimo Splendore X');
+            $aid = gd_award_achievement_by_name($mysqli, $uid, 'Massimo Splendore X');
+            if ($aid !== null) $unlockedAchievements[] = $aid;
         }
         if ($maxLvlCount >= 50) {
-            gd_award_achievement_by_name($mysqli, $uid, 'Esercito Dorato');
+            $aid = gd_award_achievement_by_name($mysqli, $uid, 'Esercito Dorato');
+            if ($aid !== null) $unlockedAchievements[] = $aid;
         }
 
         // 5. Ricalcola le statistiche attuali e del prossimo livello per inviarle al client
@@ -104,7 +109,8 @@ try {
             'quantity' => $newQuantity,
             'required_next' => $requiredNext,
             'stats' => $statsNow,
-            'stats_next' => $statsNext
+            'stats_next' => $statsNext,
+            'unlocked_achievements' => $unlockedAchievements
         ]);
 
     } catch (Exception $e) {
@@ -116,16 +122,16 @@ try {
     gd_fail($e->getMessage(), 400);
 }
 
-function gd_award_achievement_by_name(mysqli $mysqli, int $userId, string $name): void {
+function gd_award_achievement_by_name(mysqli $mysqli, int $userId, string $name): ?int {
     // 1. Cerca l'achievement nel DB
     $stmt = $mysqli->prepare('SELECT id, punti FROM achievement WHERE nome = ? LIMIT 1');
-    if (!$stmt) return;
+    if (!$stmt) return null;
     $stmt->bind_param('s', $name);
     $stmt->execute();
     $ach = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 
-    if (!$ach) return;
+    if (!$ach) return null;
 
     $achId = (int)$ach['id'];
     $punti = (int)$ach['punti'];
@@ -137,7 +143,7 @@ function gd_award_achievement_by_name(mysqli $mysqli, int $userId, string $name)
     $hasIt = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 
-    if ($hasIt) return;
+    if ($hasIt) return null;
 
     // 3. Assegna l'achievement
     $stmt = $mysqli->prepare('INSERT INTO utenti_achievement (utente_id, achievement_id, data) VALUES (?, ?, NOW())');
@@ -150,4 +156,6 @@ function gd_award_achievement_by_name(mysqli $mysqli, int $userId, string $name)
     $stmt->bind_param('ii', $punti, $userId);
     $stmt->execute();
     $stmt->close();
+
+    return $achId;
 }

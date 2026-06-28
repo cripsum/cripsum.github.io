@@ -560,7 +560,7 @@
         }
     };
 
-    const openCharacterModal = (entry) => {
+    const openCharacterModal = (entry, defaultTab = 'info') => {
         if (!entry || !entry.owned) return;
 
         const modal = $('#characterModal');
@@ -616,115 +616,170 @@
                         ` : ''}
                     </div>
 
-                    <p>${escapeHtml(entry.description || t.no_description)}</p>
-
-                    <div class="modal-character__traits">
-                        <strong>${t.traits_title}</strong><br>
-                        ${traits.length ? traits.map((trait) => `- ${escapeHtml(trait)}`).join('<br>') : t.no_traits}
+                    <!-- Navigation Tabs -->
+                    <div class="modal-tabs" style="display: flex; gap: 0.5rem; margin: 1.25rem 0 1rem; border-bottom: 1px solid var(--inv-border); padding-bottom: 0.5rem;">
+                        <button type="button" class="modal-tab-btn ${defaultTab === 'info' ? 'active' : ''}" data-tab="info" style="flex: 1; padding: 0.6rem; border: none; background: none; color: var(--inv-muted); font-weight: 700; font-size: 0.88rem; cursor: pointer; transition: all 0.2s ease; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
+                            <i class="fa-solid fa-circle-info"></i>
+                            Info & Kit
+                        </button>
+                        <button type="button" class="modal-tab-btn ${defaultTab === 'upgrade' ? 'active' : ''}" data-tab="upgrade" style="flex: 1; padding: 0.6rem; border: none; background: none; color: var(--inv-muted); font-weight: 700; font-size: 0.88rem; cursor: pointer; transition: all 0.2s ease; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; position: relative;">
+                            <i class="fa-solid fa-angles-up"></i>
+                            Potenziamento
+                            ${Math.max(0, entry.quantity - 1) >= entry.required_next && entry.level < 6 ? `
+                                <span class="tab-ready-indicator" style="position: absolute; top: 6px; right: 12px; width: 8px; height: 8px; background: var(--inv-green); border-radius: 50%; box-shadow: 0 0 6px var(--inv-green);"></span>
+                            ` : ''}
+                        </button>
                     </div>
 
-                    <!-- Sezione Kit Personaggio Duello -->
-                    ${statsNow.role ? `
-                    <div class="character-kit" style="margin-top: 1.25rem; padding: 1.1rem; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 14px;">
-                        <h4 style="margin: 0 0 0.85rem; font-size: 0.95rem; color: var(--inv-gold); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem; font-weight: 800;">
-                            <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--inv-gold);"></i>
-                            Kit Duello Tattico
-                        </h4>
-                        
-                        <div class="kit-ability" style="margin-bottom: 0.85rem;">
-                            <div style="font-weight: 700; color: var(--inv-text); font-size: 0.88rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <span style="background: rgba(139, 92, 246, 0.16); border: 1px solid rgba(139, 92, 246, 0.3); color: #c084fc; padding: 2px 6px; border-radius: 6px; font-size: 0.72rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">Passiva</span>
-                                ${escapeHtml(statsNow.passive_name || 'Nessuna')}
-                            </div>
-                            <div style="font-size: 0.82rem; color: var(--inv-muted); margin-top: 4px; line-height: 1.45;">
-                                ${escapeHtml(statsNow.passive_desc || 'Nessun effetto passivo speciale.')}
-                            </div>
-                        </div>
-                        
-                        <div class="kit-ability">
-                            <div style="font-weight: 700; color: var(--inv-text); font-size: 0.88rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <span style="background: rgba(47, 107, 255, 0.16); border: 1px solid rgba(47, 107, 255, 0.3); color: #60a5fa; padding: 2px 6px; border-radius: 6px; font-size: 0.72rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">Speciale</span>
-                                ${escapeHtml(statsNow.special_name || 'Colpo Speciale')}
-                                <span style="font-size: 0.75rem; color: var(--inv-muted-2); font-weight: normal; margin-left: auto;">
-                                    Costo: <strong>${statsNow.special_cost || 0} E</strong> · CD: <strong>${statsNow.special_cooldown || 0}t</strong>
-                                </span>
-                            </div>
-                            <div style="font-size: 0.82rem; color: var(--inv-muted); margin-top: 4px; line-height: 1.45;">
-                                ${escapeHtml(statsNow.special_desc || 'Un potente attacco speciale.')}
-                            </div>
-                        </div>
-                    </div>
-                    ` : ''}
+                    <!-- TAB 1: INFO & KIT -->
+                    <div class="modal-tab-content ${defaultTab === 'info' ? 'active' : ''}" id="tab-info-content" style="${defaultTab === 'info' ? 'display: block;' : 'display: none;'}">
+                        <p>${escapeHtml(entry.description || t.no_description)}</p>
 
-                    <!-- Sezione Progressione Livelli -->
-                    <div class="character-progression">
-                        <div class="progression-header">
-                            <span class="progression-level">Livello: <strong class="progression-level-val">${entry.level === 6 ? 'MAX' : entry.level}</strong></span>
-                            ${entry.level < 6 ? `
-                                <span class="progression-copies">Duplicati: <strong>${Math.max(0, entry.quantity - 1)} / ${entry.required_next}</strong></span>
-                            ` : `
-                                <span class="progression-copies progression-copies--max">MAX</span>
-                            `}
+                        <div class="modal-character__traits">
+                            <strong>${t.traits_title}</strong><br>
+                            ${traits.length ? traits.map((trait) => `- ${escapeHtml(trait)}`).join('<br>') : t.no_traits}
                         </div>
-                        
-                        ${entry.level < 6 ? `
-                            <div class="progression-bar">
-                                <div class="progression-bar-fill" style="width: ${Math.min(100, (Math.max(0, entry.quantity - 1) / entry.required_next) * 100)}%"></div>
+
+                        <!-- Sezione Kit Personaggio Duello -->
+                        ${statsNow.role ? `
+                        <div class="character-kit" style="margin-top: 1.25rem; padding: 1.1rem; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 14px;">
+                            <h4 style="margin: 0 0 0.85rem; font-size: 0.95rem; color: var(--inv-gold); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem; font-weight: 800;">
+                                <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--inv-gold);"></i>
+                                Kit Duello Tattico
+                            </h4>
+                            
+                            <div class="kit-ability" style="margin-bottom: 0.85rem;">
+                                <div style="font-weight: 700; color: var(--inv-text); font-size: 0.88rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <span style="background: rgba(139, 92, 246, 0.16); border: 1px solid rgba(139, 92, 246, 0.3); color: #c084fc; padding: 2px 6px; border-radius: 6px; font-size: 0.72rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">Passiva</span>
+                                    ${escapeHtml(statsNow.passive_name || 'Nessuna')}
+                                </div>
+                                <div style="font-size: 0.82rem; color: var(--inv-muted); margin-top: 4px; line-height: 1.45;">
+                                    ${escapeHtml(statsNow.passive_desc || 'Nessun effetto passivo speciale.')}
+                                </div>
                             </div>
+                            
+                            <div class="kit-ability">
+                                <div style="font-weight: 700; color: var(--inv-text); font-size: 0.88rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <span style="background: rgba(47, 107, 255, 0.16); border: 1px solid rgba(47, 107, 255, 0.3); color: #60a5fa; padding: 2px 6px; border-radius: 6px; font-size: 0.72rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">Speciale</span>
+                                    ${escapeHtml(statsNow.special_name || 'Colpo Speciale')}
+                                    <span style="font-size: 0.75rem; color: var(--inv-muted-2); font-weight: normal; margin-left: auto;">
+                                        Costo: <strong>${statsNow.special_cost || 0} E</strong> · CD: <strong>${statsNow.special_cooldown || 0}t</strong>
+                                    </span>
+                                </div>
+                                <div style="font-size: 0.82rem; color: var(--inv-muted); margin-top: 4px; line-height: 1.45;">
+                                    ${escapeHtml(statsNow.special_desc || 'Un potente attacco speciale.')}
+                                </div>
+                            </div>
+                        </div>
                         ` : ''}
 
-                        <div class="progression-stats">
-                            <div class="progression-stat-row">
-                                <span class="stat-name">HP</span>
-                                <span class="stat-value">${statsNow.hp || 0}</span>
-                                ${statsNext.hp ? `<span class="stat-arrow">→</span><span class="stat-value-next">${statsNext.hp}</span>` : ''}
-                            </div>
-                            <div class="progression-stat-row">
-                                <span class="stat-name">ATK</span>
-                                <span class="stat-value">${statsNow.attack || 0}</span>
-                                ${statsNext.attack ? `<span class="stat-arrow">→</span><span class="stat-value-next">${statsNext.attack}</span>` : ''}
-                            </div>
-                            <div class="progression-stat-row">
-                                <span class="stat-name">DEF</span>
-                                <span class="stat-value">${statsNow.defense || 0}</span>
-                                ${statsNext.defense ? `<span class="stat-arrow">→</span><span class="stat-value-next">${statsNext.defense}</span>` : ''}
-                            </div>
-                            <div class="progression-stat-row">
-                                <span class="stat-name">SPD</span>
-                                <span class="stat-value">${statsNow.speed || 0}</span>
-                                ${statsNext.speed ? `<span class="stat-arrow">→</span><span class="stat-value-next">${statsNext.speed}</span>` : ''}
-                            </div>
-                        </div>
-
-                        <div class="progression-upgrade-action">
-                            ${entry.level < 6 ? `
-                                <button type="button" class="inv-btn inv-btn--upgrade" id="btnUpgradeCharacter" ${Math.max(0, entry.quantity - 1) < entry.required_next ? 'disabled' : ''}>
-                                    <i class="fa-solid fa-angles-up"></i>
-                                    <span>Potenzia</span>
-                                </button>
-                                ${Math.max(0, entry.quantity - 1) < entry.required_next ? `
-                                    <small class="progression-hint">Ti mancano ${entry.required_next - Math.max(0, entry.quantity - 1)} copie duplicate per sbloccare il prossimo livello.</small>
-                                ` : `
-                                    <small class="progression-hint progression-hint--ready">Pronto per il potenziamento!</small>
-                                `}
-                            ` : `
-                                <div class="progression-max-badge">
-                                    <i class="fa-solid fa-crown"></i>
-                                    <span>POTENZA MASSIMA RAGGIUNTA</span>
-                                </div>
-                            `}
+                        <div class="modal-character__actions" style="margin-top: 1.5rem;">
+                            <a class="inv-btn inv-btn--primary" href="animazione_personaggio?id_personaggio=${encodeURIComponent(entry.id)}" style="width: 100%; justify-content: center;">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                <span>${t.view_animation}</span>
+                            </a>
                         </div>
                     </div>
 
-                    <div class="modal-character__actions">
-                        <a class="inv-btn inv-btn--primary" href="animazione_personaggio?id_personaggio=${encodeURIComponent(entry.id)}">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i>
-                            <span>${t.view_animation}</span>
-                        </a>
+                    <!-- TAB 2: UPGRADE -->
+                    <div class="modal-tab-content ${defaultTab === 'upgrade' ? 'active' : ''}" id="tab-upgrade-content" style="${defaultTab === 'upgrade' ? 'display: block;' : 'display: none;'}">
+                        <div class="character-progression" style="margin-top: 0;">
+                            <div class="progression-header">
+                                <span class="progression-level">Livello: <strong class="progression-level-val">${entry.level === 6 ? 'MAX' : entry.level}</strong></span>
+                                ${entry.level < 6 ? `
+                                    <span class="progression-copies">Duplicati: <strong>${Math.max(0, entry.quantity - 1)} / ${entry.required_next}</strong></span>
+                                ` : `
+                                    <span class="progression-copies progression-copies--max">MAX</span>
+                                `}
+                            </div>
+                            
+                            ${entry.level < 6 ? `
+                                <div class="progression-bar">
+                                    <div class="progression-bar-fill" style="width: ${Math.min(100, (Math.max(0, entry.quantity - 1) / entry.required_next) * 100)}%"></div>
+                                </div>
+                            ` : ''}
+
+                            <div class="progression-stats">
+                                <div class="progression-stat-row">
+                                    <span class="stat-name">HP</span>
+                                    <span class="stat-value">${statsNow.hp || 0}</span>
+                                    ${statsNext.hp ? `<span class="stat-arrow">→</span><span class="stat-value-next">${statsNext.hp}</span>` : ''}
+                                </div>
+                                <div class="progression-stat-row">
+                                    <span class="stat-name">ATK</span>
+                                    <span class="stat-value">${statsNow.attack || 0}</span>
+                                    ${statsNext.attack ? `<span class="stat-arrow">→</span><span class="stat-value-next">${statsNext.attack}</span>` : ''}
+                                </div>
+                                <div class="progression-stat-row">
+                                    <span class="stat-name">DEF</span>
+                                    <span class="stat-value">${statsNow.defense || 0}</span>
+                                    ${statsNext.defense ? `<span class="stat-arrow">→</span><span class="stat-value-next">${statsNext.defense}</span>` : ''}
+                                </div>
+                                <div class="progression-stat-row">
+                                    <span class="stat-name">SPD</span>
+                                    <span class="stat-value">${statsNow.speed || 0}</span>
+                                    ${statsNext.speed ? `<span class="stat-arrow">→</span><span class="stat-value-next">${statsNext.speed}</span>` : ''}
+                                </div>
+                            </div>
+
+                            <div class="progression-upgrade-action">
+                                ${entry.level < 6 ? `
+                                    <button type="button" class="inv-btn inv-btn--upgrade" id="btnUpgradeCharacter" ${Math.max(0, entry.quantity - 1) < entry.required_next ? 'disabled' : ''}>
+                                        <i class="fa-solid fa-angles-up"></i>
+                                        <span>Potenzia</span>
+                                    </button>
+                                    ${Math.max(0, entry.quantity - 1) < entry.required_next ? `
+                                        <small class="progression-hint">Ti mancano ${entry.required_next - Math.max(0, entry.quantity - 1)} copie duplicate per sbloccare il prossimo livello.</small>
+                                    ` : `
+                                        <small class="progression-hint progression-hint--ready">Pronto per il potenziamento!</small>
+                                    `}
+                                ` : `
+                                    <div class="progression-max-badge">
+                                        <i class="fa-solid fa-crown"></i>
+                                        <span>POTENZA MASSIMA RAGGIUNTA</span>
+                                    </div>
+                                `}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         `;
+
+        // Gestione Tab cliccabili
+        const tabBtns = $$('.modal-tab-btn', content);
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => {
+                    b.classList.remove('active');
+                    b.style.color = 'var(--inv-muted)';
+                    b.style.background = 'none';
+                });
+                btn.classList.add('active');
+                btn.style.color = 'var(--inv-text)';
+                btn.style.background = 'rgba(255, 255, 255, 0.04)';
+
+                $$('.modal-tab-content', content).forEach(c => {
+                    c.style.display = 'none';
+                    c.classList.remove('active');
+                });
+                
+                const tabId = btn.dataset.tab;
+                const tabContent = content.querySelector(`#tab-${tabId}-content`);
+                if (tabContent) {
+                    tabContent.style.display = 'block';
+                    void tabContent.offsetWidth;
+                    tabContent.classList.add('active');
+                }
+            });
+        });
+
+        // Configura il colore iniziale del tab attivo
+        const activeBtn = content.querySelector('.modal-tab-btn.active');
+        if (activeBtn) {
+            activeBtn.style.color = 'var(--inv-text)';
+            activeBtn.style.background = 'rgba(255, 255, 255, 0.04)';
+        }
 
         const btnUpgrade = $('#btnUpgradeCharacter');
         if (btnUpgrade) {
@@ -759,11 +814,20 @@
                                 }, 1200);
                             }
                             
+                            // Mostra i popup di sblocco degli achievement ricevuti
+                            if (Array.isArray(data.unlocked_achievements)) {
+                                data.unlocked_achievements.forEach((achId) => {
+                                    if (typeof window.showAchievementPopup === 'function') {
+                                        window.showAchievementPopup(achId);
+                                    }
+                                });
+                            }
+
                             await loadInventory();
                             
                             const updatedEntry = state.entries.find(item => String(item.id) === String(entry.id));
                             if (updatedEntry) {
-                                setTimeout(() => openCharacterModal(updatedEntry), 500);
+                                setTimeout(() => openCharacterModal(updatedEntry, 'upgrade'), 500);
                             } else {
                                 closeCharacterModal();
                             }
