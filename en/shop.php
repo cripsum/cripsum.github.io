@@ -71,7 +71,7 @@ $successPackage = $_GET['package_id'] ?? '';
     <meta charset="UTF-8">
     <title>Godo Shards Shop - Cripsum™</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/shop.css?v=1.6">
+    <link rel="stylesheet" href="/css/shop.css?v=1.7">
     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo urlencode(PAYPAL_CLIENT_ID); ?>&currency=EUR&locale=en_US"></script>
     <style>
         .shop-toast {
@@ -294,11 +294,18 @@ $successPackage = $_GET['package_id'] ?? '';
         let currentPackagePrice = '';
 
         let paymentModal;
-        document.addEventListener('DOMContentLoaded', () => {
-            paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
-        });
 
         function openPaymentModal(pid, name, price) {
+            if (!paymentModal) {
+                const el = document.getElementById('paymentModal');
+                if (el) {
+                    try {
+                        paymentModal = new bootstrap.Modal(el);
+                    } catch (e) {
+                        console.error("Failed to initialize paymentModal:", e);
+                    }
+                }
+            }
             currentPackageId = pid;
             currentPackagePrice = price;
 
@@ -389,7 +396,6 @@ $successPackage = $_GET['package_id'] ?? '';
         let sliderMaxLabel;
 
         document.addEventListener('DOMContentLoaded', () => {
-            godosConverterModal = new bootstrap.Modal(document.getElementById('godosConversionModal'));
             godosSlider = document.getElementById('godos-slider');
             sliderShardsVal = document.getElementById('slider-shards-val');
             sliderGodosCost = document.getElementById('slider-godos-cost');
@@ -406,6 +412,16 @@ $successPackage = $_GET['package_id'] ?? '';
         });
 
         function openGodosConverter() {
+            if (!godosConverterModal) {
+                const el = document.getElementById('godosConversionModal');
+                if (el) {
+                    try {
+                        godosConverterModal = new bootstrap.Modal(el);
+                    } catch (e) {
+                        console.error("Failed to initialize godosConverterModal:", e);
+                    }
+                }
+            }
             const maxBuyable = Math.floor(userGodos / 100);
             if (maxBuyable <= 0) {
                 alert("You do not have enough Godos to purchase Godo Shards! (Cost: 100 Godos per Shard)");
