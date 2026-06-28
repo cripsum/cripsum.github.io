@@ -270,15 +270,15 @@
                 </button>
                 <button type="button" class="game-card-info-btn" aria-label="Info"><i class="fa-solid fa-circle-info"></i></button>
                 <div class="game-card-details-hover">
-                    <div class="game-hover-header">
-                        <h4>${esc(card.nome)}</h4>
-                        <button type="button" class="game-hover-close-btn">&times;</button>
-                        <div class="game-hover-badges">
-                            <span class="game-card-rarity-badge">${esc(rarKey)}</span>
-                            <span class="game-card-role-badge" data-role="${esc(stats.role || 'DPS')}">${esc(stats.role || 'DPS')}</span>
-                        </div>
-                    </div>
                     <div class="game-hover-body">
+                        <div class="game-hover-header">
+                            <h4>${esc(card.nome)}</h4>
+                            <button type="button" class="game-hover-close-btn">&times;</button>
+                            <div class="game-hover-badges">
+                                <span class="game-card-rarity-badge">${esc(rarKey)}</span>
+                                <span class="game-card-role-badge" data-role="${esc(stats.role || 'DPS')}">${esc(stats.role || 'DPS')}</span>
+                            </div>
+                        </div>
                         <div class="game-detail-section">
                             <div class="game-detail-header">
                                 <span class="game-detail-label passive">${gt.passive_label}</span>
@@ -317,6 +317,15 @@
                         if (h !== hover) h.classList.remove('is-active');
                     });
                     hover.classList.toggle('is-active');
+                });
+            }
+            
+            if (hover) {
+                hover.addEventListener('click', (e) => {
+                    if (e.target === hover) {
+                        e.stopPropagation();
+                        hover.classList.remove('is-active');
+                    }
                 });
             }
             
@@ -566,7 +575,14 @@
         const panel = $('#combatKitPanel');
         if (!panel) return;
         if (!card) {
-            panel.innerHTML = `<div class="game-combat-kit-empty">${lang === 'en' ? 'No active character' : 'Nessun personaggio attivo'}</div>`;
+            panel.innerHTML = `
+                <div class="game-log-title">
+                    <i class="fa-solid fa-address-card"></i> ${lang === 'en' ? 'Active Character Kit' : 'Kit Personaggio in Campo'}
+                </div>
+                <div class="game-combat-kit-empty" style="padding: 1rem; color: var(--game-muted); font-size: 0.9rem;">
+                    ${lang === 'en' ? 'No active character' : 'Nessun personaggio attivo'}
+                </div>
+            `;
             return;
         }
         
@@ -585,62 +601,64 @@
         }).join('');
         
         panel.innerHTML = `
-            <div class="game-kit-panel-title">
-                <i class="fa-solid fa-address-card"></i> ${lang === 'en' ? 'ACTIVE CHARACTER KIT' : 'KIT PERSONAGGIO IN CAMPO'}
+            <div class="game-log-title">
+                <i class="fa-solid fa-address-card"></i> ${lang === 'en' ? 'Active Character Kit' : 'Kit Personaggio in Campo'}
             </div>
             
-            <div class="game-kit-profile">
-                <strong>${esc(ch.nome || 'Carta')}</strong>
-                <span class="game-kit-badge-role" data-role="${esc(card.role || 'DPS')}">${esc(card.role || 'DPS')}</span>
-            </div>
-            
-            <div class="game-kit-stats-grid">
-                <div class="game-kit-stat-box">HP: <span>${card.current_hp}/${card.max_hp}</span></div>
-                <div class="game-kit-stat-box">ATK: <span>${card.attack}</span></div>
-                <div class="game-kit-stat-box">DEF: <span>${card.defense}</span></div>
-                <div class="game-kit-stat-box">SPD: <span>${card.speed}</span></div>
-                <div class="game-kit-stat-box">${lang === 'en' ? 'Crit Rate' : 'Critico'}: <span>${card.crit_rate}%</span></div>
-                <div class="game-kit-stat-box">${lang === 'en' ? 'Crit Dmg' : 'Danno Crit'}: <span>${card.crit_dmg}%</span></div>
-            </div>
-            
-            <div class="game-kit-skills">
-                <div class="game-kit-skill-section">
-                    <div class="game-kit-skill-header">
-                        <span class="game-kit-skill-type passive">${lang === 'en' ? 'PASSIVE' : 'PASSIVA'}</span>
-                        <strong>${esc(card.passive_name || (lang === 'en' ? 'None' : 'Nessuna'))}</strong>
-                    </div>
-                    <p class="game-kit-skill-desc">${esc(card.passive_desc || gt.no_passive_effect)}</p>
+            <div class="game-kit-body">
+                <div class="game-kit-profile">
+                    <strong>${esc(ch.nome || 'Carta')}</strong>
+                    <span class="game-kit-badge-role" data-role="${esc(card.role || 'DPS')}">${esc(card.role || 'DPS')}</span>
                 </div>
                 
-                <div class="game-kit-skill-section">
-                    <div class="game-kit-skill-header">
-                        <span class="game-kit-skill-type special">${lang === 'en' ? 'SPECIAL' : 'SPECIALE'}</span>
-                        <strong>${esc(card.special_name || (lang === 'en' ? 'Skill' : 'Colpo'))}</strong>
-                    </div>
-                    <div class="game-kit-skill-meta">
-                        <span>E: ${specCost}</span>
-                        <span>CD: ${specCdCur}/${specCdMax}</span>
-                    </div>
-                    <p class="game-kit-skill-desc">${esc(card.special_desc || gt.default_special_desc)}</p>
+                <div class="game-kit-stats-grid">
+                    <div class="game-kit-stat-box">HP: <span>${card.current_hp}/${card.max_hp}</span></div>
+                    <div class="game-kit-stat-box">ATK: <span>${card.attack}</span></div>
+                    <div class="game-kit-stat-box">DEF: <span>${card.defense}</span></div>
+                    <div class="game-kit-stat-box">SPD: <span>${card.speed}</span></div>
+                    <div class="game-kit-stat-box">${lang === 'en' ? 'Crit Rate' : 'Critico'}: <span>${card.crit_rate}%</span></div>
+                    <div class="game-kit-stat-box">${lang === 'en' ? 'Crit Dmg' : 'Danno Crit'}: <span>${card.crit_dmg}%</span></div>
                 </div>
                 
-                ${card.ultimate_name ? `
-                <div class="game-kit-skill-section ultimate">
-                    <div class="game-kit-skill-header">
-                        <span class="game-kit-skill-type ultimate">${lang === 'en' ? 'ULTIMATE' : 'ULTIMATE'}</span>
-                        <strong>${esc(card.ultimate_name)}</strong>
+                <div class="game-kit-skills">
+                    <div class="game-kit-skill-section">
+                        <div class="game-kit-skill-header">
+                            <span class="game-kit-skill-type passive">${lang === 'en' ? 'PASSIVE' : 'PASSIVA'}</span>
+                            <strong>${esc(card.passive_name || (lang === 'en' ? 'None' : 'Nessuna'))}</strong>
+                        </div>
+                        <p class="game-kit-skill-desc">${esc(card.passive_desc || gt.no_passive_effect)}</p>
                     </div>
-                    <p class="game-kit-skill-desc">${esc(card.ultimate_desc || gt.default_ultimate_desc)}</p>
+                    
+                    <div class="game-kit-skill-section">
+                        <div class="game-kit-skill-header">
+                            <span class="game-kit-skill-type special">${lang === 'en' ? 'SPECIAL' : 'SPECIALE'}</span>
+                            <strong>${esc(card.special_name || (lang === 'en' ? 'Skill' : 'Colpo'))}</strong>
+                        </div>
+                        <div class="game-kit-skill-meta">
+                            <span>E: ${specCost}</span>
+                            <span>CD: ${specCdCur}/${specCdMax}</span>
+                        </div>
+                        <p class="game-kit-skill-desc">${esc(card.special_desc || gt.default_special_desc)}</p>
+                    </div>
+                    
+                    ${card.ultimate_name ? `
+                    <div class="game-kit-skill-section ultimate">
+                        <div class="game-kit-skill-header">
+                            <span class="game-kit-skill-type ultimate">${lang === 'en' ? 'ULTIMATE' : 'ULTIMATE'}</span>
+                            <strong>${esc(card.ultimate_name)}</strong>
+                        </div>
+                        <p class="game-kit-skill-desc">${esc(card.ultimate_desc || gt.default_ultimate_desc)}</p>
+                    </div>
+                    ` : ''}
+                </div>
+                
+                ${effectsHtml ? `
+                <div class="game-kit-effects">
+                    <div class="game-kit-effects-title">${lang === 'en' ? 'Active Effects' : 'Effetti Attivi'}</div>
+                    <div class="game-kit-effects-list">${effectsHtml}</div>
                 </div>
                 ` : ''}
             </div>
-            
-            ${effectsHtml ? `
-            <div class="game-kit-effects">
-                <div class="game-kit-effects-title">${lang === 'en' ? 'Active Effects' : 'Effetti Attivi'}</div>
-                <div class="game-kit-effects-list">${effectsHtml}</div>
-            </div>
-            ` : ''}
         `;
     }
     function renderTeam(sel,cards,mine){const el=$(sel); if(!el)return; el.innerHTML=cards.map(c=>{const ch=c.character||{}; const lvlVal = c.livello || c.level || 1; const lvlText = lvlVal === 6 ? 'MAX' : lvlVal; return `<button class="game-mini-card ${Number(c.is_active)?'is-active':''} ${Number(c.is_ko)?'is-ko':''}" data-card-id="${c.id}" type="button" ${mine&&!Number(c.is_ko)&&!Number(c.is_active)?'':'disabled'}>${cardImg(ch.img_url,ch.nome)}<strong>${esc(ch.nome||'Carta')} <small style="color:var(--inv-gold);font-weight:normal;">Lv.${lvlText}</small></strong><small>${c.current_hp}/${c.max_hp} HP</small></button>`}).join(''); if(mine && state.match?.viewer_role !== 'spectator')$$('.game-mini-card',el).forEach(btn=>btn.addEventListener('click',()=>submitBattle('switch',Number(btn.dataset.cardId))))}
