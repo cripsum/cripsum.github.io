@@ -27,7 +27,38 @@
     function goArena(matchId){const lang=window.location.pathname.includes('/en/')?'en':'it';window.location.href=`/${lang}/game/arena.php?match_id=${encodeURIComponent(matchId)}`;}
     function modeLabel(mode){return mode==='ranked'?'Ranked':mode==='bot'?'Offline vs Bot':'Partita';}
 
-    async function loadProfile(){const box=$('#profileSummary'); if(!box)return; try{const d=await api('/api/game/profile_summary.php',{},'GET'); const u=d.profile.user, inv=d.profile.inventory; box.innerHTML=`<div class="game-profile-top"><img src="${esc(u.pfp_url)}" alt="${esc(u.username)}" onerror="this.src='/img/Susremaster.png'"><div><strong>${esc(u.username)} ${rankBadge(u.rank)}</strong></div></div><div class="game-profile-stats"><div><b>${u.rating}</b><small>Punti ranked</small></div><div><b>${inv.unique}</b><small>Personaggi</small></div><div><b>${u.wins}/${u.losses}</b><small>W/L</small></div></div>`}catch(e){box.innerHTML='<p class="game-hint">Profilo non caricato.</p>'}}
+    async function loadProfile(){
+        const box=$('#profileSummary'); 
+        if(!box)return; 
+        try{
+            const d=await api('/api/game/profile_summary.php',{},'GET'); 
+            const u=d.profile.user, inv=d.profile.inventory;
+            const isEn = window.location.pathname.includes('/en/');
+            
+            const totalGames = Number(u.games_played || (Number(u.wins) + Number(u.losses)));
+            const winRate = totalGames > 0 ? Math.round((Number(u.wins) / totalGames) * 100) : 0;
+            
+            box.innerHTML=`
+                <div class="game-profile-top">
+                    <img src="${esc(u.pfp_url)}" alt="${esc(u.username)}" onerror="this.src='/img/Susremaster.png'">
+                    <div>
+                        <strong>${esc(u.username)}</strong>
+                        <div style="margin-top: 4px;">${rankBadge(u.rank)}</div>
+                    </div>
+                </div>
+                <div class="game-profile-stats">
+                    <div><b>${u.rating}</b><small>${isEn ? 'Ranked Points' : 'Punti ranked'}</small></div>
+                    <div><b>${inv.unique} <span style="font-size:0.8rem;opacity:0.75">/ ${inv.total}</span></b><small>${isEn ? 'Characters' : 'Personaggi'}</small></div>
+                    <div><b>${u.wins} - ${u.losses}</b><small>${isEn ? 'W/L Record' : 'Record W/L'}</small></div>
+                    <div><b>${winRate}%</b><small>${isEn ? 'Win Rate' : 'Win Rate'}</small></div>
+                    <div><b>${u.best_streak}</b><small>${isEn ? 'Best Streak' : 'Miglior Streak'}</small></div>
+                    <div><b>${totalGames}</b><small>${isEn ? 'Games Played' : 'Partite giocate'}</small></div>
+                </div>
+            `;
+        }catch(e){
+            box.innerHTML='<p class="game-hint">Profilo non caricato.</p>'
+        }
+    }
     async function loadRanking(){const wrap=$('#rankingList'); if(!wrap)return; try{const d=await api('/api/game/get_ranking.php',{},'GET'); const rows=d.ranking||[]; if(!rows.length){wrap.innerHTML='<p class="game-hint">Classifica vuota.</p>';return} wrap.innerHTML=rows.map((r,i)=>`<div class="game-rank-row"><strong>#${i+1}</strong><span class="game-rank-name">${rankBadge(r.rank)} ${esc(r.username)}</span><span class="game-rank-meta"><b>${r.rating}</b></span></div>`).join('')}catch(e){wrap.innerHTML='<p class="game-hint">Classifica non caricata.</p>';}}
     
     async function loadLiveMatches(){
