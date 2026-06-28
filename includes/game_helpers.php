@@ -421,6 +421,12 @@ function gd_get_modified_stats(array $card): array {
     $atk_mult = 1.0;
     $def_mult = 1.0;
     $spd_mult = 1.0;
+    $def_flat_bonus = 0;
+    
+    // Nauz u Trichecu (87) - Spesso Strato di Grasso (+15% degli HP max come difesa flat)
+    if ((int)($card['personaggio_id'] ?? 0) === 87) {
+        $def_flat_bonus = (int)round((int)$card['max_hp'] * 0.15);
+    }
     
     $effects = json_decode($card['status_effects'] ?: '[]', true);
     if (is_array($effects)) {
@@ -453,7 +459,7 @@ function gd_get_modified_stats(array $card): array {
     
     return [
         'attack' => max(1, (int)round((int)$card['attack'] * $atk_mult)),
-        'defense' => max(0, (int)round((int)$card['defense'] * $def_mult)),
+        'defense' => max(0, (int)round((int)$card['defense'] * $def_mult) + $def_flat_bonus),
         'speed' => max(1, (int)round((int)$card['speed'] * $spd_mult)),
     ];
 }
@@ -523,6 +529,10 @@ function gd_check_and_trigger_resurrect(mysqli $m, int $mid, int $uid, array $de
 function gd_transition_turn(mysqli $m, array $match, int $next_uid): void {
     $mid = (int)$match['id'];
     $turn = (int)$match['turn_number'];
+    
+    $stunned_this_turn = false;
+    $ko = 0;
+    $double_turn = false;
     
     $active = gd_active($m, $mid, $next_uid);
     if (!$active) {
@@ -766,6 +776,10 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
     if (!$actor) gd_fail('Nessuna carta attiva.');
     $actorId = (int)$actor['id'];
     
+    $actor_char = gd_character($m, (int)$actor['personaggio_id']) ?? ['nome' => 'Personaggio', 'rarita' => 'comune'];
+    $char_name = $actor_char['nome'];
+    $actor_cfg = gd_get_character_config((int)$actor['personaggio_id'], $actor_char['rarita'] ?? 'comune', $actor_char['nome'] ?? '');
+    
     $dmg = 0;
     $msg = '';
     $is_crit = false;
@@ -862,13 +876,9 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
         $a_stats = gd_get_modified_stats($actor);
         $t_stats = gd_get_modified_stats($t);
         
-        $actor_char = gd_character($m, (int)$actor['personaggio_id']) ?? ['nome' => 'Personaggio', 'rarita' => 'comune'];
         $target_char = gd_character($m, (int)$t['personaggio_id']) ?? ['nome' => 'Personaggio', 'rarita' => 'comune'];
-        
-        $char_name = $actor_char['nome'];
         $target_name = $target_char['nome'];
         
-        $actor_cfg = gd_get_character_config((int)$actor['personaggio_id'], $actor_char['rarita'] ?? 'comune', $actor_char['nome'] ?? '');
         $target_cfg = gd_get_character_config((int)$t['personaggio_id'], $target_char['rarita'] ?? 'comune', $target_char['nome'] ?? '');
         
         // Charlie Kirk - Fatti e Logica (ignora il 30% della difesa nemica)
@@ -986,7 +996,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
         // Passiva Bruiser
         if ($actor['role'] === 'Bruiser') {
             $lost_hp_pct = ((int)$actor['max_hp'] - (int)$actor['current_hp']) / (int)$actor['max_hp'];
-            $pct_per_stack = (isset($ch_cfg['passive_effect']['type']) && $ch_cfg['passive_effect']['type'] === 'atk_scale_lost_hp_heavy') ? 8 : 5;
+            $pct_per_stack = (isset($actor_cfg['passive_effect']['type']) && $actor_cfg['passive_effect']['type'] === 'atk_scale_lost_hp_heavy') ? 8 : 5;
             $bruiser_buff = (int)floor($lost_hp_pct * 10) * $pct_per_stack;
             if ($bruiser_buff > 0) {
                 $atk_mult += $bruiser_buff / 100;
@@ -1008,14 +1018,14 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                 }
             }
             if ($has_debuff) {
-                $bonus = (isset($ch_cfg['passive_effect']['type']) && $ch_cfg['passive_effect']['type'] === 'bonus_dmg_on_debuffed_heavy') ? 35 : 20;
+                $bonus = (isset($actor_cfg['passive_effect']['type']) && $actor_cfg['passive_effect']['type'] === 'bonus_dmg_on_debuffed_heavy') ? 35 : 20;
                 $atk_mult += $bonus / 100;
             }
         }
         
         // Passiva DPS: Gestione Crit Ramp on Non-Crit
         $ramp_val = 0;
-        $ramp_type = $ch_cfg['passive_effect']['type'] ?? '';
+        $ramp_type = $actor_cfg['passive_effect']['type'] ?? '';
         $is_ramp_passive = ($ramp_type === 'crit_ramp_on_non_crit' || $ramp_type === 'crit_ramp_on_non_crit_heavy');
         foreach ($actor_effects as $eff) {
             if ($eff['type'] === 'crit_ramp') {
@@ -1052,11 +1062,16 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                 }
                 // Passiva Controller
                 if ($actor['role'] === 'Controller') {
-                    $chance = (isset($cfg['passive_effect']['type']) && $cfg['passive_effect']['type'] === 'freeze_on_hit_heavy') ? 30 : 15;
-                    if (random_int(1, 100) <= $chance) {
+                    if (random_int(1, 100) <= 25) {
                         $t_effects[] = ['type' => 'freeze', 'value' => 1, 'duration' => 1, 'name' => 'Congelamento'];
+                        if ((int)($t['personaggio_id'] ?? 0) === 75) {
+                            $t_effects = array_filter($t_effects, function($e) { return !in_array($e['type'], ['poison', 'bleed', 'stun', 'freeze', 'debuff_atk', 'debuff_def', 'debuff_spd', 'silence'], true); });
+                        }
+                        if ((int)($t['personaggio_id'] ?? 0) === 87) {
+                            $t_effects = array_filter($t_effects, function($e) { return $e['type'] !== 'freeze'; });
+                        }
                         $m->query("UPDATE game_match_cards SET status_effects='" . $m->escape_string(json_encode($t_effects)) . "' WHERE id={$target}");
-                        $msg .= " Bersaglio Congelato!";
+                        $msg .= " **[Controllo]** {$char_name} congela {$target_name}!";
                     }
                 }
             }
@@ -1661,6 +1676,15 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                     $m->query("UPDATE game_match_cards SET energy={$new_a_en} WHERE id={$actorId}");
                     $msg .= " **[Sussidio]** Ruba 1 Energia a {$target_name}!";
                 }
+            }
+        }
+        
+        // Manuel Beatboxer - Ritmo Asfissiante (25% probabilità di stordire all'attacco base)
+        if ((int)($actor['personaggio_id'] ?? 0) === 50 && $act === 'basic_attack' && !$target_immune) {
+            if (random_int(1, 100) <= 25) {
+                $t_effects[] = ['type' => 'stun', 'value' => 1, 'duration' => 1, 'name' => 'Stordimento'];
+                $m->query("UPDATE game_match_cards SET status_effects='" . $m->escape_string(json_encode($t_effects)) . "' WHERE id={$target}");
+                $msg .= " **[Ritmo Asfissiante]** Manuel stordisce {$target_name} per 1 turno!";
             }
         }
         

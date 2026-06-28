@@ -254,7 +254,7 @@ function gd_api_action(mysqli $mysqli): void {
         $mysqli->rollback();
         if (http_response_code() !== 200) exit;
         error_log('gd_action: '.$e->getMessage());
-        gd_fail('Azione fallita.',500);
+        gd_fail('Azione fallita: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine(), 500);
     }
 }
 function gd_api_forfeit(mysqli $mysqli): void { $uid=gd_require_login(); $mid=(int)(gd_input()['match_id']??0); $match=gd_require_match($mysqli,$mid,$uid); if(in_array($match['status'],['finished','cancelled'],true)) gd_fail('Partita già conclusa.'); $opp=(int)$match['player1_id']===$uid?(int)$match['player2_id']:(int)$match['player1_id']; if($opp>0){gd_log($mysqli,$mid,$uid,(int)$match['turn_number'],'forfeit',null,null,0,'Abbandona la partita.'); gd_finish($mysqli,$match,$opp,$uid);} else {$q=$mysqli->prepare("UPDATE game_matches SET status='cancelled',finished_at=NOW() WHERE id=?");$q->bind_param('i',$mid);$q->execute();$q->close();} gd_ok(['message'=>'Partita abbandonata.']); }
