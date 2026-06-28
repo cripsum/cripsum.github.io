@@ -349,7 +349,29 @@
     function showOnly(id){['#waitingPanel','#teamPanel','#arenaPanel'].forEach(s=>{const el=$(s); if(el)el.hidden=(s!==id)})}
     function startPolling(){stopPolling(); pollState(true); state.poll=setInterval(()=>{if(!document.hidden)pollState(false)},1500)}
     function stopPolling(){if(state.poll)clearInterval(state.poll); state.poll=null;}
-    async function pollState(first=false){if(!state.matchId)return; try{const d=await api('/api/game/get_match_state.php',{match_id:state.matchId},'GET'); const oldLast=state.lastActionId; state.match=d.match; renderMatch(first); const actions=state.match.actions||[]; const newest=actions.length?Number(actions[actions.length-1].id):0; if(!first && newest>oldLast){const newActions=actions.filter(a=>Number(a.id)>oldLast); (async()=>{for(const act of newActions){await animateAction(act)}})();} state.lastActionId=Math.max(oldLast,newest);}catch(e){showToast(e.message)}}
+    async function pollState(first=false){
+        if(!state.matchId)return; 
+        try{
+            const d=await api('/api/game/get_match_state.php',{match_id:state.matchId},'GET'); 
+            const oldLast=state.lastActionId; 
+            state.match=d.match; 
+            renderMatch(first); 
+            const actions=state.match.actions||[]; 
+            const newest=actions.length?Number(actions[actions.length-1].id):0; 
+            if(!first && newest>oldLast){
+                const newActions=actions.filter(a=>Number(a.id)>oldLast); 
+                for(const act of newActions){
+                    await animateAction(act);
+                }
+            } 
+            state.lastActionId=Math.max(oldLast,newest);
+            if(state.match.status==='finished' && state.match.viewer_role !== 'spectator'){
+                showResult();
+            }
+        }catch(e){
+            showToast(e.message);
+        }
+    }
     function myId(){return state.match?.viewer_id}
     function isSpectator(){return state.match?.viewer_role === 'spectator'}
     function playerById(uid){const m=state.match;if(!m||uid===null||uid===undefined)return null; if(Number(m.player1_id)===Number(uid))return m.players?.player1||null; if(Number(m.player2_id)===Number(uid))return m.players?.player2||null; return null;}
@@ -482,8 +504,6 @@
                 ultBtn.style.display = 'none';
             }
         }
-
-        if(m.status==='finished' && !spectator)showResult();
     }
     function roleBadge(role) {
         const emojis = {
