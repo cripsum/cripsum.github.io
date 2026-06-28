@@ -324,6 +324,15 @@ function gd_owns(mysqli $m, int $uid, int $pid): bool
 }
 function gd_match(mysqli $m, int $mid): ?array
 {
+    static $checked = false;
+    if (!$checked) {
+        $cols = gd_cols($m, 'game_matches');
+        if (!in_array('max_level', $cols, true)) {
+            $m->query("ALTER TABLE game_matches ADD COLUMN max_level TINYINT DEFAULT 0");
+        }
+        $checked = true;
+    }
+
     $st = $m->prepare('SELECT * FROM game_matches WHERE id=? LIMIT 1');
     if (!$st) gd_fail('Query match non valida.', 500);
     $st->bind_param('i', $mid);
@@ -972,6 +981,7 @@ function gd_insert_team_cards(mysqli $m, int $mid, int $uid, array $team): void
 {
     $match = gd_match($m, $mid);
     $is_bot = $match && gd_is_bot_match($match);
+    $is_max_lvl = $match && (int)($match['max_level'] ?? 0) === 1;
 
     $ins = $m->prepare('INSERT INTO game_match_cards (match_id,user_id,personaggio_id,slot_index,current_hp,max_hp,attack,defense,speed,energy,max_energy,special_name,special_cost,special_cooldown_max,special_cooldown,is_active,role,shield,crit_rate,crit_dmg,status_effects,livello) VALUES (?,?,?,?,?,?,?,?,?,1,?,?,?,?,0,?,?,?,?,?,?,?)');
     if (!$ins) throw new Exception($m->error);
@@ -979,7 +989,7 @@ function gd_insert_team_cards(mysqli $m, int $mid, int $uid, array $team): void
         $pid = (int)$pid;
 
         $level = 1;
-        if ($is_bot) {
+        if ($is_bot || $is_max_lvl) {
             $level = 6;
         } else {
             $lvl_st = $m->prepare('SELECT livello FROM utenti_personaggi WHERE utente_id=? AND personaggio_id=? LIMIT 1');

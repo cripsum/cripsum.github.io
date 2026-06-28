@@ -8,6 +8,8 @@ function gd_api_create_match(mysqli $mysqli): void {
     $code = gd_room_code();
 
     $passwordHash = null;
+    $maxLevel = (int)($in['max_level'] ?? 0) === 1 ? 1 : 0;
+
     if ($mode === 'private') {
         $password = trim((string)($in['password'] ?? ''));
         if (mb_strlen($password) < 3 || mb_strlen($password) > 64) {
@@ -19,15 +21,15 @@ function gd_api_create_match(mysqli $mysqli): void {
     $status = $mode === 'bot' ? 'team_select' : 'waiting';
     $spectatorAllowed = $mode === 'bot' ? 0 : 1;
 
-    if (gd_has_col($mysqli, 'game_matches', 'private_password_hash')) {
-        $q = $mysqli->prepare('INSERT INTO game_matches (room_code, private_password_hash, status, mode, player1_id, spectator_allowed) VALUES (?, ?, ?, ?, ?, ?)');
-        if (!$q) gd_fail('Non riesco a creare la partita.', 500);
-        $q->bind_param('ssssii', $code, $passwordHash, $status, $mode, $uid, $spectatorAllowed);
-    } else {
-        $q = $mysqli->prepare('INSERT INTO game_matches (room_code, status, mode, player1_id, spectator_allowed) VALUES (?, ?, ?, ?, ?)');
-        if (!$q) gd_fail('Non riesco a creare la partita.', 500);
-        $q->bind_param('sssii', $code, $status, $mode, $uid, $spectatorAllowed);
+    // Self-healing DB check for max_level column
+    $cols = gd_cols($mysqli, 'game_matches');
+    if (!in_array('max_level', $cols, true)) {
+        $mysqli->query("ALTER TABLE game_matches ADD COLUMN max_level TINYINT DEFAULT 0");
     }
+
+    $q = $mysqli->prepare('INSERT INTO game_matches (room_code, private_password_hash, status, mode, player1_id, spectator_allowed, max_level) VALUES (?, ?, ?, ?, ?, ?, ?)');
+    if (!$q) gd_fail('Non riesco a creare la partita.', 500);
+    $q->bind_param('ssssiii', $code, $passwordHash, $status, $mode, $uid, $spectatorAllowed, $maxLevel);
 
     $q->execute();
     $id = $q->insert_id;

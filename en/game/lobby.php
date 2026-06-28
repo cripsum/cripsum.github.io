@@ -87,7 +87,11 @@ if (!isLoggedIn()) {
                             <span>Generate a private room protected by a password.</span>
                         </div>
                         <input id="privatePasswordInput" type="password" maxlength="64" placeholder="Room password">
-                        <button class="game-btn game-btn-special" data-action="create-private" type="button">
+                        <label class="game-checkbox-label" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; cursor: pointer; color: var(--game-text-secondary); margin-top: 0.25rem; width: fit-content;">
+                            <input id="privateMaxLevelCheckbox" type="checkbox" style="accent-color: var(--game-accent); margin: 0; width: 16px; height: 16px; cursor: pointer;">
+                            Characters at maximum level (Lv. 6)
+                        </label>
+                        <button class="game-btn game-btn-special" data-action="create-private" type="button" style="margin-top: 0.5rem;">
                             <i class="fa-solid fa-lock"></i> Create private
                         </button>
                     </div>
