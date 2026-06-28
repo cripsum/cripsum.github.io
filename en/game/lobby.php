@@ -19,8 +19,8 @@ if (!isLoggedIn()) {
     <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ Duel - Lobby</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/css/game.css?v=2.3-strategic-duels">
-    <script src="/assets/js/game.js?v=2.3-strategic-duels" defer></script>
+    <link rel="stylesheet" href="/assets/css/game.css?v=2.5-strategic-duels">
+    <script src="/assets/js/game.js?v=2.5-strategic-duels" defer></script>
 </head>
 
 <body class="game-page" data-page="duel-lobby">
@@ -50,61 +50,75 @@ if (!isLoggedIn()) {
                 <section class="game-panel game-reveal" id="gameLobby">
                     <div class="game-panel-head">
                         <div>
-                            <span class="game-kicker">Start</span>
-                            <h2>Inizia una partita</h2>
+                            <h2>Quick Matchmaking</h2>
                         </div>
                     </div>
                     <div class="game-action-grid">
                         <button class="game-mode-card" data-action="find-match" data-mode="casual" type="button">
-                            <i class="fa-solid fa-gamepad"></i><strong>Casual</strong><span>Partita normale, senza punti ranked.</span>
+                            <i class="fa-solid fa-gamepad"></i><strong>Casual</strong><span>Normal match, without ranked points.</span>
                         </button>
                         <button class="game-mode-card" data-action="find-match" data-mode="ranked" type="button">
-                            <i class="fa-solid fa-ranking-star"></i><strong>Ranked</strong><span>Vinci o perdi punti. Sali di categoria.</span>
+                            <i class="fa-solid fa-ranking-star"></i><strong>Ranked</strong><span>Win or lose points. Climb the ranks.</span>
                         </button>
                         <button class="game-mode-card game-mode-card-bot" data-action="create-bot" type="button">
-                            <i class="fa-solid fa-robot"></i><strong>Offline vs Bot</strong><span>Gioca subito contro il bot, senza aspettare.</span>
+                            <i class="fa-solid fa-robot"></i><strong>Offline vs Bot</strong><span>Play instantly against the bot, without waiting.</span>
                         </button>
-                    </div>
-
-                    <div class="game-private-box">
-                        <div>
-                            <strong>Stanza privata</strong>
-                            <span>Crea una stanza con codice e password.</span>
-                        </div>
-                        <input id="privatePasswordInput" type="password" maxlength="64" placeholder="Password stanza">
-                        <button class="game-btn game-btn-special" data-action="create-private" type="button">
-                            <i class="fa-solid fa-lock"></i> Crea privata
-                        </button>
-                    </div>
-
-                    <div class="game-join-row game-join-row-v13">
-                        <input id="roomCodeInput" maxlength="16" placeholder="Codice stanza privata">
-                        <input id="joinPasswordInput" type="password" maxlength="64" placeholder="Password">
-                        <button class="game-btn game-btn-main" data-action="join-code" type="button">Entra</button>
                     </div>
 
                     <div class="game-matchmaking-wait" id="matchmakingWait" hidden>
                         <div class="game-matchmaking-orb"><span></span><span></span><span></span></div>
                         <div>
-                            <strong>Cerco avversario...</strong>
-                            <p>Sto preparando la stanza. Se nessuno entra subito, finirai in attesa.</p>
+                            <strong>Finding opponent...</strong>
+                            <p>Preparing the room. If no one joins, you'll be placed on wait.</p>
                         </div>
+                    </div>
+                </section>
+
+                <section class="game-panel game-reveal" id="privateLobby" style="margin-top: 1rem;">
+                    <div class="game-panel-head">
+                        <div>
+                            <h2>Private Room</h2>
+                        </div>
+                    </div>
+
+                    <div class="game-private-box" style="margin-top: 0;">
+                        <div>
+                            <strong>Create Room</strong>
+                            <span>Generate a private room protected by a password.</span>
+                        </div>
+                        <input id="privatePasswordInput" type="password" maxlength="64" placeholder="Room password">
+                        <button class="game-btn game-btn-special" data-action="create-private" type="button">
+                            <i class="fa-solid fa-lock"></i> Create private
+                        </button>
+                    </div>
+
+                    <div style="margin: 1.2rem 0; display: flex; align-items: center; justify-content: center; gap: 1rem; opacity: 0.35;">
+                        <span style="flex: 1; height: 1px; background: var(--game-border);"></span>
+                        <span style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--game-text);">Or Join</span>
+                        <span style="flex: 1; height: 1px; background: var(--game-border);"></span>
+                    </div>
+
+                    <div class="game-join-row game-join-row-v13" style="margin-top: 0; display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.65rem;">
+                        <input id="roomCodeInput" maxlength="16" placeholder="Room code (e.g., CRPSM)">
+                        <input id="joinPasswordInput" type="password" maxlength="64" placeholder="Password (if required)">
+                        <button class="game-btn game-btn-main" data-action="join-code" type="button">Join</button>
                     </div>
                 </section>
 
                 <section class="game-panel game-rules game-reveal" id="rulesPanel">
                     <div class="game-panel-head compact">
-                        <div><span class="game-kicker">Regole</span>
-                            <h2>Come funziona</h2>
+                        <div>
+                            <h2>How it works</h2>
                         </div>
                     </div>
                     <div class="game-rule-list">
-                        <article><i class="fa-solid fa-users"></i><strong> Team da 3</strong><span> - Usi solo personaggi che hai nell’inventario.</span></article>
-                        <article><i class="fa-solid fa-hand-fist"></i><strong> Attacco</strong><span> - Fa danno base e ti dà +1 energia.</span></article>
-                        <article><i class="fa-solid fa-wand-magic-sparkles"></i><strong> Speciale</strong><span> - Fa più danno, ma costa energia e ha un cooldown.</span></article>
-                        <article><i class="fa-solid fa-shield"></i><strong> Difesa</strong><span> - Riduce il prossimo danno e recupera energia.</span></article>
-                        <article><i class="fa-solid fa-battery-full"></i><strong> Carica</strong><span> - Recupera energia se vuoi preparare la mossa speciale.</span></article>
-                        <article><i class="fa-solid fa-repeat"></i><strong> Cambio</strong><span> - Clicca una tua carta sotto per cambiarla. Consuma un turno.</span></article>
+                        <article><i class="fa-solid fa-users"></i><strong> Team of 3</strong><span> - Choose and battle with 3 different characters from your inventory.</span></article>
+                        <article><i class="fa-solid fa-gauge-high"></i><strong> Speed & Turns</strong><span> - The character with the highest Speed goes first at the start of the match.</span></article>
+                        <article><i class="fa-solid fa-hand-fist"></i><strong> Attack</strong><span> - Deals base damage based on ATK and gives you +1 energy.</span></article>
+                        <article><i class="fa-solid fa-wand-magic-sparkles"></i><strong> Special & Roles</strong><span> - Every class (Tank, Healer, DPS, etc.) has a unique special and passive skills.</span></article>
+                        <article><i class="fa-solid fa-battery-full"></i><strong> Charge</strong><span> - Recovers +2 energy and increases Speed by 20% for the next turn.</span></article>
+                        <article><i class="fa-solid fa-shield"></i><strong> Defend</strong><span> - Activates a temporary protective shield to reduce damage received.</span></article>
+                        <article><i class="fa-solid fa-repeat"></i><strong> Switch</strong><span> - Click your ally to swap them with the active one (consumes turn).</span></article>
                     </div>
                 </section>
             </div>
@@ -112,41 +126,41 @@ if (!isLoggedIn()) {
             <aside class="game-side-col">
                 <section class="game-panel game-reveal">
                     <div class="game-panel-head compact">
-                        <div><span class="game-kicker">Rank</span>
-                            <h2>Categorie</h2>
+                        <div>
+                            <h2>Rank</h2>
                         </div>
                     </div>
                     <div class="game-rank-ladder game-rank-ladder-v14">
-                        <span data-rank="bronzo"><i class="fa-solid fa-shield"></i><strong>Bronzo</strong><small>0-999</small></span>
-                        <span data-rank="argento"><i class="fa-solid fa-medal"></i><strong>Argento</strong><small>1000-1199</small></span>
-                        <span data-rank="oro"><i class="fa-solid fa-crown"></i><strong>Oro</strong><small>1200-1399</small></span>
-                        <span data-rank="diamante"><i class="fa-solid fa-gem"></i><strong>Diamante</strong><small>1400-1599</small></span>
-                        <span data-rank="campione"><i class="fa-solid fa-trophy"></i><strong>Campione</strong><small>1600-1899</small></span>
-                        <span data-rank="leggenda"><i class="fa-solid fa-dragon"></i><strong>Leggenda</strong><small>1900+</small></span>
+                        <span data-rank="bronzo"><i class="fa-solid fa-shield"></i><strong>Bronze</strong><small>0-999</small></span>
+                        <span data-rank="argento"><i class="fa-solid fa-medal"></i><strong>Silver</strong><small>1000-1199</small></span>
+                        <span data-rank="oro"><i class="fa-solid fa-crown"></i><strong>Gold</strong><small>1200-1399</small></span>
+                        <span data-rank="diamante"><i class="fa-solid fa-gem"></i><strong>Diamond</strong><small>1400-1599</small></span>
+                        <span data-rank="campione"><i class="fa-solid fa-trophy"></i><strong>Champion</strong><small>1600-1899</small></span>
+                        <span data-rank="leggenda"><i class="fa-solid fa-dragon"></i><strong>Legend</strong><small>1900+</small></span>
                     </div>
                 </section>
 
                 <section class="game-panel game-reveal" id="rankingPanel">
                     <div class="game-panel-head compact">
-                        <div><span class="game-kicker">Ranking</span>
-                            <h2>Classifica</h2>
+                        <div>
+                            <h2>Ranking</h2>
                         </div>
-                        <button class="game-btn game-btn-soft" type="button" data-action="load-ranking">Aggiorna</button>
+                        <button class="game-btn game-btn-soft" type="button" data-action="load-ranking">Refresh</button>
                     </div>
                     <div class="game-ranking" id="rankingList">
-                        <p class="game-hint">Carico classifica...</p>
+                        <p class="game-hint">Loading ranking...</p>
                     </div>
                 </section>
 
                 <section class="game-panel game-reveal" id="liveMatchesPanel">
                     <div class="game-panel-head compact">
-                        <div><span class="game-kicker">Spectate</span>
-                            <h2>Partite live</h2>
+                        <div>
+                            <h2>Live matches</h2>
                         </div>
-                        <button class="game-btn game-btn-soft" type="button" data-action="load-live">Aggiorna</button>
+                        <button class="game-btn game-btn-soft" type="button" data-action="load-live">Refresh</button>
                     </div>
                     <div class="game-live-list" id="liveMatchesList">
-                        <p class="game-hint">Carico partite live...</p>
+                        <p class="game-hint">Loading live matches...</p>
                     </div>
                 </section>
             </aside>

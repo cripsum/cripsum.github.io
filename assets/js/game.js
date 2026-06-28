@@ -48,7 +48,7 @@
                 </div>
                 <div class="game-profile-stats">
                     <div><b>${u.rating}</b><small>${isEn ? 'Ranked Points' : 'Punti ranked'}</small></div>
-                    <div><b>${inv.unique} <span style="font-size:0.8rem;opacity:0.75">/ ${inv.total}</span></b><small>${isEn ? 'Characters' : 'Personaggi'}</small></div>
+                    <div><b>${inv.unique} <span style="font-size:0.8rem;opacity:0.75">/ 141</span></b><small>${isEn ? 'Characters' : 'Personaggi'}</small></div>
                     <div><b>${u.wins} - ${u.losses}</b><small>${isEn ? 'W/L Record' : 'Record W/L'}</small></div>
                     <div><b>${winRate}%</b><small>${isEn ? 'Win Rate' : 'Win Rate'}</small></div>
                     <div><b>${u.best_streak}</b><small>${isEn ? 'Best Streak' : 'Miglior Streak'}</small></div>
