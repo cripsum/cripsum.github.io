@@ -2,6 +2,115 @@
     'use strict';
     if (window.__cripsumDuelV16) return;
     window.__cripsumDuelV16 = true;
+    const lang = window.location.pathname.includes('/en/') ? 'en' : 'it';
+    const gt = {
+        it: {
+            not_loaded: 'Profilo non caricato.',
+            empty_rank: 'Classifica vuota.',
+            rank_error: 'Classifica non caricata.',
+            no_live: 'Nessuna partita live da guardare.',
+            live_error: 'Partite live non caricate.',
+            finding_ranked: 'Cerco ranked...',
+            finding_casual: 'Cerco casual...',
+            creating_bot: 'Creo partita offline...',
+            creating_private: 'Creo stanza privata...',
+            pw_error: 'Inserisci una password da almeno 3 caratteri',
+            enter_code: 'Inserisci codice stanza',
+            no_active: 'Nessuna partita attiva',
+            no_chars_found: 'Nessun personaggio trovato.',
+            three_chars_only: 'Puoi scegliere solo 3 personaggi',
+            choose_three: 'Scegli 3 personaggi',
+            team_confirmed: 'Team confermato',
+            no_card: 'Nessuna carta.',
+            defending: 'Difesa',
+            ready: 'Pronto',
+            finished_status: 'Conclusa',
+            spectator_finished: 'Partita conclusa',
+            viewer_win: 'Hai vinto',
+            viewer_loss: 'Hai perso',
+            turn_prefix: 'Turno di',
+            your_turn: 'È il tuo turno',
+            bot_turn: 'Turno bot',
+            opponent_turn: 'Turno avversario',
+            log_empty: 'Il log apparirà qui.',
+            forfeit_confirm: 'Vuoi abbandonare?',
+            passive_label: 'Passiva',
+            special_label: 'Speciale',
+            ultimate_label: 'Ultimate',
+            no_passive_effect: 'Nessun effetto passivo speciale.',
+            default_special_desc: 'Un potente attacco speciale.',
+            default_ultimate_desc: 'Una mossa finale devastante.',
+            action_energy: '+ energia',
+            action_defense: 'difesa',
+            action_special: 'speciale',
+            action_switch: 'cambio',
+            action_attack: 'attacco',
+            searching_opponent: 'Cerco avversario...',
+            ranked_finished: 'Ranked conclusa',
+            offline_finished: 'Offline conclusa',
+            match_finished: 'Partita conclusa',
+            you: 'Tu',
+            opponent: 'Avversario',
+            bot_win: 'Hai battuto il bot.',
+            bot_loss: 'Il bot ti ha mandato KO.',
+            pvp_win: 'Team avversario KO.',
+            pvp_loss: 'Il tuo team è andato KO.',
+            match_missing: 'Match mancante'
+        },
+        en: {
+            not_loaded: 'Profile not loaded.',
+            empty_rank: 'Leaderboard empty.',
+            rank_error: 'Leaderboard not loaded.',
+            no_live: 'No live matches to watch.',
+            live_error: 'Live matches not loaded.',
+            finding_ranked: 'Searching ranked...',
+            finding_casual: 'Searching casual...',
+            creating_bot: 'Creating offline match...',
+            creating_private: 'Creating private room...',
+            pw_error: 'Enter a password with at least 3 characters',
+            enter_code: 'Enter room code',
+            no_active: 'No active match',
+            no_chars_found: 'No character found.',
+            three_chars_only: 'You can only choose 3 characters',
+            choose_three: 'Choose 3 characters',
+            team_confirmed: 'Team confirmed',
+            no_card: 'No card.',
+            defending: 'Defending',
+            ready: 'Ready',
+            finished_status: 'Finished',
+            spectator_finished: 'Match finished',
+            viewer_win: 'You won',
+            viewer_loss: 'You lost',
+            turn_prefix: 'Turn of',
+            your_turn: "It's your turn",
+            bot_turn: 'Bot turn',
+            opponent_turn: 'Opponent turn',
+            log_empty: 'Log will appear here.',
+            forfeit_confirm: 'Do you want to forfeit?',
+            passive_label: 'Passive',
+            special_label: 'Special',
+            ultimate_label: 'Ultimate',
+            no_passive_effect: 'No special passive effect.',
+            default_special_desc: 'A powerful special attack.',
+            default_ultimate_desc: 'A devastating finishing move.',
+            action_energy: '+ energy',
+            action_defense: 'defense',
+            action_special: 'special',
+            action_switch: 'switch',
+            action_attack: 'attack',
+            searching_opponent: 'Searching for opponent...',
+            ranked_finished: 'Ranked finished',
+            offline_finished: 'Offline finished',
+            match_finished: 'Match finished',
+            you: 'You',
+            opponent: 'Opponent',
+            bot_win: 'You beat the bot.',
+            bot_loss: 'The bot knocked you out.',
+            pvp_win: 'Opponent team knocked out.',
+            pvp_loss: 'Your team was knocked out.',
+            match_missing: 'Match missing'
+        }
+    }[lang];
 
     const page = document.body?.dataset.page || '';
     const state = { matchId: Number(document.body?.dataset.matchId || 0) || null, roomCode:null, inventory:[], selectedTeam:[], match:null, poll:null, lastActionId:0, resultShown:false, lastChatId:0, lastReactionId:0 };
@@ -11,7 +120,7 @@
 
     function esc(v){return String(v ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
     function showToast(msg){const t=$('#gameToast'); if(!t)return; t.querySelector('span').textContent=msg; t.hidden=false; requestAnimationFrame(()=>t.classList.add('is-visible')); clearTimeout(toastTimer); toastTimer=setTimeout(()=>{t.classList.remove('is-visible');setTimeout(()=>t.hidden=true,180)},2200)}
-    function setMatchmakingLoading(on, text='Cerco avversario...'){
+    function setMatchmakingLoading(on, text = gt.searching_opponent){
         const box = $('#matchmakingWait');
         if (!box) return;
         const strong = box.querySelector('strong');
@@ -56,10 +165,10 @@
                 </div>
             `;
         }catch(e){
-            box.innerHTML='<p class="game-hint">Profilo non caricato.</p>'
+            box.innerHTML='<p class="game-hint">' + gt.not_loaded + '</p>'
         }
-    }
-    async function loadRanking(){const wrap=$('#rankingList'); if(!wrap)return; try{const d=await api('/api/game/get_ranking.php',{},'GET'); const rows=d.ranking||[]; if(!rows.length){wrap.innerHTML='<p class="game-hint">Classifica vuota.</p>';return} wrap.innerHTML=rows.map((r,i)=>`<div class="game-rank-row"><strong>#${i+1}</strong><span class="game-rank-name">${rankBadge(r.rank)} ${esc(r.username)}</span><span class="game-rank-meta"><b>${r.rating}</b></span></div>`).join('')}catch(e){wrap.innerHTML='<p class="game-hint">Classifica non caricata.</p>';}}
+     }
+    async function loadRanking(){const wrap=$('#rankingList'); if(!wrap)return; try{const d=await api('/api/game/get_ranking.php',{},'GET'); const rows=d.ranking||[]; if(!rows.length){wrap.innerHTML='<p class="game-hint">' + gt.empty_rank + '</p>';return} wrap.innerHTML=rows.map((r,i)=>`<div class="game-rank-row"><strong>#${i+1}</strong><span class="game-rank-name">${rankBadge(r.rank)} ${esc(r.username)}</span><span class="game-rank-meta"><b>${r.rating}</b></span></div>`).join('')}catch(e){wrap.innerHTML='<p class="game-hint">' + gt.rank_error + '</p>';}}
     
     async function loadLiveMatches(){
         const wrap = $('#liveMatchesList');
@@ -70,7 +179,7 @@
             const rows = d.matches || [];
 
             if (!rows.length) {
-                wrap.innerHTML = '<p class="game-hint">Nessuna partita live da guardare.</p>';
+                wrap.innerHTML = '<p class="game-hint">' + gt.no_live + '</p>';
                 return;
             }
 
@@ -79,21 +188,21 @@
                 <a class="game-live-row" href="/${lang}/game/arena.php?match_id=${encodeURIComponent(m.id)}">
                     <div>
                         <strong>${esc(m.player1)} vs ${esc(m.player2)}</strong>
-                        <span>${esc(m.mode)} · turno ${m.turn_number}</span>
+                        <span>${esc(m.mode)} · ${lang === 'en' ? 'turn' : 'turno'} ${m.turn_number}</span>
                     </div>
                     <em><i class="fa-solid fa-eye"></i> ${m.spectator_count}</em>
                 </a>
             `).join('');
         } catch(e) {
-            wrap.innerHTML = '<p class="game-hint">Partite live non caricate.</p>';
+            wrap.innerHTML = '<p class="game-hint">' + gt.live_error + '</p>';
         }
     }
 
-    async function findMatch(mode){setMatchmakingLoading(true, mode==='ranked'?'Cerco ranked...':'Cerco casual...');try{const d=await api('/api/game/find_match.php',{mode}); goArena(d.match_id)}catch(e){setMatchmakingLoading(false);showToast(e.message)}}
-    async function createBotMatch(){setMatchmakingLoading(true,'Creo partita offline...');try{const d=await api('/api/game/create_match.php',{mode:'bot'}); goArena(d.match_id)}catch(e){setMatchmakingLoading(false);showToast(e.message)}}
-    async function createPrivate(){const password=($('#privatePasswordInput')?.value||'').trim(); if(password.length<3){showToast('Inserisci una password da almeno 3 caratteri');return} setMatchmakingLoading(true,'Creo stanza privata...'); try{const d=await api('/api/game/create_match.php',{mode:'private',password}); goArena(d.match_id)}catch(e){setMatchmakingLoading(false);showToast(e.message)}}
-    async function joinCode(){const code=($('#roomCodeInput')?.value||'').trim(); const password=($('#joinPasswordInput')?.value||'').trim(); if(!code){showToast('Inserisci codice stanza');return} try{const d=await api('/api/game/join_match.php',{room_code:code,password}); goArena(d.match_id)}catch(e){showToast(e.message)}}
-    async function activeMatch(){try{const d=await api('/api/game/active_match.php',{},'GET'); if(!d.match){showToast('Nessuna partita attiva');return} goArena(d.match.id)}catch(e){showToast(e.message)}}
+    async function findMatch(mode){setMatchmakingLoading(true, mode==='ranked'?gt.finding_ranked:gt.finding_casual);try{const d=await api('/api/game/find_match.php',{mode}); goArena(d.match_id)}catch(e){setMatchmakingLoading(false);showToast(e.message)}}
+    async function createBotMatch(){setMatchmakingLoading(true,gt.creating_bot);try{const d=await api('/api/game/create_match.php',{mode:'bot'}); goArena(d.match_id)}catch(e){setMatchmakingLoading(false);showToast(e.message)}}
+    async function createPrivate(){const password=($('#privatePasswordInput')?.value||'').trim(); if(password.length<3){showToast(gt.pw_error);return} setMatchmakingLoading(true,gt.creating_private); try{const d=await api('/api/game/create_match.php',{mode:'private',password}); goArena(d.match_id)}catch(e){setMatchmakingLoading(false);showToast(e.message)}}
+    async function joinCode(){const code=($('#roomCodeInput')?.value||'').trim(); const password=($('#joinPasswordInput')?.value||'').trim(); if(!code){showToast(gt.enter_code);return} try{const d=await api('/api/game/join_match.php',{room_code:code,password}); goArena(d.match_id)}catch(e){showToast(e.message)}}
+    async function activeMatch(){try{const d=await api('/api/game/active_match.php',{},'GET'); if(!d.match){showToast(gt.no_active);return} goArena(d.match.id)}catch(e){showToast(e.message)}}
 
     async function loadInventory(){const d=await api('/api/game/get_inventory_cards.php',{},'GET'); state.inventory=d.cards||[]; renderInventory();}
     function initInventoryFilters() {
@@ -129,7 +238,7 @@
             return valB - valA;
         });
         
-        if(!list.length){grid.innerHTML='<p class="game-hint">Nessun personaggio trovato.</p>';return}
+        if(!list.length){grid.innerHTML='<p class="game-hint">' + gt.no_chars_found + '</p>';return}
         grid.innerHTML='';
         list.forEach(card=>{
             const selected=state.selectedTeam.includes(card.id);
@@ -154,17 +263,17 @@
                 </div>
                 <div class="game-card-details-hover">
                     <div class="game-detail-section">
-                        <strong>Passiva: ${esc(stats.passive_name || 'Nessuna')}</strong>
-                        <p>${esc(stats.passive_desc || 'Nessun effetto passivo speciale.')}</p>
+                        <strong>${gt.passive_label}: ${esc(stats.passive_name || (lang === 'en' ? 'None' : 'Nessuna'))}</strong>
+                        <p>${esc(stats.passive_desc || gt.no_passive_effect)}</p>
                     </div>
                     <div class="game-detail-section">
-                        <strong>Speciale: ${esc(stats.special_name || 'Colpo')} (E: ${stats.special_cost || 0})</strong>
-                        <p>${esc(stats.special_desc || 'Un potente attacco speciale.')}</p>
+                        <strong>${gt.special_label}: ${esc(stats.special_name || (lang === 'en' ? 'Skill' : 'Colpo'))} (E: ${stats.special_cost || 0})</strong>
+                        <p>${esc(stats.special_desc || gt.default_special_desc)}</p>
                     </div>
                     ${stats.ultimate_name ? `
                     <div class="game-detail-section" style="border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 0.35rem; margin-top: 0.35rem;">
-                        <strong style="color: #fbbf24;">Ultimate: ${esc(stats.ultimate_name)}</strong>
-                        <p>${esc(stats.ultimate_desc || 'Una mossa finale devastante.')}</p>
+                        <strong style="color: #fbbf24;">${gt.ultimate_label}: ${esc(stats.ultimate_name)}</strong>
+                        <p>${esc(stats.ultimate_desc || gt.default_ultimate_desc)}</p>
                     </div>
                     ` : ''}
                 </div>
@@ -174,9 +283,9 @@
         });
         renderSelectedTeam();
     }
-    function toggleTeam(id){const i=state.selectedTeam.indexOf(id); if(i>=0)state.selectedTeam.splice(i,1); else{if(state.selectedTeam.length>=3){showToast('Puoi scegliere solo 3 personaggi');return} state.selectedTeam.push(id)} renderInventory();}
+    function toggleTeam(id){const i=state.selectedTeam.indexOf(id); if(i>=0)state.selectedTeam.splice(i,1); else{if(state.selectedTeam.length>=3){showToast(gt.three_chars_only);return} state.selectedTeam.push(id)} renderInventory();}
     function renderSelectedTeam(){const wrap=$('#selectedTeam'), c=$('#teamCounter'); if(c)c.textContent=`${state.selectedTeam.length}/3`; if(!wrap)return; wrap.innerHTML=state.selectedTeam.map(id=>`<span class="game-selected-pill">${esc(state.inventory.find(x=>x.id===id)?.nome||'Carta')}</span>`).join('')}
-    async function submitTeam(){if(state.selectedTeam.length!==3){showToast('Scegli 3 personaggi');return} try{await api('/api/game/select_team.php',{match_id:state.matchId,team:state.selectedTeam}); showToast('Team confermato'); pollState()}catch(e){showToast(e.message)}}
+    async function submitTeam(){if(state.selectedTeam.length!==3){showToast(gt.choose_three);return} try{await api('/api/game/select_team.php',{match_id:state.matchId,team:state.selectedTeam}); showToast(gt.team_confirmed); pollState()}catch(e){showToast(e.message)}}
     function showOnly(id){['#waitingPanel','#teamPanel','#arenaPanel'].forEach(s=>{const el=$(s); if(el)el.hidden=(s!==id)})}
     function startPolling(){stopPolling(); pollState(true); state.poll=setInterval(()=>{if(!document.hidden)pollState(false)},1500)}
     function stopPolling(){if(state.poll)clearInterval(state.poll); state.poll=null;}
@@ -204,12 +313,12 @@
         const turnPlayer = playerById(m.current_turn_user_id);
 
         if($('#opponentName')) $('#opponentName').innerHTML = playerTitle(sides.leftPlayer,'Player 1');
-        if($('#playerName')) $('#playerName').innerHTML = playerTitle(sides.rightPlayer, spectator ? 'Player 2' : 'Tu');
+        if($('#playerName')) $('#playerName').innerHTML = playerTitle(sides.rightPlayer, spectator ? 'Player 2' : (lang === 'en' ? 'You' : 'Tu'));
 
-        $('#matchStatus').textContent=m.status==='finished'?'Conclusa':`${modeLabel(m.mode)} · Turno ${m.turn_number}`;
+        $('#matchStatus').textContent=m.status==='finished'?gt.finished_status:`${modeLabel(m.mode)} · ${lang === 'en' ? 'Turn' : 'Turno'} ${m.turn_number}`;
         $('#turnLabel').textContent=m.status==='finished'
-            ? (spectator ? 'Partita conclusa' : (Number(m.winner_id)===Number(myId())?'Hai vinto':'Hai perso'))
-            : (spectator ? `Turno di ${turnPlayer?.username || 'Player'}` : (myTurn?'È il tuo turno':(m.mode==='bot'?'Turno bot':'Turno avversario')));
+            ? (spectator ? gt.spectator_finished : (Number(m.winner_id)===Number(myId())?gt.viewer_win:gt.viewer_loss))
+            : (spectator ? `${gt.turn_prefix} ${turnPlayer?.username || 'Player'}` : (myTurn?gt.your_turn:(m.mode==='bot'?gt.bot_turn:gt.opponent_turn)));
 
         renderActive('#playerActive',activeOf(sides.rightUid));
         renderActive('#opponentActive',activeOf(sides.leftUid));
@@ -332,13 +441,14 @@
     }
     function renderActive(sel,card){
         const el=$(sel); if(!el)return;
-        if(!card){el.innerHTML='<p class="game-hint">Nessuna carta.</p>';return}
+        if(!card){el.innerHTML='<p class="game-hint">' + gt.no_card + '</p>';return}
         const ch=card.character||{};
         el.dataset.cardId=card.id;
         
         const hpPct = pct(card.current_hp, card.max_hp);
         const shieldPct = Math.min(100, Math.round(((card.shield || 0) / card.max_hp) * 100));
         
+        const textTurn = lang === 'en' ? 'turn' : 'turni';
         const effectsHtml = (card.status_effects || []).map(eff => {
             const icons = {
                 'poison': '🤢',
@@ -367,7 +477,8 @@
             const isDebuff = ['poison', 'bleed', 'stun', 'freeze', 'debuff_atk', 'debuff_def', 'debuff_spd', 'silence'].includes(eff.type);
             const cls = isDebuff ? 'is-debuff' : 'is-buff';
             const valSuffix = eff.value ? ` (${eff.value > 0 ? '+' : ''}${eff.value}%)` : '';
-            const tooltipText = `${esc(eff.name)}${valSuffix} · ${eff.duration} turn${eff.duration > 1 ? 'i' : 'o'}`;
+            const suffixTurn = lang === 'en' ? (eff.duration > 1 ? 's' : '') : (eff.duration > 1 ? 'i' : 'o');
+            const tooltipText = `${esc(eff.name)}${valSuffix} · ${eff.duration} ${lang === 'en' ? 'turn' : 'turn'}${suffixTurn}`;
             return `<span class="game-status-badge ${cls}" data-type="${eff.type}" data-tooltip="${tooltipText}">${icon} <small>${eff.duration}t</small></span>`;
         }).join('');
 
@@ -379,7 +490,7 @@
             <div class="game-active-name">
                 <strong>${esc(ch.nome||'Carta')} <small style="color:var(--inv-gold);font-weight:normal;">Lv.${lvlText}</small></strong>
                 <div class="game-active-meta">
-                    <span>${esc(ch.rarita||'comune')}</span>
+                    <span>${esc(ch.rarita||(lang === 'en' ? 'common' : 'comune'))}</span>
                     ${roleBadge(card.role)}
                 </div>
             </div>
@@ -391,32 +502,32 @@
             <div class="game-energybar">
                 <span style="--value:${pct(card.energy,card.max_energy)}%"></span>
             </div>
-            <small>Energia ${card.energy}/${card.max_energy} · CD ${card.special_cooldown}</small>
+            <small>${lang === 'en' ? 'Energy' : 'Energia'} ${card.energy}/${card.max_energy} · CD ${card.special_cooldown}</small>
             <div class="game-active-effects">${effectsHtml}</div>
             <div class="game-card-stats">
                 <span>ATK ${card.attack}</span>
                 <span>DEF ${card.defense}</span>
                 <span>SPD ${card.speed}</span>
-                <span>${Number(card.is_defending)?'Difesa':'Pronto'}</span>
+                <span>${Number(card.is_defending)?gt.defending:gt.ready}</span>
             </div>
         `;
     }
     function renderTeam(sel,cards,mine){const el=$(sel); if(!el)return; el.innerHTML=cards.map(c=>{const ch=c.character||{}; const lvlVal = c.livello || c.level || 1; const lvlText = lvlVal === 6 ? 'MAX' : lvlVal; return `<button class="game-mini-card ${Number(c.is_active)?'is-active':''} ${Number(c.is_ko)?'is-ko':''}" data-card-id="${c.id}" type="button" ${mine&&!Number(c.is_ko)?'':'disabled'}>${cardImg(ch.img_url,ch.nome)}<strong>${esc(ch.nome||'Carta')} <small style="color:var(--inv-gold);font-weight:normal;">Lv.${lvlText}</small></strong><small>${c.current_hp}/${c.max_hp} HP</small></button>`}).join(''); if(mine && state.match?.viewer_role !== 'spectator')$$('.game-mini-card',el).forEach(btn=>btn.addEventListener('click',()=>submitBattle('switch',Number(btn.dataset.cardId))))}
-    function renderLog(actions){const log=$('#battleLog'); if(!log)return; if(!actions.length){log.innerHTML='<p class="game-hint">Il log apparirà qui.</p>';return} log.innerHTML=actions.map(a=>`<div class="game-log-row"><strong>T${a.turn_number}</strong> ${esc(a.message)} ${Number(a.damage)>0?`· ${a.damage} danni`:''}</div>`).join(''); log.scrollTop=log.scrollHeight;}
+    function renderLog(actions){const log=$('#battleLog'); if(!log)return; if(!actions.length){log.innerHTML='<p class="game-hint">' + gt.log_empty + '</p>';return} log.innerHTML=actions.map(a=>`<div class="game-log-row"><strong>T${a.turn_number}</strong> ${esc(a.message)} ${Number(a.damage)>0?`· ${a.damage} ${lang === 'en' ? 'damage' : 'danni'}`:''}</div>`).join(''); log.scrollTop=log.scrollHeight;}
     
     function renderChat(messages){
         const wrap = $('#chatMessages');
         if (!wrap) return;
 
         if (!messages.length) {
-            wrap.innerHTML = '<p class="game-hint">Nessun messaggio.</p>';
+            wrap.innerHTML = '<p class="game-hint">' + (lang === 'en' ? 'No messages.' : 'Nessun messaggio.') + '</p>';
             return;
         }
 
         wrap.innerHTML = messages.map(m => {
             const mine = Number(m.user_id) === Number(myId());
             return `<div class="game-chat-msg ${mine?'is-mine':''}" data-chat-id="${m.id}">
-                <strong>${esc(m.username || (mine ? 'Tu' : 'Avversario'))}</strong>
+                <strong>${esc(m.username || (mine ? gt.you : gt.opponent))}</strong>
                 <span>${esc(m.message)}</span>
             </div>`;
         }).join('');
@@ -791,7 +902,7 @@
 
             // ============ NORMAL ANIMATION (non-ultimate) ============
             const actorCls=type==='special_attack'?'fx-special':type==='defend'?'fx-defend':type==='charge'?'fx-charge':type==='switch'?'fx-switch':'fx-attack';
-            const label=type==='charge'?'+ energia':type==='defend'?'difesa':type==='special_attack'?'speciale':type==='switch'?'cambio':'attacco';
+            const label=type==='charge'?gt.action_energy:type==='defend'?gt.action_defense:type==='special_attack'?gt.action_special:type==='switch'?gt.action_switch:gt.action_attack;
             showActionBanner(a, label);
             if(actor) flashCard(actor,actorCls,label);
             if(target&&Number(a.damage)>0) {
@@ -948,10 +1059,10 @@
 
         const mine = Number(a.user_id) === Number(myId());
         const actorPlayer = playerById(a.user_id);
-        const actorName = mine ? 'Tu' : (actorPlayer?.username || (Number(a.user_id)===0 ? 'Bot' : 'Player'));
+        const actorName = mine ? (lang === 'en' ? 'You' : 'Tu') : (actorPlayer?.username || (Number(a.user_id)===0 ? 'Bot' : 'Player'));
         const banner = document.createElement('div');
         banner.className = `game-action-banner ${mine ? 'is-mine' : 'is-enemy'}`;
-        banner.innerHTML = `<strong>${esc(actorName)}</strong><span>${esc(label)}${Number(a.damage)>0 ? ` · ${Number(a.damage)} danni` : ''}</span>`;
+        banner.innerHTML = `<strong>${esc(actorName)}</strong><span>${esc(label)}${Number(a.damage)>0 ? ` · ${Number(a.damage)} ${lang === 'en' ? 'damage' : 'danni'}` : ''}</span>`;
         arena.appendChild(banner);
 
         setTimeout(() => banner.remove(), 1300);
@@ -967,9 +1078,9 @@
             setTimeout(()=>{el.classList.remove(cls);tag.remove()},1050);
         });
     }
-    function showResult(){if(state.resultShown)return; state.resultShown=true; const m=state.match, modal=$('#resultModal'); if(!modal)return; const win=Number(m.winner_id)===Number(myId()); $('#resultKicker').textContent=m.mode==='ranked'?'Ranked conclusa':(m.mode==='bot'?'Offline conclusa':'Partita conclusa'); $('#resultTitle').textContent=win?'Hai vinto':'Hai perso'; $('#resultText').textContent=m.mode==='bot'?(win?'Hai battuto il bot.':'Il bot ti ha mandato KO.'):(win?'Team avversario KO.':'Il tuo team è andato KO.'); const box=$('#rankedFeedback'); if(m.mode==='ranked'&&m.ranked_result&&box){const rr=m.ranked_result; box.hidden=false; box.innerHTML=`<div class="${rr.viewer_delta>=0?'is-plus':'is-minus'}"><strong>Tu</strong><b>${rr.viewer_delta>=0?'+':''}${rr.viewer_delta}</b>${rankBadge(rr.viewer_rank_after)}</div><div class="${rr.opponent_delta>=0?'is-plus':'is-minus'}"><strong>Avversario</strong><b>${rr.opponent_delta>=0?'+':''}${rr.opponent_delta}</b>${rankBadge(rr.opponent_rank_after)}</div>`} modal.hidden=false;}
-    async function forfeit(){const lang=window.location.pathname.includes('/en/')?'en':'it';if(!state.matchId){window.location.href=`/${lang}/game/lobby.php`;return} if(!confirm('Vuoi abbandonare?'))return; try{await api('/api/game/forfeit_match.php',{match_id:state.matchId}); window.location.href=`/${lang}/game/lobby.php`}catch(e){showToast(e.message)}}
+    function showResult(){if(state.resultShown)return; state.resultShown=true; const m=state.match, modal=$('#resultModal'); if(!modal)return; const win=Number(m.winner_id)===Number(myId()); $('#resultKicker').textContent=m.mode==='ranked'?gt.ranked_finished:(m.mode==='bot'?gt.offline_finished:gt.match_finished); $('#resultTitle').textContent=win?gt.viewer_win:gt.viewer_loss; $('#resultText').textContent=m.mode==='bot'?(win?gt.bot_win:gt.bot_loss):(win?gt.pvp_win:gt.pvp_loss); const box=$('#rankedFeedback'); if(m.mode==='ranked'&&m.ranked_result&&box){const rr=m.ranked_result; box.hidden=false; box.innerHTML=`<div class="${rr.viewer_delta>=0?'is-plus':'is-minus'}"><strong>${gt.you}</strong><b>${rr.viewer_delta>=0?'+':''}${rr.viewer_delta}</b>${rankBadge(rr.viewer_rank_after)}</div><div class="${rr.opponent_delta>=0?'is-plus':'is-minus'}"><strong>${gt.opponent}</strong><b>${rr.opponent_delta>=0?'+':''}${rr.opponent_delta}</b>${rankBadge(rr.opponent_rank_after)}</div>`} modal.hidden=false;}
+    async function forfeit(){const lang=window.location.pathname.includes('/en/')?'en':'it';if(!state.matchId){window.location.href=`/${lang}/game/lobby.php`;return} if(!confirm(gt.forfeit_confirm))return; try{await api('/api/game/forfeit_match.php',{match_id:state.matchId}); window.location.href=`/${lang}/game/lobby.php`}catch(e){showToast(e.message)}}
 
     function bindCommon(){ $$('[data-action="find-match"]').forEach(b=>b.addEventListener('click',()=>findMatch(b.dataset.mode||'casual'))); $('[data-action="create-bot"]')?.addEventListener('click',createBotMatch); $('[data-action="create-private"]')?.addEventListener('click',createPrivate); $('[data-action="join-code"]')?.addEventListener('click',joinCode); $('[data-action="active-match"]')?.addEventListener('click',activeMatch); $('[data-action="load-ranking"]')?.addEventListener('click',loadRanking); $('[data-action="load-live"]')?.addEventListener('click',loadLiveMatches); $$('[data-action="forfeit"]').forEach(b=>b.addEventListener('click',forfeit)); }
-    document.addEventListener('DOMContentLoaded',()=>{bindCommon(); if(page==='duel-lobby'){loadProfile();loadRanking();loadLiveMatches();setInterval(loadRanking,30000);setInterval(loadLiveMatches,10000)} if(page==='duel-arena'){if(!state.matchId){showToast('Match mancante');return} $('#cardSearch')?.addEventListener('input',renderInventory); $('[data-action="submit-team"]')?.addEventListener('click',submitTeam); $$('[data-battle-action]').forEach(b=>b.addEventListener('click',()=>submitBattle(b.dataset.battleAction))); $('#chatForm')?.addEventListener('submit',(e)=>{e.preventDefault();sendChat();}); $$('[data-reaction]').forEach(b=>b.addEventListener('click',()=>sendReaction(b.dataset.reaction))); startPolling();}});
+    document.addEventListener('DOMContentLoaded',()=>{bindCommon(); if(page==='duel-lobby'){loadProfile();loadRanking();loadLiveMatches();setInterval(loadRanking,30000);setInterval(loadLiveMatches,10000)} if(page==='duel-arena'){if(!state.matchId){showToast(gt.match_missing);return} $('#cardSearch')?.addEventListener('input',renderInventory); $('[data-action="submit-team"]')?.addEventListener('click',submitTeam); $$('[data-battle-action]').forEach(b=>b.addEventListener('click',()=>submitBattle(b.dataset.battleAction))); $('#chatForm')?.addEventListener('submit',(e)=>{e.preventDefault();sendChat();}); $$('[data-reaction]').forEach(b=>b.addEventListener('click',()=>sendReaction(b.dataset.reaction))); startPolling();}});
 })();

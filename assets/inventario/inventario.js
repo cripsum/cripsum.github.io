@@ -24,7 +24,17 @@
             traits_title:       'Tratti distintivi',
             no_traits:          'Nessun tratto specificato.',
             view_animation:     'Visualizza animazione',
-            results:            (n) => `${n} ${n === 1 ? 'risultato' : 'risultati'}`
+            results:            (n) => `${n} ${n === 1 ? 'risultato' : 'risultati'}`,
+            tab_details:        'Dettagli',
+            tab_upgrade:        'Potenziamento',
+            abilities_title:    'Abilità Personaggio',
+            ability_passive:    'Passiva',
+            ability_special:    'Speciale',
+            ability_ultimate:   'Ultimate',
+            no_passive:         'Nessun effetto passivo speciale.',
+            default_special_desc: 'Un potente attacco speciale.',
+            default_ultimate_desc: 'Una mossa finale devastante.',
+            cost_cost:          'Costo'
         },
         en: {
             date_locale:        'en-GB',
@@ -46,7 +56,17 @@
             traits_title:       'Distinctive traits',
             no_traits:          'No traits specified.',
             view_animation:     'View animation',
-            results:            (n) => `${n} ${n === 1 ? 'result' : 'results'}`
+            results:            (n) => `${n} ${n === 1 ? 'result' : 'results'}`,
+            tab_details:        'Details',
+            tab_upgrade:        'Upgrade',
+            abilities_title:    'Character Abilities',
+            ability_passive:    'Passive',
+            ability_special:    'Special',
+            ability_ultimate:   'Ultimate',
+            no_passive:         'No special passive effect.',
+            default_special_desc: 'A powerful special attack.',
+            default_ultimate_desc: 'A devastating finishing move.',
+            cost_cost:          'Cost'
         }
     }[lang];
 
@@ -620,11 +640,11 @@
                     <div class="modal-tabs" style="display: flex; gap: 0.5rem; margin: 1.25rem 0 1rem; border-bottom: 1px solid var(--inv-border); padding-bottom: 0.5rem;">
                         <button type="button" class="modal-tab-btn ${defaultTab === 'info' ? 'active' : ''}" data-tab="info" style="flex: 1; padding: 0.6rem; border: none; background: none; color: var(--inv-muted); font-weight: 700; font-size: 0.88rem; cursor: pointer; transition: all 0.2s ease; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
                             <i class="fa-solid fa-circle-info"></i>
-                            Info & Kit
+                            ${t.tab_details}
                         </button>
                         <button type="button" class="modal-tab-btn ${defaultTab === 'upgrade' ? 'active' : ''}" data-tab="upgrade" style="flex: 1; padding: 0.6rem; border: none; background: none; color: var(--inv-muted); font-weight: 700; font-size: 0.88rem; cursor: pointer; transition: all 0.2s ease; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; position: relative;">
                             <i class="fa-solid fa-angles-up"></i>
-                            Potenziamento
+                            ${t.tab_upgrade}
                             ${Math.max(0, entry.quantity - 1) >= entry.required_next && entry.level < 6 ? `
                                 <span class="tab-ready-indicator" style="position: absolute; top: 6px; right: 12px; width: 8px; height: 8px; background: var(--inv-green); border-radius: 50%; box-shadow: 0 0 6px var(--inv-green);"></span>
                             ` : ''}
@@ -645,40 +665,40 @@
                         <div class="character-kit" style="margin-top: 1.25rem; padding: 1.1rem; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 14px;">
                             <h4 style="margin: 0 0 0.85rem; font-size: 0.95rem; color: var(--inv-gold); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem; font-weight: 800;">
                                 <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--inv-gold);"></i>
-                                Kit Duello Tattico
+                                ${t.abilities_title}
                             </h4>
                             
                             <div class="kit-ability" style="margin-bottom: 0.85rem;">
                                 <div style="font-weight: 700; color: var(--inv-text); font-size: 0.88rem; display: flex; align-items: center; gap: 0.5rem;">
-                                    <span style="background: rgba(139, 92, 246, 0.16); border: 1px solid rgba(139, 92, 246, 0.3); color: #c084fc; padding: 2px 6px; border-radius: 6px; font-size: 0.72rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">Passiva</span>
-                                    ${escapeHtml(statsNow.passive_name || 'Nessuna')}
+                                    <span style="background: rgba(139, 92, 246, 0.16); border: 1px solid rgba(139, 92, 246, 0.3); color: #c084fc; padding: 2px 6px; border-radius: 6px; font-size: 0.72rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">${t.ability_passive}</span>
+                                    ${escapeHtml(statsNow.passive_name || (lang === 'en' ? 'None' : 'Nessuna'))}
                                 </div>
                                 <div style="font-size: 0.82rem; color: var(--inv-muted); margin-top: 4px; line-height: 1.45;">
-                                    ${escapeHtml(statsNow.passive_desc || 'Nessun effetto passivo speciale.')}
+                                    ${escapeHtml(statsNow.passive_desc || t.no_passive)}
                                 </div>
                             </div>
                             
                             <div class="kit-ability">
                                 <div style="font-weight: 700; color: var(--inv-text); font-size: 0.88rem; display: flex; align-items: center; gap: 0.5rem;">
-                                    <span style="background: rgba(47, 107, 255, 0.16); border: 1px solid rgba(47, 107, 255, 0.3); color: #60a5fa; padding: 2px 6px; border-radius: 6px; font-size: 0.72rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">Speciale</span>
-                                    ${escapeHtml(statsNow.special_name || 'Colpo Speciale')}
+                                    <span style="background: rgba(47, 107, 255, 0.16); border: 1px solid rgba(47, 107, 255, 0.3); color: #60a5fa; padding: 2px 6px; border-radius: 6px; font-size: 0.72rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">${t.ability_special}</span>
+                                    ${escapeHtml(statsNow.special_name || (lang === 'en' ? 'Special Strike' : 'Colpo Speciale'))}
                                     <span style="font-size: 0.75rem; color: var(--inv-muted-2); font-weight: normal; margin-left: auto;">
-                                        Costo: <strong>${statsNow.special_cost || 0} E</strong> · CD: <strong>${statsNow.special_cooldown || 0}t</strong>
+                                        ${t.cost_cost}: <strong>${statsNow.special_cost || 0} E</strong> · CD: <strong>${statsNow.special_cooldown || 0}t</strong>
                                     </span>
                                 </div>
                                 <div style="font-size: 0.82rem; color: var(--inv-muted); margin-top: 4px; line-height: 1.45;">
-                                    ${escapeHtml(statsNow.special_desc || 'Un potente attacco speciale.')}
+                                    ${escapeHtml(statsNow.special_desc || t.default_special_desc)}
                                 </div>
                             </div>
                             
                             ${statsNow.ultimate_name ? `
                             <div class="kit-ability" style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px dashed rgba(255, 255, 255, 0.08);">
                                 <div style="font-weight: 700; color: var(--inv-text); font-size: 0.88rem; display: flex; align-items: center; gap: 0.5rem;">
-                                    <span style="background: rgba(212, 175, 55, 0.16); border: 1px solid rgba(212, 175, 55, 0.3); color: #fbbf24; padding: 2px 6px; border-radius: 6px; font-size: 0.72rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">Ultimate</span>
+                                    <span style="background: rgba(212, 175, 55, 0.16); border: 1px solid rgba(212, 175, 55, 0.3); color: #fbbf24; padding: 2px 6px; border-radius: 6px; font-size: 0.72rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">${t.ability_ultimate}</span>
                                     ${escapeHtml(statsNow.ultimate_name)}
                                 </div>
                                 <div style="font-size: 0.82rem; color: var(--inv-muted); margin-top: 4px; line-height: 1.45;">
-                                    ${escapeHtml(statsNow.ultimate_desc || 'Una mossa finale devastante.')}
+                                    ${escapeHtml(statsNow.ultimate_desc || t.default_ultimate_desc)}
                                 </div>
                             </div>
                             ` : ''}
