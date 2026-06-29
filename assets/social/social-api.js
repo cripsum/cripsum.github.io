@@ -108,8 +108,46 @@ const SocialAPI = {
         return this.call(`user_card.php?${param}`);
     },
 
-    async searchUsers(query, limit = 20, offset = 0) {
-        return this.call(`search_users.php?q=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`);
+    async searchUsers(query) {
+        try {
+            const response = await fetch(`/includes/search_users.php?q=${encodeURIComponent(query)}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            if (!response.ok) {
+                return { success: false, error: { message: `Search failed with status ${response.status}` } };
+            }
+            const users = await response.json();
+            
+            if (users.error) {
+                return { success: false, error: { message: users.error } };
+            }
+            
+            // If users are found, fetch their relationship status to show buttons
+            if (users.length > 0) {
+                const ids = users.map(u => u.id);
+                const relRes = await this.getRelationshipStatus(ids);
+                if (relRes.success) {
+                    users.forEach(u => {
+                        const rel = relRes.data[u.id] || {};
+                        u.is_friend = !!rel.is_friend;
+                        u.is_following = !!rel.is_following;
+                        u.is_mutual_follow = !!rel.is_mutual_follow;
+                        u.is_followed_by = !!rel.is_followed_by;
+                        u.friend_request_sent = !!rel.friend_request_sent;
+                        u.friend_request_received = !!rel.friend_request_received;
+                        u.can_send_friend_request = !!rel.can_send_friend_request;
+                        u.can_follow = !!rel.can_follow;
+                    });
+                }
+            }
+            
+            return { success: true, data: { users } };
+        } catch (error) {
+            console.error("Search users error:", error);
+            return { success: false, error: { message: "Search failed. Please try again." } };
+        }
     },
 
     async getSuggestedUsers() {

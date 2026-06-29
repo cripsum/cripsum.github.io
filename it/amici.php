@@ -54,8 +54,7 @@ $csrfToken = $_SESSION['social_csrf'];
         <!-- Hero Section -->
         <section class="static-hero static-reveal">
             <div>
-                <span class="static-pill">Social</span>
-                <h1>Centro Relazioni</h1>
+                <h1>Amici</h1>
                 <p>Gestisci i tuoi amici, segui nuovi utenti e connettiti con la community di Cripsum™.</p>
             </div>
         </section>
@@ -103,7 +102,7 @@ $csrfToken = $_SESSION['social_csrf'];
 
     <!-- Importazione Moduli Social -->
     <script src="/assets/static/static.js" defer></script>
-    <script src="/assets/social/social-api.js?v=1.3" defer></script>
+    <script src="/assets/social/social-api.js?v=1.4" defer></script>
     <script src="/assets/social/social-ui.js?v=1.3" defer></script>
     <script src="/assets/social/user-card.js?v=1.5" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
