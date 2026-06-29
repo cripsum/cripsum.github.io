@@ -454,7 +454,7 @@ const ChatUI = {
         modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,10,12,0.9);z-index:99999;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:opacity 0.25s;opacity:0;';
         
         modal.innerHTML = `
-            <div class="modal-dialog" style="width:100%;max-width:500px;background:var(--chat-panel-bg);border:1px solid var(--chat-border);border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.5);margin:20px;">
+            <div class="chat-modal-dialog" style="width:100%;max-width:500px;background:var(--chat-panel-bg);border:1px solid var(--chat-border);border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.5);margin:20px;pointer-events:auto !important;">
                 <div style="display:flex;align-items:center;justify-content:between;padding:20px;border-bottom:1px solid var(--chat-border);">
                     <h5 style="margin:0;font-weight:800;color:var(--chat-text-main);">Crea Gruppo Chat</h5>
                     <button class="chat-action-btn" onclick="closeCreateGroupModal()" style="margin-left:auto;"><i class="fa-solid fa-xmark"></i></button>
@@ -488,7 +488,7 @@ const ChatUI = {
         inviteModal.id = 'inviteUsersModal';
         inviteModal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,10,12,0.9);z-index:99999;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:opacity 0.25s;opacity:0;';
         inviteModal.innerHTML = `
-            <div class="modal-dialog" style="width:100%;max-width:450px;background:var(--chat-panel-bg);border:1px solid var(--chat-border);border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.5);margin:20px;">
+            <div class="chat-modal-dialog" style="width:100%;max-width:450px;background:var(--chat-panel-bg);border:1px solid var(--chat-border);border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.5);margin:20px;pointer-events:auto !important;">
                 <div style="display:flex;align-items:center;justify-content:between;padding:20px;border-bottom:1px solid var(--chat-border);">
                     <h5 style="margin:0;font-weight:800;color:var(--chat-text-main);">Invita nel gruppo</h5>
                     <button class="chat-action-btn" onclick="closeInviteUsersModal()" style="margin-left:auto;"><i class="fa-solid fa-xmark"></i></button>
