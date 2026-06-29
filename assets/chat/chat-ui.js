@@ -274,9 +274,9 @@ const ChatUI = {
 
             const main = `
                 <div class="chat-message-main">
-                    <div class="chat-message-meta" style="display:flex; align-items:center; gap:6px;">
-                        <a class="chat-username" href="#" style="font-weight:700;">@${escapeHtml(senderName)}</a>
-                        <time class="chat-time" style="font-size:10px; color:var(--chat-text-muted);">${formattedTime}${editedText}</time>
+                    <div class="chat-message-meta">
+                        <a class="chat-username" href="#">@${escapeHtml(senderName)}</a>
+                        <time class="chat-time">${formattedTime}${editedText}</time>
                     </div>
                     <div class="chat-bubble-wrap" id="msg-${msg.id}" oncontextmenu="showGroupContextMenu(event, ${msg.id}, ${isMine})">
                         <div class="chat-bubble ${msg.message_type === 'gif' ? 'chat-bubble--pure-gif' : ''}">
