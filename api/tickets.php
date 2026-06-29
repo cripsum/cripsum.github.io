@@ -163,9 +163,9 @@ if ($method === 'GET') {
             exit();
         }
 
-        if (!$isAdmin && (int)$ticket['user_id'] !== $userId) {
-            echo json_encode(['ok' => false, 'error' => 'Non autorizzato.']);
-            exit();
+        if (!$isAdmin) {
+            echo json_encode(['ok' => false, 'error' => 'Solo lo staff può chiudere o riaprire i ticket.']);
+            exit;
         }
 
         $newStatus = ($ticket['status'] === 'open') ? 'closed' : 'open';

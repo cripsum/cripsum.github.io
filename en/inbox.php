@@ -249,6 +249,7 @@ $ogUrl = 'https://cripsum.com/en/inbox';
             'use strict';
 
             const API_ENDPOINT = '/api/inbox.php';
+            const isAdmin = <?php echo ($currentUser['ruolo'] === 'admin' || $currentUser['ruolo'] === 'owner') ? 'true' : 'false'; ?>;
             
             // Global caches loaded once to prevent the unread badge dropping to 0 bug
             let globalMessages = [];
@@ -780,10 +781,14 @@ $ogUrl = 'https://cripsum.com/en/inbox';
             function renderTicketChat(ticketId, ticket) {
                 const pane = $('#inboxDetailContainer');
                 
+                // Toggle Ticket Status Buttons (ONLY FOR ADMIN/OWNER)
                 const isClosed = ticket.status === 'closed';
-                const toggleBtnHtml = isClosed ? 
-                    `<button class="btn-toggle-ticket btn-toggle-ticket--reopen" id="btnToggleTicket"><i class="fa-solid fa-envelope-open me-1"></i>Reopen Ticket</button>` :
-                    `<button class="btn-toggle-ticket btn-toggle-ticket--close" id="btnToggleTicket"><i class="fa-solid fa-lock me-1"></i>Close Ticket</button>`;
+                let toggleBtnHtml = '';
+                if (isAdmin) {
+                    toggleBtnHtml = isClosed ? 
+                        `<button class="btn-toggle-ticket btn-toggle-ticket--reopen" id="btnToggleTicket"><i class="fa-solid fa-envelope-open me-1"></i>Reopen Ticket</button>` :
+                        `<button class="btn-toggle-ticket btn-toggle-ticket--close" id="btnToggleTicket"><i class="fa-solid fa-lock me-1"></i>Close Ticket</button>`;
+                }
 
                 // If the ticket is closed, replace input form with a banner
                 const inputAreaHtml = isClosed ? `
