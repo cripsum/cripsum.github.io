@@ -122,6 +122,11 @@ function discordActivityIcon(array $activity): ?string
 
     $largeImage = (string) $largeImage;
 
+    // Se l'immagine è già un URL completo (HTTP/HTTPS), la restituiamo direttamente
+    if (ds_starts_with($largeImage, 'http://') || ds_starts_with($largeImage, 'https://')) {
+        return $largeImage;
+    }
+
     if (($activity['name'] ?? '') === 'Spotify' && ds_starts_with($largeImage, 'spotify:')) {
         return 'https://i.scdn.co/image/' . rawurlencode(str_replace('spotify:', '', $largeImage));
     }
