@@ -51,8 +51,13 @@
                 e.stopPropagation();
                 activeTrigger = trigger;
                 
-                const userId = trigger.dataset.userId ? parseInt(trigger.dataset.userId) : 0;
+                const userId = trigger.dataset.userId ? parseInt(trigger.dataset.userId) : (trigger.dataset.id ? parseInt(trigger.dataset.id) : 0);
                 const username = trigger.dataset.username || '';
+                
+                if (userId === 0 && !username) {
+                    console.warn("User Card: Ignored click because both userId and username are empty.");
+                    return;
+                }
                 
                 openUserCard(userId, username, trigger);
             }

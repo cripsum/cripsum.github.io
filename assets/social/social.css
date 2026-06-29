@@ -16,10 +16,11 @@
 .social-tabs {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
     border-bottom: 1px solid var(--social-border);
-    padding-bottom: 15px;
-    margin-bottom: 25px;
+    padding-bottom: 18px;
+    margin-bottom: 30px;
+    justify-content: center; /* Center the tabs! */
 }
 
 .social-tab-btn {
@@ -34,12 +35,13 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: background 0.2s, color 0.2s;
+    transition: background 0.2s, color 0.2s, transform 0.2s;
 }
 
 .social-tab-btn:hover {
     background: rgba(255, 255, 255, 0.03);
     color: var(--social-text-main);
+    transform: translateY(-1px);
 }
 
 .social-tab-btn.is-active {
@@ -61,75 +63,103 @@
 .social-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
+    gap: 24px;
+    justify-content: center; /* Center the grid items! */
 }
 
 /* Social Card */
 .social-card {
-    background: var(--social-card-bg);
+    background: rgba(15, 15, 18, 0.55);
     border: 1px solid var(--social-border);
-    border-radius: 16px;
-    padding: 20px;
+    border-radius: 20px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
     position: relative;
-    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(16px);
+    opacity: 0; /* Animated in via JS stagger */
+    transform: translateY(15px);
+    animation: card-fade-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s, border-color 0.3s;
+}
+
+@keyframes card-fade-in {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .social-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(139, 92, 246, 0.3);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    transform: translateY(-4px) scale(1.01);
+    border-color: rgba(139, 92, 246, 0.4);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35), 0 0 20px rgba(139, 92, 246, 0.1);
 }
 
 .social-card__avatar-container {
     position: relative;
-    margin-bottom: 15px;
+    margin-bottom: 18px;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.social-card:hover .social-card__avatar-container {
+    transform: scale(1.05);
 }
 
 .social-card__avatar {
-    width: 72px;
-    height: 72px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid rgba(255, 255, 255, 0.05);
+    transition: border-color 0.3s;
+}
+
+.social-card:hover .social-card__avatar {
+    border-color: rgba(139, 92, 246, 0.3);
 }
 
 .social-card__status {
     position: absolute;
     bottom: 4px;
     right: 4px;
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
-    border: 2px solid #09090b;
+    border: 3px solid #09090b;
     background: var(--social-text-muted);
+    transition: transform 0.3s;
 }
 
 .social-card__status.is-online {
     background: var(--social-online);
-    box-shadow: 0 0 8px var(--social-online);
+    box-shadow: 0 0 10px var(--social-online);
 }
 
 .social-card__name {
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 2px;
+    font-size: 17px;
+    font-weight: 800;
+    margin-bottom: 4px;
+    color: #ffffff;
+    transition: color 0.2s;
+}
+
+.social-card__name:hover {
+    color: var(--social-accent-hover);
 }
 
 .social-card__username {
-    font-size: 13px;
+    font-size: 13.5px;
     color: var(--social-text-muted);
-    margin-bottom: 15px;
+    margin-bottom: 18px;
 }
 
 .social-card__badges {
     display: flex;
     gap: 6px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
     justify-content: center;
 }
@@ -138,25 +168,25 @@
     font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 6px;
+    padding: 4px 10px;
+    border-radius: 8px;
     letter-spacing: 0.5px;
 }
 
 .social-badge--friend {
-    background: rgba(16, 185, 129, 0.15);
+    background: rgba(16, 185, 129, 0.12);
     color: #10b981;
-    border: 1px solid rgba(16, 185, 129, 0.25);
+    border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 .social-badge--mutual {
-    background: rgba(139, 92, 246, 0.15);
+    background: rgba(139, 92, 246, 0.12);
     color: var(--social-accent-hover);
-    border: 1px solid rgba(139, 92, 246, 0.25);
+    border: 1px solid rgba(139, 92, 246, 0.2);
 }
 
 .social-badge--follows-you {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.04);
     color: var(--social-text-main);
     border: 1px solid var(--social-border);
 }
@@ -176,40 +206,51 @@
     gap: 8px;
     font-size: 13.5px;
     font-weight: 700;
-    padding: 8px 12px;
-    border-radius: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
     border: none;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s, opacity 0.2s;
+    transition: background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.social-btn:hover {
+    transform: translateY(-1px) scale(1.02);
+}
+
+.social-btn:active {
+    transform: translateY(0) scale(0.98);
 }
 
 .social-btn--primary {
     background: var(--social-accent);
     color: white;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
 }
 
 .social-btn--primary:hover {
     background: var(--social-accent-hover);
+    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.35);
 }
 
 .social-btn--secondary {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.04);
     color: var(--social-text-main);
     border: 1px solid var(--social-border);
 }
 
 .social-btn--secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .social-btn--danger {
-    background: rgba(239, 68, 68, 0.15);
+    background: rgba(239, 68, 68, 0.12);
     color: #f87171;
-    border: 1px solid rgba(239, 68, 68, 0.25);
+    border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 .social-btn--danger:hover {
-    background: rgba(239, 68, 68, 0.25);
+    background: rgba(239, 68, 68, 0.22);
+    color: #ffffff;
 }
 
 .discord-card {

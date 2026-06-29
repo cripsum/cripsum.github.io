@@ -136,10 +136,11 @@ const SocialUI = {
             return;
         }
 
-        grid.innerHTML = users.map(u => {
+        grid.innerHTML = users.map((u, index) => {
             const onlineClass = u.is_online ? 'is-online' : '';
+            const delay = index * 0.04; // 40ms stagger delay
             
-            // Badge
+            // Badges
             let badgesHtml = '';
             if (u.is_friend) {
                 badgesHtml += `<span class="social-badge social-badge--friend"><i class="fa-solid fa-user-group"></i> Amico</span>`;
@@ -150,10 +151,10 @@ const SocialUI = {
                 badgesHtml += `<span class="social-badge social-badge--follows-you">Segue te</span>`;
             }
 
-            // Pulsanti Azioni
+            // Action Buttons
             let actionsHtml = '';
             
-            // Pulsante Amicizia
+            // Friend Button
             if (u.is_friend) {
                 actionsHtml += `<button class="social-btn social-btn--secondary js-social-action" data-action="remove_friend" data-id="${u.id}"><i class="fa-solid fa-user-minus"></i> Rimuovi</button>`;
             } else if (u.friend_request_sent) {
@@ -164,7 +165,7 @@ const SocialUI = {
                 actionsHtml += `<button class="social-btn social-btn--primary js-social-action" data-action="add_friend" data-id="${u.id}"><i class="fa-solid fa-user-plus"></i> Aggiungi</button>`;
             }
 
-            // Pulsante Follow
+            // Follow Button
             if (u.is_following) {
                 actionsHtml += `<button class="social-btn social-btn--secondary js-social-action" data-action="unfollow" data-id="${u.id}" title="Smetti di seguire"><i class="fa-solid fa-check"></i> Seguito</button>`;
             } else if (u.can_follow) {
@@ -172,12 +173,12 @@ const SocialUI = {
             }
 
             return `
-                <div class="social-card">
-                    <div class="social-card__avatar-container user-card-trigger" data-id="${u.id}" style="cursor:pointer;">
+                <div class="social-card" style="animation-delay: ${delay}s;">
+                    <div class="social-card__avatar-container user-card-trigger" data-user-id="${u.id}" style="cursor:pointer;">
                         <img class="social-card__avatar" src="/includes/get_pfp.php?id=${u.id}" alt="${this.escapeHtml(u.username)}">
                         <span class="social-card__status ${onlineClass}"></span>
                     </div>
-                    <h4 class="social-card__name user-card-trigger" data-id="${u.id}" style="cursor:pointer;">${this.escapeHtml(u.display_name || u.username)}</h4>
+                    <h4 class="social-card__name user-card-trigger" data-user-id="${u.id}" style="cursor:pointer;">${this.escapeHtml(u.display_name || u.username)}</h4>
                     <span class="social-card__username">@${this.escapeHtml(u.username)}</span>
                     <div class="social-card__badges">
                         ${badgesHtml}
@@ -190,7 +191,7 @@ const SocialUI = {
         }).join('');
     },
 
-    // Renderizza le richieste di amicizia (inviate e ricevute) in due griglie separate
+    // Render friend requests (sent and received) in separate sections with animations
     renderRequestsList(data) {
         const grid = document.getElementById('socialGrid');
         if (!grid) return;
@@ -212,16 +213,19 @@ const SocialUI = {
         }
 
         let html = '';
+        let globalIndex = 0;
 
         if (data.received.length > 0) {
-            html += `<h3 class="col-span-full mb-3 fw-bold fs-5 text-white"><i class="fa-solid fa-arrow-down text-success me-2"></i> Richieste Ricevute (${data.received.length})</h3>`;
+            html += `<h3 class="col-span-full mb-3 fw-bold fs-5 text-white static-reveal is-visible"><i class="fa-solid fa-arrow-down text-success me-2"></i> Richieste Ricevute (${data.received.length})</h3>`;
             data.received.forEach(r => {
+                const delay = globalIndex * 0.04;
+                globalIndex++;
                 html += `
-                    <div class="social-card">
-                        <div class="social-card__avatar-container user-card-trigger" data-id="${r.user_id}" style="cursor:pointer;">
+                    <div class="social-card" style="animation-delay: ${delay}s;">
+                        <div class="social-card__avatar-container user-card-trigger" data-user-id="${r.user_id}" style="cursor:pointer;">
                             <img class="social-card__avatar" src="/includes/get_pfp.php?id=${r.user_id}" alt="${this.escapeHtml(r.username)}">
                         </div>
-                        <h4 class="social-card__name user-card-trigger" data-id="${r.user_id}" style="cursor:pointer;">${this.escapeHtml(r.username)}</h4>
+                        <h4 class="social-card__name user-card-trigger" data-user-id="${r.user_id}" style="cursor:pointer;">${this.escapeHtml(r.username)}</h4>
                         <span class="social-card__username" style="margin-bottom:15px;">Inviata ${this.formatDate(r.created_at)}</span>
                         <div class="social-card__actions">
                             <button class="social-btn social-btn--primary js-social-action" data-action="accept_request" data-id="${r.user_id}"><i class="fa-solid fa-user-check"></i> Accetta</button>
@@ -233,14 +237,16 @@ const SocialUI = {
         }
 
         if (data.sent.length > 0) {
-            html += `<h3 class="col-span-full mt-4 mb-3 fw-bold fs-5 text-white"><i class="fa-solid fa-arrow-up text-primary me-2"></i> Richieste Inviate (${data.sent.length})</h3>`;
+            html += `<h3 class="col-span-full mt-4 mb-3 fw-bold fs-5 text-white static-reveal is-visible"><i class="fa-solid fa-arrow-up text-primary me-2"></i> Richieste Inviate (${data.sent.length})</h3>`;
             data.sent.forEach(r => {
+                const delay = globalIndex * 0.04;
+                globalIndex++;
                 html += `
-                    <div class="social-card">
-                        <div class="social-card__avatar-container user-card-trigger" data-id="${r.user_id}" style="cursor:pointer;">
+                    <div class="social-card" style="animation-delay: ${delay}s;">
+                        <div class="social-card__avatar-container user-card-trigger" data-user-id="${r.user_id}" style="cursor:pointer;">
                             <img class="social-card__avatar" src="/includes/get_pfp.php?id=${r.user_id}" alt="${this.escapeHtml(r.username)}">
                         </div>
-                        <h4 class="social-card__name user-card-trigger" data-id="${r.user_id}" style="cursor:pointer;">${this.escapeHtml(r.username)}</h4>
+                        <h4 class="social-card__name user-card-trigger" data-user-id="${r.user_id}" style="cursor:pointer;">${this.escapeHtml(r.username)}</h4>
                         <span class="social-card__username" style="margin-bottom:15px;">Inviata ${this.formatDate(r.created_at)}</span>
                         <div class="social-card__actions">
                             <button class="social-btn social-btn--secondary js-social-action" data-action="cancel_request" data-id="${r.user_id}"><i class="fa-solid fa-user-clock"></i> Annulla</button>
