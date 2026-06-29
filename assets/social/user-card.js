@@ -8,7 +8,7 @@
         bindTriggers();
     });
 
-    // Inietta l'overlay del profilo nel body
+    // Inject the profile overlay modal into the body
     function setupCardContainers() {
         if (!document.getElementById('socialUserCardOverlay')) {
             const overlay = document.createElement('div');
@@ -22,28 +22,28 @@
             overlay.innerHTML = `
                 <div class="profile-nav-overlay-backdrop js-close-user-card"></div>
                 <div class="profile-nav-overlay-container" style="max-width: 340px; padding: 0; overflow: hidden; border: none; background: transparent; position: relative; animation: discord-pop 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);">
-                    <button class="profile-nav-overlay-close-btn js-close-user-card" style="z-index: 10; color: white; right: 15px; top: 15px; font-size: 24px; background: transparent; border: none; cursor: pointer; position: absolute;">&times;</button>
+                    <button class="profile-nav-overlay-close-btn js-close-user-card" style="z-index: 10; color: rgba(255, 255, 255, 0.7); right: 16px; top: 16px; font-size: 24px; background: transparent; border: none; cursor: pointer; position: absolute; transition: color 0.2s;">&times;</button>
                     <div id="discordUserCard" class="discord-card" style="display: block; position: relative; margin: 0; top: 0; left: 0; box-shadow: none; width: 100%; animation: none;">
                     </div>
                 </div>
             `;
             document.body.appendChild(overlay);
 
-            // Cliccando sul backdrop o sulla X si chiude
+            // Close when clicking backdrop or close button
             overlay.querySelectorAll('.js-close-user-card').forEach(el => {
                 el.addEventListener('click', closeUserCard);
             });
         }
 
-        // Tasto ESC per chiudere
+        // Close on ESC keypress
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeUserCard();
         });
     }
 
-    // Associa l'evento click a tutti gli elementi con la classe .user-card-trigger
+    // Attach click listener to all elements with the .user-card-trigger class
     function bindTriggers() {
-        // Usiamo la delega degli eventi sul body per catturare anche gli elementi caricati dinamicamente (AJAX)
+        // Use event delegation on body to capture dynamically loaded elements (AJAX)
         document.body.addEventListener('click', (e) => {
             const trigger = e.target.closest('.user-card-trigger');
             if (trigger) {
@@ -59,34 +59,34 @@
         });
     }
 
-    // Apre la User Card sfruttando il sistema di overlay nativo del sito
+    // Open the User Card using the site's native overlay system
     async function openUserCard(userId, username, triggerElement) {
         const overlay = document.getElementById('socialUserCardOverlay');
         const card = document.getElementById('discordUserCard');
         if (!overlay || !card) return;
 
-        // 1. Mostra lo stato di caricamento (Skeleton)
+        // 1. Show skeleton loader
         card.innerHTML = getSkeletonHtml();
         
-        // 2. Attiva l'overlay
+        // 2. Open overlay
         overlay.style.visibility = 'visible';
         overlay.style.pointerEvents = 'auto';
         overlay.classList.add('is-visible');
         overlay.setAttribute('aria-hidden', 'false');
         document.body.classList.add('profile-overlay-open');
 
-        // 3. Carica i dati reali dall'API
+        // 3. Fetch real data from the API
         const res = await SocialAPI.getUserCard(userId, username);
         if (res.success) {
             const html = renderCardHtml(res.data);
             card.innerHTML = html;
             applyHeritageStyles(card, res.data.style);
             
-            // Collega i gestori di eventi per i pulsanti all'interno della card
+            // Bind button click handlers
             bindCardButtons(card, res.data);
         } else {
             card.innerHTML = `
-                <div class="text-center py-5 text-danger" style="background: #111214; border-radius: 16px; border: 1px solid var(--social-border);">
+                <div class="text-center py-5 text-danger" style="background: rgba(10, 10, 12, 0.95); border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.08);">
                     <i class="fa-solid fa-triangle-exclamation mb-2 fs-3"></i><br>
                     ${escapeHtml(res.error.message)}
                 </div>
@@ -94,7 +94,7 @@
         }
     }
 
-    // Chiude l'overlay della User Card
+    // Close the User Card overlay
     function closeUserCard() {
         const overlay = document.getElementById('socialUserCardOverlay');
         if (overlay) {
@@ -103,7 +103,7 @@
             overlay.classList.remove('is-visible');
             overlay.setAttribute('aria-hidden', 'true');
             
-            // Rimuove il blocco del body solo se nessun altro overlay è ancora aperto
+            // Remove body scrolling lock only if no other overlays are open
             const anyVisible = document.querySelector('.profile-nav-overlay.is-visible:not(#socialUserCardOverlay), .profile-report-modal.is-visible');
             if (!anyVisible) {
                 document.body.classList.remove('profile-overlay-open');
@@ -112,7 +112,7 @@
         activeTrigger = null;
     }
 
-    // Applica le variabili CSS del profilo personalizzato dell'utente visualizzato
+    // Apply custom CSS theme variables from the viewed user's profile
     function applyHeritageStyles(element, style) {
         if (!style) return;
 
@@ -153,7 +153,7 @@
         }
     }
 
-    // Associa gli eventi ai pulsanti interni alla card (Follow, Amicizia, Messaggio, Blocco)
+    // Bind click events to inner action buttons (Follow, Friend, Message, Block)
     function bindCardButtons(cardElement, data) {
         const followBtn = cardElement.querySelector('.js-card-follow');
         const friendBtn = cardElement.querySelector('.js-card-friend');
@@ -173,10 +173,10 @@
                 if (res.success) {
                     if (isFollowing) {
                         followBtn.className = 'social-btn social-btn--secondary js-card-follow';
-                        followBtn.innerHTML = '<i class="fa-solid fa-check"></i> Seguito';
+                        followBtn.innerHTML = '<i class="fa-solid fa-check"></i> Following';
                     } else {
                         followBtn.className = 'social-btn social-btn--primary js-card-follow';
-                        followBtn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Segui';
+                        followBtn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Follow';
                     }
                     const countEl = cardElement.querySelector('.js-followers-count');
                     if (countEl) {
@@ -206,7 +206,7 @@
                 } else if (action === 'cancel') {
                     res = await SocialAPI.cancelFriendRequest(data.id);
                 } else if (action === 'remove') {
-                    if (confirm(`Rimuovere ${data.display_name} dagli amici?`)) {
+                    if (confirm(`Are you sure you want to remove ${data.display_name} from your friends?`)) {
                         res = await SocialAPI.removeFriend(data.id);
                     } else {
                         friendBtn.disabled = false;
@@ -235,7 +235,7 @@
                 if (action === 'unblock') {
                     res = await SocialAPI.unblockUser(data.id);
                 } else {
-                    if (confirm("Sei sicuro di voler bloccare questo utente? Verranno rimosse tutte le relazioni (amicizia, follow).")) {
+                    if (confirm("Are you sure you want to block this user? All social connections (friendship, follow) will be removed.")) {
                         res = await SocialAPI.blockUser(data.id);
                     } else {
                         blockBtn.disabled = false;
@@ -256,103 +256,123 @@
         }
     }
 
-    // Ritorna l'HTML dello Skeleton Loading
+    // Skeleton Loading HTML
     function getSkeletonHtml() {
         return `
-            <div class="discord-card__banner chat-skeleton" style="height: 60px;"></div>
+            <div class="discord-card__banner chat-skeleton" style="height: 100px;"></div>
             <div class="discord-card__avatar-container">
-                <div class="discord-card__avatar chat-skeleton" style="width: 80px; height: 80px; border-radius: 50%;"></div>
+                <div class="discord-card__avatar chat-skeleton" style="width: 88px; height: 88px; border-radius: 50%;"></div>
             </div>
             <div class="discord-card__body">
-                <div class="chat-skeleton mb-2" style="width: 150px; height: 20px;"></div>
-                <div class="chat-skeleton mb-3" style="width: 100px; height: 14px;"></div>
+                <div class="discord-card__name-section">
+                    <div class="chat-skeleton mb-2" style="width: 160px; height: 24px; border-radius: 6px;"></div>
+                    <div class="chat-skeleton mb-3" style="width: 100px; height: 16px; border-radius: 4px;"></div>
+                </div>
                 <div class="discord-card__divider"></div>
-                <div class="chat-skeleton mb-2" style="width: 80px; height: 12px;"></div>
-                <div class="chat-skeleton mb-3" style="width: 100%; height: 40px;"></div>
+                <div class="chat-skeleton mb-2" style="width: 80px; height: 14px; border-radius: 4px;"></div>
+                <div class="chat-skeleton mb-3" style="width: 100%; height: 44px; border-radius: 8px;"></div>
             </div>
         `;
     }
 
-    // Renderizza l'HTML effettivo della card utente
+    // Render User Card HTML
     function renderCardHtml(user) {
         const r = user.relationship;
         
-        // Badge sociali
+        // Relationship Badges
         let badgesHtml = '';
         if (r.is_friend) {
-            badgesHtml += `<span class="social-badge social-badge--friend"><i class="fa-solid fa-user-group"></i> Amico</span>`;
+            badgesHtml += `<span class="social-badge social-badge--friend"><i class="fa-solid fa-user-group"></i> Friend</span>`;
         }
         if (r.is_mutual_follow) {
-            badgesHtml += `<span class="social-badge social-badge--mutual"><i class="fa-solid fa-arrows-left-right"></i> Follow reciproco</span>`;
+            badgesHtml += `<span class="social-badge social-badge--mutual"><i class="fa-solid fa-arrows-left-right"></i> Mutual Follow</span>`;
         } else if (r.is_followed_by) {
-            badgesHtml += `<span class="social-badge social-badge--follows-you">Segue te</span>`;
+            badgesHtml += `<span class="social-badge social-badge--follows-you">Follows You</span>`;
         }
 
-        // Pulsante Follow
+        // Follow Button
         let followBtnHtml = '';
         if (!r.is_self && r.can_follow) {
             if (r.is_following) {
-                followBtnHtml = `<button class="social-btn social-btn--secondary js-card-follow" type="button"><i class="fa-solid fa-check"></i> Seguito</button>`;
+                followBtnHtml = `<button class="social-btn social-btn--secondary js-card-follow" type="button"><i class="fa-solid fa-check"></i> Following</button>`;
             } else {
-                followBtnHtml = `<button class="social-btn social-btn--primary js-card-follow" type="button"><i class="fa-solid fa-user-plus"></i> Segui</button>`;
+                followBtnHtml = `<button class="social-btn social-btn--primary js-card-follow" type="button"><i class="fa-solid fa-user-plus"></i> Follow</button>`;
             }
         }
 
-        // Pulsante Amicizia
+        // Friend Button
         let friendBtnHtml = '';
         if (!r.is_self) {
             if (r.is_friend) {
-                friendBtnHtml = `<button class="social-btn social-btn--secondary js-card-friend" data-action="remove" type="button" title="Rimuovi amico"><i class="fa-solid fa-user-minus"></i> Amico</button>`;
+                friendBtnHtml = `<button class="social-btn social-btn--secondary js-card-friend" data-action="remove" type="button" title="Remove Friend"><i class="fa-solid fa-user-minus"></i> Friend</button>`;
             } else if (r.friend_request_sent) {
-                friendBtnHtml = `<button class="social-btn social-btn--secondary js-card-friend" data-action="cancel" type="button" title="Annulla richiesta"><i class="fa-solid fa-user-clock"></i> Inviata</button>`;
+                friendBtnHtml = `<button class="social-btn social-btn--secondary js-card-friend" data-action="cancel" type="button" title="Cancel Request"><i class="fa-solid fa-user-clock"></i> Sent</button>`;
             } else if (r.friend_request_received) {
-                friendBtnHtml = `<button class="social-btn social-btn--primary js-card-friend" data-action="accept" type="button"><i class="fa-solid fa-user-check"></i> Accetta</button>`;
+                friendBtnHtml = `<button class="social-btn social-btn--primary js-card-friend" data-action="accept" type="button"><i class="fa-solid fa-user-check"></i> Accept</button>`;
             } else if (r.can_send_friend_request) {
-                friendBtnHtml = `<button class="social-btn social-btn--primary js-card-friend" data-action="send" type="button"><i class="fa-solid fa-user-plus"></i> Aggiungi</button>`;
+                friendBtnHtml = `<button class="social-btn social-btn--primary js-card-friend" data-action="send" type="button"><i class="fa-solid fa-user-plus"></i> Add Friend</button>`;
             }
         }
 
-        // Pulsante Messaggio
+        // Message Button
         let messageBtnHtml = '';
         if (!r.is_self && r.can_message) {
-            messageBtnHtml = `<a class="social-btn social-btn--secondary" href="/${document.documentElement.lang || 'it'}/chat?user_id=${user.id}"><i class="fa-solid fa-envelope"></i> Messaggio</a>`;
+            messageBtnHtml = `<a class="social-btn social-btn--secondary" href="/${document.documentElement.lang || 'en'}/chat?user_id=${user.id}"><i class="fa-solid fa-envelope"></i> Message</a>`;
         }
 
-        // Pulsante Blocca
+        // Block Button
         let blockBtnHtml = '';
         if (!r.is_self) {
             if (r.is_blocked_by_viewer) {
-                blockBtnHtml = `<button class="social-btn social-btn--danger js-card-block" data-action="unblock" type="button"><i class="fa-solid fa-ban"></i> Sblocca</button>`;
+                blockBtnHtml = `<button class="social-btn social-btn--danger js-card-block" data-action="unblock" type="button"><i class="fa-solid fa-ban"></i> Unblock</button>`;
             } else {
-                blockBtnHtml = `<button class="social-btn social-btn--danger-outline js-card-block" data-action="block" type="button"><i class="fa-solid fa-ban"></i> Blocca</button>`;
+                blockBtnHtml = `<button class="social-btn social-btn--danger-outline js-card-block" data-action="block" type="button"><i class="fa-solid fa-ban"></i> Block</button>`;
             }
         }
 
-        // Amici in comune
+        // Mutual Friends
         let mutualsHtml = '';
         if (!r.is_self && user.stats.mutual_friends_count > 0) {
+            const label = user.stats.mutual_friends_count === 1 ? 'mutual friend' : 'mutual friends';
             mutualsHtml = `
                 <div class="discord-card__divider"></div>
-                <div class="discord-card__section-title">Amici in comune</div>
+                <div class="discord-card__section-title">Mutual Friends</div>
                 <div class="discord-card__mutuals">
                     <div class="discord-card__mutual-avatars">
                         ${user.mutual_friends.map(m => `
                             <img class="discord-card__mutual-avatar" src="/includes/get_pfp.php?id=${m.id}" alt="${escapeHtml(m.username)}">
                         `).join('')}
                     </div>
-                    <span class="discord-card__mutual-text">${user.stats.mutual_friends_count} amici in comune</span>
+                    <span class="discord-card__mutual-text">${user.stats.mutual_friends_count} ${label}</span>
                 </div>
             `;
         }
 
-        // Bio
+        // About Me / Bio
         const bioHtml = user.bio ? `
             <div class="discord-card__divider"></div>
-            <div class="discord-card__section-title">Su di me</div>
+            <div class="discord-card__section-title">About Me</div>
             <div class="discord-card__bio">${escapeHtml(user.bio)}</div>
         ` : '';
 
         const ringClass = user.style.avatar_ring_enabled ? 'has-ring' : '';
+
+        // Structured Grid of Action Buttons
+        let actionsHtml = '';
+        if (!r.is_self) {
+            actionsHtml = `
+                <div class="discord-card__actions">
+                    <div class="discord-card__actions-row">
+                        ${followBtnHtml}
+                        ${friendBtnHtml}
+                    </div>
+                    <div class="discord-card__actions-row">
+                        ${messageBtnHtml}
+                        ${blockBtnHtml}
+                    </div>
+                </div>
+            `;
+        }
 
         return `
             <div class="discord-card__banner"></div>
@@ -368,25 +388,26 @@
                     <div class="discord-card__username">@${escapeHtml(user.username)}</div>
                 </div>
                 
-                <div class="social-card__badges">
-                    ${badgesHtml}
-                </div>
+                ${badgesHtml ? `<div class="social-card__badges">${badgesHtml}</div>` : ''}
 
                 <div class="discord-card__stats">
-                    <div><span class="discord-card__stat-val js-followers-count">${user.stats.followers_count}</span> <span class="text-muted">Followers</span></div>
-                    <div><span class="discord-card__stat-val">${user.stats.following_count}</span> <span class="text-muted">Following</span></div>
-                    <div><span class="discord-card__stat-val">${user.stats.friends_count}</span> <span class="text-muted">Amici</span></div>
+                    <div class="discord-card__stat-item">
+                        <span class="discord-card__stat-val js-followers-count">${user.stats.followers_count}</span>
+                        <span class="discord-card__stat-label">Followers</span>
+                    </div>
+                    <div class="discord-card__stat-item">
+                        <span class="discord-card__stat-val">${user.stats.following_count}</span>
+                        <span class="discord-card__stat-label">Following</span>
+                    </div>
+                    <div class="discord-card__stat-item">
+                        <span class="discord-card__stat-val">${user.stats.friends_count}</span>
+                        <span class="discord-card__stat-label">Friends</span>
+                    </div>
                 </div>
 
                 ${bioHtml}
                 ${mutualsHtml}
-
-                <div class="discord-card__actions">
-                    ${followBtnHtml}
-                    ${friendBtnHtml}
-                    ${messageBtnHtml}
-                    ${blockBtnHtml}
-                </div>
+                ${actionsHtml}
             </div>
         `;
     }

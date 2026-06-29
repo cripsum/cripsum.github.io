@@ -212,142 +212,186 @@
     background: rgba(239, 68, 68, 0.25);
 }
 
-/* ==========================================
-   DISCORD-STYLE USER CARD (DESKTOP POPUP)
-   ========================================== */
 .discord-card {
-    position: fixed;
-    width: 320px;
-    background: #111214;
-    border-radius: 16px;
+    width: 100%;
+    background: rgba(10, 10, 12, 0.92);
+    border-radius: 24px;
     overflow: hidden;
-    border: 1px solid var(--social-border);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-    z-index: 1050;
-    display: none;
-    font-family: var(--social-font);
-    color: var(--social-text-main);
-    animation: discord-pop 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-}
-
-@keyframes discord-pop {
-    from { transform: scale(0.9) translateY(10px); opacity: 0; }
-    to { transform: scale(1) translateY(0); opacity: 1; }
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(139, 92, 246, 0.05);
+    backdrop-filter: blur(20px);
+    color: #f4f4f5;
+    font-family: inherit;
+    position: relative;
 }
 
 .discord-card__banner {
-    height: 60px;
+    height: 100px;
     width: 100%;
-    background-color: var(--social-accent);
+    background: linear-gradient(135deg, var(--social-accent) 0%, #6366f1 100%);
     position: relative;
     transition: background-color 0.3s;
 }
 
 .discord-card__avatar-container {
     position: absolute;
-    top: 20px;
-    left: 16px;
+    top: 55px;
+    left: 24px;
+    z-index: 5;
 }
 
 .discord-card__avatar {
-    width: 80px;
-    height: 80px;
+    width: 88px;
+    height: 88px;
     border-radius: 50%;
-    background: #111214;
-    border: 6px solid #111214;
+    background: #0a0a0c;
+    border: 4px solid #0a0a0c;
     object-fit: cover;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* Glowing avatar ring if enabled */
 .discord-card__avatar.has-ring {
-    box-shadow: 0 0 12px var(--ring-color, var(--social-accent));
     border-color: transparent;
+    box-shadow: 0 0 0 4px #0a0a0c, 0 0 15px var(--ring-color, var(--social-accent));
 }
 
 .discord-card__body {
-    padding: 50px 16px 16px 16px;
-    background: #111214;
+    padding: 55px 24px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
 }
 
 .discord-card__name-section {
-    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .discord-card__display-name {
-    font-size: 18px;
+    font-size: 22px;
     font-weight: 800;
+    color: #ffffff;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    letter-spacing: -0.3px;
 }
 
 .discord-card__username {
     font-size: 14px;
-    color: var(--social-text-muted);
+    color: #a1a1aa;
+    font-weight: 500;
 }
 
 .discord-card__divider {
     height: 1px;
-    background: rgba(255, 255, 255, 0.08);
-    margin: 12px 0;
+    background: rgba(255, 255, 255, 0.06);
+    width: 100%;
+    margin: 4px 0;
 }
 
 .discord-card__section-title {
     font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
-    color: var(--social-text-muted);
-    margin-bottom: 6px;
-    letter-spacing: 0.5px;
+    color: #71717a;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
 }
 
 .discord-card__bio {
-    font-size: 13px;
-    line-height: 1.4;
-    margin-bottom: 12px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: #e4e4e7;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 14px;
+    padding: 12px 16px;
 }
 
 .discord-card__stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 16px;
+    padding: 12px 6px;
+}
+
+.discord-card__stat-item {
     display: flex;
-    gap: 15px;
-    font-size: 13px;
-    margin-bottom: 12px;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .discord-card__stat-val {
-    font-weight: 700;
-    color: var(--social-text-main);
+    font-size: 16px;
+    font-weight: 800;
+    color: #ffffff;
 }
 
-/* Overlapping mutual friends avatars */
+.discord-card__stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #71717a;
+    letter-spacing: 0.5px;
+}
+
 .discord-card__mutuals {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 16px;
+    padding: 10px 14px;
 }
 
 .discord-card__mutual-avatars {
     display: flex;
+    align-items: center;
 }
 
 .discord-card__mutual-avatar {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    border: 2px solid #111214;
-    margin-right: -8px;
+    border: 2px solid #0a0a0c;
+    margin-right: -10px;
     object-fit: cover;
+    transition: transform 0.2s;
+}
+
+.discord-card__mutual-avatar:hover {
+    transform: translateY(-2px);
+    z-index: 10;
 }
 
 .discord-card__mutual-text {
-    font-size: 12px;
-    color: var(--social-text-muted);
+    font-size: 13px;
+    color: #a1a1aa;
+    font-weight: 500;
 }
 
 .discord-card__actions {
     display: flex;
-    gap: 8px;
-    margin-top: 15px;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.discord-card__actions-row {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.discord-card__actions-row .social-btn {
+    flex: 1;
 }
 
 /* ==========================================
