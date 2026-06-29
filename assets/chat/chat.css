@@ -963,9 +963,9 @@
 .chat-message {
     position: relative;
     display: grid;
-    grid-template-columns: 42px minmax(0, 1fr);
-    gap: 0.7rem;
-    margin: 0.5rem 0;
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 0.6rem;
+    margin: 0.4rem 0;
     animation: chatMessageIn 220ms ease both;
 }
 
@@ -981,7 +981,7 @@
 }
 
 .chat-message.is-mine {
-    grid-template-columns: minmax(0, 1fr) 42px;
+    grid-template-columns: minmax(0, 1fr) 34px;
 }
 
 .chat-message.is-mine .chat-avatar-link {
@@ -994,16 +994,16 @@
 }
 
 .chat-avatar-link {
-    width: 42px;
-    height: 42px;
+    width: 34px;
+    height: 34px;
     border-radius: 999px;
     overflow: hidden;
     align-self: end;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
 }
 .chat-avatar-link img {
-    width: 100%;
-    height: 100%;
+    width: 100% !important;
+    height: 100% !important;
     object-fit: cover;
     display: block;
 }

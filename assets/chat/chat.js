@@ -590,22 +590,44 @@
                     }).then(r => r.json());
                 }
 
-                if (res.ok && res.messages && res.messages.length > 0) {
-                    res.messages.forEach(msg => {
-                        if (msg.body === undefined && msg.message !== undefined) {
-                            msg.body = msg.message;
+                if (res.ok) {
+                    // Aggiorna lo stato online dell'altro utente nell'header (solo per chat private)
+                    if (ChatState.currentChatType === 'private') {
+                        const statusEl = document.querySelector('#chatHeaderStatus');
+                        if (statusEl) {
+                            if (res.other_typing) {
+                                statusEl.textContent = "sta scrivendo...";
+                                statusEl.className = "chat-area__user-status is-typing";
+                            } else if (res.other_online) {
+                                statusEl.textContent = "Online";
+                                statusEl.className = "chat-area__user-status is-online";
+                            } else {
+                                statusEl.textContent = res.other_last_seen ? "Ultimo accesso " + window.formatDateTime(res.other_last_seen) : "Offline";
+                                statusEl.className = "chat-area__user-status";
+                            }
                         }
-                        if (!ChatState.messages.some(m => m.id === msg.id)) {
-                            ChatState.messages.push(msg);
-                            ChatState.lastMessageId = msg.id;
+                    }
+
+                    // Se ci sono nuovi messaggi, li appendiamo
+                    const newMsgs = ChatState.currentChatType === 'group' ? res.messages : res.new_messages;
+
+                    if (newMsgs && newMsgs.length > 0) {
+                        newMsgs.forEach(msg => {
+                            if (msg.body === undefined && msg.message !== undefined) {
+                                msg.body = msg.message;
+                            }
+                            if (!ChatState.messages.some(m => m.id === msg.id)) {
+                                ChatState.messages.push(msg);
+                                ChatState.lastMessageId = msg.id;
+                            }
+                        });
+                        ChatUI.renderMessages();
+                        
+                        if (ChatState.currentChatType === 'group') {
+                            await ChatAPI.markRead(ChatState.currentChatId, ChatState.lastMessageId);
+                        } else {
+                            await ChatAPI.markPrivateRead(ChatState.currentChatId, ChatState.lastMessageId);
                         }
-                    });
-                    ChatUI.renderMessages();
-                    
-                    if (ChatState.currentChatType === 'group') {
-                        await ChatAPI.markRead(ChatState.currentChatId, ChatState.lastMessageId);
-                    } else {
-                        await ChatAPI.markPrivateRead(ChatState.currentChatId, ChatState.lastMessageId);
                     }
                 }
             } catch (e) {
@@ -831,31 +853,98 @@
         const menu = document.querySelector('#chatContextMenu');
         if (!menu) return;
 
-        let menuHtml = '';
+        const msg = ChatState.messages.find(m => m.id === msgId);
+        const hasText = msg && (msg.body || msg.message);
+
+        let menuHtml = `
+            <div class="chat-context-menu__item" onclick="window.enterReplyMode(${msgId})"><i class="fa-solid fa-reply"></i> Rispondi</div>
+        `;
+        
+        if (hasText) {
+            menuHtml += `<div class="chat-context-menu__item" onclick="window.copyMessageText(${msgId})"><i class="fa-solid fa-copy"></i> Copia Testo</div>`;
+        }
+        
+        menuHtml += `
+            <div class="chat-context-menu__item" onclick="window.togglePrivatePin(${msgId})"><i class="fa-solid fa-thumbtack"></i> Fissa/Sfissa</div>
+        `;
+
+        if (ChatState.currentChatType === 'private') {
+            menuHtml += `<div class="chat-context-menu__item" onclick="window.toggleFavoriteMessage(${msgId})"><i class="fa-solid fa-star"></i> Preferito</div>`;
+        }
+
         if (isMine) {
-            menuHtml = `
-                <div class="chat-context-menu__item" onclick="enterEditMode(${msgId})"><i class="fa-solid fa-pen"></i> Modifica</div>
-                <div class="chat-context-menu__item" onclick="togglePrivatePin(${msgId})"><i class="fa-solid fa-thumbtack"></i> Fissa/Sfissa</div>
-                <div class="chat-context-menu__item chat-context-menu__item--danger" onclick="triggerDeleteMessage(${msgId})"><i class="fa-solid fa-trash"></i> Elimina</div>
+            menuHtml += `
+                <div class="chat-context-menu__item" onclick="window.enterEditMode(${msgId})"><i class="fa-solid fa-pen"></i> Modifica</div>
+                <div class="chat-context-menu__item chat-context-menu__item--danger" onclick="window.triggerDeleteMessage(${msgId})"><i class="fa-solid fa-trash-can"></i> Elimina per tutti</div>
             `;
         } else {
-            const myRole = ChatState.members.find(m => m.user_id === ChatState.myUserId)?.role;
-            if (myRole === 'owner' || myRole === 'admin') {
-                menuHtml = `
-                    <div class="chat-context-menu__item" onclick="togglePrivatePin(${msgId})"><i class="fa-solid fa-thumbtack"></i> Fissa/Sfissa</div>
-                    <div class="chat-context-menu__item chat-context-menu__item--danger" onclick="triggerDeleteMessage(${msgId})"><i class="fa-solid fa-trash"></i> Modera ed Elimina</div>
-                `;
-            } else {
-                menuHtml = `
-                    <div class="chat-context-menu__item" onclick="togglePrivatePin(${msgId})"><i class="fa-solid fa-thumbtack"></i> Fissa/Sfissa</div>
-                `;
+            // Se sono admin/owner in un gruppo, posso moderare ed eliminare
+            if (ChatState.currentChatType === 'group') {
+                const myRole = ChatState.members.find(m => m.user_id === ChatState.myUserId)?.role;
+                if (myRole === 'owner' || myRole === 'admin') {
+                    menuHtml += `
+                        <div class="chat-context-menu__item chat-context-menu__item--danger" onclick="window.triggerDeleteMessage(${msgId})"><i class="fa-solid fa-trash"></i> Modera ed Elimina</div>
+                    `;
+                }
             }
+        }
+
+        if (ChatState.currentChatType === 'private') {
+            menuHtml += `
+                <div class="chat-context-menu__item chat-context-menu__item--danger" onclick="window.deleteMessageForSelf(${msgId})"><i class="fa-solid fa-trash"></i> Rimuovi per me</div>
+            `;
         }
 
         menu.innerHTML = menuHtml;
         menu.style.display = 'block';
         menu.style.left = e.pageX + 'px';
         menu.style.top = e.pageY + 'px';
+    };
+
+    window.enterReplyMode = function (msgId) {
+        const msg = ChatState.messages.find(m => m.id === msgId);
+        if (!msg) return;
+        ChatState.replyToId = msgId;
+        const bar = document.querySelector('#chatReplyBar');
+        bar.style.display = 'flex';
+        bar.querySelector('.chat-reply-user').textContent = msg.sender_display_name || msg.sender_username;
+        bar.querySelector('.chat-reply-text').textContent = msg.body || msg.message || "[File/Allegato]";
+    };
+
+    window.copyMessageText = function (msgId) {
+        const msg = ChatState.messages.find(m => m.id === msgId);
+        if (msg && (msg.body || msg.message)) {
+            navigator.clipboard.writeText(msg.body || msg.message);
+            ChatUI.showToast("Testo copiato negli appunti.");
+        }
+    };
+
+    window.toggleFavoriteMessage = async function (msgId) {
+        try {
+            const res = await ChatAPI.call('manage_message.php', {
+                method: 'POST',
+                body: { action: 'toggle_favorite', message_id: msgId }
+            });
+            if (res.ok) {
+                ChatUI.showToast(res.favorited ? "Aggiunto ai preferiti." : "Rimosso dai preferiti.");
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    window.deleteMessageForSelf = async function (msgId) {
+        try {
+            const res = await ChatAPI.call('manage_message.php', {
+                method: 'POST',
+                body: { action: 'delete_for_self', message_id: msgId }
+            });
+            if (res.ok) {
+                ChatState.messages = ChatState.messages.filter(m => m.id !== msgId);
+                ChatUI.renderMessages();
+                ChatUI.showToast("Messaggio rimosso per te.");
+            }
+        } catch (e) {}
     };
 
     window.enterEditMode = function (msgId) {

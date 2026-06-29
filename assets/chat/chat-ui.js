@@ -190,7 +190,7 @@ const ChatUI = {
         let lastDateLabel = '';
 
         ChatState.messages.forEach(msg => {
-            const isMine = msg.sender_id === ChatState.myUserId;
+            const isMine = parseInt(msg.sender_id) === ChatState.myUserId;
             
             // Format separator date
             const dateStr = formatDateLabel(msg.created_at);
@@ -596,8 +596,14 @@ const ChatUI = {
 window.closeCreateGroupModal = () => ChatUI.closeCreateGroupModal();
 window.closeInviteUsersModal = () => ChatUI.closeInviteUsersModal();
 window.openInviteUsersModal = () => ChatUI.openInviteUsersModal();
+window.formatDateTime = (timeStr) => formatDateTime(timeStr);
 
 // Helpers
+function formatDateTime(timeStr) {
+    const date = parseUtcDate(timeStr);
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
 function parseUtcDate(dateString) {
     if (!dateString) return new Date(NaN);
     let cleanStr = String(dateString).replace(' ', 'T');
