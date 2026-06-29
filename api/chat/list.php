@@ -1,42 +1,49 @@
 <?php
 // api/chat/list.php
-// Returns active conversations (group + private) and pending group invites.
+// Returns active/archived conversations (group + private) and pending group invites.
 
 require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/../../includes/group_chat_functions.php';
 
-try {
-    // 1. Get Group Chats
-    $groups = getUserChats($mysqli, $userId);
+$filter = isset($_GET['filter']) ? trim($_GET['filter']) : 'active';
+$showArchived = ($filter === 'archived') ? 1 : 0;
 
-    // 2. Get Pending Group Invites
-    $invitesQuery = "
-        SELECT 
-            i.id AS invite_id,
-            i.chat_id,
-            i.inviter_id,
-            i.created_at AS invited_at,
-            c.name AS chat_name,
-            c.description AS chat_description,
-            c.avatar_url AS chat_avatar,
-            u.username AS inviter_username,
-            u.display_name AS inviter_display_name
-        FROM chat_invites i
-        INNER JOIN chats c ON c.id = i.chat_id
-        INNER JOIN utenti u ON u.id = i.inviter_id
-        WHERE i.invitee_id = ? AND i.status = 'pending'
-    ";
-    $stmtInv = $mysqli->prepare($invitesQuery);
+try {
+    // 1. Get Group Chats (only for active tab)
+    $groups = [];
+    if (!$showArchived) {
+        $groups = getUserChats($mysqli, $userId);
+    }
+
+    // 2. Get Pending Group Invites (only for active tab)
     $invites = [];
-    if ($stmtInv) {
-        $stmtInv->bind_param("i", $userId);
-        $stmtInv->execute();
-        $invites = $stmtInv->get_result()->fetch_all(MYSQLI_ASSOC);
-        $stmtInv->close();
+    if (!$showArchived) {
+        $invitesQuery = "
+            SELECT 
+                i.id AS invite_id,
+                i.chat_id,
+                i.inviter_id,
+                i.created_at AS invited_at,
+                c.name AS chat_name,
+                c.description AS chat_description,
+                c.avatar_url AS chat_avatar,
+                u.username AS inviter_username,
+                u.display_name AS inviter_display_name
+            FROM chat_invites i
+            INNER JOIN chats c ON c.id = i.chat_id
+            INNER JOIN utenti u ON u.id = i.inviter_id
+            WHERE i.invitee_id = ? AND i.status = 'pending'
+        ";
+        $stmtInv = $mysqli->prepare($invitesQuery);
+        if ($stmtInv) {
+            $stmtInv->bind_param("i", $userId);
+            $stmtInv->execute();
+            $invites = $stmtInv->get_result()->fetch_all(MYSQLI_ASSOC);
+            $stmtInv->close();
+        }
     }
     
-    // 3. Get Private Chats (Old Tables)
-    // We can query the private conversations here so the client gets a fully unified view
+    // 3. Get Private Chats (filtered by archived status)
     $privateQuery = "
         SELECT 
             c.id AS conversation_id,
@@ -66,7 +73,9 @@ try {
             last_m.message AS last_message_text,
             last_m.message_type AS last_message_type,
             last_m.created_at AS last_message_time,
-            last_m.deleted_for_all AS last_message_deleted_for_all
+            last_m.deleted_for_all AS last_message_deleted_for_all,
+
+            TIMESTAMPDIFF(SECOND, other_u.ultimo_accesso, NOW()) AS other_seconds_since_active
         FROM private_conversation_participants cp
         INNER JOIN private_conversations c ON c.id = cp.conversation_id
         INNER JOIN private_conversation_participants other_cp ON other_cp.conversation_id = c.id AND other_cp.user_id != ?
@@ -81,39 +90,32 @@ try {
                 GROUP BY conversation_id
             ) pm2 ON pm1.id = pm2.max_id
         ) last_m ON last_m.conversation_id = c.id
-        WHERE cp.user_id = ? AND cp.is_archived = 0
+        WHERE cp.user_id = ? AND cp.is_archived = ?
         ORDER BY is_pinned DESC, COALESCE(last_m.created_at, c.created_at) DESC
     ";
     
     $stmtPriv = $mysqli->prepare($privateQuery);
     $privates = [];
     if ($stmtPriv) {
-        $stmtPriv->bind_param("iiiii", $userId, $userId, $userId, $userId, $userId);
+        $stmtPriv->bind_param("iiiiii", $userId, $userId, $userId, $userId, $userId, $showArchived);
         $stmtPriv->execute();
         $privates = $stmtPriv->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmtPriv->close();
     }
     
-    // Check real-time online status of private chats
+    // Cast types and set online status
     foreach ($privates as &$p) {
         $p['conversation_id'] = (int)$p['conversation_id'];
         $p['other_user_id'] = (int)$p['other_user_id'];
         $p['unread_count'] = (int)$p['unread_count'];
         $p['is_pinned'] = (bool)$p['is_pinned'];
         $p['is_muted'] = (bool)$p['is_muted'];
+        $p['is_archived'] = (bool)$p['is_archived'];
         
-        $p['is_online'] = false;
-        $stmtAct = $mysqli->prepare("SELECT ultimo_accesso FROM utenti WHERE id = ? LIMIT 1");
-        if ($stmtAct) {
-            $stmtAct->bind_param("i", $p['other_user_id']);
-            $stmtAct->execute();
-            $resAct = $stmtAct->get_result();
-            if ($rowAct = $resAct->fetch_assoc()) {
-                $lastAct = $rowAct['ultimo_accesso'] ? strtotime($rowAct['ultimo_accesso']) : 0;
-                $p['is_online'] = (time() - $lastAct) < 180;
-            }
-            $stmtAct->close();
-        }
+        // Online se attivo negli ultimi 3 minuti (confronto in MySQL, no timezone mismatch)
+        $secSince = $p['other_seconds_since_active'];
+        $p['is_online'] = ($secSince !== null && $secSince < 180);
+        unset($p['other_seconds_since_active']);
     }
     unset($p);
 

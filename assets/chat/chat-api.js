@@ -43,8 +43,8 @@ const ChatAPI = {
     },
 
     // GET
-    async getChatList() {
-        return this.call('list.php');
+    async getChatList(filter = 'active') {
+        return this.call(`list.php?filter=${filter}`);
     },
 
     async getChatDetails(chatId) {

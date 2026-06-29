@@ -168,10 +168,10 @@ $myUserId = (int)$_SESSION['user_id'];
     <!-- Toast Notifications -->
     <div class="admin-toast" id="chatToast" style="position: fixed; bottom: 20px; right: 20px; z-index: 10000; transition: opacity 0.3s; pointer-events: none;"></div>
 
-    <script src="/assets/chat/chat-api.js?v=1.2" defer></script>
+    <script src="/assets/chat/chat-api.js?v=1.3" defer></script>
     <script src="/assets/chat/chat-state.js?v=1.2" defer></script>
     <script src="/assets/chat/chat-ui.js?v=1.9" defer></script>
-    <script src="/assets/chat/chat.js?v=2.0" defer></script>
+    <script src="/assets/chat/chat.js?v=2.1" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
 

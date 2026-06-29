@@ -35,7 +35,7 @@
     // --- CARICAMENTO CONVERSAZIONI ---
     async function loadAllConversations() {
         try {
-            const res = await ChatAPI.getChatList();
+            const res = await ChatAPI.getChatList(ChatState.activeTab || 'active');
             if (res.ok) {
                 ChatState.invites = res.invites || [];
                 
