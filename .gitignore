@@ -2,4 +2,4 @@
 config/stripe_config.php
 config/paypal_config.php
 secure/config.php
-
+presence-bot/

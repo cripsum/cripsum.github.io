@@ -22,11 +22,14 @@ function getDiscordPresence(string $discord_id): ?array
         return null;
     }
 
-    $ch = curl_init('https://api.lanyard.rest/v1/users/' . rawurlencode($discord_id));
+    // 1. Prova con il bot personalizzato su Render.
+    // Usiamo un timeout basso (2s) così se il bot è in sleep su Render il sito non si blocca e passa subito al fallback.
+    $customUrl = 'https://cripsum-com-presence.onrender.com/v1/users/' . rawurlencode($discord_id);
+    $ch = curl_init($customUrl);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_CONNECTTIMEOUT => 4,
-        CURLOPT_TIMEOUT => 7,
+        CURLOPT_CONNECTTIMEOUT => 2,
+        CURLOPT_TIMEOUT => 3,
         CURLOPT_SSL_VERIFYPEER => true,
         CURLOPT_HTTPHEADER => ['Accept: application/json'],
         CURLOPT_USERAGENT => 'CripsumBio/2.0',
@@ -36,12 +39,35 @@ function getDiscordPresence(string $discord_id): ?array
     $statusCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    if (!$response || $statusCode < 200 || $statusCode >= 300) {
-        return null;
+    if ($response && $statusCode === 200) {
+        $decoded = json_decode($response, true);
+        if (is_array($decoded) && !empty($decoded['success'])) {
+            return $decoded;
+        }
     }
 
-    $decoded = json_decode($response, true);
-    return is_array($decoded) ? $decoded : null;
+    // 2. Fallback su Lanyard ufficiale se il bot personalizzato fallisce o va in timeout
+    $lanyardUrl = 'https://api.lanyard.rest/v1/users/' . rawurlencode($discord_id);
+    $ch = curl_init($lanyardUrl);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CONNECTTIMEOUT => 3,
+        CURLOPT_TIMEOUT => 5,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_HTTPHEADER => ['Accept: application/json'],
+        CURLOPT_USERAGENT => 'CripsumBio/2.0',
+    ]);
+
+    $response = curl_exec($ch);
+    $statusCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($response && $statusCode === 200) {
+        $decoded = json_decode($response, true);
+        return is_array($decoded) ? $decoded : null;
+    }
+
+    return null;
 }
 
 function discordStatusLabel(string $status): string
