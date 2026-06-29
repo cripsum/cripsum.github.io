@@ -110,6 +110,28 @@ const SocialUI = {
         if (!grid) return;
 
         if (users.length === 0) {
+            if (this.activeTab === 'online' || this.activeTab === 'all') {
+                const isIt = document.documentElement.lang === 'it';
+                grid.innerHTML = `
+                    <div class="social-empty-state col-span-full">
+                        <div class="social-empty-state__icon">
+                            <i class="fa-solid fa-user-astronaut"></i>
+                        </div>
+                        <h3 class="social-empty-state__title">${isIt ? 'Sembra un po\' vuoto qui...' : 'It\'s a bit quiet here...'}</h3>
+                        <p class="social-empty-state__text">
+                            ${this.activeTab === 'online' 
+                                ? (isIt ? 'Nessuno dei tuoi amici è online al momento. Torna più tardi!' : 'None of your friends are online right now. Check back later!')
+                                : (isIt ? 'Inizia a costruire il tuo social graph! Cerca altri utenti o guarda le persone consigliate per te.' : 'Start building your social graph! Search for other users or check out your recommendations.')}
+                        </p>
+                        ${this.activeTab === 'all' ? `
+                            <button class="social-btn social-btn--primary mt-3" onclick="SocialUI.switchTab('suggestions')">
+                                <i class="fa-solid fa-compass"></i> ${isIt ? 'Scopri persone' : 'Discover people'}
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                return;
+            }
             grid.innerHTML = `<div class="text-center py-5 text-muted col-span-full"><i class="fa-regular fa-face-frown fs-2 mb-2"></i><br>${emptyMessage}</div>`;
             return;
         }
@@ -174,7 +196,18 @@ const SocialUI = {
         if (!grid) return;
 
         if (data.received.length === 0 && data.sent.length === 0) {
-            grid.innerHTML = `<div class="text-center py-5 text-muted col-span-full"><i class="fa-solid fa-user-clock fs-2 mb-2"></i><br>Nessuna richiesta di amicizia pendente.</div>`;
+            const isIt = document.documentElement.lang === 'it';
+            grid.innerHTML = `
+                <div class="social-empty-state col-span-full">
+                    <div class="social-empty-state__icon">
+                        <i class="fa-solid fa-envelope-open-text"></i>
+                    </div>
+                    <h3 class="social-empty-state__title">${isIt ? 'Nessuna richiesta' : 'No requests'}</h3>
+                    <p class="social-empty-state__text">
+                        ${isIt ? 'Non hai richieste di amicizia in sospeso, né inviate né ricevute.' : 'You have no pending friend requests, sent or received.'}
+                    </p>
+                </div>
+            `;
             return;
         }
 

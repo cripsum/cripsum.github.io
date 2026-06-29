@@ -421,3 +421,70 @@
 .custom-profile-inherited .social-btn--primary:hover {
     opacity: 0.9;
 }
+
+/* Premium Empty State */
+.social-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 50px 30px;
+    background: var(--social-card-bg);
+    border: 1px solid var(--social-border);
+    border-radius: 20px;
+    backdrop-filter: blur(12px);
+    max-width: 480px;
+    margin: 40px auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    border-color: rgba(255, 255, 255, 0.04);
+}
+
+.social-empty-state__icon {
+    font-size: 56px;
+    color: var(--social-accent);
+    margin-bottom: 20px;
+    animation: float-astronaut 3s ease-in-out infinite;
+    text-shadow: 0 0 15px var(--social-accent-glow);
+}
+
+.social-empty-state__title {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--social-text-main);
+    margin-bottom: 10px;
+}
+
+.social-empty-state__text {
+    font-size: 14px;
+    color: var(--social-text-muted);
+    line-height: 1.6;
+    max-width: 380px;
+    margin-bottom: 15px;
+}
+
+@keyframes float-astronaut {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+/* Red / Block Action Styles in User Card */
+.social-btn--danger-outline {
+    background: transparent;
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.social-btn--danger-outline:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: #ef4444;
+}
+
+.social-btn--danger {
+    background: #ef4444;
+    color: white;
+}
+
+.social-btn--danger:hover {
+    background: #dc2626;
+}

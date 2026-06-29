@@ -362,6 +362,37 @@
                 friendBtn.disabled = false;
             });
         }
+
+        const blockBtn = cardElement.querySelector('.js-card-block');
+        if (blockBtn) {
+            blockBtn.addEventListener('click', async () => {
+                blockBtn.disabled = true;
+                const action = blockBtn.dataset.action;
+                let res;
+                
+                if (action === 'unblock') {
+                    res = await SocialAPI.unblockUser(data.id);
+                } else {
+                    if (confirm("Sei sicuro di voler bloccare questo utente? Verranno rimosse tutte le relazioni (amicizia, follow).")) {
+                        res = await SocialAPI.blockUser(data.id);
+                    } else {
+                        blockBtn.disabled = false;
+                        return;
+                    }
+                }
+
+                if (res && res.success) {
+                    // Ricarichiamo la card intera per mostrare il nuovo stato relazionale in modo pulito
+                    openUserCard(data.id, '', activeTrigger);
+                    if (window.SocialUI && typeof window.SocialUI.loadActiveTab === 'function') {
+                        window.SocialUI.loadActiveTab();
+                    }
+                } else if (res) {
+                    alert(res.error.message);
+                }
+                blockBtn.disabled = false;
+            });
+        }
     }
 
     // Ritorna l'HTML dello Skeleton Loading per il caricamento
@@ -426,6 +457,16 @@
             messageBtnHtml = `<a class="social-btn social-btn--secondary" href="/${document.documentElement.lang || 'it'}/chat?user_id=${user.id}"><i class="fa-solid fa-envelope"></i> Messaggio</a>`;
         }
 
+        // Pulsante Blocca
+        let blockBtnHtml = '';
+        if (!r.is_self) {
+            if (r.is_blocked_by_viewer) {
+                blockBtnHtml = `<button class="social-btn social-btn--danger js-card-block" data-action="unblock" type="button"><i class="fa-solid fa-ban"></i> Sblocca</button>`;
+            } else {
+                blockBtnHtml = `<button class="social-btn social-btn--danger-outline js-card-block" data-action="block" type="button"><i class="fa-solid fa-ban"></i> Blocca</button>`;
+            }
+        }
+
         // Amici in comune
         let mutualsHtml = '';
         if (!r.is_self && user.stats.mutual_friends_count > 0) {
@@ -484,6 +525,7 @@
                     ${followBtnHtml}
                     ${friendBtnHtml}
                     ${messageBtnHtml}
+                    ${blockBtnHtml}
                 </div>
             </div>
         `;

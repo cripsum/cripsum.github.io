@@ -566,7 +566,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
     <link rel="stylesheet" href="/assets/css/profile.css?v=5.9.9">
-    <link rel="stylesheet" href="/assets/social/social.css?v=1.1">
+    <link rel="stylesheet" href="/assets/social/social.css?v=1.2">
     <style>
         .profile-dropdown-item--gift,
         .profile-dropdown-item--gift * {
@@ -1340,49 +1340,6 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                             <span>Edit profile</span>
                                         </a>
                                     <?php endif; ?>
-                                    <?php if ($rel && !$isOwnProfile): ?>
-                                        <!-- Follow Button -->
-                                        <?php if ($rel['can_follow']): ?>
-                                            <button class="profile-dropdown-item js-profile-follow" data-id="<?php echo (int)$profile['id']; ?>" data-following="<?php echo $rel['is_following'] ? '1' : '0'; ?>" type="button">
-                                                <i class="fa-solid <?php echo $rel['is_following'] ? 'fa-user-minus' : 'fa-user-plus'; ?>"></i>
-                                                <span><?php echo $rel['is_following'] ? (($lang === 'it') ? 'Smetti di seguire' : 'Unfollow') : (($lang === 'it') ? 'Segui' : 'Follow'); ?></span>
-                                            </button>
-                                        <?php endif; ?>
-                                        <!-- Friend Button -->
-                                        <?php if ($rel['is_friend']) { ?>
-                                            <button class="profile-dropdown-item js-profile-friend" data-id="<?php echo (int)$profile['id']; ?>" data-action="remove" type="button">
-                                                <i class="fa-solid fa-user-minus"></i>
-                                                <span><?php echo ($lang === 'it') ? 'Rimuovi amico' : 'Remove friend'; ?></span>
-                                            </button>
-                                        <?php } elseif ($rel['friend_request_sent']) { ?>
-                                            <button class="profile-dropdown-item js-profile-friend" data-id="<?php echo (int)$profile['id']; ?>" data-action="cancel" type="button">
-                                                <i class="fa-solid fa-user-clock"></i>
-                                                <span><?php echo ($lang === 'it') ? 'Annulla richiesta' : 'Cancel request'; ?></span>
-                                            </button>
-                                        <?php } elseif ($rel['friend_request_received']) { ?>
-                                            <button class="profile-dropdown-item js-profile-friend" data-id="<?php echo (int)$profile['id']; ?>" data-action="accept" type="button">
-                                                <i class="fa-solid fa-user-check"></i>
-                                                <span><?php echo ($lang === 'it') ? 'Accetta amicizia' : 'Accept friendship'; ?></span>
-                                            </button>
-                                        <?php } elseif ($rel['can_send_friend_request']) { ?>
-                                            <button class="profile-dropdown-item js-profile-friend" data-id="<?php echo (int)$profile['id']; ?>" data-action="send" type="button">
-                                                <i class="fa-solid fa-user-plus"></i>
-                                                <span><?php echo ($lang === 'it') ? 'Aggiungi agli amici' : 'Add friend'; ?></span>
-                                            </button>
-                                        <?php } ?>
-                                        <!-- Message Button -->
-                                        <?php if ($rel['can_message']): ?>
-                                            <a class="profile-dropdown-item" href="/<?php echo $lang; ?>/chat?user_id=<?php echo (int)$profile['id']; ?>">
-                                                <i class="fa-solid fa-envelope"></i>
-                                                <span><?php echo ($lang === 'it') ? 'Invia messaggio' : 'Send message'; ?></span>
-                                            </a>
-                                        <?php endif; ?>
-                                        <!-- Block Button -->
-                                        <button class="profile-dropdown-item js-profile-block text-danger" data-id="<?php echo (int)$profile['id']; ?>" data-blocked="<?php echo $rel['is_blocked_by_viewer'] ? '1' : '0'; ?>" type="button">
-                                            <i class="fa-solid fa-ban"></i>
-                                            <span><?php echo $rel['is_blocked_by_viewer'] ? (($lang === 'it') ? 'Sblocca' : 'Unblock') : (($lang === 'it') ? 'Blocca' : 'Block'); ?></span>
-                                        </button>
-                                    <?php endif; ?>
                                     <?php if (!$isPremium && !$isOwnProfile): ?>
                                         <a class="profile-dropdown-item profile-dropdown-item--gift" href="/<?php echo $lang; ?>/checkout-premium.php?gift_to=<?php echo urlencode($profile['username']); ?>">
                                             <i class="fa-solid fa-gift"></i>
@@ -1426,7 +1383,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         <?php endif; ?>
                     </div>
 
-                    <div class="bio-avatar-wrap profile-smart-avatar ring-style-<?php echo profile_h($avatarRingStyle); ?> <?php echo (!$avatarRingEnabled || $avatarRingStyle === 'none') ? 'ring-disabled' : ''; ?>" style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>;">
+                    <div class="bio-avatar-wrap profile-smart-avatar ring-style-<?php echo profile_h($avatarRingStyle); ?> <?php echo (!$avatarRingEnabled || $avatarRingStyle === 'none') ? 'ring-disabled' : ''; ?> <?php echo (!$isOwnProfile) ? 'user-card-trigger' : ''; ?>" 
+                         <?php echo (!$isOwnProfile) ? 'data-user-id="' . (int)$profile['id'] . '" data-username="' . profile_h($profile['username']) . '" style="cursor: pointer; --profile-ring: ' . profile_h($avatarRingColor) . ';"' : 'style="--profile-ring: ' . profile_h($avatarRingColor) . ';"'; ?>>
                         <?php if ($avatarRingEnabled && $avatarRingStyle !== 'none'): ?><div class="bio-avatar-ring"></div><?php endif; ?>
                         <img class="bio-avatar" src="<?php echo profile_h(profile_avatar_url($profile, 256)); ?>" alt="Avatar di <?php echo profile_h($profile['username']); ?>" loading="eager" data-richpresence-pfp>
                     </div>
@@ -2484,7 +2442,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         </script>
     <?php endif; ?>
     <script src="/assets/social/social-api.js?v=1.2" defer></script>
-    <script src="/assets/social/user-card.js?v=1.1" defer></script>
+    <script src="/assets/social/user-card.js?v=1.2" defer></script>
 </body>
 
 </html>
