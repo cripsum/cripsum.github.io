@@ -248,11 +248,11 @@ const ChatUI = {
             // Render attachment files if present
             let attachmentsHtml = '';
             if (msg.attachments && msg.attachments.length > 0) {
-                attachmentsHtml = `<div class="chat-msg-attachments" style="margin-top:8px; display:flex; flex-direction:column; gap:6px;">` + msg.attachments.map(att => {
+                attachmentsHtml = `<div class="chat-msg-attachments" style="margin-top:4px; display:flex; flex-direction:column; gap:6px;">` + msg.attachments.map(att => {
                     if (att.file_type === 'image') {
-                        return `<img class="chat-attachment-image" src="${att.file_path}" alt="${escapeHtml(att.file_name)}" onclick="openMediaPreview('${att.file_path}', 'image')" style="max-width:100%; max-height:200px; object-fit:cover; border-radius:8px; cursor:pointer;">`;
+                        return `<img class="chat-attachment-image" src="${att.file_path}" alt="${escapeHtml(att.file_name)}" onclick="openMediaPreview('${att.file_path}', 'image')" style="max-width:100%; max-height:360px; object-fit:cover; border-radius:8px; cursor:pointer;">`;
                     } else if (att.file_type === 'video') {
-                        return `<video class="chat-attachment-video" src="${att.file_path}" controls style="max-width:100%; max-height:200px; border-radius:8px;"></video>`;
+                        return `<video class="chat-attachment-video" src="${att.file_path}" controls style="max-width:100%; max-height:360px; border-radius:8px;"></video>`;
                     } else if (att.file_type === 'audio') {
                         return `<audio src="${att.file_path}" controls style="max-width:100%;"></audio>`;
                     } else {
@@ -269,7 +269,7 @@ const ChatUI = {
             const formattedTime = formatTime(msg.created_at);
             const senderName = msg.sender_display_name || msg.sender_username;
             const classes = ['chat-message', isMine ? 'is-mine' : ''].filter(Boolean).join(' ');
-            const avatar = `<a class="chat-avatar-link" href="#"><img class="chat-avatar" src="/includes/get_pfp.php?id=${msg.sender_id}" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;"></a>`;
+            const avatar = `<a class="chat-avatar-link" href="#"><img class="chat-avatar" src="/includes/get_pfp.php?id=${msg.sender_id}" alt=""></a>`;
             const editedText = msg.edited_at || msg.is_edited ? '<span class="chat-edited">modificato</span>' : '';
 
             const main = `
