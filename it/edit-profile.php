@@ -763,9 +763,17 @@ function profile_json_script(string $id, array $data): void
                                 <small>Necessario per caricare la tua attività e il tuo stato di presenza.</small>
                             </label>
 
-                            <div class="profile-discord-note" style="margin-bottom: 2rem;">
-                                <i class="fa-solid fa-circle-info"></i>
-                                <span>Il login Discord importa solo ID, username e avatar. Per abilitare la Rich Presence (attività e stato in tempo reale) sul tuo profilo, devi unirti al nostro <a href="https://discord.gg/XdheJHVURw" target="_blank" rel="noopener noreferrer">server Discord di Cripsum</a>.</span>
+                            <div class="profile-discord-presence-card" style="margin-bottom: 2rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 1.5rem; border-radius: 12px; display: flex; flex-direction: column; gap: 1rem;">
+                                <div style="display: flex; gap: 12px; align-items: flex-start;">
+                                    <i class="fa-solid fa-circle-info" style="color: #5865F2; font-size: 1.2rem; margin-top: 2px;"></i>
+                                    <div>
+                                        <strong style="display: block; margin-bottom: 4px; color: #fff;">Abilita lo Stato in Tempo Reale</strong>
+                                        <span style="font-size: 0.85rem; opacity: 0.75; line-height: 1.4;">Il login Discord importa solo i dati di base. Per mostrare le tue attività in tempo reale (giochi, Spotify, ecc.) sul tuo profilo, devi unirti al nostro server Discord dove risiede il bot.</span>
+                                    </div>
+                                </div>
+                                <a href="https://discord.gg/XdheJHVURw" target="_blank" rel="noopener noreferrer" class="bio-button bio-button--primary" style="background-color: #5865F2; border: none; align-self: flex-start; padding: 10px 16px; font-weight: 500; font-size: 0.9rem; gap: 8px; border-radius: 8px;">
+                                    <i class="fa-brands fa-discord"></i> Entra nel Server Discord
+                                </a>
                             </div>
 
                             <div class="bio-section-heading" style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.5rem;">

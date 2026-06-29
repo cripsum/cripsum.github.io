@@ -756,9 +756,17 @@ function profile_json_script(string $id, array $data): void
                                 <small>Necessary to fetch your activity and presence status.</small>
                             </label>
 
-                            <div class="profile-discord-note" style="margin-bottom: 2rem;">
-                                <i class="fa-solid fa-circle-info"></i>
-                                <span>Discord login only imports your ID, username and avatar. To enable Rich Presence (real-time status and activity) on your profile, you need to join our <a href="https://discord.gg/XdheJHVURw" target="_blank" rel="noopener noreferrer">Cripsum Discord server</a>.</span>
+                            <div class="profile-discord-presence-card" style="margin-bottom: 2rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 1.5rem; border-radius: 12px; display: flex; flex-direction: column; gap: 1rem;">
+                                <div style="display: flex; gap: 12px; align-items: flex-start;">
+                                    <i class="fa-solid fa-circle-info" style="color: #5865F2; font-size: 1.2rem; margin-top: 2px;"></i>
+                                    <div>
+                                        <strong style="display: block; margin-bottom: 4px; color: #fff;">Enable Real-Time Status</strong>
+                                        <span style="font-size: 0.85rem; opacity: 0.75; line-height: 1.4;">Discord login only imports basic details. To display your real-time activities (games, Spotify, etc.) on your profile, you must join our Discord server where the status bot is located.</span>
+                                    </div>
+                                </div>
+                                <a href="https://discord.gg/XdheJHVURw" target="_blank" rel="noopener noreferrer" class="bio-button bio-button--primary" style="background-color: #5865F2; border: none; align-self: flex-start; padding: 10px 16px; font-weight: 500; font-size: 0.9rem; gap: 8px; border-radius: 8px;">
+                                    <i class="fa-brands fa-discord"></i> Join the Discord Server
+                                </a>
                             </div>
 
                             <div class="bio-section-heading" style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.5rem;">
