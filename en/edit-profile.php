@@ -753,12 +753,12 @@ function profile_json_script(string $id, array $data): void
                             <label class="profile-field">
                                 <span>Discord user ID</span>
                                 <input type="text" name="discord_id" id="discordIdInput" maxlength="25" value="<?php echo profile_h($profile['discord_id'] ?? ''); ?>" placeholder="E.g. 8239582304530540">
-                                <small>Necessary to fetch your activity and Lanyard status.</small>
+                                <small>Necessary to fetch your activity and presence status.</small>
                             </label>
 
                             <div class="profile-discord-note" style="margin-bottom: 2rem;">
                                 <i class="fa-solid fa-circle-info"></i>
-                                <span>Discord login only imports your ID, username and avatar. If you want to enable Rich Presence, join the <a href="https://discord.com/invite/lanyard" target="_blank" rel="noopener noreferrer">Lanyard Discord server</a>.</span>
+                                <span>Discord login only imports your ID, username and avatar. To enable Rich Presence (real-time status and activity) on your profile, you need to join our <a href="https://discord.gg/XdheJHVURw" target="_blank" rel="noopener noreferrer">Cripsum Discord server</a>.</span>
                             </div>
 
                             <div class="bio-section-heading" style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.5rem;">

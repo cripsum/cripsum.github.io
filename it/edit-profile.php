@@ -760,12 +760,12 @@ function profile_json_script(string $id, array $data): void
                             <label class="profile-field">
                                 <span>Discord user ID</span>
                                 <input type="text" name="discord_id" id="discordIdInput" maxlength="25" value="<?php echo profile_h($profile['discord_id'] ?? ''); ?>" placeholder="Es. 8239582304530540">
-                                <small>Necessario per caricare la tua attività e il tuo stato Lanyard.</small>
+                                <small>Necessario per caricare la tua attività e il tuo stato di presenza.</small>
                             </label>
 
                             <div class="profile-discord-note" style="margin-bottom: 2rem;">
                                 <i class="fa-solid fa-circle-info"></i>
-                                <span>Il login Discord salva solo ID, username e avatar. Se vuoi abilitare la Rich Presence ti basta entrare nel <a href="https://discord.com/invite/lanyard" target="_blank" rel="noopener noreferrer">server discord Lanyard</a>.</span>
+                                <span>Il login Discord importa solo ID, username e avatar. Per abilitare la Rich Presence (attività e stato in tempo reale) sul tuo profilo, devi unirti al nostro <a href="https://discord.gg/XdheJHVURw" target="_blank" rel="noopener noreferrer">server Discord di Cripsum</a>.</span>
                             </div>
 
                             <div class="bio-section-heading" style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.5rem;">
