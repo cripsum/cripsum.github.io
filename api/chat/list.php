@@ -64,6 +64,7 @@ try {
             last_m.id AS last_message_id,
             last_m.sender_id AS last_message_sender_id,
             last_m.message AS last_message_text,
+            last_m.message_type AS last_message_type,
             last_m.created_at AS last_message_time,
             last_m.deleted_for_all AS last_message_deleted_for_all
         FROM private_conversation_participants cp
@@ -87,7 +88,7 @@ try {
     $stmtPriv = $mysqli->prepare($privateQuery);
     $privates = [];
     if ($stmtPriv) {
-        $stmtPriv->bind_param("iiiiii", $userId, $userId, $userId, $userId, $userId, $userId);
+        $stmtPriv->bind_param("iiiii", $userId, $userId, $userId, $userId, $userId);
         $stmtPriv->execute();
         $privates = $stmtPriv->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmtPriv->close();
