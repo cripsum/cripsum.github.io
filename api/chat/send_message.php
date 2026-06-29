@@ -42,44 +42,11 @@ try {
         if ($existingConv) {
             $conversationId = (int)$existingConv['conversation_id'];
         } else {
-            // Verifica permessi di privacy del destinatario
-            $stmtPriv = $mysqli->prepare("SELECT privacy_receive_from FROM private_user_settings WHERE user_id = ? LIMIT 1");
-            $privacySetting = 'all';
-            if ($stmtPriv) {
-                $stmtPriv->bind_param("i", $recipientId);
-                $stmtPriv->execute();
-                $resPriv = $stmtPriv->get_result();
-                if ($rowPriv = $resPriv->fetch_assoc()) {
-                    $privacySetting = $rowPriv['privacy_receive_from'];
-                }
-                $stmtPriv->close();
-            }
-            
-            // Se impostato su 'none', nessuno può avviare nuove chat
-            if ($privacySetting === 'none') {
-                throw new Exception("L'utente ha disattivato la ricezione di nuove chat private.", 403);
-            }
-            // Se impostato su 'verified', solo utenti speciali o premium
-            if ($privacySetting === 'verified') {
-                $stmtSender = $mysqli->prepare("SELECT ruolo, is_premium FROM utenti WHERE id = ? LIMIT 1");
-                $isVerified = false;
-                if ($stmtSender) {
-                    $stmtSender->bind_param("i", $userId);
-                    $stmtSender->execute();
-                    $resSender = $stmtSender->get_result();
-                    if ($rowSender = $resSender->fetch_assoc()) {
-                        $isVerified = in_array($rowSender['ruolo'], ['admin', 'owner'], true) || (int)$rowSender['is_premium'] === 1;
-                    }
-                    $stmtSender->close();
-                }
-                if (!$isVerified) {
-                    throw new Exception("Solo gli utenti verificati o premium possono avviare una chat con questo utente.", 403);
-                }
-            }
-
-            // Controlliamo il blocco prima di creare la chat
-            if (is_blocked_with($mysqli, $userId, $recipientId)) {
-                throw new Exception("Impossibile avviare la conversazione. Sei stato bloccato o hai bloccato questo utente.", 403);
+            // Verifica permessi di privacy del destinatario e blocchi
+            require_once __DIR__ . '/../../includes/social_functions.php';
+            $rel = getRelationshipStatus($mysqli, $userId, $recipientId);
+            if (!$rel['can_message']) {
+                throw new Exception("L'utente ha disattivato la ricezione di messaggi da parte tua o c'è un blocco attivo.", 403);
             }
             
             // Creiamo una nuova conversazione
@@ -116,8 +83,10 @@ try {
         $resOther = $stmtOther->get_result();
         if ($rowOther = $resOther->fetch_assoc()) {
             $recipientId = (int)$rowOther['user_id'];
-            if (is_blocked_with($mysqli, $userId, $recipientId)) {
-                throw new Exception("Impossibile inviare il messaggio. Sei stato bloccato o hai bloccato questo utente.", 403);
+            require_once __DIR__ . '/../../includes/social_functions.php';
+            $rel = getRelationshipStatus($mysqli, $userId, $recipientId);
+            if (!$rel['can_message']) {
+                throw new Exception("Impossibile inviare il messaggio. Sei stato bloccato, hai bloccato questo utente o non hai i permessi di messaggistica.", 403);
             }
         }
         $stmtOther->close();

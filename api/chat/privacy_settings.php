@@ -17,7 +17,7 @@ switch ($action) {
         }
         
         if ($action === 'block') {
-            $stmt = $mysqli->prepare("INSERT IGNORE INTO private_user_blocks (user_id, blocked_user_id) VALUES (?, ?)");
+            $stmt = $mysqli->prepare("INSERT IGNORE INTO blocked_users (blocker_id, blocked_id) VALUES (?, ?)");
             $stmt->bind_param("ii", $userId, $blockedUserId);
             $stmt->execute();
             $stmt->close();
@@ -34,7 +34,7 @@ switch ($action) {
             
             send_success(['blocked' => true]);
         } else {
-            $stmt = $mysqli->prepare("DELETE FROM private_user_blocks WHERE user_id = ? AND blocked_user_id = ?");
+            $stmt = $mysqli->prepare("DELETE FROM blocked_users WHERE blocker_id = ? AND blocked_id = ?");
             $stmt->bind_param("ii", $userId, $blockedUserId);
             $stmt->execute();
             $stmt->close();

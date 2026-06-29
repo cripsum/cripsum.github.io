@@ -5,6 +5,7 @@ require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/profile_helpers.php';
 require_once __DIR__ . '/includes/cripsum_og.php';
 require_once __DIR__ . '/includes/mission_tracker.php';
+require_once __DIR__ . '/includes/social_functions.php';
 
 checkBan($mysqli);
 
@@ -565,6 +566,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
     <link rel="stylesheet" href="/assets/css/profile.css?v=5.9.9">
+    <link rel="stylesheet" href="/assets/social/social.css?v=1.0">
     <style>
         .profile-dropdown-item--gift,
         .profile-dropdown-item--gift * {
@@ -1307,6 +1309,9 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             'data-tilt-zoom="' . (float)($profile['tilt_zoom'] ?? 1.05) . '" ' .
             'data-tilt-speed="' . (int)($profile['tilt_speed'] ?? 400) . '"';
         ?>
+        <?php
+        $rel = ($isLoggedIn && isset($profile['id'])) ? getRelationshipStatus($mysqli, $currentUserId, $profile['id']) : null;
+        ?>
         <main class="bio-page profile-smart-page <?php echo (!$hasRightContent) ? 'profile-smart-page--single' : ''; ?> layout-<?php echo profile_h($layoutCss); ?>" id="bioPage">
             <div class="profile-smart-hero-wrapper">
                 <section class="bio-hero bio-card profile-smart-hero js-tilt-card js-reveal" aria-label="Public Profile" <?php echo $tiltAttrs; ?>>
@@ -1334,6 +1339,49 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                             <i class="fa-solid fa-pen"></i>
                                             <span>Edit profile</span>
                                         </a>
+                                    <?php endif; ?>
+                                    <?php if ($rel && !$isOwnProfile): ?>
+                                        <!-- Follow Button -->
+                                        <?php if ($rel['can_follow']): ?>
+                                            <button class="profile-dropdown-item js-profile-follow" data-id="<?php echo (int)$profile['id']; ?>" data-following="<?php echo $rel['is_following'] ? '1' : '0'; ?>" type="button">
+                                                <i class="fa-solid <?php echo $rel['is_following'] ? 'fa-user-minus' : 'fa-user-plus'; ?>"></i>
+                                                <span><?php echo $rel['is_following'] ? (($lang === 'it') ? 'Smetti di seguire' : 'Unfollow') : (($lang === 'it') ? 'Segui' : 'Follow'); ?></span>
+                                            </button>
+                                        <?php endif; ?>
+                                        <!-- Friend Button -->
+                                        <?php if ($rel['is_friend']): ?>
+                                            <button class="profile-dropdown-item js-profile-friend" data-id="<?php echo (int)$profile['id']; ?>" data-action="remove" type="button">
+                                                <i class="fa-solid fa-user-minus"></i>
+                                                <span><?php echo ($lang === 'it') ? 'Rimuovi amico' : 'Remove friend'; ?></span>
+                                            </button>
+                                        <?php elseif ($rel['friend_request_sent']): ?>
+                                            <button class="profile-dropdown-item js-profile-friend" data-id="<?php echo (int)$profile['id']; ?>" data-action="cancel" type="button">
+                                                <i class="fa-solid fa-user-clock"></i>
+                                                <span><?php echo ($lang === 'it') ? 'Annulla richiesta' : 'Cancel request'; ?></span>
+                                            </button>
+                                        <?php elseif ($rel['friend_request_received']): ?>
+                                            <button class="profile-dropdown-item js-profile-friend" data-id="<?php echo (int)$profile['id']; ?>" data-action="accept" type="button">
+                                                <i class="fa-solid fa-user-check"></i>
+                                                <span><?php echo ($lang === 'it') ? 'Accetta amicizia' : 'Accept friendship'; ?></span>
+                                            </button>
+                                        <?php elseif ($rel['can_send_friend_request']): ?>
+                                            <button class="profile-dropdown-item js-profile-friend" data-id="<?php echo (int)$profile['id']; ?>" data-action="send" type="button">
+                                                <i class="fa-solid fa-user-plus"></i>
+                                                <span><?php echo ($lang === 'it') ? 'Aggiungi agli amici' : 'Add friend'; ?></span>
+                                            </button>
+                                        <?php endif; ?>
+                                        <!-- Message Button -->
+                                        <?php if ($rel['can_message']): ?>
+                                            <a class="profile-dropdown-item" href="/<?php echo $lang; ?>/chat?user_id=<?php echo (int)$profile['id']; ?>">
+                                                <i class="fa-solid fa-envelope"></i>
+                                                <span><?php echo ($lang === 'it') ? 'Invia messaggio' : 'Send message'; ?></span>
+                                            </a>
+                                        <?php endif; ?>
+                                        <!-- Block Button -->
+                                        <button class="profile-dropdown-item js-profile-block text-danger" data-id="<?php echo (int)$profile['id']; ?>" data-blocked="<?php echo $rel['is_blocked_by_viewer'] ? '1' : '0'; ?>" type="button">
+                                            <i class="fa-solid fa-ban"></i>
+                                            <span><?php echo $rel['is_blocked_by_viewer'] ? (($lang === 'it') ? 'Sblocca' : 'Unblock') : (($lang === 'it') ? 'Blocca' : 'Block'); ?></span>
+                                        </button>
                                     <?php endif; ?>
                                     <?php if (!$isPremium && !$isOwnProfile): ?>
                                         <a class="profile-dropdown-item profile-dropdown-item--gift" href="/<?php echo $lang; ?>/checkout-premium.php?gift_to=<?php echo urlencode($profile['username']); ?>">
@@ -1437,6 +1485,18 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                 style="--name-color1: <?php echo profile_h($nameSolidColor); ?>; --name-color2: <?php echo profile_h($nameGradColor1); ?>; --name-color3: <?php echo profile_h($nameGradColor2); ?>; --name-angle: <?php echo profile_h($nameGradAngle); ?>deg; --name-glow-color: <?php echo profile_h($nameGlowColor); ?>;">
                                 <?php echo profile_format_name($displayName, $nameStyle); ?>
                             </h1>
+                            <?php if ($rel && !$isOwnProfile): ?>
+                                <div class="profile-social-badges ms-2 d-inline-flex gap-1" style="vertical-align: middle;">
+                                    <?php if ($rel['is_friend']): ?>
+                                        <span class="social-badge social-badge--friend"><i class="fa-solid fa-user-group"></i> <?php echo ($lang === 'it') ? 'Amico' : 'Friend'; ?></span>
+                                    <?php endif; ?>
+                                    <?php if ($rel['is_mutual_follow']): ?>
+                                        <span class="social-badge social-badge--mutual"><i class="fa-solid fa-arrows-left-right"></i> <?php echo ($lang === 'it') ? 'Reciproco' : 'Mutual'; ?></span>
+                                    <?php elseif ($rel['is_followed_by']): ?>
+                                        <span class="social-badge social-badge--follows-you"><?php echo ($lang === 'it') ? 'Segue te' : 'Follows you'; ?></span>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
                             <?php if ($badgesPosition === 'right_of_name') echo $renderMiniBadgesHtml; ?>
                         </div>
                         <p class="bio-username">@<?php echo profile_h($profile['username']); ?></p>
@@ -2423,6 +2483,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             });
         </script>
     <?php endif; ?>
+    <script src="/assets/social/social-api.js?v=1.0" defer></script>
+    <script src="/assets/social/user-card.js?v=1.0" defer></script>
 </body>
 
 </html>

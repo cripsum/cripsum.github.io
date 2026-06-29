@@ -48,6 +48,7 @@ $t = [
         'my_profile_alt' => 'Profilo',
         'missions'     => 'Missioni',
         'private_chat' => 'Chat Privata',
+        'friends'      => 'Amici',
     ],
     'en' => [
         'memes'        => 'Memes',
@@ -77,6 +78,7 @@ $t = [
         'my_profile_alt' => 'Profile',
         'missions'     => 'Missions',
         'private_chat' => 'Private Chat',
+        'friends'      => 'Friends',
     ],
 ][$lang];
 
@@ -238,6 +240,7 @@ if ($isLoggedIn) {
                             <!--<li><a class="dropdown-item" href="/<?= $lang ?>/ordini"><i class="fa-solid fa-bag-shopping me-2"></i>I miei ordini</a></li>-->
                             <li><a class="dropdown-item" href="/<?= $lang ?>/global-chat"><i class="fa-solid fa-envelope me-2"></i><?= $t['global_chat'] ?></a></li>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/chat"><i class="fa-solid fa-message me-2"></i><?= $t['private_chat'] ?></a></li>
+                            <li><a class="dropdown-item" href="/<?= $lang ?>/amici"><i class="fa-solid fa-user-group me-2"></i><?= $t['friends'] ?></a></li>
                             <?php if ($nsfw === 1): ?>
                                 <li><a class="dropdown-item" href="/<?= $lang ?>/goonland/home"><i class="fa-solid fa-eye-slash me-2"></i>GoonLand</a></li>
                             <?php endif; ?>

@@ -20,9 +20,9 @@ switch ($type) {
             FROM utenti u
             WHERE u.username LIKE ? AND u.id != ?
               AND NOT EXISTS (
-                  SELECT 1 FROM private_user_blocks b 
-                  WHERE (b.user_id = ? AND b.blocked_user_id = u.id)
-                     OR (b.user_id = u.id AND b.blocked_user_id = ?)
+                  SELECT 1 FROM blocked_users b 
+                  WHERE (b.blocker_id = ? AND b.blocked_id = u.id)
+                     OR (b.blocker_id = u.id AND b.blocked_id = ?)
               )
             LIMIT 15
         ";

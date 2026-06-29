@@ -35,9 +35,9 @@ function send_success($data = []) {
 // Helper per verificare se l'utente ha bloccato o è bloccato da un altro utente
 function is_blocked_with($mysqli, $userId, $otherUserId) {
     $stmt = $mysqli->prepare("
-        SELECT id FROM private_user_blocks 
-        WHERE (user_id = ? AND blocked_user_id = ?) 
-           OR (user_id = ? AND blocked_user_id = ?)
+        SELECT id FROM blocked_users 
+        WHERE (blocker_id = ? AND blocked_id = ?) 
+           OR (blocker_id = ? AND blocked_id = ?)
         LIMIT 1
     ");
     if ($stmt) {
