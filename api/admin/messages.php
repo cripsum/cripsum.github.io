@@ -139,7 +139,7 @@ if ($method === 'GET') {
                 $rewVal = trim($rew['value'] ?? '');
                 $rewQty = (int)($rew['quantity'] ?? 1);
                 
-                if (!in_array($rewType, ['points', 'character', 'badge', 'premium'], true) || $rewVal === '') {
+                if (!in_array($rewType, ['points', 'godoshards', 'character', 'badge', 'premium'], true) || $rewVal === '') {
                     throw new Exception("Tipo o valore premio non valido.");
                 }
                 

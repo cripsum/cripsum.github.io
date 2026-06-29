@@ -945,6 +945,8 @@ function getUltimoAccesso($mysqli, $user_id)
 function getUnreadMessagesCount($mysqli, $userId)
 {
     $userId = (int)$userId;
+    
+    // 1. Count unread traditional messages
     $stmt = $mysqli->prepare("
         SELECT COUNT(*) AS c 
         FROM site_message_recipients 
@@ -956,7 +958,47 @@ function getUnreadMessagesCount($mysqli, $userId)
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
     $stmt->close();
-    return (int)($row['c'] ?? 0);
+    $unreadMessages = (int)($row['c'] ?? 0);
+
+    // 2. Count unread open tickets
+    $unreadTickets = 0;
+    $isAdmin = false;
+    if (isset($_SESSION['ruolo'])) {
+        $isAdmin = ($_SESSION['ruolo'] === 'admin' || $_SESSION['ruolo'] === 'owner');
+    } else {
+        $stmtRole = $mysqli->prepare("SELECT ruolo FROM utenti WHERE id = ?");
+        if ($stmtRole) {
+            $stmtRole->bind_param("i", $userId);
+            $stmtRole->execute();
+            $resRole = $stmtRole->get_result();
+            if ($rowRole = $resRole->fetch_assoc()) {
+                $isAdmin = ($rowRole['ruolo'] === 'admin' || $rowRole['ruolo'] === 'owner');
+            }
+            $stmtRole->close();
+        }
+    }
+
+    if ($isAdmin) {
+        // Admins see notifications for any open ticket where admin_read = 0
+        $stmtTickets = $mysqli->prepare("SELECT COUNT(*) AS c FROM site_tickets WHERE admin_read = 0 AND status = 'open'");
+    } else {
+        // Regular users see notifications for their own open tickets where user_read = 0
+        $stmtTickets = $mysqli->prepare("SELECT COUNT(*) AS c FROM site_tickets WHERE user_id = ? AND user_read = 0 AND status = 'open'");
+    }
+
+    if ($stmtTickets) {
+        if (!$isAdmin) {
+            $stmtTickets->bind_param("i", $userId);
+        }
+        $stmtTickets->execute();
+        $resTickets = $stmtTickets->get_result();
+        if ($rowTickets = $resTickets->fetch_assoc()) {
+            $unreadTickets = (int)($rowTickets['c'] ?? 0);
+        }
+        $stmtTickets->close();
+    }
+
+    return $unreadMessages + $unreadTickets;
 }
 
 function claimMessageRewards($mysqli, $userId, $messageId)
@@ -1024,6 +1066,17 @@ function claimMessageRewards($mysqli, $userId, $messageId)
                     'type' => 'points',
                     'amount' => $points,
                     'label' => $points . ' Godos'
+                ];
+            } elseif ($type === 'godoshards') {
+                $shards = (int)$val * $qty;
+                $stmt = $mysqli->prepare("UPDATE utenti SET godoshards_balance = godoshards_balance + ? WHERE id = ?");
+                $stmt->bind_param("ii", $shards, $userId);
+                $stmt->execute();
+                $stmt->close();
+                $claimedList[] = [
+                    'type' => 'godoshards',
+                    'amount' => $shards,
+                    'label' => $shards . ' Godo Shards'
                 ];
             } elseif ($type === 'character') {
                 $charId = (int)$val;

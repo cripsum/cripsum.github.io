@@ -13,10 +13,11 @@
         characters: { page: 1 },
         achievements: { page: 1 },
         messages: { page: 1 },
+        tickets: { page: 1, status: 'all' },
         shitposts: { page: 1, status: 'all' },
         toprimasti: { page: 1, status: 'all' },
         reports: { page: 1, source: 'all', status: 'open' },
-        cache: { users: [], characters: [], achievements: [], messages: [], shitposts: [], toprimasti: [], reports: [], customBadges: [] }
+        cache: { users: [], characters: [], achievements: [], messages: [], tickets: [], shitposts: [], toprimasti: [], reports: [], customBadges: [] }
     };
 
     let toastTimer = null;
@@ -980,6 +981,78 @@
         }
     };
 
+    const loadTicketsAdmin = async () => {
+        const box = $('#ticketsTable');
+        if (!box) return;
+        setLoading(box);
+        try {
+            const res = await fetch('/api/tickets.php').then(r => r.json());
+            if (!res.ok) throw new Error(res.error || 'Errore caricamento ticket');
+            
+            state.cache.tickets = res.tickets || [];
+            
+            const statusFilter = $('#ticketsStatusFilterAdmin')?.value || 'all';
+            let filtered = state.cache.tickets;
+            if (statusFilter === 'open') {
+                filtered = filtered.filter(t => t.status === 'open');
+            } else if (statusFilter === 'closed') {
+                filtered = filtered.filter(t => t.status === 'closed');
+            }
+            
+            if (state.q) {
+                const query = state.q.toLowerCase();
+                filtered = filtered.filter(t => 
+                    t.ticket_id.toLowerCase().includes(query) ||
+                    t.title.toLowerCase().includes(query) ||
+                    t.topic.toLowerCase().includes(query) ||
+                    (t.username || '').toLowerCase().includes(query)
+                );
+            }
+            
+            const lang = document.documentElement.lang || 'it';
+            
+            box.innerHTML = filtered.length ? `
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID Ticket</th>
+                            <th>Utente</th>
+                            <th>Titolo</th>
+                            <th>Argomento</th>
+                            <th>Stato</th>
+                            <th>Data Creazione</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filtered.map(t => `
+                            <tr>
+                                <td data-label="ID Ticket"><b>${escapeHtml(t.ticket_id)}</b></td>
+                                <td data-label="Utente"><b>${escapeHtml(t.username || 'Ospite')}</b><br><span class="admin-muted">ID #${Number(t.user_id)}</span></td>
+                                <td data-label="Titolo">${escapeHtml(t.title)}</td>
+                                <td data-label="Argomento"><span class="admin-badge cat-ticket" style="background: rgba(139, 92, 246, 0.12); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.2);">${escapeHtml(t.topic)}</span></td>
+                                <td data-label="Stato">
+                                    <span class="admin-badge ${t.status === 'open' ? 'admin-badge--success' : ''}" style="${t.status === 'closed' ? 'background: rgba(255, 255, 255, 0.05); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.1);' : ''}">
+                                        ${t.status === 'open' ? '<i class="fa-solid fa-check me-1"></i>Aperto' : '<i class="fa-solid fa-lock me-1"></i>Chiuso'}
+                                    </span>
+                                </td>
+                                <td data-label="Data Creazione">${formatDateTime(t.created_at)}</td>
+                                <td data-label="Azioni">
+                                    <div class="admin-row-actions">
+                                        <a href="/${lang}/inbox?ticket_id=${t.ticket_id}" class="admin-btn admin-btn--small" style="text-decoration:none;"><i class="fa-solid fa-comments"></i> Rispondi</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            ` : emptyState('fa-solid fa-headset', 'Nessun ticket trovato');
+            
+        } catch (error) {
+            box.innerHTML = emptyState('fa-solid fa-triangle-exclamation', 'Errore ticket', error.message);
+        }
+    };
+
     const loadCustomBadges = async () => {
         if (state.cache.customBadges && state.cache.customBadges.length) return state.cache.customBadges;
         try {
@@ -1089,7 +1162,8 @@
             row.innerHTML = `
                 <div>
                     <select class="admin-input rew-type" style="padding: 6px 10px;" data-row-idx="${index}">
-                        <option value="points">Punti</option>
+                        <option value="points">Godos (Punti)</option>
+                        <option value="godoshards">Godo Shards</option>
                         <option value="character">Personaggio</option>
                         <option value="badge">Badge</option>
                         <option value="premium">Premium</option>
@@ -1115,6 +1189,8 @@
                 const valContainer = $(`#rew-val-container-${index}`);
                 if (type === 'points') {
                     valContainer.innerHTML = `<input type="number" class="admin-input rew-val" placeholder="Quantità punti..." required min="1">`;
+                } else if (type === 'godoshards') {
+                    valContainer.innerHTML = `<input type="number" class="admin-input rew-val" placeholder="Quantità shards..." required min="1">`;
                 } else if (type === 'character') {
                     valContainer.innerHTML = charOptions ? `<select class="admin-input rew-val" required>${charOptions}</select>` : `<input type="number" class="admin-input rew-val" placeholder="ID personaggio..." required min="1">`;
                 } else if (type === 'badge') {
@@ -1179,6 +1255,7 @@
         if (section === 'characters') loadCharacters();
         if (section === 'achievements') loadAchievements();
         if (section === 'messages') loadMessages();
+        if (section === 'tickets') loadTicketsAdmin();
         if (section === 'shitposts') loadShitposts();
         if (section === 'toprimasti') loadToprimasti();
         if (section === 'reports') loadReports();
@@ -1220,6 +1297,7 @@
             $('#toprimastiStatusFilter')?.addEventListener('change', (e) => { state.toprimasti.status = e.target.value; state.toprimasti.page = 1; loadToprimasti(); });
             $('#reportsSourceFilter')?.addEventListener('change', (e) => { state.reports.source = e.target.value; state.reports.page = 1; loadReports(); });
             $('#reportsStatusFilter')?.addEventListener('change', (e) => { state.reports.status = e.target.value; state.reports.page = 1; loadReports(); });
+            $('#ticketsStatusFilterAdmin')?.addEventListener('change', () => { loadTicketsAdmin(); });
 
             $('#adminGlobalSearch')?.addEventListener('input', debounce((e) => {
                 state.q = e.target.value.trim();

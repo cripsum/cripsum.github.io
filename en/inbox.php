@@ -268,7 +268,33 @@ $ogUrl = 'https://cripsum.com/en/inbox';
 
             // Initialization
             window.addEventListener('DOMContentLoaded', () => {
-                loadMessages();
+                const urlParams = new URLSearchParams(window.location.search);
+                const ticketId = urlParams.get('ticket_id');
+                if (ticketId) {
+                    filterCategory = 'ticket';
+                    currentMessageId = ticketId;
+                    
+                    $$('.inbox-category-btn').forEach(b => {
+                        b.classList.toggle('is-active', b.dataset.cat === 'ticket');
+                    });
+                    
+                    $$('.inbox-filter-tab').forEach(tab => {
+                        const status = tab.dataset.status;
+                        if (status === 'unread' || status === 'important') {
+                            tab.style.display = 'none';
+                        } else {
+                            tab.style.display = 'block';
+                            if (status === '') tab.textContent = 'Open';
+                            if (status === 'archived') tab.textContent = 'Closed';
+                        }
+                    });
+                }
+
+                loadMessages().then(() => {
+                    if (ticketId) {
+                        selectMessage(ticketId, 'ticket');
+                    }
+                });
                 setupEventListeners();
             });
 
@@ -647,28 +673,33 @@ $ogUrl = 'https://cripsum.com/en/inbox';
                     const isClaimed = msg.claimed_at !== null;
 
                     const rewardsListHtml = msg.rewards.map(rew => {
-                        let icon = '🎁';
+                        let iconHtml = '🎁';
                         let label = '';
                         let sub = '';
 
                         switch (rew.reward_type) {
                             case 'points':
-                                icon = '🪙';
+                                iconHtml = `<img src="/img/godos.png" alt="Godos" style="width: 22px; height: 22px; object-fit: contain;">`;
                                 label = `+${parseInt(rew.reward_value) * parseInt(rew.quantity)} Godos`;
                                 sub = 'Site currency';
                                 break;
+                            case 'godoshards':
+                                iconHtml = `<img src="/img/godoshards.png" alt="Godo Shards" style="width: 22px; height: 22px; object-fit: contain;">`;
+                                label = `+${parseInt(rew.reward_value) * parseInt(rew.quantity)} Godo Shards`;
+                                sub = 'Rare site currency';
+                                break;
                             case 'character':
-                                icon = '👤';
+                                iconHtml = '👤';
                                 label = `Character ID: ${rew.reward_value}`;
                                 sub = 'Added to inventory';
                                 break;
                             case 'badge':
-                                icon = '🏆';
+                                iconHtml = '🏆';
                                 label = `Custom badge ID: ${rew.reward_value}`;
                                 sub = 'Profile unlocked';
                                 break;
                             case 'premium':
-                                icon = '⭐';
+                                iconHtml = '⭐';
                                 label = 'Premium Status';
                                 sub = 'VIP perks activated';
                                 break;
@@ -676,7 +707,7 @@ $ogUrl = 'https://cripsum.com/en/inbox';
 
                         return `
                             <div class="inbox-reward-item">
-                                <span class="inbox-reward-icon ${rew.reward_type}">${icon}</span>
+                                <span class="inbox-reward-icon ${rew.reward_type}" style="display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.03); border-radius: 50%; width: 40px; height: 40px;">${iconHtml}</span>
                                 <div class="inbox-reward-details">
                                     <span class="inbox-reward-name">${label}</span>
                                     <span class="inbox-reward-sub">${sub}</span>
@@ -1184,13 +1215,14 @@ $ogUrl = 'https://cripsum.com/en/inbox';
                     const listContainer = $('#rewardModalList');
                     listContainer.innerHTML = res.rewards.map(rew => {
                         let icon = '🎁';
-                        if (rew.type === 'points') icon = '🪙';
+                        if (rew.type === 'points') icon = `<img src="/img/godos.png" alt="Godos" style="width: 22px; height: 22px; vertical-align: middle; margin-right: 8px; object-fit: contain;">`;
+                        else if (rew.type === 'godoshards') icon = `<img src="/img/godoshards.png" alt="Godo Shards" style="width: 22px; height: 22px; vertical-align: middle; margin-right: 8px; object-fit: contain;">`;
                         else if (rew.type === 'character') icon = '👤';
                         else if (rew.type === 'badge') icon = '🏆';
                         else if (rew.type === 'premium') icon = '⭐';
 
                         return `
-                            <div class="inbox-reward-modal-item">
+                            <div class="inbox-reward-modal-item" style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
                                 <span>${icon}</span>
                                 <span>${htmlEscape(rew.label)}</span>
                             </div>
