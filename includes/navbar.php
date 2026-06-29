@@ -47,6 +47,7 @@ $t = [
         'user_badge'   => 'Utente',
         'my_profile_alt' => 'Profilo',
         'missions'     => 'Missioni',
+        'private_chat' => 'Chat Privata',
     ],
     'en' => [
         'memes'        => 'Memes',
@@ -75,6 +76,7 @@ $t = [
         'user_badge'   => 'User',
         'my_profile_alt' => 'Profile',
         'missions'     => 'Missions',
+        'private_chat' => 'Private Chat',
     ],
 ][$lang];
 
@@ -235,6 +237,7 @@ if ($isLoggedIn) {
                             <li><a class="dropdown-item" href="/<?= $lang ?>/inventario"><i class="fa-solid fa-box me-2"></i><?= $t['inventory'] ?></a></li>
                             <!--<li><a class="dropdown-item" href="/<?= $lang ?>/ordini"><i class="fa-solid fa-bag-shopping me-2"></i>I miei ordini</a></li>-->
                             <li><a class="dropdown-item" href="/<?= $lang ?>/global-chat"><i class="fa-solid fa-envelope me-2"></i><?= $t['global_chat'] ?></a></li>
+                            <li><a class="dropdown-item" href="/<?= $lang ?>/chat"><i class="fa-solid fa-message me-2"></i><?= $t['private_chat'] ?></a></li>
                             <?php if ($nsfw === 1): ?>
                                 <li><a class="dropdown-item" href="/<?= $lang ?>/goonland/home"><i class="fa-solid fa-eye-slash me-2"></i>GoonLand</a></li>
                             <?php endif; ?>

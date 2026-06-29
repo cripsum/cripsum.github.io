@@ -998,7 +998,34 @@ function getUnreadMessagesCount($mysqli, $userId)
         $stmtTickets->close();
     }
 
-    return $unreadMessages + $unreadTickets;
+    // 3. Count unread private chat messages
+    $unreadPrivateChats = 0;
+    $checkTable = $mysqli->query("SHOW TABLES LIKE 'private_conversation_participants'");
+    if ($checkTable && $checkTable->num_rows > 0) {
+        $stmtPrivate = $mysqli->prepare("
+            SELECT COUNT(*) AS c 
+            FROM private_messages pm
+            INNER JOIN private_conversation_participants cp ON cp.conversation_id = pm.conversation_id
+            WHERE cp.user_id = ? 
+              AND cp.is_archived = 0 
+              AND cp.is_muted = 0
+              AND pm.id > COALESCE(cp.last_read_message_id, 0)
+              AND pm.sender_id != ?
+              AND pm.deleted_at IS NULL
+              AND NOT EXISTS (SELECT 1 FROM private_message_deleted pmd WHERE pmd.message_id = pm.id AND pmd.user_id = ?)
+        ");
+        if ($stmtPrivate) {
+            $stmtPrivate->bind_param("iii", $userId, $userId, $userId);
+            $stmtPrivate->execute();
+            $resPrivate = $stmtPrivate->get_result();
+            if ($rowPrivate = $resPrivate->fetch_assoc()) {
+                $unreadPrivateChats = (int)($rowPrivate['c'] ?? 0);
+            }
+            $stmtPrivate->close();
+        }
+    }
+
+    return $unreadMessages + $unreadTickets + $unreadPrivateChats;
 }
 
 function claimMessageRewards($mysqli, $userId, $messageId)
