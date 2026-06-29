@@ -40,8 +40,7 @@ $sql = "
              OR (b.blocker_id = u.id AND b.blocked_id = ?)
       )
       -- Rispetta la privacy del profilo
-      AND COALESCE(s.profile_visibility, 'public') = 'public'
-    ORDER BY mutual_connections DESC, is_follower DESC, followers_count DESC, u.last_activity DESC
+    ORDER BY mutual_connections DESC, is_follower DESC, followers_count DESC, u.ultimo_accesso DESC
     LIMIT 8
 ";
 

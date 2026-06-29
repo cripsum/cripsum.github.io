@@ -7,7 +7,7 @@ $typingStatus = isset($input['typing_status']) ? trim((string)$input['typing_sta
 $lastMessageId = isset($input['last_message_id']) ? (int)$input['last_message_id'] : 0;
 
 // 1. Aggiorna l'attività dell'utente corrente (Stato Online)
-$mysqli->query("UPDATE utenti SET last_activity = NOW() WHERE id = $userId");
+$mysqli->query("UPDATE utenti SET ultimo_accesso = NOW() WHERE id = $userId");
 
 // 2. Se l'utente sta scrivendo/registrando/caricando, aggiorna il suo stato nella conversazione
 if ($conversationId > 0) {
