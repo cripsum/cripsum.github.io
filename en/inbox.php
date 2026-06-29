@@ -253,6 +253,7 @@ $ogUrl = 'https://cripsum.com/en/inbox';
             // Global caches loaded once to prevent the unread badge dropping to 0 bug
             let globalMessages = [];
             let globalTickets = [];
+            let messagesCache = []; // Filtered list currently displayed
 
             let currentMessageId = null;
             let chatPollingInterval = null;
@@ -361,6 +362,34 @@ $ogUrl = 'https://cripsum.com/en/inbox';
                     // Apply filters locally and render
                     renderFilteredList();
 
+                    // If there is an active conversation, update it with fresh server data
+                    if (currentMessageId) {
+                        let activeMsg = null;
+                        if (filterCategory === 'ticket') {
+                            const t = globalTickets.find(x => x.ticket_id === currentMessageId);
+                            if (t) {
+                                activeMsg = {
+                                    message_id: t.ticket_id,
+                                    title_it: t.title,
+                                    title_en: t.title,
+                                    category: 'ticket',
+                                    topic: t.topic,
+                                    status: t.status,
+                                    username: t.username
+                                };
+                            }
+                        } else {
+                            activeMsg = globalMessages.find(x => x.message_id === parseInt(currentMessageId, 10));
+                        }
+
+                        if (activeMsg) {
+                            renderMessageDetails(activeMsg);
+                        } else {
+                            currentMessageId = null;
+                            renderEmptyDetails();
+                        }
+                    }
+
                 } catch (error) {
                     container.innerHTML = `<div style="padding: 20px; text-align: center; color: #ef4444;">Unable to load messages.</div>`;
                 }
@@ -463,6 +492,8 @@ $ogUrl = 'https://cripsum.com/en/inbox';
                         m.content_en.toLowerCase().includes(q)
                     );
                 }
+
+                messagesCache = filtered;
 
                 if (filtered.length === 0) {
                     container.innerHTML = `
@@ -754,6 +785,42 @@ $ogUrl = 'https://cripsum.com/en/inbox';
                     `<button class="btn-toggle-ticket btn-toggle-ticket--reopen" id="btnToggleTicket"><i class="fa-solid fa-envelope-open me-1"></i>Reopen Ticket</button>` :
                     `<button class="btn-toggle-ticket btn-toggle-ticket--close" id="btnToggleTicket"><i class="fa-solid fa-lock me-1"></i>Close Ticket</button>`;
 
+                // If the ticket is closed, replace input form with a banner
+                const inputAreaHtml = isClosed ? `
+                    <div class="inbox-chat-input-area" style="padding: 1rem 1.2rem; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(239, 68, 68, 0.05); text-align: center; color: #ef4444; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <i class="fa-solid fa-lock"></i>
+                        <span>This ticket is closed. Reopen it to send new messages.</span>
+                    </div>
+                ` : `
+                    <div class="inbox-chat-input-area" style="padding: 0.7rem 1.2rem; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(13, 20, 35, 0.25);">
+                        <form id="chatSendForm" style="display: flex; gap: 10px; align-items: center;">
+                            <input type="hidden" name="ticket_id" value="${ticketId}">
+                            
+                            <!-- File Attachment -->
+                            <div style="position: relative;">
+                                <label for="chat-attachment" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; color: #a78bfa;" title="Attach an image">
+                                    <i class="fa-solid fa-paperclip"></i>
+                                </label>
+                                <input type="file" id="chat-attachment" name="attachment" accept="image/*" style="display: none;">
+                            </div>
+
+                            <!-- Textarea Input -->
+                            <textarea name="message" id="chatMessageInput" required rows="1" placeholder="Reply to ticket..." style="flex-grow: 1; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: white; outline: none; resize: none; font-family: inherit; font-size: 0.95rem; line-height: 1.4; height: 38px; min-height: 38px; max-height: 80px;"></textarea>
+
+                            <!-- Send Button -->
+                            <button type="submit" style="background: #8b5cf6; border: none; border-radius: 8px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; transition: background 0.2s;" title="Send">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </form>
+                        
+                        <!-- Attachment Preview -->
+                        <div id="chat-preview-container" style="display: none; margin-top: 10px; position: relative; max-width: 120px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                            <button type="button" id="chat-remove-preview" class="remove-preview-btn" style="position: absolute; top: 2px; right: 2px; background: rgba(239,68,68,0.8); border: none; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+                            <img id="chat-image-preview" src="" style="width: 100%; height: auto; display: block;">
+                        </div>
+                    </div>
+                `;
+
                 pane.innerHTML = `
                     <button class="inbox-action-btn inbox-mobile-back" id="inboxMobileBackBtn"><i class="fa-solid fa-arrow-left"></i> Back</button>
                     
@@ -782,39 +849,16 @@ $ogUrl = 'https://cripsum.com/en/inbox';
                             <div style="text-align: center; color: rgba(255,255,255,0.3); padding: 20px;"><i class="fa-solid fa-spinner fa-spin me-2"></i>Loading chat...</div>
                         </div>
 
-                        <!-- Message Input Form -->
-                        <div class="inbox-chat-input-area" style="padding: 0.7rem 1.2rem; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(13, 20, 35, 0.25);">
-                            <form id="chatSendForm" style="display: flex; gap: 10px; align-items: center;">
-                                <input type="hidden" name="ticket_id" value="${ticketId}">
-                                
-                                <!-- File Attachment -->
-                                <div style="position: relative;">
-                                    <label for="chat-attachment" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; color: #a78bfa;" title="Attach an image">
-                                        <i class="fa-solid fa-paperclip"></i>
-                                    </label>
-                                    <input type="file" id="chat-attachment" name="attachment" accept="image/*" style="display: none;">
-                                </div>
-
-                                <!-- Textarea Input -->
-                                <textarea name="message" id="chatMessageInput" required rows="1" placeholder="Reply to ticket..." style="flex-grow: 1; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: white; outline: none; resize: none; font-family: inherit; font-size: 0.95rem; line-height: 1.4; height: 38px; min-height: 38px; max-height: 80px;"></textarea>
-
-                                <!-- Send Button -->
-                                <button type="submit" style="background: #8b5cf6; border: none; border-radius: 8px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; transition: background 0.2s;" title="Send">
-                                    <i class="fa-solid fa-paper-plane"></i>
-                                </button>
-                            </form>
-                            
-                            <!-- Attachment Preview -->
-                            <div id="chat-preview-container" style="display: none; margin-top: 10px; position: relative; max-width: 120px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
-                                <button type="button" id="chat-remove-preview" class="remove-preview-btn" style="position: absolute; top: 2px; right: 2px; background: rgba(239,68,68,0.8); border: none; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
-                                <img id="chat-image-preview" src="" style="width: 100%; height: auto; display: block;">
-                            </div>
-                        </div>
+                        <!-- Form Input or Banner -->
+                        ${inputAreaHtml}
                     </div>
                 `;
 
                 loadTicketMessages(ticketId);
-                setupChatFormEvents(ticketId);
+
+                if (!isClosed) {
+                    setupChatFormEvents(ticketId);
+                }
 
                 const toggleBtn = $('#btnToggleTicket');
                 if (toggleBtn) {
@@ -880,8 +924,8 @@ $ogUrl = 'https://cripsum.com/en/inbox';
 
                 container.innerHTML = messages.map(msg => {
                     const isMe = parseInt(msg.sender_id, 10) === loggedUserId;
-                    const rowClass = isMe ? 'msg-row-me' : 'msg-row-them';
-                    const bubbleClass = isMe ? 'chat-msg-me' : 'chat-msg-them';
+                    const rowClass = msg.sender_id == loggedUserId ? 'msg-row-me' : 'msg-row-them';
+                    const bubbleClass = msg.sender_id == loggedUserId ? 'chat-msg-me' : 'chat-msg-them';
                     
                     let roleBadge = '';
                     if (msg.ruolo === 'admin' || msg.ruolo === 'owner') {
