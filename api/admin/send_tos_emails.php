@@ -1,15 +1,14 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
 
-// Disabilita il limite di tempo per l'esecuzione dello script
-set_time_limit(0);
+// Disabilita il limite di tempo per sicurezza
+set_time_limit(60);
 
-// Disabilita l'output buffering per vedere l'avanzamento in tempo reale
-if (ob_get_level()) {
-    ob_end_clean();
-}
+// Parametri di batching
+$limit = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 10;
+$startId = isset($_GET['start_id']) ? max(0, (int)$_GET['start_id']) : 0;
+
 header('Content-Type: text/html; charset=utf-8');
-header('X-Accel-Buffering: no'); // Per server Nginx
 
 echo "<!DOCTYPE html>
 <html>
@@ -17,34 +16,72 @@ echo "<!DOCTYPE html>
     <title>Invio Email Aggiornamento Termini</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #f8fafc; padding: 20px; line-height: 1.6; }
-        h1 { color: #c084fc; border-bottom: 2px solid #334155; padding-bottom: 10px; }
-        .log-container { background: #1e293b; border: 1px solid #334155; padding: 15px; border-radius: 8px; max-height: 500px; overflow-y: auto; font-family: monospace; font-size: 14px; }
+        h1 { color: #c084fc; border-bottom: 2px solid #334155; padding-bottom: 10px; margin-bottom: 5px; }
+        .subtitle { color: #94a3b8; margin-top: 0; margin-bottom: 25px; }
+        .log-container { background: #1e293b; border: 1px solid #334155; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 14px; margin-bottom: 20px; }
         .success { color: #4ade80; }
         .error { color: #f87171; font-weight: bold; }
-        .summary { margin-top: 20px; background: #1e293b; padding: 15px; border-radius: 8px; border-left: 4px solid #c084fc; }
+        .redirect-box { background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.3); padding: 15px; border-radius: 8px; text-align: center; font-size: 16px; margin-bottom: 20px; }
+        .progress-bar-container { background: #334155; height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 20px; }
+        .progress-bar { background: #a78bfa; height: 100%; width: 0%; transition: width 0.3s ease; }
+        .btn { display: inline-block; background: #8b5cf6; color: white; text-decoration: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; margin-top: 10px; }
+        .btn:hover { background: #7c3aed; }
     </style>
 </head>
 <body>
-    <h1>Cripsum™ - Invio Massivo Email Termini & Privacy</h1>";
+    <h1>Cripsum™ - Invio Batch Email Termini & Privacy</h1>
+    <div class='subtitle'>Invio controllato per evitare limiti di invio del server</div>";
 
-// Query per recuperare tutti gli utenti con email
-$query = "SELECT id, username, email FROM utenti WHERE email IS NOT NULL AND email != ''";
-$result = $mysqli->query($query);
+// 1. Calcola il totale degli utenti rimasti e complessivi per la barra di progresso
+$totalQuery = $mysqli->query("SELECT COUNT(*) as c FROM utenti WHERE email IS NOT NULL AND email != ''");
+$totalUsers = $totalQuery ? (int)$totalQuery->fetch_assoc()['c'] : 0;
 
-if (!$result) {
-    echo "<div class='error'>Errore nel recupero degli utenti dal database: " . htmlspecialchars($mysqli->error) . "</div></body></html>";
+$passedQuery = $mysqli->prepare("SELECT COUNT(*) as c FROM utenti WHERE email IS NOT NULL AND email != '' AND id < ?");
+$passedUsers = 0;
+if ($passedQuery) {
+    $passedQuery->bind_param("i", $startId);
+    $passedQuery->execute();
+    $passedUsers = (int)$passedQuery->get_result()->fetch_assoc()['c'];
+    $passedQuery->close();
+}
+
+$progressPercent = $totalUsers > 0 ? round(($passedUsers / $totalUsers) * 100) : 0;
+
+echo "
+    <p>Progresso complessivo: <strong>$passedUsers</strong> di <strong>$totalUsers</strong> utenti elaborati ($progressPercent%)</p>
+    <div class='progress-bar-container'>
+        <div class='progress-bar' style='width: {$progressPercent}%'></div>
+    </div>";
+
+// 2. Recupera il batch corrente di utenti
+$query = "SELECT id, username, email FROM utenti WHERE id >= ? AND email IS NOT NULL AND email != '' ORDER BY id ASC LIMIT ?";
+$stmt = $mysqli->prepare($query);
+
+if (!$stmt) {
+    echo "<div class='error'>Errore nella query del database: " . htmlspecialchars($mysqli->error) . "</div></body></html>";
     exit();
 }
 
-$totalUsers = $result->num_rows;
-echo "<p>Trovati <strong>$totalUsers</strong> utenti a cui inviare la comunicazione.</p>";
+$stmt->bind_param("ii", $startId, $limit);
+$stmt->execute();
+$result = $stmt->get_result();
+$usersBatch = $result->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
+if (empty($usersBatch)) {
+    echo "
+    <div class='redirect-box' style='background: rgba(74, 222, 128, 0.15); border-color: rgba(74, 222, 128, 0.3);'>
+        <h2 style='color: #4ade80; margin-top: 0;'>🎉 Invio Completato!</h2>
+        <p>Tutti gli utenti registrati hanno ricevuto l'email di aggiornamento dei Termini e della Privacy.</p>
+    </div>
+    </body>
+    </html>";
+    exit();
+}
+
 echo "<div class='log-container'>";
-flush();
 
-$sentCount = 0;
-$errorCount = 0;
-
-// Template HTML per l'email (stile Premium Dark/Purple)
+// Template HTML per l'email
 function getTosEmailTemplate($username) {
     $siteUrl = SITE_URL;
     return "
@@ -112,15 +149,18 @@ function getTosEmailTemplate($username) {
     </html>";
 }
 
-// Loop e invio
-while ($row = $result->fetch_assoc()) {
-    $email = $row['email'];
-    $username = $row['username'];
+$lastProcessedId = $startId;
+$sentCount = 0;
+$errorCount = 0;
+
+foreach ($usersBatch as $user) {
+    $email = $user['email'];
+    $username = $user['username'];
+    $lastProcessedId = (int)$user['id'];
     
     $subject = 'Aggiornamento dei Termini di Servizio e Privacy Policy - Cripsum™';
     $htmlBody = getTosEmailTemplate($username);
     
-    // Headers per email HTML
     $headers = [];
     $headers[] = 'MIME-Version: 1.0';
     $headers[] = 'Content-type: text/html; charset=utf-8';
@@ -135,26 +175,33 @@ while ($row = $result->fetch_assoc()) {
         echo "Inviata a <span class='success'>$username</span> ($email)... OK<br>";
     } else {
         $errorCount++;
-        echo "Inviata a <span class='error'>$username</span> ($email)... <span class='error'>FALLITA</span><br>";
+        echo "Inviata a <span class='success'>$username</span> ($email)... <span class='error'>FALLITA</span><br>";
     }
-    
-    // Forza lo svuotamento del buffer verso il browser
-    flush();
-    
-    // Un piccolo delay (50ms) per non sovraccaricare il server di posta locale
-    usleep(50000);
 }
 
 echo "</div>"; // Chiude log-container
 
+// Calcola il prossimo ID di partenza (l'ID dell'ultimo utente elaborato + 1)
+$nextStartId = $lastProcessedId + 1;
+
 echo "
-<div class='summary'>
-    <h2>Risultato dell'invio</h2>
-    <p>Email inviate con successo: <strong class='success'>$sentCount</strong></p>
-    <p>Invii falliti: <strong class='error'>$errorCount</strong></p>
-    <p>Totale elaborati: <strong>" . ($sentCount + $errorCount) . "</strong> su <strong>$totalUsers</strong></p>
+<div class='redirect-box'>
+    <p>Batch completato: <strong>$sentCount</strong> inviate con successo, <strong>$errorCount</strong> fallite.</p>
+    <p>Prossimo invio automatico a partire dall'ID <strong>$nextStartId</strong> tra <span id='countdown'>4</span> secondi...</p>
+    <a href='send_tos_emails.php?start_id=$nextStartId&limit=$limit' class='btn'>Invia Subito Prossimo Batch</a>
 </div>
+
+<script>
+    let seconds = 4;
+    const interval = setInterval(() => {
+        seconds--;
+        document.getElementById('countdown').textContent = seconds;
+        if (seconds <= 0) {
+            clearInterval(interval);
+            window.location.href = 'send_tos_emails.php?start_id=$nextStartId&limit=$limit';
+        }
+    }, 1000);
+</script>
 </body>
 </html>";
-flush();
 ?>
