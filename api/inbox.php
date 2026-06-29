@@ -97,7 +97,25 @@ if ($method === 'GET') {
     }
     unset($msg);
     
-    $unreadCount = getUnreadMessagesCount($mysqli, $userId);
+    // Calcola i ticket non letti
+    $unreadTickets = 0;
+    $userRole = $_SESSION['ruolo'] ?? 'utente';
+    if ($userRole === 'admin' || $userRole === 'owner') {
+        $stmtT = $mysqli->prepare("SELECT COUNT(*) FROM site_tickets WHERE admin_read = 0 AND status = 'open'");
+    } else {
+        $stmtT = $mysqli->prepare("SELECT COUNT(*) FROM site_tickets WHERE user_id = ? AND user_read = 0 AND status = 'open'");
+        if ($stmtT) {
+            $stmtT->bind_param("i", $userId);
+        }
+    }
+    if ($stmtT) {
+        $stmtT->execute();
+        $stmtT->bind_result($unreadTickets);
+        $stmtT->fetch();
+        $stmtT->close();
+    }
+
+    $unreadCount = getUnreadMessagesCount($mysqli, $userId) + $unreadTickets;
     echo json_encode(['ok' => true, 'messages' => $messages, 'unread_count' => $unreadCount]);
     exit();
     

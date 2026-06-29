@@ -41,13 +41,22 @@ $mysqli->query("CREATE TABLE IF NOT EXISTS site_ticket_messages (
     FOREIGN KEY (ticket_id) REFERENCES site_tickets(ticket_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
+// Controllo e migrazione sicura per le colonne di notifica lettura
+$checkUserRead = $mysqli->query("SHOW COLUMNS FROM site_tickets LIKE 'user_read'");
+if ($checkUserRead && $checkUserRead->num_rows == 0) {
+    $mysqli->query("ALTER TABLE site_tickets ADD COLUMN user_read TINYINT DEFAULT 0");
+}
+$checkAdminRead = $mysqli->query("SHOW COLUMNS FROM site_tickets LIKE 'admin_read'");
+if ($checkAdminRead && $checkAdminRead->num_rows == 0) {
+    $mysqli->query("ALTER TABLE site_tickets ADD COLUMN admin_read TINYINT DEFAULT 0");
+}
+
 
 if ($method === 'GET') {
     $ticketId = $_GET['ticket_id'] ?? '';
 
-    // Caso A: Richiesta dettagli e messaggi di un singolo ticket
+    // Caso A: Dettagli e messaggi di un singolo ticket
     if ($ticketId !== '') {
-        // Verifica autorizzazione: l'utente deve essere admin o il creatore del ticket
         $stmt = $mysqli->prepare("SELECT user_id, title, topic, status, created_at FROM site_tickets WHERE ticket_id = ?");
         if (!$stmt) {
             echo json_encode(['ok' => false, 'error' => 'Errore database.']);
@@ -67,8 +76,20 @@ if ($method === 'GET') {
 
         if (!$isAdmin && (int)$ticket['user_id'] !== $userId) {
             http_response_code(403);
-            echo json_encode(['ok' => false, 'error' => 'Non autorizzato a visualizzare questo ticket.']);
+            echo json_encode(['ok' => false, 'error' => 'Non autorizzato.']);
             exit();
+        }
+
+        // Segna il ticket come letto per l'utente corrente
+        if ($isAdmin) {
+            $stmtRead = $mysqli->prepare("UPDATE site_tickets SET admin_read = 1 WHERE ticket_id = ?");
+        } else {
+            $stmtRead = $mysqli->prepare("UPDATE site_tickets SET user_read = 1 WHERE ticket_id = ?");
+        }
+        if ($stmtRead) {
+            $stmtRead->bind_param("s", $ticketId);
+            $stmtRead->execute();
+            $stmtRead->close();
         }
 
         // Recupera la cronologia dei messaggi della chat
@@ -95,18 +116,16 @@ if ($method === 'GET') {
 
     // Caso B: Lista dei ticket
     if ($isAdmin) {
-        // L'admin vede tutti i ticket con lo username del creatore
         $query = "
-            SELECT t.ticket_id, t.title, t.topic, t.status, t.created_at, t.updated_at, u.username 
+            SELECT t.ticket_id, t.title, t.topic, t.status, t.created_at, t.updated_at, t.admin_read AS is_unread_status, u.username 
             FROM site_tickets t
             LEFT JOIN utenti u ON u.id = t.user_id
             ORDER BY t.updated_at DESC
         ";
         $stmt = $mysqli->prepare($query);
     } else {
-        // L'utente normale vede solo i propri ticket
         $query = "
-            SELECT ticket_id, title, topic, status, created_at, updated_at 
+            SELECT ticket_id, title, topic, status, created_at, updated_at, user_read AS is_unread_status 
             FROM site_tickets 
             WHERE user_id = ?
             ORDER BY updated_at DESC
@@ -123,7 +142,74 @@ if ($method === 'GET') {
     exit();
 
 } elseif ($method === 'POST') {
-    // Invio di un messaggio nella chat del ticket
+    $action = $_POST['action'] ?? '';
+
+    // AZIONE: Chiudi / Riapri Ticket
+    if ($action === 'toggle_status') {
+        $ticketId = $_POST['ticket_id'] ?? '';
+        if (empty($ticketId)) {
+            echo json_encode(['ok' => false, 'error' => 'ID ticket mancante.']);
+            exit();
+        }
+
+        $stmt = $mysqli->prepare("SELECT user_id, title, status FROM site_tickets WHERE ticket_id = ?");
+        $stmt->bind_param("s", $ticketId);
+        $stmt->execute();
+        $ticket = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        if (!$ticket) {
+            echo json_encode(['ok' => false, 'error' => 'Ticket non trovato.']);
+            exit();
+        }
+
+        if (!$isAdmin && (int)$ticket['user_id'] !== $userId) {
+            echo json_encode(['ok' => false, 'error' => 'Non autorizzato.']);
+            exit();
+        }
+
+        $newStatus = ($ticket['status'] === 'open') ? 'closed' : 'open';
+
+        $stmtUpdate = $mysqli->prepare("UPDATE site_tickets SET status = ?, user_read = 0, admin_read = 0 WHERE ticket_id = ?");
+        $stmtUpdate->bind_param("sss", $newStatus, $ticketId);
+        
+        if ($stmtUpdate->execute()) {
+            $stmtUpdate->close();
+
+            // Notifica il cambio di stato su Discord
+            $senderUsername = $_SESSION['username'] ?? 'Utente';
+            $botPayload = [
+                'ticket_id' => $ticketId,
+                'title' => $ticket['title'],
+                'sender' => $senderUsername,
+                'role' => $userRole,
+                'message' => "🔒 Lo stato del ticket è stato modificato in: **" . strtoupper($newStatus === 'closed' ? 'Chiuso' : 'Aperto') . "**.",
+                'attachment_url' => null
+            ];
+
+            if (function_exists('curl_init')) {
+                $ch = curl_init('https://api.cripsum.com/v1/tickets/reply');
+                curl_setopt_array($ch, [
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_POST => true,
+                    CURLOPT_POSTFIELDS => json_encode($botPayload),
+                    CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                    CURLOPT_CONNECTTIMEOUT => 2,
+                    CURLOPT_TIMEOUT => 3,
+                    CURLOPT_SSL_VERIFYPEER => true,
+                ]);
+                curl_exec($ch);
+                curl_close($ch);
+            }
+
+            echo json_encode(['ok' => true, 'status' => $newStatus]);
+        } else {
+            echo json_encode(['ok' => false, 'error' => 'Impossibile aggiornare lo stato del ticket.']);
+        }
+        exit();
+    }
+
+    // AZIONE: Invio di un messaggio nella chat
     $ticketId = $_POST['ticket_id'] ?? '';
     $message = trim($_POST['message'] ?? '');
 
@@ -132,7 +218,6 @@ if ($method === 'GET') {
         exit();
     }
 
-    // Verifica autorizzazione
     $stmt = $mysqli->prepare("SELECT user_id, title, status FROM site_tickets WHERE ticket_id = ?");
     $stmt->bind_param("s", $ticketId);
     $stmt->execute();
@@ -183,16 +268,18 @@ if ($method === 'GET') {
     if ($stmtMsg->execute()) {
         $stmtMsg->close();
 
-        // Aggiorna la data di modifica del ticket per portarlo in cima alla lista
-        $stmtUpdate = $mysqli->prepare("UPDATE site_tickets SET updated_at = NOW() WHERE ticket_id = ?");
-        $stmtUpdate->bind_param("s", $ticketId);
+        // Aggiorna lo stato di lettura del ticket
+        $userReadVal = $isAdmin ? 0 : 1;
+        $adminReadVal = $isAdmin ? 1 : 0;
+
+        $stmtUpdate = $mysqli->prepare("UPDATE site_tickets SET user_read = ?, admin_read = ?, updated_at = NOW() WHERE ticket_id = ?");
+        $stmtUpdate->bind_param("iis", $userReadVal, $adminReadVal, $ticketId);
         $stmtUpdate->execute();
         $stmtUpdate->close();
 
-        // Recupera username del mittente per la notifica
         $senderUsername = $_SESSION['username'] ?? 'Utente';
 
-        // Invia notifica di risposta a Discord tramite il bot
+        // Invia notifica a Discord
         $fullAttachmentUrl = $attachmentUrl ? 'https://cripsum.com' . $attachmentUrl : null;
         $botPayload = [
             'ticket_id' => $ticketId,

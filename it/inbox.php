@@ -50,7 +50,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.2rem;
             background: rgba(8, 12, 24, 0.15);
         }
         /* Custom scrollbar for chat */
@@ -67,37 +67,77 @@ $ogUrl = 'https://cripsum.com/it/inbox';
         .inbox-chat-messages::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.15);
         }
+        
+        /* Struttura Messaggi con Foto Profilo */
+        .chat-msg-row {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            max-width: 80%;
+            animation: msg-slide-in 0.2s ease-out;
+        }
+        .msg-row-me {
+            margin-left: auto;
+            flex-direction: row-reverse;
+        }
+        .msg-row-them {
+            margin-right: auto;
+        }
+        
         .chat-msg-bubble {
-            max-width: 75%;
             padding: 0.8rem 1.1rem;
             border-radius: 14px;
             display: flex;
             flex-direction: column;
             gap: 4px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-            animation: msg-slide-in 0.25s ease-out;
+            color: #f1f5f9;
         }
         @keyframes msg-slide-in {
-            from { transform: translateY(10px); opacity: 0; }
+            from { transform: translateY(8px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
         .chat-msg-me {
-            background: #8b5cf6;
-            margin-left: auto;
-            align-self: flex-end;
+            background: #6d28d9; /* Viola Premium Scuro */
             border-bottom-right-radius: 2px;
         }
         .chat-msg-them {
-            background: rgba(255, 255, 255, 0.04);
-            align-self: flex-start;
+            background: #1e293b; /* Slate Blue Scuro */
             border-bottom-left-radius: 2px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
-        /* Custom categories badges */
         .inbox-card-category.cat-ticket {
             background: rgba(139, 92, 246, 0.12);
             color: #c084fc;
             border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        /* Pulsanti Toggle Stato Ticket */
+        .btn-toggle-ticket {
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: transparent;
+            font-family: inherit;
+        }
+        .btn-toggle-ticket--close {
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .btn-toggle-ticket--close:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+        }
+        .btn-toggle-ticket--reopen {
+            color: #23a55a;
+            border: 1px solid rgba(35, 165, 90, 0.3);
+        }
+        .btn-toggle-ticket--reopen:hover {
+            background: rgba(35, 165, 90, 0.1);
+            border-color: #23a55a;
         }
     </style>
 </head>
@@ -307,7 +347,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                             content_en: `Topic: ${t.topic} — Status: ${t.status === 'open' ? 'Open' : 'Closed'}`,
                             category: 'ticket',
                             created_at: t.created_at,
-                            is_read: 1,
+                            is_read: t.is_unread_status, // 1 se letto, 0 se non letto
                             is_important: 0,
                             is_archived: t.status === 'closed' ? 1 : 0,
                             username: t.username || null,
@@ -641,52 +681,94 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                 }
             }
 
+            // Chiudi o Riapri il Ticket
+            async function toggleTicketStatus(ticketId) {
+                const btn = $('#btnToggleTicket');
+                if (!btn) return;
+                
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                
+                try {
+                    const formData = new FormData();
+                    formData.append('action', 'toggle_status');
+                    formData.append('ticket_id', ticketId);
+                    
+                    const response = await fetch('/api/tickets.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const res = await response.json();
+                    
+                    if (res.ok) {
+                        // Ricarica la lista per aggiornare lo stato e aggiorna la visualizzazione del ticket
+                        loadMessages();
+                    } else {
+                        alert('Impossibile aggiornare lo stato del ticket: ' + res.error);
+                        btn.disabled = false;
+                    }
+                } catch (e) {
+                    alert('Errore di connessione.');
+                    btn.disabled = false;
+                }
+            }
+
             // Renderizza la Chat Box del Ticket
             function renderTicketChat(ticketId, ticket) {
                 const pane = $('#inboxDetailContainer');
+                
+                // Bottone di chiusura/riapertura ticket a seconda dello stato
+                const isClosed = ticket.status === 'closed';
+                const toggleBtnHtml = isClosed ? 
+                    `<button class="btn-toggle-ticket btn-toggle-ticket--reopen" id="btnToggleTicket"><i class="fa-solid fa-envelope-open me-1"></i>Riapri Ticket</button>` :
+                    `<button class="btn-toggle-ticket btn-toggle-ticket--close" id="btnToggleTicket"><i class="fa-solid fa-lock me-1"></i>Chiudi Ticket</button>`;
+
                 pane.innerHTML = `
                     <button class="inbox-action-btn inbox-mobile-back" id="inboxMobileBackBtn"><i class="fa-solid fa-arrow-left"></i> Indietro</button>
                     
                     <div class="inbox-chat-wrapper" style="display: flex; flex-direction: column; height: 100%;">
                         <!-- Header Chat -->
-                        <div class="inbox-chat-header" style="padding: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+                        <div class="inbox-chat-header" style="padding: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; gap: 15px;">
                             <div>
                                 <h4 style="font-weight: 700; color: #fff; font-size: 1.1rem; margin-bottom: 2px;">
                                     🎫 Ticket ${ticketId} — ${htmlEscape(ticket.title_it)}
                                 </h4>
-                                <p style="font-size: 0.82rem; color: var(--text-muted);">
-                                    Argomento: <span style="color: #a78bfa; font-weight:600;">${htmlEscape(ticket.topic)}</span>
-                                    ${ticket.username ? ` | Utente: <strong>${htmlEscape(ticket.username)}</strong>` : ''}
+                                <p style="font-size: 0.82rem; color: #94a3b8;">
+                                    Argomento: <span style="color: #c084fc; font-weight:600;">${htmlEscape(ticket.topic)}</span>
+                                    ${ticket.username ? ` | Utente: <strong style="color: #f1f5f9;">${htmlEscape(ticket.username)}</strong>` : ''}
                                 </p>
                             </div>
-                            <span class="inbox-card-category cat-ticket" style="background: ${ticket.status === 'open' ? 'rgba(35,165,90,0.12)' : 'rgba(255,255,255,0.05)'}; color: ${ticket.status === 'open' ? '#23a55a' : 'var(--text-muted)'}; border: 1px solid ${ticket.status === 'open' ? 'rgba(35,165,90,0.2)' : 'rgba(255,255,255,0.1)'}; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">
-                                ${ticket.status === 'open' ? 'Aperto' : 'Chiuso'}
-                            </span>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                ${toggleBtnHtml}
+                                <span class="inbox-card-category cat-ticket" style="background: ${ticket.status === 'open' ? 'rgba(35,165,90,0.12)' : 'rgba(255,255,255,0.05)'}; color: ${ticket.status === 'open' ? '#23a55a' : '#94a3b8'}; border: 1px solid ${ticket.status === 'open' ? 'rgba(35,165,90,0.2)' : 'rgba(255,255,255,0.1)'}; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">
+                                    ${ticket.status === 'open' ? 'Aperto' : 'Chiuso'}
+                                </span>
+                            </div>
                         </div>
 
                         <!-- Area Messaggi della Chat -->
-                        <div class="inbox-chat-messages" id="chatMessagesContainer" style="flex-grow: 1; padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; max-height: 480px; min-height: 350px;">
+                        <div class="inbox-chat-messages" id="chatMessagesContainer" style="flex-grow: 1; padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.2rem; max-height: 480px; min-height: 350px;">
                             <div style="text-align: center; color: rgba(255,255,255,0.3); padding: 20px;"><i class="fa-solid fa-spinner fa-spin me-2"></i>Caricamento chat...</div>
                         </div>
 
                         <!-- Form Invio Messaggio -->
-                        <div class="inbox-chat-input-area" style="padding: 1.2rem; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(13, 20, 35, 0.25);">
-                            <form id="chatSendForm" style="display: flex; gap: 10px; align-items: flex-end;">
+                        <div class="inbox-chat-input-area" style="padding: 0.7rem 1.2rem; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(13, 20, 35, 0.25);">
+                            <form id="chatSendForm" style="display: flex; gap: 10px; align-items: center;">
                                 <input type="hidden" name="ticket_id" value="${ticketId}">
                                 
                                 <!-- Allegato Foto -->
                                 <div style="position: relative;">
-                                    <label for="chat-attachment" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; color: #a78bfa;" title="Allega un'immagine">
+                                    <label for="chat-attachment" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; color: #a78bfa;" title="Allega un'immagine">
                                         <i class="fa-solid fa-paperclip"></i>
                                     </label>
                                     <input type="file" id="chat-attachment" name="attachment" accept="image/*" style="display: none;">
                                 </div>
 
                                 <!-- Textarea Input -->
-                                <textarea name="message" id="chatMessageInput" required rows="1" placeholder="Rispondi al ticket..." style="flex-grow: 1; padding: 0.75rem 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: white; outline: none; resize: none; font-family: inherit; font-size: 0.95rem; line-height: 1.4; max-height: 120px;"></textarea>
+                                <textarea name="message" id="chatMessageInput" required rows="1" placeholder="Rispondi al ticket..." style="flex-grow: 1; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: white; outline: none; resize: none; font-family: inherit; font-size: 0.95rem; line-height: 1.4; height: 38px; min-height: 38px; max-height: 80px;"></textarea>
 
                                 <!-- Bottone Invia -->
-                                <button type="submit" style="background: #8b5cf6; border: none; border-radius: 8px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; transition: background 0.2s;" title="Invia">
+                                <button type="submit" style="background: #8b5cf6; border: none; border-radius: 8px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; transition: background 0.2s;" title="Invia">
                                     <i class="fa-solid fa-paper-plane"></i>
                                 </button>
                             </form>
@@ -702,6 +784,11 @@ $ogUrl = 'https://cripsum.com/it/inbox';
 
                 loadTicketMessages(ticketId);
                 setupChatFormEvents(ticketId);
+
+                const toggleBtn = $('#btnToggleTicket');
+                if (toggleBtn) {
+                    toggleBtn.addEventListener('click', () => toggleTicketStatus(ticketId));
+                }
 
                 const backBtn = $('#inboxMobileBackBtn');
                 if (backBtn) {
@@ -739,7 +826,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                         const pollResponse = await fetch(`/api/tickets.php?ticket_id=${ticketId}`);
                         const pollRes = await pollResponse.json();
                         if (pollRes.ok) {
-                            const currentCount = container.querySelectorAll('.chat-msg-bubble').length;
+                            const currentCount = container.querySelectorAll('.chat-msg-row').length;
                             if (pollRes.messages.length !== currentCount) {
                                 renderChatMessages(pollRes.messages);
                             }
@@ -762,7 +849,8 @@ $ogUrl = 'https://cripsum.com/it/inbox';
 
                 container.innerHTML = messages.map(msg => {
                     const isMe = parseInt(msg.sender_id, 10) === loggedUserId;
-                    const bubbleBg = isMe ? 'background: #8b5cf6; margin-left: auto; align-self: flex-end; border-bottom-right-radius: 2px;' : 'background: rgba(255,255,255,0.04); align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid rgba(255,255,255,0.04);';
+                    const rowClass = isMe ? 'msg-row-me' : 'msg-row-them';
+                    const bubbleClass = isMe ? 'chat-msg-me' : 'chat-msg-them';
                     
                     let roleBadge = '';
                     if (msg.ruolo === 'admin' || msg.ruolo === 'owner') {
@@ -779,14 +867,20 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                         </div>
                     ` : '';
 
+                    // Foto profilo utente (Se ID mittente è 0/guest usa avatar di default)
+                    const pfpUrl = parseInt(msg.sender_id, 10) > 0 ? `/includes/get_pfp.php?id=${msg.sender_id}` : '/img/default_pfp.png';
+
                     return `
-                        <div class="chat-msg-bubble" style="${bubbleBg}">
-                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 0.72rem; color: rgba(255,255,255,0.4); margin-bottom: 2px;">
-                                <span><strong>${htmlEscape(msg.username || 'Utente')}</strong>${roleBadge}</span>
-                                <span>${timeFormatted}</span>
+                        <div class="chat-msg-row ${rowClass}">
+                            <img src="${pfpUrl}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;" onerror="this.src='/img/default_pfp.png'">
+                            <div class="chat-msg-bubble ${bubbleClass}">
+                                <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 0.72rem; color: #94a3b8; margin-bottom: 2px;">
+                                    <span><strong style="color: ${isMe ? '#e9d5ff' : '#cbd5e1'};">${htmlEscape(msg.username || 'Ospite')}</strong>${roleBadge}</span>
+                                    <span>${timeFormatted}</span>
+                                </div>
+                                <div style="font-size: 0.92rem; color: #f1f5f9; word-break: break-word; white-space: pre-line; line-height: 1.4; text-align: left;">${htmlEscape(msg.message)}</div>
+                                ${attachmentMarkup}
                             </div>
-                            <div style="font-size: 0.92rem; color: #fff; word-break: break-word; white-space: pre-line; line-height: 1.4; text-align: left;">${htmlEscape(msg.message)}</div>
-                            ${attachmentMarkup}
                         </div>
                     `;
                 }).join('');
