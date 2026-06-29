@@ -12,7 +12,7 @@ if (!$messageId) {
     send_error("ID messaggio mancante.");
 }
 
-if (!canDeleteMessage($mysqli, $messageId, $userId, $userRole)) {
+if (!canDeleteGroupMessage($mysqli, $messageId, $userId, $userRole)) {
     send_error("Non sei autorizzato ad eliminare questo messaggio.", 403);
 }
 

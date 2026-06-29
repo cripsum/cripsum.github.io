@@ -359,7 +359,7 @@ function canEditMessage($mysqli, $messageId, $userId) {
 /**
  * Checks message delete permission
  */
-function canDeleteMessage($mysqli, $messageId, $userId, $userRole) {
+function canDeleteGroupMessage($mysqli, $messageId, $userId, $userRole) {
     $messageId = (int)$messageId;
     $userId = (int)$userId;
     
