@@ -171,7 +171,7 @@ if ($method === 'GET') {
         $newStatus = ($ticket['status'] === 'open') ? 'closed' : 'open';
 
         $stmtUpdate = $mysqli->prepare("UPDATE site_tickets SET status = ?, user_read = 0, admin_read = 0 WHERE ticket_id = ?");
-        $stmtUpdate->bind_param("sss", $newStatus, $ticketId);
+        $stmtUpdate->bind_param("ss", $newStatus, $ticketId);
         
         if ($stmtUpdate->execute()) {
             $stmtUpdate->close();

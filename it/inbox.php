@@ -19,7 +19,7 @@ $userId = (int)$_SESSION['user_id'];
 $currentUser = getCurrentUser($mysqli);
 
 $lang = 'it';
-$ogDescription = 'Centro Messaggi di Cripsum™. Controlla le tue notifiche, rispondi ai ticket di supporto e riscatta i tuoi premi.';
+$ogDescription = 'Centro Messaggi di Cripsum™. Controlla le tue notifiche, rispondi ai ticket di supporto e riscatta i tuoi primi.';
 $ogUrl = 'https://cripsum.com/it/inbox';
 ?>
 <!DOCTYPE html>
@@ -176,6 +176,12 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                 <span><i class="fa-solid fa-calendar-days"></i>Eventi speciali</span>
                 <span class="inbox-category-badge" id="badge-special">0</span>
             </button>
+            
+            <!-- Divisore per separare i ticket di supporto -->
+            <div style="margin: 15px 10px 10px 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;">
+                <span style="font-size: 0.72rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 8px;">Assistenza</span>
+            </div>
+            
             <button type="button" class="inbox-category-btn" data-cat="ticket">
                 <span><i class="fa-solid fa-headset"></i>Ticket Supporto</span>
                 <span class="inbox-category-badge" id="badge-ticket">0</span>
@@ -243,7 +249,11 @@ $ogUrl = 'https://cripsum.com/it/inbox';
             'use strict';
 
             const API_ENDPOINT = '/api/inbox.php';
-            let messagesCache = [];
+            
+            // Cache globali caricate una volta sola per evitare il bug dei contatori a 0
+            let globalMessages = [];
+            let globalTickets = [];
+
             let currentMessageId = null;
             let chatPollingInterval = null;
 
@@ -291,7 +301,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                         }
 
                         renderEmptyDetails();
-                        loadMessages();
+                        renderFilteredList();
                     });
                 });
 
@@ -303,7 +313,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                         filterStatus = tab.dataset.status;
                         currentMessageId = null;
                         renderEmptyDetails();
-                        loadMessages();
+                        renderFilteredList();
                     });
                 });
 
@@ -313,7 +323,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                     clearTimeout(searchTimeout);
                     searchTimeout = setTimeout(() => {
                         filterSearch = e.target.value.trim();
-                        loadMessages();
+                        renderFilteredList();
                     }, 300);
                 });
 
@@ -325,91 +335,32 @@ $ogUrl = 'https://cripsum.com/it/inbox';
 
             async function loadMessages() {
                 const container = $('#inboxCardsContainer');
-                container.innerHTML = `<div style="padding: 30px; text-align: center; color: rgba(255,255,255,0.4);"><i class="fa-solid fa-spinner fa-spin me-2"></i>Caricamento...</div>`;
+                // Mostra lo spinner solo al primissimo caricamento
+                if (globalMessages.length === 0 && globalTickets.length === 0) {
+                    container.innerHTML = `<div style="padding: 30px; text-align: center; color: rgba(255,255,255,0.4);"><i class="fa-solid fa-spinner fa-spin me-2"></i>Caricamento...</div>`;
+                }
 
                 try {
-                    if (filterCategory === 'ticket') {
-                        // Carica i ticket di supporto da database
-                        const response = await fetch('/api/tickets.php');
-                        const res = await response.json();
+                    // Carichiamo in parallelo sia i messaggi tradizionali sia i ticket
+                    const [msgRes, ticketRes] = await Promise.all([
+                        fetch(API_ENDPOINT).then(r => r.json()),
+                        fetch('/api/tickets.php').then(r => r.json())
+                    ]);
 
-                        if (!res.ok) {
-                            container.innerHTML = `<div style="padding: 20px; text-align: center; color: #ef4444;">${res.error}</div>`;
-                            return;
-                        }
-
-                        // Mappiamo i ticket nel formato dei messaggi
-                        messagesCache = res.tickets.map(t => ({
-                            message_id: t.ticket_id,
-                            title_it: t.title,
-                            title_en: t.title,
-                            content_it: `Argomento: ${t.topic} — Stato: ${t.status === 'open' ? 'Aperto' : 'Chiuso'}`,
-                            content_en: `Topic: ${t.topic} — Status: ${t.status === 'open' ? 'Open' : 'Closed'}`,
-                            category: 'ticket',
-                            created_at: t.created_at,
-                            is_read: t.is_unread_status, // 1 se letto, 0 se non letto
-                            is_important: 0,
-                            is_archived: t.status === 'closed' ? 1 : 0,
-                            username: t.username || null,
-                            topic: t.topic,
-                            status: t.status
-                        }));
-
-                        // Applica filtro di stato locale (Aperti vs Chiusi)
-                        if (filterStatus === 'archived') {
-                            messagesCache = messagesCache.filter(m => m.status === 'closed');
-                        } else {
-                            messagesCache = messagesCache.filter(m => m.status === 'open');
-                        }
-
-                        updateCategoryCounters(messagesCache);
-                        renderMessageList();
-
-                        if (currentMessageId) {
-                            const activeMsg = messagesCache.find(m => m.message_id === currentMessageId);
-                            if (activeMsg) {
-                                renderMessageDetails(activeMsg);
-                            } else {
-                                currentMessageId = null;
-                                renderEmptyDetails();
-                            }
-                        } else {
-                            renderEmptyDetails();
-                        }
-
-                    } else {
-                        // Carica i messaggi tradizionali
-                        const params = new URLSearchParams({
-                            category: filterCategory,
-                            status: filterStatus,
-                            q: filterSearch
-                        });
-
-                        const response = await fetch(`${API_ENDPOINT}?${params}`);
-                        const res = await response.json();
-
-                        if (!res.ok) {
-                            container.innerHTML = `<div style="padding: 20px; text-align: center; color: #ef4444;">${res.error}</div>`;
-                            return;
-                        }
-
-                        messagesCache = res.messages || [];
-                        updateNavbarBadge(res.unread_count);
-                        updateCategoryCounters(messagesCache);
-                        renderMessageList();
-
-                        if (currentMessageId) {
-                            const activeMsg = messagesCache.find(m => m.message_id === currentMessageId);
-                            if (activeMsg) {
-                                renderMessageDetails(activeMsg);
-                            } else {
-                                currentMessageId = null;
-                                renderEmptyDetails();
-                            }
-                        } else {
-                            renderEmptyDetails();
-                        }
+                    if (msgRes.ok) {
+                        globalMessages = msgRes.messages || [];
+                        updateNavbarBadge(msgRes.unread_count);
                     }
+                    
+                    if (ticketRes.ok) {
+                        globalTickets = ticketRes.tickets || [];
+                    }
+
+                    // Calcoliamo i badge globalmente una volta sola
+                    updateCategoryCounters();
+
+                    // Applichiamo i filtri locali e renderizziamo
+                    renderFilteredList();
 
                 } catch (error) {
                     container.innerHTML = `<div style="padding: 20px; text-align: center; color: #ef4444;">Impossibile caricare i messaggi.</div>`;
@@ -429,35 +380,98 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                 }
             }
 
-            function updateCategoryCounters(messages) {
-                const categories = ['all', 'system', 'rewards', 'special', 'ticket'];
-                categories.forEach(cat => {
-                    const el = document.getElementById(`badge-${cat}`);
-                    if (el) el.textContent = '0';
-                });
+            function updateCategoryCounters() {
+                // 1. Tutti i messaggi (non archiviati)
+                const activeMessages = globalMessages.filter(m => parseInt(m.is_archived) === 0);
+                $('#badge-all').textContent = activeMessages.length;
 
-                let counts = {
-                    all: messagesCache.length
-                };
-                messagesCache.forEach(m => {
-                    const cat = m.category;
-                    if (cat === 'system' || cat === 'changelog' || cat === 'security' || cat === 'moderation') {
-                        counts['system'] = (counts['system'] || 0) + 1;
-                    } else {
-                        counts[cat] = (counts[cat] || 0) + 1;
-                    }
-                });
+                // 2. Sistema (system, changelog, security, moderation non archiviati)
+                const systemCount = activeMessages.filter(m => 
+                    m.category === 'system' || m.category === 'changelog' || m.category === 'security' || m.category === 'moderation'
+                ).length;
+                $('#badge-system').textContent = systemCount;
 
-                Object.keys(counts).forEach(cat => {
-                    const el = document.getElementById(`badge-${cat}`);
-                    if (el) el.textContent = counts[cat];
-                });
+                // 3. Ricompense
+                const rewardsCount = activeMessages.filter(m => m.category === 'rewards').length;
+                $('#badge-rewards').textContent = rewardsCount;
+
+                // 4. Eventi Speciali
+                const specialCount = activeMessages.filter(m => m.category === 'special').length;
+                $('#badge-special').textContent = specialCount;
+
+                // 5. Ticket Aperti
+                const openTicketsCount = globalTickets.filter(t => t.status === 'open').length;
+                $('#badge-ticket').textContent = openTicketsCount;
             }
 
-            function renderMessageList() {
+            function renderFilteredList() {
                 const container = $('#inboxCardsContainer');
+                let filtered = [];
 
-                if (messagesCache.length === 0) {
+                if (filterCategory === 'ticket') {
+                    // Mappiamo i ticket per renderli compatibili con il template delle card
+                    filtered = globalTickets.map(t => ({
+                        message_id: t.ticket_id,
+                        title_it: t.title,
+                        title_en: t.title,
+                        content_it: `Argomento: ${t.topic} — Stato: ${t.status === 'open' ? 'Aperto' : 'Chiuso'}`,
+                        content_en: `Topic: ${t.topic} — Status: ${t.status === 'open' ? 'Open' : 'Closed'}`,
+                        category: 'ticket',
+                        created_at: t.created_at,
+                        is_read: t.is_unread_status, // 1 = letto, 0 = non letto
+                        is_important: 0,
+                        is_archived: t.status === 'closed' ? 1 : 0,
+                        username: t.username || null,
+                        topic: t.topic,
+                        status: t.status
+                    }));
+
+                    // Filtro stato locale per Ticket (Aperti o Chiusi)
+                    if (filterStatus === 'archived') {
+                        filtered = filtered.filter(m => m.status === 'closed');
+                    } else {
+                        filtered = filtered.filter(m => m.status === 'open');
+                    }
+
+                } else {
+                    // Filtriamo i messaggi tradizionali
+                    filtered = globalMessages;
+
+                    // Filtro Categoria
+                    if (filterCategory !== '') {
+                        if (filterCategory === 'system') {
+                            filtered = filtered.filter(m => 
+                                m.category === 'system' || m.category === 'changelog' || m.category === 'security' || m.category === 'moderation'
+                            );
+                        } else {
+                            filtered = filtered.filter(m => m.category === filterCategory);
+                        }
+                    }
+
+                    // Filtro Stato (Entrate, Non Letti, Importanti, Archivio)
+                    if (filterStatus === 'unread') {
+                        filtered = filtered.filter(m => parseInt(m.is_read) === 0 && parseInt(m.is_archived) === 0);
+                    } else if (filterStatus === 'important') {
+                        filtered = filtered.filter(m => parseInt(m.is_important) === 1 && parseInt(m.is_archived) === 0);
+                    } else if (filterStatus === 'archived') {
+                        filtered = filtered.filter(m => parseInt(m.is_archived) === 1);
+                    } else {
+                        filtered = filtered.filter(m => parseInt(m.is_archived) === 0);
+                    }
+                }
+
+                // Filtro di Ricerca Testuale
+                if (filterSearch !== '') {
+                    const q = filterSearch.toLowerCase();
+                    filtered = filtered.filter(m => 
+                        m.title_it.toLowerCase().includes(q) || 
+                        m.title_en.toLowerCase().includes(q) || 
+                        m.content_it.toLowerCase().includes(q) || 
+                        m.content_en.toLowerCase().includes(q)
+                    );
+                }
+
+                if (filtered.length === 0) {
                     container.innerHTML = `
                         <div style="padding: 50px 20px; text-align: center; color: rgba(255,255,255,0.3);">
                             <i class="fa-solid fa-folder-open" style="font-size: 2rem; margin-bottom: 10px;"></i>
@@ -467,7 +481,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                     return;
                 }
 
-                container.innerHTML = messagesCache.map(msg => {
+                container.innerHTML = filtered.map(msg => {
                     const isUnread = parseInt(msg.is_read) === 0 ? 'is-unread' : '';
                     const isActive = msg.message_id === currentMessageId ? 'is-active' : '';
                     const isStarred = parseInt(msg.is_important) === 1;
@@ -500,7 +514,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                     }
 
                     return `
-                        <div class="inbox-card ${isUnread} ${isActive}" data-id="${msg.message_id}">
+                        <div class="inbox-card ${isUnread} ${isActive}" data-id="${msg.message_id}" data-cat="${msg.category}">
                             <div class="inbox-card-header">
                                 <span class="inbox-card-category cat-${msg.category}">${catLabel}</span>
                                 <span class="inbox-card-date">${dateFormatted}</span>
@@ -517,14 +531,12 @@ $ogUrl = 'https://cripsum.com/it/inbox';
 
                 $$('.inbox-card').forEach(card => {
                     card.addEventListener('click', () => {
-                        const messageId = card.dataset.id;
-                        selectMessage(messageId);
+                        selectMessage(card.dataset.id, card.dataset.cat);
                     });
                 });
             }
 
-            function selectMessage(messageId) {
-                // Interrompe eventuale polling chat attivo
+            function selectMessage(messageId, category) {
                 if (chatPollingInterval) {
                     clearInterval(chatPollingInterval);
                     chatPollingInterval = null;
@@ -539,12 +551,44 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                     }
                 });
 
-                const msg = messagesCache.find(m => m.message_id === messageId);
-                if (msg) {
-                    renderMessageDetails(msg);
+                if (category === 'ticket') {
+                    const ticket = globalTickets.find(t => t.ticket_id === messageId);
+                    if (ticket) {
+                        const mappedTicket = {
+                            message_id: ticket.ticket_id,
+                            title_it: ticket.title,
+                            title_en: ticket.title,
+                            category: 'ticket',
+                            topic: ticket.topic,
+                            status: ticket.status,
+                            username: ticket.username
+                        };
+                        renderMessageDetails(mappedTicket);
 
-                    if (msg.category !== 'ticket' && parseInt(msg.is_read) === 0) {
-                        markAsRead(messageId);
+                        // Segna il ticket come letto localmente e sul server se era non letto
+                        if (parseInt(ticket.is_unread_status) === 0) {
+                            ticket.is_unread_status = 1;
+                            
+                            // Aggiorna la classe della card subito
+                            const card = $(`.inbox-card[data-id="${messageId}"]`);
+                            if (card) card.classList.remove('is-unread');
+
+                            fetch(`/api/tickets.php?ticket_id=${messageId}`).then(() => {
+                                // Ricarica la navbar per aggiornare il contatore globale
+                                fetch(API_ENDPOINT).then(r => r.json()).then(res => {
+                                    if (res.ok) updateNavbarBadge(res.unread_count);
+                                });
+                            });
+                        }
+                    }
+                } else {
+                    const msg = globalMessages.find(m => m.message_id === parseInt(messageId, 10));
+                    if (msg) {
+                        renderMessageDetails(msg);
+
+                        if (parseInt(msg.is_read) === 0) {
+                            markAsRead(parseInt(messageId, 10));
+                        }
                     }
                 }
             }
@@ -564,7 +608,6 @@ $ogUrl = 'https://cripsum.com/it/inbox';
             function renderMessageDetails(msg) {
                 const pane = $('#inboxDetailContainer');
 
-                // Se il messaggio appartiene alla categoria Ticket, renderizziamo la Chat
                 if (msg.category === 'ticket') {
                     renderTicketChat(msg.message_id, msg);
                     return;
@@ -701,11 +744,12 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                     const res = await response.json();
                     
                     if (res.ok) {
-                        // Ricarica la lista per aggiornare lo stato e aggiorna la visualizzazione del ticket
+                        // Ricarica le cache globali e aggiorna la schermata
                         loadMessages();
                     } else {
                         alert('Impossibile aggiornare lo stato del ticket: ' + res.error);
                         btn.disabled = false;
+                        btn.textContent = 'Modifica Stato';
                     }
                 } catch (e) {
                     alert('Errore di connessione.');
@@ -717,7 +761,6 @@ $ogUrl = 'https://cripsum.com/it/inbox';
             function renderTicketChat(ticketId, ticket) {
                 const pane = $('#inboxDetailContainer');
                 
-                // Bottone di chiusura/riapertura ticket a seconda dello stato
                 const isClosed = ticket.status === 'closed';
                 const toggleBtnHtml = isClosed ? 
                     `<button class="btn-toggle-ticket btn-toggle-ticket--reopen" id="btnToggleTicket"><i class="fa-solid fa-envelope-open me-1"></i>Riapri Ticket</button>` :
@@ -747,7 +790,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                         </div>
 
                         <!-- Area Messaggi della Chat -->
-                        <div class="inbox-chat-messages" id="chatMessagesContainer" style="flex-grow: 1; padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.2rem; max-height: 480px; min-height: 350px;">
+                        <div class="inbox-chat-messages" id="chatMessagesContainer" style="flex-grow: 1; padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.2rem;">
                             <div style="text-align: center; color: rgba(255,255,255,0.3); padding: 20px;"><i class="fa-solid fa-spinner fa-spin me-2"></i>Caricamento chat...</div>
                         </div>
 
@@ -867,7 +910,6 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                         </div>
                     ` : '';
 
-                    // Foto profilo utente (Se ID mittente è 0/guest usa avatar di default)
                     const pfpUrl = parseInt(msg.sender_id, 10) > 0 ? `/includes/get_pfp.php?id=${msg.sender_id}` : '/img/default_pfp.png';
 
                     return `
@@ -988,23 +1030,16 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                     });
                     const res = await response.json();
                     if (res.ok) {
-                        const msg = messagesCache.find(m => m.message_id === messageId);
+                        const msg = globalMessages.find(m => m.message_id === messageId);
                         if (msg && parseInt(msg.is_read) === 0) {
                             msg.is_read = 1;
 
                             const card = $(`.inbox-card[data-id="${messageId}"]`);
                             if (card) card.classList.remove('is-unread');
 
-                            const badge = document.getElementById('inbox-unread-count');
-                            if (badge) {
-                                let c = parseInt(badge.textContent, 10) || 0;
-                                c = Math.max(0, c - 1);
-                                if (c > 0) {
-                                    badge.textContent = c;
-                                } else {
-                                    badge.classList.add('d-none');
-                                }
-                            }
+                            // Ricalcoliamo i badge e aggiorniamo navbar
+                            updateCategoryCounters();
+                            updateNavbarBadge(res.unread_count);
                         }
                     }
                 } catch (e) {
@@ -1023,9 +1058,9 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                     });
                     const res = await response.json();
                     if (res.ok) {
-                        const msg = messagesCache.find(m => m.message_id === messageId);
+                        const msg = globalMessages.find(m => m.message_id === messageId);
                         if (msg) msg.is_important = res.is_important;
-                        loadMessages();
+                        renderFilteredList();
                     }
                 } catch (e) {
                     alert("Impossibile aggiornare lo stato importante.");
