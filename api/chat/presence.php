@@ -77,6 +77,7 @@ if ($conversationId > 0) {
         $queryNew = "
             SELECT 
                 m.id, m.conversation_id, m.sender_id, u.username as sender_username, m.message, 
+                m.message_type, m.media_url, m.media_title,
                 m.reply_to_id, m.forwarded_from_id, m.is_edited, m.ephemeral_timer, m.created_at,
                 reply_m.message AS reply_message_text, reply_u.username AS reply_username
             FROM private_messages m

@@ -26,7 +26,6 @@ const ChatUI = {
         this.detailsScrollEl = document.querySelector('.chat-details__scroll');
         this.toastEl = document.querySelector('#chatToast');
 
-        // Setup Create Group modal button in sidebar header if missing
         this.setupGroupCreationButton();
         this.injectGroupModalHTML();
     },
@@ -113,7 +112,8 @@ const ChatUI = {
                 
                 let preview = 'Nessun messaggio';
                 if (g.last_message_body) {
-                    preview = g.last_message_type === 'system' ? g.last_message_body : `@${g.last_message_sender_username}: ${g.last_message_body}`;
+                    preview = g.last_message_type === 'system' ? g.last_message_body : 
+                              g.last_message_type === 'gif' ? `[GIF] @${g.last_message_sender_username}` : `@${g.last_message_sender_username}: ${g.last_message_body}`;
                 }
 
                 html += `
@@ -146,7 +146,11 @@ const ChatUI = {
                 const onlineClass = p.is_online ? 'is-online' : '';
                 const nickname = p.other_nickname || p.other_username;
                 const time = p.last_message_time ? formatTime(p.last_message_time) : '';
-                const preview = p.last_message_text || 'Nessun messaggio';
+                
+                let preview = p.last_message_text || 'Nessun messaggio';
+                if (p.last_message_type === 'gif') {
+                    preview = '[GIF]';
+                }
 
                 html += `
                     <div class="chat-item ${isActive} ${isUnread}" data-type="private" data-id="${p.conversation_id}" onclick="selectChat('private', ${p.conversation_id}, ${p.other_user_id})">
@@ -173,7 +177,7 @@ const ChatUI = {
         this.listEl.innerHTML = html;
     },
 
-    // --- RENDER MESSAGES LOG ---
+    // --- RENDER MESSAGES LOG (GLOBAL CHAT STYLE MATCHING chat-v2.css) ---
     renderMessages() {
         if (!this.messagesEl) return;
         
@@ -186,44 +190,82 @@ const ChatUI = {
         let lastDateLabel = '';
 
         ChatState.messages.forEach(msg => {
-            const isSent = msg.sender_id === ChatState.myUserId;
+            const isMine = msg.sender_id === ChatState.myUserId;
             
             // Format separator date
             const dateStr = formatDateLabel(msg.created_at);
             if (dateStr !== lastDateLabel) {
-                html += `<div class="chat-date-separator" style="color:var(--chat-text-muted) !important;">${dateStr}</div>`;
+                html += `<div class="chat-day"><span>${escapeHtml(dateStr)}</span></div>`;
                 lastDateLabel = dateStr;
             }
 
             // System Message Rendering
             if (msg.message_type === 'system') {
                 html += `
-                    <div class="chat-system-message-row" style="text-align:center;margin:10px 0;font-size:12px;color:var(--chat-text-muted) !important;font-style:italic;">
-                        <i class="fa-solid fa-circle-info" style="color:var(--chat-accent) !important;margin-right:6px;"></i>
-                        ${escapeHtml(msg.body || '')}
+                    <div style="text-align:center; margin:12px 0; font-size:12px; color:var(--chat-text-muted); font-style:italic;">
+                        <i class="fa-solid fa-circle-info" style="color:var(--chat-accent); margin-right:6px;"></i>
+                        ${escapeHtml(msg.body || msg.message || '')}
                     </div>
                 `;
                 return;
             }
 
-            // Regular Message Rendering
-            const wrapperClass = isSent ? 'chat-msg-wrapper--sent' : 'chat-msg-wrapper--recv';
+            // Giphy & Content Parsing
+            const body = msg.body || msg.message || '';
+            let messageContent = '';
+            
+            if (msg.message_type === 'gif') {
+                let mediaUrl = msg.media_url;
+                let mediaTitle = msg.media_title || 'GIF';
+                
+                if (!mediaUrl && msg.metadata) {
+                    mediaUrl = msg.metadata.media_url;
+                    mediaTitle = msg.metadata.media_title || 'GIF';
+                }
+                
+                if (mediaUrl) {
+                    let preview = mediaUrl;
+                    if (preview.includes('giphy.com')) {
+                        preview = preview
+                            .replace('/fixed_width_small.gif', '/giphy.gif')
+                            .replace('/fixed_height_small.gif', '/giphy.gif')
+                            .replace('/fixed_width_small.webp', '/giphy.webp')
+                            .replace('/fixed_height_small.webp', '/giphy.webp')
+                            .replace('/100w.gif', '/giphy.gif')
+                            .replace('/200w.gif', '/giphy.gif')
+                            .replace('/200.gif', '/giphy.gif');
+                    }
+                    
+                    const caption = body ? `<figcaption>${parseMessageText(body)}</figcaption>` : '';
+                    messageContent = `<figure class="chat-gif-message"><a href="${mediaUrl}" target="_blank" rel="noopener noreferrer"><img src="${preview}" alt="${escapeHtml(mediaTitle)}" loading="lazy"></a>${caption}</figure>`;
+                } else {
+                    messageContent = parseMessageText(body);
+                }
+            } else {
+                messageContent = parseMessageText(body);
+            }
+
             const formattedTime = formatTime(msg.created_at);
             const senderName = msg.sender_display_name || msg.sender_username;
-            const messageBody = parseMessageText(msg.body || '');
+            const classes = ['chat-message', isMine ? 'is-mine' : ''].filter(Boolean).join(' ');
+            const avatar = `<a class="chat-avatar-link" href="#"><img class="chat-avatar" src="/includes/get_pfp.php?id=${msg.sender_id}" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;"></a>`;
+            const editedText = msg.edited_at || msg.is_edited ? '<span class="chat-edited">modificato</span>' : '';
 
-            html += `
-                <div class="chat-msg-wrapper ${wrapperClass}" id="msg-${msg.id}" oncontextmenu="showGroupContextMenu(event, ${msg.id}, ${isSent})" style="max-width:70%;position:relative;display:flex;flex-direction:column;margin-bottom:8px;">
-                    ${!isSent && ChatState.currentChatType === 'group' ? `<small style="font-size:11px;font-weight:700;color:var(--chat-accent);margin-bottom:4px;margin-left:8px;">${escapeHtml(senderName)}</small>` : ''}
-                    <div class="chat-msg-bubble" style="padding:12px 16px;border-radius:12px;font-size:14.5px;line-height:1.5;box-shadow:0 4px 15px rgba(0,0,0,0.15);">
-                        ${messageBody}
+            const main = `
+                <div class="chat-message-main">
+                    <div class="chat-message-meta" style="display:flex; align-items:center; gap:6px;">
+                        <a class="chat-username" href="#" style="font-weight:700;">@${escapeHtml(senderName)}</a>
+                        <time class="chat-time" style="font-size:10px; color:var(--chat-text-muted);">${formattedTime}${editedText}</time>
                     </div>
-                    <div class="chat-msg-meta" style="font-size:10px;color:var(--chat-text-muted) !important;margin-top:4px;display:flex;align-items:center;gap:6px;justify-content:${isSent ? 'flex-end' : 'flex-start'}">
-                        <span>${formattedTime}</span>
-                        ${msg.edited_at ? '<span style="font-style:italic;opacity:0.7;">(modificato)</span>' : ''}
+                    <div class="chat-bubble-wrap" id="msg-${msg.id}" oncontextmenu="showGroupContextMenu(event, ${msg.id}, ${isMine})">
+                        <div class="chat-bubble ${msg.message_type === 'gif' ? 'chat-bubble--pure-gif' : ''}">
+                            <div class="chat-message-content">${messageContent}</div>
+                        </div>
                     </div>
                 </div>
             `;
+
+            html += `<article class="${classes}">${isMine ? main + avatar : avatar + main}</article>`;
         });
 
         this.messagesEl.innerHTML = html;
@@ -235,7 +277,6 @@ const ChatUI = {
         if (!this.detailsScrollEl) return;
         
         if (ChatState.currentChatType === 'private') {
-            // Render old private details panel layout
             renderPrivateDetailsUI(data);
             return;
         }
@@ -252,7 +293,6 @@ const ChatUI = {
             const roleBadge = m.role === 'owner' ? '<span style="font-size:10px;background:#f59e0b;color:black;padding:2px 6px;border-radius:4px;font-weight:800;margin-left:auto;">Owner</span>' :
                              m.role === 'admin' ? '<span style="font-size:10px;background:var(--chat-accent);color:white;padding:2px 6px;border-radius:4px;font-weight:800;margin-left:auto;">Admin</span>' : '';
             
-            // Build action buttons for owner/admin
             let kickBtn = '';
             let promoteBtn = '';
             
@@ -365,6 +405,24 @@ const ChatUI = {
         `;
     },
 
+    // --- RENDER GIFS ---
+    renderGifs(gifs, append = false) {
+        const grid = document.querySelector('#chatGifGrid');
+        if (!grid) return;
+        
+        const html = gifs.map(g => `
+            <div class="chat-gif-item" onclick="sendGifMessage('${g.url}', '${g.title || 'GIF'}')" style="cursor:pointer; overflow:hidden; border-radius:6px; height:80px; position:relative; background:rgba(0,0,0,0.1);">
+                <img src="${g.preview_url || g.url}" style="width:100%; height:100%; object-fit:cover;" loading="lazy">
+            </div>
+        `).join('');
+        
+        if (append) {
+            grid.innerHTML += html;
+        } else {
+            grid.innerHTML = html;
+        }
+    },
+
     // --- GROUP CREATION MODAL ---
     injectGroupModalHTML() {
         if (document.querySelector('#createGroupModal')) return;
@@ -404,7 +462,6 @@ const ChatUI = {
         
         document.body.appendChild(modal);
 
-        // Inject Invite Modal as well
         const inviteModal = document.createElement('div');
         inviteModal.id = 'inviteUsersModal';
         inviteModal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;display:none;align-items:center;justify-content:center;backdrop-filter:blur(20px);transition:opacity 0.25s;opacity:0;';
@@ -432,7 +489,6 @@ const ChatUI = {
         const modal = document.querySelector('#createGroupModal');
         if (!modal) return;
         
-        // Fetch friends list to invite
         const friendsBox = document.querySelector('#friendsChecklist');
         friendsBox.innerHTML = '<p class="text-muted" style="font-size:12px;text-align:center;">Caricamento amici...</p>';
         
@@ -462,7 +518,6 @@ const ChatUI = {
         if (!modal) return;
         modal.style.opacity = '0';
         setTimeout(() => modal.style.display = 'none', 250);
-        // Clear inputs
         document.querySelector('#newGroupNameInput').value = '';
         document.querySelector('#newGroupDescInput').value = '';
     },
@@ -478,10 +533,8 @@ const ChatUI = {
         setTimeout(() => modal.style.opacity = '1', 50);
 
         try {
-            // Load friends, but filter out people already in group
             const res = await fetch(`/api/social/friends.php`).then(r => r.json());
             if (res.ok && res.all && res.all.length > 0) {
-                // Filter friends who are NOT members
                 const nonMembers = res.all.filter(f => !ChatState.members.some(m => m.user_id === f.id));
                 
                 if (nonMembers.length > 0) {
@@ -511,7 +564,6 @@ const ChatUI = {
     }
 };
 
-// --- GLOBAL EXPOSED CALLBACKS ---
 window.closeCreateGroupModal = () => ChatUI.closeCreateGroupModal();
 window.closeInviteUsersModal = () => ChatUI.closeInviteUsersModal();
 window.openInviteUsersModal = () => ChatUI.openInviteUsersModal();
@@ -545,7 +597,6 @@ function escapeHtml(str) {
 function parseMessageText(text) {
     if (!text) return '';
     let escaped = escapeHtml(text);
-    // Convert links
     escaped = escaped.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
     return escaped;
 }
@@ -555,4 +606,43 @@ function scrollToBottom() {
     if (box) {
         box.scrollTop = box.scrollHeight;
     }
+}
+
+// Fallback private panel
+function renderPrivateDetailsUI(data) {
+    const box = document.querySelector('.chat-details__scroll');
+    if (!box) return;
+
+    const otherUser = data.participants.find(p => p.id !== ChatState.myUserId);
+    const nickname = otherUser ? (otherUser.nickname || otherUser.username) : 'Utente';
+    const isMuted = !!data.settings.is_muted;
+    const isArchived = !!data.settings.is_archived;
+
+    box.innerHTML = `
+        <div class="chat-details__profile">
+            <img class="chat-details__avatar" src="/includes/get_pfp.php?id=${otherUser.id}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.05);">
+            <div class="chat-details__name" style="color:var(--chat-text-main) !important;font-size:18px;font-weight:800;margin-top:10px;">${escapeHtml(nickname)}</div>
+            <div style="font-size:12px;color:var(--chat-text-muted) !important;">@${escapeHtml(otherUser.username)}</div>
+        </div>
+        
+        <div class="chat-details__section">
+            <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">Personalizzazione</div>
+            <div>
+                <label style="font-size:12px;color:var(--chat-text-muted);margin-bottom:6px;display:block;">Nickname locale</label>
+                <input type="text" id="settingNicknameInput" class="chat-details-input" value="${escapeHtml(otherUser.nickname || '')}" placeholder="Imposta nickname..." onchange="updateLocalPrivateNickname(this.value)">
+            </div>
+        </div>
+
+        <div class="chat-details__section" style="display:flex;flex-direction:column;gap:10px;">
+            <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">Azioni</div>
+            <button class="chat-details-btn chat-details-btn--secondary" onclick="togglePrivateMute(${isMuted})">
+                <i class="fa-solid ${isMuted ? 'fa-bell' : 'fa-bell-slash'}"></i>
+                ${isMuted ? 'Riattiva Notifiche' : 'Silenzia Notifiche'}
+            </button>
+            <button class="chat-details-btn ${isArchived ? 'chat-details-btn--secondary' : 'chat-details-btn--primary'}" onclick="togglePrivateArchive(${isArchived})">
+                <i class="fa-solid ${isArchived ? 'fa-box-open' : 'fa-box-archive'}"></i>
+                ${isArchived ? 'Ripristina Chat' : 'Archivia Chat'}
+            </button>
+        </div>
+    `;
 }

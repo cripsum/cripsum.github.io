@@ -72,6 +72,12 @@ const ChatAPI = {
         return this.call(`search_messages.php?chat_id=${chatId}&query=${encodeURIComponent(queryText)}`);
     },
 
+    async getGifs(query = '', nextOffset = '') {
+        let queryStr = `gifs.php?q=${encodeURIComponent(query)}`;
+        if (nextOffset) queryStr += `&offset=${encodeURIComponent(nextOffset)}`;
+        return this.call(queryStr);
+    },
+
     // POST
     async createGroup(name, description, invitedUsers) {
         return this.call('create_group.php', {
@@ -88,24 +94,23 @@ const ChatAPI = {
     },
 
     async updateAvatar(formData) {
-        // Form data contains 'chat_id' and 'avatar'
         return this.call('update_avatar.php', {
             method: 'POST',
             body: formData
         });
     },
 
-    async sendMessage(chatId, message, replyToId = null) {
+    async sendMessage(chatId, message, replyToId = null, extra = {}) {
         return this.call('send_message.php', {
             method: 'POST',
-            body: { chat_id: chatId, message, reply_to_message_id: replyToId }
+            body: { chat_id: chatId, message, reply_to_message_id: replyToId, ...extra }
         });
     },
 
-    async sendPrivateMessage(conversationId, recipientId, message, replyToId = null) {
+    async sendPrivateMessage(conversationId, recipientId, message, replyToId = null, extra = {}) {
         return this.call('send_message.php', {
             method: 'POST',
-            body: { conversation_id: conversationId, recipient_id: recipientId, message, reply_to_id: replyToId }
+            body: { conversation_id: conversationId, recipient_id: recipientId, message, reply_to_id: replyToId, ...extra }
         });
     },
 
@@ -145,7 +150,7 @@ const ChatAPI = {
     },
 
     async markPrivateRead(conversationId, messageId) {
-        return this.call('get_messages.php', { // existing private read receipt uses get_messages load
+        return this.call('get_messages.php', {
             method: 'POST',
             body: { conversation_id: conversationId, before_message_id: 0 }
         });

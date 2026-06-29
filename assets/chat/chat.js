@@ -2,6 +2,9 @@
 // SPA Orchestrator Engine for Cripsum™ Group & Private Chat.
 
 (function () {
+    let currentGifQuery = '';
+    let nextGifOffset = '';
+
     // Initializer
     document.addEventListener('DOMContentLoaded', () => {
         init();
@@ -34,10 +37,8 @@
         try {
             const res = await ChatAPI.getChatList();
             if (res.ok) {
-                // Merge lists
                 ChatState.invites = res.invites || [];
                 
-                // Flag groups vs privates
                 const groups = (res.groups || []).map(g => {
                     g.isGroupChat = true;
                     return g;
@@ -94,6 +95,47 @@
 
         // Cancel replies
         document.querySelector('#cancelReplyBtn')?.addEventListener('click', cancelReplyMode);
+
+        // --- GIPHY & EMOJIS COMPOSER EVENTS ---
+        document.querySelector('.js-toggle-emojis')?.addEventListener('click', () => {
+            const strip = document.querySelector('#chatEmojiStrip');
+            if (strip) strip.hidden = !strip.hidden;
+            document.querySelector('#chatGifPanel').hidden = true;
+        });
+
+        document.querySelector('#chatEmojiStrip')?.addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (btn && btn.dataset.emoji) {
+                const textarea = document.querySelector('#chatTextarea');
+                if (textarea) {
+                    textarea.value += btn.dataset.emoji;
+                    textarea.focus();
+                }
+            }
+        });
+
+        document.querySelector('.js-toggle-gifs')?.addEventListener('click', () => {
+            const panel = document.querySelector('#chatGifPanel');
+            if (panel) {
+                panel.hidden = !panel.hidden;
+                if (!panel.hidden) {
+                    loadGifs('');
+                }
+            }
+            document.querySelector('#chatEmojiStrip').hidden = true;
+        });
+
+        document.querySelector('.js-close-gifs')?.addEventListener('click', () => {
+            document.querySelector('#chatGifPanel').hidden = true;
+        });
+
+        document.querySelector('#chatGifSearch')?.addEventListener('input', debounce((e) => {
+            loadGifs(e.target.value.trim());
+        }, 400));
+
+        document.querySelector('.js-more-gifs')?.addEventListener('click', () => {
+            loadMoreGifs();
+        });
     }
 
     function switchSidebarTab(tab) {
@@ -117,6 +159,10 @@
     async function selectChat(type, id, recipientId = 0) {
         ChatState.setActiveChat(type, id, recipientId);
         cancelReplyMode();
+        
+        // Hide panel elements
+        document.querySelector('#chatEmojiStrip').hidden = true;
+        document.querySelector('#chatGifPanel').hidden = true;
 
         // Highlight active sidebar item
         document.querySelectorAll('.chat-item').forEach(el => {
@@ -134,7 +180,6 @@
         // Show chat screen on mobile
         document.querySelector('.chat-shell').classList.add('is-chat-open');
 
-        // Render skeleton loaders
         renderSkeletonUI();
 
         try {
@@ -227,7 +272,7 @@
                     const msgObj = ChatState.messages.find(m => m.id === msgId);
                     if (msgObj) {
                         msgObj.body = text;
-                        msgObj.message = text; // old format support
+                        msgObj.message = text;
                         msgObj.edited_at = new Date().toISOString();
                     }
                     ChatUI.renderMessages();
@@ -257,19 +302,83 @@
 
             if (res.ok) {
                 const msg = res.message;
-                // Normalize message property keys
                 if (msg.body === undefined && msg.message !== undefined) {
                     msg.body = msg.message;
                 }
                 ChatState.messages.push(msg);
                 ChatState.lastMessageId = msg.id;
                 ChatUI.renderMessages();
-                loadAllConversations(); // refresh sidebar order
+                loadAllConversations();
             } else {
                 ChatUI.showToast(res.error || "Impossibile inviare il messaggio.", true);
             }
         } catch (e) {
             ChatUI.showToast("Errore di connessione.", true);
+        }
+    }
+
+    // --- GIPHY CALLS ---
+    async function loadGifs(query) {
+        currentGifQuery = query;
+        nextGifOffset = '';
+        
+        try {
+            const res = await ChatAPI.getGifs(query, '');
+            if (res.ok && res.results) {
+                ChatUI.renderGifs(res.results, false);
+                nextGifOffset = res.next_offset || '';
+                document.querySelector('.js-more-gifs').hidden = !nextGifOffset;
+            }
+        } catch (e) {
+            console.error("Giphy load error:", e);
+        }
+    }
+
+    async function loadMoreGifs() {
+        if (!nextGifOffset) return;
+        try {
+            const res = await ChatAPI.getGifs(currentGifQuery, nextGifOffset);
+            if (res.ok && res.results) {
+                ChatUI.renderGifs(res.results, true);
+                nextGifOffset = res.next_offset || '';
+                document.querySelector('.js-more-gifs').hidden = !nextGifOffset;
+            }
+        } catch (e) {
+            console.error("Giphy load more error:", e);
+        }
+    }
+
+    async function sendGifMessage(url, title) {
+        document.querySelector('#chatGifPanel').hidden = true;
+        
+        try {
+            let res;
+            const extra = {
+                message_type: 'gif',
+                media_url: url,
+                media_title: title
+            };
+            
+            if (ChatState.currentChatType === 'group') {
+                res = await ChatAPI.sendMessage(ChatState.currentChatId, '', null, extra);
+            } else {
+                res = await ChatAPI.sendPrivateMessage(ChatState.currentChatId, ChatState.recipientId, '', null, extra);
+            }
+
+            if (res.ok) {
+                const msg = res.message;
+                if (msg.body === undefined && msg.message !== undefined) {
+                    msg.body = msg.message;
+                }
+                ChatState.messages.push(msg);
+                ChatState.lastMessageId = msg.id;
+                ChatUI.renderMessages();
+                loadAllConversations();
+            } else {
+                ChatUI.showToast(res.error || "Impossibile inviare la GIF.", true);
+            }
+        } catch (e) {
+            ChatUI.showToast("Errore di rete.", true);
         }
     }
 
@@ -302,14 +411,13 @@
                     });
                 }
             } else {
-                // Fetch private details
                 const res = await fetch(`/api/chat/get_chat_details.php?conversation_id=${ChatState.currentChatId}`).then(r => r.json());
                 if (res.ok) {
                     ChatUI.renderDetails(res);
                 }
             }
         } catch (e) {
-            console.error("Errore caricamento dettagli chat:", e);
+            console.error("Errore dettagli chat:", e);
         }
     }
 
@@ -339,7 +447,6 @@
                 ChatUI.showToast("Gruppo creato con successo!");
                 ChatUI.closeCreateGroupModal();
                 await loadAllConversations();
-                // Select newly created chat
                 if (res.chat_id) {
                     selectChat('group', res.chat_id);
                 }
@@ -369,7 +476,7 @@
             
             ChatUI.showToast(`Invitati ${successCount} utenti nel gruppo.`);
             ChatUI.closeInviteUsersModal();
-            await loadDetailsPanelInfo(); // refresh members list
+            await loadDetailsPanelInfo();
         } catch (e) {
             ChatUI.showToast("Errore durante l'invio degli inviti.", true);
         }
@@ -387,7 +494,6 @@
                 if (ChatState.currentChatType === 'group') {
                     res = await ChatAPI.getMessages(ChatState.currentChatId, 0, ChatState.lastMessageId);
                 } else {
-                    // Private polling (simplified presence/poll)
                     const payload = {
                         conversation_id: ChatState.currentChatId,
                         typing_status: 'idle',
@@ -401,7 +507,6 @@
                 }
 
                 if (res.ok && res.messages && res.messages.length > 0) {
-                    // Append new messages
                     res.messages.forEach(msg => {
                         if (msg.body === undefined && msg.message !== undefined) {
                             msg.body = msg.message;
@@ -413,7 +518,6 @@
                     });
                     ChatUI.renderMessages();
                     
-                    // Mark as read
                     if (ChatState.currentChatType === 'group') {
                         await ChatAPI.markRead(ChatState.currentChatId, ChatState.lastMessageId);
                     } else {
@@ -430,6 +534,7 @@
     window.selectChat = (type, id, recipientId = 0) => selectChat(type, id, recipientId);
     window.submitCreateGroup = () => submitCreateGroup();
     window.submitInviteUsers = () => submitInviteUsers();
+    window.sendGifMessage = (url, title) => sendGifMessage(url, title);
 
     window.acceptGroupInvite = async (chatId) => {
         try {
@@ -568,7 +673,7 @@
             if (isMuted) {
                 res = await ChatAPI.unmuteChat(ChatState.currentChatId);
             } else {
-                res = await ChatAPI.muteChat(ChatState.currentChatId, -1); // permanent
+                res = await ChatAPI.muteChat(ChatState.currentChatId, -1);
             }
 
             if (res.ok) {
@@ -628,22 +733,22 @@
         const box = document.querySelector('.chat-messages');
         if (box) {
             box.innerHTML = `
-                <div class="chat-skeleton" style="height:50px;width:60%;margin-bottom:15px;"></div>
-                <div class="chat-skeleton" style="height:80px;width:40%;align-self:flex-end;margin-bottom:15px;"></div>
-                <div class="chat-skeleton" style="height:40px;width:70%;margin-bottom:15px;"></div>
+                <div class="chat-skeleton" style="height:50px;width:60%;margin-bottom:15px;border-radius:12px;"></div>
+                <div class="chat-skeleton" style="height:80px;width:40%;align-self:flex-end;margin-bottom:15px;border-radius:12px;"></div>
+                <div class="chat-skeleton" style="height:40px;width:70%;margin-bottom:15px;border-radius:12px;"></div>
             `;
         }
     }
 
     // --- CONTEXT MENUS ---
-    window.showGroupContextMenu = function (e, msgId, isSent) {
+    window.showGroupContextMenu = function (e, msgId, isMine) {
         e.preventDefault();
         
         const menu = document.querySelector('#chatContextMenu');
         if (!menu) return;
 
         let menuHtml = '';
-        if (isSent) {
+        if (isMine) {
             menuHtml = `
                 <div class="chat-context-menu__item" onclick="enterEditMode(${msgId})"><i class="fa-solid fa-pen"></i> Modifica</div>
                 <div class="chat-context-menu__item chat-context-menu__item--danger" onclick="triggerDeleteMessage(${msgId})"><i class="fa-solid fa-trash"></i> Elimina</div>
@@ -814,9 +919,7 @@
     }
 
     async function openCreateGroupWith(otherUserId) {
-        // First wait a brief second for friends to load
         await ChatUI.openCreateGroupModal();
-        // Check the friend checkbox
         const chk = document.querySelector(`#chk-fr-${otherUserId}`);
         if (chk) chk.checked = true;
     }

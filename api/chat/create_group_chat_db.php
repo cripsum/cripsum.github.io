@@ -42,6 +42,7 @@ $tables = [
             `last_read_at` TIMESTAMP NULL DEFAULT NULL,
             `muted_until` TIMESTAMP NULL DEFAULT NULL,
             `notification_level` VARCHAR(50) NOT NULL DEFAULT 'all',
+            `is_archived` TINYINT(1) NOT NULL DEFAULT 0,
             `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             UNIQUE KEY `unique_chat_user` (`chat_id`, `user_id`),
@@ -113,6 +114,25 @@ foreach ($tables as $name => $sql) {
         echo "EXCEPTION: " . $e->getMessage() . "\n";
     }
     echo "\n";
+}
+
+// Alter tables to add columns
+echo "Altering table 'private_messages' to add GIPHY support...\n";
+try {
+    $mysqli->query("ALTER TABLE `private_messages` ADD COLUMN `message_type` VARCHAR(50) NOT NULL DEFAULT 'text' AFTER `message`");
+    $mysqli->query("ALTER TABLE `private_messages` ADD COLUMN `media_url` VARCHAR(255) DEFAULT NULL AFTER `message_type`");
+    $mysqli->query("ALTER TABLE `private_messages` ADD COLUMN `media_title` VARCHAR(255) DEFAULT NULL AFTER `media_url`");
+    echo "SUCCESS\n";
+} catch (Throwable $e) {
+    echo "COLUMNS PROBABLY ALREADY EXIST: " . $e->getMessage() . "\n";
+}
+
+echo "Altering table 'chat_members' to add is_archived support...\n";
+try {
+    $mysqli->query("ALTER TABLE `chat_members` ADD COLUMN `is_archived` TINYINT(1) NOT NULL DEFAULT 0 AFTER `notification_level`");
+    echo "SUCCESS\n";
+} catch (Throwable $e) {
+    echo "COLUMN PROBABLY ALREADY EXISTS: " . $e->getMessage() . "\n";
 }
 
 echo "Database creation queries complete.\n";

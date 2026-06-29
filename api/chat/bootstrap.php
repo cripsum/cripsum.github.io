@@ -1,7 +1,10 @@
 <?php
 require_once __DIR__ . '/../../config/session_init.php';
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../config/chat_config.php';
+require_once __DIR__ . '/../../config/giphy_config.php';
 require_once __DIR__ . '/../../includes/functions.php';
+require_once __DIR__ . '/../../includes/chat_v2_helpers.php';
 
 header('Content-Type: application/json; charset=utf-8');
 

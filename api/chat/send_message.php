@@ -1,6 +1,6 @@
 <?php
 // api/chat/send_message.php
-// Dual endpoint: Sends a message to a group chat if 'chat_id' is provided, otherwise routes to private chat.
+// Dual endpoint: Sends a message (text or GIF) to a group chat or private chat.
 
 require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/../../includes/group_chat_functions.php';
@@ -9,10 +9,18 @@ require_once __DIR__ . '/../../includes/social_functions.php';
 $input = get_json_input();
 $chatId = isset($input['chat_id']) ? (int)$input['chat_id'] : 0;
 $messageText = isset($input['message']) ? trim((string)$input['message']) : '';
+$msgType = isset($input['message_type']) ? trim((string)$input['message_type']) : 'text';
+$mediaUrl = isset($input['media_url']) ? trim((string)$input['media_url']) : null;
+$mediaTitle = isset($input['media_title']) ? trim((string)$input['media_title']) : null;
+
+// Validate GIF
+if ($msgType === 'gif' && !$mediaUrl) {
+    send_error("URL della GIF mancante.");
+}
 
 // --- GROUP CHAT ROUTING ---
 if ($chatId > 0) {
-    if ($messageText === '') {
+    if ($messageText === '' && $msgType !== 'gif') {
         send_error("Il testo del messaggio non può essere vuoto.");
     }
     if (strlen($messageText) > 2000) {
@@ -38,14 +46,23 @@ if ($chatId > 0) {
     
     try {
         $replyTo = isset($input['reply_to_message_id']) ? (int)$input['reply_to_message_id'] : null;
-        $metaJson = isset($input['metadata_json']) ? $input['metadata_json'] : null;
+        
+        $metaJson = null;
+        if ($msgType === 'gif') {
+            $metaJson = json_encode([
+                'media_url' => $mediaUrl,
+                'media_title' => $mediaTitle
+            ]);
+        } else if (isset($input['metadata_json'])) {
+            $metaJson = $input['metadata_json'];
+        }
         
         $stmtMsg = $mysqli->prepare("
             INSERT INTO chat_messages (chat_id, sender_id, body, message_type, reply_to_message_id, metadata_json)
-            VALUES (?, ?, ?, 'text', ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?)
         ");
         if (!$stmtMsg) throw new Exception("Errore di database.");
-        $stmtMsg->bind_param("iisis", $chatId, $userId, $messageText, $replyTo, $metaJson);
+        $stmtMsg->bind_param("iissis", $chatId, $userId, $messageText, $msgType, $replyTo, $metaJson);
         $stmtMsg->execute();
         $messageId = $mysqli->insert_id;
         $stmtMsg->close();
@@ -61,7 +78,7 @@ if ($chatId > 0) {
         // Fetch newly created message details to return to client
         $stmtSelect = $mysqli->prepare("
             SELECT m.id, m.chat_id, m.sender_id, u.username as sender_username, u.display_name as sender_display_name,
-                   m.body, m.message_type, m.reply_to_message_id, m.created_at
+                   m.body, m.message_type, m.reply_to_message_id, m.metadata_json, m.created_at
             FROM chat_messages m
             INNER JOIN utenti u ON u.id = m.sender_id
             WHERE m.id = ? LIMIT 1
@@ -75,6 +92,8 @@ if ($chatId > 0) {
         $newMsg['chat_id'] = (int)$newMsg['chat_id'];
         $newMsg['sender_id'] = (int)$newMsg['sender_id'];
         $newMsg['reply_to_message_id'] = $newMsg['reply_to_message_id'] ? (int)$newMsg['reply_to_message_id'] : null;
+        $newMsg['metadata'] = $newMsg['metadata_json'] ? json_decode($newMsg['metadata_json'], true) : null;
+        unset($newMsg['metadata_json']);
         
         // Get sender username and chat name for notifications
         $stmtGroup = $mysqli->prepare("SELECT name FROM chats WHERE id = ? LIMIT 1");
@@ -111,8 +130,9 @@ if ($chatId > 0) {
             // Send social notification
             $titleIt = "Nuovo messaggio in $groupName";
             $titleEn = "New message in $groupName";
-            $contentIt = "@{$newMsg['sender_username']}: " . (strlen($messageText) > 40 ? substr($messageText, 0, 40) . '...' : $messageText);
-            $contentEn = "@{$newMsg['sender_username']}: " . (strlen($messageText) > 40 ? substr($messageText, 0, 40) . '...' : $messageText);
+            $notifText = $msgType === 'gif' ? '[GIF]' : $messageText;
+            $contentIt = "@{$newMsg['sender_username']}: " . (strlen($notifText) > 40 ? substr($notifText, 0, 40) . '...' : $notifText);
+            $contentEn = "@{$newMsg['sender_username']}: " . (strlen($notifText) > 40 ? substr($notifText, 0, 40) . '...' : $notifText);
             sendSocialNotification($mysqli, $memberId, $titleIt, $titleEn, $contentIt, $contentEn);
         }
         
@@ -132,7 +152,7 @@ $forwardedFromId = isset($input['forwarded_from_id']) ? (int)$input['forwarded_f
 $ephemeralTimer = isset($input['ephemeral_timer']) ? (int)$input['ephemeral_timer'] : 0;
 
 // Validazione input
-if ($messageText === '' && !$forwardedFromId) {
+if ($messageText === '' && !$forwardedFromId && $msgType !== 'gif') {
     send_error("Il testo del messaggio non può essere vuoto.");
 }
 
@@ -225,15 +245,15 @@ try {
 
     // 3. Inserimento del messaggio
     $stmtMsg = $mysqli->prepare("
-        INSERT INTO private_messages (conversation_id, sender_id, message, reply_to_id, forwarded_from_id, ephemeral_timer)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO private_messages (conversation_id, sender_id, message, message_type, media_url, media_title, reply_to_id, forwarded_from_id, ephemeral_timer)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     
     if (!$stmtMsg) {
         throw new Exception("Errore interno del server durante la preparazione del messaggio.");
     }
     
-    $stmtMsg->bind_param("iisiii", $conversationId, $userId, $messageText, $replyToId, $forwardedFromId, $ephemeralTimer);
+    $stmtMsg->bind_param("iisssssii", $conversationId, $userId, $messageText, $msgType, $mediaUrl, $mediaTitle, $replyToId, $forwardedFromId, $ephemeralTimer);
     $stmtMsg->execute();
     $messageId = $mysqli->insert_id;
     $stmtMsg->close();
@@ -249,6 +269,7 @@ try {
     // Recuperiamo i dettagli del messaggio appena inserito per restituirli al client
     $stmtSelect = $mysqli->prepare("
         SELECT m.id, m.conversation_id, m.sender_id, u.username as sender_username, m.message, 
+               m.message_type, m.media_url, m.media_title,
                m.reply_to_id, m.forwarded_from_id, m.ephemeral_timer, m.created_at,
                reply_m.message AS reply_message_text, reply_u.username AS reply_username
         FROM private_messages m
