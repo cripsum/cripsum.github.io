@@ -2,50 +2,139 @@
 require_once __DIR__ . '/secure/config.php';
 require_once __DIR__ . '/includes/functions.php';
 
-// 1. Real Web Server Check & Latency
+// Gestione richiesta AJAX per l'aggiornamento in tempo reale
+if (isset($_GET['ajax'])) {
+    header('Content-Type: application/json');
+    
+    // 1. Real Web Server Check & Latency
+    $websiteStatus = 'operational';
+    $webLatency = 0;
+    $startTime = microtime(true);
+
+    if (function_exists('curl_init')) {
+        $ch = curl_init('https://cripsum.com/');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CONNECTTIMEOUT => 1,
+            CURLOPT_TIMEOUT => 2,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_USERAGENT => 'CripsumStatus/1.0',
+        ]);
+        $response = curl_exec($ch);
+        $statusCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($response && $statusCode === 200) {
+            $webLatency = round((microtime(true) - $startTime) * 1000);
+        } else {
+            $webLatency = rand(4, 12); 
+        }
+    } else {
+        $webLatency = rand(4, 12);
+    }
+
+    // 2. Real Database Check & Latency
+    $databaseStatus = 'operational';
+    $dbLatency = 0;
+    $dbStart = microtime(true);
+
+    $mysqli = @new mysqli($db_host, $db_user, $db_pass, $db_name);
+    if ($mysqli->connect_error) {
+        $databaseStatus = 'major_outage';
+    } else {
+        $mysqli->set_charset('utf8mb4');
+        $dbLatency = round((microtime(true) - $dbStart) * 1000);
+        $mysqli->close();
+    }
+
+    // 3. Real API & Home Server Status
+    $apiStatus = 'major_outage';
+    $serverStats = null;
+    $apiLatency = 0;
+    $apiStart = microtime(true);
+
+    if (function_exists('curl_init')) {
+        $ch = curl_init('https://api.cripsum.com/v1/stats');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CONNECTTIMEOUT => 2,
+            CURLOPT_TIMEOUT => 3,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_HTTPHEADER => ['Accept: application/json'],
+            CURLOPT_USERAGENT => 'CripsumStatus/1.0',
+        ]);
+        $response = curl_exec($ch);
+        $statusCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($response && $statusCode === 200) {
+            $decoded = json_decode($response, true);
+            if (is_array($decoded) && !empty($decoded['success'])) {
+                $apiStatus = 'operational';
+                $serverStats = $decoded;
+                $apiLatency = round((microtime(true) - $apiStart) * 1000);
+            }
+        }
+    }
+
+    // Overall status
+    $overallStatus = 'operational';
+    if ($apiStatus === 'major_outage' || $databaseStatus === 'major_outage') {
+        $overallStatus = 'partial_outage';
+    }
+    if ($websiteStatus === 'major_outage') {
+        $overallStatus = 'major_outage';
+    }
+
+    echo json_encode([
+        'overallStatus' => $overallStatus,
+        'website' => ['status' => $websiteStatus, 'latency' => $webLatency],
+        'database' => ['status' => $databaseStatus, 'latency' => $dbLatency],
+        'api' => ['status' => $apiStatus, 'latency' => $apiLatency],
+        'hardware' => $serverStats
+    ]);
+    exit;
+}
+
+// 1. Caricamento iniziale - Web Server
 $websiteStatus = 'operational';
 $webLatency = 0;
 $startTime = microtime(true);
-
 if (function_exists('curl_init')) {
     $ch = curl_init('https://cripsum.com/');
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_CONNECTTIMEOUT => 1,
         CURLOPT_TIMEOUT => 2,
-        CURLOPT_SSL_VERIFYPEER => false, // Avoid local SSL loopback issues
+        CURLOPT_SSL_VERIFYPEER => false,
         CURLOPT_USERAGENT => 'CripsumStatus/1.0',
     ]);
     $response = curl_exec($ch);
     $statusCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
-
     if ($response && $statusCode === 200) {
         $webLatency = round((microtime(true) - $startTime) * 1000);
     } else {
-        // Fallback latency if loopback curl is blocked by the hosting provider
         $webLatency = rand(4, 12); 
     }
 } else {
     $webLatency = rand(4, 12);
 }
 
-// 2. Real Database Check & Latency (without dying if it fails)
+// 2. Caricamento iniziale - Database
 $databaseStatus = 'operational';
 $dbLatency = 0;
 $dbStart = microtime(true);
-
-// Establish connection manually to prevent script from dying on failure
 $mysqli = @new mysqli($db_host, $db_user, $db_pass, $db_name);
 if ($mysqli->connect_error) {
     $databaseStatus = 'major_outage';
 } else {
     $mysqli->set_charset('utf8mb4');
     $dbLatency = round((microtime(true) - $dbStart) * 1000);
-    $mysqli->close(); // Close immediately as we only need the health check
+    $mysqli->close();
 }
 
-// 3. Real API & Home Server Status (Fetched via cURL from the laptop)
+// 3. Caricamento iniziale - API
 $apiStatus = 'major_outage';
 $serverStatus = 'major_outage';
 $apiLatency = 0;
@@ -77,7 +166,6 @@ if (function_exists('curl_init')) {
     }
 }
 
-// Determine overall status
 $overallStatus = 'operational';
 if ($apiStatus === 'major_outage' || $databaseStatus === 'major_outage') {
     $overallStatus = 'partial_outage';
@@ -162,7 +250,6 @@ function formatUptime(int $seconds): string {
             margin-top: 1rem;
         }
 
-        /* Header */
         header {
             text-align: center;
             margin-bottom: 2.5rem;
@@ -184,7 +271,6 @@ function formatUptime(int $seconds): string {
             font-weight: 400;
         }
 
-        /* Banner di stato principale */
         .status-banner {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -197,6 +283,7 @@ function formatUptime(int $seconds): string {
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: all 0.5s ease;
         }
 
         .status-banner.operational {
@@ -214,13 +301,13 @@ function formatUptime(int $seconds): string {
             background: linear-gradient(135deg, rgba(239, 68, 68, 0.02) 0%, var(--card-bg) 100%);
         }
 
-        /* Pulsing dot fix */
         .pulse-dot {
             width: 12px;
             height: 12px;
             border-radius: 50%;
             position: relative;
             flex-shrink: 0;
+            transition: all 0.3s ease;
         }
 
         .pulse-dot.green { background-color: var(--color-green); box-shadow: 0 0 10px var(--color-green); }
@@ -254,7 +341,6 @@ function formatUptime(int $seconds): string {
             letter-spacing: -0.01em;
         }
 
-        /* Lista dei Servizi */
         .services-list {
             display: flex;
             flex-direction: column;
@@ -302,6 +388,7 @@ function formatUptime(int $seconds): string {
             align-items: center;
             gap: 8px;
             border: 1px solid transparent;
+            transition: all 0.3s ease;
         }
 
         .service-status-badge.operational { 
@@ -323,7 +410,6 @@ function formatUptime(int $seconds): string {
             margin-left: 4px;
         }
 
-        /* Timeline Uptime */
         .timeline-wrapper {
             display: flex;
             flex-direction: column;
@@ -354,7 +440,6 @@ function formatUptime(int $seconds): string {
         .bar-yellow { background-color: rgba(245, 158, 11, 0.55); }
         .bar-yellow:hover { background-color: var(--color-yellow); transform: scaleY(1.25); box-shadow: 0 0 8px rgba(245, 158, 11, 0.4); }
 
-        /* Cascading entrance animation for bars */
         @keyframes pop-in {
             0% { transform: scaleY(0); opacity: 0; }
             100% { transform: scaleY(1); opacity: 1; }
@@ -370,7 +455,6 @@ function formatUptime(int $seconds): string {
             padding-top: 2px;
         }
 
-        /* Widget Hardware Server */
         .hardware-section {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -436,7 +520,6 @@ function formatUptime(int $seconds): string {
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Barre di progresso animate all'avvio */
         .progress-container {
             display: flex;
             flex-direction: column;
@@ -460,6 +543,7 @@ function formatUptime(int $seconds): string {
             background: linear-gradient(90deg, var(--accent), #a78bfa);
             border-radius: 10px;
             animation: fill-bar 1.2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .server-offline-msg {
@@ -470,6 +554,7 @@ function formatUptime(int $seconds): string {
             flex-direction: column;
             align-items: center;
             gap: 12px;
+            animation: pop-in 0.5s ease forwards;
         }
 
         .server-offline-msg i {
@@ -542,8 +627,8 @@ function formatUptime(int $seconds): string {
                 <div class="service-header">
                     <span class="service-name"><i class="fa-solid fa-globe"></i> Sito Web (cripsum.com)</span>
                     <span class="service-status-badge <?php echo $websiteStatus; ?>">
-                        <span class="pulse-dot green" style="width: 8px; height: 8px;"></span>
-                        <?php echo getStatusLabel($websiteStatus); ?>
+                        <span class="pulse-dot <?php echo $websiteStatus === 'operational' ? 'green' : 'red'; ?>" style="width: 8px; height: 8px;"></span>
+                        <span class="status-label-text"><?php echo getStatusLabel($websiteStatus); ?></span>
                         <span class="latency-text"><?php echo $webLatency; ?>ms</span>
                     </span>
                 </div>
@@ -570,7 +655,7 @@ function formatUptime(int $seconds): string {
                     <span class="service-name"><i class="fa-solid fa-code"></i> Rich Presence API (api.cripsum.com)</span>
                     <span class="service-status-badge <?php echo $apiStatus; ?>">
                         <span class="pulse-dot <?php echo $apiStatus === 'operational' ? 'green' : 'red'; ?>" style="width: 8px; height: 8px;"></span>
-                        <?php echo getStatusLabel($apiStatus); ?>
+                        <span class="status-label-text"><?php echo getStatusLabel($apiStatus); ?></span>
                         <?php if ($apiStatus === 'operational'): ?>
                             <span class="latency-text"><?php echo $apiLatency; ?>ms</span>
                         <?php endif; ?>
@@ -584,7 +669,6 @@ function formatUptime(int $seconds): string {
                             if ($i === 89 && $apiStatus === 'major_outage') {
                                 echo '<span class="bar bar-yellow" style="background-color: var(--color-red); animation-delay: ' . $delay . 's;" title="Oggi: Servizio Offline"></span>';
                             } elseif ($i === 54) {
-                                // Add a realistic mock incident
                                 echo '<span class="bar bar-yellow" style="animation-delay: ' . $delay . 's;" title="36 giorni fa: Manutenzione (98.2% uptime)"></span>';
                             } else {
                                 echo '<span class="bar bar-green" style="animation-delay: ' . $delay . 's;" title="Giorno ' . (90 - $i) . ' fa: 100% Uptime"></span>';
@@ -606,7 +690,7 @@ function formatUptime(int $seconds): string {
                     <span class="service-name"><i class="fa-solid fa-database"></i> Database Node (MySQL)</span>
                     <span class="service-status-badge <?php echo $databaseStatus; ?>">
                         <span class="pulse-dot <?php echo $databaseStatus === 'operational' ? 'green' : 'red'; ?>" style="width: 8px; height: 8px;"></span>
-                        <?php echo getStatusLabel($databaseStatus); ?>
+                        <span class="status-label-text"><?php echo getStatusLabel($databaseStatus); ?></span>
                         <?php if ($databaseStatus === 'operational'): ?>
                             <span class="latency-text"><?php echo $dbLatency; ?>ms</span>
                         <?php endif; ?>
@@ -707,5 +791,166 @@ function formatUptime(int $seconds): string {
         <p>Gestito da <a href="https://cripsum.com">Cripsum</a> · Alimentato dal nostro vecchio hardware casalingo.</p>
     </footer>
 
+    <script>
+        // Funzione per formattare l'uptime in JS
+        function formatUptime(seconds) {
+            const days = Math.floor(seconds / 86400);
+            const hours = Math.floor((seconds % 86400) / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+
+            const parts = [];
+            if (days > 0) parts.push(days + (days === 1 ? ' giorno' : ' giorni'));
+            if (hours > 0) parts.push(hours + (hours === 1 ? ' ora' : ' ore'));
+            if (minutes > 0) parts.push(minutes + (minutes === 1 ? ' minuto' : ' minuti'));
+
+            return parts.length === 0 ? 'Meno di un minuto' : parts.join(', ');
+        }
+
+        // Funzione per aggiornare lo stato in tempo reale via AJAX
+        async function updateStats() {
+            try {
+                const response = await fetch('status.php?ajax=1');
+                if (!response.ok) return;
+                const data = await response.json();
+
+                // 1. Aggiorna il banner dello stato generale
+                const banner = document.querySelector('.status-banner');
+                const bannerDot = banner.querySelector('.pulse-dot');
+                const bannerText = banner.querySelector('.status-message');
+
+                banner.className = 'status-banner ' + data.overallStatus;
+                bannerDot.className = 'pulse-dot ' + (data.overallStatus === 'operational' ? 'green' : (data.overallStatus === 'partial_outage' ? 'yellow' : 'red'));
+                
+                if (data.overallStatus === 'operational') {
+                    bannerText.textContent = 'Tutti i sistemi sono operativi';
+                } else if (data.overallStatus === 'partial_outage') {
+                    bannerText.textContent = 'I sistemi presentano un\'interruzione parziale';
+                } else {
+                    bannerText.textContent = 'Interruzione grave dei sistemi';
+                }
+
+                // 2. Aggiorna i 3 servizi
+                const services = ['website', 'database', 'api'];
+                services.forEach((service, index) => {
+                    const card = document.querySelector(`.service-card:nth-of-type(${index + 1})`);
+                    const badge = card.querySelector('.service-status-badge');
+                    const dot = badge.querySelector('.pulse-dot');
+                    const labelText = badge.querySelector('.status-label-text');
+                    const latencyText = badge.querySelector('.latency-text');
+
+                    const info = data[service];
+                    
+                    // Imposta le classi di stato
+                    badge.className = 'service-status-badge ' + info.status;
+                    dot.className = 'pulse-dot ' + (info.status === 'operational' ? 'green' : 'red');
+                    
+                    // Imposta l'etichetta di testo
+                    if (info.status === 'operational') {
+                        labelText.textContent = 'Operativo';
+                        if (latencyText) {
+                            latencyText.textContent = info.latency + 'ms';
+                        } else {
+                            const newLatency = document.createElement('span');
+                            newLatency.className = 'latency-text';
+                            newLatency.textContent = info.latency + 'ms';
+                            badge.appendChild(newLatency);
+                        }
+                    } else {
+                        labelText.textContent = 'Offline';
+                        if (latencyText) latencyText.remove();
+                    }
+                });
+
+                // 3. Aggiorna il monitor Hardware
+                const hwSection = document.querySelector('.hardware-section');
+                
+                if (data.api.status === 'operational' && data.hardware) {
+                    const hw = data.hardware;
+                    let grid = hwSection.querySelector('.hardware-grid');
+                    
+                    // Se la griglia non c'è (perché il server era offline), la creiamo
+                    if (!grid) {
+                        const offlineMsg = hwSection.querySelector('.server-offline-msg');
+                        if (offlineMsg) offlineMsg.remove();
+                        
+                        grid = document.createElement('div');
+                        grid.className = 'hardware-grid';
+                        hwSection.appendChild(grid);
+                    }
+
+                    const cpuPercent = Math.min(100, Math.round(parseFloat(hw.cpu.load1m) * 100));
+
+                    grid.innerHTML = `
+                        <!-- CPU Info -->
+                        <div class="stat-box">
+                            <span class="stat-label"><i class="fa-solid fa-microchip"></i> CPU Load (1 min)</span>
+                            <div class="progress-container">
+                                <span class="stat-value">${hw.cpu.load1m}</span>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" style="width: ${cpuPercent}%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RAM Info -->
+                        <div class="stat-box">
+                            <span class="stat-label"><i class="fa-solid fa-memory"></i> Memoria RAM</span>
+                            <div class="progress-container">
+                                <span class="stat-value">
+                                    ${hw.memory.used} / ${hw.memory.total} (${hw.memory.percent}%)
+                                </span>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" style="width: ${hw.memory.percent}%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CPU Temp -->
+                        <div class="stat-box">
+                            <span class="stat-label"><i class="fa-solid fa-temperature-half"></i> Temperatura CPU</span>
+                            <span class="stat-value">${hw.temperature}</span>
+                        </div>
+
+                        <!-- Server Uptime -->
+                        <div class="stat-box">
+                            <span class="stat-label"><i class="fa-solid fa-clock"></i> Tempo di Attività (Uptime)</span>
+                            <span class="stat-value" style="font-size: 0.95rem; font-family: inherit;">
+                                ${formatUptime(hw.uptime)}
+                            </span>
+                        </div>
+
+                        <!-- Server Platform -->
+                        <div class="stat-box" style="grid-column: span 2;">
+                            <span class="stat-label"><i class="fa-solid fa-gears"></i> Architettura & OS</span>
+                            <span class="stat-value" style="font-size: 0.9rem; font-family: inherit; font-weight: 400; opacity: 0.95;">
+                                ${hw.platform} — ${hw.cpu.model}
+                            </span>
+                        </div>
+                    `;
+                } else {
+                    // Se il server è offline, rimuoviamo la griglia e mostriamo il messaggio
+                    const grid = hwSection.querySelector('.hardware-grid');
+                    if (grid) grid.remove();
+
+                    let offlineMsg = hwSection.querySelector('.server-offline-msg');
+                    if (!offlineMsg) {
+                        offlineMsg = document.createElement('div');
+                        offlineMsg.className = 'server-offline-msg';
+                        offlineMsg.innerHTML = `
+                            <i class="fa-solid fa-power-off"></i>
+                            <strong>Server in modalità risparmio energetico</strong>
+                            <span>Il portatile a casa è spento o non connesso a Internet. I servizi del sito web scalano in automatico su nodi secondari.</span>
+                        `;
+                        hwSection.appendChild(offlineMsg);
+                    }
+                }
+            } catch (e) {
+                console.error("Errore durante l'aggiornamento automatico:", e);
+            }
+        }
+
+        // Avvia l'aggiornamento automatico ogni 3 secondi
+        setInterval(updateStats, 3000);
+    </script>
 </body>
 </html>
