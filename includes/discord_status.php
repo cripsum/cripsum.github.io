@@ -24,7 +24,7 @@ function getDiscordPresence(string $discord_id): ?array
 
     // 1. Prova con il bot personalizzato su Render.
     // Usiamo un timeout basso (2s) così se il bot è in sleep su Render il sito non si blocca e passa subito al fallback.
-    $customUrl = 'https://cripsum-com-presence.onrender.com/v1/users/' . rawurlencode($discord_id);
+    $customUrl = 'https://api.cripsum.com/v1/users/' . rawurlencode($discord_id);
     $ch = curl_init($customUrl);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
