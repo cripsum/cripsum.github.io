@@ -37,9 +37,14 @@ $mysqli->begin_transaction();
 try {
     // 1. Get username for system message
     $stmtUser = $mysqli->prepare("SELECT username FROM utenti WHERE id = ? LIMIT 1");
-    $stmtUser->execute();
-    $username = $stmtUser->get_result()->fetch_assoc()['username'] ?? 'Utente';
-    $stmtUser->close();
+    if ($stmtUser) {
+        $stmtUser->bind_param("i", $userId);
+        $stmtUser->execute();
+        $username = $stmtUser->get_result()->fetch_assoc()['username'] ?? 'Utente';
+        $stmtUser->close();
+    } else {
+        $username = 'Utente';
+    }
     
     // 2. Set status to left
     $stmtLeave = $mysqli->prepare("UPDATE chat_members SET status = 'left', left_at = NOW() WHERE chat_id = ? AND user_id = ?");

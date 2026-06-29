@@ -43,9 +43,14 @@ try {
     
     // Get username
     $stmtUser = $mysqli->prepare("SELECT username FROM utenti WHERE id = ? LIMIT 1");
-    $stmtUser->execute();
-    $username = $stmtUser->get_result()->fetch_assoc()['username'] ?? 'Utente';
-    $stmtUser->close();
+    if ($stmtUser) {
+        $stmtUser->bind_param("i", $userId);
+        $stmtUser->execute();
+        $username = $stmtUser->get_result()->fetch_assoc()['username'] ?? 'Utente';
+        $stmtUser->close();
+    } else {
+        $username = 'Utente';
+    }
     
     // 3. Create system message
     createSystemMessage($mysqli, $chatId, 'join', [
