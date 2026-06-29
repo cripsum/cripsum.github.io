@@ -829,8 +829,8 @@ function formatUptime(int $seconds): string {
                     bannerText.textContent = 'Interruzione grave dei sistemi';
                 }
 
-                // 2. Aggiorna i 3 servizi
-                const services = ['website', 'database', 'api'];
+                // 2. Aggiorna i 3 servizi (ordinati esattamente come nell'HTML)
+                const services = ['website', 'api', 'database'];
                 services.forEach((service, index) => {
                     const card = document.querySelector(`.service-card:nth-of-type(${index + 1})`);
                     const badge = card.querySelector('.service-status-badge');
