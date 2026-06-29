@@ -319,10 +319,15 @@
             }
         }
 
-        // Message Button
+        // Message & Group Buttons
         let messageBtnHtml = '';
+        let createGroupBtnHtml = '';
+        let inviteGroupBtnHtml = '';
         if (!r.is_self && r.can_message) {
-            messageBtnHtml = `<a class="social-btn social-btn--secondary" href="/${document.documentElement.lang || 'en'}/chat?user_id=${user.id}"><i class="fa-solid fa-envelope"></i> Message</a>`;
+            const lang = document.documentElement.lang || 'en';
+            messageBtnHtml = `<a class="social-btn social-btn--secondary" href="/${lang}/chat?user_id=${user.id}"><i class="fa-solid fa-envelope"></i> Message</a>`;
+            createGroupBtnHtml = `<a class="social-btn social-btn--secondary" href="/${lang}/chat?create_group_with=${user.id}" title="${lang === 'it' ? 'Crea gruppo con utente' : 'Create group with user'}"><i class="fa-solid fa-users-plus"></i> ${lang === 'it' ? 'Crea Gruppo' : 'Group'}</a>`;
+            inviteGroupBtnHtml = `<button class="social-btn social-btn--secondary" onclick="openInviteDropdown(event, ${user.id})"><i class="fa-solid fa-user-plus"></i> ${lang === 'it' ? 'Invita' : 'Invite'}</button>`;
         }
 
         // Block Button
@@ -373,6 +378,10 @@
                     </div>
                     <div class="discord-card__actions-row">
                         ${messageBtnHtml}
+                        ${createGroupBtnHtml}
+                    </div>
+                    <div class="discord-card__actions-row">
+                        ${inviteGroupBtnHtml}
                         ${blockBtnHtml}
                     </div>
                 </div>
@@ -423,4 +432,69 @@
     }
 
     window.closeUserCard = closeUserCard;
+
+    window.openInviteDropdown = async function (e, targetUserId) {
+        e.stopPropagation();
+        e.preventDefault();
+        
+        // Remove existing dropdowns
+        const existing = document.querySelector('#inviteGroupDropdown');
+        if (existing) existing.remove();
+        
+        const lang = document.documentElement.lang || 'en';
+        
+        // Create drop down list element
+        const dropdown = document.createElement('div');
+        dropdown.id = 'inviteGroupDropdown';
+        dropdown.style.cssText = 'position:absolute;background:#18181b;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 0;min-width:180px;box-shadow:0 10px 25px rgba(0,0,0,0.5);z-index:999999;';
+        
+        // Fetch groups
+        try {
+            const res = await fetch(`/api/chat/my_manageable_groups.php?target_id=${targetUserId}`).then(r => r.json());
+            if (res.ok && res.groups && res.groups.length > 0) {
+                dropdown.innerHTML = res.groups.map(g => `
+                    <div style="padding:8px 15px;font-size:13px;cursor:pointer;color:white;transition:background 0.2s;" 
+                         onmouseover="this.style.background='rgba(255,255,255,0.05)'" 
+                         onmouseout="this.style.background='transparent'" 
+                         onclick="sendGroupInviteFromCard(${g.chat_id}, ${targetUserId})">
+                        ${escapeHtml(g.name)}
+                    </div>
+                `).join('');
+            } else {
+                dropdown.innerHTML = `<div style="padding:8px 15px;font-size:12px;color:#a1a1aa;text-align:center;">${lang === 'it' ? 'Nessun gruppo disponibile' : 'No groups available'}</div>`;
+            }
+        } catch (err) {
+            dropdown.innerHTML = `<div style="padding:8px 15px;font-size:12px;color:#ef4444;text-align:center;">Errore</div>`;
+        }
+        
+        // Position next to click
+        document.body.appendChild(dropdown);
+        dropdown.style.left = (e.pageX) + 'px';
+        dropdown.style.top = (e.pageY) + 'px';
+        
+        // Close on clicking outside
+        const closeDropdown = () => {
+            dropdown.remove();
+            document.removeEventListener('click', closeDropdown);
+        };
+        setTimeout(() => document.addEventListener('click', closeDropdown), 50);
+    };
+    
+    window.sendGroupInviteFromCard = async function (chatId, inviteeId) {
+        try {
+            const res = await fetch('/api/chat/invite_user.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: chatId, invitee_id: inviteeId })
+            }).then(r => r.json());
+            
+            if (res.ok) {
+                alert("Invito inviato con successo!");
+            } else {
+                alert(res.error || "Errore durante l'invio.");
+            }
+        } catch (e) {
+            alert("Errore di connessione.");
+        }
+    };
 })();

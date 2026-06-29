@@ -1,10 +1,132 @@
 <?php
+// api/chat/send_message.php
+// Dual endpoint: Sends a message to a group chat if 'chat_id' is provided, otherwise routes to private chat.
+
 require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . '/../../includes/group_chat_functions.php';
+require_once __DIR__ . '/../../includes/social_functions.php';
 
 $input = get_json_input();
+$chatId = isset($input['chat_id']) ? (int)$input['chat_id'] : 0;
+$messageText = isset($input['message']) ? trim((string)$input['message']) : '';
+
+// --- GROUP CHAT ROUTING ---
+if ($chatId > 0) {
+    if ($messageText === '') {
+        send_error("Il testo del messaggio non può essere vuoto.");
+    }
+    if (strlen($messageText) > 2000) {
+        send_error("Il messaggio supera il limite di 2000 caratteri.");
+    }
+    
+    if (!canSendMessage($mysqli, $chatId, $userId)) {
+        send_error("Non sei autorizzato a inviare messaggi in questo gruppo o non sei un membro attivo.", 403);
+    }
+    
+    // Rate limit check
+    $stmtRate = $mysqli->prepare("SELECT COUNT(*) as c FROM chat_messages WHERE sender_id = ? AND created_at > NOW() - INTERVAL 10 SECOND");
+    $stmtRate->bind_param("i", $userId);
+    $stmtRate->execute();
+    $msgCount = $stmtRate->get_result()->fetch_assoc()['c'];
+    $stmtRate->close();
+    
+    if ($msgCount >= 5) {
+        send_error("Stai inviando messaggi troppo velocemente. Rallenta!", 429);
+    }
+    
+    $mysqli->begin_transaction();
+    
+    try {
+        $replyTo = isset($input['reply_to_message_id']) ? (int)$input['reply_to_message_id'] : null;
+        $metaJson = isset($input['metadata_json']) ? $input['metadata_json'] : null;
+        
+        $stmtMsg = $mysqli->prepare("
+            INSERT INTO chat_messages (chat_id, sender_id, body, message_type, reply_to_message_id, metadata_json)
+            VALUES (?, ?, ?, 'text', ?, ?)
+        ");
+        if (!$stmtMsg) throw new Exception("Errore di database.");
+        $stmtMsg->bind_param("iisis", $chatId, $userId, $messageText, $replyTo, $metaJson);
+        $stmtMsg->execute();
+        $messageId = $mysqli->insert_id;
+        $stmtMsg->close();
+        
+        // Update chat pointer
+        $mysqli->query("UPDATE chats SET last_message_id = $messageId, last_message_at = NOW() WHERE id = $chatId");
+        
+        // Restore archive state for all participants
+        $mysqli->query("UPDATE chat_members SET is_archived = 0 WHERE chat_id = $chatId");
+        
+        $mysqli->commit();
+        
+        // Fetch newly created message details to return to client
+        $stmtSelect = $mysqli->prepare("
+            SELECT m.id, m.chat_id, m.sender_id, u.username as sender_username, u.display_name as sender_display_name,
+                   m.body, m.message_type, m.reply_to_message_id, m.created_at
+            FROM chat_messages m
+            INNER JOIN utenti u ON u.id = m.sender_id
+            WHERE m.id = ? LIMIT 1
+        ");
+        $stmtSelect->bind_param("i", $messageId);
+        $stmtSelect->execute();
+        $newMsg = $stmtSelect->get_result()->fetch_assoc();
+        $stmtSelect->close();
+        
+        $newMsg['id'] = (int)$newMsg['id'];
+        $newMsg['chat_id'] = (int)$newMsg['chat_id'];
+        $newMsg['sender_id'] = (int)$newMsg['sender_id'];
+        $newMsg['reply_to_message_id'] = $newMsg['reply_to_message_id'] ? (int)$newMsg['reply_to_message_id'] : null;
+        
+        // Get sender username and chat name for notifications
+        $stmtGroup = $mysqli->prepare("SELECT name FROM chats WHERE id = ? LIMIT 1");
+        $stmtGroup->bind_param("i", $chatId);
+        $stmtGroup->execute();
+        $groupName = $stmtGroup->get_result()->fetch_assoc()['name'] ?? 'Gruppo';
+        $stmtGroup->close();
+        
+        // Send notifications to group members (except sender and muted users)
+        $members = getChatMembers($mysqli, $chatId);
+        foreach ($members as $m) {
+            $memberId = (int)$m['user_id'];
+            if ($memberId === $userId) continue;
+            
+            // Check if member muted this chat
+            $stmtMute = $mysqli->prepare("SELECT muted_until, notification_level FROM chat_members WHERE chat_id = ? AND user_id = ? LIMIT 1");
+            $isMuted = false;
+            $notifLevel = 'all';
+            if ($stmtMute) {
+                $stmtMute->bind_param("ii", $chatId, $memberId);
+                $stmtMute->execute();
+                $resMute = $stmtMute->get_result()->fetch_assoc();
+                if ($resMute) {
+                    $notifLevel = $resMute['notification_level'];
+                    if ($resMute['muted_until'] && strtotime($resMute['muted_until']) > time()) {
+                        $isMuted = true;
+                    }
+                }
+                $stmtMute->close();
+            }
+            
+            if ($isMuted || $notifLevel === 'muted') continue;
+            
+            // Send social notification
+            $titleIt = "Nuovo messaggio in $groupName";
+            $titleEn = "New message in $groupName";
+            $contentIt = "@{$newMsg['sender_username']}: " . (strlen($messageText) > 40 ? substr($messageText, 0, 40) . '...' : $messageText);
+            $contentEn = "@{$newMsg['sender_username']}: " . (strlen($messageText) > 40 ? substr($messageText, 0, 40) . '...' : $messageText);
+            sendSocialNotification($mysqli, $memberId, $titleIt, $titleEn, $contentIt, $contentEn);
+        }
+        
+        send_success(['message' => $newMsg]);
+        
+    } catch (Throwable $e) {
+        $mysqli->rollback();
+        send_error($e->getMessage());
+    }
+}
+
+// --- ORIGINAL PRIVATE CHAT ROUTING ---
 $conversationId = isset($input['conversation_id']) ? (int)$input['conversation_id'] : 0;
 $recipientId = isset($input['recipient_id']) ? (int)$input['recipient_id'] : 0;
-$messageText = isset($input['message']) ? trim((string)$input['message']) : '';
 $replyToId = isset($input['reply_to_id']) ? (int)$input['reply_to_id'] : null;
 $forwardedFromId = isset($input['forwarded_from_id']) ? (int)$input['forwarded_from_id'] : null;
 $ephemeralTimer = isset($input['ephemeral_timer']) ? (int)$input['ephemeral_timer'] : 0;
@@ -43,7 +165,6 @@ try {
             $conversationId = (int)$existingConv['conversation_id'];
         } else {
             // Verifica permessi di privacy del destinatario e blocchi
-            require_once __DIR__ . '/../../includes/social_functions.php';
             $rel = getRelationshipStatus($mysqli, $userId, $recipientId);
             if (!$rel['can_message']) {
                 throw new Exception("L'utente ha disattivato la ricezione di messaggi da parte tua o c'è un blocco attivo.", 403);
@@ -83,7 +204,6 @@ try {
         $resOther = $stmtOther->get_result();
         if ($rowOther = $resOther->fetch_assoc()) {
             $recipientId = (int)$rowOther['user_id'];
-            require_once __DIR__ . '/../../includes/social_functions.php';
             $rel = getRelationshipStatus($mysqli, $userId, $recipientId);
             if (!$rel['can_message']) {
                 throw new Exception("Impossibile inviare il messaggio. Sei stato bloccato, hai bloccato questo utente o non hai i permessi di messaggistica.", 403);
