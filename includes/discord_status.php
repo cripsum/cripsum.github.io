@@ -42,6 +42,7 @@ function getDiscordPresence(string $discord_id): ?array
     if ($response && $statusCode === 200) {
         $decoded = json_decode($response, true);
         if (is_array($decoded) && !empty($decoded['success'])) {
+            $decoded['source'] = 'custom_bot';
             return $decoded;
         }
     }
@@ -64,7 +65,10 @@ function getDiscordPresence(string $discord_id): ?array
 
     if ($response && $statusCode === 200) {
         $decoded = json_decode($response, true);
-        return is_array($decoded) ? $decoded : null;
+        if (is_array($decoded)) {
+            $decoded['source'] = 'lanyard';
+            return $decoded;
+        }
     }
 
     return null;
@@ -166,10 +170,11 @@ function renderTimestampText(array $timestamps): string
 $data = getDiscordPresence($discord_id);
 $payload = $data['data'] ?? null;
 $hasLanyardUser = $payload && !empty($payload['discord_user']);
+$dataSource = $data['source'] ?? 'unknown';
 
 if (!$hasLanyardUser) {
     ?>
-    <div class="ds-card ds-error">
+    <div class="ds-card ds-error" data-source="<?= ds_e($dataSource); ?>">
         <i class="fa-solid fa-triangle-exclamation"></i>
         <span>Stato Discord non disponibile.</span>
     </div>
@@ -212,7 +217,8 @@ $avatarUrl = discordAvatarUrl($user);
 $discordUsername = $user['username'] ?? 'discord';
 $discordUserId = $user['id'] ?? $discord_id;
 ?>
-<div class="ds-card">
+<div class="ds-card" data-source="<?= ds_e($dataSource); ?>">
+    <!-- Sourced from: <?= ds_e($dataSource); ?> -->
     <div class="ds-profile">
         <div class="ds-avatar-wrap">
             <img class="ds-avatar" src="<?= ds_e($avatarUrl); ?>" alt="Avatar Discord" loading="lazy">
