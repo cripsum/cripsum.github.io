@@ -75,7 +75,7 @@ function getRelationshipStatus($mysqli, $viewerId, $targetId)
     }
 
     $stmt->bind_param(
-        "iiiiiiiiiiiiii",
+        "iiiiiiiiiiiiiii",
         $viewerId, $targetId,     // is_following
         $targetId, $viewerId,     // is_followed_by
         $userOne, $userTwo,       // is_friend
