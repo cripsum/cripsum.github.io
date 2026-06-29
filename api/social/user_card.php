@@ -11,7 +11,7 @@ if (!$targetId && $targetUsername === '') {
 // 1. Troviamo l'utente nel database
 if ($targetId > 0) {
     $stmt = $mysqli->prepare("
-        SELECT id, username, display_name, ruolo, is_premium, bio, last_activity,
+        SELECT id, username, display_name, ruolo, is_premium, bio, ultimo_accesso,
                accent_color, profile_secondary_color, profile_card_color, profile_text_color,
                profile_card_opacity, profile_card_blur, profile_font, profile_border_color, 
                profile_border_width, profile_border_opacity, avatar_ring_enabled, 
@@ -21,7 +21,7 @@ if ($targetId > 0) {
     $stmt->bind_param("i", $targetId);
 } else {
     $stmt = $mysqli->prepare("
-        SELECT id, username, display_name, ruolo, is_premium, bio, last_activity,
+        SELECT id, username, display_name, ruolo, is_premium, bio, ultimo_accesso,
                accent_color, profile_secondary_color, profile_card_color, profile_text_color,
                profile_card_opacity, profile_card_blur, profile_font, profile_border_color, 
                profile_border_width, profile_border_opacity, avatar_ring_enabled, 
@@ -77,7 +77,7 @@ $stmtFriends->close();
 $mutualFriends = getMutualFriends($mysqli, $userId, $targetId);
 
 // 5. Formattiamo l'online status
-$lastAct = $userProfile['last_activity'] ? strtotime($userProfile['last_activity']) : 0;
+$lastAct = $userProfile['ultimo_accesso'] ? strtotime($userProfile['ultimo_accesso']) : 0;
 $isOnline = (time() - $lastAct) < 180;
 
 $data = [
@@ -88,7 +88,7 @@ $data = [
     'is_premium' => (bool)$userProfile['is_premium'],
     'bio' => $userProfile['bio'] ?: '',
     'is_online' => $isOnline,
-    'last_seen' => $isOnline ? null : $userProfile['last_activity'],
+    'last_seen' => $isOnline ? null : $userProfile['ultimo_accesso'],
     'stats' => [
         'followers_count' => $followersCount,
         'following_count' => $followingCount,

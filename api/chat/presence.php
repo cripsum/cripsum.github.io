@@ -41,7 +41,7 @@ if ($conversationId > 0) {
     // Trova l'altro partecipante
     $queryOther = "
         SELECT 
-            u.id, u.last_activity,
+            u.id, u.ultimo_accesso,
             cp.typing_status, cp.last_typing_at
         FROM private_conversation_participants cp
         INNER JOIN utenti u ON u.id = cp.user_id
@@ -56,11 +56,11 @@ if ($conversationId > 0) {
         $resOther = $stmtOther->get_result();
         if ($rowOther = $resOther->fetch_assoc()) {
             // Verifica online (attività negli ultimi 3 minuti)
-            $lastAct = $rowOther['last_activity'] ? strtotime($rowOther['last_activity']) : 0;
+            $lastAct = $rowOther['ultimo_accesso'] ? strtotime($rowOther['ultimo_accesso']) : 0;
             if ((time() - $lastAct) < 180) {
                 $response['other_online'] = true;
             } else {
-                $response['other_last_seen'] = $rowOther['last_activity'];
+                $response['other_last_seen'] = $rowOther['ultimo_accesso'];
             }
             
             // Verifica se sta scrivendo (attività negli ultimi 5 secondi)

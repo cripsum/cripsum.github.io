@@ -17,7 +17,7 @@ echo "Target ID: $targetId\n";
 
 $sql = "
     SELECT 
-        u.id, u.username, u.ruolo, u.is_premium, u.last_activity,
+        u.id, u.username, u.ruolo, u.is_premium, u.ultimo_accesso,
         EXISTS(SELECT 1 FROM user_follows WHERE follower_id = ? AND followed_id = u.id) AS is_following,
         EXISTS(SELECT 1 FROM user_follows WHERE follower_id = u.id AND followed_id = ?) AS is_followed_by,
         EXISTS(SELECT 1 FROM friendships WHERE (user_one_id = LEAST(?, u.id) AND user_two_id = GREATEST(?, u.id))) AS is_friend,

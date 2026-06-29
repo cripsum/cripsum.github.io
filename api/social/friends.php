@@ -11,7 +11,7 @@ if (!$targetRel['can_view_profile'] && $targetId !== $userId) {
 
 $sql = "
     SELECT 
-        u.id, u.username, u.ruolo, u.is_premium, u.last_activity,
+        u.id, u.username, u.ruolo, u.is_premium, u.ultimo_accesso,
         EXISTS(SELECT 1 FROM user_follows WHERE follower_id = ? AND followed_id = u.id) AS is_following,
         EXISTS(SELECT 1 FROM user_follows WHERE follower_id = u.id AND followed_id = ?) AS is_followed_by,
         EXISTS(SELECT 1 FROM friendships WHERE (user_one_id = LEAST(?, u.id) AND user_two_id = GREATEST(?, u.id))) AS is_friend,
@@ -52,11 +52,11 @@ foreach ($allFriends as &$f) {
     $f['friend_request_received'] = (bool)$f['request_received'];
     
     // Calcolo stato online
-    $lastAct = $f['last_activity'] ? strtotime($f['last_activity']) : 0;
+    $lastAct = $f['ultimo_accesso'] ? strtotime($f['ultimo_accesso']) : 0;
     $isOnline = (time() - $lastAct) < 180; // Attivo negli ultimi 3 minuti
     $f['is_online'] = $isOnline;
     
-    unset($f['request_sent'], $f['request_received'], $f['last_activity']);
+    unset($f['request_sent'], $f['request_received'], $f['ultimo_accesso']);
     
     if ($isOnline) {
         $onlineFriends[] = $f;

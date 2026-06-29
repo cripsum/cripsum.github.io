@@ -79,18 +79,18 @@ foreach ($conversations as &$conv) {
     $conv['is_online'] = false;
     $conv['last_seen'] = null;
     
-    $stmtAct = $mysqli->prepare("SELECT last_activity FROM utenti WHERE id = ? LIMIT 1");
+    $stmtAct = $mysqli->prepare("SELECT ultimo_accesso FROM utenti WHERE id = ? LIMIT 1");
     if ($stmtAct) {
         $stmtAct->bind_param("i", $otherId);
         $stmtAct->execute();
         $resAct = $stmtAct->get_result();
         if ($rowAct = $resAct->fetch_assoc()) {
-            $lastAct = $rowAct['last_activity'] ? strtotime($rowAct['last_activity']) : 0;
+            $lastAct = $rowAct['ultimo_accesso'] ? strtotime($rowAct['ultimo_accesso']) : 0;
             // Se l'ultima attività è inferiore a 3 minuti (180 secondi) fa, l'utente è online
             if ((time() - $lastAct) < 180) {
                 $conv['is_online'] = true;
             } else {
-                $conv['last_seen'] = $rowAct['last_activity'];
+                $conv['last_seen'] = $rowAct['ultimo_accesso'];
             }
         }
         $stmtAct->close();
