@@ -170,7 +170,7 @@ $myUserId = (int)$_SESSION['user_id'];
 
     <script src="/assets/chat/chat-api.js?v=1.2" defer></script>
     <script src="/assets/chat/chat-state.js?v=1.2" defer></script>
-    <script src="/assets/chat/chat-ui.js?v=1.4" defer></script>
+    <script src="/assets/chat/chat-ui.js?v=1.5" defer></script>
     <script src="/assets/chat/chat.js?v=1.8" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>

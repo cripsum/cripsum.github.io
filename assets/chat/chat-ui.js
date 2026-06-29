@@ -445,12 +445,13 @@ const ChatUI = {
     },
 
     // --- GROUP CREATION MODAL ---
+    // --- GROUP CREATION MODAL ---
     injectGroupModalHTML() {
         if (document.querySelector('#createGroupModal')) return;
         
         const modal = document.createElement('div');
         modal.id = 'createGroupModal';
-        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;display:none;align-items:center;justify-content:center;backdrop-filter:blur(20px);transition:opacity 0.25s;opacity:0;';
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,10,12,0.9);z-index:99999;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:opacity 0.25s;opacity:0;';
         
         modal.innerHTML = `
             <div class="modal-dialog" style="width:100%;max-width:500px;background:var(--chat-panel-bg);border:1px solid var(--chat-border);border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.5);margin:20px;">
@@ -485,7 +486,7 @@ const ChatUI = {
 
         const inviteModal = document.createElement('div');
         inviteModal.id = 'inviteUsersModal';
-        inviteModal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;display:none;align-items:center;justify-content:center;backdrop-filter:blur(20px);transition:opacity 0.25s;opacity:0;';
+        inviteModal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,10,12,0.9);z-index:99999;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:opacity 0.25s;opacity:0;';
         inviteModal.innerHTML = `
             <div class="modal-dialog" style="width:100%;max-width:450px;background:var(--chat-panel-bg);border:1px solid var(--chat-border);border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.5);margin:20px;">
                 <div style="display:flex;align-items:center;justify-content:between;padding:20px;border-bottom:1px solid var(--chat-border);">
@@ -518,8 +519,10 @@ const ChatUI = {
 
         try {
             const res = await fetch(`/api/social/friends.php`).then(r => r.json());
-            if (res.ok && res.all && res.all.length > 0) {
-                friendsBox.innerHTML = res.all.map(f => `
+            const friends = (res.success && res.data && res.data.all) ? res.data.all : [];
+            
+            if (friends.length > 0) {
+                friendsBox.innerHTML = friends.map(f => `
                     <div style="display:flex;align-items:center;gap:10px;padding:6px 0;">
                         <input type="checkbox" name="createGroupInviteCheck" value="${f.id}" id="chk-fr-${f.id}" style="width:16px;height:16px;accent-color:var(--chat-accent);">
                         <img src="/includes/get_pfp.php?id=${f.id}" style="width:26px;height:26px;border-radius:50%;object-fit:cover;">
@@ -539,8 +542,11 @@ const ChatUI = {
         if (!modal) return;
         modal.style.opacity = '0';
         setTimeout(() => modal.style.display = 'none', 250);
-        document.querySelector('#newGroupNameInput').value = '';
-        document.querySelector('#newGroupDescInput').value = '';
+        
+        const nameInput = document.querySelector('#newGroupNameInput');
+        if (nameInput) nameInput.value = '';
+        const descInput = document.querySelector('#newGroupDescInput');
+        if (descInput) descInput.value = '';
     },
 
     async openInviteUsersModal() {
@@ -555,8 +561,10 @@ const ChatUI = {
 
         try {
             const res = await fetch(`/api/social/friends.php`).then(r => r.json());
-            if (res.ok && res.all && res.all.length > 0) {
-                const nonMembers = res.all.filter(f => !ChatState.members.some(m => m.user_id === f.id));
+            const friends = (res.success && res.data && res.data.all) ? res.data.all : [];
+            
+            if (friends.length > 0) {
+                const nonMembers = friends.filter(f => !ChatState.members.some(m => m.user_id === f.id));
                 
                 if (nonMembers.length > 0) {
                     checklist.innerHTML = nonMembers.map(f => `
