@@ -590,14 +590,25 @@ window.closeInviteUsersModal = () => ChatUI.closeInviteUsersModal();
 window.openInviteUsersModal = () => ChatUI.openInviteUsersModal();
 
 // Helpers
+function parseUtcDate(dateString) {
+    if (!dateString) return new Date(NaN);
+    let cleanStr = String(dateString).replace(' ', 'T');
+    if (!cleanStr.endsWith('Z') && !cleanStr.includes('+')) {
+        cleanStr += 'Z';
+    }
+    return new Date(cleanStr);
+}
+
 function formatTime(timestamp) {
     if (!timestamp) return '';
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const date = parseUtcDate(timestamp);
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
 }
 
 function formatDateLabel(timestamp) {
-    const d = new Date(timestamp);
+    const d = parseUtcDate(timestamp);
+    if (Number.isNaN(d.getTime())) return '';
     const today = new Date();
     if (d.toDateString() === today.toDateString()) {
         return "Oggi";
@@ -607,7 +618,7 @@ function formatDateLabel(timestamp) {
     if (d.toDateString() === yesterday.toDateString()) {
         return "Ieri";
     }
-    return d.toLocaleDateString([], { day: 'numeric', month: 'long', year: 'numeric' });
+    return d.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 function escapeHtml(str) {
@@ -655,7 +666,13 @@ window.openMediaPreview = function(path, type) {
 
 window.closeMediaPreview = function() {
     const previewModal = document.querySelector('#mediaPreviewModal');
-    if (previewModal) previewModal.style.display = 'none';
+    if (previewModal) {
+        previewModal.style.display = 'none';
+        const contentBox = previewModal.querySelector('#mediaPreviewContent');
+        if (contentBox) {
+            contentBox.innerHTML = '';
+        }
+    }
 };
 
 // Fallback private panel with Pinned and Media gallery

@@ -775,6 +775,7 @@
         position: absolute;
         height: 100%;
         transform: translateX(0);
+        background: var(--chat-bg-dark) !important;
     }
     
     .chat-area {
@@ -783,6 +784,7 @@
         height: 100%;
         transform: translateX(100%);
         transition: transform 0.3s ease;
+        background: var(--chat-bg-dark) !important;
     }
     
     .chat-shell.is-chat-open .chat-sidebar {
@@ -797,10 +799,12 @@
         position: absolute;
         right: 0;
         height: 100%;
-        width: 280px;
-        min-width: 280px;
+        width: 100%;
+        min-width: 100%;
         transform: translateX(100%);
         transition: transform 0.3s ease;
+        background: var(--chat-bg-dark) !important;
+        z-index: 100;
     }
     
     .chat-details.is-open {
@@ -1048,17 +1052,17 @@
 
 .chat-bubble {
     position: relative;
-    padding: 10px 14px;
-    border: 1px solid var(--chat-border);
-    border-radius: 18px 18px 18px 6px;
-    color: var(--chat-text-main);
-    background: rgba(255, 255, 255, 0.075);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
-    overflow-wrap: anywhere;
-    word-break: break-word;
-    white-space: pre-wrap;
-    line-height: 1.4;
-    font-size: 13.5px;
+    padding: 8px 12px !important;
+    border: 1px solid var(--chat-border) !important;
+    border-radius: 18px 18px 18px 6px !important;
+    color: var(--chat-text-main) !important;
+    background: rgba(255, 255, 255, 0.075) !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2) !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    white-space: pre-wrap !important;
+    line-height: 1.4 !important;
+    font-size: 13px !important;
 }
 
 .chat-message.is-mine .chat-bubble {

@@ -9,7 +9,7 @@ if (!$conversationId) {
 
 // 1. Verifica che l'utente loggato sia parte della conversazione
 $stmtCheck = $mysqli->prepare("
-    SELECT cp.nickname, cp.theme_color, cp.theme_bg, cp.favorite_emoji, cp.is_archived, c.is_group
+    SELECT cp.nickname, cp.theme_color, cp.theme_bg, cp.favorite_emoji, cp.is_archived, cp.is_muted, c.is_group
     FROM private_conversation_participants cp
     INNER JOIN private_conversations c ON c.id = cp.conversation_id
     WHERE cp.conversation_id = ? AND cp.user_id = ?
