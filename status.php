@@ -868,65 +868,80 @@ function formatUptime(int $seconds): string {
                     const hw = data.hardware;
                     let grid = hwSection.querySelector('.hardware-grid');
                     
-                    // Se la griglia non c'è (perché il server era offline), la creiamo
+                    // Se la griglia non c'è (perché il server era offline), la creiamo come scheletro una sola volta
                     if (!grid) {
                         const offlineMsg = hwSection.querySelector('.server-offline-msg');
                         if (offlineMsg) offlineMsg.remove();
                         
                         grid = document.createElement('div');
                         grid.className = 'hardware-grid';
+                        grid.innerHTML = `
+                            <!-- CPU Info -->
+                            <div class="stat-box">
+                                <span class="stat-label"><i class="fa-solid fa-microchip"></i> CPU Load (1 min)</span>
+                                <div class="progress-container">
+                                    <span class="stat-value">-</span>
+                                    <div class="progress-bar-bg">
+                                        <div class="progress-bar-fill" style="width: 0%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RAM Info -->
+                            <div class="stat-box">
+                                <span class="stat-label"><i class="fa-solid fa-memory"></i> Memoria RAM</span>
+                                <div class="progress-container">
+                                    <span class="stat-value">-</span>
+                                    <div class="progress-bar-bg">
+                                        <div class="progress-bar-fill" style="width: 0%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CPU Temp -->
+                            <div class="stat-box">
+                                <span class="stat-label"><i class="fa-solid fa-temperature-half"></i> Temperatura CPU</span>
+                                <span class="stat-value">-</span>
+                            </div>
+
+                            <!-- Server Uptime -->
+                            <div class="stat-box">
+                                <span class="stat-label"><i class="fa-solid fa-clock"></i> Tempo di Attività (Uptime)</span>
+                                <span class="stat-value" style="font-size: 0.95rem; font-family: inherit;">-</span>
+                            </div>
+
+                            <!-- Server Platform -->
+                            <div class="stat-box" style="grid-column: span 2;">
+                                <span class="stat-label"><i class="fa-solid fa-gears"></i> Architettura & OS</span>
+                                <span class="stat-value" style="font-size: 0.9rem; font-family: inherit; font-weight: 400; opacity: 0.95;">-</span>
+                            </div>
+                        `;
                         hwSection.appendChild(grid);
                     }
 
+                    // Selezioniamo e aggiorniamo solo i singoli valori specifici (in questo modo l'animazione di transizione CSS funziona fluidamente)
+                    const cpuVal = grid.querySelector('.stat-box:nth-of-type(1) .stat-value');
+                    const cpuBar = grid.querySelector('.stat-box:nth-of-type(1) .progress-bar-fill');
+                    
+                    const ramVal = grid.querySelector('.stat-box:nth-of-type(2) .stat-value');
+                    const ramBar = grid.querySelector('.stat-box:nth-of-type(2) .progress-bar-fill');
+                    
+                    const tempVal = grid.querySelector('.stat-box:nth-of-type(3) .stat-value');
+                    const uptimeVal = grid.querySelector('.stat-box:nth-of-type(4) .stat-value');
+                    const platformVal = grid.querySelector('.stat-box:nth-of-type(5) .stat-value');
+
                     const cpuPercent = Math.min(100, Math.round(parseFloat(hw.cpu.load1m) * 100));
 
-                    grid.innerHTML = `
-                        <!-- CPU Info -->
-                        <div class="stat-box">
-                            <span class="stat-label"><i class="fa-solid fa-microchip"></i> CPU Load (1 min)</span>
-                            <div class="progress-container">
-                                <span class="stat-value">${hw.cpu.load1m}</span>
-                                <div class="progress-bar-bg">
-                                    <div class="progress-bar-fill" style="width: ${cpuPercent}%;"></div>
-                                </div>
-                            </div>
-                        </div>
+                    if (cpuVal) cpuVal.textContent = hw.cpu.load1m;
+                    if (cpuBar) cpuBar.style.width = cpuPercent + '%';
 
-                        <!-- RAM Info -->
-                        <div class="stat-box">
-                            <span class="stat-label"><i class="fa-solid fa-memory"></i> Memoria RAM</span>
-                            <div class="progress-container">
-                                <span class="stat-value">
-                                    ${hw.memory.used} / ${hw.memory.total} (${hw.memory.percent}%)
-                                </span>
-                                <div class="progress-bar-bg">
-                                    <div class="progress-bar-fill" style="width: ${hw.memory.percent}%;"></div>
-                                </div>
-                            </div>
-                        </div>
+                    if (ramVal) ramVal.textContent = `${hw.memory.used} / ${hw.memory.total} (${hw.memory.percent}%)`;
+                    if (ramBar) ramBar.style.width = hw.memory.percent + '%';
 
-                        <!-- CPU Temp -->
-                        <div class="stat-box">
-                            <span class="stat-label"><i class="fa-solid fa-temperature-half"></i> Temperatura CPU</span>
-                            <span class="stat-value">${hw.temperature}</span>
-                        </div>
+                    if (tempVal) tempVal.textContent = hw.temperature;
+                    if (uptimeVal) uptimeVal.textContent = formatUptime(hw.uptime);
+                    if (platformVal) platformVal.textContent = `${hw.platform} — ${hw.cpu.model}`;
 
-                        <!-- Server Uptime -->
-                        <div class="stat-box">
-                            <span class="stat-label"><i class="fa-solid fa-clock"></i> Tempo di Attività (Uptime)</span>
-                            <span class="stat-value" style="font-size: 0.95rem; font-family: inherit;">
-                                ${formatUptime(hw.uptime)}
-                            </span>
-                        </div>
-
-                        <!-- Server Platform -->
-                        <div class="stat-box" style="grid-column: span 2;">
-                            <span class="stat-label"><i class="fa-solid fa-gears"></i> Architettura & OS</span>
-                            <span class="stat-value" style="font-size: 0.9rem; font-family: inherit; font-weight: 400; opacity: 0.95;">
-                                ${hw.platform} — ${hw.cpu.model}
-                            </span>
-                        </div>
-                    `;
                 } else {
                     // Se il server è offline, rimuoviamo la griglia e mostriamo il messaggio
                     const grid = hwSection.querySelector('.hardware-grid');
