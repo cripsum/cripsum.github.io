@@ -83,6 +83,13 @@ if (isset($_GET['chat_id'])) {
             $msg['reply_to_message_id'] = $msg['reply_to_message_id'] ? (int)$msg['reply_to_message_id'] : null;
             $msg['metadata'] = $msg['metadata_json'] ? json_decode($msg['metadata_json'], true) : null;
             unset($msg['metadata_json']);
+            
+            // Populate attachments from metadata if present
+            if (isset($msg['metadata']['attachments'])) {
+                $msg['attachments'] = $msg['metadata']['attachments'];
+            } else {
+                $msg['attachments'] = [];
+            }
         }
         unset($msg);
         
