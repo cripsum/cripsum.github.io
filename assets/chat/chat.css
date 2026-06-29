@@ -932,3 +932,25 @@
 .chat-details__scroll .text-muted {
     color: var(--chat-text-muted) !important;
 }
+
+/* Pinned Message Highlight Flash */
+@keyframes chat-message-highlight-flash {
+    0%, 100% { 
+        background: var(--chat-bubble-recv);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+    30%, 70% { 
+        background: rgba(139, 92, 246, 0.25) !important;
+        box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+        border-color: rgba(139, 92, 246, 0.5) !important;
+    }
+}
+
+.chat-msg-highlight .chat-msg-bubble {
+    animation: chat-message-highlight-flash 2.2s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+/* For sent messages in highlight */
+.chat-msg-highlight.chat-msg-wrapper--sent .chat-msg-bubble {
+    animation: chat-message-highlight-flash 2.2s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}

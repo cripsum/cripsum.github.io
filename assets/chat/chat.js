@@ -127,7 +127,7 @@
             const isActive = c.conversation_id === state.currentConversationId ? 'is-active' : '';
             const isUnread = c.unread_count > 0 ? 'is-unread' : '';
             const onlineClass = c.is_online ? 'is-online' : '';
-            const nickname = c.nickname || c.other_username;
+            const nickname = c.other_nickname || c.other_username;
             const preview = c.preview_text || 'Nessun messaggio';
             
             // Formatta data
@@ -208,7 +208,7 @@
     }
 
     function setupChatHeader(conv) {
-        const nickname = conv.nickname || conv.other_username;
+        const nickname = conv.other_nickname || conv.other_username;
         $('#chatHeaderName').textContent = nickname;
         const avatar = $('#chatHeaderAvatar');
         avatar.src = `/includes/get_pfp.php?id=${conv.other_user_id}`;
@@ -382,6 +382,35 @@
         const text = textarea.value.trim();
 
         if (text === '') return;
+
+        if (state.editMessageId) {
+            // EDIT MODE
+            const msgId = state.editMessageId;
+            textarea.value = '';
+            textarea.style.height = 'auto';
+            cancelReply();
+            
+            try {
+                const res = await api('manage_message.php', {
+                    method: 'POST',
+                    body: { action: 'edit', message_id: msgId, content: text }
+                });
+                if (res.ok) {
+                    const msgObj = state.messages.find(m => m.id === msgId);
+                    if (msgObj) {
+                        msgObj.message = text;
+                        msgObj.is_edited = 1;
+                    }
+                    renderMessages();
+                    showToast("Messaggio modificato.");
+                } else {
+                    showToast(res.error, true);
+                }
+            } catch (e) {
+                showToast("Errore di connessione.", true);
+            }
+            return;
+        }
 
         const payload = {
             conversation_id: state.currentConversationId,
@@ -674,7 +703,7 @@
         let pinnedHtml = '';
         if (data.pinned_messages.length > 0) {
             pinnedHtml = data.pinned_messages.map(m => `
-                <div style="background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px; margin-bottom: 8px; font-size:13px; border-left: 2px solid var(--chat-accent);">
+                <div style="background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size:13px; border-left: 3px solid var(--chat-accent); cursor: pointer; transition: background 0.2s;" onclick="scrollToMessage(${m.message_id})">
                     <strong>${escapeHtml(m.sender_username)}:</strong> ${escapeHtml(m.message || '[Allegato]')}
                 </div>
             `).join('');
@@ -731,9 +760,16 @@
             });
             if (res.ok) {
                 showToast("Nickname aggiornato con successo.");
+                
+                // Aggiorna lo stato locale immediatamente
+                const conv = state.conversations.find(c => c.conversation_id === state.currentConversationId);
+                if (conv) {
+                    conv.other_nickname = val;
+                }
+                
                 loadConversations();
                 // Aggiorna header
-                $('#chatHeaderName').textContent = val || state.conversations.find(c => c.conversation_id === state.currentConversationId).other_username;
+                $('#chatHeaderName').textContent = val || (conv ? conv.other_username : '');
             }
         } catch (e) {
             console.error(e);
@@ -947,7 +983,7 @@
     window.openMediaViewer = function (path) {
         let viewer = document.createElement('div');
         viewer.id = 'chatMediaViewer';
-        viewer.style = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:pointer;animation:fadeIn 0.2s;';
+        viewer.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:pointer;animation:fadeIn 0.2s;';
         viewer.innerHTML = `<img src="${path}" style="max-width:90%;max-height:90%;object-fit:contain;border-radius:8px;box-shadow:0 10px 25px rgba(0,0,0,0.5);">`;
         viewer.addEventListener('click', () => viewer.remove());
         document.body.appendChild(viewer);
