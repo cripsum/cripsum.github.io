@@ -7,6 +7,11 @@ require_once __DIR__ . '/includes/cripsum_og.php';
 require_once __DIR__ . '/includes/mission_tracker.php';
 require_once __DIR__ . '/includes/social_functions.php';
 
+if (empty($_SESSION['social_csrf'])) {
+    $_SESSION['social_csrf'] = bin2hex(random_bytes(32));
+}
+$socialCsrfToken = $_SESSION['social_csrf'];
+
 checkBan($mysqli);
 
 $isLoggedIn = isLoggedIn();
@@ -1247,6 +1252,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 
 <body
     class="bio-v2-body public-profile-body profile-border-style-<?php echo profile_h($profile['profile_border_style'] ?? 'thin'); ?><?php echo ($profile && profile_flag($profile, 'profile_click_to_enter', false)) ? ' click-to-enter-active' : ''; ?>"
+    data-csrf="<?php echo $socialCsrfToken; ?>"
     data-theme="<?php echo profile_h($theme); ?>"
     data-accent="<?php echo profile_h($accent); ?>"
     data-profile-url="<?php echo profile_h($profileUrl); ?>"
