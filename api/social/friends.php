@@ -29,7 +29,7 @@ if (!$stmt) {
 }
 
 $stmt->bind_param(
-    "iiiiiiii",
+    "iiiiiiiii",
     $userId, $userId, $userId, $userId, $userId, $userId,
     $targetId, $targetId, $targetId
 );
