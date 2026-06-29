@@ -573,3 +573,135 @@
 .social-btn--danger:hover {
     background: #dc2626;
 }
+
+/* Hero Spacing */
+.static-hero {
+    margin-bottom: 35px !important;
+}
+
+/* Grid Column Spanning */
+.col-span-full {
+    grid-column: 1 / -1 !important;
+}
+
+/* ==========================================
+   NATIVE OVERLAY STYLES FOR SOCIAL MODAL
+   ========================================== */
+.profile-nav-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    z-index: 19000;
+    visibility: hidden;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: visibility 0.4s step-end;
+    overflow: hidden;
+}
+
+.profile-nav-overlay.is-visible {
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transition: visibility 0s;
+}
+
+.profile-nav-overlay-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 12, 24, 0);
+    backdrop-filter: blur(0px) saturate(100%);
+    -webkit-backdrop-filter: blur(0px) saturate(100%);
+    z-index: 0;
+    transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 0.4s cubic-bezier(0.16, 1, 0.3, 1), -webkit-backdrop-filter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.profile-nav-overlay.is-visible .profile-nav-overlay-backdrop {
+    background: rgba(8, 12, 24, 0.72) !important;
+    backdrop-filter: blur(20px) saturate(190%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(190%) !important;
+}
+
+.profile-nav-overlay-container {
+    position: relative;
+    z-index: 1;
+    width: min(92vw, 1020px);
+    max-height: 85vh;
+    max-height: 85dvh;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 28px;
+    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.45);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: scale(0.96) translateY(24px);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.profile-nav-overlay.is-visible .profile-nav-overlay-container {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+
+.profile-nav-overlay-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 28px;
+    cursor: pointer;
+    z-index: 10;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.profile-nav-overlay-close-btn:hover {
+    color: #fff;
+    transform: scale(1.1);
+}
+
+/* Custom Search Input */
+.social-search-input-wrap {
+    position: relative;
+    max-width: 450px;
+    margin: 0 auto 24px auto;
+}
+
+.social-search-input-wrap .search-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--social-text-muted);
+    font-size: 16px;
+    pointer-events: none;
+}
+
+#socialSearchInput {
+    width: 100%;
+    padding: 14px 16px 14px 48px !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 16px !important;
+    color: var(--social-text-main) !important;
+    font-size: 15px !important;
+    outline: none !important;
+    transition: border-color 0.25s, box-shadow 0.25s, background-color 0.25s !important;
+}
+
+#socialSearchInput::placeholder {
+    color: var(--social-text-muted) !important;
+    opacity: 0.5;
+}
+
+#socialSearchInput:focus {
+    border-color: var(--social-accent) !important;
+    box-shadow: 0 0 0 3px var(--social-accent-glow) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+}

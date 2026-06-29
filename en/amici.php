@@ -37,7 +37,7 @@ $csrfToken = $_SESSION['social_csrf'];
     
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link class="static-css" rel="stylesheet" href="/assets/static/static.css?v=1.2-static">
-     <link rel="stylesheet" href="/assets/social/social.css?v=1.4">
+     <link rel="stylesheet" href="/assets/social/social.css?v=1.5">
 </head>
 
 <body class="static-page" data-csrf="<?php echo $csrfToken; ?>">
@@ -84,11 +84,11 @@ $csrfToken = $_SESSION['social_csrf'];
                 </button>
             </div>
 
-            <!-- Search bar container (visible only in 'search' tab) -->
-            <div class="mb-4" id="socialSearchContainer" style="display: none;">
-                <div class="position-relative" style="max-width: 400px;">
-                    <input type="text" id="socialSearchInput" class="form-control bg-dark text-white border-secondary" placeholder="Type username to search..." style="padding-left: 35px; border-radius: 8px;">
-                    <i class="fa-solid fa-magnifying-glass position-absolute text-muted" style="left: 12px; top: 50%; transform: translateY(-50%);"></i>
+            <!-- Contenitore barra di ricerca (visibile solo nel tab 'search') -->
+            <div id="socialSearchContainer" style="display: none;">
+                <div class="social-search-input-wrap">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="socialSearchInput" placeholder="Type username to search...">
                 </div>
             </div>
 
