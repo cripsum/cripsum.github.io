@@ -17,7 +17,7 @@ $myUserId = (int)$_SESSION['user_id'];
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Private Chat</title>
-    <link rel="stylesheet" href="/assets/chat/chat.css?v=1.1">
+    <link rel="stylesheet" href="/assets/chat/chat.css?v=1.2">
 </head>
 
 <body class="chat-page-body" data-user-id="<?php echo $myUserId; ?>">
@@ -90,7 +90,7 @@ $myUserId = (int)$_SESSION['user_id'];
                 <div class="chat-input-reply-bar" id="chatReplyBar" style="display: none;">
                     <div>
                         <i class="fa-solid fa-reply text-muted me-2"></i>
-                        Replying to <strong class="chat-reply-user">User</strong>: 
+                        Replying to <strong class="chat-reply-user">User</strong>:
                         <span class="chat-reply-text text-muted">Text...</span>
                     </div>
                     <i class="fa-solid fa-xmark chat-input-reply-cancel" id="cancelReplyBtn"></i>

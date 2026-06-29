@@ -807,3 +807,48 @@
         transform: translateX(0);
     }
 }
+
+/* Revert Chat Font to Poppins */
+:root {
+    --chat-font: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* High Contrast Overrides for Icons and Texts */
+.chat-action-btn i,
+#chatInfoBtn i,
+#chatDetailsCloseBtn i,
+#chatBackBtn i,
+#chatAttachBtn i {
+    color: var(--chat-text-muted) !important;
+    transition: color 0.2s;
+}
+
+.chat-action-btn:hover i,
+#chatInfoBtn:hover i,
+#chatDetailsCloseBtn:hover i,
+#chatBackBtn:hover i,
+#chatAttachBtn:hover i {
+    color: var(--chat-text-main) !important;
+}
+
+.chat-messages .text-muted,
+.chat-input-reply-bar .text-muted,
+.chat-sidebar__search i,
+.chat-details__section-title {
+    color: var(--chat-text-muted) !important;
+}
+
+.chat-messages .text-muted i {
+    color: var(--chat-accent) !important;
+    opacity: 0.8;
+}
+
+.chat-item__preview, 
+.chat-item__time, 
+.chat-item__mute {
+    color: var(--chat-text-muted) !important;
+}
+
+.chat-item.is-unread .chat-item__preview {
+    color: var(--chat-text-main) !important;
+}

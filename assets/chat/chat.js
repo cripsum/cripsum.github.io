@@ -210,7 +210,9 @@
     function setupChatHeader(conv) {
         const nickname = conv.nickname || conv.other_username;
         $('#chatHeaderName').textContent = nickname;
-        $('#chatHeaderAvatar').src = `/includes/get_pfp.php?id=${conv.other_user_id}`;
+        const avatar = $('#chatHeaderAvatar');
+        avatar.src = `/includes/get_pfp.php?id=${conv.other_user_id}`;
+        avatar.style.display = 'block';
         
         let statusText = conv.is_online ? "Online" : (conv.last_seen ? "Ultimo accesso " + formatDateTime(conv.last_seen) : "Offline");
         $('#chatHeaderStatus').textContent = statusText;
@@ -242,7 +244,9 @@
         state.currentConversationId = 0;
         state.lastMessageId = 0;
         $('#chatHeaderName').textContent = "Seleziona una chat";
-        $('#chatHeaderAvatar').src = "";
+        const avatar = $('#chatHeaderAvatar');
+        avatar.src = "";
+        avatar.style.display = 'none';
         $('#chatHeaderStatus').textContent = "";
         $('.chat-messages').innerHTML = `<div class="text-center py-5 text-muted my-auto"><i class="fa-regular fa-paper-plane fs-1 mb-3"></i><br>Scegli un utente per iniziare a chattare.</div>`;
     }
@@ -832,7 +836,9 @@
         
         // Configura header provvisorio
         $('#chatHeaderName').textContent = "Nuova Conversazione";
-        $('#chatHeaderAvatar').src = `/includes/get_pfp.php?id=${otherUserId}`;
+        const avatar = $('#chatHeaderAvatar');
+        avatar.src = `/includes/get_pfp.php?id=${otherUserId}`;
+        avatar.style.display = 'block';
         $('#chatHeaderStatus').textContent = "Pronto a inviare";
         
         $('.chat-messages').innerHTML = `<div class="text-center py-5 text-muted my-auto">Invia un messaggio per iniziare la chat privata.</div>`;

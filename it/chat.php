@@ -17,7 +17,7 @@ $myUserId = (int)$_SESSION['user_id'];
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Chat Privata</title>
-    <link rel="stylesheet" href="/assets/chat/chat.css?v=1.1">
+    <link rel="stylesheet" href="/assets/chat/chat.css?v=1.2">
 </head>
 
 <body class="chat-page-body" data-user-id="<?php echo $myUserId; ?>">
@@ -61,7 +61,7 @@ $myUserId = (int)$_SESSION['user_id'];
                     <button class="chat-action-btn d-md-none me-2" id="chatBackBtn" type="button" aria-label="Indietro">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
-                    <img class="chat-area__user-avatar" id="chatHeaderAvatar" src="" alt="">
+                    <img class="chat-area__user-avatar" id="chatHeaderAvatar" src="" alt="" style="display: none;">
                     <div>
                         <div class="chat-area__user-name" id="chatHeaderName">Seleziona una chat</div>
                         <div class="chat-area__user-status" id="chatHeaderStatus"></div>
@@ -133,7 +133,7 @@ $myUserId = (int)$_SESSION['user_id'];
     <!-- Toast Notifications -->
     <div class="admin-toast" id="chatToast" style="position: fixed; bottom: 20px; right: 20px; z-index: 10000; transition: opacity 0.3s; pointer-events: none;"></div>
 
-    <script src="/assets/chat/chat.js?v=1.1" defer></script>
+    <script src="/assets/chat/chat.js?v=1.2" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
 
