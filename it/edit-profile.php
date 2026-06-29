@@ -752,14 +752,14 @@ function profile_json_script(string $id, array $data): void
                             </div>
 
                             <div class="bio-section-heading" style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.5rem;">
-                                <div><span><i class="fa-solid fa-signal"></i> Lanyard & Rich Presence</span>
+                                <div><span><i class="fa-solid fa-signal"></i> Rich Presence</span>
                                     <p>Mostra il tuo stato e la tua attività in tempo reale (giochi, Spotify, ecc.).</p>
                                 </div>
                             </div>
 
                             <label class="profile-field">
                                 <span>Discord user ID</span>
-                                <input type="text" name="discord_id" id="discordIdInput" maxlength="25" value="<?php echo profile_h($profile['discord_id'] ?? ''); ?>" placeholder="Es. 8239582304530540">
+                                <input type="text" name="discord_id" id="discordIdInput" maxlength="25" value="<?php echo profile_h($profile['discord_id'] ?? ''); ?>" placeholder="Es. 8239582304530540" <?php echo $discordConnected ? 'readonly style="background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.4); cursor: not-allowed;"' : ''; ?>>
                                 <small>Necessario per caricare la tua attività e il tuo stato di presenza.</small>
                             </label>
 
@@ -767,7 +767,7 @@ function profile_json_script(string $id, array $data): void
                                 <div style="display: flex; gap: 12px; align-items: flex-start;">
                                     <i class="fa-solid fa-circle-info" style="color: #5865F2; font-size: 1.2rem; margin-top: 2px;"></i>
                                     <div>
-                                        <strong style="display: block; margin-bottom: 4px; color: #fff;">Abilita lo Stato in Tempo Reale</strong>
+                                        <strong style="display: block; margin-bottom: 4px; color: #fff;">Abilita la Rich Presence</strong>
                                         <span style="font-size: 0.85rem; opacity: 0.75; line-height: 1.4;">Il login Discord importa solo i dati di base. Per mostrare le tue attività in tempo reale (giochi, Spotify, ecc.) sul tuo profilo, devi unirti al nostro server Discord dove risiede il bot.</span>
                                     </div>
                                 </div>

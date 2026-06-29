@@ -745,14 +745,14 @@ function profile_json_script(string $id, array $data): void
                             </div>
 
                             <div class="bio-section-heading" style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.5rem;">
-                                <div><span><i class="fa-solid fa-signal"></i> Lanyard & Rich Presence</span>
+                                <div><span><i class="fa-solid fa-signal"></i> Rich Presence</span>
                                     <p>Show your state and activities in real-time (games, Spotify, etc.).</p>
                                 </div>
                             </div>
 
                             <label class="profile-field">
                                 <span>Discord user ID</span>
-                                <input type="text" name="discord_id" id="discordIdInput" maxlength="25" value="<?php echo profile_h($profile['discord_id'] ?? ''); ?>" placeholder="E.g. 8239582304530540">
+                                <input type="text" name="discord_id" id="discordIdInput" maxlength="25" value="<?php echo profile_h($profile['discord_id'] ?? ''); ?>" placeholder="E.g. 8239582304530540" <?php echo $discordConnected ? 'readonly style="background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.4); cursor: not-allowed;"' : ''; ?>>
                                 <small>Necessary to fetch your activity and presence status.</small>
                             </label>
 
@@ -760,7 +760,7 @@ function profile_json_script(string $id, array $data): void
                                 <div style="display: flex; gap: 12px; align-items: flex-start;">
                                     <i class="fa-solid fa-circle-info" style="color: #5865F2; font-size: 1.2rem; margin-top: 2px;"></i>
                                     <div>
-                                        <strong style="display: block; margin-bottom: 4px; color: #fff;">Enable Real-Time Status</strong>
+                                        <strong style="display: block; margin-bottom: 4px; color: #fff;">Enable Rich Presence</strong>
                                         <span style="font-size: 0.85rem; opacity: 0.75; line-height: 1.4;">Discord login only imports basic details. To display your real-time activities (games, Spotify, etc.) on your profile, you must join our Discord server where the status bot is located.</span>
                                     </div>
                                 </div>
