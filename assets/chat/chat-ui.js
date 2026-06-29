@@ -596,7 +596,7 @@ const ChatUI = {
 window.closeCreateGroupModal = () => ChatUI.closeCreateGroupModal();
 window.closeInviteUsersModal = () => ChatUI.closeInviteUsersModal();
 window.openInviteUsersModal = () => ChatUI.openInviteUsersModal();
-window.formatDateTime = (timeStr) => formatDateTime(timeStr);
+window.formatDateTime = formatDateTime;
 
 // Helpers
 function formatDateTime(timeStr) {

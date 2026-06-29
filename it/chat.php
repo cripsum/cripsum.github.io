@@ -17,7 +17,7 @@ $myUserId = (int)$_SESSION['user_id'];
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Chat Privata</title>
-    <link rel="stylesheet" href="/assets/chat/chat.css?v=1.8">
+    <link rel="stylesheet" href="/assets/chat/chat.css?v=1.9">
 </head>
 
 <body class="chat-page-body" data-user-id="<?php echo $myUserId; ?>" data-csrf="<?php echo csrf_token(); ?>">
@@ -170,8 +170,8 @@ $myUserId = (int)$_SESSION['user_id'];
 
     <script src="/assets/chat/chat-api.js?v=1.2" defer></script>
     <script src="/assets/chat/chat-state.js?v=1.2" defer></script>
-    <script src="/assets/chat/chat-ui.js?v=1.6" defer></script>
-    <script src="/assets/chat/chat.js?v=1.9" defer></script>
+    <script src="/assets/chat/chat-ui.js?v=1.7" defer></script>
+    <script src="/assets/chat/chat.js?v=2.0" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
 

@@ -1063,12 +1063,15 @@
     white-space: pre-wrap !important;
     line-height: 1.4 !important;
     font-size: 13px !important;
+    width: fit-content !important;
+    max-width: 100% !important;
+    display: inline-block !important;
 }
 
 .chat-message.is-mine .chat-bubble {
-    border-color: rgba(139, 92, 246, 0.36);
-    border-radius: 18px 18px 6px 18px;
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.38), rgba(139, 92, 246, 0.15));
+    border-color: rgba(139, 92, 246, 0.36) !important;
+    border-radius: 18px 18px 6px 18px !important;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.38), rgba(139, 92, 246, 0.15)) !important;
 }
 
 .chat-message.is-deleted .chat-bubble {

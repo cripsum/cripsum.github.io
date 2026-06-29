@@ -11,7 +11,7 @@
     });
 
     async function init() {
-        const userId = document.body.dataset.userId || 0;
+        const userId = document.body.dataset.adminId || document.body.dataset.userId || 0;
         ChatAPI.init();
         ChatState.init(userId);
         ChatUI.init();
