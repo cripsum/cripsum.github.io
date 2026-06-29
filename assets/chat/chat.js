@@ -685,6 +685,7 @@
         const otherUser = data.participants.find(p => p.id !== parseInt(document.body.dataset.adminId || document.body.dataset.userId));
         const nickname = otherUser ? (otherUser.nickname || otherUser.username) : 'Utente';
 
+        const isArchived = !!data.settings.is_archived;
         box.innerHTML = `
             <div class="chat-details__profile">
                 <img class="chat-details__avatar" src="/includes/get_pfp.php?id=${otherUser.id}">
@@ -696,8 +697,8 @@
                 <div class="chat-details__section-title">Personalizzazione</div>
                 <div style="display:flex; flex-direction:column; gap:10px;">
                     <div>
-                        <label style="font-size:12px;color:var(--chat-text-muted);">Nickname locale</label>
-                        <input type="text" id="settingNicknameInput" class="form-control bg-dark text-white border-secondary" value="${escapeHtml(otherUser.nickname || '')}" placeholder="Imposta nickname..." onchange="updateLocalNickname(this.value)">
+                        <label style="font-size:12px;color:var(--chat-text-muted);margin-bottom:6px;display:block;">Nickname locale</label>
+                        <input type="text" id="settingNicknameInput" class="chat-details-input" value="${escapeHtml(otherUser.nickname || '')}" placeholder="Imposta nickname..." onchange="updateLocalNickname(this.value)">
                     </div>
                 </div>
             </div>
@@ -710,6 +711,14 @@
             <div class="chat-details__section">
                 <div class="chat-details__section-title">Media Condivisi</div>
                 ${mediaHtml}
+            </div>
+
+            <div class="chat-details__section">
+                <div class="chat-details__section-title">Azioni</div>
+                <button class="chat-details-btn ${isArchived ? 'chat-details-btn--secondary' : 'chat-details-btn--primary'}" onclick="toggleArchiveChat(${isArchived})">
+                    <i class="fa-solid ${isArchived ? 'fa-box-open' : 'fa-box-archive'}"></i>
+                    ${isArchived ? 'Ripristina Chat' : 'Archivia Chat'}
+                </button>
             </div>
         `;
     }
@@ -728,6 +737,38 @@
             }
         } catch (e) {
             console.error(e);
+        }
+    };
+
+    window.toggleArchiveChat = async function (isArchived) {
+        const action = isArchived ? 'unarchive' : 'archive';
+        try {
+            const res = await api('privacy_settings.php', {
+                method: 'POST',
+                body: { action: action, conversation_id: state.currentConversationId }
+            });
+            if (res.ok) {
+                showToast(isArchived ? "Conversazione ripristinata." : "Conversazione archiviata.");
+                loadConversations();
+                
+                // Se archiviamo, torniamo allo stato di selezione chat
+                if (!isArchived) {
+                    stopActiveChat();
+                    const panel = $('.chat-details');
+                    if (panel) {
+                        panel.classList.add('is-hidden');
+                        panel.classList.remove('is-open');
+                    }
+                    state.isDetailsOpen = false;
+                } else {
+                    loadDetails();
+                }
+            } else {
+                showToast(res.error || "Errore durante l'operazione.", true);
+            }
+        } catch (e) {
+            console.error(e);
+            showToast("Errore di connessione.", true);
         }
     };
 

@@ -852,3 +852,83 @@
 .chat-item.is-unread .chat-item__preview {
     color: var(--chat-text-main) !important;
 }
+
+/* Chat Details Premium Inputs & Buttons */
+.chat-details-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 10px !important;
+    padding: 10px 12px !important;
+    color: var(--chat-text-main) !important;
+    font-size: 13.5px !important;
+    outline: none !important;
+    transition: border-color 0.25s, box-shadow 0.25s, background-color 0.25s;
+}
+
+.chat-details-input::placeholder {
+    color: var(--chat-text-muted) !important;
+    opacity: 0.5;
+}
+
+.chat-details-input:focus {
+    border-color: var(--chat-accent) !important;
+    box-shadow: 0 0 0 2px var(--chat-accent-glow) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.chat-details-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.chat-details-btn:hover {
+    transform: translateY(-1px);
+}
+
+.chat-details-btn:active {
+    transform: translateY(0);
+}
+
+.chat-details-btn--primary {
+    background: var(--chat-accent);
+    color: white;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+}
+
+.chat-details-btn--primary:hover {
+    background: var(--chat-accent-hover);
+    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.35);
+}
+
+.chat-details-btn--secondary {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--chat-text-main);
+    border: 1px solid var(--chat-border);
+}
+
+.chat-details-btn--secondary:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Chat Details Text Contrast Fixes */
+.chat-details,
+.chat-details__scroll,
+.chat-details__name,
+.chat-details__scroll strong {
+    color: var(--chat-text-main) !important;
+}
+
+.chat-details__scroll .text-muted {
+    color: var(--chat-text-muted) !important;
+}
