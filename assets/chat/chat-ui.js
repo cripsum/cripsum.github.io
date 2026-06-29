@@ -80,7 +80,7 @@ const ChatUI = {
         if (invites.length > 0) {
             html += `<div class="chat-section-label" style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--chat-text-muted);padding:10px 20px;letter-spacing:0.5px;">Inviti di gruppo</div>`;
             invites.forEach(inv => {
-                const avatar = inv.chat_avatar || '/assets/static/img/default-group.png';
+                const avatar = inv.chat_avatar || '/img/Susremaster.png';
                 html += `
                     <div class="chat-item chat-item--invite" style="border-left: 3px solid var(--chat-accent);background:rgba(139, 92, 246, 0.04);margin-bottom:6px;border-radius:0 10px 10px 0;">
                         <div class="chat-item__avatar-container">
@@ -107,7 +107,7 @@ const ChatUI = {
             groups.forEach(g => {
                 const isActive = (ChatState.currentChatType === 'group' && ChatState.currentChatId === g.chat_id) ? 'is-active' : '';
                 const isUnread = g.unread_count > 0 ? 'is-unread' : '';
-                const avatar = g.avatar_url || '/assets/static/img/default-group.png';
+                const avatar = g.avatar_url || '/img/Susremaster.png';
                 const time = g.last_message_time ? formatTime(g.last_message_time) : '';
                 
                 let preview = 'Nessun messaggio';
@@ -352,7 +352,7 @@ const ChatUI = {
         this.detailsScrollEl.innerHTML = `
             <div class="chat-details__profile">
                 <div style="position:relative;display:inline-block;">
-                    <img class="chat-details__avatar" src="${chat.avatar_url || '/assets/static/img/default-group.png'}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.05);">
+                    <img class="chat-details__avatar" src="${chat.avatar_url || '/img/Susremaster.png'}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.05);">
                     ${isOwner || isAdmin ? `<label for="groupAvatarUpload" style="position:absolute;bottom:0;right:0;background:var(--chat-accent);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.5);"><i class="fa-solid fa-camera" style="font-size:12px;color:white;"></i></label><input type="file" id="groupAvatarUpload" style="display:none;" onchange="uploadGroupAvatar(this)">` : ''}
                 </div>
                 <div class="chat-details__name" style="color:var(--chat-text-main) !important;font-size:18px;font-weight:800;margin-top:10px;">${escapeHtml(chat.name)}</div>

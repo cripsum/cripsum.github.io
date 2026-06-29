@@ -235,7 +235,7 @@
 
         if (chat.isGroupChat) {
             nameEl.textContent = chat.name;
-            avatarEl.src = chat.avatar_url || '/assets/static/img/default-group.png';
+            avatarEl.src = chat.avatar_url || '/img/Susremaster.png';
             avatarEl.style.display = 'block';
             statusEl.textContent = "Gruppo di chat";
             statusEl.className = 'chat-area__user-status';
