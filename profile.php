@@ -2285,7 +2285,6 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                 container.style.setProperty('left', btnPos.includes('left') ? '24px' : 'auto', 'important');
                                 container.style.setProperty('right', btnPos.includes('right') ? '24px' : 'auto', 'important');
                             }
-                        }
                         if (window.initCursorEffects) {
                             window.initCursorEffects();
                         }
@@ -2442,7 +2441,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         </script>
     <?php endif; ?>
     <script src="/assets/social/social-api.js?v=1.2" defer></script>
-    <script src="/assets/social/user-card.js?v=1.2" defer></script>
+    <script src="/assets/social/user-card.js?v=1.3" defer></script>
 </body>
 
 </html>

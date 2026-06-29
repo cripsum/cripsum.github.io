@@ -104,7 +104,7 @@ $csrfToken = $_SESSION['social_csrf'];
     <!-- Importazione Moduli Social -->
     <script src="/assets/social/social-api.js?v=1.2" defer></script>
     <script src="/assets/social/social-ui.js?v=1.2" defer></script>
-    <script src="/assets/social/user-card.js?v=1.2" defer></script>
+    <script src="/assets/social/user-card.js?v=1.3" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
 

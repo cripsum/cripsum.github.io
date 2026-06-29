@@ -1,4 +1,4 @@
-/* assets/social/user-card.js - Discord-style User Card & Bottom Sheet Engine */
+/* assets/social/user-card.js - Discord-style User Card Overlay Engine */
 
 (function () {
     let activeTrigger = null;
@@ -8,53 +8,40 @@
         bindTriggers();
     });
 
-    // Inietta i contenitori HTML necessari nel body
+    // Inietta l'overlay del profilo nel body
     function setupCardContainers() {
-        // 1. Discord Card per Desktop
-        if (!document.getElementById('discordUserCard')) {
-            const card = document.createElement('div');
-            card.id = 'discordUserCard';
-            card.className = 'discord-card';
-            document.body.appendChild(card);
-        }
-
-        // 2. Bottom Sheet per Mobile
-        if (!document.getElementById('bottomSheetCard')) {
-            const backdrop = document.createElement('div');
-            backdrop.id = 'bottomSheetBackdrop';
-            backdrop.className = 'bottom-sheet__backdrop';
-            document.body.appendChild(backdrop);
-
-            const sheet = document.createElement('div');
-            sheet.id = 'bottomSheetCard';
-            sheet.className = 'bottom-sheet';
-            sheet.innerHTML = `
-                <div class="bottom-sheet__handle"></div>
-                <div class="bottom-sheet__content"></div>
+        if (!document.getElementById('socialUserCardOverlay')) {
+            const overlay = document.createElement('div');
+            overlay.id = 'socialUserCardOverlay';
+            overlay.className = 'profile-nav-overlay';
+            overlay.setAttribute('aria-hidden', 'true');
+            overlay.setAttribute('role', 'dialog');
+            overlay.setAttribute('aria-modal', 'true');
+            overlay.style.cssText = "position: fixed; inset: 0; z-index: 19000; visibility: hidden; pointer-events: none; display: flex; justify-content: center; align-items: center;";
+            
+            overlay.innerHTML = `
+                <div class="profile-nav-overlay-backdrop js-close-user-card"></div>
+                <div class="profile-nav-overlay-container" style="max-width: 340px; padding: 0; overflow: hidden; border: none; background: transparent; position: relative; animation: discord-pop 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);">
+                    <button class="profile-nav-overlay-close-btn js-close-user-card" style="z-index: 10; color: white; right: 15px; top: 15px; font-size: 24px; background: transparent; border: none; cursor: pointer; position: absolute;">&times;</button>
+                    <div id="discordUserCard" class="discord-card" style="display: block; position: relative; margin: 0; top: 0; left: 0; box-shadow: none; width: 100%; animation: none;">
+                    </div>
+                </div>
             `;
-            document.body.appendChild(sheet);
+            document.body.appendChild(overlay);
 
-            // Chiusura cliccando sulla sfocatura di sfondo
-            backdrop.addEventListener('click', closeUserCard);
+            // Cliccando sul backdrop o sulla X si chiude
+            overlay.querySelectorAll('.js-close-user-card').forEach(el => {
+                el.addEventListener('click', closeUserCard);
+            });
         }
 
         // Tasto ESC per chiudere
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeUserCard();
         });
-
-        // Click esterno per chiudere la card desktop
-        document.addEventListener('click', (e) => {
-            const card = document.getElementById('discordUserCard');
-            if (card && card.style.display === 'block') {
-                if (!card.contains(e.target) && (!activeTrigger || !activeTrigger.contains(e.target))) {
-                    closeUserCard();
-                }
-            }
-        });
     }
 
-    // Associa l'evento click a tutti gli elementi con la classe .user-card-trigger e ai bottoni profilo
+    // Associa l'evento click a tutti gli elementi con la classe .user-card-trigger
     function bindTriggers() {
         // Usiamo la delega degli eventi sul body per catturare anche gli elementi caricati dinamicamente (AJAX)
         document.body.addEventListener('click', (e) => {
@@ -70,179 +57,59 @@
                 openUserCard(userId, username, trigger);
             }
         });
-
-        // Gestione dei pulsanti social nel menu a discesa del profilo (profile.php)
-        document.body.addEventListener('click', async (e) => {
-            const followBtn = e.target.closest('.js-profile-follow');
-            if (followBtn) {
-                e.preventDefault();
-                followBtn.disabled = true;
-                const targetId = parseInt(followBtn.dataset.id);
-                const isFollowing = followBtn.dataset.following === '1';
-                let res;
-                if (isFollowing) {
-                    res = await SocialAPI.unfollow(targetId);
-                } else {
-                    res = await SocialAPI.follow(targetId);
-                }
-                if (res.success) {
-                    followBtn.dataset.following = isFollowing ? '0' : '1';
-                    const icon = followBtn.querySelector('i');
-                    if (icon) {
-                        icon.className = isFollowing ? 'fa-solid fa-user-plus' : 'fa-solid fa-user-minus';
-                    }
-                    const text = followBtn.querySelector('span');
-                    const isIt = document.documentElement.lang === 'it';
-                    if (text) {
-                        text.textContent = isFollowing ? (isIt ? 'Segui' : 'Follow') : (isIt ? 'Smetti di seguire' : 'Unfollow');
-                    }
-                } else {
-                    alert(res.error.message);
-                }
-                followBtn.disabled = false;
-            }
-
-            const friendBtn = e.target.closest('.js-profile-friend');
-            if (friendBtn) {
-                e.preventDefault();
-                friendBtn.disabled = true;
-                const targetId = parseInt(friendBtn.dataset.id);
-                const action = friendBtn.dataset.action;
-                let res;
-                if (action === 'send') {
-                    res = await SocialAPI.sendFriendRequest(targetId);
-                } else if (action === 'accept') {
-                    res = await SocialAPI.acceptFriendRequest(targetId);
-                } else if (action === 'cancel') {
-                    res = await SocialAPI.cancelFriendRequest(targetId);
-                } else if (action === 'remove') {
-                    if (confirm("Rimuovere questo utente dagli amici?")) {
-                        res = await SocialAPI.removeFriend(targetId);
-                    } else {
-                        friendBtn.disabled = false;
-                        return;
-                    }
-                }
-                if (res && res.success) {
-                    window.location.reload();
-                } else if (res) {
-                    alert(res.error.message);
-                }
-                friendBtn.disabled = false;
-            }
-
-            const blockBtn = e.target.closest('.js-profile-block');
-            if (blockBtn) {
-                e.preventDefault();
-                blockBtn.disabled = true;
-                const targetId = parseInt(blockBtn.dataset.id);
-                const isBlocked = blockBtn.dataset.blocked === '1';
-                let res;
-                if (isBlocked) {
-                    res = await SocialAPI.unblockUser(targetId);
-                } else {
-                    if (confirm("Sei sicuro di voler bloccare questo utente? Verranno rimosse tutte le relazioni (amicizia, follow).")) {
-                        res = await SocialAPI.blockUser(targetId);
-                    } else {
-                        blockBtn.disabled = false;
-                        return;
-                    }
-                }
-                if (res && res.success) {
-                    window.location.reload();
-                } else if (res) {
-                    alert(res.error.message);
-                }
-                blockBtn.disabled = false;
-            }
-        });
     }
 
-    // Apre la User Card posizionandola correttamente
+    // Apre la User Card sfruttando il sistema di overlay nativo del sito
     async function openUserCard(userId, username, triggerElement) {
-        const isMobile = window.innerWidth <= 768;
-        const cardDesktop = document.getElementById('discordUserCard');
-        const sheetMobile = document.getElementById('bottomSheetCard');
-        const backdrop = document.getElementById('bottomSheetBackdrop');
+        const overlay = document.getElementById('socialUserCardOverlay');
+        const card = document.getElementById('discordUserCard');
+        if (!overlay || !card) return;
 
         // 1. Mostra lo stato di caricamento (Skeleton)
-        const skeletonHtml = getSkeletonHtml();
-        if (isMobile) {
-            sheetMobile.querySelector('.bottom-sheet__content').innerHTML = skeletonHtml;
-            sheetMobile.classList.add('is-open');
-            backdrop.style.display = 'block';
-        } else {
-            cardDesktop.innerHTML = skeletonHtml;
-            cardDesktop.className = 'discord-card';
-            cardDesktop.style.display = 'block';
-            positionCard(cardDesktop, triggerElement);
-        }
+        card.innerHTML = getSkeletonHtml();
+        
+        // 2. Attiva l'overlay
+        overlay.style.visibility = 'visible';
+        overlay.style.pointerEvents = 'auto';
+        overlay.classList.add('is-visible');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('profile-overlay-open');
 
-        // 2. Carica i dati reali dall'API
+        // 3. Carica i dati reali dall'API
         const res = await SocialAPI.getUserCard(userId, username);
         if (res.success) {
             const html = renderCardHtml(res.data);
-            
-            if (isMobile) {
-                sheetMobile.querySelector('.bottom-sheet__content').innerHTML = html;
-                applyHeritageStyles(sheetMobile, res.data.style);
-            } else {
-                cardDesktop.innerHTML = html;
-                applyHeritageStyles(cardDesktop, res.data.style);
-                // Riposiziona in caso di cambio altezza del contenuto
-                positionCard(cardDesktop, triggerElement);
-            }
+            card.innerHTML = html;
+            applyHeritageStyles(card, res.data.style);
             
             // Collega i gestori di eventi per i pulsanti all'interno della card
-            bindCardButtons(isMobile ? sheetMobile : cardDesktop, res.data);
+            bindCardButtons(card, res.data);
         } else {
-            const errorHtml = `<div class="text-center py-4 text-danger"><i class="fa-solid fa-triangle-exclamation mb-2 fs-3"></i><br>${res.error.message}</div>`;
-            if (isMobile) {
-                sheetMobile.querySelector('.bottom-sheet__content').innerHTML = errorHtml;
-            } else {
-                cardDesktop.innerHTML = errorHtml;
+            card.innerHTML = `
+                <div class="text-center py-5 text-danger" style="background: #111214; border-radius: 16px; border: 1px solid var(--social-border);">
+                    <i class="fa-solid fa-triangle-exclamation mb-2 fs-3"></i><br>
+                    ${escapeHtml(res.error.message)}
+                </div>
+            `;
+        }
+    }
+
+    // Chiude l'overlay della User Card
+    function closeUserCard() {
+        const overlay = document.getElementById('socialUserCardOverlay');
+        if (overlay) {
+            overlay.style.visibility = 'hidden';
+            overlay.style.pointerEvents = 'none';
+            overlay.classList.remove('is-visible');
+            overlay.setAttribute('aria-hidden', 'true');
+            
+            // Rimuove il blocco del body solo se nessun altro overlay è ancora aperto
+            const anyVisible = document.querySelector('.profile-nav-overlay.is-visible:not(#socialUserCardOverlay), .profile-report-modal.is-visible');
+            if (!anyVisible) {
+                document.body.classList.remove('profile-overlay-open');
             }
         }
-    }
-
-    function closeUserCard() {
-        const cardDesktop = document.getElementById('discordUserCard');
-        const sheetMobile = document.getElementById('bottomSheetCard');
-        const backdrop = document.getElementById('bottomSheetBackdrop');
-
-        if (cardDesktop) cardDesktop.style.display = 'none';
-        if (sheetMobile) sheetMobile.classList.remove('is-open');
-        if (backdrop) backdrop.style.display = 'none';
         activeTrigger = null;
-    }
-
-    // Posizionamento intelligente del popup desktop vicino all'elemento cliccato
-    function positionCard(card, trigger) {
-        const rect = trigger.getBoundingClientRect();
-        const cardWidth = card.offsetWidth;
-        const cardHeight = card.offsetHeight;
-        const scrollX = window.scrollX;
-        const scrollY = window.scrollY;
-
-        let left = rect.left + scrollX + (rect.width / 2) - (cardWidth / 2);
-        let top = rect.bottom + scrollY + 8; // Di default sotto l'elemento
-
-        // Se esce a destra dello schermo, allinealo al bordo destro dell'elemento
-        if (left + cardWidth > window.innerWidth + scrollX - 20) {
-            left = rect.right + scrollX - cardWidth;
-        }
-        // Se esce a sinistra dello schermo, allinealo al bordo sinistro dell'elemento
-        if (left < scrollX + 20) {
-            left = rect.left + scrollX;
-        }
-
-        // Se esce in basso allo schermo, posizionalo SOPRA l'elemento
-        if (rect.bottom + cardHeight + 20 > window.innerHeight) {
-            top = rect.top + scrollY - cardHeight - 8;
-        }
-
-        card.style.left = left + 'px';
-        card.style.top = top + 'px';
     }
 
     // Applica le variabili CSS del profilo personalizzato dell'utente visualizzato
@@ -264,7 +131,6 @@
                 element.style.setProperty('--profile-accent-color', style.accent_color);
             }
             if (style.card_color) {
-                // Se c'è un'opacità, la applichiamo al colore esadecimale
                 let color = style.card_color;
                 if (style.card_opacity && color.startsWith('#')) {
                     const alpha = Math.round(parseFloat(style.card_opacity) * 255).toString(16).padStart(2, '0');
@@ -287,10 +153,11 @@
         }
     }
 
-    // Associa gli eventi ai pulsanti interni alla card (Follow, Amicizia, Messaggio)
+    // Associa gli eventi ai pulsanti interni alla card (Follow, Amicizia, Messaggio, Blocco)
     function bindCardButtons(cardElement, data) {
         const followBtn = cardElement.querySelector('.js-card-follow');
         const friendBtn = cardElement.querySelector('.js-card-friend');
+        const blockBtn = cardElement.querySelector('.js-card-block');
         
         if (followBtn) {
             followBtn.addEventListener('click', async () => {
@@ -304,7 +171,6 @@
                 }
                 
                 if (res.success) {
-                    // Cambia lo stato del pulsante
                     if (isFollowing) {
                         followBtn.className = 'social-btn social-btn--secondary js-card-follow';
                         followBtn.innerHTML = '<i class="fa-solid fa-check"></i> Seguito';
@@ -312,13 +178,11 @@
                         followBtn.className = 'social-btn social-btn--primary js-card-follow';
                         followBtn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Segui';
                     }
-                    // Aggiorna contatore follower nella card
                     const countEl = cardElement.querySelector('.js-followers-count');
                     if (countEl) {
                         const currentVal = parseInt(countEl.textContent);
                         countEl.textContent = isFollowing ? currentVal + 1 : currentVal - 1;
                     }
-                    // Se siamo nella pagina amici, ricarichiamo i dati
                     if (window.SocialUI && typeof window.SocialUI.loadActiveTab === 'function') {
                         window.SocialUI.loadActiveTab();
                     }
@@ -351,7 +215,6 @@
                 }
 
                 if (res && res.success) {
-                    // Ricarichiamo la card intera per mostrare il nuovo stato relazionale in modo pulito
                     openUserCard(data.id, '', activeTrigger);
                     if (window.SocialUI && typeof window.SocialUI.loadActiveTab === 'function') {
                         window.SocialUI.loadActiveTab();
@@ -363,7 +226,6 @@
             });
         }
 
-        const blockBtn = cardElement.querySelector('.js-card-block');
         if (blockBtn) {
             blockBtn.addEventListener('click', async () => {
                 blockBtn.disabled = true;
@@ -382,7 +244,6 @@
                 }
 
                 if (res && res.success) {
-                    // Ricarichiamo la card intera per mostrare il nuovo stato relazionale in modo pulito
                     openUserCard(data.id, '', activeTrigger);
                     if (window.SocialUI && typeof window.SocialUI.loadActiveTab === 'function') {
                         window.SocialUI.loadActiveTab();
@@ -395,7 +256,7 @@
         }
     }
 
-    // Ritorna l'HTML dello Skeleton Loading per il caricamento
+    // Ritorna l'HTML dello Skeleton Loading
     function getSkeletonHtml() {
         return `
             <div class="discord-card__banner chat-skeleton" style="height: 60px;"></div>
@@ -492,7 +353,6 @@
         ` : '';
 
         const ringClass = user.style.avatar_ring_enabled ? 'has-ring' : '';
-        const onlineClass = user.is_online ? 'is-online' : '';
 
         return `
             <div class="discord-card__banner"></div>
@@ -536,6 +396,5 @@
         return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
-    // Rende la chiusura accessibile globalmente
     window.closeUserCard = closeUserCard;
 })();
