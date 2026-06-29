@@ -24,9 +24,13 @@ if ($method === 'GET') {
     $types = "i";
     
     if ($category !== '') {
-        $where[] = "m.category = ?";
-        $params[] = $category;
-        $types .= "s";
+        if ($category === 'system') {
+            $where[] = "m.category IN ('system', 'changelog', 'security', 'moderation')";
+        } else {
+            $where[] = "m.category = ?";
+            $params[] = $category;
+            $types .= "s";
+        }
     }
     
     if ($status === 'unread') {

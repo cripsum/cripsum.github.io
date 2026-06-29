@@ -40,18 +40,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         // Genera un ID univoco per il ticket
         $ticketId = 'TK-' . strtoupper(bin2hex(random_bytes(3)));
         
-        // Elaborazione dell'allegato (immagine)
-        $attachmentData = null;
+        // Salviamo l'immagine localmente se presente
+        $localAttachmentUrl = null;
         if (!empty($_FILES['attachment']['tmp_name']) && is_uploaded_file($_FILES['attachment']['tmp_name'])) {
             $check = getimagesize($_FILES['attachment']['tmp_name']);
             if ($check !== false) {
                 if ($_FILES['attachment']['size'] <= 5 * 1024 * 1024) {
-                    $imgData = file_get_contents($_FILES['attachment']['tmp_name']);
-                    $attachmentData = [
-                        'base64' => base64_encode($imgData),
-                        'name' => $_FILES['attachment']['name'],
-                        'type' => $_FILES['attachment']['type']
-                    ];
+                    $uploadDir = __DIR__ . '/../uploads/tickets/';
+                    if (!is_dir($uploadDir)) {
+                        mkdir($uploadDir, 0755, true);
+                    }
+                    $ext = pathinfo($_FILES['attachment']['name'], PATHINFO_EXTENSION);
+                    $fileName = uniqid('img_', true) . '.' . $ext;
+                    $targetFile = $uploadDir . $fileName;
+                    if (move_uploaded_file($_FILES['attachment']['tmp_name'], $targetFile)) {
+                        $localAttachmentUrl = '/uploads/tickets/' . $fileName;
+                    } else {
+                        $error_message = 'Impossibile salvare l\'immagine caricata sul server.';
+                    }
                 } else {
                     $error_message = 'L\'immagine allegata supera il limite massimo di 5MB.';
                 }
@@ -61,6 +67,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         }
 
         if (empty($error_message)) {
+            // Salviamo il ticket nel database del sito
+            $dbUserId = $isLogged ? $userId : 0; // 0 per ospiti
+            $stmtTicket = $mysqli->prepare("INSERT INTO site_tickets (ticket_id, user_id, title, topic) VALUES (?, ?, ?, ?)");
+            if ($stmtTicket) {
+                $stmtTicket->bind_param("siss", $ticketId, $dbUserId, $title, $topic);
+                if ($stmtTicket->execute()) {
+                    $stmtTicket->close();
+                    
+                    // Inseriamo il primo messaggio del ticket
+                    $stmtMsg = $mysqli->prepare("INSERT INTO site_ticket_messages (ticket_id, sender_id, message, attachment_url) VALUES (?, ?, ?, ?)");
+                    if ($stmtMsg) {
+                        $stmtMsg->bind_param("siss", $ticketId, $dbUserId, $message, $localAttachmentUrl);
+                        $stmtMsg->execute();
+                        $stmtMsg->close();
+                    }
+                }
+            }
+
+            // Prepariamo i dati per il bot di Discord
+            $fullAttachmentUrl = $localAttachmentUrl ? 'https://cripsum.com' . $localAttachmentUrl : null;
             $ticketData = [
                 'ticket_id' => $ticketId,
                 'username' => $isLogged ? $username : 'Ospite',
@@ -71,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 'title' => $title,
                 'topic' => $topic,
                 'message' => $message,
-                'attachment' => $attachmentData,
+                'attachment_url' => $fullAttachmentUrl,
                 'ip' => $_SERVER['REMOTE_ADDR']
             ];
             
