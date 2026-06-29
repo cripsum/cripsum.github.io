@@ -245,6 +245,27 @@ const ChatUI = {
                 messageContent = parseMessageText(body);
             }
 
+            // Render attachment files if present
+            let attachmentsHtml = '';
+            if (msg.attachments && msg.attachments.length > 0) {
+                attachmentsHtml = `<div class="chat-msg-attachments" style="margin-top:8px; display:flex; flex-direction:column; gap:6px;">` + msg.attachments.map(att => {
+                    if (att.file_type === 'image') {
+                        return `<img class="chat-attachment-image" src="${att.file_path}" alt="${escapeHtml(att.file_name)}" onclick="openMediaPreview('${att.file_path}', 'image')" style="max-width:100%; max-height:200px; object-fit:cover; border-radius:8px; cursor:pointer;">`;
+                    } else if (att.file_type === 'video') {
+                        return `<video class="chat-attachment-video" src="${att.file_path}" controls style="max-width:100%; max-height:200px; border-radius:8px;"></video>`;
+                    } else if (att.file_type === 'audio') {
+                        return `<audio src="${att.file_path}" controls style="max-width:100%;"></audio>`;
+                    } else {
+                        return `
+                            <a class="chat-attachment-file" href="${att.file_path}" download="${escapeHtml(att.file_name)}" style="display:flex; align-items:center; gap:8px; padding:6px 10px; background:rgba(0,0,0,0.2); border:1px solid var(--chat-border); border-radius:8px; color:white; text-decoration:none;">
+                                <i class="fa-solid fa-file-arrow-down" style="font-size:16px;"></i>
+                                <span style="font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(att.file_name)}</span>
+                            </a>
+                        `;
+                    }
+                }).join('') + `</div>`;
+            }
+
             const formattedTime = formatTime(msg.created_at);
             const senderName = msg.sender_display_name || msg.sender_username;
             const classes = ['chat-message', isMine ? 'is-mine' : ''].filter(Boolean).join(' ');
@@ -259,7 +280,7 @@ const ChatUI = {
                     </div>
                     <div class="chat-bubble-wrap" id="msg-${msg.id}" oncontextmenu="showGroupContextMenu(event, ${msg.id}, ${isMine})">
                         <div class="chat-bubble ${msg.message_type === 'gif' ? 'chat-bubble--pure-gif' : ''}">
-                            <div class="chat-message-content">${messageContent}</div>
+                            <div class="chat-message-content">${messageContent}${attachmentsHtml}</div>
                         </div>
                     </div>
                 </div>
@@ -608,7 +629,36 @@ function scrollToBottom() {
     }
 }
 
-// Fallback private panel
+// Media Preview Lightbox
+window.openMediaPreview = function(path, type) {
+    let previewModal = document.querySelector('#mediaPreviewModal');
+    if (!previewModal) {
+        previewModal = document.createElement('div');
+        previewModal.id = 'mediaPreviewModal';
+        previewModal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:999999;display:none;align-items:center;justify-content:center;backdrop-filter:blur(10px);';
+        previewModal.innerHTML = `
+            <button class="chat-action-btn" onclick="closeMediaPreview()" style="position:absolute; top:20px; right:20px; font-size:24px; color:white; background:none; border:none; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+            <div id="mediaPreviewContent" style="max-width:90%; max-height:85vh; display:flex; align-items:center; justify-content:center;"></div>
+        `;
+        document.body.appendChild(previewModal);
+    }
+
+    const contentBox = previewModal.querySelector('#mediaPreviewContent');
+    if (type === 'image') {
+        contentBox.innerHTML = `<img src="${path}" style="max-width:100%; max-height:85vh; object-fit:contain; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.5);">`;
+    } else {
+        contentBox.innerHTML = `<video src="${path}" controls autoplay style="max-width:100%; max-height:85vh; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.5);"></video>`;
+    }
+
+    previewModal.style.display = 'flex';
+};
+
+window.closeMediaPreview = function() {
+    const previewModal = document.querySelector('#mediaPreviewModal');
+    if (previewModal) previewModal.style.display = 'none';
+};
+
+// Fallback private panel with Pinned and Media gallery
 function renderPrivateDetailsUI(data) {
     const box = document.querySelector('.chat-details__scroll');
     if (!box) return;
@@ -617,6 +667,60 @@ function renderPrivateDetailsUI(data) {
     const nickname = otherUser ? (otherUser.nickname || otherUser.username) : 'Utente';
     const isMuted = !!data.settings.is_muted;
     const isArchived = !!data.settings.is_archived;
+
+    // 1. Pinned Messages Html
+    let pinnedHtml = '';
+    if (data.pinned_messages && data.pinned_messages.length > 0) {
+        pinnedHtml = data.pinned_messages.map(m => `
+            <div class="chat-details-pinned-item" onclick="scrollToMessage(${m.message_id})" style="cursor:pointer; padding:8px 10px; background:rgba(255,255,255,0.03); border:1px solid var(--chat-border); border-radius:8px; margin-bottom:6px; transition: background 0.2s;">
+                <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--chat-accent); margin-bottom:4px; font-weight:700;">
+                    <span>@${escapeHtml(m.sender_username)}</span>
+                    <span>${formatTime(m.created_at)}</span>
+                </div>
+                <div style="font-size:12px; color:var(--chat-text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(m.message || '[File]')}</div>
+            </div>
+        `).join('');
+    } else {
+        pinnedHtml = `<div style="font-size:11px; color:var(--chat-text-muted); text-align:center; padding:10px 0;">Nessun messaggio fissato</div>`;
+    }
+
+    // 2. Gallery Media Html
+    let mediaHtml = '';
+    if (data.gallery && data.gallery.media && data.gallery.media.length > 0) {
+        mediaHtml = `
+            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; margin-top:8px;">
+                ${data.gallery.media.map(m => {
+                    if (m.file_type === 'image') {
+                        return `<div class="chat-gallery-item" onclick="openMediaPreview('${m.file_path}', 'image')" style="aspect-ratio:1; border-radius:6px; overflow:hidden; cursor:pointer; background:rgba(0,0,0,0.2);"><img src="${m.file_path}" style="width:100%; height:100%; object-fit:cover;"></div>`;
+                    } else {
+                        return `<div class="chat-gallery-item" onclick="openMediaPreview('${m.file_path}', 'video')" style="aspect-ratio:1; border-radius:6px; overflow:hidden; cursor:pointer; background:rgba(0,0,0,0.2); position:relative; display:flex; align-items:center; justify-content:center;"><video src="${m.file_path}" style="width:100%; height:100%; object-fit:cover; pointer-events:none;"></video><i class="fa-solid fa-play" style="position:absolute; color:white; font-size:16px;"></i></div>`;
+                    }
+                }).join('')}
+            </div>
+        `;
+    } else {
+        mediaHtml = `<div style="font-size:11px; color:var(--chat-text-muted); text-align:center; padding:10px 0;">Nessun media condiviso</div>`;
+    }
+
+    // 3. Gallery Files Html
+    let filesHtml = '';
+    if (data.gallery && data.gallery.files && data.gallery.files.length > 0) {
+        filesHtml = data.gallery.files.map(f => {
+            const sizeKb = Math.round(f.file_size / 1024);
+            return `
+                <a href="${f.file_path}" target="_blank" style="display:flex; align-items:center; gap:10px; padding:6px 0; border-bottom:1px solid var(--chat-border); text-decoration:none;">
+                    <i class="fa-solid fa-file-lines" style="color:var(--chat-accent); font-size:18px;"></i>
+                    <div style="flex:1; overflow:hidden;">
+                        <div style="font-size:12px; color:var(--chat-text-main); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(f.file_name)}</div>
+                        <div style="font-size:10px; color:var(--chat-text-muted);">${sizeKb} KB</div>
+                    </div>
+                    <i class="fa-solid fa-download" style="color:var(--chat-text-muted);"></i>
+                </a>
+            `;
+        }).join('');
+    } else {
+        filesHtml = `<div style="font-size:11px; color:var(--chat-text-muted); text-align:center; padding:10px 0;">Nessun documento condiviso</div>`;
+    }
 
     box.innerHTML = `
         <div class="chat-details__profile">
@@ -631,6 +735,21 @@ function renderPrivateDetailsUI(data) {
                 <label style="font-size:12px;color:var(--chat-text-muted);margin-bottom:6px;display:block;">Nickname locale</label>
                 <input type="text" id="settingNicknameInput" class="chat-details-input" value="${escapeHtml(otherUser.nickname || '')}" placeholder="Imposta nickname..." onchange="updateLocalPrivateNickname(this.value)">
             </div>
+        </div>
+
+        <div class="chat-details__section">
+            <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">Messaggi Fissati</div>
+            <div style="margin-top:8px;">${pinnedHtml}</div>
+        </div>
+
+        <div class="chat-details__section">
+            <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">Media Condivisi</div>
+            <div>${mediaHtml}</div>
+        </div>
+
+        <div class="chat-details__section">
+            <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">Documenti Condivisi</div>
+            <div style="margin-top:8px;">${filesHtml}</div>
         </div>
 
         <div class="chat-details__section" style="display:flex;flex-direction:column;gap:10px;">

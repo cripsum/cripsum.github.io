@@ -136,6 +136,19 @@
         document.querySelector('.js-more-gifs')?.addEventListener('click', () => {
             loadMoreGifs();
         });
+
+        // --- FILE ATTACHMENTS & DRAG/DROP EVENTS ---
+        const chatArea = document.querySelector('.chat-area');
+        if (chatArea) {
+            chatArea.addEventListener('dragover', handleDragOver);
+            chatArea.addEventListener('dragleave', handleDragLeave);
+            chatArea.addEventListener('drop', handleDrop);
+        }
+
+        document.querySelector('#chatAttachBtn')?.addEventListener('click', () => {
+            document.querySelector('#chatFileInput')?.click();
+        });
+        document.querySelector('#chatFileInput')?.addEventListener('change', handleFileSelect);
     }
 
     function switchSidebarTab(tab) {
@@ -324,9 +337,9 @@
         
         try {
             const res = await ChatAPI.getGifs(query, '');
-            if (res.ok && res.results) {
-                ChatUI.renderGifs(res.results, false);
-                nextGifOffset = res.next_offset || '';
+            if (res.ok && res.gifs) {
+                ChatUI.renderGifs(res.gifs, false);
+                nextGifOffset = res.next || '';
                 document.querySelector('.js-more-gifs').hidden = !nextGifOffset;
             }
         } catch (e) {
@@ -338,9 +351,9 @@
         if (!nextGifOffset) return;
         try {
             const res = await ChatAPI.getGifs(currentGifQuery, nextGifOffset);
-            if (res.ok && res.results) {
-                ChatUI.renderGifs(res.results, true);
-                nextGifOffset = res.next_offset || '';
+            if (res.ok && res.gifs) {
+                ChatUI.renderGifs(res.gifs, true);
+                nextGifOffset = res.next || '';
                 document.querySelector('.js-more-gifs').hidden = !nextGifOffset;
             }
         } catch (e) {
@@ -382,7 +395,7 @@
         }
     }
 
-    // --- DETTAGLI GRUPPO ---
+    // --- DETTAGLI GRUPPO / PRIVATE ---
     async function toggleDetailsPanel() {
         const panel = document.querySelector('.chat-details');
         if (!panel) return;
@@ -418,6 +431,77 @@
             }
         } catch (e) {
             console.error("Errore dettagli chat:", e);
+        }
+    }
+
+    // --- FILE ATTACHMENTS HANDLING ---
+    function handleDragOver(e) {
+        e.preventDefault();
+        document.querySelector('.chat-area')?.classList.add('drag-over');
+    }
+
+    function handleDragLeave(e) {
+        e.preventDefault();
+        document.querySelector('.chat-area')?.classList.remove('drag-over');
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        document.querySelector('.chat-area')?.classList.remove('drag-over');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            uploadFile(files[0]);
+        }
+    }
+
+    function handleFileSelect(e) {
+        const files = e.target.files;
+        if (files.length > 0) {
+            uploadFile(files[0]);
+        }
+    }
+
+    async function uploadFile(file) {
+        if (ChatState.currentChatId === 0) {
+            ChatUI.showToast("Seleziona prima una chat per inviare file.", true);
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+        if (ChatState.currentChatType === 'group') {
+            formData.append('chat_id', ChatState.currentChatId);
+        } else {
+            formData.append('conversation_id', ChatState.currentChatId);
+        }
+        if (ChatState.replyToId) formData.append('reply_to_id', ChatState.replyToId);
+
+        ChatUI.showToast("Caricamento file in corso...");
+
+        try {
+            const res = await fetch('/api/chat/upload_media.php', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-Token': ChatAPI.csrfToken
+                }
+            }).then(r => r.json());
+
+            if (res.ok) {
+                const msg = res.message;
+                if (msg.body === undefined && msg.message !== undefined) {
+                    msg.body = msg.message;
+                }
+                ChatState.messages.push(msg);
+                ChatState.lastMessageId = msg.id;
+                ChatUI.renderMessages();
+                ChatUI.showToast("File inviato con successo!");
+                await loadAllConversations();
+            } else {
+                ChatUI.showToast(res.error, true);
+            }
+        } catch (e) {
+            ChatUI.showToast("Errore durante il caricamento del file.", true);
         }
     }
 
@@ -751,16 +835,20 @@
         if (isMine) {
             menuHtml = `
                 <div class="chat-context-menu__item" onclick="enterEditMode(${msgId})"><i class="fa-solid fa-pen"></i> Modifica</div>
+                <div class="chat-context-menu__item" onclick="togglePrivatePin(${msgId})"><i class="fa-solid fa-thumbtack"></i> Fissa/Sfissa</div>
                 <div class="chat-context-menu__item chat-context-menu__item--danger" onclick="triggerDeleteMessage(${msgId})"><i class="fa-solid fa-trash"></i> Elimina</div>
             `;
         } else {
             const myRole = ChatState.members.find(m => m.user_id === ChatState.myUserId)?.role;
             if (myRole === 'owner' || myRole === 'admin') {
                 menuHtml = `
+                    <div class="chat-context-menu__item" onclick="togglePrivatePin(${msgId})"><i class="fa-solid fa-thumbtack"></i> Fissa/Sfissa</div>
                     <div class="chat-context-menu__item chat-context-menu__item--danger" onclick="triggerDeleteMessage(${msgId})"><i class="fa-solid fa-trash"></i> Modera ed Elimina</div>
                 `;
             } else {
-                menuHtml = `<div class="chat-context-menu__item" style="opacity:0.5;pointer-events:none;">Nessuna azione</div>`;
+                menuHtml = `
+                    <div class="chat-context-menu__item" onclick="togglePrivatePin(${msgId})"><i class="fa-solid fa-thumbtack"></i> Fissa/Sfissa</div>
+                `;
             }
         }
 
@@ -808,6 +896,23 @@
         }
     };
 
+    window.togglePrivatePin = async function (msgId) {
+        try {
+            const res = await ChatAPI.call('manage_message.php', {
+                method: 'POST',
+                body: { action: 'toggle_pin', message_id: msgId }
+            });
+            if (res.ok) {
+                ChatUI.showToast(res.pinned ? "Messaggio fissato." : "Messaggio sfissato.");
+                if (ChatState.isDetailsOpen) {
+                    await loadDetailsPanelInfo();
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
     function cancelReplyMode() {
         ChatState.replyToId = null;
         ChatState.editMessageId = null;
@@ -818,44 +923,6 @@
     }
 
     // --- OTHER FALLBACK UI FUNCTIONS FOR PRIVATE CHATS ---
-    function renderPrivateDetailsUI(data) {
-        const box = document.querySelector('.chat-details__scroll');
-        if (!box) return;
-
-        const otherUser = data.participants.find(p => p.id !== ChatState.myUserId);
-        const nickname = otherUser ? (otherUser.nickname || otherUser.username) : 'Utente';
-        const isMuted = !!data.settings.is_muted;
-        const isArchived = !!data.settings.is_archived;
-
-        box.innerHTML = `
-            <div class="chat-details__profile">
-                <img class="chat-details__avatar" src="/includes/get_pfp.php?id=${otherUser.id}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.05);">
-                <div class="chat-details__name" style="color:var(--chat-text-main) !important;font-size:18px;font-weight:800;margin-top:10px;">${escapeHtml(nickname)}</div>
-                <div style="font-size:12px;color:var(--chat-text-muted) !important;">@${escapeHtml(otherUser.username)}</div>
-            </div>
-            
-            <div class="chat-details__section">
-                <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">Personalizzazione</div>
-                <div>
-                    <label style="font-size:12px;color:var(--chat-text-muted);margin-bottom:6px;display:block;">Nickname locale</label>
-                    <input type="text" id="settingNicknameInput" class="chat-details-input" value="${escapeHtml(otherUser.nickname || '')}" placeholder="Imposta nickname..." onchange="updateLocalPrivateNickname(this.value)">
-                </div>
-            </div>
-
-            <div class="chat-details__section" style="display:flex;flex-direction:column;gap:10px;">
-                <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">Azioni</div>
-                <button class="chat-details-btn chat-details-btn--secondary" onclick="togglePrivateMute(${isMuted})">
-                    <i class="fa-solid ${isMuted ? 'fa-bell' : 'fa-bell-slash'}"></i>
-                    ${isMuted ? 'Riattiva Notifiche' : 'Silenzia Notifiche'}
-                </button>
-                <button class="chat-details-btn ${isArchived ? 'chat-details-btn--secondary' : 'chat-details-btn--primary'}" onclick="togglePrivateArchive(${isArchived})">
-                    <i class="fa-solid ${isArchived ? 'fa-box-open' : 'fa-box-archive'}"></i>
-                    ${isArchived ? 'Ripristina Chat' : 'Archivia Chat'}
-                </button>
-            </div>
-        `;
-    }
-
     window.updateLocalPrivateNickname = async function (val) {
         try {
             const res = await ChatAPI.call('update_chat_settings.php', {
