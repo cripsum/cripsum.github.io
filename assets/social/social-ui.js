@@ -93,7 +93,13 @@ const SocialUI = {
                     // Non caricare nulla finche' l'utente non digita
                     const query = document.getElementById('socialSearchInput').value.trim();
                     if (query === '') {
-                        document.getElementById('socialGrid').innerHTML = `<div class="text-center py-5 text-muted"><i class="fa-solid fa-user-gear fs-2 mb-2"></i><br>Digita un nome utente per cercarlo su Cripsum.</div>`;
+                        const isIt = document.documentElement.lang === 'it';
+                        document.getElementById('socialGrid').innerHTML = `
+                            <div class="social-grid-message">
+                                <i class="fa-solid fa-user-gear"></i>
+                                ${isIt ? 'Digita un nome utente per cercarlo su Cripsum.' : 'Type a username to search on Cripsum.'}
+                            </div>
+                        `;
                     } else {
                         this.performSearch(query);
                     }
@@ -132,7 +138,12 @@ const SocialUI = {
                 `;
                 return;
             }
-            grid.innerHTML = `<div class="text-center py-5 text-muted col-span-full"><i class="fa-regular fa-face-frown fs-2 mb-2"></i><br>${emptyMessage}</div>`;
+            grid.innerHTML = `
+                <div class="social-grid-message">
+                    <i class="fa-regular fa-face-frown"></i>
+                    ${emptyMessage}
+                </div>
+            `;
             return;
         }
 
@@ -179,7 +190,8 @@ const SocialUI = {
                         <span class="social-card__status ${onlineClass}"></span>
                     </div>
                     <h4 class="social-card__name user-card-trigger" data-user-id="${u.id}" style="cursor:pointer;">${this.escapeHtml(u.display_name || u.username)}</h4>
-                    <span class="social-card__username">@${this.escapeHtml(u.username)}</span>
+                    <span class="social-card__username" style="${this.activeTab === 'suggestions' ? 'margin-bottom: 8px;' : ''}">@${this.escapeHtml(u.username)}</span>
+                    ${this.activeTab === 'suggestions' ? this.getSuggestionReasonHtml(u) : ''}
                     <div class="social-card__badges">
                         ${badgesHtml}
                     </div>
@@ -359,7 +371,38 @@ const SocialUI = {
     renderError(message) {
         const grid = document.getElementById('socialGrid');
         if (grid) {
-            grid.innerHTML = `<div class="text-center py-5 text-danger col-span-full"><i class="fa-solid fa-circle-exclamation fs-2 mb-2"></i><br>${message}</div>`;
+            grid.innerHTML = `
+                <div class="social-grid-message text-danger">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    ${message}
+                </div>
+            `;
+        }
+    },
+
+    getSuggestionReasonHtml(u) {
+        const isIt = document.documentElement.lang === 'it';
+        if (u.mutual_connections > 0) {
+            return `
+                <span class="social-card__reason">
+                    <i class="fa-solid fa-user-group"></i>
+                    ${isIt ? `${u.mutual_connections} in comune` : `${u.mutual_connections} mutuals`}
+                </span>
+            `;
+        } else if (u.is_follower) {
+            return `
+                <span class="social-card__reason">
+                    <i class="fa-solid fa-arrow-left-long"></i>
+                    ${isIt ? 'Ti segue' : 'Follows you'}
+                </span>
+            `;
+        } else {
+            return `
+                <span class="social-card__reason">
+                    <i class="fa-solid fa-fire"></i>
+                    ${isIt ? 'Popolare' : 'Popular'}
+                </span>
+            `;
         }
     },
 

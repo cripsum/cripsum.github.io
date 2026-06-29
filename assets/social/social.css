@@ -705,3 +705,52 @@
     box-shadow: 0 0 0 3px var(--social-accent-glow) !important;
     background: rgba(255, 255, 255, 0.06) !important;
 }
+
+/* Suggested Reason Badge */
+.social-card__reason {
+    font-size: 11.5px;
+    color: rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 4px 10px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.social-card__reason i {
+    font-size: 10.5px;
+    color: var(--social-accent);
+}
+
+/* Center and Style Info Messages */
+.social-grid-message {
+    grid-column: 1 / -1 !important;
+    text-align: center !important;
+    padding: 60px 20px;
+    color: rgba(255, 255, 255, 0.6) !important;
+    font-size: 15px;
+    font-weight: 500;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.social-grid-message i {
+    font-size: 32px;
+    color: var(--social-accent) !important;
+    opacity: 0.8;
+    margin-bottom: 4px;
+}
+
+.social-grid-message.text-danger {
+    color: #f87171 !important;
+}
+
+.social-grid-message.text-danger i {
+    color: #ef4444 !important;
+}
