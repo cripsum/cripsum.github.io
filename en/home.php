@@ -124,11 +124,6 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                         <i class="fa-solid fa-layer-group"></i>
                         <span>News</span>
                     </button>
-
-                    <button class="home-btn home-btn--plain" type="button" data-bs-toggle="modal" data-bs-target="#disclaimerModal">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <span>Disclaimer</span>
-                    </button>
                 </div>
             </div>
 
@@ -295,31 +290,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
         <?php endif; ?>
     </main>
 
-    <div class="modal fade home-modal" id="disclaimerModal" tabindex="-1" aria-labelledby="disclaimerModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content home-modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="disclaimerModalLabel">Disclaimer</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Cripsum™ is a personal project made for fun. Expect plenty of memes, irony, and inside jokes throughout the site.</p>
-                    <ul>
-                        <li>Don't take everything here seriously.</li>
-                        <li>Any shops or checkouts you see are just for show (simulated).</li>
-                        <li>Donations are the real deal: only donate if you actually want to support the project.</li>
-                    </ul>
-                    <p class="home-muted">
-                        Some of the code is public on
-                        <a href="https://github.com/cripsum/cripsum.github.io" target="_blank" rel="noopener">GitHub</a>.
-                    </p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="home-btn home-btn--ghost" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
     <div id="achievement-popup" class="popup">
         <img id="popup-image" src="" alt="Achievement">
