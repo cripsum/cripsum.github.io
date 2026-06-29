@@ -102,6 +102,7 @@ $csrfToken = $_SESSION['social_csrf'];
     <?php include '../includes/footer-en.php'; ?>
 
     <!-- Social Modules Import -->
+    <script src="/assets/static/static.js" defer></script>
     <script src="/assets/social/social-api.js?v=1.3" defer></script>
     <script src="/assets/social/social-ui.js?v=1.2" defer></script>
     <script src="/assets/social/user-card.js?v=1.4" defer></script>
