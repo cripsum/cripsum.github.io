@@ -20,17 +20,28 @@ const SocialAPI = {
         try {
             const response = await fetch(url, options);
             if (response.status === 419) {
-                // Sessione CSRF scaduta
-                alert("Sessione scaduta. La pagina verrà ricaricata.");
+                // CSRF Session Expired
+                alert("Session expired. The page will be reloaded.");
                 window.location.reload();
-                return { success: false, error: { message: "Sessione scaduta." } };
+                return { success: false, error: { message: "Session expired." } };
             }
+            
+            if (!response.ok) {
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    return {
+                        success: false,
+                        error: { code: "HTTP_ERROR", message: `Server returned error ${response.status}. Please refresh.` }
+                    };
+                }
+            }
+            
             return await response.json();
         } catch (error) {
-            console.error(`Errore API Social (${endpoint}):`, error);
+            console.error(`Social API Error (${endpoint}):`, error);
             return {
                 success: false,
-                error: { code: "NETWORK_ERROR", message: "Impossibile connettersi al server. Riprova." }
+                error: { code: "NETWORK_ERROR", message: "Failed to connect to the server. Please try again." }
             };
         }
     },
