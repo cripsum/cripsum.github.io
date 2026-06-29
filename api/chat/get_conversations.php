@@ -62,7 +62,7 @@ if (!$stmt) {
     send_error("Errore nel caricamento delle conversazioni: " . $mysqli->error, 500);
 }
 
-$stmt->bind_param("iiiiiii", $userId, $userId, $userId, $userId, $userId, $userId, $archived);
+$stmt->bind_param("iiiiii", $userId, $userId, $userId, $userId, $userId, $archived);
 $stmt->execute();
 $res = $stmt->get_result();
 $conversations = $res->fetch_all(MYSQLI_ASSOC);

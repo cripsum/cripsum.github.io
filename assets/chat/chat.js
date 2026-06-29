@@ -94,6 +94,13 @@
         $('#cancelReplyBtn')?.addEventListener('click', cancelReply);
     }
 
+    function switchTab(tab) {
+        state.activeTab = tab;
+        $('#tab-active')?.classList.toggle('is-active', tab === 'active');
+        $('#tab-archived')?.classList.toggle('is-active', tab === 'archived');
+        loadConversations();
+    }
+
     // --- CARICAMENTO CONVERSAZIONI ---
     async function loadConversations() {
         try {
