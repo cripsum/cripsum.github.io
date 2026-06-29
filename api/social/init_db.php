@@ -42,6 +42,22 @@ if ($checkOldBlocks && $checkOldBlocks->num_rows > 0) {
         echo "[ERRORE] Ridenominazione tabella fallita: " . $mysqli->error . "\n";
     }
 } else {
+    // Verifichiamo se la tabella blocked_users esiste già ma ha le vecchie colonne
+    $checkBlockedUsers = $mysqli->query("SHOW TABLES LIKE 'blocked_users'");
+    if ($checkBlockedUsers && $checkBlockedUsers->num_rows > 0) {
+        echo "Tabella 'blocked_users' gia' esistente. Verifico colonne...\n";
+        $checkCol1 = $mysqli->query("SHOW COLUMNS FROM `blocked_users` LIKE 'user_id'");
+        if ($checkCol1 && $checkCol1->num_rows > 0) {
+            echo "Rilevata colonna obsoleta 'user_id'. Rinomino in 'blocker_id'...\n";
+            $mysqli->query("ALTER TABLE `blocked_users` CHANGE COLUMN `user_id` `blocker_id` INT NOT NULL");
+        }
+        $checkCol2 = $mysqli->query("SHOW COLUMNS FROM `blocked_users` LIKE 'blocked_user_id'");
+        if ($checkCol2 && $checkCol2->num_rows > 0) {
+            echo "Rilevata colonna obsoleta 'blocked_user_id'. Rinomino in 'blocked_id'...\n";
+            $mysqli->query("ALTER TABLE `blocked_users` CHANGE COLUMN `blocked_user_id` `blocked_id` INT NOT NULL");
+        }
+    }
+
     // Se non esiste la vecchia tabella, creiamo direttamente la nuova
     $createBlocks = "
         CREATE TABLE IF NOT EXISTS `blocked_users` (
@@ -55,7 +71,7 @@ if ($checkOldBlocks && $checkOldBlocks->num_rows > 0) {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ";
     if ($mysqli->query($createBlocks)) {
-        echo "[OK] Tabella 'blocked_users' creata.\n";
+        echo "[OK] Tabella 'blocked_users' creata o aggiornata.\n";
     } else {
         echo "[ERRORE] Creazione 'blocked_users' fallita: " . $mysqli->error . "\n";
     }
