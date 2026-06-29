@@ -9,6 +9,21 @@ $username = $_SESSION['username'] ?? '';
 $userId = $_SESSION['user_id'] ?? 'N/A';
 $userRole = $_SESSION['ruolo'] ?? 'utente';
 
+// Fetch Discord ID if user is logged in
+$discordId = '';
+if ($isLogged) {
+    $stmt = $mysqli->prepare("SELECT discord_id FROM utenti WHERE id = ?");
+    if ($stmt) {
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        if ($row = $res->fetch_assoc()) {
+            $discordId = $row['discord_id'] ?? '';
+        }
+        $stmt->close();
+    }
+}
+
 $message_sent = false;
 $error_message = '';
 $ticketId = '';
@@ -52,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 'user_id' => $isLogged ? $userId : 'N/A',
                 'role' => $isLogged ? $userRole : 'Guest',
                 'contact' => $isLogged ? ($_SESSION['email'] ?? 'Logged on website') : $contact,
+                'discord_id' => $discordId,
                 'title' => $title,
                 'topic' => $topic,
                 'message' => $message,
