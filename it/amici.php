@@ -37,7 +37,7 @@ $csrfToken = $_SESSION['social_csrf'];
     
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/assets/static/static.css?v=1.2-static">
-     <link rel="stylesheet" href="/assets/social/social.css?v=1.6">
+     <link rel="stylesheet" href="/assets/social/social.css?v=1.7">
 </head>
 
 <body class="static-page" data-csrf="<?php echo $csrfToken; ?>">

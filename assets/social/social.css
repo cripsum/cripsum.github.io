@@ -1,4 +1,10 @@
-/* assets/social/social.css - Premium Social Graph Styling & Discord-style User Card */
+/* assets/social/social.css - Cripsum™ Friends & Social Styling */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+.static-page, .profile-nav-overlay {
+    font-family: 'Outfit', 'Plus Jakarta Sans', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
 
 :root {
     --social-bg-dark: #09090b;

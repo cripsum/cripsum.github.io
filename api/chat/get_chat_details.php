@@ -39,7 +39,7 @@ $stmtPart->close();
 
 // 3. Recupera i messaggi fissati
 $queryPinned = "
-    SELECT ppm.message_id, pm.message, pm.created_at, u.username as sender_username, ppm.pinned_at
+    SELECT ppm.message_id, pm.message, pm.created_at, u.username as sender_username, ppm.created_at AS pinned_at
     FROM private_pinned_messages ppm
     INNER JOIN private_messages pm ON pm.id = ppm.message_id
     INNER JOIN utenti u ON u.id = pm.sender_id
