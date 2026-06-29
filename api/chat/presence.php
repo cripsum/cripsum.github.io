@@ -38,11 +38,13 @@ $response = [
 
 // 3. Se stiamo monitorando una conversazione specifica, recuperiamo lo stato dell'altro utente e i nuovi messaggi
 if ($conversationId > 0) {
-    // Trova l'altro partecipante
+    // Trova l'altro partecipante e controlla online direttamente in SQL
     $queryOther = "
         SELECT 
             u.id, u.ultimo_accesso,
-            cp.typing_status, cp.last_typing_at
+            cp.typing_status, cp.last_typing_at,
+            TIMESTAMPDIFF(SECOND, u.ultimo_accesso, NOW()) AS seconds_since_active,
+            TIMESTAMPDIFF(SECOND, cp.last_typing_at, NOW()) AS seconds_since_typing
         FROM private_conversation_participants cp
         INNER JOIN utenti u ON u.id = cp.user_id
         WHERE cp.conversation_id = ? AND cp.user_id != ?
@@ -55,17 +57,17 @@ if ($conversationId > 0) {
         $stmtOther->execute();
         $resOther = $stmtOther->get_result();
         if ($rowOther = $resOther->fetch_assoc()) {
-            // Verifica online (attività negli ultimi 3 minuti)
-            $lastAct = $rowOther['ultimo_accesso'] ? strtotime($rowOther['ultimo_accesso']) : 0;
-            if ((time() - $lastAct) < 180) {
+            // Online se attivo negli ultimi 3 minuti (confronto interamente in MySQL)
+            $secSinceActive = $rowOther['seconds_since_active'];
+            if ($secSinceActive !== null && $secSinceActive < 180) {
                 $response['other_online'] = true;
             } else {
                 $response['other_last_seen'] = $rowOther['ultimo_accesso'];
             }
             
             // Verifica se sta scrivendo (attività negli ultimi 5 secondi)
-            $lastType = $rowOther['last_typing_at'] ? strtotime($rowOther['last_typing_at']) : 0;
-            if ((time() - $lastType) < 5 && $rowOther['typing_status']) {
+            $secSinceTyping = $rowOther['seconds_since_typing'];
+            if ($secSinceTyping !== null && $secSinceTyping < 5 && $rowOther['typing_status']) {
                 $response['other_typing'] = $rowOther['typing_status'];
             }
         }
