@@ -125,7 +125,7 @@ function getRelationshipStatus($mysqli, $viewerId, $targetId)
     ];
 
     // Calcolo permessi dinamici
-    if ($status['is_blocked_by_viewer'] || $status['is_減ocked_viewer'] || $status['has_blocked_viewer']) {
+    if ($status['is_blocked_by_viewer'] || $status['has_blocked_viewer']) {
         $status['can_view_profile'] = false;
         $status['can_follow'] = false;
         $status['can_send_friend_request'] = false;

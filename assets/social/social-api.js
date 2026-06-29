@@ -75,16 +75,17 @@ const SocialAPI = {
     },
 
     // --- QUERY LISTE ---
-    async getFollowers(targetId, page = 1, query = '') {
+    async getFollowers(targetId = '', page = 1, query = '') {
         return this.call(`followers.php?target_id=${targetId}&page=${page}&q=${encodeURIComponent(query)}`);
     },
 
-    async getFollowing(targetId, page = 1, query = '') {
+    async getFollowing(targetId = '', page = 1, query = '') {
         return this.call(`following.php?target_id=${targetId}&page=${page}&q=${encodeURIComponent(query)}`);
     },
 
-    async getFriends(targetId) {
-        return this.call(`friends.php?target_id=${targetId}`);
+    async getFriends(targetId = '') {
+        const param = targetId ? `?target_id=${targetId}` : '';
+        return this.call(`friends.php${param}`);
     },
 
     async getFriendRequests() {
