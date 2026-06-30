@@ -47,6 +47,11 @@
         document.body.addEventListener('click', (e) => {
             const trigger = e.target.closest('.user-card-trigger');
             if (trigger) {
+                const isLoggedIn = document.body.dataset.loggedIn === '1' || window.isLoggedIn === true;
+                if (!isLoggedIn) {
+                    return; // Permette la navigazione standard senza mostrare il pop-up/errore
+                }
+
                 e.preventDefault();
                 e.stopPropagation();
                 activeTrigger = trigger;
@@ -269,15 +274,18 @@
             }
         }
 
-        // Message & Group Buttons (Primary & Secondary Actions)
+        // Message Button (Primary Action)
         let messageBtnHtml = '';
-        let createGroupBtnHtml = '';
-        let inviteGroupBtnHtml = '';
         if (!r.is_self && r.can_message) {
             const messageLabel = lang === 'it' ? 'Scrivi' : 'Message';
             messageBtnHtml = `<a class="social-btn social-btn--secondary" href="/${lang}/chat?user_id=${user.id}"><i class="fa-solid fa-envelope"></i> ${messageLabel}</a>`;
-            createGroupBtnHtml = `<a class="social-btn social-btn--secondary" href="/${lang}/chat?create_group_with=${user.id}" title="${lang === 'it' ? 'Crea gruppo con utente' : 'Create group with user'}"><i class="fa-solid fa-users"></i></a>`;
-            inviteGroupBtnHtml = `<button class="social-btn social-btn--secondary" onclick="openInviteDropdown(event, ${user.id})" title="${lang === 'it' ? 'Invita nel gruppo' : 'Invite to group'}"><i class="fa-solid fa-user-plus"></i></button>`;
+        }
+
+        // View Profile Button
+        let viewProfileBtnHtml = '';
+        if (!r.is_self) {
+            const profileLabel = lang === 'it' ? 'Profilo' : 'Profile';
+            viewProfileBtnHtml = `<a class="social-btn social-btn--secondary" href="/u/${encodeURIComponent(user.username)}"><i class="fa-solid fa-user"></i> ${profileLabel}</a>`;
         }
 
         // Block Button
@@ -319,8 +327,8 @@
         // Structured Grid of Action Buttons
         let actionsHtml = '';
         if (!r.is_self) {
-            const mainButtons = [followBtnHtml, friendBtnHtml, messageBtnHtml].filter(Boolean);
-            const secondaryButtons = [createGroupBtnHtml, inviteGroupBtnHtml, blockBtnHtml].filter(Boolean);
+            const mainButtons = [friendBtnHtml, messageBtnHtml, viewProfileBtnHtml].filter(Boolean);
+            const secondaryButtons = [blockBtnHtml].filter(Boolean);
             
             actionsHtml = `
                 <div class="user-card__actions">
@@ -371,13 +379,6 @@
                         ${user.is_premium ? '<i class="fa-solid fa-gem text-warning" style="font-size: 14px;" title="Premium"></i>' : ''}
                     </div>
                     <div class="user-card__username">@${escapeHtml(user.username)}</div>
-                </div>
-
-                <div class="user-card__stats" style="justify-content: center;">
-                    <div class="user-card__stat-item">
-                        <span class="user-card__stat-val">${user.stats.friends_count}</span>
-                        <span class="user-card__stat-label">Friends</span>
-                    </div>
                 </div>
 
                 ${bioHtml}

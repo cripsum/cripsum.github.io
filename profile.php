@@ -1252,6 +1252,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 
 <body
     class="bio-v2-body public-profile-body profile-border-style-<?php echo profile_h($profile['profile_border_style'] ?? 'thin'); ?><?php echo ($profile && profile_flag($profile, 'profile_click_to_enter', false)) ? ' click-to-enter-active' : ''; ?>"
+    data-logged-in="<?php echo $isLoggedIn ? '1' : '0'; ?>"
     data-csrf="<?php echo $socialCsrfToken; ?>"
     data-theme="<?php echo profile_h($theme); ?>"
     data-accent="<?php echo profile_h($accent); ?>"
@@ -2435,7 +2436,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         </script>
     <?php endif; ?>
     <script src="/assets/social/social-api.js?v=1.5" defer></script>
-    <script src="/assets/social/user-card.js?v=2.2" defer></script>
+    <script src="/assets/social/user-card.js?v=2.5" defer></script>
 </body>
 
 </html>
