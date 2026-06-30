@@ -50,19 +50,14 @@ function getRelationshipStatus($mysqli, $viewerId, $targetId)
 
     // Ordine degli ID per la tabella friendships
     $userOne = min($viewerId, $targetId);
-    $userTwo = max($viewerId, $targetId);
-
-    $query = "
+    $userTwo = max($viewerId, $targetId);    $query = "
         SELECT 
-            EXISTS(SELECT 1 FROM user_follows WHERE follower_id = ? AND followed_id = ?) AS is_following,
-            EXISTS(SELECT 1 FROM user_follows WHERE follower_id = ? AND followed_id = ?) AS is_followed_by,
             EXISTS(SELECT 1 FROM friendships WHERE user_one_id = ? AND user_two_id = ?) AS is_friend,
             EXISTS(SELECT 1 FROM friendship_requests WHERE sender_id = ? AND receiver_id = ? AND status = 'pending') AS request_sent,
             EXISTS(SELECT 1 FROM friendship_requests WHERE sender_id = ? AND receiver_id = ? AND status = 'pending') AS request_received,
             EXISTS(SELECT 1 FROM blocked_users WHERE blocker_id = ? AND blocked_id = ?) AS blocked_by_viewer,
             EXISTS(SELECT 1 FROM blocked_users WHERE blocker_id = ? AND blocked_id = ?) AS blocked_viewer,
             s.profile_visibility,
-            s.follow_permission,
             s.friend_request_permission,
             s.message_permission
         FROM user_social_settings s
@@ -75,9 +70,7 @@ function getRelationshipStatus($mysqli, $viewerId, $targetId)
     }
 
     $stmt->bind_param(
-        "iiiiiiiiiiiiiii",
-        $viewerId, $targetId,     // is_following
-        $targetId, $viewerId,     // is_followed_by
+        "iiiiiiiiiii",
         $userOne, $userTwo,       // is_friend
         $viewerId, $targetId,     // request_sent
         $targetId, $viewerId,     // request_received
@@ -94,15 +87,12 @@ function getRelationshipStatus($mysqli, $viewerId, $targetId)
     // Se l'utente di destinazione non ha ancora una riga di impostazioni (caso limite), usiamo i valori di default
     if (!$data) {
         $data = [
-            'is_following' => 0,
-            'is_followed_by' => 0,
             'is_friend' => 0,
             'request_sent' => 0,
             'request_received' => 0,
             'blocked_by_viewer' => 0,
             'blocked_viewer' => 0,
             'profile_visibility' => 'public',
-            'follow_permission' => 'everyone',
             'friend_request_permission' => 'everyone',
             'message_permission' => 'everyone'
         ];
@@ -110,9 +100,9 @@ function getRelationshipStatus($mysqli, $viewerId, $targetId)
 
     $status = [
         'is_self' => false,
-        'is_following' => (bool)$data['is_following'],
-        'is_followed_by' => (bool)$data['is_followed_by'],
-        'is_mutual_follow' => ($data['is_following'] && $data['is_followed_by']),
+        'is_following' => false,
+        'is_followed_by' => false,
+        'is_mutual_follow' => false,
         'is_friend' => (bool)$data['is_friend'],
         'friend_request_sent' => (bool)$data['request_sent'],
         'friend_request_received' => (bool)$data['request_received'],
@@ -138,25 +128,13 @@ function getRelationshipStatus($mysqli, $viewerId, $targetId)
         $status['can_view_profile'] = false;
     }
 
-    // 2. Permesso Follow
-    if ($data['follow_permission'] === 'everyone') {
-        $status['can_follow'] = true;
-    } elseif ($data['follow_permission'] === 'registered') {
-        $status['can_follow'] = true; // ViewerId > 0 già verificato sopra
-    }
+    // 2. Permesso Follow (sempre rimosso/disabilitato)
+    $status['can_follow'] = false;
 
     // 3. Permesso Inviare Richiesta di Amicizia
     if (!$status['is_friend'] && !$status['friend_request_sent'] && !$status['friend_request_received']) {
         $frPerm = $data['friend_request_permission'];
-        if ($frPerm === 'everyone') {
-            $status['can_send_friend_request'] = true;
-        } elseif ($frPerm === 'followers' && $status['is_following']) {
-            // Chi può inviarmi richieste: I miei follower (quindi il viewer deve seguire il target)
-            $status['can_send_friend_request'] = true;
-        } elseif ($frPerm === 'following' && $status['is_followed_by']) {
-            // Chi può inviarmi richieste: Chi seguo (quindi il target deve seguire il viewer)
-            $status['can_send_friend_request'] = true;
-        } elseif ($frPerm === 'mutual_followers' && $status['is_mutual_follow']) {
+        if ($frPerm !== 'nobody') {
             $status['can_send_friend_request'] = true;
         }
     }
@@ -165,12 +143,13 @@ function getRelationshipStatus($mysqli, $viewerId, $targetId)
     $msgPerm = $data['message_permission'];
     if ($msgPerm === 'everyone') {
         $status['can_message'] = true;
-    } elseif ($msgPerm === 'followers' && $status['is_following']) {
-        $status['can_message'] = true;
-    } elseif ($msgPerm === 'following' && $status['is_followed_by']) {
-        $status['can_message'] = true;
     } elseif ($msgPerm === 'friends' && $status['is_friend']) {
         $status['can_message'] = true;
+    } elseif ($msgPerm !== 'nobody') {
+        // followers o following mappati come friends per compatibilità
+        if ($status['is_friend']) {
+            $status['can_message'] = true;
+        }
     }
 
     return $status;

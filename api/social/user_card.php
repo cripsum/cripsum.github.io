@@ -51,29 +51,16 @@ $targetId = (int)$userProfile['id'];
 $relationship = getRelationshipStatus($mysqli, $userId, $targetId);
 
 // 3. Calcoliamo le statistiche social
-// Followers
-$stmtFollowers = $mysqli->prepare("SELECT COUNT(*) FROM user_follows WHERE followed_id = ?");
-$stmtFollowers->bind_param("i", $targetId);
-$stmtFollowers->execute();
-$stmtFollowers->bind_result($followersCount);
-$stmtFollowers->fetch();
-$stmtFollowers->close();
-
-// Following
-$stmtFollowing = $mysqli->prepare("SELECT COUNT(*) FROM user_follows WHERE follower_id = ?");
-$stmtFollowing->bind_param("i", $targetId);
-$stmtFollowing->execute();
-$stmtFollowing->bind_result($followingCount);
-$stmtFollowing->fetch();
-$stmtFollowing->close();
-
 // Amici
 $stmtFriends = $mysqli->prepare("SELECT COUNT(*) FROM friendships WHERE user_one_id = ? OR user_two_id = ?");
-$stmtFriends->bind_param("ii", $targetId, $targetId);
-$stmtFriends->execute();
-$stmtFriends->bind_result($friendsCount);
-$stmtFriends->fetch();
-$stmtFriends->close();
+$friendsCount = 0;
+if ($stmtFriends) {
+    $stmtFriends->bind_param("ii", $targetId, $targetId);
+    $stmtFriends->execute();
+    $stmtFriends->bind_result($friendsCount);
+    $stmtFriends->fetch();
+    $stmtFriends->close();
+}
 
 // 4. Calcoliamo gli amici in comune
 $mutualFriends = getMutualFriends($mysqli, $userId, $targetId);
@@ -94,8 +81,8 @@ $data = [
     'profile_banner_url' => $userProfile['profile_banner_type'] ? '/includes/get_profile_banner.php?id=' . $targetId : null,
     'profile_banner_type' => $userProfile['profile_banner_type'] ?: null,
     'stats' => [
-        'followers_count' => $followersCount,
-        'following_count' => $followingCount,
+        'followers_count' => 0,
+        'following_count' => 0,
         'friends_count' => $friendsCount,
         'mutual_friends_count' => count($mutualFriends)
     ],

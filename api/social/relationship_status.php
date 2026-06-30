@@ -36,15 +36,12 @@ $placeholders = implode(',', array_fill(0, count($ids), '?'));
 $sql = "
     SELECT 
         u.id,
-        EXISTS(SELECT 1 FROM user_follows WHERE follower_id = ? AND followed_id = u.id) AS is_following,
-        EXISTS(SELECT 1 FROM user_follows WHERE follower_id = u.id AND followed_id = ?) AS is_followed_by,
         EXISTS(SELECT 1 FROM friendships WHERE (user_one_id = LEAST(?, u.id) AND user_two_id = GREATEST(?, u.id))) AS is_friend,
         EXISTS(SELECT 1 FROM friendship_requests WHERE sender_id = ? AND receiver_id = u.id AND status = 'pending') AS request_sent,
         EXISTS(SELECT 1 FROM friendship_requests WHERE sender_id = u.id AND receiver_id = ? AND status = 'pending') AS request_received,
         EXISTS(SELECT 1 FROM blocked_users WHERE blocker_id = ? AND blocked_id = u.id) AS blocked_by_viewer,
         EXISTS(SELECT 1 FROM blocked_users WHERE blocker_id = u.id AND blocked_id = ?) AS blocked_viewer,
         s.profile_visibility,
-        s.follow_permission,
         s.friend_request_permission,
         s.message_permission
     FROM utenti u
@@ -58,11 +55,11 @@ if (!$stmt) {
 }
 
 // Costruiamo i tipi di parametri per bind_param
-// I primi 8 parametri sono $userId (per le sottoquery di relazione)
+// I primi 6 parametri sono $userId (per le sottoquery di relazione)
 // Seguiti dagli ID del batch nella clausola IN
-$types = "iiiiiiii" . str_repeat("i", count($ids));
+$types = "iiiiii" . str_repeat("i", count($ids));
 $bindParams = [
-    $userId, $userId, $userId, $userId, $userId, $userId, $userId, $userId
+    $userId, $userId, $userId, $userId, $userId, $userId
 ];
 foreach ($ids as $id) {
     $bindParams[] = $id;
@@ -80,12 +77,11 @@ foreach ($rows as $row) {
     
     // Default privacy settings se mancanti
     $visibility = $row['profile_visibility'] ?: 'public';
-    $flPerm = $row['follow_permission'] ?: 'everyone';
     $frPerm = $row['friend_request_permission'] ?: 'everyone';
     $msgPerm = $row['message_permission'] ?: 'everyone';
     
-    $isFollowing = (bool)$row['is_following'];
-    $isFollowedBy = (bool)$row['is_followed_by'];
+    $isFollowing = false;
+    $isFollowedBy = false;
     $isFriend = (bool)$row['is_friend'];
     $requestSent = (bool)$row['request_sent'];
     $requestReceived = (bool)$row['request_received'];
@@ -104,30 +100,23 @@ foreach ($rows as $row) {
             $canViewProfile = false;
         }
         // 2. Follow
-        if ($flPerm === 'everyone' || $flPerm === 'registered') {
-            $canFollow = true;
-        }
+        $canFollow = false;
         // 3. Richiesta Amicizia
         if (!$isFriend && !$requestSent && !$requestReceived) {
-            if ($frPerm === 'everyone') {
-                $canSendFriendRequest = true;
-            } elseif ($frPerm === 'followers' && $isFollowing) {
-                $canSendFriendRequest = true;
-            } elseif ($frPerm === 'following' && $isFollowedBy) {
-                $canSendFriendRequest = true;
-            } elseif ($frPerm === 'mutual_followers' && ($isFollowing && $isFollowedBy)) {
+            if ($frPerm !== 'nobody') {
                 $canSendFriendRequest = true;
             }
         }
         // 4. Messaggi
         if ($msgPerm === 'everyone') {
             $canMessage = true;
-        } elseif ($msgPerm === 'followers' && $isFollowing) {
-            $canMessage = true;
-        } elseif ($msgPerm === 'following' && $isFollowedBy) {
-            $canMessage = true;
         } elseif ($msgPerm === 'friends' && $isFriend) {
             $canMessage = true;
+        } elseif ($msgPerm !== 'nobody') {
+            // followers o following mappati come friends per compatibilità
+            if ($isFriend) {
+                $canMessage = true;
+            }
         }
     } else {
         $canViewProfile = false;

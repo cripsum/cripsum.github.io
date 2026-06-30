@@ -160,43 +160,8 @@
 
     // Bind click events to inner action buttons (Follow, Friend, Message, Block)
     function bindCardButtons(cardElement, data) {
-        const followBtn = cardElement.querySelector('.js-card-follow');
         const friendBtn = cardElement.querySelector('.js-card-friend');
         const blockBtn = cardElement.querySelector('.js-card-block');
-        
-        if (followBtn) {
-            followBtn.addEventListener('click', async () => {
-                followBtn.disabled = true;
-                const isFollowing = followBtn.classList.contains('social-btn--primary');
-                let res;
-                if (isFollowing) {
-                    res = await SocialAPI.follow(data.id);
-                } else {
-                    res = await SocialAPI.unfollow(data.id);
-                }
-                
-                if (res.success) {
-                    if (isFollowing) {
-                        followBtn.className = 'social-btn social-btn--secondary js-card-follow';
-                        followBtn.innerHTML = '<i class="fa-solid fa-check"></i> Following';
-                    } else {
-                        followBtn.className = 'social-btn social-btn--primary js-card-follow';
-                        followBtn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Follow';
-                    }
-                    const countEl = cardElement.querySelector('.js-followers-count');
-                    if (countEl) {
-                        const currentVal = parseInt(countEl.textContent);
-                        countEl.textContent = isFollowing ? currentVal + 1 : currentVal - 1;
-                    }
-                    if (window.SocialUI && typeof window.SocialUI.loadActiveTab === 'function') {
-                        window.SocialUI.loadActiveTab();
-                    }
-                } else {
-                    alert(res.error.message);
-                }
-                followBtn.disabled = false;
-            });
-        }
 
         if (friendBtn) {
             friendBtn.addEventListener('click', async () => {
@@ -289,13 +254,6 @@
 
         // Follow Button
         let followBtnHtml = '';
-        if (!r.is_self && r.can_follow) {
-            if (r.is_following) {
-                followBtnHtml = `<button class="social-btn social-btn--secondary js-card-follow" type="button"><i class="fa-solid fa-check"></i> Following</button>`;
-            } else {
-                followBtnHtml = `<button class="social-btn social-btn--primary js-card-follow" type="button"><i class="fa-solid fa-user-plus"></i> Follow</button>`;
-            }
-        }
 
         // Friend Button
         let friendBtnHtml = '';
@@ -415,15 +373,7 @@
                     <div class="user-card__username">@${escapeHtml(user.username)}</div>
                 </div>
 
-                <div class="user-card__stats">
-                    <div class="user-card__stat-item">
-                        <span class="user-card__stat-val js-followers-count">${user.stats.followers_count}</span>
-                        <span class="user-card__stat-label">Followers</span>
-                    </div>
-                    <div class="user-card__stat-item">
-                        <span class="user-card__stat-val">${user.stats.following_count}</span>
-                        <span class="user-card__stat-label">Following</span>
-                    </div>
+                <div class="user-card__stats" style="justify-content: center;">
                     <div class="user-card__stat-item">
                         <span class="user-card__stat-val">${user.stats.friends_count}</span>
                         <span class="user-card__stat-label">Friends</span>

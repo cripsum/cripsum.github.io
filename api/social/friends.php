@@ -13,8 +13,6 @@ $sql = "
     SELECT 
         u.id, u.username, u.ruolo, u.is_premium, u.ultimo_accesso,
         TIMESTAMPDIFF(SECOND, u.ultimo_accesso, NOW()) AS seconds_since_active,
-        EXISTS(SELECT 1 FROM user_follows WHERE follower_id = ? AND followed_id = u.id) AS is_following,
-        EXISTS(SELECT 1 FROM user_follows WHERE follower_id = u.id AND followed_id = ?) AS is_followed_by,
         EXISTS(SELECT 1 FROM friendships WHERE (user_one_id = LEAST(?, u.id) AND user_two_id = GREATEST(?, u.id))) AS is_friend,
         EXISTS(SELECT 1 FROM friendship_requests WHERE sender_id = ? AND receiver_id = u.id AND status = 'pending') AS request_sent,
         EXISTS(SELECT 1 FROM friendship_requests WHERE sender_id = u.id AND receiver_id = ? AND status = 'pending') AS request_received
@@ -30,8 +28,8 @@ if (!$stmt) {
 }
 
 $stmt->bind_param(
-    "iiiiiiiii",
-    $userId, $userId, $userId, $userId, $userId, $userId,
+    "iiiiiii",
+    $userId, $userId, $userId, $userId,
     $targetId, $targetId, $targetId
 );
 
@@ -45,9 +43,9 @@ $offlineFriends = [];
 
 foreach ($allFriends as &$f) {
     $f['id'] = (int)$f['id'];
-    $f['is_following'] = (bool)$f['is_following'];
-    $f['is_followed_by'] = (bool)$f['is_followed_by'];
-    $f['is_mutual_follow'] = ($f['is_following'] && $f['is_followed_by']);
+    $f['is_following'] = false;
+    $f['is_followed_by'] = false;
+    $f['is_mutual_follow'] = false;
     $f['is_friend'] = (bool)$f['is_friend'];
     $f['friend_request_sent'] = (bool)$f['request_sent'];
     $f['friend_request_received'] = (bool)$f['request_received'];

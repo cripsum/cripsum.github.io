@@ -1,30 +1,24 @@
 <?php
-require_once __DIR__ . '/bootstrap.php';
+// api/social/suggested_users.php
+// Recommendation system using mutual friends and fallback to active users (follow-less friendship model).
 
-// Algoritmo di raccomandazione sociale:
-// 1. Trova utenti seguiti dai nostri seguiti (connessioni di 2° grado).
-// 2. Fallback su utenti popolari e attivi.
-// 3. Filtra: se stessi, già seguiti, già amici, richieste pendenti, blocchi, profili privati.
+require_once __DIR__ . '/bootstrap.php';
 
 $sql = "
     SELECT 
         u.id, u.username, u.display_name, u.ruolo, u.is_premium,
-        (SELECT COUNT(*) FROM user_follows WHERE followed_id = u.id) AS followers_count,
-        -- Calcolo connessioni in comune (persone che seguiamo e che seguono anche l'utente suggerito)
+        -- Calcolo amici in comune (mutual connections)
         (
-            SELECT COUNT(*) 
-            FROM user_follows f2
-            WHERE f2.follower_id = ? AND f2.followed_id IN (
-                SELECT f3.follower_id FROM user_follows f3 WHERE f3.followed_id = u.id
-            )
-        ) AS mutual_connections,
-        -- Verifica se ci segue (per evidenziare il follow back)
-        EXISTS(SELECT 1 FROM user_follows WHERE follower_id = u.id AND followed_id = ?) AS is_follower
+            SELECT COUNT(*)
+            FROM friendships f1
+            INNER JOIN friendships f2 ON 
+                (IF(f1.user_one_id = ?, f1.user_two_id, f1.user_one_id) = IF(f2.user_one_id = u.id, f2.user_two_id, f2.user_one_id))
+            WHERE (f1.user_one_id = ? OR f1.user_two_id = ?)
+              AND (f2.user_one_id = u.id OR f2.user_two_id = u.id)
+        ) AS mutual_connections
     FROM utenti u
     LEFT JOIN user_social_settings s ON s.user_id = u.id
     WHERE u.id != ?
-      -- Escludi utenti già seguiti
-      AND NOT EXISTS (SELECT 1 FROM user_follows WHERE follower_id = ? AND followed_id = u.id)
       -- Escludi amici esistenti
       AND NOT EXISTS (SELECT 1 FROM friendships WHERE user_one_id = LEAST(?, u.id) AND user_two_id = GREATEST(?, u.id))
       -- Escludi richieste pendenti
@@ -39,8 +33,7 @@ $sql = "
           WHERE (b.blocker_id = ? AND b.blocked_id = u.id)
              OR (b.blocker_id = u.id AND b.blocked_id = ?)
       )
-      -- Rispetta la privacy del profilo
-    ORDER BY mutual_connections DESC, is_follower DESC, followers_count DESC, u.ultimo_accesso DESC
+    ORDER BY mutual_connections DESC, u.ultimo_accesso DESC
     LIMIT 8
 ";
 
@@ -51,8 +44,9 @@ if (!$stmt) {
 
 $stmt->bind_param(
     "iiiiiiiiii",
+    $userId, $userId, $userId,
+    $userId,
     $userId, $userId,
-    $userId, $userId, $userId, $userId,
     $userId, $userId,
     $userId, $userId
 );
@@ -65,9 +59,9 @@ $stmt->close();
 foreach ($suggestions as &$s) {
     $s['id'] = (int)$s['id'];
     $s['display_name'] = $s['display_name'] ?: $s['username'];
-    $s['followers_count'] = (int)$s['followers_count'];
+    $s['followers_count'] = 0; // Keeping structure compatible
     $s['mutual_connections'] = (int)$s['mutual_connections'];
-    $s['is_follower'] = (bool)$s['is_follower']; // Se l'utente segue noi, suggeriamo il "Ricambia il follow"
+    $s['is_follower'] = false; // Follows removed
 }
 unset($s);
 

@@ -77,20 +77,8 @@ if ($checkOldBlocks && $checkOldBlocks->num_rows > 0) {
     }
 }
 
-// 2. Altre tabelle social
+// 2. Altre tabelle social (Senza user_follows per il modello solo amicizie)
 $tables = [
-    "user_follows" => "
-        CREATE TABLE IF NOT EXISTS `user_follows` (
-            `id` INT AUTO_INCREMENT PRIMARY KEY,
-            `follower_id` INT NOT NULL,
-            `followed_id` INT NOT NULL,
-            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (`follower_id`) REFERENCES `utenti`(`id`) ON DELETE CASCADE,
-            FOREIGN KEY (`followed_id`) REFERENCES `utenti`(`id`) ON DELETE CASCADE,
-            UNIQUE KEY `follower_followed` (`follower_id`, `followed_id`),
-            CONSTRAINT `no_self_follow` CHECK (`follower_id` <> `followed_id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-    ",
     "friendships" => "
         CREATE TABLE IF NOT EXISTS `friendships` (
             `id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -122,12 +110,9 @@ $tables = [
         CREATE TABLE IF NOT EXISTS `user_social_settings` (
             `user_id` INT PRIMARY KEY,
             `profile_visibility` ENUM('public', 'private') DEFAULT 'public',
-            `follow_permission` ENUM('everyone', 'registered', 'nobody') DEFAULT 'everyone',
-            `friend_request_permission` ENUM('everyone', 'followers', 'following', 'mutual_followers', 'nobody') DEFAULT 'everyone',
-            `message_permission` ENUM('everyone', 'followers', 'following', 'friends', 'nobody') DEFAULT 'everyone',
+            `friend_request_permission` ENUM('everyone', 'nobody') DEFAULT 'everyone',
+            `message_permission` ENUM('everyone', 'friends', 'nobody') DEFAULT 'everyone',
             `show_friend_count` TINYINT(1) DEFAULT 1,
-            `show_followers_count` TINYINT(1) DEFAULT 1,
-            `show_following_count` TINYINT(1) DEFAULT 1,
             `show_mutual_friends` TINYINT(1) DEFAULT 1,
             `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

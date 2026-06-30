@@ -17,8 +17,6 @@ $likeQuery = '%' . $query . '%';
 $sql = "
     SELECT 
         u.id, u.username, u.display_name, u.ruolo, u.is_premium,
-        EXISTS(SELECT 1 FROM user_follows WHERE follower_id = ? AND followed_id = u.id) AS is_following,
-        EXISTS(SELECT 1 FROM user_follows WHERE follower_id = u.id AND followed_id = ?) AS is_followed_by,
         EXISTS(SELECT 1 FROM friendships WHERE (user_one_id = LEAST(?, u.id) AND user_two_id = GREATEST(?, u.id))) AS is_friend,
         EXISTS(SELECT 1 FROM friendship_requests WHERE sender_id = ? AND receiver_id = u.id AND status = 'pending') AS request_sent,
         EXISTS(SELECT 1 FROM friendship_requests WHERE sender_id = u.id AND receiver_id = ? AND status = 'pending') AS request_received
@@ -39,8 +37,8 @@ if (!$stmt) {
 }
 
 $stmt->bind_param(
-    "iiiiiiissiiii",
-    $userId, $userId, $userId, $userId, $userId, $userId,
+    "iiiissiiiii",
+    $userId, $userId, $userId, $userId,
     $likeQuery, $likeQuery, $userId,
     $userId, $userId,
     $limit, $offset
@@ -54,9 +52,9 @@ $stmt->close();
 foreach ($users as &$u) {
     $u['id'] = (int)$u['id'];
     $u['display_name'] = $u['display_name'] ?: $u['username'];
-    $u['is_following'] = (bool)$u['is_following'];
-    $u['is_followed_by'] = (bool)$u['is_followed_by'];
-    $u['is_mutual_follow'] = ($u['is_following'] && $u['is_followed_by']);
+    $u['is_following'] = false;
+    $u['is_followed_by'] = false;
+    $u['is_mutual_follow'] = false;
     $u['is_friend'] = (bool)$u['is_friend'];
     $u['friend_request_sent'] = (bool)$u['request_sent'];
     $u['friend_request_received'] = (bool)$u['request_received'];

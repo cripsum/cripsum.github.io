@@ -168,12 +168,7 @@ const SocialUI = {
                 actionsHtml += `<button class="social-btn social-btn--primary js-social-action" data-action="add_friend" data-id="${u.id}"><i class="fa-solid fa-user-plus"></i> Aggiungi</button>`;
             }
 
-            // Follow Button
-            if (u.is_following) {
-                actionsHtml += `<button class="social-btn social-btn--secondary js-social-action" data-action="unfollow" data-id="${u.id}" title="Smetti di seguire"><i class="fa-solid fa-check"></i> Seguito</button>`;
-            } else if (u.can_follow) {
-                actionsHtml += `<button class="social-btn social-btn--secondary js-social-action" data-action="follow" data-id="${u.id}"><i class="fa-solid fa-user-plus"></i> Segui</button>`;
-            }
+
 
             return `
                 <div class="social-card" style="animation-delay: ${delay}s;">
@@ -293,14 +288,6 @@ const SocialUI = {
 
         try {
             switch (action) {
-                case 'follow':
-                    res = await SocialAPI.follow(targetId);
-                    if (res.success) this.showToast("Hai iniziato a seguire l'utente.");
-                    break;
-                case 'unfollow':
-                    res = await SocialAPI.unfollow(targetId);
-                    if (res.success) this.showToast("Non segui più l'utente.");
-                    break;
                 case 'add_friend':
                     res = await SocialAPI.sendFriendRequest(targetId);
                     if (res.success) this.showToast(res.data.status === 'accepted' ? "Ora siete amici!" : "Richiesta di amicizia inviata.");

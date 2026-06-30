@@ -18,8 +18,6 @@ echo "Target ID: $targetId\n";
 $sql = "
     SELECT 
         u.id, u.username, u.ruolo, u.is_premium, u.ultimo_accesso,
-        EXISTS(SELECT 1 FROM user_follows WHERE follower_id = ? AND followed_id = u.id) AS is_following,
-        EXISTS(SELECT 1 FROM user_follows WHERE follower_id = u.id AND followed_id = ?) AS is_followed_by,
         EXISTS(SELECT 1 FROM friendships WHERE (user_one_id = LEAST(?, u.id) AND user_two_id = GREATEST(?, u.id))) AS is_friend,
         EXISTS(SELECT 1 FROM friendship_requests WHERE sender_id = ? AND receiver_id = u.id AND status = 'pending') AS request_sent,
         EXISTS(SELECT 1 FROM friendship_requests WHERE sender_id = u.id AND receiver_id = ? AND status = 'pending') AS request_received
@@ -39,8 +37,8 @@ if (!$stmt) {
 
 echo "Binding parameters...\n";
 $ok = $stmt->bind_param(
-    "iiiiiiiii",
-    $userId, $userId, $userId, $userId, $userId, $userId,
+    "iiiiiii",
+    $userId, $userId, $userId, $userId,
     $targetId, $targetId, $targetId
 );
 
