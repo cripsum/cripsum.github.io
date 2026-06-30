@@ -74,6 +74,7 @@ try {
             last_m.message_type AS last_message_type,
             last_m.created_at AS last_message_time,
             last_m.deleted_for_all AS last_message_deleted_for_all,
+            (SELECT file_type FROM private_message_attachments pma WHERE pma.message_id = last_m.id LIMIT 1) AS last_message_attachment_type,
 
             TIMESTAMPDIFF(SECOND, other_u.ultimo_accesso, NOW()) AS other_seconds_since_active
         FROM private_conversation_participants cp

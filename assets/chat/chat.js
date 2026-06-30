@@ -85,6 +85,11 @@
         // Info button details panel toggle
         document.querySelector('#chatInfoBtn')?.addEventListener('click', toggleDetailsPanel);
         document.querySelector('#chatDetailsCloseBtn')?.addEventListener('click', toggleDetailsPanel);
+        document.querySelector('#chatHeaderUser')?.addEventListener('click', (e) => {
+            if (e.target.closest('#chatBackBtn')) return;
+            if (!ChatState.currentChatId) return;
+            toggleDetailsPanel();
+        });
 
         // Mobile back button
         document.querySelector('#chatBackBtn')?.addEventListener('click', () => {

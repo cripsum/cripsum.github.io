@@ -111,9 +111,17 @@ const ChatUI = {
                 const time = g.last_message_time ? formatTime(g.last_message_time) : '';
                 
                 let preview = 'Nessun messaggio';
-                if (g.last_message_body) {
-                    preview = g.last_message_type === 'system' ? g.last_message_body : 
-                              g.last_message_type === 'gif' ? `[GIF] @${g.last_message_sender_username}` : `@${g.last_message_sender_username}: ${g.last_message_body}`;
+                if (g.last_message_id) {
+                    const sender = parseInt(g.last_message_sender_id) === ChatState.myUserId ? 'Tu' : `@${g.last_message_sender_username}`;
+                    if (g.last_message_type === 'system') {
+                        preview = g.last_message_body || 'Notifica di sistema';
+                    } else if (g.last_message_type === 'gif') {
+                        preview = `${sender}: [GIF]`;
+                    } else if (g.last_message_type === 'media' || !g.last_message_body) {
+                        preview = `${sender}: [Allegato]`;
+                    } else {
+                        preview = `${sender}: ${g.last_message_body}`;
+                    }
                 }
 
                 html += `
@@ -147,9 +155,19 @@ const ChatUI = {
                 const nickname = p.other_nickname || p.other_username;
                 const time = p.last_message_time ? formatTime(p.last_message_time) : '';
                 
-                let preview = p.last_message_text || 'Nessun messaggio';
-                if (p.last_message_type === 'gif') {
-                    preview = '[GIF]';
+                let preview = 'Nessun messaggio';
+                if (p.last_message_id) {
+                    const sender = parseInt(p.last_message_sender_id) === ChatState.myUserId ? 'Tu' : `@${p.other_username}`;
+                    if (p.last_message_type === 'system') {
+                        preview = p.last_message_text || 'Notifica di sistema';
+                    } else if (p.last_message_type === 'gif') {
+                        preview = `${sender}: [GIF]`;
+                    } else if (p.last_message_type === 'media' || !p.last_message_text) {
+                        const attType = p.last_message_attachment_type || 'Allegato';
+                        preview = `${sender}: [${attType.toUpperCase()}]`;
+                    } else {
+                        preview = `${sender}: ${p.last_message_text}`;
+                    }
                 }
 
                 html += `

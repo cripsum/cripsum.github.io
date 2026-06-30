@@ -151,11 +151,12 @@ try {
         
     } else {
         // --- LOGICA PRIVATA ---
+        $messageType = 'media';
         $stmtMsg = $mysqli->prepare("
-            INSERT INTO private_messages (conversation_id, sender_id, message, reply_to_id, ephemeral_timer)
-            VALUES (?, ?, NULL, ?, ?)
+            INSERT INTO private_messages (conversation_id, sender_id, message, message_type, reply_to_id, ephemeral_timer)
+            VALUES (?, ?, NULL, ?, ?, ?)
         ");
-        $stmtMsg->bind_param("iiii", $conversationId, $userId, $replyToId, $ephemeralTimer);
+        $stmtMsg->bind_param("iisii", $conversationId, $userId, $messageType, $replyToId, $ephemeralTimer);
         $stmtMsg->execute();
         $messageId = $mysqli->insert_id;
         $stmtMsg->close();
