@@ -21,19 +21,34 @@ if (empty($discordId)) {
     $discordId = isset($input['discord_id']) ? trim((string)$input['discord_id']) : '';
 }
 
-$userId = 1; // Default fallback to load general banners if no discord_id is supplied
-if (!empty($discordId)) {
-    $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE discord_id = ? LIMIT 1");
-    if ($stmt) {
-        $stmt->bind_param('s', $discordId);
-        $stmt->execute();
-        $user = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-        if ($user) {
-            $userId = (int)$user['id'];
-        }
-    }
+if (empty($discordId)) {
+    http_response_code(400);
+    echo json_encode(['status' => 'error', 'message' => 'Missing discord_id.']);
+    exit;
 }
+
+$stmt = $mysqli->prepare("SELECT id FROM utenti WHERE discord_id = ? LIMIT 1");
+if (!$stmt) {
+    http_response_code(500);
+    echo json_encode(['status' => 'error', 'message' => 'Database query preparation failed.']);
+    exit;
+}
+
+$stmt->bind_param('s', $discordId);
+$stmt->execute();
+$user = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+if (!$user) {
+    echo json_encode([
+        'status' => 'error',
+        'linked' => false,
+        'message' => 'Account Discord non collegato.'
+    ]);
+    exit;
+}
+
+$userId = (int)$user['id'];
 
 // 3. Mock user session to bypass auth inside api_gacha_banners.php
 $_SESSION['user_id'] = $userId;
