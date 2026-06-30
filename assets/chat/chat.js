@@ -917,8 +917,7 @@
             });
         }
 
-        const mouseX = e.clientX;
-        const showLeftClass = (mouseX + 180 + 240 > window.innerWidth) ? 'show-left' : '';
+        const showLeftClass = (e.clientX + 180 + 240 > window.innerWidth) ? 'show-left' : '';
 
         let menuHtml = `
             <div class="chat-context-menu__item chat-context-menu__item--reactions-trigger">

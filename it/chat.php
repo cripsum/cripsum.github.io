@@ -183,7 +183,7 @@ if (!isOwner()) {
     <script src="/assets/chat/chat-api.js?v=1.3" defer></script>
     <script src="/assets/chat/chat-state.js?v=1.2" defer></script>
     <script src="/assets/chat/chat-ui.js?v=2.8" defer></script>
-    <script src="/assets/chat/chat.js?v=3.0" defer></script>
+    <script src="/assets/chat/chat.js?v=3.1" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
 
