@@ -327,7 +327,7 @@
         if (!r.is_self && r.can_message) {
             const messageLabel = lang === 'it' ? 'Scrivi' : 'Message';
             messageBtnHtml = `<a class="social-btn social-btn--secondary" href="/${lang}/chat?user_id=${user.id}"><i class="fa-solid fa-envelope"></i> ${messageLabel}</a>`;
-            createGroupBtnHtml = `<a class="social-btn social-btn--secondary" href="/${lang}/chat?create_group_with=${user.id}" title="${lang === 'it' ? 'Crea gruppo con utente' : 'Create group with user'}"><i class="fa-solid fa-users-plus"></i></a>`;
+            createGroupBtnHtml = `<a class="social-btn social-btn--secondary" href="/${lang}/chat?create_group_with=${user.id}" title="${lang === 'it' ? 'Crea gruppo con utente' : 'Create group with user'}"><i class="fa-solid fa-users"></i></a>`;
             inviteGroupBtnHtml = `<button class="social-btn social-btn--secondary" onclick="openInviteDropdown(event, ${user.id})" title="${lang === 'it' ? 'Invita nel gruppo' : 'Invite to group'}"><i class="fa-solid fa-user-plus"></i></button>`;
         }
 

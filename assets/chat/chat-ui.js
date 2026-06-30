@@ -178,7 +178,7 @@ const ChatUI = {
     },
 
     // --- RENDER MESSAGES LOG (GLOBAL CHAT STYLE MATCHING chat-v2.css) ---
-    renderMessages() {
+    renderMessages(forceScroll = false) {
         if (!this.messagesEl) return;
         
         if (ChatState.messages.length === 0) {
@@ -287,6 +287,26 @@ const ChatUI = {
             const avatar = `<a class="chat-avatar-link" href="#"><img class="chat-avatar" src="/includes/get_pfp.php?id=${msg.sender_id}" alt=""></a>`;
             const editedText = msg.edited_at || msg.is_edited ? '<span class="chat-edited">modificato</span>' : '';
 
+            // Render reactions if present
+            let reactionsHtml = '';
+            if (msg.reactions && msg.reactions.length > 0) {
+                reactionsHtml = `<div class="chat-msg-reactions">`;
+                msg.reactions.forEach(r => {
+                    const reactionStr = r.reaction || r.emoji;
+                    const countVal = r.count || r.total;
+                    const didIReact = r.user_reacted || r.mine;
+                    const badgeClass = ['chat-reaction-badge', didIReact ? 'user-reacted' : ''].filter(Boolean).join(' ');
+                    const titleText = escapeHtml(r.usernames || (didIReact ? 'Tu' : ''));
+                    reactionsHtml += `
+                        <span class="${badgeClass}" title="${titleText}" onclick="window.toggleReaction(event, ${msg.id}, '${reactionStr}')">
+                            <span class="chat-reaction-emoji">${reactionStr}</span>
+                            <span class="chat-reaction-count">${countVal}</span>
+                        </span>
+                    `;
+                });
+                reactionsHtml += `</div>`;
+            }
+
             const main = `
                 <div class="chat-message-main">
                     <div class="chat-message-meta">
@@ -297,6 +317,7 @@ const ChatUI = {
                         <div class="chat-bubble ${msg.message_type === 'gif' ? 'chat-bubble--pure-gif' : ''}">
                             <div class="chat-message-content">${messageContent}${attachmentsHtml}</div>
                         </div>
+                        ${reactionsHtml}
                     </div>
                 </div>
             `;
@@ -305,8 +326,21 @@ const ChatUI = {
             prevMsg = msg;
         });
 
+        // Determine if we should scroll to bottom
+        const box = this.messagesEl;
+        const isNearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 200;
+        const shouldScroll = forceScroll || isNearBottom || ChatState.firstLoad;
+
         this.messagesEl.innerHTML = html;
-        scrollToBottom();
+        
+        if (shouldScroll) {
+            scrollToBottom();
+            // Scroll again after tiny timeouts to account for lazy-loaded images or gifs
+            setTimeout(scrollToBottom, 50);
+            setTimeout(scrollToBottom, 150);
+            setTimeout(scrollToBottom, 300);
+            ChatState.firstLoad = false;
+        }
     },
 
     // --- RENDER SIDEBAR DETAILS ---

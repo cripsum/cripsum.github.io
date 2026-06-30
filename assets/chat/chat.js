@@ -26,7 +26,13 @@
         const createWithUser = urlParams.get('create_group_with');
 
         if (startUser) {
-            startNewPrivateConversation(parseInt(startUser));
+            const userIdNum = parseInt(startUser);
+            const existingConv = ChatState.conversations.find(c => !c.isGroupChat && parseInt(c.other_user_id) === userIdNum);
+            if (existingConv) {
+                selectChat('private', existingConv.id, userIdNum);
+            } else {
+                startNewPrivateConversation(userIdNum);
+            }
         } else if (createWithUser) {
             openCreateGroupWith(parseInt(createWithUser));
         }
@@ -177,6 +183,7 @@
     // --- SELEZIONE CHAT ---
     async function selectChat(type, id, recipientId = 0) {
         ChatState.setActiveChat(type, id, recipientId);
+        ChatState.firstLoad = true;
         cancelReplyMode();
         
         // Hide panel elements
@@ -326,7 +333,7 @@
                 }
                 ChatState.messages.push(msg);
                 ChatState.lastMessageId = msg.id;
-                ChatUI.renderMessages();
+                ChatUI.renderMessages(true);
                 loadAllConversations();
             } else {
                 ChatUI.showToast(res.error || "Impossibile inviare il messaggio.", true);
@@ -391,7 +398,7 @@
                 }
                 ChatState.messages.push(msg);
                 ChatState.lastMessageId = msg.id;
-                ChatUI.renderMessages();
+                ChatUI.renderMessages(true);
                 loadAllConversations();
             } else {
                 ChatUI.showToast(res.error || "Impossibile inviare la GIF.", true);
@@ -500,7 +507,7 @@
                 }
                 ChatState.messages.push(msg);
                 ChatState.lastMessageId = msg.id;
-                ChatUI.renderMessages();
+                ChatUI.renderMessages(true);
                 ChatUI.showToast("File inviato con successo!");
                 await loadAllConversations();
             } else {
@@ -862,7 +869,15 @@
         const msg = ChatState.messages.find(m => m.id === msgId);
         const hasText = msg && (msg.body || msg.message);
 
+        const allowedEmojis = ['😭','🙏','🔥','💀','💯','😂','❤️','👍','👀','🗣️'];
+
         let menuHtml = `
+            <div class="chat-context-menu__quick-reactions">
+                ${allowedEmojis.map(emoji => `
+                    <button class="chat-quick-reaction-btn" onclick="window.addQuickReaction(event, ${msgId}, '${emoji}')" type="button">${emoji}</button>
+                `).join('')}
+            </div>
+            <div class="chat-context-menu__divider"></div>
             <div class="chat-context-menu__item" onclick="window.enterReplyMode(${msgId})"><i class="fa-solid fa-reply"></i> Rispondi</div>
         `;
         
@@ -904,18 +919,74 @@
         menu.innerHTML = menuHtml;
         menu.style.display = 'block';
 
-        // Position context menu on the right side of the screen/chat main panel
-        const detailsPanel = document.querySelector('.chat-details');
-        const isDetailsOpen = detailsPanel && !detailsPanel.classList.contains('is-hidden') && detailsPanel.offsetWidth > 0;
-        menu.style.right = isDetailsOpen ? (detailsPanel.offsetWidth + 20) + 'px' : '20px';
-        menu.style.left = 'auto';
+        // Calculate click coordinates relative to viewport
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
 
-        const menuHeight = menu.offsetHeight || 220;
-        if (e.clientY + menuHeight > window.innerHeight) {
-            menu.style.top = (window.innerHeight - menuHeight - 15) + 'px';
-        } else {
-            menu.style.top = e.clientY + 'px';
+        // Context menu dimensions
+        const menuWidth = menu.offsetWidth || 220;
+        const menuHeight = menu.offsetHeight || 260;
+
+        let posX = mouseX;
+        let posY = mouseY;
+
+        // Screen boundary safety checks
+        if (mouseX + menuWidth > window.innerWidth) {
+            posX = window.innerWidth - menuWidth - 10;
         }
+        if (mouseY + menuHeight > window.innerHeight) {
+            posY = window.innerHeight - menuHeight - 10;
+        }
+
+        menu.style.left = posX + 'px';
+        menu.style.top = posY + 'px';
+        menu.style.right = 'auto';
+    };
+
+    window.toggleReaction = async function (e, msgId, emoji) {
+        if (e) e.stopPropagation();
+        
+        try {
+            let res;
+            if (ChatState.currentChatType === 'group') {
+                res = await ChatAPI.call('group_react.php', {
+                    method: 'POST',
+                    body: { message_id: msgId, reaction: emoji }
+                });
+            } else {
+                // For private chats, check if user already reacted
+                const msg = ChatState.messages.find(m => m.id === msgId);
+                const hasReacted = msg && msg.reactions && msg.reactions.some(r => r.reaction === emoji && (r.user_reacted || r.mine));
+                const action = hasReacted ? 'remove' : 'add';
+                
+                res = await ChatAPI.call('manage_reaction.php', {
+                    method: 'POST',
+                    body: { message_id: msgId, reaction: emoji, action: action }
+                });
+            }
+
+            if (res.ok) {
+                // Update local message reactions
+                const msg = ChatState.messages.find(m => m.id === msgId);
+                if (msg) {
+                    msg.reactions = res.reactions || [];
+                    ChatUI.renderMessages();
+                }
+            } else {
+                ChatUI.showToast(res.error || "Impossibile aggiornare la reazione.", true);
+            }
+        } catch (err) {
+            console.error("Reaction error:", err);
+        }
+    };
+
+    window.addQuickReaction = async function (e, msgId, emoji) {
+        if (e) e.stopPropagation();
+        
+        const menu = document.querySelector('#chatContextMenu');
+        if (menu) menu.style.display = 'none';
+
+        await window.toggleReaction(null, msgId, emoji);
     };
 
     window.enterReplyMode = function (msgId) {

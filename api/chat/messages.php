@@ -90,6 +90,24 @@ if (isset($_GET['chat_id'])) {
             } else {
                 $msg['attachments'] = [];
             }
+
+            // Fetch group chat reactions
+            $stmtReact = $mysqli->prepare("
+                SELECT r.reaction, GROUP_CONCAT(u.username SEPARATOR ', ') as usernames, COUNT(*) as count,
+                       MAX(CASE WHEN r.user_id = ? THEN 1 ELSE 0 END) as user_reacted
+                FROM group_chat_reactions r
+                INNER JOIN utenti u ON u.id = r.user_id
+                WHERE r.message_id = ?
+                GROUP BY r.reaction
+            ");
+            if ($stmtReact) {
+                $stmtReact->bind_param("ii", $userId, $msg['id']);
+                $stmtReact->execute();
+                $msg['reactions'] = $stmtReact->get_result()->fetch_all(MYSQLI_ASSOC);
+                $stmtReact->close();
+            } else {
+                $msg['reactions'] = [];
+            }
         }
         unset($msg);
         

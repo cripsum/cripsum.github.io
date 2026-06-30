@@ -109,7 +109,7 @@ switch ($action) {
         ");
         
         if ($stmt) {
-            $stmt->bind_param("isiiiss", $userId, $receiveFrom, $disableRead, $disableTyping, $statusText, $statusEmoji, $statusText, $statusEmoji);
+            $stmt->bind_param("isiiss", $userId, $receiveFrom, $disableRead, $disableTyping, $statusText, $statusEmoji);
             if ($stmt->execute()) {
                 $stmt->close();
                 

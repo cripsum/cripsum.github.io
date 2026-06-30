@@ -1177,7 +1177,7 @@
 
 /* Consecutive Messages Spacing and Visibility Rules */
 .chat-message.is-consecutive {
-    margin-top: 2px;
+    margin-top: -11px !important;
     margin-bottom: 2px;
 }
 .chat-message.is-consecutive .chat-avatar-link {
@@ -1192,4 +1192,36 @@
 .chat-area__user-status.is-online {
     color: var(--chat-online);
     font-weight: 600;
+}
+
+/* Quick Reactions Bar in Context Menu */
+.chat-context-menu__quick-reactions {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 8px;
+    gap: 4px;
+}
+
+.chat-quick-reaction-btn {
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    transition: background 0.15s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-quick-reaction-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.2);
+}
+
+.chat-context-menu__divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 4px 0;
 }
