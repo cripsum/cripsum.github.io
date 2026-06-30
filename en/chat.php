@@ -42,7 +42,7 @@ $myUserId = (int)$_SESSION['user_id'];
     </div>
 
     <div class="chat-shell">
-        <!-- Sidebar (Conversations) -->
+        <!-- Sidebar (Conversazioni) -->
         <aside class="chat-sidebar">
             <div class="chat-sidebar__header">
                 <div class="chat-sidebar__title">
@@ -65,9 +65,9 @@ $myUserId = (int)$_SESSION['user_id'];
             </div>
         </aside>
 
-        <!-- Main Chat Area -->
+        <!-- Area Chat Principale -->
         <main class="chat-area">
-            <!-- Chat Header -->
+            <!-- Header Chat -->
             <div class="chat-area__header">
                 <div class="chat-area__user" id="chatHeaderUser">
                     <button class="chat-action-btn d-md-none me-2" id="chatBackBtn" type="button" aria-label="Back">
@@ -75,19 +75,19 @@ $myUserId = (int)$_SESSION['user_id'];
                     </button>
                     <img class="chat-area__user-avatar" id="chatHeaderAvatar" src="" alt="" style="display: none;">
                     <div>
-                        <div class="chat-area__user-name" id="chatHeaderName">Select a conversation</div>
+                        <div class="chat-area__user-name" id="chatHeaderName">Select a chat</div>
                         <div class="chat-area__user-status" id="chatHeaderStatus"></div>
                     </div>
                 </div>
 
                 <div class="chat-area__actions">
-                    <button class="chat-action-btn" id="chatInfoBtn" type="button" title="Chat info">
+                    <button class="chat-action-btn" id="chatInfoBtn" type="button" title="Chat details">
                         <i class="fa-solid fa-circle-info"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Messages Area -->
+            <!-- Area Messaggi -->
             <div class="chat-messages">
                 <div class="text-center py-5 text-muted my-auto">
                     <i class="fa-regular fa-paper-plane fs-1 mb-3"></i>
@@ -96,9 +96,9 @@ $myUserId = (int)$_SESSION['user_id'];
                 </div>
             </div>
 
-            <!-- Input Footer -->
+            <!-- Footer Input -->
             <div class="chat-input-area">
-                <!-- Reply Bar (hidden by default) -->
+                <!-- Barra di risposta (nascosta di default) -->
                 <div class="chat-input-reply-bar" id="chatReplyBar" style="display: none;">
                     <div>
                         <i class="fa-solid fa-reply text-muted me-2"></i>
@@ -109,83 +109,59 @@ $myUserId = (int)$_SESSION['user_id'];
                 </div>
 
                 <!-- GIF Panel -->
-                <!-- Empty initial state -->
-                <div class="chat-empty-state">
-                    <i class="fa-regular fa-comments"></i>
-                    <h3>No conversation selected</h3>
-                    <p>Choose a chat from the left sidebar or start messaging a friend.</p>
-                </div>
-            </div>
-
-            <!-- GIF Panel (Giphy) -->
-            <div class="chat-gif-panel" id="chatGifPanel" hidden>
-                <div class="chat-gif-panel__header">
-                    <input type="text" id="chatGifSearchInput" placeholder="Search GIFs on Giphy...">
-                    <button class="chat-action-btn js-close-gifs" type="button">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-                <div class="chat-gif-grid" id="chatGifGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; max-height: 180px; overflow-y: auto;"></div>
-                <button type="button" class="chat-gif-more js-more-gifs" hidden style="width: 100%; margin-top: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--chat-border); color: white; padding: 6px; border-radius: 6px;">Load more GIFs</button>
-                <small class="chat-giphy-credit" style="display: block; text-align: right; font-size: 10px; color: var(--chat-text-muted); margin-top: 6px;">Powered by GIPHY</small>
-            </div>
-
-            <!-- Emoji Strip -->
-            <div class="chat-emoji-strip" id="chatEmojiStrip" hidden style="display: flex; gap: 8px; padding: 10px; border-top: 1px solid var(--chat-border); overflow-x: auto; background: var(--chat-panel-bg); max-width: 100%;">
-                <button type="button" data-emoji="😭" style="background:none; border:none; font-size: 20px;">😭</button>
-                <button type="button" data-emoji="🙏" style="background:none; border:none; font-size: 20px;">🙏</button>
-                <button type="button" data-emoji="🔥" style="background:none; border:none; font-size: 20px;">🔥</button>
-                <button type="button" data-emoji="💀" style="background:none; border:none; font-size: 20px;">💀</button>
-                <button type="button" data-emoji="💯" style="background:none; border:none; font-size: 20px;">💯</button>
-                <button type="button" data-emoji="😂" style="background:none; border:none; font-size: 20px;">😂</button>
-                <button type="button" data-emoji="❤️" style="background:none; border:none; font-size: 20px;">❤️</button>
-                <button type="button" data-emoji="👍" style="background:none; border:none; font-size: 20px;">👍</button>
-                <button type="button" data-emoji="👀" style="background:none; border:none; font-size: 20px;">👀</button>
-                <button type="button" data-emoji="🗣️" style="background:none; border:none; font-size: 20px;">🗣️</button>
-            </div>
-
-            <!-- Reply Bar -->
-            <div class="chat-reply-bar" id="chatReplyBar" style="display: none;">
-                <div class="chat-reply-bar__content">
-                    <i class="fa-solid fa-reply"></i>
-                    <div>
-                        <div class="chat-reply-user font-weight-bold" style="font-size: 11px;"></div>
-                        <div class="chat-reply-text text-muted" style="font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 400px;"></div>
+                <div class="chat-gif-panel" id="chatGifPanel" hidden style="background: var(--chat-panel-bg); border-top: 1px solid var(--chat-border); padding: 10px;">
+                    <div class="chat-gif-head" style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
+                        <div class="chat-gif-search" style="flex: 1; position: relative;">
+                            <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 10px; top: 10px; color: var(--chat-text-muted);"></i>
+                            <input type="search" id="chatGifSearch" placeholder="Search GIFs on GIPHY..." maxlength="60" autocomplete="off" style="width: 100%; padding: 8px 12px 8px 30px; background: rgba(0,0,0,0.2); border: 1px solid var(--chat-border); border-radius: 8px; color: white;">
+                        </div>
+                        <button type="button" class="chat-action-btn js-close-gifs" style="background:none; border:none; color:white;"><i class="fa-solid fa-xmark"></i></button>
                     </div>
+                    <div class="chat-gif-grid" id="chatGifGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; max-height: 180px; overflow-y: auto;"></div>
+                    <button type="button" class="chat-gif-more js-more-gifs" hidden style="width: 100%; margin-top: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--chat-border); color: white; padding: 6px; border-radius: 6px;">Load more GIFs</button>
+                    <small class="chat-giphy-credit" style="display: block; text-align: right; font-size: 10px; color: var(--chat-text-muted); margin-top: 6px;">Powered by GIPHY</small>
                 </div>
-                <button class="chat-action-btn" id="cancelReplyBtn" type="button">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
 
-            <!-- Composer (Input Area) -->
-            <footer class="chat-input-area" id="chatComposer" style="display: none;">
+                <!-- Emoji Strip -->
+                <div class="chat-emoji-strip" id="chatEmojiStrip" hidden style="display: flex; gap: 8px; padding: 10px; border-top: 1px solid var(--chat-border); overflow-x: auto; background: var(--chat-panel-bg); max-width: 100%;">
+                    <button type="button" data-emoji="😭" style="background:none; border:none; font-size: 20px;">😭</button>
+                    <button type="button" data-emoji="🙏" style="background:none; border:none; font-size: 20px;">🙏</button>
+                    <button type="button" data-emoji="🔥" style="background:none; border:none; font-size: 20px;">🔥</button>
+                    <button type="button" data-emoji="💀" style="background:none; border:none; font-size: 20px;">💀</button>
+                    <button type="button" data-emoji="💯" style="background:none; border:none; font-size: 20px;">💯</button>
+                    <button type="button" data-emoji="😂" style="background:none; border:none; font-size: 20px;">😂</button>
+                    <button type="button" data-emoji="❤️" style="background:none; border:none; font-size: 20px;">❤️</button>
+                    <button type="button" data-emoji="👍" style="background:none; border:none; font-size: 20px;">👍</button>
+                    <button type="button" data-emoji="👀" style="background:none; border:none; font-size: 20px;">👀</button>
+                    <button type="button" data-emoji="🗣️" style="background:none; border:none; font-size: 20px;">🗣️</button>
+                </div>
+
                 <div class="chat-input-row">
-                    <button class="chat-composer-btn js-toggle-emojis" type="button" title="Emoji">
-                        <i class="fa-regular fa-face-smile"></i>
-                    </button>
-                    <button class="chat-composer-btn js-toggle-gifs" type="button" title="GIF">
-                        <i class="fa-solid fa-photo-film"></i>
-                    </button>
-                    <button class="chat-composer-btn" id="chatAttachBtn" type="button" title="Attach File">
+                    <button class="chat-action-btn" id="chatAttachBtn" type="button" title="Attach file">
                         <i class="fa-solid fa-paperclip"></i>
                     </button>
-                    <input type="file" id="chatFileInput" multiple hidden>
-                    
+                    <input type="file" id="chatFileInput" style="display: none;">
+
+                    <button class="chat-action-btn js-toggle-gifs" type="button" title="GIF">
+                        <i class="fa-solid fa-image"></i>
+                    </button>
+                    <button class="chat-action-btn js-toggle-emojis" type="button" title="Emoji">
+                        <i class="fa-regular fa-face-smile"></i>
+                    </button>
+
                     <div class="chat-input-wrapper">
-                        <textarea class="chat-input-textarea" id="chatTextarea" rows="1" placeholder="Write a message..."></textarea>
+                        <textarea class="chat-input-textarea" id="chatTextarea" rows="1" placeholder="Type a message..."></textarea>
                     </div>
-                    
+
                     <button class="chat-action-btn" id="chatSendBtn" type="button" title="Send message" style="background: var(--chat-accent); color: white;">
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
                 </div>
-                <div class="chat-attachments-preview" id="chatAttachmentsPreview" style="display: none;"></div>
-            </footer>
+            </div>
         </main>
 
-        <!-- Details Sidebar -->
-        <aside class="chat-details" id="chatDetailsPanel" style="display: none;">
+        <!-- Pannello Dettagli (Destra, collassabile) -->
+        <aside class="chat-details is-hidden">
             <div class="chat-details__header">
                 <h5 class="m-0 font-weight-bold">Details</h5>
                 <button class="chat-action-btn" id="chatDetailsCloseBtn" type="button">
@@ -198,7 +174,7 @@ $myUserId = (int)$_SESSION['user_id'];
         </aside>
     </div>
 
-    <!-- Custom Context Menu -->
+    <!-- Menu Contestuale Personalizzato -->
     <div class="chat-context-menu" id="chatContextMenu"></div>
 
     <!-- Toast Notifications -->
