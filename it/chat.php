@@ -14,11 +14,6 @@ if (!isLoggedIn()) {
     exit();
 }
 
-if (!isOwner()) {
-    $_SESSION['error_message'] = "mi dispiace, ma la pagina delle chat private è in manutenzione. riprova più tardi.";
-    header('Location: home');
-    exit();
-}
 ?>
 <!DOCTYPE html>
 <html lang="it">

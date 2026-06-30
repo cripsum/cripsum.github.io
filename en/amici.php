@@ -11,11 +11,6 @@ if (!isLoggedIn()) {
     exit();
 }
 
-if (!isOwner()) {
-    $_SESSION['error_message'] = "sorry, the friends page is under maintenance. please try again later.";
-    header('Location: home');
-    exit();
-}
 $myUserId = (int)$_SESSION['user_id'];
 
 // Retrieve the count of pending incoming friend requests for the badge

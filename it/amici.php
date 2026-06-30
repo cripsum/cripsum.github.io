@@ -11,13 +11,6 @@ if (!isLoggedIn()) {
     exit();
 }
 
-if (!isOwner()) {
-    $_SESSION['error_message'] = "mi dispiace, ma la pagina degli amici è in manutenzione. riprova più tardi.";
-    header('Location: home');
-    exit();
-}
-
-
 $myUserId = (int)$_SESSION['user_id'];
 
 $pendingCount = 0;

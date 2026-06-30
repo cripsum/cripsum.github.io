@@ -12,11 +12,6 @@ if (!isLoggedIn()) {
     exit();
 }
 
-if (!isOwner()) {
-    $_SESSION['error_message'] = "Sorry, the private chat page is under maintenance. Please try again later.";
-    header('Location: home');
-    exit();
-}
 
 $myUserId = (int)$_SESSION['user_id'];
 ?>
