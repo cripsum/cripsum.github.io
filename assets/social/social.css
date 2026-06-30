@@ -429,14 +429,36 @@
     width: 100%;
 }
 
-.discord-card__actions-row {
+.discord-card__actions-primary {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     width: 100%;
 }
 
-.discord-card__actions-row .social-btn {
+.discord-card__actions-primary .social-btn {
     flex: 1;
+    font-size: 13px;
+    padding: 9px 10px;
+    white-space: nowrap;
+}
+
+.discord-card__actions-secondary {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.discord-card__actions-secondary .social-btn {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 16px;
 }
 
 /* ==========================================

@@ -21,9 +21,9 @@
             
             overlay.innerHTML = `
                 <div class="profile-nav-overlay-backdrop js-close-user-card"></div>
-                <div class="profile-nav-overlay-container" style="max-width: 340px; padding: 0; overflow: hidden; border: none; background: transparent; position: relative; animation: discord-pop 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);">
+                <div class="profile-nav-overlay-container" style="max-width: 340px; padding: 0; overflow: hidden; border: none; background: transparent; position: relative; animation: discord-pop 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28); border-radius: 24px; max-height: 85vh; max-height: 85dvh; display: flex; flex-direction: column;">
                     <button class="profile-nav-overlay-close-btn js-close-user-card" style="z-index: 10; color: rgba(255, 255, 255, 0.7); right: 16px; top: 16px; font-size: 24px; background: transparent; border: none; cursor: pointer; position: absolute; transition: color 0.2s;">&times;</button>
-                    <div id="discordUserCard" class="discord-card" style="display: block; position: relative; margin: 0; top: 0; left: 0; box-shadow: none; width: 100%; animation: none;">
+                    <div id="discordUserCard" class="discord-card" style="display: block; position: relative; margin: 0; top: 0; left: 0; box-shadow: none; width: 100%; animation: none; overflow-y: auto; max-height: 100%; scrollbar-width: thin;">
                     </div>
                 </div>
             `;
@@ -319,25 +319,25 @@
             }
         }
 
-        // Message & Group Buttons
+        // Message & Group Buttons (Primary & Secondary Actions)
         let messageBtnHtml = '';
         let createGroupBtnHtml = '';
         let inviteGroupBtnHtml = '';
+        const lang = document.documentElement.lang || 'en';
         if (!r.is_self && r.can_message) {
-            const lang = document.documentElement.lang || 'en';
-            messageBtnHtml = `<a class="social-btn social-btn--secondary" href="/${lang}/chat?user_id=${user.id}"><i class="fa-solid fa-envelope"></i> Message</a>`;
-            createGroupBtnHtml = `<a class="social-btn social-btn--secondary" href="/${lang}/chat?create_group_with=${user.id}" title="${lang === 'it' ? 'Crea gruppo con utente' : 'Create group with user'}"><i class="fa-solid fa-users-plus"></i> ${lang === 'it' ? 'Crea Gruppo' : 'Group'}</a>`;
-            inviteGroupBtnHtml = `<button class="social-btn social-btn--secondary" onclick="openInviteDropdown(event, ${user.id})"><i class="fa-solid fa-user-plus"></i> ${lang === 'it' ? 'Invita' : 'Invite'}</button>`;
+            const messageLabel = lang === 'it' ? 'Scrivi' : 'Message';
+            messageBtnHtml = `<a class="social-btn social-btn--secondary" href="/${lang}/chat?user_id=${user.id}"><i class="fa-solid fa-envelope"></i> ${messageLabel}</a>`;
+            createGroupBtnHtml = `<a class="social-btn social-btn--secondary" href="/${lang}/chat?create_group_with=${user.id}" title="${lang === 'it' ? 'Crea gruppo con utente' : 'Create group with user'}"><i class="fa-solid fa-users-plus"></i></a>`;
+            inviteGroupBtnHtml = `<button class="social-btn social-btn--secondary" onclick="openInviteDropdown(event, ${user.id})" title="${lang === 'it' ? 'Invita nel gruppo' : 'Invite to group'}"><i class="fa-solid fa-user-plus"></i></button>`;
         }
 
         // Block Button
         let blockBtnHtml = '';
         if (!r.is_self) {
-            if (r.is_blocked_by_viewer) {
-                blockBtnHtml = `<button class="social-btn social-btn--danger js-card-block" data-action="unblock" type="button"><i class="fa-solid fa-ban"></i> Unblock</button>`;
-            } else {
-                blockBtnHtml = `<button class="social-btn social-btn--danger-outline js-card-block" data-action="block" type="button"><i class="fa-solid fa-ban"></i> Block</button>`;
-            }
+            const blockTitle = r.is_blocked_by_viewer ? 'Unblock' : 'Block';
+            const blockClass = r.is_blocked_by_viewer ? 'social-btn--danger' : 'social-btn--danger-outline';
+            const blockAction = r.is_blocked_by_viewer ? 'unblock' : 'block';
+            blockBtnHtml = `<button class="social-btn ${blockClass} js-card-block" data-action="${blockAction}" type="button" title="${blockTitle}"><i class="fa-solid fa-ban"></i></button>`;
         }
 
         // Mutual Friends
@@ -370,20 +370,21 @@
         // Structured Grid of Action Buttons
         let actionsHtml = '';
         if (!r.is_self) {
+            const mainButtons = [followBtnHtml, friendBtnHtml, messageBtnHtml].filter(Boolean);
+            const secondaryButtons = [createGroupBtnHtml, inviteGroupBtnHtml, blockBtnHtml].filter(Boolean);
+            
             actionsHtml = `
                 <div class="discord-card__actions">
-                    <div class="discord-card__actions-row">
-                        ${followBtnHtml}
-                        ${friendBtnHtml}
-                    </div>
-                    <div class="discord-card__actions-row">
-                        ${messageBtnHtml}
-                        ${createGroupBtnHtml}
-                    </div>
-                    <div class="discord-card__actions-row">
-                        ${inviteGroupBtnHtml}
-                        ${blockBtnHtml}
-                    </div>
+                    ${mainButtons.length > 0 ? `
+                        <div class="discord-card__actions-primary">
+                            ${mainButtons.join('')}
+                        </div>
+                    ` : ''}
+                    ${secondaryButtons.length > 0 ? `
+                        <div class="discord-card__actions-secondary">
+                            ${secondaryButtons.join('')}
+                        </div>
+                    ` : ''}
                 </div>
             `;
         }
