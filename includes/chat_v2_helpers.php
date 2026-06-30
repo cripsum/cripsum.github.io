@@ -547,7 +547,7 @@ function chat_get_custom_emojis_list(mysqli $mysqli): array
 
 function chat_get_allowed_reactions(mysqli $mysqli): array
 {
-    $standard = ['🔥', '💀', '👏', '😳', '⚡', '👀'];
+    $standard = ['🔥', '💀', '👏', '😳', '⚡', '👀', '😭', '🙏', '💯', '😂', '❤️', '👍', '🗣️'];
     $custom = [];
     if (chat_table_exists($mysqli, 'game_emojis')) {
         $res = $mysqli->query("SELECT code FROM game_emojis ORDER BY id ASC");
