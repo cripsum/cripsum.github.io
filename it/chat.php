@@ -2,6 +2,7 @@
 require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+require_once '../includes/chat_v2_helpers.php';
 
 $myUserId = (int)$_SESSION['user_id'];
 
