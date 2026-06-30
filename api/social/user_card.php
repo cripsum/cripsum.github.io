@@ -16,7 +16,7 @@ if ($targetId > 0) {
                accent_color, profile_secondary_color, profile_card_color, profile_text_color,
                profile_card_opacity, profile_card_blur, profile_font, profile_border_color, 
                profile_border_width, profile_border_opacity, avatar_ring_enabled, 
-               avatar_ring_style, avatar_ring_color, profile_ui_shape
+               avatar_ring_style, avatar_ring_color, profile_ui_shape, profile_banner_type
         FROM utenti WHERE id = ? LIMIT 1
     ");
     $stmt->bind_param("i", $targetId);
@@ -27,7 +27,7 @@ if ($targetId > 0) {
                accent_color, profile_secondary_color, profile_card_color, profile_text_color,
                profile_card_opacity, profile_card_blur, profile_font, profile_border_color, 
                profile_border_width, profile_border_opacity, avatar_ring_enabled, 
-               avatar_ring_style, avatar_ring_color, profile_ui_shape
+               avatar_ring_style, avatar_ring_color, profile_ui_shape, profile_banner_type
         FROM utenti WHERE username = ? LIMIT 1
     ");
     $stmt->bind_param("s", $targetUsername);
@@ -91,6 +91,8 @@ $data = [
     'bio' => $userProfile['bio'] ?: '',
     'is_online' => $isOnline,
     'last_seen' => $isOnline ? null : $userProfile['ultimo_accesso'],
+    'profile_banner_url' => $userProfile['profile_banner_type'] ? '/includes/get_profile_banner.php?id=' . $targetId : null,
+    'profile_banner_type' => $userProfile['profile_banner_type'] ?: null,
     'stats' => [
         'followers_count' => $followersCount,
         'following_count' => $followingCount,

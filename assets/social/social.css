@@ -780,3 +780,14 @@
 .social-grid-message.text-danger i {
     color: #ef4444 !important;
 }
+
+.discord-card__banner-media {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.discord-card__banner {
+    overflow: hidden;
+}

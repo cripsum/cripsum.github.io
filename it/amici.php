@@ -37,7 +37,7 @@ $csrfToken = $_SESSION['social_csrf'];
     
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/assets/static/static.css?v=1.2-static">
-     <link rel="stylesheet" href="/assets/social/social.css?v=1.8">
+     <link rel="stylesheet" href="/assets/social/social.css?v=1.9">
 </head>
 
 <body class="static-page" data-csrf="<?php echo $csrfToken; ?>">
@@ -104,7 +104,7 @@ $csrfToken = $_SESSION['social_csrf'];
     <script src="/assets/static/static.js" defer></script>
     <script src="/assets/social/social-api.js?v=1.4" defer></script>
     <script src="/assets/social/social-ui.js?v=1.4" defer></script>
-    <script src="/assets/social/user-card.js?v=1.8" defer></script>
+    <script src="/assets/social/user-card.js?v=1.9" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
 

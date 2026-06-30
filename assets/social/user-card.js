@@ -389,8 +389,29 @@
             `;
         }
 
+        let bannerHtml = '';
+        let bannerBgStyle = '';
+        if (user.style && user.style.accent_color) {
+            if (user.style.secondary_color) {
+                bannerBgStyle = `background: linear-gradient(135deg, ${user.style.accent_color} 0%, ${user.style.secondary_color} 100%);`;
+            } else {
+                bannerBgStyle = `background: ${user.style.accent_color};`;
+            }
+        }
+
+        if (user.profile_banner_url) {
+            const isVideo = user.profile_banner_type && user.profile_banner_type.startsWith('video/');
+            if (isVideo) {
+                bannerHtml = `<video class="discord-card__banner-media" src="${user.profile_banner_url}" autoplay loop muted></video>`;
+            } else {
+                bannerHtml = `<img class="discord-card__banner-media" src="${user.profile_banner_url}" alt="">`;
+            }
+        }
+
         return `
-            <div class="discord-card__banner"></div>
+            <div class="discord-card__banner" style="${bannerBgStyle}">
+                ${bannerHtml}
+            </div>
             <div class="discord-card__avatar-container">
                 <img class="discord-card__avatar ${ringClass}" src="/includes/get_pfp.php?id=${user.id}" alt="${escapeHtml(user.display_name)}">
             </div>
