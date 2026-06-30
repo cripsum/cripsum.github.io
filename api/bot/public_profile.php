@@ -30,6 +30,7 @@ if (!preg_match('/^[a-zA-Z0-9_.-]{2,30}$/', $username)) {
 $stmt = $mysqli->prepare("
     SELECT
         u.id, u.username, u.display_name, u.bio, u.ruolo, u.is_premium,
+        u.discord_id,
         u.profile_visibility, u.profile_banner_type, u.accent_color,
         u.profile_views, u.data_creazione, u.ultimo_accesso, u.custom_alias,
         COALESCE(ach.num_achievement, 0) AS num_achievement,
@@ -78,8 +79,12 @@ $publicData = [
 ];
 
 if (!$isPrivate) {
+    $discordId = trim((string)($profile['discord_id'] ?? ''));
+
     $publicData += [
         'is_premium' => (int)$profile['is_premium'] === 1,
+        'discord_connected' => $discordId !== '',
+        'discord_id' => $discordId !== '' ? $discordId : null,
         'bio' => (string)($profile['bio'] ?? ''),
         'role' => (string)($profile['ruolo'] ?? 'user'),
         'accent_color' => (string)($profile['accent_color'] ?? ''),

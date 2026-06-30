@@ -330,7 +330,7 @@ $leaderboardTypes = ['godos', 'shards', 'pulls', 'collection', 'achievements', '
                         <code class="docs-path">/v1/cripsum/profiles/:username</code>
                     </div>
                     <h3><?php echo $isIt ? 'Profili pubblici' : 'Public profiles'; ?></h3>
-                    <p><?php echo $isIt ? 'Restituisce dati profilo solo se il profilo Cripsum è pubblico. Non permette lookup tramite Discord ID.' : 'Returns profile data only when the Cripsum profile is public. It does not allow Discord ID lookups.'; ?></p>
+                    <p><?php echo $isIt ? 'Restituisce dati profilo solo se il profilo Cripsum è pubblico. Se l’account ha Discord collegato, include anche discord_connected e discord_id. Non permette lookup tramite Discord ID.' : 'Returns profile data only when the Cripsum profile is public. If the account has Discord connected, it also includes discord_connected and discord_id. It does not allow Discord ID lookups.'; ?></p>
                     <div class="docs-table-wrap">
                         <table class="docs-table">
                             <thead><tr><th><?php echo api_docs_h($docs['parameters']); ?></th><th><?php echo api_docs_h($docs['description']); ?></th></tr></thead>
@@ -356,6 +356,8 @@ $leaderboardTypes = ['godos', 'shards', 'pulls', 'collection', 'achievements', '
     "display_name": "Cripsum",
     "private": false,
     "profile_url": "https://cripsum.com/u/cripsum",
+    "discord_connected": true,
+    "discord_id": "123456789012345678",
     "avatar_url": "https://cripsum.com/includes/get_pfp.php?id=1"
   }
 }</pre>
