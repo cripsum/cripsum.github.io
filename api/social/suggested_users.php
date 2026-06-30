@@ -17,7 +17,6 @@ $sql = "
               AND (f2.user_one_id = u.id OR f2.user_two_id = u.id)
         ) AS mutual_connections
     FROM utenti u
-    LEFT JOIN user_social_settings s ON s.user_id = u.id
     WHERE u.id != ?
       -- Escludi amici esistenti
       AND NOT EXISTS (SELECT 1 FROM friendships WHERE user_one_id = LEAST(?, u.id) AND user_two_id = GREATEST(?, u.id))
