@@ -17,7 +17,7 @@ $myUserId = (int)$_SESSION['user_id'];
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Chat Privata</title>
-    <link rel="stylesheet" href="/assets/chat/chat.css?v=2.4">
+    <link rel="stylesheet" href="/assets/chat/chat.css?v=2.5">
 </head>
 
 <body class="chat-page-body" data-user-id="<?php echo $myUserId; ?>" data-csrf="<?php echo csrf_token(); ?>">

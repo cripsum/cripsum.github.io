@@ -36,6 +36,13 @@
     backdrop-filter: blur(20px);
 }
 
+@media (min-width: 769px) {
+    .chat-shell {
+        height: calc(100vh - 96px);
+        margin-top: 96px;
+    }
+}
+
 /* Background Orbs */
 .chat-bg-orbs {
     position: absolute;
