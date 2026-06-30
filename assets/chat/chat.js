@@ -29,7 +29,7 @@
             const userIdNum = parseInt(startUser);
             const existingConv = ChatState.conversations.find(c => !c.isGroupChat && parseInt(c.other_user_id) === userIdNum);
             if (existingConv) {
-                selectChat('private', existingConv.id, userIdNum);
+                selectChat('private', existingConv.conversation_id, userIdNum);
             } else {
                 startNewPrivateConversation(userIdNum);
             }

@@ -99,6 +99,19 @@ $tables = [
             `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ",
+
+    "group_chat_reactions" => "
+        CREATE TABLE IF NOT EXISTS `group_chat_reactions` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `message_id` INT NOT NULL,
+            `user_id` INT NOT NULL,
+            `reaction` VARCHAR(20) NOT NULL,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY `user_msg_reaction` (`message_id`, `user_id`, `reaction`),
+            FOREIGN KEY (`message_id`) REFERENCES `chat_messages`(`id`) ON DELETE CASCADE,
+            FOREIGN KEY (`user_id`) REFERENCES `utenti`(`id`) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     "
 ];
 

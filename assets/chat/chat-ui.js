@@ -186,58 +186,58 @@ const ChatUI = {
             return;
         }
 
-        let html = '';
+        // If first load, clear the container
+        if (ChatState.firstLoad) {
+            this.messagesEl.innerHTML = '';
+        } else {
+            // Remove empty placeholder if it exists
+            const placeholder = this.messagesEl.querySelector('.text-muted.my-auto');
+            if (placeholder) placeholder.remove();
+        }
+
+        // Determine if we should scroll to bottom
+        const box = this.messagesEl;
+        const isNearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 200;
+        const shouldScroll = forceScroll || isNearBottom || ChatState.firstLoad;
+
+        // Clean up deleted messages from the DOM
+        const renderedBubbles = this.messagesEl.querySelectorAll('.chat-bubble-wrap');
+        renderedBubbles.forEach(wrap => {
+            const wrapId = parseInt(wrap.id.replace('msg-', ''));
+            if (!ChatState.messages.some(m => m.id === wrapId)) {
+                const article = wrap.closest('.chat-message');
+                if (article) article.remove();
+            }
+        });
+
         let lastDateLabel = '';
+        const dayElements = this.messagesEl.querySelectorAll('.chat-day span');
+        if (dayElements.length > 0) {
+            lastDateLabel = dayElements[dayElements.length - 1].textContent;
+        }
+
         let prevMsg = null;
+        if (ChatState.messages.length > 0) {
+            const lastMsgEl = this.messagesEl.querySelector('.chat-message:last-of-type .chat-bubble-wrap');
+            if (lastMsgEl) {
+                const lastId = parseInt(lastMsgEl.id.replace('msg-', ''));
+                prevMsg = ChatState.messages.find(m => m.id === lastId);
+            }
+        }
 
         ChatState.messages.forEach(msg => {
             const isMine = parseInt(msg.sender_id) === ChatState.myUserId;
             
-            // Format separator date
-            const dateStr = formatDateLabel(msg.created_at);
-            if (dateStr !== lastDateLabel) {
-                html += `<div class="chat-day"><span>${escapeHtml(dateStr)}</span></div>`;
-                lastDateLabel = dateStr;
-                prevMsg = null; // Reset consecutive group when day changes
-            }
-
-            // System Message Rendering
-            if (msg.message_type === 'system') {
-                html += `
-                    <div style="text-align:center; margin:12px 0; font-size:12px; color:var(--chat-text-muted); font-style:italic;">
-                        <i class="fa-solid fa-circle-info" style="color:var(--chat-accent); margin-right:6px;"></i>
-                        ${escapeHtml(msg.body || msg.message || '')}
-                    </div>
-                `;
-                prevMsg = null; // System message breaks consecutive sequence
-                return;
-            }
-
-            // Group consecutive messages sent by the same user within 3 minutes (180000ms)
-            let isConsecutive = false;
-            if (prevMsg && parseInt(prevMsg.sender_id) === parseInt(msg.sender_id)) {
-                const prevTime = parseUtcDate(prevMsg.created_at).getTime();
-                const currTime = parseUtcDate(msg.created_at).getTime();
-                if (!Number.isNaN(prevTime) && !Number.isNaN(currTime)) {
-                    if (Math.abs(currTime - prevTime) < 180000) {
-                        isConsecutive = true;
-                    }
-                }
-            }
-
-            // Giphy & Content Parsing
+            // GIF & text content rendering
             const body = msg.body || msg.message || '';
             let messageContent = '';
-            
             if (msg.message_type === 'gif') {
                 let mediaUrl = msg.media_url;
                 let mediaTitle = msg.media_title || 'GIF';
-                
                 if (!mediaUrl && msg.metadata) {
                     mediaUrl = msg.metadata.media_url;
                     mediaTitle = msg.metadata.media_title || 'GIF';
                 }
-                
                 if (mediaUrl) {
                     let preview = mediaUrl;
                     if (preview.includes('giphy.com')) {
@@ -250,7 +250,6 @@ const ChatUI = {
                             .replace('/200w.gif', '/giphy.gif')
                             .replace('/200.gif', '/giphy.gif');
                     }
-                    
                     const caption = body ? `<figcaption>${parseMessageText(body)}</figcaption>` : '';
                     messageContent = `<figure class="chat-gif-message"><a href="${mediaUrl}" target="_blank" rel="noopener noreferrer"><img src="${preview}" alt="${escapeHtml(mediaTitle)}" loading="lazy"></a>${caption}</figure>`;
                 } else {
@@ -260,7 +259,6 @@ const ChatUI = {
                 messageContent = parseMessageText(body);
             }
 
-            // Render attachment files if present
             let attachmentsHtml = '';
             if (msg.attachments && msg.attachments.length > 0) {
                 attachmentsHtml = `<div class="chat-msg-attachments" style="margin-top:4px; display:flex; flex-direction:column; gap:6px;">` + msg.attachments.map(att => {
@@ -281,6 +279,101 @@ const ChatUI = {
                 }).join('') + `</div>`;
             }
 
+            const existingWrap = document.getElementById(`msg-${msg.id}`);
+
+            // 1. If message is already in DOM, reconcile differences
+            if (existingWrap) {
+                const contentEl = existingWrap.querySelector('.chat-message-content');
+                if (contentEl) {
+                    const newHtml = messageContent + attachmentsHtml;
+                    if (contentEl.innerHTML !== newHtml) {
+                        contentEl.innerHTML = newHtml;
+                    }
+                }
+
+                // Update reactions
+                let reactionsHtml = '';
+                if (msg.reactions && msg.reactions.length > 0) {
+                    reactionsHtml = msg.reactions.map(r => {
+                        const reactionStr = r.reaction || r.emoji;
+                        const countVal = r.count || r.total;
+                        const didIReact = r.user_reacted || r.mine;
+                        const badgeClass = ['chat-reaction-badge', didIReact ? 'user-reacted' : ''].filter(Boolean).join(' ');
+                        const titleText = escapeHtml(r.usernames || (didIReact ? 'Tu' : ''));
+                        return `
+                            <span class="${badgeClass}" title="${titleText}" onclick="window.toggleReaction(event, ${msg.id}, '${reactionStr}')">
+                                <span class="chat-reaction-emoji">${reactionStr}</span>
+                                <span class="chat-reaction-count">${countVal}</span>
+                            </span>
+                        `;
+                    }).join('');
+                }
+
+                let reactionsContainer = existingWrap.querySelector('.chat-msg-reactions');
+                if (reactionsHtml) {
+                    if (!reactionsContainer) {
+                        reactionsContainer = document.createElement('div');
+                        reactionsContainer.className = 'chat-msg-reactions';
+                        existingWrap.appendChild(reactionsContainer);
+                    }
+                    if (reactionsContainer.innerHTML !== reactionsHtml) {
+                        reactionsContainer.innerHTML = reactionsHtml;
+                    }
+                } else if (reactionsContainer) {
+                    reactionsContainer.remove();
+                }
+
+                // Reconcile edit status
+                const isEdited = msg.edited_at || msg.is_edited;
+                const bubble = existingWrap.closest('.chat-message');
+                if (bubble) {
+                    const timeEl = bubble.querySelector('.chat-time');
+                    if (timeEl && isEdited && !timeEl.querySelector('.chat-edited')) {
+                        const editedSpan = document.createElement('span');
+                        editedSpan.className = 'chat-edited';
+                        editedSpan.textContent = ' modificato';
+                        timeEl.appendChild(editedSpan);
+                    }
+                }
+
+                prevMsg = msg;
+                return;
+            }
+
+            // 2. Otherwise render and append the new message
+            const dateStr = formatDateLabel(msg.created_at);
+            if (dateStr !== lastDateLabel) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'chat-day';
+                dayDiv.innerHTML = `<span>${escapeHtml(dateStr)}</span>`;
+                this.messagesEl.appendChild(dayDiv);
+                lastDateLabel = dateStr;
+                prevMsg = null;
+            }
+
+            if (msg.message_type === 'system') {
+                const sysDiv = document.createElement('div');
+                sysDiv.style.cssText = "text-align:center; margin:12px 0; font-size:12px; color:var(--chat-text-muted); font-style:italic;";
+                sysDiv.innerHTML = `
+                    <i class="fa-solid fa-circle-info" style="color:var(--chat-accent); margin-right:6px;"></i>
+                    ${escapeHtml(msg.body || msg.message || '')}
+                `;
+                this.messagesEl.appendChild(sysDiv);
+                prevMsg = null;
+                return;
+            }
+
+            let isConsecutive = false;
+            if (prevMsg && parseInt(prevMsg.sender_id) === parseInt(msg.sender_id)) {
+                const prevTime = parseUtcDate(prevMsg.created_at).getTime();
+                const currTime = parseUtcDate(msg.created_at).getTime();
+                if (!Number.isNaN(prevTime) && !Number.isNaN(currTime)) {
+                    if (Math.abs(currTime - prevTime) < 180000) {
+                        isConsecutive = true;
+                    }
+                }
+            }
+
             const formattedTime = formatTime(msg.created_at);
             const senderName = msg.sender_display_name || msg.sender_username;
             const classes = ['chat-message', isMine ? 'is-mine' : '', isConsecutive ? 'is-consecutive' : ''].filter(Boolean).join(' ');
@@ -290,21 +383,19 @@ const ChatUI = {
             // Render reactions if present
             let reactionsHtml = '';
             if (msg.reactions && msg.reactions.length > 0) {
-                reactionsHtml = `<div class="chat-msg-reactions">`;
-                msg.reactions.forEach(r => {
+                reactionsHtml = `<div class="chat-msg-reactions">` + msg.reactions.map(r => {
                     const reactionStr = r.reaction || r.emoji;
                     const countVal = r.count || r.total;
                     const didIReact = r.user_reacted || r.mine;
                     const badgeClass = ['chat-reaction-badge', didIReact ? 'user-reacted' : ''].filter(Boolean).join(' ');
                     const titleText = escapeHtml(r.usernames || (didIReact ? 'Tu' : ''));
-                    reactionsHtml += `
+                    return `
                         <span class="${badgeClass}" title="${titleText}" onclick="window.toggleReaction(event, ${msg.id}, '${reactionStr}')">
                             <span class="chat-reaction-emoji">${reactionStr}</span>
                             <span class="chat-reaction-count">${countVal}</span>
                         </span>
                     `;
-                });
-                reactionsHtml += `</div>`;
+                }).join('') + `</div>`;
             }
 
             const main = `
@@ -322,20 +413,16 @@ const ChatUI = {
                 </div>
             `;
 
-            html += `<article class="${classes}">${isMine ? main + avatar : avatar + main}</article>`;
+            const article = document.createElement('article');
+            article.className = classes;
+            article.innerHTML = isMine ? main + avatar : avatar + main;
+            this.messagesEl.appendChild(article);
+
             prevMsg = msg;
         });
 
-        // Determine if we should scroll to bottom
-        const box = this.messagesEl;
-        const isNearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 200;
-        const shouldScroll = forceScroll || isNearBottom || ChatState.firstLoad;
-
-        this.messagesEl.innerHTML = html;
-        
         if (shouldScroll) {
             scrollToBottom();
-            // Scroll again after tiny timeouts to account for lazy-loaded images or gifs
             setTimeout(scrollToBottom, 50);
             setTimeout(scrollToBottom, 150);
             setTimeout(scrollToBottom, 300);
