@@ -36,7 +36,7 @@ $userId = (int) $_SESSION['user_id'];
 
 // ── Leggi dati utente (pity + soldi) ─────────────────────────────────────────
 $stmtUser = $mysqli->prepare(
-    'SELECT soldi, pity_standard, pity_evento, garantito_evento
+    'SELECT soldi, godoshards_balance, pity_standard, pity_evento, garantito_evento
      FROM utenti
      WHERE id = ?
      LIMIT 1'
@@ -62,6 +62,7 @@ $pityStandard  = (int) $userData['pity_standard'];
 $pityEvento    = (int) $userData['pity_evento'];
 $garantito     = (int) $userData['garantito_evento'];
 $soldi         = (int) $userData['soldi'];
+$shards        = (int) $userData['godoshards_balance'];
 
 // ── Banner Standard ──────────────────────────────────────────────────────────
 // Configurazione inline (modifica qui se vuoi costo o cooldown)
@@ -159,6 +160,7 @@ $stmtBanner->close();
 echo json_encode([
     'status'        => 'success',
     'soldi'         => $soldi,
+    'shards'        => $shards,
     'pity_standard' => $pityStandard,
     'pity_evento'   => $pityEvento,
     'garantito'     => (bool) $garantito,

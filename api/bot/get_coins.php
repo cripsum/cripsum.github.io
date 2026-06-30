@@ -26,7 +26,7 @@ if (empty($discordId)) {
 }
 
 // 3. Find Linked User
-$stmt = $mysqli->prepare("SELECT username, soldi FROM utenti WHERE discord_id = ? LIMIT 1");
+$stmt = $mysqli->prepare("SELECT username, soldi, godoshards_balance FROM utenti WHERE discord_id = ? LIMIT 1");
 if (!$stmt) {
     http_response_code(500);
     echo json_encode(['ok' => false, 'error' => 'Database query preparation failed.']);
@@ -47,6 +47,7 @@ echo json_encode([
     'ok' => true,
     'linked' => true,
     'username' => $user['username'],
-    'soldi' => (int)$user['soldi']
+    'soldi' => (int)$user['soldi'],
+    'shards' => (int)$user['godoshards_balance']
 ]);
 exit;
