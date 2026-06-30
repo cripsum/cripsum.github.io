@@ -571,7 +571,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
     <link rel="stylesheet" href="/assets/css/profile.css?v=5.9.9">
-    <link rel="stylesheet" href="/assets/social/social.css?v=1.9">
+    <link rel="stylesheet" href="/assets/social/social.css?v=2.0">
     <style>
         .profile-dropdown-item--gift,
         .profile-dropdown-item--gift * {
@@ -2447,7 +2447,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         </script>
     <?php endif; ?>
     <script src="/assets/social/social-api.js?v=1.4" defer></script>
-    <script src="/assets/social/user-card.js?v=1.9" defer></script>
+    <script src="/assets/social/user-card.js?v=2.0" defer></script>
 </body>
 
 </html>

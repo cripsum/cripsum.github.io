@@ -21,9 +21,9 @@
             
             overlay.innerHTML = `
                 <div class="profile-nav-overlay-backdrop js-close-user-card"></div>
-                <div class="profile-nav-overlay-container" style="max-width: 340px; padding: 0; overflow: hidden; border: none; background: transparent; position: relative; animation: discord-pop 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28); border-radius: 24px; max-height: 85vh; max-height: 85dvh; display: flex; flex-direction: column;">
+                <div class="profile-nav-overlay-container" style="max-width: 340px; padding: 0; overflow: hidden; border: none; background: transparent; position: relative; animation: pop-in 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28); border-radius: 24px; max-height: 85vh; max-height: 85dvh; display: flex; flex-direction: column;">
                     <button class="profile-nav-overlay-close-btn js-close-user-card" style="z-index: 10; color: rgba(255, 255, 255, 0.7); right: 16px; top: 16px; font-size: 24px; background: transparent; border: none; cursor: pointer; position: absolute; transition: color 0.2s;">&times;</button>
-                    <div id="discordUserCard" class="discord-card" style="display: block; position: relative; margin: 0; top: 0; left: 0; box-shadow: none; width: 100%; animation: none; overflow-y: auto; max-height: 100%; scrollbar-width: thin;">
+                    <div id="userCardPopup" class="user-card" style="display: block; position: relative; margin: 0; top: 0; left: 0; box-shadow: none; width: 100%; animation: none; overflow-y: auto; max-height: 100%; scrollbar-width: thin;">
                     </div>
                 </div>
             `;
@@ -67,7 +67,7 @@
     // Open the User Card using the site's native overlay system
     async function openUserCard(userId, username, triggerElement) {
         const overlay = document.getElementById('socialUserCardOverlay');
-        const card = document.getElementById('discordUserCard');
+        const card = document.getElementById('userCardPopup');
         if (!overlay || !card) return;
 
         // 1. Show skeleton loader
@@ -264,16 +264,16 @@
     // Skeleton Loading HTML
     function getSkeletonHtml() {
         return `
-            <div class="discord-card__banner chat-skeleton" style="height: 100px;"></div>
-            <div class="discord-card__avatar-container">
-                <div class="discord-card__avatar chat-skeleton" style="width: 88px; height: 88px; border-radius: 50%;"></div>
+            <div class="user-card__banner chat-skeleton" style="height: 100px;"></div>
+            <div class="user-card__avatar-container">
+                <div class="user-card__avatar chat-skeleton" style="width: 88px; height: 88px; border-radius: 50%;"></div>
             </div>
-            <div class="discord-card__body">
-                <div class="discord-card__name-section">
+            <div class="user-card__body">
+                <div class="user-card__name-section">
                     <div class="chat-skeleton mb-2" style="width: 160px; height: 24px; border-radius: 6px;"></div>
                     <div class="chat-skeleton mb-3" style="width: 100px; height: 16px; border-radius: 4px;"></div>
                 </div>
-                <div class="discord-card__divider"></div>
+                <div class="user-card__divider"></div>
                 <div class="chat-skeleton mb-2" style="width: 80px; height: 14px; border-radius: 4px;"></div>
                 <div class="chat-skeleton mb-3" style="width: 100%; height: 44px; border-radius: 8px;"></div>
             </div>
@@ -283,16 +283,13 @@
     // Render User Card HTML
     function renderCardHtml(user) {
         const r = user.relationship;
+        const lang = document.documentElement.lang || 'en';
         
-        // Relationship Badges
+        // Relationship Badges - only keeping 'Follows You' / 'Ti segue' to save space
         let badgesHtml = '';
-        if (r.is_friend) {
-            badgesHtml += `<span class="social-badge social-badge--friend"><i class="fa-solid fa-user-group"></i> Friend</span>`;
-        }
-        if (r.is_mutual_follow) {
-            badgesHtml += `<span class="social-badge social-badge--mutual"><i class="fa-solid fa-arrows-left-right"></i> Mutual Follow</span>`;
-        } else if (r.is_followed_by) {
-            badgesHtml += `<span class="social-badge social-badge--follows-you">Follows You</span>`;
+        if (r.is_followed_by) {
+            const followsYouLabel = lang === 'it' ? 'Ti segue' : 'Follows You';
+            badgesHtml += `<span class="social-badge social-badge--follows-you">${followsYouLabel}</span>`;
         }
 
         // Follow Button
@@ -323,7 +320,6 @@
         let messageBtnHtml = '';
         let createGroupBtnHtml = '';
         let inviteGroupBtnHtml = '';
-        const lang = document.documentElement.lang || 'en';
         if (!r.is_self && r.can_message) {
             const messageLabel = lang === 'it' ? 'Scrivi' : 'Message';
             messageBtnHtml = `<a class="social-btn social-btn--secondary" href="/${lang}/chat?user_id=${user.id}"><i class="fa-solid fa-envelope"></i> ${messageLabel}</a>`;
@@ -345,24 +341,24 @@
         if (!r.is_self && user.stats.mutual_friends_count > 0) {
             const label = user.stats.mutual_friends_count === 1 ? 'mutual friend' : 'mutual friends';
             mutualsHtml = `
-                <div class="discord-card__divider"></div>
-                <div class="discord-card__section-title">Mutual Friends</div>
-                <div class="discord-card__mutuals">
-                    <div class="discord-card__mutual-avatars">
+                <div class="user-card__divider"></div>
+                <div class="user-card__section-title">Mutual Friends</div>
+                <div class="user-card__mutuals">
+                    <div class="user-card__mutual-avatars">
                         ${user.mutual_friends.map(m => `
-                            <img class="discord-card__mutual-avatar" src="/includes/get_pfp.php?id=${m.id}" alt="${escapeHtml(m.username)}">
+                            <img class="user-card__mutual-avatar" src="/includes/get_pfp.php?id=${m.id}" alt="${escapeHtml(m.username)}">
                         `).join('')}
                     </div>
-                    <span class="discord-card__mutual-text">${user.stats.mutual_friends_count} ${label}</span>
+                    <span class="user-card__mutual-text">${user.stats.mutual_friends_count} ${label}</span>
                 </div>
             `;
         }
 
         // About Me / Bio
         const bioHtml = user.bio ? `
-            <div class="discord-card__divider"></div>
-            <div class="discord-card__section-title">About Me</div>
-            <div class="discord-card__bio">${escapeHtml(user.bio)}</div>
+            <div class="user-card__divider"></div>
+            <div class="user-card__section-title">About Me</div>
+            <div class="user-card__bio">${escapeHtml(user.bio)}</div>
         ` : '';
 
         const ringClass = user.style.avatar_ring_enabled ? 'has-ring' : '';
@@ -374,14 +370,14 @@
             const secondaryButtons = [createGroupBtnHtml, inviteGroupBtnHtml, blockBtnHtml].filter(Boolean);
             
             actionsHtml = `
-                <div class="discord-card__actions">
+                <div class="user-card__actions">
                     ${mainButtons.length > 0 ? `
-                        <div class="discord-card__actions-primary">
+                        <div class="user-card__actions-primary">
                             ${mainButtons.join('')}
                         </div>
                     ` : ''}
                     ${secondaryButtons.length > 0 ? `
-                        <div class="discord-card__actions-secondary">
+                        <div class="user-card__actions-secondary">
                             ${secondaryButtons.join('')}
                         </div>
                     ` : ''}
@@ -402,42 +398,42 @@
         if (user.profile_banner_url) {
             const isVideo = user.profile_banner_type && user.profile_banner_type.startsWith('video/');
             if (isVideo) {
-                bannerHtml = `<video class="discord-card__banner-media" src="${user.profile_banner_url}" autoplay loop muted></video>`;
+                bannerHtml = `<video class="user-card__banner-media" src="${user.profile_banner_url}" autoplay loop muted></video>`;
             } else {
-                bannerHtml = `<img class="discord-card__banner-media" src="${user.profile_banner_url}" alt="">`;
+                bannerHtml = `<img class="user-card__banner-media" src="${user.profile_banner_url}" alt="">`;
             }
         }
 
         return `
-            <div class="discord-card__banner" style="${bannerBgStyle}">
+            <div class="user-card__banner" style="${bannerBgStyle}">
                 ${bannerHtml}
             </div>
-            <div class="discord-card__avatar-container">
-                <img class="discord-card__avatar ${ringClass}" src="/includes/get_pfp.php?id=${user.id}" alt="${escapeHtml(user.display_name)}">
+            <div class="user-card__avatar-container">
+                <img class="user-card__avatar ${ringClass}" src="/includes/get_pfp.php?id=${user.id}" alt="${escapeHtml(user.display_name)}">
             </div>
-            <div class="discord-card__body">
-                <div class="discord-card__name-section">
-                    <div class="discord-card__display-name">
+            <div class="user-card__body">
+                <div class="user-card__name-section">
+                    <div class="user-card__display-name">
                         <span>${escapeHtml(user.display_name)}</span>
                         ${user.is_premium ? '<i class="fa-solid fa-gem text-warning" style="font-size: 14px;" title="Premium"></i>' : ''}
                     </div>
-                    <div class="discord-card__username">@${escapeHtml(user.username)}</div>
+                    <div class="user-card__username">@${escapeHtml(user.username)}</div>
                 </div>
                 
                 ${badgesHtml ? `<div class="social-card__badges">${badgesHtml}</div>` : ''}
 
-                <div class="discord-card__stats">
-                    <div class="discord-card__stat-item">
-                        <span class="discord-card__stat-val js-followers-count">${user.stats.followers_count}</span>
-                        <span class="discord-card__stat-label">Followers</span>
+                <div class="user-card__stats">
+                    <div class="user-card__stat-item">
+                        <span class="user-card__stat-val js-followers-count">${user.stats.followers_count}</span>
+                        <span class="user-card__stat-label">Followers</span>
                     </div>
-                    <div class="discord-card__stat-item">
-                        <span class="discord-card__stat-val">${user.stats.following_count}</span>
-                        <span class="discord-card__stat-label">Following</span>
+                    <div class="user-card__stat-item">
+                        <span class="user-card__stat-val">${user.stats.following_count}</span>
+                        <span class="user-card__stat-label">Following</span>
                     </div>
-                    <div class="discord-card__stat-item">
-                        <span class="discord-card__stat-val">${user.stats.friends_count}</span>
-                        <span class="discord-card__stat-label">Friends</span>
+                    <div class="user-card__stat-item">
+                        <span class="user-card__stat-val">${user.stats.friends_count}</span>
+                        <span class="user-card__stat-label">Friends</span>
                     </div>
                 </div>
 
