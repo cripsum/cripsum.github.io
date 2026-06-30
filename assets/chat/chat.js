@@ -866,7 +866,7 @@
         const menu = document.querySelector('#chatContextMenu');
         if (!menu) return;
 
-        const msg = ChatState.messages.find(m => m.id === msgId);
+        const msg = ChatState.messages.find(m => parseInt(m.id) === parseInt(msgId));
         const hasText = msg && (msg.body || msg.message);
 
         const allowedEmojis = ['😭','🙏','🔥','💀','💯','😂','❤️','👍','👀','🗣️'];
@@ -917,15 +917,20 @@
         }
 
         menu.innerHTML = menuHtml;
-        menu.style.display = 'block';
 
-        // Calculate click coordinates relative to viewport
+        // Position menu off-screen to measure actual browser-rendered height
+        menu.style.visibility = 'hidden';
+        menu.style.display = 'block';
+        menu.style.left = '-9999px';
+        menu.style.top = '-9999px';
+
+        const menuWidth = menu.offsetWidth;
+        const menuHeight = menu.offsetHeight;
+
+        menu.style.visibility = 'visible';
+
         const mouseX = e.clientX;
         const mouseY = e.clientY;
-
-        // Context menu dimensions
-        const menuWidth = menu.offsetWidth || 220;
-        const menuHeight = menu.offsetHeight || 260;
 
         let posX = mouseX;
         let posY = mouseY;
