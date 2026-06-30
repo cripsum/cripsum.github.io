@@ -77,7 +77,7 @@ if ($checkOldBlocks && $checkOldBlocks->num_rows > 0) {
     }
 }
 
-// 2. Altre tabelle social (Senza user_follows per il modello solo amicizie)
+// 2. Altre tabelle social (Solo Amicizie e Richieste)
 $tables = [
     "friendships" => "
         CREATE TABLE IF NOT EXISTS `friendships` (
@@ -105,19 +105,6 @@ $tables = [
             UNIQUE KEY `sender_receiver_request` (`sender_id`, `receiver_id`),
             CONSTRAINT `no_self_request` CHECK (`sender_id` <> `receiver_id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-    ",
-    "user_social_settings" => "
-        CREATE TABLE IF NOT EXISTS `user_social_settings` (
-            `user_id` INT PRIMARY KEY,
-            `profile_visibility` ENUM('public', 'private') DEFAULT 'public',
-            `friend_request_permission` ENUM('everyone', 'nobody') DEFAULT 'everyone',
-            `message_permission` ENUM('everyone', 'friends', 'nobody') DEFAULT 'everyone',
-            `show_friend_count` TINYINT(1) DEFAULT 1,
-            `show_mutual_friends` TINYINT(1) DEFAULT 1,
-            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            FOREIGN KEY (`user_id`) REFERENCES `utenti`(`id`) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     "
 ];
 
@@ -127,13 +114,6 @@ foreach ($tables as $name => $sql) {
     } else {
         echo "[ERRORE] Creazione tabella '$name' fallita: " . $mysqli->error . "\n";
     }
-}
-
-// Inseriamo i valori di default per tutti gli utenti gia' registrati
-if ($mysqli->query("INSERT IGNORE INTO user_social_settings (user_id) SELECT id FROM utenti")) {
-    echo "[OK] Impostazioni sociali di default create per tutti gli utenti.\n";
-} else {
-    echo "[ERRORE] Impossibile inserire impostazioni sociali di default: " . $mysqli->error . "\n";
 }
 
 echo "\nInizializzazione completata.";

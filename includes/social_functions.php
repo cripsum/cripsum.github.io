@@ -33,7 +33,7 @@ function getRelationshipStatus($mysqli, $viewerId, $targetId)
 
     // Se l'utente non è loggato, i permessi sono limitati ma può comunque visualizzare se pubblico
     if ($viewerId <= 0) {
-        $stmt = $mysqli->prepare("SELECT profile_visibility FROM user_social_settings WHERE user_id = ? LIMIT 1");
+        $stmt = $mysqli->prepare("SELECT profile_visibility FROM utenti WHERE id = ? LIMIT 1");
         $visibility = 'public';
         if ($stmt) {
             $stmt->bind_param("i", $targetId);
@@ -50,18 +50,18 @@ function getRelationshipStatus($mysqli, $viewerId, $targetId)
 
     // Ordine degli ID per la tabella friendships
     $userOne = min($viewerId, $targetId);
-    $userTwo = max($viewerId, $targetId);    $query = "
+    $userTwo = max($viewerId, $targetId);
+
+    $query = "
         SELECT 
             EXISTS(SELECT 1 FROM friendships WHERE user_one_id = ? AND user_two_id = ?) AS is_friend,
             EXISTS(SELECT 1 FROM friendship_requests WHERE sender_id = ? AND receiver_id = ? AND status = 'pending') AS request_sent,
             EXISTS(SELECT 1 FROM friendship_requests WHERE sender_id = ? AND receiver_id = ? AND status = 'pending') AS request_received,
             EXISTS(SELECT 1 FROM blocked_users WHERE blocker_id = ? AND blocked_id = ?) AS blocked_by_viewer,
             EXISTS(SELECT 1 FROM blocked_users WHERE blocker_id = ? AND blocked_id = ?) AS blocked_viewer,
-            s.profile_visibility,
-            s.friend_request_permission,
-            s.message_permission
-        FROM user_social_settings s
-        WHERE s.user_id = ?
+            u.profile_visibility
+        FROM utenti u
+        WHERE u.id = ?
     ";
 
     $stmt = $mysqli->prepare($query);
@@ -76,7 +76,7 @@ function getRelationshipStatus($mysqli, $viewerId, $targetId)
         $targetId, $viewerId,     // request_received
         $viewerId, $targetId,     // blocked_by_viewer
         $targetId, $viewerId,     // blocked_viewer
-        $targetId                 // user_social_settings user_id
+        $targetId                 // target user_id
     );
 
     $stmt->execute();
@@ -84,7 +84,7 @@ function getRelationshipStatus($mysqli, $viewerId, $targetId)
     $data = $res->fetch_assoc();
     $stmt->close();
 
-    // Se l'utente di destinazione non ha ancora una riga di impostazioni (caso limite), usiamo i valori di default
+    // Se l'utente di destinazione non ha ancora una riga (caso limite), usiamo i valori di default
     if (!$data) {
         $data = [
             'is_friend' => 0,
@@ -92,9 +92,7 @@ function getRelationshipStatus($mysqli, $viewerId, $targetId)
             'request_received' => 0,
             'blocked_by_viewer' => 0,
             'blocked_viewer' => 0,
-            'profile_visibility' => 'public',
-            'friend_request_permission' => 'everyone',
-            'message_permission' => 'everyone'
+            'profile_visibility' => 'public'
         ];
     }
 
@@ -133,24 +131,11 @@ function getRelationshipStatus($mysqli, $viewerId, $targetId)
 
     // 3. Permesso Inviare Richiesta di Amicizia
     if (!$status['is_friend'] && !$status['friend_request_sent'] && !$status['friend_request_received']) {
-        $frPerm = $data['friend_request_permission'];
-        if ($frPerm !== 'nobody') {
-            $status['can_send_friend_request'] = true;
-        }
+        $status['can_send_friend_request'] = true;
     }
 
     // 4. Permesso Messaggistica
-    $msgPerm = $data['message_permission'];
-    if ($msgPerm === 'everyone') {
-        $status['can_message'] = true;
-    } elseif ($msgPerm === 'friends' && $status['is_friend']) {
-        $status['can_message'] = true;
-    } elseif ($msgPerm !== 'nobody') {
-        // followers o following mappati come friends per compatibilità
-        if ($status['is_friend']) {
-            $status['can_message'] = true;
-        }
-    }
+    $status['can_message'] = true;
 
     return $status;
 }
