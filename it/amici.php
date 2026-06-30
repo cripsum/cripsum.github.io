@@ -103,7 +103,7 @@ $csrfToken = $_SESSION['social_csrf'];
     <script src="/assets/static/static.js" defer></script>
     <script src="/assets/social/social-api.js?v=1.5" defer></script>
     <script src="/assets/social/social-ui.js?v=1.7" defer></script>
-    <script src="/assets/social/user-card.js?v=2.5" defer></script>
+    <script src="/assets/social/user-card.js?v=2.6" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
 

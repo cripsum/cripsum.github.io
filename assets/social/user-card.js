@@ -264,13 +264,13 @@
         let friendBtnHtml = '';
         if (!r.is_self) {
             if (r.is_friend) {
-                friendBtnHtml = `<button class="social-btn social-btn--secondary js-card-friend" data-action="remove" type="button" title="Remove Friend"><i class="fa-solid fa-user-minus"></i> Friend</button>`;
+                friendBtnHtml = `<button class="social-btn social-btn--secondary js-card-friend" data-action="remove" type="button" title="Remove Friend"><i class="fa-solid fa-user-minus me-2"></i>Friend</button>`;
             } else if (r.friend_request_sent) {
-                friendBtnHtml = `<button class="social-btn social-btn--secondary js-card-friend" data-action="cancel" type="button" title="Cancel Request"><i class="fa-solid fa-user-clock"></i> Sent</button>`;
+                friendBtnHtml = `<button class="social-btn social-btn--secondary js-card-friend" data-action="cancel" type="button" title="Cancel Request"><i class="fa-solid fa-user-clock me-2"></i>Sent</button>`;
             } else if (r.friend_request_received) {
-                friendBtnHtml = `<button class="social-btn social-btn--primary js-card-friend" data-action="accept" type="button"><i class="fa-solid fa-user-check"></i> Accept</button>`;
+                friendBtnHtml = `<button class="social-btn social-btn--primary js-card-friend" data-action="accept" type="button"><i class="fa-solid fa-user-check me-2"></i>Accept</button>`;
             } else if (r.can_send_friend_request) {
-                friendBtnHtml = `<button class="social-btn social-btn--primary js-card-friend" data-action="send" type="button"><i class="fa-solid fa-user-plus"></i> Add Friend</button>`;
+                friendBtnHtml = `<button class="social-btn social-btn--primary js-card-friend" data-action="send" type="button"><i class="fa-solid fa-user-plus me-2"></i>Add Friend</button>`;
             }
         }
 
@@ -278,14 +278,15 @@
         let messageBtnHtml = '';
         if (!r.is_self && r.can_message) {
             const messageLabel = lang === 'it' ? 'Scrivi' : 'Message';
-            messageBtnHtml = `<a class="social-btn social-btn--secondary" href="/${lang}/chat?user_id=${user.id}"><i class="fa-solid fa-envelope"></i> ${messageLabel}</a>`;
+            messageBtnHtml = `<a class="social-btn social-btn--secondary" href="/${lang}/chat?user_id=${user.id}"><i class="fa-solid fa-envelope me-2"></i>${messageLabel}</a>`;
         }
 
-        // View Profile Button
+        // View Profile Button (Only shown when popup is triggered from the friends page)
         let viewProfileBtnHtml = '';
-        if (!r.is_self) {
+        const isOnFriendsPage = window.location.pathname.includes('amici');
+        if (!r.is_self && isOnFriendsPage) {
             const profileLabel = lang === 'it' ? 'Profilo' : 'Profile';
-            viewProfileBtnHtml = `<a class="social-btn social-btn--secondary" href="/u/${encodeURIComponent(user.username)}"><i class="fa-solid fa-user"></i> ${profileLabel}</a>`;
+            viewProfileBtnHtml = `<a class="social-btn social-btn--secondary" href="/u/${encodeURIComponent(user.username)}"><i class="fa-solid fa-user me-2"></i>${profileLabel}</a>`;
         }
 
         // Block Button
@@ -294,7 +295,7 @@
             const blockTitle = r.is_blocked_by_viewer ? 'Unblock' : 'Block';
             const blockClass = r.is_blocked_by_viewer ? 'social-btn--danger' : 'social-btn--danger-outline';
             const blockAction = r.is_blocked_by_viewer ? 'unblock' : 'block';
-            blockBtnHtml = `<button class="social-btn ${blockClass} js-card-block" data-action="${blockAction}" type="button" title="${blockTitle}"><i class="fa-solid fa-ban"></i></button>`;
+            blockBtnHtml = `<button class="social-btn ${blockClass} js-card-block" data-action="${blockAction}" type="button" title="${blockTitle}"><i class="fa-solid fa-ban me-2"></i></button>`;
         }
 
         // Mutual Friends
@@ -331,14 +332,14 @@
             const secondaryButtons = [blockBtnHtml].filter(Boolean);
             
             actionsHtml = `
-                <div class="user-card__actions">
+                <div class="user-card__actions" style="display: flex; flex-direction: column; gap: 10px !important; width: 100%;">
                     ${mainButtons.length > 0 ? `
-                        <div class="user-card__actions-primary">
+                        <div class="user-card__actions-primary" style="display: flex; gap: 10px !important; width: 100%;">
                             ${mainButtons.join('')}
                         </div>
                     ` : ''}
                     ${secondaryButtons.length > 0 ? `
-                        <div class="user-card__actions-secondary">
+                        <div class="user-card__actions-secondary" style="display: flex; justify-content: center; gap: 12px !important; margin-top: 4px;">
                             ${secondaryButtons.join('')}
                         </div>
                     ` : ''}
