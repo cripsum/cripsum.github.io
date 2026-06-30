@@ -6,8 +6,11 @@ $messageId = isset($input['message_id']) ? (int)$input['message_id'] : 0;
 $reaction = isset($input['reaction']) ? trim((string)$input['reaction']) : '';
 $action = isset($input['action']) ? trim((string)$input['action']) : 'add'; // 'add' o 'remove'
 
-if (!$messageId || $reaction === '') {
-    send_error("ID messaggio o reazione mancante.");
+chat_ensure_reactions_tables($mysqli);
+$allowed = chat_get_allowed_reactions($mysqli);
+
+if (!$messageId || $reaction === '' || !in_array($reaction, $allowed, true)) {
+    send_error("ID messaggio, reazione mancante o non consentita.");
 }
 
 // 1. Recuperiamo il messaggio e la conversazione di appartenenza
@@ -38,9 +41,8 @@ if (!$isParticipant) {
 if ($action === 'add') {
     // Aggiungi reazione
     $stmtReact = $mysqli->prepare("
-        INSERT INTO private_message_reactions (message_id, user_id, reaction)
+        INSERT IGNORE INTO private_message_reactions (message_id, user_id, reaction)
         VALUES (?, ?, ?)
-        ON DUPLICATE KEY UPDATE reaction = VALUES(reaction)
     ");
     $stmtReact->bind_param("iis", $messageId, $userId, $reaction);
     $stmtReact->execute();

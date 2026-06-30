@@ -17,8 +17,34 @@
         ChatUI.init();
 
         setupEventListeners();
+        initEmojiStrip();
         await loadAllConversations();
         startRealtimePolling();
+
+    }
+
+    function initEmojiStrip() {
+        const strip = document.querySelector('#chatEmojiStrip');
+        if (!strip) return;
+
+        const standardEmojis = ['🔥', '💀', '👏', '😳', '⚡', '👀'];
+        let html = '';
+
+        standardEmojis.forEach(emoji => {
+            html += `<button type="button" data-emoji="${emoji}" style="background:none; border:none; font-size: 20px; cursor:pointer;">${emoji}</button>`;
+        });
+
+        if (window.CHAT_CUSTOM_EMOJIS) {
+            window.CHAT_CUSTOM_EMOJIS.forEach(emoji => {
+                html += `
+                    <button type="button" data-emoji=":${emoji.code}:" style="background:none; border:none; padding:4px; cursor:pointer;" title=":${emoji.code}:">
+                        <img src="${emoji.url}" alt="${emoji.code}" style="width:24px; height:24px; object-fit:contain; pointer-events:none; vertical-align:middle;" />
+                    </button>
+                `;
+            });
+        }
+
+        strip.innerHTML = html;
 
         // Process URL Query parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -874,13 +900,26 @@
         const msg = ChatState.messages.find(m => parseInt(m.id) === parseInt(msgId));
         const hasText = msg && (msg.body || msg.message);
 
-        const allowedEmojis = ['😭','🙏','🔥','💀','💯','😂','❤️','👍','👀','🗣️'];
+        const standardEmojis = ['🔥', '💀', '👏', '😳', '⚡', '👀'];
+        let quickReactionsHtml = '';
+
+        standardEmojis.forEach(emoji => {
+            quickReactionsHtml += `<button class="chat-quick-reaction-btn" onclick="window.addQuickReaction(event, ${msgId}, '${emoji}')" type="button">${emoji}</button>`;
+        });
+
+        if (window.CHAT_CUSTOM_EMOJIS) {
+            window.CHAT_CUSTOM_EMOJIS.forEach(emoji => {
+                quickReactionsHtml += `
+                    <button class="chat-quick-reaction-btn chat-quick-reaction-btn--custom" onclick="window.addQuickReaction(event, ${msgId}, '${emoji.code}')" type="button" title="${emoji.code}">
+                        <img src="${emoji.url}" alt="${emoji.code}" style="width:20px; height:20px; object-fit:contain; pointer-events:none; vertical-align:middle;" />
+                    </button>
+                `;
+            });
+        }
 
         let menuHtml = `
             <div class="chat-context-menu__quick-reactions">
-                ${allowedEmojis.map(emoji => `
-                    <button class="chat-quick-reaction-btn" onclick="window.addQuickReaction(event, ${msgId}, '${emoji}')" type="button">${emoji}</button>
-                `).join('')}
+                ${quickReactionsHtml}
             </div>
             <div class="chat-context-menu__divider"></div>
             <div class="chat-context-menu__item" onclick="window.enterReplyMode(${msgId})"><i class="fa-solid fa-reply"></i> Rispondi</div>

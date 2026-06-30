@@ -11,7 +11,8 @@ if (!chat_table_exists($mysqli, 'chat_reactions')) {
 
 $messageId = (int)($data['id'] ?? 0);
 $emoji = trim((string)($data['emoji'] ?? ''));
-$allowed = ['😭','🙏','🔥','💀','💯','😂','❤️','👍','👀','🗣️'];
+chat_ensure_reactions_tables($mysqli);
+$allowed = chat_get_allowed_reactions($mysqli);
 
 if ($messageId <= 0 || !in_array($emoji, $allowed, true)) {
     chat_json(['ok' => false, 'error' => 'Reazione non valida.'], 422);

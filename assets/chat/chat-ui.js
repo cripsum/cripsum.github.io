@@ -318,9 +318,18 @@ const ChatUI = {
                         const didIReact = r.user_reacted || r.mine;
                         const badgeClass = ['chat-reaction-badge', didIReact ? 'user-reacted' : ''].filter(Boolean).join(' ');
                         const titleText = escapeHtml(r.usernames || (didIReact ? 'Tu' : ''));
+                        
+                        let emojiContent = reactionStr;
+                        if (window.CHAT_CUSTOM_EMOJIS) {
+                            const foundCustom = window.CHAT_CUSTOM_EMOJIS.find(e => e.code === reactionStr);
+                            if (foundCustom) {
+                                emojiContent = `<img src="${foundCustom.url}" alt="${reactionStr}" title="${reactionStr}" style="width:18px; height:18px; object-fit:contain; vertical-align:middle;" />`;
+                            }
+                        }
+
                         return `
                             <span class="${badgeClass}" title="${titleText}" onclick="window.toggleReaction(event, ${msg.id}, '${reactionStr}')">
-                                <span class="chat-reaction-emoji">${reactionStr}</span>
+                                <span class="chat-reaction-emoji">${emojiContent}</span>
                                 <span class="chat-reaction-count">${countVal}</span>
                             </span>
                         `;
@@ -407,9 +416,18 @@ const ChatUI = {
                     const didIReact = r.user_reacted || r.mine;
                     const badgeClass = ['chat-reaction-badge', didIReact ? 'user-reacted' : ''].filter(Boolean).join(' ');
                     const titleText = escapeHtml(r.usernames || (didIReact ? 'Tu' : ''));
+                    
+                    let emojiContent = reactionStr;
+                    if (window.CHAT_CUSTOM_EMOJIS) {
+                        const foundCustom = window.CHAT_CUSTOM_EMOJIS.find(e => e.code === reactionStr);
+                        if (foundCustom) {
+                            emojiContent = `<img src="${foundCustom.url}" alt="${reactionStr}" title="${reactionStr}" style="width:18px; height:18px; object-fit:contain; vertical-align:middle;" />`;
+                        }
+                    }
+
                     return `
                         <span class="${badgeClass}" title="${titleText}" onclick="window.toggleReaction(event, ${msg.id}, '${reactionStr}')">
-                            <span class="chat-reaction-emoji">${reactionStr}</span>
+                            <span class="chat-reaction-emoji">${emojiContent}</span>
                             <span class="chat-reaction-count">${countVal}</span>
                         </span>
                     `;
@@ -795,6 +813,15 @@ function escapeHtml(str) {
 function parseMessageText(text) {
     if (!text) return '';
     let escaped = escapeHtml(text);
+    
+    if (window.CHAT_CUSTOM_EMOJIS && window.CHAT_CUSTOM_EMOJIS.length > 0) {
+        window.CHAT_CUSTOM_EMOJIS.forEach(emoji => {
+            const pattern = new RegExp(':' + emoji.code + ':', 'g');
+            const imgHtml = `<img class="chat-custom-emoji-inline" src="${emoji.url}" alt=":${emoji.code}:" title=":${emoji.code}:" style="height:24px; vertical-align:middle; margin:0 2px;" />`;
+            escaped = escaped.replace(pattern, imgHtml);
+        });
+    }
+    
     escaped = escaped.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
     return escaped;
 }

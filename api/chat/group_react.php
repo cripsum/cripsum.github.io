@@ -9,7 +9,8 @@ $input = get_json_input();
 $messageId = isset($input['message_id']) ? (int)$input['message_id'] : 0;
 $reaction = isset($input['reaction']) ? trim((string)$input['reaction']) : '';
 
-$allowed = ['😭','🙏','🔥','💀','💯','😂','❤️','👍','👀','🗣️'];
+chat_ensure_reactions_tables($mysqli);
+$allowed = chat_get_allowed_reactions($mysqli);
 
 if ($messageId <= 0 || !in_array($reaction, $allowed, true)) {
     send_error("Reazione non valida o non consentita.", 422);

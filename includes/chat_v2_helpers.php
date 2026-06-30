@@ -526,4 +526,74 @@ function chat_upsert_typing(mysqli $mysqli, int $userId, bool $isTyping): void
         $stmt->close();
     }
 }
+
+function chat_get_custom_emojis_list(mysqli $mysqli): array
+{
+    $emojis = [];
+    if (chat_table_exists($mysqli, 'game_emojis')) {
+        $res = $mysqli->query("SELECT code, url, is_animated FROM game_emojis ORDER BY id ASC");
+        if ($res) {
+            while ($row = $res->fetch_assoc()) {
+                $emojis[] = [
+                    'code' => $row['code'],
+                    'url' => $row['url'],
+                    'is_animated' => (int)$row['is_animated']
+                ];
+            }
+        }
+    }
+    return $emojis;
+}
+
+function chat_get_allowed_reactions(mysqli $mysqli): array
+{
+    $standard = ['🔥', '💀', '👏', '😳', '⚡', '👀'];
+    $custom = [];
+    if (chat_table_exists($mysqli, 'game_emojis')) {
+        $res = $mysqli->query("SELECT code FROM game_emojis ORDER BY id ASC");
+        if ($res) {
+            while ($row = $res->fetch_assoc()) {
+                $custom[] = $row['code'];
+            }
+        }
+    }
+    return array_merge($standard, $custom);
+}
+
+function chat_ensure_reactions_tables(mysqli $mysqli): void
+{
+    if (!chat_table_exists($mysqli, 'private_message_reactions')) {
+        $mysqli->query("
+            CREATE TABLE `private_message_reactions` (
+                `id` INT AUTO_INCREMENT PRIMARY KEY,
+                `message_id` INT NOT NULL,
+                `user_id` INT NOT NULL,
+                `reaction` VARCHAR(50) NOT NULL,
+                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY `user_msg_reaction` (`message_id`, `user_id`, `reaction`),
+                FOREIGN KEY (`message_id`) REFERENCES `private_messages`(`id`) ON DELETE CASCADE,
+                FOREIGN KEY (`user_id`) REFERENCES `utenti`(`id`) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ");
+    } else {
+        $mysqli->query("ALTER TABLE `private_message_reactions` MODIFY COLUMN `reaction` VARCHAR(50) NOT NULL");
+    }
+
+    if (!chat_table_exists($mysqli, 'group_chat_reactions')) {
+        $mysqli->query("
+            CREATE TABLE `group_chat_reactions` (
+                `id` INT AUTO_INCREMENT PRIMARY KEY,
+                `message_id` INT NOT NULL,
+                `user_id` INT NOT NULL,
+                `reaction` VARCHAR(50) NOT NULL,
+                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY `user_msg_reaction` (`message_id`, `user_id`, `reaction`),
+                FOREIGN KEY (`message_id`) REFERENCES `chat_messages`(`id`) ON DELETE CASCADE,
+                FOREIGN KEY (`user_id`) REFERENCES `utenti`(`id`) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ");
+    } else {
+        $mysqli->query("ALTER TABLE `group_chat_reactions` MODIFY COLUMN `reaction` VARCHAR(50) NOT NULL");
+    }
+}
 ?>
