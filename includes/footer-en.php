@@ -29,6 +29,7 @@ $footerYear = date('Y');
                 <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/supporto" class="footer-link"><i class="fa-solid fa-headset" style="margin-right: 4px;"></i>Support</a></li>
                 <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/chat-policy" class="footer-link"><i class="fa-solid fa-comments" style="margin-right: 4px;"></i>Chat Policy</a></li>
                 <li><a href="/status.php" class="footer-link"><i class="fa-solid fa-server" style="margin-right: 4px;"></i>System Status</a></li>
+                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/api-docs" class="footer-link"><i class="fa-solid fa-code" style="margin-right: 4px;"></i>API Docs</a></li>
             </ul>
         </div>
 
