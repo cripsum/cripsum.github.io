@@ -607,9 +607,6 @@ function formatDateTime(timeStr) {
 function parseUtcDate(dateString) {
     if (!dateString) return new Date(NaN);
     let cleanStr = String(dateString).replace(' ', 'T');
-    if (!cleanStr.endsWith('Z') && !cleanStr.includes('+')) {
-        cleanStr += 'Z';
-    }
     return new Date(cleanStr);
 }
 

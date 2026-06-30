@@ -12,6 +12,7 @@ if (!$targetId && $targetUsername === '') {
 if ($targetId > 0) {
     $stmt = $mysqli->prepare("
         SELECT id, username, display_name, ruolo, is_premium, bio, ultimo_accesso,
+               TIMESTAMPDIFF(SECOND, ultimo_accesso, NOW()) AS seconds_since_active,
                accent_color, profile_secondary_color, profile_card_color, profile_text_color,
                profile_card_opacity, profile_card_blur, profile_font, profile_border_color, 
                profile_border_width, profile_border_opacity, avatar_ring_enabled, 
@@ -22,6 +23,7 @@ if ($targetId > 0) {
 } else {
     $stmt = $mysqli->prepare("
         SELECT id, username, display_name, ruolo, is_premium, bio, ultimo_accesso,
+               TIMESTAMPDIFF(SECOND, ultimo_accesso, NOW()) AS seconds_since_active,
                accent_color, profile_secondary_color, profile_card_color, profile_text_color,
                profile_card_opacity, profile_card_blur, profile_font, profile_border_color, 
                profile_border_width, profile_border_opacity, avatar_ring_enabled, 
@@ -77,8 +79,8 @@ $stmtFriends->close();
 $mutualFriends = getMutualFriends($mysqli, $userId, $targetId);
 
 // 5. Formattiamo l'online status
-$lastAct = $userProfile['ultimo_accesso'] ? strtotime($userProfile['ultimo_accesso']) : 0;
-$isOnline = (time() - $lastAct) < 180;
+$secSince = $userProfile['seconds_since_active'];
+$isOnline = ($secSince !== null && $secSince < 180);
 
 $data = [
     'id' => $targetId,
