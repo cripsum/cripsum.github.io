@@ -563,10 +563,16 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                     let catLabel = 'Sistema';
                     switch (msg.category) {
                         case 'system':
-                        case 'changelog':
-                        case 'security':
-                        case 'moderation':
                             catLabel = 'Sistema';
+                            break;
+                        case 'changelog':
+                            catLabel = 'Changelog';
+                            break;
+                        case 'security':
+                            catLabel = 'Sicurezza';
+                            break;
+                        case 'moderation':
+                            catLabel = 'Moderazione';
                             break;
                         case 'rewards':
                             catLabel = 'Premio';

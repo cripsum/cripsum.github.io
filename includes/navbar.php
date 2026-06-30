@@ -239,7 +239,16 @@ if ($isLoggedIn) {
                             <li><a class="dropdown-item" href="/<?= $lang ?>/inventario"><i class="fa-solid fa-box me-2"></i><?= $t['inventory'] ?></a></li>
                             <!--<li><a class="dropdown-item" href="/<?= $lang ?>/ordini"><i class="fa-solid fa-bag-shopping me-2"></i>I miei ordini</a></li>-->
                             <li><a class="dropdown-item" href="/<?= $lang ?>/global-chat"><i class="fa-solid fa-envelope me-2"></i><?= $t['global_chat'] ?></a></li>
-                            <li><a class="dropdown-item" href="/<?= $lang ?>/chat"><i class="fa-solid fa-message me-2"></i><?= $t['private_chat'] ?></a></li>
+                            <li>
+                                <a class="dropdown-item d-flex justify-content-between align-items-center" href="/<?= $lang ?>/chat">
+                                    <span><i class="fa-solid fa-message me-2"></i><?= $t['private_chat'] ?></span>
+                                    <?php 
+                                    $unreadChatCount = getUnreadPrivateChatsCount($mysqli, $_SESSION['user_id']);
+                                    if ($unreadChatCount > 0): ?>
+                                        <span class="badge bg-danger rounded-pill" style="font-size: 0.75rem; padding: 0.25em 0.6em;"><?= $unreadChatCount ?></span>
+                                    <?php endif; ?>
+                                </a>
+                            </li>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/amici"><i class="fa-solid fa-user-group me-2"></i><?= $t['friends'] ?></a></li>
                             <?php if ($nsfw === 1): ?>
                                 <li><a class="dropdown-item" href="/<?= $lang ?>/goonland/home"><i class="fa-solid fa-eye-slash me-2"></i>GoonLand</a></li>

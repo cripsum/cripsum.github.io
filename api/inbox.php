@@ -115,7 +115,7 @@ if ($method === 'GET') {
         $stmtT->close();
     }
 
-    $unreadCount = getUnreadMessagesCount($mysqli, $userId) + $unreadTickets;
+    $unreadCount = getUnreadMessagesCount($mysqli, $userId);
     echo json_encode(['ok' => true, 'messages' => $messages, 'unread_count' => $unreadCount]);
     exit();
     

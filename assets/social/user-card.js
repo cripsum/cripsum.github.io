@@ -292,10 +292,12 @@
         // Block Button
         let blockBtnHtml = '';
         if (!r.is_self) {
-            const blockTitle = r.is_blocked_by_viewer ? 'Unblock' : 'Block';
+            const blockLabel = r.is_blocked_by_viewer 
+                ? (lang === 'it' ? 'Sblocca' : 'Unblock') 
+                : (lang === 'it' ? 'Blocca' : 'Block');
             const blockClass = r.is_blocked_by_viewer ? 'social-btn--danger' : 'social-btn--danger-outline';
             const blockAction = r.is_blocked_by_viewer ? 'unblock' : 'block';
-            blockBtnHtml = `<button class="social-btn ${blockClass} js-card-block" data-action="${blockAction}" type="button" title="${blockTitle}"><i class="fa-solid fa-ban me-2"></i></button>`;
+            blockBtnHtml = `<button class="social-btn ${blockClass} js-card-block" data-action="${blockAction}" type="button" title="${blockLabel}"><i class="fa-solid fa-ban me-2"></i>${blockLabel}</button>`;
         }
 
         // Mutual Friends
@@ -328,8 +330,8 @@
         // Structured Grid of Action Buttons
         let actionsHtml = '';
         if (!r.is_self) {
-            const mainButtons = [friendBtnHtml, messageBtnHtml, viewProfileBtnHtml].filter(Boolean);
-            const secondaryButtons = [blockBtnHtml].filter(Boolean);
+            const mainButtons = [friendBtnHtml, messageBtnHtml].filter(Boolean);
+            const secondaryButtons = [viewProfileBtnHtml, blockBtnHtml].filter(Boolean);
             
             actionsHtml = `
                 <div class="user-card__actions" style="display: flex; flex-direction: column; gap: 10px !important; width: 100%;">
@@ -339,7 +341,7 @@
                         </div>
                     ` : ''}
                     ${secondaryButtons.length > 0 ? `
-                        <div class="user-card__actions-secondary" style="display: flex; justify-content: center; gap: 12px !important; margin-top: 4px;">
+                        <div class="user-card__actions-primary" style="display: flex; gap: 10px !important; width: 100%;">
                             ${secondaryButtons.join('')}
                         </div>
                     ` : ''}

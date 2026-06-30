@@ -998,7 +998,12 @@ function getUnreadMessagesCount($mysqli, $userId)
         $stmtTickets->close();
     }
 
-    // 3. Count unread private chat messages
+    return $unreadMessages + $unreadTickets;
+}
+
+function getUnreadPrivateChatsCount($mysqli, $userId)
+{
+    $userId = (int)$userId;
     $unreadPrivateChats = 0;
     $checkTable = $mysqli->query("SHOW TABLES LIKE 'private_conversation_participants'");
     if ($checkTable && $checkTable->num_rows > 0) {
@@ -1024,8 +1029,7 @@ function getUnreadMessagesCount($mysqli, $userId)
             $stmtPrivate->close();
         }
     }
-
-    return $unreadMessages + $unreadTickets + $unreadPrivateChats;
+    return $unreadPrivateChats;
 }
 
 function claimMessageRewards($mysqli, $userId, $messageId)
