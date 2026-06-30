@@ -151,16 +151,8 @@ const SocialUI = {
             const onlineClass = u.is_online ? 'is-online' : '';
             const delay = index * 0.04; // 40ms stagger delay
             
-            // Badges
+            // Relationship badges removed to save space
             let badgesHtml = '';
-            if (u.is_friend) {
-                badgesHtml += `<span class="social-badge social-badge--friend"><i class="fa-solid fa-user-group"></i> Amico</span>`;
-            }
-            if (u.is_mutual_follow) {
-                badgesHtml += `<span class="social-badge social-badge--mutual"><i class="fa-solid fa-arrows-left-right"></i> Reciproco</span>`;
-            } else if (u.is_followed_by) {
-                badgesHtml += `<span class="social-badge social-badge--follows-you">Segue te</span>`;
-            }
 
             // Action Buttons
             let actionsHtml = '';

@@ -285,12 +285,7 @@
         const r = user.relationship;
         const lang = document.documentElement.lang || 'en';
         
-        // Relationship Badges - only keeping 'Follows You' / 'Ti segue' to save space
-        let badgesHtml = '';
-        if (r.is_followed_by) {
-            const followsYouLabel = lang === 'it' ? 'Ti segue' : 'Follows You';
-            badgesHtml += `<span class="social-badge social-badge--follows-you">${followsYouLabel}</span>`;
-        }
+        // Relationship badges removed to save space
 
         // Follow Button
         let followBtnHtml = '';
@@ -419,8 +414,6 @@
                     </div>
                     <div class="user-card__username">@${escapeHtml(user.username)}</div>
                 </div>
-                
-                ${badgesHtml ? `<div class="social-card__badges">${badgesHtml}</div>` : ''}
 
                 <div class="user-card__stats">
                     <div class="user-card__stat-item">
