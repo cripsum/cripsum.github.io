@@ -3,15 +3,23 @@ require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
-// Sicurezza: L'utente deve essere loggato per accedere alla pagina amici
+checkBan($mysqli);
+
 if (!isLoggedIn()) {
-    header("Location: accedi");
+    $_SESSION['error_message'] = "devi essere loggato per accedere alla pagina degli amici.";
+    header('Location: home');
     exit();
 }
 
+if (!isOwner()) {
+    $_SESSION['error_message'] = "mi dispiace, ma la pagina degli amici è in manutenzione. riprova più tardi.";
+    header('Location: home');
+    exit();
+}
+
+
 $myUserId = (int)$_SESSION['user_id'];
 
-// Recuperiamo il conteggio delle richieste di amicizia ricevute pendenti per il badge
 $pendingCount = 0;
 $stmtCount = $mysqli->prepare("SELECT COUNT(*) FROM friendship_requests WHERE receiver_id = ? AND status = 'pending'");
 if ($stmtCount) {
@@ -22,7 +30,6 @@ if ($stmtCount) {
     $stmtCount->close();
 }
 
-// Generiamo il token CSRF per le chiamate API
 if (empty($_SESSION['social_csrf'])) {
     $_SESSION['social_csrf'] = bin2hex(random_bytes(32));
 }
@@ -43,7 +50,6 @@ $csrfToken = $_SESSION['social_csrf'];
 <body class="static-page" data-csrf="<?php echo $csrfToken; ?>">
     <?php include '../includes/navbar.php'; ?>
 
-    <!-- Background Orbs -->
     <div class="static-bg" aria-hidden="true">
         <span class="static-orb static-orb--one"></span>
         <span class="static-orb static-orb--two"></span>
@@ -51,7 +57,6 @@ $csrfToken = $_SESSION['social_csrf'];
     </div>
 
     <main class="static-shell">
-        <!-- Hero Section -->
         <section class="static-hero static-reveal">
             <div>
                 <h1>Amici</h1>
@@ -59,9 +64,7 @@ $csrfToken = $_SESSION['social_csrf'];
             </div>
         </section>
 
-        <!-- Social Layout -->
         <div class="static-card p-4 static-reveal">
-            <!-- Tabs di navigazione -->
             <div class="social-tabs">
                 <button class="social-tab-btn js-social-tab is-active" data-tab="online" type="button">
                     <i class="fa-solid fa-circle text-success" style="font-size:10px;"></i> Amici Online
@@ -83,7 +86,6 @@ $csrfToken = $_SESSION['social_csrf'];
                 </button>
             </div>
 
-            <!-- Contenitore barra di ricerca (visibile solo nel tab 'search') -->
             <div id="socialSearchContainer" style="display: none;">
                 <div class="social-search-input-wrap">
                     <i class="fa-solid fa-magnifying-glass search-icon"></i>
@@ -91,16 +93,13 @@ $csrfToken = $_SESSION['social_csrf'];
                 </div>
             </div>
 
-            <!-- Griglia Utenti (Caricata dinamicamente via JS) -->
             <div class="social-grid" id="socialGrid">
-                <!-- Caricamento tramite Skeleton Loader -->
             </div>
         </div>
     </main>
 
     <?php include '../includes/footer.php'; ?>
 
-    <!-- Importazione Moduli Social -->
     <script src="/assets/static/static.js" defer></script>
     <script src="/assets/social/social-api.js?v=1.5" defer></script>
     <script src="/assets/social/social-ui.js?v=1.6" defer></script>

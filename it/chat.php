@@ -3,13 +3,21 @@ require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
-// Sicurezza: L'utente deve essere loggato per accedere alla chat
+$myUserId = (int)$_SESSION['user_id'];
+
+checkBan($mysqli);
+
 if (!isLoggedIn()) {
-    header("Location: accedi");
+    $_SESSION['error_message'] = "devi essere loggato per accedere alle chat private.";
+    header('Location: home');
     exit();
 }
 
-$myUserId = (int)$_SESSION['user_id'];
+if (!isOwner()) {
+    $_SESSION['error_message'] = "mi dispiace, ma la pagina delle chat private è in manutenzione. riprova più tardi.";
+    header('Location: home');
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -90,7 +98,7 @@ $myUserId = (int)$_SESSION['user_id'];
                 <div class="chat-input-reply-bar" id="chatReplyBar" style="display: none;">
                     <div>
                         <i class="fa-solid fa-reply text-muted me-2"></i>
-                        Risposta a <strong class="chat-reply-user">Utente</strong>: 
+                        Risposta a <strong class="chat-reply-user">Utente</strong>:
                         <span class="chat-reply-text text-muted">Testo...</span>
                     </div>
                     <i class="fa-solid fa-xmark chat-input-reply-cancel" id="cancelReplyBtn"></i>
@@ -129,7 +137,7 @@ $myUserId = (int)$_SESSION['user_id'];
                         <i class="fa-solid fa-paperclip"></i>
                     </button>
                     <input type="file" id="chatFileInput" style="display: none;">
-                    
+
                     <button class="chat-action-btn js-toggle-gifs" type="button" title="GIF">
                         <i class="fa-solid fa-image"></i>
                     </button>

@@ -3,9 +3,17 @@ require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
-// Security: User must be logged in to access the chat
+checkBan($mysqli);
+
 if (!isLoggedIn()) {
-    header("Location: login");
+    $_SESSION['error_message'] = "You must be logged in to access the private chat page.";
+    header('Location: home');
+    exit();
+}
+
+if (!isOwner()) {
+    $_SESSION['error_message'] = "Sorry, the private chat page is under maintenance. Please try again later.";
+    header('Location: home');
     exit();
 }
 
@@ -129,7 +137,7 @@ $myUserId = (int)$_SESSION['user_id'];
                         <i class="fa-solid fa-paperclip"></i>
                     </button>
                     <input type="file" id="chatFileInput" style="display: none;">
-                    
+
                     <button class="chat-action-btn js-toggle-gifs" type="button" title="GIF">
                         <i class="fa-solid fa-image"></i>
                     </button>

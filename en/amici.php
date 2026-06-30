@@ -3,12 +3,19 @@ require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
-// Security: User must be logged in to access the friends page
+checkBan($mysqli);
+
 if (!isLoggedIn()) {
-    header("Location: login");
+    $_SESSION['error_message'] = "you must be logged in to access the friends page.";
+    header('Location: home');
     exit();
 }
 
+if (!isOwner()) {
+    $_SESSION['error_message'] = "sorry, the friends page is under maintenance. please try again later.";
+    header('Location: home');
+    exit();
+}
 $myUserId = (int)$_SESSION['user_id'];
 
 // Retrieve the count of pending incoming friend requests for the badge
@@ -34,10 +41,10 @@ $csrfToken = $_SESSION['social_csrf'];
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Friends</title>
-    
+
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link class="static-css" rel="stylesheet" href="/assets/static/static.css?v=1.2-static">
-     <link rel="stylesheet" href="/assets/social/social.css?v=2.1">
+    <link rel="stylesheet" href="/assets/social/social.css?v=2.1">
 </head>
 
 <body class="static-page" data-csrf="<?php echo $csrfToken; ?>">
