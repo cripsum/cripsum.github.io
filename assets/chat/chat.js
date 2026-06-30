@@ -92,6 +92,12 @@
             const menu = document.querySelector('#chatContextMenu');
             if (menu) menu.style.display = 'none';
         });
+        document.addEventListener('contextmenu', (e) => {
+            if (!e.target.closest('.chat-bubble-wrap')) {
+                const menu = document.querySelector('#chatContextMenu');
+                if (menu) menu.style.display = 'none';
+            }
+        });
 
         // Cancel replies
         document.querySelector('#cancelReplyBtn')?.addEventListener('click', cancelReplyMode);
@@ -897,8 +903,19 @@
 
         menu.innerHTML = menuHtml;
         menu.style.display = 'block';
-        menu.style.left = e.pageX + 'px';
-        menu.style.top = e.pageY + 'px';
+
+        // Position context menu on the right side of the screen/chat main panel
+        const detailsPanel = document.querySelector('.chat-details');
+        const isDetailsOpen = detailsPanel && !detailsPanel.classList.contains('is-hidden') && detailsPanel.offsetWidth > 0;
+        menu.style.right = isDetailsOpen ? (detailsPanel.offsetWidth + 20) + 'px' : '20px';
+        menu.style.left = 'auto';
+
+        const menuHeight = menu.offsetHeight || 220;
+        if (e.clientY + menuHeight > window.innerHeight) {
+            menu.style.top = (window.innerHeight - menuHeight - 15) + 'px';
+        } else {
+            menu.style.top = e.clientY + 'px';
+        }
     };
 
     window.enterReplyMode = function (msgId) {

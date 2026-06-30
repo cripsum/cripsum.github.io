@@ -188,6 +188,7 @@ const ChatUI = {
 
         let html = '';
         let lastDateLabel = '';
+        let prevMsg = null;
 
         ChatState.messages.forEach(msg => {
             const isMine = parseInt(msg.sender_id) === ChatState.myUserId;
@@ -197,6 +198,7 @@ const ChatUI = {
             if (dateStr !== lastDateLabel) {
                 html += `<div class="chat-day"><span>${escapeHtml(dateStr)}</span></div>`;
                 lastDateLabel = dateStr;
+                prevMsg = null; // Reset consecutive group when day changes
             }
 
             // System Message Rendering
@@ -207,7 +209,20 @@ const ChatUI = {
                         ${escapeHtml(msg.body || msg.message || '')}
                     </div>
                 `;
+                prevMsg = null; // System message breaks consecutive sequence
                 return;
+            }
+
+            // Group consecutive messages sent by the same user within 3 minutes (180000ms)
+            let isConsecutive = false;
+            if (prevMsg && parseInt(prevMsg.sender_id) === parseInt(msg.sender_id)) {
+                const prevTime = parseUtcDate(prevMsg.created_at).getTime();
+                const currTime = parseUtcDate(msg.created_at).getTime();
+                if (!Number.isNaN(prevTime) && !Number.isNaN(currTime)) {
+                    if (Math.abs(currTime - prevTime) < 180000) {
+                        isConsecutive = true;
+                    }
+                }
             }
 
             // Giphy & Content Parsing
@@ -268,7 +283,7 @@ const ChatUI = {
 
             const formattedTime = formatTime(msg.created_at);
             const senderName = msg.sender_display_name || msg.sender_username;
-            const classes = ['chat-message', isMine ? 'is-mine' : ''].filter(Boolean).join(' ');
+            const classes = ['chat-message', isMine ? 'is-mine' : '', isConsecutive ? 'is-consecutive' : ''].filter(Boolean).join(' ');
             const avatar = `<a class="chat-avatar-link" href="#"><img class="chat-avatar" src="/includes/get_pfp.php?id=${msg.sender_id}" alt=""></a>`;
             const editedText = msg.edited_at || msg.is_edited ? '<span class="chat-edited">modificato</span>' : '';
 
@@ -287,6 +302,7 @@ const ChatUI = {
             `;
 
             html += `<article class="${classes}">${isMine ? main + avatar : avatar + main}</article>`;
+            prevMsg = msg;
         });
 
         this.messagesEl.innerHTML = html;
