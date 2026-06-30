@@ -1449,18 +1449,6 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                 style="--name-color1: <?php echo profile_h($nameSolidColor); ?>; --name-color2: <?php echo profile_h($nameGradColor1); ?>; --name-color3: <?php echo profile_h($nameGradColor2); ?>; --name-angle: <?php echo profile_h($nameGradAngle); ?>deg; --name-glow-color: <?php echo profile_h($nameGlowColor); ?>;">
                                 <?php echo profile_format_name($displayName, $nameStyle); ?>
                             </h1>
-                            <?php if ($rel && !$isOwnProfile) { ?>
-                                <div class="profile-social-badges ms-2 d-inline-flex gap-1" style="vertical-align: middle;">
-                                    <?php if ($rel['is_friend']) { ?>
-                                        <span class="social-badge social-badge--friend"><i class="fa-solid fa-user-group"></i> <?php echo ($lang === 'it') ? 'Amico' : 'Friend'; ?></span>
-                                    <?php } ?>
-                                    <?php if ($rel['is_mutual_follow']) { ?>
-                                        <span class="social-badge social-badge--mutual"><i class="fa-solid fa-arrows-left-right"></i> <?php echo ($lang === 'it') ? 'Reciproco' : 'Mutual'; ?></span>
-                                    <?php } elseif ($rel['is_followed_by']) { ?>
-                                        <span class="social-badge social-badge--follows-you"><?php echo ($lang === 'it') ? 'Segue te' : 'Follows you'; ?></span>
-                                    <?php } ?>
-                                </div>
-                            <?php } ?>
                             <?php if ($badgesPosition === 'right_of_name') echo $renderMiniBadgesHtml; ?>
                         </div>
                         <p class="bio-username">@<?php echo profile_h($profile['username']); ?></p>
