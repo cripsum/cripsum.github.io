@@ -32,7 +32,7 @@ $ogUrl = 'https://cripsum.com/en/inbox';
     <meta name="description" content="<?php echo htmlspecialchars($ogDescription); ?>">
 
     <!-- Custom styling for inbox -->
-    <link rel="stylesheet" href="/css/inbox.css?v=4.5">
+    <link rel="stylesheet" href="/css/inbox.css?v=4.6">
     <link rel="stylesheet" href="/css/style-dark.css?v=5.0">
     <style>
         /* Additional styling for Ticket Chat */
@@ -167,6 +167,10 @@ $ogUrl = 'https://cripsum.com/en/inbox';
             <button type="button" class="inbox-category-btn" data-cat="system">
                 <span><i class="fa-solid fa-circle-info"></i>System Notifications</span>
                 <span class="inbox-category-badge" id="badge-system">0</span>
+            </button>
+            <button type="button" class="inbox-category-btn" data-cat="social">
+                <span><i class="fa-solid fa-users"></i>Social Notifications</span>
+                <span class="inbox-category-badge" id="badge-social">0</span>
             </button>
             <button type="button" class="inbox-category-btn" data-cat="rewards">
                 <span><i class="fa-solid fa-gift"></i>Rewards</span>
@@ -446,15 +450,19 @@ $ogUrl = 'https://cripsum.com/en/inbox';
                 ).length;
                 $('#badge-system').textContent = systemCount;
 
-                // 3. Rewards
+                // 3. Social
+                const socialCount = activeMessages.filter(m => m.category === 'social').length;
+                $('#badge-social').textContent = socialCount;
+
+                // 4. Rewards
                 const rewardsCount = activeMessages.filter(m => m.category === 'rewards').length;
                 $('#badge-rewards').textContent = rewardsCount;
 
-                // 4. Special Events
+                // 5. Special Events
                 const specialCount = activeMessages.filter(m => m.category === 'special').length;
                 $('#badge-special').textContent = specialCount;
 
-                // 5. Open Tickets
+                // 6. Open Tickets
                 const openTicketsCount = globalTickets.filter(t => t.status === 'open').length;
                 $('#badge-ticket').textContent = openTicketsCount;
             }
@@ -555,6 +563,9 @@ $ogUrl = 'https://cripsum.com/en/inbox';
                             break;
                         case 'rewards':
                             catLabel = 'Reward';
+                            break;
+                        case 'social':
+                            catLabel = 'Social';
                             break;
                         case 'special':
                             catLabel = 'Special';
