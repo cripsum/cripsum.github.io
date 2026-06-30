@@ -1,6 +1,7 @@
 /* assets/social/user-card.js - Discord-style User Card Overlay Engine */
 
 (function () {
+    const lang = document.documentElement.lang === 'it' ? 'it' : 'en';
     let activeTrigger = null;
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -181,7 +182,10 @@
                 } else if (action === 'cancel') {
                     res = await SocialAPI.cancelFriendRequest(data.id);
                 } else if (action === 'remove') {
-                    if (confirm(`Are you sure you want to remove ${data.display_name} from your friends?`)) {
+                    const confirmMsg = lang === 'it'
+                        ? `Sei sicuro di voler rimuovere ${data.display_name} dagli amici?`
+                        : `Are you sure you want to remove ${data.display_name} from your friends?`;
+                    if (confirm(confirmMsg)) {
                         res = await SocialAPI.removeFriend(data.id);
                     } else {
                         friendBtn.disabled = false;
@@ -210,7 +214,10 @@
                 if (action === 'unblock') {
                     res = await SocialAPI.unblockUser(data.id);
                 } else {
-                    if (confirm("Are you sure you want to block this user? All social connections (friendship, follow) will be removed.")) {
+                    const confirmMsg = lang === 'it'
+                        ? "Sei sicuro di voler bloccare questo utente? Tutti i collegamenti sociali (amicizia, follow) verranno rimossi."
+                        : "Are you sure you want to block this user? All social connections (friendship, follow) will be removed.";
+                    if (confirm(confirmMsg)) {
                         res = await SocialAPI.blockUser(data.id);
                     } else {
                         blockBtn.disabled = false;
@@ -253,7 +260,6 @@
     // Render User Card HTML
     function renderCardHtml(user) {
         const r = user.relationship;
-        const lang = document.documentElement.lang || 'en';
         
         // Relationship badges removed to save space
 
@@ -303,10 +309,13 @@
         // Mutual Friends
         let mutualsHtml = '';
         if (!r.is_self && user.stats.mutual_friends_count > 0) {
-            const label = user.stats.mutual_friends_count === 1 ? 'mutual friend' : 'mutual friends';
+            const label = lang === 'it'
+                ? (user.stats.mutual_friends_count === 1 ? 'amico in comune' : 'amici in comune')
+                : (user.stats.mutual_friends_count === 1 ? 'mutual friend' : 'mutual friends');
+            const titleLabel = lang === 'it' ? 'Amici in comune' : 'Mutual Friends';
             mutualsHtml = `
                 <div class="user-card__divider"></div>
-                <div class="user-card__section-title">Mutual Friends</div>
+                <div class="user-card__section-title">${titleLabel}</div>
                 <div class="user-card__mutuals">
                     <div class="user-card__mutual-avatars">
                         ${user.mutual_friends.map(m => `
@@ -319,9 +328,10 @@
         }
 
         // About Me / Bio
+        const bioTitle = lang === 'it' ? 'Su di me' : 'About Me';
         const bioHtml = user.bio ? `
             <div class="user-card__divider"></div>
-            <div class="user-card__section-title">About Me</div>
+            <div class="user-card__section-title">${bioTitle}</div>
             <div class="user-card__bio">${escapeHtml(user.bio)}</div>
         ` : '';
 
@@ -402,11 +412,8 @@
         e.stopPropagation();
         e.preventDefault();
         
-        // Remove existing dropdowns
         const existing = document.querySelector('#inviteGroupDropdown');
         if (existing) existing.remove();
-        
-        const lang = document.documentElement.lang || 'en';
         
         // Create drop down list element
         const dropdown = document.createElement('div');
@@ -429,7 +436,7 @@
                 dropdown.innerHTML = `<div style="padding:8px 15px;font-size:12px;color:#a1a1aa;text-align:center;">${lang === 'it' ? 'Nessun gruppo disponibile' : 'No groups available'}</div>`;
             }
         } catch (err) {
-            dropdown.innerHTML = `<div style="padding:8px 15px;font-size:12px;color:#ef4444;text-align:center;">Errore</div>`;
+            dropdown.innerHTML = `<div style="padding:8px 15px;font-size:12px;color:#ef4444;text-align:center;">${lang === 'it' ? 'Errore' : 'Error'}</div>`;
         }
         
         // Position next to click
@@ -454,12 +461,12 @@
             }).then(r => r.json());
             
             if (res.ok) {
-                alert("Invito inviato con successo!");
+                alert(lang === 'it' ? "Invito inviato con successo!" : "Invitation sent successfully!");
             } else {
-                alert(res.error || "Errore durante l'invio.");
+                alert(res.error || (lang === 'it' ? "Errore durante l'invio." : "Error sending invitation."));
             }
         } catch (e) {
-            alert("Errore di connessione.");
+            alert(lang === 'it' ? "Errore di connessione." : "Connection error.");
         }
     };
 })();

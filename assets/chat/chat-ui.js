@@ -1,6 +1,79 @@
 // assets/chat/chat-ui.js
 // UI Rendering module for Cripsum™ Group & Private Chat.
 
+const _lang = document.documentElement.lang === 'it' ? 'it' : 'en';
+const _T = {
+    create_group: { it: 'Crea gruppo', en: 'Create group' },
+    no_conversations: { it: 'Nessuna conversazione trovata', en: 'No conversations found' },
+    group_invites: { it: 'Inviti di gruppo', en: 'Group invites' },
+    invite_from: { it: 'Invito da', en: 'Invite from' },
+    btn_accept: { it: 'Accetta', en: 'Accept' },
+    btn_decline: { it: 'Rifiuta', en: 'Decline' },
+    groups: { it: 'Gruppi', en: 'Groups' },
+    no_messages: { it: 'Nessun messaggio', en: 'No messages' },
+    sender_you: { it: 'Tu', en: 'You' },
+    system_notification: { it: 'Notifica di sistema', en: 'System notification' },
+    attachment: { it: 'Allegato', en: 'Attachment' },
+    attachment_bracket: { it: '[Allegato]', en: '[Attachment]' },
+    direct_messages: { it: 'Messaggi Diretti', en: 'Direct Messages' },
+    no_messages_write_first: { it: 'Nessun messaggio presente. Scrivi il primo messaggio!', en: 'No messages yet. Write the first message!' },
+    edited: { it: 'modificato', en: 'edited' },
+    btn_kick: { it: 'Espelli', en: 'Kick' },
+    btn_promote: { it: 'Promuovi ad Admin', en: 'Promote to Admin' },
+    btn_demote: { it: 'Rimuovi Admin', en: 'Remove Admin' },
+    no_description: { it: 'Nessuna descrizione', en: 'No description' },
+    group_customization: { it: 'Personalizzazione Gruppo', en: 'Group Customization' },
+    group_name: { it: 'Nome Gruppo', en: 'Group Name' },
+    edit_name_placeholder: { it: 'Modifica nome...', en: 'Edit name...' },
+    description: { it: 'Descrizione', en: 'Description' },
+    edit_description_placeholder: { it: 'Modifica descrizione...', en: 'Edit description...' },
+    contact_owner_notice: { it: 'Contatta il proprietario o gli amministratori per modificare i dettagli.', en: 'Contact the owner or admins to edit details.' },
+    participants: { it: 'Partecipanti', en: 'Participants' },
+    invite_user: { it: 'Invita Utente', en: 'Invite User' },
+    group_permissions: { it: 'Permessi Gruppo', en: 'Group Permissions' },
+    who_can_invite: { it: 'Chi può invitare', en: 'Who can invite' },
+    everyone: { it: 'Tutti', en: 'Everyone' },
+    owner_admin: { it: 'Proprietario & Admin', en: 'Owner & Admin' },
+    who_can_write: { it: 'Chi può scrivere', en: 'Who can write' },
+    all_members: { it: 'Tutti i membri', en: 'All members' },
+    admins_only: { it: 'Solo Amministratori', en: 'Admins only' },
+    actions: { it: 'Azioni', en: 'Actions' },
+    unmute_notifications: { it: 'Riattiva Notifiche', en: 'Unmute Notifications' },
+    mute_notifications: { it: 'Silenzia Notifiche', en: 'Mute Notifications' },
+    archive_chat: { it: 'Archivia Chat', en: 'Archive Chat' },
+    leave_group: { it: 'Lascia Gruppo', en: 'Leave Group' },
+    create_group_chat: { it: 'Crea Gruppo Chat', en: 'Create Group Chat' },
+    group_name_label: { it: 'Nome Gruppo *', en: 'Group Name *' },
+    group_name_placeholder: { it: 'Inserisci il nome del gruppo...', en: 'Enter group name...' },
+    description_optional: { it: 'Descrizione (opzionale)', en: 'Description (optional)' },
+    description_placeholder: { it: 'Inserisci descrizione del gruppo...', en: 'Enter group description...' },
+    select_participants_label: { it: 'Seleziona partecipanti (almeno 1) *', en: 'Select participants (at least 1) *' },
+    btn_cancel: { it: 'Annulla', en: 'Cancel' },
+    btn_create: { it: 'Crea', en: 'Create' },
+    invite_to_group: { it: 'Invita nel gruppo', en: 'Invite to group' },
+    btn_close: { it: 'Chiudi', en: 'Close' },
+    btn_invite: { it: 'Invita', en: 'Invite' },
+    loading_friends: { it: 'Caricamento amici...', en: 'Loading friends...' },
+    no_friends_found: { it: 'Nessun amico trovato.', en: 'No friends found.' },
+    error_loading: { it: 'Errore di caricamento.', en: 'Loading error.' },
+    loading: { it: 'Caricamento...', en: 'Loading...' },
+    all_friends_in_group: { it: 'Tutti i tuoi amici fanno già parte di questo gruppo.', en: 'All your friends are already in this group.' },
+    today: { it: 'Oggi', en: 'Today' },
+    yesterday: { it: 'Ieri', en: 'Yesterday' },
+    default_user: { it: 'Utente', en: 'User' },
+    no_pinned_messages: { it: 'Nessun messaggio fissato', en: 'No pinned messages' },
+    no_shared_media: { it: 'Nessun media condiviso', en: 'No shared media' },
+    no_shared_docs: { it: 'Nessun documento condiviso', en: 'No shared documents' },
+    customization: { it: 'Personalizzazione', en: 'Customization' },
+    local_nickname: { it: 'Nickname locale', en: 'Local nickname' },
+    set_nickname_placeholder: { it: 'Imposta nickname...', en: 'Set nickname...' },
+    pinned_messages: { it: 'Messaggi Fissati', en: 'Pinned Messages' },
+    shared_media: { it: 'Media Condivisi', en: 'Shared Media' },
+    shared_docs: { it: 'Documenti Condivisi', en: 'Shared Documents' },
+    restore_chat: { it: 'Ripristina Chat', en: 'Restore Chat' }
+};
+function _t(key) { return _T[key] ? (_T[key][_lang] || _T[key]['en']) : key; }
+
 const ChatUI = {
     // DOM Cache
     listEl: null,
@@ -37,7 +110,7 @@ const ChatUI = {
             btn.id = 'createGroupBtn';
             btn.className = 'chat-action-btn';
             btn.type = 'button';
-            btn.title = 'Crea gruppo';
+            btn.title = _t('create_group');
             btn.style.marginLeft = 'auto';
             btn.innerHTML = '<i class="fa-solid fa-plus" style="color:var(--chat-text-main) !important;"></i>';
             btn.addEventListener('click', () => this.openCreateGroupModal());
@@ -70,7 +143,7 @@ const ChatUI = {
         const invites = ChatState.invites || [];
 
         if (groups.length === 0 && privates.length === 0 && invites.length === 0) {
-            this.listEl.innerHTML = `<div class="text-center py-5 text-muted" style="color:var(--chat-text-muted) !important;"><i class="fa-solid fa-comments fs-2 mb-2"></i><br>Nessuna conversazione trovata</div>`;
+            this.listEl.innerHTML = `<div class="text-center py-5 text-muted" style="color:var(--chat-text-muted) !important;"><i class="fa-solid fa-comments fs-2 mb-2"></i><br>${_t('no_conversations')}</div>`;
             return;
         }
 
@@ -78,7 +151,7 @@ const ChatUI = {
 
         // 1. Invites Section
         if (invites.length > 0) {
-            html += `<div class="chat-section-label" style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--chat-text-muted);padding:10px 20px;letter-spacing:0.5px;">Inviti di gruppo</div>`;
+            html += `<div class="chat-section-label" style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--chat-text-muted);padding:10px 20px;letter-spacing:0.5px;">${_t('group_invites')}</div>`;
             invites.forEach(inv => {
                 const avatar = inv.chat_avatar || '/img/Susremaster.png';
                 html += `
@@ -90,10 +163,10 @@ const ChatUI = {
                             <div class="chat-item__name-row">
                                 <span class="chat-item__name" style="font-weight:700;">${escapeHtml(inv.chat_name)}</span>
                             </div>
-                            <div style="font-size:11px;color:var(--chat-text-muted);margin:4px 0;">Invito da @${escapeHtml(inv.inviter_username)}</div>
+                            <div style="font-size:11px;color:var(--chat-text-muted);margin:4px 0;">${_t('invite_from')} @${escapeHtml(inv.inviter_username)}</div>
                             <div style="display:flex;gap:8px;margin-top:6px;">
-                                <button class="btn btn-sm py-1 btn-primary" onclick="acceptGroupInvite(${inv.chat_id})" style="background:var(--chat-accent);border:none;font-size:11px;font-weight:700;border-radius:6px;padding:3px 10px;">Accetta</button>
-                                <button class="btn btn-sm py-1 btn-secondary" onclick="declineGroupInvite(${inv.chat_id})" style="background:rgba(255,255,255,0.05);border:1px solid var(--chat-border);color:white;font-size:11px;font-weight:700;border-radius:6px;padding:3px 10px;">Rifiuta</button>
+                                <button class="btn btn-sm py-1 btn-primary" onclick="acceptGroupInvite(${inv.chat_id})" style="background:var(--chat-accent);border:none;font-size:11px;font-weight:700;border-radius:6px;padding:3px 10px;">${_t('btn_accept')}</button>
+                                <button class="btn btn-sm py-1 btn-secondary" onclick="declineGroupInvite(${inv.chat_id})" style="background:rgba(255,255,255,0.05);border:1px solid var(--chat-border);color:white;font-size:11px;font-weight:700;border-radius:6px;padding:3px 10px;">${_t('btn_decline')}</button>
                             </div>
                         </div>
                     </div>
@@ -103,22 +176,22 @@ const ChatUI = {
 
         // 2. Groups Section
         if (groups.length > 0) {
-            html += `<div class="chat-section-label" style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--chat-text-muted);padding:10px 20px;letter-spacing:0.5px;">Gruppi</div>`;
+            html += `<div class="chat-section-label" style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--chat-text-muted);padding:10px 20px;letter-spacing:0.5px;">${_t('groups')}</div>`;
             groups.forEach(g => {
                 const isActive = (ChatState.currentChatType === 'group' && ChatState.currentChatId === g.chat_id) ? 'is-active' : '';
                 const isUnread = g.unread_count > 0 ? 'is-unread' : '';
                 const avatar = g.avatar_url || '/img/Susremaster.png';
                 const time = g.last_message_time ? formatTime(g.last_message_time) : '';
                 
-                let preview = 'Nessun messaggio';
+                let preview = _t('no_messages');
                 if (g.last_message_id) {
-                    const sender = parseInt(g.last_message_sender_id) === ChatState.myUserId ? 'Tu' : `@${g.last_message_sender_username}`;
+                    const sender = parseInt(g.last_message_sender_id) === ChatState.myUserId ? _t('sender_you') : `@${g.last_message_sender_username}`;
                     if (g.last_message_type === 'system') {
-                        preview = g.last_message_body || 'Notifica di sistema';
+                        preview = g.last_message_body || _t('system_notification');
                     } else if (g.last_message_type === 'gif') {
                         preview = `${sender}: [GIF]`;
                     } else if (g.last_message_type === 'media' || !g.last_message_body) {
-                        preview = `${sender}: [Allegato]`;
+                        preview = `${sender}: ${_t('attachment_bracket')}`;
                     } else {
                         preview = `${sender}: ${g.last_message_body}`;
                     }
@@ -147,7 +220,7 @@ const ChatUI = {
 
         // 3. Private Chats Section
         if (privates.length > 0) {
-            html += `<div class="chat-section-label" style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--chat-text-muted);padding:10px 20px;letter-spacing:0.5px;">Messaggi Diretti</div>`;
+            html += `<div class="chat-section-label" style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--chat-text-muted);padding:10px 20px;letter-spacing:0.5px;">${_t('direct_messages')}</div>`;
             privates.forEach(p => {
                 const isActive = (ChatState.currentChatType === 'private' && ChatState.currentChatId === p.conversation_id) ? 'is-active' : '';
                 const isUnread = p.unread_count > 0 ? 'is-unread' : '';
@@ -155,15 +228,15 @@ const ChatUI = {
                 const nickname = p.other_nickname || p.other_username;
                 const time = p.last_message_time ? formatTime(p.last_message_time) : '';
                 
-                let preview = 'Nessun messaggio';
+                let preview = _t('no_messages');
                 if (p.last_message_id) {
-                    const sender = parseInt(p.last_message_sender_id) === ChatState.myUserId ? 'Tu' : `@${p.other_username}`;
+                    const sender = parseInt(p.last_message_sender_id) === ChatState.myUserId ? _t('sender_you') : `@${p.other_username}`;
                     if (p.last_message_type === 'system') {
-                        preview = p.last_message_text || 'Notifica di sistema';
+                        preview = p.last_message_text || _t('system_notification');
                     } else if (p.last_message_type === 'gif') {
                         preview = `${sender}: [GIF]`;
                     } else if (p.last_message_type === 'media' || !p.last_message_text) {
-                        const attType = p.last_message_attachment_type || 'Allegato';
+                        const attType = p.last_message_attachment_type || _t('attachment');
                         preview = `${sender}: [${attType.toUpperCase()}]`;
                     } else {
                         preview = `${sender}: ${p.last_message_text}`;
@@ -200,7 +273,7 @@ const ChatUI = {
         if (!this.messagesEl) return;
         
         if (ChatState.messages.length === 0) {
-            this.messagesEl.innerHTML = `<div class="text-center py-5 text-muted my-auto" style="color:var(--chat-text-muted) !important;"><i class="fa-regular fa-paper-plane fs-1 mb-3" style="color:var(--chat-accent) !important;opacity:0.8;"></i><br>Nessun messaggio presente. Scrivi il primo messaggio!</div>`;
+            this.messagesEl.innerHTML = `<div class="text-center py-5 text-muted my-auto" style="color:var(--chat-text-muted) !important;"><i class="fa-regular fa-paper-plane fs-1 mb-3" style="color:var(--chat-accent) !important;opacity:0.8;"></i><br>${_t('no_messages_write_first')}</div>`;
             return;
         }
 
@@ -317,7 +390,7 @@ const ChatUI = {
                         const countVal = r.count || r.total;
                         const didIReact = r.user_reacted || r.mine;
                         const badgeClass = ['chat-reaction-badge', didIReact ? 'user-reacted' : ''].filter(Boolean).join(' ');
-                        const titleText = escapeHtml(r.usernames || (didIReact ? 'Tu' : ''));
+                        const titleText = escapeHtml(r.usernames || (didIReact ? _t('sender_you') : ''));
                         
                         let emojiContent = reactionStr;
                         if (window.CHAT_CUSTOM_EMOJIS) {
@@ -358,7 +431,7 @@ const ChatUI = {
                     if (timeEl && isEdited && !timeEl.querySelector('.chat-edited')) {
                         const editedSpan = document.createElement('span');
                         editedSpan.className = 'chat-edited';
-                        editedSpan.textContent = ' modificato';
+                        editedSpan.textContent = ' ' + _t('edited');
                         timeEl.appendChild(editedSpan);
                     }
                 }
@@ -405,7 +478,7 @@ const ChatUI = {
             const senderName = msg.sender_display_name || msg.sender_username;
             const classes = ['chat-message', isMine ? 'is-mine' : '', isConsecutive ? 'is-consecutive' : ''].filter(Boolean).join(' ');
             const avatar = `<a class="chat-avatar-link" href="#"><img class="chat-avatar" src="/includes/get_pfp.php?id=${msg.sender_id}" alt=""></a>`;
-            const editedText = msg.edited_at || msg.is_edited ? '<span class="chat-edited">modificato</span>' : '';
+            const editedText = msg.edited_at || msg.is_edited ? `<span class="chat-edited"> ${_t('edited')}</span>` : '';
 
             // Render reactions if present
             let reactionsHtml = '';
@@ -415,7 +488,7 @@ const ChatUI = {
                     const countVal = r.count || r.total;
                     const didIReact = r.user_reacted || r.mine;
                     const badgeClass = ['chat-reaction-badge', didIReact ? 'user-reacted' : ''].filter(Boolean).join(' ');
-                    const titleText = escapeHtml(r.usernames || (didIReact ? 'Tu' : ''));
+                    const titleText = escapeHtml(r.usernames || (didIReact ? _t('sender_you') : ''));
                     
                     let emojiContent = reactionStr;
                     if (window.CHAT_CUSTOM_EMOJIS) {
@@ -492,14 +565,14 @@ const ChatUI = {
             
             if (m.user_id !== ChatState.myUserId) {
                 if (isOwner) {
-                    kickBtn = `<button class="chat-action-btn" onclick="kickGroupMember(${m.user_id})" title="Espelli"><i class="fa-solid fa-user-xmark" style="color:#ef4444 !important;font-size:14px;"></i></button>`;
+                    kickBtn = `<button class="chat-action-btn" onclick="kickGroupMember(${m.user_id})" title="${_t('btn_kick')}"><i class="fa-solid fa-user-xmark" style="color:#ef4444 !important;font-size:14px;"></i></button>`;
                     if (m.role === 'member') {
-                        promoteBtn = `<button class="chat-action-btn" onclick="promoteGroupAdmin(${m.user_id})" title="Promuovi ad Admin"><i class="fa-solid fa-arrow-up" style="color:var(--chat-online) !important;font-size:14px;"></i></button>`;
+                        promoteBtn = `<button class="chat-action-btn" onclick="promoteGroupAdmin(${m.user_id})" title="${_t('btn_promote')}"><i class="fa-solid fa-arrow-up" style="color:var(--chat-online) !important;font-size:14px;"></i></button>`;
                     } else if (m.role === 'admin') {
-                        promoteBtn = `<button class="chat-action-btn" onclick="demoteGroupAdmin(${m.user_id})" title="Rimuovi Admin"><i class="fa-solid fa-arrow-down" style="color:#f59e0b !important;font-size:14px;"></i></button>`;
+                        promoteBtn = `<button class="chat-action-btn" onclick="demoteGroupAdmin(${m.user_id})" title="${_t('btn_demote')}"><i class="fa-solid fa-arrow-down" style="color:#f59e0b !important;font-size:14px;"></i></button>`;
                     }
                 } else if (isAdmin && m.role === 'member') {
-                    kickBtn = `<button class="chat-action-btn" onclick="kickGroupMember(${m.user_id})" title="Espelli"><i class="fa-solid fa-user-xmark" style="color:#ef4444 !important;font-size:14px;"></i></button>`;
+                    kickBtn = `<button class="chat-action-btn" onclick="kickGroupMember(${m.user_id})" title="${_t('btn_kick')}"><i class="fa-solid fa-user-xmark" style="color:#ef4444 !important;font-size:14px;"></i></button>`;
                 }
             }
 
@@ -529,53 +602,53 @@ const ChatUI = {
                     ${isOwner || isAdmin ? `<label for="groupAvatarUpload" style="position:absolute;bottom:0;right:0;background:var(--chat-accent);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.5);"><i class="fa-solid fa-camera" style="font-size:12px;color:white;"></i></label><input type="file" id="groupAvatarUpload" style="display:none;" onchange="uploadGroupAvatar(this)">` : ''}
                 </div>
                 <div class="chat-details__name" style="color:var(--chat-text-main) !important;font-size:18px;font-weight:800;margin-top:10px;">${escapeHtml(chat.name)}</div>
-                <div style="font-size:12px;color:var(--chat-text-muted) !important;margin-top:4px;">${escapeHtml(chat.description || 'Nessuna descrizione')}</div>
+                <div style="font-size:12px;color:var(--chat-text-muted) !important;margin-top:4px;">${escapeHtml(chat.description || _t('no_description'))}</div>
             </div>
 
             <div class="chat-details__section">
-                <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">Personalizzazione Gruppo</div>
+                <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">${_t('group_customization')}</div>
                 ${isOwner || isAdmin ? `
                     <div style="display:flex;flex-direction:column;gap:12px;margin-top:10px;">
                         <div>
-                            <label style="font-size:11px;color:var(--chat-text-muted);display:block;margin-bottom:6px;">Nome Gruppo</label>
-                            <input type="text" id="editGroupNameInput" class="chat-details-input" value="${escapeHtml(chat.name)}" placeholder="Modifica nome..." onchange="updateGroupInfo()">
+                            <label style="font-size:11px;color:var(--chat-text-muted);display:block;margin-bottom:6px;">${_t('group_name')}</label>
+                            <input type="text" id="editGroupNameInput" class="chat-details-input" value="${escapeHtml(chat.name)}" placeholder="${_t('edit_name_placeholder')}" onchange="updateGroupInfo()">
                         </div>
                         <div>
-                            <label style="font-size:11px;color:var(--chat-text-muted);display:block;margin-bottom:6px;">Descrizione</label>
-                            <textarea id="editGroupDescInput" class="chat-details-input" rows="2" placeholder="Modifica descrizione..." onchange="updateGroupInfo()">${escapeHtml(chat.description || '')}</textarea>
+                            <label style="font-size:11px;color:var(--chat-text-muted);display:block;margin-bottom:6px;">${_t('description')}</label>
+                            <textarea id="editGroupDescInput" class="chat-details-input" rows="2" placeholder="${_t('edit_description_placeholder')}" onchange="updateGroupInfo()">${escapeHtml(chat.description || '')}</textarea>
                         </div>
                     </div>
-                ` : `<div style="font-size:12px;color:var(--chat-text-muted);margin-top:6px;">Contatta il proprietario o gli amministratori per modificare i dettagli.</div>`}
+                ` : `<div style="font-size:12px;color:var(--chat-text-muted);margin-top:6px;">${_t('contact_owner_notice')}</div>`}
             </div>
 
             <div class="chat-details__section">
-                <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">Partecipanti (${ChatState.members.length})</div>
+                <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">${_t('participants')} (${ChatState.members.length})</div>
                 <div style="margin-top:10px;max-height:250px;overflow-y:auto;padding-right:4px;">
                     ${membersHtml}
                 </div>
                 ${isOwner || isAdmin || settings.invite_permission === 'everyone' ? `
                     <button class="chat-details-btn chat-details-btn--primary" onclick="openInviteUsersModal()" style="margin-top:12px;">
-                        <i class="fa-solid fa-user-plus"></i> Invita Utente
+                        <i class="fa-solid fa-user-plus"></i> ${_t('invite_user')}
                     </button>
                 ` : ''}
             </div>
 
             ${isOwner ? `
                 <div class="chat-details__section">
-                    <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">Permessi Gruppo</div>
+                    <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">${_t('group_permissions')}</div>
                     <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">
                         <div>
-                            <label style="font-size:11px;color:var(--chat-text-muted);display:block;margin-bottom:4px;">Chi può invitare</label>
+                            <label style="font-size:11px;color:var(--chat-text-muted);display:block;margin-bottom:4px;">${_t('who_can_invite')}</label>
                             <select class="chat-details-input" id="setInvitePerm" onchange="updateGroupPermissions()" style="background:#18181b;color:white;border-radius:10px;padding:6px;">
-                                <option value="everyone" ${settings.invite_permission === 'everyone' ? 'selected' : ''}>Tutti</option>
-                                <option value="owner_admins" ${settings.invite_permission === 'owner_admins' ? 'selected' : ''}>Proprietario & Admin</option>
+                                <option value="everyone" ${settings.invite_permission === 'everyone' ? 'selected' : ''}>${_t('everyone')}</option>
+                                <option value="owner_admins" ${settings.invite_permission === 'owner_admins' ? 'selected' : ''}>${_t('owner_admin')}</option>
                             </select>
                         </div>
                         <div>
-                            <label style="font-size:11px;color:var(--chat-text-muted);display:block;margin-bottom:4px;">Chi può scrivere</label>
+                            <label style="font-size:11px;color:var(--chat-text-muted);display:block;margin-bottom:4px;">${_t('who_can_write')}</label>
                             <select class="chat-details-input" id="setMsgPerm" onchange="updateGroupPermissions()" style="background:#18181b;color:white;border-radius:10px;padding:6px;">
-                                <option value="members" ${settings.message_permission === 'members' ? 'selected' : ''}>Tutti i membri</option>
-                                <option value="admins_only" ${settings.message_permission === 'admins_only' ? 'selected' : ''}>Solo Amministratori</option>
+                                <option value="members" ${settings.message_permission === 'members' ? 'selected' : ''}>${_t('all_members')}</option>
+                                <option value="admins_only" ${settings.message_permission === 'admins_only' ? 'selected' : ''}>${_t('admins_only')}</option>
                             </select>
                         </div>
                     </div>
@@ -583,17 +656,17 @@ const ChatUI = {
             ` : ''}
 
             <div class="chat-details__section" style="display:flex;flex-direction:column;gap:10px;">
-                <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">Azioni</div>
+                <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">${_t('actions')}</div>
                 <button class="chat-details-btn chat-details-btn--secondary" onclick="toggleGroupMute(${isMuted})">
                     <i class="fa-solid ${isMuted ? 'fa-bell' : 'fa-bell-slash'}"></i>
-                    ${isMuted ? 'Riattiva Notifiche' : 'Silenzia Notifiche'}
+                    ${isMuted ? _t('unmute_notifications') : _t('mute_notifications')}
                 </button>
                 <button class="chat-details-btn chat-details-btn--secondary" onclick="toggleArchiveGroupChat()">
                     <i class="fa-solid fa-box-archive"></i>
-                    Archivia Chat
+                    ${_t('archive_chat')}
                 </button>
                 <button class="chat-details-btn" onclick="leaveGroupChat()" style="background:rgba(239, 68, 68, 0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);">
-                    <i class="fa-solid fa-right-from-bracket"></i> Lascia Gruppo
+                    <i class="fa-solid fa-right-from-bracket"></i> ${_t('leave_group')}
                 </button>
             </div>
         `;
@@ -618,7 +691,6 @@ const ChatUI = {
     },
 
     // --- GROUP CREATION MODAL ---
-    // --- GROUP CREATION MODAL ---
     injectGroupModalHTML() {
         if (document.querySelector('#createGroupModal')) return;
         
@@ -629,28 +701,28 @@ const ChatUI = {
         modal.innerHTML = `
             <div class="chat-modal-dialog" style="width:100%;max-width:500px;background:var(--chat-panel-bg);border:1px solid var(--chat-border);border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.5);margin:20px;pointer-events:auto !important;">
                 <div style="display:flex;align-items:center;justify-content:between;padding:20px;border-bottom:1px solid var(--chat-border);">
-                    <h5 style="margin:0;font-weight:800;color:var(--chat-text-main);">Crea Gruppo Chat</h5>
+                    <h5 style="margin:0;font-weight:800;color:var(--chat-text-main);">${_t('create_group_chat')}</h5>
                     <button class="chat-action-btn" onclick="closeCreateGroupModal()" style="margin-left:auto;"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div style="padding:20px;max-height:60vh;overflow-y:auto;display:flex;flex-direction:column;gap:15px;">
                     <div>
-                        <label style="font-size:12px;color:var(--chat-text-muted);display:block;margin-bottom:6px;">Nome Gruppo *</label>
-                        <input type="text" id="newGroupNameInput" class="chat-details-input" placeholder="Inserisci il nome del gruppo...">
+                        <label style="font-size:12px;color:var(--chat-text-muted);display:block;margin-bottom:6px;">${_t('group_name_label')}</label>
+                        <input type="text" id="newGroupNameInput" class="chat-details-input" placeholder="${_t('group_name_placeholder')}">
                     </div>
                     <div>
-                        <label style="font-size:12px;color:var(--chat-text-muted);display:block;margin-bottom:6px;">Descrizione (opzionale)</label>
-                        <textarea id="newGroupDescInput" class="chat-details-input" rows="2" placeholder="Inserisci descrizione del gruppo..."></textarea>
+                        <label style="font-size:12px;color:var(--chat-text-muted);display:block;margin-bottom:6px;">${_t('description_optional')}</label>
+                        <textarea id="newGroupDescInput" class="chat-details-input" rows="2" placeholder="${_t('description_placeholder')}"></textarea>
                     </div>
                     <div>
-                        <label style="font-size:12px;color:var(--chat-text-muted);display:block;margin-bottom:6px;">Seleziona partecipanti (almeno 1) *</label>
+                        <label style="font-size:12px;color:var(--chat-text-muted);display:block;margin-bottom:6px;">${_t('select_participants_label')}</label>
                         <div id="friendsChecklist" style="max-height:180px;overflow-y:auto;border:1px solid var(--chat-border);border-radius:10px;padding:10px;background:rgba(0,0,0,0.2);">
                             <!-- Loaded via API -->
                         </div>
                     </div>
                 </div>
                 <div style="padding:15px 20px;background:rgba(0,0,0,0.1);display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--chat-border);">
-                    <button class="chat-details-btn chat-details-btn--secondary" onclick="closeCreateGroupModal()" style="width:auto;min-width:100px;">Annulla</button>
-                    <button class="chat-details-btn chat-details-btn--primary" onclick="submitCreateGroup()" style="width:auto;min-width:100px;">Crea</button>
+                    <button class="chat-details-btn chat-details-btn--secondary" onclick="closeCreateGroupModal()" style="width:auto;min-width:100px;">${_t('btn_cancel')}</button>
+                    <button class="chat-details-btn chat-details-btn--primary" onclick="submitCreateGroup()" style="width:auto;min-width:100px;">${_t('btn_create')}</button>
                 </div>
             </div>
         `;
@@ -663,7 +735,7 @@ const ChatUI = {
         inviteModal.innerHTML = `
             <div class="chat-modal-dialog" style="width:100%;max-width:450px;background:var(--chat-panel-bg);border:1px solid var(--chat-border);border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.5);margin:20px;pointer-events:auto !important;">
                 <div style="display:flex;align-items:center;justify-content:between;padding:20px;border-bottom:1px solid var(--chat-border);">
-                    <h5 style="margin:0;font-weight:800;color:var(--chat-text-main);">Invita nel gruppo</h5>
+                    <h5 style="margin:0;font-weight:800;color:var(--chat-text-main);">${_t('invite_to_group')}</h5>
                     <button class="chat-action-btn" onclick="closeInviteUsersModal()" style="margin-left:auto;"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div style="padding:20px;max-height:50vh;overflow-y:auto;">
@@ -672,8 +744,8 @@ const ChatUI = {
                     </div>
                 </div>
                 <div style="padding:15px 20px;background:rgba(0,0,0,0.1);display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--chat-border);">
-                    <button class="chat-details-btn chat-details-btn--secondary" onclick="closeInviteUsersModal()" style="width:auto;min-width:100px;">Chiudi</button>
-                    <button class="chat-details-btn chat-details-btn--primary" onclick="submitInviteUsers()" style="width:auto;min-width:100px;">Invita</button>
+                    <button class="chat-details-btn chat-details-btn--secondary" onclick="closeInviteUsersModal()" style="width:auto;min-width:100px;">${_t('btn_close')}</button>
+                    <button class="chat-details-btn chat-details-btn--primary" onclick="submitInviteUsers()" style="width:auto;min-width:100px;">${_t('btn_invite')}</button>
                 </div>
             </div>
         `;
@@ -685,7 +757,7 @@ const ChatUI = {
         if (!modal) return;
         
         const friendsBox = document.querySelector('#friendsChecklist');
-        friendsBox.innerHTML = '<p class="text-muted" style="font-size:12px;text-align:center;">Caricamento amici...</p>';
+        friendsBox.innerHTML = `<p class="text-muted" style="font-size:12px;text-align:center;">${_t('loading_friends')}</p>`;
         
         modal.style.display = 'flex';
         setTimeout(() => modal.style.opacity = '1', 50);
@@ -703,10 +775,10 @@ const ChatUI = {
                     </div>
                 `).join('');
             } else {
-                friendsBox.innerHTML = '<p class="text-muted" style="font-size:12px;text-align:center;">Nessun amico trovato.</p>';
+                friendsBox.innerHTML = `<p class="text-muted" style="font-size:12px;text-align:center;">${_t('no_friends_found')}</p>`;
             }
         } catch (e) {
-            friendsBox.innerHTML = '<p class="text-muted" style="font-size:12px;text-align:center;color:#ef4444;">Errore di caricamento.</p>';
+            friendsBox.innerHTML = `<p class="text-muted" style="font-size:12px;text-align:center;color:#ef4444;">${_t('error_loading')}</p>`;
         }
     },
 
@@ -727,7 +799,7 @@ const ChatUI = {
         if (!modal) return;
         
         const checklist = document.querySelector('#inviteFriendsChecklist');
-        checklist.innerHTML = '<p class="text-muted" style="font-size:12px;text-align:center;">Caricamento...</p>';
+        checklist.innerHTML = `<p class="text-muted" style="font-size:12px;text-align:center;">${_t('loading')}</p>`;
         
         modal.style.display = 'flex';
         setTimeout(() => modal.style.opacity = '1', 50);
@@ -748,13 +820,13 @@ const ChatUI = {
                         </div>
                     `).join('');
                 } else {
-                    checklist.innerHTML = '<p class="text-muted" style="font-size:12px;text-align:center;">Tutti i tuoi amici fanno già parte di questo gruppo.</p>';
+                    checklist.innerHTML = `<p class="text-muted" style="font-size:12px;text-align:center;">${_t('all_friends_in_group')}</p>`;
                 }
             } else {
-                checklist.innerHTML = '<p class="text-muted" style="font-size:12px;text-align:center;">Nessun amico trovato.</p>';
+                checklist.innerHTML = `<p class="text-muted" style="font-size:12px;text-align:center;">${_t('no_friends_found')}</p>`;
             }
         } catch (e) {
-            checklist.innerHTML = '<p class="text-muted" style="font-size:12px;text-align:center;color:#ef4444;">Errore di caricamento.</p>';
+            checklist.innerHTML = `<p class="text-muted" style="font-size:12px;text-align:center;color:#ef4444;">${_t('error_loading')}</p>`;
         }
     },
 
@@ -775,7 +847,7 @@ window.formatDateTime = formatDateTime;
 function formatDateTime(timeStr) {
     const date = parseUtcDate(timeStr);
     if (Number.isNaN(date.getTime())) return '';
-    return date.toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleString(_lang === 'it' ? 'it-IT' : 'en-US', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 }
 function parseUtcDate(dateString) {
     if (!dateString) return new Date(NaN);
@@ -787,7 +859,7 @@ function formatTime(timestamp) {
     if (!timestamp) return '';
     const date = parseUtcDate(timestamp);
     if (Number.isNaN(date.getTime())) return '';
-    return date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString(_lang === 'it' ? 'it-IT' : 'en-US', { hour: '2-digit', minute: '2-digit' });
 }
 
 function formatDateLabel(timestamp) {
@@ -795,14 +867,14 @@ function formatDateLabel(timestamp) {
     if (Number.isNaN(d.getTime())) return '';
     const today = new Date();
     if (d.toDateString() === today.toDateString()) {
-        return "Oggi";
+        return _t('today');
     }
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
     if (d.toDateString() === yesterday.toDateString()) {
-        return "Ieri";
+        return _t('yesterday');
     }
-    return d.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+    return d.toLocaleDateString(_lang === 'it' ? 'it-IT' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 function escapeHtml(str) {
@@ -874,7 +946,7 @@ function renderPrivateDetailsUI(data) {
     if (!box) return;
 
     const otherUser = data.participants.find(p => p.id !== ChatState.myUserId);
-    const nickname = otherUser ? (otherUser.nickname || otherUser.username) : 'Utente';
+    const nickname = otherUser ? (otherUser.nickname || otherUser.username) : _t('default_user');
     const isMuted = !!data.settings.is_muted;
     const isArchived = !!data.settings.is_archived;
 
@@ -891,7 +963,7 @@ function renderPrivateDetailsUI(data) {
             </div>
         `).join('');
     } else {
-        pinnedHtml = `<div style="font-size:11px; color:var(--chat-text-muted); text-align:center; padding:10px 0;">Nessun messaggio fissato</div>`;
+        pinnedHtml = `<div style="font-size:11px; color:var(--chat-text-muted); text-align:center; padding:10px 0;">${_t('no_pinned_messages')}</div>`;
     }
 
     // 2. Gallery Media Html
@@ -909,7 +981,7 @@ function renderPrivateDetailsUI(data) {
             </div>
         `;
     } else {
-        mediaHtml = `<div style="font-size:11px; color:var(--chat-text-muted); text-align:center; padding:10px 0;">Nessun media condiviso</div>`;
+        mediaHtml = `<div style="font-size:11px; color:var(--chat-text-muted); text-align:center; padding:10px 0;">${_t('no_shared_media')}</div>`;
     }
 
     // 3. Gallery Files Html
@@ -929,7 +1001,7 @@ function renderPrivateDetailsUI(data) {
             `;
         }).join('');
     } else {
-        filesHtml = `<div style="font-size:11px; color:var(--chat-text-muted); text-align:center; padding:10px 0;">Nessun documento condiviso</div>`;
+        filesHtml = `<div style="font-size:11px; color:var(--chat-text-muted); text-align:center; padding:10px 0;">${_t('no_shared_docs')}</div>`;
     }
 
     box.innerHTML = `
@@ -940,37 +1012,37 @@ function renderPrivateDetailsUI(data) {
         </div>
         
         <div class="chat-details__section">
-            <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">Personalizzazione</div>
+            <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">${_t('customization')}</div>
             <div>
-                <label style="font-size:12px;color:var(--chat-text-muted);margin-bottom:6px;display:block;">Nickname locale</label>
-                <input type="text" id="settingNicknameInput" class="chat-details-input" value="${escapeHtml(otherUser.nickname || '')}" placeholder="Imposta nickname..." onchange="updateLocalPrivateNickname(this.value)">
+                <label style="font-size:12px;color:var(--chat-text-muted);margin-bottom:6px;display:block;">${_t('local_nickname')}</label>
+                <input type="text" id="settingNicknameInput" class="chat-details-input" value="${escapeHtml(otherUser.nickname || '')}" placeholder="${_t('set_nickname_placeholder')}" onchange="updateLocalPrivateNickname(this.value)">
             </div>
         </div>
 
         <div class="chat-details__section">
-            <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">Messaggi Fissati</div>
+            <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">${_t('pinned_messages')}</div>
             <div style="margin-top:8px;">${pinnedHtml}</div>
         </div>
 
         <div class="chat-details__section">
-            <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">Media Condivisi</div>
+            <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">${_t('shared_media')}</div>
             <div>${mediaHtml}</div>
         </div>
 
         <div class="chat-details__section">
-            <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">Documenti Condivisi</div>
+            <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">${_t('shared_docs')}</div>
             <div style="margin-top:8px;">${filesHtml}</div>
         </div>
 
         <div class="chat-details__section" style="display:flex;flex-direction:column;gap:10px;">
-            <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">Azioni</div>
+            <div class="chat-details__section-title" style="color:var(--chat-text-muted) !important;font-size:11px;font-weight:700;text-transform:uppercase;">${_t('actions')}</div>
             <button class="chat-details-btn chat-details-btn--secondary" onclick="togglePrivateMute(${isMuted})">
                 <i class="fa-solid ${isMuted ? 'fa-bell' : 'fa-bell-slash'}"></i>
-                ${isMuted ? 'Riattiva Notifiche' : 'Silenzia Notifiche'}
+                ${isMuted ? _t('unmute_notifications') : _t('mute_notifications')}
             </button>
             <button class="chat-details-btn ${isArchived ? 'chat-details-btn--secondary' : 'chat-details-btn--primary'}" onclick="togglePrivateArchive(${isArchived})">
                 <i class="fa-solid ${isArchived ? 'fa-box-open' : 'fa-box-archive'}"></i>
-                ${isArchived ? 'Ripristina Chat' : 'Archivia Chat'}
+                ${isArchived ? _t('restore_chat') : _t('archive_chat')}
             </button>
         </div>
     `;

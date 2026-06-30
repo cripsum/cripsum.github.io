@@ -2,6 +2,80 @@
 // SPA Orchestrator Engine for Cripsum™ Group & Private Chat.
 
 (function () {
+    const _lang = document.documentElement.lang === 'it' ? 'it' : 'en';
+    const _T = {
+        error_load_chats:        { it: 'Errore caricamento lista chat:',                          en: 'Error loading chat list:' },
+        error_load_messages:     { it: 'Impossibile caricare i messaggi.',                        en: 'Could not load messages.' },
+        error_load_messages_console: { it: 'Errore caricamento messaggi:',                        en: 'Error loading messages:' },
+        group_chat:              { it: 'Gruppo di chat',                                          en: 'Group chat' },
+        status_online:           { it: 'Online',                                                  en: 'Online' },
+        status_offline:          { it: 'Offline',                                                 en: 'Offline' },
+        select_a_chat:           { it: 'Seleziona una chat',                                      en: 'Select a chat' },
+        choose_user_to_chat:     { it: 'Scegli un utente o un gruppo per iniziare a chattare.',    en: 'Choose a user or group to start chatting.' },
+        msg_edited:              { it: 'Messaggio modificato.',                                    en: 'Message edited.' },
+        error_edit:              { it: 'Errore durante la modifica.',                              en: 'Error editing message.' },
+        error_connection:        { it: 'Errore di connessione.',                                   en: 'Connection error.' },
+        error_send_message:      { it: 'Impossibile inviare il messaggio.',                        en: 'Could not send message.' },
+        error_send_gif:          { it: 'Impossibile inviare la GIF.',                              en: 'Could not send GIF.' },
+        error_network:           { it: 'Errore di rete.',                                          en: 'Network error.' },
+        error_chat_details:      { it: 'Errore dettagli chat:',                                    en: 'Error loading chat details:' },
+        select_chat_to_send_file:{ it: 'Seleziona prima una chat per inviare file.',                en: 'Select a chat first to send files.' },
+        uploading_file:          { it: 'Caricamento file in corso...',                              en: 'Uploading file...' },
+        file_sent:               { it: 'File inviato con successo!',                               en: 'File sent successfully!' },
+        error_upload_file:       { it: 'Errore durante il caricamento del file.',                   en: 'Error uploading file.' },
+        group_name_required:     { it: 'Il nome del gruppo è obbligatorio.',                       en: 'Group name is required.' },
+        select_participants:     { it: 'Seleziona almeno un partecipante da invitare.',             en: 'Select at least one participant to invite.' },
+        group_created:           { it: 'Gruppo creato con successo!',                               en: 'Group created successfully!' },
+        error_create_group:      { it: 'Impossibile creare il gruppo.',                             en: 'Could not create group.' },
+        error_invite:            { it: "Errore durante l'invio degli inviti.",                      en: 'Error sending invitations.' },
+        typing:                  { it: 'sta scrivendo...',                                          en: 'is typing...' },
+        last_seen:               { it: 'Ultimo accesso ',                                           en: 'Last seen ' },
+        invite_accepted:         { it: 'Invito accettato.',                                         en: 'Invite accepted.' },
+        invite_declined:         { it: 'Invito rifiutato.',                                         en: 'Invite declined.' },
+        user_promoted:           { it: 'Utente promosso ad admin.',                                 en: 'User promoted to admin.' },
+        admin_revoked:           { it: 'Privilegi admin revocati.',                                 en: 'Admin privileges revoked.' },
+        member_removed:          { it: 'Membro rimosso dal gruppo.',                                en: 'Member removed from group.' },
+        avatar_updated:          { it: 'Avatar del gruppo aggiornato.',                             en: 'Group avatar updated.' },
+        error_avatar:            { it: 'Errore caricamento avatar.',                                en: 'Error uploading avatar.' },
+        group_details_updated:   { it: 'Dettagli gruppo modificati.',                               en: 'Group details updated.' },
+        permissions_updated:     { it: 'Permessi aggiornati.',                                      en: 'Permissions updated.' },
+        notifications_unmuted:   { it: 'Notifiche riattivate.',                                     en: 'Notifications unmuted.' },
+        notifications_muted:     { it: 'Notifiche silenziate.',                                     en: 'Notifications muted.' },
+        error_mute:              { it: 'Errore mute.',                                              en: 'Mute error.' },
+        group_archived:          { it: 'Gruppo archiviato.',                                        en: 'Group archived.' },
+        error_archive:           { it: 'Errore archiviazione.',                                     en: 'Error archiving.' },
+        confirm_leave_group:     { it: 'Sei sicuro di voler lasciare questo gruppo?',               en: 'Are you sure you want to leave this group?' },
+        left_group:              { it: 'Hai lasciato il gruppo.',                                   en: 'You left the group.' },
+        error_generic:           { it: 'Errore.',                                                   en: 'Error.' },
+        add_reaction:            { it: 'Aggiungi reazione',                                         en: 'Add reaction' },
+        ctx_reply:               { it: 'Rispondi',                                                  en: 'Reply' },
+        ctx_copy:                { it: 'Copia Testo',                                               en: 'Copy Text' },
+        ctx_pin:                 { it: 'Fissa/Sfissa',                                              en: 'Pin/Unpin' },
+        ctx_favorite:            { it: 'Preferito',                                                 en: 'Favorite' },
+        ctx_edit:                { it: 'Modifica',                                                  en: 'Edit' },
+        ctx_delete_all:          { it: 'Elimina per tutti',                                         en: 'Delete for everyone' },
+        ctx_moderate_delete:     { it: 'Modera ed Elimina',                                         en: 'Moderate and Delete' },
+        ctx_delete_self:         { it: 'Rimuovi per me',                                            en: 'Remove for me' },
+        error_reaction:          { it: 'Impossibile aggiornare la reazione.',                        en: 'Could not update reaction.' },
+        file_attachment:         { it: '[File/Allegato]',                                            en: '[File/Attachment]' },
+        text_copied:             { it: 'Testo copiato negli appunti.',                               en: 'Text copied to clipboard.' },
+        added_favorite:          { it: 'Aggiunto ai preferiti.',                                     en: 'Added to favorites.' },
+        removed_favorite:        { it: 'Rimosso dai preferiti.',                                     en: 'Removed from favorites.' },
+        msg_removed_self:        { it: 'Messaggio rimosso per te.',                                  en: 'Message removed for you.' },
+        edit_message:            { it: 'Modifica Messaggio',                                         en: 'Edit Message' },
+        confirm_delete_msg:      { it: 'Sei sicuro di voler eliminare questo messaggio?',            en: 'Are you sure you want to delete this message?' },
+        msg_deleted:             { it: 'Messaggio eliminato.',                                       en: 'Message deleted.' },
+        msg_pinned:              { it: 'Messaggio fissato.',                                         en: 'Message pinned.' },
+        msg_unpinned:            { it: 'Messaggio sfissato.',                                        en: 'Message unpinned.' },
+        nickname_updated:        { it: 'Nickname aggiornato.',                                       en: 'Nickname updated.' },
+        conv_restored:           { it: 'Conversazione ripristinata.',                                en: 'Conversation restored.' },
+        conv_archived:           { it: 'Conversazione archiviata.',                                  en: 'Conversation archived.' },
+        new_conversation:        { it: 'Nuova Conversazione',                                        en: 'New Conversation' },
+        ready_to_send:           { it: 'Pronto a inviare',                                           en: 'Ready to send' },
+        send_to_start:           { it: 'Invia un messaggio per iniziare la chat privata.',            en: 'Send a message to start the private chat.' }
+    };
+    function _t(key) { return _T[key] ? (_T[key][_lang] || _T[key]['en']) : key; }
+
     let currentGifQuery = '';
     let nextGifOffset = '';
 
@@ -84,7 +158,7 @@
                 ChatUI.renderConversations();
             }
         } catch (e) {
-            console.error("Errore caricamento lista chat:", e);
+            console.error(_t('error_load_chats'), e);
         }
     }
 
@@ -265,10 +339,10 @@
                     await loadDetailsPanelInfo();
                 }
             } else {
-                ChatUI.showToast(res.error || "Impossibile caricare i messaggi.", true);
+                ChatUI.showToast(res.error || _t('error_load_messages'), true);
             }
         } catch (e) {
-            console.error("Errore caricamento messaggi:", e);
+            console.error(_t('error_load_messages_console'), e);
         }
     }
 
@@ -281,25 +355,25 @@
             nameEl.textContent = chat.name;
             avatarEl.src = chat.avatar_url || '/img/Susremaster.png';
             avatarEl.style.display = 'block';
-            statusEl.textContent = "Gruppo di chat";
+            statusEl.textContent = _t('group_chat');
             statusEl.className = 'chat-area__user-status';
         } else {
             const nickname = chat.other_nickname || chat.other_username;
             nameEl.textContent = nickname;
             avatarEl.src = `/includes/get_pfp.php?id=${chat.other_user_id}`;
             avatarEl.style.display = 'block';
-            statusEl.textContent = chat.is_online ? "Online" : "Offline";
+            statusEl.textContent = chat.is_online ? _t('status_online') : _t('status_offline');
             statusEl.className = 'chat-area__user-status' + (chat.is_online ? ' is-online' : '');
         }
     }
 
     function stopActiveChatUI() {
-        document.querySelector('#chatHeaderName').textContent = "Seleziona una chat";
+        document.querySelector('#chatHeaderName').textContent = _t('select_a_chat');
         const avatar = document.querySelector('#chatHeaderAvatar');
         avatar.src = "";
         avatar.style.display = 'none';
         document.querySelector('#chatHeaderStatus').textContent = "";
-        document.querySelector('.chat-messages').innerHTML = `<div class="text-center py-5 text-muted my-auto"><i class="fa-regular fa-paper-plane fs-1 mb-3" style="color:var(--chat-accent) !important;opacity:0.8;"></i><br>Scegli un utente o un gruppo per iniziare a chattare.</div>`;
+        document.querySelector('.chat-messages').innerHTML = `<div class="text-center py-5 text-muted my-auto"><i class="fa-regular fa-paper-plane fs-1 mb-3" style="color:var(--chat-accent) !important;opacity:0.8;"></i><br>${_t('choose_user_to_chat')}</div>`;
     }
 
     // --- SEND / EDIT / DELETE ---
@@ -333,12 +407,12 @@
                         msgObj.edited_at = new Date().toISOString();
                     }
                     ChatUI.renderMessages();
-                    ChatUI.showToast("Messaggio modificato.");
+                    ChatUI.showToast(_t('msg_edited'));
                 } else {
-                    ChatUI.showToast(res.error || "Errore durante la modifica.", true);
+                    ChatUI.showToast(res.error || _t('error_edit'), true);
                 }
             } catch (e) {
-                ChatUI.showToast("Errore di connessione.", true);
+                ChatUI.showToast(_t('error_connection'), true);
             }
             return;
         }
@@ -367,10 +441,10 @@
                 ChatUI.renderMessages(true);
                 loadAllConversations();
             } else {
-                ChatUI.showToast(res.error || "Impossibile inviare il messaggio.", true);
+                ChatUI.showToast(res.error || _t('error_send_message'), true);
             }
         } catch (e) {
-            ChatUI.showToast("Errore di connessione.", true);
+            ChatUI.showToast(_t('error_connection'), true);
         }
     }
 
@@ -432,10 +506,10 @@
                 ChatUI.renderMessages(true);
                 loadAllConversations();
             } else {
-                ChatUI.showToast(res.error || "Impossibile inviare la GIF.", true);
+                ChatUI.showToast(res.error || _t('error_send_gif'), true);
             }
         } catch (e) {
-            ChatUI.showToast("Errore di rete.", true);
+            ChatUI.showToast(_t('error_network'), true);
         }
     }
 
@@ -474,7 +548,7 @@
                 }
             }
         } catch (e) {
-            console.error("Errore dettagli chat:", e);
+            console.error(_t('error_chat_details'), e);
         }
     }
 
@@ -507,7 +581,7 @@
 
     async function uploadFile(file) {
         if (ChatState.currentChatId === 0) {
-            ChatUI.showToast("Seleziona prima una chat per inviare file.", true);
+            ChatUI.showToast(_t('select_chat_to_send_file'), true);
             return;
         }
 
@@ -520,7 +594,7 @@
         }
         if (ChatState.replyToId) formData.append('reply_to_id', ChatState.replyToId);
 
-        ChatUI.showToast("Caricamento file in corso...");
+        ChatUI.showToast(_t('uploading_file'));
 
         try {
             const res = await fetch('/api/chat/upload_media.php', {
@@ -539,13 +613,13 @@
                 ChatState.messages.push(msg);
                 ChatState.lastMessageId = msg.id;
                 ChatUI.renderMessages(true);
-                ChatUI.showToast("File inviato con successo!");
+                ChatUI.showToast(_t('file_sent'));
                 await loadAllConversations();
             } else {
                 ChatUI.showToast(res.error, true);
             }
         } catch (e) {
-            ChatUI.showToast("Errore durante il caricamento del file.", true);
+            ChatUI.showToast(_t('error_upload_file'), true);
         }
     }
 
@@ -557,7 +631,7 @@
         const desc = descInput.value.trim();
 
         if (name === '') {
-            ChatUI.showToast("Il nome del gruppo è obbligatorio.", true);
+            ChatUI.showToast(_t('group_name_required'), true);
             return;
         }
 
@@ -565,24 +639,24 @@
         const invitedUsers = Array.from(checkboxes).map(chk => parseInt(chk.value));
 
         if (invitedUsers.length === 0) {
-            ChatUI.showToast("Seleziona almeno un partecipante da invitare.", true);
+            ChatUI.showToast(_t('select_participants'), true);
             return;
         }
 
         try {
             const res = await ChatAPI.createGroup(name, desc, invitedUsers);
             if (res.ok) {
-                ChatUI.showToast("Gruppo creato con successo!");
+                ChatUI.showToast(_t('group_created'));
                 ChatUI.closeCreateGroupModal();
                 await loadAllConversations();
                 if (res.chat_id) {
                     selectChat('group', res.chat_id);
                 }
             } else {
-                ChatUI.showToast(res.error || "Impossibile creare il gruppo.", true);
+                ChatUI.showToast(res.error || _t('error_create_group'), true);
             }
         } catch (e) {
-            ChatUI.showToast("Errore di connessione.", true);
+            ChatUI.showToast(_t('error_connection'), true);
         }
     }
 
@@ -602,11 +676,11 @@
                 if (res.ok) successCount++;
             }
             
-            ChatUI.showToast(`Invitati ${successCount} utenti nel gruppo.`);
+            ChatUI.showToast(_lang === 'it' ? `Invitati ${successCount} utenti nel gruppo.` : `Invited ${successCount} users to the group.`);
             ChatUI.closeInviteUsersModal();
             await loadDetailsPanelInfo();
         } catch (e) {
-            ChatUI.showToast("Errore durante l'invio degli inviti.", true);
+            ChatUI.showToast(_t('error_invite'), true);
         }
     }
 
@@ -640,13 +714,13 @@
                         const statusEl = document.querySelector('#chatHeaderStatus');
                         if (statusEl) {
                             if (res.other_typing) {
-                                statusEl.textContent = "sta scrivendo...";
+                                statusEl.textContent = _t('typing');
                                 statusEl.className = "chat-area__user-status is-typing";
                             } else if (res.other_online) {
-                                statusEl.textContent = "Online";
+                                statusEl.textContent = _t('status_online');
                                 statusEl.className = "chat-area__user-status is-online";
                             } else {
-                                statusEl.textContent = res.other_last_seen ? "Ultimo accesso " + window.formatDateTime(res.other_last_seen) : "Offline";
+                                statusEl.textContent = res.other_last_seen ? _t('last_seen') + window.formatDateTime(res.other_last_seen) : _t('status_offline');
                                 statusEl.className = "chat-area__user-status";
                             }
                         }
@@ -690,14 +764,14 @@
         try {
             const res = await ChatAPI.acceptInvite(chatId);
             if (res.ok) {
-                ChatUI.showToast("Invito accettato.");
+                ChatUI.showToast(_t('invite_accepted'));
                 await loadAllConversations();
                 selectChat('group', chatId);
             } else {
                 ChatUI.showToast(res.error, true);
             }
         } catch (e) {
-            ChatUI.showToast("Errore di connessione.", true);
+            ChatUI.showToast(_t('error_connection'), true);
         }
     };
 
@@ -705,13 +779,13 @@
         try {
             const res = await ChatAPI.declineInvite(chatId);
             if (res.ok) {
-                ChatUI.showToast("Invito rifiutato.");
+                ChatUI.showToast(_t('invite_declined'));
                 await loadAllConversations();
             } else {
                 ChatUI.showToast(res.error, true);
             }
         } catch (e) {
-            ChatUI.showToast("Errore di connessione.", true);
+            ChatUI.showToast(_t('error_connection'), true);
         }
     };
 
@@ -719,13 +793,13 @@
         try {
             const res = await ChatAPI.promoteAdmin(ChatState.currentChatId, memberId);
             if (res.ok) {
-                ChatUI.showToast("Utente promosso ad admin.");
+                ChatUI.showToast(_t('user_promoted'));
                 await loadDetailsPanelInfo();
             } else {
                 ChatUI.showToast(res.error, true);
             }
         } catch (e) {
-            ChatUI.showToast("Errore.", true);
+            ChatUI.showToast(_t('error_generic'), true);
         }
     };
 
@@ -733,13 +807,13 @@
         try {
             const res = await ChatAPI.demoteAdmin(ChatState.currentChatId, memberId);
             if (res.ok) {
-                ChatUI.showToast("Privilegi admin revocati.");
+                ChatUI.showToast(_t('admin_revoked'));
                 await loadDetailsPanelInfo();
             } else {
                 ChatUI.showToast(res.error, true);
             }
         } catch (e) {
-            ChatUI.showToast("Errore.", true);
+            ChatUI.showToast(_t('error_generic'), true);
         }
     };
 
@@ -747,13 +821,13 @@
         try {
             const res = await ChatAPI.removeMember(ChatState.currentChatId, memberId);
             if (res.ok) {
-                ChatUI.showToast("Membro rimosso dal gruppo.");
+                ChatUI.showToast(_t('member_removed'));
                 await loadDetailsPanelInfo();
             } else {
                 ChatUI.showToast(res.error, true);
             }
         } catch (e) {
-            ChatUI.showToast("Errore.", true);
+            ChatUI.showToast(_t('error_generic'), true);
         }
     };
 
@@ -768,14 +842,14 @@
         try {
             const res = await ChatAPI.updateAvatar(formData);
             if (res.ok) {
-                ChatUI.showToast("Avatar del gruppo aggiornato.");
+                ChatUI.showToast(_t('avatar_updated'));
                 await loadDetailsPanelInfo();
                 await loadAllConversations();
             } else {
                 ChatUI.showToast(res.error, true);
             }
         } catch (e) {
-            ChatUI.showToast("Errore caricamento avatar.", true);
+            ChatUI.showToast(_t('error_avatar'), true);
         }
     };
 
@@ -788,14 +862,14 @@
         try {
             const res = await ChatAPI.updateGroup(ChatState.currentChatId, { name, description: desc });
             if (res.ok) {
-                ChatUI.showToast("Dettagli gruppo modificati.");
+                ChatUI.showToast(_t('group_details_updated'));
                 await loadDetailsPanelInfo();
                 await loadAllConversations();
             } else {
                 ChatUI.showToast(res.error, true);
             }
         } catch (e) {
-            ChatUI.showToast("Errore di rete.", true);
+            ChatUI.showToast(_t('error_network'), true);
         }
     };
 
@@ -809,11 +883,11 @@
                 message_permission: message
             });
             if (res.ok) {
-                ChatUI.showToast("Permessi aggiornati.");
+                ChatUI.showToast(_t('permissions_updated'));
                 await loadDetailsPanelInfo();
             }
         } catch (e) {
-            ChatUI.showToast("Errore.", true);
+            ChatUI.showToast(_t('error_generic'), true);
         }
     };
 
@@ -827,12 +901,12 @@
             }
 
             if (res.ok) {
-                ChatUI.showToast(isMuted ? "Notifiche riattivate." : "Notifiche silenziate.");
+                ChatUI.showToast(isMuted ? _t('notifications_unmuted') : _t('notifications_muted'));
                 await loadDetailsPanelInfo();
                 await loadAllConversations();
             }
         } catch (e) {
-            ChatUI.showToast("Errore mute.", true);
+            ChatUI.showToast(_t('error_mute'), true);
         }
     };
 
@@ -840,24 +914,24 @@
         try {
             const res = await ChatAPI.archiveChat(ChatState.currentChatId);
             if (res.ok) {
-                ChatUI.showToast("Gruppo archiviato.");
+                ChatUI.showToast(_t('group_archived'));
                 ChatState.resetActiveChat();
                 stopActiveChatUI();
                 await toggleDetailsPanel();
                 await loadAllConversations();
             }
         } catch (e) {
-            ChatUI.showToast("Errore archiviazione.", true);
+            ChatUI.showToast(_t('error_archive'), true);
         }
     };
 
     window.leaveGroupChat = async () => {
-        if (!confirm("Sei sicuro di voler lasciare questo gruppo?")) return;
+        if (!confirm(_t('confirm_leave_group'))) return;
         
         try {
             const res = await ChatAPI.leaveChat(ChatState.currentChatId);
             if (res.ok) {
-                ChatUI.showToast("Hai lasciato il gruppo.");
+                ChatUI.showToast(_t('left_group'));
                 ChatState.resetActiveChat();
                 stopActiveChatUI();
                 await toggleDetailsPanel();
@@ -866,7 +940,7 @@
                 ChatUI.showToast(res.error, true);
             }
         } catch (e) {
-            ChatUI.showToast("Errore.", true);
+            ChatUI.showToast(_t('error_generic'), true);
         }
     };
 
@@ -921,31 +995,31 @@
 
         let menuHtml = `
             <div class="chat-context-menu__item chat-context-menu__item--reactions-trigger">
-                <span><i class="fa-regular fa-face-smile"></i> Aggiungi reazione</span>
+                <span><i class="fa-regular fa-face-smile"></i> ${_t('add_reaction')}</span>
                 <div class="chat-context-menu__reactions-submenu ${showLeftClass}">
                     ${quickReactionsHtml}
                 </div>
             </div>
             <div class="chat-context-menu__divider"></div>
-            <div class="chat-context-menu__item" onclick="window.enterReplyMode(${msgId})"><i class="fa-solid fa-reply"></i> Rispondi</div>
+            <div class="chat-context-menu__item" onclick="window.enterReplyMode(${msgId})"><i class="fa-solid fa-reply"></i> ${_t('ctx_reply')}</div>
         `;
         
         if (hasText) {
-            menuHtml += `<div class="chat-context-menu__item" onclick="window.copyMessageText(${msgId})"><i class="fa-solid fa-copy"></i> Copia Testo</div>`;
+            menuHtml += `<div class="chat-context-menu__item" onclick="window.copyMessageText(${msgId})"><i class="fa-solid fa-copy"></i> ${_t('ctx_copy')}</div>`;
         }
         
         menuHtml += `
-            <div class="chat-context-menu__item" onclick="window.togglePrivatePin(${msgId})"><i class="fa-solid fa-thumbtack"></i> Fissa/Sfissa</div>
+            <div class="chat-context-menu__item" onclick="window.togglePrivatePin(${msgId})"><i class="fa-solid fa-thumbtack"></i> ${_t('ctx_pin')}</div>
         `;
 
         if (ChatState.currentChatType === 'private') {
-            menuHtml += `<div class="chat-context-menu__item" onclick="window.toggleFavoriteMessage(${msgId})"><i class="fa-solid fa-star"></i> Preferito</div>`;
+            menuHtml += `<div class="chat-context-menu__item" onclick="window.toggleFavoriteMessage(${msgId})"><i class="fa-solid fa-star"></i> ${_t('ctx_favorite')}</div>`;
         }
 
         if (isMine) {
             menuHtml += `
-                <div class="chat-context-menu__item" onclick="window.enterEditMode(${msgId})"><i class="fa-solid fa-pen"></i> Modifica</div>
-                <div class="chat-context-menu__item chat-context-menu__item--danger" onclick="window.triggerDeleteMessage(${msgId})"><i class="fa-solid fa-trash-can"></i> Elimina per tutti</div>
+                <div class="chat-context-menu__item" onclick="window.enterEditMode(${msgId})"><i class="fa-solid fa-pen"></i> ${_t('ctx_edit')}</div>
+                <div class="chat-context-menu__item chat-context-menu__item--danger" onclick="window.triggerDeleteMessage(${msgId})"><i class="fa-solid fa-trash-can"></i> ${_t('ctx_delete_all')}</div>
             `;
         } else {
             // Se sono admin/owner in un gruppo, posso moderare ed eliminare
@@ -953,7 +1027,7 @@
                 const myRole = (ChatState.members || []).find(m => m.user_id === ChatState.myUserId)?.role;
                 if (myRole === 'owner' || myRole === 'admin') {
                     menuHtml += `
-                        <div class="chat-context-menu__item chat-context-menu__item--danger" onclick="window.triggerDeleteMessage(${msgId})"><i class="fa-solid fa-trash"></i> Modera ed Elimina</div>
+                        <div class="chat-context-menu__item chat-context-menu__item--danger" onclick="window.triggerDeleteMessage(${msgId})"><i class="fa-solid fa-trash"></i> ${_t('ctx_moderate_delete')}</div>
                     `;
                 }
             }
@@ -961,7 +1035,7 @@
 
         if (ChatState.currentChatType === 'private') {
             menuHtml += `
-                <div class="chat-context-menu__item chat-context-menu__item--danger" onclick="window.deleteMessageForSelf(${msgId})"><i class="fa-solid fa-trash"></i> Rimuovi per me</div>
+                <div class="chat-context-menu__item chat-context-menu__item--danger" onclick="window.deleteMessageForSelf(${msgId})"><i class="fa-solid fa-trash"></i> ${_t('ctx_delete_self')}</div>
             `;
         }
 
@@ -1027,7 +1101,7 @@
                     ChatUI.renderMessages();
                 }
             } else {
-                ChatUI.showToast(res.error || "Impossibile aggiornare la reazione.", true);
+                ChatUI.showToast(res.error || _t('error_reaction'), true);
             }
         } catch (err) {
             console.error("Reaction error:", err);
@@ -1050,14 +1124,14 @@
         const bar = document.querySelector('#chatReplyBar');
         bar.style.display = 'flex';
         bar.querySelector('.chat-reply-user').textContent = msg.sender_display_name || msg.sender_username;
-        bar.querySelector('.chat-reply-text').textContent = msg.body || msg.message || "[File/Allegato]";
+        bar.querySelector('.chat-reply-text').textContent = msg.body || msg.message || _t('file_attachment');
     };
 
     window.copyMessageText = function (msgId) {
         const msg = ChatState.messages.find(m => m.id === msgId);
         if (msg && (msg.body || msg.message)) {
             navigator.clipboard.writeText(msg.body || msg.message);
-            ChatUI.showToast("Testo copiato negli appunti.");
+            ChatUI.showToast(_t('text_copied'));
         }
     };
 
@@ -1068,7 +1142,7 @@
                 body: { action: 'toggle_favorite', message_id: msgId }
             });
             if (res.ok) {
-                ChatUI.showToast(res.favorited ? "Aggiunto ai preferiti." : "Rimosso dai preferiti.");
+                ChatUI.showToast(res.favorited ? _t('added_favorite') : _t('removed_favorite'));
             }
         } catch (e) {
             console.error(e);
@@ -1084,7 +1158,7 @@
             if (res.ok) {
                 ChatState.messages = ChatState.messages.filter(m => m.id !== msgId);
                 ChatUI.renderMessages();
-                ChatUI.showToast("Messaggio rimosso per te.");
+                ChatUI.showToast(_t('msg_removed_self'));
             }
         } catch (e) {}
     };
@@ -1099,13 +1173,13 @@
         textarea.focus();
 
         const replyBar = document.querySelector('#chatReplyBar');
-        replyBar.querySelector('.chat-reply-user').textContent = "Modifica Messaggio";
+        replyBar.querySelector('.chat-reply-user').textContent = _t('edit_message');
         replyBar.querySelector('.chat-reply-text').textContent = msg.body || msg.message || '';
         replyBar.style.display = 'flex';
     };
 
     window.triggerDeleteMessage = async function (msgId) {
-        if (!confirm("Sei sicuro di voler eliminare questo messaggio?")) return;
+        if (!confirm(_t('confirm_delete_msg'))) return;
         
         try {
             let res;
@@ -1116,14 +1190,14 @@
             }
 
             if (res.ok) {
-                ChatUI.showToast("Messaggio eliminato.");
+                ChatUI.showToast(_t('msg_deleted'));
                 ChatState.messages = ChatState.messages.filter(m => m.id !== msgId);
                 ChatUI.renderMessages();
             } else {
                 ChatUI.showToast(res.error, true);
             }
         } catch (e) {
-            ChatUI.showToast("Errore di connessione.", true);
+            ChatUI.showToast(_t('error_connection'), true);
         }
     };
 
@@ -1134,7 +1208,7 @@
                 body: { action: 'toggle_pin', message_id: msgId }
             });
             if (res.ok) {
-                ChatUI.showToast(res.pinned ? "Messaggio fissato." : "Messaggio sfissato.");
+                ChatUI.showToast(res.pinned ? _t('msg_pinned') : _t('msg_unpinned'));
                 if (ChatState.isDetailsOpen) {
                     await loadDetailsPanelInfo();
                 }
@@ -1161,7 +1235,7 @@
                 body: { conversation_id: ChatState.currentChatId, nickname: val }
             });
             if (res.ok) {
-                ChatUI.showToast("Nickname aggiornato.");
+                ChatUI.showToast(_t('nickname_updated'));
                 await loadAllConversations();
                 document.querySelector('#chatHeaderName').textContent = val || ChatState.getChatFromList('private', ChatState.currentChatId).other_username;
             }
@@ -1176,7 +1250,7 @@
                 body: { action: action, conversation_id: ChatState.currentChatId }
             });
             if (res.ok) {
-                ChatUI.showToast(isMuted ? "Notifiche riattivate." : "Notifiche silenziate.");
+                ChatUI.showToast(isMuted ? _t('notifications_unmuted') : _t('notifications_muted'));
                 await loadDetailsPanelInfo();
                 await loadAllConversations();
             }
@@ -1191,7 +1265,7 @@
                 body: { action: action, conversation_id: ChatState.currentChatId }
             });
             if (res.ok) {
-                ChatUI.showToast(isArchived ? "Conversazione ripristinata." : "Conversazione archiviata.");
+                ChatUI.showToast(isArchived ? _t('conv_restored') : _t('conv_archived'));
                 await loadAllConversations();
                 if (!isArchived) {
                     ChatState.resetActiveChat();
@@ -1207,12 +1281,12 @@
     async function startNewPrivateConversation(otherUserId) {
         ChatState.setActiveChat('private', 0, otherUserId);
         
-        document.querySelector('#chatHeaderName').textContent = "Nuova Conversazione";
+        document.querySelector('#chatHeaderName').textContent = _t('new_conversation');
         const avatar = document.querySelector('#chatHeaderAvatar');
         avatar.src = `/includes/get_pfp.php?id=${otherUserId}`;
         avatar.style.display = 'block';
-        document.querySelector('#chatHeaderStatus').textContent = "Pronto a inviare";
-        document.querySelector('.chat-messages').innerHTML = `<div class="text-center py-5 text-muted my-auto">Invia un messaggio per iniziare la chat privata.</div>`;
+        document.querySelector('#chatHeaderStatus').textContent = _t('ready_to_send');
+        document.querySelector('.chat-messages').innerHTML = `<div class="text-center py-5 text-muted my-auto">${_t('send_to_start')}</div>`;
         document.querySelector('.chat-shell').classList.add('is-chat-open');
     }
 
