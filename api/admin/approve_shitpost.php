@@ -14,6 +14,15 @@ try {
     if (!$stmt->execute()) admin_fail('Non sono riuscito ad aggiornare lo stato.', 500);
     $stmt->close();
 
+    if ($approved) {
+        try {
+            require_once __DIR__ . '/../../includes/discord_notify.php';
+            notifyDiscordNewPost($mysqli, $id, 'shitpost');
+        } catch (Throwable $e) {
+            error_log('[Discord Webhook Error approve_shitpost] ' . $e->getMessage());
+        }
+    }
+
     admin_log($mysqli, (int)$adminUser['id'], $approved ? 'approve_shitpost' : 'unapprove_shitpost', null, ['post_id' => $id]);
     admin_ok(['message' => $approved ? 'Shitpost approvato.' : 'Shitpost rimesso in attesa.']);
 } catch (Throwable $e) {

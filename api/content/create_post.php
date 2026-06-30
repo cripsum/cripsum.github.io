@@ -87,6 +87,15 @@ try {
         }
     }
 
+    if ($approved) {
+        try {
+            require_once __DIR__ . '/../../includes/discord_notify.php';
+            notifyDiscordNewPost($mysqli, $postId, $type);
+        } catch (Throwable $e) {
+            error_log('[Discord Webhook Error create_post] ' . $e->getMessage());
+        }
+    }
+
     cv2_ok([
         'message' => $approved ? 'Post pubblicato.' : 'Post inviato. Sarà visibile dopo approvazione.',
         'post_id' => $postId,

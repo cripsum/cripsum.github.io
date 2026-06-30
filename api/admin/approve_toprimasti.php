@@ -14,6 +14,15 @@ try {
     if (!$stmt->execute()) admin_fail('Non sono riuscito ad aggiornare lo stato.', 500);
     $stmt->close();
 
+    if ($approved) {
+        try {
+            require_once __DIR__ . '/../../includes/discord_notify.php';
+            notifyDiscordNewPost($mysqli, $id, 'rimasto');
+        } catch (Throwable $e) {
+            error_log('[Discord Webhook Error approve_toprimasti] ' . $e->getMessage());
+        }
+    }
+
     admin_log($mysqli, (int)$adminUser['id'], $approved ? 'approve_toprimasti' : 'unapprove_toprimasti', null, ['post_id' => $id]);
     admin_ok(['message' => $approved ? 'Post approvato.' : 'Post rimesso in attesa.']);
 } catch (Throwable $e) {
