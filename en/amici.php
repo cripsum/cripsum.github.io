@@ -33,7 +33,7 @@ $csrfToken = $_SESSION['social_csrf'];
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <title>Cripsum™ - Relationships & Friends</title>
+    <title>Cripsum™ - Friends</title>
     
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link class="static-css" rel="stylesheet" href="/assets/static/static.css?v=1.2-static">
