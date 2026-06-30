@@ -122,7 +122,9 @@ function getRelationshipStatus($mysqli, $viewerId, $targetId)
     }
 
     // 1. Permesso Visualizzazione Profilo
-    if ($data['profile_visibility'] === 'private' && !$status['is_friend']) {
+    if ($data['profile_visibility'] === 'private') {
+        $status['can_view_profile'] = false;
+    } elseif ($data['profile_visibility'] === 'friends' && !$status['is_friend']) {
         $status['can_view_profile'] = false;
     }
 

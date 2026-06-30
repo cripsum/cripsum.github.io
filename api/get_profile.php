@@ -22,6 +22,28 @@ if ($profile['profile_visibility'] === 'private' && !$canEdit) {
     profile_json_response(['ok' => false, 'message' => 'Profilo privato.'], 403);
 }
 
+if ($profile['profile_visibility'] === 'friends' && !$canEdit) {
+    $isFriend = false;
+    if ($isLoggedIn) {
+        $currentUserId = (int)$_SESSION['user_id'];
+        $userOne = min($currentUserId, $profileId);
+        $userTwo = max($currentUserId, $profileId);
+        $stmtF = $mysqli->prepare("SELECT 1 FROM friendships WHERE user_one_id = ? AND user_two_id = ? LIMIT 1");
+        if ($stmtF) {
+            $stmtF->bind_param("ii", $userOne, $userTwo);
+            $stmtF->execute();
+            $resF = $stmtF->get_result();
+            if ($resF->num_rows > 0) {
+                $isFriend = true;
+            }
+            $stmtF->close();
+        }
+    }
+    if (!$isFriend) {
+        profile_json_response(['ok' => false, 'message' => 'Profilo visibile solo agli amici.'], 403);
+    }
+}
+
 if ($profile['profile_visibility'] === 'logged_in' && !$isLoggedIn) {
     profile_json_response(['ok' => false, 'message' => 'Devi accedere per vedere questo profilo.'], 401);
 }

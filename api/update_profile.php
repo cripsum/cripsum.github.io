@@ -88,7 +88,7 @@ $layoutAliases = [
 ];
 $rawLayout = $layoutAliases[$rawLayout] ?? $rawLayout;
 $layout = profile_allowed_value($rawLayout, ['standard', 'compact', 'showcase', 'clean'], 'standard');
-$visibility = profile_allowed_value((string)($_POST['profile_visibility'] ?? 'public'), ['public', 'logged_in', 'private'], 'public');
+$visibility = profile_allowed_value((string)($_POST['profile_visibility'] ?? 'public'), ['public', 'logged_in', 'friends', 'private'], 'public');
 $discordId = trim((string)($_POST['discord_id'] ?? ''));
 $discordIdDb = $discordId !== '' ? $discordId : null;
 $discordUseAvatar = profile_bool_from_post('discord_use_avatar', false);

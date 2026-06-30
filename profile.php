@@ -77,7 +77,25 @@ if ($profile) {
     $canEdit = profile_can_edit($profileId);
     $isPremium = (int)($profile['is_premium'] ?? 0) === 1;
 
+    $isFriend = false;
+    if ($isLoggedIn && !$canEdit) {
+        $userOne = min($currentUserId, $profileId);
+        $userTwo = max($currentUserId, $profileId);
+        $stmtF = $mysqli->prepare("SELECT 1 FROM friendships WHERE user_one_id = ? AND user_two_id = ? LIMIT 1");
+        if ($stmtF) {
+            $stmtF->bind_param("ii", $userOne, $userTwo);
+            $stmtF->execute();
+            $resF = $stmtF->get_result();
+            if ($resF->num_rows > 0) {
+                $isFriend = true;
+            }
+            $stmtF->close();
+        }
+    }
+
     if (($profile['profile_visibility'] ?? 'public') === 'private' && !$canEdit) {
+        $isPrivateBlocked = true;
+    } elseif (($profile['profile_visibility'] ?? 'public') === 'friends' && !$canEdit && !$isFriend) {
         $isPrivateBlocked = true;
     } elseif (($profile['profile_visibility'] ?? 'public') === 'logged_in' && !$isLoggedIn) {
         $isLoginBlocked = true;
@@ -1305,7 +1323,15 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <?php if ($isNotFound): ?>
         <?php profile_state_page('404', 'Profile Not Found', 'This user does not exist or has changed their username.', 'Home', '/en/home'); ?>
     <?php elseif ($isPrivateBlocked): ?>
-        <?php profile_state_page('Private', 'Private Profile', '@' . $profile['username'] . ' is not showing this profile.', 'Home', '/en/home'); ?>
+        <?php 
+        $blockTitle = (($profile['profile_visibility'] ?? '') === 'friends') 
+            ? (($lang === 'it') ? 'Solo Amici' : 'Friends Only') 
+            : (($lang === 'it') ? 'Profilo Privato' : 'Private Profile');
+        $blockText = (($profile['profile_visibility'] ?? '') === 'friends')
+            ? (($lang === 'it') ? 'Il profilo di @' . $profile['username'] . ' è visibile solo agli amici.' : '@' . $profile['username'] . '\'s profile is only visible to friends.')
+            : (($lang === 'it') ? '@' . $profile['username'] . ' non mostra questo profilo.' : '@' . $profile['username'] . ' is not showing this profile.');
+        profile_state_page('Private', $blockTitle, $blockText, 'Home', '/' . $lang . '/home'); 
+        ?>
     <?php elseif ($isLoginBlocked): ?>
         <?php profile_state_page('Login', 'Login Required', 'This profile is only visible to registered users.', 'Log In', '/en/login'); ?>
     <?php else: ?>

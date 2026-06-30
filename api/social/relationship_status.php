@@ -96,7 +96,9 @@ foreach ($rows as $row) {
     
     if (!$blockedByViewer && !$blockedViewer) {
         // 1. Profilo
-        if ($visibility === 'private' && !$isFriend) {
+        if ($visibility === 'private') {
+            $canViewProfile = false;
+        } elseif ($visibility === 'friends' && !$isFriend) {
             $canViewProfile = false;
         }
         // 2. Follow

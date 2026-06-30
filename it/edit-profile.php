@@ -293,11 +293,7 @@ function profile_json_script(string $id, array $data): void
                                 <label class="profile-field"><span>Sfondo profilo</span><input type="file" name="banner" id="bannerInput" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"><small>Max <?php echo $isPremium ? '50MB' : '12MB'; ?>. Foto, GIF o video. Cambia lo sfondo della pagina.</small></label>
                             </div>
 
-
-
-                            <label class="profile-field"><span>Privacy profilo</span><select name="profile_visibility" id="visibilityInput"><?php foreach (['public' => 'Pubblico', 'logged_in' => 'Solo utenti loggati', 'private' => 'Privato'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_visibility'] ?? 'public') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
-
-
+                            <label class="profile-field"><span>Privacy profilo</span><select name="profile_visibility" id="visibilityInput"><?php foreach (['public' => 'Pubblico', 'logged_in' => 'Solo utenti loggati', 'friends' => 'Solo amici', 'private' => 'Privato'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_visibility'] ?? 'public') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
 
                             <div class="bio-section-heading profile-mt">
                                 <div><span><i class="fa-solid fa-music"></i> Audio profilo</span>
