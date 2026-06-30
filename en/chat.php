@@ -17,7 +17,7 @@ $myUserId = (int)$_SESSION['user_id'];
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Private Chat</title>
-    <link rel="stylesheet" href="/assets/chat/chat.css?v=2.5">
+    <link rel="stylesheet" href="/assets/chat/chat.css?v=2.6">
 </head>
 
 <body class="chat-page-body" data-user-id="<?php echo $myUserId; ?>" data-csrf="<?php echo csrf_token(); ?>">
@@ -35,7 +35,7 @@ $myUserId = (int)$_SESSION['user_id'];
             <div class="chat-sidebar__header">
                 <div class="chat-sidebar__title">
                     <span>Messages</span>
-                    <i class="fa-regular fa-comment-dots text-muted"></i>
+                    <i class="fa-regular fa-comment-dots"></i>
                 </div>
                 <div class="chat-sidebar__search">
                     <i class="fa-solid fa-magnifying-glass"></i>
