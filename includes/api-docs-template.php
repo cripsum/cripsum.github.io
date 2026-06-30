@@ -20,36 +20,31 @@ $copyLabel = $isIt ? 'Copia' : 'Copy';
 $docs = [
     'title' => $isIt ? 'Cripsum™ API Docs' : 'Cripsum™ API Docs',
     'meta' => $isIt
-        ? 'Documentazione ufficiale della API pubblica Cripsum: presence, leaderboard, banner e profili pubblici.'
-        : 'Official documentation for the public Cripsum API: presence, leaderboards, banners, and public profiles.',
-    'pill' => $isIt ? 'API pubblica' : 'Public API',
-    'h1' => $isIt ? 'Costruisci con i dati pubblici di Cripsum™.' : 'Build with public Cripsum™ data.',
+        ? 'Documentazione ufficiale della REST API pubblica Cripsum: presence, leaderboard, banner e profili.'
+        : 'Official documentation for the public Cripsum REST API: presence, leaderboards, banners, and profiles.',
+    'pill' => $isIt ? 'REST API' : 'REST API',
+    'h1' => $isIt ? 'Cripsum™ REST API.' : 'Cripsum™ REST API.',
     'lead' => $isIt
-        ? 'Endpoint JSON read-only per presence Discord, classifiche, banner gacha e profili pubblici. I dati personali restano fuori: niente saldo, pity privato, missioni personali o collegamenti account.'
-        : 'Read-only JSON endpoints for Discord presence, leaderboards, gacha banners, and public profiles. Personal data stays out: no balances, private pity, personal missions, or account-link lookups.',
+        ? 'Una API RESTful JSON per integrare presence Discord, classifiche, banner gacha e profili Cripsum pubblici in siti, bot, widget e overlay.'
+        : 'A RESTful JSON API for integrating Discord presence, leaderboards, gacha banners, and public Cripsum profiles into websites, bots, widgets, and overlays.',
     'openIndex' => $isIt ? 'Apri indice API' : 'Open API index',
     'jumpEndpoints' => $isIt ? 'Vai agli endpoint' : 'Jump to endpoints',
     'quickNav' => $isIt ? 'Navigazione' : 'Navigation',
     'overview' => $isIt ? 'Panoramica' : 'Overview',
-    'auth' => $isIt ? 'Autenticazione' : 'Authentication',
-    'privacy' => $isIt ? 'Privacy' : 'Privacy',
     'endpoints' => $isIt ? 'Endpoint' : 'Endpoints',
     'errors' => $isIt ? 'Errori' : 'Errors',
     'baseUrl' => $isIt ? 'Base URL' : 'Base URL',
     'baseText' => $isIt
-        ? 'Tutte le route pubbliche vivono su api.cripsum.com e restituiscono JSON.'
-        : 'All public routes live on api.cripsum.com and return JSON.',
-    'noAuth' => $isIt ? 'Nessuna API key pubblica' : 'No public API key',
-    'noAuthText' => $isIt
-        ? 'Gli endpoint qui sotto sono pubblici e read-only. Le API PHP interne del bot restano protette da X-Cripsum-Bot-Key e non vanno esposte ai client.'
-        : 'The endpoints below are public and read-only. Internal bot PHP APIs remain protected by X-Cripsum-Bot-Key and should never be exposed to clients.',
-    'cache' => $isIt ? 'Cache breve' : 'Short cache',
-    'cacheText' => $isIt
-        ? 'Le risposte pubbliche possono essere cacheate per circa 30 secondi per proteggere il database e mantenere la API veloce.'
-        : 'Public responses may be cached for about 30 seconds to protect the database and keep the API fast.',
-    'privacyText' => $isIt
-        ? 'La API pubblica mostra solo dati pubblici o aggregati. I profili rispettano profile_visibility: se non sono pubblici, non vengono restituiti bio, statistiche, immagini o dettagli account.'
-        : 'The public API only exposes public or aggregate data. Profiles respect profile_visibility: if they are not public, bio, stats, images, and account details are not returned.',
+        ? 'Tutte le route usano risorse prevedibili, metodi HTTP standard e risposte JSON.'
+        : 'All routes use predictable resources, standard HTTP methods, and JSON responses.',
+    'jsonResponses' => $isIt ? 'Risposte JSON' : 'JSON responses',
+    'jsonResponsesText' => $isIt
+        ? 'Ogni risposta usa un payload JSON con success e dati nel campo data quando presenti.'
+        : 'Every response uses a JSON payload with success and data when available.',
+    'restfulRoutes' => $isIt ? 'Route RESTful' : 'RESTful routes',
+    'restfulRoutesText' => $isIt
+        ? 'Gli endpoint rappresentano risorse: users, leaderboards, banners e profiles.'
+        : 'Endpoints represent resources: users, leaderboards, banners, and profiles.',
     'method' => $isIt ? 'Metodo' : 'Method',
     'description' => $isIt ? 'Descrizione' : 'Description',
     'response' => $isIt ? 'Risposta' : 'Response',
@@ -58,8 +53,8 @@ $docs = [
     'example' => $isIt ? 'Esempio' : 'Example',
     'footerTitle' => $isIt ? 'Vuoi usarla nel sito?' : 'Want to use it on the site?',
     'footerText' => $isIt
-        ? 'Usa questi endpoint per widget pubblici, landing, card profilo o overlay. Per dati personali continua a usare i comandi Discord o API protette lato server.'
-        : 'Use these endpoints for public widgets, landing pages, profile cards, or overlays. For personal data, keep using Discord commands or protected server-side APIs.',
+        ? 'Usa questi endpoint per widget, landing, card profilo, bot e overlay collegati all’ecosistema Cripsum.'
+        : 'Use these endpoints for widgets, landing pages, profile cards, bots, and overlays connected to the Cripsum ecosystem.',
 ];
 
 $leaderboardTypes = ['godos', 'shards', 'pulls', 'collection', 'achievements', 'missions', 'views', 'duels'];
@@ -131,8 +126,6 @@ $leaderboardTypes = ['godos', 'shards', 'pulls', 'collection', 'achievements', '
             <aside class="docs-sidebar">
                 <strong><?php echo api_docs_h($docs['quickNav']); ?></strong>
                 <a href="#overview"><i class="fa-solid fa-compass"></i><?php echo api_docs_h($docs['overview']); ?></a>
-                <a href="#auth"><i class="fa-solid fa-key"></i><?php echo api_docs_h($docs['auth']); ?></a>
-                <a href="#privacy"><i class="fa-solid fa-shield-halved"></i><?php echo api_docs_h($docs['privacy']); ?></a>
                 <a href="#endpoints"><i class="fa-solid fa-plug"></i><?php echo api_docs_h($docs['endpoints']); ?></a>
                 <a href="#errors"><i class="fa-solid fa-triangle-exclamation"></i><?php echo api_docs_h($docs['errors']); ?></a>
             </aside>
@@ -152,26 +145,16 @@ $leaderboardTypes = ['godos', 'shards', 'pulls', 'collection', 'achievements', '
                             <h3><?php echo api_docs_h($docs['baseUrl']); ?></h3>
                             <p><code class="docs-inline-code"><?php echo api_docs_h($baseUrl); ?></code></p>
                         </article>
-                        <article class="docs-mini-card" id="auth">
-                            <i class="fa-solid fa-lock-open"></i>
-                            <h3><?php echo api_docs_h($docs['noAuth']); ?></h3>
-                            <p><?php echo api_docs_h($docs['noAuthText']); ?></p>
+                        <article class="docs-mini-card">
+                            <i class="fa-solid fa-route"></i>
+                            <h3><?php echo api_docs_h($docs['restfulRoutes']); ?></h3>
+                            <p><?php echo api_docs_h($docs['restfulRoutesText']); ?></p>
                         </article>
                         <article class="docs-mini-card">
-                            <i class="fa-solid fa-bolt"></i>
-                            <h3><?php echo api_docs_h($docs['cache']); ?></h3>
-                            <p><?php echo api_docs_h($docs['cacheText']); ?></p>
+                            <i class="fa-solid fa-code"></i>
+                            <h3><?php echo api_docs_h($docs['jsonResponses']); ?></h3>
+                            <p><?php echo api_docs_h($docs['jsonResponsesText']); ?></p>
                         </article>
-                    </div>
-                </section>
-
-                <section class="docs-card" id="privacy">
-                    <div class="docs-alert">
-                        <i class="fa-solid fa-shield-halved"></i>
-                        <div>
-                            <h2><?php echo api_docs_h($docs['privacy']); ?></h2>
-                            <p><?php echo api_docs_h($docs['privacyText']); ?></p>
-                        </div>
                     </div>
                 </section>
 
@@ -258,7 +241,7 @@ $leaderboardTypes = ['godos', 'shards', 'pulls', 'collection', 'achievements', '
                             </tbody>
                         </table>
                     </div>
-                    <p class="docs-table-note"><?php echo $isIt ? 'Le leaderboard sono aggregate e non includono saldo privato oltre alle metriche già esposte in classifica.' : 'Leaderboards are aggregate rankings and do not include private account data beyond the ranked public metric.'; ?></p>
+                    <p class="docs-table-note"><?php echo $isIt ? 'La risposta contiene sempre al massimo 10 entry ordinate per valore decrescente.' : 'The response always contains up to 10 entries ordered by descending value.'; ?></p>
                     <div class="docs-code">
                         <div class="docs-code__head">
                             <span>curl</span>
