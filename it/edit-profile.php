@@ -104,8 +104,8 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Modifica profilo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=5.9.9">
-    <link rel="stylesheet" href="/assets/css/editor-premium.css?v=5.9.9">
+    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=5.9.10">
+    <link rel="stylesheet" href="/assets/css/editor-premium.css?v=5.9.10">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Inter:wght@300..900&family=Roboto:wght@300..900&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Fira+Code:wght@300..700&family=PT+Mono&family=Cinzel:wght@400..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Bebas+Neue&family=Press+Start+2P&family=Bungee&family=Permanent+Marker&family=Creepster&family=Shojumaru&display=swap" rel="stylesheet">

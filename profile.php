@@ -588,7 +588,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.9.9">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.9.10">
     <link rel="stylesheet" href="/assets/social/social.css?v=2.0">
     <style>
         .profile-dropdown-item--gift,

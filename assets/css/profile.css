@@ -167,9 +167,19 @@ body[data-theme="light"] .bio-background__overlay {
     border: var(--profile-border-width, 1px) solid color-mix(in srgb, var(--border) calc(100% * var(--profile-border-opacity, 1)), transparent);
     border-radius: var(--radius-lg);
     box-shadow: 0 24px 48px -12px rgba(0, 0, 0, calc(0.45 * var(--profile-card-opacity, 1)));
+    overflow: hidden;
+}
+
+/* Pseudo-element workaround for Firefox rendering backdrop-filter bugs on transformed/tilted elements */
+.bio-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
     backdrop-filter: blur(var(--profile-card-blur, 20px));
     -webkit-backdrop-filter: blur(var(--profile-card-blur, 20px));
-    overflow: hidden;
+    border-radius: inherit;
+    pointer-events: none;
 }
 
 .bio-card::before {
