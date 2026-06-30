@@ -1223,6 +1223,37 @@
     max-width: 250px;
 }
 
+.chat-context-menu__item--reactions-trigger {
+    position: relative;
+}
+
+.chat-context-menu__reactions-submenu {
+    display: none;
+    position: absolute;
+    top: -6px;
+    left: 98%;
+    background: rgba(10, 10, 12, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 8px;
+    gap: 6px;
+    flex-wrap: wrap;
+    width: 230px;
+    max-width: 230px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(139, 92, 246, 0.05);
+    backdrop-filter: blur(20px);
+    z-index: 100000;
+}
+
+.chat-context-menu__reactions-submenu.show-left {
+    left: auto;
+    right: 98%;
+}
+
+.chat-context-menu__item--reactions-trigger:hover .chat-context-menu__reactions-submenu {
+    display: flex;
+}
+
 .chat-quick-reaction-btn {
     background: transparent;
     border: none;

@@ -917,9 +917,15 @@
             });
         }
 
+        const mouseX = e.clientX;
+        const showLeftClass = (mouseX + 180 + 240 > window.innerWidth) ? 'show-left' : '';
+
         let menuHtml = `
-            <div class="chat-context-menu__quick-reactions">
-                ${quickReactionsHtml}
+            <div class="chat-context-menu__item chat-context-menu__item--reactions-trigger">
+                <span><i class="fa-regular fa-face-smile"></i> Aggiungi reazione</span>
+                <div class="chat-context-menu__reactions-submenu ${showLeftClass}">
+                    ${quickReactionsHtml}
+                </div>
             </div>
             <div class="chat-context-menu__divider"></div>
             <div class="chat-context-menu__item" onclick="window.enterReplyMode(${msgId})"><i class="fa-solid fa-reply"></i> Rispondi</div>
@@ -945,7 +951,7 @@
         } else {
             // Se sono admin/owner in un gruppo, posso moderare ed eliminare
             if (ChatState.currentChatType === 'group') {
-                const myRole = ChatState.members.find(m => m.user_id === ChatState.myUserId)?.role;
+                const myRole = (ChatState.members || []).find(m => m.user_id === ChatState.myUserId)?.role;
                 if (myRole === 'owner' || myRole === 'admin') {
                     menuHtml += `
                         <div class="chat-context-menu__item chat-context-menu__item--danger" onclick="window.triggerDeleteMessage(${msgId})"><i class="fa-solid fa-trash"></i> Modera ed Elimina</div>
