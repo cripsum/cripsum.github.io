@@ -95,7 +95,7 @@ html {
     position: absolute;
     inset: 0;
     background: linear-gradient(180deg, rgba(0, 0, 0, 0.34), rgba(0, 0, 0, 0.78)), radial-gradient(circle at 50% 20%, rgba(var(--accent-rgb), 0.2), transparent 28rem);
-    opacity: var(--profile-bg-overlay-opacity, 1.0);
+    opacity: var(--profile-bg-overlay-opacity, 1);
     transition: opacity 0.3s ease;
 }
 
@@ -164,28 +164,19 @@ body[data-theme="light"] .bio-background__overlay {
 .bio-card {
     position: relative;
     background: var(--card);
+    backdrop-filter: blur(var(--profile-card-blur, 20px));
+    -webkit-backdrop-filter: blur(var(--profile-card-blur, 20px));
     border: var(--profile-border-width, 1px) solid color-mix(in srgb, var(--border) calc(100% * var(--profile-border-opacity, 1)), transparent);
     border-radius: var(--radius-lg);
     box-shadow: 0 24px 48px -12px rgba(0, 0, 0, calc(0.45 * var(--profile-card-opacity, 1)));
     overflow: hidden;
-    transform-style: preserve-3d;
 }
 
-/* Pseudo-element workaround for Firefox rendering backdrop-filter bugs on transformed/tilted elements.
-   Uses negative inset to pull sampled blur edges outside the card container,
-   eliminating the edge light halo / bleed. clip-path ensures it is clipped perfectly to the card's rounded borders.
-   transform: translateZ(-1px) ensures it remains synchronized with the card's 3D tilt. */
+/* Blur is applied directly to the card. The old negative pseudo-layer could be
+   composed a frame late in Firefox/Chromium, causing a visible blur flash. */
 .bio-card::after {
-    content: "";
-    position: absolute;
-    inset: calc(-2 * var(--profile-card-blur, 20px));
-    z-index: -1;
-    transform: translateZ(-1px);
-    backdrop-filter: blur(var(--profile-card-blur, 20px));
-    -webkit-backdrop-filter: blur(var(--profile-card-blur, 20px));
-    clip-path: inset(calc(2 * var(--profile-card-blur, 20px)) round var(--radius-lg)) !important;
-    -webkit-clip-path: inset(calc(2 * var(--profile-card-blur, 20px)) round var(--radius-lg)) !important;
-    pointer-events: none;
+    content: none;
+    display: none;
 }
 
 .bio-card::before {
@@ -1346,8 +1337,6 @@ body[data-theme="light"] .ds-status-dot {
     }
 }
 
-
-
 .dropdownutenti .dropdown-menu {
     background: rgba(8, 12, 24, 0.92);
     border: 1px solid rgba(var(--accent-rgb), 0.38);
@@ -1925,8 +1914,6 @@ body[data-theme="light"].bio-v2-body .dropdown-menu {
     font-size: clamp(2rem, 4vw, 3.2rem);
 }
 
-
-
 @media (max-width: 1080px) {
     .profile-edit-grid {
         grid-template-columns: 1fr;
@@ -2030,7 +2017,7 @@ body[data-theme="light"] .bio-background img.bio-background__media {
     position: absolute !important;
     inset: 0 !important;
     z-index: 2 !important;
-    opacity: var(--profile-bg-overlay-opacity, 1.0) !important;
+    opacity: var(--profile-bg-overlay-opacity, 1) !important;
     transition: opacity 0.3s ease;
 }
 
@@ -3464,8 +3451,6 @@ body[data-profile-button-shape="sharp"] .bio-icon-button {
     z-index: 18000 !important;
 }
 
-
-
 .bio-v2-body .navbar .dropdown-menu,
 .bio-v2-body .navbarutenti .dropdown-menu,
 .bio-v2-body .dropdown-menu.profile-dropdown-safe {
@@ -4625,8 +4610,9 @@ body[data-profile-effect="gradient_waves"] .profile-effects-layer::before {
     left: -50vw !important;
     bottom: -70vh !important;
     top: auto !important;
-    background: linear-gradient(180deg, 
-        color-mix(in srgb, var(--accent) 8%, transparent) 0%, 
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--accent) 8%, transparent) 0%,
         color-mix(in srgb, var(--accent-2, #8b5cf6) 12%, transparent) 50%,
         color-mix(in srgb, var(--accent) 4%, transparent) 100%
     ) !important;
@@ -4645,8 +4631,9 @@ body[data-profile-effect="gradient_waves"] .profile-effects-layer::after {
     left: -60vw !important;
     bottom: -75vh !important;
     top: auto !important;
-    background: linear-gradient(180deg, 
-        color-mix(in srgb, var(--accent-2, #8b5cf6) 10%, transparent) 0%, 
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--accent-2, #8b5cf6) 10%, transparent) 0%,
         color-mix(in srgb, var(--accent) 8%, transparent) 50%,
         color-mix(in srgb, var(--accent-2, #8b5cf6) 3%, transparent) 100%
     ) !important;
@@ -4717,9 +4704,7 @@ body[data-profile-effect="stars"] .profile-effects-layer::before {
     content: "";
     position: absolute;
     inset: 0;
-    background-image: 
-        radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.7), transparent), 
-        radial-gradient(1.5px 1.5px at 150px 70px, rgba(255,255,255,0.8), transparent), 
+    background-image: radial-gradient(1px 1px at 20px 30px, rgba(255, 255, 255, 0.7), transparent), radial-gradient(1.5px 1.5px at 150px 70px, rgba(255, 255, 255, 0.8), transparent),
         radial-gradient(1.5px 1.5px at 80px 220px, color-mix(in srgb, var(--accent) 50%, #fff), transparent),
         radial-gradient(2px 2px at 200px 180px, color-mix(in srgb, var(--accent-2, #8b5cf6) 50%, #fff), transparent) !important;
     background-size: 300px 300px !important;
@@ -4752,11 +4737,12 @@ body[data-profile-effect="digital_noise"] .profile-effects-layer::after {
     content: "" !important;
     position: fixed !important;
     inset: 0 !important;
-    background: linear-gradient(to bottom, 
-        transparent 0%, 
-        color-mix(in srgb, var(--accent) 5%, transparent) 39%, 
-        color-mix(in srgb, var(--accent-2, #8b5cf6) 5%, transparent) 41%, 
-        transparent 43%, 
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        color-mix(in srgb, var(--accent) 5%, transparent) 39%,
+        color-mix(in srgb, var(--accent-2, #8b5cf6) 5%, transparent) 41%,
+        transparent 43%,
         transparent 100%
     ) !important;
     background-size: 100% 300px !important;
@@ -4766,13 +4752,27 @@ body[data-profile-effect="digital_noise"] .profile-effects-layer::after {
     opacity: 0.7 !important;
 }
 @keyframes premiumRealNoise {
-    0% { transform: translate3d(0, 0, 0); }
-    16% { transform: translate3d(-10px, -5px, 0); }
-    33% { transform: translate3d(5px, -15px, 0); }
-    50% { transform: translate3d(-15px, 10px, 0); }
-    66% { transform: translate3d(10px, 5px, 0); }
-    83% { transform: translate3d(-5px, -10px, 0); }
-    100% { transform: translate3d(0, 0, 0); }
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+    16% {
+        transform: translate3d(-10px, -5px, 0);
+    }
+    33% {
+        transform: translate3d(5px, -15px, 0);
+    }
+    50% {
+        transform: translate3d(-15px, 10px, 0);
+    }
+    66% {
+        transform: translate3d(10px, 5px, 0);
+    }
+    83% {
+        transform: translate3d(-5px, -10px, 0);
+    }
+    100% {
+        transform: translate3d(0, 0, 0);
+    }
 }
 @keyframes digitalGlitchSweep {
     0% {
@@ -5861,7 +5861,6 @@ body.click-to-enter-active {
     max-height: 100vh !important;
     touch-action: none !important;
 }
-
 
 .click-to-enter-overlay.is-hidden {
     opacity: 0 !important;
@@ -8759,7 +8758,8 @@ body[data-theme="light"] .profile-report-detail-group textarea {
 /* border-style: gradient (Premium Masked Gradient) */
 .profile-border-style-gradient .bio-card {
     border: 1px solid transparent !important;
-    background: linear-gradient(var(--profile-card-bg, var(--card)), var(--profile-card-bg, var(--card))) padding-box, linear-gradient(135deg, var(--profile-accent), var(--accent-2, #8b5cf6)) border-box !important;
+    background: linear-gradient(var(--profile-card-bg, var(--card)), var(--profile-card-bg, var(--card))) padding-box,
+        linear-gradient(135deg, var(--profile-accent), var(--accent-2, #8b5cf6)) border-box !important;
 }
 .profile-border-style-gradient .bio-card::before {
     display: none !important;
@@ -8772,7 +8772,8 @@ body[data-theme="light"] .profile-report-detail-group textarea {
 .profile-border-style-gradient .bio-discord-panel,
 .profile-border-style-gradient .profile-block-card {
     border: 1px solid transparent !important;
-    background: linear-gradient(var(--profile-card-bg, rgba(255,255,255,0.055)), var(--profile-card-bg, rgba(255,255,255,0.055))) padding-box, linear-gradient(135deg, var(--profile-accent), var(--accent-2, #8b5cf6)) border-box !important;
+    background: linear-gradient(var(--profile-card-bg, rgba(255, 255, 255, 0.055)), var(--profile-card-bg, rgba(255, 255, 255, 0.055))) padding-box,
+        linear-gradient(135deg, var(--profile-accent), var(--accent-2, #8b5cf6)) border-box !important;
 }
 .profile-border-style-gradient .bio-social::after,
 .profile-border-style-gradient .bio-featured-link::after,
@@ -9079,7 +9080,8 @@ body[data-profile-link-style="gradient"] .profile-link-icon-label {
 }
 
 .profile-border-style-glow .bio-card {
-    box-shadow: 0 0 calc(16px + var(--profile-border-width, 1px)) rgba(var(--accent-rgb), var(--profile-border-glow-alpha, 0.34)), 0 24px 48px -12px rgba(0, 0, 0, calc(0.45 * var(--profile-card-opacity, 1))) !important;
+    box-shadow: 0 0 calc(16px + var(--profile-border-width, 1px)) rgba(var(--accent-rgb), var(--profile-border-glow-alpha, 0.34)),
+        0 24px 48px -12px rgba(0, 0, 0, calc(0.45 * var(--profile-card-opacity, 1))) !important;
 }
 
 .profile-border-style-glow .bio-card::before,
@@ -9100,10 +9102,11 @@ body[data-profile-link-style="gradient"] .profile-link-icon-label {
     border-color: transparent !important;
     background: var(--profile-surface-layer, linear-gradient(var(--card), var(--card))) padding-box,
         linear-gradient(
-            135deg,
-            color-mix(in srgb, var(--profile-border-color, var(--profile-accent)) var(--profile-border-opacity-percent, 100%), transparent),
-            color-mix(in srgb, var(--accent-2, #8b5cf6) var(--profile-border-opacity-percent, 100%), transparent)
-        ) border-box !important;
+                135deg,
+                color-mix(in srgb, var(--profile-border-color, var(--profile-accent)) var(--profile-border-opacity-percent, 100%), transparent),
+                color-mix(in srgb, var(--accent-2, #8b5cf6) var(--profile-border-opacity-percent, 100%), transparent)
+            )
+            border-box !important;
 }
 
 .profile-border-style-gradient .bio-social:hover,
@@ -9112,10 +9115,11 @@ body[data-profile-link-style="gradient"] .profile-link-icon-label {
 .profile-border-style-gradient .bio-preview-card:hover {
     background: var(--profile-surface-layer, linear-gradient(rgba(var(--accent-rgb), 0.1), rgba(var(--accent-rgb), 0.1))) padding-box,
         linear-gradient(
-            135deg,
-            color-mix(in srgb, var(--profile-border-color, var(--profile-accent)) var(--profile-border-opacity-percent, 100%), transparent),
-            color-mix(in srgb, var(--accent-2, #8b5cf6) var(--profile-border-opacity-percent, 100%), transparent)
-        ) border-box !important;
+                135deg,
+                color-mix(in srgb, var(--profile-border-color, var(--profile-accent)) var(--profile-border-opacity-percent, 100%), transparent),
+                color-mix(in srgb, var(--accent-2, #8b5cf6) var(--profile-border-opacity-percent, 100%), transparent)
+            )
+            border-box !important;
 }
 
 @media (max-width: 1180px) {
@@ -9717,6 +9721,3 @@ body.public-profile-body.click-to-enter-active {
 .profile-floating-audio-slider::-webkit-slider-thumb:hover {
     transform: scale(1.25);
 }
-
-
-

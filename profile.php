@@ -588,13 +588,14 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.9.14">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.9.12">
     <link rel="stylesheet" href="/assets/social/social.css?v=2.0">
     <style>
         .profile-dropdown-item--gift,
         .profile-dropdown-item--gift * {
             cursor: pointer !important;
         }
+
         .profile-dropdown-item--gift {
             color: #eab308 !important;
             font-weight: 700 !important;
@@ -604,23 +605,30 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             box-shadow: 0 0 12px rgba(234, 179, 8, 0.15);
             animation: giftPulse 2s infinite ease-in-out;
         }
+
         .profile-dropdown-item--gift i {
             color: #eab308 !important;
             filter: drop-shadow(0 0 3px rgba(234, 179, 8, 0.5));
         }
+
         .profile-dropdown-item--gift:hover {
             background: rgba(234, 179, 8, 0.16) !important;
             color: #fff !important;
             box-shadow: 0 0 16px rgba(234, 179, 8, 0.3) !important;
         }
+
         .profile-dropdown-item--gift:hover i {
             color: #fff !important;
         }
+
         @keyframes giftPulse {
-            0%, 100% {
+
+            0%,
+            100% {
                 border-color: rgba(234, 179, 8, 0.4);
                 box-shadow: 0 0 12px rgba(234, 179, 8, 0.15);
             }
+
             50% {
                 border-color: rgba(234, 179, 8, 0.8);
                 box-shadow: 0 0 18px rgba(234, 179, 8, 0.35);
@@ -1262,14 +1270,14 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <?php if ($isNotFound): ?>
         <?php profile_state_page('404', 'Profile Not Found', 'This user does not exist or has changed their username.', 'Home', '/en/home'); ?>
     <?php elseif ($isPrivateBlocked): ?>
-        <?php 
-        $blockTitle = (($profile['profile_visibility'] ?? '') === 'friends') 
-            ? (($lang === 'it') ? 'Solo Amici' : 'Friends Only') 
+        <?php
+        $blockTitle = (($profile['profile_visibility'] ?? '') === 'friends')
+            ? (($lang === 'it') ? 'Solo Amici' : 'Friends Only')
             : (($lang === 'it') ? 'Profilo Privato' : 'Private Profile');
         $blockText = (($profile['profile_visibility'] ?? '') === 'friends')
             ? (($lang === 'it') ? 'Il profilo di @' . $profile['username'] . ' è visibile solo agli amici.' : '@' . $profile['username'] . '\'s profile is only visible to friends.')
             : (($lang === 'it') ? '@' . $profile['username'] . ' non mostra questo profilo.' : '@' . $profile['username'] . ' is not showing this profile.');
-        profile_state_page('Private', $blockTitle, $blockText, 'Home', '/' . $lang . '/home'); 
+        profile_state_page('Private', $blockTitle, $blockText, 'Home', '/' . $lang . '/home');
         ?>
     <?php elseif ($isLoginBlocked): ?>
         <?php profile_state_page('Login', 'Login Required', 'This profile is only visible to registered users.', 'Log In', '/en/login'); ?>
@@ -1355,8 +1363,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         <?php endif; ?>
                     </div>
 
-                    <div class="bio-avatar-wrap profile-smart-avatar ring-style-<?php echo profile_h($avatarRingStyle); ?> <?php echo (!$avatarRingEnabled || $avatarRingStyle === 'none') ? 'ring-disabled' : ''; ?> <?php echo (!$isOwnProfile) ? 'user-card-trigger' : ''; ?>" 
-                         <?php echo (!$isOwnProfile) ? 'data-user-id="' . (int)$profile['id'] . '" data-username="' . profile_h($profile['username']) . '" style="cursor: pointer; --profile-ring: ' . profile_h($avatarRingColor) . ';"' : 'style="--profile-ring: ' . profile_h($avatarRingColor) . ';"'; ?>>
+                    <div class="bio-avatar-wrap profile-smart-avatar ring-style-<?php echo profile_h($avatarRingStyle); ?> <?php echo (!$avatarRingEnabled || $avatarRingStyle === 'none') ? 'ring-disabled' : ''; ?> <?php echo (!$isOwnProfile) ? 'user-card-trigger' : ''; ?>"
+                        <?php echo (!$isOwnProfile) ? 'data-user-id="' . (int)$profile['id'] . '" data-username="' . profile_h($profile['username']) . '" style="cursor: pointer; --profile-ring: ' . profile_h($avatarRingColor) . ';"' : 'style="--profile-ring: ' . profile_h($avatarRingColor) . ';"'; ?>>
                         <?php if ($avatarRingEnabled && $avatarRingStyle !== 'none'): ?><div class="bio-avatar-ring"></div><?php endif; ?>
                         <img class="bio-avatar" src="<?php echo profile_h(profile_avatar_url($profile, 256)); ?>" alt="Avatar di <?php echo profile_h($profile['username']); ?>" loading="eager" data-richpresence-pfp>
                     </div>
@@ -1367,9 +1375,9 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         ob_start();
                     ?>
                         <div class="profile-mini-badges badges-pos-<?php echo profile_h($badgesPosition); ?>" aria-label="Badge">
-                            <?php 
+                            <?php
                             $badgesToDisplay = $isPremium ? $visibleBadges : array_slice($visibleBadges, 0, 4);
-                            foreach ($badgesToDisplay as $badge): 
+                            foreach ($badgesToDisplay as $badge):
                             ?>
                                 <?php
                                 $badgeName = ($lang === 'it' && !empty($badge['nome'])) ? $badge['nome'] : (!empty($badge['nome_en']) ? $badge['nome_en'] : $badge['nome']);
@@ -1631,37 +1639,37 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                 <button class="bio-small-button js-profile-volume-toggle" type="button" aria-label="Mute"><i class="fa-solid fa-volume-low"></i></button>
                                 <input type="range" min="0" max="1" step="0.01" value="0.18" aria-label="Volume">
                             </div>
-                    <?php endif; ?>
-
-                    <script>
-                    (() => {
-                        const audio = document.getElementById('profileAudio');
-                        if (audio) {
-                            const profileUrl = document.body.dataset.profileUrl || window.location.pathname || 'global';
-                            const volumeKey = 'cripsum.profile.audioVolume.' + profileUrl;
-                            const defaultVolume = <?php echo $audioDefaultVolume; ?>;
-                            const savedVolume = localStorage.getItem(volumeKey) !== null
-                                ? Number(localStorage.getItem(volumeKey))
-                                : defaultVolume;
-                            audio.volume = Math.min(Math.max(savedVolume, 0), 1);
-                        }
-                    })();
-                    </script>
-
-                    <?php if (!$hideMeta): ?>
-                    <div class="profile-small-meta">
-                        <?php if (!$showStats): ?>
-                            <?php if ($isOnline): ?>
-                                <span class="bio-pill bio-pill--live" style="margin-right: 0.4rem; padding: 0.2rem 0.5rem;"><span class="bio-dot"></span>online</span>
-                            <?php elseif ($customStatus): ?>
-                                <span class="bio-pill" style="margin-right: 0.4rem; padding: 0.2rem 0.5rem;"><i class="fa-solid fa-signal"></i><?php echo profile_h($customStatus); ?></span>
-                            <?php endif; ?>
                         <?php endif; ?>
-                        <span><i class="fa-solid fa-calendar"></i><?php echo date('d/m/Y', strtotime($profile['data_creazione'])); ?></span>
-                        <?php if (!$isOnline && $lastSeen): ?><span><i class="fa-solid fa-clock"></i><?php echo profile_h(profile_time_ago($lastSeen)); ?></span><?php endif; ?>
-                        <?php if ($showDiscord && $discordId): ?><span><i class="fa-brands fa-discord"></i>Discord</span><?php endif; ?>
-                    </div>
-                    <?php endif; ?>
+
+                        <script>
+                            (() => {
+                                const audio = document.getElementById('profileAudio');
+                                if (audio) {
+                                    const profileUrl = document.body.dataset.profileUrl || window.location.pathname || 'global';
+                                    const volumeKey = 'cripsum.profile.audioVolume.' + profileUrl;
+                                    const defaultVolume = <?php echo $audioDefaultVolume; ?>;
+                                    const savedVolume = localStorage.getItem(volumeKey) !== null ?
+                                        Number(localStorage.getItem(volumeKey)) :
+                                        defaultVolume;
+                                    audio.volume = Math.min(Math.max(savedVolume, 0), 1);
+                                }
+                            })();
+                        </script>
+
+                        <?php if (!$hideMeta): ?>
+                            <div class="profile-small-meta">
+                                <?php if (!$showStats): ?>
+                                    <?php if ($isOnline): ?>
+                                        <span class="bio-pill bio-pill--live" style="margin-right: 0.4rem; padding: 0.2rem 0.5rem;"><span class="bio-dot"></span>online</span>
+                                    <?php elseif ($customStatus): ?>
+                                        <span class="bio-pill" style="margin-right: 0.4rem; padding: 0.2rem 0.5rem;"><i class="fa-solid fa-signal"></i><?php echo profile_h($customStatus); ?></span>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                                <span><i class="fa-solid fa-calendar"></i><?php echo date('d/m/Y', strtotime($profile['data_creazione'])); ?></span>
+                                <?php if (!$isOnline && $lastSeen): ?><span><i class="fa-solid fa-clock"></i><?php echo profile_h(profile_time_ago($lastSeen)); ?></span><?php endif; ?>
+                                <?php if ($showDiscord && $discordId): ?><span><i class="fa-brands fa-discord"></i>Discord</span><?php endif; ?>
+                            </div>
+                        <?php endif; ?>
                 </section>
             </div>
 
@@ -2140,16 +2148,16 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 
     <?php if ($hasMusic): ?>
         <div class="profile-floating-audio-btn-container position-<?php echo profile_h($audioBtnPosition); ?>"
-             style="position: fixed !important; z-index: 999999 !important; display: <?php echo (!$showAudioPlayer && ($showAudioBtn || ($bgUseVideoAudio && $isBgVideo))) ? 'flex' : 'none'; ?> !important; align-items: center !important; flex-direction: <?php echo (strpos($audioBtnPosition, 'left') !== false) ? 'row' : 'row-reverse'; ?> !important; <?php
-                 if ($audioBtnPosition === 'top-left') echo 'top: 24px !important; left: 24px !important;';
-                 elseif ($audioBtnPosition === 'top-right') echo 'top: 24px !important; right: 24px !important;';
-                 elseif ($audioBtnPosition === 'bottom-left') echo 'bottom: 24px !important; left: 24px !important;';
-                 else echo 'bottom: 24px !important; right: 24px !important;'; // bottom-right
-             ?>"
-             data-floating-audio
-             data-default-volume="<?php echo $audioDefaultVolume; ?>"
-             data-show-audio-btn="<?php echo $showAudioBtn ? '1' : '0'; ?>"
-             data-bg-use-video-audio="<?php echo $bgUseVideoAudio ? '1' : '0'; ?>">
+            style="position: fixed !important; z-index: 999999 !important; display: <?php echo (!$showAudioPlayer && ($showAudioBtn || ($bgUseVideoAudio && $isBgVideo))) ? 'flex' : 'none'; ?> !important; align-items: center !important; flex-direction: <?php echo (strpos($audioBtnPosition, 'left') !== false) ? 'row' : 'row-reverse'; ?> !important; <?php
+                                                                                                                                                                                                                                                                                                                                                                if ($audioBtnPosition === 'top-left') echo 'top: 24px !important; left: 24px !important;';
+                                                                                                                                                                                                                                                                                                                                                                elseif ($audioBtnPosition === 'top-right') echo 'top: 24px !important; right: 24px !important;';
+                                                                                                                                                                                                                                                                                                                                                                elseif ($audioBtnPosition === 'bottom-left') echo 'bottom: 24px !important; left: 24px !important;';
+                                                                                                                                                                                                                                                                                                                                                                else echo 'bottom: 24px !important; right: 24px !important;'; // bottom-right
+                                                                                                                                                                                                                                                                                                                                                                ?>"
+            data-floating-audio
+            data-default-volume="<?php echo $audioDefaultVolume; ?>"
+            data-show-audio-btn="<?php echo $showAudioBtn ? '1' : '0'; ?>"
+            data-bg-use-video-audio="<?php echo $bgUseVideoAudio ? '1' : '0'; ?>">
             <button class="profile-floating-audio-btn" type="button" aria-label="Mute/Unmute">
                 <i class="fa-solid fa-volume-high"></i>
             </button>
@@ -2210,7 +2218,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                 }
                             }
                         }
-                        
+
                         // Real-time floating audio button updates in preview
                         const showBtn = data.attributes['data-show-audio-btn'];
                         const useVideoAudio = data.attributes['data-bg-use-video-audio'];
@@ -2220,31 +2228,31 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                             const isBgVideo = !!document.getElementById('profileBgVideo');
                             const currentShowBtn = showBtn !== undefined ? showBtn : (body.getAttribute('data-show-audio-btn') || '1');
                             const currentUseVideoAudio = useVideoAudio !== undefined ? useVideoAudio : (body.getAttribute('data-bg-use-video-audio') || '0');
-                            
+
                             const shouldShowFloatingBtn = (currentShowBtn === '1' || (currentUseVideoAudio === '1' && isBgVideo));
-                            
+
                             const mainPlayer = document.querySelector('[data-audio-player]');
                             const isMainPlayerVisible = mainPlayer && mainPlayer.style.display !== 'none';
-                            
+
                             container.style.setProperty('display', (shouldShowFloatingBtn && !isMainPlayerVisible) ? 'flex' : 'none', 'important');
-                            
+
                             if (useVideoAudio !== undefined) {
                                 container.setAttribute('data-bg-use-video-audio', useVideoAudio);
                             }
                         }
-                            
-                            if (btnPos) {
-                                container.className = 'profile-floating-audio-btn-container position-' + btnPos;
-                                container.style.setProperty('position', 'fixed', 'important');
-                                container.style.setProperty('z-index', '999999', 'important');
-                                container.style.setProperty('transform', 'none', 'important');
-                                container.style.setProperty('flex-direction', btnPos.includes('left') ? 'row' : 'row-reverse', 'important');
-                                
-                                container.style.setProperty('top', btnPos.startsWith('top') ? '24px' : 'auto', 'important');
-                                container.style.setProperty('bottom', btnPos.startsWith('bottom') ? '24px' : 'auto', 'important');
-                                container.style.setProperty('left', btnPos.includes('left') ? '24px' : 'auto', 'important');
-                                container.style.setProperty('right', btnPos.includes('right') ? '24px' : 'auto', 'important');
-                            }
+
+                        if (btnPos) {
+                            container.className = 'profile-floating-audio-btn-container position-' + btnPos;
+                            container.style.setProperty('position', 'fixed', 'important');
+                            container.style.setProperty('z-index', '999999', 'important');
+                            container.style.setProperty('transform', 'none', 'important');
+                            container.style.setProperty('flex-direction', btnPos.includes('left') ? 'row' : 'row-reverse', 'important');
+
+                            container.style.setProperty('top', btnPos.startsWith('top') ? '24px' : 'auto', 'important');
+                            container.style.setProperty('bottom', btnPos.startsWith('bottom') ? '24px' : 'auto', 'important');
+                            container.style.setProperty('left', btnPos.includes('left') ? '24px' : 'auto', 'important');
+                            container.style.setProperty('right', btnPos.includes('right') ? '24px' : 'auto', 'important');
+                        }
                         if (window.initCursorEffects) {
                             window.initCursorEffects();
                         }
